@@ -1,0 +1,56 @@
+GPF Library
+by Arnaud Buchholz
+
+This are the private sources of the library,
+'internal' variables are substituted while generating the release version.
+
+please check http://gpf-js.blogspot.fr/
+
+
+Coding conventions:
+
+var
+	THIS_IS_GLOBAL_A_CONSTANT		= 0,
+	THIS_IS_ANOTHER_CONSTANT		= 1
+;
+var thisIsOneGlobalField;
+
+function globalMethod() {
+
+	//Use the following keywords to identify thread critical sections
+	//__begin__thread_safe__
+	thisIsOneGlobalField = 0;
+	//__end_thread_safe__
+
+	// One line for one debuggable instruction
+	if( condition )
+		action;
+	else if( anotherCondition ) {
+		action2;
+		action3;
+	} else
+		action3;
+
+}
+
+function Classname()
+{
+	this._privateMember;
+	this.method = function(){}
+	this.propertyHandler = function( value ) {
+		var result;
+		if( undefined !== value ) {
+			// GET
+		}
+		else {
+			// SET
+		}
+		return result;
+	}
+}
+
+/*
+	NEVER EVER USE:
+		with keyword
+		?: operator
+*/

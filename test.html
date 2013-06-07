@@ -1,0 +1,297 @@
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<title>GPF tester</title>
+		<style type="text/css">
+
+body
+{
+	font-size: 8pt;
+	font-family: Verdana, Courrier, Sans Serif;
+	background-color: white;
+	color: black;
+	background-image: url();
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+table th
+{
+	font-size: 10pt;
+	text-align: left;
+}
+
+table td
+{
+	font-size: 8pt;
+}
+
+td.ok { background-color: lightgreen; }
+td.ok a { color: darkgreen; text-decoration: none; }
+tr.ko td { background-color: orange; }
+tr.ko a { color: darkred; text-decoration: none; }
+td.fastest { background-color: lightgreen; }
+td.slowest { background-color: orange; }
+
+		</style>
+		<script language="javascript">
+
+var
+	doEstimatePerf = false,
+	release = false;
+
+/*
+	First step: load GPF
+		This is done dynamically to allow later loading of the release version
+*/
+function loadGPF()
+{
+	release = ( -1 < window.location.search.indexOf( "?release" )
+	          || -1 < window.location.search.indexOf( "&release" ) );
+
+	var head = document.getElementsByTagName("head")[0] || document.documentElement;
+	var script = document.createElement( "script" );
+
+	script.src = release ? "release.js" : "debug.js";
+	script.language = "javascript";
+	head.insertBefore( script, head.firstChild );
+	// Next step
+	window.setTimeout( waitForGPF, 100 );
+}
+
+/*
+	Second step: wait for GPF to be loaded
+*/
+function waitForGPF()
+{
+	if( !gpf.loaded() ) {
+
+		console.log( "GPF not loaded yet..." );
+		window.setTimeout( waitForGPF, 100 );
+		return;
+
+	} else if( release && !gpf.sources ) {
+
+		gpf.include( "sources.js" );
+		window.setTimeout( waitForGPF, 100 );
+		return;
+
+	} else {
+
+		console.log( "GPF loaded." );
+		// Next step
+		sources = gpf.sources().split( "," );
+		sourcesIdx = -1;
+		gpf.declareTests = declareTests;
+		window.setTimeout( loadAndTestSource, 100 );
+
+	}
+}
+
+/*
+	Third step: for each source, load the test packages
+*/
+var
+	sources,
+	sourcesIdx;
+
+function loadAndTestSource()
+{
+	++sourcesIdx;
+	if( sourcesIdx < sources.length )
+	{
+		if( sources[ sourcesIdx ] == "include" ) ++sourcesIdx;
+		gpf.include( "test/" + sources[ sourcesIdx ] + ".js" ).onload = loadAndTestSource;
+	}
+	else
+		// Next step: execute
+		window.setTimeout( executeTests, 0 );
+}
+
+var
+	tests = {},
+	testsNames = [];
+
+function declareTests( source_tests )
+{
+	var source = sources[ sourcesIdx ];
+	for( var component in source_tests )
+	{
+		var
+			functions = source_tests[ component ],
+			functions_idx,
+			name;
+		for( functions_idx in functions )
+		{
+			name = source + "/" + component + "/" + functions_idx;
+			tests[ name ] = functions[ functions_idx ];
+			testsNames.push( name );
+		}
+	}
+}
+
+/*
+	Fourth step: execut the test packages
+*/
+var
+	test_idx = -1;
+function executeTests()
+{
+	if( ++test_idx < testsNames.length )
+	{
+		var
+			row = document.getElementById( "results" ).appendChild( document.createElement( "tr" ) ),
+			testFunction = tests[ testsNames[ test_idx ] ],
+			result,
+			column,
+			link,
+			emptyPerfCount = 3,
+			perfTime,
+			perfLoops;
+		// First execution to verify if the function works
+		try
+		{
+			result = testFunction({});
+		}
+		catch( e )
+		{
+			result = false;
+		}
+		column = row.appendChild( document.createElement( "td" ) );
+		if( result )
+			column.className = "ok";
+		else
+			row.className = "ko";
+		link = column.appendChild( document.createElement( "a" ) );
+		link.setAttribute( "href", "javascript:report(" + test_idx +")" );
+		link.appendChild( document.createTextNode( "verify" ) );
+		// Name column
+		column = row.appendChild( document.createElement( "td" ) );
+		column.appendChild( document.createTextNode(  testsNames[ test_idx ] ) );
+		// Performance testing
+		if( doEstimatePerf && result )
+		{
+			perfLoops = 1000;
+			while( emptyPerfCount )
+			{
+				var perf = estimatePerf( testFunction, perfLoops );
+				row.appendChild( document.createElement( "td" ) ).innerHTML = perf;
+				--emptyPerfCount;
+				perfLoops *= 10;
+				if( perf > 100 ) break; // To avoid waiting too much time
+			}
+		}
+		while( 0 < emptyPerfCount )
+		{
+			row.appendChild( document.createElement( "td" ) ).innerHTML = "skipped";
+			--emptyPerfCount;
+		};
+		window.setTimeout( executeTests, 10 );
+	}
+}
+
+function estimatePerf( testFunction, loops ) // Results in seconds
+{
+	var start = new Date();
+	while( loops-- ) testFunction({});
+	return ( (new Date()) - start );
+}
+
+/*
+	Reporting of a test function: It executes and displays the test function and
+	collect information about its execution.  
+*/
+function report( idx )
+{
+	var
+		testFunction = tests[ testsNames[ idx ] ],
+		source,
+		msg = [],
+		result = {},
+		firstLine,
+		tabCount, idx;
+	// Trim source to remove useless information
+	source = new String( testFunction );
+	source = source.split( "\r\n" );
+	// Remove first and last line
+	source.shift();
+	source.pop();
+	firstLine = source[ 0 ];
+	// Remove tabs at the beginning of each line
+	tabCount = 0;
+	while( tabCount < firstLine.length && firstLine.charAt( tabCount ) == "\t" )
+		++tabCount;
+	for( idx in source )
+	{
+		source[ idx ] = source[ idx ].substr( tabCount );
+	}
+	msg = [ source.join( "\r\n" ) ];
+	try
+	{
+		testFunction( result );
+	}
+	catch( e )
+	{
+/*
+		if( e instanceof $Error )
+		{
+			msg.push( "*** $ERROR occured ***" );
+			do
+			{
+				msg.push( "[" + e.name + "] " + e.message );
+				e = e.sub ? e.sub() : 0;
+			}
+			while( e )
+		}
+		else
+*/
+		{
+			msg.push( "*** Exception occured ***", e.message );
+		}
+	}
+	msg.push( "\r\nFields verification:" );
+	try
+	{
+		for( idx in result )
+			msg.push( "\t" + idx + "= " + result[ idx ] /* $json( result[ idx ] ) */ );
+	}
+	catch( e )
+	{
+		msg.push( "\tERROR: " + e.message );
+	}
+	alert( msg.join("\r\n") );
+}
+
+		</script>
+	</head>
+	<body onload="loadGPF()">
+		<div id="placeholder" style="display: none;">
+			<!-- Place holder for HTML manipulations -->
+		</div>
+		<table cellpadding="2" border="1" width="100%">
+			<thead>
+				<th>Result</th>
+				<th width="90%">Label</th>
+				<th>ms&nbsp;<small>x</small>10<sup>3</sup></th>
+				<th>ms&nbsp;<small>x</small>10<sup>4</sup></th>
+				<th>ms&nbsp;<small>x</small>10<sup>5</sup></th>
+			</thead>
+			<tbody id="results">
+			</tbody>
+<!--
+
+	Will be used later
+
+			<tfoot style="display:none;">
+				<tr id="template">
+					<td>verify</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+			</tfoot>
+-->
+		</table>
+	</body>
+</html>
