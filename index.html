@@ -1,0 +1,98 @@
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<title>Welcome to GPF-js test environment</title>
+		<style type="text/css">
+
+body {
+	font-size: 10pt;
+	font-family: Verdana, Courrier, Sans Serif;
+	background-color: white;
+	color: black;
+	background-image: url();
+	background-repeat: no-repeat;
+	background-position: center;
+}
+		</style>
+		<script language="javascript">
+
+function ajax( url ) {
+	var gif = document.getElementById( "ajax" );
+	gif.style.display = "inline";
+	var xhttp;
+	if( window.XMLHttpRequest )
+		xhttp = new XMLHttpRequest();
+	else
+		xhttp = new ActiveXObject( "Microsoft.XMLHTTP" );
+	xhttp.open( "GET", url, false );
+	xhttp.send();
+	gif.style.display = "none";
+	return new String( xhttp.responseText );
+}
+
+var options;
+
+function readOptions() {
+
+	var result = ajax( "web/options.txt?read" );
+	console.log( "Options retreived from web/options.txt:\n" + result );
+	if( result == "node.js not detected" ) return false;
+	result = result.split( "\n" );
+	for( var idx in result ) {
+		var option = result[ idx ];
+		var optionPair = option.split( "=" );
+		var ctrl = document.getElementById( optionPair[ 0 ] );
+		if( ctrl ) {
+			if( "checkbox" === ctrl.type )
+				ctrl.checked = optionPair[ 1 ] === "1";
+		}
+	}
+	return true;
+
+}
+
+function writeOptions() {
+
+	var ctrlList = options.getElementsByTagName( "input" );
+	var values = [];
+	for( var idx = 0; idx < ctrlList.length; ++idx ) {
+		var ctrl = ctrlList.item( idx );
+		if( "checkbox" === ctrl.type ) {
+			if( ctrl.checked )
+				values.push( ctrl.id + "=" + 1 );
+			else
+				values.push( ctrl.id + "=" + 0 );
+		}
+	}
+	var result = ajax( "web/options.txt?write&" + values.join( "&" ) );
+	if( result != "OK" )
+		alert( "'" + result + "'" );
+}
+
+function onLoad() {
+	
+	options = document.getElementById( "options" );
+	if( readOptions() )
+		options.style.display = "block";
+}
+
+		</script>
+	</head>
+	<body onload="onLoad()">
+		<h1>Welcome to the GPF-js test environment</h1>
+		<ul>
+			<li>Blog: <a href="http://gpf-js.blogspot.fr/">http://gpf-js.blogspot.fr/</a></li>
+			<li>Test modules: <a href="test.html">DEBUG</a>&nbsp;<a href="test.html?release">RELEASE</a></li>
+			<li>Generate <a href="release.html">RELEASE</a></li>
+		</ul>
+		<div id="options" style="display: none;">
+			<h2>Web server options</h2>
+			<input type="checkbox" id="test_web">Test environment (can not be reverted if turned off)<br />
+			<input type="checkbox" id="trace">Trace accesses<br />
+			<input type="checkbox" id="delay">Generate random delays when getting pages<br />
+			<br />
+			<input type="button" value="Apply" id="apply" onclick="writeOptions()" />
+			<img src="web/ajax.gif" id="ajax" style="display: none;">
+		</div>
+	</body>
+</html>

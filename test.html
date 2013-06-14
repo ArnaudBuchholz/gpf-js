@@ -62,9 +62,9 @@ function loadGPF()
 /*
 	Second step: wait for GPF to be loaded
 */
-function waitForGPF()
-{
-	if( !gpf.loaded() ) {
+function waitForGPF() {
+
+	if( "undefined" === typeof gpf || !gpf.loaded() ) {
 
 		console.log( "GPF not loaded yet..." );
 		window.setTimeout( waitForGPF, 100 );

@@ -43,7 +43,7 @@ _debugInclude( "sources.js" );
 
 function waitForBootstrap() {
 
-	if( "undefined" == typeof gpf._sources && "undefined" == typeof gpf.include ) {
+	if( undefined === gpf.sources || undefined === gpf.include ) {
 		window.setTimeout( waitForBootstrap, 100 );
 		return;
 	}
