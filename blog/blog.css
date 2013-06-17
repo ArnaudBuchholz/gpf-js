@@ -1,0 +1,40 @@
+h2 {
+	font-size: 14pt;
+	color: blue;
+}
+
+h3 {
+	font-size: 12pt;
+	color: blue;
+}
+
+pre.code {
+
+	font-family: arial;
+	font-size: 12px;
+	border: 1px dashed #CCCCCC;
+	width:99%;
+	height: auto;
+	overflow: auto;
+	background: #f0f0f0;
+}
+
+code.javascript {
+}
+
+code.javascript span.comment {
+	color: darkgreen;
+	font-style: italic;
+}
+
+code.javascript span.keyword {
+	font-weight: bold;
+}
+
+code.javascript span.string {
+	color: darkred;
+}
+
+code.javascript span.symbol {
+	color: gray;
+}
