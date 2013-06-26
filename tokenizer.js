@@ -1,13 +1,5 @@
 /*
 	TODO:
-		- Improve symbol parsing:
-			https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Expressions_and_Operators
-			+ - * / % ++ -- = += -= *= /= %=
-			== === != !== > < >= <=
-			&& || !
-			<< >> >>> <<= >>= >>>= &= ^= |= | & ~
-			[] () . ,
-
 		- Improve string parsing:
 			carriage return in the middle of one (tokenizer/basic/3)
 */
@@ -64,7 +56,7 @@ var/*private*//*const*/
 	_TOKEN_STATE_LCOMMENT				= 8,
 	/* COMMENT, other comment */
 	_TOKEN_STATE_COMMENT				= 9,
-	_TOKEN_SYMBOL_LIST					= "(){}[]<>|&?,.;:!=+-*/%^",
+	_TOKEN_SYMBOL_LIST					= "(){}[]<>|&?,.;:!=+-*/%^~",
 	_TOKEN_STATE_SYMBOL					= 10,
 	_TOKEN_STATE_NUMBER					= 11,
 	_TOKEN_SPACE_LIST						= " \t\r\n",
@@ -74,11 +66,12 @@ var/*private*//*const*/
 	Error management:
 	- May have a central error message management, hence the variable BASE
 */
-	_TOKEN_ERROR_BASE_ 			= 0,
-	_TOKEN_ERROR_ABORT 			= 0,
+	_TOKEN_ERROR_BASE_			= 0,
+	_TOKEN_ERROR_ABORT			= 0,
 	_TOKEN_ERROR_UTOKEN			= 1,
-	_TOKEN_ERROR_USTRING 		= 2,
-	_TOKEN_ERROR_UCOMMENT 	= 3,
+	_TOKEN_ERROR_USTRING		= 2,
+	_TOKEN_ERROR_UCOMMENT		= 3,
+	_TOKEN_ERROR_STRINGESC	= 4
 
 /*__rewriter_replace_with_values:off*/
 
@@ -86,7 +79,8 @@ var/*private*//*const*/
 		"Parsing aborted",
 		"Unknown token",
 		"Unterminated string",
-		"Unterminated comment"
+		"Unterminated comment",
+		"Invalid or unsupported string escape"
 	],
 
 	_tokenizerInit = function() {
@@ -204,6 +198,33 @@ var/*private*//*const*/
 		} else ++context.nextColumn;
 	},
 
+	_isValidSymbol = function( chars, newChar ) {
+		var firstChar = chars[ 0 ];
+		if( 1 === chars.length ) {
+			if( -1 < "(){}[].,;:?".indexOf( firstChar ) )
+				return false;
+			else if( -1 < "!^~*/%".indexOf( firstChar ) )
+				return "=" === newChar;
+			else
+				return "=" === newChar || firstChar === newChar;
+		} else if( 2 === chars.length ) {
+			if( -1 < "+-|&".indexOf( firstChar ) )
+				return false;
+			else if( "<" === firstChar ) {
+				return "<" === chars[ 1 ] && "=" === newChar;
+			}
+			else if( -1 < "=!".indexOf( firstChar ) ) {
+				return "=" === newChar;
+			}
+			else if( ">" === firstChar ) {
+				return "=" !== chars[ 1 ] && ( "=" === newChar || ">" === newChar );
+			}
+		} else if( 3 === chars.length ) {
+			 return ">" === firstChar && "=" !== chars[ 2 ] && "=" === newChar;
+		}
+		return false;
+	},
+
 	_analyzeChar = function( context, newChar ) {
 
 		if( _TOKEN_STATE_IDENTIFIER === context.state ) {
@@ -219,7 +240,6 @@ var/*private*//*const*/
 			}
 
 		} else if( _TOKEN_STATE_NUMBER === context.state ) {
-
 			if( "0" > newChar || newChar > "9" ) {
 				if( _tokenizerCallback( context ) )
 					return true;
@@ -231,9 +251,18 @@ var/*private*//*const*/
 		} else if( _TOKEN_STATE_STRING1_CHAR === context.state
 		         || _TOKEN_STATE_STRING2_CHAR === context.state ) {
 			context.chars.push( newChar );
-			if( "\\" === newChar ) ++context.state; // _ESCAPE
-			else if( "\"" === newChar && _tokenizerCallback( context ) )
-				return true;
+			if( "\\" === newChar )
+				++context.state; // _ESCAPE
+			else if( "\n" === newChar ) {
+				if( _tokenizerCallback( context, _TOKEN_ERROR_USTRING ) )
+					return true;
+			} else if( _TOKEN_STATE_STRING1_CHAR === context.state && "\"" === newChar ) {
+				if( _tokenizerCallback( context ) )
+					return true;
+			} else if( _TOKEN_STATE_STRING2_CHAR === context.state && "'" === newChar ) {
+				if( _tokenizerCallback( context ) )
+					return true;
+			}
 			return false;
 
 		} else if( _TOKEN_STATE_STRING1_ESCAPE === context.state
@@ -242,14 +271,14 @@ var/*private*//*const*/
 			  || "r" === newChar
 			  || "n" === newChar
 			  || "t" === newChar
-			  // TODO: handle one or the other considering the current type
 			  || "\"" === newChar
 			  || "'" === newChar ) {
 				--context.state;
 				context.chars.push( newChar );
 				return false;
 			} else {
-				// Error?
+				if( _tokenizerCallback( context, _TOKEN_ERROR_STRINGESC ) )
+					return true;
 			}
 
 		} else if( _TOKEN_STATE_SLASH === context.state ) {
@@ -263,9 +292,15 @@ var/*private*//*const*/
 				return false;
 			} else {
 				context.state = _TOKEN_STATE_SYMBOL;
-				if( _tokenizerCallback( context ) )
-					return true;
+				if( _isValidSymbol( context.chars, newChar ) ) {
+					context.chars.push( newChar );
+					return false;
+				} else {
+					if( _tokenizerCallback( context ) )
+						return true;
+				}
 			}
+
 		} else if( _TOKEN_STATE_LCOMMENT === context.state ) {
 			context.chars.push( newChar );
 			if( "\n" === newChar ) if( _tokenizerCallback( context ) )
@@ -279,13 +314,27 @@ var/*private*//*const*/
 			return false;
 
 		} else if( _TOKEN_STATE_SPACE === context.state ) {
-
 			if( -1 < _TOKEN_SPACE_LIST.indexOf( newChar ) ) {
 				context.chars.push( newChar );
 				return false;
 			} else if( _tokenizerCallback( context ) )
 				return true;
 
+		} else if( _TOKEN_STATE_SYMBOL === context.state ) {
+			if( -1 < _TOKEN_SYMBOL_LIST.indexOf( newChar ) ) {
+				if( _isValidSymbol( context.chars, newChar ) ) {
+					context.chars.push( newChar );
+					return false;
+				} else {
+					if( _tokenizerCallback( context ) )
+						return true;
+				}
+
+			} else {
+
+				if( _tokenizerCallback( context ) )
+					return true;
+			}
 		}
 
 		if( _TOKEN_STATE_NONE == context.state ) {
@@ -304,14 +353,6 @@ var/*private*//*const*/
 				context.state = _TOKEN_STATE_SLASH;
 			else if( -1 < _TOKEN_SYMBOL_LIST.indexOf( newChar ) ) {
 				context.state = _TOKEN_STATE_SYMBOL;
-				if( _tokenizerCallback( context ) )
-					return true;
-				/* REMARK: did not find a nicer way to handle that!
-						In that particular case, I must update context.pos & context.column
-						as they will be incremented *after* this call
-				*/
-				++context.pos;
-				++context.column;
 			} else if( -1 < _TOKEN_SPACE_LIST.indexOf( newChar ) ) {
 				context.state = _TOKEN_STATE_SPACE;
 			} else if( _tokenizerCallback( context, _TOKEN_ERROR_UTOKEN ) )
@@ -324,17 +365,20 @@ var/*private*//*const*/
 	_tokenizerFinalize = function( context ) {
 		if( _TOKEN_STATE_IDENTIFIER === context.state
 			|| _TOKEN_STATE_NUMBER === context.state
-			|| _TOKEN_STATE_LCOMMENT === context.state ) _tokenizerCallback( context );
+			|| _TOKEN_STATE_LCOMMENT === context.state
+			|| _TOKEN_STATE_SYMBOL === context.state )
+			_tokenizerCallback( context );
 		else if( _TOKEN_STATE_SLASH === context.state ) {
 			context.state = _TOKEN_STATE_SYMBOL;
 			_tokenizerCallback( context );
 		} else if( _TOKEN_STATE_COMMENT === context.state )
-			_tokenizerCallback( context, _TOKEN_ERROR_USTRING );
+			_tokenizerCallback( context, _TOKEN_ERROR_UCOMMENT );
 		else if( _TOKEN_STATE_STRING1_CHAR === context.state
 					|| _TOKEN_STATE_STRING2_CHAR === context.state
 					|| _TOKEN_STATE_STRING1_ESCAPE === context.state
 					|| _TOKEN_STATE_STRING2_ESCAPE === context.state )
 			_tokenizerCallback( context, _TOKEN_ERROR_USTRING );
+		gpf.ASSERT( context.state === _TOKEN_STATE_NONE || context.state === _TOKEN_STATE_ERROR, "Unexpected non-final state" );
 	}
 ;
 

@@ -1,14 +1,38 @@
 (function(){ /* Begin of privacy scope */
 
 var
-	tokenizeCB = function( type, token, context ) {
+	_TOKEN_ALLOWED_SYMBOLS = (
+		  "* *="
+		+ " / /="
+		+ " % %="
+		+ " ^ ^="
+		+ " ~ ~="
+	
+		+ " + ++ +="
+		+ " - -- -="
+		+ " | || |="
+		+ " & && &="
+	
+		+ " = == ==="
+		+ " ! != !=="
+		+ " > >> >= >>= >>> >>>="
+		+ " < << <= <<="
+	
+		+ " [ ] ( ) { } . , ; ? :"
+	).split( " " ),
 
+	tokenizeCB = function( type, token, context ) {
+	
 		++this.count;
 		this.type = type;
 		this.token = token;
 		this.pos = context.pos;
 		this.line = context.line;
 		this.column = context.column;
+		if( this.tokens )
+			this.tokens.push( token );
+		if( this.throwOnError && "error" === type )
+			throw context;
 		return this.result;
 
 	},
@@ -57,7 +81,11 @@ gpf.declareTests( {
 			/* Basic parsing of a string with error */
 			ctx.count = 0;
 			ctx.result = false;
-			gpf.tokenize.apply( ctx, [ "\"1\n3\"", tokenizeCB ] );
+			ctx.throwOnError = true;
+			try {
+				gpf.tokenize.apply( ctx, [ "\"1\n3\"", tokenizeCB ] );
+			} catch( e ) {
+			}
 			return checkResult( ctx, 1, "error", undefined, 0, 0, 0 );
 		},
 
@@ -89,6 +117,29 @@ gpf.declareTests( {
 			gpf.tokenizeEx.apply( ctx, [ "urn", tokenizeCB, context ] );
 			gpf.tokenizeEx.apply( ctx, [ null, tokenizeCB, context ] );
 			return checkResult( ctx, 1, "keyword", "return", 0, 0, 0 );
+		}
+
+	],
+
+	"symbols": [
+
+		function( ctx ) {
+			/* Verify all known symbols */
+			ctx.count = 0;
+			ctx.result = false;
+			ctx.throwOnError = true;
+			gpf.tokenize.apply( ctx, [ _TOKEN_ALLOWED_SYMBOLS.join(" "), tokenizeCB ] );
+			return checkResult( ctx, 97, "symbol", ":", 128, 0, 128 );
+		},
+
+		function( ctx ) {
+			/* Check symbol parsing without separators */
+			ctx.count = 0;
+			ctx.result = false;
+			ctx.throwOnError = true;
+			// ctx.tokens = [];
+			gpf.tokenize.apply( ctx, [ "**=/[/=%%=^^=~~=+]+++=-(---=|)|||=&{&&&==}==.===!!=!==>,>>;>=>>=>>>?>>>=<:<<<=<<=", tokenizeCB ] );
+			return checkResult( ctx, 49, "symbol", "<<=", 78, 0, 78 );
 		}
 
 	]

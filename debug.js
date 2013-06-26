@@ -5,8 +5,10 @@ this[ "gpf" ] = {};
 
 // DEBUG specifics
 gpf.ASSERT = function( condition, message ) {
-	if( !condition )
+	if( !condition ) {
 		alert( "ASSERTION FAILED: " + message );
+		throw { message: "ASSERTION FAILED: " + message };
+	}
 };
 
 // Loaded handler
