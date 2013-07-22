@@ -268,7 +268,7 @@ gpf.extend( gpf, {
 		/*
 		 * base: string
 		 * text: string
-		 * [safepad]: string		 		 
+		 * [safepad]: string
 		 * return number
 
 			Decodes the 'text' using the specified 'base'.

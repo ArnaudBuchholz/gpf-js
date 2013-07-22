@@ -16,20 +16,34 @@ gpf.include = function( src ) {
 
 	var done = false;
 
+	function detach() {
+		// Handle memory leak in IE
+		script.onerror = script.onload = script.onreadystatechange = null;
+		if ( head && script.parentNode ) {
+			head.removeChild( script );
+		}
+	}
+
 	// Attach handlers for all browsers
 	script.onload = script.onreadystatechange = function() {
-		if ( !done && (!this.readyState ||
-			this.readyState === "loaded" || this.readyState === "complete") ) {
-
+		if( !done
+		    && ( !this.readyState|| this.readyState === "loaded"
+		         || this.readyState === "complete" ) ) {
 			done = true;
-			if( "function" == typeof result.onload )
+			if( "function" === typeof result.onload )
 				result.onload( src );
+			detach();
+		}
+	};
 
-			// Handle memory leak in IE
-			script.onload = script.onreadystatechange = null;
-			if ( head && script.parentNode ) {
-				head.removeChild( script );
-			}
+	// TODO: verify browsers compatibility
+	script.onerror = function() {
+		console.log( "gpf.include( \"" + src + "\" ): an error occured" );
+		if ( !done ) {
+			done = true;
+			if( "function" === typeof result.onerror )
+				result.onerror( src );
+			detach();
 		}
 	};
 

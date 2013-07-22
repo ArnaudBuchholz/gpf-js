@@ -1,8 +1,3 @@
-/*
-	TODO:
-		- Improve string parsing:
-			carriage return in the middle of one (tokenizer/basic/3)
-*/
 (function(){ /* Begin of privacy scope */
 
 /*__rewriter_replace_with_values:on*/
@@ -71,16 +66,16 @@ var/*private*//*const*/
 	_TOKEN_ERROR_UTOKEN			= 1,
 	_TOKEN_ERROR_USTRING		= 2,
 	_TOKEN_ERROR_UCOMMENT		= 3,
-	_TOKEN_ERROR_STRINGESC	= 4
+	_TOKEN_ERROR_STRINGESC	= 4,
 
 /*__rewriter_replace_with_values:off*/
 
 	_TOKEN_ERRORS = [
-		"Parsing aborted",
-		"Unknown token",
-		"Unterminated string",
-		"Unterminated comment",
-		"Invalid or unsupported string escape"
+		  "Parsing aborted"
+		, "Unknown token"
+		, "Unterminated string"
+		, "Unterminated comment"
+		, "Invalid or unsupported string escape"
 	],
 
 	_tokenizerInit = function() {
@@ -231,7 +226,7 @@ var/*private*//*const*/
 			if( ( "a" > newChar || newChar > "z" )
 			  && ( "A" > newChar || newChar > "Z" )
 			  && ( "0" > newChar || newChar > "9" )
-			  && "_" != newChar ) {
+			  && "_" !== newChar && "$" !== newChar ) {
 				if( _tokenizerCallback( context ) )
 					return true;
 			} else {
@@ -341,7 +336,7 @@ var/*private*//*const*/
 			context.chars = [ newChar ];
 			if( "a" <= newChar && newChar <= "z"
 			  || "A" <= newChar && newChar <= "Z"
-			  || "_" === newChar )
+			  || "_" === newChar || "$" === newChar )
 				context.state = _TOKEN_STATE_IDENTIFIER;
 			else if( "0" <= newChar && newChar <= "9" )
 				context.state = _TOKEN_STATE_NUMBER;
@@ -378,7 +373,9 @@ var/*private*//*const*/
 					|| _TOKEN_STATE_STRING1_ESCAPE === context.state
 					|| _TOKEN_STATE_STRING2_ESCAPE === context.state )
 			_tokenizerCallback( context, _TOKEN_ERROR_USTRING );
-		gpf.ASSERT( context.state === _TOKEN_STATE_NONE || context.state === _TOKEN_STATE_ERROR, "Unexpected non-final state" );
+		gpf.ASSERT( _TOKEN_STATE_NONE === context.state
+			|| _TOKEN_STATE_ERROR === context.state
+			|| _TOKEN_STATE_SPACE === context.state, "Unexpected non-final state" );
 	}
 ;
 

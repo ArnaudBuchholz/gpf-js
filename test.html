@@ -101,7 +101,10 @@ function loadAndTestSource()
 	if( sourcesIdx < sources.length )
 	{
 		if( sources[ sourcesIdx ] == "include" ) ++sourcesIdx;
-		gpf.include( "test/" + sources[ sourcesIdx ] + ".js" ).onload = loadAndTestSource;
+		var promise = gpf.include( "test/" + sources[ sourcesIdx ] + ".js" );
+		promise.onload = loadAndTestSource;
+		// Ignore error (avoids empty test files)
+		promise.onerror = loadAndTestSource;
 	}
 	else
 		// Next step: execute
