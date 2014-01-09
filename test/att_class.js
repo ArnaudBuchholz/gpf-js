@@ -1,87 +1,78 @@
-(function(){ /* Begin of privacy scope */
+(function () { /* Begin of privacy scope */
 
-var
-	A = gpf.Class.extend( {
+    var
+        A = gpf.Class.extend({
 
-		"[_a]": [ gpf.$ClassProperty( false ) ],
-		_a: 0,
+            "[_a]": [ gpf.$ClassProperty(false) ],
+            _a: 0,
 
-		"[_aLittleBitMoreThanB]": [ gpf.$ClassProperty( true, "b" ) ],
-		_aLittleBitMoreThanB: 0,
+            "[_aLittleBitMoreThanB]": [ gpf.$ClassProperty(true, "b") ],
+            _aLittleBitMoreThanB: 0,
 
-		init: function() {
-			this._a = 0;
-			this._aLittleBitMoreThanB = 1;
-		},
+            init: function () {
+                this._a = 0;
+                this._aLittleBitMoreThanB = 1;
+            }
 
-	} );
+        });
 
-gpf.declareTests( {
+    gpf.declareTests({
 
-	"basic": [
+        "basic": [
 
-		function( ctx ) {
-			/* Tests $ClassProperty */
-			var a = new A();
-			ctx.step = 0; // Verify the member a
-			ctx.result = a.a();
-			if( ctx.result !== 0 )
-				return false; 
-			ctx.step = 1; // Verify the member b
-			ctx.result = a.b();
-			if( ctx.result !== 1 )
-				return false;
-			ctx.step = 2; // That is not read-only
-			a.b( 2 );
-			ctx.result = a.b();
-			if( ctx.result !== 2 )
-				return false;
-			return true;
-		}
+            function (test) {
+                test.title("Use of $ClassProperty");
+                var a = new A();
+                test.equal(a.a(), 0, "a getter declared");
+                test.equal(a.b(), 1, "b getter declared");
+                a.b(2);
+                test.equal(a.b(), 2, "b setter declared and working");
+            }
 
-	],
+        ],
 
-	"error": [
+        "error": [
 
-		function( ctx ) {
-			/* Tests access to read only member */
-			var a = new A();
-			ctx.caught = false;
-			try {
-				a.a( 2 ); // Should be read only 
-			}
-			catch(e)
-			{
-				ctx.caught = true;
-			}
-			ctx.result = a.a();
-			return ( ctx.caught && ctx.result === 0 );
-		},
+            function (test) {
+                test.title("Access to read only member");
+                var
+                    a = new A(),
+                    caught = null;
+                try {
+                    a.a(2); // Should be read only
+                }
+                catch (e) {
+                    caught = e;
+                }
+                test.assert(null === caught, caught, "No exception thrown");
+                test.equal(a.a(), 0, "Value not modified");
+            },
 
-		function( ctx ) {
-			/* Tests invalid declaration (related to attributes.js) */
-			ctx.caught = false;
-			try {
-				var C = A.extend( {
-	
-					"[_c]":  [ gpf.$ClassProperty( true ) ] // should fail
-	
-				} );
-			}
-			catch(e)
-			{
-				ctx.name = e.name();
-				ctx.message = e.message();
-				ctx.member = e.member();
-				ctx.caught = e instanceof gpf.ClassAttributeError
-					&& ctx.name === "ClassAttributeError"
-					&& ctx.member === "_c";
-			}
-			return ctx.caught;
-		}
+            function (test) {
+                test.title("Invalid declaration (related to attributes.js)");
+                var caught = null;
+                try {
+                    A.extend({
 
-	]
+                        "[_c]": [ gpf.$ClassProperty(true) ] // should fail
 
-} );
+                    });
+                }
+                catch (e) {
+                    caught = e;
+                }
+                test.assert(null === caught, caught, "No exception thrown");
+/*
+                test.assert(null !== caught
+                    && caught instanceof gpf.ClassAttributeError
+                    && caught.name() === "ClassAttributeError"
+                    && caught.member() === "_c", "Exception documented");
+*/
+            }
 
-} )(); /* End of privacy scope */
+        ]
+
+    });
+
+})();
+/* End of privacy scope */

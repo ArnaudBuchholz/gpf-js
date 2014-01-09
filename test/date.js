@@ -1,43 +1,44 @@
-(function(){ /* Begin of privacy scope */
+(function () { /* Begin of privacy scope */
 
-var
-	_refDate = new Date( 1975, 3, 26, 12, 14, 26 ),
-	_refDateL = "1975-04-26 12:14:26",
-	_refDateS = "1975-04-26"
-	
+    var
+        _refDate = new Date(1975, 3, 26, 12, 14, 26),
+        _refDateL = "1975-04-26 12:14:26",
+        _refDateS = "1975-04-26";
 
-gpf.declareTests( {
 
-	"dateToComparableFormat": [
+    gpf.declareTests({
 
-		function( ctx ) {
-			ctx.result = gpf.dateToComparableFormat( _refDate );
-			return ctx.result === _refDateL;
-		},
+        "dateToComparableFormat": [
 
-		function( ctx ) {
-			ctx.result = gpf.dateToComparableFormat( _refDate, false );
-			return ctx.result === _refDateS;
-		}
+            function (test) {
+                test.equal(gpf.dateToComparableFormat(_refDate), _refDateL,
+                    "OK");
+            },
 
-	],
+            function (test) {
+                test.equal(gpf.dateToComparableFormat(_refDate, false),
+                    _refDateS, "OK");
+            }
 
-	"dateFromComparableFormat": [
+        ],
 
-		function( ctx ) {
-			ctx.date = gpf.dateFromComparableFormat( _refDateL );
-			ctx.result = gpf.dateToComparableFormat( ctx.date );
-			return ctx.result === _refDateL;
-		},
+        "dateFromComparableFormat": [
 
-		function( ctx ) {
-			ctx.date = gpf.dateFromComparableFormat( _refDateS );
-			ctx.result = gpf.dateToComparableFormat( ctx.date, false );
-			return ctx.result === _refDateS;
-		}
+            function (test) {
+                var date = gpf.dateFromComparableFormat(_refDateL);
+                test.equal(gpf.dateToComparableFormat(date),
+                    _refDateL, "OK");
+            },
 
-	]
+            function (test) {
+                var date = gpf.dateFromComparableFormat(_refDateS);
+                test.equal(gpf.dateToComparableFormat(date, false),
+                    _refDateS, "OK");
+            }
 
-} );
+        ]
 
-} )(); /* End of privacy scope */
+    });
+
+})();
+/* End of privacy scope */

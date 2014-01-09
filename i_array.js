@@ -1,84 +1,88 @@
-(function(){ /* Begin of privacy scope */
+(function () { /* Begin of privacy scope */
+    /*global document,window,console*/
+    /*global process,require,exports,global*/
+    /*global gpf*/
+    /*jslint continue: true, nomen: true, plusplus: true*/
+    "use strict";
 
-gpf.IReadOnlyArray = gpf.Interface.extend( {
+    gpf.interfaces.IReadOnlyArray = gpf.interfaces.Interface.extend({
 
-	length: function() {
-		/*
-		 *
+        /**
+         * Return the number of items in the array
+         * @returns {number}
+         */
+        length: function () {
+            return 0;
+        },
 
-		 	Return the number of items in the array.
-		*/
-		return false;
-	},
+        /**
+         * Return the item inside the array (idx is 0-based)
+         *
+         * @param {number} idx index
+         * @returns {*}
+         */
+        get: function (idx) {
+            gpf.interfaces.ignoreParameter(idx);
+            return undefined;
+        }
 
-	get: function( idx ) {
-		/*
-		 * idx: number
-		 
-			Return the item inside the array which index is 'idx' (0-based) 
-		*/
-		return true;
-	}
+    });
 
-} );
+    gpf.interfaces.IArray = gpf.interfaces.IReadOnlyArray.extend({
 
-gpf.IArray = gpf.IReadOnlyArray.extend( {
+        /**
+         * Set the item inside the array (idx is 0-based)
+         * Return the value that was previously set (or undefined)
+         *
+         * @param {number} idx index
+         * @param {*} value
+         * @returns {*}
+         */
+        set: function (idx, value) {
+            gpf.interfaces.ignoreParameter(idx);
+            gpf.interfaces.ignoreParameter((value);
+            return undefined;
+        }
 
-	set: function( idx, value ) {
-		/*
-		 * idx: number
-		 * value: any
-		 
-			Set the item inside the array which index is 'idx' (0-based).
-			Return the value that was previously set.
-		*/
-	}
+    });
 
-} );
+    gpf.attributes.ClassArrayInterfaceAttribute =
+        gpf.attributes.ClassAttribute.extend({
 
-gpf.extend( gpf, {
+        "[Class]": [gpf.$Alias("ClassIArray")],
 
-	addReadOnlyArrayMethods: function( objClass, arrayMember ) {
-		/*
-		 * objClass: class
-		 * arrayMember: string
+        _writeAllowed: false,
 
-			Add to the class 'objClass' the necessary methods to implemente the
-			IReadOnlyArray interface. These methods are based on the array member
-			'arrayMember'.
-		*/
-		gpf.ASSERT( "function" === typeof objClass );
-		var objPrototype = objClass.prototype;
-		gpf.addAttributes( objPrototype, "Class",
-			[ gpf.$InterfaceImplement( gpf.IReadOnlyArray ) ] );
-		objPrototype.length = new Function( "return this."
-			+ arrayMember + ".length;" );
-		objPrototype.get = new Function( "return this."
-			+ arrayMember + "[arguments[0]];" );
-	},
+        init: function (writeAllowed) {
+            if (writeAllowed) {
+                this._writeAllowed = true;
+            }
+        },
 
-	addArrayMethods: function( objClass, arrayMember ) {
-		/*
-		 * objClass: class
-		 * arrayMember: string
+        alterPrototype: function (objPrototype) {
+            var
+                implementedInterface;
+            if (this._writeAllowed) {
+                implementedInterface = gpf.interfaces.IArray;
+            } else {
+                implementedInterface = gpf.interfaces.IReadOnlyArray;
+            }
+            gpf.attributes.add(objPrototype.constructor, "Class",
+                [gpf.$InterfaceImplement(implementedInterface)]);
+            objPrototype.length = new Function("return this."
+                + this._member + ".length;");
+            objPrototype.get = new Function("return this."
+                + this._member + "[arguments[0]];");
+            if (this._writeAllowed) {
+                objPrototype.set = new Function("var i=arguments[0],"
+                + "v=this." + this._name + "[i];this."
+                + this._member + "[i]=arguments[1];return v;");
+            }
+        }
 
-			Add to the class 'objClass' the necessary methods to implemente the
-			IArray interface. These methods are based on the array member
-			'arrayMember'.
-		*/
-		gpf.ASSERT( "function" === typeof objClass );
-		var objPrototype = objClass.prototype;
-		gpf.addAttributes( objPrototype, "Class",
-			[ gpf.$InterfaceImplement( gpf.IArray ) ] );
-		gpf.addReadOnlyArrayMethods( objClass, arrayMember );
-		objClass.prototype.set = new Function( "var i=arguments[0],v=this."
-			+ arrayMember + "[i];this."
-			+ arrayMember + "[i]=arguments[1];return v;" );
-	}
+    });
 
-} );
+    gpf.attributes.add(gpf.attributes.Array, "_array",
+        [gpf.$ClassIArray(false)]);
 
-// Process some of the existing interfaces
-gpf.addReadOnlyArrayMethods( gpf.AttributesArray, "_array" );
-
-})(); /* End of privacy scope */
+}()); /* End of privacy scope */

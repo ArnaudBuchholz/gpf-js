@@ -1,39 +1,40 @@
-(function(){ /* Begin of privacy scope */
+(function () { /* Begin of privacy scope */
 
-gpf.declareTests( {
+    gpf.declareTests({
 
-	"replaceEx": [
+        "replaceEx": [
 
-		function( ctx ) {
-			ctx.result = gpf.replaceEx( "abc", {
-				"a": "abc",
-				"b": "dc",
-				"c": ""
-			} );
-			return ctx.result === "add";
-		}
+            function (test) {
+                test.equal(gpf.replaceEx("abc", {
+                    "a": "abc",
+                    "b": "dc",
+                    "c": ""
+                }), "add", "OK");
+            }
 
-	],
+        ],
 
-	"escapeFor": [
+        "escapeFor": [
 
-		function( ctx ) {
-			ctx.result = gpf.escapeFor( "abc\r\ndef", "jscript" );
-			return ctx.result === "\"abc\\r\\ndef\"";
-		},
+            function (test) {
+                test.equal(gpf.escapeFor("abc\r\ndef", "jscript"),
+                    "\"abc\\r\\ndef\"", "OK");
+            },
 
-		function( ctx ) {
-			ctx.result = gpf.escapeFor( "<a&b>", "xml" );
-			return ctx.result === "&lt;a&amp;b&gt;";
-		},
+            function (test) {
+                test.equal(gpf.escapeFor("<a&b>", "xml"),
+                    "&lt;a&amp;b&gt;", "OK");
+            },
 
-		function( ctx ) {
-			ctx.result = gpf.escapeFor( "<a&b:éèêáà>", "html" );
-			return ctx.result === "&lt;a&amp;b:&eacute;&egrave;&ecirc;&aacute;&agrave;&gt;";
-		}
-	]
+            function (test) {
+                test.equal(gpf.escapeFor("<a&b:éèêáà>", "html"),
+                "&lt;a&amp;b:&eacute;&egrave;&ecirc;&aacute;&agrave;&gt;",
+                    "OK");
+            }
+        ]
 
 
-} );
+    });
 
-} )(); /* End of privacy scope */
+})();
+/* End of privacy scope */

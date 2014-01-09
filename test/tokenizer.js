@@ -1,149 +1,154 @@
-(function(){ /* Begin of privacy scope */
+(function () { /* Begin of privacy scope */
 
-var
-	_TOKEN_ALLOWED_SYMBOLS = (
-		  "* *="
-		+ " / /="
-		+ " % %="
-		+ " ^ ^="
-		+ " ~ ~="
-	
-		+ " + ++ +="
-		+ " - -- -="
-		+ " | || |="
-		+ " & && &="
-	
-		+ " = == ==="
-		+ " ! != !=="
-		+ " > >> >= >>= >>> >>>="
-		+ " < << <= <<="
-	
-		+ " [ ] ( ) { } . , ; ? :"
-	).split( " " ),
+    var
+        _TOKEN_ALLOWED_SYMBOLS = (
+            "* *="
+                + " / /="
+                + " % %="
+                + " ^ ^="
+                + " ~ ~="
 
-	tokenizeCB = function( type, token, context ) {
-	
-		++this.count;
-		this.type = type;
-		this.token = token;
-		this.pos = context.pos;
-		this.line = context.line;
-		this.column = context.column;
-		if( this.tokens )
-			this.tokens.push( token );
-		if( this.throwOnError && "error" === type )
-			throw context;
-		return this.result;
+                + " + ++ +="
+                + " - -- -="
+                + " | || |="
+                + " & && &="
 
-	},
+                + " = == ==="
+                + " ! != !=="
+                + " > >> >= >>= >>> >>>="
+                + " < << <= <<="
 
-	checkResult = function( ctx, count, type, token, pos, line, column ) {
+                + " [ ] ( ) { } . , ; ? :"
+            ).split(" "),
 
-		return count === ctx.count
-					&& type === ctx.type
-					&& ( undefined === token || token === ctx.token )
-					&& pos === ctx.pos
-					&& line === ctx.line
-					&& column === ctx.column;
+        callback = function (event) {
+            if (!this.count) {
+                this.count = 1;
+            } else {
+                ++this.count;
+            }
+            this.type = event.type();
+            this.token = event.get("token");
+            this.pos = event.get("pos");
+            this.line = event.get("line");
+            this.column = event.get("column");
+            if (this.tokens)
+                this.tokens.push(this.token);
+            if ("error" === event.type()) {
+                this.log('tokenizer error: ' + event.get('code') + ' ' +
+                    event.get('message'));
+            }
+            if (this.stopAt && this.stopAt === this.count) {
+                event.preventDefault(); // Should cancel
+            }
+        },
 
-	}
-;
+        check = function (test, expectedCount, expectedType, expectedToken,
+            expectedPos, expectedLine, expectedColumn, message) {
+                var result =
+                    expectedCount === test.count
+                    && expectedType === test.type
+                    && ( undefined === expectedToken
+                        || expectedToken === test.token )
+                    && expectedPos === test.pos
+                    && expectedLine === test.line
+                    && expectedColumn === test.column;
+                test.assert(result, test, message);
+            }
+        ;
 
-gpf.declareTests( {
+    gpf.declareTests({
 
-	"basic": [
+        "basic": [
 
-		function( ctx ) {
-			/* Basic parsing of a keyword */
-			ctx.count = 0;
-			ctx.result = false;
-			gpf.tokenize.apply( ctx, [ "return", tokenizeCB ] );
-			return checkResult( ctx, 1, "keyword", "return", 0, 0, 0 );
-		},
+            function (test) {
+                test.title("Keyword");
+                gpf.js.tokenize.apply(test, ["return", callback]);
+                check(test, 1, "keyword", "return", 0, 0, 0, "Keyword found");
+            },
 
-		function( ctx ) {
-			/* Basic parsing of an identifier with spacing */
-			ctx.count = 0;
-			ctx.result = false;
-			gpf.tokenize.apply( ctx, [ "\t\r\n _identifier92", tokenizeCB ] );
-			return checkResult( ctx, 2, "identifier", "_identifier92", 4, 1, 1 );
-		},
+            function (test) {
+                test.title("Identifier with formatting");
+                test.count = 0;
+                gpf.js.tokenize.apply(test, ["\t\r\n _identifier92", callback]);
+                check(test, 2, "identifier", "_identifier92", 4, 1, 1,
+                    "Identifier found");
+            },
 
-		function( ctx ) {
-			/* Basic parsing of a string with spacing */
-			ctx.count = 0;
-			ctx.result = false;
-			gpf.tokenize.apply( ctx, [ "\n\n\t\t\"1\\\"3\"", tokenizeCB ] );
-			return checkResult( ctx, 2, "string", "\"1\\\"3\"", 4, 2, 2 );
-		},
+            function (test) {
+                test.title("String with spacing");
+                test.log("\n\n\t\t\"1\\\"3\"");
+                gpf.js.tokenize.apply(test, ["\n\n\t\t\"1\\\"3\"", callback]);
+                check(test, 2, "string", "\"1\\\"3\"", 4, 2, 2, "String found");
+            },
 
-		function( ctx ) {
-			/* Basic parsing of a string with error */
-			ctx.count = 0;
-			ctx.result = false;
-			ctx.throwOnError = true;
-			try {
-				gpf.tokenize.apply( ctx, [ "\"1\n3\"", tokenizeCB ] );
-			} catch( e ) {
-			}
-			return checkResult( ctx, 1, "error", undefined, 0, 0, 0 );
-		},
+            function (test) {
+                test.title("Parsing of a string with error");
+                gpf.js.tokenize.apply(test, ["\"1\n3\"", callback]);
+                check(test, 1, "error", undefined, 0, 0, 0,
+                    "String error found");
+            },
 
-		function( ctx ) {
-			/* Basic error ignore */
-			ctx.count = 0;
-			ctx.result = false;
-			gpf.tokenize.apply( ctx, [ "\"1", tokenizeCB ] );
-			return checkResult( ctx, 1, "error", undefined, 0, 0, 0 );
-		},
+            function (test) {
+                test.title("Error ignore");
+                gpf.js.tokenize.apply(test, ["\"1", callback]);
+                check(test, 1, "error", undefined, 0, 0, 0,
+                    "String error found");
+            },
 
-		function( ctx ) {
-			/* Force error */
-			ctx.count = 0;
-			ctx.result = true;
-			gpf.tokenize.apply( ctx, [ "return this", tokenizeCB ] );
-			return checkResult( ctx, 2, "error", undefined, 0, 0, 0 );
-		},
+            function (test) {
+                test.title("Error forcing");
+                test.stopAt = 1;
+                gpf.js.tokenize.apply(test, [ "return this", callback ]);
+                check(test, 2, "error", undefined, 0, 0, 0, "Error generated");
+            }
 
-	],
+        ],
 
-	"advanced": [
+        "advanced": [
 
-		function( ctx ) {
-			/* Parsing of a keyword in several parts */
-			ctx.count = 0;
-			ctx.result = false;
-			var context = gpf.tokenizeEx.apply( ctx, [ "ret", tokenizeCB ] );
-			gpf.tokenizeEx.apply( ctx, [ "urn", tokenizeCB, context ] );
-			gpf.tokenizeEx.apply( ctx, [ null, tokenizeCB, context ] );
-			return checkResult( ctx, 1, "keyword", "return", 0, 0, 0 );
-		}
+            function (test) {
+                test.title("Parsing of a keyword in several parts");
+                var context = gpf.js.tokenizeEx.apply(test, ["ret", callback]);
+                gpf.js.tokenizeEx.apply(test, ["urn", callback, context]);
+                gpf.js.tokenizeEx.apply(test, [null, callback, context]);
+                check(test, 1, "keyword", "return", 0, 0, 0,
+                    "Chunks consolidated");
+            }
 
-	],
+        ],
 
-	"symbols": [
+        "symbols": [
 
-		function( ctx ) {
-			/* Verify all known symbols */
-			ctx.count = 0;
-			ctx.result = false;
-			ctx.throwOnError = true;
-			gpf.tokenize.apply( ctx, [ _TOKEN_ALLOWED_SYMBOLS.join(" "), tokenizeCB ] );
-			return checkResult( ctx, 97, "symbol", ":", 128, 0, 128 );
-		},
+            function (test) {
+                test.title("Parsing of a keyword in several parts");
+                gpf.js.tokenize.apply(test, [_TOKEN_ALLOWED_SYMBOLS.join(" "),
+                    callback]);
+                check(test, 97, "symbol", ":", 128, 0, 128,
+                    "All symbols recognized");
+            },
 
-		function( ctx ) {
-			/* Check symbol parsing without separators */
-			ctx.count = 0;
-			ctx.result = false;
-			ctx.throwOnError = true;
-			// ctx.tokens = [];
-			gpf.tokenize.apply( ctx, [ "**=/[/=%%=^^=~~=+]+++=-(---=|)|||=&{&&&==}==.===!!=!==>,>>;>=>>=>>>?>>>=<:<<<=<<=", tokenizeCB ] );
-			return checkResult( ctx, 49, "symbol", "<<=", 78, 0, 78 );
-		}
+            function (test) {
+                test.title("Check symbol parsing without separators");
+                test.tokens = [];
+                var context = gpf.js.tokenizeEx.apply(test, ["**=/", callback]);
+                gpf.js.tokenizeEx.apply(test, ["[/=%%=^^=", callback, context]);
+                gpf.js.tokenizeEx.apply(test, ["~~=+]+++=", callback, context]);
+                gpf.js.tokenizeEx.apply(test, ["-(---=|)|", callback, context]);
+                gpf.js.tokenizeEx.apply(test, ["||=&{&&&=", callback, context]);
+                gpf.js.tokenizeEx.apply(test, ["=}==.===!", callback, context]);
+                gpf.js.tokenizeEx.apply(test, ["!=!==>,>>", callback, context]);
+                gpf.js.tokenizeEx.apply(test, [";>=>>=>>>", callback, context]);
+                gpf.js.tokenizeEx.apply(test, ["?>>>=<:<<", callback, context]);
+                gpf.js.tokenizeEx.apply(test, ["<=<<=", callback, context]);
+                gpf.js.tokenizeEx.apply(test, [null, callback, context]);
+                check(test, 49, "symbol", "<<=", 78, 0, 78,
+                    "All symbols recognized");
+            }
 
-	]
+        ]
 
-} );
+    });
 
-})(); /* End of privacy scope */
+})();
+/* End of privacy scope */
