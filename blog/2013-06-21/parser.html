@@ -1,0 +1,289 @@
+<html>
+<head>
+<script language="javascript">
+
+var state = 0; // Initial state
+var buffer = [];
+var _TOKEN_SYMBOL_LIST = "(){}[]<>|&?,.;:!=+-*/%^~";
+var _TOKEN_ALLOWED_SYMBOLS = (
+		  "* *="
+		+ " / /="
+		+ " % %="
+		+ " ^ ^="
+		+ " ~ ~="
+	
+		+ " + ++ +="
+		+ " - -- -="
+		+ " | || |="
+		+ " & && &="
+	
+		+ " = == ==="
+		+ " ! != !=="
+		+ " > >> >= >>= >>> >>>="
+		+ " < << <= <<="
+	
+		+ " [ ] ( ) { } . , ; ? :"
+	).split( " " );
+
+/*
+		* *=
+		/ /=
+		% %=
+		^ ^=
+		~ ~=
+	
+		+ ++ +=
+		- -- -=
+		| || |=
+		& && &=
+	
+		= == ===
+		! != !==
+		> >> >= >>= >>> >>>=
+		< << <= <<=
+	
+		[ ] ( ) . , ; ? :
+
+			re-ordered into
+
+	Because each symbol starts a valid token (the only exception is ^=),
+	then the priority is to check if the next symbol concatenates to the current
+	list
+*/
+
+function filterNumbersAndSymbolsOutput( type, token ) {
+	alert( type + ": " + token );
+}
+
+function filterNumbersAndSymbolsStateChange( value ) {
+	var span = document.createElement( "span" );
+	span.style = "color: red;";
+	span.innerHTML = "(" + value + ")";
+	document.getElementById( "filterNumbersAndSymbols_debug" ).appendChild( span );
+	state = value;
+}
+
+function filterNumbersAndSymbolsIsValidSymbol_0( chars, newChar ) {
+	var token = chars.join("") + newChar;
+	for( var idx = 0; idx < _TOKEN_ALLOWED_SYMBOLS.length; ++idx )
+		if( _TOKEN_ALLOWED_SYMBOLS[ idx ] === token ) return true;
+	return false;
+}
+
+var filterNumbersAndSymbolsIsValidSymbol_1 = (function(){
+	
+	var
+		src = [],
+		idx;
+	for( idx = 0; idx < _TOKEN_ALLOWED_SYMBOLS.length; ++idx )
+		src.push( "\"" + _TOKEN_ALLOWED_SYMBOLS[ idx ] + "\" === token" );
+	return new Function( "var token = arguments[0].join(\"\") + arguments[1]; return " + src.join( "||" )+ ";" );
+
+})();
+
+function filterNumbersAndSymbolsIsValidSymbol_2() {
+var token = arguments[0].join("") + arguments[1]; return "*" === token||"*=" === token||"/" === token||"/=" === token||"%" === token||"%=" === token||"^" === token||"^=" === token||"~" === token||"~=" === token||"+" === token||"++" === token||"+=" === token||"-" === token||"--" === token||"-=" === token||"|" === token||"||" === token||"|=" === token||"&" === token||"&&" === token||"&=" === token||"=" === token||"==" === token||"===" === token||"!" === token||"!=" === token||"!==" === token||">" === token||">>" === token||">=" === token||">>=" === token||">>>" === token||">>>=" === token||"<" === token||"<<" === token||"<=" === token||"<<=" === token||"[" === token||"]" === token||"(" === token||")" === token||"." === token||"," === token||";" === token||"?" === token||":" === token;
+}
+
+function filterNumbersAndSymbolsIsValidSymbol_3( chars, newChar ) {
+
+	var firstChar = chars[ 0 ];
+	
+	if( 1 === chars.length ) {
+
+		if( -1 < "(){}[].,;:?".indexOf( firstChar ) )
+			return false;
+		else if( -1 < "!^~*/%".indexOf( firstChar ) )
+			return "=" === newChar;
+		else
+			return "=" === newChar || firstChar === newChar;
+
+	} else if( 2 === chars.length ) {
+
+		if( -1 < "+-|&".indexOf( firstChar ) )
+			return false;
+		else if( "<" === firstChar ) {
+			return "<" === chars[ 1 ] && "=" === newChar;
+		}
+		else if( -1 < "=!".indexOf( firstChar ) ) {
+			return "=" === newChar;
+		}
+		else if( ">" === firstChar ) {
+			return "=" !== chars[ 1 ] && ( "=" === newChar || ">" === newChar );
+		}
+
+	} else if( 3 === chars.length ) {
+
+		 return ">" === firstChar && "=" !== chars[ 2 ] && "=" === newChar;
+
+	}
+
+	return false;
+}
+
+function filterNumbersAndSymbols( input ) {
+	var debug = document.getElementById( "filterNumbersAndSymbols_debug" );
+	debug.innerHTML ="";
+	filterNumbersAndSymbolsStateChange( 0 );
+	var idx, oneChar;
+	for( idx = 0; idx < input.length; ++idx ) {
+		// Read one char from the input
+		oneChar = input.charAt( idx );
+
+		debug.appendChild( document.createTextNode( oneChar ) );
+
+		if( 0 === state ) {
+
+			// Check if a digit
+			if( 0 <= oneChar && oneChar <= "9" ) {
+
+				buffer = [ oneChar ];
+				filterNumbersAndSymbolsStateChange( 1 );
+
+			// Check if a symbol
+			} else if( -1 < _TOKEN_SYMBOL_LIST.indexOf( oneChar ) ) {
+
+				buffer = [ oneChar ];
+				filterNumbersAndSymbolsStateChange( 2 );
+
+			} // else ignore and remain in state 0
+
+		} else if( 1 === state ) {
+
+			// Check if a digit
+			if( 0 <= oneChar && oneChar <= "9" ) {
+
+				// Add to the collected digits
+				buffer.push( oneChar );
+
+			} else {
+
+				// Digits over, output the result
+				filterNumbersAndSymbolsOutput( "number", buffer.join( "" ) );
+
+				if( -1 < _TOKEN_SYMBOL_LIST.indexOf( oneChar ) ) {
+		
+					buffer = [ oneChar ];
+					filterNumbersAndSymbolsStateChange( 2 );
+		
+				} else {
+
+					// go back to state 0
+					filterNumbersAndSymbolsStateChange( 0 );
+
+				}
+			}
+
+		} else if( 2 === state ) {
+
+			if(  -1 < _TOKEN_SYMBOL_LIST.indexOf( oneChar ) ) {
+
+				if( filterNumbersAndSymbolsIsValidSymbol_3( buffer, oneChar ) ) {
+
+					buffer.push( oneChar );
+
+				} else {
+
+					filterNumbersAndSymbolsOutput( "symbol", buffer.join("") );
+					filterNumbersAndSymbolsStateChange( 2 );
+					buffer = [ oneChar ];
+
+				}
+
+			} else {
+
+				// Symbol over, output the result
+				filterNumbersAndSymbolsOutput( "symbol", buffer.join( "" ) );
+
+				if( 0 <= oneChar && oneChar <= "9" ) {
+	
+					buffer = [ oneChar ];
+					filterNumbersAndSymbolsStateChange( 1 );
+		
+				} else {
+
+					// go back to state 0
+					filterNumbersAndSymbolsStateChange( 0 );
+
+				}
+			}
+		}
+	}
+	// Finalize token
+	if( 1 === state )
+		filterNumbersAndSymbolsOutput( "number", buffer.join( "" ) );
+	else if( 2 === state )
+		filterNumbersAndSymbolsOutput( "symbol", buffer.join( "" ) );
+}
+
+function filterNumbersAndSymbolsDumpAllValidSymbols( estimate ) {
+
+	var
+		res, // Result array (will contain all generated symbols)
+		// Method selection
+		method = document.getElementById( "filterNumbersAndSymbols_method" ).selectedIndex,
+		filterNumbersAndSymbolsIsValidSymbol = this[ "filterNumbersAndSymbolsIsValidSymbol_" + method ],
+		// test function (recursive)
+		test = function( buffer ){
+			var insert = false;
+
+			for( var jdx = 0; jdx < _TOKEN_SYMBOL_LIST.length; ++jdx ) {
+				var newChar = _TOKEN_SYMBOL_LIST.charAt( jdx );
+				if( filterNumbersAndSymbolsIsValidSymbol( buffer, newChar ) ) {
+					var newBuffer = [].concat( buffer );
+					newBuffer.push( newChar );
+					test( newBuffer );
+				}
+				else
+					insert = true;
+			}
+
+			if( insert )
+					res.push( buffer.join("") );
+		},
+		// time estimate helper
+		count,
+		max = 1,
+		dtStart,
+		timeSpent,
+		msg;
+	if( estimate ) {
+		max = 100;
+		dtStart = new Date();
+	}
+	for( count = 0; count < max; ++count ) {
+		res = [];
+		for( var idx = 0; idx < _TOKEN_SYMBOL_LIST.length; ++idx )
+			test( [ _TOKEN_SYMBOL_LIST.charAt( idx ) ] );
+	}
+	msg = [ res.join( " " ), "Count: " + res.length + " / " + _TOKEN_ALLOWED_SYMBOLS.length ];
+	if( estimate ) {
+		timeSpent = (new Date()) - dtStart;
+		msg.push( "Time spent: " + timeSpent + "ms" );
+		msg.push( "Function:", filterNumbersAndSymbolsIsValidSymbol );
+	}
+	document.getElementById( "filterNumbersAndSymbols_output" ).value = msg.join( "\r\n" );
+}
+</script>
+</head>
+<body>
+<div>
+
+	Input <input id="filterNumbersAndSymbols_input" type="text" value="acb123d+!=+=ef45a" />
+	<input onclick="filterNumbersAndSymbols(document.getElementById('filterNumbersAndSymbols_input').value);" type="button" value="GO" />
+	<div id="filterNumbersAndSymbols_debug">
+	</div>
+	<br />
+	<textarea id="filterNumbersAndSymbols_output">
+	</textarea>
+	<select id="filterNumbersAndSymbols_method">
+		<option value="0">Simple
+		<option value="1">Generated
+		<option value="2">Generated (copy)
+		<option value="3">Advanced
+	</select>
+	<input onclick="filterNumbersAndSymbolsDumpAllValidSymbols(false);" type="button" value="Test" />
+	<input onclick="filterNumbersAndSymbolsDumpAllValidSymbols(true);" type="button" value="Estimate" />
+</div>
+</body>
+</html>

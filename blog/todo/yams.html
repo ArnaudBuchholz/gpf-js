@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="initial-scale = 1.0,maximum-scale = 1.0" />
+        <title>YAMS</title>
+        <style type="text/css">
+
+body {
+    font-size: 10pt;
+    font-family: Verdana, Courrier, Sans Serif;
+    background-color: white;
+    color: black;
+}
+
+div#debug {
+    border: dashed 1px red;
+    color: red;
+}
+
+table.score td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+tr#S1 {
+    background-color: lightgray;
+}
+
+tr#B1 {
+    background-color: lightgray;
+}
+
+tr#T1 {
+    background-color: lightgray;
+}
+
+tr#T2 {
+    background-color: lightgray;
+}
+
+tr#T3 {
+    background-color: lightgray;
+}
+
+tr#SCORE {
+    background-color: lightsteelblue;
+}
+
+td#keyboard {
+    border: solid 2px blue;
+    background-color: lightsteelblue;
+    text-align: center;
+}
+
+div.dice {
+    border: solid 1px black;
+    background-color: lightcyan;
+    width: 72px;
+    height: 72px;
+}
+
+
+table.dice {
+    border: solid 1px black;
+    background-color: ivory;
+}
+
+table.dice td {
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+        </style>
+        <script language="javascript">
+
+var dices = [
+      "   "
+    + " . "
+    + "   ",
+      ".  "
+    + "   "
+    + "  .",
+      ".  "
+    + " . "
+    + "  .",
+      ". ."
+    + "   "
+    + ". .",
+      ". ."
+    + " . "
+    + ". .",
+      "..."
+    + "   "
+    + "..."
+];
+
+function dice(value) {
+    if (0 === value) {
+        document.write("<div class=\"dice\"></div>");
+    }
+    var
+        data = dices[value - 1],
+        html = [
+            "<table class=\"dice\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">"
+        ],
+        i;
+    for(i = 0; i < 9; ++i) {
+        if (0 === i % 3) {
+            html.push("<tr>");
+        }
+        html.push("<td>");
+        if (" " === data.charAt(i)) {
+            html.push("&nbsp");
+        } else {
+            html.push("o");
+        }
+        html.push("</td>");
+        if (2 === i % 3) {
+            html.push("</tr>");
+        }
+    }
+    html.push("</table>");
+    document.write(html.join(""));
+}
+
+function onClick(e) {
+    var
+        target,
+        player;
+    if (!e) {
+        e = window.event;
+    }
+    target = e.target;
+    while(target && (!target.tagName || target.tagName.toLowerCase() !== "td")) {
+        target = target.parentNode;
+    }
+    if(target) {
+        var score = prompt("Entrez le score sans le bonus (0 pour barrer)");
+        if(score) {
+            score = parseInt(score, 10);
+            if (isNaN(score)) {
+                score = 0;
+            }
+            if(0 === score) {
+                target.innerHTML = "-";
+            } else {
+                target.innerHTML = score;
+            }
+        } else {
+            target.innerHTML = "&nbsp;";
+        }
+        // Check which player
+        player = 0;
+        while (target.previousSibling) {
+            ++player;
+            target = target.previousSibling;
+        }
+        computeTotals(player - 1); // Because first col is always a TH
+    }
+    if (null !== touchTarget) {
+        window.setTimeout(clearTouchTarget, 0);
+    }
+}
+
+window.addEventListener("click", onClick);
+
+var touchTarget = null;
+
+function clearTouchTarget() {
+//    document.getElementById("debug").innerHTML += "C";
+    touchTarget = null;
+}
+
+window.addEventListener("touchstart", function(e) {
+//    document.getElementById("debug").innerHTML += "S";
+    touchTarget = e;
+}, false);
+
+window.addEventListener("touchmove", function(e) {
+    if (null !== touchTarget) {
+//        document.getElementById("debug").innerHTML += "M";
+        touchTarget = null;
+    }
+}, false);
+
+window.addEventListener("touchend", function(e) {
+//    document.getElementById("debug").innerHTML += "E";
+    if (null !== touchTarget) {
+        try {
+            onClick(touchTarget);
+        }
+        finally {
+            touchTarget = null;
+        }
+    }
+}, false);
+
+function read(id, player) {
+    var
+        row = document.getElementById(id); // TR
+        col = row.getElementsByTagName("td")[player],
+        content = col.innerHTML;
+    content = parseInt(content, 10);
+    if(isNaN(content)) {
+        content = 0;
+    }
+    return content;
+}
+
+function write(id, player, value) {
+    var
+            row = document.getElementById(id); // TR
+            col;
+    if(id === "S1" || id === "B1" || id === "T1" || id === "T2" || id === "T3" || id === "SCORE") {
+        col = row.getElementsByTagName("th")[player + 1];
+    } else {
+        col = row.getElementsByTagName("td")[player];
+    }
+    col.innerHTML = value;
+}
+
+function computeTotals(player) {
+    var
+        total1 = read("1", player)
+                + read("2", player)
+                + read("3", player)
+                + read("4", player)
+                + read("5", player)
+                + read("6", player),
+        plus = read("P", player),
+        minus = read("M", player),
+        total2 = 0,
+        s = read("S", player),
+        f = read("F", player),
+        c = read("C", player),
+        y = read("Y", player),
+        total3;
+    write("S1", player, total1);
+    if (total1 > 63) {
+        write("B1", player, "37");
+        total1 += 37;
+    } else {
+        write("B1", player, "-");
+    }
+    write("T1", player, total1);
+    if (plus && minus && plus > minus) {
+        total2 = plus + minus;
+    }
+    write("T2", player, total2);
+    if (s) {
+        s += 30;
+    }
+    if (f) {
+        f += 30;
+    }
+    if (c) {
+        c += 30;
+    }
+    if (y) {
+        y += 50;
+    }
+    total3 = s + f + c + y;
+    write("T3", player, total3);
+    write("SCORE", player, total1 + total2 + total3);
+}
+
+        </script>
+    </head>
+    <body>
+<!--
+        <div id="debug"></div>
+-->
+        <table class="score" width="640" height="1136" border="1" cellspacing="0" cellpadding="1">
+<!--
+            <tr>
+                <td colspan="4" id="keyboard">
+                    <table border="0">
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td><script language="javascript">dice(0);</script></td>
+                            <td><script language="javascript">dice(0);</script></td>
+                            <td><script language="javascript">dice(0);</script></td>
+                            <td><script language="javascript">dice(0);</script></td>
+                            <td><script language="javascript">dice(0);</script></td>
+                        </tr>
+                        <tr>
+                            <td><script language="javascript">dice(1);</script></td>
+                            <td><script language="javascript">dice(2);</script></td>
+                            <td><script language="javascript">dice(3);</script></td>
+                            <td><script language="javascript">dice(4);</script></td>
+                            <td><script language="javascript">dice(5);</script></td>
+                            <td><script language="javascript">dice(6);</script></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+-->
+            <tr><th width="25%">JOUEURS</th><th width="25%">N</th><th width="25%">A</th><th width="25%">M</th></tr>
+            <tr id="1"><th>AS</th><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr id="2"><th>DEUX</th><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr id="3"><th>TROIS</th><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr id="4"><th>QUATRE</th><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr id="5"><th>CINQ</th><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr id="6"><th>SIX</th><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr id="S1"><th>TOTAL</th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr>
+            <tr id="B1"><th>BONUS</th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr>
+            <tr id="T1"><th>TOTAL I</th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr>
+            <tr id="P"><th>PLUS</th><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr id="M"><th>MOINS</th><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr id="T2"><th>TOTAL II</th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr>
+            <tr id="S"><th>SUITE</th><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr id="F"><th>FULL</th><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr id="C"><th>CARR&Eacute;</th><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr id="Y"><th>YAM</th><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr id="T3"><th>TOTAL III</th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr>
+            <tr id="SCORE"><th>TOTAL I + II + III</th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr>
+        </table>
+        <!-- <script src="phantom-limb.js"></script> -->
+    </body>
+</html>

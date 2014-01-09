@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<job id="test">
+    <script language="javascript"><![CDATA[
+
+var gpf_sourcesPath = "..\\..\\";
+
+    ]]></script>
+    <script language="javascript" src="..\..\boot.js" />
+    <script language="javascript" src="..\manager.js" />
+    <script language="javascript"><![CDATA[
+
+function callback(event) {
+    if ("error" === event.type())  {
+        WScript.Echo("(X) " + event.get("message"));
+    } else if ("warning" === event.type()) {
+        WScript.Echo("/!\\ " + event.get("message"));
+    } else if ("info" === event.type()) {
+        WScript.Echo("[?] " + event.get("message"));
+    } else if ("log" === event.type()) {
+        WScript.Echo(event.get("message"));
+    } else if ("success" === event.type()) {
+        WScript.Echo("OK " + event.get("name"));
+    } else if ("failure" === event.type()) {
+        WScript.Echo("KO " + event.get("name"));
+        gpf.testReport(event.get("name"), callback);
+    }
+}
+
+gpf.runTests(callback);
+
+    ]]></script>
+</job>

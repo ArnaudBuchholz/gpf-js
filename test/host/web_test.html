@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <title>GPF tester</title>
+        <style type="text/css">
+
+body {
+    font-size: 8pt;
+    font-family: Verdana, Courrier, Sans Serif;
+    background-color: white;
+    color: black;
+}
+
+table th {
+    font-size: 10pt;
+    text-align: left;
+}
+
+table td {
+    vertical-align: top;
+    font-size: 8pt;
+}
+
+tr.ok td.status { background-color: lightgreen; }
+tr.ko td.status { background-color: orange; }
+
+div.error { color: red; white-space: pre; }
+div.warning { color: yellow; white-space: pre; }
+div.info { color: blue; white-space: pre; }
+div.log { color: gray; white-space: pre; }
+
+
+        </style>
+        <script language="javascript">
+
+var
+    version = '';
+
+function loadGPF() {
+    var
+        release = (-1 < window.location.search.indexOf("?release")
+              || -1 < window.location.search.indexOf("&release")),
+        debug = (-1 < window.location.search.indexOf("?debug")
+                || -1 < window.location.search.indexOf("&debug"));
+    var head = document.getElementsByTagName("head")[0]
+               || document.documentElement;
+    var script = document.createElement("script");
+    if (release) {
+        version = 'release';
+        script.src = "../../build/release.js";
+    } else if (debug) {
+        version = 'debug';
+        script.src = "../../build/debug.js";
+    } else {
+        version = 'sources';
+        gpf_sourcesPath = "../../";
+        script.src = "../../boot.js";
+    }
+    script.language = "javascript";
+    head.insertBefore(script, head.firstChild);
+    window.setTimeout(waitForGPF, 0);
+}
+
+/*
+    Second step: wait for GPF to be loaded
+*/
+function waitForGPF() {
+
+    if ("undefined" === typeof gpf || !gpf.loaded()) {
+
+        console.log( "GPF not loaded yet..." );
+        window.setTimeout(waitForGPF, 100);
+
+    } else if (!gpf.sources) {
+
+        gpf.http.include("../../sources.js").onLoad(waitForGPF);
+
+    } else if (!gpf.runTests) {
+
+        console.log( "GPF loaded." );
+        gpf.http.include("../manager.js").onLoad(waitForGPF);
+
+    } else {
+
+        gpf.runTests(callback);
+
+    }
+}
+waitForGPF.state = 0;
+
+function addTestResult(name, success) {
+    var
+        tr = document.getElementById('results').appendChild(
+                document.createElement("TR")),
+        td;
+    td = tr.appendChild(document.createElement("TD"));
+    td.className = 'status';
+    if (success) {
+        tr.className = "ok";
+        td.innerHTML = "OK";
+    } else {
+        tr.className = "ko";
+        td.innerHTML = "KO";
+    }
+    td = tr.appendChild(document.createElement("TD"));
+    td.className = 'details';
+    td.innerHTML = name;
+    return td;
+}
+
+var reportLocation;
+function report(event) {
+    var div = reportLocation.appendChild(document.createElement('DIV'));
+    div.className = event.type();
+    div.innerHTML = gpf.escapeFor(event.get("message"), "html");
+}
+
+function callback(event) {
+    if ("error" === event.type())  {
+        console.error(event.get("message"));
+    } else if ("warning" === event.type()) {
+        console.warn(event.get("message"));
+    } else if ("info" === event.type()) {
+        console.info(event.get("message"));
+    } else if ("log" === event.type()) {
+        console.log(event.get("message"));
+    } else if ("success" === event.type()) {
+        addTestResult(event.get("name"), true);
+    } else if ("failure" === event.type()) {
+        reportLocation = addTestResult(event.get("name"), false);
+        gpf.testReport(event.get("name"), report);
+    }
+}
+
+        </script>
+    </head>
+    <body onload="loadGPF()">
+        <div id="placeholder" style="display: none;">
+            <!-- Place holder for HTML manipulations -->
+        </div>
+        <table border="0" width="100%">
+            <thead>
+                <tr>
+                    <th>Result</th>
+                    <th width="99%">Label</th>
+                </tr>
+            </thead>
+            <tbody id="results">
+            </tbody>
+        </table>
+    </body>
+</html>

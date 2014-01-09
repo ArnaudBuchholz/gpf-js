@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<title>Public/Private demonstration</title>
+	</head>
+	<body>
+		<script language="javascript">
+
+// Maintain the known properties inside a global map
+var members = {
+	_count: 0
+};
+
+// The following are "known" because declared below (they are not 'counted')
+members[ "members" ] = 0;
+members[ "echo" ] = 0;
+members[ "enumMembers" ] = 0;
+members[ "addInclude" ] = 0;
+
+function echo( text, tagName )
+{
+	if( "undefined" == typeof tagName )
+		tagName = "div";
+	var tag = document.createElement( tagName );
+	tag.innerHTML = text;
+	document.body.appendChild( tag );
+}
+
+function enumMembers( context ) {
+	/*
+		Enumerate currenct context properties
+		and keep track of everything that is already known
+	*/
+	var inGlobalContext;
+	if( "undefined" == typeof context ) {
+		context = this;
+		inGlobalContext = true;
+	}
+	else
+		inGlobalContext = false;
+	var count = 0;
+	for( var property in context ) {
+		if( inGlobalContext && "undefined" != typeof members[ property ] )
+			continue;
+		// Not known
+		++count;
+		members[ property ] = 1;
+		var text = property + ": (" + typeof context[ property ] + ") ";
+		if( null != context[ property ] )
+			text += context[ property ].valueOf();
+		else
+			text += "<i>null</i>";
+		echo( text );
+	}
+	members._count += count;
+}
+
+echo( "Navigator context", "h1" );
+enumMembers(); // Initialize with browser members
+
+// Inspired from http://stackoverflow.com/questions/4845762/onload-handler-for-script-tag-in-internet-explorer
+function addInclude( src ) {
+	/*
+		Loads dynamically any script
+		Waits for the script to be loaded and calls a callback when done
+
+		The following is an easy way to handle callbacks whenever the process is
+		asychronous (window.setTimeout, onload callback). The function returns an
+		object that can be overriden with our own loaded handler (if needed)
+	*/
+	var result = { loaded: 0 };
+	var head = document.getElementsByTagName("head")[0] || document.documentElement;
+	var script = document.createElement("script");
+	script.src = src;
+
+	var done = false;
+
+	// Attach handlers for all browsers
+	script.onload = script.onreadystatechange = function() {
+		if ( !done && (!this.readyState ||
+			this.readyState === "loaded" || this.readyState === "complete") ) {
+
+			done = true;
+			if( "function" == typeof result.loaded )
+				result.loaded( src );
+
+			// Handle memory leak in IE
+			script.onload = script.onreadystatechange = null;
+			if ( head && script.parentNode ) {
+				head.removeChild( script );
+			}
+		}
+	};
+
+	// Use insertBefore instead of appendChild  to circumvent an IE6 bug.
+	// This arises when a base node is used (#2709 and #4378).
+	head.insertBefore( script, head.firstChild );
+
+	return result;
+}
+
+echo( "Example 1", "h1" );
+var
+	isItPrivate1 = "No!";
+enumMembers();
+echo( "Search for \"isItPrivate1\" and you'll see where it appears", "b" );
+
+		</script>
+		<script language="javascript">
+
+echo( "Example 2", "h1" );
+var
+	isItPrivate2 = "No!";
+enumMembers();
+
+echo( "Example 3", "h1" );
+addInclude( "example3.js" ).loaded = function(){
+
+	enumMembers();
+	echo( "jQuery", "h1" );
+	addInclude( "http://code.jquery.com/jquery-1.9.1.min.js" ).loaded = function(){
+
+		enumMembers();
+		echo( "jQuery object", "h2" );
+		enumMembers( jQuery );
+
+		echo( "Example 4", "h1" );
+		addInclude( "example4.js" ).loaded = function(){
+
+			enumMembers();
+			echo( "example4 object", "h2" );
+			enumMembers( example4 );
+
+		};
+	};
+};
+
+		</script>
+	</body>
+</html>

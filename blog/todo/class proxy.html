@@ -1,0 +1,65 @@
+<html>
+    <script language="javascript">
+
+var msg = [];
+function display(expression) {
+    var result = (new Function("return " + expression))();
+    msg.push(expression + " = " + result);
+}
+
+function A(a) {
+    this._a = a;
+}
+
+A.prototype.a = function () {
+    return this._a;
+};
+
+function B(a, b) {
+    A.apply(this, [a]);
+    this._b = b;
+}
+
+B.prototype = new A();
+B.prototype.constructor = B;
+
+B.prototype.b = function () {
+    return this._b + this._a;
+};
+
+var a = new A(1);
+display("a.a()");
+display("a instanceof A");
+
+var b = new B(2,3);
+display("b.a()");
+display("b.b()");
+display("b instanceof A");
+
+function Bfactory(a, b) {
+    return new B(a, b);
+}
+
+var bFromFactory = Bfactory(2,3);
+display("bFromFactory.a()");
+display("bFromFactory.b()");
+display("bFromFactory instanceof A");
+
+function XFactory(constructor) {
+    var forwardParams = function (args) {
+            return constructor.apply(this, args);
+        };
+    forwardParams.prototype = constructor.prototype;
+    return function() {
+        return new forwardParams(arguments);
+    }
+}
+
+var bFromXFactory = XFactory(B)(2,3);
+display("bFromXFactory.a()");
+display("bFromXFactory.b()");
+display("bFromXFactory instanceof A");
+
+alert(msg.join("\r\n"));
+    </script>
+</html>
