@@ -221,8 +221,11 @@ function run() {
 	if( ALGO.step.apply( ALGO, [] ) ) {
 		window.setTimeout( run, SPEED ? 250 : 0 );
 		var state = [];
-		for( property in ALGO ) if( "function" !== typeof ALGO[ property ] )
-			state.push( "<b>" + property + "</b>: " + ALGO[ property ] );
+		for( var property in ALGO ) {
+            if (ALGO.hasOwnProperty(property) && "function" !== typeof ALGO[ property ] ) {
+                state.push( "<b>" + property + "</b>: " + ALGO[ property ] );
+            }
+        }
 		document.getElementById( "report" ).innerHTML = state.join( "<BR/>" );
 	}
 	else

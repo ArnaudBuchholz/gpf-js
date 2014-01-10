@@ -40,7 +40,7 @@
          */
         set: function (idx, value) {
             gpf.interfaces.ignoreParameter(idx);
-            gpf.interfaces.ignoreParameter((value);
+            gpf.interfaces.ignoreParameter(value);
             return undefined;
         }
 

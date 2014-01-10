@@ -178,14 +178,14 @@ window.addEventListener("touchstart", function(e) {
     touchTarget = e;
 }, false);
 
-window.addEventListener("touchmove", function(e) {
+window.addEventListener("touchmove", function(/*e*/) {
     if (null !== touchTarget) {
 //        document.getElementById("debug").innerHTML += "M";
         touchTarget = null;
     }
 }, false);
 
-window.addEventListener("touchend", function(e) {
+window.addEventListener("touchend", function(/*e*/) {
 //    document.getElementById("debug").innerHTML += "E";
     if (null !== touchTarget) {
         try {
@@ -199,7 +199,7 @@ window.addEventListener("touchend", function(e) {
 
 function read(id, player) {
     var
-        row = document.getElementById(id); // TR
+        row = document.getElementById(id), // TR
         col = row.getElementsByTagName("td")[player],
         content = col.innerHTML;
     content = parseInt(content, 10);
@@ -211,7 +211,7 @@ function read(id, player) {
 
 function write(id, player, value) {
     var
-            row = document.getElementById(id); // TR
+            row = document.getElementById(id), // TR
             col;
     if(id === "S1" || id === "B1" || id === "T1" || id === "T2" || id === "T3" || id === "SCORE") {
         col = row.getElementsByTagName("th")[player + 1];

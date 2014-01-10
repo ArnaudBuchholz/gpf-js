@@ -108,7 +108,7 @@
          * Handles tokenizer events
          * 
          * @param {object} context tokenizer context
-         * @param {number} errorCode error
+         * @param {number} [errorCode=undefined] errorCode error
          * @returns {undefined}
          * @internal
          */

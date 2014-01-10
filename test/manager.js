@@ -110,12 +110,15 @@
                         continue;
                     }
                     objIsTest = obj.constructor === TestReport;
+                    //noinspection JSUnfilteredForInLoop
                     for (property in obj) {
+                        //noinspection JSUnfilteredForInLoop
                         if (objIsTest
                             && ( TestReport.prototype.hasOwnProperty(property)
                                 || property.charAt(0) === "_")) {
                             continue;
                         }
+                        //noinspection JSUnfilteredForInLoop
                         value = obj[property];
                         if (undefined === value) {
                             value = '<undefined>';
@@ -124,6 +127,7 @@
                         } else if ('function' === typeof value) {
                             value = '<function>';
                         }
+                        //noinspection JSUnfilteredForInLoop
                         details.push("\t", property, "= ", value.toString(),
                             "\n");
                     }

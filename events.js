@@ -28,11 +28,7 @@
                 params = {};
             }
             this._params = params;
-            if (cancelable) {
-                this._cancelable = true;
-            } else {
-                this._cancelable = false;
-            }
+            this._cancelable = cancelable ? true : false;
 //            this._timeStamp = new Date();
 //            this._returnValue = undefined;
             this._propagationStopped = false;

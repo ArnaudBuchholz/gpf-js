@@ -64,6 +64,7 @@ function onLoad() {
 }
 
 function loadGrid() {
+    var tr, td;
     if (!grids) {
         grids = document.getElementById('grids');
     }
@@ -144,6 +145,7 @@ function algo_1() {
         for (digit = 1; digit < 10; ++digit) {
             bit = bits[digit - 1];
             for (pos = 0; pos < 9; ++pos) {
+                //noinspection JSBitwiseOperatorUsage
                 if (squares[pos] & bit) {
                     // already set, skip
                     continue;
@@ -152,10 +154,12 @@ function algo_1() {
                 count = 0;
                 limits = squareLimits(pos);
                 for (y = limits.fromY; y < limits.toY; ++y) {
+                    //noinspection JSBitwiseOperatorUsage
                     if (rows[y] & bit) {
                         continue;
                     }
                     for (x = limits.fromX; x < limits.toX; ++x) {
+                        //noinspection JSBitwiseOperatorUsage
                         if (cols[x] & bit) {
                             continue;
                         }
@@ -183,7 +187,7 @@ function algo_1() {
         </script>
     </head>
     <body onload="onLoad()">
-        <select id="grids" onchange="loadGrid">
+        <select id="grids" onchange="loadGrid()">
             <option value="4........8....1276...72..38.6....1..29.1.4.87..1....5.51..82...9274....1........5">http://freesudoku.free.fr/ - medium</option>
         </select>
         <input type="button" value="Algo 1" onclick="algo_1()">

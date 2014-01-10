@@ -5,13 +5,17 @@
     /*global gpf*/
     /*jslint continue: true, nomen: true, plusplus: true*/
 
+    var
+        gpfI = gpf.interfaces,
+        gpfA = gpf.attributes;
+
     gpf.xml = {};
 
     /*
      Inspired from
      http://www.saxproject.org/apidoc/org/xml/sax/ContentHandler.html
      */
-    gpf.interfaces.IXmlContentHandler = gpf.interfaces.Interface.extend({
+    gpfI.IXmlContentHandler = gpfI.Interface.extend({
 
         /**
          * Receive notification of character data
@@ -20,7 +24,11 @@
          * @param {number} start offset in the current entity
          * @param {number} length number of characters to read
          */
-        characters: function (buffer, start, length) {},
+        characters: function (buffer, start, length) {
+            gpfI.ignoreParameter(buffer);
+            gpfI.ignoreParameter(start);
+            gpfI.ignoreParameter(length);
+        },
 
         /**
          * Receive notification of the end of a document
@@ -37,7 +45,9 @@
          *
          * @param {string} prefix
          */
-        endPrefixMapping: function (prefix) {},
+        endPrefixMapping: function (prefix) {
+            gpfI.ignoreParameter(prefix);
+        },
 
         /**
          * Receive notification of ignorable whitespace in element content
@@ -46,7 +56,11 @@
          * @param {number} start offset in the current entity
          * @param {number} length number of characters to read
          */
-        ignorableWhitespace: function (buffer, start, length) {},
+        ignorableWhitespace: function (buffer, start, length) {
+            gpfI.ignoreParameter(buffer);
+            gpfI.ignoreParameter(start);
+            gpfI.ignoreParameter(length);
+        },
 
         /**
          * Receive notification of a processing instruction
@@ -54,21 +68,28 @@
          * @param {string} target
          * @param {string} data
          */
-        processingInstruction: function (target, data) {},
+        processingInstruction: function (target, data) {
+            gpfI.ignoreParameter(target);
+            gpfI.ignoreParameter(data);
+        },
 
         /**
          * Receive an object for locating the origin of SAX document events.
          *
-         * @param {gpf.ILocator} locator
+         * @param {*} locator
          */
-        setDocumentLocator: function (locator) {},
+        setDocumentLocator: function (locator) {
+            gpfI.ignoreParameter(locator);
+        },
 
         /**
          * Receive notification of a skipped entity
          *
          * @param {string} name
          */
-        skippedEntity: function (name) {},
+        skippedEntity: function (name) {
+            gpfI.ignoreParameter(name);
+        },
 
         /**
          * Receive notification of the beginning of a document
@@ -83,7 +104,12 @@
          * @param {string} [qName=localName] qName qualified name
          * @param {object} attributes attribute dictionary (string/string)
          */
-        startElement: function (uri, localName, qName, attributes) {},
+        startElement: function (uri, localName, qName, attributes) {
+            gpfI.ignoreParameter(uri);
+            gpfI.ignoreParameter(localName);
+            gpfI.ignoreParameter(qName);
+            gpfI.ignoreParameter(attributes);
+        },
 
         /**
          * Begin the scope of a prefix-URI Namespace mapping
@@ -92,6 +118,8 @@
          * @param {string} uri
          */
         startPrefixMapping: function (prefix, uri) {
+            gpfI.ignoreParameter(prefix);
+            gpfI.ignoreParameter(uri);
         }
 
     });
@@ -99,8 +127,8 @@
     var
 
         //region XML attributes
-        // gpf.attributes.XmlAttribute
-        _Base = gpf.attributes.Attribute.extend({
+        // gpfA.XmlAttribute
+        _Base = gpfA.Attribute.extend({
 
             alterPrototype: function (objPrototype) {
                 /*
@@ -112,23 +140,22 @@
                     // Declare toXml
                     objPrototype.toXml = _toXml;
                     // Declare IXmlContentHandler interface
-                    gpf.attributes.add(objPrototype.constructor, "Class", [gpf.
-                        $InterfaceImplement(gpf.interfaces.IXmlContentHandler)
-                    ]);
+                    gpfA.add(objPrototype.constructor, "Class",
+                        [gpf.$InterfaceImplement(gpfI.IXmlContentHandler)]);
                     gpf.extend(objPrototype, _fromXml);
                 }
             }
 
         }),
 
-       // gpf.attributes.XmlIgnoreAttribute = gpf.$XmlIgnore()
+       // gpfA.XmlIgnoreAttribute = gpf.$XmlIgnore()
         _Ignore = _Base.extend({
 
             "[Class]": [gpf.$Alias("XmlIgnore")]
 
         }),
 
-        // gpf.attributes.XmlElementAttribute = gpf.$XmlElement(name, objClass)
+        // gpfA.XmlElementAttribute = gpf.$XmlElement(name, objClass)
         _Element = _Base.extend({
 
             "[Class]": [gpf.$Alias("XmlElement")],
@@ -148,7 +175,7 @@
 
         }),
 
-        // gpf.attributes.XmlAttributeAttribute = gpf.$XmlAttribute(name)
+        // gpfA.XmlAttributeAttribute = gpf.$XmlAttribute(name)
         _Attribute = _Base.extend({
 
             "[Class]": [gpf.$Alias("XmlAttribute")],
@@ -162,7 +189,7 @@
 
         }),
 
-        // gpf.attributes.XmlListAttribute = gpf.$XmlList()
+        // gpfA.XmlListAttribute = gpf.$XmlList()
         _List = _Base.extend({
 
             "[Class]": [gpf.$Alias("XmlList")],
@@ -179,6 +206,7 @@
         //endregion
 
         //region TO XML
+
         _selectByType = function (array, value) {
             var
                 idx,
@@ -218,8 +246,7 @@
 
         _toContentHandler = function (obj, contentHandler, name) {
             var
-                attMap = (new gpf.attributes.Map(obj))
-                    .filter(_Base),
+                attMap = (new gpfA.Map(obj)).filter(_Base),
                 attArray,
                 attribute,
                 member,
@@ -260,6 +287,7 @@
                      * I must also use inherited properties
                      * NO hasOwnProperty
                      */
+                    //noinspection JSUnfilteredForInLoop
                     value = obj[member];
                     // Exception for dates
                     if (value instanceof Date) {
@@ -271,6 +299,7 @@
                         continue;
                     }
                     // Check member's attributes
+                    //noinspection JSUnfilteredForInLoop
                     attArray = attMap.member(member);
                     // Ignore?
                     if (attArray.has(_Ignore)) {
@@ -282,19 +311,26 @@
                         if (0 === subNodeMembers) {
                             subNodeMembers = [];
                         }
+                        //noinspection JSUnfilteredForInLoop
                         subNodeMembers.push(member);
                         continue;
                     }
                     // Else attribute
                     attribute = attArray.has(_Attribute);
                     if (attribute && attribute.name()) {
+                        //noinspection JSUnfilteredForInLoop
                         member = attribute.name();
-                    } else if ("_" == member.charAt(0)) {
-                        member = member.substr(1);
+                    } else {
+                        //noinspection JSUnfilteredForInLoop
+                        if ("_" == member.charAt(0)) {
+                            //noinspection JSUnfilteredForInLoop
+                            member = member.substr(1);
+                        }
                     }
                     if (0 === xmlAttributes) {
                         xmlAttributes = {};
                     }
+                    //noinspection JSUnfilteredForInLoop
                     xmlAttributes[member] = value.toString();
                 }
                 contentHandler.startElement('', name, name, xmlAttributes);
@@ -352,8 +388,7 @@
         },
 
         _toXml = function (contentHandler) {
-            if (gpf.interfaces.isImplementedBy(contentHandler,
-                gpf.interfaces.IXmlContentHandler)) {
+            if (gpfI.isImplementedBy(contentHandler,gpfI.IXmlContentHandler)) {
                 _toContentHandler(this, contentHandler);
             } else {
                 throw "Invalid parameter, " +
@@ -415,23 +450,29 @@
                 return gpf.dateFromComparableFormat(node.innerHTML);
             // Instanciate a new object
             obj = new objClass();
-            xmlAttributes = (new gpf.AttributesMap(obj)).filter(gpf.xml.Attribute);
+            xmlAttributes = (new gpfA.Map(obj)).filter(gpf.xml.Attribute);
             // Analysis is based on object members, not the XML
             for (member in obj) {
+                //noinspection JSUnfilteredForInLoop
                 value = obj[ member ];
                 type = typeof value;
                 // Skip functions
                 if ("function" !== type) {
                     // Check member's attributes
+                    //noinspection JSUnfilteredForInLoop
                     attributes = xmlAttributes.member(member);
                     // XmlIgnore?
                     if (attributes.has(gpf.XmlIgnoreAttribute))
                         continue;
                     // Default name
-                    if ("_" === member.charAt(0))
+                    //noinspection JSUnfilteredForInLoop
+                    if ("_" === member.charAt(0)) {
+                        //noinspection JSUnfilteredForInLoop
                         name = member.substr(1);
-                    else
+                    } else {
+                        //noinspection JSUnfilteredForInLoop
                         name = member;
+                    }
                     // Check if list
                     selectedAttribute = attributes.has(gpf.XmlListAttribute);
                     if (value instanceof Array || selectedAttribute) {
@@ -457,6 +498,7 @@
                             }
                             child = child.nextSibling;
                         }
+                        //noinspection JSUnfilteredForInLoop
                         obj[ member ] = value;
                         continue;
                     }
@@ -473,13 +515,16 @@
                         }
                         // Look for the first child having the right name
                         child = _selectChildByName(node, name);
-                        if (child)
+                        if (child) {
+                            //noinspection JSUnfilteredForInLoop
                             obj[ member ] = _parseXml(child, type);
+                        }
                     } else {
                         // Attribute
                         selectedAttribute = attributes.has(gpf.XmlAttributeAttribute);
                         if (selectedAttribute && selectedAttribute.name())
                             name = selectedAttribute.name();
+                        //noinspection JSUnfilteredForInLoop
                         obj[ member ] = gpf.value(node.getAttribute(name), value);
                     }
                 }
@@ -493,7 +538,7 @@
 
         // endregion
 
-    gpf.extend(gpf.attributes, {
+    gpf.extend(gpfA, {
         XmlAttribute: _Base,
         XmlIgnoreAttribute: _Ignore,
         XmlElementAttribute: _Element,
@@ -503,7 +548,7 @@
 
     gpf.xml.Writer = gpf.Class.extend({
 
-        "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.IXmlContentHandler)],
+        "[Class]": [gpf.$InterfaceImplement(gpfI.IXmlContentHandler)],
 
         _stream: null,
         _branch: [],
@@ -526,27 +571,27 @@
             }
         },
 
-        //region gpf.interfaces.IXmlContentHandler
+        //region gpfI.IXmlContentHandler
 
         /**
-         * @implements gpf.interfaces.IXmlContentHandler:characters
+         * @implements gpfI.IXmlContentHandler:characters
          */
         characters: function (buffer, start, length) {
-            gpf.interfaces.ignoreParameter(start);
-            gpf.interfaces.ignoreParameter(length);
+            gpfI.ignoreParameter(start);
+            gpfI.ignoreParameter(length);
             this._closeLeafForContent();
             this._stream.write(buffer);
         },
 
         /**
-         * @implements gpf.interfaces.IXmlContentHandler:endDocument
+         * @implements gpfI.IXmlContentHandler:endDocument
          */
         endDocument: function () {
             // Nothing to do
         },
 
         /**
-         * @implements gpf.interfaces.IXmlContentHandler:endElement
+         * @implements gpfI.IXmlContentHandler:endElement
          */
         endElement: function () {
             var
@@ -562,24 +607,24 @@
         },
 
         /**
-         * @implements gpf.interfaces.IXmlContentHandler:endPrefixMapping
+         * @implements gpfI.IXmlContentHandler:endPrefixMapping
          */
         endPrefixMapping: function (prefix) {
             // Nothing to do (?)
         },
 
         /**
-         * @implements gpf.interfaces.IXmlContentHandler:ignorableWhitespace
+         * @implements gpfI.IXmlContentHandler:ignorableWhitespace
          */
         ignorableWhitespace: function (buffer, start, length) {
-            gpf.interfaces.ignoreParameter(start);
-            gpf.interfaces.ignoreParameter(length);
+            gpfI.ignoreParameter(start);
+            gpfI.ignoreParameter(length);
             this._closeLeafForContent();
             this._stream.write(buffer);
         },
 
         /**
-         * @implements gpf.interfaces.IXmlContentHandler:processingInstruction
+         * @implements gpfI.IXmlContentHandler:processingInstruction
          */
         processingInstruction: function (target, data) {
             var
@@ -592,28 +637,28 @@
         },
 
         /**
-         * @implements gpf.interfaces.IXmlContentHandler:setDocumentLocator
+         * @implements gpfI.IXmlContentHandler:setDocumentLocator
          */
         setDocumentLocator: function (locator) {
             // Nothing to do
         },
 
         /**
-         * @implements gpf.interfaces.IXmlContentHandler:skippedEntity
+         * @implements gpfI.IXmlContentHandler:skippedEntity
          */
         skippedEntity: function (name) {
             // Nothing to do
         },
 
         /**
-         * @implements gpf.interfaces.IXmlContentHandler:startDocument
+         * @implements gpfI.IXmlContentHandler:startDocument
          */
         startDocument: function () {
             // Nothing to do
         },
 
         /**
-         * @implements gpf.interfaces.IXmlContentHandler:startElement
+         * @implements gpfI.IXmlContentHandler:startElement
          */
         startElement: function (uri, localName, qName, attributes) {
             var
@@ -635,8 +680,10 @@
             if (attributes) {
                 for (attName in attributes) {
                     stream.write(" ");
+                    //noinspection JSUnfilteredForInLoop
                     stream.write(attName);
                     stream.write("=\"");
+                    //noinspection JSUnfilteredForInLoop
                     attValue = gpf.escapeFor(attributes[attName], "xml");
                     if (-1 < attValue.indexOf("\"")) {
                         attValue = gpf.replaceEx(attValue, {
@@ -657,7 +704,7 @@
         },
 
         /**
-         * @implements gpf.interfaces.IXmlContentHandler:startPrefixMapping
+         * @implements gpfI.IXmlContentHandler:startPrefixMapping
          */
         startPrefixMapping: function (prefix, uri) {
             var
@@ -679,6 +726,7 @@
     gpf.extend(gpf.xml, {
 
         parse: function (source, contentHandler) {
+
 
         }
 

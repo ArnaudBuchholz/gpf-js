@@ -16,11 +16,13 @@
              * IMPORTANT note: we test the object itself (i.e. own members and
              * the prototype). That's why the hasOwnProperty is skipped
              */
+            //noinspection JSUnfilteredForInLoop
             for (member in interfaceDefinition.prototype) {
                 if ("constructor" === member                           // Object
                     || "extend" === member) {                       // gpf.Class
                     continue;
                 }
+                //noinspection JSUnfilteredForInLoop
                 if (typeof interfaceDefinition.prototype[member]
                     !== typeof objectInstance[member]) {
                     return false;
@@ -33,8 +35,9 @@
         /**
          * Used to remove warnings about unused parameters
          */
-        ignoreParameter: function () {
+        ignoreParameter: function (value) {
             // TODO remove at build time
+            return value;
         }
 
     };

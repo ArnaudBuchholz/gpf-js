@@ -12,12 +12,27 @@
         _toBaseANY = function (base, value, length, safepad) {
             var
                 baseLength = base.length,
+                pow = gpf.bin.isPow2(length),
+                bits,
+                mask,
                 result = [],
                 digit;
-            while (0 < value) {
-                digit = value % baseLength;
-                result.unshift(base.charAt(digit));
-                value = (value - digit) / baseLength;
+            if (-1 < pow) {
+                // Will be faster this way
+                bits = (1 << pow) - 1;
+                mask = (1 << length * pow) - 1;
+                while (0 !== value) {
+                    digit = value & bits;
+                    result.unshift(base.charAt(digit));
+                    value = (value >> pow) & mask;
+                    console.log(value);
+                }
+            } else {
+                while (0 !== value) {
+                    digit = value % baseLength;
+                    result.unshift(base.charAt(digit));
+                    value = (value - digit) / baseLength;
+                }
             }
             if (undefined !== length) {
                 if (undefined === safepad) {
@@ -54,6 +69,36 @@
         };
 
     gpf.bin = {
+
+        /**
+         * Computes the power of 2
+         *
+         * @param {number} n the power to compute
+         * @returns {number}
+         */
+        pow2: function (n) {
+            return 1 << n;
+        },
+
+        /**
+         * Check if the given value is a power of 2
+         *
+         * @param {number} value the value to check
+         * @returns {number} the power or -1
+         */
+        isPow2: function (value) {
+            // http://en.wikipedia.org/wiki/Power_of_two
+            if (0 < value && (0 === (value & (value - 1)))) {
+                var result = 0;
+                while (1 < value) {
+                    ++result;
+                    value >>= 1;
+                }
+                return result;
+            } else {
+                return -1;
+            }
+        },
 
         /*
          * Encodes the value within the specified base.
