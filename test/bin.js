@@ -57,7 +57,7 @@
                 test.equal(gpf.bin.toHexa(2882400152),
                     "ABCDEF98", "Hexa: no padding");
                 test.equal(gpf.bin.toHexa(2882400152, 4),
-                    "ABCDEF98", "Hexa: padding set to too small");
+                    "EF98", "Hexa: length set to too small");
                 test.equal(gpf.bin.toHexa(-1, 8),
                     "FFFFFFFF", "Hexa: -1");
                 test.equal(gpf.bin.toHexa(2882400152, 10),

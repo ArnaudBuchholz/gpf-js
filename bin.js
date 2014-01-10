@@ -12,20 +12,27 @@
         _toBaseANY = function (base, value, length, safepad) {
             var
                 baseLength = base.length,
-                pow = gpf.bin.isPow2(length),
+                pow = gpf.bin.isPow2(baseLength),
                 bits,
                 mask,
                 result = [],
                 digit;
-            if (-1 < pow) {
-                // Will be faster this way
+            if (-1 < pow && (undefined === length || length * pow <= 32)) {
+                /*
+                 * Good conditions to use bits masking & shifting,
+                 * will work with negative values and will be faster
+                 */
+                if (undefined === length) {
+                    bits = 32;
+                } else {
+                    bits = length * pow;
+                }
+                mask = (1 << (bits - pow)) - 1;
                 bits = (1 << pow) - 1;
-                mask = (1 << length * pow) - 1;
                 while (0 !== value) {
                     digit = value & bits;
                     result.unshift(base.charAt(digit));
                     value = (value >> pow) & mask;
-                    console.log(value);
                 }
             } else {
                 while (0 !== value) {
@@ -84,7 +91,7 @@
          * Check if the given value is a power of 2
          *
          * @param {number} value the value to check
-         * @returns {number} the power or -1
+         * @returns {number} the power of 2 or -1
          */
         isPow2: function (value) {
             // http://en.wikipedia.org/wiki/Power_of_two
@@ -107,7 +114,7 @@
          * 
          * @param {string} base values
          * @param {number} value to encode
-         * @param {number} length
+         * @param {number} length of encoding
          * @param {string} safepad [safepad=base.charAt(0)]
          * @returns {string}
          */
@@ -125,7 +132,7 @@
         /*
          * Returns the hexadecimal encoding of value.
          * @param {number} value
-         * @param {number} length
+         * @param {number} length of encoding
          * @param {string} safepad [safepad="0"]
          * @returns {string}
          */
@@ -146,7 +153,7 @@
         /*
          * Returns the base 64 encoding of value.
          * @param {number} value
-         * @param {number} length
+         * @param {number} length of encoding
          * @param {string} safepad [safepad="0"]
          * @returns {string}
          */
