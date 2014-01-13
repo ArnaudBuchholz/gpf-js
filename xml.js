@@ -723,14 +723,35 @@
         //endregion
     });
 
-    gpf.extend(gpf.xml, {
+    gpf.xml.Parser = gpf.Class.extend({
 
-        parse: function (source, contentHandler) {
+        "[Class]": [gpf.$InterfaceImplement(gpfI.ITextStream)],
 
+        _contentHandler: null,
+
+        init: function (contentHandler) {
+            this._contentHandler = contentHandler;
+        },
+
+        //region gpf.interfaces.ITextStream
+
+        /**
+         * @implements gpf.interfaces.ITextStream.read
+         */
+        read: function(count) {
+            gpf.interfaces.ignoreParameter(count);
+            return "";
+        },
+
+        /**
+         * @implements gpf.interfaces.ITextStream.write
+         */
+        write: function(buffer) {
 
         }
 
+        //endregion
 
-    } );
+    });
 
 }()); /* End of privacy scope */

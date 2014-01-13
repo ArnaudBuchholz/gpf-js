@@ -107,8 +107,10 @@
 
             function (test) {
                 test.title("Use fromXML to create an object");
-                var movie = new Movie();
-                gpf.xml.parse(gpf.stringToStream(starshipTroopersXML), movie);
+                var
+                    movie = new Movie(),
+                    parser = new gpf.xml.Parser(movie);
+                parser.write(starshipTroopersXML);
                 test.equal(movie, starshipTroopers);
             }
 
