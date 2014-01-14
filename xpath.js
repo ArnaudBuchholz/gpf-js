@@ -13,9 +13,10 @@
         opt = gpfG.opt, // (Reference to an existing rule)?
         any = gpfG.any, // (Reference to an existing rule)*
 
-        // Based on http://www.galiel.net/el/study/XPath_Overview.html
-        _xpathGrammar = {
 
+        // Based on http://www.galiel.net/el/study/XPath_Overview.html
+        _xpathGrammar = {};
+/*
 // LocationPath ::= RelativeLocationPath | AbsoluteLocationPath
             "LocationPath": rule(ref("RelativeLocationPath"),
                 ref("AbsoluteLocationPath")),
@@ -97,6 +98,6 @@
     [38] NodeType ::= 'comment' | 'text' | 'processing-instruction' | 'node'
     [39] ExprWhitespace ::= S
 
-
+*/
 
 }()); /* End of privacy scope */
