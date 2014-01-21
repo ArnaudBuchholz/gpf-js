@@ -5,7 +5,10 @@
     /*jslint continue: true, nomen: true, plusplus: true*/
     "use strict";
 
-    gpf.interfaces.ITextStream = gpf.interfaces.Interface.extend({
+    var
+        gpfI = gpf.interfaces;
+
+    gpfI.ITextStream = gpfI.Interface.extend({
 
         /**
          * Read characters from the text stream
@@ -20,14 +23,34 @@
         },
 
         /**
-         * Write characters to the text stream
+         * Write characters to the text stream.
+         * Use null to signal the end of the stream.
          *
-         * @param {string} buffer
+         * @param [arguments] Convert all non-null arguments to string and write
+         * them to the string
+         *
+         * TODO create an attribute to signal the use of arguments
          */
-        write: function(buffer) {
-            gpf.interfaces.ignoreParameter(buffer);
+        write: function() {
         }
 
     });
+
+    /**
+     * Internal helper to implement the same write behavior in all streams
+     */
+    gpfI.ITextStream._write = function (stream, writeArguments) {
+        var argIdx, arg;
+        for (argIdx = 0; argIdx < writeArguments.length; ++argIdx) {
+            arg = arguments[argIdx];
+            if (null !== arg && 'string' !== typeof arg) {
+                arg = arg.toString();
+            }
+            stream._write(arg);
+        }
+        if (0 === argIdx) { // No parameter at all
+            stream._write(null);
+        }
+    };
 
 }()); /* End of privacy scope */

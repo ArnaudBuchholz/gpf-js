@@ -6,8 +6,12 @@
     /*jslint continue: true, nomen: true, plusplus: true*/
 
     var
+        // Namespaces shortcut
         gpfI = gpf.interfaces,
-        gpfA = gpf.attributes;
+        gpfA = gpf.attributes,
+        // XML Parser constants
+        _XMLPARSER_STATE_NONE = 0
+        ;
 
     gpf.xml = {};
 
@@ -546,6 +550,8 @@
         XmlListAttribute: _List
     });
 
+    //region XML Writer
+
     gpf.xml.Writer = gpf.Class.extend({
 
         "[Class]": [gpf.$InterfaceImplement(gpfI.IXmlContentHandler)],
@@ -723,9 +729,11 @@
         //endregion
     });
 
-    gpf.xml.Parser = gpf.Class.extend({
+    //endregion
 
-        "[Class]": [gpf.$InterfaceImplement(gpfI.ITextStream)],
+    //region XML Parser
+
+    gpf.xml.Parser = gpf.Parser.extend({
 
         _contentHandler: null,
 
@@ -733,25 +741,20 @@
             this._contentHandler = contentHandler;
         },
 
-        //region gpf.interfaces.ITextStream
+        _parse: function (char) {
 
-        /**
-         * @implements gpf.interfaces.ITextStream.read
-         */
-        read: function(count) {
-            gpf.interfaces.ignoreParameter(count);
-            return "";
+            if (_XMLPARSER_STATE_NONE === this._state) {
+                
+            }
+
         },
 
-        /**
-         * @implements gpf.interfaces.ITextStream.write
-         */
-        write: function(buffer) {
+        _reset: function () {
 
         }
 
-        //endregion
-
     });
+
+    //endregion
 
 }()); /* End of privacy scope */

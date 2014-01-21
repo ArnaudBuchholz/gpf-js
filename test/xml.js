@@ -110,7 +110,7 @@
                 var
                     movie = new Movie(),
                     parser = new gpf.xml.Parser(movie);
-                parser.write(starshipTroopersXML);
+                parser.write(starshipTroopersXML, null);
                 test.equal(movie, starshipTroopers);
             }
 

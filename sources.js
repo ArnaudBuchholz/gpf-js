@@ -7,7 +7,6 @@
             "events",               // Event management               gpf.events
             "http",                 // HTTP specific functions          gpf.http
             "bin",                  // Binary tools                      gpf.bin
-            "tokenizer",            // Javascript parser                  gpf.js
             "class",                // Class
             "attributes",           // Attributes                 gpf.attributes
             "error",                // Error base class
@@ -18,6 +17,9 @@
             "i_stream",             // ITextStream
             "string",               // String functions
             "date",                 // Date functions
+
+            "parser",               // Parser helper                  gpf.Parser
+            "tokenizer",            // Javascript parser                  gpf.js
 
             "xml"                   // Xml serializer & attributes       gpf.xml
         ];
