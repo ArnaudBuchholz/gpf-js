@@ -86,13 +86,9 @@
         /**
          * @implements gpf.interfaces.ITextStream.write
          */
-        write: function() {
-            gpfI.ITextStream._write(this, arguments);
-        },
+        write: gpfI.ITextStream._write,
 
-        //endregion
-
-        _write: function (buffer) {
+        write_: function (buffer) {
             var
                 idx,
                 char;
@@ -113,6 +109,8 @@
                 }
             }
         }
+
+        //endregion
 
     });
 

@@ -37,19 +37,19 @@
     });
 
     /**
-     * Internal helper to implement the same write behavior in all streams
+     * Internal helper to implement the expected write behavior in all streams
      */
-    gpfI.ITextStream._write = function (stream, writeArguments) {
+    gpfI.ITextStream._write = function () {
         var argIdx, arg;
-        for (argIdx = 0; argIdx < writeArguments.length; ++argIdx) {
+        for (argIdx = 0; argIdx < arguments.length; ++argIdx) {
             arg = arguments[argIdx];
             if (null !== arg && 'string' !== typeof arg) {
                 arg = arg.toString();
             }
-            stream._write(arg);
+            this.write_(arg);
         }
         if (0 === argIdx) { // No parameter at all
-            stream._write(null);
+            this.write_(null);
         }
     };
 

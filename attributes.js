@@ -267,6 +267,24 @@
                     result = _emptyMember;
                 }
                 return result;
+            },
+
+            /**
+             * Returns the list of members stored in this map
+             *
+             * @perf_warn Result is computed on each call
+             * @returns {string[]}
+             */
+            members: function () {
+                var
+                    result = [],
+                    member;
+                for (member in this._members) {
+                    if (this._members.hasOwnProperty(member)) {
+                        result.push(member);
+                    }
+                }
+                return result;
             }
 
         }),

@@ -82,13 +82,9 @@
             /**
              * @implements gpf.interfaces.ITextStream:write
              */
-            write: function() {
-                gpfI.ITextStream._write(this, arguments);
-            },
+            write: gpf.interfaces.ITextStream._write,
 
-            //endregion
-
-            _write: function (buffer) {
+            write_: function (buffer) {
                 if (null === buffer) {
                     this._buffer = [];
                     this._pos = 0;
@@ -96,6 +92,8 @@
                     this._buffer.push(buffer);
                 }
             },
+
+            //endregion
 
             /**
              * Consolidate the result string

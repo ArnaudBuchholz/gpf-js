@@ -25,13 +25,9 @@
          * Receive notification of character data
          *
          * @param {string} buffer characters
-         * @param {number} start offset in the current entity
-         * @param {number} length number of characters to read
          */
-        characters: function (buffer, start, length) {
+        characters: function (buffer) {
             gpfI.ignoreParameter(buffer);
-            gpfI.ignoreParameter(start);
-            gpfI.ignoreParameter(length);
         },
 
         /**
@@ -57,13 +53,9 @@
          * Receive notification of ignorable whitespace in element content
          *
          * @param {string} buffer characters
-         * @param {number} start offset in the current entity
-         * @param {number} length number of characters to read
          */
-        ignorableWhitespace: function (buffer, start, length) {
+        ignorableWhitespace: function (buffer) {
             gpfI.ignoreParameter(buffer);
-            gpfI.ignoreParameter(start);
-            gpfI.ignoreParameter(length);
         },
 
         /**
@@ -538,6 +530,108 @@
 
         _fromXml = {
 
+            //region gpf.interfaces.IXmlContentHandler
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:characters
+             */
+            characters: function (buffer) {
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:endDocument
+             */
+            endDocument: function () {
+                // Nothing to do
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:endElement
+             */
+            endElement: function () {
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:endPrefixMapping
+             */
+            endPrefixMapping: function (prefix) {
+                // Nothing to do (?)
+                gpfI.ignoreParameter(prefix);
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:ignorableWhitespace
+             */
+            ignorableWhitespace: function (buffer) {
+                // Nothing to do
+                gpfI.ignoreParameter(prefix);
+            },
+
+            /**
+             * @implements
+             *   gpf.interfaces.IXmlContentHandler:processingInstruction
+             */
+            processingInstruction: function (target, data) {
+                // Not relevant
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:setDocumentLocator
+             */
+            setDocumentLocator: function (locator) {
+                // Nothing to do
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:skippedEntity
+             */
+            skippedEntity: function (name) {
+                // Nothing to do
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:startDocument
+             */
+            startDocument: function () {
+                // Nothing to do
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:startElement
+             */
+            startElement: function (uri, localName, qName, attributes) {
+                // First time, name must be ignored (routing done by the parent)
+                var
+                    xmlAttributes,
+                    attNames,
+                    idx,
+                    attName,
+                    xmlAttribute;
+                xmlAttributes = (new gpfA.Map(this)).filter(_Base);
+                attNames = xmlAttributes.members();
+                for (idx = 0; idx < attNames.length; ++idx) {
+                    attName = attNames[idx];
+                    xmlAttribute = xmlAttributes.member(attName)
+                        .filter(_Attribute);
+                    if(xmlAttribute && xmlAttribute.name() in attributes) {
+                        this[xmlAttribute.member()] =
+                            gpf.value(attributes[xmlAttribute.name()],
+                                this.constructor[xmlAttribute.member()]);
+                    }
+                }
+
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:startPrefixMapping
+             */
+            startPrefixMapping: function (prefix, uri) {
+                // Nothing to do (?)
+                gpfI.ignoreParameter(prefix);
+                gpfI.ignoreParameter(uri);
+            }
+
+            //endregion
         };
 
         // endregion
@@ -577,27 +671,25 @@
             }
         },
 
-        //region gpfI.IXmlContentHandler
+        //region gpf.interfaces.IXmlContentHandler
 
         /**
-         * @implements gpfI.IXmlContentHandler:characters
+         * @implements gpf.interfaces.IXmlContentHandler:characters
          */
-        characters: function (buffer, start, length) {
-            gpfI.ignoreParameter(start);
-            gpfI.ignoreParameter(length);
+        characters: function (buffer) {
             this._closeLeafForContent();
             this._stream.write(buffer);
         },
 
         /**
-         * @implements gpfI.IXmlContentHandler:endDocument
+         * @implements gpf.interfaces.IXmlContentHandler:endDocument
          */
         endDocument: function () {
             // Nothing to do
         },
 
         /**
-         * @implements gpfI.IXmlContentHandler:endElement
+         * @implements gpf.interfaces.IXmlContentHandler:endElement
          */
         endElement: function () {
             var
@@ -613,24 +705,22 @@
         },
 
         /**
-         * @implements gpfI.IXmlContentHandler:endPrefixMapping
+         * @implements gpf.interfaces.IXmlContentHandler:endPrefixMapping
          */
         endPrefixMapping: function (prefix) {
             // Nothing to do (?)
         },
 
         /**
-         * @implements gpfI.IXmlContentHandler:ignorableWhitespace
+         * @implements gpf.interfaces.IXmlContentHandler:ignorableWhitespace
          */
-        ignorableWhitespace: function (buffer, start, length) {
-            gpfI.ignoreParameter(start);
-            gpfI.ignoreParameter(length);
+        ignorableWhitespace: function (buffer) {
             this._closeLeafForContent();
             this._stream.write(buffer);
         },
 
         /**
-         * @implements gpfI.IXmlContentHandler:processingInstruction
+         * @implements gpf.interfaces.IXmlContentHandler:processingInstruction
          */
         processingInstruction: function (target, data) {
             var
@@ -643,28 +733,28 @@
         },
 
         /**
-         * @implements gpfI.IXmlContentHandler:setDocumentLocator
+         * @implements gpf.interfaces.IXmlContentHandler:setDocumentLocator
          */
         setDocumentLocator: function (locator) {
             // Nothing to do
         },
 
         /**
-         * @implements gpfI.IXmlContentHandler:skippedEntity
+         * @implements gpf.interfaces.IXmlContentHandler:skippedEntity
          */
         skippedEntity: function (name) {
             // Nothing to do
         },
 
         /**
-         * @implements gpfI.IXmlContentHandler:startDocument
+         * @implements gpf.interfaces.IXmlContentHandler:startDocument
          */
         startDocument: function () {
             // Nothing to do
         },
 
         /**
-         * @implements gpfI.IXmlContentHandler:startElement
+         * @implements gpf.interfaces.IXmlContentHandler:startElement
          */
         startElement: function (uri, localName, qName, attributes) {
             var
@@ -710,7 +800,7 @@
         },
 
         /**
-         * @implements gpfI.IXmlContentHandler:startPrefixMapping
+         * @implements gpf.interfaces.IXmlContentHandler:startPrefixMapping
          */
         startPrefixMapping: function (prefix, uri) {
             var
