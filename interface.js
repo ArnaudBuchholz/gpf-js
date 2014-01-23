@@ -38,12 +38,69 @@
         ignoreParameter: function (value) {
             // TODO remove at build time
             return value;
-        }
+        },
+
+        /**
+         * Retrieve an object implementing the expected interface from an
+         * object.
+         * This is done in two passes:
+         * - Either the object implements the interface, it is returned
+         * - Or the object implements IUnknown, then queryInterface is used
+         *
+         * @param {object} objectInstance object to inspect
+         * @param {gpf.interfaces.Interface} interfaceDefinition reference
+         * interface
+         * @returns {object|null}
+         */
+        query: function (objectInstance, interfaceDefinition) {
+            if (gpf.interfaces.isImplementedBy(objectInstance,
+                interfaceDefinition)) {
+                return objectInstance;
+            } else if (gpf.interfaces.isImplementedBy(objectInstance,
+                gpf.interfaces.IUnknown)) {
+                return objectInstance.queryInterface(interfaceDefinition);
+            } else {
+                return null;
+            }
+        },
+
+        //region Interface base class
+
+        Interface: gpf.Class.extend({
+        }),
+
+        //endregion
+
+        //region IUnknown
+
+        /**
+         * Provide a way for any object to implement an interface using an
+         * intermediate object (this avoids overloading the object with
+         * temporary / useless members)
+         */
+        IUnknown: gpf.interfaces.Interface.extend({
+
+            /**
+             * Retrieves an object supporting the provided interface
+             * (maybe the object itself)
+             *
+             * @param {gpf.interfaces.Interface} interfaceDefinition The
+             * expected * interface
+             * @returns {object|null} The object supporting the interface (or
+             * null)
+             */
+            queryInterface: function (interfaceDefinition) {
+                gpf.interfaces.ignoreParameter(interfaceDefinition);
+                return null;
+            }
+
+        })
+
+        //endregion
 
     };
 
-    gpf.interfaces.Interface = gpf.Class.extend({
-    });
+    //region InterfaceImplement attribute
 
     gpf.attributes.InterfaceImplementAttribute
         = gpf.attributes.Attribute.extend({
@@ -57,5 +114,7 @@
         }
 
     });
+
+    //endregion
 
 }()); /* End of privacy scope */

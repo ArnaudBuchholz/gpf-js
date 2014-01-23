@@ -383,9 +383,10 @@
             contentHandler.endElement();
         },
 
-        _toXml = function (contentHandler) {
-            if (gpfI.isImplementedBy(contentHandler,gpfI.IXmlContentHandler)) {
-                _toContentHandler(this, contentHandler);
+        _toXml = function (obj) {
+            var iContentHandler = gpfI.query(obj, gpfI.IXmlContentHandler);
+            if (iContentHandler) {
+                _toContentHandler(this, iContentHandler);
             } else {
                 throw "Invalid parameter, " +
                     + "expected gpf.interfaces.IXmlContentHandler";
