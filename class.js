@@ -96,31 +96,21 @@
         // And allow class extension
         newClass.extend = _extend;
 
-        // Copy the properties onto the new prototype
+        /*
+         * 2014-01-23 ABZ Changed it into two passes to process members first
+         * and then attributes. Indeed, some attributes may alter the prototype
+         * differently depending on what it contains.
+         */
+        // STEP 1: Copy the properties/methods onto the new prototype
         for (member in properties) {
             if (!properties.hasOwnProperty(member)) {
                 continue;
             }
 
-            /*
-             * Attributes placeholder
-             * Most of the functions used below are defined *later*:
-             * - gpf.attributes._add comes from attributes.js
-             * - gpf.ClassAttributeError comes from att_class.js
-             */
+            // Skip Attributes
             if ("[" === member.charAt(0)
                 && "]" === member.charAt(member.length - 1)) {
-                attributeName = member.substr(1, member.length - 2);
-                if (attributeName in properties
-                    || attributeName in newPrototype
-                    || attributeName === "Class") {
-                    gpf.attributes.add(newClass, attributeName,
-                        properties[member]);
-                } else {
-                    // 2013-12-15 ABZ Consider this as exceptional, trace it
-                    console.error("gpf.Class::extend: Invalid attribute name '"
-                        + attributeName + "'");
-                }
+                continue;
             }
 
             // Check if we're overwriting an existing function
@@ -157,6 +147,33 @@
                 })(member, properties[member]);
             } else {
                 newPrototype[member] = properties[member];
+            }
+        }
+        // STEP 2: Copy the attributes onto the new prototype
+        for (member in properties) {
+            if (!properties.hasOwnProperty(member)) {
+                continue;
+            }
+
+            /*
+             * Attributes placeholder
+             * Most of the functions used below are defined *later*:
+             * - gpf.attributes._add comes from attributes.js
+             * - gpf.ClassAttributeError comes from att_class.js
+             */
+            if ("[" === member.charAt(0)
+                && "]" === member.charAt(member.length - 1)) {
+                attributeName = member.substr(1, member.length - 2);
+                if (attributeName in properties
+                    || attributeName in newPrototype
+                    || attributeName === "Class") {
+                    gpf.attributes.add(newClass, attributeName,
+                        properties[member]);
+                } else {
+                    // 2013-12-15 ABZ Consider this as exceptional, trace it
+                    console.error("gpf.Class::extend: Invalid attribute name '"
+                        + attributeName + "'");
+                }
             }
         }
 

@@ -64,43 +64,79 @@
             }
         },
 
-        //region Interface base class
-
         Interface: gpf.Class.extend({
-        }),
-
-        //endregion
-
-        //region IUnknown
-
-        /**
-         * Provide a way for any object to implement an interface using an
-         * intermediate object (this avoids overloading the object with
-         * temporary / useless members)
-         */
-        IUnknown: gpf.interfaces.Interface.extend({
-
-            /**
-             * Retrieves an object supporting the provided interface
-             * (maybe the object itself)
-             *
-             * @param {gpf.interfaces.Interface} interfaceDefinition The
-             * expected * interface
-             * @returns {object|null} The object supporting the interface (or
-             * null)
-             */
-            queryInterface: function (interfaceDefinition) {
-                gpf.interfaces.ignoreParameter(interfaceDefinition);
-                return null;
-            }
-
         })
-
-        //endregion
 
     };
 
+    //region IUnknown
+
+    /**
+     * Provide a way for any object to implement an interface using an
+     * intermediate object (this avoids overloading the object with temporary
+     * / useless members)
+     */
+    gpf.interfaces.IUnknown = gpf.interfaces.Interface.extend({
+
+        /**
+         * Retrieves an object supporting the provided interface
+         * (maybe the object itself)
+         *
+         * @param {gpf.interfaces.Interface} interfaceDefinition The expected
+         * interface
+         * @returns {object|null} The object supporting the interface (or null)
+         */
+        queryInterface: function (interfaceDefinition) {
+            gpf.interfaces.ignoreParameter(interfaceDefinition);
+            return null;
+        }
+
+    });
+
+    //endregion
+
     //region InterfaceImplement attribute
+
+    /**
+     * Retrieves an object supporting the provided interface
+     * (maybe the object itself). This function (added to any object declaring
+     * the attribute InterfaceImplementAttribute with a builder) uses the
+     * InterfaceImplementAttribute attribute list to see if the one
+     * corresponding to the interface provides a builder and calls it
+     *
+     * @param {gpf.interfaces.Interface} interfaceDefinition The expected
+     * interface
+     * @returns {object|null} The object supporting the interface (or null)
+     */
+    function _queryInterface (interfaceDefinition) {
+        var
+            array = gpf.interfaces.Map(this)
+                .member("Class")
+                .filter(gpf.attributes.InterfaceImplementAttribute),
+            idx,
+            attribute,
+            classInfo;
+        for (idx = 0; idx < array.length(); ++idx) {
+            attribute = array.get(idx);
+            if (attribute._interfaceDefinition === interfaceDefinition) {
+                if (attribute._builder) {
+                    return attribute._builder(this);
+                }
+                break;
+            }
+        }
+        /*
+         * When overloaded (if existing), the previous function is defined
+         * at the class level
+         */
+        classInfo = this.constructor._info;
+        if (undefined !== classInfo
+            && undefined !== classInfo._queryInterface) {
+            return classInfo._queryInterface.apply(this, arguments);
+        }
+        // Otherwise
+        return null;
+    }
 
     gpf.attributes.InterfaceImplementAttribute
         = gpf.attributes.Attribute.extend({
@@ -108,9 +144,38 @@
         "[Class]": [gpf.$Alias("InterfaceImplement")],
 
         _interfaceDefinition: 0,
+        _builder: null,
 
-        init: function (interfaceDefinition) {
+        init: function (interfaceDefinition, queryInterfaceBuilder) {
             this._interfaceDefinition = interfaceDefinition;
+            if (queryInterfaceBuilder) {
+                this._builder = queryInterfaceBuilder;
+            }
+        },
+
+        alterPrototype: function (objPrototype) {
+            var classInfo;
+            if (!this._builder) {
+                // Nothing to do
+                return;
+            }
+            if (undefined !== objPrototype.queryInterface) {
+                /*
+                 * Taking the assumption that the class already owns the
+                 * $InterfaceImplement attribute
+                 */
+                if (_queryInterface !== objPrototype.queryInterface) {
+                    // Store the existing one on the class info
+                    classInfo = objPrototype.constructor._info;
+                    classInfo._queryInterface = objPrototype.queryInterface;
+                    objPrototype.queryInterface = _queryInterface;
+
+                }
+            } else {
+                objPrototype.queryInterface = _queryInterface;
+                gpf.attributes.add(objPrototype.constructor, "Class",
+                    [gpf.$InterfaceImplement(gpf.interfaces.IUnknown)]);
+            }
         }
 
     });
