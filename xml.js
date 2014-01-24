@@ -123,6 +123,7 @@
     var
 
         //region XML attributes
+
         // gpfA.XmlAttribute
         _Base = gpfA.Attribute.extend({
 
@@ -130,15 +131,15 @@
                 /*
                  * If not yet defined creates new XML members
                  * - toXml()
-                 * - IXmlContentHandler members (+ attribute declaration)
+                 * - IXmlContentHandler implementation
                  */
                 if (undefined === objPrototype.toXml) {
                     // Declare toXml
                     objPrototype.toXml = _toXml;
-                    // Declare IXmlContentHandler interface
+                    // Declare IXmlContentHandler interface through IUnknown
                     gpfA.add(objPrototype.constructor, "Class",
-                        [gpf.$InterfaceImplement(gpfI.IXmlContentHandler)]);
-                    gpf.extend(objPrototype, _fromXml);
+                        [gpf.$InterfaceImplement(gpfI.IXmlContentHandler,
+                            _fromXml)]);
                 }
             }
 
@@ -397,39 +398,162 @@
 
         //region FROM XML
 
-        _selectByName = function (array, name) {
-            var
-                idx,
-                attribute,
-                result = null;
-            for (idx = 0; idx < array.length(); ++idx) {
-                attribute = array.get(idx);
-                if (!(attribute instanceof _Element)) {
-                    continue;
-                }
-                if (attribute.name()) {
-                    if (attribute.name() === name) {
-                        return attribute;
+        /**
+         * Class to handle object deserializtion from XML
+         *
+         * @private
+         */
+        _fromXmlContentHandler = gpf.Class.extend({
+
+            // Event if it is not necessary
+            "[Class]": [gpf.$InterfaceImplement(gpfI.IXmlContentHandler)],
+
+            _target: null,
+
+            init: function (target) {
+                this._target = target;
+            },
+
+            /*
+            _selectByName: function (array, name) {
+                var
+                    idx,
+                    attribute,
+                    result = null;
+                for (idx = 0; idx < array.length(); ++idx) {
+                    attribute = array.get(idx);
+                    if (!(attribute instanceof _Element)) {
+                        continue;
+                    }
+                    if (attribute.name()) {
+                        if (attribute.name() === name) {
+                            return attribute;
+                        }
+                    }
+                    else if (!result) {
+                        result = attribute;
                     }
                 }
-                else if (!result) {
-                    result = attribute;
+                return result;
+            },
+
+            _selectChildByName: function (node, name) {
+                // Look for the first child having the right name
+                var child = node.firstChild;
+                while (child) {
+                    if (1 === child.nodeType && name === child.localName)
+                        return child;
+                    child = child.nextSibling;
                 }
-            }
-            return result;
-        },
+                return null;
+            },
+            */
 
-        _selectChildByName = function (node, name) {
-            // Look for the first child having the right name
-            var child = node.firstChild;
-            while (child) {
-                if (1 === child.nodeType && name === child.localName)
-                    return child;
-                child = child.nextSibling;
-            }
-            return null;
-        },
+            //region gpf.interfaces.IXmlContentHandler
 
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:characters
+             */
+            characters: function (buffer) {
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:endDocument
+             */
+            endDocument: function () {
+                // Nothing to do
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:endElement
+             */
+            endElement: function () {
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:endPrefixMapping
+             */
+            endPrefixMapping: function (prefix) {
+                // Nothing to do (?)
+                gpfI.ignoreParameter(prefix);
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:ignorableWhitespace
+             */
+            ignorableWhitespace: function (buffer) {
+                // Nothing to do
+                gpfI.ignoreParameter(prefix);
+            },
+
+            /**
+             * @implements
+             *   gpf.interfaces.IXmlContentHandler:processingInstruction
+             */
+            processingInstruction: function (target, data) {
+                // Not relevant
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:setDocumentLocator
+             */
+            setDocumentLocator: function (locator) {
+                // Nothing to do
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:skippedEntity
+             */
+            skippedEntity: function (name) {
+                // Nothing to do
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:startDocument
+             */
+            startDocument: function () {
+                // Nothing to do
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:startElement
+             */
+            startElement: function (uri, localName, qName, attributes) {
+/*
+                // First time, name must be ignored (routing done by the parent)
+                var
+                    xmlAttributes,
+                    attNames,
+                    idx,
+                    attName,
+                    xmlAttribute;
+                xmlAttributes = (new gpfA.Map(this)).filter(_Base);
+                attNames = xmlAttributes.members();
+                for (idx = 0; idx < attNames.length; ++idx) {
+                    attName = attNames[idx];
+                    xmlAttribute = xmlAttributes.member(attName)
+                        .filter(_Attribute);
+                    if(xmlAttribute && xmlAttribute.name() in attributes) {
+                        this[xmlAttribute.member()] =
+                            gpf.value(attributes[xmlAttribute.name()],
+                                this.constructor[xmlAttribute.member()]);
+                    }
+                }
+*/
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:startPrefixMapping
+             */
+            startPrefixMapping: function (prefix, uri) {
+                // Nothing to do (?)
+                gpfI.ignoreParameter(prefix);
+                gpfI.ignoreParameter(uri);
+            }
+
+            //endregion
+
+        }),
 
         _parseXml = function (node, objClass) {
             var
@@ -529,110 +653,9 @@
             return obj;
         },
 
-        _fromXml = {
-
-            //region gpf.interfaces.IXmlContentHandler
-
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:characters
-             */
-            characters: function (buffer) {
-            },
-
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:endDocument
-             */
-            endDocument: function () {
-                // Nothing to do
-            },
-
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:endElement
-             */
-            endElement: function () {
-            },
-
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:endPrefixMapping
-             */
-            endPrefixMapping: function (prefix) {
-                // Nothing to do (?)
-                gpfI.ignoreParameter(prefix);
-            },
-
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:ignorableWhitespace
-             */
-            ignorableWhitespace: function (buffer) {
-                // Nothing to do
-                gpfI.ignoreParameter(prefix);
-            },
-
-            /**
-             * @implements
-             *   gpf.interfaces.IXmlContentHandler:processingInstruction
-             */
-            processingInstruction: function (target, data) {
-                // Not relevant
-            },
-
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:setDocumentLocator
-             */
-            setDocumentLocator: function (locator) {
-                // Nothing to do
-            },
-
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:skippedEntity
-             */
-            skippedEntity: function (name) {
-                // Nothing to do
-            },
-
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:startDocument
-             */
-            startDocument: function () {
-                // Nothing to do
-            },
-
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:startElement
-             */
-            startElement: function (uri, localName, qName, attributes) {
-                // First time, name must be ignored (routing done by the parent)
-                var
-                    xmlAttributes,
-                    attNames,
-                    idx,
-                    attName,
-                    xmlAttribute;
-                xmlAttributes = (new gpfA.Map(this)).filter(_Base);
-                attNames = xmlAttributes.members();
-                for (idx = 0; idx < attNames.length; ++idx) {
-                    attName = attNames[idx];
-                    xmlAttribute = xmlAttributes.member(attName)
-                        .filter(_Attribute);
-                    if(xmlAttribute && xmlAttribute.name() in attributes) {
-                        this[xmlAttribute.member()] =
-                            gpf.value(attributes[xmlAttribute.name()],
-                                this.constructor[xmlAttribute.member()]);
-                    }
-                }
-
-            },
-
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:startPrefixMapping
-             */
-            startPrefixMapping: function (prefix, uri) {
-                // Nothing to do (?)
-                gpfI.ignoreParameter(prefix);
-                gpfI.ignoreParameter(uri);
-            }
-
-            //endregion
+        _fromXml = function (target) {
+            debugger;
+            return new _fromXmlContentHandler(target);
         };
 
         // endregion

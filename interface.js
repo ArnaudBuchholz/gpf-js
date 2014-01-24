@@ -110,7 +110,7 @@
      */
     function _queryInterface (interfaceDefinition) {
         var
-            array = gpf.interfaces.Map(this)
+            array = (new gpf.attributes.Map(this))
                 .member("Class")
                 .filter(gpf.attributes.InterfaceImplementAttribute),
             idx,
@@ -143,7 +143,10 @@
 
         "[Class]": [gpf.$Alias("InterfaceImplement")],
 
+        "[_interfaceDefinition]": [gpf.$ClassProperty(false, "which")],
         _interfaceDefinition: 0,
+
+        "[_builder]": [gpf.$ClassProperty(false, "how")],
         _builder: null,
 
         init: function (interfaceDefinition, queryInterfaceBuilder) {

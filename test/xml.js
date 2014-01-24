@@ -76,6 +76,46 @@
 
     gpf.declareTests({
 
+        "attributes": [
+
+            function (test) {
+                test.title("Check the way attributes are set on the class");
+                var
+                    movie = new Movie(),
+                    map = (new gpf.attributes.Map(movie))
+                        .filter(gpf.attributes.XmlAttribute),
+                    members = map.members(),
+                    idx, member,
+                    array, interfaceImplement;
+                test.log("Found " + members.length + " members");
+                for (idx = 0; idx < members.length; ++idx) {
+                    member = members[idx];
+                    array = map.member(member);
+                    test.log("[" + idx + "] '" + member + "' " + array.length());
+                    if ("_scriptwriters" === member) {
+                        test.equal(array.length(), 2, "Expected two");
+                    } else {
+                        test.equal(array.length(), 1, "Expected one");
+                    }
+                }
+                // Have a look on InterfaceImplement
+                array = (new gpf.attributes.Map(movie))
+                    .filter(gpf.attributes.InterfaceImplementAttribute)
+                    .member("Class");
+                test.equal(array.length(), 2);
+                // We should have IUnknown & IXmlContentHandler only
+                for (idx = 0; idx < array.length(); ++idx) {
+                    interfaceImplement = array.get(idx);
+                    if (interfaceImplement.which() !== gpf.interfaces.IUnknown
+                        && interfaceImplement.which()
+                           !== gpf.interfaces.IXmlContentHandler) {
+                        test.assert(false, "Found unexpected implemented interface");
+                    }
+                }
+            }
+
+        ],
+
         "writer": [
 
             function (test) {
@@ -108,8 +148,12 @@
             function (test) {
                 test.title("Use fromXML to create an object");
                 var
-                    movie = new Movie();
-                _createStarshipTroopersXML(movie);
+                    movie,
+                    contentHandler;
+                movie = new Movie();
+                contentHandler = gpf.interfaces.query(movie,
+                    gpf.interfaces.IXmlContentHandler);
+                _createStarshipTroopersXML(contentHandler);
                 test.equal(movie, starshipTroopers);
             }
 
