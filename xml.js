@@ -408,14 +408,20 @@
             // Event if it is not necessary
             "[Class]": [gpf.$InterfaceImplement(gpfI.IXmlContentHandler)],
 
-            _target: null,
-            _forward: null,
-            _firstElement: true,
+            _target: null,                          // Object that is serialized
+            _firstElement: true,             // startElement has not been called
+            _forward: null,                     // subsequent IXmlContentHandler
+            _depth: 0,                                       // subsequent depth
+            _textBuffer: [],                          // consolidated characters
+            _textMember: null,       // when subObject has no IXmlContentHandler
 
             init: function (target) {
                 this._target = target;
-                this._forward = null;
                 this._firstElement = true;
+                this._forward = null;
+                this._depth = 0;
+                this._textBuffer = [];
+                this._textValue = null;
             },
 
             /*
@@ -466,7 +472,7 @@
                 }
             },
 
-            subObject: function (uri, localName, qName, attributes) {
+            _subObject: function (uri, localName, qName, attributes) {
                 var
                     xmlAttributes = new gpfA.Map(this._target),
                     targetProto = this._target.constructor.prototype,
@@ -475,27 +481,34 @@
                     member,
                     attArray,
                     jdx,
-                    attribute;
-
+                    attribute,
+                    obj;
                 xmlAttributes = xmlAttributes.filter(_Element);
                 members = xmlAttributes.members();
                 for (idx = 0; idx < members.length; ++idx) {
                     member = members[idx];
                     attArray = xmlAttributes.member(member);
-                    for (jdx = 0; jdx < attArray.length; ++jdx) {
+                    for (jdx = 0; jdx < attArray.length(); ++jdx) {
                         attribute = attArray.get(jdx);
                         // TODO handle namespaces
                         if (attribute.name() === localName) {
-                            /*
-                             * 1. Build new object and assign it to the member
-                             * 2. query IXmlContentHandler (may manage special
-                             *    cases such as Date)
-                             * 3. Forward pointer ?!?
-                             */
+                            // 1. Build new object and assign it to the member
+                            obj = new (attribute.objClass())();
+                            this._target[member] = obj;
+                            // 2. query IXmlContentHandler
+                            // 3. Forward pointer
+                            ++this._depth;
+                            this._forward = gpfI.query(obj,
+                                gpfI.IXmlContentHandler);
+                            if (!this._forward) {
+                                // No IXmlContentHandler, process as text
+                                this._textBuffer = [];
+                                this._textMember = member;
+                            }
+                            return; // we can stop there
                         }
                     }
                 }
-
             },
 
 
@@ -507,6 +520,8 @@
             characters: function (buffer) {
                 if (this._forward) {
                     this._forward.characters.apply(this._forward, arguments);
+                } else {
+                    this._textBuffer.push(buffer);
                 }
             },
 
@@ -523,6 +538,15 @@
             endElement: function () {
                 if (this._forward) {
                     this._forward.endElement.apply(this._forward, arguments);
+                } else if (1 === this._depth && this._textMember
+                    && this._textBuffer.length) {
+                    this._target[this._textMember] = gpf.value(
+                        this._textBuffer.join(""),
+                        this._target[this._textMember]);
+                }
+                if (0 === --this._depth) {
+                    this._forward = null;
+                    this._textMember = null;
                 }
             },
 
@@ -576,7 +600,11 @@
              */
             startElement: function (uri, localName, qName, attributes) {
                 if (this._forward) {
+                    ++this._depth;
                     this._forward.startElement.apply(this._forward, arguments);
+                } else if (1 === this._depth) {
+                    // what should we do?
+                    throw 'Not expected';
                 } else if (this._firstElement) {
                     this._firstElement = false;
                     /*
@@ -588,7 +616,7 @@
                     /*
                      * Elements are used to introduce a sub-object
                      */
-                    this._subOjbect.apply(this, arguments);
+                    this._subObject.apply(this, arguments);
                 }
             },
 

@@ -201,6 +201,10 @@
                 if ("string" === valueType) {
                     return parseFloat(value);
                 }
+            } else if ("object" === expectedType) {
+                if (defaultValue instanceof Date && "string" === valueType) {
+                    return gpf.dateFromComparableFormat(value);
+                }
             }
             return defaultValue;
         },
