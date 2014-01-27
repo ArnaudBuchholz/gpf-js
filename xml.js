@@ -409,33 +409,17 @@
             "[Class]": [gpf.$InterfaceImplement(gpfI.IXmlContentHandler)],
 
             _target: null,
+            _forward: null,
+            _firstElement: true,
 
             init: function (target) {
                 this._target = target;
+                this._forward = null;
+                this._firstElement = true;
             },
 
             /*
-            _selectByName: function (array, name) {
-                var
-                    idx,
-                    attribute,
-                    result = null;
-                for (idx = 0; idx < array.length(); ++idx) {
-                    attribute = array.get(idx);
-                    if (!(attribute instanceof _Element)) {
-                        continue;
-                    }
-                    if (attribute.name()) {
-                        if (attribute.name() === name) {
-                            return attribute;
-                        }
-                    }
-                    else if (!result) {
-                        result = attribute;
-                    }
-                }
-                return result;
-            },
+
 
             _selectChildByName: function (node, name) {
                 // Look for the first child having the right name
@@ -449,12 +433,81 @@
             },
             */
 
+            _fillFromAttributes: function (attributes) {
+                var
+                    xmlAttributes = new gpfA.Map(this._target),
+                    targetProto = this._target.constructor.prototype,
+                    member,
+                    attArray,
+                    attName;
+                for (member in targetProto) {
+                    if ("function" === typeof targetProto[member]) {
+                        continue; // ignore
+                    }
+                    attArray = xmlAttributes
+                        .member(member)
+                        .filter(_Attribute);
+                    if (0 < attArray.length()) {
+                        gpf.ASSERT(attArray.length() === 1);
+                        attName = attArray.get(0).name();
+                    } else {
+                        // Only private are serialized by default as att.
+                        if (member.charAt(0) === "_") {
+                            attName = member.substr(1);
+                        } else {
+                            continue; // ignore
+                        }
+                    }
+                    if (attName in attributes) {
+                        this._target[attName] =
+                            gpf.value(attributes[attName],
+                                targetProto[member]);
+                    }
+                }
+            },
+
+            subObject: function (uri, localName, qName, attributes) {
+                var
+                    xmlAttributes = new gpfA.Map(this._target),
+                    targetProto = this._target.constructor.prototype,
+                    members,
+                    idx,
+                    member,
+                    attArray,
+                    jdx,
+                    attribute;
+
+                xmlAttributes = xmlAttributes.filter(_Element);
+                members = xmlAttributes.members();
+                for (idx = 0; idx < members.length; ++idx) {
+                    member = members[idx];
+                    attArray = xmlAttributes.member(member);
+                    for (jdx = 0; jdx < attArray.length; ++jdx) {
+                        attribute = attArray.get(jdx);
+                        // TODO handle namespaces
+                        if (attribute.name() === localName) {
+                            /*
+                             * 1. Build new object and assign it to the member
+                             * 2. query IXmlContentHandler (may manage special
+                             *    cases such as Date)
+                             * 3. Forward pointer ?!?
+                             */
+                        }
+                    }
+                }
+
+            },
+
+
             //region gpf.interfaces.IXmlContentHandler
 
             /**
              * @implements gpf.interfaces.IXmlContentHandler:characters
              */
             characters: function (buffer) {
+                if (this._forward) {
+                    this._forward.characters.apply(this._forward, arguments);
+                }
             },
 
             /**
@@ -468,6 +521,9 @@
              * @implements gpf.interfaces.IXmlContentHandler:endElement
              */
             endElement: function () {
+                if (this._forward) {
+                    this._forward.endElement.apply(this._forward, arguments);
+                }
             },
 
             /**
@@ -519,27 +575,21 @@
              * @implements gpf.interfaces.IXmlContentHandler:startElement
              */
             startElement: function (uri, localName, qName, attributes) {
-/*
-                // First time, name must be ignored (routing done by the parent)
-                var
-                    xmlAttributes,
-                    attNames,
-                    idx,
-                    attName,
-                    xmlAttribute;
-                xmlAttributes = (new gpfA.Map(this)).filter(_Base);
-                attNames = xmlAttributes.members();
-                for (idx = 0; idx < attNames.length; ++idx) {
-                    attName = attNames[idx];
-                    xmlAttribute = xmlAttributes.member(attName)
-                        .filter(_Attribute);
-                    if(xmlAttribute && xmlAttribute.name() in attributes) {
-                        this[xmlAttribute.member()] =
-                            gpf.value(attributes[xmlAttribute.name()],
-                                this.constructor[xmlAttribute.member()]);
-                    }
+                if (this._forward) {
+                    this._forward.startElement.apply(this._forward, arguments);
+                } else if (this._firstElement) {
+                    this._firstElement = false;
+                    /*
+                     * First time startElement is called, ignore localName
+                     * but process attributes.
+                     */
+                    this._fillFromAttributes(attributes);
+                } else {
+                    /*
+                     * Elements are used to introduce a sub-object
+                     */
+                    this._subOjbect.apply(this, arguments);
                 }
-*/
             },
 
             /**
