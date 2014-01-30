@@ -1,8 +1,11 @@
 (function () {
     "use strict";
 
-    function onTokenFound (type, token/*, context*/) {
+    function onTokenFound (event) {
         // Trim any space token before the first non space one
+        var
+            type = event.type(),
+            token = event.get("token");
         if ("space" === type) {
             if (!this.hasChildNodes()) {
                 return;
@@ -30,7 +33,7 @@
                     .replace(/(&amp;)/g, "&")
                 ;
             codeElement.innerHTML = ""; // Easy way to clear this
-            gpf.tokenize.apply(codeElement, [src, onTokenFound]);
+            gpf.js.tokenize.apply(codeElement, [src, onTokenFound]);
         }
     }
 
