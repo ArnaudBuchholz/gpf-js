@@ -1,0 +1,151 @@
+<script language="javascript" src="include.js"></script>
+<h3 class="post-title entry-title">
+    Mysteries of javascript objects, classes and inheritance
+</h3>
+<!-- The above must be replaced with -->
+<!-- <script language="javascript" src="http://buchholz.free.fr/gpf-js/blog/include.js"></script> -->
+<h1>What did I spend my time on during the last months?</h1>
+The last months, I have been working on my library during my - rare - spare time. For instance, I tried to organize the different features into namespaces to avoid creating one object containing all the methods.<br />
+Since I started the new job, I also rewrote some of it to fit most of JSLint validation rules and changed the way tests are made to support several hosts (cscript, nodeJS and a browser).<br />
+<br />
+One interesting problem I had to deal with is related to the way attributes are handled. In my implementation, attributes could be compared to the Java annotations: these are information added to the source code that can be retrieved at run-time using specific methods. They are used to generate code (object members) or customize behaviors (such as XML serialization).<br />
+<br />
+I will write an article later about that very specific topic.<br />
+<br />
+The problem I had to deal with is related to classes and inheritance: indeed, I wanted to be able to inherit the attributes and - as a consequence - to be able to walk through the class hierarchy.<br />
+Also, I wanted to simplify the way attributes are created so I wrote aliases for constructors (let say object factories).<br />
+<br />
+I learned a lot by implementing these methods and I would like to share with you my understanding of how objects are handled in JavaScript.<br />
+<h3>
+    Classes and inheritance</h3>
+First of all, I will not detail these concepts as they belong to the <a href="http://en.wikipedia.org/wiki/Object-oriented_programming" target="_blank">Object Oriented Programming languages</a>.<br />
+But also, the main reason is that JavaScript is <b>*not*</b> an OOP language: it misses lots of interesting features such as the possibility to control members visibility (using private, protected and public), polymorphism or operators.<br />
+<br />
+As a matter of fact, the 'class' keyword is reserved but you can't do anything with it. You will also see that the 'delete' keyword exists but for a different usage.<br />
+<br />
+That's why I would like to explain what is a JavaScript object, how it is declared and used in order to highlight what can be done (and also what can't).<br />
+<h4>
+    Objects and members</h4>
+In JavaScript, the simplest way to create an object is the following:<br />
+<code class="javascript">var myObject1 = {};</code>
+<br />
+<br />
+The following syntax is strictly equivalent:<br />
+<code class="javascript">var myObject2 = new Object();</code><br />
+<br />
+Both are generating an empty object (i.e. with no members) but once created, it exposes a number of predefined members (mostly methods), for instance:<br />
+<ul>
+    <li><b>toString()</b> which gives a string representation of the object</li>
+    <li><b>hasOwnProperty(name) </b>that will become helpful later in this article</li>
+    <li><b>constructor </b>that will also be explained later</li>
+</ul>
+To access the members or call the methods, you can use either the "." operator or the "[]" one:<br />
+<code class="javascript">var string1 = myObject1.toString();
+    var string2 = myObject2["toString"]();</code><br />
+<br />
+Usually, the bracket operator is used whenever the member name is a variable or an invalid identifier (for instance "my field").<br />
+<br />
+The real power of JavaScript compared to classical OOP languages is the fact that you can dynamically add any member to any object.<br />
+<br />
+Again, there are several syntax you can use:<br />
+<code class="javascript">myObject1.member = "value"; myObject2["member"] = "value"; myObject1["member"] === myObject2.member;</code><br />
+<br />
+Consequently, if you want to initialize the object with members, you can add them one by one:<br />
+<code class="javascript">var johnSmith = new Object();
+    johnSmith.firstName = "John";
+    johnSmith.lastName = "Smith";
+    johnSmith.age = 25;
+    johnSmith.address = new Object();
+    johnSmith.address.streetAddress = "21 2nd Street";
+    johnSmith.address.city = "New York";
+    johnSmith.address.state = "NY";
+    johnSmith.address.postalCode = 10021;</code>
+<br />
+<br />
+Or you can make it simpler by using the <a href="http://en.wikipedia.org/wiki/JavaScript_Object_Notation" target="_blank">JSON</a> notation:<br />
+<code class="javascript">var johnSmith = {
+    "firstName": "John",
+    "lastName": "Smith",
+    "age": 25,
+    "address": {
+    "streetAddress": "21 2nd Street",
+    "city": "New York",
+    "state": "NY",
+    "postalCode": 10021
+    }
+    };</code>
+<br />
+<br />
+Indeed, assigning a member on an object will either update the member if existing or create it.<br />
+<br />
+This means that, unlike a strict OOP language, you can't be sure that your object will respect a given structure. I must correct this sentence: with prototyping (that I will explain below) you can make sure that the object has a minimum set of properties. In any case, JavaScript also offers mechanisms to inspect an object definition, like&nbsp;<a href="http://en.wikipedia.org/wiki/Reflection_(computer_programming)" target="_blank">reflection</a>.<br />
+<br />
+First of all, accessing a member that is not defined does not generate any error. Instead, JavaScript returns special value that represents this missing definition.<br />
+<br />
+<div class="note">
+    I hear some screams regarding the above assertion as most of us faced errors related to values that were not defined. However, please take a closer look at what really happened and you will realize that the error came from the use of the undefined value rather than getting it.</div>
+<br />
+The keyword&nbsp;<b><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined" target="_blank">undefined</a></b>&nbsp;allows you to test this situation:<br />
+<code class="javascript">if (undefined === myObject1.notYetDefined) { myObject1.notYetDefined = "OK"; }</code><br />
+<br />
+You may also want to use the <b><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof" target="_blank">typeof</a></b> operator but I tend to limit its use:<br />
+<code class="javascript">if ("undefined" === typeof myObject1.notYetDefined) {
+    myObject1.notYetDefined = "OK";
+    }</code><br />
+<br />
+On the other hand, you might want to list members currently defined on the object, this is where you will start using the operator <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/in" style="font-weight: bold;" target="_blank">in</a>&nbsp;(this is where the "[]" operator is really useful):<br />
+<code class="javascript">for (var member in myObject1) {
+    alert(myObject1[member]);
+    }</code><br />
+<br />
+Another use of the <b>in</b> operator is to test if a member exists in an object:<br />
+<code class="javascript">if (!("notYetDefined" in myObject1)) {
+    myObject1.notYetDefined = "OK";
+    }</code><br />
+<br />
+<div class="note">
+    Some will argue this is not the right way to test if a member exists and will recommend the use of <b><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwnProperty" target="_blank">hasOwnProperty</a></b>. It depends on what you really want to test and - right now - I just want to verify if myObject1 has a member named "notYetDefined" which is exactly what <b>in</b> is doing.</div>
+<br />
+To conclude with object members, there is one operator that is not widely known and rarely used but can be helpful when applied wisely (I will provide an example later): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/delete" target="_blank"><b>delete</b></a>. As documented, it is used to remove a property from an object. It means that, unlike OOP languages, it does not 'free' objects.<br />
+<br />
+An example of use:<br />
+<code class="javascript">if (!("notYetDefined" in myObject1)) {
+    myObject1.notYetDefined = "OK";
+    }
+    // Do something that relies on myObject1.notYetDefined
+    delete myObject1.notYetDefined;
+    // Now "notYetDefined" is no more a property of in myObject1</code><br />
+<br />
+However, <b>delete </b>might not work in some cases.<br />
+<h4>
+    Own properties and prototype</h4>
+The last sentence being confusing, here is an example to illustrate it:<br />
+<code class="javascript">var test = new Object();
+    if ("toString" in test) {
+    console.log("test has \"toString\"");
+    } else {
+    console.log("test doesn't have \"toString\"");
+    }
+    delete test.toString;
+    if ("toString" in test) {
+    console.log("test has \"toString\"");
+    } else {
+    console.log("test doesn't have \"toString\"");
+    }</code>
+<br />
+<br />
+As a result, you will get:<br />
+<code class="output">test has "toString"
+    test has "toString"</code>
+<br />
+<br />
+Hold on a second, we have two possibilities here:<br />
+<br />
+<ul>
+    <li>Either the <b>delete</b> operator does not work as described</li>
+    <li>Or the <b>toString </b>member is not a property of the object</li>
+</ul>
+<div>
+    First, I confirm that <b>delete</b> operator works as described, however the sentence <i>"remove a property from an object"</i> has to be clarified.</div>
+<div>
+    <br /></div>

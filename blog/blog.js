@@ -1,53 +1,54 @@
-function waitForLoad() {
+(function () {
+    "use strict";
 
-    if ("undefined" === typeof gpf || !gpf.loaded()) {
-        window.setTimeout(waitForLoad, 100);
-        return;
+    function onTokenFound (type, token/*, context*/) {
+        // Trim any space token before the first non space one
+        if ("space" === type) {
+            if (!this.hasChildNodes()) {
+                return;
+            }
+            // Replace tabs with 4 spaces
+            token.replace(/\t/, "    ");
+        }
+        var tag = document.createElement("span");
+        tag.className = type;
+        tag.appendChild(document.createTextNode(token));
+        this.appendChild(tag);
     }
-    if (document.readyState && document.readyState !== "complete") {
-        window.setTimeout(waitForLoad, 100);
-        return;
+
+    function reformatCode (codeElement) {
+        var codeClass = codeElement.className;
+        if ("javascript" === codeClass) {
+            var pre = document.createElement("pre");
+            pre.className = "code";
+            pre = codeElement.parentNode.insertBefore(pre, codeElement);
+            pre.appendChild(codeElement);
+            // https://github.com/ArnaudBuchholz/gpf-js/issues/5
+            var src = codeElement.innerHTML
+                    .replace(/(&lt;)/g, "<")
+                    .replace(/(&gt;)/g, ">")
+                    .replace(/(&amp;)/g, "&")
+                ;
+            codeElement.innerHTML = ""; // Easy way to clear this
+            gpf.tokenize.apply(codeElement, [src, onTokenFound]);
+        }
     }
-    console.log("Applying blog changes...");
-    var codes = document.getElementsByTagName("code");
-    for (var idx = 0; idx < codes.length; ++idx)
-        reformatCode(codes[ idx ]);
-}
-window.setTimeout(waitForLoad, 0);
 
-function onTokenFound(type, token/*, context*/) {
-
-    // Trim any space token before the first non space one
-    if ("space" == type) {
-        if (!this.hasChildNodes())
+    function waitForLoad () {
+        if ("undefined" === typeof gpf
+            || !gpf.loaded()
+            || document.readyState && document.readyState !== "complete") {
+            window.setTimeout(waitForLoad, 100);
             return;
-        // Replace tabs with 2 spaces
-        token.replace(/\t/, "  ");
+        }
+        console.log("Applying blog changes...");
+        var
+            codes = document.getElementsByTagName("code"),
+            idx;
+        for (idx = 0; idx < codes.length; ++idx) {
+            reformatCode(codes[idx]);
+        }
     }
-    var tag = document.createElement("span");
-    tag.className = type;
-    tag.appendChild(document.createTextNode(token));
-    this.appendChild(tag);
+    window.setTimeout(waitForLoad, 0);
 
-}
-
-function reformatCode(codeElement) {
-
-    var codeClass = codeElement.className;
-    if ("javascript" === codeClass) {
-
-        var pre = document.createElement("pre");
-        pre.className = "code";
-        pre = codeElement.parentNode.insertBefore(pre, codeElement);
-        pre.appendChild(codeElement);
-        // https://github.com/ArnaudBuchholz/gpf-js/issues/5
-        var src = codeElement.innerHTML
-                .replace(/(&lt;)/g, "<")
-                .replace(/(&gt;)/g, ">")
-                .replace(/(&amp;)/g, "&")
-            ;
-        codeElement.innerHTML = ""; // Easy way to clear this
-        gpf.tokenize.apply(codeElement, [ src, onTokenFound ]);
-
-    }
-}
+}());
