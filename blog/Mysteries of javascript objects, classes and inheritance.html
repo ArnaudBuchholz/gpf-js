@@ -69,12 +69,12 @@ object is to write the following line of code:</p>
 <p>The following syntax is strictly equivalent:</p>
 <code class="javascript">var myObject2 = new Object();</code>
 
-<p>However, those who are used to program with real OOP languages will
-recognize the use of the <span class="keyword">new</span> operator. I will come
-back later to this one, we will first focus on the result.
-<br/>
-Both samples are generating an empty object and once created, it already exposes
-a number of predefined members (mostly methods), for instance:
+<p>Those who are used to program with real OOP languages will recognize the use
+of the <span class="keyword">new</span> operator. I will come back later to this
+one, we will first focus on the result.</p>
+
+<p>Both samples are generating an empty object and once created, it already
+exposes a number of predefined members (mostly methods), for instance:
 <ul>
     <li><span class="keyword">toString</span> a method that returns a
         string representation of the object</li>
@@ -93,14 +93,14 @@ operator or the "[]" one:</p>
 var string2 = myObject2["toString"]();</code>
 
 <p>Usually, the bracket operator is used whenever the member name is
-contained in a variable or an invalid identifier (just try to access the member
-named "my field" with the dot operator).</p>
+contained in a variable or if the name is an invalid identifier
+(just try to access the member named "my field" with the dot operator).</p>
 
 <p>The real power of JavaScript compared to classical OOP languages is the fact
 that you can dynamically add any member to any object.<br />
 Again, there are several syntaxes you can use:</p>
 
-<code class="javascript">myObject1.member = "value";
+<code class="javascript">myObject1.additionalMember = "value";
 myObject2["member"] = "value";
 myObject1["member"] === myObject2.member;</code>
 
@@ -149,13 +149,15 @@ a minimum set of properties.</p>
         <h3>Object inspection</h3>
 
 <p>In any case, the JavaScript language also offers operators to inspect an
-object definition, like
+object definition. Considering the fact that JavaScript allows you to check any
+<a href="http://en.wikipedia.org/wiki/Arity" target="_blank">function arity</a>,
+it really looks like the concept of
 <a href="http://en.wikipedia.org/wiki/Reflection_(computer_programming)"
 target="_blank">reflection</a>.</p>
 
-<p>First of all, accessing a member that is not defined does not generate any
-error. Instead, JavaScript returns special value that represents this missing
-definition.</p>
+<p>Before going any further, accessing a member that is not defined does not
+generate any error. Instead, JavaScript returns a special value that represents
+this missing definition.</p>
 
 <div class="note">I hear some screams regarding the above assertion as most of
 us faced errors related to values that were not defined. However, please take a
@@ -170,26 +172,51 @@ undefined</span></a> allows you to test this situation:</p>
     myObject1.notYetDefined = "OK";
 }</code>
 
-<!-- TODO -->
-
-<br />
-You may also want to use the <b><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof" target="_blank">typeof</a></b> operator but I tend to limit its use:<br />
+<p>You may also want to use the <a href="https://developer.mozilla.org/en-US/
+docs/Web/JavaScript/Reference/Operators/typeof" target="_blank">
+<span class="keyword">typeof</span></a></b> operator:<br />
 <code class="javascript">if ("undefined" === typeof myObject1.notYetDefined) {
     myObject1.notYetDefined = "OK";
-    }</code><br />
-<br />
-On the other hand, you might want to list members currently defined on the object, this is where you will start using the operator <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/in" style="font-weight: bold;" target="_blank">in</a>&nbsp;(this is where the "[]" operator is really useful):<br />
+}</code>
+
+<div class="note">I usually compare a value with
+<span class="keyword">undefined</span> rather than using
+<span class="keyword">typeof</span>. However, they are some situations where you
+have no choice. For instance, if you want to test if a global variable (so we
+are not really accessing a member), you have to use
+<span class="keyword">typeof</span>.</div>
+
+<p>So, those two operators allows you to verify if a member exists for a given
+object. On the other hand, you might want to list all the members that are
+currently existing on the object.
+<br/>
+This is where you will start using the operator
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/
+Operators/in"target="_blank"><span class="keyword">in</span></a> <i>(this is
+also where the "[]" operator becomes really useful)</i>:</p>
+
 <code class="javascript">for (var member in myObject1) {
-    alert(myObject1[member]);
-    }</code><br />
-<br />
-Another use of the <b>in</b> operator is to test if a member exists in an object:<br />
+    alert(myObject1[member]); // Display the content of the member
+}</code>
+
+<p>Another use of the <span class="keyword">in</span> operator is to test if a
+member exists in an object:</p>
+
 <code class="javascript">if (!("notYetDefined" in myObject1)) {
     myObject1.notYetDefined = "OK";
-    }</code><br />
-<br />
-<div class="note">
-    Some will argue this is not the right way to test if a member exists and will recommend the use of <b><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwnProperty" target="_blank">hasOwnProperty</a></b>. It depends on what you really want to test and - right now - I just want to verify if myObject1 has a member named "notYetDefined" which is exactly what <b>in</b> is doing.</div>
+}</code>
+
+<div class="note">There are lots of debate on the internet to know which method
+is the best to enumerate object members. For instance, JSLint does not allow the
+use of <span class="keyword">for in</span> without using the
+<span class="keyword">hasOwnProperty</span>.
+<br/>
+My opinion is that it depends on what you really want to test and - right now -
+I just want to verify if myObject1 has a member named "notYetDefined" which is
+exactly what <b>in</b> is doing.
+<br/>
+I hope things will become more clear in the next chapter.</div>
+
 <br />
 To conclude with object members, there is one operator that is not widely known and rarely used but can be helpful when applied wisely (I will provide an example later): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/delete" target="_blank"><b>delete</b></a>. As documented, it is used to remove a property from an object. It means that, unlike OOP languages, it does not 'free' objects.<br />
 <br />

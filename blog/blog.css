@@ -93,6 +93,14 @@ pre.code {
     padding: 4px;
 }
 
+pre.code div.toolbar {
+    background-image: url("gear.png");
+    background-position: right top;
+    background-repeat: no-repeat;
+    height: 16px;
+    cursor: hand;
+}
+
 code.javascript {
 }
 

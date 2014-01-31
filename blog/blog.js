@@ -20,20 +20,29 @@
     }
 
     function reformatCode (codeElement) {
-        var codeClass = codeElement.className;
+        var
+            codeClass = codeElement.className,
+            pre, src, toolbar;
         if ("javascript" === codeClass) {
-            var pre = document.createElement("pre");
+            pre = document.createElement("pre");
             pre.className = "code";
             pre = codeElement.parentNode.insertBefore(pre, codeElement);
             pre.appendChild(codeElement);
             // https://github.com/ArnaudBuchholz/gpf-js/issues/5
-            var src = codeElement.innerHTML
-                    .replace(/(&lt;)/g, "<")
-                    .replace(/(&gt;)/g, ">")
-                    .replace(/(&amp;)/g, "&")
+            var content = codeElement.innerHTML
+                            .replace(/(&lt;)/g, "<")
+                            .replace(/(&gt;)/g, ">")
+                            .replace(/(&amp;)/g, "&")
                 ;
             codeElement.innerHTML = ""; // Easy way to clear this
-            gpf.js.tokenize.apply(codeElement, [src, onTokenFound]);
+            gpf.js.tokenize.apply(codeElement, [content, onTokenFound]);
+/*
+    Could be great to have testable samples
+            // Insert a toolbar
+            toolbar = document.createElement("div");
+            toolbar.className = "toolbar";
+            pre.insertBefore(toolbar, codeElement);
+*/
         }
     }
 
