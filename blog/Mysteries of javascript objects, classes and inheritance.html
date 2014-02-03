@@ -6,7 +6,7 @@
 <!-- The above must be replaced with -->
 <!-- <script language="javascript"
      src="http://buchholz.free.fr/gpf-js/blog/include.js"></script> -->
-    <h1>What did I spend my time on during the last months?</h1>
+    <h2>What did I spend my time on during the last months?</h2>
 
 <p>I know that the blog activity does not reflect this reality but I have been
 working on my library during my - rare - spare time.
@@ -38,7 +38,7 @@ constructors (let say object factories).</p>
 <p>I learned a lot by implementing these methods and I would like to share with
 you my understanding of how objects are handled in JavaScript.</p>
 
-    <h1>Classes and inheritance</h1>
+    <h2>Classes and inheritance</h2>
 
 <p>First of all, I will not detail the class and inheritance concepts as they
 belong to the <a href="http://en.wikipedia.org/wiki/Object-oriented_programming"
@@ -58,9 +58,9 @@ reserved but you can't do anything with it. You will also discover that the
 declared and the way it can be manipulated in order to highlight what can be
 done and illustrate what can't.</p>
 
-    <h2>Objects and members</h2>
+    <h3>Objects and members</h3>
 
-        <h3>My first object</h3>
+        <h4>My first object</h4>
 
 <p>In the JavaScript language, the simplest (and shortest) way to create an
 object is to write the following line of code:</p>
@@ -85,7 +85,7 @@ exposes a number of predefined members (mostly methods), for instance:
 </ul>
 </p>
 
-        <h3>Members</h3>
+        <h4>Members</h4>
 
 <p>To access the members (or call the methods), you can use either the "."
 operator or the "[]" one:</p>
@@ -146,7 +146,7 @@ object will respect a given structure (or interface). To be more precise
 prototyping (that I will explain below) can help you ensure that the object has
 a minimum set of properties.</p>
 
-        <h3>Object inspection</h3>
+        <h4>Object inspection</h4>
 
 <p>In any case, the JavaScript language also offers operators to inspect an
 object definition. Considering the fact that JavaScript allows you to check any
@@ -217,48 +217,92 @@ exactly what <b>in</b> is doing.
 <br/>
 I hope things will become more clear in the next chapter.</div>
 
-<br />
-To conclude with object members, there is one operator that is not widely known and rarely used but can be helpful when applied wisely (I will provide an example later): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/delete" target="_blank"><b>delete</b></a>. As documented, it is used to remove a property from an object. It means that, unlike OOP languages, it does not 'free' objects.<br />
-<br />
-An example of use:<br />
+<p>To conclude with object inspection, there is one last operator that is not
+widely known and rarely used but it can be helpful when applied wisely (I will
+provide an example later): <a href="https://developer.mozilla.org/en-US/docs/
+Web/JavaScript/Reference/Operators/delete" target="_blank">
+<span class="keyword">delete</span></a>. As documented, it is used to remove a
+property from an object. It means that, unlike OOP languages, it does not 'free'
+objects.<br />
+An example of use:</p>
 <code class="javascript">if (!("notYetDefined" in myObject1)) {
     myObject1.notYetDefined = "OK";
-    }
-    // Do something that relies on myObject1.notYetDefined
-    delete myObject1.notYetDefined;
-    // Now "notYetDefined" is no more a property of in myObject1</code><br />
-<br />
-However, <b>delete </b>might not work in some cases.<br />
-<h4>
-    Own properties and prototype</h4>
-The last sentence being confusing, here is an example to illustrate it:<br />
+}
+// Do something that relies on myObject1.notYetDefined
+delete myObject1.notYetDefined;
+// Now "notYetDefined" is no more a property of in myObject1</code>
+<p>However, <span class="keyword">delete</span> might seem to be dysfunctional
+in some cases.</p>
+
+    <h3>Objects' own members vs prototype</h3>
+
+<p>The above sentence being confusing, here is an example to illustrate it:</p>
+
 <code class="javascript">var test = new Object();
-    if ("toString" in test) {
+if ("toString" in test) {
     console.log("test has \"toString\"");
-    } else {
+} else {
     console.log("test doesn't have \"toString\"");
-    }
-    delete test.toString;
-    if ("toString" in test) {
-    console.log("test has \"toString\"");
-    } else {
+}
+delete test.toString;
+if ("toString" in test) {
+    console.log("test still has \"toString\"");
+} else {
     console.log("test doesn't have \"toString\"");
-    }</code>
-<br />
-<br />
-As a result, you will get:<br />
+}</code>
+
+<p>As a result, you will get:</p>
+
 <code class="output">test has "toString"
-    test has "toString"</code>
-<br />
-<br />
-Hold on a second, we have two possibilities here:<br />
-<br />
+test still has "toString"</code>
+
+<p>According to everything that has been said before, we have two possibilities
+here:</p>
+
 <ul>
-    <li>Either the <b>delete</b> operator does not work as described</li>
-    <li>Or the <b>toString </b>member is not a property of the object</li>
+    <li>Either the <span class="keyword">delete</span> operator does not work as
+        described</li>
+    <li>Or the <span class="keyword">toString</span> member is not a property of
+        the object</li>
 </ul>
-<div>
-    First, I confirm that <b>delete</b> operator works as described, however the sentence <i>"remove a property from an object"</i> has to be clarified.</div>
+
+<p>First, I confirm that <span class="keyword">delete</span> operator works as
+described, however the sentence <i>"remove a property from an object"</i> has to
+be clarified.</p>
+
+        <h4>hasOwnProperty</h4>
+
+<p>The operator <a href="https://developer.mozilla.org/en-US/docs/Web/
+JavaScript/Reference/Global_Objects/Object/hasOwnProperty">
+<span class="keyword">hasOwnProperty</span></a> has been introduced in the
+3rd edition of the ECMAScript specification and is summarized as:<br/>
+<i>"returns a boolean indicating whether the object has the specified property"
+</i></p>
+
+<p>But if you get a closer look to the documentation, the description provides
+the key to understand the reason of this operator: <i>This method can be used to
+determine whether an object has the specified property as a <u>direct
+property</u> of that object; unlike the in operator, this method <u>does not
+check down the object's prototype chain</u>.</i></p>
+
+<p>Applied to the previous example, here is what we obtain:</p>
+
+<code class="javascript">var test = new Object();
+if ("toString" in test) {
+    console.log("test has \"toString\"");
+} else {
+    console.log("test doesn't have \"toString\"");
+}
+if (test.hasOwnProperty("toString") {
+    console.log("\"toString\" is a direct property of test");
+} else {
+    console.log("\"toString\" is *not* a direct property of test");
+}</code>
+
+<code class="output">test has "toString"
+"toString" is *not* a direct property of test</code>
+
+<p>So...</p>
 
 
 <!-- Drop those two lines -->

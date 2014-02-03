@@ -23,11 +23,11 @@
         var
             codeClass = codeElement.className,
             pre, src, toolbar;
+        pre = document.createElement("pre");
+        pre.className = "code " + codeClass;
+        pre = codeElement.parentNode.insertBefore(pre, codeElement);
+        pre.appendChild(codeElement);
         if ("javascript" === codeClass) {
-            pre = document.createElement("pre");
-            pre.className = "code";
-            pre = codeElement.parentNode.insertBefore(pre, codeElement);
-            pre.appendChild(codeElement);
             // https://github.com/ArnaudBuchholz/gpf-js/issues/5
             var content = codeElement.innerHTML
                             .replace(/(&lt;)/g, "<")

@@ -25,7 +25,7 @@ div.post-body a:hover {
     text-decoration: underline;
 }
 
-div.post-body h1 {
+div.post-body h2 {
     background-image: url("arrow-down.png");
     background-position: right bottom;
     background-repeat: no-repeat;
@@ -36,7 +36,7 @@ div.post-body h1 {
     border-bottom: solid #5A7ECE 1px;
 }
 
-div.post-body h2 {
+div.post-body h3 {
     background-image: url("arrow-right.png");
     background-position: left bottom;
     background-repeat: no-repeat;
@@ -47,7 +47,7 @@ div.post-body h2 {
     text-decoration: underline;
 }
 
-div.post-body h3 {
+div.post-body h4 {
     background-image: url("arrow-right.png");
     background-position: 16px bottom;
     background-repeat: no-repeat;
@@ -82,7 +82,7 @@ div.post-body div.note {
     font-size: 12px;
 }
 
-pre.code {
+pre.code.javascript {
 	font-family: courier, sans-serif;
 	font-size: 12px;
 	border: 1px dashed #CCCCCC;
@@ -93,6 +93,7 @@ pre.code {
     padding: 4px;
 }
 
+/*
 pre.code div.toolbar {
     background-image: url("gear.png");
     background-position: right top;
@@ -100,6 +101,7 @@ pre.code div.toolbar {
     height: 16px;
     cursor: hand;
 }
+*/
 
 code.javascript {
 }
@@ -119,4 +121,19 @@ code.javascript span.string {
 
 code.javascript span.symbol {
 	color: gray;
+}
+
+pre.code.output {
+    font-family: courier, sans-serif;
+    font-size: 12px;
+    border-color: #767262;
+    border-style: solid;
+    border-width: 2px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    padding: 4px;
+    background-color: black;
+    color: #C0C0C0;
 }
