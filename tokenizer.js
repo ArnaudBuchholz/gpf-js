@@ -306,9 +306,10 @@
                 }
 
             } else if (_TOKEN_STATE_LCOMMENT === context.state) {
-                context.chars.push(newChar);
                 if ("\n" === newChar) {
                     _tokenizerCallback(context);
+                } else {
+                    context.chars.push(newChar);
                 }
             } else if (_TOKEN_STATE_COMMENT === context.state) {
                 context.chars.push(newChar);

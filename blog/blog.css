@@ -82,6 +82,25 @@ div.post-body div.note {
     font-size: 12px;
 }
 
+div.post-body table {
+    padding: 2px;
+}
+
+div.post-body table td {
+    padding: 2px;
+}
+
+div.post-body table thead tr {
+    background-color: #32356E;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+div.post-body table tr.even {
+    background-color: #DEEED6;
+}
+
 pre.code.javascript {
 	font-family: courier, sans-serif;
 	font-size: 12px;

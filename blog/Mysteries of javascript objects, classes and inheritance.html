@@ -42,9 +42,11 @@ you my understanding of how objects are handled in JavaScript.</p>
 
 <p>First of all, I will not detail the class and inheritance concepts as they
 belong to the <a href="http://en.wikipedia.org/wiki/Object-oriented_programming"
-target="_blank">Object Oriented Programming languages</a>.</p>
+target="_blank">Object Oriented Programming languages</a>. So I will take the
+assumption that you are familiar with these. If not, the previous link is a
+good starting point.</p>
 
-<p>But also, the main reason is that JavaScript is <b>*not*</b> an usual OOP
+<p>But, also, the main reason is that JavaScript is <b>*not*</b> an usual OOP
 language: it misses lots of interesting features such as the possibility to
 control members visibility (using private, protected and public), polymorphism
 or operators....</p>
@@ -70,8 +72,8 @@ object is to write the following line of code:</p>
 <code class="javascript">var myObject2 = new Object();</code>
 
 <p>Those who are used to program with real OOP languages will recognize the use
-of the <span class="keyword">new</span> operator. I will come back later to this
-one, we will first focus on the result.</p>
+of the <span class="keyword">new</span> operator.<br/> I will come back later to
+this one, we will first focus on the result.</p>
 
 <p>Both samples are generating an empty object and once created, it already
 exposes a number of predefined members (mostly methods), for instance:
@@ -92,6 +94,11 @@ operator or the "[]" one:</p>
 <code class="javascript">var string1 = myObject1.toString();
 var string2 = myObject2["toString"]();</code>
 
+<div class="note">Calling a method is actually done in two steps: in JavaScript,
+functions are objects. When you access the member named "toString" on myObject1,
+it returns the function object. Then, the parenthesis are used to call the
+function and provide parameters. </div>
+
 <p>Usually, the bracket operator is used whenever the member name is
 contained in a variable or if the name is an invalid identifier
 (just try to access the member named "my field" with the dot operator).</p>
@@ -104,8 +111,8 @@ Again, there are several syntaxes you can use:</p>
 myObject2["member"] = "value";
 myObject1["member"] === myObject2.member;</code>
 
-<p>Indeed, assigning a member on an object will either update the member if
-existing or create it.</p>
+<p>Indeed, assigning a member on an object will either update the member (if
+already existing) or create it.</p>
 
 <div class="note">This simplicity is probably one of the most exciting feature
 of the JavaScript language. As a consequence, any object can be used as a map
@@ -151,7 +158,7 @@ a minimum set of properties.</p>
 <p>In any case, the JavaScript language also offers operators to inspect an
 object definition. Considering the fact that JavaScript allows you to check any
 <a href="http://en.wikipedia.org/wiki/Arity" target="_blank">function arity</a>,
-it really looks like the concept of
+it provides you a working concept of
 <a href="http://en.wikipedia.org/wiki/Reflection_(computer_programming)"
 target="_blank">reflection</a>.</p>
 
@@ -187,9 +194,10 @@ are not really accessing a member), you have to use
 <span class="keyword">typeof</span>.</div>
 
 <p>So, those two operators allows you to verify if a member exists for a given
-object. On the other hand, you might want to list all the members that are
-currently existing on the object.
-<br/>
+object.</p>
+
+<p>On the other hand, you might want to list all the members that are currently
+existing on the object. <br/>
 This is where you will start using the operator
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/
 Operators/in"target="_blank"><span class="keyword">in</span></a> <i>(this is
@@ -217,6 +225,8 @@ exactly what <b>in</b> is doing.
 <br/>
 I hope things will become more clear in the next chapter.</div>
 
+        <h4>Delete</h4>
+
 <p>To conclude with object inspection, there is one last operator that is not
 widely known and rarely used but it can be helpful when applied wisely (I will
 provide an example later): <a href="https://developer.mozilla.org/en-US/docs/
@@ -229,8 +239,15 @@ An example of use:</p>
     myObject1.notYetDefined = "OK";
 }
 // Do something that relies on myObject1.notYetDefined
+console.log(myObject1.notYetDefined);
+// This will remove "notYetDefined"
 delete myObject1.notYetDefined;
-// Now "notYetDefined" is no more a property of in myObject1</code>
+// Now "notYetDefined" is no more a property of in myObject1
+console.log(typeof myObject1.notYetDefined);</code>
+
+<code class="output">OK
+undefined</code>
+
 <p>However, <span class="keyword">delete</span> might seem to be dysfunctional
 in some cases.</p>
 
@@ -280,10 +297,10 @@ JavaScript/Reference/Global_Objects/Object/hasOwnProperty">
 </i></p>
 
 <p>But if you get a closer look to the documentation, the description provides
-the key to understand the reason of this operator: <i>This method can be used to
-determine whether an object has the specified property as a <u>direct
-property</u> of that object; unlike the in operator, this method <u>does not
-check down the object's prototype chain</u>.</i></p>
+the key to understand the reason why this operator was created: <i>This method
+can be used to determine whether an object has the specified property as a
+<u>direct property</u> of that object; unlike the in operator, this method
+<u>does not check down the object's prototype chain</u>.</i></p>
 
 <p>Applied to the previous example, here is what we obtain:</p>
 
@@ -302,8 +319,93 @@ if (test.hasOwnProperty("toString") {
 <code class="output">test has "toString"
 "toString" is *not* a direct property of test</code>
 
-<p>So...</p>
+<p>So it means that the <span class="keyword">delete</span> operator removes a
+direct property of an object.</p>
 
+<p>Now... if "toString" is not a direct property of my object, where does it
+come from ?</p>
+
+        <h4>Prototype</h4>
+
+<p>As a matter of fact, "toString" is defined on the
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/
+Global_Objects/Object/prototype" target="_blank">Object prototype</a>. This
+object defines all the properties and methods that are <b>inherited</b> by any
+instance of a JavaScript object.</p>
+
+<p>This is the key concept in the language that allows modern JavaScript
+developers to achieve object oriented programming.</p>
+
+
+
+    <h2>Classes and inheritance Cheat Sheet</h2>
+
+<table>
+    <thead>
+        <tr>
+            <td>Operator / Member</td>
+            <td>Direct / Prototype chain</td>
+            <td>Description</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>object.member</td>
+            <td>chain</td>
+            <td>Returns the property named member,
+                <span class="keyword">undefined</span> if not existing</td>
+        </tr>
+        <tr class="even">
+            <td>object[memberName]</td>
+            <td>chain</td>
+            <td>Returns the property which name is stored in memberName,
+                <span class="keyword">undefined</span> if not existing</td>
+        </tr>
+        <tr>
+            <td><span class="keyword">for in</span></td><td>chain</td>
+            <td>Loop on object properties</td>
+        </tr>
+        <tr class="even">
+            <td>memberName <span class="keyword">in</span> object</td>
+            <td>chain</td>
+            <td>Returns true if a property named by the value of memberName
+                exists in the object</td>
+        </tr>
+        <tr>
+            <td><span class="keyword">typeof</span></td><td>chain</td>
+            <td>Returns a string describing the type of the member, "undefined"
+                if not existing</td>
+        </tr>
+        <tr class="even">
+            <td><span class="keyword">delete</span></td><td>direct</td>
+            <td>Removes a direct property off the object</td>
+        </tr>
+        <tr>
+            <td>object.<span class="keyword">hasOwnProperty</span>
+                (memberName)</td>
+            <td>direct</td>
+            <td>Returns true if a direct property named by the value of
+                memberName exists in the object</td>
+        </tr>
+        <tr class="even">
+            <td>object.<span class="keyword">constructor</span></td>
+            <td>chain</td>
+            <td>Provides the function used to build the object</td>
+        </tr>
+        <tr>
+            <td>object.<span class="keyword">constructor</span>
+                      .<span class="keyword">prototype</span></td>
+            <td>direct</td>
+            <td>Provides the object defining properties that are inherited by
+                all instances of the constructor</td>
+        </tr>
+        <tr class="even">
+            <td><span class="keyword">this</span></td>
+            <td>-</td>
+            <td>The current object</td>
+        </tr>
+    </tbody>
+</table>
 
 <!-- Drop those two lines -->
 </div>
