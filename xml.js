@@ -152,26 +152,6 @@
 
         }),
 
-        // gpfA.XmlElementAttribute = gpf.$XmlElement(name, objClass)
-        _Element = _Base.extend({
-
-            "[Class]": [gpf.$Alias("XmlElement")],
-
-            "[_name]": [gpf.$ClassProperty()],
-            _name: "",
-
-            "[_objClass]": [gpf.$ClassProperty()],
-            _objClass: null,
-
-            init: function (name, objClass) {
-                this._name = name;
-                if (objClass) {
-                    this._objClass = objClass;
-                }
-            }
-
-        }),
-
         // gpfA.XmlAttributeAttribute = gpf.$XmlAttribute(name)
         _Attribute = _Base.extend({
 
@@ -186,10 +166,7 @@
 
         }),
 
-        // gpfA.XmlListAttribute = gpf.$XmlList()
-        _List = _Base.extend({
-
-            "[Class]": [gpf.$Alias("XmlList")],
+        _RawElement = _Base.extend({
 
             "[_name]": [gpf.$ClassProperty()],
             _name: "",
@@ -197,6 +174,30 @@
             init: function (name) {
                 this._name = name;
             }
+
+        }),
+
+        // gpfA.XmlElementAttribute = gpf.$XmlElement(name, objClass)
+        _Element = _RawElement.extend({
+
+            "[Class]": [gpf.$Alias("XmlElement")],
+
+            "[_objClass]": [gpf.$ClassProperty()],
+            _objClass: null,
+
+            init: function (name, objClass) {
+                this._super(name);
+                if (objClass) {
+                    this._objClass = objClass;
+                }
+            }
+
+        }),
+
+        // gpfA.XmlListAttribute = gpf.$XmlList()
+        _List = _RawElement.extend({
+
+            "[Class]": [gpf.$Alias("XmlList")]
 
         }),
 
@@ -413,7 +414,7 @@
             _forward: null,                     // subsequent IXmlContentHandler
             _depth: 0,                                       // subsequent depth
             _textBuffer: [],                          // consolidated characters
-            _textMember: null,       // when subObject has no IXmlContentHandler
+            _targetMember: [],     // when sub-element has no IXmlContentHandler
 
             init: function (target) {
                 this._target = target;
@@ -421,7 +422,7 @@
                 this._forward = null;
                 this._depth = 0;
                 this._textBuffer = [];
-                this._textValue = null;
+                this._targetMember = [];
             },
 
             /*
@@ -472,19 +473,21 @@
                 }
             },
 
-            _subObject: function (uri, localName, qName, attributes) {
+            _fillFromElement: function (uri, localName, qName, attributes) {
                 var
-                    xmlAttributes = new gpfA.Map(this._target),
-                    targetProto = this._target.constructor.prototype,
+                    xmlAttributes = new gpfA.Map(this._target)
+                        .filter(_RawElement),
                     members,
                     idx,
                     member,
                     attArray,
                     jdx,
-                    attribute,
-                    obj;
-                xmlAttributes = xmlAttributes.filter(_Element);
-                members = xmlAttributes.members();
+                    attribute;
+                if (this._targetMember.length) {
+                    members = [this._targetMember[0]];
+                } else {
+                    members = xmlAttributes.members();
+                }
                 for (idx = 0; idx < members.length; ++idx) {
                     member = members[idx];
                     attArray = xmlAttributes.member(member);
@@ -492,25 +495,43 @@
                         attribute = attArray.get(jdx);
                         // TODO handle namespaces
                         if (attribute.name() === localName) {
-                            // 1. Build new object and assign it to the member
-                            obj = new (attribute.objClass())();
-                            this._target[member] = obj;
-                            // 2. query IXmlContentHandler
-                            // 3. Forward pointer
-                            ++this._depth;
-                            this._forward = gpfI.query(obj,
-                                gpfI.IXmlContentHandler);
-                            if (!this._forward) {
-                                // No IXmlContentHandler, process as text
-                                this._textBuffer = [];
-                                this._textMember = member;
+                            // Attribute found, try
+                            if (this._fillFromRawElement(member, attribute)) {
+                                return;
                             }
-                            return; // we can stop there
                         }
                     }
                 }
+                // Ignore?
             },
 
+            _fillFromRawElement: function (member, attribute) {
+                var obj;
+                if (attribute instanceof _Element) {
+                    // Build new object and assign it to the member
+                    if (attribute.objClass()) {
+                        obj = new (attribute.objClass())();
+                        this._target[member] = obj;
+                        // Query IXmlContentHandler
+                        this._forward = gpfI.query(obj,
+                            gpfI.IXmlContentHandler);
+                    }
+                    // Forward pointer
+                    ++this._depth;
+                    if (!this._forward) {
+                        // No IXmlContentHandler, process as text
+                        this._textBuffer = [];
+                        this._targetMember.push(member);
+                    }
+                    return true;
+                } else if (attribute instanceof _List) {
+                    // The member is an array of objects
+                    this._target[member] = [];
+                    this._targetMember.push(member);
+                    ++this._depth;
+                }
+                return false;
+            },
 
             //region gpf.interfaces.IXmlContentHandler
 
@@ -538,15 +559,15 @@
             endElement: function () {
                 if (this._forward) {
                     this._forward.endElement.apply(this._forward, arguments);
-                } else if (1 === this._depth && this._textMember
+                } else if (1 === this._depth && this._targetMember.length
                     && this._textBuffer.length) {
-                    this._target[this._textMember] = gpf.value(
+                    this._target[this._targetMember[0]] = gpf.value(
                         this._textBuffer.join(""),
-                        this._target[this._textMember]);
+                        this._target[this._targetMember[0]]);
                 }
                 if (0 === --this._depth) {
                     this._forward = null;
-                    this._textMember = null;
+                    this._targetMember.shift();
                 }
             },
 
@@ -603,8 +624,11 @@
                     ++this._depth;
                     this._forward.startElement.apply(this._forward, arguments);
                 } else if (1 === this._depth) {
-                    // what should we do?
-                    throw 'Not expected';
+                    if (this._targetMember.length) {
+                        this._fillFromElement.apply(this, arguments);
+                    } else {
+                        throw 'Not expected';
+                    }
                 } else if (this._firstElement) {
                     this._firstElement = false;
                     /*
@@ -616,7 +640,7 @@
                     /*
                      * Elements are used to introduce a sub-object
                      */
-                    this._subObject.apply(this, arguments);
+                    this._fillFromElement.apply(this, arguments);
                 }
             },
 
@@ -732,7 +756,6 @@
         },
 
         _fromXml = function (target) {
-            debugger;
             return new _fromXmlContentHandler(target);
         };
 
