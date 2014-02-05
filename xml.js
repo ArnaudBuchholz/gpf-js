@@ -400,7 +400,7 @@
         //region FROM XML
 
         /**
-         * Class to handle object deserializtion from XML
+         * Class to handle object deserialization from XML
          *
          * @private
          */
@@ -411,34 +411,15 @@
 
             _target: null,                          // Object that is serialized
             _firstElement: true,             // startElement has not been called
-            _forward: null,                     // subsequent IXmlContentHandler
-            _depth: 0,                                       // subsequent depth
+            _forward: [],          // subsequent IXmlContentHandler/member names
             _textBuffer: [],                          // consolidated characters
-            _targetMember: [],     // when sub-element has no IXmlContentHandler
 
             init: function (target) {
                 this._target = target;
                 this._firstElement = true;
-                this._forward = null;
-                this._depth = 0;
+                this._forward = [];
                 this._textBuffer = [];
-                this._targetMember = [];
             },
-
-            /*
-
-
-            _selectChildByName: function (node, name) {
-                // Look for the first child having the right name
-                var child = node.firstChild;
-                while (child) {
-                    if (1 === child.nodeType && name === child.localName)
-                        return child;
-                    child = child.nextSibling;
-                }
-                return null;
-            },
-            */
 
             _fillFromAttributes: function (attributes) {
                 var
@@ -466,9 +447,8 @@
                         }
                     }
                     if (attName in attributes) {
-                        this._target[attName] =
-                            gpf.value(attributes[attName],
-                                targetProto[member]);
+                        this._target[member] =
+                            gpf.value(attributes[attName], targetProto[member]);
                     }
                 }
             },
@@ -477,14 +457,15 @@
                 var
                     xmlAttributes = new gpfA.Map(this._target)
                         .filter(_RawElement),
+                    forward = this._forward[0],
                     members,
                     idx,
                     member,
                     attArray,
                     jdx,
                     attribute;
-                if (this._targetMember.length) {
-                    members = [this._targetMember[0]];
+                if ('string' === typeof forward) {
+                    members = [forward];
                 } else {
                     members = xmlAttributes.members();
                 }
@@ -506,31 +487,33 @@
             },
 
             _fillFromRawElement: function (member, attribute) {
-                var obj;
+                var
+                    obj,
+                    forward;
                 if (attribute instanceof _Element) {
                     // Build new object and assign it to the member
                     if (attribute.objClass()) {
                         obj = new (attribute.objClass())();
                         this._target[member] = obj;
                         // Query IXmlContentHandler
-                        this._forward = gpfI.query(obj,
-                            gpfI.IXmlContentHandler);
+                        forward = gpfI.query(obj, gpfI.IXmlContentHandler);
                     }
-                    // Forward pointer
-                    ++this._depth;
-                    if (!this._forward) {
-                        // No IXmlContentHandler, process as text
-                        this._textBuffer = [];
-                        this._targetMember.push(member);
+                    if (!forward) {
+                        forward = member;
                     }
-                    return true;
+                    // TODO what if the textual content is split in two or more?
+                    this._textBuffer = [];
                 } else if (attribute instanceof _List) {
                     // The member is an array of objects
                     this._target[member] = [];
-                    this._targetMember.push(member);
-                    ++this._depth;
+                    forward = member;
                 }
-                return false;
+                if (forward) {
+                    this._forward.unshift(forward);
+                    return true;
+                } else {
+                    return false;
+                }
             },
 
             //region gpf.interfaces.IXmlContentHandler
@@ -539,8 +522,9 @@
              * @implements gpf.interfaces.IXmlContentHandler:characters
              */
             characters: function (buffer) {
-                if (this._forward) {
-                    this._forward.characters.apply(this._forward, arguments);
+                var forward = this._forward[0];
+                if ('object' === typeof forward) {
+                    forward.characters.apply(forward, arguments);
                 } else {
                     this._textBuffer.push(buffer);
                 }
@@ -557,17 +541,24 @@
              * @implements gpf.interfaces.IXmlContentHandler:endElement
              */
             endElement: function () {
-                if (this._forward) {
-                    this._forward.endElement.apply(this._forward, arguments);
-                } else if (1 === this._depth && this._targetMember.length
-                    && this._textBuffer.length) {
-                    this._target[this._targetMember[0]] = gpf.value(
-                        this._textBuffer.join(""),
-                        this._target[this._targetMember[0]]);
-                }
-                if (0 === --this._depth) {
-                    this._forward = null;
-                    this._targetMember.shift();
+                var
+                    forward = this._forward[0],
+                    memberValue,
+                    textValue;
+                if (undefined !== forward) {
+                    if ('object' === typeof forward) {
+                        forward.endElement.apply(forward, arguments);
+                    } else {
+                        memberValue = this._target[forward];
+                        textValue = this._textBuffer.join("");
+                        if (memberValue instanceof Array) {
+                            memberValue.push(textValue);
+                        } else {
+                            this._target[forward] = gpf.value(textValue,
+                                memberValue);
+                        }
+                    }
+                    this._forward.shift();
                 }
             },
 
@@ -620,15 +611,13 @@
              * @implements gpf.interfaces.IXmlContentHandler:startElement
              */
             startElement: function (uri, localName, qName, attributes) {
-                if (this._forward) {
-                    ++this._depth;
-                    this._forward.startElement.apply(this._forward, arguments);
-                } else if (1 === this._depth) {
-                    if (this._targetMember.length) {
-                        this._fillFromElement.apply(this, arguments);
-                    } else {
-                        throw 'Not expected';
-                    }
+                var
+                    forward = this._forward[0];
+                if ('object' === typeof forward) {
+                    this._forward.unshift(forward); // TODO change this
+                    forward.startElement.apply(forward, arguments);
+                } else if (undefined !== forward) {
+                    this._fillFromElement.apply(this, arguments);
                 } else if (this._firstElement) {
                     this._firstElement = false;
                     /*

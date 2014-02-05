@@ -86,7 +86,7 @@
                 if ("undefined" === type) {
                     details.push("undefined");
                 } else {
-                    details.push(this._parameters[0].toString());
+                    details.push(JSON.stringify(this._parameters[0]));
                 }
                 details.push("\r\nSecond: (");
                 type = typeof this._parameters[1];
@@ -94,7 +94,7 @@
                 if ("undefined" === type) {
                     details.push("undefined");
                 } else {
-                    details.push(this._parameters[1].toString());
+                    details.push(JSON.stringify(this._parameters[1]));
                 }
                 details.push("\r\nare");
                 if ("equal" === this._type) {
