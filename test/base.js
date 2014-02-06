@@ -170,24 +170,30 @@
 
         ],
 
-        equal: [
+        like: [
 
             function (test) {
                 test.title("Basic comparisons");
-                test.assert(gpf.equal(1, 1), "Same literal integers");
-                test.assert(!gpf.equal(1, new Number(1)),
+                test.assert(gpf.like(1, 1), "Same literal integers");
+                test.assert(!gpf.like(1, new Number(1)),
                     "Same integers but one is an object");
-                test.assert(!gpf.equal(1, 2), "Different integers");
-                test.assert(gpf.equal(1, 1.0), "Same floats");
-                test.assert(gpf.equal("abc", "abc"), "Same literal strings");
-                test.assert(!gpf.equal("abc", new String("abc")),
+                test.assert(gpf.like(1, new Number(1), true),
+                    "Same integers but one is an object");
+                test.assert(!gpf.like('1', new Number(1), true),
+                    "Same integers but one is an object");
+                test.assert(!gpf.like(1, 2), "Different integers");
+                test.assert(gpf.like(1, 1.0), "Same floats");
+                test.assert(gpf.like("abc", "abc"), "Same literal strings");
+                test.assert(!gpf.like("abc", new String("abc")),
                     "Same strings but one is an object");
-                test.assert(!gpf.equal("abc", "abcd"), "Different strings");
-                test.assert(gpf.equal(object, object), "Same object");
-                test.assert(gpf.equal(object, gpf.extend({}, object)),
+                test.assert(gpf.like("abc", new String("abc"), true),
+                    "Same strings but one is an object");
+                test.assert(!gpf.like("abc", "abcd"), "Different strings");
+                test.assert(gpf.like(object, object), "Same object");
+                test.assert(gpf.like(object, gpf.extend({}, object)),
                     "Object and a clone");
                 if (gpf.host() === "browser") {
-                    test.assert(gpf.equal(document.body, document.body),
+                    test.assert(gpf.like(document.body, document.body),
                         "Body element");
                 }
             },
@@ -212,7 +218,7 @@
                 }
                 else
                     equal_1_div2 = document.getElementById("equal_1_div1");
-                gpf.equal(equal_1_div1, equal_1_div2, "HTML comparison");
+                gpf.like(equal_1_div1, equal_1_div2, "HTML comparison");
             }
 
         ],

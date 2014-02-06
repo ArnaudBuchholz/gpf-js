@@ -411,14 +411,24 @@
 
             _target: null,                          // Object that is serialized
             _firstElement: true,             // startElement has not been called
-            _forward: [],          // subsequent IXmlContentHandler/member names
-            _textBuffer: [],                          // consolidated characters
+            _forward: [],                                 // subsequent handlers
+            /*
+                {
+                    {number} type
+                                0 IXmlContentHandler
+                                1 Element
+                                2 List
+                    {object} iXCH
+                    {string} member
+                    {string[]} buffer
+                    {number} depth
+                }
+             */
 
             init: function (target) {
                 this._target = target;
                 this._firstElement = true;
                 this._forward = [];
-                this._textBuffer = [];
             },
 
             _fillFromAttributes: function (attributes) {
@@ -464,10 +474,14 @@
                     attArray,
                     jdx,
                     attribute;
-                if ('string' === typeof forward) {
-                    members = [forward];
-                } else {
+                // If
+                if (undefined === forward) {
+                    // No forward, check all members
                     members = xmlAttributes.members();
+                } else {
+                    // At least one forward exists, it is related to a member
+                    gpf.ASSERT(forward.type !== 0, "No content handler here");
+                    members = [forward.member];
                 }
                 for (idx = 0; idx < members.length; ++idx) {
                     member = members[idx];
@@ -498,17 +512,28 @@
                         // Query IXmlContentHandler
                         forward = gpfI.query(obj, gpfI.IXmlContentHandler);
                     }
-                    if (!forward) {
-                        forward = member;
+                    if (forward) {
+                        forward = {
+                            type: 0,
+                            iXCH: forward
+                        };
+                    } else {
+                        forward = {
+                            type: 1,
+                            member: member,
+                            buffer: []
+                        };
                     }
-                    // TODO what if the textual content is split in two or more?
-                    this._textBuffer = [];
                 } else if (attribute instanceof _List) {
                     // The member is an array of objects
                     this._target[member] = [];
-                    forward = member;
+                    forward = {
+                        type: 2,
+                        member: member
+                    };
                 }
                 if (forward) {
+                    forward.depth = 1;
                     this._forward.unshift(forward);
                     return true;
                 } else {
@@ -523,11 +548,14 @@
              */
             characters: function (buffer) {
                 var forward = this._forward[0];
-                if ('object' === typeof forward) {
-                    forward.characters.apply(forward, arguments);
-                } else {
-                    this._textBuffer.push(buffer);
+                if (undefined !== forward) {
+                    if (0 === forward.type) {
+                        forward.iXCH.characters.apply(iXCH, arguments);
+                    } else if (1 === forward.type) {
+                        forward.buffer.push(buffer);
+                    }
                 }
+                // Ignore
             },
 
             /**
@@ -546,19 +574,24 @@
                     memberValue,
                     textValue;
                 if (undefined !== forward) {
-                    if ('object' === typeof forward) {
-                        forward.endElement.apply(forward, arguments);
-                    } else {
-                        memberValue = this._target[forward];
-                        textValue = this._textBuffer.join("");
+                    if (0 === forward.type) {
+                        forward.iXCH.endElement.apply(forward.iXCH, arguments);
+                    } else if (1 === forward.type) {
+                        memberValue = this._target[forward.member];
+                        textValue = forward.buffer.join("");
                         if (memberValue instanceof Array) {
                             memberValue.push(textValue);
                         } else {
-                            this._target[forward] = gpf.value(textValue,
+                            this._target[forward.member] = gpf.value(textValue,
                                 memberValue);
                         }
+                    } /*else if (2 === forward.type) {
+                        // Nothing to do
+
+                    } */
+                    if (0 === --forward.depth) {
+                        this._forward.shift();
                     }
-                    this._forward.shift();
                 }
             },
 
@@ -579,8 +612,8 @@
             },
 
             /**
-             * @implements
-             *   gpf.interfaces.IXmlContentHandler:processingInstruction
+             * @implements gpf.interfaces
+             *             .IXmlContentHandler:processingInstruction
              */
             processingInstruction: function (target, data) {
                 // Not relevant
@@ -613,11 +646,14 @@
             startElement: function (uri, localName, qName, attributes) {
                 var
                     forward = this._forward[0];
-                if ('object' === typeof forward) {
-                    this._forward.unshift(forward); // TODO change this
-                    forward.startElement.apply(forward, arguments);
-                } else if (undefined !== forward) {
-                    this._fillFromElement.apply(this, arguments);
+                if (undefined !== forward) {
+                    if (0 === forward.type) {
+                        ++forward.depth;
+                        forward.iXCH.startElement.apply(forward.iXCH,
+                            arguments);
+                    } else {
+                        this._fillFromElement.apply(this, arguments);
+                    }
                 } else if (this._firstElement) {
                     this._firstElement = false;
                     /*

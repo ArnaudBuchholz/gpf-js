@@ -26,7 +26,6 @@
              * (here script-writers)
              * Each object in the array is saved as an element
              */
-// TODO this needs to change to something like: gpf.$XmlElement("script-writers", gpf.$XmlList(...) ],
             "[_scriptwriters]": [ gpf.$XmlList("script-writers"),
                 gpf.$XmlElement("name") ],
             _scriptwriters: [],
@@ -155,7 +154,7 @@
                 contentHandler = gpf.interfaces.query(movie,
                     gpf.interfaces.IXmlContentHandler);
                 _createStarshipTroopersXML(contentHandler);
-                test.equal(movie, starshipTroopers);
+                test.like(movie, starshipTroopers);
             }
 
         ]

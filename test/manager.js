@@ -79,7 +79,8 @@
                 value;
             if ("exception" === this._type) {
                 details = ["message: ", this._parameters[0].message];
-            } else if ("equal" === this._type || "notEqual" === this._type) {
+            } else if ("equal" === this._type || "notEqual" === this._type
+                       || "like" === this._type || "notLike" === this._type) {
                 details = ["First: ("];
                 type = typeof this._parameters[0];
                 details.push(type, ") ");
@@ -97,10 +98,14 @@
                     details.push(JSON.stringify(this._parameters[1]));
                 }
                 details.push("\r\nare");
-                if ("equal" === this._type) {
+                if ("equal" === this._type || "like" === this._type) {
                     details.push(" not");
                 }
-                details.push(" equal");
+                if ("equal" === this._type || "notEqual" === this._type) {
+                    details.push(" equal");
+                } else {
+                    details.push(" alike");
+                }
             } else if ("assert" === this._type && 2 < this._parameters.length) {
                 // Objects added, dump the content
                 details = [];
@@ -147,6 +152,10 @@
                 return this._parameters[0] === this._parameters[1];
             } else if ("notEqual" === this._type) {
                 return this._parameters[0] !== this._parameters[1];
+            } else if ("like" === this._type) {
+                return gpf.like(this._parameters[0], this._parameters[1]);
+            } else if ("notLike" === this._type) {
+                return !gpf.like(this._parameters[0], this._parameters[1]);
             } else if ("assert" === this._type) {
                 return this._parameters[0];
             }
@@ -160,7 +169,8 @@
         this._errors = 0;
     }
 
-    gpf.each("title,log,assert,equal,notEqual,exception".split(","),
+    gpf.each("title,log,assert,equal,notEqual,like,notLike,exception"
+        .split(","),
         function(idx, name){
             TestReport.prototype[name] = function() {
                 var item = new TestItem(name, arguments);
@@ -260,10 +270,13 @@
         var
             namesIdx = 0,
             name,
-            report;
+            report,
+            errors = 0,
+            total = 0;
         info("Test count: " + _names.length);
         while (namesIdx < _names.length) {
             name = _names[namesIdx];
+            ++total;
             report = executeTest(name);
             if (0 === report._errors) {
                 gpf.events.fire("success", {
@@ -273,8 +286,14 @@
                 gpf.events.fire("failure", {
                     name: name
                 }, _eventsHandler);
+                ++errors;
             }
             ++namesIdx;
+        }
+        if (0 === errors) {
+            info("All tests succeeded (" + total + ")", _eventsHandler);
+        } else {
+            error("Some tests failed (" + errors + "/" + total + ")", _eventsHandler);
         }
     }
 

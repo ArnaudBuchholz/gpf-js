@@ -210,7 +210,8 @@
         },
 
         /*
-         * Compares a and b and return true if they are strictly equal.
+         * Compares a and b and return true if they are look-alike (all members
+         * have the same type and same value).
          * 
          * NOTES:
          * 14/04/2013 17:19:43
@@ -221,14 +222,30 @@
          *
          * @param {any} a
          * @param {any} b
+         * @param {boolean} [alike=false] alike Allow to be tolerant on
+         *        primitive types compared with their object equivalent
          * @returns {Boolean}
          */
-        equal: function (a, b) {
+        like: function (a, b, alike) {
             if (a === b) {
                 return true;
             }
             if (typeof a !== typeof b) {
-                return false;
+                if (alike && ('object' === typeof a || 'object' === typeof b)) {
+                    /*
+                        One of the two is an object but not the other,
+                        Consider downcasting Number and String
+                    */
+                    if (a instanceof String || b instanceof String) {
+                        return a.toString() ===  b.toString();
+                    } else if (a instanceof Number || b instanceof Number) {
+                        return a.valueOf() ===  b.valueOf();
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
             }
             if (null === a || null === b || "object" !== typeof a) {
                 return false;
