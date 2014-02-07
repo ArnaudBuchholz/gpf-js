@@ -25,16 +25,15 @@
     if ('undefined' !== typeof WScript) {
         _host = "wscript";
         _context = (function () {return this; }).apply(null, []);
-/*        
+
         // Define console APIs
-        // TODO: remap if inside wscript.exe
         _context.console = {
-            log: WScript.Echo,
-            info: WScript.Echo,
-            warn: WScript.Echo,
-            error: WScript.Echo
+            log: function (t) {WScript.Echo("    " + t);},
+            info: function (t) {WScript.Echo("[?] " + t);},
+            warn: function (t) {WScript.Echo("/!\\ " + t);},
+            error: function (t) {WScript.Echo("(X) " + t);}
         };
-*/
+
     // Nodejs
     } else if ('undefined' !== typeof module && module.exports) {
         _host = "nodejs";
