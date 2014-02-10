@@ -8,7 +8,10 @@
             tokens: true,
             comment: true
         });
-        return escodegen.attachComments(ast, ast.comments, ast.tokens);
+        ast = escodegen.attachComments(ast, ast.comments, ast.tokens);
+        delete ast.tokens;
+        delete ast.comments;
+        return ast;
     }
 
     gpf.context().make = function(sources, version) {
@@ -24,7 +27,7 @@
             }
             sources.parsed.UMD = toAST(sources.UMD);
             // Then, locate the use of __gpf__ to replace it with our content
-            
+            // Use an XPATH like parser on body[@type='ExpressionStatement' and expression/@name='__gpf__']
         }
 
 //        console.log(JSON.stringify(sources.parsed.UMD, true, 4));

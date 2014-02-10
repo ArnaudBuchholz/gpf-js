@@ -193,7 +193,7 @@
                 return stream.consolidateString();
             } else {
                 // READ and join...
-                throw "Not implemented";
+                gpf.NOT_IMPLEMENTED();
             }
         }
 

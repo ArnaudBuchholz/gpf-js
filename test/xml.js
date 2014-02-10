@@ -102,13 +102,15 @@
                 array = (new gpf.attributes.Map(movie))
                     .filter(gpf.attributes.InterfaceImplementAttribute)
                     .member("Class");
-                test.equal(array.length(), 2);
+                test.equal(array.length(), 3);
                 // We should have IUnknown & IXmlContentHandler only
                 for (idx = 0; idx < array.length(); ++idx) {
                     interfaceImplement = array.get(idx);
                     if (interfaceImplement.which() !== gpf.interfaces.IUnknown
                         && interfaceImplement.which()
-                           !== gpf.interfaces.IXmlContentHandler) {
+                           !== gpf.interfaces.IXmlContentHandler
+                        && interfaceImplement.which()
+                            !== gpf.interfaces.IXmlSerializable) {
                         test.assert(false, "Found unexpected implemented interface");
                     }
                 }
@@ -155,6 +157,37 @@
                     gpf.interfaces.IXmlContentHandler);
                 _createStarshipTroopersXML(contentHandler);
                 test.like(movie, starshipTroopers);
+            }
+
+        ],
+
+        "convert": [
+
+            function (test) {
+                test.title("Use convert on a IXMLSerializable object");
+                var
+                    stream = gpf.stringToStream(),
+                    contentHandler = new gpf.xml.Writer(stream);
+                gpf.xml.convert(starshipTroopers, contentHandler);
+                test.equal(gpf.stringFromStream(stream), starshipTroopersXML,
+                    "XML is well formed");
+            },
+
+            function (test) {
+                test.title("Use convert on a simple object");
+                var
+                    stream = gpf.stringToStream(),
+                    contentHandler = new gpf.xml.Writer(stream);
+                gpf.xml.convert({
+                    attribute1: "string",
+                    attribute2: 1234,
+                    subNode1: {
+                        atribute3: "3"
+                    },
+                    subNode2: ["a", "b", "c"]
+                }, contentHandler);
+                test.equal(gpf.stringFromStream(stream), "",
+                    "XML is well formed");
             }
 
         ]

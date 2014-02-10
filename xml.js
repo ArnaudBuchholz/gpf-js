@@ -10,10 +10,30 @@
         gpfI = gpf.interfaces,
         gpfA = gpf.attributes,
         // XML Parser constants
-        _XMLPARSER_STATE_NONE = 0
+        _XMLPARSER_STATE_NONE = 0,
+
+        // This error will be handled in a common way later
+        _expectedXmlContentHandler = function () {
+            throw "Invalid parameter, " +
+                + "expected gpf.interfaces.IXmlContentHandler";
+        }
         ;
 
     gpf.xml = {};
+
+    gpfI.IXmlSerializable = gpfI.Interface.extend({
+
+        /**
+         * Translate obj into an gpf.interface.IXmlContentHandler and serialize
+         * itself into XML
+         *
+         * @param {object} out Recipient object for XML serialization
+         */
+        toXml: function (out) {
+            gpfI.ignoreParameter(out);
+        }
+
+    });
 
     /*
      Inspired from
@@ -135,6 +155,8 @@
                  */
                 if (undefined === objPrototype.toXml) {
                     // Declare toXml
+                    gpfA.add(objPrototype.constructor, "Class",
+                        [gpf.$InterfaceImplement(gpfI.IXmlSerializable)]);
                     objPrototype.toXml = _toXml;
                     // Declare IXmlContentHandler interface through IUnknown
                     gpfA.add(objPrototype.constructor, "Class",
@@ -267,7 +289,7 @@
             }
             // If not an object, serialize the textual representation
             if ("object" !== typeof obj) {
-                contentHandler.startElement('', name);
+                contentHandler.startElement("", name);
                 contentHandler.characters(obj.toString());
             } else {
                 /*
@@ -331,7 +353,7 @@
                     //noinspection JSUnfilteredForInLoop
                     xmlAttributes[member] = value.toString();
                 }
-                contentHandler.startElement('', name, name, xmlAttributes);
+                contentHandler.startElement("", name, name, xmlAttributes);
                 if (subNodeMembers) {
                     for (memberIdx = 0; memberIdx < subNodeMembers.length;
                          ++memberIdx) {
@@ -351,7 +373,7 @@
                             // TODO: what to do when value is empty?
                             if (attribute && attribute.name()) {
                                 closeNode = true;
-                                contentHandler.startElement('',
+                                contentHandler.startElement("",
                                     attribute.name());
                             }
                             // Get the list of 'candidates'
@@ -385,13 +407,12 @@
             contentHandler.endElement();
         },
 
-        _toXml = function (obj) {
-            var iContentHandler = gpfI.query(obj, gpfI.IXmlContentHandler);
+        _toXml = function (out) {
+            var iContentHandler = gpfI.query(out, gpfI.IXmlContentHandler);
             if (iContentHandler) {
                 _toContentHandler(this, iContentHandler);
             } else {
-                throw "Invalid parameter, " +
-                    + "expected gpf.interfaces.IXmlContentHandler";
+                _expectedXmlContentHandler();
             }
         },
 
@@ -608,7 +629,7 @@
              */
             ignorableWhitespace: function (buffer) {
                 // Nothing to do
-                gpfI.ignoreParameter(prefix);
+                gpfI.ignoreParameter(buffer);
             },
 
             /**
@@ -930,7 +951,8 @@
                     stream.write(attName);
                     stream.write("=\"");
                     //noinspection JSUnfilteredForInLoop
-                    attValue = gpf.escapeFor(attributes[attName], "xml");
+                    attValue = gpf.escapeFor(attributes[attName].toString(),
+                        "xml");
                     if (-1 < attValue.indexOf("\"")) {
                         attValue = gpf.replaceEx(attValue, {
                             "\"": "&quot;"
@@ -994,6 +1016,89 @@
         }
 
     });
+
+    //endregion
+
+    //region Parsing
+
+    /**
+     * Convert an object into XML
+     *
+     * @param {object} obj Object to convert into XML
+     * @param {gpf.interfaces.IXmlContentHandler} contentHandler
+     * @param {string} [name="root"] name Node name
+     * @private
+     */
+    function _objToXml(obj, contentHandler, name) {
+        var
+            member,
+            attributes = {},
+            hasChildren = false;
+        if (undefined === obj || null === obj) {
+            return; // Nothing to do
+        }
+        if (undefined === name) {
+            name = "root"
+        }
+        if ("object" !== typeof obj) {
+            contentHandler.characters(obj.toString());
+        } else if (obj instanceof Array) {
+            for (member = 0; member < obj.length; ++member) {
+                contentHandler.startElement("", name, name, attributes);
+                _objToXml(obj[member], contentHandler, "item");
+                contentHandler.endElement();
+            }
+        } else {
+            // Inspect object to find 'attributes' and check if children
+            for (member in obj) {
+                if (!obj.hasOwnProperty(member)) {
+                    continue;
+                }
+                if ('object' === typeof obj[member]) {
+                    hasChildren = true;
+                } else {
+                    attributes[member] = obj[member];
+                }
+            }
+            contentHandler.startElement("", name, name, attributes);
+            if (hasChildren) {
+                for (member in obj) {
+                    if (!obj.hasOwnProperty(member)
+                        || 'object' !== typeof obj[member]) {
+                        continue;
+                    }
+                    _objToXml(obj[member], contentHandler, member);
+                }
+            }
+            contentHandler.endElement();
+        }
+    }
+
+    /**
+     * Tries to convert any value into XML
+     *
+     * @param {*} value
+     * @param {object} out Recipient object for XML serialization
+     */
+    gpf.xml.convert = function (value, out) {
+        var
+            iContentHandler,
+            iXmlSerializable;
+        iContentHandler = gpfI.query(out, gpfI.IXmlContentHandler);
+        if (!iContentHandler) {
+            _expectedXmlContentHandler();
+        }
+        if ("string" === typeof value) {
+            gpf.NOT_IMPLEMENTED();
+        } else if ("object" === typeof value) {
+            iXmlSerializable = gpfI.query(value, gpfI.IXmlSerializable);
+            if (null !== iXmlSerializable) {
+                iXmlSerializable.toXml(iContentHandler);
+            } else {
+                _objToXml(value, iContentHandler);
+            }
+        }
+    };
 
     //endregion
 

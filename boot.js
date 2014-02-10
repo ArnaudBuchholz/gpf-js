@@ -70,6 +70,11 @@
 
     };
 
+    gpf.NOT_IMPLEMENTED = function () {
+        console.error("Not implemented");
+        throw "Not implemented";
+    };
+
     /*
      * Handling external options
      * TODO: provide ways to turn on/off features by adding options
@@ -86,6 +91,9 @@
             };
         }
     };
+/*#endif*/
+
+/*#ifdef(BOOT)*/
 
     /*
      * Loading sources occurs here because the release version will have
