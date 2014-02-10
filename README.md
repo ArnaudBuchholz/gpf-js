@@ -16,3 +16,7 @@ A multi-purpose JavaScript library created and maintained by
 This library is developed in conjunction with a
 [blog](http://gpf-js.blogspot.com/) where the concepts and algorithms are
 documented and explained.
+
+### Credits
+- Code rewriting based on [esprima](http://esprima.org/) and
+[escodegen](https://github.com/Constellation/escodegen)
