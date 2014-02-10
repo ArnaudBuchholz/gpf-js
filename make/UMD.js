@@ -13,5 +13,5 @@
 }(this, function (gpf) {
     'use strict';
 
-    gpf;
+    __gpf__;
 }));

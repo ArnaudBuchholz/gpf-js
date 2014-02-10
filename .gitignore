@@ -165,4 +165,5 @@ pip-log.txt
 # WebStorm
 .idea
 make/node_modules/*
+make/tmp/*
 
