@@ -1,9 +1,5 @@
 (function () { /* Begin of privacy scope */
     "use strict";
-    /*global document,window,console*/
-    /*global process,require,exports,global*/
-    /*global gpf*/
-    /*jslint continue: true, nomen: true, plusplus: true*/
 
 /*
     This package contains general helpers that will be used everywhere else
@@ -23,6 +19,7 @@
             }
             return defaultResult;
         },
+
         _arrayEach = function (array, memberCallback) {
             var
                 len = array.length,
@@ -31,6 +28,7 @@
                 memberCallback.apply(this, [idx, array[idx]]);
             }
         },
+
         _dictionaryEachWithResult = function (dictionary, memberCallback,
             defaultResult) {
             var
@@ -47,6 +45,7 @@
             }
             return defaultResult;
         },
+
         _dictionaryEach = function (dictionary, memberCallback) {
             var
                 member;
@@ -55,8 +54,73 @@
                     memberCallback.apply(this, [member, dictionary[member]]);
                 }
             }
+        },
+
+        _assign = function (member, value) {
+            // this = gpf.extend's arguments
+            // this[0] is dictionary
+            this[0][member] = value;
+        },
+
+        _assignOrCall = function (member, value) {
+            // this = gpf.extend's arguments
+            var
+                dictionary = this[0],
+                overwriteCallback = this[2];
+            // TODO: see if in is faster
+            if (undefined !== dictionary[member]) {
+                overwriteCallback(dictionary, member, value);
+            } else {
+                dictionary[member] = value;
+            }
+        },
+
+        _equalSearchInDone = function (array, a, b) {
+            var
+                idx,
+                ia,
+                ib,
+                len = array.length;
+            for (idx = 0; idx < len; ++idx) {
+                ia = array[idx].a;
+                ib = array[idx].b;
+                if ((ia === a && ib === b) || (ib === a && ia === b)) {
+                    return idx;
+                }
+            }
+            return undefined;
+        },
+
+        _values = {
+            boolean: function (value, valueType, defaultValue) {
+                if ("string" === valueType) {
+                    if ("yes" === value || "true" === value) {
+                        return true;
+                    }
+                    return 0 !== parseInt(value, 10);
+                }
+                if ("number" === valueType) {
+                    return 0 !== value;
+                }
+                return defaultValue;
+            },
+
+            number:  function (value, valueType, defaultValue) {
+                if ("string" === valueType) {
+                    return parseFloat(value);
+                }
+                return defaultValue;
+            },
+
+            "object": function (value, valueType, defaultValue) {
+                if (defaultValue instanceof Date && "string" === valueType) {
+                    return gpf.dateFromComparableFormat(value);
+                }
+                return defaultValue;
+            }
         };
 
+    /*jshint unused: false */ // Because of arguments
     /*
      * Enumerate dictionary members and call memberCallback for each of them.
      * If defaultResult is defined, memberCallback may return a result.
@@ -78,68 +142,14 @@
             } else {
                 _dictionaryEach.apply(this, arguments);
             }
-        } else {
-            if (dictionary instanceof Array) {
-                return _arrayEachWithResult.apply(this, arguments);
-            } else {
-                return _dictionaryEachWithResult.apply(this, arguments);
-            }
-        }
-        return defaultResult;
-    };
-
-    var
-        /*
-         * @internal
-         * @param {type} member
-         * @param {type} value
-         */
-        _assign = function (member, value) {
-            // this = gpf.extend's arguments
-            // this[0] is dictionary
-            this[0][member] = value;
-        },
-
-        /*
-         * @internal
-         * @param {type} member
-         * @param {type} value
-         */
-        _assign_or_call = function (member, value) {
-            // this = gpf.extend's arguments
-            var
-                dictionary = this[0],
-                overwriteCallback = this[2];
-            // TODO: see if in is faster
-            if (undefined !== dictionary[member]) {
-                overwriteCallback(dictionary, member, value);
-            } else {
-                dictionary[member] = value;
-            }
-        },
-
-        /*
-         * @internal
-         * @param {array} array
-         * @param {any} a
-         * @param {any} b
-         * @returns {unresolved}
-         */
-        _equalSearchInDone = function (array, a, b) {
-            var
-                idx,
-                ia,
-                ib,
-                len = array.length;
-            for (idx = 0; idx < len; ++idx) {
-                ia = array[idx].a;
-                ib = array[idx].b;
-                if ((ia === a && ib === b) || (ib === a && ia === b)) {
-                    return idx;
-                }
-            }
             return undefined;
-        };
+        }
+        if (dictionary instanceof Array) {
+            return _arrayEachWithResult.apply(this, arguments);
+        }
+        return _dictionaryEachWithResult.apply(this, arguments);
+    };
+    /*jshint unused: true */
 
     /*
      * Appends members of additionalProperties to the dictionary object.
@@ -158,7 +168,7 @@
         if (undefined === overwriteCallback) {
             callbackToUse = _assign;
         } else {
-            callbackToUse = _assign_or_call;
+            callbackToUse = _assignOrCall;
         }
         gpf.each.apply(arguments, [additionalProperties, callbackToUse]);
         return dictionary;
@@ -187,26 +197,7 @@
             if ("undefined" === valueType || !value) {
                 return defaultValue;
             }
-            if ("boolean" === expectedType) {
-                if ("string" === valueType) {
-                    if ("yes" === value || "true" === value) {
-                        return true;
-                    } else {
-                        return 0 !== parseInt(value, 10);
-                    }
-                } else if ("number" === valueType) {
-                    return 0 !== value;
-                }
-            } else if ("number" === expectedType) {
-                if ("string" === valueType) {
-                    return parseFloat(value);
-                }
-            } else if ("object" === expectedType) {
-                if (defaultValue instanceof Date && "string" === valueType) {
-                    return gpf.dateFromComparableFormat(value);
-                }
-            }
-            return defaultValue;
+            return _values[expectedType](value, valueType, defaultValue);
         },
 
         /*
@@ -231,21 +222,20 @@
                 return true;
             }
             if (typeof a !== typeof b) {
-                if (alike && ('object' === typeof a || 'object' === typeof b)) {
+                if (alike && ("object" === typeof a || "object" === typeof b)) {
                     /*
                         One of the two is an object but not the other,
                         Consider downcasting Number and String
                     */
                     if (a instanceof String || b instanceof String) {
                         return a.toString() ===  b.toString();
-                    } else if (a instanceof Number || b instanceof Number) {
-                        return a.valueOf() ===  b.valueOf();
-                    } else {
-                        return false;
                     }
-                } else {
+                    if (a instanceof Number || b instanceof Number) {
+                        return a.valueOf() ===  b.valueOf();
+                    }
                     return false;
                 }
+                return false;
             }
             if (null === a || null === b || "object" !== typeof a) {
                 return false;

@@ -10,11 +10,11 @@
          * 2013-12-15 ABZ
          *  Decided to make it as simple as possible
          */
-        _ro_property = function (member) {
+        _roProperty = function (member) {
             return new Function("return this." + member + ";");
         },
 
-        _rw_property = function (member) {
+        _rwProperty = function (member) {
             return new Function("var r = this." + member
                 + "; if (0 < arguments.length) { this." + member
                 + " = arguments[0]; } return r;");
@@ -48,9 +48,9 @@
                 publicName = member.substr(1); // Considering it starts with _
             }
             if (this._writeAllowed) {
-                objPrototype[publicName] = _rw_property(member);
+                objPrototype[publicName] = _rwProperty(member);
             } else {
-                objPrototype[publicName] = _ro_property(member);
+                objPrototype[publicName] = _roProperty(member);
             }
         }
 

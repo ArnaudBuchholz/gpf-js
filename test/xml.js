@@ -184,7 +184,11 @@
                     subNode1: {
                         atribute3: "3"
                     },
-                    subNode2: ["a", "b", "c"]
+                    subNode2: [
+                        "a", {
+                            attribute4: "b"
+                        },
+                        "c"]
                 }, contentHandler);
                 test.equal(gpf.stringFromStream(stream), "",
                     "XML is well formed");
