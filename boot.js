@@ -1,10 +1,5 @@
 (function () { /* Begin of privacy scope */
     "use strict";
-    /*global document,window,console*/
-    /*global process,require,exports,global,module*/
-    /*global gpf*/
-    /*global WScript,ActiveXObject*/
-    /*jslint continue: true, nomen: true, plusplus: true*/
 
     /*
      * Detect host * & define global context
@@ -22,7 +17,7 @@
         };
 
     // Microsoft cscript / wscript
-    if ('undefined' !== typeof WScript) {
+    if ("undefined" !== typeof WScript) {
         _host = "wscript";
         _context = (function () {return this; }).apply(null, []);
 
@@ -35,7 +30,7 @@
         };
 
     // Nodejs
-    } else if ('undefined' !== typeof module && module.exports) {
+    } else if ("undefined" !== typeof module && module.exports) {
         _host = "nodejs";
         _context = global;
     // Default: browser
@@ -105,13 +100,17 @@
          */
         (function () {
             var
-                fso = new ActiveXObject('Scripting.FileSystemObject'),
+                fso = new ActiveXObject("Scripting.FileSystemObject"),
                 include = function (src) {
-                    if ("undefined" !== typeof gpf_sourcesPath) {
-                        src = gpf_sourcesPath + src;
+                    /*global gpfSourcesPath*/ // Tested below
+                    if ("undefined" !== typeof gpfSourcesPath) {
+                        src = gpfSourcesPath + src;
                     }
                     var srcFile = fso.OpenTextFile(src);
+                    /*jslint evil: true*/
+                    // No other choice to evaluate in the current context
                     eval(srcFile.ReadAll());
+                    /*jslint evil: false*/
                     srcFile.Close();
                 },
                 sources,
@@ -151,8 +150,8 @@
                     var src;
                     if (idx < sources.length) {
                         src = sources[idx] + ".js";
-                        if ("undefined" !== typeof gpf_sourcesPath) {
-                            src = gpf_sourcesPath + src;
+                        if ("undefined" !== typeof gpfSourcesPath) {
+                            src = gpfSourcesPath + src;
                         }
                         gpf.http.include(src)
                             .onLoad(loadSources);
@@ -166,8 +165,8 @@
                 || document.documentElement,
 
                 include = function (src) {
-                    if ("undefined" !== typeof gpf_sourcesPath) {
-                        src = gpf_sourcesPath + src;
+                    if ("undefined" !== typeof gpfSourcesPath) {
+                        src = gpfSourcesPath + src;
                     }
                     var script = document.createElement("script");
                     script.language = "javascript";

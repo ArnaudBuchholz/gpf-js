@@ -1,9 +1,5 @@
 (function () { /* Begin of privacy scope */
     "use strict";
-    /*global document,window,console*/
-    /*global process,require,exports,global*/
-    /*global gpf*/
-    /*jslint continue: true, nomen: true, plusplus: true*/
 
     var
         /*
@@ -11,11 +7,11 @@
          *  Decided to make it as simple as possible
          */
         _roProperty = function (member) {
-            return new Function("return this." + member + ";");
+            return gpf._func("return this." + member + ";");
         },
 
         _rwProperty = function (member) {
-            return new Function("var r = this." + member
+            return gpf._func("var r = this." + member
                 + "; if (0 < arguments.length) { this." + member
                 + " = arguments[0]; } return r;");
         },

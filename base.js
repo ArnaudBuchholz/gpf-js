@@ -75,7 +75,7 @@
             }
         },
 
-        _equalSearchInDone = function (array, a, b) {
+        _likeSearchInDone /*gpf:inline*/ = function (array, a, b) {
             var
                 idx,
                 ia,
@@ -89,6 +89,77 @@
                 }
             }
             return undefined;
+        },
+
+        _likeTypes /*gpf:inline*/ = function (a, b, alike) {
+            if (alike && ("object" === typeof a || "object" === typeof b)) {
+                /*
+                 One of the two is an object but not the other,
+                 Consider downcasting Number and String
+                 */
+                if (a instanceof String || b instanceof String) {
+                    return a.toString() ===  b.toString();
+                }
+                if (a instanceof Number || b instanceof Number) {
+                    return a.valueOf() ===  b.valueOf();
+                }
+                return false;
+            }
+            return false;
+        },
+
+        _likeCompareMembers /*gpf:inline*/ = function (ma, mb, alike, stacks) {
+            if (ma !== mb) {
+                if (typeof ma !== typeof mb && !_likeTypes(ma, mb, alike)) {
+                    return false;
+                }
+                if (null === ma || null === mb
+                    || "object" !== typeof ma) {
+                    return false; // Because we know that ma !== mb
+                }
+                if (undefined === _likeSearchInDone(stacks.done, ma, mb)) {
+                    stacks.todo.push(ma);
+                    stacks.todo.push(mb);
+                }
+            }
+            return true;
+        },
+
+        _likeMembers /*gpf:inline*/ = function (a, b, alike) {
+            var
+                member,
+                count,
+                stacks = {
+                    todo: [a, b],
+                    done: []
+                };
+            while (0 !== stacks.todo.length) {
+                b = stacks.todo.pop();
+                a = stacks.todo.pop();
+                if (a.prototype !== b.prototype) {
+                    return false;
+                }
+                stacks.done.push({a: a, b: b });
+                count = 0;
+                for (member in a) {
+                    if (a.hasOwnProperty(member)) {
+                        ++count;
+                        if (!_likeCompareMembers(a[member], b[member], alike,
+                            stacks)) {
+                            return false;
+                        }
+                    }
+                }
+                for (member in b) {
+                    if (b.hasOwnProperty(member)) {
+                        --count;
+                    }
+                }
+                if (0 !== count) {
+                    return false;
+                }
+            }
+            return true;
         },
 
         _values = {
@@ -118,7 +189,14 @@
                 }
                 return defaultValue;
             }
-        };
+        },
+
+        // https://github.com/jshint/jshint/issues/525
+        Func = Function; // avoid JSHint error
+
+    gpf._func = function (source) {
+        return new Func(source);
+    };
 
     /*jshint unused: false */ // Because of arguments
     /*
@@ -222,70 +300,12 @@
                 return true;
             }
             if (typeof a !== typeof b) {
-                if (alike && ("object" === typeof a || "object" === typeof b)) {
-                    /*
-                        One of the two is an object but not the other,
-                        Consider downcasting Number and String
-                    */
-                    if (a instanceof String || b instanceof String) {
-                        return a.toString() ===  b.toString();
-                    }
-                    if (a instanceof Number || b instanceof Number) {
-                        return a.valueOf() ===  b.valueOf();
-                    }
-                    return false;
-                }
-                return false;
+                return _likeTypes(a, b, alike);
             }
             if (null === a || null === b || "object" !== typeof a) {
                 return false;
             }
-            var
-                member,
-                count,
-                ma,
-                mb,
-                done = [],
-                stack = [a, b];
-            while (0 !== stack.length) {
-                b = stack.pop();
-                a = stack.pop();
-                done.push({a: a, b: b });
-                if (a.prototype !== b.prototype) {
-                    return false;
-                }
-                count = 0;
-                for (member in a) {
-                    if (a.hasOwnProperty(member)) {
-                        ++count;
-                        ma = a[member];
-                        mb = b[member];
-                        if (ma === mb) {
-                            continue; // It works when the same object/type
-                        }
-                        if (typeof ma !== typeof mb) {
-                            return false;
-                        }
-                        if (null === ma || null === mb
-                            || "object" !== typeof ma) {
-                            return false; // Because we know that ma !== mb
-                        }
-                        if (undefined === _equalSearchInDone(done, ma, mb)) {
-                            stack.push(ma);
-                            stack.push(mb);
-                        }
-                    }
-                }
-                for (member in b) {
-                    if (b.hasOwnProperty(member)) {
-                        --count;
-                    }
-                }
-                if (0 !== count) {
-                    return false;
-                }
-            }
-            return true;
+            return _likeMembers(a, b, alike);
         },
 
         /*

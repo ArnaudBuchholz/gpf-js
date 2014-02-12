@@ -301,8 +301,8 @@
         var src;
         while (_sourcesIdx < _sources.length) {
             src = "test/" + _sources[_sourcesIdx++] + ".js";
-            if ("undefined" !== typeof gpf_sourcesPath) {
-                src = gpf_sourcesPath + src;
+            if ("undefined" !== typeof gpfSourcesPath) {
+                src = gpfSourcesPath + src;
             }
             if (include(src)) {
                 return; // Asynchronous, must wait

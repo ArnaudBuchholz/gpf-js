@@ -27,7 +27,7 @@
     "globalstrict"  : false,
     "iterator"      : false,
     "lastsemic"     : false,
-    "laxbreak"      : false,
+    "laxbreak"      : true,
     "laxcomma"      : false,
     "loopfunc"      : false,
     "multistr"      : false,
@@ -69,7 +69,6 @@
     "maxparams"     : 6,
     "maxcomplexity" : 10,
     "maxlen"        : 80,
-    "laxbreak"      : true,
 
     "predef"        : [
         "gpf"

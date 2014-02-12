@@ -2,7 +2,7 @@
 <job id="test">
     <script language="javascript"><![CDATA[
 
-var gpf_sourcesPath = "..\\..\\";
+var gpfSourcesPath = "..\\..\\";
 
     ]]></script>
     <script language="javascript" src="..\..\boot.js" />

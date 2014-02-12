@@ -1,9 +1,5 @@
 (function () { /* Begin of privacy scope */
     "use strict";
-    /*global document,window,console*/
-    /*global process,require,exports,global*/
-    /*global gpf*/
-    /*jslint continue: true, nomen: true, plusplus: true*/
 
     var
         _emptyMember = 0;
@@ -12,13 +8,13 @@
 
     function _alias(objectClass, name) {
         gpf[ "$" + name ] = (function(){
-            var proxy = function (args) {
+            var Proxy = function (args) {
                     return objectClass.apply(this, args);
                 };
-            proxy.prototype = objectClass.prototype;
+            Proxy.prototype = objectClass.prototype;
             return function() {
-                return new proxy(arguments);
-            }
+                return new Proxy(arguments);
+            };
         }());
     }
 
@@ -50,6 +46,7 @@
          * @param {object} objPrototype object's prototype
          */
         alterPrototype: function /*abstract*/ (objPrototype) {
+            gpf.interfaces.ignoreParameter(objPrototype);
         }
 
     });
@@ -162,8 +159,9 @@
              */
             add: function (member, attribute) {
                 var array = this._members[member];
-                if (undefined === array)
+                if (undefined === array) {
                     array = this._members[member] = new gpf.attributes.Array();
+                }
                 array._array.push(attribute);
                 ++this._count;
             },
@@ -211,6 +209,7 @@
              * @private
              */
             _filterCallback: function (member, attribute, expectedClass) {
+                gpf.interfaces.ignoreParameter(member);
                 return attribute instanceof expectedClass;
             },
 

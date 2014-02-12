@@ -1,8 +1,4 @@
 (function(){ /* Begin of privacy scope */
-    /*global document,window,console*/
-    /*global process,require,exports,global*/
-    /*global gpf*/
-    /*jslint continue: true, nomen: true, plusplus: true*/
     "use strict";
 
     var
@@ -56,10 +52,6 @@
         dateFromComparableFormat: function (that) {
             var
                 date = new Date();
-            /*
-             try
-             {
-             */
             date.setFullYear(parseInt(that.substr(0, 4), 10),
                 parseInt(that.substr(5, 2), 10) - 1,
                 parseInt(that.substr(8, 2), 10));
@@ -70,13 +62,6 @@
             } else {
                 date.setHours(0, 0, 0, 0);
             }
-            /*
-             }
-             catch( e )
-             {
-             // 99% of chance this is an error with string length and/or number parsing
-             }
-             */
             return date;
         }
 

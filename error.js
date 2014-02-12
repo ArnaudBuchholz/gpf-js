@@ -1,8 +1,4 @@
 (function () { /* Begin of privacy scope */
-    /*global document,window,console*/
-    /*global process,require,exports,global*/
-    /*global gpf*/
-    /*jslint continue: true, nomen: true, plusplus: true*/
     "use strict";
 
     gpf.Error = gpf.Class.extend({

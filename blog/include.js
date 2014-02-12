@@ -8,7 +8,7 @@
         blogCssUrl;
 
     if (window.location.protocol === "file:") {
-        window.gpf_sourcesPath = "../";
+        window.gpfSourcesPath = "../";
         gpfUrl = "../boot.js";
         blogJsUrl = "blog.js";
         blogCssUrl = "blog.css";

@@ -1,21 +1,23 @@
 (function(){ /* Begin of privacy scope */
+    "use strict";
+
     // TODO: refactor!
     
     //noinspection JSUnusedLocalSymbols
     var
-        TYPE_NUMBER         = 'N', // number
-        TYPE_STRING         = 'S', // string
-        TYPE_ID             = 'I', // IdString(exec:false)
-        TYPE_EXECUTABLEID   = 'E', // IdString(exec:true)
-        TYPE_ARRAY          = 'A', // array
-        TYPE_DICTIONARY     = 'D', // object
-        TYPE_CODE           = 'C', // CodeArray
+        TYPE_NUMBER         = "N", // number
+        TYPE_STRING         = "S", // string
+        TYPE_ID             = "I", // IdString(exec:false)
+        TYPE_EXECUTABLEID   = "E", // IdString(exec:true)
+        TYPE_ARRAY          = "A", // array
+        TYPE_DICTIONARY     = "D", // object
+        TYPE_CODE           = "C", // CodeArray
 
         toType = function(value) {
             var type = typeof value;
-            if ('number' === type) {
+            if ("number" === type) {
                 return TYPE_NUMBER;
-            } else if ('string' === type) {
+            } else if ("string" === type) {
                 return TYPE_STRING;
             } else if (value instanceof IdString) {
                 if (value.executable()) {
@@ -35,22 +37,22 @@
         SYS_DICT = {
 
             add: function(engineState) {
-                var args = engineState.checkAndPop('NN');
+                var args = engineState.checkAndPop("NN");
                 engineState.push(args[0] + args[1]);
             },
 
             mul: function(engineState) {
-                var args = engineState.checkAndPop('NN');
+                var args = engineState.checkAndPop("NN");
                 engineState.push(args[0] * args[1]);
             },
 
             sub: function(engineState) {
-                var args = engineState.checkAndPop('NN');
+                var args = engineState.checkAndPop("NN");
                 engineState.push(args[0] - args[1]);
             },
 
             div: function(engineState) {
-                var args = engineState.checkAndPop('NN');
+                var args = engineState.checkAndPop("NN");
                 engineState.push(args[0] / args[1]);
             }
 
@@ -81,7 +83,7 @@
 
             init: function() {
                 this._stack = [];
-                // 'Top' dictionary is SYS_DICT
+                // "Top" dictionary is SYS_DICT
                 this._userDict = {};     // Then user dictionary
                 this._dictionaries = []; // Then any other enqueued
             },
@@ -109,8 +111,10 @@
                 result = [];
                 for (idx = 0; idx < types.length; ++idx) {
                     value = this.internalGet(idx);
-                    if (toType(value) !== types[idx])
+                    if (toType(value) !== types[idx]) {
+
                         throw "typecheck";
+                    }
                     result.push(value);
                 }
                 // TODO: optimize
@@ -133,16 +137,16 @@
         });
 
 
-gpf.Engine = gpf.Class.extend({
+    gpf.Engine = gpf.Class.extend({
 
-    init: function() {
-        this._state = new EngineState();
-    },
+        init: function() {
+            this._state = new EngineState();
+        },
 
-    execute: function(src) {
-        
-    }
+        execute: function(src) {
 
-});
+        }
+
+    });
 
 })(); /* End of privacy scope */

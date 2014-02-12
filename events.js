@@ -1,9 +1,5 @@
 (function () { /* Begin of privacy scope */
     "use strict";
-    /*global document,window,console*/
-    /*global process,require,exports,global*/
-    /*global gpf*/
-    /*jslint continue: true, nomen: true, plusplus: true*/
 
     var
         _Broadcaster = function (events) {
@@ -18,6 +14,8 @@
                     this._listeners[eventName] = [];
                 }
             } else {
+                // Used inside a dynamically created closure... so
+                //noinspection JSUnusedGlobalSymbols
                 this._events = null;
             }
         },
@@ -38,11 +36,9 @@
             } else {
                 this._that = that;
             }
-        },
+        };
 
-        // https://github.com/jshint/jshint/issues/525
-        Fn = Function;
-
+    //noinspection JSUnusedGlobalSymbols,JSUnusedGlobalSymbols
     gpf.extend(_Broadcaster.prototype, {
 
         /**
@@ -65,7 +61,7 @@
             gpf.ASSERT(closures.length >= idx, "calls must be sequential");
             while (closures.length <= idx) {
                 jdx = closures.length;
-                closures.push(new Fn(
+                closures.push(gpf._func(
                     "return this.addEventListener(this._events["
                         + jdx
                         + "],arguments[0],arguments[1]);"
@@ -126,6 +122,7 @@
                 type,
                 listeners;
             if (event instanceof _Event) {
+                //noinspection JSUnresolvedFunction
                 type = event.type();
             } else {
                 type = event;
@@ -137,7 +134,9 @@
             if (event instanceof _Event) {
                 // 'Advanced' version
                 for (idx = 0; idx < listeners.length; ++idx) {
+                    //noinspection JSUnresolvedVariable
                     listeners[idx].apply(event._that, [event]);
+                    //noinspection JSUnresolvedVariable
                     if (event._propagationStopped) {
                         break;
                     }
@@ -155,20 +154,28 @@
 
     gpf.extend(_Event.prototype, {
 
+        /**
+         * Event type
+         *
+         * @returns {string}
+         */
         type: function () {
             return this._type;
         },
 
+        /**
+         * Event can be cancelled
+         *
+         * @returns {boolean}
+         */
         cancelable: function () {
             return this._cancelable;
         },
 
         /**
-         * To cancel the event if it is cancelable, meaning that any default
+         * Cancel the event if it is cancelable, meaning that any default
          * action normally taken by the implementation as a result of the event
          * will not occur
-         * 
-         * @return {undefined}
          */
         preventDefault: function () {
             this._defaultPrevented = true;
@@ -185,8 +192,6 @@
 
         /**
          * To prevent further propagation of an event during event flow
-         * 
-         * @return {undefined}
          */
         stopPropagation: function () {
             this._propagationStopped = true;

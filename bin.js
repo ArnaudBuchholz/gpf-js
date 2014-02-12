@@ -5,6 +5,7 @@
         _b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
         + "0123456789+/",
         _b16 = "0123456789ABCDEF",
+
         _toBaseANY = function (base, value, length, safepad) {
             var
                 baseLength = base.length,
@@ -50,6 +51,7 @@
             }
             return result.join("");
         },
+
         _fromBaseANY = function (base, text, safepad) {
             var
                 baseLength = base.length,
