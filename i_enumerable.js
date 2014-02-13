@@ -1,39 +1,62 @@
 (function () { /* Begin of privacy scope */
     "use strict";
 
-    // TODO: refactor!
+    var
+        gpfI = gpf.interfaces,
+        gpfA = gpf.attributes;
 
-    gpf.IEnumerable = gpf.Interface.extend({
+    gpfI.IEnumerable = gpfI.Interface.extend({
 
-        resetEnumeration: function () {
-            /*
-             *
+        /**
+         * Sets the enumerator to its initial position, which is before the
+         * first element in the collection
+         */
+        reset: function () {
+        },
 
-             Reset the enumeration and return a boolean indicating if something
-             can be enumerated.
-             */
+        /**
+         * Advances the enumerator to the next element of the collection
+         * @returns {boolean} true if the enumerator was successfully advanced
+         * to the next element; false if the enumerator has passed the end of
+         * the collection
+         */
+        moveNext: function () {
             return false;
         },
 
-        endOfEnumeration: function () {
-            /*
-             *
-
-             Tell if the enumeration is done.
-             */
-            return true;
-        },
-
-        enumerate: function () {
-            /*
-             *
-
-             Reset the next item in the enumeration.
-             */
+        /**
+         * Gets the current element in the collection
+         * @returns {*}
+         */
+        current: function () {
             return null;
         }
 
     });
+
+    function _buildEnumerableOnArray(object) {
+
+    }
+
+    gpfA.EnumerableAttribute = gpfA.Attribute.extend({
+
+        "[Class]": [gpf.$Alias("Enumerable")],
+
+        alterPrototype: function (objPrototype) {
+            if (!(objPrototype[this._member] instanceof Array)) {
+                throw '$Enumerable can be associated to arrays only';
+            }
+            gpf.attributes.add(objPrototype, "Class", [
+                new gpfA.InterfaceImplementAttribute(gpfI.IEnumerable,
+                    _buildEnumerableOnArray)]);
+        }
+
+    });
+
+/*
+    TODO find a way to associate object's array members to an IEnumerable
+
+    function _createArrayEnumerator
 
     gpf.extend(gpf, {
 
@@ -62,6 +85,8 @@
         }
 
     });
+
+ */
 
 })();
 /* End of privacy scope */
