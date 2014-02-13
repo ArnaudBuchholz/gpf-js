@@ -1,5 +1,6 @@
 (function () { /* Begin of privacy scope */
     "use strict";
+    /*global esprima, escodegen*/
 
     function toAST(src) {
         // https://github.com/Constellation/escodegen/issues/85
@@ -27,13 +28,15 @@
             }
             sources.parsed.UMD = toAST(sources.UMD);
             // Then, locate the use of __gpf__ to replace it with our content
-            // Use an XPATH like parser on body[@type='ExpressionStatement' and expression/@name='__gpf__']
+            // Use an XPATH like parser on body[@type='ExpressionStatement'
+            // and expression/@name='__gpf__']
         }
 
 //        console.log(JSON.stringify(sources.parsed.UMD, true, 4));
         console.log(escodegen.generate(sources.parsed.UMD, {
             comment: true
         }));
-    }
+        gpf.interfaces.ignoreParameter(version);
+    };
 
 }()); /* End of privacy scope */

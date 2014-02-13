@@ -1,8 +1,4 @@
 (function () { /* Begin of privacy scope */
-    /*global document,window,console*/
-    /*global process,require,exports,global*/
-    /*global gpf*/
-    /*jslint continue: true, nomen: true, plusplus: true*/
     "use strict";
 
     /*
@@ -432,7 +428,8 @@
          * 
          * @eventParam {string} token The token value
          * @eventParam {number} pos Absolute position of the error (0-based)
-         * @eventParam {number} line Absolute line position of the error (0-based)
+         * @eventParam {number} line Absolute line position of the error
+         *             (0-based)
          * @eventParam {number} column Column position relatively to the current
          *             line (0-based)
          * @eventParam {number} code Error code (0 if token found)
@@ -443,7 +440,7 @@
          * 
          * @eventThis Transmitted from the function call
          * 
-         * @event error A parsing error occured, the parameters code and message 
+         * @event error A parsing error occured, the parameters code and message
          *        are set accordingly
          * 
          * @event keyword A keyword has been recognized
@@ -480,7 +477,7 @@
                 _tokenizerFinalize(context);
             } catch (e) {
                 // used for quick exit
-                if ('number' !== typeof e) {
+                if ("number" !== typeof e) {
                     throw e; // TODO: wrap and forward 
                 }
             }
@@ -519,7 +516,7 @@
                 }
             } catch (e) {
                 // used for quick exit
-                if ('number' !== typeof e) {
+                if ("number" !== typeof e) {
                     throw e; // TODO: wrap and forward 
                 }
             }

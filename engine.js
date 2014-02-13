@@ -3,7 +3,6 @@
 
     // TODO: refactor!
     
-    //noinspection JSUnusedLocalSymbols
     var
         TYPE_NUMBER         = "N", // number
         TYPE_STRING         = "S", // string

@@ -15,7 +15,6 @@
                 }
             } else {
                 // Used inside a dynamically created closure... so
-                //noinspection JSUnusedGlobalSymbols
                 this._events = null;
             }
         },
@@ -38,7 +37,6 @@
             }
         };
 
-    //noinspection JSUnusedGlobalSymbols,JSUnusedGlobalSymbols
     gpf.extend(_Broadcaster.prototype, {
 
         /**
@@ -122,7 +120,6 @@
                 type,
                 listeners;
             if (event instanceof _Event) {
-                //noinspection JSUnresolvedFunction
                 type = event.type();
             } else {
                 type = event;
@@ -134,9 +131,7 @@
             if (event instanceof _Event) {
                 // 'Advanced' version
                 for (idx = 0; idx < listeners.length; ++idx) {
-                    //noinspection JSUnresolvedVariable
                     listeners[idx].apply(event._that, [event]);
-                    //noinspection JSUnresolvedVariable
                     if (event._propagationStopped) {
                         break;
                     }

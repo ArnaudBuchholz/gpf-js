@@ -1,4 +1,5 @@
 (function () { /* Begin of privacy scope */
+    "use strict";
 
     var
         TestAttribute = gpf.attributes.Attribute.extend({}),

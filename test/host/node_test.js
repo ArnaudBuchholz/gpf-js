@@ -1,3 +1,4 @@
+/*global process, require*/
 // Simple parameter parsing
 var
     options = {
@@ -8,6 +9,7 @@ var
 
 if (process.argv.length > 2) {
     process.argv.forEach(function (val/*, index, array*/) {
+        "use strict";
         if (val.charAt(0) === "-") {
             val = val.substr(1);
             if (val in options) {
@@ -20,6 +22,7 @@ if (process.argv.length > 2) {
 }
 
 function verbose(text) {
+    "use strict";
     if (options.verbose) {
         console.log(text);
     }
@@ -40,6 +43,7 @@ if (options.release) {
 require("../manager.js");
 
 function callback(event) {
+    "use strict";
     if ("error" === event.type()) {
         console.error("\x1B[31m" + event.get("message") + "\x1B[39m");
     } else if ("warning" === event.type()) {

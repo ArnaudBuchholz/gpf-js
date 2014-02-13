@@ -1,8 +1,4 @@
 (function () { /* Begin of privacy scope */
-    /*global document,window,console*/
-    /*global process,require,exports,global*/
-    /*global gpf*/
-    /*jslint continue: true, nomen: true, plusplus: true*/
     "use strict";
 
     var
@@ -34,7 +30,7 @@
 
         },
 
-        _stringStream = gpf.Class.extend({
+        StringStream = gpf.Class.extend({
 
             "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.ITextStream)],
 
@@ -66,8 +62,8 @@
                 } else {
                     firstBuffer = this._buffer[0];
                     length = firstBuffer.length;
-                    if (count > length - pos) {
-                        count = length - pos;
+                    if (count > length - this._pos) {
+                        count = length - this._pos;
                     }
                     result = firstBuffer.substr(this._pos, count);
                     this._pos += count;
@@ -176,7 +172,7 @@
          * @returns {gpf.interfaces.ITextStream}
          */
         stringToStream: function (that) {
-            return new _stringStream(that);
+            return new StringStream(that);
         },
 
         "[stringFromStream]": [
@@ -189,11 +185,12 @@
          * @param {gpf.interfaces.ITextStream} stream
          */
         stringFromStream: function (stream) {
-            if (stream instanceof _stringStream) {
+            if (stream instanceof StringStream) {
                 return stream.consolidateString();
             } else {
                 // READ and join...
                 gpf.NOT_IMPLEMENTED();
+                return null;
             }
         }
 

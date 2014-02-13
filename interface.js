@@ -1,4 +1,5 @@
 (function () { /* Begin of privacy scope */
+    "use strict";
 
     gpf.interfaces = {
 
@@ -16,19 +17,19 @@
              * IMPORTANT note: we test the object itself (i.e. own members and
              * the prototype). That's why the hasOwnProperty is skipped
              */
-            //noinspection JSUnfilteredForInLoop
+            /*jslint forin:false*/
             for (member in interfaceDefinition.prototype) {
                 if ("constructor" === member                           // Object
                     || "extend" === member) {                       // gpf.Class
                     continue;
                 }
-                //noinspection JSUnfilteredForInLoop
                 if (typeof interfaceDefinition.prototype[member]
                     !== typeof objectInstance[member]) {
                     return false;
                 }
                 // TODO: check function arity
             }
+            /*jslint forin:true*/
             return true;
         },
 
@@ -109,6 +110,7 @@
      * @returns {object|null} The object supporting the interface (or null)
      */
     function _queryInterface (interfaceDefinition) {
+        /*jslint -W040*/
         var
             array = (new gpf.attributes.Map(this))
                 .member("Class")
@@ -136,6 +138,7 @@
         }
         // Otherwise
         return null;
+        /*jslint +W040*/
     }
 
     gpf.attributes.InterfaceImplementAttribute

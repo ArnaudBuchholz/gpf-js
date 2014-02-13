@@ -1,4 +1,5 @@
 (function () { /* Begin of privacy scope */
+    "use strict";
 
     var
         A = gpf.Class.extend({

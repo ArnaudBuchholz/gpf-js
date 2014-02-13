@@ -91,7 +91,8 @@
                 for (idx = 0; idx < members.length; ++idx) {
                     member = members[idx];
                     array = map.member(member);
-                    test.log("[" + idx + "] '" + member + "' " + array.length());
+                    test.log("[" + idx + "] '" + member + "' "
+                        + array.length());
                     if ("_scriptwriters" === member) {
                         test.equal(array.length(), 2, "Expected two");
                     } else {
@@ -111,7 +112,8 @@
                            !== gpf.interfaces.IXmlContentHandler
                         && interfaceImplement.which()
                             !== gpf.interfaces.IXmlSerializable) {
-                        test.assert(false, "Found unexpected implemented interface");
+                        test.assert(false,
+                            "Found unexpected implemented interface");
                     }
                 }
             }
@@ -188,7 +190,8 @@
                         "a", {
                             attribute4: "b"
                         },
-                        "c"]
+                        "c"
+                    ]
                 }, contentHandler);
                 test.equal(gpf.stringFromStream(stream), "",
                     "XML is well formed");

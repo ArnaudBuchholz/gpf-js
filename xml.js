@@ -307,7 +307,6 @@
                      * I must also use inherited properties
                      * NO hasOwnProperty
                      */
-                    //noinspection JSUnfilteredForInLoop
                     value = obj[member];
                     // Exception for dates
                     if (value instanceof Date) {
@@ -319,7 +318,6 @@
                         continue;
                     }
                     // Check member's attributes
-                    //noinspection JSUnfilteredForInLoop
                     attArray = attMap.member(member);
                     // Ignore?
                     if (attArray.has(_Ignore)) {
@@ -331,26 +329,21 @@
                         if (0 === subNodeMembers) {
                             subNodeMembers = [];
                         }
-                        //noinspection JSUnfilteredForInLoop
                         subNodeMembers.push(member);
                         continue;
                     }
                     // Else attribute
                     attribute = attArray.has(_Attribute);
                     if (attribute && attribute.name()) {
-                        //noinspection JSUnfilteredForInLoop
                         member = attribute.name();
                     } else {
-                        //noinspection JSUnfilteredForInLoop
                         if ("_" == member.charAt(0)) {
-                            //noinspection JSUnfilteredForInLoop
                             member = member.substr(1);
                         }
                     }
                     if (0 === xmlAttributes) {
                         xmlAttributes = {};
                     }
-                    //noinspection JSUnfilteredForInLoop
                     xmlAttributes[member] = value.toString();
                 }
                 contentHandler.startElement("", name, name, xmlAttributes);
@@ -722,24 +715,19 @@
             xmlAttributes = (new gpfA.Map(obj)).filter(gpf.xml.Attribute);
             // Analysis is based on object members, not the XML
             for (member in obj) {
-                //noinspection JSUnfilteredForInLoop
                 value = obj[ member ];
                 type = typeof value;
                 // Skip functions
                 if ("function" !== type) {
                     // Check member's attributes
-                    //noinspection JSUnfilteredForInLoop
                     attributes = xmlAttributes.member(member);
                     // XmlIgnore?
                     if (attributes.has(gpf.XmlIgnoreAttribute))
                         continue;
                     // Default name
-                    //noinspection JSUnfilteredForInLoop
                     if ("_" === member.charAt(0)) {
-                        //noinspection JSUnfilteredForInLoop
                         name = member.substr(1);
                     } else {
-                        //noinspection JSUnfilteredForInLoop
                         name = member;
                     }
                     // Check if list
@@ -767,7 +755,6 @@
                             }
                             child = child.nextSibling;
                         }
-                        //noinspection JSUnfilteredForInLoop
                         obj[ member ] = value;
                         continue;
                     }
@@ -785,7 +772,6 @@
                         // Look for the first child having the right name
                         child = _selectChildByName(node, name);
                         if (child) {
-                            //noinspection JSUnfilteredForInLoop
                             obj[ member ] = _parseXml(child, type);
                         }
                     } else {
@@ -793,7 +779,6 @@
                         selectedAttribute = attributes.has(gpf.XmlAttributeAttribute);
                         if (selectedAttribute && selectedAttribute.name())
                             name = selectedAttribute.name();
-                        //noinspection JSUnfilteredForInLoop
                         obj[ member ] = gpf.value(node.getAttribute(name), value);
                     }
                 }
@@ -947,10 +932,8 @@
             if (attributes) {
                 for (attName in attributes) {
                     stream.write(" ");
-                    //noinspection JSUnfilteredForInLoop
                     stream.write(attName);
                     stream.write("=\"");
-                    //noinspection JSUnfilteredForInLoop
                     attValue = gpf.escapeFor(attributes[attName].toString(),
                         "xml");
                     if (-1 < attValue.indexOf("\"")) {

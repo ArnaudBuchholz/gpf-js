@@ -1,17 +1,89 @@
 (function () { /* Begin of privacy scope */
     "use strict";
-    /*global document,window,console*/
-    /*global process,require,exports,global*/
-    /*global gpf*/
-    /*global ActiveXObject*/
-    /*jslint continue: true, nomen: true, plusplus: true*/
+    /*global gpfSourcesPath*/
 
     var
         _eventsHandler,
         _tests = {},
         _names = [],
         _sources,
-        _sourcesIdx;
+        _sourcesIdx,
+
+        _testDetailsCompare = function () {
+            var
+                details = ["First: ("],
+                type = typeof arguments[0];
+            details.push(type, ") ");
+            if ("undefined" === type) {
+                details.push("undefined");
+            } else {
+                details.push(JSON.stringify(arguments[0]));
+            }
+            details.push("\r\nSecond: (");
+            type = typeof arguments[1];
+            details.push(type, ") ");
+            if ("undefined" === type) {
+                details.push("undefined");
+            } else {
+                details.push(JSON.stringify(arguments[1]));
+            }
+            details.push("\r\nare");
+            if ("equal" === this._type || "like" === this._type) {
+                details.push(" not");
+            }
+            if ("equal" === this._type || "notEqual" === this._type) {
+                details.push(" equal");
+            } else {
+                details.push(" alike");
+            }
+            return details.join("");
+        },
+
+        _testDetails = {
+            exception: function () {
+                return ["message: ", arguments[0].message];
+            },
+            equal: _testDetailsCompare,
+            notEqual: _testDetailsCompare,
+            like: _testDetailsCompare,
+            notLike: _testDetailsCompare,
+            assert: function () {
+                var
+                    details = [],
+                    idx = 1,
+                    obj,
+                    objIsTest,
+                    testProto = TestReport.prototype,
+                    property,
+                    value;
+                while (idx + 1 < arguments.length) {
+                    obj = arguments[idx++];
+                    if (null === obj) {
+                        continue;
+                    }
+                    objIsTest = obj.constructor === TestReport;
+                    for (property in obj) {
+                        if (obj.hasOwnProperty(property)) {
+                            if (objIsTest && testProto.hasOwnProperty(property)
+                                || property.charAt(0) === "_") {
+                                continue;
+                            }
+                            value = obj[property];
+                            if (undefined === value) {
+                                value = "<undefined>";
+                            } else if (null === value) {
+                                value = "<null>";
+                            } else if ("function" === typeof value) {
+                                value = "<function>";
+                            }
+                            details.push("\t", property, "= ", value.toString(),
+                                "\n");
+                        }
+                    }
+                }
+                return details.join("");
+            }
+        };
 
     function output(type, text, eventsHandler) {
         if (!eventsHandler) {
@@ -69,80 +141,7 @@
         },
 
         getDetails: function() {
-            var
-                details,
-                type,
-                idx,
-                obj,
-                objIsTest,
-                property,
-                value;
-            if ("exception" === this._type) {
-                details = ["message: ", this._parameters[0].message];
-            } else if ("equal" === this._type || "notEqual" === this._type
-                       || "like" === this._type || "notLike" === this._type) {
-                details = ["First: ("];
-                type = typeof this._parameters[0];
-                details.push(type, ") ");
-                if ("undefined" === type) {
-                    details.push("undefined");
-                } else {
-                    details.push(JSON.stringify(this._parameters[0]));
-                }
-                details.push("\r\nSecond: (");
-                type = typeof this._parameters[1];
-                details.push(type, ") ");
-                if ("undefined" === type) {
-                    details.push("undefined");
-                } else {
-                    details.push(JSON.stringify(this._parameters[1]));
-                }
-                details.push("\r\nare");
-                if ("equal" === this._type || "like" === this._type) {
-                    details.push(" not");
-                }
-                if ("equal" === this._type || "notEqual" === this._type) {
-                    details.push(" equal");
-                } else {
-                    details.push(" alike");
-                }
-            } else if ("assert" === this._type && 2 < this._parameters.length) {
-                // Objects added, dump the content
-                details = [];
-                for (idx = 1; idx < this._parameters.length - 1; ++idx) {
-                    obj = this._parameters[idx];
-                    if (null === obj) {
-                        continue;
-                    }
-                    objIsTest = obj.constructor === TestReport;
-                    //noinspection JSUnfilteredForInLoop
-                    for (property in obj) {
-                        //noinspection JSUnfilteredForInLoop
-                        if (objIsTest
-                            && ( TestReport.prototype.hasOwnProperty(property)
-                                || property.charAt(0) === "_")) {
-                            continue;
-                        }
-                        //noinspection JSUnfilteredForInLoop
-                        value = obj[property];
-                        if (undefined === value) {
-                            value = '<undefined>';
-                        } else if (null === value) {
-                            value = '<null>';
-                        } else if ('function' === typeof value) {
-                            value = '<function>';
-                        }
-                        //noinspection JSUnfilteredForInLoop
-                        details.push("\t", property, "= ", value.toString(),
-                            "\n");
-                    }
-                }
-            }
-            if (details) {
-                return details.join("");
-            } else {
-                return "";
-            }
+            return _testDetails[this._type].apply(this, this._parameters);
         },
 
         isSuccess: function() {
@@ -171,14 +170,15 @@
 
     gpf.each("title,log,assert,equal,notEqual,like,notLike,exception"
         .split(","),
-        function(idx, name){
+        function(/*idx, name*/){
+            var name = arguments[1];
             TestReport.prototype[name] = function() {
                 var item = new TestItem(name, arguments);
                 this._items.push(item);
                 if (!item.isSuccess()) {
                     ++this._errors;
                 }
-            }
+            };
         });
 
     gpf.extend(TestReport.prototype, {
@@ -192,42 +192,44 @@
 
     });
 
-    function include_failed(e) {
+    function includeFailed(e) {
         var source = _sources[_sourcesIdx - 1];
         if (e) {
             warning(e.message);
         } else {
-            warning('Missing ' + source);
+            warning("Missing " + source);
         }
     }
 
-    function include_failed_async() {
-        include_failed();
+    function includeFailedAsync() {
+        includeFailed();
         loadTestSources();
     }
 
-    function wscript_include(src) {
+    function wscriptInclude(src) {
         var srcFile;
-        if (!wscript_include.fso) {
-            wscript_include.fso =
-                new ActiveXObject('Scripting.FileSystemObject');
+        if (!wscriptInclude.fso) {
+            wscriptInclude.fso =
+                new ActiveXObject("Scripting.FileSystemObject");
         }
-        if (wscript_include.fso.FileExists(src)) {
-            srcFile = wscript_include.fso.OpenTextFile(src);
+        if (wscriptInclude.fso.FileExists(src)) {
+            srcFile = wscriptInclude.fso.OpenTextFile(src);
+            /*jslint evil:true*/
             eval(srcFile.ReadAll());
+            /*jslint evil:false*/
             srcFile.Close();
         } else {
-            include_failed();
+            includeFailed();
         }
         return false;
     }
 
-    function nodejs_include(src) {
+    function nodejsInclude(src) {
         try {
             // require is relative to the current file (i.e. manager)
-            require('../' + src);
+            require("../" + src);
         } catch (e) {
-            include_failed(e);
+            includeFailed(e);
         }
         return false;
     }
@@ -235,13 +237,13 @@
     function include(src) {
         log("Reading '" + src + "'");
         if ("wscript" === gpf.host()) {
-            return wscript_include(src);
+            return wscriptInclude(src);
         } else if ("nodejs" === gpf.host()) {
-            return nodejs_include(src);
+            return nodejsInclude(src);
         } else { // browser
             gpf.http.include(src)
                 .onLoad(loadTestSources)
-                .onError(include_failed_async);
+                .onError(includeFailedAsync);
             return true; // Asynchronous
         }
     }
@@ -261,7 +263,7 @@
             report.exception(e, "Unexpected exception");
         }
         if (0 === report._items.length) {
-            report.assert(false, 'Empty report');
+            report.assert(false, "Empty report");
         }
         return report;
     }
@@ -293,7 +295,8 @@
         if (0 === errors) {
             info("All tests succeeded (" + total + ")", _eventsHandler);
         } else {
-            error("Some tests failed (" + errors + "/" + total + ")", _eventsHandler);
+            error("Some tests failed (" + errors + "/" + total + ")",
+                _eventsHandler);
         }
     }
 
@@ -313,21 +316,21 @@
 
     /**
      * 
-     * @param {object} source_tests
+     * @param {object} sourceTests
      * @returns {undefined}
      * 
      * @internal
      */
-    gpf.declareTests = function (source_tests) {
+    gpf.declareTests = function (sourceTests) {
         var
             source = _sources[_sourcesIdx - 1],
             component,
             functions,
             idx,
             name;
-        for (component in source_tests) {
-            if (source_tests.hasOwnProperty(component)) {
-                functions = source_tests[component];
+        for (component in sourceTests) {
+            if (sourceTests.hasOwnProperty(component)) {
+                functions = sourceTests[component];
                 for (idx = 0; idx < functions.length; ++idx) {
                     name = source + "/" + component + "/" + idx;
                     _tests[name] = functions[idx];
@@ -387,6 +390,6 @@
          * to see where it fails
          */
         executeTest(name).output(eventsHandler);
-    }
+    };
 
 }()); /* End of privacy scope */

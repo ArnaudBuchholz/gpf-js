@@ -1,9 +1,5 @@
 (function () { /* Begin of privacy scope */
     "use strict";
-    /*global document,window,console*/
-    /*global process,require,exports,global*/
-    /*global gpf*/
-    /*jslint continue: true, nomen: true, plusplus: true*/
 
 /*
 FIXME: IE10 does not detect when the script does not exist.
@@ -42,7 +38,7 @@ FIXME: IE10 does not detect when the script does not exist.
                 // IE10: the event is triggered *before* the source is evaluated
                 setTimeout(function() {
                     context.done = true;
-                    gpf.events.fire('load', {url: context.src},
+                    gpf.events.fire("load", {url: context.src},
                         context.eventsHandler);
                 }, 0);
                 _detachInclude(context);
@@ -56,7 +52,7 @@ FIXME: IE10 does not detect when the script does not exist.
             if (!context.done) {
                 // TODO: provide error reason
                 context.done = true;
-                gpf.events.fire('error', {url: context.src},
+                gpf.events.fire("error", {url: context.src},
                     context.eventsHandler);
                 _detachInclude(context);
             }

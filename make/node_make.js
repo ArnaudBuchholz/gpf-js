@@ -10,7 +10,7 @@ try {
     console.error("Missing escodegen, use npm install escodegen");
 }
 require("../boot.js");
-require("./make.js");
+require("./make.js"); /*global make*/
 
 var
     sources = {
@@ -22,7 +22,7 @@ for (idx = 0; idx < sources._list.length; ++idx) {
     sources[sources._list[idx]] =
         fs.readFileSync("../" + sources._list[idx] + ".js").toString();
 }
-sources["UMD"] = fs.readFileSync("UMD.js").toString();
+sources.UMD = fs.readFileSync("UMD.js").toString();
 
 console.log(make(sources, "debug"));
 

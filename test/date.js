@@ -1,4 +1,5 @@
 (function () { /* Begin of privacy scope */
+    "use strict";
 
     var
         _refDate = new Date(1975, 3, 26, 12, 14, 26),

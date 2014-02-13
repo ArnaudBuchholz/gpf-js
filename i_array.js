@@ -1,8 +1,4 @@
 (function () { /* Begin of privacy scope */
-    /*global document,window,console*/
-    /*global process,require,exports,global*/
-    /*global gpf*/
-    /*jslint continue: true, nomen: true, plusplus: true*/
     "use strict";
 
     gpf.interfaces.IReadOnlyArray = gpf.interfaces.Interface.extend({
@@ -69,12 +65,12 @@
             }
             gpf.attributes.add(objPrototype.constructor, "Class",
                 [gpf.$InterfaceImplement(implementedInterface)]);
-            objPrototype.length = new Function("return this."
+            objPrototype.length = gpf._func("return this."
                 + this._member + ".length;");
-            objPrototype.get = new Function("return this."
+            objPrototype.get = gpf._func("return this."
                 + this._member + "[arguments[0]];");
             if (this._writeAllowed) {
-                objPrototype.set = new Function("var i=arguments[0],"
+                objPrototype.set = gpf._func("var i=arguments[0],"
                 + "v=this." + this._name + "[i];this."
                 + this._member + "[i]=arguments[1];return v;");
             }

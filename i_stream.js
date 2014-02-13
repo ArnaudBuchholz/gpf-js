@@ -1,8 +1,4 @@
 (function () { /* Begin of privacy scope */
-    /*global document,window,console*/
-    /*global process,require,exports,global*/
-    /*global gpf*/
-    /*jslint continue: true, nomen: true, plusplus: true*/
     "use strict";
 
     var
@@ -26,8 +22,8 @@
          * Write characters to the text stream.
          * Use null to signal the end of the stream.
          *
-         * @param [arguments] Convert all non-null arguments to string and write
-         * them to the string
+         * @arguments Convert all non-null arguments to string and write them
+         * to the string
          *
          * TODO create an attribute to signal the use of arguments
          */
@@ -43,7 +39,7 @@
         var argIdx, arg;
         for (argIdx = 0; argIdx < arguments.length; ++argIdx) {
             arg = arguments[argIdx];
-            if (null !== arg && 'string' !== typeof arg) {
+            if (null !== arg && "string" !== typeof arg) {
                 arg = arg.toString();
             }
             this.write_(arg);

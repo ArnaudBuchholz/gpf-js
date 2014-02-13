@@ -42,9 +42,9 @@
                 var
                     count = 0,
                     sum = 0;
-                gpf.each(array, function (idx, value) {
+                gpf.each(array, function (/*idx, value*/) {
                     ++count;
-                    sum += value;
+                    sum += arguments[1];
                 });
                 test.equal(count, array.length, "Size of the array");
                 test.equal(sum, 45, "Sum of each array item");
@@ -123,8 +123,8 @@
                         "function": 0
                     },
                     members = [];
-                gpf.extend(result, object, function (obj, member) {
-                    members.push(member);
+                gpf.extend(result, object, function (/*obj, member*/) {
+                    members.push(arguments[1]);
                 });
                 members = members.join(",");
                 test.equal(members, objectMembersNoNull, "Overwriting called");
@@ -173,13 +173,14 @@
         like: [
 
             function (test) {
+                /*jshint -W053 */
                 test.title("Basic comparisons");
                 test.assert(gpf.like(1, 1), "Same literal integers");
                 test.assert(!gpf.like(1, new Number(1)),
                     "Same integers but one is an object");
                 test.assert(gpf.like(1, new Number(1), true),
                     "Same integers but one is an object");
-                test.assert(!gpf.like('1', new Number(1), true),
+                test.assert(!gpf.like("1", new Number(1), true),
                     "Same integers but one is an object");
                 test.assert(!gpf.like(1, 2), "Different integers");
                 test.assert(gpf.like(1, 1.0), "Same floats");
@@ -196,6 +197,7 @@
                     test.assert(gpf.like(document.body, document.body),
                         "Body element");
                 }
+                /*jshint +W053 */
             },
 
             function (test) {
@@ -204,21 +206,21 @@
                     return;
                 }
                 /* More complex comparison */
-                var equal_1_div1 = document.getElementById("equal_1_div1");
-                var equal_1_div2;
-                if (!equal_1_div1) {
+                var equal1div1 = document.getElementById("equal_1_div1");
+                var equal1div2;
+                if (!equal1div1) {
                     var placeholder = document.getElementById("placeholder");
-                    equal_1_div1 = placeholder.appendChild(
+                    equal1div1 = placeholder.appendChild(
                         document.createElement("div"));
-                    equal_1_div1.id = "equal_1_div1";
-                    equal_1_div1.innerHTML = "<span>Hello World</span>";
-                    equal_1_div2 = equal_1_div1.cloneNode(true);
-                    equal_1_div2.id = "equal_1_div2";
-                    equal_1_div2 = placeholder.appendChild(equal_1_div2);
+                    equal1div1.id = "equal_1_div1";
+                    equal1div1.innerHTML = "<span>Hello World</span>";
+                    equal1div2 = equal1div1.cloneNode(true);
+                    equal1div2.id = "equal_1_div2";
+                    equal1div2 = placeholder.appendChild(equal1div2);
+                } else {
+                    equal1div2 = document.getElementById("equal_1_div1");
                 }
-                else
-                    equal_1_div2 = document.getElementById("equal_1_div1");
-                gpf.like(equal_1_div1, equal_1_div2, "HTML comparison");
+                gpf.like(equal1div1, equal1div2, "HTML comparison");
             }
 
         ],
@@ -275,7 +277,7 @@
                 test.equal(result.join(""), "013456789", "Value removed");
             }
 
-    ]
+        ]
 
     });
 

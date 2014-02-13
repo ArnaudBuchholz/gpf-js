@@ -145,7 +145,6 @@ function algo_1() {
         for (digit = 1; digit < 10; ++digit) {
             bit = bits[digit - 1];
             for (pos = 0; pos < 9; ++pos) {
-                //noinspection JSBitwiseOperatorUsage
                 if (squares[pos] & bit) {
                     // already set, skip
                     continue;
@@ -154,12 +153,10 @@ function algo_1() {
                 count = 0;
                 limits = squareLimits(pos);
                 for (y = limits.fromY; y < limits.toY; ++y) {
-                    //noinspection JSBitwiseOperatorUsage
                     if (rows[y] & bit) {
                         continue;
                     }
                     for (x = limits.fromX; x < limits.toX; ++x) {
-                        //noinspection JSBitwiseOperatorUsage
                         if (cols[x] & bit) {
                             continue;
                         }

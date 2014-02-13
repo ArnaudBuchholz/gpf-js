@@ -5,8 +5,8 @@
 var gpfSourcesPath = "..\\..\\";
 
     ]]></script>
-    <script language="javascript" src="..\..\boot.js" />
-    <script language="javascript" src="..\manager.js" />
+    <script language="javascript" src="..\..\boot.js"></script>
+    <script language="javascript" src="..\manager.js"></script>
     <script language="javascript"><![CDATA[
 
 function callback(event) {

@@ -1,64 +1,67 @@
-(function(){ /* Begin of privacy scope */
+(function () { /* Begin of privacy scope */
+    "use strict";
+
     // TODO: refactor!
 
-gpf.IEnumerable = gpf.Interface.extend( {
+    gpf.IEnumerable = gpf.Interface.extend({
 
-	resetEnumeration: function() {
-		/*
-		 *
-		 
-			Reset the enumeration and return a boolean indicating if something can
-			be enumerated.
-		*/
-		return false;
-	},
+        resetEnumeration: function () {
+            /*
+             *
 
-	endOfEnumeration: function() {
-		/*
-		 *
-		 
-			Tell if the enumeration is done. 
-		*/
-		return true;
-	},
+             Reset the enumeration and return a boolean indicating if something
+             can be enumerated.
+             */
+            return false;
+        },
 
-	enumerate: function() {
-		/*
-		 *
-		 
-			Reset the next item in the enumeration. 
-		*/
-		return null;
-	}
+        endOfEnumeration: function () {
+            /*
+             *
 
-} );
+             Tell if the enumeration is done.
+             */
+            return true;
+        },
 
-gpf.extend( gpf, {
+        enumerate: function () {
+            /*
+             *
 
-	wrapArrayToEnumerable: function( objArray ) {
+             Reset the next item in the enumeration.
+             */
+            return null;
+        }
 
-		return {
+    });
 
-			_array: objArray,
-			_idx: 0,
+    gpf.extend(gpf, {
 
-			resetEnumeration: function() {
-				this._idx = 0;
-				return 0 < this._array.length; 
-			},
+        wrapArrayToEnumerable: function (objArray) {
 
-			endOfEnumeration: function() {
-				return this._idx >= this._array.length;
-			},
+            return {
 
-			enumerate: function() {
-				return this._array[ this._idx++ ];
-			}
+                _array: objArray,
+                _idx: 0,
 
-		};
+                resetEnumeration: function () {
+                    this._idx = 0;
+                    return 0 < this._array.length;
+                },
 
-	}
+                endOfEnumeration: function () {
+                    return this._idx >= this._array.length;
+                },
 
-} );
+                enumerate: function () {
+                    return this._array[ this._idx++ ];
+                }
 
-})(); /* End of privacy scope */
+            };
+
+        }
+
+    });
+
+})();
+/* End of privacy scope */

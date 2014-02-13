@@ -12,9 +12,7 @@
      *                                                                         |
      * try to lower the use of closures                                        |
      */
-    //noinspection JSUnusedLocalSymbols
     function actionWithAdditionalKeywords (firstParameter, secondParameter) {
-        //noinspection JSUnusedLocalSymbols
         var
             firstVariable,
             secondVariable,
@@ -23,7 +21,6 @@
             thirdVariable = 0; // Initialized
     }
 
-    //noinspection JSValidateJSDoc,JSUnusedLocalSymbols
     /**
      * Any function triggering events
      * 
