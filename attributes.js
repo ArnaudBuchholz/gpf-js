@@ -184,15 +184,14 @@
                     attribute;
                 if (this._count) {
                     for (member in this._members) {
-                        if (!this._members.hasOwnProperty(member)) {
-                            continue;
-                        }
-                        array = this._members[member]._array;
-                        for (idx = 0; idx < array.length; ++idx) {
-                            attribute = array[ idx ];
-                            if (!callback
-                                || callback(member, attribute, param)) {
-                                attributesMap.add(member, attribute);
+                        if (this._members.hasOwnProperty(member)) {
+                            array = this._members[member]._array;
+                            for (idx = 0; idx < array.length; ++idx) {
+                                attribute = array[ idx ];
+                                if (!callback
+                                    || callback(member, attribute, param)) {
+                                    attributesMap.add(member, attribute);
+                                }
                             }
                         }
                     }

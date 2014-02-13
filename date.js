@@ -22,7 +22,7 @@
          * date
          *
          * @param {Date} that
-         * @param {boolean} includeTime
+         * @param {boolean} [includeTime=true] includeTime
          * @returns {string}
          */
         dateToComparableFormat: function (that, includeTime) {
