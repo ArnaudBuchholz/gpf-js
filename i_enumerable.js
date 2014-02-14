@@ -34,8 +34,29 @@
 
     });
 
-    function _buildEnumerableOnArray(object) {
+    function _arrayEnumerator(array) {
+        var pos = -1;
+        return {
+            reset: function () {
+                pos = -1;
+            },
+            moveNext: function () {
+                ++pos;
+                return pos < array.length;
+            },
+            current: function () {
+                return array[pos];
+            }
+        };
+    }
 
+    function _buildEnumerableOnArray(object) {
+        // Look for related member
+        var
+            attributes = new gpfA.Map(object).filter(gpfA.EnumerableAttribute),
+            members = attributes.members();
+        gpf.ASSERT(members.length === 1);
+        return _arrayEnumerator(object[members[0]]);
     }
 
     gpfA.EnumerableAttribute = gpfA.Attribute.extend({
@@ -46,47 +67,11 @@
             if (!(objPrototype[this._member] instanceof Array)) {
                 throw '$Enumerable can be associated to arrays only';
             }
-            gpf.attributes.add(objPrototype, "Class", [
+            gpfA.add(objPrototype.constructor, "Class", [
                 new gpfA.InterfaceImplementAttribute(gpfI.IEnumerable,
                     _buildEnumerableOnArray)]);
         }
 
     });
 
-/*
-    TODO find a way to associate object's array members to an IEnumerable
-
-    function _createArrayEnumerator
-
-    gpf.extend(gpf, {
-
-        wrapArrayToEnumerable: function (objArray) {
-
-            return {
-
-                _array: objArray,
-                _idx: 0,
-
-                resetEnumeration: function () {
-                    this._idx = 0;
-                    return 0 < this._array.length;
-                },
-
-                endOfEnumeration: function () {
-                    return this._idx >= this._array.length;
-                },
-
-                enumerate: function () {
-                    return this._array[ this._idx++ ];
-                }
-
-            };
-
-        }
-
-    });
-
- */
-
-})();
-/* End of privacy scope */
+})(); /* End of privacy scope */
