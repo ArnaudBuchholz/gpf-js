@@ -41,7 +41,7 @@
 
         _testDetails = {
             exception: function () {
-                return ["message: ", arguments[0].message];
+                return ["message: ", arguments[0].message].join("");
             },
             equal: _testDetailsCompare,
             notEqual: _testDetailsCompare,

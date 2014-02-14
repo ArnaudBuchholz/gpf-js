@@ -160,5 +160,4 @@
 
     });
 
-})();
-/* End of privacy scope */
+})(); /* End of privacy scope */
