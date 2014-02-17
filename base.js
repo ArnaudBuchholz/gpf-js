@@ -75,7 +75,7 @@
             }
         },
 
-        _likeSearchInDone /*gpf:inline*/ = function (array, a, b) {
+        _likeSearchInDone = function /*gpf:inline*/ (array, a, b) {
             var
                 idx,
                 ia,
@@ -91,7 +91,7 @@
             return undefined;
         },
 
-        _likeTypes /*gpf:inline*/ = function (a, b, alike) {
+        _likeTypes = function /*gpf:inline*/ (a, b, alike) {
             if (alike && ("object" === typeof a || "object" === typeof b)) {
                 /*
                  One of the two is an object but not the other,
@@ -108,7 +108,7 @@
             return false;
         },
 
-        _likeCompareMembers /*gpf:inline*/ = function (ma, mb, alike, stacks) {
+        _likeCompareMembers = function /*gpf:inline*/ (ma, mb, alike, stacks) {
             if (ma !== mb) {
                 if (typeof ma !== typeof mb && !_likeTypes(ma, mb, alike)) {
                     return false;
@@ -125,7 +125,7 @@
             return true;
         },
 
-        _likeMembers /*gpf:inline*/ = function (a, b, alike) {
+        _likeMembers = function /*gpf:inline*/ (a, b, alike) {
             var
                 member,
                 count,

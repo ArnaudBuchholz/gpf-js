@@ -1,9 +1,5 @@
 (function(){ /* Begin of privacy scope */
     "use strict";
-    /*global document,window,console*/
-    /*global process,require,exports,global*/
-    /*global gpf*/
-    /*jslint continue: true, nomen: true, plusplus: true*/
 
     var
         // Namespaces shortcut
@@ -15,7 +11,7 @@
         // This error will be handled in a common way later
         _expectedXmlContentHandler = function () {
             throw "Invalid parameter, " +
-                + "expected gpf.interfaces.IXmlContentHandler";
+                "expected gpf.interfaces.IXmlContentHandler";
         }
         ;
 
@@ -258,10 +254,11 @@
                     defaultResult = attribute;
                 }
             }
-            if (null !== result)
+            if (null !== result) {
                 return result;
-            else
+            } else {
                 return defaultResult;
+            }
         },
 
         _toContentHandler = function (obj, contentHandler, name) {
@@ -337,7 +334,7 @@
                     if (attribute && attribute.name()) {
                         member = attribute.name();
                     } else {
-                        if ("_" == member.charAt(0)) {
+                        if ("_" === member.charAt(0)) {
                             member = member.substr(1);
                         }
                     }
@@ -357,7 +354,7 @@
                             value = gpf.dateToComparableFormat(value, true);
                         }
                         attArray = attMap.member(member);
-                        if ("_" == member.charAt(0)) {
+                        if ("_" === member.charAt(0)) {
                             member = member.substr(1);
                         }
                         // Check if list
@@ -418,7 +415,7 @@
          *
          * @private
          */
-        _fromXmlContentHandler = gpf.Class.extend({
+        FromXmlContentHandler = gpf.Class.extend({
 
             // Event if it is not necessary
             "[Class]": [gpf.$InterfaceImplement(gpfI.IXmlContentHandler)],
@@ -488,6 +485,9 @@
                     attArray,
                     jdx,
                     attribute;
+                gpf.interfaces.ignoreParameter(uri);
+                gpf.interfaces.ignoreParameter(qName);
+                gpf.interfaces.ignoreParameter(attributes);
                 // If
                 if (undefined === forward) {
                     // No forward, check all members
@@ -564,7 +564,7 @@
                 var forward = this._forward[0];
                 if (undefined !== forward) {
                     if (0 === forward.type) {
-                        forward.iXCH.characters.apply(iXCH, arguments);
+                        forward.iXCH.characters.apply(forward.iXCH, arguments);
                     } else if (1 === forward.type) {
                         forward.buffer.push(buffer);
                     }
@@ -631,6 +631,8 @@
              */
             processingInstruction: function (target, data) {
                 // Not relevant
+                gpfI.ignoreParameter(target);
+                gpfI.ignoreParameter(data);
             },
 
             /**
@@ -638,6 +640,7 @@
              */
             setDocumentLocator: function (locator) {
                 // Nothing to do
+                gpfI.ignoreParameter(locator);
             },
 
             /**
@@ -645,6 +648,7 @@
              */
             skippedEntity: function (name) {
                 // Nothing to do
+                gpfI.ignoreParameter(name);
             },
 
             /**
@@ -660,6 +664,9 @@
             startElement: function (uri, localName, qName, attributes) {
                 var
                     forward = this._forward[0];
+                gpf.interfaces.ignoreParameter(uri);
+                gpf.interfaces.ignoreParameter(localName);
+                gpf.interfaces.ignoreParameter(qName);
                 if (undefined !== forward) {
                     if (0 === forward.type) {
                         ++forward.depth;
@@ -696,98 +703,8 @@
 
         }),
 
-        _parseXml = function (node, objClass) {
-            var
-                obj,
-                xmlAttributes,
-                attributes,
-                member,
-                name,
-                value,
-                type,
-                selectedAttribute,
-                child;
-            // Date object
-            if (objClass === Date)
-                return gpf.dateFromComparableFormat(node.innerHTML);
-            // Instanciate a new object
-            obj = new objClass();
-            xmlAttributes = (new gpfA.Map(obj)).filter(gpf.xml.Attribute);
-            // Analysis is based on object members, not the XML
-            for (member in obj) {
-                value = obj[ member ];
-                type = typeof value;
-                // Skip functions
-                if ("function" !== type) {
-                    // Check member's attributes
-                    attributes = xmlAttributes.member(member);
-                    // XmlIgnore?
-                    if (attributes.has(gpf.XmlIgnoreAttribute))
-                        continue;
-                    // Default name
-                    if ("_" === member.charAt(0)) {
-                        name = member.substr(1);
-                    } else {
-                        name = member;
-                    }
-                    // Check if list
-                    selectedAttribute = attributes.has(gpf.XmlListAttribute);
-                    if (value instanceof Array || selectedAttribute) {
-                        // Root node for the list
-                        if (selectedAttribute && selectedAttribute.name())
-                            child = _selectChildByName(node, selectedAttribute.name());
-                        else
-                            child = node;
-                        if (null === child)
-                            continue;
-                        value = [];
-                        // Enumerate children and check if any correspond to a specific XmlElement
-                        child = child.firstChild;
-                        while (child) {
-                            if (1 === child.nodeType) { // Element
-                                selectedAttribute = _selectByName(attributes, child.localName);
-                                if (selectedAttribute) {
-                                    if (selectedAttribute.objClass())
-                                        value.push(_parseXml(child, selectedAttribute.objClass()));
-                                    else
-                                        value.push(child.innerHTML);
-                                }
-                            }
-                            child = child.nextSibling;
-                        }
-                        obj[ member ] = value;
-                        continue;
-                    }
-                    // Check if element
-                    selectedAttribute = attributes.has(gpf.XmlElementAttribute);
-                    if ("object" === type || selectedAttribute) {
-                        type = undefined;
-                        // Element
-                        if (selectedAttribute) {
-                            if (selectedAttribute.name())
-                                name = selectedAttribute.name();
-                            if (selectedAttribute.objClass())
-                                type = selectedAttribute.objClass();
-                        }
-                        // Look for the first child having the right name
-                        child = _selectChildByName(node, name);
-                        if (child) {
-                            obj[ member ] = _parseXml(child, type);
-                        }
-                    } else {
-                        // Attribute
-                        selectedAttribute = attributes.has(gpf.XmlAttributeAttribute);
-                        if (selectedAttribute && selectedAttribute.name())
-                            name = selectedAttribute.name();
-                        obj[ member ] = gpf.value(node.getAttribute(name), value);
-                    }
-                }
-            }
-            return obj;
-        },
-
         _fromXml = function (target) {
-            return new _fromXmlContentHandler(target);
+            return new FromXmlContentHandler(target);
         };
 
         // endregion
@@ -865,6 +782,7 @@
          */
         endPrefixMapping: function (prefix) {
             // Nothing to do (?)
+            gpf.interfaces.ignoreParameter(prefix);
         },
 
         /**
@@ -893,6 +811,7 @@
          */
         setDocumentLocator: function (locator) {
             // Nothing to do
+            gpf.interfaces.ignoreParameter(locator);
         },
 
         /**
@@ -900,6 +819,7 @@
          */
         skippedEntity: function (name) {
             // Nothing to do
+            gpf.interfaces.ignoreParameter(name);
         },
 
         /**
@@ -1021,7 +941,7 @@
             return; // Nothing to do
         }
         if (undefined === name) {
-            name = "root"
+            name = "root";
         }
         if ("object" !== typeof obj) {
             contentHandler.characters(obj.toString());
@@ -1037,7 +957,7 @@
                 if (!obj.hasOwnProperty(member)) {
                     continue;
                 }
-                if ('object' === typeof obj[member]) {
+                if ("object" === typeof obj[member]) {
                     hasChildren = true;
                 } else {
                     attributes[member] = obj[member];
@@ -1047,7 +967,7 @@
             if (hasChildren) {
                 for (member in obj) {
                     if (!obj.hasOwnProperty(member)
-                        || 'object' !== typeof obj[member]) {
+                        || "object" !== typeof obj[member]) {
                         continue;
                     }
                     _objToXml(obj[member], contentHandler, member);

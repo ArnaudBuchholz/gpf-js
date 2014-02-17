@@ -44,6 +44,68 @@
     gpf.Class._info = new ClassInfo(null);
     gpf.Class._info._name = "gpf.Class";
 
+    /*jshint -W040*/
+
+    function /*gpf:inline*/ _extendMember(_super, newPrototype, properties,
+        member) {
+        // Check if we're overwriting an existing function
+        if ("function" === typeof properties[member]
+            && "function" === typeof _super[member]
+            && _classFnUsesSuper(properties[member])) {
+            /*
+             * Create a bootstrap before calling new method that redefines
+             * the identifier _super to match the inherited method.
+             */
+            newPrototype[member] = (function (member, method) {
+                return function () {
+                    var
+                        backup = this._super,
+                        result;
+                    /*
+                     * Add a new ._super() method that is the same method
+                     * but on the super-class
+                     */
+                    this._super = _super[member];
+                    /*
+                     * The method only need to be bound temporarily, so we
+                     * remove it when we're done executing
+                     */
+                    try {
+                        result = method.apply(this, arguments);
+                    } catch (e) {
+                        throw e;
+                    } finally {
+                        this._super = backup;
+                    }
+                    return result;
+                };
+            })(member, properties[member]);
+        } else {
+            newPrototype[member] = properties[member];
+        }
+    }
+
+    function /*gpf:inline*/ _extendAttribute(newClass, newPrototype, properties,
+        member) {
+        /*
+         * Attributes placeholder
+         * Most of the functions used below are defined *later*:
+         * - gpf.attributes._add comes from attributes.js
+         * - gpf.ClassAttributeError comes from att_class.js
+         */
+        var attributeName = member.substr(1, member.length - 2);
+        if (attributeName in properties
+            || attributeName in newPrototype
+            || attributeName === "Class") {
+            gpf.attributes.add(newClass, attributeName,
+                properties[member]);
+        } else {
+            // 2013-12-15 ABZ Consider this as exceptional, trace it
+            console.error("gpf.Class::extend: Invalid attribute name '"
+                + attributeName + "'");
+        }
+    }
+
     /**
      * Create a new Class that inherits from 'this' class
      *
@@ -55,13 +117,13 @@
             _super = this.prototype,
             newPrototype,
             newClass,
-            member,
-            attributeName;
+            member;
 
         // The new class constructor
         newClass = function () {
-            if (!_classInit && "function" === typeof this.init)
+            if (!_classInit && "function" === typeof this.init) {
                 this.init.apply(this, arguments);
+            }
         };
 
         /*
@@ -97,84 +159,28 @@
          * and then attributes. Indeed, some attributes may alter the prototype
          * differently depending on what it contains.
          */
+
         // STEP 1: Copy the properties/methods onto the new prototype
         for (member in properties) {
-            if (!properties.hasOwnProperty(member)) {
-                continue;
-            }
-
-            // Skip Attributes
-            if ("[" === member.charAt(0)
-                && "]" === member.charAt(member.length - 1)) {
-                continue;
-            }
-
-            // Check if we're overwriting an existing function
-            else if ("function" === typeof properties[member]
-                && "function" === typeof _super[member]
-                && _classFnUsesSuper(properties[member])) {
-                /*
-                 * Create a bootstrap before calling new method that redefines
-                 * the identifier _super to match the inherited method.
-                 */
-                newPrototype[member] = (function (member, method) {
-                    return function () {
-                        var
-                            backup = this._super,
-                            result;
-                        /*
-                         * Add a new ._super() method that is the same method
-                         * but on the super-class
-                         */
-                        this._super = _super[member];
-                        /*
-                         * The method only need to be bound temporarily, so we
-                         * remove it when we're done executing
-                         */
-                        try {
-                            result = method.apply(this, arguments);
-                        } catch (e) {
-                            throw e;
-                        } finally {
-                            this._super = backup;
-                        }
-                        return result;
-                    };
-                })(member, properties[member]);
-            } else {
-                newPrototype[member] = properties[member];
+            if (properties.hasOwnProperty(member)
+                && "[" !== member.charAt(0)) {
+                _extendMember(_super, newPrototype, properties, member);
             }
         }
+
         // STEP 2: Copy the attributes onto the new prototype
         for (member in properties) {
-            if (!properties.hasOwnProperty(member)) {
-                continue;
-            }
-
-            /*
-             * Attributes placeholder
-             * Most of the functions used below are defined *later*:
-             * - gpf.attributes._add comes from attributes.js
-             * - gpf.ClassAttributeError comes from att_class.js
-             */
-            if ("[" === member.charAt(0)
+            if (properties.hasOwnProperty(member)
+                && "[" === member.charAt(0)
                 && "]" === member.charAt(member.length - 1)) {
-                attributeName = member.substr(1, member.length - 2);
-                if (attributeName in properties
-                    || attributeName in newPrototype
-                    || attributeName === "Class") {
-                    gpf.attributes.add(newClass, attributeName,
-                        properties[member]);
-                } else {
-                    // 2013-12-15 ABZ Consider this as exceptional, trace it
-                    console.error("gpf.Class::extend: Invalid attribute name '"
-                        + attributeName + "'");
-                }
+                _extendAttribute(newClass, newPrototype, properties, member);
             }
         }
 
         return newClass;
     }
+
+    /*jshint +W040*/
 
     gpf.Class.extend = _extend;
 
