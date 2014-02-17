@@ -39,6 +39,9 @@
         _TOKEN_STATE_ERROR              = 99,
         _TOKEN_STATE_NONE               = 0,
         /* IDENTIFIER, separate first char from the next ones */
+
+        _TOKEN_IDENTIFIER_FIRSTCHAR = "abcdefghijklmnopqrstuvwxyz"
+            + "ABCDEFGHIJKLMNOPQRSTUVWXYZ_$",
         _TOKEN_STATE_IDENTIFIER         = 2,
         /* STRING, detect begin, escape char */
         _TOKEN_STATE_STRING1_CHAR       = 3,
@@ -101,6 +104,35 @@
         },
 
         /**
+         * Hard coded list of keywords
+         *
+         * @type {string[]}
+         * @private
+         */
+        _keywords = ("break,case,catch,continue,debugger,default,delete,do,"
+            + "else,finally,for,function,if,in,instanceof,new,return,switch,"
+            + "this,throw,try,typeof,var,void,while,with").split(","),
+
+        /**
+         * Association between engine state and corresponding token
+         *
+         * @type {object}
+         * @private
+         */
+        _tokenStateMapping = (function () {
+            var result = {};
+            result[_TOKEN_STATE_NONE] =_TOKEN_UNKNOWN;
+            result[_TOKEN_STATE_SYMBOL] = _TOKEN_SYMBOL;
+            result[_TOKEN_STATE_LCOMMENT] = _TOKEN_COMMENT;
+            result[_TOKEN_STATE_COMMENT] = _TOKEN_COMMENT;
+            result[_TOKEN_STATE_STRING1_CHAR] = _TOKEN_STRING;
+            result[_TOKEN_STATE_STRING2_CHAR] = _TOKEN_STRING;
+            result[_TOKEN_STATE_NUMBER] = _TOKEN_NUMBER;
+            result[_TOKEN_STATE_SPACE] = _TOKEN_SPACE;
+            return result;
+        })(),
+
+        /**
          * Handles tokenizer events
          * 
          * @param {object} context tokenizer context
@@ -132,53 +164,16 @@
                 // Token
                 token = context.chars.join("");
                 if (_TOKEN_STATE_IDENTIFIER === context.state) {
-                    if ("break" === token
-                            || "case" === token
-                            || "catch" === token
-                            || "continue" === token
-                            || "debugger" === token
-                            || "default" === token
-                            || "delete" === token
-                            || "do" === token
-                            || "else" === token
-                            || "finally" === token
-                            || "for" === token
-                            || "function" === token
-                            || "if" === token
-                            || "in" === token
-                            || "instanceof" === token
-                            || "new" === token
-                            || "return" === token
-                            || "switch" === token
-                            || "this" === token
-                            || "throw" === token
-                            || "try" === token
-                            || "typeof" === token
-                            || "var" === token
-                            || "void" === token
-                            || "while" === token
-                            || "with" === token) {
+                    if (undefined !== gpf.test(_keywords, token)) {
                         type = _TOKEN_KEYWORD;
                     } else {
                         type = _TOKEN_IDENTIFIER;
                     }
-                } else if (_TOKEN_STATE_NONE === context.state) {
-                    type = _TOKEN_UNKNOWN;
-                } else if (_TOKEN_STATE_SYMBOL === context.state) {
-                    type = _TOKEN_SYMBOL;
-                } else if (_TOKEN_STATE_LCOMMENT === context.state
-                        || _TOKEN_STATE_COMMENT === context.state) {
-                    type = _TOKEN_COMMENT;
-                } else if (_TOKEN_STATE_STRING1_CHAR === context.state
-                        || _TOKEN_STATE_STRING2_CHAR === context.state) {
-                    type = _TOKEN_STRING;
-                } else if (_TOKEN_STATE_NUMBER === context.state) {
-                    type = _TOKEN_NUMBER;
-                } else if (_TOKEN_STATE_SPACE === context.state) {
-                    type = _TOKEN_SPACE;
+                } else {
+                    type = _tokenStateMapping[context.state];
                 }
+                eventParams.token = token;
             }
-            eventParams.token = token;
             event = gpf.events.fire.apply(context.that, [type, eventParams,
                 context.eventsHandler]);
             if (event.defaultPrevented()) {
@@ -195,97 +190,130 @@
         },
 
         /**
+         * As the validation is distinct depending on the symbol length,
+         * this has been split in N functions (to reduce cyclomatic complexity)
+         *
+         * @type {function[]}
+         * @private
+         */
+        _symbolValidator = [
+            0,
+
+            // chars.length == 1
+            function (firstChar, chars, newChar) {
+                gpf.interfaces.ignoreParameter(chars);
+                if (-1 < "(){}[].,;:?".indexOf(firstChar)) {
+                    return false;
+                }
+                if (-1 < "!^~*/%".indexOf(firstChar)) {
+                    return "=" === newChar;
+                }
+                return "=" === newChar || firstChar === newChar;
+            },
+
+            // chars.length == 2
+            function (firstChar, chars, newChar) {
+                if (-1 < "+-|&".indexOf(firstChar)) {
+                    return false;
+                }
+                if ("<" === firstChar) {
+                    return "<" === chars[1] && "=" === newChar;
+                }
+                if (-1 < "=!".indexOf(firstChar)) {
+                    return "=" === newChar;
+                }
+                if (">" === firstChar) {
+                    return "=" !== chars[1]
+                        && ("=" === newChar || ">" === newChar);
+                }
+                return false;
+            },
+
+            // chars.length == 3
+            function (firstChar, chars, newChar) {
+                return ">" === firstChar && "=" !== chars[2] && "=" === newChar;
+            },
+
+            function () {
+                return false;
+            }
+        ],
+
+        /**
          * Detects JavaScript symbols
          * 
          * @param {string[]} chars the already recognized characters
          * @param {string} newChar the next char to recognize
          * @returns {Boolean} true if the next char makes a valid symbol
+         * @internal
          */
         _isValidSymbol = function (chars, newChar) {
             var firstChar = chars[0];
-            if (1 === chars.length) {
-                if (-1 < "(){}[].,;:?".indexOf(firstChar)) {
-                    return false;
-                } else if (-1 < "!^~*/%".indexOf(firstChar)) {
-                    return "=" === newChar;
-                } else {
-                    return "=" === newChar || firstChar === newChar;
-                }
-            } else if (2 === chars.length) {
-                if (-1 < "+-|&".indexOf(firstChar)) {
-                    return false;
-                } else if ("<" === firstChar) {
-                    return "<" === chars[1] && "=" === newChar;
-                } else if (-1 < "=!".indexOf(firstChar)) {
-                    return "=" === newChar;
-                } else if (">" === firstChar) {
-                    return "=" !== chars[1]
-                        && ("=" === newChar || ">" === newChar);
-                }
-            } else if (3 === chars.length) {
-                return ">" === firstChar && "=" !== chars[2] && "=" === newChar;
-            }
-            return false;
+            return _symbolValidator[chars.length](firstChar, chars, newChar);
         },
 
         /**
-         * Main parser function
-         * 
-         * @param {object} context tokenizer context
-         * @param {string} newChar next char to analyze
-         * @returns {undefined}
+         * To reduce cyclomatic complexity, a map containing the analyzer
+         * function per state has been created
+         *
+         * @type {function[]}
+         * @private
          */
-        _analyzeChar = function (context, newChar) {
+        _stateAnalyzer = (function () {
+            var result = {};
 
-            if (_TOKEN_STATE_IDENTIFIER === context.state) {
-                if (("a" > newChar || newChar > "z")
-                        && ("A" > newChar || newChar > "Z")
-                        && ("0" > newChar || newChar > "9")
-                        && "_" !== newChar && "$" !== newChar) {
+            result[_TOKEN_STATE_IDENTIFIER] = function (context, newChar) {
+                if (-1 === _TOKEN_IDENTIFIER_FIRSTCHAR.indexOf(newChar)
+                    && ("0" > newChar || newChar > "9")) {
                     _tokenizerCallback(context);
                 } else {
                     context.chars.push(newChar);
                 }
+            };
 
-            } else if (_TOKEN_STATE_NUMBER === context.state) {
+            result[_TOKEN_STATE_NUMBER] = function (context, newChar) {
                 if ("0" > newChar || newChar > "9") {
                     _tokenizerCallback(context);
                 } else {
                     context.chars.push(newChar);
                 }
+            };
 
-            } else if (_TOKEN_STATE_STRING1_CHAR === context.state
-                        || _TOKEN_STATE_STRING2_CHAR === context.state) {
+            result[_TOKEN_STATE_STRING1_CHAR] =
+            result[_TOKEN_STATE_STRING2_CHAR] = function (context, newChar) {
                 context.chars.push(newChar);
                 if ("\\" === newChar) {
                     ++context.state; // _ESCAPE
                 } else if ("\n" === newChar) {
                     _tokenizerCallback(context, _TOKEN_ERROR_USTRING);
                 } else if (_TOKEN_STATE_STRING1_CHAR === context.state
-                        && "\"" === newChar) {
+                    && "\"" === newChar) {
                     _tokenizerCallback(context);
-                    return;
+                    return true;
                 } else if (_TOKEN_STATE_STRING2_CHAR === context.state
-                        && "'" === newChar) {
+                    && "'" === newChar) {
                     _tokenizerCallback(context);
-                    return;
+                    return true;
                 }
+                return false;
+            };
 
-            } else if (_TOKEN_STATE_STRING1_ESCAPE === context.state
-                        || _TOKEN_STATE_STRING2_ESCAPE === context.state) {
+            result[_TOKEN_STATE_STRING1_ESCAPE] =
+            result[_TOKEN_STATE_STRING2_ESCAPE] = function (context, newChar) {
                 if ("\\" === newChar
-                        || "r" === newChar
-                        || "n" === newChar
-                        || "t" === newChar
-                        || "\"" === newChar
-                        || "'" === newChar) {
+                    || "r" === newChar
+                    || "n" === newChar
+                    || "t" === newChar
+                    || "\"" === newChar
+                    || "'" === newChar) {
                     --context.state;
                     context.chars.push(newChar);
                 } else {
                     _tokenizerCallback(context, _TOKEN_ERROR_STRINGESC);
                 }
+            };
 
-            } else if (_TOKEN_STATE_SLASH === context.state) {
+            result[_TOKEN_STATE_SLASH] = function (context, newChar) {
                 if ("/" === newChar) {
                     context.state = _TOKEN_STATE_LCOMMENT;
                     context.chars.push(newChar);
@@ -300,29 +328,35 @@
                         _tokenizerCallback(context);
                     }
                 }
+            };
 
-            } else if (_TOKEN_STATE_LCOMMENT === context.state) {
+            result[_TOKEN_STATE_LCOMMENT] = function (context, newChar) {
                 if ("\n" === newChar) {
                     _tokenizerCallback(context);
                 } else {
                     context.chars.push(newChar);
                 }
-            } else if (_TOKEN_STATE_COMMENT === context.state) {
+            };
+
+            result[_TOKEN_STATE_COMMENT] = function (context, newChar) {
                 context.chars.push(newChar);
                 if ("/" === newChar
-                        && context.chars[context.chars.length - 2] === "*") {
+                    && context.chars[context.chars.length - 2] === "*") {
                     _tokenizerCallback(context);
-                    return;
+                    return true;
                 }
+                return false;
+            };
 
-            } else if (_TOKEN_STATE_SPACE === context.state) {
+            result[_TOKEN_STATE_SPACE] = function (context, newChar) {
                 if (-1 < _TOKEN_SPACE_LIST.indexOf(newChar)) {
                     context.chars.push(newChar);
                 } else {
                     _tokenizerCallback(context);
                 }
+            };
 
-            } else if (_TOKEN_STATE_SYMBOL === context.state) {
+            result[_TOKEN_STATE_SYMBOL] = function (context, newChar) {
                 if (-1 < _TOKEN_SYMBOL_LIST.indexOf(newChar)) {
                     if (_isValidSymbol(context.chars, newChar)) {
                         context.chars.push(newChar);
@@ -332,29 +366,56 @@
                 } else {
                     _tokenizerCallback(context);
                 }
-            }
+            };
 
-            if (_TOKEN_STATE_NONE === context.state) {
-                context.chars = [newChar];
-                if (("a" <= newChar && newChar <= "z")
-                        || ("A" <= newChar && newChar <= "Z")
-                        || "_" === newChar || "$" === newChar) {
-                    context.state = _TOKEN_STATE_IDENTIFIER;
-                } else if ("0" <= newChar && newChar <= "9") {
-                    context.state = _TOKEN_STATE_NUMBER;
-                } else if ("\"" === newChar) {
-                    context.state = _TOKEN_STATE_STRING1_CHAR;
-                } else if ("'" === newChar) {
-                    context.state = _TOKEN_STATE_STRING2_CHAR;
-                } else if ("/" === newChar) {
-                    context.state = _TOKEN_STATE_SLASH;
-                } else if (-1 < _TOKEN_SYMBOL_LIST.indexOf(newChar)) {
-                    context.state = _TOKEN_STATE_SYMBOL;
-                } else if (-1 < _TOKEN_SPACE_LIST.indexOf(newChar)) {
-                    context.state = _TOKEN_STATE_SPACE;
-                } else {
-                    _tokenizerCallback(context, _TOKEN_ERROR_UTOKEN);
+            return result;
+        }()),
+
+        /**
+         * Default analyzer (when no state is active)
+         *
+         * @param {object} context
+         * @param {string} newChar
+         * @private
+         */
+        _noStateAnalyzer = function (context, newChar) {
+            context.chars = [newChar];
+            if (-1 < _TOKEN_IDENTIFIER_FIRSTCHAR.indexOf(newChar)) {
+                context.state = _TOKEN_STATE_IDENTIFIER;
+            } else if ("0" <= newChar && newChar <= "9") {
+                context.state = _TOKEN_STATE_NUMBER;
+            } else if ("\"" === newChar) {
+                context.state = _TOKEN_STATE_STRING1_CHAR;
+            } else if ("'" === newChar) {
+                context.state = _TOKEN_STATE_STRING2_CHAR;
+            } else if ("/" === newChar) {
+                context.state = _TOKEN_STATE_SLASH;
+            } else if (-1 < _TOKEN_SYMBOL_LIST.indexOf(newChar)) {
+                context.state = _TOKEN_STATE_SYMBOL;
+            } else if (-1 < _TOKEN_SPACE_LIST.indexOf(newChar)) {
+                context.state = _TOKEN_STATE_SPACE;
+            } else {
+                _tokenizerCallback(context, _TOKEN_ERROR_UTOKEN);
+            }
+        },
+
+        /**
+         * Main parser function
+         * 
+         * @param {object} context tokenizer context
+         * @param {string} newChar next char to analyze
+         * @returns {undefined}
+         * @internal
+         */
+        _analyzeChar = function (context, newChar) {
+            var stateAnalyzer = _stateAnalyzer[context.state];
+            if (undefined !== stateAnalyzer) {
+                if (stateAnalyzer(context, newChar)) {
+                    return;
                 }
+            }
+            if (_TOKEN_STATE_NONE === context.state) {
+                _noStateAnalyzer(context, newChar);
             }
         },
 
@@ -364,6 +425,7 @@
          * @param {object} context tokenizer context
          * @param {string} newChar char that has been analyzed
          * @returns {undefined}
+         * @internal
          */
         _computeNextPos = function (context, newChar) {
             ++context.nextPos;
@@ -381,6 +443,7 @@
          * @param {object} context tokenizer context
          * @param {string} newChar char that will be analyzed
          * @returns {undefined}
+         * @internal
          */
         _tokenizeChar = function (context, newChar) {
             _analyzeChar(context, newChar);
@@ -388,25 +451,47 @@
         },
 
         /**
+         * To reduce cyclomatic complexity, a map has been created to associate
+         * last state to a specific action
+         *
+         * @type {object}
+         * @internal
+         */
+        _finalStatesAction = (function () {
+            var result = {};
+            // Need to throw final callback
+            result[_TOKEN_STATE_IDENTIFIER] = 1;
+            result[_TOKEN_STATE_NUMBER] = 1;
+            result[_TOKEN_STATE_LCOMMENT] = 1;
+            result[_TOKEN_STATE_SYMBOL] = 1;
+            // Symbol waiting to be thrown
+            result[_TOKEN_STATE_SLASH] = 2;
+            // Unterminated comment
+            result[_TOKEN_STATE_COMMENT] = 3;
+            // Unterminated string
+            result[_TOKEN_STATE_STRING1_CHAR] = 4;
+            result[_TOKEN_STATE_STRING2_CHAR] = 4;
+            result[_TOKEN_STATE_STRING1_ESCAPE] = 4;
+            result[_TOKEN_STATE_STRING2_ESCAPE] = 4;
+            return result;
+        }()),
+
+        /**
          * Finalize tokenizer
          * 
          * @param {object} context tokenizer context
+         * @internal
          */
         _tokenizerFinalize = function (context) {
-            if (_TOKEN_STATE_IDENTIFIER === context.state
-                    || _TOKEN_STATE_NUMBER === context.state
-                    || _TOKEN_STATE_LCOMMENT === context.state
-                    || _TOKEN_STATE_SYMBOL === context.state) {
+            var action = _finalStatesAction[context.state];
+            if (1 === action) {                  // Need to throw final callback
                 _tokenizerCallback(context);
-            } else if (_TOKEN_STATE_SLASH === context.state) {
+            } else if (2 === action) {            // Symbol waiting to be thrown
                 context.state = _TOKEN_STATE_SYMBOL;
                 _tokenizerCallback(context);
-            } else if (_TOKEN_STATE_COMMENT === context.state) {
+            } else if (3 === action) {                   // Unterminated comment
                 _tokenizerCallback(context, _TOKEN_ERROR_UCOMMENT);
-            } else if (_TOKEN_STATE_STRING1_CHAR === context.state
-                        || _TOKEN_STATE_STRING2_CHAR === context.state
-                        || _TOKEN_STATE_STRING1_ESCAPE === context.state
-                        || _TOKEN_STATE_STRING2_ESCAPE === context.state) {
+            } else if (4 === action) {                    // Unterminated string
                 _tokenizerCallback(context, _TOKEN_ERROR_USTRING);
             }
             gpf.ASSERT(_TOKEN_STATE_NONE === context.state
