@@ -1,13 +1,16 @@
 (function(){ /* Begin of privacy scope */
     "use strict";
 
+    /*jshint forin:false*/ // Need to inspect all members of the prototype
+
     var
         // Namespaces shortcut
         gpfI = gpf.interfaces,
         gpfA = gpf.attributes,
+/*
         // XML Parser constants
         _XMLPARSER_STATE_NONE = 0,
-
+*/
         // This error will be handled in a common way later
         _expectedXmlContentHandler = function () {
             throw "Invalid parameter, " +
@@ -223,6 +226,14 @@
 
         //region TO XML
 
+        /**
+         * Select the attribute related to the value type
+         *
+         * @param {gpf.attributes.Array} array Attribute array
+         * @param {object} value
+         * @returns {null|gpf.attributes.Attribute}
+         * @private
+         */
         _selectByType = function (array, value) {
             var
                 idx,
@@ -261,20 +272,166 @@
             }
         },
 
-        _toContentHandler = function (obj, contentHandler, name) {
+        /**
+         *
+         * @param {string} member
+         * @param {*} value
+         * @param {string} type
+         * @param {gpf.attributes.Array} attArray
+         * @returns {string} "" if the member should be serialized as a sub
+         *          node, otherwise the name to apply
+         * @private
+         */
+        _objMemberValueIsAttribute = function /*gpf:inline*/ (member, value,
+            type, attArray) {
+            var attribute;
+            // Check if list or element
+            if (value instanceof Array || attArray.has(_List)
+                || "object" === type || attArray.has(_Element)) {
+                return ""; // Not an attribute
+            }
+            // Else attribute
+            attribute = attArray.has(_Attribute);
+            if (attribute && attribute.name()) {
+                member = attribute.name();
+            } else {
+                if ("_" === member.charAt(0)) {
+                    member = member.substr(1);
+                }
+            }
+            return member;
+        },
+
+        _objMembersToSubNodes = function /*gpf:inline*/ (obj, subNodeMembers,
+            contentHandler, attMap) {
             var
-                attMap = (new gpfA.Map(obj)).filter(_Base),
+                memberIdx,
+                member,
+                value,
                 attArray,
                 attribute,
+                closeNode,
+                idx,
+                subValue,
+                type,
+                name;
+            for (memberIdx = 0; memberIdx < subNodeMembers.length;
+                 ++memberIdx) {
+                member = subNodeMembers[memberIdx];
+                value = obj[member];
+                // Exception for dates
+                if (value instanceof Date) {
+                    value = gpf.dateToComparableFormat(value, true);
+                }
+                attArray = attMap.member(member);
+                if ("_" === member.charAt(0)) {
+                    member = member.substr(1);
+                }
+                // Check if list
+                attribute = attArray.has(_List);
+                if (value instanceof Array || attribute) {
+                    // TODO: what to do when value is empty?
+                    if (attribute && attribute.name()) {
+                        closeNode = true;
+                        contentHandler.startElement("",
+                            attribute.name());
+                    }
+                    // Get the list of 'candidates'
+                    attArray = attArray.filter(_Element);
+                    for (idx = 0; idx < value.length; ++idx) {
+                        subValue = value[ idx ];
+                        // Select the right candidate
+                        type = _selectByType(attArray, subValue);
+                        if (type && type.name()) {
+                            name = type.name();
+                        } else {
+                            name = "item";
+                        }
+                        _toContentHandler(subValue, contentHandler,
+                            name);
+                    }
+                    if (closeNode) {
+                        contentHandler.endElement();
+                    }
+                    continue; // Next
+                }
+                attribute = attArray.has(_Element);
+                // Element
+                if (attribute && attribute.name()) {
+                    name = attribute.name();
+                }
+                _toContentHandler(value, contentHandler, name);
+            }
+        },
+
+        _objMembersToContentHandler = function /*gpf:inline*/ (obj,
+            contentHandler, name, attMap) {
+            var
+                attArray,
                 member,
                 value,
                 type,
+                attName,
                 subNodeMembers = 0,
-                xmlAttributes = 0,
-                memberIdx,
-                closeNode,
-                idx,
-                subValue;
+                xmlAttributes = 0;
+            /*
+             * WARNING: the prototype is used instead of the object itself
+             * This is done to respect the order provided in the prototype
+             * (order that can be overridden through the object).
+             * Furthermore, this guarantees we serialize only 'members'
+             * coming from the 'class' definition.
+             * It needs two passes:
+             * - one for attributes,
+             * - another one for sub nodes
+             */
+            for (member in obj.constructor.prototype) {
+                /*
+                 * I must also use inherited properties
+                 * NO hasOwnProperty
+                 */
+                value = obj[member];
+                // Exception for dates
+                if (value instanceof Date) {
+                    value = gpf.dateToComparableFormat(value, true);
+                }
+                type = typeof value;
+                // Skip functions
+                if ("function" === type) {
+                    continue;
+                }
+                // Check member's attributes
+                attArray = attMap.member(member);
+                // Ignore?
+                if (attArray.has(_Ignore)) {
+                    continue;
+                }
+                // Decide if attribute or subNode
+                attName = _objMemberValueIsAttribute(member, value, type,
+                    attArray);
+                if (attName) {
+                    if (0 === xmlAttributes) {
+                        xmlAttributes = {};
+                    }
+                    xmlAttributes[attName] = value.toString();
+                } else {
+                    // Subnode
+                    if (0 === subNodeMembers) {
+                        subNodeMembers = [];
+                    }
+                    subNodeMembers.push(member);
+                }
+            }
+            contentHandler.startElement("", name, name, xmlAttributes);
+            if (subNodeMembers) {
+                _objMembersToSubNodes(obj, subNodeMembers, contentHandler,
+                    attMap);
+            }
+        },
+
+        _toContentHandler = function (obj, contentHandler, name) {
+            var
+                attMap = (new gpfA.Map(obj)).filter(_Base),
+                attribute;
             // If no 'name', check the Class attribute
             if (!name) {
                 attribute = attMap.member("Class").has(_Element);
@@ -289,110 +446,7 @@
                 contentHandler.startElement("", name);
                 contentHandler.characters(obj.toString());
             } else {
-                /*
-                 * WARNING: the prototype is used instead of the object itself
-                 * This is done to respect the order provided in the prototype
-                 * (order that can be overridden through the object).
-                 * Furthermore, this guarantees we serialize only 'members'
-                 * coming from the 'class' definition.
-                 * It needs two passes:
-                 * - one for attributes,
-                 * - another one for sub nodes
-                 */
-                for (member in obj.constructor.prototype) {
-                    /*
-                     * I must also use inherited properties
-                     * NO hasOwnProperty
-                     */
-                    value = obj[member];
-                    // Exception for dates
-                    if (value instanceof Date) {
-                        value = gpf.dateToComparableFormat(value, true);
-                    }
-                    type = typeof value;
-                    // Skip functions
-                    if ("function" === type) {
-                        continue;
-                    }
-                    // Check member's attributes
-                    attArray = attMap.member(member);
-                    // Ignore?
-                    if (attArray.has(_Ignore)) {
-                        continue;
-                    }
-                    // Check if list or element
-                    if (value instanceof Array || attArray.has(_List)
-                        || "object" === type || attArray.has(_Element)) {
-                        if (0 === subNodeMembers) {
-                            subNodeMembers = [];
-                        }
-                        subNodeMembers.push(member);
-                        continue;
-                    }
-                    // Else attribute
-                    attribute = attArray.has(_Attribute);
-                    if (attribute && attribute.name()) {
-                        member = attribute.name();
-                    } else {
-                        if ("_" === member.charAt(0)) {
-                            member = member.substr(1);
-                        }
-                    }
-                    if (0 === xmlAttributes) {
-                        xmlAttributes = {};
-                    }
-                    xmlAttributes[member] = value.toString();
-                }
-                contentHandler.startElement("", name, name, xmlAttributes);
-                if (subNodeMembers) {
-                    for (memberIdx = 0; memberIdx < subNodeMembers.length;
-                         ++memberIdx) {
-                        member = subNodeMembers[memberIdx];
-                        value = obj[member];
-                        // Exception for dates
-                        if (value instanceof Date) {
-                            value = gpf.dateToComparableFormat(value, true);
-                        }
-                        attArray = attMap.member(member);
-                        if ("_" === member.charAt(0)) {
-                            member = member.substr(1);
-                        }
-                        // Check if list
-                        attribute = attArray.has(_List);
-                        if (value instanceof Array || attribute) {
-                            // TODO: what to do when value is empty?
-                            if (attribute && attribute.name()) {
-                                closeNode = true;
-                                contentHandler.startElement("",
-                                    attribute.name());
-                            }
-                            // Get the list of 'candidates'
-                            attArray = attArray.filter(_Element);
-                            for (idx = 0; idx < value.length; ++idx) {
-                                subValue = value[ idx ];
-                                // Select the right candidate
-                                type = _selectByType(attArray, subValue);
-                                if (type && type.name()) {
-                                    name = type.name();
-                                } else {
-                                    name = "item";
-                                }
-                                _toContentHandler(subValue, contentHandler,
-                                    name);
-                            }
-                            if (closeNode) {
-                                contentHandler.endElement();
-                            }
-                            continue; // Next
-                        }
-                        attribute = attArray.has(_Element);
-                        // Element
-                        if (attribute && attribute.name()) {
-                            name = attribute.name();
-                        }
-                        _toContentHandler(value, contentHandler, name);
-                    }
-                }
+                _objMembersToContentHandler(obj, contentHandler, name, attMap);
             }
             contentHandler.endElement();
         },
@@ -851,18 +905,20 @@
             stream.write(qName);
             if (attributes) {
                 for (attName in attributes) {
-                    stream.write(" ");
-                    stream.write(attName);
-                    stream.write("=\"");
-                    attValue = gpf.escapeFor(attributes[attName].toString(),
-                        "xml");
-                    if (-1 < attValue.indexOf("\"")) {
-                        attValue = gpf.replaceEx(attValue, {
-                            "\"": "&quot;"
-                        });
+                    if (attributes.hasOwnProperty(attName)) {
+                        stream.write(" ");
+                        stream.write(attName);
+                        stream.write("=\"");
+                        attValue = gpf.escapeFor(attributes[attName].toString(),
+                            "xml");
+                        if (-1 < attValue.indexOf("\"")) {
+                            attValue = gpf.replaceEx(attValue, {
+                                "\"": "&quot;"
+                            });
+                        }
+                        stream.write(attValue);
+                        stream.write("\"");
                     }
-                    stream.write(attValue);
-                    stream.write("\"");
                 }
             }
             if (this._pendingPrefixMappings.length) {
@@ -897,7 +953,7 @@
     //endregion
 
     //region XML Parser
-
+/* TBD
     gpf.xml.Parser = gpf.Parser.extend({
 
         _contentHandler: null,
@@ -919,10 +975,45 @@
         }
 
     });
-
+*/
     //endregion
 
     //region Parsing
+
+    /**
+     * Convert object members into XML
+     *
+     * @param {object} obj Object to convert into XML
+     * @param {gpf.interfaces.IXmlContentHandler} contentHandler
+     * @param {string} [name="root"] name Node name
+     * @private
+     */
+    function /*gpf:inline*/ _objMembersToXml(obj, contentHandler, name) {
+        var
+            member,
+            attributes = {},
+            hasChildren;
+        // Inspect object to find 'attributes' and check if children
+        for (member in obj) {
+            if (obj.hasOwnProperty(member)) {
+                if ("object" === typeof obj[member]) {
+                    hasChildren = true;
+                } else {
+                    attributes[member] = obj[member];
+                }
+            }
+        }
+        contentHandler.startElement("", name, name, attributes);
+        if (hasChildren) {
+            for (member in obj) {
+                if (obj.hasOwnProperty(member)
+                    && "object" === typeof obj[member]) {
+                    _objToXml(obj[member], contentHandler, member);
+                }
+            }
+        }
+        contentHandler.endElement();
+    }
 
     /**
      * Convert an object into XML
@@ -934,9 +1025,7 @@
      */
     function _objToXml(obj, contentHandler, name) {
         var
-            member,
-            attributes = {},
-            hasChildren = false;
+            member;
         if (undefined === obj || null === obj) {
             return; // Nothing to do
         }
@@ -947,33 +1036,12 @@
             contentHandler.characters(obj.toString());
         } else if (obj instanceof Array) {
             for (member = 0; member < obj.length; ++member) {
-                contentHandler.startElement("", name, name, attributes);
+                contentHandler.startElement("", name, name, {});
                 _objToXml(obj[member], contentHandler, "item");
                 contentHandler.endElement();
             }
         } else {
-            // Inspect object to find 'attributes' and check if children
-            for (member in obj) {
-                if (!obj.hasOwnProperty(member)) {
-                    continue;
-                }
-                if ("object" === typeof obj[member]) {
-                    hasChildren = true;
-                } else {
-                    attributes[member] = obj[member];
-                }
-            }
-            contentHandler.startElement("", name, name, attributes);
-            if (hasChildren) {
-                for (member in obj) {
-                    if (!obj.hasOwnProperty(member)
-                        || "object" !== typeof obj[member]) {
-                        continue;
-                    }
-                    _objToXml(obj[member], contentHandler, member);
-                }
-            }
-            contentHandler.endElement();
+            _objMembersToXml(obj, contentHandler, name);
         }
     }
 

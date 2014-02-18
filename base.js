@@ -183,7 +183,14 @@
                 return defaultValue;
             },
 
-            "object": function (value, valueType, defaultValue) {
+            string: function (value, valueType, defaultValue) {
+                if (value instanceof Date) {
+                    return gpf.dateToComparableFormat(value);
+                }
+                return value.toString();
+            },
+
+            object: function (value, valueType, defaultValue) {
                 if (defaultValue instanceof Date && "string" === valueType) {
                     return gpf.dateFromComparableFormat(value);
                 }

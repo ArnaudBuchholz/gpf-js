@@ -160,12 +160,18 @@
                 var
                     idx,
                     parameters,
-                    result;
+                    result,
+                    date = new Date(2003,0, 22, 23, 45, 0, 0);
                 for (idx = 0; idx < valuesTesting.length; ++idx) {
                     parameters = valuesTesting[idx];
                     result = gpf.value.apply(null, parameters);
                     test.equal(result, parameters[3], parameters[4]);
                 }
+                // Handle dates specifically
+                test.like(gpf.value("2003-01-22 23:45:00", date), date,
+                    "String to date");
+                test.like(gpf.value(date, ""), "2003-01-22 23:45:00",
+                    "Date to string");
             }
 
         ],
