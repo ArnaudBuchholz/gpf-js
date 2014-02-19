@@ -379,7 +379,7 @@
          * @param {gpf.attributes.Map} attMap Map filled with XML attributes
          * @private
          */
-        _objMembersToContentHandler = function /*gpf:inline*/ (obj,
+        _objPrototypeToContentHandler = function /*gpf:inline*/ (obj,
             contentHandler, name, attMap) {
             var
                 attArray,
@@ -472,7 +472,8 @@
                 contentHandler.startElement("", name);
                 contentHandler.characters(gpf.value(obj, ""));
             } else {
-                _objMembersToContentHandler(obj, contentHandler, name, attMap);
+                _objPrototypeToContentHandler(obj, contentHandler, name,
+                    attMap);
             }
             contentHandler.endElement();
         },
@@ -1020,7 +1021,8 @@
      * @param {string} [name="root"] name Node name
      * @private
      */
-    function /*gpf:inline*/ _objMembersToXml(obj, contentHandler, name) {
+    function /*gpf:inline*/ _objMembersToContentHandler(obj, contentHandler,
+        name) {
         var
             member,
             attributes = {},
@@ -1040,7 +1042,7 @@
             for (member in obj) {
                 if (obj.hasOwnProperty(member)
                     && "object" === typeof obj[member]) {
-                    _objToXml(obj[member], contentHandler, member);
+                    _objToContentHandler(obj[member], contentHandler, member);
                 }
             }
         }
@@ -1055,7 +1057,7 @@
      * @param {string} [name="root"] name Node name
      * @private
      */
-    function _objToXml(obj, contentHandler, name) {
+    function _objToContentHandler(obj, contentHandler, name) {
         var
             member;
         if (undefined === obj || null === obj) {
@@ -1069,11 +1071,11 @@
         } else if (obj instanceof Array) {
             for (member = 0; member < obj.length; ++member) {
                 contentHandler.startElement("", name, name, {});
-                _objToXml(obj[member], contentHandler, "item");
+                _objToContentHandler(obj[member], contentHandler, "item");
                 contentHandler.endElement();
             }
         } else {
-            _objMembersToXml(obj, contentHandler, name);
+            _objMembersToContentHandler(obj, contentHandler, name);
         }
     }
 
@@ -1098,10 +1100,37 @@
             if (null !== iXmlSerializable) {
                 iXmlSerializable.toXml(iContentHandler);
             } else {
-                _objToXml(value, iContentHandler);
+                _objToContentHandler(value, iContentHandler);
             }
         }
     };
+
+    //endregion
+
+    //region Helpers
+
+    var
+        _firstValidChar = gpf._alpha + gpf._ALPHA + "_",
+        _otherValidChars = _firstValidChar + "012345789.-";
+
+    gpf.extend(gpf.xml, {
+
+        isValidName: function (name) {
+            var
+                idx;
+            if (0 === name.length
+                || -1 === _firstValidChar.indexOf(name.charAt(0))) {
+                return false;
+            }
+            for (idx = 1; idx < name.length; ++idx) {
+                if (-1 === _otherValidChars.indexOf(name.charAt(idx))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+    });
 
     //endregion
 

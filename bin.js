@@ -2,8 +2,7 @@
     "use strict";
 
     var
-        _b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-        + "0123456789+/",
+        _b64 = gpf._ALPHA + gpf._alpha + "0123456789+/",
         _b16 = "0123456789ABCDEF",
 
         _toBaseANY = function (base, value, length, safepad) {

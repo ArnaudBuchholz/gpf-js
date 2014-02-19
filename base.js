@@ -184,6 +184,8 @@
             },
 
             string: function (value, valueType, defaultValue) {
+                gpf.interfaces.ignoreParameter(valueType);
+                gpf.interfaces.ignoreParameter(defaultValue);
                 if (value instanceof Date) {
                     return gpf.dateToComparableFormat(value);
                 }
@@ -200,10 +202,6 @@
 
         // https://github.com/jshint/jshint/issues/525
         Func = Function; // avoid JSHint error
-
-    gpf._func = function (source) {
-        return new Func(source);
-    };
 
     /*jshint unused: false */ // Because of arguments
     /*
@@ -261,11 +259,18 @@
 
     gpf.extend(gpf, {
 
+        _alpha: "abcdefghijklmnopqrstuvwxyz",
+        _ALPHA: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+
+        _func: function (source) {
+            return new Func(source);
+        },
+
         /*
          * Converts the provided value to match the expectedType.
          * If not specified or impossible to do so, defaultValue is returned.
          * When expectedType is not provided, it is deduced from defaultValue.
-         * 
+         *
          * @param {any} value
          * @param {any} default value
          * @param {string} [expectedType=typeof defaultValue] expected type

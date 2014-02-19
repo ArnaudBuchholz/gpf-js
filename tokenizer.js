@@ -40,8 +40,7 @@
         _TOKEN_STATE_NONE               = 0,
         /* IDENTIFIER, separate first char from the next ones */
 
-        _TOKEN_IDENTIFIER_FIRSTCHAR = "abcdefghijklmnopqrstuvwxyz"
-            + "ABCDEFGHIJKLMNOPQRSTUVWXYZ_$",
+        _TOKEN_IDENTIFIER_FIRSTCHAR = gpf._alpha + gpf._ALPHA + "_$",
         _TOKEN_STATE_IDENTIFIER         = 2,
         /* STRING, detect begin, escape char */
         _TOKEN_STATE_STRING1_CHAR       = 3,

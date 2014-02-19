@@ -193,8 +193,45 @@
                         "c"
                     ]
                 }, contentHandler);
-                test.equal(gpf.stringFromStream(stream), "",
+                test.equal(gpf.stringFromStream(stream), "<root attribute1=\"st"
+                    + "ring\" attribute2=\"1234\"><subNode1 atribute3=\"3\"/><s"
+                    + "ubNode2>a</subNode2><subNode2><item attribute4=\"b\"/></"
+                    + "subNode2><subNode2>c</subNode2></root>",
                     "XML is well formed");
+            },
+
+            function (test) {
+                test.title("just a test");
+                var
+                    stream = gpf.stringToStream(),
+                    contentHandler = new gpf.xml.Writer(stream);
+                gpf.xml.convert({"leadingComments": [
+                    {
+                        "type": "Line",
+                        "value": " Universal Module Definition (UMD) to support AMD, CommonJS/Node.js,",
+                        "range": {
+                            "0": 82,
+                            "1": 152
+                        },
+                        "extendedRange": [
+                            74,
+                            200
+                        ]
+                    },
+                    {
+                        "type": "Line",
+                        "value": " Rhino, and plain browser loading.",
+                        "range": {
+                            "0": 158,
+                            "1": 194
+                        },
+                        "extendedRange": [
+                            74,
+                            200
+                        ]
+                    }
+                ]}, contentHandler);
+                console.log(gpf.stringFromStream(stream));
             }
 
         ]
