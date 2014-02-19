@@ -273,6 +273,8 @@
         },
 
         /**
+         * Decide if the member value must be serialized as an attribute (and
+         * return its name) or as a sub node (empty result)
          *
          * @param {string} member
          * @param {*} value
@@ -302,11 +304,19 @@
             return member;
         },
 
-        _objMembersToSubNodes = function /*gpf:inline*/ (obj, subNodeMembers,
+        /**
+         * Convert the object member into XML using the provided XML content
+         * handler
+         *
+         * @param {object} obj
+         * @param {string} member Member name
+         * @param {gpf.interfaces.IXmlContentHandler} contentHandler
+         * @param {gpf.attributes.Map} attMap Map filled with XML attributes
+         * @private
+         */
+        _objMemberToSubNodes = function /*gpf:inline*/ (obj, member,
             contentHandler, attMap) {
             var
-                memberIdx,
-                member,
                 value,
                 attArray,
                 attribute,
@@ -315,55 +325,60 @@
                 subValue,
                 type,
                 name;
-            for (memberIdx = 0; memberIdx < subNodeMembers.length;
-                 ++memberIdx) {
-                member = subNodeMembers[memberIdx];
-                value = obj[member];
-                // Exception for dates
-                if (value instanceof Date) {
-                    value = gpf.dateToComparableFormat(value, true);
-                }
-                attArray = attMap.member(member);
-                if ("_" === member.charAt(0)) {
-                    member = member.substr(1);
-                }
-                // Check if list
-                attribute = attArray.has(_List);
-                if (value instanceof Array || attribute) {
-                    // TODO: what to do when value is empty?
-                    if (attribute && attribute.name()) {
-                        closeNode = true;
-                        contentHandler.startElement("",
-                            attribute.name());
-                    }
-                    // Get the list of 'candidates'
-                    attArray = attArray.filter(_Element);
-                    for (idx = 0; idx < value.length; ++idx) {
-                        subValue = value[ idx ];
-                        // Select the right candidate
-                        type = _selectByType(attArray, subValue);
-                        if (type && type.name()) {
-                            name = type.name();
-                        } else {
-                            name = "item";
-                        }
-                        _toContentHandler(subValue, contentHandler,
-                            name);
-                    }
-                    if (closeNode) {
-                        contentHandler.endElement();
-                    }
-                    continue; // Next
-                }
-                attribute = attArray.has(_Element);
-                // Element
-                if (attribute && attribute.name()) {
-                    name = attribute.name();
-                }
-                _toContentHandler(value, contentHandler, name);
+            value = obj[member];
+            // Exception for dates
+            if (value instanceof Date) {
+                value = gpf.dateToComparableFormat(value, true);
             }
+            attArray = attMap.member(member);
+            if ("_" === member.charAt(0)) {
+                member = member.substr(1);
+            }
+            // Check if list
+            attribute = attArray.has(_List);
+            if (value instanceof Array || attribute) {
+                // TODO: what to do when value is empty?
+                if (attribute && attribute.name()) {
+                    closeNode = true;
+                    contentHandler.startElement("",
+                        attribute.name());
+                }
+                // Get the list of 'candidates'
+                attArray = attArray.filter(_Element);
+                for (idx = 0; idx < value.length; ++idx) {
+                    subValue = value[ idx ];
+                    // Select the right candidate
+                    type = _selectByType(attArray, subValue);
+                    if (type && type.name()) {
+                        name = type.name();
+                    } else {
+                        name = "item";
+                    }
+                    _toContentHandler(subValue, contentHandler,
+                        name);
+                }
+                if (closeNode) {
+                    contentHandler.endElement();
+                }
+                return;
+            }
+            attribute = attArray.has(_Element);
+            // Element
+            if (attribute && attribute.name()) {
+                name = attribute.name();
+            }
+            _toContentHandler(value, contentHandler, name);
         },
 
+        /**
+         * Convert the object into XML using the provided XML content handler
+         *
+         * @param {object} obj
+         * @param {gpf.interfaces.IXmlContentHandler} contentHandler
+         * @param {string} [name="object"] name Name of the root node
+         * @param {gpf.attributes.Map} attMap Map filled with XML attributes
+         * @private
+         */
         _objMembersToContentHandler = function /*gpf:inline*/ (obj,
             contentHandler, name, attMap) {
             var
@@ -373,7 +388,8 @@
                 type,
                 attName,
                 subNodeMembers = 0,
-                xmlAttributes = 0;
+                xmlAttributes = 0,
+                idx;
             /*
              * WARNING: the prototype is used instead of the object itself
              * This is done to respect the order provided in the prototype
@@ -423,11 +439,21 @@
             }
             contentHandler.startElement("", name, name, xmlAttributes);
             if (subNodeMembers) {
-                _objMembersToSubNodes(obj, subNodeMembers, contentHandler,
-                    attMap);
+                for (idx = 0; idx < subNodeMembers.length; ++idx) {
+                    _objMemberToSubNodes(obj, subNodeMembers[idx],
+                        contentHandler, attMap);
+                }
             }
         },
 
+        /**
+         * Convert the parameter into XML using the provided XML content handler
+         *
+         * @param {*} obj
+         * @param {gpf.interfaces.IXmlContentHandler} contentHandler
+         * @param {string} [name="object"] name Name of the root node
+         * @private
+         */
         _toContentHandler = function (obj, contentHandler, name) {
             var
                 attMap = (new gpfA.Map(obj)).filter(_Base),
@@ -444,13 +470,19 @@
             // If not an object, serialize the textual representation
             if ("object" !== typeof obj) {
                 contentHandler.startElement("", name);
-                contentHandler.characters(obj.toString());
+                contentHandler.characters(gpf.value(obj, ""));
             } else {
                 _objMembersToContentHandler(obj, contentHandler, name, attMap);
             }
             contentHandler.endElement();
         },
 
+        /**
+         * Converts this into XML using the provided XML content handler
+         *
+         * @param {gpf.interfaces.IXmlContentHandler} out XML Content handler
+         * @private
+         */
         _toXml = function (out) {
             var iContentHandler = gpfI.query(out, gpfI.IXmlContentHandler);
             if (iContentHandler) {
