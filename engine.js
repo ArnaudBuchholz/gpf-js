@@ -97,7 +97,9 @@
 
             pop: function() {
                 if (0 === this._stack.length) {
-                    throw "stackunderflow";
+                    throw {
+                        message: "stackunderflow"
+                    };
                 }
                 return this._stack.pop();
             },
@@ -105,14 +107,17 @@
             checkAndPop: function(types) {
                 var result, idx, value;
                 if (this.length() < types.length) {
-                    throw "stackunderflow";
+                    throw {
+                        message: "stackunderflow"
+                    };
                 }
                 result = [];
                 for (idx = 0; idx < types.length; ++idx) {
                     value = this.internalGet(idx);
                     if (toType(value) !== types[idx]) {
-
-                        throw "typecheck";
+                        throw {
+                            message: "typecheck"
+                        };
                     }
                     result.push(value);
                 }

@@ -67,7 +67,9 @@
 
     gpf.NOT_IMPLEMENTED = function () {
         console.error("Not implemented");
-        throw "Not implemented";
+        throw {
+            message: "Not implemented"
+        };
     };
 
     /*

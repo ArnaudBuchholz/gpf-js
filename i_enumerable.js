@@ -65,7 +65,9 @@
 
         alterPrototype: function (objPrototype) {
             if (!(objPrototype[this._member] instanceof Array)) {
-                throw "$Enumerable can be associated to arrays only";
+                throw {
+                    message: "$Enumerable can be associated to arrays only"
+                };
             }
             gpfA.add(objPrototype.constructor, "Class", [
                 new gpfA.InterfaceImplementAttribute(gpfI.IEnumerable,
