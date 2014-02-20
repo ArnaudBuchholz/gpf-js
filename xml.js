@@ -13,8 +13,10 @@
 */
         // This error will be handled in a common way later
         _expectedXmlContentHandler = function () {
-            throw "Invalid parameter, " +
-                "expected gpf.interfaces.IXmlContentHandler";
+            throw {
+                message: "Invalid parameter, " +
+                    "expected gpf.interfaces.IXmlContentHandler"
+            };
         }
         ;
 
@@ -182,6 +184,8 @@
             _name: "",
 
             init: function (name) {
+                gpf.ASSERT(gpf.xml.isValidName(name),
+                    "Valid XML attribute name");
                 this._name = name;
             }
 
@@ -193,6 +197,8 @@
             _name: "",
 
             init: function (name) {
+                gpf.ASSERT(gpf.xml.isValidName(name),
+                    "Valid XML element name");
                 this._name = name;
             }
 
@@ -1014,6 +1020,29 @@
     //region Parsing
 
     /**
+     * Compute a valid XML name based on member name (if possible)
+     *
+     * @param {string} member
+     * @param {boolean} forAttribute
+     * @private
+     */
+    function /*gpf:inline*/ _rawObjComputeName (member, forAttribute) {
+        var name;
+        gpf.interfaces.ignoreParameter(forAttribute);
+        if (!gpf.xml.isValidName(member)) {
+            name = "_" + member;
+            if (!gpf.xml.isValidName(name)) {
+                throw {
+                    message: "Invalid name"
+                };
+            }
+        } else {
+            name = member;
+        }
+        return name;
+    }
+
+    /**
      * Convert object members into XML
      *
      * @param {object} obj Object to convert into XML
@@ -1021,7 +1050,7 @@
      * @param {string} [name="root"] name Node name
      * @private
      */
-    function /*gpf:inline*/ _objMembersToContentHandler(obj, contentHandler,
+    function /*gpf:inline*/ _rawObjMembersToContentHandler(obj, contentHandler,
         name) {
         var
             member,
@@ -1033,7 +1062,7 @@
                 if ("object" === typeof obj[member]) {
                     hasChildren = true;
                 } else {
-                    attributes[member] = obj[member];
+                    attributes[_rawObjComputeName(member, true)] = obj[member];
                 }
             }
         }
@@ -1042,7 +1071,8 @@
             for (member in obj) {
                 if (obj.hasOwnProperty(member)
                     && "object" === typeof obj[member]) {
-                    _objToContentHandler(obj[member], contentHandler, member);
+                    _rawObjToContentHandler(obj[member], contentHandler,
+                        _rawObjComputeName(member, false));
                 }
             }
         }
@@ -1057,7 +1087,7 @@
      * @param {string} [name="root"] name Node name
      * @private
      */
-    function _objToContentHandler(obj, contentHandler, name) {
+    function _rawObjToContentHandler(obj, contentHandler, name) {
         var
             member;
         if (undefined === obj || null === obj) {
@@ -1071,11 +1101,11 @@
         } else if (obj instanceof Array) {
             for (member = 0; member < obj.length; ++member) {
                 contentHandler.startElement("", name, name, {});
-                _objToContentHandler(obj[member], contentHandler, "item");
+                _rawObjToContentHandler(obj[member], contentHandler, "item");
                 contentHandler.endElement();
             }
         } else {
-            _objMembersToContentHandler(obj, contentHandler, name);
+            _rawObjMembersToContentHandler(obj, contentHandler, name);
         }
     }
 
@@ -1100,7 +1130,7 @@
             if (null !== iXmlSerializable) {
                 iXmlSerializable.toXml(iContentHandler);
             } else {
-                _objToContentHandler(value, iContentHandler);
+                _rawObjToContentHandler(value, iContentHandler);
             }
         }
     };

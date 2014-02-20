@@ -201,7 +201,7 @@
             },
 
             function (test) {
-                test.title("just a test");
+                test.title("Use convert on a simple object (for make)");
                 var
                     stream = gpf.stringToStream(),
                     contentHandler = new gpf.xml.Writer(stream);
@@ -231,7 +231,16 @@
                         ]
                     }
                 ]}, contentHandler);
-                console.log(gpf.stringFromStream(stream));
+                test.equal(gpf.stringFromStream(stream), "<root><leadingComment"
+                    + "s><item type=\"Line\" value=\" Universal Module Definiti"
+                    + "on (UMD) to support AMD, CommonJS/Node.js,\"><range _0="
+                    + "\"82\" _1=\"152\"/><extendedRange>74</extendedRange><ext"
+                    + "endedRange>200</extendedRange></item></leadingComments><"
+                    + "leadingComments><item type=\"Line\" value=\" Rhino, and "
+                    + "plain browser loading.\"><range _0=\"158\" _1=\"194\"/><"
+                    + "extendedRange>74</extendedRange><extendedRange>200</exte"
+                    + "ndedRange></item></leadingComments></root>",
+                    "XML is well formed");
             }
 
         ]
