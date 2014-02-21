@@ -21,7 +21,8 @@
             "parser",               // Parser helper                  gpf.Parser
             "tokenizer",            // Javascript parser                  gpf.js
 
-            "xml"                   // Xml serializer & attributes       gpf.xml
+            "xml",                  // Xml serializer & attributes       gpf.xml
+            "xnode"                 // Xml 'DOM' structure               gpf.xml
         ];
 
     gpf.sources = function () {
