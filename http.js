@@ -114,8 +114,8 @@ FIXME: IE10 does not detect when the script does not exist.
             /*
              * Use insertBefore instead of appendChild  to avoid an IE6 bug.
              * This arises when a base node is used (#2709 and #4378).
-             * Also found a bug in IE10 that loads & triggers immediatly script,
-             * use timeout
+             * Also found a bug in IE10 that loads & triggers immediately
+             * script, use timeout
              */
             setTimeout(function () {
                 context.headTag.insertBefore(scriptTag,
