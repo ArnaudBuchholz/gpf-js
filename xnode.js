@@ -164,8 +164,11 @@
             this._obj = obj;
             this._attributes = null;
             this._elements = null;
+            this._children = null;
             if (undefined === name) {
                 this._name = "root";
+            } else {
+                this._name = name;
             }
         },
 
@@ -173,17 +176,19 @@
             var member, value;
             this._attributes = [];
             this._elements = [];
-            for (member in this._obj) {
-                if (this._obj.hasOwnProperty(member)) {
-                    value = this._obj[member];
-                    if (null === value) {
-                        // Ignore
-                        continue;
-                    }
-                    if ("object" === typeof value) {
-                        this._elements.push(member);
-                    } else {
-                        this._attributes.push(member);
+            if (!(this._obj instanceof Array)) {
+                for (member in this._obj) {
+                    if (this._obj.hasOwnProperty(member)) {
+                        value = this._obj[member];
+                        if (null === value) {
+                            // Ignore
+                            continue;
+                        }
+                        if ("object" === typeof value) {
+                            this._elements.push(member);
+                        } else {
+                            this._attributes.push(member);
+                        }
                     }
                 }
             }
@@ -218,14 +223,24 @@
          */
         children: function () {
             var idx, name, child;
-            if (null === this._elements) {
-                this._members();
+            if (null === this._children) {
+                if (null === this._elements) {
+                    this._members();
+                }
                 this._children = [];
-                for (idx = 0; idx < this._elements.length; ++idx) {
-                    name = this._elements[idx];
-                    child = new gpf.xml.ConstNode(this._obj[name], name);
-                    child._parentNode = this;
-                    this._children.push(child);
+                if (this._obj instanceof Array) {
+                    for (idx = 0; idx < this._obj.length; ++idx) {
+                        child = new gpf.xml.ConstNode(this._obj[idx], "item");
+                        child._parentNode = this;
+                        this._children.push(child);
+                    }
+                } else {
+                    for (idx = 0; idx < this._elements.length; ++idx) {
+                        name = this._elements[idx];
+                        child = new gpf.xml.ConstNode(this._obj[name], name);
+                        child._parentNode = this;
+                        this._children.push(child);
+                    }
                 }
             }
             return this._children;
@@ -250,10 +265,10 @@
          */
         nextSibling: function () {
             var pos;
-            if (null !== this._parentObj) {
-                pos = gpf.test(this._parentObj._elements, this._name);
+            if (null !== this._parentNode) {
+                pos = gpf.test(this._parentNode._children, this);
                 if (0 < pos) {
-                    return this._parentObj._children[pos - 1];
+                    return this._parentNode._children[pos - 1];
                 }
             }
             return null;
@@ -306,10 +321,10 @@
          */
         previousSibling: function () {
             var pos;
-            if (null !== this._parentObj) {
-                pos = gpf.test(this._parentObj._elements, this._name);
-                if (pos < this._parentObj._elements.length - 1) {
-                    return this._parentObj._children[pos + 1];
+            if (null !== this._parentNode) {
+                pos = gpf.test(this._parentNode._children, this);
+                if (pos < this._parentNode._elements.length - 1) {
+                    return this._parentNode._children[pos + 1];
                 }
             }
             return null;
