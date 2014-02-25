@@ -106,7 +106,7 @@
      *        otherwise, returns undefined
      * @returns {*}
      */
-    gpf.arrayOrValue = function (array, idx) {
+    gpf.arrayOrItem = function (array, idx) {
         if (undefined === idx) {
             // To avoid result modifications altering source, clone
             // TODO may not work with IE < 9
