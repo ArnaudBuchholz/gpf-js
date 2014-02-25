@@ -12,22 +12,19 @@
         _VALUE_TYPE_NAME = 0,
         _VALUE_TYPE_TEXT = 1,
 
-        _NODE_TYPE_ELEMENT = 0,
-        _NODE_TYPE_ATTRIBUTE = 1,
-
         // a/b/c
         _sample1 = {
-            nodeType: _NODE_TYPE_ELEMENT,
+            nodeType: gpf.xml.NODE_ELEMENT,
             valueType: _VALUE_TYPE_NAME,
             value: "a",
             filter: null,
             then: {
-                nodeType: _NODE_TYPE_ELEMENT,
+                nodeType: gpf.xml.NODE_ELEMENT,
                 valueType: _VALUE_TYPE_NAME,
                 value: "b",
                 filter: null,
                 then: {
-                    nodeType: _NODE_TYPE_ELEMENT,
+                    nodeType: gpf.xml.NODE_ELEMENT,
                     valueType: _VALUE_TYPE_NAME,
                     value: "c",
                     filter: null,
@@ -38,20 +35,20 @@
 
         // a[b and c]
         _sample2 = {
-            nodeType: _NODE_TYPE_ELEMENT,
+            nodeType: gpf.xml.NODE_ELEMENT,
             valueType: _VALUE_TYPE_NAME,
             value: "a",
             filter: {
                 operator: "and",
                 items: [
                     {
-                        nodeType: _NODE_TYPE_ELEMENT,
+                        nodeType: gpf.xml.NODE_ELEMENT,
                         valueType: _VALUE_TYPE_NAME,
                         value: "b",
                         filter: null,
                         then: null
                     }, {
-                        nodeType: _NODE_TYPE_ELEMENT,
+                        nodeType: gpf.xml.NODE_ELEMENT,
                         valueType: _VALUE_TYPE_NAME,
                         value: "c",
                         filter: null,
@@ -63,20 +60,20 @@
         },
         // a[@d='1'] => a[@d[.='1']]
         _sample2 = {
-            nodeType: _NODE_TYPE_ELEMENT,
+            nodeType: gpf.xml.NODE_ELEMENT,
             valueType: _VALUE_TYPE_NAME,
             value: "a",
             filter: {
                 operator: "and",
                 items: [
                     {
-                        nodeType: _NODE_TYPE_ATTRIBUTE,
+                        nodeType: gpf.xml.NODE_ATTRIBUTE,
                         valueType: _VALUE_TYPE_NAME,
                         value: "d",
                         filter: {
                             operator: "and",
                             items: [{
-                                nodeType: _NODE_TYPE_TEXT,
+                                nodeType: gpf.xml.NODE_TEXT,
                                 valueType: _VALUE_TYPE_VALUE,
                                 value: "1",
                                 filter: null,
@@ -92,19 +89,38 @@
     ;
 
 
-    gpf.xml.XPathFilter = gpf.Class.extend({
+    gpf.xml.XPath = gpf.Class.extend({
+
+        _xpath: null,
 
         init: function (xpath) {
             this._reset();
-            this._compile(xpath);
+            if ("string" === typeof xpath) {
+                this._xpath = this._compile(xpath)
+            } else {
+                this._xpath = xpath;
+            }
         },
 
-        _compile: function  (xpath) {
-
+        /**
+         * Compile the XPATH specifier
+         *
+         * @param {string} xpath
+         * @private
+         */
+        _compile: function (xpath) {
+            gpf.interfaces.ignoreParameter(xpath);
+            this._xpath = null;
         },
 
+        /**
+         *
+         * @param {gpf.xml.IXmlConstNode} node
+         * @return {gpf.xml.IXmlConstNode|null}
+         */
         evaluate: function (node) {
-
+            gpf.interfaces.ignoreParameter(node);
+            return null;
         }
 
     });
