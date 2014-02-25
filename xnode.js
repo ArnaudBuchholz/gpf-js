@@ -40,10 +40,17 @@
         /**
          * Returns the array of child nodes for the node
          *
-         * @returns {gpf.interfaces.IXmlConstNode[]}
+         * @param {number} [idx=undefined] idx (see gpf.arrayOrValue)
+         * @returns {gpf.interfaces.IXmlConstNode
+         *           |gpf.interfaces.IXmlConstNode[]
+         *           |undefined}
          */
-        children: function () {
-            return [];
+        children: function (idx) {
+            if (undefined === idx) {
+                return [];
+            } else {
+                return undefined;
+            }
         },
 
         /**
@@ -176,7 +183,8 @@
             var member, value;
             this._attributes = [];
             this._elements = [];
-            if (!(this._obj instanceof Array)) {
+            if ("object" === typeof this._obj
+                && !(this._obj instanceof Array)) {
                 for (member in this._obj) {
                     if (this._obj.hasOwnProperty(member)) {
                         value = this._obj[member];
@@ -221,29 +229,29 @@
         /**
          * @implements gpf.interfaces.IXmlConstNode:children
          */
-        children: function () {
-            var idx, name, child;
+        children: function (idx) {
+            var jdx, name, child;
             if (null === this._children) {
                 if (null === this._elements) {
                     this._members();
                 }
                 this._children = [];
                 if (this._obj instanceof Array) {
-                    for (idx = 0; idx < this._obj.length; ++idx) {
-                        child = new gpf.xml.ConstNode(this._obj[idx], "item");
+                    for (jdx = 0; jdx < this._obj.length; ++jdx) {
+                        child = new gpf.xml.ConstNode(this._obj[jdx], "item");
                         child._parentNode = this;
                         this._children.push(child);
                     }
                 } else {
-                    for (idx = 0; idx < this._elements.length; ++idx) {
-                        name = this._elements[idx];
+                    for (jdx = 0; jdx < this._elements.length; ++jdx) {
+                        name = this._elements[jdx];
                         child = new gpf.xml.ConstNode(this._obj[name], name);
                         child._parentNode = this;
                         this._children.push(child);
                     }
                 }
             }
-            return this._children;
+            return gpf.arrayOrValue(this._children, idx);
         },
 
         /**
@@ -267,8 +275,9 @@
             var pos;
             if (null !== this._parentNode) {
                 pos = gpf.test(this._parentNode._children, this);
-                if (0 < pos) {
-                    return this._parentNode._children[pos - 1];
+                if (undefined !== pos
+                    && pos < this._parentNode._elements.length - 1) {
+                    return this._parentNode._children[pos + 1];
                 }
             }
             return null;
@@ -292,7 +301,11 @@
          * @implements gpf.interfaces.IXmlConstNode:nodeValue
          */
         nodeValue: function () {
-            return "";
+            if ("object" !== typeof this._obj) {
+                return this._obj;
+            } else {
+                return "";
+            }
         },
 
         /**
@@ -323,8 +336,8 @@
             var pos;
             if (null !== this._parentNode) {
                 pos = gpf.test(this._parentNode._children, this);
-                if (pos < this._parentNode._elements.length - 1) {
-                    return this._parentNode._children[pos + 1];
+                if (0 < pos) {
+                    return this._parentNode._children[pos - 1];
                 }
             }
             return null;
@@ -334,7 +347,11 @@
          * @implements gpf.interfaces.IXmlConstNode:textContent
          */
         textContent: function () {
-            return "";
+            if ("object" !== typeof this._obj) {
+                return gpf.value(this._obj, "");
+            } else {
+                return "";
+            }
         }
 
         //endregion

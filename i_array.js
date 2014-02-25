@@ -1,7 +1,13 @@
 (function () { /* Begin of privacy scope */
     "use strict";
 
-    gpf.interfaces.IReadOnlyArray = gpf.interfaces.Interface.extend({
+    var
+        gpfI = gpf.interfaces,
+        gpfA = gpf.attributes;
+
+    //region IReadOnlyArray and IArray
+
+    gpfI.IReadOnlyArray = gpfI.Interface.extend({
 
         /**
          * Return the number of items in the array
@@ -18,13 +24,13 @@
          * @returns {*}
          */
         get: function (idx) {
-            gpf.interfaces.ignoreParameter(idx);
+            gpfI.ignoreParameter(idx);
             return undefined;
         }
 
     });
 
-    gpf.interfaces.IArray = gpf.interfaces.IReadOnlyArray.extend({
+    gpfI.IArray = gpfI.IReadOnlyArray.extend({
 
         /**
          * Set the item inside the array (idx is 0-based)
@@ -35,15 +41,18 @@
          * @returns {*}
          */
         set: function (idx, value) {
-            gpf.interfaces.ignoreParameter(idx);
-            gpf.interfaces.ignoreParameter(value);
+            gpfI.ignoreParameter(idx);
+            gpfI.ignoreParameter(value);
             return undefined;
         }
 
     });
 
-    gpf.attributes.ClassArrayInterfaceAttribute =
-        gpf.attributes.ClassAttribute.extend({
+    //endregion
+
+    //region Class modifier to generate an array interface
+
+    gpfA.ClassArrayInterfaceAttribute = gpfA.ClassAttribute.extend({
 
         "[Class]": [gpf.$Alias("ClassIArray")],
 
@@ -59,11 +68,11 @@
             var
                 implementedInterface;
             if (this._writeAllowed) {
-                implementedInterface = gpf.interfaces.IArray;
+                implementedInterface = gpfI.IArray;
             } else {
-                implementedInterface = gpf.interfaces.IReadOnlyArray;
+                implementedInterface = gpfI.IReadOnlyArray;
             }
-            gpf.attributes.add(objPrototype.constructor, "Class",
+            gpfA.add(objPrototype.constructor, "Class",
                 [gpf.$InterfaceImplement(implementedInterface)]);
             objPrototype.length = gpf._func("return this."
                 + this._member + ".length;");
@@ -78,7 +87,41 @@
 
     });
 
-    gpf.attributes.add(gpf.attributes.Array, "_array",
-        [gpf.$ClassIArray(false)]);
+    // Alter gpf.attributes.Array class definition
+    gpfA.add(gpfA.Array, "_array", [gpf.$ClassIArray(false)]);
+
+    //endregion
+
+    /**
+     * Provides a common way to code functions that returns either an array
+     * of results or a given item inside the array using an optional index
+     * parameter (such as for IXmlConstNode:children)
+     *
+     * @param {[]} array Array to grab items from
+     * @param {number} [idx=undefined] idx Index of the item to get.
+     *        When not specified, a copy of the array is returned (to avoid
+     *        source modifications). When specified:
+     *        if -1, returns the last element of the array or undefined
+     *        if positive, returns the Nth element of the array or undefined
+     *        otherwise, returns undefined
+     * @returns {*}
+     */
+    gpf.arrayOrValue = function (array, idx) {
+        if (undefined === idx) {
+            // To avoid result modifications altering source, clone
+            // TODO may not work with IE < 9
+            return Array.prototype.slice.call(array, 0);
+        } else if (0 === array.length) {
+            return undefined;
+        } else if (-1 === idx) {
+            return array[array.length - 1];
+        } else if (idx < -1 || idx > array.length - 1) {
+            return undefined;
+        } else {
+            return array[idx];
+        }
+    };
+
+    //endregion
 
 }()); /* End of privacy scope */

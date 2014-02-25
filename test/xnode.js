@@ -42,11 +42,32 @@
                             att2: "World!"
                         }, "Mixed"]
                     }, "complex"),
-                    child;
+                    array1, child, array2;
                 test.equal(root.localName(), "complex", "Root name");
                 test.equal(root.children().length, 2, "Two children");
-                child = root.children()[0];
-                test.equal(child.localName(), "array1", "First child name");
+                array1 = root.children()[0];
+                test.equal(array1.localName(), "array1", "First child name");
+                test.equal(array1.children().length, 2,
+                    "First child children count");
+                test.log("Processing first child children");
+                child = array1.children()[0];
+                test.equal(child.localName(), "item", "name");
+                test.equal(child.children().length, 0,
+                    "children count");
+                test.equal(child.nodeValue(),
+                    "Hello", "first child value");
+                test.equal(array1.children()[1].nodeValue(),
+                    "World!", "second child value");
+                test.log("Processing second child");
+                array2 = array1.nextSibling();
+                test.notEqual(array2, null,
+                    "Accessible using nextSibling on first child");
+                test.equal(array2.previousSibling(), array1,
+                    "First child accessible using previousSibling");
+                child = array2.children()[0];
+
+
+
             }
 
         ]
