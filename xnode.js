@@ -40,7 +40,7 @@
         /**
          * Returns the array of child nodes for the node
          *
-         * @param {number} [idx=undefined] idx (see gpf.arrayOrValue)
+         * @param {number} [idx=undefined] idx (see gpf.arrayOrItem)
          * @returns {gpf.interfaces.IXmlConstNode
          *           |gpf.interfaces.IXmlConstNode[]
          *           |undefined}
@@ -251,7 +251,7 @@
                     }
                 }
             }
-            return gpf.arrayOrValue(this._children, idx);
+            return gpf.arrayOrItem(this._children, idx);
         },
 
         /**
@@ -276,7 +276,7 @@
             if (null !== this._parentNode) {
                 pos = gpf.test(this._parentNode._children, this);
                 if (undefined !== pos
-                    && pos < this._parentNode._elements.length - 1) {
+                    && pos < this._parentNode._children.length - 1) {
                     return this._parentNode._children[pos + 1];
                 }
             }

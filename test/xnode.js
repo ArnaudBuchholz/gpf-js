@@ -22,7 +22,9 @@
                     att1: "Hello",
                     att2: "World!"
                 }, "All attributes");
-                child = root.children()[0];
+                child = root.children(0);
+                test.notEqual(child, null, "Get first child");
+                test.equal(child.parentNode(), root, "Parent points to root");
                 test.equal(child.localName(), "child1", "Child name");
                 test.equal(child.attributes("att3"), 123, "Child attribute");
                 test.equal(child.attributes("att4"), undefined,
@@ -45,29 +47,41 @@
                     array1, child, array2;
                 test.equal(root.localName(), "complex", "Root name");
                 test.equal(root.children().length, 2, "Two children");
-                array1 = root.children()[0];
-                test.equal(array1.localName(), "array1", "First child name");
+                array1 = root.children(0);
+                test.notEqual(array1, null, "> First child");
+                test.equal(array1.localName(), "array1", "> First child name");
                 test.equal(array1.children().length, 2,
-                    "First child children count");
-                test.log("Processing first child children");
-                child = array1.children()[0];
-                test.equal(child.localName(), "item", "name");
+                    "> First child children count");
+                test.log("> Processing first child children");
+                child = array1.children(0);
+                test.notEqual(child, null, "  > Child obtained");
+                test.equal(child.localName(), "item", "  > Child name");
                 test.equal(child.children().length, 0,
-                    "children count");
+                    "  > Children count");
                 test.equal(child.nodeValue(),
-                    "Hello", "first child value");
-                test.equal(array1.children()[1].nodeValue(),
-                    "World!", "second child value");
-                test.log("Processing second child");
+                    "Hello", "  > First child value");
+                test.equal(array1.children(1).nodeValue(),
+                    "World!", "  > Second child value");
+                test.log("> Processing second child");
                 array2 = array1.nextSibling();
                 test.notEqual(array2, null,
-                    "Accessible using nextSibling on first child");
+                    "> Accessible using nextSibling on first child");
                 test.equal(array2.previousSibling(), array1,
-                    "First child accessible using previousSibling");
-                child = array2.children()[0];
-
-
-
+                    "> First child accessible using previousSibling");
+                test.log("> Processing second child children");
+                child = array2.children(0);
+                test.notEqual(child, null, "  > First child obtained");
+                test.equal(child.localName(), "item", "    > First child name");
+                test.equal(child.attributes("att1"), "Hello",
+                    "    > First child attribute att1");
+                test.equal(child.attributes("att2"), "World!",
+                    "    > First child attribute att2");
+                test.equal(child.attributes("att3"), undefined,
+                    "    > First child unknown attribute att3");
+                child = child.nextSibling();
+                test.notEqual(child, null, "  > Second child obtained");
+                test.equal(child.nodeValue(), "Mixed",
+                    "    > Second child value");
             }
 
         ]
