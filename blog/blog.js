@@ -4,10 +4,19 @@
     function onTokenFound (event) {
         // Trim any space token before the first non space one
         var
-            type = event.type(),
+            that = this,
+            type,
+            token;
+        if (gpf.events && event instanceof gpf.events.Event) {
+            type = event.type();
             token = event.get("token");
+        } else {
+            // Backward compatibility
+            type = arguments[0];
+            token = arguments[1];
+        }
         if ("space" === type) {
-            if (!this.hasChildNodes()) {
+            if (!that.hasChildNodes()) {
                 return;
             }
             // Replace tabs with 4 spaces
@@ -16,13 +25,13 @@
         var tag = document.createElement("span");
         tag.className = type;
         tag.appendChild(document.createTextNode(token));
-        this.appendChild(tag);
+        that.appendChild(tag);
     }
 
     function reformatCode (codeElement) {
         var
             codeClass = codeElement.className,
-            pre, src, toolbar;
+            pre/*, src, toolbar*/;
         pre = document.createElement("pre");
         pre.className = "code " + codeClass;
         pre = codeElement.parentNode.insertBefore(pre, codeElement);
@@ -35,7 +44,12 @@
                             .replace(/(&amp;)/g, "&")
                 ;
             codeElement.innerHTML = ""; // Easy way to clear this
-            gpf.js.tokenize.apply(codeElement, [content, onTokenFound]);
+            if (gpf.tokenize) {
+                // Backward compatibility
+                gpf.tokenize.apply(codeElement, [content, onTokenFound]);
+            } else {
+                gpf.js.tokenize.apply(codeElement, [content, onTokenFound]);
+            }
 /*
     Could be great to have testable samples
             // Insert a toolbar
