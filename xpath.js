@@ -6,29 +6,18 @@
     hard-coded
 */
 
-    // name[conditions]
-
+/*
     var
-        _VALUE_TYPE_NAME = 0,
-        _VALUE_TYPE_TEXT = 1,
-
         // a/b/c
         _sample1 = {
             nodeType: gpf.xml.NODE_ELEMENT,
-            valueType: _VALUE_TYPE_NAME,
-            value: "a",
-            filter: null,
+            name: "a",
             then: {
                 nodeType: gpf.xml.NODE_ELEMENT,
-                valueType: _VALUE_TYPE_NAME,
-                value: "b",
-                filter: null,
+                name: "b",
                 then: {
                     nodeType: gpf.xml.NODE_ELEMENT,
-                    valueType: _VALUE_TYPE_NAME,
-                    value: "c",
-                    filter: null,
-                    then: null
+                    name: "c"
                 }
             }
         },
@@ -36,58 +25,37 @@
         // a[b and c]
         _sample2 = {
             nodeType: gpf.xml.NODE_ELEMENT,
-            valueType: _VALUE_TYPE_NAME,
-            value: "a",
+            name: "a",
             filter: {
-                operator: "and",
-                items: [
-                    {
-                        nodeType: gpf.xml.NODE_ELEMENT,
-                        valueType: _VALUE_TYPE_NAME,
-                        value: "b",
-                        filter: null,
-                        then: null
-                    }, {
-                        nodeType: gpf.xml.NODE_ELEMENT,
-                        valueType: _VALUE_TYPE_NAME,
-                        value: "c",
-                        filter: null,
-                        then: null
-                    }
-                ]
-            },
-            then: null
+                and: [ {
+                    nodeType: gpf.xml.NODE_ELEMENT,
+                    name: "b"
+                }, {
+                    nodeType: gpf.xml.NODE_ELEMENT,
+                    name: "c"
+                }]
+            }
         },
-        // a[@d='1'] => a[@d[.='1']]
-        _sample2 = {
+        // a[@d='1']
+        _sample3 = {
             nodeType: gpf.xml.NODE_ELEMENT,
-            valueType: _VALUE_TYPE_NAME,
-            value: "a",
+            name: "a",
             filter: {
-                operator: "and",
-                items: [
-                    {
-                        nodeType: gpf.xml.NODE_ATTRIBUTE,
-                        valueType: _VALUE_TYPE_NAME,
-                        value: "d",
-                        filter: {
-                            operator: "and",
-                            items: [{
-                                nodeType: gpf.xml.NODE_TEXT,
-                                valueType: _VALUE_TYPE_VALUE,
-                                value: "1",
-                                filter: null,
-                                then: null
-                            }]
-                        },
-                        then: null
-                    }
-                ]
-            },
-            then: null
+                and: [{
+                    nodeType: gpf.xml.NODE_ATTRIBUTE,
+                    name: "d",
+                    value: "1"
+                }]
+            }
+        },
+        //a
+        _sample4 = {
+            nodeType: gpf.xml.NODE_ELEMENT,
+            name: "a",
+            relative: false
         }
     ;
-
+*/
 
     gpf.xml.XPath = gpf.Class.extend({
 
@@ -96,7 +64,7 @@
         init: function (xpath) {
             this._reset();
             if ("string" === typeof xpath) {
-                this._xpath = this._compile(xpath)
+                this._xpath = this._compile(xpath);
             } else {
                 this._xpath = xpath;
             }
@@ -116,11 +84,27 @@
         /**
          *
          * @param {gpf.xml.IXmlConstNode} node
-         * @return {gpf.xml.IXmlConstNode|null}
+         * @return {gpf.xml.IXmlConstNode[]}
          */
-        evaluate: function (node) {
-            gpf.interfaces.ignoreParameter(node);
-            return null;
+        selectNodes: function (node) {
+            var
+                expr = this._xpath,
+                resultSet = [node],
+                idx, children;
+
+            if (expr.nodeType === gpf.xml.NODE_ELEMENT) {
+                for (idx = 0; idx < resultSet.length; ++idx) {
+                    children = node.children();
+                    // Select children corresponding to the criteria
+                }
+            } else {
+                for (idx = 0; idx < resultSet.length; ++idx) {
+                    children = node.attributes();
+                    // Select children corresponding to the criteria
+                }
+            }
+
+            return resultSet;
         }
 
     });
