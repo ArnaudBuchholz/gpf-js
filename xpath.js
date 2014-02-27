@@ -10,13 +10,13 @@
     var
         // a/b/c
         _sample1 = {
-            nodeType: gpf.xml.NODE_ELEMENT,
+            type: gpf.xml.NODE_ELEMENT,
             name: "a",
             then: {
-                nodeType: gpf.xml.NODE_ELEMENT,
+                type: gpf.xml.NODE_ELEMENT,
                 name: "b",
                 then: {
-                    nodeType: gpf.xml.NODE_ELEMENT,
+                    type: gpf.xml.NODE_ELEMENT,
                     name: "c"
                 }
             }
@@ -24,38 +24,115 @@
 
         // a[b and c]
         _sample2 = {
-            nodeType: gpf.xml.NODE_ELEMENT,
+            type: gpf.xml.NODE_ELEMENT,
             name: "a",
             filter: {
                 and: [ {
-                    nodeType: gpf.xml.NODE_ELEMENT,
+                    type: gpf.xml.NODE_ELEMENT,
                     name: "b"
                 }, {
-                    nodeType: gpf.xml.NODE_ELEMENT,
+                    type: gpf.xml.NODE_ELEMENT,
                     name: "c"
                 }]
             }
         },
         // a[@d='1']
         _sample3 = {
-            nodeType: gpf.xml.NODE_ELEMENT,
+            type: gpf.xml.NODE_ELEMENT,
             name: "a",
             filter: {
                 and: [{
-                    nodeType: gpf.xml.NODE_ATTRIBUTE,
+                    type: gpf.xml.NODE_ATTRIBUTE,
                     name: "d",
-                    value: "1"
+                    text: "1"
                 }]
             }
         },
         //a
         _sample4 = {
-            nodeType: gpf.xml.NODE_ELEMENT,
+            type: gpf.xml.NODE_ELEMENT,
             name: "a",
             relative: false
         }
     ;
 */
+
+    /**
+     * Result set, contains node and can be enumerated
+     *
+     * @constructor
+     * @private
+     */
+    function ResultSet() {
+        this._nodes = [];
+        // Define only on first use
+        if (undefined === ResultSet.prototype.add) {
+            gpf.extend(ResultSet.prototype, {
+
+                push: function (node) {
+                    var idx;
+                    if (node instanceof Array) {
+                        for (idx = 0; idx < node.length; ++idx) {
+                            this._nodes.push(node);
+                        }
+                    } else {
+                        this._nodes.push(node);
+                    }
+                },
+
+                each: function (test) {
+                    var
+                        result = new ResultSet(),
+                        idx, node, nodes;
+                    for (idx = 0; idx < this._nodes.length; ++idx) {
+                        node = this._nodes[idx];
+                        nodes = test(idx);
+                        if (nodes) {
+                            result.push(nodes);
+                        }
+                    }
+                    return result;
+                }
+            });
+        }
+    }
+
+    function _testELEMENT(node, expr, result) {
+        var
+            children = node.children(),
+            child,
+            idx,
+            keep;
+        for (idx = 0; idx < children.length; ++idx) {
+            keep = true;
+            child = children[idx];
+            if (expr.name && child.localName() !== expr.name) {
+                keep = false;
+            } else if (expr.text && child.textContent() !== expr.text) {
+                keep = false;
+            }
+            if (keep) {
+                result.push(child);
+            }
+            if (undefined !== expr.relative && !expr.relative) {
+                _testELEMENT(child, expr, result);
+            }
+        }
+        return result;
+    }
+
+    function _testATTRIBUTE(node, expr, result) {
+        var
+            attributes,
+            attribute;
+
+        if (expr.name) {
+            attribute = node.attributes(expr.name);
+        } else {
+            attributes = node.attributes();
+        }
+        return result;
+    }
 
     gpf.xml.XPath = gpf.Class.extend({
 
@@ -68,6 +145,10 @@
             } else {
                 this._xpath = xpath;
             }
+        },
+
+        _reset: function () {
+
         },
 
         /**
@@ -88,11 +169,22 @@
          */
         selectNodes: function (node) {
             var
-                expr = this._xpath,
-                resultSet = [node],
-                idx, children;
+//                expr = this._xpath,
+                resultSet = new ResultSet();
+            resultSet.push(node);
+/*
+            while (expr) {
+                if (gpf.xml.NODE_ELEMENT === expr.type) {
+                    resultSet.each(function (node) {
+                        var
+                            children = node.children(),
+                            idx;
+                        for (= 0; idx
+                            });
+                    }
 
-            if (expr.nodeType === gpf.xml.NODE_ELEMENT) {
+            }
+            if (expr.type === ) {
                 for (idx = 0; idx < resultSet.length; ++idx) {
                     children = node.children();
                     // Select children corresponding to the criteria
@@ -103,7 +195,7 @@
                     // Select children corresponding to the criteria
                 }
             }
-
+*/
             return resultSet;
         }
 

@@ -22,7 +22,8 @@
             "tokenizer",            // Javascript parser                  gpf.js
 
             "xml",                  // Xml serializer & attributes       gpf.xml
-            "xnode"                 // Xml 'DOM' structure               gpf.xml
+            "xnode",                // Xml 'DOM' structure               gpf.xml
+            "xpath"                 // Xml 'XPATH' parser/evaluator      gpf.xml
         ];
 
     gpf.sources = function () {
