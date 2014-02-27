@@ -188,6 +188,21 @@
             for (idx = 0; idx < this._items.length; ++idx) {
                 this._items[idx].output(eventsHandler);
             }
+        },
+
+        getTestCount: function () {
+            var
+                idx,
+                item,
+                result = 0;
+            for (idx = 0; idx < this._items.length; ++idx) {
+                item = this._items[idx];
+                // Inelegant but works
+                if (undefined !== _testDetails[item._type]) {
+                    ++result;
+                }
+            }
+            return result;
         }
 
     });
@@ -274,12 +289,14 @@
             name,
             report,
             errors = 0,
-            total = 0;
+            total = 0,
+            testCount = 0;
         info("Test count: " + _names.length);
         while (namesIdx < _names.length) {
             name = _names[namesIdx];
             ++total;
             report = executeTest(name);
+            testCount += report.getTestCount();
             if (0 === report._errors) {
                 gpf.events.fire("success", {
                     name: name
@@ -292,6 +309,7 @@
             }
             ++namesIdx;
         }
+        info("Number of tested conditions: " + testCount, _eventsHandler);
         if (0 === errors) {
             info("All tests succeeded (" + total + ")", _eventsHandler);
         } else {
