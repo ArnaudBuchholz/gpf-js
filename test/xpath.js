@@ -514,8 +514,9 @@
                             }]
                         }
                     }),
-                    result = xpath.selectNodes(node),
+                    result,
                     idx, children, child, expression;
+                result = xpath.selectNodes(node);
                 test.notEqual(result, null, "A result is returned");
                 test.equal(result.length, 1, "One result is returned");
                 result = result[0];

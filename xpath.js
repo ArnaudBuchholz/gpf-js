@@ -58,46 +58,33 @@
 */
 
     /**
-     * Result set, contains node and can be enumerated
+     * Internal helper to apply a function on a list of nodes.
      *
-     * @constructor
+     * @param {gpf.xml.IXmlConstNode[]} nodes
+     * @param {function} func
+     * @param {*} param
+     * @param {gpf.xml.IXmlConstNode[]} resultSet
      * @private
      */
-    function ResultSet() {
-        this._nodes = [];
-        // Define only on first use
-        if (undefined === ResultSet.prototype.add) {
-            gpf.extend(ResultSet.prototype, {
-
-                push: function (node) {
-                    var idx;
-                    if (node instanceof Array) {
-                        for (idx = 0; idx < node.length; ++idx) {
-                            this._nodes.push(node);
-                        }
-                    } else {
-                        this._nodes.push(node);
-                    }
-                },
-
-                each: function (test) {
-                    var
-                        result = new ResultSet(),
-                        idx, node, nodes;
-                    for (idx = 0; idx < this._nodes.length; ++idx) {
-                        node = this._nodes[idx];
-                        nodes = test(idx);
-                        if (nodes) {
-                            result.push(nodes);
-                        }
-                    }
-                    return result;
-                }
-            });
+    function _each(nodes, func, param, resultSet) {
+        var
+            idx,
+            node;
+        for (idx = 0; idx < nodes.length; ++idx) {
+            node = nodes[idx];
+            func(node, param, resultSet);
         }
     }
 
-    function _testELEMENT(node, expr, result) {
+    /**
+     * Test an expression with type = NODE_ELEMENT
+     *
+     * @param {gpf.xml.IXmlConstNode} node
+     * @param {object} expr
+     * @param {gpf.xml.IXmlConstNode[]} resultSet
+     * @private
+     */
+    function _testELEMENT(node, expr, resultSet) {
         var
             children = node.children(),
             child,
@@ -112,26 +99,120 @@
                 keep = false;
             }
             if (keep) {
-                result.push(child);
+                resultSet.push(child);
             }
             if (undefined !== expr.relative && !expr.relative) {
-                _testELEMENT(child, expr, result);
+                _testELEMENT(child, expr, resultSet);
             }
         }
-        return result;
     }
 
-    function _testATTRIBUTE(node, expr, result) {
+    /**
+     * Test an expression with type = NODE_ATTRIBUTE
+     *
+     * @param {gpf.xml.IXmlConstNode} node
+     * @param {object} expr
+     * @param {gpf.xml.IXmlConstNode[]} resultSet
+     * @private
+     */
+    function _testATTRIBUTE(node, expr, resultSet) {
         var
             attributes,
-            attribute;
-
+            name,
+            text;
         if (expr.name) {
-            attribute = node.attributes(expr.name);
+            text = node.attributes(expr.name);
+            if (undefined !== text && (!expr.text || text === expr.text)) {
+                resultSet.push(node);
+            }
+
         } else {
             attributes = node.attributes();
+            for (name in attributes) {
+                if (attributes.hasOwnProperty(name)) {
+                    text = attributes[name];
+                    if (!expr.text || text === expr.text) {
+                        resultSet.push(node);
+                        break;
+                    }
+                }
+            }
         }
-        return result;
+    }
+
+    /**
+     * Apply the expression on each element of the nodeSet and build the
+     * resultSet
+     *
+     * @param {gpf.xml.IXmlConstNode[]} nodeSet
+     * @param {object} expr
+     * @param {gpf.xml.IXmlConstNode[]} resultSet
+     * @private
+     */
+    function _test(nodeSet, expr, resultSet) {
+        if (gpf.xml.NODE_ELEMENT === expr.type) {
+            _each(nodeSet, _testELEMENT, expr, resultSet);
+        } else if(gpf.xml.NODE_ATTRIBUTE === expr.type) {
+            _each(nodeSet, _testATTRIBUTE, expr, resultSet);
+        }
+    }
+
+    function _filter(node, expr, resultSet) {
+        var
+            selectedNodes,
+            conditions,
+            type,
+            idx,
+            condition;
+        if (expr.and) {
+            conditions = expr.and;
+            type = 0;
+        } else if (expr.or) {
+            conditions = expr.or;
+            type = 1;
+        }
+        for (idx = 0; idx < conditions.length; ++idx) {
+            condition = conditions[idx];
+            if (condition.and || condition.or) {
+                selectedNodes = [];
+                _filter(node, condition, selectedNodes);
+            } else {
+                selectedNodes = _select(node, condition);
+            }
+            if (0 === type && selectedNodes.length === 0) {
+                return;
+            }
+            if (1 === type && selectedNodes.length !== 0) {
+                resultSet.push(node);
+                return;
+            }
+        }
+        if (0 === type) {
+            resultSet.push(node);
+        }
+    }
+
+    function _select(node, expr) {
+        var
+            resultSet = [],
+            nodeSet = [node];
+        while (expr) {
+            _test(nodeSet, expr, resultSet);
+            if (0 === resultSet.length) {
+                return [];
+            }
+            nodeSet = resultSet;
+            if (expr.filter) {
+                resultSet = [];
+                _each(nodeSet, _filter, expr.filter, resultSet);
+                if (0 === resultSet.length) {
+                    return [];
+                }
+                nodeSet = resultSet;
+            }
+            expr = expr.then;
+        }
+        return resultSet;
     }
 
     gpf.xml.XPath = gpf.Class.extend({
@@ -168,35 +249,7 @@
          * @return {gpf.xml.IXmlConstNode[]}
          */
         selectNodes: function (node) {
-            var
-//                expr = this._xpath,
-                resultSet = new ResultSet();
-            resultSet.push(node);
-/*
-            while (expr) {
-                if (gpf.xml.NODE_ELEMENT === expr.type) {
-                    resultSet.each(function (node) {
-                        var
-                            children = node.children(),
-                            idx;
-                        for (= 0; idx
-                            });
-                    }
-
-            }
-            if (expr.type === ) {
-                for (idx = 0; idx < resultSet.length; ++idx) {
-                    children = node.children();
-                    // Select children corresponding to the criteria
-                }
-            } else {
-                for (idx = 0; idx < resultSet.length; ++idx) {
-                    children = node.attributes();
-                    // Select children corresponding to the criteria
-                }
-            }
-*/
-            return resultSet;
+            return _select(node, this._xpath);
         }
 
     });
