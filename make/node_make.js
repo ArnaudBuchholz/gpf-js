@@ -23,6 +23,7 @@ for (idx = 0; idx < sources._list.length; ++idx) {
         fs.readFileSync("../" + sources._list[idx] + ".js").toString();
 }
 sources.UMD = fs.readFileSync("UMD.js").toString();
+sources.boot = fs.readFileSync("../boot.js").toString();
 
 console.log(make(sources, "debug"));
 
@@ -34,5 +35,6 @@ for (idx = 0; idx < sources._list.length; ++idx) {
         JSON.stringify(sources.parsed[sources._list[idx]], true, 4));
 }
 fs.writeFileSync("tmp/UMD.json", JSON.stringify(sources.parsed.UMD, true, 4));
+fs.writeFileSync("tmp/boot.json", JSON.stringify(sources.parsed.boot, true, 4));
 // fs.writeFileSync("gpf_debug.js", make(sources, "debug"));
 // fs.writeFileSync('gpf.js', make(sources, 'release'));

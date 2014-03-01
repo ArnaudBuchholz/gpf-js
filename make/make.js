@@ -2,6 +2,9 @@
     "use strict";
     /*global esprima, escodegen*/
 
+    var
+        gpfX = gpf.xml;
+
     function toAST(src) {
         // https://github.com/Constellation/escodegen/issues/85
         var ast = esprima.parse(src, {
@@ -16,6 +19,10 @@
     }
 
     gpf.context().make = function(sources, version) {
+        var
+            __gpf__,
+            xpath,
+            placeholder;
         if (!sources.parsed) {
             // First, parse everything
             var
@@ -27,12 +34,40 @@
                 sources.parsed[source] = toAST(sources[source]);
             }
             sources.parsed.UMD = toAST(sources.UMD);
-            // Then, locate the use of __gpf__ to replace it with our content
-            // Use an XPATH like parser on body[@type='ExpressionStatement'
-            // and expression/@name='__gpf__']
+            sources.parsed.boot = toAST(sources.boot);
         }
+        // Then, locate the use of __gpf__ to replace it with our content
+        // body/item[@type='ExpressionStatement' and expression/@name='__gpf__']
+        xpath = new gpfX.XPath({
+            type: gpfX.NODE_ELEMENT,
+            name: "body",
+            relative: false,
+            then: {
+                type: gpfX.NODE_ELEMENT,
+                name: "item",
+                filter: {
+                    and: [ {
+                        type: gpfX.NODE_ATTRIBUTE,
+                        name: "type",
+                        text: "ExpressionStatement"
+                    }, {
+                        type: gpfX.NODE_ELEMENT,
+                        name: "expression",
+                        then: {
+                            type: gpfX.NODE_ATTRIBUTE,
+                            name: "name",
+                            text: "__gpf__"
+                        }
+                    }]
+                }
+            }
+        });
+        __gpf__ = xpath.selectNodes(new gpfX.ConstNode(sources.parsed.UMD))[0];
+        // Parent is the placeholder (an array ending with __gpf__)
+        placeholder = __gpf__.parentNode().nodeValue();
+        placeholder.pop(); // remove __gpf__
 
-//        console.log(JSON.stringify(sources.parsed.UMD, true, 4));
+
         console.log(escodegen.generate(sources.parsed.UMD, {
             comment: true
         }));
