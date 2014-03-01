@@ -6,15 +6,7 @@
      */
     var
         _host,
-        _context,
-        _loaded,
-        _loadCallbacks = [],
-        _finishLoading = function () {
-            _loaded = true;
-            while (_loadCallbacks.length) {
-                _loadCallbacks.shift()();
-            }
-        };
+        _context;
 
     // Microsoft cscript / wscript
     if ("undefined" !== typeof WScript) {
@@ -39,31 +31,64 @@
         _context = window;
     }
 
+/*#ifdef(BOOT)*/
+
+    _context.gpf = {};
+
+/*#endif*/
+
     /*
      * Main namespace & primitives
      */
-    _context.gpf = {
-
-        host: function () {
-            return _host;
-        },
-
-        context: function () {
-            return _context;
-        },
-
-        loaded: function (callback) {
-            if (callback) {
-                if (_loaded) {
-                    callback();
-                } else {
-                    _loadCallbacks.push(callback);
-                }
-            }
-            return _loaded;
-        }
-
+    gpf.host = function () {
+        return _host;
     };
+
+    gpf.context = function () {
+        return _context;
+    };
+
+/*#ifdef(BOOT)*/
+
+    var
+        _loaded,
+        _loadCallbacks = [],
+        _finishLoading = function () {
+            _loaded = true;
+            while (_loadCallbacks.length) {
+                _loadCallbacks.shift()();
+            }
+        };
+
+    gpf.loaded = function (callback) {
+        if (callback) {
+            if (_loaded) {
+                callback();
+            } else {
+                _loadCallbacks.push(callback);
+            }
+        }
+        return _loaded;
+    };
+
+    if(!gpf.loaded) {
+
+/*#else*/
+
+        gpf.loaded = function (callback) {
+            if (callback) {
+                callback();
+            }
+            return true;
+        };
+
+/*#endif*/
+
+/*#ifdef(BOOT)*/
+
+    }
+
+/*#endif*/
 
     gpf.NOT_IMPLEMENTED = function () {
         console.error("Not implemented");
