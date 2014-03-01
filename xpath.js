@@ -194,9 +194,10 @@
 
     function _select(node, expr) {
         var
-            resultSet = [],
+            resultSet,
             nodeSet = [node];
         while (expr) {
+            resultSet = [];
             _test(nodeSet, expr, resultSet);
             if (0 === resultSet.length) {
                 return [];

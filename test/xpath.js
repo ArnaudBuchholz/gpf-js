@@ -493,25 +493,29 @@
                 test.title("UMD.js parsed esprima, getting __gpf__");
                 var
                     node = new gpf.xml.ConstNode(UMDjson),
-            // body[@type='ExpressionStatement' and expression/@name='__gpf__']
+        // body/item[@type='ExpressionStatement' and expression/@name='__gpf__']
                     xpath = new gpf.xml.XPath({
                         type: gpf.xml.NODE_ELEMENT,
                         name: "body",
                         relative: false,
-                        filter: {
-                            and: [ {
-                                type: gpf.xml.NODE_ATTRIBUTE,
-                                name: "type",
-                                text: "ExpressionStatement"
-                            }, {
-                                type: gpf.xml.NODE_ELEMENT,
-                                name: "expression",
-                                then: {
+                        then: {
+                            type: gpf.xml.NODE_ELEMENT,
+                            name: "item",
+                            filter: {
+                                and: [ {
                                     type: gpf.xml.NODE_ATTRIBUTE,
-                                    name: "name",
-                                    text: "__gpf__"
-                                }
-                            }]
+                                    name: "type",
+                                    text: "ExpressionStatement"
+                                }, {
+                                    type: gpf.xml.NODE_ELEMENT,
+                                    name: "expression",
+                                    then: {
+                                        type: gpf.xml.NODE_ATTRIBUTE,
+                                        name: "name",
+                                        text: "__gpf__"
+                                    }
+                                }]
+                            }
                         }
                     }),
                     result,
@@ -520,9 +524,9 @@
                 test.notEqual(result, null, "A result is returned");
                 test.equal(result.length, 1, "One result is returned");
                 result = result[0];
-                test.equal(result.localName(), "body", "body OK");
+                test.equal(result.localName(), "item", "item OK");
                 test.equal(result.attributes("type"), "ExpressionStatement",
-                    "body/@type OK");
+                    "item/@type OK");
                 expression = null;
                 children = result.children();
                 for (idx = 0; idx < children.length; ++idx) {
@@ -531,9 +535,9 @@
                         expression = child;
                     }
                 }
-                test.notEqual(expression, null, "body/expression OK");
+                test.notEqual(expression, null, "item/expression OK");
                 test.equal(expression.attributes("name"), "__gpf__",
-                    "body/expression/@name OK");
+                    "item/expression/@name OK");
             }
 
         ]
