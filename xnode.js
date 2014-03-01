@@ -101,10 +101,10 @@
         /**
          * Returns the value of a node, depending on its type
          *
-         * @returns {string}
+         * @returns {*}
          */
         nodeValue: function () {
-            return "";
+            return null;
         },
 
         /**
@@ -301,11 +301,7 @@
          * @implements gpf.interfaces.IXmlConstNode:nodeValue
          */
         nodeValue: function () {
-            if ("object" !== typeof this._obj) {
-                return this._obj;
-            } else {
-                return "";
-            }
+            return this._obj;
         },
 
         /**
