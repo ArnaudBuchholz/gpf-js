@@ -158,13 +158,14 @@
      */
     gpf.xml.ConstNode = gpf.Class.extend({
 
-        "[Class]": [gpf.$InterfaceImplement(gpfI.IXmlConstNode)],
+        "[Class]": [gpf.$InterfaceImplement(gpfI.IXmlConstNode),
+                    gpf.$InterfaceImplement(gpfI.IXmlSerializable)],
 
         _obj: null,
         _name: "",
         _parentNode: null,
-        _attributes: [],
-        _elements: [],
+        _attributes: {},
+        _elements: {},
         _children: [],
 
         init: function (obj, name) {
@@ -180,9 +181,12 @@
         },
 
         _members: function () {
-            var member, value;
-            this._attributes = [];
-            this._elements = [];
+            var
+                member,
+                value,
+                name;
+            this._attributes = {};
+            this._elements = {};
             if ("object" === typeof this._obj
                 && !(this._obj instanceof Array)) {
                 for (member in this._obj) {
@@ -192,10 +196,11 @@
                             // Ignore
                             continue;
                         }
+                        name = gpf.xml.toValidName(member);
                         if ("object" === typeof value) {
-                            this._elements.push(member);
+                            this._elements[member] = name;
                         } else {
-                            this._attributes.push(member);
+                            this._attributes[member] = name;
                         }
                     }
                 }
@@ -208,20 +213,26 @@
          * @implements gpf.interfaces.IXmlConstNode:attributes
          */
         attributes: function (name) {
-            var idx, result;
+            var result, member, mappedName;
             if (null === this._attributes) {
                 this._members();
             }
             if (undefined === name) {
                 result = {};
-                for (idx = 0; idx < this._attributes.length; ++idx) {
-                    name = this._attributes[idx];
-                    result[name] = this._obj[name];
+                for (member in this._attributes) {
+                    if (this._attributes.hasOwnProperty(member)) {
+                        mappedName = this._attributes[member];
+                        result[mappedName] = this._obj[member];
+                    }
                 }
                 return result;
             }
-            if (undefined !== gpf.test(this._attributes, name)) {
-                return this._obj[name];
+            for (member in this._attributes) {
+                if (this._attributes.hasOwnProperty(member)) {
+                    if (name === this._attributes[member]) {
+                        return this._obj[member];
+                    }
+                }
             }
             return undefined;
         },
@@ -230,7 +241,7 @@
          * @implements gpf.interfaces.IXmlConstNode:children
          */
         children: function (idx) {
-            var jdx, name, child;
+            var jdx, child, member, name;
             if (null === this._children) {
                 if (null === this._elements) {
                     this._members();
@@ -243,11 +254,14 @@
                         this._children.push(child);
                     }
                 } else {
-                    for (jdx = 0; jdx < this._elements.length; ++jdx) {
-                        name = this._elements[jdx];
-                        child = new gpf.xml.ConstNode(this._obj[name], name);
-                        child._parentNode = this;
-                        this._children.push(child);
+                    for (member in this._elements) {
+                        if (this._elements.hasOwnProperty(member)) {
+                            name = this._elements[member];
+                            child = new gpf.xml.ConstNode(this._obj[member],
+                                name);
+                            child._parentNode = this;
+                            this._children.push(child);
+                        }
                     }
                 }
             }
@@ -348,9 +362,46 @@
             } else {
                 return "";
             }
+        },
+
+        //endregion
+
+        //region gpf.interfaces.IXmlSerializable
+
+        /**
+         * @implements gpf.interfaces.IXmlSerializable:toXml
+         */
+        toXml: function (out) {
+            gpf.xml.nodeToXml(this, out);
         }
 
         //endregion
+
     });
+
+    /**
+     * Serialize the node into an gpf.interface.IXmlContentHandler
+     *
+     * @param {gpf.interfaces.IXmlConstNode} node Node to serialize
+     * @param {gpf.interfaces.IXmlContentHandler} out XML Content handler
+     */
+    gpf.xml.nodeToXml = function (node, out) {
+        var
+            name = node.localName(),
+            attributes = node.attributes(),
+            children = node.children(),
+            text = node.textContent(),
+            idx;
+        out.startElement("", name, name, attributes);
+        // Today the XmlConstNode may not have both children and textual content
+        if (text) {
+            out.characters(text);
+        } else {
+            for (idx = 0; idx < children.length; ++idx) {
+                gpf.xml.nodeToXml(children[idx], out);
+            }
+        }
+        out.endElement();
+    };
 
 }()); /* End of privacy scope */

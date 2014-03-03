@@ -84,6 +84,47 @@
                     "    > Second child value");
             }
 
+        ],
+
+        "toXML": [
+
+            function (test) {
+                test.title("Convert a simple object into IXMLConstNode");
+                var
+                    root = new gpf.xml.ConstNode({
+                        att1: "Hello",
+                        att2: "World!",
+                        child1: {
+                            att3: 123
+                        }
+                    }),
+                    stream = gpf.stringToStream(),
+                    contentHandler = new gpf.xml.Writer(stream);
+                root.toXml(contentHandler);
+                test.equal(gpf.stringFromStream(stream), "<root att1=\"Hello" +
+                    "\" att2=\"World!\"><child1 att3=\"123\"/></root>",
+                    "XML is well formed");
+            },
+
+            function (test) {
+                test.title("Convert an object with arrays into IXMLConstNode");
+                var
+                    root = new gpf.xml.ConstNode({
+                        array1: [ "Hello", "World!" ],
+                        array2: [{
+                            att1: "Hello",
+                            att2: "World!"
+                        }, "Mixed"]
+                    }, "complex"),
+                    stream = gpf.stringToStream(),
+                    contentHandler = new gpf.xml.Writer(stream);
+                root.toXml(contentHandler);
+                test.equal(gpf.stringFromStream(stream),  "<complex><array1><" +
+                    "item>Hello</item><item>World!</item></array1><array2><it" +
+                    "em att1=\"Hello\" att2=\"World!\"/><item>Mixed</item></a" +
+                    "rray2></complex>", "XML is well formed");
+            }
+
         ]
 
     });

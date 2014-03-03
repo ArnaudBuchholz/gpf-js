@@ -27,14 +27,30 @@ sources.boot = fs.readFileSync("../boot.js").toString();
 
 console.log(make(sources, "debug"));
 
+// ---------- For debugging purposes
+
+function toXml(json) {
+    var
+        stream = gpf.stringToStream(),
+        contentHandler = new gpf.xml.Writer(stream),
+        node = new gpf.xml.ConstNode(json);
+    node.toXml(contentHandler);
+    return gpf.stringFromStream(stream);
+}
+
+function save (name, json) {
+    fs.writeFileSync("tmp/" + name + ".json", JSON.stringify(json, true, 4));
+    fs.writeFileSync("tmp/" + name + ".xml", toXml(json));
+}
+
 if (!fs.existsSync("tmp")) {
     fs.mkdirSync("tmp");
 }
 for (idx = 0; idx < sources._list.length; ++idx) {
-    fs.writeFileSync("tmp/" + sources._list[idx] + ".json",
-        JSON.stringify(sources.parsed[sources._list[idx]], true, 4));
+    save(sources._list[idx], sources.parsed[sources._list[idx]]);
 }
-fs.writeFileSync("tmp/UMD.json", JSON.stringify(sources.parsed.UMD, true, 4));
-fs.writeFileSync("tmp/boot.json", JSON.stringify(sources.parsed.boot, true, 4));
+save("UMD", sources.parsed.UMD);
+save("boot", sources.parsed.boot);
+
 // fs.writeFileSync("gpf_debug.js", make(sources, "debug"));
 // fs.writeFileSync('gpf.js', make(sources, 'release'));

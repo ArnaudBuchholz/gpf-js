@@ -193,11 +193,10 @@
                         "c"
                     ]
                 }, contentHandler);
-                test.equal(gpf.stringFromStream(stream), "<root attribute1=\"st"
-                    + "ring\" attribute2=\"1234\"><subNode1 atribute3=\"3\"/><s"
-                    + "ubNode2>a</subNode2><subNode2><item attribute4=\"b\"/></"
-                    + "subNode2><subNode2>c</subNode2></root>",
-                    "XML is well formed");
+                test.equal(gpf.stringFromStream(stream), "<root attribute1=\"" +
+                    "string\" attribute2=\"1234\"><subNode1 atribute3=\"3\"/>" +
+                    "<subNode2><item>a</item><item attribute4=\"b\"/><item>c<" +
+                    "/item></subNode2></root>", "XML is well formed");
             },
 
             function (test) {
@@ -208,7 +207,8 @@
                 gpf.xml.convert({"leadingComments": [
                     {
                         "type": "Line",
-                        "value": " Universal Module Definition (UMD) to support AMD, CommonJS/Node.js,",
+                        "value": " Universal Module Definition (UMD) to suppo" +
+                            "rt AMD, CommonJS/Node.js,",
                         "range": {
                             "0": 82,
                             "1": 152
@@ -231,15 +231,14 @@
                         ]
                     }
                 ]}, contentHandler);
-                test.equal(gpf.stringFromStream(stream), "<root><leadingComment"
-                    + "s><item type=\"Line\" value=\" Universal Module Definiti"
-                    + "on (UMD) to support AMD, CommonJS/Node.js,\"><range _0="
-                    + "\"82\" _1=\"152\"/><extendedRange>74</extendedRange><ext"
-                    + "endedRange>200</extendedRange></item></leadingComments><"
-                    + "leadingComments><item type=\"Line\" value=\" Rhino, and "
-                    + "plain browser loading.\"><range _0=\"158\" _1=\"194\"/><"
-                    + "extendedRange>74</extendedRange><extendedRange>200</exte"
-                    + "ndedRange></item></leadingComments></root>",
+                test.equal(gpf.stringFromStream(stream), "<root><leadingComme" +
+                    "nts><item type=\"Line\" value=\" Universal Module Defini" +
+                    "tion (UMD) to support AMD, CommonJS/Node.js,\"><range _0" +
+                    "=\"82\" _1=\"152\"/><extendedRange><item>74</item><item>" +
+                    "200</item></extendedRange></item><item type=\"Line\" val" +
+                    "ue=\" Rhino, and plain browser loading.\"><range _0=\"15" +
+                    "8\" _1=\"194\"/><extendedRange><item>74</item><item>200<" +
+                    "/item></extendedRange></item></leadingComments></root>",
                     "XML is well formed");
             }
 

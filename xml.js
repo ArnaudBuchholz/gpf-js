@@ -28,7 +28,7 @@
          * Translate obj into an gpf.interface.IXmlContentHandler and serialize
          * itself into XML
          *
-         * @param {object} out Recipient object for XML serialization
+         * @param {gpf.interfaces.IXmlContentHandler} out XML Content handler
          */
         toXml: function (out) {
             gpfI.ignoreParameter(out);
@@ -1020,96 +1020,6 @@
     //region Parsing
 
     /**
-     * Compute a valid XML name based on member name (if possible)
-     *
-     * @param {string} member
-     * @param {boolean} forAttribute
-     * @private
-     */
-    function /*gpf:inline*/ _rawObjComputeName (member, forAttribute) {
-        var name;
-        gpf.interfaces.ignoreParameter(forAttribute);
-        if (!gpf.xml.isValidName(member)) {
-            name = "_" + member;
-            if (!gpf.xml.isValidName(name)) {
-                throw {
-                    message: "Invalid name"
-                };
-            }
-        } else {
-            name = member;
-        }
-        return name;
-    }
-
-    /**
-     * Convert object members into XML
-     *
-     * @param {object} obj Object to convert into XML
-     * @param {gpf.interfaces.IXmlContentHandler} contentHandler
-     * @param {string} [name="root"] name Node name
-     * @private
-     */
-    function /*gpf:inline*/ _rawObjMembersToContentHandler(obj, contentHandler,
-        name) {
-        var
-            member,
-            attributes = {},
-            hasChildren;
-        // Inspect object to find 'attributes' and check if children
-        for (member in obj) {
-            if (obj.hasOwnProperty(member)) {
-                if ("object" === typeof obj[member]) {
-                    hasChildren = true;
-                } else {
-                    attributes[_rawObjComputeName(member, true)] = obj[member];
-                }
-            }
-        }
-        contentHandler.startElement("", name, name, attributes);
-        if (hasChildren) {
-            for (member in obj) {
-                if (obj.hasOwnProperty(member)
-                    && "object" === typeof obj[member]) {
-                    _rawObjToContentHandler(obj[member], contentHandler,
-                        _rawObjComputeName(member, false));
-                }
-            }
-        }
-        contentHandler.endElement();
-    }
-
-    /**
-     * Convert an object into XML
-     *
-     * @param {object} obj Object to convert into XML
-     * @param {gpf.interfaces.IXmlContentHandler} contentHandler
-     * @param {string} [name="root"] name Node name
-     * @private
-     */
-    function _rawObjToContentHandler(obj, contentHandler, name) {
-        var
-            member;
-        if (undefined === obj || null === obj) {
-            return; // Nothing to do
-        }
-        if (undefined === name) {
-            name = "root";
-        }
-        if ("object" !== typeof obj) {
-            contentHandler.characters(obj.toString());
-        } else if (obj instanceof Array) {
-            for (member = 0; member < obj.length; ++member) {
-                contentHandler.startElement("", name, name, {});
-                _rawObjToContentHandler(obj[member], contentHandler, "item");
-                contentHandler.endElement();
-            }
-        } else {
-            _rawObjMembersToContentHandler(obj, contentHandler, name);
-        }
-    }
-
-    /**
      * Tries to convert any value into XML
      *
      * @param {*} value
@@ -1130,7 +1040,7 @@
             if (null !== iXmlSerializable) {
                 iXmlSerializable.toXml(iContentHandler);
             } else {
-                _rawObjToContentHandler(value, iContentHandler);
+                (new gpf.xml.ConstNode(value)).toXml(iContentHandler);
             }
         }
     };
@@ -1145,6 +1055,13 @@
 
     gpf.extend(gpf.xml, {
 
+        /**
+         * Check that the provided name can be use as an element or attribute
+         * name
+         *
+         * @param {string} name
+         * @returns {boolean}
+         */
         isValidName: function (name) {
             var
                 idx;
@@ -1158,6 +1075,28 @@
                 }
             }
             return true;
+        },
+
+        /**
+         * Make sure that the provided name can be use as an element or
+         * attribute name
+         *
+         * @param {string} name
+         * @returns {string} a valid attribute/element name
+         */
+        toValidName: function (name) {
+            var newName;
+            if (gpf.xml.isValidName(name)) {
+                return name;
+            }
+            // Try with a starting _
+            newName = "_" + name;
+            if (!gpf.xml.isValidName(newName)) {
+                throw {
+                    message: "Invalid name"
+                };
+            }
+            return newName;
         }
 
     });
