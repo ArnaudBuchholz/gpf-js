@@ -1,0 +1,127 @@
+<script language="javascript" src="include.js"></script>
+<h3 class="post-title entry-title">
+    goto fail;
+</h3>
+<div class="post-body">
+    <!-- The above must be replaced with -->
+    <!-- <script language="javascript"
+         src="http://buchholz.free.fr/gpf-js/blog/include.js"></script> -->
+
+<p>Apple recently faced a security issue and provided a patch to fix it:
+<a href="http://support.apple.com/kb/HT6147" target="_blank">About the security
+content of iOS 7.0.6</a><br />
+A web site is also available to check if your current OS must be updated:
+<a href="https://gotofail.com/" target="_blank">https://gotofail.com/</a></p>
+
+<p>An interesting analysis of this - what appears to be - bug can be found in
+this <a href="http://www.msuiche.net/2014/02/22/sslverifysignedserverkeyexchange
+-a-k-a-the-goto-epicfail-bug/" target="_blank">article</a> but please note that
+I am not sharing the point of view expressed in the conclusion.<br/>
+I mean, whatever the way, bugs happen.<br />
+To make a long story short, it looks like a bad copy &amp; paste duplicated a
+"goto fail;" instruction which, in the end, has no condition and is always
+evaluated.</p>
+
+<p>As I recently talked about the advantages of using a lint-tool, I wanted to
+check if <a href="http://www.jshint.com/" target="_blank">JShint</a> would be
+capable of detecting this issue.<br/>
+However - and fortunately - goto does not exist in JavaScript.</p>
+
+<p>There are several ways to reproduce the same effect than a 'goto'
+instruction:
+
+<div class="note">I usually embrace my <span class="keyword">if</span>
+statements with brackets, I wanted to make my samples look similar to the
+initial problem and check how JSHint would react.</div>
+
+<ul><li>First example, the one-time <span class="keyword">do</span> /
+<span class="keyword">while</span> with <span class="keyword">break</span></li>
+<code class="javascript">
+function main(parameter) {
+    var
+        success = false;
+    do {
+        if (parameter === "condition1")
+            break;
+        if (parameter === "condition2")
+            break;
+            break;
+        success = true;
+    } while(0);
+    if (success) {
+        alert("Do");
+    } else {
+        alert("Don't");
+    }
+}
+
+main("condition3");
+</code>
+JSHint produces a warning:
+<code class="output">10	Unreachable 'success' after 'break'.
+</code>
+</ul>
+
+<ul><li>Second example, <span class="keyword">return</span> in a separate
+function</li>
+<code class="javascript">
+function testCondition(parameter) {
+    if (parameter === "condition1")
+        return false;
+    if (parameter === "condition2")
+        return false;
+        return false;
+    return true;
+}
+
+function main(parameter) {
+    if (testCondition(parameter)) {
+        alert("Do");
+    } else {
+        alert("Don't");
+    }
+}
+
+main("condition3");
+</code>
+JSHint produces a warning:
+<code class="output">7	Unreachable 'return' after 'return'.
+</code>
+</ul>
+
+<ul><li>Last example, exceptions</li>
+<code class="javascript">
+function main(parameter) {
+    try {
+        if (parameter === "condition1")
+            throw "fail";
+        if (parameter === "condition2")
+            throw "fail";
+            throw "fail";
+        alert("Do");
+    } catch (e) {
+        alert("Don't");
+    }
+}
+
+main("condition3");
+</code>
+JSHint produces a warning:
+<code class="output">8	Unreachable 'alert' after 'throw'.
+</code>
+</ul>
+</p>
+
+<p>To conclude, <a href="http://www.jshint.com/" target="_blank">JShint</a> is
+capable of detecting an unreachable code and generates the appropriate warning.
+<br/>
+It also means that all the warnings are meaningful and should be carefully
+considered.</p>
+
+<div class="note">If you want to check by yourself, go to
+<a href="http://www.jshint.com/" target="_blank">http://www.jshint.com/</a> and
+copy &amp; paste the samples directly where the JavaScript sample is written
+(upper left part of the homepage).</div>
+
+<!-- Drop those two lines -->
+</div>
