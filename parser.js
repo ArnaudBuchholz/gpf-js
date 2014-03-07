@@ -4,6 +4,122 @@
     var
         gpfI = gpf.interfaces;
 
+    //region Pattern
+
+    /*
+     * Pattern grammar
+     *
+     * pattern
+     *      : item+
+     *
+     * item
+     *      : '[' char_match_include
+     *      | char
+     *
+     * char_match_include : '^' char_match_exclude
+     *                    | ']'
+     *                    | char char_range_sep char_match_include
+     *
+     * char_match_exclude : ']'
+     *                    | char char_range_sep char_match_exclude
+     *
+     * char_range_sep : '-' char
+     *                |
+     *
+     * char : '\' escaped_char
+     *      | <any char>
+     */
+
+    var
+        _PATTERN_STATE_ITEM                     = 0,
+        _PATTERN_STATE_CHAR_MATCH_INCLUDE       = 1,
+        _PATTERN_STATE_CHAR_MATCH_EXCLUDE       = 2,
+        _PATTERN_STATE_CHAR_RANGE_SEP           = 3,
+        _PATTERN_STATE_CHAR                     = 5,
+        _PATTERN_STATES                         = 0,
+        _PATTERN_TYPE_CHARS                     = 0,
+        _PATTERN_TYPE_MATCH_CHAR                = 1,
+
+        _patternNewItem = function (context, type) {
+            var curItem = context.item;
+            if (null === curItem || curItem.type !== type) {
+                if (null !== curItem && null === context.root) {
+                    context.root = curItem;
+                }
+                if (null !== context.last) {
+                    context.last.then = curItem;
+                }
+                context.last = curItem;
+                curItem = {
+                    type: type
+                };
+                context.item = curItem;
+                if (_PATTERN_TYPE_CHARS === type) {
+                    curItem.chars = [];
+                } else if (_PATTERN_TYPE_MATCH_CHAR === type) {
+                    curItem.include = [];
+                    curItem.exclude = [];
+                }
+            }
+        },
+        _patternItem = function (char) {
+            if ("[" === char) {
+                _patternNewItem(this, _PATTERN_TYPE_MATCH_CHAR);
+                this.state = _PATTERN_STATE_CHAR_MATCH_INCLUDE;
+            } else {
+                this.state = _PATTERN_STATE_CHAR;
+            }
+        },
+        _patternCharMatchInclude = function (char) {
+            if ("^" === char) {
+                this.state = _PATTERN_STATE_CHAR_MATCH_EXCLUDE;
+            } else if ("]" === char) {
+                this.state = _PATTERN_STATE_ITEM;
+            } else {
+                this.inState = _PATTERN_STATE_CHAR_MATCH_INCLUDE;
+                this.state = _PATTERN_STATE_CHAR;
+                _PATTERN_STATES[this.state].apply(this, char);
+            }
+        },
+        _patternCharMatchExclude = function (char) {
+            if ("]" === char) {
+                this.state = _PATTERN_STATE_ITEM;
+            } else {
+                this.inState = _PATTERN_STATE_CHAR_MATCH_EXCLUDE;
+                this.state = _PATTERN_STATE_CHAR;
+                _PATTERN_STATES[this.state].apply(this, char);
+            }
+        },
+        _patternCharRangeSep = function (char) {
+            if ("-" === char) {
+                this.state = _PATTERN_STATE_CHAR;
+            } else {
+                this.state = this.inState;
+                _PATTERN_STATES[this.state].apply(this, char);
+            }
+        },
+
+        _patternParseContext = function () {
+            if (0 === _PATTERN_STATES) {
+                _PATTERN_STATES[_PATTERN_STATE_ITEM] = _patternItem;
+                _PATTERN_STATES[_PATTERN_STATE_CHAR_MATCH_INCLUDE] =
+                    _patternCharMatchInclude;
+                _PATTERN_STATES[_PATTERN_STATE_CHAR_MATCH_EXCLUDE] =
+                    _patternCharMatchExclude;
+                _PATTERN_STATES[_PATTERN_STATE_CHAR_RANGE_SEP] =
+                    _patternCharRangeSep;
+            }
+            return {
+                state: _PATTERN_STATE_ITEM,
+                root: null,
+                last: null,
+                item: null
+            };
+        }
+
+        ;
+
+
     /**
      * Patterns are designed to be an efficient and stream-able alternative to
      * regular expressions. However, the coverage is not the same
@@ -24,7 +140,18 @@
          * @param {string} pattern
          */
         init: function (pattern) {
-            gpf.interfaces.ignoreParameter(pattern);
+            var
+                ctx = _patternParseContext(),
+                idx,
+                len = pattern.length;
+            for (idx = 0; idx < len; ++idx) {
+                _PATTERN_STATES[ctx.state].apply(ctx, [pattern.charAt(idx)]);
+            }
+            if (ctx.state !== _PATTERN_STATE_ITEM) {
+                throw {
+                    message: "Invalid syntax"
+                };
+            }
         },
 
         /**
@@ -55,6 +182,10 @@
         }
 
     });
+
+    //endregion
+
+    //region Parser
 
     /**
      * This parser base class maintain the current stream position
@@ -162,5 +293,7 @@
         //endregion
 
     });
+
+    //endregion
 
 }()); /* End of privacy scope */
