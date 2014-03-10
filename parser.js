@@ -36,24 +36,26 @@
         _PATTERN_STATE_CHAR_MATCH_EXCLUDE       = 2,
         _PATTERN_STATE_CHAR_RANGE_SEP           = 3,
         _PATTERN_STATE_CHAR                     = 5,
+        _PATTERN_STATE_ESCAPED_CHAR             = 6,
         _PATTERN_STATES                         = 0,
         _PATTERN_TYPE_CHARS                     = 0,
         _PATTERN_TYPE_MATCH_CHAR                = 1,
 
-        _patternNewItem = function (context, type) {
-            var curItem = context.item;
+        _patternNewItem = function (type) {
+            var curItem = this.item;
             if (null === curItem || curItem.type !== type) {
-                if (null !== curItem && null === context.root) {
-                    context.root = curItem;
+                if (null !== this.last) {
+                    this.last.then = curItem;
                 }
-                if (null !== context.last) {
-                    context.last.then = curItem;
-                }
-                context.last = curItem;
+                this.last = curItem;
                 curItem = {
                     type: type
                 };
-                context.item = curItem;
+                if (null === this.root) {
+                    this.root = curItem;
+                }
+                this.item = curItem;
+                this.then = null;
                 if (_PATTERN_TYPE_CHARS === type) {
                     curItem.chars = [];
                 } else if (_PATTERN_TYPE_MATCH_CHAR === type) {
@@ -62,12 +64,46 @@
                 }
             }
         },
+        _patternAddChar = function (char) {
+            var
+                curItem = this.item,
+                type = curItem.type,
+                arrayOfChars,
+                first, last,
+                idx;
+            if (_PATTERN_TYPE_CHARS === type) {
+                curItem.chars.push(char);
+            } else if (_PATTERN_TYPE_MATCH_CHAR === type) {
+                if (_PATTERN_STATE_CHAR_MATCH_INCLUDE === this.inState) {
+                    arrayOfChars = curItem.include;
+                } else {
+                    arrayOfChars = curItem.exclude;
+                }
+                if (_PATTERN_STATE_CHAR_RANGE_SEP === this.afterChar) {
+                    // First char of a range
+                    arrayOfChars.push(char)
+                } else {
+                    first = arrayOfChars[arrayOfChars.length - 1].charCodeAt(0);
+                    last = char.charCodeAt(0);
+                    for (idx = first + 1; idx < last; ++idx) {
+                        arrayOfChars.push(String.fromCharCode(idx));
+                    }
+                    arrayOfChars.push(char);
+                }
+            }
+        },
+        _patternDoChar = function (context, char, afterChar) {
+            context.afterChar = afterChar;
+            context.state = _PATTERN_STATE_CHAR;
+            _PATTERN_STATES[context.state].apply(context, [char]);
+        },
         _patternItem = function (char) {
             if ("[" === char) {
-                _patternNewItem(this, _PATTERN_TYPE_MATCH_CHAR);
+                _patternNewItem.apply(this, [_PATTERN_TYPE_MATCH_CHAR]);
                 this.state = _PATTERN_STATE_CHAR_MATCH_INCLUDE;
             } else {
-                this.state = _PATTERN_STATE_CHAR;
+                _patternNewItem.apply(this, [_PATTERN_TYPE_CHARS]);
+                _patternDoChar(this, char, _PATTERN_STATE_ITEM);
             }
         },
         _patternCharMatchInclude = function (char) {
@@ -77,8 +113,7 @@
                 this.state = _PATTERN_STATE_ITEM;
             } else {
                 this.inState = _PATTERN_STATE_CHAR_MATCH_INCLUDE;
-                this.state = _PATTERN_STATE_CHAR;
-                _PATTERN_STATES[this.state].apply(this, char);
+                _patternDoChar(this, char, _PATTERN_STATE_CHAR_RANGE_SEP);
             }
         },
         _patternCharMatchExclude = function (char) {
@@ -86,28 +121,47 @@
                 this.state = _PATTERN_STATE_ITEM;
             } else {
                 this.inState = _PATTERN_STATE_CHAR_MATCH_EXCLUDE;
-                this.state = _PATTERN_STATE_CHAR;
-                _PATTERN_STATES[this.state].apply(this, char);
+                _patternDoChar(this, char, _PATTERN_STATE_CHAR_RANGE_SEP);
             }
         },
         _patternCharRangeSep = function (char) {
             if ("-" === char) {
+                this.afterChar = this.inState;
                 this.state = _PATTERN_STATE_CHAR;
             } else {
                 this.state = this.inState;
-                _PATTERN_STATES[this.state].apply(this, char);
             }
+            _PATTERN_STATES[this.state].apply(this, arguments);
+        },
+        _patternChar = function (char) {
+            if ("\\" === char) {
+                this.state = _PATTERN_STATE_ESCAPED_CHAR;
+            } else {
+                _patternAddChar.apply(this, arguments);
+                this.state = this.afterChar;
+            }
+        },
+        _patternEscapedChar = function (char) {
+            _patternAddChar.apply(this, arguments);
+            this.state = this.afterChar;
         },
 
         _patternParseContext = function () {
             if (0 === _PATTERN_STATES) {
-                _PATTERN_STATES[_PATTERN_STATE_ITEM] = _patternItem;
-                _PATTERN_STATES[_PATTERN_STATE_CHAR_MATCH_INCLUDE] =
-                    _patternCharMatchInclude;
-                _PATTERN_STATES[_PATTERN_STATE_CHAR_MATCH_EXCLUDE] =
-                    _patternCharMatchExclude;
-                _PATTERN_STATES[_PATTERN_STATE_CHAR_RANGE_SEP] =
-                    _patternCharRangeSep;
+                _PATTERN_STATES = [
+                    // _PATTERN_STATE_ITEM
+                    _patternItem,
+                    // _PATTERN_STATE_CHAR_MATCH_INCLUDE
+                    _patternCharMatchInclude,
+                    // _PATTERN_STATE_CHAR_MATCH_EXCLUDE
+                    _patternCharMatchExclude,
+                    // _PATTERN_STATE_CHAR_RANGE_SEP
+                    _patternCharRangeSep,
+                    // _PATTERN_STATE_CHAR
+                    _patternChar,
+                    // _PATTERN_STATE_ESCAPED_CHAR
+                    _patternEscapedChar
+                ];
             }
             return {
                 state: _PATTERN_STATE_ITEM,
@@ -134,6 +188,8 @@
      */
     gpf.Pattern = gpf.Class.extend({
 
+        _root: null,
+
         /**
          * Constructor, check and compile the pattern
          *
@@ -152,6 +208,7 @@
                     message: "Invalid syntax"
                 };
             }
+            this._root = ctx.root;
         },
 
         /**
