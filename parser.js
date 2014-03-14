@@ -63,32 +63,40 @@
     function PatternParserContext() {
         this._root = [];
         this._stack = [];
-        this._item = null;
         // The stack maintain the current pattern at first pos
         this._stack.push(this._root);
-        this.parse = PatternParserContext.prototype._stateItem;
+        this.parse = this._stateItem;
     }
 
     gpf.extend(PatternParserContext.prototype, {
         _root: [],
         _stack: [],
         _item : null,
+        _inRange: false,
+        _afterChar: null,
 
         parse: null, // Will be overridden
 
         get: function () {
-            // Should return the internal
-            return null;
+            if (this.parse !== this._stateItem
+                && this.parse !== this._stateCount) {
+                throw {
+                    message: "Invalid syntax"
+                };
+            }
+            // T
+            // Should return the internal representation of the pattern
+            return this._root;
         },
 
         // Get or create the item corresponding to the requested type
         _getItem: function (type) {
-            var curItem = this.item;
+            var curItem = this._item;
             if (null === curItem
                 || "seq" !== type && undefined === curItem[type]) {
                 curItem = {};
-                this.stack[0].push(curItem);
-                this.item = curItem;
+                this._stack[0].push(curItem);
+                this._item = curItem;
                 if ("seq" === type) {
                     curItem.seq = [];
                 } else if ("inc" === type) {
@@ -98,9 +106,9 @@
             return curItem;
         },
 
-        _addCharToItem: function (char, inRange) {
+        _addCharToItem: function (char) {
             var
-                curItem = this.item,
+                curItem = this._item,
                 arrayOfChars,
                 first, last,
                 idx;
@@ -112,7 +120,7 @@
                 } else {
                     arrayOfChars = curItem.inc;
                 }
-                if (undefined !== inRange && inRange) {
+                if (this._inRange) {
                     first = arrayOfChars[arrayOfChars.length - 1].charCodeAt(0);
                     last = char.charCodeAt(0);
                     for (idx = first + 1; idx < last; ++idx) {
@@ -128,75 +136,80 @@
 
         _stateItem: function (char) {
             if ("[" === char) {
-                this._getItem('inc');
-                this.parse = this._stateCharMatchInclude;
+                this.parse = this._stateCharMatchRange;
             } else {
-                this._getItem('seq');
-                this._
-                _patternDoChar(this, char, _PATTERN_STATE_ITEM);
+                this._getItem("seq");
+                this._afterChar = this._stateCount;
+                this._stateChar(char);
+            }
+        },
+
+        _stateCharMatchRange: function (char) {
+            var curItem = this._getItem("inc");
+            if ("^" === char && undefined === curItem.exc) {
+                curItem.exc = [];
+                // this.parse = this._stateCharMatchRange;
+            } else if ("]" === char) {
+                this.parse = this._stateCount;
+            } else {
+                this._inRange = false;
+                this._afterChar = this._stateCharRangeSep;
+                this._stateChar(char);
+            }
+        },
+
+        _stateCharRangeSep: function (char) {
+            if ("-" === char) {
+                this._inRange = true;
+                this._afterChar = this._stateCharMatchRange;
+                this.parse = this._stateChar;
+            } else {
+                this.parse = this._stateCharMatchRange;
+            }
+            this.parse(char);
+        },
+
+        _stateChar: function (char) {
+            if ("\\" === char) {
+                this.parse = this.stateEscapedChar;
+            } else {
+                this._addCharToItem(char);
+                this.parse = this._afterChar;
+            }
+        },
+
+        stateEscapedChar: function (char) {
+            this._addCharToItem(char);
+            this.parse = this._afterChar;
+        },
+
+        _stateCountByChar: {
+
+            "?": function () {
+                this._item.min = 0;
+                this._item.max = 1;
+            },
+
+            "+": function () {
+                this._item.min = 1;
+            },
+
+            "*": function () {
+                this._item.min = 0;
+            }
+
+        },
+
+        _stateCount: function (char) {
+            var byChar = this._stateCountByChar[char];
+            if (undefined === byChar) {
+                this._stateItem(char);
+            } else {
+                byChar.apply(this, arguments);
             }
         }
 
-
-
-
     });
-
-    var
-/*
-        _patternDoChar = function (context, char, afterChar) {
-            context.afterChar = afterChar;
-            context.state = _PATTERN_STATE_CHAR;
-            _PATTERN_STATES[context.state].apply(context, [char]);
-        },
-*/
-        _patternItem = function (char) {
-        },
-
-        _patternCharMatchInclude = function (char) {
-            if ("^" === char) {
-                this.state = _PATTERN_STATE_CHAR_MATCH_EXCLUDE;
-            } else if ("]" === char) {
-                this.state = _PATTERN_STATE_ITEM;
-            } else {
-                this.inState = _PATTERN_STATE_CHAR_MATCH_INCLUDE;
-                _patternDoChar(this, char, _PATTERN_STATE_CHAR_RANGE_SEP);
-            }
-        },
-
-        _patternCharMatchExclude = function (char) {
-            if ("]" === char) {
-                this.state = _PATTERN_STATE_ITEM;
-            } else {
-                this.inState = _PATTERN_STATE_CHAR_MATCH_EXCLUDE;
-                _patternDoChar(this, char, _PATTERN_STATE_CHAR_RANGE_SEP);
-            }
-        },
-        _patternCharRangeSep = function (char) {
-            if ("-" === char) {
-                this.afterChar = this.inState;
-                this.state = _PATTERN_STATE_CHAR;
-            } else {
-                this.state = this.inState;
-            }
-            _PATTERN_STATES[this.state].apply(this, arguments);
-        },
-        _patternChar = function (char) {
-            if ("\\" === char) {
-                this.state = _PATTERN_STATE_ESCAPED_CHAR;
-            } else {
-                _patternAddChar.apply(this, arguments);
-                this.state = this.afterChar;
-            }
-        },
-        _patternEscapedChar = function (char) {
-            _patternAddChar.apply(this, arguments);
-            this.state = this.afterChar;
-        },
-
-
-        ;
-
 
     /**
      * Patterns are designed to be an efficient and stream-able alternative to

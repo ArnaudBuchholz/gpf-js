@@ -18,7 +18,7 @@
             "string",               // String functions
             "date",                 // Date functions
 
-//          "parser",               // Parser helper                  gpf.Parser
+            "parser",               // Parser helper                  gpf.Parser
             "tokenizer",            // Javascript parser                  gpf.js
 
             "xml",                  // Xml serializer & attributes       gpf.xml
