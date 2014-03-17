@@ -203,9 +203,8 @@
                 this._afterChar = this._stateCharMatchRange;
                 this.parse = this._stateChar;
             } else {
-                this.parse = this._stateCharMatchRange;
+                this._stateCharMatchRange(char);
             }
-            this.parse(char);
         },
 
         _stateChar: function (char) {
@@ -313,6 +312,13 @@
                 if (++this._pos < item.seq.length) {
                     return 0; // Need more data
                 }
+            } else if (undefined !== item.inc) {
+                if ((item.inc.length !== 0 && -1 === item.inc.indexOf(char))
+                    || (item.exc && -1 < item.exc.indexOf(char))) {
+                    this._length = -1;
+                    return -1; // No match
+                }
+                ++this._length;
             }
             this._pos = 0;
             if (++this._itemIdx < this._items.length) {
