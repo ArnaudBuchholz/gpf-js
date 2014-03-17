@@ -4,6 +4,30 @@
     var
         gpfI = gpf.interfaces;
 
+    //region ITokenizer
+
+    gpfI.ITokenizer = gpfI.Interface.extend({
+
+        /**
+         * Submit a character to the tokenizer, result indicates if the token
+         * is recognized
+         *
+         * @param {string} char One character to analyze
+         * @returns {number} < 0 means won't recognize
+         *                     0 means need more chars
+         *                   > 0 means a token is recognized (length returned)
+         *
+         * NOTE: if the result is positive, you may submit more chars until
+         */
+        write: function (char) {
+            gpf.interfaces.ignoreParameter(char);
+            return 0;
+        }
+
+    });
+
+    // endregion
+
     //region Pattern
 
     /*
@@ -84,9 +108,21 @@
                     message: "Invalid syntax"
                 };
             }
-            // T
+            this._finalizeItem(this._item);
             // Should return the internal representation of the pattern
             return this._root;
+        },
+
+        _finalizeItem: function (item) {
+            var member;
+            for (member in item) {
+                if (item.hasOwnProperty(member)) {
+                    if (item[member] instanceof Array
+                        && "string" === typeof item[member][0]) {
+                        item[member] = item[member].join("");
+                    }
+                }
+            }
         },
 
         // Get or create the item corresponding to the requested type
@@ -94,6 +130,9 @@
             var curItem = this._item;
             if (null === curItem
                 || "seq" !== type && undefined === curItem[type]) {
+                if (null !== curItem) {
+                    this._finalizeItem(curItem);
+                }
                 curItem = {};
                 this._stack[0].push(curItem);
                 this._item = curItem;
@@ -211,6 +250,81 @@
 
     });
 
+    var PatternTokenizer = gpf.Class.extend({
+
+        "[Class]": [gpf.$InterfaceImplement(gpfI.ITokenizer)],
+
+        /**
+         * @member {gpf.Pattern} _pattern
+         * @private
+         */
+        _pattern: null,
+
+        /**
+         * @member {object[]} _items Current items
+         * @private
+         */
+        _items: null,
+
+        /**
+         * @member {number} _itemIdx Current item index
+         * @private
+         */
+        _itemIdx: 0,
+
+        /**
+         * @member {number} _pos Current position inside the current item
+         * @private
+         */
+        _pos: 0,
+
+        /**
+         * @member {number} _length Match length
+         * @private
+         */
+        _length: 0,
+
+        /**
+         *
+         * @param {gpf.Pattern} pattern
+         */
+        init: function (pattern) {
+            this._pattern = pattern;
+            this._items = pattern._root;
+        },
+
+        //region ITokenizer
+
+        /**
+         * @implements gpf.interfaces.ITokenizer:write
+         */
+        write: function (char) {
+            if (this._itemIdx === this._items.length || -1 === this._length) {
+                // Nothing else to match
+                return this._length;
+            }
+            var item = this._items[this._itemIdx];
+            if (undefined !== item.seq) {
+                if (char !== item.seq.charAt(this._pos)) {
+                    this._length = -1;
+                    return -1; // No match
+                }
+                ++this._length;
+                if (++this._pos < item.seq.length) {
+                    return 0; // Need more data
+                }
+            }
+            this._pos = 0;
+            if (++this._itemIdx < this._items.length) {
+                return 0; // Need more data (what if optional?)
+            }
+            return this._length;
+        }
+
+        //endregion
+
+    });
+
     /**
      * Patterns are designed to be an efficient and stream-able alternative to
      * regular expressions. However, the coverage is not the same
@@ -247,27 +361,10 @@
          * Allocate a context to be used with write.
          * Context content may change, do not rely on its structure.
          *
-         * @returns {object}
+         * @returns {PatternTokenizer}
          */
         allocate: function () {
-            return null;
-        },
-
-        /**
-         * Write the characters to the provided context
-         *
-         * @param {object} context
-         * @param {string} chars
-         * @returns {number}
-         *          0 if more data is needed
-         *          -1 if the pattern is not matched
-         *          Otherwise the length of the recognized pattern (since the
-         *          first written character)
-         */
-        write: function (context, chars) {
-            gpf.interfaces.ignoreParameter(context);
-            gpf.interfaces.ignoreParameter(chars);
-            return -1;
+            return new PatternTokenizer(this);
         }
 
     });
