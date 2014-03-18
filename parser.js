@@ -47,7 +47,6 @@
      *      | '*'
      *      | '+'
      *      | '{' <number> '}'
-     *      | e
      *
      * match
      *      : '[' char_match_include
@@ -56,13 +55,12 @@
      *
      * char_match_include : '^' char_match_exclude
      *                    | ']'
-     *                    | char char_range_sep char_match_include
+     *                    | char char_range_sep? char_match_include
      *
      * char_match_exclude : ']'
-     *                    | char char_range_sep char_match_exclude
+     *                    | char char_range_sep? char_match_exclude
      *
      * char_range_sep : '-' char
-     *                | e
      *
      * char : '\' escaped_char
      *      | <any char but ?*+{[(-[>
@@ -234,6 +232,24 @@
 
             "*": function () {
                 this._item.min = 0;
+            },
+
+            "|": function () {
+                var
+                    item;
+                if (1 === this._stack.length
+                    || undefined === this._stack[1].or) {
+                    this._stack.splice(1, 0, [{
+                        or: []
+                    }]);
+                    if (this._root === this._stack[0]) {
+                        this._root = this._stack[1];
+                    }
+                }
+                item = this._stack[1][0];
+                item.or.push(this._stack[0]);
+                this._stack[0] = [];
+                this._item = null;
             }
 
         },
@@ -244,6 +260,7 @@
                 this._stateItem(char);
             } else {
                 byChar.apply(this, arguments);
+                this.parse = this._stateItem;
             }
         }
 
