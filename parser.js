@@ -69,30 +69,58 @@
 /*
     var
         // abc
-        _sample1 = [{seq: "abc"}],
+        _sample1 = {seq: "abc"},
         // [a-z]
-        _sample2 = [{inc: "abc...xyz"}],
+        _sample2 = {inc: "abc...xyz"},
         // [a-z^de]
-        _sample3 = [{inc: "abc...xyz", exc: "de"}],
+        _sample3 = {inc: "abc...xyz", exc: "de"},
         // a|b|c
-        _sample4 = [{or: [[{seq: "a"}], [{seq: "b"}], [{seq: "c"}]]}]
+        _sample4 = {or: [{seq: "a"}, {seq: "b"}, {seq: "c"}]}
         // ? => max: 1
         // * => min:0
         // + => min:1
+        // Each item is connected to
+        // - parent item: parent: {}
+        // - next item: next: {}
     ;
 */
 
+    function PatternItem() {
+
+    }
+
+    gpf.extend(PatternItem.prototype, {
+        _type: -1,
+        _parent: null,
+        _next: null,
+        _min: null,
+        _max: null,
+
+        type: function () {
+            return this._type;
+        },
+
+        finalize: function () {
+
+        }
+
+    });
+
+    PatternItem.SIMPLE = 0;
+    PatternItem.RANGE = 1;
+    PatternItem.CHOICE = 2;
+
+    PatternItem.create = function (type) {
+        return new PatternItem();
+    }
+
     function PatternParserContext() {
-        this._root = [];
-        this._stack = [];
-        // The stack maintain the current pattern at first pos
-        this._stack.push(this._root);
+        this._root = null;
         this.parse = this._stateItem;
     }
 
     gpf.extend(PatternParserContext.prototype, {
-        _root: [],
-        _stack: [],
+        _root: null,
         _item : null,
         _inRange: false,
         _afterChar: null,
@@ -106,41 +134,27 @@
                     message: "Invalid syntax"
                 };
             }
-            this._finalizeItem(this._item);
-            // Should return the internal representation of the pattern
+            this._root.finalize();
             return this._root;
-        },
-
-        _finalizeItem: function (item) {
-            var member;
-            for (member in item) {
-                if (item.hasOwnProperty(member)) {
-                    if (item[member] instanceof Array
-                        && "string" === typeof item[member][0]) {
-                        item[member] = item[member].join("");
-                    }
-                }
-            }
         },
 
         // Get or create the item corresponding to the requested type
         _getItem: function (type) {
-            var curItem = this._item;
-            if (null === curItem
-                || "seq" !== type && undefined === curItem[type]) {
-                if (null !== curItem) {
-                    this._finalizeItem(curItem);
+            var item = this._item;
+            if (null === item || type !== item.type()) {
+                if (null !== item) {
+                    item.finalize();
                 }
-                curItem = {};
-                this._stack[0].push(curItem);
-                this._item = curItem;
+                item = {};
+                this._stack[0].push(item);
+                this._item = item;
                 if ("seq" === type) {
-                    curItem.seq = [];
+                    item.seq = [];
                 } else if ("inc" === type) {
-                    curItem.inc = [];
+                    item.inc = [];
                 }
             }
-            return curItem;
+            return item;
         },
 
         _addCharToItem: function (char) {
@@ -238,17 +252,20 @@
                 var
                     item;
                 if (1 === this._stack.length
-                    || undefined === this._stack[1].or) {
-                    this._stack.splice(1, 0, [{
-                        or: []
-                    }]);
+                    || undefined === this._stack[1][0].or) {
+                    // New OR
+                    item = {
+                        or: [this._stack[0]]
+                    };
+                    this._stack.splice(1, 0, [item]);
                     if (this._root === this._stack[0]) {
                         this._root = this._stack[1];
                     }
+                } else {
+                    item = this._stack[1][0];
                 }
-                item = this._stack[1][0];
-                item.or.push(this._stack[0]);
                 this._stack[0] = [];
+                item.or.push(this._stack[0]);
                 this._item = null;
             }
 
@@ -336,6 +353,8 @@
                     return -1; // No match
                 }
                 ++this._length;
+            } else if (undefined !== item.or) {
+
             }
             this._pos = 0;
             if (++this._itemIdx < this._items.length) {
