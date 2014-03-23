@@ -85,47 +85,122 @@
     ;
 */
 
-    function PatternItem() {
+    var
+        PatternItem = gpf.Class.extend({
 
-    }
+            _type: -1,
+            _parent: null,
+            _next: null,
+            _min: null,
+            _max: null,
 
-    gpf.extend(PatternItem.prototype, {
-        _type: -1,
-        _parent: null,
-        _next: null,
-        _min: null,
-        _max: null,
+            init: function (type) {
+                this._type = type;
+            },
 
-        type: function () {
-            return this._type;
-        },
+            type: function () {
+                return this._type;
+            },
 
-        finalize: function () {
+            add: function (char, inRange) {
+                gpf.interfaces.ignoreParameter(char);
+                gpf.interfaces.ignoreParameter(inRange);
+            },
 
-        }
+            finalize: function () {
+            }
 
-    });
+        }),
+
+        PatternSimpleItem  = gpf.Class.extend({
+
+            _seq: "",
+
+            init: function () {
+                this._super(PatternItem.SIMPLE);
+                this._seq = [];
+            },
+
+            add: function (char, inRange) {
+                gpf.interfaces.ignoreParameter(inRange);
+                this._seq.push(char);
+            },
+
+            finalize: function () {
+                this._seq = this._seq.join("");
+            }
+
+        }),
+
+        PatternRangeItem = gpf.Class.extend({
+
+            _inc: "",
+            _exc: null,
+
+            init: function () {
+                this._super(PatternItem.RANGE);
+                this._inc = [];
+            },
+
+            add: function (char, inRange) {
+                var
+                    arrayOfChars,
+                    first,
+                    last,
+                    idx;
+                if (this._exc) {
+                    arrayOfChars = this._exc;
+                } else {
+                    arrayOfChars = this._inc;
+                }
+                if (inRange) {
+                    first = arrayOfChars[arrayOfChars.length - 1].charCodeAt(0);
+                    last = char.charCodeAt(0);
+                    for (idx = first + 1; idx < last; ++idx) {
+                        arrayOfChars.push(String.fromCharCode(idx));
+                    }
+                    arrayOfChars.push(char);
+                } else {
+                    // First char of a range
+                    arrayOfChars.push(char);
+                }
+            },
+
+            finalize: function () {
+                this._inc = this._inc.join("");
+                if (this._exc) {
+                    this._exc = this._exc.join("");
+                }
+            }
+
+        });
 
     PatternItem.SIMPLE = 0;
     PatternItem.RANGE = 1;
     PatternItem.CHOICE = 2;
 
     PatternItem.create = function (type) {
-        return new PatternItem();
-    }
+        if (PatternItem.SIMPLE === type) {
+            return new PatternSimpleItem();
+        } else if (PatternItem.SIMPLE === type) {
+            return new PatternRangeItem();
+        } else {
+            return new PatternItem(type);
+        }
+    };
 
-    function PatternParserContext() {
-        this._root = null;
-        this.parse = this._stateItem;
-    }
+    var PatternParserContext = gpf.Class.extend({
 
-    gpf.extend(PatternParserContext.prototype, {
         _root: null,
         _item : null,
         _inRange: false,
         _afterChar: null,
 
         parse: null, // Will be overridden
+
+        init: function() {
+            this.parse = this._stateItem;
+        },
 
         get: function () {
             if (this.parse !== this._stateItem
@@ -145,60 +220,25 @@
                 if (null !== item) {
                     item.finalize();
                 }
-                item = {};
-                this._stack[0].push(item);
-                this._item = item;
-                if ("seq" === type) {
-                    item.seq = [];
-                } else if ("inc" === type) {
-                    item.inc = [];
-                }
+                item = this._item = PatternItem.create(type);
             }
             return item;
-        },
-
-        _addCharToItem: function (char) {
-            var
-                curItem = this._item,
-                arrayOfChars,
-                first, last,
-                idx;
-            if (undefined !== curItem.seq) {
-                curItem.seq.push(char);
-            } else if (undefined !== curItem.inc) {
-                if (undefined !== curItem.exc) {
-                    arrayOfChars = curItem.exc;
-                } else {
-                    arrayOfChars = curItem.inc;
-                }
-                if (this._inRange) {
-                    first = arrayOfChars[arrayOfChars.length - 1].charCodeAt(0);
-                    last = char.charCodeAt(0);
-                    for (idx = first + 1; idx < last; ++idx) {
-                        arrayOfChars.push(String.fromCharCode(idx));
-                    }
-                    arrayOfChars.push(char);
-                } else {
-                    // First char of a range
-                    arrayOfChars.push(char);
-                }
-            }
         },
 
         _stateItem: function (char) {
             if ("[" === char) {
                 this.parse = this._stateCharMatchRange;
             } else {
-                this._getItem("seq");
+                this._getItem(PatternItem.SIMPLE);
                 this._afterChar = this._stateCount;
                 this._stateChar(char);
             }
         },
 
         _stateCharMatchRange: function (char) {
-            var curItem = this._getItem("inc");
-            if ("^" === char && undefined === curItem.exc) {
-                curItem.exc = [];
+            var curItem = this._getItem(PatternItem.RANGE);
+            if ("^" === char && !curItem._exc) {
+                curItem._exc = [];
                 // this.parse = this._stateCharMatchRange;
             } else if ("]" === char) {
                 this.parse = this._stateCount;
@@ -223,13 +263,13 @@
             if ("\\" === char) {
                 this.parse = this.stateEscapedChar;
             } else {
-                this._addCharToItem(char);
+                this._item.add(char, this._inRange);
                 this.parse = this._afterChar;
             }
         },
 
         stateEscapedChar: function (char) {
-            this._addCharToItem(char);
+            this._item.add(char, this._inRange);
             this.parse = this._afterChar;
         },
 
