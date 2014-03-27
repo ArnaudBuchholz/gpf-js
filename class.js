@@ -75,7 +75,9 @@
                     } catch (e) {
                         throw e;
                     } finally {
-                        this._super = backup;
+                        if (undefined !== backup) {
+                            this._super = backup;
+                        }
                     }
                     return result;
                 };
