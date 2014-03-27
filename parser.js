@@ -6,6 +6,9 @@
 
     //region ITokenizer
 
+    /**
+     * @interface
+     */
     gpfI.ITokenizer = gpfI.Interface.extend({
 
         /**
@@ -86,83 +89,189 @@
 */
 
     var
+        /**
+         * Pattern item: an atomic character matching item
+         *
+         * @class {PatternItem}
+         */
         PatternItem = gpf.Class.extend({
 
+            /**
+             * Returns the item type (PatternItem.TYPE_xxx)
+             *
+             * @type {number}
+             */
             "[_type]": [gpf.$ClassProperty()],
             _type: -1,
 
+            /**
+             * Item parent
+             *
+             * @type {PatternItem}
+             */
             "[_parent]": [gpf.$ClassProperty(true)],
             _parent: null,
 
+            /**
+             * Next item
+             *
+             * @type {PatternItem}
+             */
             "[_next]": [gpf.$ClassProperty(true)],
             _next: null,
 
+            /**
+             * Min number of item iteration
+             *
+             * @type {number}
+             */
             "[_min]": [gpf.$ClassProperty(true)],
-            _min: null,
+            _min: 1,
 
+            /**
+             * Maximum number of item iteration
+             * 0 means unlimited
+             *
+             * @type {number}
+             */
             "[_max]": [gpf.$ClassProperty(true)],
-            _max: null,
+            _max: 1,
 
+            /**
+             * @constructor
+             * @param {number} type
+             */
             init: function (type) {
                 this._type = type;
             },
 
+            /**
+             * Compiling time:
+             *  adds a character to the item
+             *
+             * @param {string} char Character to add
+             * @param {boolean} inRange Used for range parsing (preceded by -)
+             */
             add: function (char, inRange) {
                 gpf.interfaces.ignoreParameter(char);
                 gpf.interfaces.ignoreParameter(inRange);
             },
 
+            /**
+             * Compiling time:
+             *  finalize the item
+             */
             finalize: function () {
             },
 
+            /**
+             * Run time:
+             *  item will be evaluated, reset tokenizer state
+             *
+             * @param {object} state Free structure to add values to
+             */
             reset: function (state) {
-                state.count = 0;
+                gpf.interfaces.ignoreParameter(state);
             },
 
+            /**
+             * Run time:
+             *  item evaluation with a character
+             *
+             * @param {object} state Free structure containing current state
+             * @param {string} char character to test the pattern with
+             * @return {number} Matching result, see PatternItem.WRITE_xxx
+             */
             write: function (state, char) {
+                gpf.interfaces.ignoreParameter(state);
                 gpf.interfaces.ignoreParameter(char);
-                return this;
+                return -1;
             }
 
         }),
 
+        /**
+         * Simple pattern item: recognizes a sequence of characters
+         *
+         * @class {PatternSimpleItem}
+         * @extend {PatternItem}
+         */
         PatternSimpleItem  = PatternItem.extend({
 
+            /**
+             * The character sequence ([] at design time)
+             * @type {string}
+             */
             _seq: "",
 
+            /**
+             * @constructor
+             */
             init: function () {
                 this._super(PatternItem.SIMPLE);
                 this._seq = [];
             },
 
+            /**
+             * @inheritDoc PatternItem:add
+             */
             add: function (char, inRange) {
                 gpf.interfaces.ignoreParameter(inRange);
                 this._seq.push(char);
             },
 
+            /**
+             * @inheritDoc PatternItem:finalize
+             */
             finalize: function () {
                 this._seq = this._seq.join("");
             },
 
+            /**
+             * @inheritDoc PatternItem:reset
+             */
             reset: function (state) {
                 state.pos = 0;
             },
 
+            /**
+             * @inheritDoc PatternItem:write
+             */
             write: function (state, char) {
-                if (char !== this._seq.charAt(this._pos)) {
-                    this._length = -1;
-                    return -1; // No match
+                if (char !== this._seq.charAt(state.pos)) {
+                    return null; // End of pattern
                 }
-
-                gpf.interfaces.ignoreParameter(char);
-                return this;
+                ++state.pos;
+                if (state.pos < this._seq.length) {
+                    return this;
+                } else {
+                    state.result += this._seq.length;
+                    return this.next();
+                }
             }
         }),
 
+
+        /**
+         * Range pattern item: recognizes one char
+         * (using include/exclude patterns)
+         *
+         * @class {PatternRangeItem}
+         * @extend {PatternItem}
+         */
         PatternRangeItem = PatternItem.extend({
 
+            /**
+             * Included characters
+             * @type {string}
+             */
             _inc: "",
-            _exc: null,
+
+            /**
+             * Excluded characters
+             * @type {string}
+             */
+            _exc: "",
 
             init: function () {
                 this._super(PatternItem.RANGE);
@@ -218,21 +327,25 @@
 
         });
 
-
-    PatternItem.SIMPLE = 0;
-    PatternItem.RANGE = 1;
-    PatternItem.CHOICE = 2;
-    PatternItem._factory = null;
-
-    PatternItem.create = function (type) {
-        if (!PatternItem._factory) {
-            PatternItem._factory = {};
-            PatternItem._factory[PatternItem.SIMPLE] = PatternSimpleItem;
-            PatternItem._factory[PatternItem.RANGE] = PatternRangeItem;
-            PatternItem._factory[PatternItem.CHOICE] = PatternRangeChoice;
+    gpf.extend(PatternItem, {
+        TYPE_SIMPLE: 0,
+        TYPE_RANGE: 1,
+        TYPE_CHOICE: 2,
+        WRITE_NO_MATCH: -1,
+        WRITE_NEED_DATA: 0,
+        WRITE_MATCH: 1,
+        _factory: null,
+        create: function (type) {
+            var factory = PatternItem._factory;
+            if (!factory) {
+                factory = PatternItem._factory = {};
+                factory[this.TYPE_SIMPLE] = PatternSimpleItem;
+                factory[this.TYPE_RANGE] = PatternRangeItem;
+                factory[this.TYPE_CHOICE] = PatternRangeChoice;
+            }
+            return new (factory[type])();
         }
-        return new (PatternItem._factory[type])();
-    };
+    });
 
     var PatternParserContext = gpf.Class.extend({
 
@@ -280,14 +393,14 @@
             if ("[" === char) {
                 this.parse = this._stateCharMatchRange;
             } else {
-                this._getItem(PatternItem.SIMPLE);
+                this._getItem(PatternItem.TYPE_SIMPLE);
                 this._afterChar = this._stateCount;
                 this._stateChar(char);
             }
         },
 
         _stateCharMatchRange: function (char) {
-            var curItem = this._getItem(PatternItem.RANGE);
+            var curItem = this._getItem(PatternItem.TYPE_RANGE);
             if ("^" === char && !curItem._exc) {
                 curItem._exc = [];
                 // this.parse = this._stateCharMatchRange;
@@ -387,13 +500,14 @@
         _pattern: null,
 
         /**
-         * @member {PatternIten} _item Current item
+         * @member {PatternItem} _item Current item
          * @private
          */
         _item: null,
 
-        _state: {},
-
+        _state: {
+            result: 0
+        },
 
         /**
          *
@@ -402,7 +516,9 @@
         init: function (pattern) {
             this._pattern = pattern;
             this._item = pattern._root;
-            this._state = {};
+            this._state = {
+                result: 0
+            };
             this._item.reset(this._state);
         },
 
@@ -412,10 +528,22 @@
          * @implements gpf.interfaces.ITokenizer:write
          */
         write: function (char) {
-            if (this._itemIdx === this._items.length || -1 === this._length) {
-                // Nothing else to match
-                return this._length;
+            var item;
+            if (null !== this.item) {
+                item = this._item.write(this._state, char);
+                if (item && item !== this._item) {
+                    item.reset(this.state);
+                    this._item = item;
+                }
             }
+            return this._state.result;
+
+
+            var
+            if (item) {
+
+            }
+
             var item = this._items[this._itemIdx];
             if (undefined !== item.seq) {
                 if (char !== item.seq.charAt(this._pos)) {
