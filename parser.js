@@ -21,7 +21,7 @@
          */
         write: function (char) {
             gpf.interfaces.ignoreParameter(char);
-            return 0;
+            return -1;
         }
 
     });
@@ -88,18 +88,23 @@
     var
         PatternItem = gpf.Class.extend({
 
+            "[_type]": [gpf.$ClassProperty()],
             _type: -1,
+
+            "[_parent]": [gpf.$ClassProperty(true)],
             _parent: null,
+
+            "[_next]": [gpf.$ClassProperty(true)],
             _next: null,
+
+            "[_min]": [gpf.$ClassProperty(true)],
             _min: null,
+
+            "[_max]": [gpf.$ClassProperty(true)],
             _max: null,
 
             init: function (type) {
                 this._type = type;
-            },
-
-            type: function () {
-                return this._type;
             },
 
             add: function (char, inRange) {
@@ -108,11 +113,20 @@
             },
 
             finalize: function () {
+            },
+
+            reset: function (state) {
+                state.count = 0;
+            },
+
+            write: function (state, char) {
+                gpf.interfaces.ignoreParameter(char);
+                return this;
             }
 
         }),
 
-        PatternSimpleItem  = gpf.Class.extend({
+        PatternSimpleItem  = PatternItem.extend({
 
             _seq: "",
 
@@ -128,11 +142,24 @@
 
             finalize: function () {
                 this._seq = this._seq.join("");
-            }
+            },
 
+            reset: function (state) {
+                state.pos = 0;
+            },
+
+            write: function (state, char) {
+                if (char !== this._seq.charAt(this._pos)) {
+                    this._length = -1;
+                    return -1; // No match
+                }
+
+                gpf.interfaces.ignoreParameter(char);
+                return this;
+            }
         }),
 
-        PatternRangeItem = gpf.Class.extend({
+        PatternRangeItem = PatternItem.extend({
 
             _inc: "",
             _exc: null,
@@ -173,20 +200,38 @@
                 }
             }
 
+        }),
+
+        PatternRangeChoice = PatternItem.extend({
+
+            init: function () {
+                this._super(PatternItem.Choice);
+            },
+
+            add: function (char, inRange) {
+                gpf.interfaces.ignoreParameter(char);
+                gpf.interfaces.ignoreParameter(inRange);
+            },
+
+            finalize: function () {
+            }
+
         });
+
 
     PatternItem.SIMPLE = 0;
     PatternItem.RANGE = 1;
     PatternItem.CHOICE = 2;
+    PatternItem._factory = null;
 
     PatternItem.create = function (type) {
-        if (PatternItem.SIMPLE === type) {
-            return new PatternSimpleItem();
-        } else if (PatternItem.SIMPLE === type) {
-            return new PatternRangeItem();
-        } else {
-            return new PatternItem(type);
+        if (!PatternItem._factory) {
+            PatternItem._factory = {};
+            PatternItem._factory[PatternItem.SIMPLE] = PatternSimpleItem;
+            PatternItem._factory[PatternItem.RANGE] = PatternRangeItem;
+            PatternItem._factory[PatternItem.CHOICE] = PatternRangeChoice;
         }
+        return new (PatternItem._factory[type])();
     };
 
     var PatternParserContext = gpf.Class.extend({
@@ -215,12 +260,18 @@
 
         // Get or create the item corresponding to the requested type
         _getItem: function (type) {
-            var item = this._item;
+            var
+                item = this._item,
+                nextItem;
             if (null === item || type !== item.type()) {
+                nextItem = PatternItem.create(type);
                 if (null !== item) {
                     item.finalize();
+                    item.next(nextItem);
+                } else {
+                    this._root = nextItem;
                 }
-                item = this._item = PatternItem.create(type);
+                this._item = nextItem;
             }
             return item;
         },
@@ -276,19 +327,20 @@
         _stateCountByChar: {
 
             "?": function () {
-                this._item.min = 0;
-                this._item.max = 1;
+                this._item.min(0);
+                this._item.max(1);
             },
 
             "+": function () {
-                this._item.min = 1;
+                this._item.min(1);
             },
 
             "*": function () {
-                this._item.min = 0;
+                this._item.min(0);
             },
 
             "|": function () {
+/*
                 var
                     item;
                 if (1 === this._stack.length
@@ -307,6 +359,7 @@
                 this._stack[0] = [];
                 item.or.push(this._stack[0]);
                 this._item = null;
+*/
             }
 
         },
@@ -334,28 +387,13 @@
         _pattern: null,
 
         /**
-         * @member {object[]} _items Current items
+         * @member {PatternIten} _item Current item
          * @private
          */
-        _items: null,
+        _item: null,
 
-        /**
-         * @member {number} _itemIdx Current item index
-         * @private
-         */
-        _itemIdx: 0,
+        _state: {},
 
-        /**
-         * @member {number} _pos Current position inside the current item
-         * @private
-         */
-        _pos: 0,
-
-        /**
-         * @member {number} _length Match length
-         * @private
-         */
-        _length: 0,
 
         /**
          *
@@ -363,7 +401,9 @@
          */
         init: function (pattern) {
             this._pattern = pattern;
-            this._items = pattern._root;
+            this._item = pattern._root;
+            this._state = {};
+            this._item.reset(this._state);
         },
 
         //region ITokenizer
