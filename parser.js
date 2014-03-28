@@ -208,7 +208,7 @@
              * @constructor
              */
             init: function () {
-                this._super(PatternItem.SIMPLE);
+                this._super(PatternItem.TYPE_SIMPLE);
                 this._seq = [];
             },
 
@@ -239,14 +239,13 @@
              */
             write: function (state, char) {
                 if (char !== this._seq.charAt(state.pos)) {
-                    return null; // End of pattern
+                    return PatternItem.WRITE_NO_MATCH;
                 }
                 ++state.pos;
                 if (state.pos < this._seq.length) {
-                    return this;
+                    return PatternItem.WRITE_NEED_DATA;
                 } else {
-                    state.result += this._seq.length;
-                    return this.next();
+                    return PatternItem.WRITE_MATCH;
                 }
             }
         }),
@@ -274,17 +273,24 @@
             _exc: "",
 
             init: function () {
-                this._super(PatternItem.RANGE);
+                this._super(PatternItem.TYPE_RANGE);
                 this._inc = [];
+            },
+
+            hasExclude: function () {
+                return "_exc" in this;
+            },
+
+            enterExclude: function () {
+                this._exc = [];
             },
 
             add: function (char, inRange) {
                 var
                     arrayOfChars,
                     first,
-                    last,
-                    idx;
-                if (this._exc) {
+                    last;
+                if (this.hasExclude()) {
                     arrayOfChars = this._exc;
                 } else {
                     arrayOfChars = this._inc;
@@ -292,8 +298,8 @@
                 if (inRange) {
                     first = arrayOfChars[arrayOfChars.length - 1].charCodeAt(0);
                     last = char.charCodeAt(0);
-                    for (idx = first + 1; idx < last; ++idx) {
-                        arrayOfChars.push(String.fromCharCode(idx));
+                    while (--last > first) {
+                        arrayOfChars.push(String.fromCharCode(last));
                     }
                     arrayOfChars.push(char);
                 } else {
@@ -304,8 +310,29 @@
 
             finalize: function () {
                 this._inc = this._inc.join("");
-                if (this._exc) {
+                if (this.hasExclude()) {
                     this._exc = this._exc.join("");
+                }
+            },
+
+            /**
+             * @inheritDoc PatternItem:write
+             */
+            write: function (state, char) {
+                gpf.interfaces.ignoreParameter(state);
+                var match;
+                if (this._inc.length) {
+                    match = -1 < this._inc.indexOf(char);
+                } else {
+                    match = true;
+                }
+                if (match && this._exc.length) {
+                    match = -1 === this._exc.indexOf(char);
+                }
+                if (match) {
+                    return PatternItem.WRITE_MATCH;
+                } else {
+                    return PatternItem.WRITE_NO_MATCH;
                 }
             }
 
@@ -314,7 +341,7 @@
         PatternRangeChoice = PatternItem.extend({
 
             init: function () {
-                this._super(PatternItem.Choice);
+                this._super(PatternItem.TYPE_CHOICE);
             },
 
             add: function (char, inRange) {
@@ -331,10 +358,13 @@
         TYPE_SIMPLE: 0,
         TYPE_RANGE: 1,
         TYPE_CHOICE: 2,
+
         WRITE_NO_MATCH: -1,
         WRITE_NEED_DATA: 0,
         WRITE_MATCH: 1,
+
         _factory: null,
+
         create: function (type) {
             var factory = PatternItem._factory;
             if (!factory) {
@@ -361,13 +391,18 @@
         },
 
         get: function () {
+            if (null === this._item) {
+                throw {
+                    message: "Empty pattern"
+                };
+            }
+            this._item.finalize();
             if (this.parse !== this._stateItem
                 && this.parse !== this._stateCount) {
                 throw {
                     message: "Invalid syntax"
                 };
             }
-            this._root.finalize();
             return this._root;
         },
 
@@ -401,8 +436,8 @@
 
         _stateCharMatchRange: function (char) {
             var curItem = this._getItem(PatternItem.TYPE_RANGE);
-            if ("^" === char && !curItem._exc) {
-                curItem._exc = [];
+            if ("^" === char && !curItem.hasExclude()) {
+                curItem.enterExclude();
                 // this.parse = this._stateCharMatchRange;
             } else if ("]" === char) {
                 this.parse = this._stateCount;
@@ -517,7 +552,8 @@
             this._pattern = pattern;
             this._item = pattern._root;
             this._state = {
-                result: 0
+                result: 0,
+                length : 0
             };
             this._item.reset(this._state);
         },
@@ -528,47 +564,29 @@
          * @implements gpf.interfaces.ITokenizer:write
          */
         write: function (char) {
-            var item;
-            if (null !== this.item) {
-                item = this._item.write(this._state, char);
-                if (item && item !== this._item) {
-                    item.reset(this.state);
-                    this._item = item;
-                }
-            }
-            return this._state.result;
-
-
             var
-            if (item) {
-
-            }
-
-            var item = this._items[this._itemIdx];
-            if (undefined !== item.seq) {
-                if (char !== item.seq.charAt(this._pos)) {
-                    this._length = -1;
-                    return -1; // No match
+                result,
+                state = this._state,
+                item = this._item;
+            if (null !== item) {
+                result = item.write(state, char);
+                ++state.length;
+                if (PatternItem.WRITE_NO_MATCH === result) {
+                    // May need to consider item count
+                    state.result = -1;
+                } else if (PatternItem.WRITE_NEED_DATA === result) {
+                    state.result = 0;
+                } else if (PatternItem.WRITE_MATCH === result) {
+                    item = this._item = item.next();
+                    if (null === item) {
+                        state.result = state.length;
+                    } else {
+                        item.reset(state);
+                        state.result = 0;
+                    }
                 }
-                ++this._length;
-                if (++this._pos < item.seq.length) {
-                    return 0; // Need more data
-                }
-            } else if (undefined !== item.inc) {
-                if ((item.inc.length !== 0 && -1 === item.inc.indexOf(char))
-                    || (item.exc && -1 < item.exc.indexOf(char))) {
-                    this._length = -1;
-                    return -1; // No match
-                }
-                ++this._length;
-            } else if (undefined !== item.or) {
-
             }
-            this._pos = 0;
-            if (++this._itemIdx < this._items.length) {
-                return 0; // Need more data (what if optional?)
-            }
-            return this._length;
+            return state.result;
         }
 
         //endregion
