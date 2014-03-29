@@ -278,7 +278,7 @@
             },
 
             hasExclude: function () {
-                return "_exc" in this;
+                return this.hasOwnProperty("_exc");
             },
 
             enterExclude: function () {
@@ -340,16 +340,44 @@
 
         PatternRangeChoice = PatternItem.extend({
 
+            _choices: [],
+
+            // Overridden to 'add' the choice
+            next: function (item) {
+                if (undefined === item) {
+                    return null;
+                } else {
+                    this._choices.push(item);
+                    item.parent(this);
+                }
+            },
+
             init: function () {
                 this._super(PatternItem.TYPE_CHOICE);
+                this._choices = [];
             },
 
-            add: function (char, inRange) {
-                gpf.interfaces.ignoreParameter(char);
-                gpf.interfaces.ignoreParameter(inRange);
-            },
-
-            finalize: function () {
+            /**
+             * @inheritDoc PatternItem:write
+             */
+            write: function (state, char) {
+                // Try all choices and stop on the first one that works
+                var
+                    tmpState = {},
+                    idx,
+                    item,
+                    result;
+                for (idx = this._choices.length; idx > 0;) {
+                    item = this._choices[--idx];
+                    item.reset(tmpState);
+                    result = item.write(tmpState, char);
+                    if (PatternItem.WRITE_NO_MATCH !== result) {
+                        state.replaceItem = item;
+                        gpf.extend(state, tmpState);
+                        return result;
+                    }
+                }
+                return PatternItem.WRITE_NO_MATCH;
             }
 
         });
@@ -488,26 +516,19 @@
             },
 
             "|": function () {
-/*
                 var
-                    item;
-                if (1 === this._stack.length
-                    || undefined === this._stack[1][0].or) {
-                    // New OR
-                    item = {
-                        or: [this._stack[0]]
-                    };
-                    this._stack.splice(1, 0, [item]);
-                    if (this._root === this._stack[0]) {
-                        this._root = this._stack[1];
-                    }
-                } else {
-                    item = this._stack[1][0];
+                    item = this._item,
+                    choice = item.parent();
+                if (null === choice
+                    || choice.type() !== PatternItem.TYPE_CHOICE) {
+                    choice = PatternItem.create(PatternItem.TYPE_CHOICE);
+                    choice.next(item); // Overridden to 'add' the choice
                 }
-                this._stack[0] = [];
-                item.or.push(this._stack[0]);
-                this._item = null;
-*/
+                if (item === this._root) {
+                    this._root = choice;
+                }
+                item.finalize();
+                this._item = choice;
             }
 
         },
@@ -574,10 +595,17 @@
                 if (PatternItem.WRITE_NO_MATCH === result) {
                     // May need to consider item count
                     state.result = -1;
-                } else if (PatternItem.WRITE_NEED_DATA === result) {
+                    this._item = null; // No need to go any further
+                    return -1;
+                }
+                if (undefined !== state.replaceItem) {
+                    this._item = state.replaceItem;
+                }
+                if (PatternItem.WRITE_NEED_DATA === result) {
                     state.result = 0;
                 } else if (PatternItem.WRITE_MATCH === result) {
-                    item = this._item = item.next();
+                    item = this._item.next();
+                    this._item = item;
                     if (null === item) {
                         state.result = state.length;
                     } else {

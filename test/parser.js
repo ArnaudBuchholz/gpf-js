@@ -31,7 +31,7 @@
                 test.title("Simple expressions");
                 var
                     pattern = new gpf.Pattern("abc"),
-                    ctx1, ctx2, ctx3;
+                    ctx1, ctx2;
                 // First verify that failure works
                 ctx1 = pattern.allocate();
                 test.equal(write(ctx1, "a"), 0, "Need more input");
@@ -47,31 +47,26 @@
                 test.equal(write(ctx2, "d"), 3,
                     "Any other char doesn't change the result");
                 // Check that immediate match works
-                ctx3 = pattern.allocate();
-                test.equal(write(ctx3, "abcd"), 3,
+                test.equal(write(pattern.allocate(), "abcd"), 3,
                     "The first 3 chars are matching");
             },
 
             function (test) {
                 test.title("Range");
                 var
-                    pattern = new gpf.Pattern("[a-zA-Z^d-fJ]"),
-                    ctx1, ctx2, ctx3;
-                ctx1 = pattern.allocate();
-                test.equal(write(ctx1, "L"), 1, "Match");
-                ctx2 = pattern.allocate();
-                test.equal(write(ctx2, "e"), -1, "Not match");
-                ctx3 = pattern.allocate();
-                test.equal(write(ctx2, "0"), -1, "Not match");
+                    pattern = new gpf.Pattern("[a-zA-Z^d-fJ]");
+                test.equal(write(pattern.allocate(), "L"), 1, "Match");
+                test.equal(write(pattern.allocate(), "e"), -1, "Not match");
+                test.equal(write(pattern.allocate(), "0"), -1, "Not match");
             },
 
             function (test) {
                 test.title("Alternative");
                 var
                     pattern = new gpf.Pattern("if|else|then");
-                test.equal(pattern.allocate().write("if"), 2, "if");
-                test.equal(pattern.allocate().write("else"), 4, "else");
-                test.equal(pattern.allocate().write("then"), 4, "then");
+                test.equal(write(pattern.allocate(), "if"), 2, "if");
+                test.equal(write(pattern.allocate(), "else"), 4, "else");
+                test.equal(write(pattern.allocate(), "then"), 4, "then");
             },
 
             function (test) {
