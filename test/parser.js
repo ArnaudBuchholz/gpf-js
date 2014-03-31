@@ -83,7 +83,7 @@
                         pattern = new gpf.Pattern(patternTest._expression);
                         for (testExpr in patternTest) {
                             if (patternTest.hasOwnProperty(testExpr)) {
-                                if (patternTest === "_expression") {
+                                if (testExpr === "_expression") {
                                     continue;
                                 }
                                 test.equal(write(pattern.allocate(), testExpr),
