@@ -505,15 +505,15 @@
 
             "?": function () {
                 this._item.min(0);
-                this._item.max(1);
             },
 
             "+": function () {
-                this._item.min(1);
+                this._item.max(0);
             },
 
             "*": function () {
                 this._item.min(0);
+                this._item.max(0);
             },
 
             "|": function () {
@@ -563,11 +563,13 @@
         _item: null,
 
         _state: {
-            result: 0
+            result: 0,
+            length : 0,
+            matchingLength: 0,
+            count: 0
         },
 
         /**
-         *
          * @param {gpf.Pattern} pattern
          */
         init: function (pattern) {
@@ -576,9 +578,82 @@
             this._state = {
                 result: 0,
                 length : 0,
+                matchingLength: 0,
                 count: 0
             };
             this._item.reset(this._state);
+        },
+
+        _getNext: function (item) {
+            var
+                result = item.next();
+            while (null === result) {
+                item = item.parent();
+                if (null === item) {
+                    break;
+                }
+                result = item.next();
+            }
+            return result;
+        },
+
+        _writeNoMatch: function (char) {
+            var
+                state = this._state,
+                item = this._item;
+            if (state.count < item.min() // Not enough match
+                // or at least two characters went through
+                || state.length > state.matchingLength + 1) {
+                // Terminal error
+                state.result = -1;
+                this._item = null; // No need to go any further
+                return -1;
+            }
+            item = this._getNext(item);
+            if (null === item) {
+                if (0 === state.result) {
+                    state.result = -1;
+                }
+                this._item = null;
+                return state.result;
+            }
+            item.reset(state);
+            this._item = item;
+            state.count = 0;
+            --state.length;
+            return this.write(char); // Try with this one
+        },
+
+        _writeMatch: function () {
+            var
+                state = this._state,
+                item = this._item,
+                nextItem = this._getNext(item);
+            state.matchingLength = state.length;
+            ++state.count;
+            if (0 === item.max()) {
+                // Unlimited
+                item.reset(state);
+                if (null !== nextItem) {
+                    state.result = PatternItem.WRITE_NEED_DATA;
+                } else {
+                    // Last item with unlimited occurrences
+                    state.result = state.length;
+                }
+            } else if (state.count === item.max()) {
+                item = nextItem;
+                this._item = item;
+                if (null === item) {
+                    state.result = state.length;
+                } else {
+                    item.reset(state);
+                    state.count = 0;
+                    state.result = 0;
+                }
+            } else {
+                state.result = PatternItem.WRITE_NEED_DATA;
+            }
+            return state.result;
         },
 
         //region ITokenizer
@@ -599,46 +674,12 @@
                 }
                 // Not enough data to conclude
                 if (PatternItem.WRITE_NEED_DATA === result) {
-                    return state.result;
+                    return state.result; // Whatever the previous result
                 }
                 if (PatternItem.WRITE_NO_MATCH === result) {
-                    // TODO must fail if at least two characters went through
-                    // this item
-                    if (state.count < item.min()) {
-                        // Terminal error
-                        state.result = -1;
-                        this._item = null; // No need to go any further
-                        return -1;
-                    }
-                    item = this._item.next();
-                    item.reset(state);
-                    this._item = item;
-                    return this.write(char);
-                }
-
-                if (PatternItem.WRITE_MATCH === result) {
-                    ++state.count;
-                    if (0 === item.max()) {
-                        // Unlimited
-                        item.reset(state);
-                        if (null !== item.next()) {
-                            state.result = PatternItem.WRITE_NEED_DATA;
-                        } else {
-                            // Last item with unlimited occurrences
-                            state.result = state.length;
-                        }
-                    } else if (state.count === item.max()) {
-                        item = this._item.next();
-                        this._item = item;
-                        if (null === item) {
-                            state.result = state.length;
-                        } else {
-                            item.reset(state);
-                            state.result = 0;
-                        }
-                    } else {
-                        state.result = PatternItem.WRITE_NEED_DATA;
-                    }
+                    return this._writeNoMatch(char);
+                } else {
+                    return this._writeMatch();
                 }
             }
             return state.result;
