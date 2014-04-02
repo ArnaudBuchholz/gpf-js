@@ -69,25 +69,6 @@
      *      | <any char but ?*+{[(-[>
      */
 
-/*
-    var
-        // abc
-        _sample1 = {seq: "abc"},
-        // [a-z]
-        _sample2 = {inc: "abc...xyz"},
-        // [a-z^de]
-        _sample3 = {inc: "abc...xyz", exc: "de"},
-        // a|b|c
-        _sample4 = {or: [{seq: "a"}, {seq: "b"}, {seq: "c"}]}
-        // ? => max: 1
-        // * => min:0
-        // + => min:1
-        // Each item is connected to
-        // - parent item: parent: {}
-        // - next item: next: {}
-    ;
-*/
-
     var
         /**
          * Pattern item: an atomic character matching item
@@ -117,7 +98,15 @@
              *
              * @type {PatternItem}
              */
-            "[_next]": [gpf.$ClassProperty(true)],
+            next: function (value) {
+                if (undefined === value) {
+                    return this._next;
+                } else {
+                    this._next = value;
+                    // Forward parent
+                    value.parent(this._parent);
+                }
+            },
             _next: null,
 
             /**
@@ -338,17 +327,41 @@
 
         }),
 
-        PatternRangeChoice = PatternItem.extend({
+        PatternChoiceItem = PatternItem.extend({
 
             _choices: [],
 
             // Overridden to 'add' the choice
             next: function (item) {
                 if (undefined === item) {
+                    // The only way to have something *after* is to use ()
                     return null;
                 } else {
+                    var
+                        parent = item.parent(),
+                        pos;
                     this._choices.push(item);
                     item.parent(this);
+                    if (1 === this._choices.length) {
+                        // Care about parent
+                        if (null === parent) {
+                            return; // Nothing to care about
+                        }
+                        if (parent.type() !== PatternItem.TYPE_GROUP) {
+                            throw {
+                                message: "Unexpected"
+                            };
+                        }
+                        // TODO should be the last
+                        pos = gpf.test(parent._items, item);
+                        if (undefined === pos) {
+                            throw {
+                                message: "Unexpected"
+                            };
+                        }
+                        parent._items[pos] = this;
+                        this._parent = parent;
+                    }
                 }
             },
 
@@ -380,12 +393,54 @@
                 return PatternItem.WRITE_NO_MATCH;
             }
 
+        }),
+
+        PatternGroupItem = PatternItem.extend({
+
+            next: function (value) {
+                if (undefined === value) {
+                    return this._next;
+                } else {
+                    if (this._items.length) {
+                        this._next = value;
+                        value.parent(this._parent);
+                    } else {
+                        this._items.push(value);
+                        value.parent(this);
+                    }
+                }
+            },
+
+            _items: [],
+
+            init: function () {
+                this._super(PatternItem.TYPE_GROUP);
+                this._items = [];
+            },
+
+            /**
+             * @inheritDoc PatternItem:reset
+             */
+            reset: function (state) {
+                this._items[0].reset(state);
+            },
+
+            /**
+             * @inheritDoc PatternItem:write
+             */
+            write: function (state, char) {
+                var item = this._items[0];
+                state.replaceItem = item;
+                return item.write(state, char);
+            }
+
         });
 
     gpf.extend(PatternItem, {
         TYPE_SIMPLE: 0,
         TYPE_RANGE: 1,
         TYPE_CHOICE: 2,
+        TYPE_GROUP: 3,
 
         WRITE_NO_MATCH: -1,
         WRITE_NEED_DATA: 0,
@@ -399,7 +454,8 @@
                 factory = PatternItem._factory = {};
                 factory[this.TYPE_SIMPLE] = PatternSimpleItem;
                 factory[this.TYPE_RANGE] = PatternRangeItem;
-                factory[this.TYPE_CHOICE] = PatternRangeChoice;
+                factory[this.TYPE_CHOICE] = PatternChoiceItem;
+                factory[this.TYPE_GROUP] = PatternGroupItem;
             }
             return new (factory[type])();
         }
@@ -456,6 +512,8 @@
             if ("[" === char) {
                 this._getItem(PatternItem.TYPE_RANGE, true);
                 this.parse = this._stateCharMatchRange;
+            } else if ("(" === char) {
+                this._getItem(PatternItem.TYPE_GROUP, true);
             } else {
                 this._getItem(PatternItem.TYPE_SIMPLE);
                 this._afterChar = this._stateCount;
@@ -530,6 +588,22 @@
                 }
                 item.finalize();
                 this._item = choice;
+            },
+
+            ")": function () {
+                var
+                    item = this._item;
+                item.finalize();
+                while (item.type() !== PatternItem.TYPE_GROUP) {
+                    item = item.parent();
+                }
+                if (item === this._item) {
+                    throw {
+                        message: "Syntax error (empty group)"
+                    };
+                }
+                this._item = item;
+                return 0; // !undefined
             }
 
         },
@@ -539,8 +613,9 @@
             if (undefined === byChar) {
                 this._stateItem(char);
             } else {
-                byChar.apply(this, arguments);
-                this.parse = this._stateItem;
+                if (undefined === byChar.apply(this, arguments)) {
+                    this.parse = this._stateItem;
+                }
             }
         }
 

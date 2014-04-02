@@ -28,7 +28,7 @@
         pattern: [
 
             function (test) {
-                test.title("Simple expressions");
+                test.title("Simple");
                 var
                     pattern = new gpf.Pattern("abc"),
                     ctx1, ctx2;
@@ -61,12 +61,21 @@
             },
 
             function (test) {
-                test.title("Alternative");
+                test.title("Choice");
                 var
                     pattern = new gpf.Pattern("if|else|then");
                 test.equal(write(pattern.allocate(), "if"), 2, "if");
                 test.equal(write(pattern.allocate(), "else"), 4, "else");
                 test.equal(write(pattern.allocate(), "then"), 4, "then");
+            },
+
+            function (test) {
+                test.title("Group");
+                var
+                    pattern = new gpf.Pattern("(a|bc)(de)+");
+                test.equal(write(pattern.allocate(), "ade"), 3, "ade");
+                test.equal(write(pattern.allocate(), "bc"), -1, "bc");
+                test.equal(write(pattern.allocate(), "bcdeded"), 6, "bcdeded");
             },
 
             function (test) {
