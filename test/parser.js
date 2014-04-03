@@ -52,6 +52,29 @@
             },
 
             function (test) {
+                test.title("Simple with count");
+                var
+                    pattern = new gpf.Pattern("abc+");
+                test.log("abc+");
+                test.equal(write(pattern.allocate(), "abc"), 3, "\tabc");
+                // Make sure that only last letter is counted as +
+                test.equal(write(pattern.allocate(), "abcabc"), 3, "\tabcabc");
+                // Then check iterations
+                test.equal(write(pattern.allocate(), "abccd"), 4, "\tabccd");
+                test.equal(write(pattern.allocate(), "abd"), -1, "\tabd");
+                pattern = new gpf.Pattern("abc?");
+                test.log("abc?");
+                test.equal(write(pattern.allocate(), "abc"), 3, "\tabc");
+                test.equal(write(pattern.allocate(), "abd"), 2, "\tabd");
+                test.equal(write(pattern.allocate(), "abcc"), 3, "\tabcc");
+                pattern = new gpf.Pattern("abc*");
+                test.log("abc*");
+                test.equal(write(pattern.allocate(), "abc"), 3, "\tabc");
+                test.equal(write(pattern.allocate(), "abd"), 2, "\tabd");
+                test.equal(write(pattern.allocate(), "abcc"), 4, "\tabcc");
+            },
+
+            function (test) {
                 test.title("Range");
                 var
                     pattern = new gpf.Pattern("[a-zA-Z^d-fJ]");

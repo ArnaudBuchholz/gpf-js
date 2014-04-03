@@ -86,7 +86,7 @@
             _type: -1,
 
             /**
-             * Item parent
+             * Item parent (may be null)
              *
              * @type {PatternItem}
              */
@@ -94,7 +94,7 @@
             _parent: null,
 
             /**
-             * Next item
+             * Next item: used to chain items together
              *
              * @type {PatternItem}
              */
@@ -334,7 +334,10 @@
             // Overridden to 'add' the choice
             next: function (item) {
                 if (undefined === item) {
-                    // The only way to have something *after* is to use ()
+                    /*
+                     * The only way to have something *after* is to use ()
+                     * In that case, it would go through the parent
+                     */
                     return null;
                 } else {
                     var
