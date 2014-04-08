@@ -189,8 +189,9 @@
 
             /**
              * The character sequence ([] at design time)
-             * @type {string}
+             * @type {string|string[]}
              */
+            "[_seq]": [gpf.$ClassProperty(false, "sequence")],
             _seq: "",
 
             /**
@@ -251,13 +252,13 @@
 
             /**
              * Included characters
-             * @type {string}
+             * @type {string|string[]}
              */
             _inc: "",
 
             /**
              * Excluded characters
-             * @type {string}
+             * @type {string|string[]}
              */
             _exc: "",
 
@@ -266,14 +267,27 @@
                 this._inc = [];
             },
 
+            /**
+             * Returns true if the exclude part is defined
+             *
+             * @returns {boolean}
+             */
             hasExclude: function () {
                 return this.hasOwnProperty("_exc");
             },
 
+            /**
+             * Defines the exclude part
+             *
+             * @returns {boolean}
+             */
             enterExclude: function () {
                 this._exc = [];
             },
 
+            /**
+             * @inheritDoc PatternItem:add
+             */
             add: function (char, inRange) {
                 var
                     arrayOfChars,
@@ -297,6 +311,9 @@
                 }
             },
 
+            /**
+             * @inheritDoc PatternItem:finalize
+             */
             finalize: function () {
                 this._inc = this._inc.join("");
                 if (this.hasExclude()) {
@@ -329,9 +346,16 @@
 
         PatternChoiceItem = PatternItem.extend({
 
+            /**
+             * @type {PatternItem[]}
+             */
             _choices: [],
 
-            // Overridden to 'add' the choice
+            /**
+             * @inheritDoc PatternItem:next
+             *
+             * Overridden to 'add' the choice
+             */
             next: function (item) {
                 if (undefined === item) {
                     /*
@@ -400,6 +424,16 @@
 
         PatternGroupItem = PatternItem.extend({
 
+            /**
+             * @type {PatternItem[]}
+             */
+            _items: [],
+
+            /**
+             * @inheritDoc PatternItem:next
+             *
+             * Overridden to 'add' the choice
+             */
             next: function (value) {
                 if (undefined === value) {
                     return this._next;
@@ -413,8 +447,6 @@
                     }
                 }
             },
-
-            _items: [],
 
             init: function () {
                 this._super(PatternItem.TYPE_GROUP);
@@ -451,6 +483,12 @@
 
         _factory: null,
 
+        /**
+         * Factory of PatternItem
+         *
+         * @param {number} type
+         * @returns {PaternItem}
+         */
         create: function (type) {
             var factory = PatternItem._factory;
             if (!factory) {
@@ -477,7 +515,12 @@
             this.parse = this._stateItem;
         },
 
-        get: function () {
+        /**
+         * Finalizes the last item and returns the root
+         *
+         * @returns {PatternItem}
+         */
+        root: function () {
             if (null === this._item) {
                 throw {
                     message: "Empty pattern"
@@ -493,7 +536,14 @@
             return this._root;
         },
 
-        // Get or create the item corresponding to the requested type
+        /**
+         * Get or create the item corresponding to the requested type
+         *
+         * @param {number} type See PatternItem.TYPE_xxx
+         * @param {boolean} force Ignore current item type, allocate new one
+         * @returns {PatternItem}
+         * @private
+         */
         _getItem: function (type, force) {
             var
                 item = this._item,
@@ -507,10 +557,16 @@
                     this._root = nextItem;
                 }
                 this._item = nextItem;
+                item = nextItem;
             }
             return item;
         },
 
+        /**
+         * Parsing automate state
+         * @param {string} char
+         * @private
+         */
         _stateItem: function (char) {
             if ("[" === char) {
                 this._getItem(PatternItem.TYPE_RANGE, true);
@@ -524,6 +580,11 @@
             }
         },
 
+        /**
+         * Parsing automate state
+         * @param {string} char
+         * @private
+         */
         _stateCharMatchRange: function (char) {
             var curItem = this._getItem(PatternItem.TYPE_RANGE);
             if ("^" === char && !curItem.hasExclude()) {
@@ -538,6 +599,11 @@
             }
         },
 
+        /**
+         * Parsing automate state
+         * @param {string} char
+         * @private
+         */
         _stateCharRangeSep: function (char) {
             if ("-" === char) {
                 this._inRange = true;
@@ -548,33 +614,51 @@
             }
         },
 
+        /**
+         * Parsing automate state
+         * @param {string} char
+         * @private
+         */
         _stateChar: function (char) {
             if ("\\" === char) {
-                this.parse = this.stateEscapedChar;
+                this.parse = this._stateEscapedChar;
             } else {
                 this._item.add(char, this._inRange);
                 this.parse = this._afterChar;
             }
         },
 
-        stateEscapedChar: function (char) {
+        /**
+         * Parsing automate state
+         * @param {string} char
+         * @private
+         */
+        _stateEscapedChar: function (char) {
             this._item.add(char, this._inRange);
             this.parse = this._afterChar;
         },
 
+        /**
+         * Parsing automate state
+         * @type {object} map character to parsing function
+         * @private
+         */
         _stateCountByChar: {
 
             "?": function () {
-                this._item.min(0);
+                var item = this._splitSimpleOnMinMax();
+                item.min(0);
             },
 
             "+": function () {
-                this._item.max(0);
+                var item = this._splitSimpleOnMinMax();
+                item.max(0);
             },
 
             "*": function () {
-                this._item.min(0);
-                this._item.max(0);
+                var item = this._splitSimpleOnMinMax();
+                item.min(0);
+                item.max(0);
             },
 
             "|": function () {
@@ -611,6 +695,29 @@
 
         },
 
+        /**
+         * Split current item if necessary for min/max
+         * @return {ParserItem}
+         * @private
+         */
+        _splitSimpleOnMinMax: function () {
+            var
+                item = this._item,
+                lastChar;
+            if (item.type() === PatternItem.TYPE_SIMPLE
+                && item.sequence().length > 1) {
+                lastChar = item.sequence().pop();
+                item = this._getItem(PatternItem.TYPE_SIMPLE, true);
+                item.add(lastChar);
+            }
+            return item;
+        },
+
+        /**
+         * Parsing automate state
+         * @param {string} char
+         * @private
+         */
         _stateCount: function (char) {
             var byChar = this._stateCountByChar[char];
             if (undefined === byChar) {
@@ -662,6 +769,13 @@
             this._item.reset(this._state);
         },
 
+        /**
+         * Get the item following the provided one
+         *
+         * @param {PatternItem} item
+         * @returns {PatternItem|null}
+         * @private
+         */
         _getNext: function (item) {
             var
                 result = item.next();
@@ -675,6 +789,13 @@
             return result;
         },
 
+        /**
+         * Handles situation when current item does not match on char
+         *
+         * @param {string} char
+         * @returns {number} write result
+         * @private
+         */
         _writeNoMatch: function (char) {
             var
                 state = this._state,
@@ -689,8 +810,10 @@
             }
             item = this._getNext(item);
             if (null === item) {
-                if (0 === state.result) {
+                if (0 === state.matchingLength) {
                     state.result = -1;
+                } else {
+                    state.result = state.matchingLength;
                 }
                 this._item = null;
                 return state.result;
@@ -702,6 +825,12 @@
             return this.write(char); // Try with this one
         },
 
+        /**
+         * Handles situation when current item matches on char
+         *
+         * @returns {number} write result
+         * @private
+         */
         _writeMatch: function () {
             var
                 state = this._state,
@@ -727,6 +856,17 @@
                     item.reset(state);
                     state.count = 0;
                     state.result = 0;
+                    if (0 === item.min()) {
+                        // TODO this search should be done only once
+                        nextItem = this._getNext(item);
+                        while (nextItem && 0 === nextItem.min()) {
+                            nextItem = this._getNext(nextItem);
+                        }
+                        if (!nextItem) {
+                            // The rest being optional...
+                            state.result = state.matchingLength;
+                        }
+                    }
                 }
             } else {
                 state.result = PatternItem.WRITE_NEED_DATA;
@@ -796,7 +936,7 @@
             for (idx = 0; idx < len; ++idx) {
                 context.parse(pattern.charAt(idx));
             }
-            this._root = context.get();
+            this._root = context.root();
         },
 
         /**

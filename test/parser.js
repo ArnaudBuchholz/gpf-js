@@ -65,11 +65,13 @@
                 pattern = new gpf.Pattern("abc?");
                 test.log("abc?");
                 test.equal(write(pattern.allocate(), "abc"), 3, "\tabc");
+                test.equal(write(pattern.allocate(), "ab"), 2,"\tab");
                 test.equal(write(pattern.allocate(), "abd"), 2, "\tabd");
                 test.equal(write(pattern.allocate(), "abcc"), 3, "\tabcc");
                 pattern = new gpf.Pattern("abc*");
                 test.log("abc*");
                 test.equal(write(pattern.allocate(), "abc"), 3, "\tabc");
+                test.equal(write(pattern.allocate(), "ab"), 2, "\tab");
                 test.equal(write(pattern.allocate(), "abd"), 2, "\tabd");
                 test.equal(write(pattern.allocate(), "abcc"), 4, "\tabcc");
             },
@@ -97,7 +99,7 @@
                 var
                     pattern = new gpf.Pattern("(a|bc)(de)+");
                 test.equal(write(pattern.allocate(), "ade"), 3, "ade");
-                test.equal(write(pattern.allocate(), "bc"), -1, "bc");
+                test.equal(write(pattern.allocate(), "bc"), 0, "bc");
                 test.equal(write(pattern.allocate(), "bcdeded"), 6, "bcdeded");
             },
 
