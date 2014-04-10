@@ -4,7 +4,7 @@
     var
         _escapes = {
 
-            jscript: {
+            javascript: {
                 "\\": "\\\\",
                 "\"": "\\\"",
                 "\n": "\\n",
