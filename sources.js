@@ -4,6 +4,7 @@
     var
         _sources = [
             "base",                 // Basic functions
+            "json",                 // JSON compatibility layer
             "events",               // Event management               gpf.events
             "http",                 // HTTP specific functions          gpf.http
             "bin",                  // Binary tools                      gpf.bin
