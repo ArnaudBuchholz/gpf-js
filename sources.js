@@ -4,10 +4,10 @@
     var
         _sources = [
             "base",                 // Basic functions
-            "json",                 // JSON compatibility layer         gpf.json
             "events",               // Event management               gpf.events
             "http",                 // HTTP specific functions          gpf.http
             "bin",                  // Binary tools                      gpf.bin
+            "json",                 // JSON compatibility layer         gpf.json
             "class",                // Class
             "attributes",           // Attributes                 gpf.attributes
             "error",                // Error base class
