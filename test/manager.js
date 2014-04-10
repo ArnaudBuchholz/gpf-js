@@ -17,7 +17,7 @@
             if ("undefined" === type) {
                 details.push("undefined");
             } else {
-                details.push(gpf.toJSON(arguments[0]));
+                details.push(gpf.json.stringify(arguments[0]));
             }
             details.push("\r\nSecond: (");
             type = typeof arguments[1];
@@ -25,7 +25,7 @@
             if ("undefined" === type) {
                 details.push("undefined");
             } else {
-                details.push(gpf.toJSON(arguments[1]));
+                details.push(gpf.json.stringify(arguments[1]));
             }
             details.push("\r\nare");
             if ("equal" === this._type || "like" === this._type) {

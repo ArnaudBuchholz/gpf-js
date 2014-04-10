@@ -1,6 +1,8 @@
 (function () { /* Begin of privacy scope */
     "use strict";
 
+    gpf.json = {};
+
     if("undefined" === typeof JSON) {
         var
             _obj2json = function (object) {
@@ -45,9 +47,9 @@
                     return _obj2json(object);
                 }
             };
-        gpf.toJSON = _json;
+        gpf.json.stringify = _json;
     } else {
-        gpf.toJSON = JSON.stringify;
+        gpf.json.stringify = JSON.stringify;
     }
 
 }()); /* End of privacy scope */
