@@ -142,7 +142,7 @@
             var replacements = _escapes[language];
             if (undefined !== replacements) {
                 that = gpf.replaceEx(that, replacements);
-                if ("jscript" === language) {
+                if ("javascript" === language) {
                     that = "\"" + that + "\"";
                     /* TODO: handle UNICODE characters
                      l = t.length;

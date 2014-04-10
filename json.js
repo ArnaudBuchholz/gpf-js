@@ -37,7 +37,7 @@
                 } else if ("number" === type || "boolean" === type) {
                     return object.toString();
                 } else if ("string" === type) {
-                    return gpf.escapeFor(object, "jscript");
+                    return gpf.escapeFor(object, "javascript");
                 }
                 if (null === object) {
                     return "null";

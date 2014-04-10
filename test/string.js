@@ -18,7 +18,7 @@
         "escapeFor": [
 
             function (test) {
-                test.equal(gpf.escapeFor("abc\r\ndef", "jscript"),
+                test.equal(gpf.escapeFor("abc\r\ndef", "javascript"),
                     "\"abc\\r\\ndef\"", "OK");
             },
 
