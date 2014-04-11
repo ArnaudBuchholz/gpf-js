@@ -46,6 +46,12 @@
     gpf.Class._info = new ClassInfo(null);
     gpf.Class._info._name = "gpf.Class";
 
+    gpf.Class._init = function () {
+        if (!_classInit && "function" === typeof this.init) {
+            this.init.apply(this, arguments);
+        }
+    };
+
     /*jshint -W040*/
 
     function /*gpf:inline*/ _extendMember(_super, newPrototype, properties,
@@ -116,19 +122,21 @@
      * @param {object} properties methods of the class
      * @returns {Function} new class constructor
      */
-    function _extend(properties) {
+    function _extend(properties, name) {
         var
             _super = this.prototype,
             newPrototype,
             newClass,
             member;
 
+        if (undefined === name) {
+            name = "noName";
+        }
+
         // The new class constructor
-        newClass = function () {
-            if (!_classInit && "function" === typeof this.init) {
-                this.init.apply(this, arguments);
-            }
-        };
+        newClass = (gpf._func("return function " + name + "() {" +
+                "gpf.Class._init.apply(this, arguments);" +
+            "};"))();
 
         /*
          * Basic JavaScript inheritance mechanism:
@@ -199,6 +207,7 @@
     gpf.define = function (name, base, definition) {
         var
             result,
+            ns,
             path;
         if ("string" === typeof base) {
             // Convert base into the function
@@ -207,12 +216,14 @@
         } else if ("object" === typeof base || undefined === base) {
             base = gpf.Class; // Root class
         }
-        result = base.extend(definition || {});
-        result.name = name;
-        if ("string" === typeof name && -1 < name.indexOf(".")) {
+        if (-1 < name.indexOf(".")) {
             path = name.split(".");
             name = path.pop();
-            gpf.context(path)[name] = result;
+            ns = gpf.context(path);
+        }
+        result = base.extend(definition || {}, name);
+        if (undefined !== ns) {
+            ns[name] = result;
         }
         return result;
     };

@@ -1,5 +1,7 @@
+/*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+/*#endif*/
 
     var
         /*
@@ -16,11 +18,10 @@
                 + " = arguments[0]; } return r;");
         },
 
-        _base = gpf.attributes.Attribute.extend({});
+        _base = gpf.define("gpf.attributes.ClassAttribute",
+                    "gpf.attributes.Attribute");
 
-    gpf.attributes.ClassAttribute = _base;
-
-    gpf.attributes.ClassPropertyAttribute = _base.extend({
+    gpf.define("gpf.attributes.ClassPropertyAttribute", _base, {
 
         "[Class]": [gpf.$Alias("ClassProperty")],
 
@@ -52,7 +53,7 @@
 
     });
 
-    gpf.attributes.ClassExtensionAttribute = _base.extend({
+    gpf.define("gpf.attributes.ClassExtensionAttribute", _base, {
 
         "[Class]": [gpf.$Alias("ClassExtension")],
 
@@ -68,4 +69,6 @@
 
     });
 
+/*#ifndef(UMD)*/
 }()); /* End of privacy scope */
+/*#endif*/
