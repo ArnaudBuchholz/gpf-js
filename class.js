@@ -1,5 +1,7 @@
+/*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+/*#endif*/
 
     // Class inspired by http://ejohn.org/blog/simple-javascript-inheritance
     var
@@ -186,4 +188,35 @@
 
     gpf.Class.extend = _extend;
 
+    /**
+     * Defines a new class by setting a contextual name
+     *
+     * @param {string} name New class contextual name
+     * @param {string} [base=undefined] base Base class contextual name
+     * @param {object} [definition=undefined] definition Class definition
+     * @return {Function}
+     */
+    gpf.define = function (name, base, definition) {
+        var
+            result,
+            path;
+        if ("string" === typeof base) {
+            // Convert base into the function
+            base = gpf.context(base);
+
+        } else if ("object" === typeof base || undefined === base) {
+            base = gpf.Class; // Root class
+        }
+        result = base.extend(definition || {});
+        result.name = name;
+        if ("string" === typeof name && -1 < name.indexOf(".")) {
+            path = name.split(".");
+            name = path.pop();
+            gpf.context(path)[name] = result;
+        }
+        return result;
+    };
+
+/*#ifndef(UMD)*/
 }()); /* End of privacy scope */
+/*#endif*/
