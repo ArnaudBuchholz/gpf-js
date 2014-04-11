@@ -1,8 +1,10 @@
+/*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+/*#endif*/
 
     /*
-     * Detect host * & define global context
+     * Detect host & define global context
      */
     var
         _host,
@@ -25,30 +27,78 @@
     } else if ("undefined" !== typeof module && module.exports) {
         _host = "nodejs";
         _context = global;
-    // Default: browser
-    } else {
+
+    // Browser
+    } else if ("undefined" !== typeof window) {
         _host = "browser";
         _context = window;
+
+    // Default: unknown
+    } else {
+        _host = "unknown";
+        _context = this;
+
     }
 
-/*#ifdef(BOOT)*/
+/*#ifndef(UMD)*/
 
     _context.gpf = {};
 
 /*#endif*/
 
-    /*
-     * Main namespace & primitives
+
+    /**
+     * Returns a string identifying the detected host
+     *
+     * @return {string}
+     * - "wscript" for cscript and wscript
+     * - "nodejs" for nodejs
+     * - "browser" for any browser
+     * - "unknown" if not detected
      */
     gpf.host = function () {
         return _host;
     };
 
-    gpf.context = function () {
-        return _context;
+    /**
+     * Resolve the provided evaluation path and returns the result
+     *
+     * @param {string|string[]} path Dot separated list of identifier
+     * (or identifier array)
+     * @return {*|undefined}
+     * - when path is empty, it returns the current host higher object
+     * - when path is "gpf" it returns the GPF object
+     */
+    gpf.context = function (path) {
+        var
+            len,
+            idx,
+            result;
+        if (undefined === path) {
+            return _context;
+        } else {
+            if ("string" === typeof path) {
+                path = path.split(".");
+            }
+            len = path.length;
+            idx = 0;
+            if (path[0] === "gpf") {
+                result = gpf;
+                ++idx;
+            } else {
+                result = _context;
+            }
+            for (; idx < len; ++idx) {
+                result = result[path[idx]];
+                if (undefined === result) {
+                    break;
+                }
+            }
+            return result;
+        }
     };
 
-/*#ifdef(BOOT)*/
+/*#ifndef(UMD)*/
 
     var
         _loaded,
@@ -84,7 +134,7 @@
 
 /*#endif*/
 
-/*#ifdef(BOOT)*/
+/*#ifndef(UMD)*/
 
     }
 
@@ -113,9 +163,14 @@
             };
         }
     };
+
+/*#else*/
+
+    gpf.ASSERT = function /*gpf:inline*/ () {};
+
 /*#endif*/
 
-/*#ifdef(BOOT)*/
+/*#ifndef(UMD)*/
 
     /*
      * Loading sources occurs here because the release version will have
@@ -230,6 +285,5 @@
         }());
     }
 
-/*#endif*/
-
 }()); /* End of privacy scope */
+/*#endif*/
