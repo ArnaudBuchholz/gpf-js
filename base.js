@@ -1,5 +1,7 @@
+/*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+/*#endif*/
 
 /*
     This package contains general helpers that will be used everywhere else
@@ -400,4 +402,6 @@
 
     });
 
+/*#ifndef(UMD)*/
 }()); /* End of privacy scope */
+/*#endif*/

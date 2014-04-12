@@ -1,5 +1,7 @@
+/*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+/*#endif*/
 
     /*                                                                         |
      * First of all, apply JSlint with:                                        |
@@ -57,4 +59,6 @@
  *   attributes ATTRIBUTES related
  */
 
+/*#ifndef(UMD)*/
 }()); /* End of privacy scope */
+/*#endif*/

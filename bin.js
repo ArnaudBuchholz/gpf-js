@@ -1,5 +1,7 @@
+/*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+/*#endif*/
 
     var
         _b64 = gpf._ALPHA + gpf._alpha + "0123456789+/",
@@ -170,4 +172,6 @@
 
     };
 
+/*#ifndef(UMD)*/
 }()); /* End of privacy scope */
+/*#endif*/
