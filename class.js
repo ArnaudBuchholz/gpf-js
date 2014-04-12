@@ -214,6 +214,7 @@
             base = gpf.context(base);
 
         } else if ("object" === typeof base || undefined === base) {
+            definition = base;
             base = gpf.Class; // Root class
         }
         if (-1 < name.indexOf(".")) {
