@@ -21,6 +21,19 @@
     }
 
     /**
+     * Defines an attribute (relies on gpf.define)
+     *
+     * @param {string} name Attribute name. If it contains a dot, it is
+     * treated as absolute contextual. Otherwise, it is relative to
+     * "gpf.attributes"
+     * @param {function|string} [base=undefined] base Base attribute
+     * (or contextual name)
+     * @param {object} [definition=undefined] definition Attribute definition
+     * @return {function}
+     */
+    gpf.attribute = gpf._genDefHandler("gpf.attributes", "Attribute");
+
+    /**
      * Base class for any attribute
      */
     gpf.define("gpf.attributes.Attribute", {
@@ -53,7 +66,7 @@
 
     });
 
-    gpf.define("gpf.attributes.AliasAttribute", "gpf.attributes.Attribute", {
+    gpf.attribute("AliasAttribute", {
 
         init: function (name) {
             this._name = name;

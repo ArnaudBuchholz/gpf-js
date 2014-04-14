@@ -213,8 +213,11 @@
             // Convert base into the function
             base = gpf.context(base);
 
-        } else if ("object" === typeof base || undefined === base) {
+        } else if ("object" === typeof base) {
             definition = base;
+            base = undefined;
+        }
+        if (undefined === base) {
             base = gpf.Class; // Root class
         }
         if (-1 < name.indexOf(".")) {
@@ -227,6 +230,32 @@
             ns[name] = result;
         }
         return result;
+    };
+
+    /**
+     * Allocate a new class handler that is specific to a class type
+     * (used for interfaces & attributes)
+     *
+     * @param {string} ctxRoot Default context root
+     * @param {string} defaultBase Default contextual root class
+     * @private
+     */
+    gpf._genDefHandler = function (ctxRoot, defaultBase) {
+        ctxRoot = ctxRoot + ".";
+        return function (name, base, definition) {
+            var result;
+            if (undefined === definition && "object" === typeof base) {
+                definition = base;
+                base = ctxRoot + defaultBase;
+            } else if (undefined === base) {
+                base = ctxRoot + defaultBase;
+            }
+            if (-1 === name.indexOf(".")) {
+                name = ctxRoot + name;
+            }
+            result = gpf.define(name, base, definition);
+            return result;
+        };
     };
 
 /*#ifndef(UMD)*/

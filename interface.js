@@ -35,6 +35,8 @@
             return true;
         },
 
+/*#ifdef(DEBUG)*/
+
         /**
          * Used to remove warnings about unused parameters
          */
@@ -42,6 +44,8 @@
             // TODO remove at build time
             return value;
         },
+
+/*#endif*/
 
         /**
          * Retrieve an object implementing the expected interface from an
@@ -69,6 +73,16 @@
 
     };
 
+/*#ifndef(DEBUG)*/
+
+    if (!gpf.interfaces.ignoreParameter) {
+
+        gpf.interfaces.ignoreParameter = function /*gpf:inline*/ () {};
+
+    }
+
+/*#endif*/
+
     /**
      * Defines an interface (relies on gpf.define)
      *
@@ -80,19 +94,7 @@
      * @param {object} [definition=undefined] definition Interface definition
      * @return {function}
      */
-    gpf.interface = function (name, base, definition) {
-        var result;
-        if (undefined === definition && "object" === typeof base) {
-            definition = base;
-            base = "gpf.interfaces.Interface";
-        }
-        if (-1 === name.indexOf(".")) {
-            name = "gpf.interfaces." + name;
-        }
-        result = gpf.define(name, base, definition);
-        // TODO flag as interface
-        return result;
-    };
+    gpf.interface = gpf._genDefHandler("gpf.interfaces", "Interface");
 
     gpf.interface("Interface");
 
