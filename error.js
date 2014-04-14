@@ -3,7 +3,7 @@
     "use strict";
 /*#endif*/
 
-    gpf.Error = gpf.Class.extend({
+    gpf.define("gpf.Error", {
 
         _message: 0,
         _name: 0,
