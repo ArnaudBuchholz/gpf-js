@@ -65,12 +65,36 @@
             } else {
                 return null;
             }
-        },
-
-        Interface: gpf.Class.extend({
-        })
+        }
 
     };
+
+    /**
+     * Defines an interface (relies on gpf.define)
+     *
+     * @param {string} name Interface name. If it contains a dot, it is
+     * treated as absolute contextual. Otherwise, it is relative to
+     * "gpf.interfaces"
+     * @param {function|string} [base=undefined] base Base interface
+     * (or contextual name)
+     * @param {object} [definition=undefined] definition Interface definition
+     * @return {function}
+     */
+    gpf.interface = function (name, base, definition) {
+        var result;
+        if (undefined === definition && "object" === typeof base) {
+            definition = base;
+            base = "gpf.interfaces.Interface";
+        }
+        if (-1 === name.indexOf(".")) {
+            name = "gpf.interfaces." + name;
+        }
+        result = gpf.define(name, base, definition);
+        // TODO flag as interface
+        return result;
+    };
+
+    gpf.interface("Interface");
 
     //region IUnknown
 
@@ -79,7 +103,7 @@
      * intermediate object (this avoids overloading the object with temporary
      * / useless members)
      */
-    gpf.interfaces.IUnknown = gpf.interfaces.Interface.extend({
+    gpf.interface("IUnknown", {
 
         /**
          * Retrieves an object supporting the provided interface
