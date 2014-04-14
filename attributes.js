@@ -10,6 +10,12 @@
 
     function _alias(objectClass, name) {
         gpf[ "$" + name ] = (function(){
+/*
+ var Proxy = (gpf._func("return function $" + name + "() {" +
+ "this.constructor.apply(this, arguments);" +
+ "};"))();
+
+ */
             var Proxy = function (args) {
                     return objectClass.apply(this, args);
                 };
