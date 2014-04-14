@@ -10,7 +10,7 @@
     gpf.attributes = {};
 
     /**
-     * Creates a factory capable of creating a new instance of a class
+     * Generates a factory capable of creating a new instance of a class
      *
      * @param {function} objectClass Object constructor
      * @param {string} name Alias name (will be prefixed by $)
@@ -64,6 +64,8 @@
 
     /**
      * Base class for any attribute
+     *
+     * @class gpf.attributes.Attribute
      */
     gpf.attribute("Attribute", {
 
@@ -84,10 +86,12 @@
         },
 
         /**
-         * Called when a class is created with an attribute. It allows to
-         * manipulate the object prototype through attributes.
+         * This method is the implementation of the attribute: it receives
+         * the prototype to alter.
          *
-         * @param {object} objPrototype object's prototype
+         * NOTE: this is called *after* all declared members are set
+         *
+         * @param {object} objPrototype Class prototype
          */
         alterPrototype: function /*abstract*/ (objPrototype) {
             gpf.interfaces.ignoreParameter(objPrototype);
@@ -95,12 +99,29 @@
 
     });
 
+    /**
+     * Generates an alias for the attribute. An alias is a factory function that
+     * allocates an attribute instance (parameters are forwarded).
+     * As a result, instead of using:
+     * "[Class]" : [new gpf.attributes.AliasAttribute("Name")]
+     * It is reduced to:
+     * "[Class]" : [$Alias("Name")]
+     *
+     * @param {string} name Name of the alias to build below gpf
+     *
+     * @class gpf.attributes.AliasAttribute
+     * @extends gpf.attributes.Attribute
+     * @alias gpf.$Alias
+     */
     gpf.attribute("$Alias", {
 
         init: function (name) {
             this._name = name;
         },
 
+        /**
+         * @inheritDoc gpf.attributes.Attribute:alterPrototype
+         */
         alterPrototype: function (objPrototype) {
             _alias(objPrototype.constructor, this._name);
         }
