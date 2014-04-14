@@ -5,11 +5,12 @@
 
     var
         gpfI = gpf.interfaces,
-        gpfA = gpf.attributes;
+        gpfA = gpf.attributes,
+        iROArray;
 
     //region IReadOnlyArray and IArray
 
-    gpfI.IReadOnlyArray = gpfI.Interface.extend({
+    iROArray = gpf.interface("IReadOnlyArray", {
 
         /**
          * Return the number of items in the array
@@ -32,7 +33,7 @@
 
     });
 
-    gpfI.IArray = gpfI.IReadOnlyArray.extend({
+    gpf.interface("IArray", iROArray, {
 
         /**
          * Set the item inside the array (idx is 0-based)
