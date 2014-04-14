@@ -4,13 +4,22 @@
 /*#endif*/
 
     var
-        _emptyMember = 0;
+        _emptyMember = 0,
+        _attributeHandler;
 
     gpf.attributes = {};
 
+    /**
+     * Creates a factory capable of creating a new instance of a class
+     *
+     * @param {function} objectClass Object constructor
+     * @param {string} name Alias name (will be prefixed by $)
+     * @private
+     */
     function _alias(objectClass, name) {
-        gpf[ "$" + name ] = (function(){
-            var Proxy = (gpf._func("return function $" + name + "(args) {" +
+        name = "$" + name;
+        gpf[name] = (function(){
+            var Proxy = (gpf._func("return function " + name + "(args) {" +
                 "this.constructor.apply(this, args);" +
             "};"))();
             Proxy.prototype = objectClass.prototype;
@@ -20,23 +29,43 @@
         }());
     }
 
+    _attributeHandler = gpf._genDefHandler("gpf.attributes", "Attribute");
+
     /**
      * Defines an attribute (relies on gpf.define)
      *
      * @param {string} name Attribute name. If it contains a dot, it is
      * treated as absolute contextual. Otherwise, it is relative to
-     * "gpf.attributes"
+     * "gpf.attributes". If starting with $ (and no dot), the contextual name
+     * will be the "gpf.attributes." + name(without $) + "Attribute" and an
+     * alias is automatically created (otherwise, use $Alias attribute on class)
      * @param {function|string} [base=undefined] base Base attribute
      * (or contextual name)
      * @param {object} [definition=undefined] definition Attribute definition
      * @return {function}
      */
-    gpf.attribute = gpf._genDefHandler("gpf.attributes", "Attribute");
+    gpf.attribute = function (name, base, definition) {
+        var
+            isAlias = name.charAt(0) === "$",
+            fullName,
+            result;
+        if (isAlias) {
+            name = name.substr(1);
+            fullName = name + "Attribute";
+        } else {
+            fullName = name;
+        }
+        result = _attributeHandler(fullName, base, definition);
+        if (isAlias) {
+            _alias(result, name);
+        }
+        return result;
+    };
 
     /**
      * Base class for any attribute
      */
-    gpf.define("gpf.attributes.Attribute", {
+    gpf.attribute("Attribute", {
 
         _member: "",
 
@@ -66,7 +95,7 @@
 
     });
 
-    gpf.attribute("AliasAttribute", {
+    gpf.attribute("$Alias", {
 
         init: function (name) {
             this._name = name;
@@ -328,8 +357,6 @@
             attribute.alterPrototype(objectClass.prototype);
         }
     };
-
-    _alias(gpf.attributes.AliasAttribute, "Alias");
 
 /*#ifndef(UMD)*/
 }()); /* End of privacy scope */
