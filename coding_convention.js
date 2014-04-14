@@ -37,7 +37,7 @@
         gpf.events.fire.apply(this, ['sample', {ctx1: param1}, eventsHandler]);
     }
 
-    namspace.newClass = gpf.Class.extend({
+    namspace.newClass = gpf.define("newClass", {
 
         /*
          * Modifier can be: abstract, const
