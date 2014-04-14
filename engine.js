@@ -1,5 +1,7 @@
-(function(){ /* Begin of privacy scope */
+/*#ifndef(UMD)*/
+(function () { /* Begin of privacy scope */
     "use strict";
+/*#endif*/
 
     // TODO: refactor!
     
@@ -153,4 +155,6 @@
 
     });
 
-})(); /* End of privacy scope */
+/*#ifndef(UMD)*/
+}()); /* End of privacy scope */
+/*#endif*/

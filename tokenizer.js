@@ -1,5 +1,7 @@
+/*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+/*#endif*/
 
     /*
      * 2013-11-05 ABZ
@@ -609,4 +611,6 @@
 
     });
 
+/*#ifndef(UMD)*/
 }()); /* End of privacy scope */
+/*#endif*/

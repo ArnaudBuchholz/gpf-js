@@ -1,10 +1,12 @@
-(function(){ /* Begin of privacy scope */
+/*#ifndef(UMD)*/
+(function () { /* Begin of privacy scope */
     "use strict";
+/*#endif*/
 
-/*
-    Will be created using JISON but as I am not decided yet, I put everything
-    hard-coded
-*/
+    /*
+        Will be created using JISON but as I am not decided yet, I put everything
+        hard-coded
+    */
 
 /*
     var
@@ -255,5 +257,6 @@
 
     });
 
-
+/*#ifndef(UMD)*/
 }()); /* End of privacy scope */
+/*#endif*/

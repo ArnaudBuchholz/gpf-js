@@ -1,5 +1,7 @@
+/*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+/*#endif*/
 
     var
         gpfI = gpf.interfaces,
@@ -77,4 +79,6 @@
 
     });
 
-})(); /* End of privacy scope */
+/*#ifndef(UMD)*/
+}()); /* End of privacy scope */
+/*#endif*/

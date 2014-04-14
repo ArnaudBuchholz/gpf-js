@@ -1,5 +1,7 @@
-(function(){ /* Begin of privacy scope */
+/*#ifndef(UMD)*/
+(function () { /* Begin of privacy scope */
     "use strict";
+/*#endif*/
 
     var
         // gpfA = gpf.attributes,
@@ -404,4 +406,6 @@
         out.endElement();
     };
 
+/*#ifndef(UMD)*/
 }()); /* End of privacy scope */
+/*#endif*/

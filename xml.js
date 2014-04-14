@@ -1,5 +1,7 @@
-(function(){ /* Begin of privacy scope */
+/*#ifndef(UMD)*/
+(function () { /* Begin of privacy scope */
     "use strict";
+/*#endif*/
 
     /*jshint forin:false*/ // Need to inspect all members of the prototype
 
@@ -1103,4 +1105,6 @@
 
     //endregion
 
+/*#ifndef(UMD)*/
 }()); /* End of privacy scope */
+/*#endif*/

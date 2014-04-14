@@ -1,5 +1,7 @@
+/*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+/*#endif*/
 
     var
         _escapes = {
@@ -197,4 +199,6 @@
 
     });
 
+/*#ifndef(UMD)*/
 }()); /* End of privacy scope */
+/*#endif*/

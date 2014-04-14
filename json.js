@@ -1,5 +1,7 @@
+/*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+/*#endif*/
 
     gpf.json = {};
 
@@ -52,4 +54,6 @@
         gpf.json.stringify = JSON.stringify;
     }
 
+/*#ifndef(UMD)*/
 }()); /* End of privacy scope */
+/*#endif*/

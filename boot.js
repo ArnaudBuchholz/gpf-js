@@ -164,9 +164,17 @@
         }
     };
 
+    if (!gpf.ASSERT) {
+
 /*#else*/
 
-    gpf.ASSERT = function /*gpf:inline*/ () {};
+        gpf.ASSERT = function /*gpf:inline*/ () {};
+
+/*#endif*/
+
+/*#ifdef(DEBUG)*/
+
+    }
 
 /*#endif*/
 

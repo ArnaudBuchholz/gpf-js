@@ -1,5 +1,7 @@
+/*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+/*#endif*/
 
 /*
 FIXME: IE10 does not detect when the script does not exist.
@@ -126,4 +128,6 @@ FIXME: IE10 does not detect when the script does not exist.
 
     };
 
+/*#ifndef(UMD)*/
 }()); /* End of privacy scope */
+/*#endif*/

@@ -1,5 +1,7 @@
+/*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+/*#endif*/
 
     gpf.interfaces = {
 
@@ -188,4 +190,6 @@
 
     //endregion
 
+/*#ifndef(UMD)*/
 }()); /* End of privacy scope */
+/*#endif*/
