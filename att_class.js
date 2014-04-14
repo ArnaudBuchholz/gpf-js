@@ -18,12 +18,25 @@
                 + " = arguments[0]; } return r;");
         },
 
-        _base = gpf.define("gpf.attributes.ClassAttribute",
-                    "gpf.attributes.Attribute");
+        _base = gpf.attribute("ClassAttribute");
 
-    gpf.define("gpf.attributes.ClassPropertyAttribute", _base, {
+    /**
+     * Creates getter (and setter) methods for a private member. The created
+     * accessor is a method with the following signature:
+     * {type} MEMBER({type} [value=undefined] value)
+     * When value is not set, the member acts as a getter
+     *
+     * @param {boolean} writeAllowed
+     * @param {string} [publicName=undefined] publicName When not specified,
+     * the member name (without _) is applied
+     *
+     * @class gpf.attributes.ClassPropertyAttribute
+     * @extends gpf.attributes.ClassAttribute
+     * @alias gpf.$ClassProperty
+     */
+    gpf.attribute("$ClassProperty", _base, {
 
-        "[Class]": [gpf.$Alias("ClassProperty")],
+//        "[Class]": [gpf.$Alias("ClassProperty")],
 
         _writeAllowed: false,
         _publicName: "",
@@ -53,9 +66,20 @@
 
     });
 
-    gpf.define("gpf.attributes.ClassExtensionAttribute", _base, {
+    /**
+     * Defines a class extension (internal)
+     *
+     * @param {string} ofClass
+     * @param {string} [publicName=undefined] publicName When not specified,
+     * the original method name is used
+     *
+     * @class gpf.attributes.ClassExtensionAttribute
+     * @extends gpf.attributes.ClassAttribute
+     * @alias gpf.$ClassExtension
+     */
+    gpf.attribute("$ClassExtension", _base, {
 
-        "[Class]": [gpf.$Alias("ClassExtension")],
+//        "[Class]": [gpf.$Alias("ClassExtension")],
 
         _ofClass: 0,
         _publicName: "",
