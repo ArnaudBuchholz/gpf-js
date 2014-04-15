@@ -7,7 +7,13 @@
         gpfI = gpf.interfaces,
         gpfA = gpf.attributes;
 
-    gpfI.IEnumerable = gpfI.Interface.extend({
+    /**
+     * Enumerable interface
+     *
+     * @class gpf.interfaces.IEnumerable
+     * @extends gpf.interfaces.Interface
+     */
+    gpf.interface("IEnumerable", {
 
         /**
          * Sets the enumerator to its initial position, which is before the
@@ -36,6 +42,13 @@
 
     });
 
+    /**
+     * Builds an enumerable interface based on an array
+     *
+     * @param {object[]} array Base of the enumeration
+     * @return {object} Object implementing the IEnumerable interface
+     * @private
+     */
     function _arrayEnumerator(array) {
         var pos = -1;
         return {
@@ -52,6 +65,13 @@
         };
     }
 
+    /**
+     * Interface builder that connects to the EnumerableAttribute attribute
+     *
+     * @param {object} object
+     * @return {object} Object implementing the IEnumerable interface
+     * @private
+     */
     function _buildEnumerableOnArray(object) {
         // Look for related member
         var
@@ -61,10 +81,18 @@
         return _arrayEnumerator(object[members[0]]);
     }
 
-    gpfA.EnumerableAttribute = gpfA.Attribute.extend({
+    /**
+     * Extend the class to provide an enumerable interface
+     *
+     * @class gpf.attributes.EnumerableAttribute
+     * @extends gpf.attributes.ClassAttribute
+     * @alias gpf.$ClassIArray
+     */
+    gpf.attribute("$Enumerable", gpfA.ClassAttribute, {
 
-        "[Class]": [gpf.$Alias("Enumerable")],
-
+        /**
+         * @inheritDoc gpf.attributes.Attribute:alterPrototype
+         */
         alterPrototype: function (objPrototype) {
             if (!(objPrototype[this._member] instanceof Array)) {
                 throw {

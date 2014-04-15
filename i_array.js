@@ -10,6 +10,12 @@
 
     //region IReadOnlyArray and IArray
 
+    /**
+     * Read only array interface
+     *
+     * @class gpf.interfaces.IReadOnlyArray
+     * @extends gpf.interfaces.Interface
+     */
     iROArray = gpf.interface("IReadOnlyArray", {
 
         /**
@@ -33,6 +39,12 @@
 
     });
 
+    /**
+     * Array interface
+     *
+     * @class gpf.interfaces.IArray
+     * @extends gpf.interfaces.IReadOnlyArray
+     */
     gpf.interface("IArray", iROArray, {
 
         /**
@@ -55,10 +67,23 @@
 
     //region Class modifier to generate an array interface
 
-    gpfA.ClassArrayInterfaceAttribute = gpfA.ClassAttribute.extend({
+    /**
+     * Extend the class to provide an array-like interface
+     *
+     * @param {boolean} [writeAllowed=false] writeAllowed Switch between read
+     * only array and writable one
+     *
+     * @class gpf.attributes.ClassArrayInterfaceAttribute
+     * @extends gpf.attributes.ClassAttribute
+     * @alias gpf.$ClassIArray
+     */
+    gpf.attribute("ClassArrayInterfaceAttribute", gpfA.ClassAttribute, {
 
         "[Class]": [gpf.$Alias("ClassIArray")],
 
+        /**
+         * @type {boolean}
+         */
         _writeAllowed: false,
 
         init: function (writeAllowed) {
@@ -67,6 +92,9 @@
             }
         },
 
+        /**
+         * @inheritDoc gpf.attributes.Attribute:alterPrototype
+         */
         alterPrototype: function (objPrototype) {
             var
                 implementedInterface;
