@@ -169,10 +169,21 @@
         /*jslint +W040*/
     }
 
-    gpf.attributes.InterfaceImplementAttribute
-        = gpf.attributes.Attribute.extend({
 
-        "[Class]": [gpf.$Alias("InterfaceImplement")],
+    /**
+     * Extend the class to provide an array-like interface
+     *
+     * @param {function} interfaceDefinition Implemented interface definition
+     * @param {function} [queryInterfaceBuilder=undefined] queryInterfaceBuilder
+     * Function applied if the implemented interface is requested
+     *
+     * @class gpf.attributes.ClassArrayInterfaceAttribute
+     * @extends gpf.attributes.ClassAttribute
+     * @alias gpf.$ClassIArray
+     */
+    gpf.attribute("$InterfaceImplement", {
+
+//        "[Class]": [gpf.$Alias("InterfaceImplement")],
 
         "[_interfaceDefinition]": [gpf.$ClassProperty(false, "which")],
         _interfaceDefinition: 0,
