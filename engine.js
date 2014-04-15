@@ -59,7 +59,7 @@
 
         },
 
-        CodeArray = gpf.class.extend({
+        CodeArray = gpf.define("CodeArray", {
 
             init: function() {
                 this._items = [];
@@ -67,7 +67,7 @@
 
         }),
 
-        IdString = gpf.class.extend({
+        IdString = gpf.define("IdString", {
 
             init: function(label, executable) {
                 this._label = [];
@@ -80,7 +80,7 @@
 
         }),
 
-        EngineState = gpf.Class.extend({
+        EngineState = gpf.define("EngineState", {
 
             init: function() {
                 this._stack = [];
@@ -143,13 +143,14 @@
         });
 
 
-    gpf.Engine = gpf.Class.extend({
+    gpf.define("gpf.Engine", {
 
         init: function() {
             this._state = new EngineState();
         },
 
         execute: function(src) {
+            gpf.interfaces.ignoreParameter(src);
 
         }
 

@@ -6,7 +6,13 @@
     var
         gpfI = gpf.interfaces;
 
-    gpfI.ITextStream = gpfI.Interface.extend({
+    /**
+     * Text stream
+     *
+     * @class gpf.interfaces.ITextStream
+     * @extends gpf.interfaces.Interface
+     */
+    gpf.interface("ITextStream", {
 
         /**
          * Read characters from the text stream
@@ -36,6 +42,7 @@
 
     /**
      * Internal helper to implement the expected write behavior in all streams
+     * @inheritDoc gpf.interfaces.ITextStream:write
      */
     gpfI.ITextStream._write = function () {
         var argIdx, arg;
