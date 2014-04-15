@@ -335,7 +335,7 @@
     /**
      * 
      * @param {object} sourceTests
-     * @returns {undefined}
+     * @return {undefined}
      * 
      * @internal
      */
@@ -362,7 +362,7 @@
      * Handles the tests
      * 
      * @param {object/function} eventsHandler
-     * @returns {number} Number of errors
+     * @return {number} Number of errors
      *
      * @eventParam {string} message The message
      *
@@ -393,7 +393,7 @@
      *
      * @param {string} name
      * @param {object/function} eventsHandler
-     * @returns {undefined}
+     * @return {undefined}
      *
      * @eventParam {string} message The message
      *

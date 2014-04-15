@@ -80,7 +80,7 @@
          * Computes the power of 2
          *
          * @param {number} n the power to compute
-         * @returns {number}
+         * @return {number}
          */
         pow2: function (n) {
             return 1 << n;
@@ -90,7 +90,7 @@
          * Check if the given value is a power of 2
          *
          * @param {number} value the value to check
-         * @returns {number} the power of 2 or -1
+         * @return {number} the power of 2 or -1
          */
         isPow2: function (value) {
             // http://en.wikipedia.org/wiki/Power_of_two
@@ -115,7 +115,7 @@
          * @param {number} value to encode
          * @param {number} length of encoding
          * @param {string} safepad [safepad=base.charAt(0)]
-         * @returns {string}
+         * @return {string}
          */
         toBaseANY: _toBaseANY,
 
@@ -124,7 +124,7 @@
          * @param {string} base
          * @param {string} text
          * @param {string} safepad [safepad=""]
-         * @returns {number}
+         * @return {number}
          */
         fromBaseANY: _fromBaseANY,
 
@@ -133,7 +133,7 @@
          * @param {number} value
          * @param {number} length of encoding
          * @param {string} safepad [safepad="0"]
-         * @returns {string}
+         * @return {string}
          */
         toHexa: function (value, length, safepad) {
             return _toBaseANY(_b16, value, length, safepad);
@@ -143,7 +143,7 @@
          * Decodes the hexadecimal text value.
          * @param {string} text
          * @param {string} safepad [safepad="0"]
-         * @returns {Number}
+         * @return {Number}
          */
         fromHexa: function (text, safepad) {
             return _fromBaseANY(_b16, text, safepad);
@@ -154,7 +154,7 @@
          * @param {number} value
          * @param {number} length of encoding
          * @param {string} safepad [safepad="0"]
-         * @returns {string}
+         * @return {string}
          */
         toBase64: function (value, length, safepad) {
             return _toBaseANY(_b64, value, length, safepad);
@@ -164,7 +164,7 @@
          * Decodes the hexadecimal text value.
          * @param {string} text
          * @param {string} safepad [safepad="0"]
-         * @returns {Number}
+         * @return {Number}
          */
         fromBase64: function (text, safepad) {
             return _fromBaseANY(_b64, text, safepad);

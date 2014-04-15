@@ -81,7 +81,7 @@
          * @param {string} event name
          * @param {function} callback
          * @param {boolean} useCapture push it on top of the triggering queue
-         * @returns {object} this
+         * @return {object} this
          * @chainable
          */
         addEventListener: function (event, callback, useCapture) {
@@ -105,7 +105,7 @@
          *
          * @param {string} event name
          * @param {function} callback
-         * @returns {undefined}
+         * @return {undefined}
          * @chainable
          */
         removeEventListener: function (event, callback) {
@@ -118,7 +118,7 @@
          * Broadcast the event
          * @param {string|gpf.events.Event} event name or object
          * @param {object} [params={}] event parameters
-         * @returns {object} this
+         * @return {object} this
          * @chainable
          */
         broadcastEvent: function (event, params) {
@@ -164,7 +164,7 @@
         /**
          * Event type
          *
-         * @returns {string}
+         * @return {string}
          */
         type: function () {
             return this._type;
@@ -173,7 +173,7 @@
         /**
          * Event can be cancelled
          *
-         * @returns {boolean}
+         * @return {boolean}
          */
         cancelable: function () {
             return this._cancelable;
@@ -191,7 +191,7 @@
         /**
          * Returns true if preventDefault has been called at least once
          *
-         * @returns {boolean}
+         * @return {boolean}
          */
         defaultPrevented: function () {
             return this._defaultPrevented;
@@ -208,7 +208,7 @@
          * Get any additional event information
          * 
          * @param {string} name parameter name
-         * @returns {*} value of parameter
+         * @return {*} value of parameter
          */
         get: function (name) {
             return this._params[name];
@@ -219,7 +219,7 @@
          * 
          * @param {object/function} eventsHandler broadcaster or callback
          *        function
-         * @returns {gpf.events.Event} this
+         * @return {gpf.events.Event} this
          */
         fire: function (eventsHandler) {
             return gpf.events.fire(this, eventsHandler);
@@ -242,7 +242,7 @@
          *                 (when type is a string)
          * @param {object/function} eventsHandler broadcaster or callback
          *        function
-         * @returns {gpf.events.Event} the event object
+         * @return {gpf.events.Event} the event object
          */
         fire: function (event, params, eventsHandler) {
             if (event instanceof _Event) {

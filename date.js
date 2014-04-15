@@ -25,7 +25,7 @@
          *
          * @param {Date} that
          * @param {boolean} [includeTime=true] includeTime
-         * @returns {string}
+         * @return {string}
          */
         dateToComparableFormat: function (that, includeTime) {
             if (undefined === includeTime) {
@@ -49,7 +49,7 @@
          * function dateToComparableFormat
          *
          * @param {string} that
-         * @returns {Date}
+         * @return {Date}
          */
         dateFromComparableFormat: function (that) {
             var

@@ -28,7 +28,7 @@
      * 
      * @param {any} param1
      * @param {object/function} eventsHandler
-     * @returns {undefined}
+     * @return {undefined}
      *
      * @event sample This is the sample event
      * @eventParam {any} ctx1 the first event parameter

@@ -120,7 +120,7 @@
      * Create a new Class that inherits from 'this' class
      *
      * @param {object} properties methods of the class
-     * @returns {Function} new class constructor
+     * @return {Function} new class constructor
      */
     function _extend(properties, name) {
         var

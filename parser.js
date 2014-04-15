@@ -18,7 +18,7 @@
          * is recognized
          *
          * @param {string} char One character to analyze
-         * @returns {number} < 0 means won't recognize
+         * @return {number} < 0 means won't recognize
          *                     0 means need more chars
          *                   > 0 means a token is recognized (length returned)
          *
@@ -272,7 +272,7 @@
             /**
              * Returns true if the exclude part is defined
              *
-             * @returns {boolean}
+             * @return {boolean}
              */
             hasExclude: function () {
                 return this.hasOwnProperty("_exc");
@@ -281,7 +281,7 @@
             /**
              * Defines the exclude part
              *
-             * @returns {boolean}
+             * @return {boolean}
              */
             enterExclude: function () {
                 this._exc = [];
@@ -489,7 +489,7 @@
          * Factory of PatternItem
          *
          * @param {number} type
-         * @returns {PaternItem}
+         * @return {PaternItem}
          */
         create: function (type) {
             var factory = PatternItem._factory;
@@ -520,7 +520,7 @@
         /**
          * Finalizes the last item and returns the root
          *
-         * @returns {PatternItem}
+         * @return {PatternItem}
          */
         root: function () {
             if (null === this._item) {
@@ -543,7 +543,7 @@
          *
          * @param {number} type See PatternItem.TYPE_xxx
          * @param {boolean} force Ignore current item type, allocate new one
-         * @returns {PatternItem}
+         * @return {PatternItem}
          * @private
          */
         _getItem: function (type, force) {
@@ -775,7 +775,7 @@
          * Get the item following the provided one
          *
          * @param {PatternItem} item
-         * @returns {PatternItem|null}
+         * @return {PatternItem|null}
          * @private
          */
         _getNext: function (item) {
@@ -795,7 +795,7 @@
          * Handles situation when current item does not match on char
          *
          * @param {string} char
-         * @returns {number} write result
+         * @return {number} write result
          * @private
          */
         _writeNoMatch: function (char) {
@@ -830,7 +830,7 @@
         /**
          * Handles situation when current item matches on char
          *
-         * @returns {number} write result
+         * @return {number} write result
          * @private
          */
         _writeMatch: function () {
@@ -945,7 +945,7 @@
          * Allocate a context to be used with write.
          * Context content may change, do not rely on its structure.
          *
-         * @returns {PatternTokenizer}
+         * @return {PatternTokenizer}
          */
         allocate: function () {
             return new PatternTokenizer(this);
@@ -991,7 +991,7 @@
         /**
          * Get current position
          *
-         * @returns {{pos: number, line: number, column: number}}
+         * @return {{pos: number, line: number, column: number}}
          */
         currentPos: function () {
             return {

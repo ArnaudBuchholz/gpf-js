@@ -11,7 +11,7 @@
          * @param {object} objectInstance object to inspect
          * @param {gpf.interfaces.Interface} interfaceDefinition reference
          * interface
-         * @returns {boolean}
+         * @return {boolean}
          */
         isImplementedBy: function (objectInstance, interfaceDefinition) {
             var member;
@@ -57,7 +57,7 @@
          * @param {object} objectInstance object to inspect
          * @param {gpf.interfaces.Interface} interfaceDefinition reference
          * interface
-         * @returns {object|null}
+         * @return {object|null}
          */
         query: function (objectInstance, interfaceDefinition) {
             if (gpf.interfaces.isImplementedBy(objectInstance,
@@ -113,7 +113,7 @@
          *
          * @param {gpf.interfaces.Interface} interfaceDefinition The expected
          * interface
-         * @returns {object|null} The object supporting the interface (or null)
+         * @return {object|null} The object supporting the interface (or null)
          */
         queryInterface: function (interfaceDefinition) {
             gpf.interfaces.ignoreParameter(interfaceDefinition);
@@ -135,7 +135,7 @@
      *
      * @param {gpf.interfaces.Interface} interfaceDefinition The expected
      * interface
-     * @returns {object|null} The object supporting the interface (or null)
+     * @return {object|null} The object supporting the interface (or null)
      */
     function _queryInterface (interfaceDefinition) {
         /*jslint -W040*/

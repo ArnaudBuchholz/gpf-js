@@ -239,7 +239,7 @@
          *
          * @param {gpf.attributes.Array} array Attribute array
          * @param {object} value
-         * @returns {null|gpf.attributes.Attribute}
+         * @return {null|gpf.attributes.Attribute}
          * @private
          */
         _selectByType = function (array, value) {
@@ -288,7 +288,7 @@
          * @param {*} value
          * @param {string} type
          * @param {gpf.attributes.Array} attArray
-         * @returns {string} "" if the member should be serialized as a sub
+         * @return {string} "" if the member should be serialized as a sub
          *          node, otherwise the name to apply
          * @private
          */
@@ -1062,7 +1062,7 @@
          * name
          *
          * @param {string} name
-         * @returns {boolean}
+         * @return {boolean}
          */
         isValidName: function (name) {
             var
@@ -1084,7 +1084,7 @@
          * attribute name
          *
          * @param {string} name
-         * @returns {string} a valid attribute/element name
+         * @return {string} a valid attribute/element name
          */
         toValidName: function (name) {
             var newName;

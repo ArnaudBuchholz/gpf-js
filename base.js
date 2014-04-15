@@ -216,7 +216,7 @@
      * @param {object} dictionary
      * @param {function} memberCallback
      * @param {any} defaultResult
-     * @returns {any}
+     * @return {any}
      * @chainable
      * @forwardThis
      */
@@ -244,7 +244,7 @@
      * @param {object} dictionary
      * @param {object} additionalProperties
      * @param {function} overwriteCallback
-     * @returns {object} the modified dictionary
+     * @return {object} the modified dictionary
      * @chainable
      */
     gpf.extend = function (dictionary, additionalProperties,
@@ -276,7 +276,7 @@
          * @param {any} value
          * @param {any} default value
          * @param {string} [expectedType=typeof defaultValue] expected type
-         * @returns {any}
+         * @return {any}
          */
         value: function (value, defaultValue, expectedType) {
             var valueType = typeof value;
@@ -307,7 +307,7 @@
          * @param {any} b
          * @param {boolean} [alike=false] alike Allow to be tolerant on
          *        primitive types compared with their object equivalent
-         * @returns {Boolean}
+         * @return {Boolean}
          */
         like: function (a, b, alike) {
             if (a === b) {
@@ -327,7 +327,7 @@
          * 
          * @param {object/array} dictionary
          * @param {any} value
-         * @returns {string/number/undefined} undefined if not found
+         * @return {string/number/undefined} undefined if not found
          */
         test: function (dictionary, value) {
             var idx;
@@ -353,7 +353,7 @@
          * 
          * @param {array} array
          * @param {any} value
-         * @returns {array}
+         * @return {array}
          * @chainable
          */
         set: function (array, value) {
@@ -377,7 +377,7 @@
          * 
          * @param {object/array} dictionary
          * @param {any} value
-         * @returns {object/array} dictionary
+         * @return {object/array} dictionary
          * @chainable
          */
         clear: function (dictionary, value) {

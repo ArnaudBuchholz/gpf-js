@@ -84,7 +84,7 @@
         /**
          * Generates a new tokenizer context
          * 
-         * @returns {object} tokenizer context
+         * @return {object} tokenizer context
          * @internal
          */
         _tokenizerInit = function () {
@@ -138,7 +138,7 @@
          * 
          * @param {object} context tokenizer context
          * @param {number} [errorCode=undefined] errorCode error
-         * @returns {undefined}
+         * @return {undefined}
          * @internal
          */
         _tokenizerCallback = function (context, errorCode) {
@@ -245,7 +245,7 @@
          * 
          * @param {string[]} chars the already recognized characters
          * @param {string} newChar the next char to recognize
-         * @returns {Boolean} true if the next char makes a valid symbol
+         * @return {Boolean} true if the next char makes a valid symbol
          * @internal
          */
         _isValidSymbol = function (chars, newChar) {
@@ -405,7 +405,7 @@
          * 
          * @param {object} context tokenizer context
          * @param {string} newChar next char to analyze
-         * @returns {undefined}
+         * @return {undefined}
          * @internal
          */
         _analyzeChar = function (context, newChar) {
@@ -425,7 +425,7 @@
          * 
          * @param {object} context tokenizer context
          * @param {string} newChar char that has been analyzed
-         * @returns {undefined}
+         * @return {undefined}
          * @internal
          */
         _computeNextPos = function (context, newChar) {
@@ -443,7 +443,7 @@
          * 
          * @param {object} context tokenizer context
          * @param {string} newChar char that will be analyzed
-         * @returns {undefined}
+         * @return {undefined}
          * @internal
          */
         _tokenizeChar = function (context, newChar) {
@@ -510,7 +510,7 @@
          * complete (and valid).
          * @param {string} text Text to analyze
          * @param {object/function} eventsHandler
-         * @returns {undefined}
+         * @return {undefined}
          * 
          * @eventParam {string} token The token value
          * @eventParam {number} pos Absolute position of the error (0-based)
@@ -579,7 +579,7 @@
          *        parsing
          * @param {object/function} eventsHandler
          * @param {object} context Tokenizer context (initialized if not set)
-         * @returns {undefined}
+         * @return {undefined}
          *
          */
         tokenizeEx: function (text, eventsHandler, context) {

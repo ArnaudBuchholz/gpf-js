@@ -19,7 +19,7 @@
          *
          * @param {number} [count=undefined] count Number of chars to read from,
          * read as much as possible if not specified
-         * @returns {string} null if the end of the stream is reached
+         * @return {string} null if the end of the stream is reached
          */
         read: function(count) {
             gpf.interfaces.ignoreParameter(count);

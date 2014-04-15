@@ -43,7 +43,7 @@
          * Returns the array of child nodes for the node
          *
          * @param {number} [idx=undefined] idx (see gpf.arrayOrItem)
-         * @returns {gpf.interfaces.IXmlConstNode
+         * @return {gpf.interfaces.IXmlConstNode
          *           |gpf.interfaces.IXmlConstNode[]
          *           |undefined}
          */
@@ -58,7 +58,7 @@
         /**
          * Returns the local part of the name of a node
          *
-         * @returns {string}
+         * @return {string}
          */
         localName: function () {
             return "";
@@ -67,7 +67,7 @@
         /**
          * Returns the namespace URI of a node
          *
-         * @returns {string}
+         * @return {string}
          */
         namespaceURI: function () {
             return "";
@@ -76,7 +76,7 @@
         /**
          * Returns the node immediately following a node
          *
-         * @returns {gpf.interfaces.IXmlConstNode}
+         * @return {gpf.interfaces.IXmlConstNode}
          */
         nextSibling: function () {
             return null;
@@ -85,7 +85,7 @@
         /**
          * Returns the name of a node, depending on its type
          *
-         * @returns {string}
+         * @return {string}
          */
         nodeName: function () {
             return "";
@@ -94,7 +94,7 @@
         /**
          * Returns the type of a node
          *
-         * @returns {number}
+         * @return {number}
          */
         nodeType: function () {
             return 0;
@@ -103,7 +103,7 @@
         /**
          * Returns the value of a node, depending on its type
          *
-         * @returns {*}
+         * @return {*}
          */
         nodeValue: function () {
             return null;
@@ -112,7 +112,7 @@
         /**
          * Returns the root element (document object) for a node
          *
-         * @returns {gpf.interfaces.IXmlConstNode}
+         * @return {gpf.interfaces.IXmlConstNode}
          */
         ownerDocument: function () {
             return null;
@@ -121,7 +121,7 @@
         /**
          * Returns the parent node of a node
          *
-         * @returns {gpf.interfaces.IXmlConstNode}
+         * @return {gpf.interfaces.IXmlConstNode}
          */
         parentNode: function () {
             return null;
@@ -130,7 +130,7 @@
         /**
          * Sets or returns the namespace prefix of a node
          *
-         * @returns {string}
+         * @return {string}
          */
         prefix: function () {
             return "";
@@ -139,7 +139,7 @@
         /**
          * Returns the node immediately before a node
          *
-         * @returns {gpf.interfaces.IXmlConstNode}
+         * @return {gpf.interfaces.IXmlConstNode}
          */
         previousSibling: function () {
             return null;
@@ -148,7 +148,7 @@
         /**
          * Sets or returns the textual content of a node and its descendants
          *
-         * @returns {string}
+         * @return {string}
          */
         textContent: function () {
             return "";

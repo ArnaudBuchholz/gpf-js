@@ -20,7 +20,7 @@
 
         /**
          * Return the number of items in the array
-         * @returns {number}
+         * @return {number}
          */
         length: function () {
             return 0;
@@ -30,7 +30,7 @@
          * Return the item inside the array (idx is 0-based)
          *
          * @param {number} idx index
-         * @returns {*}
+         * @return {*}
          */
         get: function (idx) {
             gpfI.ignoreParameter(idx);
@@ -53,7 +53,7 @@
          *
          * @param {number} idx index
          * @param {*} value
-         * @returns {*}
+         * @return {*}
          */
         set: function (idx, value) {
             gpfI.ignoreParameter(idx);
@@ -135,7 +135,7 @@
      *        if -1, returns the last element of the array or undefined
      *        if positive, returns the Nth element of the array or undefined
      *        otherwise, returns undefined
-     * @returns {*}
+     * @return {*}
      */
     gpf.arrayOrItem = function (array, idx) {
         if (undefined === idx) {

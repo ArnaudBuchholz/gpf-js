@@ -75,7 +75,7 @@
          * get/set member name
          *
          * @param {string} name member name
-         * @returns {string}
+         * @return {string}
          */
         member: function (name) {
             var value = this._member;
@@ -146,7 +146,7 @@
          * Return the first occurrence of the expected class
          *
          * @param {function} expectedClass the class to match
-         * @returns {gpf.attributes.Attribute}
+         * @return {gpf.attributes.Attribute}
          */
         has: function (expectedClass) {
             gpf.ASSERT("function" === typeof expectedClass);
@@ -167,7 +167,7 @@
          * class
          *
          * @param {function} expectedClass the class to match
-         * @returns {gpf.attributes.Array}
+         * @return {gpf.attributes.Array}
          */
         filter: function (expectedClass) {
             gpf.ASSERT("function" === typeof expectedClass);
@@ -212,7 +212,7 @@
         /**
          * Gives the total number of attributes enclosed in the map
          *
-         * @returns {number}
+         * @return {number}
          */
         count: function () {
             return this._count;
@@ -271,7 +271,7 @@
          * @param {string} member
          * @param {gpf.attributes.Attribute} attribute
          * @param {function} expectedClass
-         * @returns {boolean}
+         * @return {boolean}
          * @private
          */
         _filterCallback: function (member, attribute, expectedClass) {
@@ -283,7 +283,7 @@
          * Fill the map using object's attributes
          *
          * @param {object} object object to get attributes from
-         * @returns {number} number of attributes in the resulting map
+         * @return {number} number of attributes in the resulting map
          */
         fillFromObject: function (object) {
             var
@@ -308,7 +308,7 @@
          * attribute class
          *
          * @param {function} expectedClass
-         * @returns {gpf.attributes.Map}
+         * @return {gpf.attributes.Map}
          */
         filter: function (expectedClass) {
             gpf.ASSERT("function" === typeof expectedClass);
@@ -321,7 +321,7 @@
          * Returns the array of map associated to a member
          *
          * @param {string} name
-         * @returns {gpf.attributes.Array}
+         * @return {gpf.attributes.Array}
          */
         member: function (name) {
             var result = this._members[name];
@@ -338,7 +338,7 @@
          * Returns the list of members stored in this map
          *
          * @perf_warn Result is computed on each call
-         * @returns {string[]}
+         * @return {string[]}
          */
         members: function () {
             var
