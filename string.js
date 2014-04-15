@@ -33,7 +33,13 @@
 
         },
 
-        StringStream = gpf.Class.extend({
+        /**
+         * Implements ITextStream on top of a stream
+         *
+         * @class StringStream
+         * @private
+         */
+        StringStream = gpf.define("StringStream", {
 
             "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.ITextStream)],
 
@@ -109,14 +115,15 @@
 
     gpf.extend(gpf, {
 
-        "[replaceEx]": [ gpf.$ClassExtension(String) ],
+        "[replaceEx]": [gpf.$ClassExtension(String)],
+
         /**
          * Substitutes all occurrences of the keys found in the replacements
          * object with their values
          *
          * @param {string} that
          * @param {object} replacements map of strings to search and replace
-         * @returns {string}
+         * @return {string}
          */
         replaceEx: function (that, replacements) {
             var
@@ -132,13 +139,14 @@
             return result;
         },
 
-        "[escapeFor]": [ gpf.$ClassExtension(String) ],
+        "[escapeFor]": [gpf.$ClassExtension(String)],
+
         /**
          * Adapt the string content to be compatible with the provided language
          *
          * @param {string} that
          * @param {string} language
-         * @returns {string}
+         * @return {string}
          */
         escapeFor: function (that, language) {
             var replacements = _escapes[language];
@@ -164,28 +172,25 @@
             return that;
         },
 
-        "[stringToStream]": [
-            gpf.$ClassExtension(String, "toStream")
-        ],
+        "[stringToStream]": [gpf.$ClassExtension(String, "toStream")],
 
         /**
          * Converts the string into a stream
          *
          * @param {string} that
-         * @returns {gpf.interfaces.ITextStream}
+         * @return {object} Implementing gpf.interfaces.ITextStream
          */
         stringToStream: function (that) {
             return new StringStream(that);
         },
 
-        "[stringFromStream]": [
-            gpf.$ClassExtension(String, "fromStream")
-        ],
+        "[stringFromStream]": [gpf.$ClassExtension(String, "fromStream")],
 
         /**
          * Converts the stream into a string
          *
          * @param {gpf.interfaces.ITextStream} stream
+         * @return {string}
          */
         stringFromStream: function (stream) {
             if (stream instanceof StringStream) {
