@@ -3,10 +3,15 @@
     "use strict";
 /*#endif*/
 
+    /**
+     * Error object, contains error information
+     *
+     * @class gpf.Error
+     */
     gpf.define("gpf.Error", {
 
-        _message: 0,
-        _name: 0,
+        _message: "",
+        _name: "",
 
         init: function (message, name, extended) {
             this._message = message;
@@ -20,10 +25,20 @@
             }
         },
 
+        /**
+         * Error message
+         *
+         * @return {string}
+         */
         message: function () {
             return this._message;
         },
 
+        /**
+         * Error name
+         *
+         * @return {string}
+         */
         name: function () {
             return this._name;
         }

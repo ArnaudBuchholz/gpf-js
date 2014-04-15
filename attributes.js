@@ -130,6 +130,8 @@
 
     /**
      * Attribute array, generally used to list attributes on a class member
+     *
+     * @class gpf.attributes.Array
      */
     gpf.define("gpf.attributes.Array", {
 
@@ -186,6 +188,8 @@
 
     /**
      * Attribute map, generally used to list attributes of a class
+     *
+     * @class gpf.attributes.Map
      */
     gpf.define("gpf.attributes.Map", {
 

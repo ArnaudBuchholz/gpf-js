@@ -43,7 +43,7 @@
             return result.join("");
         },
 
-        "[dateFromComparableFormat]": [ gpf.$ClassExtension(String) ],
+        "[dateFromComparableFormat]": [gpf.$ClassExtension(String)],
         /**
          * Converts a string into a Date using the format used inside the
          * function dateToComparableFormat

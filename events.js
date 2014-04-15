@@ -39,6 +39,11 @@
             }
         };
 
+    /**
+     * Event broadcaster, keep track of listeners and dispatch events when fired
+     *
+     * @class gpf.events.Broadcaster
+     */
     gpf.extend(_Broadcaster.prototype, {
 
         /**
@@ -149,6 +154,11 @@
 
     });
 
+    /**
+     * Event object
+     *
+     * @class gpf.events.Event
+     */
     gpf.extend(_Event.prototype, {
 
         /**
