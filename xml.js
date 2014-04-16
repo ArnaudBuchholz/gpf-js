@@ -24,7 +24,13 @@
 
     gpf.xml = {};
 
-    gpfI.IXmlSerializable = gpfI.Interface.extend({
+    /**
+     * Defines the possibility for the object to be saved as XML
+     *
+     * @class gpf.interfaces.IXmlSerializable
+     * @extends gpf.interfaces.Interface
+     */
+    gpf._defIntrf("IXmlSerializable", {
 
         /**
          * Translate obj into an gpf.interfaces.IXmlContentHandler and serialize
@@ -38,11 +44,16 @@
 
     });
 
-    /*
-     Inspired from
-     http://www.saxproject.org/apidoc/org/xml/sax/ContentHandler.html
+    /**
+     * Defines the possibility for an object to load XML
+     *
+     * @class gpf.interfaces.IXmlContentHandler
+     * @extends gpf.interfaces.Interface
+     *
+     * Inspired from
+     * http://www.saxproject.org/apidoc/org/xml/sax/ContentHandler.html
      */
-    gpfI.IXmlContentHandler = gpfI.Interface.extend({
+    gpf._defIntrf("IXmlContentHandler", {
 
         /**
          * Receive notification of character data
@@ -147,8 +158,16 @@
 
         //region XML attributes
 
-        // gpfA.XmlAttribute
-        _Base = gpfA.Attribute.extend({
+        /**
+         * XML attribute (base class).
+         * once the attribute is assigned to an object, it implements the
+         * IXmlSerializable interface
+         *
+         * @class gpf.attributes.XmlAttribute
+         * @extends gpf.attributes.Attribute
+         * @private
+         */
+        _Base = gpf._defAttr("XmlAttribute", {
 
             alterPrototype: function (objPrototype) {
                 /*
@@ -170,17 +189,33 @@
 
         }),
 
-       // gpfA.XmlIgnoreAttribute = gpf.$XmlIgnore()
-        _Ignore = _Base.extend({
+        /**
+         * XML Ignore attribute
+         * Indicates the member must not be serialized
+         *
+         * @class gpf.attributes.XmlIgnoreAttribute
+         * @extends gpf.attributes.XmlAttribute
+         * @alias gpf.$XmlIgnore
+         */
+        _Ignore = gpf._defAttr("$XmlIgnore", _Base, {
 
-            "[Class]": [gpf.$Alias("XmlIgnore")]
+//            "[Class]": [gpf.$Alias("XmlIgnore")]
 
         }),
 
-        // gpfA.XmlAttributeAttribute = gpf.$XmlAttribute(name)
-        _Attribute = _Base.extend({
+        /**
+         * XML Attribute attribute
+         * Indicates the member is serialized as an attribute
+         *
+         * @param {string} name The attribute name
+         *
+         * @class gpf.attributes.XmlAttributeAttribute
+         * @extends gpf.attributes.XmlAttribute
+         * @alias gpf.$XmlAttribute
+         */
+        _Attribute = gpf._defAttr("$XmlAttribute", _Base, {
 
-            "[Class]": [gpf.$Alias("XmlAttribute")],
+//            "[Class]": [gpf.$Alias("XmlAttribute")],
 
             "[_name]": [gpf.$ClassProperty()],
             _name: "",
@@ -193,7 +228,15 @@
 
         }),
 
-        _RawElement = _Base.extend({
+        /**
+         * XML RAW Element attribute
+         *
+         * @param {string} name The element name
+         *
+         * @class gpf.attributes.XmlRawElementAttribute
+         * @extends gpf.attributes.XmlAttribute
+         */
+        _RawElement = gpf._defAttr("XmlRawElementAttribute", _Base, {
 
             "[_name]": [gpf.$ClassProperty()],
             _name: "",
@@ -206,10 +249,20 @@
 
         }),
 
-        // gpfA.XmlElementAttribute = gpf.$XmlElement(name, objClass)
-        _Element = _RawElement.extend({
+        /**
+         * XML Element attribute
+         * Indicates the member is serialized as an element
+         *
+         * @param {string} name The element name
+         * @param {function} objClass The class used for un-serializing it
+         *
+         * @class gpf.attributes.XmlElementAttribute
+         * @extends gpf.attributes.XmlRawElementAttribute
+         * @alias gpf.$XmlElement
+         */
+        _Element = gpf._defAttr("$XmlElement", _RawElement, {
 
-            "[Class]": [gpf.$Alias("XmlElement")],
+//            "[Class]": [gpf.$Alias("XmlElement")],
 
             "[_objClass]": [gpf.$ClassProperty()],
             _objClass: null,
@@ -223,10 +276,17 @@
 
         }),
 
-        // gpfA.XmlListAttribute = gpf.$XmlList()
-        _List = _RawElement.extend({
+        /**
+         * XML List attribute
+         * Indicates the member is an array and is serialized inside an element
+         *
+         * @class gpf.attributes.XmlListAttribute
+         * @extends gpf.attributes.XmlRawElementAttribute
+         * @alias gpf.$XmlList
+         */
+        _List = gpf._defAttr("$XmlList", _RawElement, {
 
-            "[Class]": [gpf.$Alias("XmlList")]
+//            "[Class]": [gpf.$Alias("XmlList")]
 
         }),
 
@@ -506,13 +566,15 @@
         //region FROM XML
 
         /**
-         * Class to handle object deserialization from XML
+         * Class to handle object un-serialization from XML
          *
+         * @class FromXmlContentHandler
+         * @implements gpf.interfaces.IXmlContentHandler
          * @private
          */
-        FromXmlContentHandler = gpf.Class.extend({
+        FromXmlContentHandler = gpf.define("FromXmlContentHandler", {
 
-            // Event if it is not necessary
+            // Even if it is not necessary, let be precise
             "[Class]": [gpf.$InterfaceImplement(gpfI.IXmlContentHandler)],
 
             _target: null,                          // Object that is serialized
@@ -804,17 +866,15 @@
 
         // endregion
 
-    gpf.extend(gpfA, {
-        XmlAttribute: _Base,
-        XmlIgnoreAttribute: _Ignore,
-        XmlElementAttribute: _Element,
-        XmlAttributeAttribute: _Attribute,
-        XmlListAttribute: _List
-    });
-
     //region XML Writer
 
-    gpf.xml.Writer = gpf.Class.extend({
+    /**
+     * A class to serialize an XML into a string
+     *
+     * @class gpf.xml.Writer
+     * @implements gpf.interfaces.IXmlContentHandler
+     */
+    gpf.define("gpf.xml.Writer", {
 
         "[Class]": [gpf.$InterfaceImplement(gpfI.IXmlContentHandler)],
 
