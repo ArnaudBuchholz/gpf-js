@@ -23,7 +23,13 @@
 //        NODE_NOTATION:                  12
     });
 
-    gpfI.IXmlConstNode = gpfI.Interface.extend({
+    /**
+     * Defines an XML node structure (Read Only)
+     *
+     * @class gpf.interfaces.IXmlConstNode
+     * @extends gpf.interfaces.Interface
+     */
+    gpf._defIntrf("IXmlConstNode", {
 
         /**
          * Access to the attributes of this node: attributes() returns a map
@@ -157,8 +163,13 @@
     });
 
     /**
+     * Manipulate a JavaScript object as an XML node
+     *
+     * @class gpf.xml.ConstNode
+     * @implements gpf.interfaces.IXmlConstNode
+     * @implements gpf.interfaces.IXmlSerializable
      */
-    gpf.xml.ConstNode = gpf.Class.extend({
+    gpf.define("gpf.xml.ConstNode", {
 
         "[Class]": [gpf.$InterfaceImplement(gpfI.IXmlConstNode),
                     gpf.$InterfaceImplement(gpfI.IXmlSerializable)],
