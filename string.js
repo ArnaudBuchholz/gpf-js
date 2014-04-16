@@ -37,6 +37,7 @@
          * Implements ITextStream on top of a stream
          *
          * @class StringStream
+         * @implements gpf.interfaces.ITextStream
          * @private
          */
         StringStream = gpf.define("StringStream", {

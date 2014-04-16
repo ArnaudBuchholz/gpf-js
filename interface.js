@@ -93,6 +93,7 @@
      * (or contextual name)
      * @param {object} [definition=undefined] definition Interface definition
      * @return {function}
+     * @private
      */
     gpf._defIntrf = gpf._genDefHandler("gpf.interfaces", "Interface");
 

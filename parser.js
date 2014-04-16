@@ -4,32 +4,36 @@
 /*#endif*/
 
     var
-        gpfI = gpf.interfaces;
+        gpfI = gpf.interfaces,
 
     //region ITokenizer
 
-    /**
-     * @interface
-     */
-    gpfI.ITokenizer = gpfI.Interface.extend({
-
         /**
-         * Submit a character to the tokenizer, result indicates if the token
-         * is recognized
+         * Tokenizer interface
          *
-         * @param {string} char One character to analyze
-         * @return {number} < 0 means won't recognize
-         *                     0 means need more chars
-         *                   > 0 means a token is recognized (length returned)
-         *
-         * NOTE: if the result is positive, you may submit more chars until
+         * @class gpf.interfaces.ITokenizer
+         * @extends gpf.interfaces.Interface
          */
-        write: function (char) {
-            gpf.interfaces.ignoreParameter(char);
-            return -1;
-        }
 
-    });
+        _ITokenizer = gpf._defIntrf("ITokenizer", {
+
+            /**
+             * Submit a character to the tokenizer, result indicates if the
+             * token is recognized
+             *
+             * @param {string} char One character to analyze
+             * @return {number} < 0 means won't recognize
+             *                     0 means need more chars
+             *                   > 0 means a token is recognized (length result)
+             *
+             * NOTE: if the result is positive, you may submit more chars until
+             */
+            write: function (char) {
+                gpf.interfaces.ignoreParameter(char);
+                return -1;
+            }
+
+        }),
 
     // endregion
 
@@ -71,13 +75,13 @@
      *      | <any char but ?*+{[(-[>
      */
 
-    var
         /**
          * Pattern item: an atomic character matching item
          *
-         * @class {PatternItem}
+         * @class PatternItem
+         * @private
          */
-        PatternItem = gpf.Class.extend({
+        PatternItem = gpf.define("PatternItem", {
 
             /**
              * Returns the item type (PatternItem.TYPE_xxx)
@@ -184,10 +188,11 @@
         /**
          * Simple pattern item: recognizes a sequence of characters
          *
-         * @class {PatternSimpleItem}
-         * @extend {PatternItem}
+         * @class PatternSimpleItem
+         * @extend PatternItem
+         * @private
          */
-        PatternSimpleItem  = PatternItem.extend({
+        PatternSimpleItem = gpf.define("PatternSimpleItem", PatternItem, {
 
             /**
              * The character sequence ([] at design time)
@@ -242,15 +247,15 @@
             }
         }),
 
-
         /**
          * Range pattern item: recognizes one char
          * (using include/exclude patterns)
          *
-         * @class {PatternRangeItem}
-         * @extend {PatternItem}
+         * @class PatternRangeItem
+         * @extend PatternItem
+         * @private
          */
-        PatternRangeItem = PatternItem.extend({
+        PatternRangeItem = gpf.define("PatternRangeItem", PatternItem, {
 
             /**
              * Included characters
@@ -346,7 +351,15 @@
 
         }),
 
-        PatternChoiceItem = PatternItem.extend({
+        /**
+         * Pattern choice item: includes several items, matching only one amoung
+         * them
+         *
+         * @class PatternChoiceItem
+         * @extend PatternItem
+         * @private
+         */
+        PatternChoiceItem = gpf.define("PatternChoiceItem", PatternItem, {
 
             /**
              * @type {PatternItem[]}
@@ -424,7 +437,14 @@
 
         }),
 
-        PatternGroupItem = PatternItem.extend({
+        /**
+         * Pattern group item: group several items
+         *
+         * @class PatternGroupItem
+         * @extend PatternItem
+         * @private
+         */
+        PatternGroupItem = gpf.define("PatternGroupItem", PatternItem, {
 
             /**
              * @type {PatternItem[]}
@@ -471,6 +491,426 @@
                 return item.write(state, char);
             }
 
+        }),
+
+        /**
+         * Pattern parser context.
+         * Class used to parse a pattern, will allocated and consolidate
+         * PatternItems
+         *
+         * @class PatternParserContext
+         * @private
+         */
+        PatternParserContext = gpf.define("PatternParserContext", {
+
+            _root: null,
+            _item : null,
+            _inRange: false,
+            _afterChar: null,
+
+            parse: null, // Will be overridden
+
+            init: function() {
+                this.parse = this._stateItem;
+            },
+
+            /**
+             * Finalizes the last item and returns the root
+             *
+             * @return {PatternItem}
+             */
+            root: function () {
+                if (null === this._item) {
+                    throw {
+                        message: "Empty pattern"
+                    };
+                }
+                this._item.finalize();
+                if (this.parse !== this._stateItem
+                    && this.parse !== this._stateCount) {
+                    throw {
+                        message: "Invalid syntax"
+                    };
+                }
+                return this._root;
+            },
+
+            /**
+             * Get or create the item corresponding to the requested type
+             *
+             * @param {number} type See PatternItem.TYPE_xxx
+             * @param {boolean} force Ignore current item type, allocate new one
+             * @return {PatternItem}
+             * @private
+             */
+            _getItem: function (type, force) {
+                var
+                    item = this._item,
+                    nextItem;
+                if (force || null === item || type !== item.type()) {
+                    nextItem = PatternItem.create(type);
+                    if (null !== item) {
+                        item.finalize();
+                        item.next(nextItem);
+                    } else {
+                        this._root = nextItem;
+                    }
+                    this._item = nextItem;
+                    item = nextItem;
+                }
+                return item;
+            },
+
+            /**
+             * Parsing automate state
+             * @param {string} char
+             * @private
+             */
+            _stateItem: function (char) {
+                if ("[" === char) {
+                    this._getItem(PatternItem.TYPE_RANGE, true);
+                    this.parse = this._stateCharMatchRange;
+                } else if ("(" === char) {
+                    this._getItem(PatternItem.TYPE_GROUP, true);
+                } else {
+                    this._getItem(PatternItem.TYPE_SIMPLE);
+                    this._afterChar = this._stateCount;
+                    this._stateChar(char);
+                }
+            },
+
+            /**
+             * Parsing automate state
+             * @param {string} char
+             * @private
+             */
+            _stateCharMatchRange: function (char) {
+                var curItem = this._getItem(PatternItem.TYPE_RANGE);
+                if ("^" === char && !curItem.hasExclude()) {
+                    curItem.enterExclude();
+                    // this.parse = this._stateCharMatchRange;
+                } else if ("]" === char) {
+                    this.parse = this._stateCount;
+                } else {
+                    this._inRange = false;
+                    this._afterChar = this._stateCharRangeSep;
+                    this._stateChar(char);
+                }
+            },
+
+            /**
+             * Parsing automate state
+             * @param {string} char
+             * @private
+             */
+            _stateCharRangeSep: function (char) {
+                if ("-" === char) {
+                    this._inRange = true;
+                    this._afterChar = this._stateCharMatchRange;
+                    this.parse = this._stateChar;
+                } else {
+                    this._stateCharMatchRange(char);
+                }
+            },
+
+            /**
+             * Parsing automate state
+             * @param {string} char
+             * @private
+             */
+            _stateChar: function (char) {
+                if ("\\" === char) {
+                    this.parse = this._stateEscapedChar;
+                } else {
+                    this._item.add(char, this._inRange);
+                    this.parse = this._afterChar;
+                }
+            },
+
+            /**
+             * Parsing automate state
+             * @param {string} char
+             * @private
+             */
+            _stateEscapedChar: function (char) {
+                this._item.add(char, this._inRange);
+                this.parse = this._afterChar;
+            },
+
+            /**
+             * Parsing automate state
+             * @type {object} map character to parsing function
+             * @private
+             */
+            _stateCountByChar: {
+
+                "?": function () {
+                    var item = this._splitSimpleOnMinMax();
+                    item.min(0);
+                },
+
+                "+": function () {
+                    var item = this._splitSimpleOnMinMax();
+                    item.max(0);
+                },
+
+                "*": function () {
+                    var item = this._splitSimpleOnMinMax();
+                    item.min(0);
+                    item.max(0);
+                },
+
+                "|": function () {
+                    var
+                        item = this._item,
+                        choice = item.parent();
+                    if (null === choice
+                        || choice.type() !== PatternItem.TYPE_CHOICE) {
+                        choice = PatternItem.create(PatternItem.TYPE_CHOICE);
+                        choice.next(item); // Overridden to 'add' the choice
+                    }
+                    if (item === this._root) {
+                        this._root = choice;
+                    }
+                    item.finalize();
+                    this._item = choice;
+                },
+
+                ")": function () {
+                    var
+                        item = this._item;
+                    item.finalize();
+                    while (item.type() !== PatternItem.TYPE_GROUP) {
+                        item = item.parent();
+                    }
+                    if (item === this._item) {
+                        throw {
+                            message: "Syntax error (empty group)"
+                        };
+                    }
+                    this._item = item;
+                    return 0; // !undefined
+                }
+
+            },
+
+            /**
+             * Split current item if necessary for min/max
+             * @return {ParserItem}
+             * @private
+             */
+            _splitSimpleOnMinMax: function () {
+                var
+                    item = this._item,
+                    lastChar;
+                if (item.type() === PatternItem.TYPE_SIMPLE
+                    && item.sequence().length > 1) {
+                    lastChar = item.sequence().pop();
+                    item = this._getItem(PatternItem.TYPE_SIMPLE, true);
+                    item.add(lastChar);
+                }
+                return item;
+            },
+
+            /**
+             * Parsing automate state
+             * @param {string} char
+             * @private
+             */
+            _stateCount: function (char) {
+                var byChar = this._stateCountByChar[char];
+                if (undefined === byChar) {
+                    this._stateItem(char);
+                } else {
+                    if (undefined === byChar.apply(this, arguments)) {
+                        this.parse = this._stateItem;
+                    }
+                }
+            }
+
+        }),
+
+        /**
+         * Pattern tokenizer
+         *
+         * @class {PatternTokenizer}
+         * @implements gpf.interfaces.ITokenizer
+         * @private
+         */
+        PatternTokenizer = gpf.define("PatternTokenizer", {
+
+            "[Class]": [gpf.$InterfaceImplement(_ITokenizer)],
+
+            /**
+             * @member {gpf.Pattern} _pattern
+             * @private
+             */
+            _pattern: null,
+
+            /**
+             * @member {PatternItem} _item Current item
+             * @private
+             */
+            _item: null,
+
+            _state: {
+                result: 0,
+                length : 0,
+                matchingLength: 0,
+                count: 0
+            },
+
+            /**
+             * @param {gpf.Pattern} pattern
+             */
+            init: function (pattern) {
+                this._pattern = pattern;
+                this._item = pattern._root;
+                this._state = {
+                    result: 0,
+                    length : 0,
+                    matchingLength: 0,
+                    count: 0
+                };
+                this._item.reset(this._state);
+            },
+
+            /**
+             * Get the item following the provided one
+             *
+             * @param {PatternItem} item
+             * @return {PatternItem|null}
+             * @private
+             */
+            _getNext: function (item) {
+                var
+                    result = item.next();
+                while (null === result) {
+                    item = item.parent();
+                    if (null === item) {
+                        break;
+                    }
+                    result = item.next();
+                }
+                return result;
+            },
+
+            /**
+             * Handles situation when current item does not match on char
+             *
+             * @param {string} char
+             * @return {number} write result
+             * @private
+             */
+            _writeNoMatch: function (char) {
+                var
+                    state = this._state,
+                    item = this._item;
+                if (state.count < item.min() // Not enough match
+                    // or at least two characters went through
+                    || state.length > state.matchingLength + 1) {
+                    // Terminal error
+                    state.result = -1;
+                    this._item = null; // No need to go any further
+                    return -1;
+                }
+                item = this._getNext(item);
+                if (null === item) {
+                    if (0 === state.matchingLength) {
+                        state.result = -1;
+                    } else {
+                        state.result = state.matchingLength;
+                    }
+                    this._item = null;
+                    return state.result;
+                }
+                item.reset(state);
+                this._item = item;
+                state.count = 0;
+                --state.length;
+                return this.write(char); // Try with this one
+            },
+
+            /**
+             * Handles situation when current item matches on char
+             *
+             * @return {number} write result
+             * @private
+             */
+            _writeMatch: function () {
+                var
+                    state = this._state,
+                    item = this._item,
+                    nextItem = this._getNext(item);
+                state.matchingLength = state.length;
+                ++state.count;
+                if (0 === item.max()) {
+                    // Unlimited
+                    item.reset(state);
+                    if (null !== nextItem) {
+                        state.result = PatternItem.WRITE_NEED_DATA;
+                    } else {
+                        // Last item with unlimited occurrences
+                        state.result = state.length;
+                    }
+                } else if (state.count === item.max()) {
+                    item = nextItem;
+                    this._item = item;
+                    if (null === item) {
+                        state.result = state.length;
+                    } else {
+                        item.reset(state);
+                        state.count = 0;
+                        state.result = 0;
+                        if (0 === item.min()) {
+                            // TODO this search should be done only once
+                            nextItem = this._getNext(item);
+                            while (nextItem && 0 === nextItem.min()) {
+                                nextItem = this._getNext(nextItem);
+                            }
+                            if (!nextItem) {
+                                // The rest being optional...
+                                state.result = state.matchingLength;
+                            }
+                        }
+                    }
+                } else {
+                    state.result = PatternItem.WRITE_NEED_DATA;
+                }
+                return state.result;
+            },
+
+            //region ITokenizer
+
+            /**
+             * @implements gpf.interfaces.ITokenizer:write
+             */
+            write: function (char) {
+                var
+                    result,
+                    state = this._state,
+                    item = this._item;
+                if (null !== item) {
+                    result = item.write(state, char);
+                    ++state.length;
+                    if (undefined !== state.replaceItem) {
+                        this._item = state.replaceItem;
+                    }
+                    // Not enough data to conclude
+                    if (PatternItem.WRITE_NEED_DATA === result) {
+                        return state.result; // Whatever the previous result
+                    }
+                    if (PatternItem.WRITE_NO_MATCH === result) {
+                        return this._writeNoMatch(char);
+                    } else {
+                        return this._writeMatch();
+                    }
+                }
+                return state.result;
+            }
+
+            //endregion
+
         });
 
     gpf.extend(PatternItem, {
@@ -504,411 +944,6 @@
         }
     });
 
-    var PatternParserContext = gpf.Class.extend({
-
-        _root: null,
-        _item : null,
-        _inRange: false,
-        _afterChar: null,
-
-        parse: null, // Will be overridden
-
-        init: function() {
-            this.parse = this._stateItem;
-        },
-
-        /**
-         * Finalizes the last item and returns the root
-         *
-         * @return {PatternItem}
-         */
-        root: function () {
-            if (null === this._item) {
-                throw {
-                    message: "Empty pattern"
-                };
-            }
-            this._item.finalize();
-            if (this.parse !== this._stateItem
-                && this.parse !== this._stateCount) {
-                throw {
-                    message: "Invalid syntax"
-                };
-            }
-            return this._root;
-        },
-
-        /**
-         * Get or create the item corresponding to the requested type
-         *
-         * @param {number} type See PatternItem.TYPE_xxx
-         * @param {boolean} force Ignore current item type, allocate new one
-         * @return {PatternItem}
-         * @private
-         */
-        _getItem: function (type, force) {
-            var
-                item = this._item,
-                nextItem;
-            if (force || null === item || type !== item.type()) {
-                nextItem = PatternItem.create(type);
-                if (null !== item) {
-                    item.finalize();
-                    item.next(nextItem);
-                } else {
-                    this._root = nextItem;
-                }
-                this._item = nextItem;
-                item = nextItem;
-            }
-            return item;
-        },
-
-        /**
-         * Parsing automate state
-         * @param {string} char
-         * @private
-         */
-        _stateItem: function (char) {
-            if ("[" === char) {
-                this._getItem(PatternItem.TYPE_RANGE, true);
-                this.parse = this._stateCharMatchRange;
-            } else if ("(" === char) {
-                this._getItem(PatternItem.TYPE_GROUP, true);
-            } else {
-                this._getItem(PatternItem.TYPE_SIMPLE);
-                this._afterChar = this._stateCount;
-                this._stateChar(char);
-            }
-        },
-
-        /**
-         * Parsing automate state
-         * @param {string} char
-         * @private
-         */
-        _stateCharMatchRange: function (char) {
-            var curItem = this._getItem(PatternItem.TYPE_RANGE);
-            if ("^" === char && !curItem.hasExclude()) {
-                curItem.enterExclude();
-                // this.parse = this._stateCharMatchRange;
-            } else if ("]" === char) {
-                this.parse = this._stateCount;
-            } else {
-                this._inRange = false;
-                this._afterChar = this._stateCharRangeSep;
-                this._stateChar(char);
-            }
-        },
-
-        /**
-         * Parsing automate state
-         * @param {string} char
-         * @private
-         */
-        _stateCharRangeSep: function (char) {
-            if ("-" === char) {
-                this._inRange = true;
-                this._afterChar = this._stateCharMatchRange;
-                this.parse = this._stateChar;
-            } else {
-                this._stateCharMatchRange(char);
-            }
-        },
-
-        /**
-         * Parsing automate state
-         * @param {string} char
-         * @private
-         */
-        _stateChar: function (char) {
-            if ("\\" === char) {
-                this.parse = this._stateEscapedChar;
-            } else {
-                this._item.add(char, this._inRange);
-                this.parse = this._afterChar;
-            }
-        },
-
-        /**
-         * Parsing automate state
-         * @param {string} char
-         * @private
-         */
-        _stateEscapedChar: function (char) {
-            this._item.add(char, this._inRange);
-            this.parse = this._afterChar;
-        },
-
-        /**
-         * Parsing automate state
-         * @type {object} map character to parsing function
-         * @private
-         */
-        _stateCountByChar: {
-
-            "?": function () {
-                var item = this._splitSimpleOnMinMax();
-                item.min(0);
-            },
-
-            "+": function () {
-                var item = this._splitSimpleOnMinMax();
-                item.max(0);
-            },
-
-            "*": function () {
-                var item = this._splitSimpleOnMinMax();
-                item.min(0);
-                item.max(0);
-            },
-
-            "|": function () {
-                var
-                    item = this._item,
-                    choice = item.parent();
-                if (null === choice
-                    || choice.type() !== PatternItem.TYPE_CHOICE) {
-                    choice = PatternItem.create(PatternItem.TYPE_CHOICE);
-                    choice.next(item); // Overridden to 'add' the choice
-                }
-                if (item === this._root) {
-                    this._root = choice;
-                }
-                item.finalize();
-                this._item = choice;
-            },
-
-            ")": function () {
-                var
-                    item = this._item;
-                item.finalize();
-                while (item.type() !== PatternItem.TYPE_GROUP) {
-                    item = item.parent();
-                }
-                if (item === this._item) {
-                    throw {
-                        message: "Syntax error (empty group)"
-                    };
-                }
-                this._item = item;
-                return 0; // !undefined
-            }
-
-        },
-
-        /**
-         * Split current item if necessary for min/max
-         * @return {ParserItem}
-         * @private
-         */
-        _splitSimpleOnMinMax: function () {
-            var
-                item = this._item,
-                lastChar;
-            if (item.type() === PatternItem.TYPE_SIMPLE
-                && item.sequence().length > 1) {
-                lastChar = item.sequence().pop();
-                item = this._getItem(PatternItem.TYPE_SIMPLE, true);
-                item.add(lastChar);
-            }
-            return item;
-        },
-
-        /**
-         * Parsing automate state
-         * @param {string} char
-         * @private
-         */
-        _stateCount: function (char) {
-            var byChar = this._stateCountByChar[char];
-            if (undefined === byChar) {
-                this._stateItem(char);
-            } else {
-                if (undefined === byChar.apply(this, arguments)) {
-                    this.parse = this._stateItem;
-                }
-            }
-        }
-
-    });
-
-    var PatternTokenizer = gpf.Class.extend({
-
-        "[Class]": [gpf.$InterfaceImplement(gpfI.ITokenizer)],
-
-        /**
-         * @member {gpf.Pattern} _pattern
-         * @private
-         */
-        _pattern: null,
-
-        /**
-         * @member {PatternItem} _item Current item
-         * @private
-         */
-        _item: null,
-
-        _state: {
-            result: 0,
-            length : 0,
-            matchingLength: 0,
-            count: 0
-        },
-
-        /**
-         * @param {gpf.Pattern} pattern
-         */
-        init: function (pattern) {
-            this._pattern = pattern;
-            this._item = pattern._root;
-            this._state = {
-                result: 0,
-                length : 0,
-                matchingLength: 0,
-                count: 0
-            };
-            this._item.reset(this._state);
-        },
-
-        /**
-         * Get the item following the provided one
-         *
-         * @param {PatternItem} item
-         * @return {PatternItem|null}
-         * @private
-         */
-        _getNext: function (item) {
-            var
-                result = item.next();
-            while (null === result) {
-                item = item.parent();
-                if (null === item) {
-                    break;
-                }
-                result = item.next();
-            }
-            return result;
-        },
-
-        /**
-         * Handles situation when current item does not match on char
-         *
-         * @param {string} char
-         * @return {number} write result
-         * @private
-         */
-        _writeNoMatch: function (char) {
-            var
-                state = this._state,
-                item = this._item;
-            if (state.count < item.min() // Not enough match
-                // or at least two characters went through
-                || state.length > state.matchingLength + 1) {
-                // Terminal error
-                state.result = -1;
-                this._item = null; // No need to go any further
-                return -1;
-            }
-            item = this._getNext(item);
-            if (null === item) {
-                if (0 === state.matchingLength) {
-                    state.result = -1;
-                } else {
-                    state.result = state.matchingLength;
-                }
-                this._item = null;
-                return state.result;
-            }
-            item.reset(state);
-            this._item = item;
-            state.count = 0;
-            --state.length;
-            return this.write(char); // Try with this one
-        },
-
-        /**
-         * Handles situation when current item matches on char
-         *
-         * @return {number} write result
-         * @private
-         */
-        _writeMatch: function () {
-            var
-                state = this._state,
-                item = this._item,
-                nextItem = this._getNext(item);
-            state.matchingLength = state.length;
-            ++state.count;
-            if (0 === item.max()) {
-                // Unlimited
-                item.reset(state);
-                if (null !== nextItem) {
-                    state.result = PatternItem.WRITE_NEED_DATA;
-                } else {
-                    // Last item with unlimited occurrences
-                    state.result = state.length;
-                }
-            } else if (state.count === item.max()) {
-                item = nextItem;
-                this._item = item;
-                if (null === item) {
-                    state.result = state.length;
-                } else {
-                    item.reset(state);
-                    state.count = 0;
-                    state.result = 0;
-                    if (0 === item.min()) {
-                        // TODO this search should be done only once
-                        nextItem = this._getNext(item);
-                        while (nextItem && 0 === nextItem.min()) {
-                            nextItem = this._getNext(nextItem);
-                        }
-                        if (!nextItem) {
-                            // The rest being optional...
-                            state.result = state.matchingLength;
-                        }
-                    }
-                }
-            } else {
-                state.result = PatternItem.WRITE_NEED_DATA;
-            }
-            return state.result;
-        },
-
-        //region ITokenizer
-
-        /**
-         * @implements gpf.interfaces.ITokenizer:write
-         */
-        write: function (char) {
-            var
-                result,
-                state = this._state,
-                item = this._item;
-            if (null !== item) {
-                result = item.write(state, char);
-                ++state.length;
-                if (undefined !== state.replaceItem) {
-                    this._item = state.replaceItem;
-                }
-                // Not enough data to conclude
-                if (PatternItem.WRITE_NEED_DATA === result) {
-                    return state.result; // Whatever the previous result
-                }
-                if (PatternItem.WRITE_NO_MATCH === result) {
-                    return this._writeNoMatch(char);
-                } else {
-                    return this._writeMatch();
-                }
-            }
-            return state.result;
-        }
-
-        //endregion
-
-    });
-
     /**
      * Patterns are designed to be an efficient and stream-able alternative to
      * regular expressions. However, the coverage is not the same
@@ -921,7 +956,7 @@
      *
      * @class gpf.Pattern
      */
-    gpf.Pattern = gpf.Class.extend({
+    gpf.define("gpf.Pattern", {
 
         _root: null,
 
@@ -963,7 +998,7 @@
      *
      * @class gpf.Parser
      */
-    gpf.Parser = gpf.Class.extend({
+    gpf.define("gpf.Parser", {
 
         "[Class]": [gpf.$InterfaceImplement(gpfI.ITextStream)],
 
