@@ -3,11 +3,6 @@
     "use strict";
 /*#endif*/
 
-    /*
-        Will be created using JISON but as I am not decided yet, I put everything
-        hard-coded
-    */
-
 /*
     var
         // a/b/c
@@ -159,6 +154,14 @@
         }
     }
 
+    /**
+     * Apply the filter expression on the node
+     *
+     * @param {gpf.xml.IXmlConstNode} node
+     * @param {object} expr
+     * @param {gpf.xml.IXmlConstNode[]} resultSet
+     * @private
+     */
     function _filter(node, expr, resultSet) {
         var
             selectedNodes,
@@ -194,6 +197,13 @@
         }
     }
 
+    /**
+     * Select the expression on the current node
+     *
+     * @param {gpf.xml.IXmlConstNode} node
+     * @param {object} expr
+     * @private
+     */
     function _select(node, expr) {
         var
             resultSet,
@@ -218,7 +228,12 @@
         return resultSet;
     }
 
-    gpf.xml.XPath = gpf.Class.extend({
+    /**
+     * XPath parser and selector
+     *
+     * @class gpf.xml.XPath
+     */
+    gpf.define("gpf.xml.XPath", {
 
         _xpath: null,
 
