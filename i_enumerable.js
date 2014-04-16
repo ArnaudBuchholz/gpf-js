@@ -13,7 +13,7 @@
      * @class gpf.interfaces.IEnumerable
      * @extends gpf.interfaces.Interface
      */
-    gpf.interface("IEnumerable", {
+    gpf._defIntrf("IEnumerable", {
 
         /**
          * Sets the enumerator to its initial position, which is before the
@@ -88,7 +88,7 @@
      * @extends gpf.attributes.ClassAttribute
      * @alias gpf.$ClassIArray
      */
-    gpf.attribute("$Enumerable", gpfA.ClassAttribute, {
+    gpf._defAttr("$Enumerable", gpfA.ClassAttribute, {
 
         /**
          * @inheritDoc gpf.attributes.Attribute:alterPrototype

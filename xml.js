@@ -27,7 +27,7 @@
     gpfI.IXmlSerializable = gpfI.Interface.extend({
 
         /**
-         * Translate obj into an gpf.interface.IXmlContentHandler and serialize
+         * Translate obj into an gpf.interfaces.IXmlContentHandler and serialize
          * itself into XML
          *
          * @param {gpf.interfaces.IXmlContentHandler} out XML Content handler

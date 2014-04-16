@@ -16,7 +16,7 @@
      * @class gpf.interfaces.IReadOnlyArray
      * @extends gpf.interfaces.Interface
      */
-    iROArray = gpf.interface("IReadOnlyArray", {
+    iROArray = gpf._defIntrf("IReadOnlyArray", {
 
         /**
          * Return the number of items in the array
@@ -45,7 +45,7 @@
      * @class gpf.interfaces.IArray
      * @extends gpf.interfaces.IReadOnlyArray
      */
-    gpf.interface("IArray", iROArray, {
+    gpf._defIntrf("IArray", iROArray, {
 
         /**
          * Set the item inside the array (idx is 0-based)
@@ -77,7 +77,7 @@
      * @extends gpf.attributes.ClassAttribute
      * @alias gpf.$ClassIArray
      */
-    gpf.attribute("ClassArrayInterfaceAttribute", gpfA.ClassAttribute, {
+    gpf._defAttr("ClassArrayInterfaceAttribute", gpfA.ClassAttribute, {
 
         "[Class]": [gpf.$Alias("ClassIArray")],
 

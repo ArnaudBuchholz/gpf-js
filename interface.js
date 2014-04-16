@@ -94,9 +94,9 @@
      * @param {object} [definition=undefined] definition Interface definition
      * @return {function}
      */
-    gpf.interface = gpf._genDefHandler("gpf.interfaces", "Interface");
+    gpf._defIntrf = gpf._genDefHandler("gpf.interfaces", "Interface");
 
-    gpf.interface("Interface");
+    gpf._defIntrf("Interface");
 
     //region IUnknown
 
@@ -105,7 +105,7 @@
      * intermediate object (this avoids overloading the object with temporary
      * / useless members)
      */
-    gpf.interface("IUnknown", {
+    gpf._defIntrf("IUnknown", {
 
         /**
          * Retrieves an object supporting the provided interface
@@ -181,7 +181,7 @@
      * @extends gpf.attributes.ClassAttribute
      * @alias gpf.$ClassIArray
      */
-    gpf.attribute("$InterfaceImplement", {
+    gpf._defAttr("$InterfaceImplement", {
 
 //        "[Class]": [gpf.$Alias("InterfaceImplement")],
 

@@ -5,7 +5,7 @@
 
     var
         _emptyMember = 0,
-        _attributeHandler;
+        _defAttrBase = gpf._genDefHandler("gpf.attributes", "Attribute");
 
     gpf.attributes = {};
 
@@ -29,8 +29,6 @@
         }());
     }
 
-    _attributeHandler = gpf._genDefHandler("gpf.attributes", "Attribute");
-
     /**
      * Defines an attribute (relies on gpf.define)
      *
@@ -43,8 +41,9 @@
      * (or contextual name)
      * @param {object} [definition=undefined] definition Attribute definition
      * @return {function}
+     * @private
      */
-    gpf.attribute = function (name, base, definition) {
+    gpf._defAttr = function (name, base, definition) {
         var
             isAlias = name.charAt(0) === "$",
             fullName,
@@ -55,7 +54,7 @@
         } else {
             fullName = name;
         }
-        result = _attributeHandler(fullName, base, definition);
+        result = _defAttrBase(fullName, base, definition);
         if (isAlias) {
             _alias(result, name);
         }
@@ -67,7 +66,7 @@
      *
      * @class gpf.attributes.Attribute
      */
-    gpf.attribute("Attribute", {
+    gpf._defAttr("Attribute", {
 
         _member: "",
 
@@ -113,7 +112,7 @@
      * @extends gpf.attributes.Attribute
      * @alias gpf.$Alias
      */
-    gpf.attribute("$Alias", {
+    gpf._defAttr("$Alias", {
 
         init: function (name) {
             this._name = name;

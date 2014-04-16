@@ -18,7 +18,7 @@
                 + " = arguments[0]; } return r;");
         },
 
-        _base = gpf.attribute("ClassAttribute");
+        _base = gpf._defAttr("ClassAttribute");
 
     /**
      * Creates getter (and setter) methods for a private member. The created
@@ -34,7 +34,7 @@
      * @extends gpf.attributes.ClassAttribute
      * @alias gpf.$ClassProperty
      */
-    gpf.attribute("$ClassProperty", _base, {
+    gpf._defAttr("$ClassProperty", _base, {
 
 //        "[Class]": [gpf.$Alias("ClassProperty")],
 
@@ -77,7 +77,7 @@
      * @extends gpf.attributes.ClassAttribute
      * @alias gpf.$ClassExtension
      */
-    gpf.attribute("$ClassExtension", _base, {
+    gpf._defAttr("$ClassExtension", _base, {
 
 //        "[Class]": [gpf.$Alias("ClassExtension")],
 

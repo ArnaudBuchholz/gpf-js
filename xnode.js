@@ -382,7 +382,7 @@
     });
 
     /**
-     * Serialize the node into an gpf.interface.IXmlContentHandler
+     * Serialize the node into an gpf.interfaces.IXmlContentHandler
      *
      * @param {gpf.interfaces.IXmlConstNode} node Node to serialize
      * @param {gpf.interfaces.IXmlContentHandler} out XML Content handler

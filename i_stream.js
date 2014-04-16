@@ -12,7 +12,7 @@
      * @class gpf.interfaces.ITextStream
      * @extends gpf.interfaces.Interface
      */
-    gpf.interface("ITextStream", {
+    gpf._defIntrf("ITextStream", {
 
         /**
          * Read characters from the text stream
