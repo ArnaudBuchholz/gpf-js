@@ -58,7 +58,7 @@
      * Internal helper to apply a function on a list of nodes.
      *
      * @param {gpf.xml.IXmlConstNode[]} nodes
-     * @param {function} func
+     * @param {Function} func
      * @param {*} param
      * @param {gpf.xml.IXmlConstNode[]} resultSet
      * @private
@@ -77,7 +77,7 @@
      * Test an expression with type = NODE_ELEMENT
      *
      * @param {gpf.xml.IXmlConstNode} node
-     * @param {object} expr
+     * @param {Object} expr
      * @param {gpf.xml.IXmlConstNode[]} resultSet
      * @private
      */
@@ -108,7 +108,7 @@
      * Test an expression with type = NODE_ATTRIBUTE
      *
      * @param {gpf.xml.IXmlConstNode} node
-     * @param {object} expr
+     * @param {Object} expr
      * @param {gpf.xml.IXmlConstNode[]} resultSet
      * @private
      */
@@ -142,7 +142,7 @@
      * resultSet
      *
      * @param {gpf.xml.IXmlConstNode[]} nodeSet
-     * @param {object} expr
+     * @param {Object} expr
      * @param {gpf.xml.IXmlConstNode[]} resultSet
      * @private
      */
@@ -158,7 +158,7 @@
      * Apply the filter expression on the node
      *
      * @param {gpf.xml.IXmlConstNode} node
-     * @param {object} expr
+     * @param {Object} expr
      * @param {gpf.xml.IXmlConstNode[]} resultSet
      * @private
      */
@@ -201,7 +201,7 @@
      * Select the expression on the current node
      *
      * @param {gpf.xml.IXmlConstNode} node
-     * @param {object} expr
+     * @param {Object} expr
      * @private
      */
     function _select(node, expr) {
@@ -253,7 +253,7 @@
         /**
          * Compile the XPATH specifier
          *
-         * @param {string} xpath
+         * @param {String} xpath
          * @private
          */
         _compile: function (xpath) {

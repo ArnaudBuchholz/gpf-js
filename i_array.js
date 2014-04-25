@@ -20,7 +20,7 @@
 
         /**
          * Return the number of items in the array
-         * @return {number}
+         * @return {Number}
          */
         length: function () {
             return 0;
@@ -29,7 +29,7 @@
         /**
          * Return the item inside the array (idx is 0-based)
          *
-         * @param {number} idx index
+         * @param {Number} idx index
          * @return {*}
          */
         get: function (idx) {
@@ -51,7 +51,7 @@
          * Set the item inside the array (idx is 0-based)
          * Return the value that was previously set (or undefined)
          *
-         * @param {number} idx index
+         * @param {Number} idx index
          * @param {*} value
          * @return {*}
          */
@@ -70,7 +70,7 @@
     /**
      * Extend the class to provide an array-like interface
      *
-     * @param {boolean} [writeAllowed=false] writeAllowed Switch between read
+     * @param {Boolean} [writeAllowed=false] writeAllowed Switch between read
      * only array and writable one
      *
      * @class gpf.attributes.ClassArrayInterfaceAttribute
@@ -129,7 +129,7 @@
      * parameter (such as for IXmlConstNode:children)
      *
      * @param {[]} array Array to grab items from
-     * @param {number} [idx=undefined] idx Index of the item to get.
+     * @param {Number} [idx=undefined] idx Index of the item to get.
      *        When not specified, a copy of the array is returned (to avoid
      *        source modifications). When specified:
      *        if -1, returns the last element of the array or undefined

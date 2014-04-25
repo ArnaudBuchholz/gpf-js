@@ -24,8 +24,8 @@
          * date
          *
          * @param {Date} that
-         * @param {boolean} [includeTime=true] includeTime
-         * @return {string}
+         * @param {Boolean} [includeTime=true] includeTime
+         * @return {String}
          */
         dateToComparableFormat: function (that, includeTime) {
             if (undefined === includeTime) {
@@ -48,7 +48,7 @@
          * Converts a string into a Date using the format used inside the
          * function dateToComparableFormat
          *
-         * @param {string} that
+         * @param {String} that
          * @return {Date}
          */
         dateFromComparableFormat: function (that) {

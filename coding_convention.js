@@ -26,8 +26,8 @@
     /**
      * Any function triggering events
      * 
-     * @param {any} param1
-     * @param {object/function} eventsHandler
+     * @param {*} param1
+     * @param {Object/function} eventsHandler
      * @return {undefined}
      *
      * @event sample This is the sample event

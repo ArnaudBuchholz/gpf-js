@@ -28,7 +28,7 @@
         /**
          * Error message
          *
-         * @return {string}
+         * @return {String}
          */
         message: function () {
             return this._message;
@@ -37,7 +37,7 @@
         /**
          * Error name
          *
-         * @return {string}
+         * @return {String}
          */
         name: function () {
             return this._name;

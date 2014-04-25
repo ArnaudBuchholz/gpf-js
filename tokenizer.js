@@ -84,7 +84,7 @@
         /**
          * Generates a new tokenizer context
          * 
-         * @return {object} tokenizer context
+         * @return {Object} tokenizer context
          * @internal
          */
         _tokenizerInit = function () {
@@ -136,8 +136,8 @@
         /**
          * Handles tokenizer events
          * 
-         * @param {object} context tokenizer context
-         * @param {number} [errorCode=undefined] errorCode error
+         * @param {Object} context tokenizer context
+         * @param {Number} [errorCode=undefined] errorCode error
          * @return {undefined}
          * @internal
          */
@@ -243,8 +243,8 @@
         /**
          * Detects JavaScript symbols
          * 
-         * @param {string[]} chars the already recognized characters
-         * @param {string} newChar the next char to recognize
+         * @param {String[]} chars the already recognized characters
+         * @param {String} newChar the next char to recognize
          * @return {Boolean} true if the next char makes a valid symbol
          * @internal
          */
@@ -375,8 +375,8 @@
         /**
          * Default analyzer (when no state is active)
          *
-         * @param {object} context
-         * @param {string} newChar
+         * @param {Object} context
+         * @param {String} newChar
          * @private
          */
         _noStateAnalyzer = function (context, newChar) {
@@ -403,8 +403,8 @@
         /**
          * Main parser function
          * 
-         * @param {object} context tokenizer context
-         * @param {string} newChar next char to analyze
+         * @param {Object} context tokenizer context
+         * @param {String} newChar next char to analyze
          * @return {undefined}
          * @internal
          */
@@ -423,8 +423,8 @@
         /**
          * Compute next char position
          * 
-         * @param {object} context tokenizer context
-         * @param {string} newChar char that has been analyzed
+         * @param {Object} context tokenizer context
+         * @param {String} newChar char that has been analyzed
          * @return {undefined}
          * @internal
          */
@@ -441,8 +441,8 @@
         /**
          * Inject next char in the tokenizer
          * 
-         * @param {object} context tokenizer context
-         * @param {string} newChar char that will be analyzed
+         * @param {Object} context tokenizer context
+         * @param {String} newChar char that will be analyzed
          * @return {undefined}
          * @internal
          */
@@ -480,7 +480,7 @@
         /**
          * Finalize tokenizer
          * 
-         * @param {object} context tokenizer context
+         * @param {Object} context tokenizer context
          * @internal
          */
         _tokenizerFinalize = function (context) {
@@ -508,8 +508,8 @@
         /**
          * Identify tokens in the provided text, the source is supposed to be
          * complete (and valid).
-         * @param {string} text Text to analyze
-         * @param {object/function} eventsHandler
+         * @param {String} text Text to analyze
+         * @param {Object/function} eventsHandler
          * @return {undefined}
          * 
          * @eventParam {string} token The token value
@@ -575,10 +575,10 @@
          * Identify tokens in the provided text, the parsing context is returned
          * so that it can be chained with consecutive calls.
 
-         * @param {string} text Text to analyze. Use null to finalize the
+         * @param {String} text Text to analyze. Use null to finalize the
          *        parsing
-         * @param {object/function} eventsHandler
-         * @param {object} context Tokenizer context (initialized if not set)
+         * @param {Object/function} eventsHandler
+         * @param {Object} context Tokenizer context (initialized if not set)
          * @return {undefined}
          *
          */

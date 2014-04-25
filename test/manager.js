@@ -334,7 +334,7 @@
 
     /**
      * 
-     * @param {object} sourceTests
+     * @param {Object} sourceTests
      * @return {undefined}
      * 
      * @internal
@@ -361,8 +361,8 @@
     /**
      * Handles the tests
      * 
-     * @param {object/function} eventsHandler
-     * @return {number} Number of errors
+     * @param {Object/function} eventsHandler
+     * @return {Number} Number of errors
      *
      * @eventParam {string} message The message
      *
@@ -391,8 +391,8 @@
     /**
      * Explain a failing test by generating a report
      *
-     * @param {string} name
-     * @param {object/function} eventsHandler
+     * @param {String} name
+     * @param {Object/function} eventsHandler
      * @return {undefined}
      *
      * @eventParam {string} message The message

@@ -8,10 +8,10 @@
         /**
          * Verify that the object implements the current interface
          *
-         * @param {object} objectInstance object to inspect
+         * @param {Object} objectInstance object to inspect
          * @param {gpf.interfaces.Interface} interfaceDefinition reference
          * interface
-         * @return {boolean}
+         * @return {Boolean}
          */
         isImplementedBy: function (objectInstance, interfaceDefinition) {
             var member;
@@ -54,10 +54,10 @@
          * - Either the object implements the interface, it is returned
          * - Or the object implements IUnknown, then queryInterface is used
          *
-         * @param {object} objectInstance object to inspect
+         * @param {Object} objectInstance object to inspect
          * @param {gpf.interfaces.Interface} interfaceDefinition reference
          * interface
-         * @return {object|null}
+         * @return {Object|null}
          */
         query: function (objectInstance, interfaceDefinition) {
             if (gpf.interfaces.isImplementedBy(objectInstance,
@@ -86,13 +86,13 @@
     /**
      * Defines an interface (relies on gpf.define)
      *
-     * @param {string} name Interface name. If it contains a dot, it is
+     * @param {String} name Interface name. If it contains a dot, it is
      * treated as absolute contextual. Otherwise, it is relative to
      * "gpf.interfaces"
-     * @param {function|string} [base=undefined] base Base interface
+     * @param {Function|string} [base=undefined] base Base interface
      * (or contextual name)
-     * @param {object} [definition=undefined] definition Interface definition
-     * @return {function}
+     * @param {Object} [definition=undefined] definition Interface definition
+     * @return {Function}
      * @private
      */
     gpf._defIntrf = gpf._genDefHandler("gpf.interfaces", "Interface");
@@ -114,7 +114,7 @@
          *
          * @param {gpf.interfaces.Interface} interfaceDefinition The expected
          * interface
-         * @return {object|null} The object supporting the interface (or null)
+         * @return {Object|null} The object supporting the interface (or null)
          */
         queryInterface: function (interfaceDefinition) {
             gpf.interfaces.ignoreParameter(interfaceDefinition);
@@ -136,7 +136,7 @@
      *
      * @param {gpf.interfaces.Interface} interfaceDefinition The expected
      * interface
-     * @return {object|null} The object supporting the interface (or null)
+     * @return {Object|null} The object supporting the interface (or null)
      */
     function _queryInterface (interfaceDefinition) {
         /*jslint -W040*/
@@ -174,8 +174,8 @@
     /**
      * Extend the class to provide an array-like interface
      *
-     * @param {function} interfaceDefinition Implemented interface definition
-     * @param {function} [queryInterfaceBuilder=undefined] queryInterfaceBuilder
+     * @param {Function} interfaceDefinition Implemented interface definition
+     * @param {Function} [queryInterfaceBuilder=undefined] queryInterfaceBuilder
      * Function applied if the implemented interface is requested
      *
      * @class gpf.attributes.ClassArrayInterfaceAttribute

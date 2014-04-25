@@ -213,10 +213,10 @@
      * Otherwise, the defaultResult is returned.
      * When defaultResult is not defined, memberCallback result is ignored.
      *  
-     * @param {object} dictionary
-     * @param {function} memberCallback
-     * @param {any} defaultResult
-     * @return {any}
+     * @param {Object} dictionary
+     * @param {Function} memberCallback
+     * @param {*} defaultResult
+     * @return {*}
      * @chainable
      * @forwardThis
      */
@@ -241,10 +241,10 @@
      * If a conflict has to be handled (i.e. member exists on both objects),
      * the overwriteCallback has to handle it.
      * 
-     * @param {object} dictionary
-     * @param {object} additionalProperties
-     * @param {function} overwriteCallback
-     * @return {object} the modified dictionary
+     * @param {Object} dictionary
+     * @param {Object} additionalProperties
+     * @param {Function} overwriteCallback
+     * @return {Object} the modified dictionary
      * @chainable
      */
     gpf.extend = function (dictionary, additionalProperties,
@@ -273,10 +273,10 @@
          * If not specified or impossible to do so, defaultValue is returned.
          * When expectedType is not provided, it is deduced from defaultValue.
          *
-         * @param {any} value
-         * @param {any} default value
-         * @param {string} [expectedType=typeof defaultValue] expected type
-         * @return {any}
+         * @param {*} value
+         * @param {*} default value
+         * @param {String} [expectedType=typeof defaultValue] expected type
+         * @return {*}
          */
         value: function (value, defaultValue, expectedType) {
             var valueType = typeof value;
@@ -303,9 +303,9 @@
          * other objects) I found that it was necessary to keep track of already
          * processed objects.
          *
-         * @param {any} a
-         * @param {any} b
-         * @param {boolean} [alike=false] alike Allow to be tolerant on
+         * @param {*} a
+         * @param {*} b
+         * @param {Boolean} [alike=false] alike Allow to be tolerant on
          *        primitive types compared with their object equivalent
          * @return {Boolean}
          */
@@ -325,9 +325,9 @@
         /*
          * Find the first member of dictionary which value equals to value.
          * 
-         * @param {object/array} dictionary
-         * @param {any} value
-         * @return {string/number/undefined} undefined if not found
+         * @param {Object/array} dictionary
+         * @param {*} value
+         * @return {String/number/undefined} undefined if not found
          */
         test: function (dictionary, value) {
             var idx;
@@ -351,9 +351,9 @@
         /*
          * Inserts the value in the array if not already present.  
          * 
-         * @param {array} array
-         * @param {any} value
-         * @return {array}
+         * @param {Array} array
+         * @param {*} value
+         * @return {Array}
          * @chainable
          */
         set: function (array, value) {
@@ -375,9 +375,9 @@
          * Removes the member of 'dictionary' which value equals 'value'.
          * NOTE: that the object is modified. 
          * 
-         * @param {object/array} dictionary
-         * @param {any} value
-         * @return {object/array} dictionary
+         * @param {Object/array} dictionary
+         * @param {*} value
+         * @return {Object/array} dictionary
          * @chainable
          */
         clear: function (dictionary, value) {

@@ -24,7 +24,7 @@
 
         /**
          * Advances the enumerator to the next element of the collection
-         * @return {boolean} true if the enumerator was successfully advanced
+         * @return {Boolean} true if the enumerator was successfully advanced
          * to the next element; false if the enumerator has passed the end of
          * the collection
          */
@@ -45,8 +45,8 @@
     /**
      * Builds an enumerable interface based on an array
      *
-     * @param {object[]} array Base of the enumeration
-     * @return {object} Object implementing the IEnumerable interface
+     * @param {Object[]} array Base of the enumeration
+     * @return {Object} Object implementing the IEnumerable interface
      * @private
      */
     function _arrayEnumerator(array) {
@@ -68,8 +68,8 @@
     /**
      * Interface builder that connects to the EnumerableAttribute attribute
      *
-     * @param {object} object
-     * @return {object} Object implementing the IEnumerable interface
+     * @param {Object} object
+     * @return {Object} Object implementing the IEnumerable interface
      * @private
      */
     function _buildEnumerableOnArray(object) {

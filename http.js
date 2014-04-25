@@ -70,10 +70,10 @@ FIXME: IE10 does not detect when the script does not exist.
          * The function returns an object that can be overriden with our own
          * loaded handler (if needed)
          * 
-         * @param {string} src
-         * @param {object/function} [eventsHandler=new gpf.events.Broadcaster]
+         * @param {String} src
+         * @param {Object/function} [eventsHandler=new gpf.events.Broadcaster]
          *        eventsHandler
-         * @return {object/function} the provided eventsHandler
+         * @return {Object/function} the provided eventsHandler
          *          
          * @eventParam {string} url URL of the included resource
          * 

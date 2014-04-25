@@ -12,8 +12,8 @@
     /**
      * Generates a factory capable of creating a new instance of a class
      *
-     * @param {function} objectClass Object constructor
-     * @param {string} name Alias name (will be prefixed by $)
+     * @param {Function} objectClass Object constructor
+     * @param {String} name Alias name (will be prefixed by $)
      * @private
      */
     function _alias(objectClass, name) {
@@ -32,15 +32,15 @@
     /**
      * Defines an attribute (relies on gpf.define)
      *
-     * @param {string} name Attribute name. If it contains a dot, it is
+     * @param {String} name Attribute name. If it contains a dot, it is
      * treated as absolute contextual. Otherwise, it is relative to
      * "gpf.attributes". If starting with $ (and no dot), the contextual name
      * will be the "gpf.attributes." + name(without $) + "Attribute" and an
      * alias is automatically created (otherwise, use $Alias attribute on class)
-     * @param {function|string} [base=undefined] base Base attribute
+     * @param {Function|string} [base=undefined] base Base attribute
      * (or contextual name)
-     * @param {object} [definition=undefined] definition Attribute definition
-     * @return {function}
+     * @param {Object} [definition=undefined] definition Attribute definition
+     * @return {Function}
      * @private
      */
     gpf._defAttr = function (name, base, definition) {
@@ -73,8 +73,8 @@
         /**
          * get/set member name
          *
-         * @param {string} name member name
-         * @return {string}
+         * @param {String} name member name
+         * @return {String}
          */
         member: function (name) {
             var value = this._member;
@@ -90,7 +90,7 @@
          *
          * NOTE: this is called *after* all declared members are set
          *
-         * @param {object} objPrototype Class prototype
+         * @param {Object} objPrototype Class prototype
          */
         alterPrototype: function /*abstract*/ (objPrototype) {
             gpf.interfaces.ignoreParameter(objPrototype);
@@ -106,7 +106,7 @@
      * It is reduced to:
      * "[Class]" : [$Alias("Name")]
      *
-     * @param {string} name Name of the alias to build below gpf
+     * @param {String} name Name of the alias to build below gpf
      *
      * @class gpf.attributes.AliasAttribute
      * @extends gpf.attributes.Attribute
@@ -144,7 +144,7 @@
         /**
          * Return the first occurrence of the expected class
          *
-         * @param {function} expectedClass the class to match
+         * @param {Function} expectedClass the class to match
          * @return {gpf.attributes.Attribute}
          */
         has: function (expectedClass) {
@@ -165,7 +165,7 @@
          * Returns a new array with all attributes matching the expected
          * class
          *
-         * @param {function} expectedClass the class to match
+         * @param {Function} expectedClass the class to match
          * @return {gpf.attributes.Array}
          */
         filter: function (expectedClass) {
@@ -197,7 +197,7 @@
 
         /**
          *
-         * @param {object} [object=undefined] object Object to read
+         * @param {Object} [object=undefined] object Object to read
          *        attributes from
          */
         init: function (object) {
@@ -211,7 +211,7 @@
         /**
          * Gives the total number of attributes enclosed in the map
          *
-         * @return {number}
+         * @return {Number}
          */
         count: function () {
             return this._count;
@@ -220,7 +220,7 @@
         /**
          * Associate an attribute to a member
          *
-         * @param {string} member member name
+         * @param {String} member member name
          * @param {gpf.attributes.Attribute} attribute attribute to map
          */
         add: function (member, attribute) {
@@ -236,7 +236,7 @@
          * Copy the content of this map to a new one
          *
          * @param {gpf.attributes.Map} attributesMap recipient of the copy
-         * @param {function} [callback=undefined] callback callback function
+         * @param {Function} [callback=undefined] callback callback function
          * to test if the mapping should be added
          * @param {*} [param=undefined] param additional parameter for the
          * callback
@@ -267,10 +267,10 @@
         /**
          * Callback for _copyTo, test if attribute is of a given class
          *
-         * @param {string} member
+         * @param {String} member
          * @param {gpf.attributes.Attribute} attribute
-         * @param {function} expectedClass
-         * @return {boolean}
+         * @param {Function} expectedClass
+         * @return {Boolean}
          * @private
          */
         _filterCallback: function (member, attribute, expectedClass) {
@@ -281,8 +281,8 @@
         /**
          * Fill the map using object's attributes
          *
-         * @param {object} object object to get attributes from
-         * @return {number} number of attributes in the resulting map
+         * @param {Object} object object to get attributes from
+         * @return {Number} number of attributes in the resulting map
          */
         fillFromObject: function (object) {
             var
@@ -306,7 +306,7 @@
          * Creates a new map that contains only instances of the given
          * attribute class
          *
-         * @param {function} expectedClass
+         * @param {Function} expectedClass
          * @return {gpf.attributes.Map}
          */
         filter: function (expectedClass) {
@@ -319,7 +319,7 @@
         /**
          * Returns the array of map associated to a member
          *
-         * @param {string} name
+         * @param {String} name
          * @return {gpf.attributes.Array}
          */
         member: function (name) {
@@ -337,7 +337,7 @@
          * Returns the list of members stored in this map
          *
          * @perf_warn Result is computed on each call
-         * @return {string[]}
+         * @return {String[]}
          */
         members: function () {
             var
@@ -357,8 +357,8 @@
      * Add the attribute list to the given prototype associated with the
      * provided member name
      *
-     * @param {function} objectClass class constructor
-     * @param {string} name member name
+     * @param {Function} objectClass class constructor
+     * @param {String} name member name
      * @param {gpf.attributes.Attribute[]} attributes
      */
     gpf.attributes.add = function (objectClass, name, attributes) {

@@ -122,9 +122,9 @@
          * Substitutes all occurrences of the keys found in the replacements
          * object with their values
          *
-         * @param {string} that
-         * @param {object} replacements map of strings to search and replace
-         * @return {string}
+         * @param {String} that
+         * @param {Object} replacements map of strings to search and replace
+         * @return {String}
          */
         replaceEx: function (that, replacements) {
             var
@@ -145,9 +145,9 @@
         /**
          * Adapt the string content to be compatible with the provided language
          *
-         * @param {string} that
-         * @param {string} language
-         * @return {string}
+         * @param {String} that
+         * @param {String} language
+         * @return {String}
          */
         escapeFor: function (that, language) {
             var replacements = _escapes[language];
@@ -178,8 +178,8 @@
         /**
          * Converts the string into a stream
          *
-         * @param {string} that
-         * @return {object} Implementing gpf.interfaces.ITextStream
+         * @param {String} that
+         * @return {Object} Implementing gpf.interfaces.ITextStream
          */
         stringToStream: function (that) {
             return new StringStream(that);
@@ -191,7 +191,7 @@
          * Converts the stream into a string
          *
          * @param {gpf.interfaces.ITextStream} stream
-         * @return {string}
+         * @return {String}
          */
         stringFromStream: function (stream) {
             if (stream instanceof StringStream) {

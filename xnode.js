@@ -36,9 +36,9 @@
          * with attributes and their values, attributes(name) returns the
          * selected attribute value
          *
-         * @param {string} name When specified, name of the attribute to get or
+         * @param {String} name When specified, name of the attribute to get or
          *        set
-         * @return {object|string}
+         * @return {Object|string}
          */
         attributes: function (name) {
             gpf.interfaces.ignoreParameter(name);
@@ -48,7 +48,7 @@
         /**
          * Returns the array of child nodes for the node
          *
-         * @param {number} [idx=undefined] idx (see gpf.arrayOrItem)
+         * @param {Number} [idx=undefined] idx (see gpf.arrayOrItem)
          * @return {gpf.interfaces.IXmlConstNode
          *           |gpf.interfaces.IXmlConstNode[]
          *           |undefined}
@@ -64,7 +64,7 @@
         /**
          * Returns the local part of the name of a node
          *
-         * @return {string}
+         * @return {String}
          */
         localName: function () {
             return "";
@@ -73,7 +73,7 @@
         /**
          * Returns the namespace URI of a node
          *
-         * @return {string}
+         * @return {String}
          */
         namespaceURI: function () {
             return "";
@@ -91,7 +91,7 @@
         /**
          * Returns the name of a node, depending on its type
          *
-         * @return {string}
+         * @return {String}
          */
         nodeName: function () {
             return "";
@@ -100,7 +100,7 @@
         /**
          * Returns the type of a node
          *
-         * @return {number}
+         * @return {Number}
          */
         nodeType: function () {
             return 0;
@@ -136,7 +136,7 @@
         /**
          * Sets or returns the namespace prefix of a node
          *
-         * @return {string}
+         * @return {String}
          */
         prefix: function () {
             return "";
@@ -154,7 +154,7 @@
         /**
          * Sets or returns the textual content of a node and its descendants
          *
-         * @return {string}
+         * @return {String}
          */
         textContent: function () {
             return "";

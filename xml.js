@@ -58,7 +58,7 @@
         /**
          * Receive notification of character data
          *
-         * @param {string} buffer characters
+         * @param {String} buffer characters
          */
         characters: function (buffer) {
             gpfI.ignoreParameter(buffer);
@@ -77,7 +77,7 @@
         /**
          *  End the scope of a prefix-URI mapping
          *
-         * @param {string} prefix
+         * @param {String} prefix
          */
         endPrefixMapping: function (prefix) {
             gpfI.ignoreParameter(prefix);
@@ -86,7 +86,7 @@
         /**
          * Receive notification of ignorable whitespace in element content
          *
-         * @param {string} buffer characters
+         * @param {String} buffer characters
          */
         ignorableWhitespace: function (buffer) {
             gpfI.ignoreParameter(buffer);
@@ -95,8 +95,8 @@
         /**
          * Receive notification of a processing instruction
          *
-         * @param {string} target
-         * @param {string} data
+         * @param {String} target
+         * @param {String} data
          */
         processingInstruction: function (target, data) {
             gpfI.ignoreParameter(target);
@@ -115,7 +115,7 @@
         /**
          * Receive notification of a skipped entity
          *
-         * @param {string} name
+         * @param {String} name
          */
         skippedEntity: function (name) {
             gpfI.ignoreParameter(name);
@@ -129,10 +129,10 @@
         /**
          * Receive notification of the beginning of an element
          *
-         * @param {string} uri [uri=""] namespace uri (if any)
-         * @param {string} localName
-         * @param {string} [qName=localName] qName qualified name
-         * @param {object} attributes attribute dictionary (string/string)
+         * @param {String} uri [uri=""] namespace uri (if any)
+         * @param {String} localName
+         * @param {String} [qName=localName] qName qualified name
+         * @param {Object} attributes attribute dictionary (string/string)
          */
         startElement: function (uri, localName, qName, attributes) {
             gpfI.ignoreParameter(uri);
@@ -144,8 +144,8 @@
         /**
          * Begin the scope of a prefix-URI Namespace mapping
          *
-         * @param {string} prefix
-         * @param {string} uri
+         * @param {String} prefix
+         * @param {String} uri
          */
         startPrefixMapping: function (prefix, uri) {
             gpfI.ignoreParameter(prefix);
@@ -207,7 +207,7 @@
          * XML Attribute attribute
          * Indicates the member is serialized as an attribute
          *
-         * @param {string} name The attribute name
+         * @param {String} name The attribute name
          *
          * @class gpf.attributes.XmlAttributeAttribute
          * @extends gpf.attributes.XmlAttribute
@@ -231,7 +231,7 @@
         /**
          * XML RAW Element attribute
          *
-         * @param {string} name The element name
+         * @param {String} name The element name
          *
          * @class gpf.attributes.XmlRawElementAttribute
          * @extends gpf.attributes.XmlAttribute
@@ -253,8 +253,8 @@
          * XML Element attribute
          * Indicates the member is serialized as an element
          *
-         * @param {string} name The element name
-         * @param {function} objClass The class used for un-serializing it
+         * @param {String} name The element name
+         * @param {Function} objClass The class used for un-serializing it
          *
          * @class gpf.attributes.XmlElementAttribute
          * @extends gpf.attributes.XmlRawElementAttribute
@@ -298,7 +298,7 @@
          * Select the attribute related to the value type
          *
          * @param {gpf.attributes.Array} array Attribute array
-         * @param {object} value
+         * @param {Object} value
          * @return {null|gpf.attributes.Attribute}
          * @private
          */
@@ -344,11 +344,11 @@
          * Decide if the member value must be serialized as an attribute (and
          * return its name) or as a sub node (empty result)
          *
-         * @param {string} member
+         * @param {String} member
          * @param {*} value
-         * @param {string} type
+         * @param {String} type
          * @param {gpf.attributes.Array} attArray
-         * @return {string} "" if the member should be serialized as a sub
+         * @return {String} "" if the member should be serialized as a sub
          *          node, otherwise the name to apply
          * @private
          */
@@ -376,8 +376,8 @@
          * Convert the object member into XML using the provided XML content
          * handler
          *
-         * @param {object} obj
-         * @param {string} member Member name
+         * @param {Object} obj
+         * @param {String} member Member name
          * @param {gpf.interfaces.IXmlContentHandler} contentHandler
          * @param {gpf.attributes.Map} attMap Map filled with XML attributes
          * @private
@@ -441,9 +441,9 @@
         /**
          * Convert the object into XML using the provided XML content handler
          *
-         * @param {object} obj
+         * @param {Object} obj
          * @param {gpf.interfaces.IXmlContentHandler} contentHandler
-         * @param {string} [name="object"] name Name of the root node
+         * @param {String} [name="object"] name Name of the root node
          * @param {gpf.attributes.Map} attMap Map filled with XML attributes
          * @private
          */
@@ -519,7 +519,7 @@
          *
          * @param {*} obj
          * @param {gpf.interfaces.IXmlContentHandler} contentHandler
-         * @param {string} [name="object"] name Name of the root node
+         * @param {String} [name="object"] name Name of the root node
          * @private
          */
         _toContentHandler = function (obj, contentHandler, name) {
@@ -1085,7 +1085,7 @@
      * Tries to convert any value into XML
      *
      * @param {*} value
-     * @param {object} out Recipient object for XML serialization
+     * @param {Object} out Recipient object for XML serialization
      */
     gpf.xml.convert = function (value, out) {
         var
@@ -1121,8 +1121,8 @@
          * Check that the provided name can be use as an element or attribute
          * name
          *
-         * @param {string} name
-         * @return {boolean}
+         * @param {String} name
+         * @return {Boolean}
          */
         isValidName: function (name) {
             var
@@ -1143,8 +1143,8 @@
          * Make sure that the provided name can be use as an element or
          * attribute name
          *
-         * @param {string} name
-         * @return {string} a valid attribute/element name
+         * @param {String} name
+         * @return {String} a valid attribute/element name
          */
         toValidName: function (name) {
             var newName;

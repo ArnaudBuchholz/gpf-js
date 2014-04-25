@@ -50,7 +50,7 @@
     /**
      * Returns a string identifying the detected host
      *
-     * @return {string}
+     * @return {String}
      * - "wscript" for cscript and wscript
      * - "nodejs" for nodejs
      * - "browser" for any browser
@@ -63,7 +63,7 @@
     /**
      * Resolve the provided evaluation path and returns the result
      *
-     * @param {string|string[]} path Dot separated list of identifier
+     * @param {String|string[]} path Dot separated list of identifier
      * (or identifier array)
      * @return {*|undefined}
      * - when path is empty, it returns the current host higher object

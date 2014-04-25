@@ -26,8 +26,8 @@
      * {type} MEMBER({type} [value=undefined] value)
      * When value is not set, the member acts as a getter
      *
-     * @param {boolean} writeAllowed
-     * @param {string} [publicName=undefined] publicName When not specified,
+     * @param {Boolean} writeAllowed
+     * @param {String} [publicName=undefined] publicName When not specified,
      * the member name (without _) is applied
      *
      * @class gpf.attributes.ClassPropertyAttribute
@@ -69,8 +69,8 @@
     /**
      * Defines a class extension (internal)
      *
-     * @param {string} ofClass
-     * @param {string} [publicName=undefined] publicName When not specified,
+     * @param {String} ofClass
+     * @param {String} [publicName=undefined] publicName When not specified,
      * the original method name is used
      *
      * @class gpf.attributes.ClassExtensionAttribute

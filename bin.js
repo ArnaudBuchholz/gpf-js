@@ -79,8 +79,8 @@
         /**
          * Computes the power of 2
          *
-         * @param {number} n the power to compute
-         * @return {number}
+         * @param {Number} n the power to compute
+         * @return {Number}
          */
         pow2: function (n) {
             return 1 << n;
@@ -89,8 +89,8 @@
         /**
          * Check if the given value is a power of 2
          *
-         * @param {number} value the value to check
-         * @return {number} the power of 2 or -1
+         * @param {Number} value the value to check
+         * @return {Number} the power of 2 or -1
          */
         isPow2: function (value) {
             // http://en.wikipedia.org/wiki/Power_of_two
@@ -111,29 +111,29 @@
          * Result string length can be defined and missing characters will be
          * added with safepad.
          * 
-         * @param {string} base values
-         * @param {number} value to encode
-         * @param {number} length of encoding
-         * @param {string} safepad [safepad=base.charAt(0)]
-         * @return {string}
+         * @param {String} base values
+         * @param {Number} value to encode
+         * @param {Number} length of encoding
+         * @param {String} safepad [safepad=base.charAt(0)]
+         * @return {String}
          */
         toBaseANY: _toBaseANY,
 
         /*
          * Decodes the text value using the specified base.
-         * @param {string} base
-         * @param {string} text
-         * @param {string} safepad [safepad=""]
-         * @return {number}
+         * @param {String} base
+         * @param {String} text
+         * @param {String} safepad [safepad=""]
+         * @return {Number}
          */
         fromBaseANY: _fromBaseANY,
 
         /*
          * Returns the hexadecimal encoding of value.
-         * @param {number} value
-         * @param {number} length of encoding
-         * @param {string} safepad [safepad="0"]
-         * @return {string}
+         * @param {Number} value
+         * @param {Number} length of encoding
+         * @param {String} safepad [safepad="0"]
+         * @return {String}
          */
         toHexa: function (value, length, safepad) {
             return _toBaseANY(_b16, value, length, safepad);
@@ -141,8 +141,8 @@
 
         /*
          * Decodes the hexadecimal text value.
-         * @param {string} text
-         * @param {string} safepad [safepad="0"]
+         * @param {String} text
+         * @param {String} safepad [safepad="0"]
          * @return {Number}
          */
         fromHexa: function (text, safepad) {
@@ -151,10 +151,10 @@
 
         /*
          * Returns the base 64 encoding of value.
-         * @param {number} value
-         * @param {number} length of encoding
-         * @param {string} safepad [safepad="0"]
-         * @return {string}
+         * @param {Number} value
+         * @param {Number} length of encoding
+         * @param {String} safepad [safepad="0"]
+         * @return {String}
          */
         toBase64: function (value, length, safepad) {
             return _toBaseANY(_b64, value, length, safepad);
@@ -162,8 +162,8 @@
 
         /*
          * Decodes the hexadecimal text value.
-         * @param {string} text
-         * @param {string} safepad [safepad="0"]
+         * @param {String} text
+         * @param {String} safepad [safepad="0"]
          * @return {Number}
          */
         fromBase64: function (text, safepad) {

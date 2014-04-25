@@ -21,8 +21,8 @@
              * Submit a character to the tokenizer, result indicates if the
              * token is recognized
              *
-             * @param {string} char One character to analyze
-             * @return {number} < 0 means won't recognize
+             * @param {String} char One character to analyze
+             * @return {Number} < 0 means won't recognize
              *                     0 means need more chars
              *                   > 0 means a token is recognized (length result)
              *
@@ -134,7 +134,7 @@
 
             /**
              * @constructor
-             * @param {number} type
+             * @param {Number} type
              */
             init: function (type) {
                 this._type = type;
@@ -144,8 +144,8 @@
              * Compiling time:
              *  adds a character to the item
              *
-             * @param {string} char Character to add
-             * @param {boolean} inRange Used for range parsing (preceded by -)
+             * @param {String} char Character to add
+             * @param {Boolean} inRange Used for range parsing (preceded by -)
              */
             add: function (char, inRange) {
                 gpf.interfaces.ignoreParameter(char);
@@ -163,7 +163,7 @@
              * Run time:
              *  item will be evaluated, reset tokenizer state
              *
-             * @param {object} state Free structure to add values to
+             * @param {Object} state Free structure to add values to
              */
             reset: function (state) {
                 gpf.interfaces.ignoreParameter(state);
@@ -173,9 +173,9 @@
              * Run time:
              *  item evaluation with a character
              *
-             * @param {object} state Free structure containing current state
-             * @param {string} char character to test the pattern with
-             * @return {number} Matching result, see PatternItem.WRITE_xxx
+             * @param {Object} state Free structure containing current state
+             * @param {String} char character to test the pattern with
+             * @return {Number} Matching result, see PatternItem.WRITE_xxx
              */
             write: function (state, char) {
                 gpf.interfaces.ignoreParameter(state);
@@ -277,7 +277,7 @@
             /**
              * Returns true if the exclude part is defined
              *
-             * @return {boolean}
+             * @return {Boolean}
              */
             hasExclude: function () {
                 return this.hasOwnProperty("_exc");
@@ -286,7 +286,7 @@
             /**
              * Defines the exclude part
              *
-             * @return {boolean}
+             * @return {Boolean}
              */
             enterExclude: function () {
                 this._exc = [];
@@ -538,8 +538,8 @@
             /**
              * Get or create the item corresponding to the requested type
              *
-             * @param {number} type See PatternItem.TYPE_xxx
-             * @param {boolean} force Ignore current item type, allocate new one
+             * @param {Number} type See PatternItem.TYPE_xxx
+             * @param {Boolean} force Ignore current item type, allocate new one
              * @return {PatternItem}
              * @private
              */
@@ -563,7 +563,7 @@
 
             /**
              * Parsing automate state
-             * @param {string} char
+             * @param {String} char
              * @private
              */
             _stateItem: function (char) {
@@ -581,7 +581,7 @@
 
             /**
              * Parsing automate state
-             * @param {string} char
+             * @param {String} char
              * @private
              */
             _stateCharMatchRange: function (char) {
@@ -600,7 +600,7 @@
 
             /**
              * Parsing automate state
-             * @param {string} char
+             * @param {String} char
              * @private
              */
             _stateCharRangeSep: function (char) {
@@ -615,7 +615,7 @@
 
             /**
              * Parsing automate state
-             * @param {string} char
+             * @param {String} char
              * @private
              */
             _stateChar: function (char) {
@@ -629,7 +629,7 @@
 
             /**
              * Parsing automate state
-             * @param {string} char
+             * @param {String} char
              * @private
              */
             _stateEscapedChar: function (char) {
@@ -714,7 +714,7 @@
 
             /**
              * Parsing automate state
-             * @param {string} char
+             * @param {String} char
              * @private
              */
             _stateCount: function (char) {
@@ -798,8 +798,8 @@
             /**
              * Handles situation when current item does not match on char
              *
-             * @param {string} char
-             * @return {number} write result
+             * @param {String} char
+             * @return {Number} write result
              * @private
              */
             _writeNoMatch: function (char) {
@@ -834,7 +834,7 @@
             /**
              * Handles situation when current item matches on char
              *
-             * @return {number} write result
+             * @return {Number} write result
              * @private
              */
             _writeMatch: function () {
@@ -928,7 +928,7 @@
         /**
          * Factory of PatternItem
          *
-         * @param {number} type
+         * @param {Number} type
          * @return {PaternItem}
          */
         create: function (type) {
@@ -963,7 +963,7 @@
         /**
          * Constructor, check and compile the pattern
          *
-         * @param {string} pattern
+         * @param {String} pattern
          */
         init: function (pattern) {
             var
@@ -1039,7 +1039,7 @@
         /**
          * Process the character
          *
-         * @param {string} char
+         * @param {String} char
          *
          * @abstract
          * @private

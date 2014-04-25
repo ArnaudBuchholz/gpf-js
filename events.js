@@ -53,7 +53,7 @@
          *     this.addEventListener(this._events[IDX],callback,useCapture);
          * }
          * 
-         * @param {number} idx index of the method to create
+         * @param {Number} idx index of the method to create
          * @internal
          */
         _onEVENT: function (idx) {
@@ -78,10 +78,10 @@
         /**
          * Add an event listener to the channel
          *
-         * @param {string} event name
-         * @param {function} callback
-         * @param {boolean} useCapture push it on top of the triggering queue
-         * @return {object} this
+         * @param {String} event name
+         * @param {Function} callback
+         * @param {Boolean} useCapture push it on top of the triggering queue
+         * @return {Object} this
          * @chainable
          */
         addEventListener: function (event, callback, useCapture) {
@@ -103,8 +103,8 @@
         /**
          * Remove an event listener to the channel
          *
-         * @param {string} event name
-         * @param {function} callback
+         * @param {String} event name
+         * @param {Function} callback
          * @return {undefined}
          * @chainable
          */
@@ -116,9 +116,9 @@
 
         /**
          * Broadcast the event
-         * @param {string|gpf.events.Event} event name or object
-         * @param {object} [params={}] event parameters
-         * @return {object} this
+         * @param {String|gpf.events.Event} event name or object
+         * @param {Object} [params={}] event parameters
+         * @return {Object} this
          * @chainable
          */
         broadcastEvent: function (event, params) {
@@ -164,7 +164,7 @@
         /**
          * Event type
          *
-         * @return {string}
+         * @return {String}
          */
         type: function () {
             return this._type;
@@ -173,7 +173,7 @@
         /**
          * Event can be cancelled
          *
-         * @return {boolean}
+         * @return {Boolean}
          */
         cancelable: function () {
             return this._cancelable;
@@ -191,7 +191,7 @@
         /**
          * Returns true if preventDefault has been called at least once
          *
-         * @return {boolean}
+         * @return {Boolean}
          */
         defaultPrevented: function () {
             return this._defaultPrevented;
@@ -207,7 +207,7 @@
         /**
          * Get any additional event information
          * 
-         * @param {string} name parameter name
+         * @param {String} name parameter name
          * @return {*} value of parameter
          */
         get: function (name) {
@@ -217,7 +217,7 @@
         /**
          * Fire the event on the provided eventsHandler
          * 
-         * @param {object/function} eventsHandler broadcaster or callback
+         * @param {Object/function} eventsHandler broadcaster or callback
          *        function
          * @return {gpf.events.Event} this
          */
@@ -237,10 +237,10 @@
          * 
          * NOTE: this is transmitted through the call
          * 
-         * @param {string/gpf.events.Event} event string or event object to fire
-         * @param {object} [params={}] params parameter of the event
+         * @param {String/gpf.events.Event} event string or event object to fire
+         * @param {Object} [params={}] params parameter of the event
          *                 (when type is a string)
-         * @param {object/function} eventsHandler broadcaster or callback
+         * @param {Object/function} eventsHandler broadcaster or callback
          *        function
          * @return {gpf.events.Event} the event object
          */
