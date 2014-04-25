@@ -3,56 +3,73 @@
     "use strict";
 /*#endif*/
 
-    // Class inspired by http://ejohn.org/blog/simple-javascript-inheritance
-    var
-        _classInit = false,
 /*
-    09/07/2013 22:59:59 ABZ
-    The original code from J.Reisig is using the following test
-    /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.<star>/;
-    However, this breaks the release compiler and, as far as understand it,
-    it forces the use of _super when the /xyz/.test(function...) fails.
-    I propose a version that does not break the compiler *and* is more
-    efficient if the initial test fails.
+ * Rewrote class management to be more compatible with other frameworks.
+ * Especially, it should not be necessary to inherit from a give root class
+ * (as previously with gpf.Class).
+ *
+ * Only one function is available to create a class but it is not mandatory:
+ * gpf.define(name, baseClass, definition)
+ *
+ * definition is an object describing members of the class and its attributes.
+ *
+ * NEW: use private, protected, static and public to declare visibility.
+ *
+ * As a first step, this won't change the way the object is created but I plan
+ * to add validations in the future.
+ *
+ * The constructor function is based on the constructor member of the definition
+ *
+ * for instance:
+ * var Test = gpf.define("Test", {
+ *
+ *   private: {
+ *     _member: 0
+ *   },
+ *
+ *   reset: function () {
+ *   },
+ *
+ *   static: {
+ *     DEFAULT_VALUE: 0
+ *   },
+ *
+ *   constructor: function (value) {
+ *     if (undefined === value) {
+ *       value = this.static.DEFAULT_VALUE;
+ *     }
+ *     this._member = value;
+ *     this.reset();
+ *   }
+ * });
+ *
+ * Per JavaScript prototype model, this.constructor returns the initialisation
+ * function. This object also receives these new members:
+ * - static members
+ * - Base member (the case for inheritance)
+ *   Base.prototype is assigned to object prototype.super
+ *   so that the following is possible:
+ *   function myMethod(param) {
+ *     this.constructor.Base.prototype.myMethod.apply(this, param)
+ *   }
+ * - _attributes (for attributes)
+ *
+ *
  */
-        _reSuper = new RegExp("\\b_super\\b"),
-        _superSample = function () {
-            this._super();
-        },
-        _classFnUsesSuper = (function () {
-            if (_reSuper.test(_superSample.toString())) {
-                return function () {
-                    return _reSuper.test(arguments[0]);
-                };
-            } else {
-                return function () {
-                    return -1 < ("" + arguments[0]).indexOf("_super");
-                };
-            }
-        })();
 
-    // The base Class implementation
-    gpf.Class = function Class() {
-    };
+    var
+        _classInitAllowed = true;
 
-    // Class decoration used to store information about the class
-    function ClassInfo(baseClass) {
-        this._name = "";
-        this._base = baseClass;
-        this._subs = [];
-        this._attributes = null;
-    }
-
-    gpf.Class._info = new ClassInfo(null);
-    gpf.Class._info._name = "gpf.Class";
-
-    gpf.Class._init = function () {
-        if (!_classInit && "function" === typeof this.init) {
-            this.init.apply(this, arguments);
+    /**
+     * Class initializer
+     * Triggers the call to this._constructor i
+     * @private
+     */
+    gpf._classInit = function () {
+        if (_classInitAllowed) {
+            this._constructor.apply(this, arguments);
         }
     };
-
-    /*jshint -W040*/
 
     function /*gpf:inline*/ _extendMember(_super, newPrototype, properties,
         member) {
@@ -117,36 +134,34 @@
     }
 
     /**
-     * Create a new Class that inherits from 'this' class
+     * Create a new Class
      *
-     * @param {object} properties methods of the class
+     * @param {String} name Name of the class
+     * @param {Function} Base Base class to inherit from
+     * @param {Object} definition Members / Attributes of the class
      * @return {Function} new class constructor
      */
-    function _extend(properties, name) {
+    function _createClass(name, Base, definition) {
         var
-            _super = this.prototype,
-            newPrototype,
+            _super = Base.prototype,
             newClass,
+            newPrototype,
             member;
-
-        if (undefined === name) {
-            name = "noName";
-        }
 
         // The new class constructor
         newClass = (gpf._func("return function " + name + "() {" +
-                "gpf.Class._init.apply(this, arguments);" +
+                "gpf._classInit.apply(this, arguments);" +
             "};"))();
 
         /*
          * Basic JavaScript inheritance mechanism:
          * Defines the newClass prototype as an instance of the base class
-         * Do it in a critical section to prevent class initialization
+         * Do it in a critical section that prevents class initialization
          */
         /*__begin__thread_safe__*/
-        _classInit = true;
-        newPrototype = new this();
-        _classInit = false;
+        _classInitAllowed = false;
+        newPrototype = new Base();
+        _classInitAllowed = true;
         /*__end_thread_safe__*/
 
         // Populate our constructed prototype object
@@ -160,11 +175,13 @@
          * (It is necessary to do it here because of the gpf.addAttributes that
          * will test the parent class)
          */
-        newClass._info = new ClassInfo(this);
-        this._info._subs.push(newClass);
-
-        // And allow class extension
-        newClass.extend = _extend;
+        newClass.Base = Base;
+        if (undefined === Base.Subs) {
+            Base.Subs = [];
+        }
+        if (Base.Subs instanceof Array) {
+            Base.Subs.push(newClass);
+        }
 
         /*
          * 2014-01-23 ABZ Changed it into two passes to process members first
@@ -192,16 +209,12 @@
         return newClass;
     }
 
-    /*jshint +W040*/
-
-    gpf.Class.extend = _extend;
-
     /**
      * Defines a new class by setting a contextual name
      *
-     * @param {string} name New class contextual name
-     * @param {string} [base=undefined] base Base class contextual name
-     * @param {object} [definition=undefined] definition Class definition
+     * @param {String} name New class contextual name
+     * @param {String} [base=undefined] base Base class contextual name
+     * @param {Object} [definition=undefined] definition Class definition
      * @return {Function}
      */
     gpf.define = function (name, base, definition) {
@@ -215,17 +228,17 @@
 
         } else if ("object" === typeof base) {
             definition = base;
-            base = undefined;
+            base = null;
         }
         if (undefined === base) {
-            base = gpf.Class; // Root class
+            base = Object; // Root class
         }
         if (-1 < name.indexOf(".")) {
             path = name.split(".");
             name = path.pop();
             ns = gpf.context(path);
         }
-        result = base.extend(definition || {}, name);
+        result = _createClass(name, base, definition || {});
         if (undefined !== ns) {
             ns[name] = result;
         }
@@ -236,8 +249,8 @@
      * Allocate a new class handler that is specific to a class type
      * (used for interfaces & attributes)
      *
-     * @param {string} ctxRoot Default context root
-     * @param {string} defaultBase Default contextual root class
+     * @param {String} ctxRoot Default context root
+     * @param {String} defaultBase Default contextual root class
      * @private
      */
     gpf._genDefHandler = function (ctxRoot, defaultBase) {
