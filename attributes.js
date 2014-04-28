@@ -286,15 +286,15 @@
          */
         fillFromObject: function (object) {
             var
-                info = object.constructor._info,
+                classInfo = gpf.classInfo(object.constructor),
                 attributes;
-            while (info) { // !undefined && !null
-                attributes = info._attributes;
+            while (classInfo) { // !undefined && !null
+                attributes = classInfo.attributes();
                 if (attributes) {
                     attributes._copyTo(this);
                 }
-                if (info._base) {
-                    info = info._base._info;
+                if (classInfo.Base()) {
+                    classInfo = gpf.classInfo(classInfo.Base());
                 } else {
                     break;
                 }
@@ -366,14 +366,7 @@
             attributeList,
             idx,
             attribute;
-        /*__begin__thread_safe__*/
-        attributeList = objectClass._info._attributes;
-        if (null === attributeList) {
-            objectClass._info._attributes
-                = attributeList
-                = new gpf.attributes.Map();
-        }
-        /*__end_thread_safe__*/
+        attributeList = gpf.classInfo(objectClass).attributes();
         for (idx = 0; idx < attributes.length; ++idx) {
             attribute = attributes[idx];
             attribute.member(name); // Assign member name
