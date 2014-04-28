@@ -61,8 +61,92 @@
         _classInitAllowed = true;
 
     /**
-     * Class initializer
-     * Triggers the call to this._constructor i
+     * An helper to store class information
+     *
+     * @class ClassInfo
+     * @constructor
+     * @private
+     */
+    function ClassInfo() {
+        this._Subs = [];
+    }
+
+    gpf.extend(ClassInfo.prototype, {
+
+        /**
+         * Base class
+         *
+         * @type {Function}
+         * @private
+         */
+        _Base: null,
+
+        /**
+         * Base class
+         *
+         * @return {Function}
+         */
+        Base: function () {
+            return this._Base;
+        },
+
+        /**
+         * Child classes
+         *
+         * @type {Function[}}
+         * @private
+         */
+        _Subs: [],
+
+        /**
+         * Child classes
+         *
+         * @return {Function[}}
+         */
+        Subs: function () {
+            return this._Subs;
+        },
+
+        /**
+         * Attributes of this class
+         *
+         * @type {gpf.attributes.Map}
+         * @private
+         */
+        _attributes: null,
+
+        /**
+         * Attributes of this class
+         *
+         * @return {gpf.attributes.Map}
+         */
+        attributes: function () {
+            /*__begin__thread_safe__*/
+            if (!this._attributes) {
+                this._attributes = new gpf.attributes.Map();
+            }
+            /*__end_thread_safe__*/
+            return this._attributes;
+        }
+    });
+
+    /**
+     * Retrieves (or allocate) the class information object
+     *
+     * @param {Function} constructor Class constructor
+     * @returns {ClassInfo}
+     */
+    gpf.classInfo = function (constructor) {
+        if (undefined === constructor._gpf) {
+            constructor._gpf = new ClassInfo();
+        }
+        return constructor._gpf;
+    };
+
+    /**
+     * Class initializer: it triggers the call to this._constructor only if
+     * _classInitAllowed is true.
+     *
      * @private
      */
     gpf._classInit = function () {
@@ -146,6 +230,8 @@
             _super = Base.prototype,
             newClass,
             newPrototype,
+            newClassInfo,
+            baseClassInfo,
             member;
 
         // The new class constructor
@@ -175,13 +261,10 @@
          * (It is necessary to do it here because of the gpf.addAttributes that
          * will test the parent class)
          */
-        newClass.Base = Base;
-        if (undefined === Base.Subs) {
-            Base.Subs = [];
-        }
-        if (Base.Subs instanceof Array) {
-            Base.Subs.push(newClass);
-        }
+        newClassInfo = gpf.classInfo(newClass);
+        newClassInfo._Base = Base;
+        baseClassInfo = gpf.classInfo(Base);
+        baseClassInfo.Subs().push(newClass);
 
         /*
          * 2014-01-23 ABZ Changed it into two passes to process members first
@@ -190,19 +273,19 @@
          */
 
         // STEP 1: Copy the properties/methods onto the new prototype
-        for (member in properties) {
-            if (properties.hasOwnProperty(member)
+        for (member in definition) {
+            if (definition.hasOwnProperty(member)
                 && "[" !== member.charAt(0)) {
-                _extendMember(_super, newPrototype, properties, member);
+                _extendMember(_super, newPrototype, definition, member);
             }
         }
 
         // STEP 2: Copy the attributes onto the new prototype
-        for (member in properties) {
-            if (properties.hasOwnProperty(member)
+        for (member in definition) {
+            if (definition.hasOwnProperty(member)
                 && "[" === member.charAt(0)
                 && "]" === member.charAt(member.length - 1)) {
-                _extendAttribute(newClass, newPrototype, properties, member);
+                _extendAttribute(newClass, newPrototype, definition, member);
             }
         }
 
