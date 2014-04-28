@@ -58,7 +58,12 @@
  */
 
     var
-        _classInitAllowed = true;
+        _CLASS_PUBLIC       = 0,
+        _CLASS_PROTECTED    = 1,
+        _CLASS_PRIVATE      = 2,
+        _CLASS_STATIC       = 3,
+
+        _classInitAllowed   = true;
 
     /**
      * An helper to store class information
@@ -155,65 +160,181 @@
         }
     };
 
-    function /*gpf:inline*/ _extendMember(_super, newPrototype, properties,
-        member) {
-        // Check if we're overwriting an existing function
-        if ("function" === typeof properties[member]
-            && "function" === typeof _super[member]
-            && _classFnUsesSuper(properties[member])) {
+
+    /**
+     * Defines a new member of the class
+     *
+     * @param {Object} definition Class definition
+     * @param {Object} basePrototype Base prototype
+     * @param {Object} newPrototype Class prototype
+     * @param {String} member Name of the member to define
+     * @param {Number} visibility Visibility of the members
+     * @private
+     */
+    function /*gpf:inline*/ _processMember(definition, basePrototype,
+        newPrototype, member, visibility) {
+        // Don't know yet how I want to handle visibility
+        gpf.interfaces.ignoreParameter(visibility);
+        var
+            defMember = definition[member],
+            newType = typeof defMember,
+            baseMember = basePrototype[member],
+            baseType = typeof baseMember,
+            baseName;
+        if (undefined !== baseType && newType !== baseType) {
+            throw {
+                message: "You can't overload a member to change its type"
+            };
+        }
+        if ("function" === newType && undefined !== baseType) {
             /*
-             * Create a bootstrap before calling new method that redefines
-             * the identifier _super to match the inherited method.
+             * As it is a function overload, defines a new member that will give
+             * a quick access to the base function. This should answer 90% of
+             * the cases.
+             *
+             * TODO how do we handle possible conflict name
              */
-            newPrototype[member] = (function (member, method) {
-                return function () {
-                    var
-                        backup = this._super,
-                        result;
-                    /*
-                     * Add a new ._super() method that is the same method
-                     * but on the super-class
-                     */
-                    this._super = _super[member];
-                    /*
-                     * The method only need to be bound temporarily, so we
-                     * remove it when we're done executing
-                     */
-                    try {
-                        result = method.apply(this, arguments);
-                    } catch (e) {
-                        throw e;
-                    } finally {
-                        if (undefined !== backup) {
-                            this._super = backup;
-                        }
+            baseName = member;
+            if ("_" === baseName.charAt(0)) {
+                baseName = baseName.substr(1);
+            }
+            // Capitalize
+            baseName = baseName.charAt(0).toUpperCase() + baseName.substr(1);
+            newPrototype["_base" + baseName] = baseMember;
+        }
+        newPrototype[member] = defMember;
+    }
+
+    /**
+     * Process class definition including visibility
+     *
+     * @param {Object} definition Class definition
+     * @param {Object} basePrototype Base prototype
+     * @param {Object} newPrototype Class prototype
+     * @param {Object} attributes Map of name to attribute list
+     * @param {Number} visibility Visibility of the members
+     * @private
+     */
+    function _processDefWithVisibility(definition, basePrototype, newPrototype,
+        attributes, visibility) {
+        var
+            member,
+            attributeArray;
+        for (member in definition) {
+            if (definition.hasOwnProperty(member)) {
+
+                // Attribute
+                if ("[" === member.charAt(0)
+                    && "]" === member.charAt(member.length - 1)) {
+
+                    member = member.substr(1, member.length - 2);
+                    attributeArray = attributes[member];
+                    if (undefined === attributeArray) {
+                        attributeArray = attributes[member];
+                    } else {
+                        attributeArray = attributeArray
+                            .concat(attributes[member]);
                     }
-                    return result;
-                };
-            })(member, properties[member]);
-        } else {
-            newPrototype[member] = properties[member];
+                    attributes[member] = attributeArray;
+
+                // Visibility
+                } else if ("public" === member
+                           || "private" === member
+                           || "protected" === member
+                           || "static" === member) {
+                    throw {
+                        message: "Invalid visibility keyword"
+                    };
+
+                // Usual member
+                } else {
+                    _processMember(definition, basePrototype, newPrototype,
+                        member, visibility);
+                }
+            }
         }
     }
 
-    function /*gpf:inline*/ _extendAttribute(newClass, newPrototype, properties,
-        member) {
-        /*
-         * Attributes placeholder
-         * Most of the functions used below are defined *later*:
-         * - gpf.attributes._add comes from attributes.js
-         * - gpf.ClassAttributeError comes from att_class.js
-         */
-        var attributeName = member.substr(1, member.length - 2);
-        if (attributeName in properties
-            || attributeName in newPrototype
-            || attributeName === "Class") {
-            gpf.attributes.add(newClass, attributeName,
-                properties[member]);
-        } else {
-            // 2013-12-15 ABZ Consider this as exceptional, trace it
-            console.error("gpf.Class::extend: Invalid attribute name '"
-                + attributeName + "'");
+    /**
+     * Process class definition
+     *
+     * @param {Object} definition Class definition
+     * @param {Object} basePrototype Base prototype
+     * @param {Object} newPrototype Class prototype
+     * @param {Object} attributes Map of name to attribute list
+     * @private
+     */
+    function /*gpf:inline*/ _processDefinition(definition, basePrototype,
+        newPrototype, attributes) {
+        var
+            member,
+            attributeArray;
+        for (member in definition) {
+            if (definition.hasOwnProperty(member)) {
+
+                // Attribute
+                if ("[" === member.charAt(0)
+                    && "]" === member.charAt(member.length - 1)) {
+
+                    member = member.substr(1, member.length - 2);
+                    attributeArray = attributes[member];
+                    if (undefined === attributeArray) {
+                        attributeArray = attributes[member];
+                    } else {
+                        attributeArray = attributeArray
+                            .concat(attributes[member]);
+                    }
+                    attributes[member] = attributeArray;
+
+                // Visibility
+                } else if ("public" === member) {
+                    _processDefWithVisibility(definition[member], basePrototype,
+                        newPrototype, attributes, _CLASS_PUBLIC);
+                } else if ("private" === member) {
+                    _processDefWithVisibility(definition[member], basePrototype,
+                        newPrototype, attributes, _CLASS_PRIVATE);
+                } else if ("protected" === member) {
+                    _processDefWithVisibility(definition[member], basePrototype,
+                        newPrototype, attributes, _CLASS_PROTECTED);
+                } else if ("static" === member) {
+                    _processDefWithVisibility(definition[member], basePrototype,
+                        newPrototype, attributes, _CLASS_STATIC);
+
+                // Usual member
+                } else {
+                    _processMember(definition, basePrototype, newPrototype,
+                        member, _CLASS_PUBLIC /*default*/);
+                }
+            }
+        }
+    }
+
+    /**
+     * Process the attributes collected in the definition
+     *
+     * NOTE: gpf.attributes._add is defined in attributes.js
+
+     * @param {Object} attributes Map of name to attribute list
+     * @param {Function} newClass
+     * @param {Object} newPrototype Class prototype
+     * @private
+     */
+    function /*gpf:inline*/ _processAttributes(attributes, newClass,
+        newPrototype) {
+        var
+            attributeName;
+        for (attributeName in attributes) {
+            if (attributes.hasOwnProperty(attributeName)) {
+                if (attributeName in newPrototype
+                    || attributeName === "Class") {
+                    gpf.attributes.add(newClass, attributeName,
+                        attributes[attributeName]);
+                } else {
+                    // 2013-12-15 ABZ Consider this as exceptional, trace it
+                    console.error("gpf.Class::extend: Invalid attribute name '"
+                        + attributeName + "'");
+                }
+            }
         }
     }
 
@@ -227,12 +348,12 @@
      */
     function _createClass(name, Base, definition) {
         var
-            _super = Base.prototype,
+            basePrototype = Base.prototype,
             newClass,
             newPrototype,
             newClassInfo,
             baseClassInfo,
-            member;
+            attributes = {};
 
         // The new class constructor
         newClass = (gpf._func("return function " + name + "() {" +
@@ -267,28 +388,12 @@
         baseClassInfo.Subs().push(newClass);
 
         /*
-         * 2014-01-23 ABZ Changed it into two passes to process members first
-         * and then attributes. Indeed, some attributes may alter the prototype
-         * differently depending on what it contains.
+         * 2014-04-28 ABZ Changed again from two passes on all members to two
+         * passes in which the first one also collects attributes to simplify
+         * the second pass.
          */
-
-        // STEP 1: Copy the properties/methods onto the new prototype
-        for (member in definition) {
-            if (definition.hasOwnProperty(member)
-                && "[" !== member.charAt(0)) {
-                _extendMember(_super, newPrototype, definition, member);
-            }
-        }
-
-        // STEP 2: Copy the attributes onto the new prototype
-        for (member in definition) {
-            if (definition.hasOwnProperty(member)
-                && "[" === member.charAt(0)
-                && "]" === member.charAt(member.length - 1)) {
-                _extendAttribute(newClass, newPrototype, definition, member);
-            }
-        }
-
+        _processDefinition(definition, basePrototype, newPrototype, attributes);
+        _processAttributes(attributes, newClass, newPrototype);
         return newClass;
     }
 
