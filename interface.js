@@ -145,8 +145,7 @@
                 .member("Class")
                 .filter(gpf.attributes.InterfaceImplementAttribute),
             idx,
-            attribute,
-            classInfo;
+            attribute;
         for (idx = 0; idx < array.length(); ++idx) {
             attribute = array.get(idx);
             if (attribute._interfaceDefinition === interfaceDefinition) {
@@ -156,20 +155,28 @@
                 break;
             }
         }
-        /*
-         * When overloaded (if existing), the previous function is defined
-         * at the class level
-         */
-        classInfo = this.constructor._info;
-        if (undefined !== classInfo
-            && undefined !== classInfo._queryInterface) {
-            return classInfo._queryInterface.apply(this, arguments);
-        }
         // Otherwise
         return null;
         /*jslint +W040*/
     }
 
+    /**
+     * Creates a wrapper calling _queryInterface and, if no result is built, the
+     * original one defined in the object prototype.
+     *
+     * @param {Function} orgQueryInterface
+     * @private
+     * @closure
+     */
+    function _wrapQueryInterface (orgQueryInterface) {
+        return function () {
+            var result = _queryInterface.apply(this, arguments);
+            if (null === result) {
+                result = orgQueryInterface.apply(this, arguments);
+            }
+            return result;
+        };
+    }
 
     /**
      * Extend the class to provide an array-like interface
@@ -200,22 +207,25 @@
         },
 
         alterPrototype: function (objPrototype) {
-            var classInfo;
             if (!this._builder) {
                 // Nothing to do
                 return;
             }
             if (undefined !== objPrototype.queryInterface) {
                 /*
-                 * Taking the assumption that the class already owns the
-                 * $InterfaceImplement attribute
+                 * Two situations here:
+                 * - Either the class (or one of its parent) already owns
+                 *   the $InterfaceImplement attribute
+                 * - Or the class (or one of its parent) implements its
+                 *   own queryInterface
+                 * In that last case, wrap it to use the attribute version first
+                 *
+                 * In both case, we take the assumption that the class already
+                 * owns gpf.$InterfaceImplement(gpf.interfaces.IUnknown)
                  */
                 if (_queryInterface !== objPrototype.queryInterface) {
-                    // Store the existing one on the class info
-                    classInfo = objPrototype.constructor._info;
-                    classInfo._queryInterface = objPrototype.queryInterface;
-                    objPrototype.queryInterface = _queryInterface;
-
+                    objPrototype.queryInterface =
+                        _wrapQueryInterface(objPrototype.queryInterface);
                 }
             } else {
                 objPrototype.queryInterface = _queryInterface;
