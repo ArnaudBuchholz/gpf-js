@@ -237,7 +237,7 @@
 
         _xpath: null,
 
-        init: function (xpath) {
+        constructor: function (xpath) {
             this._reset();
             if ("string" === typeof xpath) {
                 this._xpath = this._compile(xpath);

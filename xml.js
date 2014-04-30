@@ -220,7 +220,7 @@
             "[_name]": [gpf.$ClassProperty()],
             _name: "",
 
-            init: function (name) {
+            constructor: function (name) {
                 gpf.ASSERT(gpf.xml.isValidName(name),
                     "Valid XML attribute name");
                 this._name = name;
@@ -241,7 +241,7 @@
             "[_name]": [gpf.$ClassProperty()],
             _name: "",
 
-            init: function (name) {
+            constructor: function (name) {
                 gpf.ASSERT(gpf.xml.isValidName(name),
                     "Valid XML element name");
                 this._name = name;
@@ -267,8 +267,8 @@
             "[_objClass]": [gpf.$ClassProperty()],
             _objClass: null,
 
-            init: function (name, objClass) {
-                this._super(name);
+            constructor: function (name, objClass) {
+                this._baseConstructor(name);
                 if (objClass) {
                     this._objClass = objClass;
                 }
@@ -593,7 +593,7 @@
                 }
              */
 
-            init: function (target) {
+            constructor: function (target) {
                 this._target = target;
                 this._firstElement = true;
                 this._forward = [];
@@ -882,7 +882,7 @@
         _branch: [],
         _pendingPrefixMappings: [],
 
-        init: function(stream) {
+        constructor: function(stream) {
             this._stream = stream;
             this._branch = [];
             this._pendingPrefixMappings = [];
@@ -1059,7 +1059,7 @@
 
         _contentHandler: null,
 
-        init: function (contentHandler) {
+        constructor: function (contentHandler) {
             this._contentHandler = contentHandler;
         },
 

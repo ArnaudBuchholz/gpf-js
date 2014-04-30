@@ -181,7 +181,7 @@
         _elements: {},
         _children: [],
 
-        init: function (obj, name) {
+        constructor: function (obj, name) {
             this._obj = obj;
             this._attributes = null;
             this._elements = null;
