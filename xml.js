@@ -532,7 +532,10 @@
                 if (attribute) {
                     name = attribute.name();
                 } else {
-                    name = "object";
+                    name = gpf.classInfo(obj.constructor).name();
+                    if (!name) {
+                        name = "object";
+                    }
                 }
             }
             // If not an object, serialize the textual representation

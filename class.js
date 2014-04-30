@@ -79,6 +79,23 @@
     gpf.extend(ClassInfo.prototype, {
 
         /**
+         * Class name
+         *
+         * @type {String}
+         * @private
+         */
+        _name: "",
+
+        /**
+         * Class name
+         *
+         * @return {String}
+         */
+        name: function () {
+            return this._name;
+        },
+
+        /**
          * Base class
          *
          * @type {Function}
@@ -397,6 +414,7 @@
          * will test the parent class)
          */
         newClassInfo = gpf.classInfo(newClass);
+        newClassInfo._name = name;
         newClassInfo._Base = Base;
         baseClassInfo = gpf.classInfo(Base);
         baseClassInfo.Subs().push(newClass);
