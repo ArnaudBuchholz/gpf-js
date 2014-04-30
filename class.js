@@ -132,7 +132,15 @@
             }
             /*__end_thread_safe__*/
             return this._attributes;
-        }
+        },
+
+        /**
+         * Class constructor (when used with gpf.define)
+         *
+         * @type {Function}
+         * @private
+         */
+        _constructor: function () {}
     });
 
     /**
@@ -156,10 +164,9 @@
      */
     gpf._classInit = function () {
         if (_classInitAllowed) {
-            this._constructor.apply(this, arguments);
+            gpf.classInfo(this.constructor)._constructor.apply(this, arguments);
         }
     };
-
 
     /**
      * Defines a new member of the class
@@ -172,16 +179,15 @@
      * @private
      */
     function /*gpf:inline*/ _processMember(definition, basePrototype,
-        newPrototype, member, visibility) {
+        newPrototype, member/*, visibility*/) {
         // Don't know yet how I want to handle visibility
-        gpf.interfaces.ignoreParameter(visibility);
         var
             defMember = definition[member],
             newType = typeof defMember,
             baseMember = basePrototype[member],
             baseType = typeof baseMember,
             baseName;
-        if (undefined !== baseType && newType !== baseType) {
+        if ("undefined" !== baseType && newType !== baseType) {
             throw {
                 message: "You can't overload a member to change its type"
             };
@@ -202,7 +208,30 @@
             baseName = baseName.charAt(0).toUpperCase() + baseName.substr(1);
             newPrototype["_base" + baseName] = baseMember;
         }
-        newPrototype[member] = defMember;
+        if ("constructor" === member) {
+            gpf.classInfo(newPrototype.constructor)._constructor = defMember;
+        } else {
+            newPrototype[member] = defMember;
+        }
+    }
+
+    /**
+     * Add the attribute to the map
+     *
+     * @param {Object} definition Class definition
+     * @param {String} member Name of the member to define
+     * @param {Object} attributes Map of name to attribute list
+     * @private
+     */
+    function /*gpf:inline*/ _processAttribute(definition, member, attributes) {
+        var
+            attributeArray = attributes[member],
+            newAttributeArray = definition[member];
+        member = member.substr(1, member.length - 2);
+        if (undefined === attributeArray) {
+            attributeArray = [];
+        }
+        attributes[member] = attributeArray.concat(newAttributeArray);
     }
 
     /**
@@ -218,8 +247,7 @@
     function _processDefWithVisibility(definition, basePrototype, newPrototype,
         attributes, visibility) {
         var
-            member,
-            attributeArray;
+            member;
         for (member in definition) {
             if (definition.hasOwnProperty(member)) {
 
@@ -227,15 +255,7 @@
                 if ("[" === member.charAt(0)
                     && "]" === member.charAt(member.length - 1)) {
 
-                    member = member.substr(1, member.length - 2);
-                    attributeArray = attributes[member];
-                    if (undefined === attributeArray) {
-                        attributeArray = attributes[member];
-                    } else {
-                        attributeArray = attributeArray
-                            .concat(attributes[member]);
-                    }
-                    attributes[member] = attributeArray;
+                    _processAttribute(definition, member, attributes);
 
                 // Visibility
                 } else if ("public" === member
@@ -267,8 +287,7 @@
     function /*gpf:inline*/ _processDefinition(definition, basePrototype,
         newPrototype, attributes) {
         var
-            member,
-            attributeArray;
+            member;
         for (member in definition) {
             if (definition.hasOwnProperty(member)) {
 
@@ -276,15 +295,7 @@
                 if ("[" === member.charAt(0)
                     && "]" === member.charAt(member.length - 1)) {
 
-                    member = member.substr(1, member.length - 2);
-                    attributeArray = attributes[member];
-                    if (undefined === attributeArray) {
-                        attributeArray = attributes[member];
-                    } else {
-                        attributeArray = attributeArray
-                            .concat(attributes[member]);
-                    }
-                    attributes[member] = attributeArray;
+                    _processAttribute(definition, member, attributes);
 
                 // Visibility
                 } else if ("public" === member) {
@@ -416,7 +427,7 @@
 
         } else if ("object" === typeof base) {
             definition = base;
-            base = null;
+            base = undefined;
         }
         if (undefined === base) {
             base = Object; // Root class
