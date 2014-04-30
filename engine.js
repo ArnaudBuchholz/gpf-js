@@ -61,7 +61,7 @@
 
         CodeArray = gpf.define("CodeArray", {
 
-            init: function() {
+            constructor: function() {
                 this._items = [];
             }
 
@@ -69,7 +69,7 @@
 
         IdString = gpf.define("IdString", {
 
-            init: function(label, executable) {
+            constructor: function(label, executable) {
                 this._label = [];
                 this._executable = executable;
             },
@@ -82,7 +82,7 @@
 
         EngineState = gpf.define("EngineState", {
 
-            init: function() {
+            constructor: function() {
                 this._stack = [];
                 // "Top" dictionary is SYS_DICT
                 this._userDict = {};     // Then user dictionary
@@ -145,7 +145,7 @@
 
     gpf.define("gpf.Engine", {
 
-        init: function() {
+        constructor: function() {
             this._state = new EngineState();
         },
 

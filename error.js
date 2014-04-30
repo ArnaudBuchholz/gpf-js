@@ -13,7 +13,7 @@
         _message: "",
         _name: "",
 
-        init: function (message, name, extended) {
+        constructor: function (message, name, extended) {
             this._message = message;
             if (name) {
                 this._name = name;

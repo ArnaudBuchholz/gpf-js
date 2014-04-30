@@ -41,7 +41,7 @@
         _writeAllowed: false,
         _publicName: "",
 
-        init: function (writeAllowed, publicName) {
+        constructor: function (writeAllowed, publicName) {
             if (writeAllowed) {
                 this._writeAllowed = true;
             }
@@ -84,7 +84,7 @@
         _ofClass: 0,
         _publicName: "",
 
-        init: function (ofClass, publicName) {
+        constructor: function (ofClass, publicName) {
             this._ofClass = ofClass;
             if ("string" === typeof publicName) {
                 this._publicName = publicName;

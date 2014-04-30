@@ -199,7 +199,7 @@
         "[_builder]": [gpf.$ClassProperty(false, "how")],
         _builder: null,
 
-        init: function (interfaceDefinition, queryInterfaceBuilder) {
+        constructor: function (interfaceDefinition, queryInterfaceBuilder) {
             this._interfaceDefinition = interfaceDefinition;
             if (queryInterfaceBuilder) {
                 this._builder = queryInterfaceBuilder;

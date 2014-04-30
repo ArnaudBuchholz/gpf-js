@@ -114,7 +114,7 @@
      */
     gpf._defAttr("$Alias", {
 
-        init: function (name) {
+        constructor: function (name) {
             this._name = name;
         },
 
@@ -137,7 +137,7 @@
         // "[_array]": [gpf.$ClassIArray(false)],
         _array: [],
 
-        init: function () {
+        constructor: function () {
             this._array = []; // Create a new instance of the array
         },
 
@@ -200,7 +200,7 @@
          * @param {Object} [object=undefined] object Object to read
          *        attributes from
          */
-        init: function (object) {
+        constructor: function (object) {
             this._members = {}; // Creates a new dictionary
             this._count = 0;
             if (undefined !== object) {
@@ -364,10 +364,12 @@
     gpf.attributes.add = function (objectClass, name, attributes) {
         var
             attributeList,
+            len,
             idx,
             attribute;
         attributeList = gpf.classInfo(objectClass).attributes();
-        for (idx = 0; idx < attributes.length; ++idx) {
+        len = attributes.length;
+        for (idx = 0; idx < len; ++idx) {
             attribute = attributes[idx];
             attribute.member(name); // Assign member name
             attributeList.add(name, attribute);

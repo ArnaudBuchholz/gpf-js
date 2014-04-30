@@ -136,7 +136,7 @@
              * @constructor
              * @param {Number} type
              */
-            init: function (type) {
+            constructor: function (type) {
                 this._type = type;
             },
 
@@ -204,8 +204,8 @@
             /**
              * @constructor
              */
-            init: function () {
-                this._super(PatternItem.TYPE_SIMPLE);
+            constructor: function () {
+                this._baseConstructor(PatternItem.TYPE_SIMPLE);
                 this._seq = [];
             },
 
@@ -269,8 +269,8 @@
              */
             _exc: "",
 
-            init: function () {
-                this._super(PatternItem.TYPE_RANGE);
+            constructor: function () {
+                this._baseConstructor(PatternItem.TYPE_RANGE);
                 this._inc = [];
             },
 
@@ -407,8 +407,8 @@
                 }
             },
 
-            init: function () {
-                this._super(PatternItem.TYPE_CHOICE);
+            constructor: function () {
+                this._baseConstructor(PatternItem.TYPE_CHOICE);
                 this._choices = [];
             },
 
@@ -470,8 +470,8 @@
                 }
             },
 
-            init: function () {
-                this._super(PatternItem.TYPE_GROUP);
+            constructor: function () {
+                this._baseConstructor(PatternItem.TYPE_GROUP);
                 this._items = [];
             },
 
@@ -510,7 +510,7 @@
 
             parse: null, // Will be overridden
 
-            init: function() {
+            constructor: function() {
                 this.parse = this._stateItem;
             },
 
@@ -763,7 +763,7 @@
             /**
              * @param {gpf.Pattern} pattern
              */
-            init: function (pattern) {
+            constructor: function (pattern) {
                 this._pattern = pattern;
                 this._item = pattern._root;
                 this._state = {
@@ -965,7 +965,7 @@
          *
          * @param {String} pattern
          */
-        init: function (pattern) {
+        constructor: function (pattern) {
             var
                 context = new PatternParserContext(),
                 idx,
@@ -1007,7 +1007,7 @@
         _column: 0,
         _state: 0, // Initial state
 
-        init: function () {
+        constructor: function () {
             this._init();
         },
 

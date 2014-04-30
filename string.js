@@ -47,7 +47,7 @@
             _buffer: [],
             _pos: 0,
 
-            init: function(string){
+            constructor: function(string){
                 if (undefined !== string && string.length) {
                     this._buffer = [string];
                 } else {

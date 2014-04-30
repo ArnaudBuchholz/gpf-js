@@ -86,7 +86,7 @@
          */
         _writeAllowed: false,
 
-        init: function (writeAllowed) {
+        constructor: function (writeAllowed) {
             if (writeAllowed) {
                 this._writeAllowed = true;
             }
