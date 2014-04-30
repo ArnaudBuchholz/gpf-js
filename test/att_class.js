@@ -53,7 +53,7 @@
                 test.title("Invalid declaration (related to attributes.js)");
                 var caught = null;
                 try {
-                    A.extend({
+                    gpf.define("B", A, {
 
                         "[_c]": [ gpf.$ClassProperty(true) ] // should fail
 

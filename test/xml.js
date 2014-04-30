@@ -32,7 +32,7 @@
 
             // Functions are ignored
             // init *must* not have any arguments to be loadable
-            init: function () {
+            constructor: function () {
             }
 
         }),
