@@ -2,17 +2,17 @@
     "use strict";
 
     var
-        TestAttribute = gpf.attributes.Attribute.extend({}),
-        Test1ValueAttribute = TestAttribute.extend({ }),
+        TestAttribute = gpf.define("TestAttribute", "gpf.attributes.Attribute"),
+        Test1ValueAttribute = gpf.define("Test1ValueAttribute", TestAttribute),
         $Test1Value = function () {
             return new Test1ValueAttribute();
         },
-        Test2ValueAttribute = TestAttribute.extend({ }),
+        Test2ValueAttribute = gpf.define("Test2ValueAttribute", TestAttribute),
         $Test2Value = function () {
             return new Test2ValueAttribute();
         },
 
-        A = gpf.Class.extend({
+        A = gpf.define("A", {
 
             "[_a]": [ $Test1Value() ],
             _a: 0,
@@ -20,7 +20,7 @@
             "[_c]": [ $Test1Value() ],
             _c: 0,
 
-            init: function (value) {
+            constructor: function (value) {
                 this._a = value;
             },
 
@@ -30,7 +30,7 @@
 
         }),
 
-        B = A.extend({
+        B = gpf.define("B", A, {
 
             "[_b]": [ $Test2Value() ],
             _b: 0,
@@ -38,8 +38,8 @@
             "[_c]": [ $Test2Value() ],
             _c: 0,
 
-            init: function (value) {
-                this._super(value - 1);
+            constructor: function (value) {
+                this._baseConstructor(value - 1);
                 this._b = value;
             },
 

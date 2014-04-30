@@ -2,12 +2,12 @@
     "use strict";
 
     var
-        ArrayEnumerable = gpf.Class.extend({
+        ArrayEnumerable = gpf.define("ArrayEnumerable", {
 
             "[_items]": [gpf.$Enumerable()],
             _items: [],
 
-            init: function (items) {
+            constructor: function (items) {
                 this._items = items;
             }
 

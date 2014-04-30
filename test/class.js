@@ -2,11 +2,11 @@
     "use strict";
 
     var
-        A = gpf.Class.extend({
+        A = gpf.define("A", {
 
             _a: 0,
 
-            init: function (value) {
+            constructor: function (value) {
                 this._a = value;
             },
 
@@ -16,13 +16,13 @@
 
         }),
 
-        B = A.extend({
+        B = gpf.define("B", A, {
 
             _b: 0,
 
-            init: function (value) {
+            constructor: function (value) {
                 this._b = value;
-                this._super(value + 1);
+                this._baseConstructor(value + 1);
             },
 
             b: function () {

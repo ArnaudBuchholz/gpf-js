@@ -2,7 +2,7 @@
     "use strict";
 
     var
-        Movie = gpf.Class.extend({
+        Movie = gpf.define("Movie", {
 
             "[Class]": [gpf.$XmlElement("movie")],
 

@@ -2,7 +2,7 @@
     "use strict";
 
     var
-        A = gpf.Class.extend({
+        A = gpf.define("A", {
 
             "[_a]": [ gpf.$ClassProperty(false) ],
             _a: 0,
@@ -10,7 +10,7 @@
             "[_aLittleBitMoreThanB]": [ gpf.$ClassProperty(true, "b") ],
             _aLittleBitMoreThanB: 0,
 
-            init: function () {
+            constructor: function () {
                 this._a = 0;
                 this._aLittleBitMoreThanB = 1;
             }
