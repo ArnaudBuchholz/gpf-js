@@ -15,6 +15,7 @@
      * @param {Function} objectClass Object constructor
      * @param {String} name Alias name (will be prefixed by $)
      * @private
+     * @closure
      */
     function _alias(objectClass, name) {
         name = "$" + name;
