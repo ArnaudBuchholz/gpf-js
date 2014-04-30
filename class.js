@@ -160,11 +160,13 @@
      * Class initializer: it triggers the call to this._constructor only if
      * _classInitAllowed is true.
      *
+     * @param {Function} constructor Class constructor
+     * @param {*[]} args Arguments
      * @private
      */
-    gpf._classInit = function () {
+    gpf._classInit = function (constructor, args) {
         if (_classInitAllowed) {
-            gpf.classInfo(this.constructor)._constructor.apply(this, arguments);
+            gpf.classInfo(constructor)._constructor.apply(this, args);
         }
     };
 
@@ -192,7 +194,7 @@
                 message: "You can't overload a member to change its type"
             };
         }
-        if ("function" === newType && undefined !== baseType) {
+        if ("function" === newType && "undefined" !== baseType) {
             /*
              * As it is a function overload, defines a new member that will give
              * a quick access to the base function. This should answer 90% of
@@ -356,6 +358,7 @@
      * @param {Function} Base Base class to inherit from
      * @param {Object} definition Members / Attributes of the class
      * @return {Function} new class constructor
+     * @closure
      */
     function _createClass(name, Base, definition) {
         var
@@ -366,10 +369,10 @@
             baseClassInfo,
             attributes = {};
 
-        // The new class constructor
-        newClass = (gpf._func("return function " + name + "() {" +
-                "gpf._classInit.apply(this, arguments);" +
-            "};"))();
+        // The new class constructor (uses closure)
+        newClass = (gpf._func("var constructor = function " + name + "() {" +
+                "gpf._classInit.apply(this, [constructor, arguments]);" +
+            "}; return constructor;"))();
 
         /*
          * Basic JavaScript inheritance mechanism:
