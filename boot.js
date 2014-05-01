@@ -63,8 +63,8 @@
     /**
      * Resolve the provided evaluation path and returns the result
      *
-     * @param {String|string[]} path Dot separated list of identifier
-     * (or identifier array)
+     * @param {String|string[]} [path=undefined] path Dot separated list of
+     * identifiers (or identifier array)
      * @return {*|undefined}
      * - when path is empty, it returns the current host higher object
      * - when path is "gpf" it returns the GPF object
