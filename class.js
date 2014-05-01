@@ -426,6 +426,16 @@
          */
         _processDefinition(definition, basePrototype, newPrototype, attributes);
         _processAttributes(attributes, newClass, newPrototype);
+
+        /*
+         * If no constructor was defined, use the inherited one
+         * TODO: Not sure this is the best way to handle the situation but at
+         * least, it is isolated here
+         */
+        if (!newClassInfo.hasOwnProperty("_constructor")) {
+            newClassInfo._constructor = Base;
+        }
+
         return newClass;
     }
 
