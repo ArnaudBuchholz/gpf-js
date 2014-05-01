@@ -1,3 +1,5 @@
+"use strict";
+
 var fs = require("fs");
 try {
     global.esprima = require("esprima");
@@ -9,8 +11,8 @@ try {
 } catch (e) {
     console.error("Missing escodegen, use npm install escodegen");
 }
-require("../boot.js");
-require("./make.js"); /*global make*/
+require("../boot.js"); /*source version*/
+require("./make.js");  /*global make*/
 
 var
     sources = {
@@ -38,19 +40,22 @@ function toXml(json) {
     return gpf.stringFromStream(stream);
 }
 
-function save (name, json) {
-    fs.writeFileSync("tmp/" + name + ".json", JSON.stringify(json, true, 4));
-    fs.writeFileSync("tmp/" + name + ".xml", toXml(json));
+function save (name, version, json) {
+    if (!fs.existsSync("tmp")) {
+        fs.mkdirSync("tmp");
+    }
+    if (!fs.existsSync("tmp/" + version)) {
+        fs.mkdirSync("tmp/" + version);
+    }
+    fs.writeFileSync("tmp/" + version + "/" + name + ".json", JSON.stringify(json, true, 4));
+    fs.writeFileSync("tmp/" + version + "/" + name + ".xml", toXml(json));
 }
 
-if (!fs.existsSync("tmp")) {
-    fs.mkdirSync("tmp");
-}
 for (idx = 0; idx < sources._list.length; ++idx) {
-    save(sources._list[idx], sources.parsed[sources._list[idx]]);
+    save(sources._list[idx], "debug", sources.debug[sources._list[idx]]);
 }
-save("UMD", sources.parsed.UMD);
-save("boot", sources.parsed.boot);
+save("UMD", "debug", sources.debug.UMD);
+save("boot", "debug", sources.debug.boot);
 
 // fs.writeFileSync("gpf_debug.js", make(sources, "debug"));
 // fs.writeFileSync('gpf.js', make(sources, 'release'));
