@@ -398,6 +398,16 @@
                 }
             }
             return dictionary;
+        },
+
+        /**
+         * XOR
+         *
+         * @param {Boolean} a
+         * @param {Boolean} b
+         */
+        xor: function (a, b) {
+            return a && !b || !a && b;
         }
 
     });
