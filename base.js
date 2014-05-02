@@ -322,6 +322,20 @@
             return _likeMembers(a, b, alike);
         },
 
+        /**
+         * Shallow copy an object
+         *
+         * @param {Object} obj
+         * @return {Object}
+         */
+        clone: function (obj) {
+            /*
+             * http://stackoverflow.com/questions/122102/what-is-the-most-
+             * efficient-way-to-clone-an-object/5344074#5344074
+             */
+            return gpf.json.parse(gpf.json.stringify(obj));
+        },
+
         /*
          * Find the first member of dictionary which value equals to value.
          * 

@@ -50,8 +50,13 @@
                 }
             };
         gpf.json.stringify = _json;
+        gpf.json.parse = function (test) {
+            return gpf._func("return " + test)();
+        };
+
     } else {
         gpf.json.stringify = JSON.stringify;
+        gpf.json.parse = JSON.parse;
     }
 
 /*#ifndef(UMD)*/
