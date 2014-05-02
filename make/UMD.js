@@ -1,4 +1,5 @@
 /*global define, exports*/
+/*jshint maxlen:false*/
 (function (root, factory) {
     "use strict";
 
