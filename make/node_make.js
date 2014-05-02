@@ -15,10 +15,19 @@ require("../boot.js"); /*source version*/
 require("./make.js");  /*global make*/
 
 var
+    version,
     sources = {
         _list: gpf.sources().split(",")
     },
     idx;
+
+if (process.argv.length > 1) {
+    version = process.argv[2];
+} else {
+    version = "debug";
+}
+
+console.log("Generating version '" + version + "'");
 
 for (idx = 0; idx < sources._list.length; ++idx) {
     sources[sources._list[idx]] =
@@ -28,7 +37,7 @@ sources.UMD = fs.readFileSync("UMD.js").toString();
 sources.boot = fs.readFileSync("../boot.js").toString();
 
 try {
-    console.log(make(sources, "debug"));
+    make(sources, version);
 } catch (e) {
     console.error(e.message);
 }
@@ -44,9 +53,10 @@ function toXml(json) {
     return gpf.stringFromStream(stream);
 }
 
-function save (name, version, parsed) {
+function save (name, version) {
     var
         path = "tmp/" + version + "/" + name,
+        parsed = sources[version],
         json = parsed[name];
     if (!fs.existsSync("tmp")) {
         fs.mkdirSync("tmp");
@@ -62,12 +72,8 @@ function save (name, version, parsed) {
 }
 
 for (idx = 0; idx < sources._list.length; ++idx) {
-    save(sources._list[idx], "debug", sources.debug);
+    save(sources._list[idx], version, sources.debug);
 }
-save("UMD", "debug", sources.debug);
-save("boot", "debug", sources.debug);
-save("result", "debug", sources.debug);
-
-
-// fs.writeFileSync("gpf_debug.js", make(sources, "debug"));
-// fs.writeFileSync('gpf.js', make(sources, 'release'));
+save("UMD", version);
+save("boot", version);
+save("result", version);

@@ -8,15 +8,57 @@
             debug: {
                 UMD: true,
                 DEBUG: true,
-                keepComments: true
+                keepComments: true,
+                rewriteOptions: {
+                    format: {
+                        indent: {
+                            style: "    ",
+                            base: 0,
+                            adjustMultilineComment: false
+                        },
+                        newline: "\n",
+                        space: " ",
+                        json: false,
+                        renumber: false,
+                        hexadecimal: false,
+                        quotes: "double",
+                        escapeless: false,
+                        compact: false,
+                        parentheses: true,
+                        semicolons: true,
+                        safeConcatenation: false
+                    },
+                    comment: true
+                }
             },
             release: {
                 UMD: true,
                 DEBUG: false,
-                keepComments: false
+                keepComments: false,
+                rewriteOptions: {
+                    format: {
+                        indent: {
+                            style: " ",
+                            base: 0,
+                            adjustMultilineComment: false
+                        },
+                        newline: "\n",
+                        space: " ",
+                        json: false,
+                        renumber: false,
+                        hexadecimal: false,
+                        quotes: "double",
+                        escapeless: false,
+                        compact: true,
+                        parentheses: false,
+                        semicolons: true,
+                        safeConcatenation: true
+                    },
+                    comment: false
+                }
             }
         },
-        // body/item[@type='ExpressionStatement' and expression/@name='__gpf__']
+        // body/item[@type="ExpressionStatement" and expression/@name="__gpf__"]
         xpathToGpfPlaceHolder = new gpfX.XPath({
             type: gpfX.NODE_ELEMENT,
             name: "body",
@@ -56,7 +98,7 @@
             ignore = ignoreStack[ignoreStack.length - 1];
             if (-1 < line.indexOf("/*#if")) {
 // console.log("#" + line);
-                // In the end, we use an 'ignore' flag
+                // In the end, we use an "ignore" flag
                 // so we invert the condition
                 ignore = -1 === line.indexOf("/*#ifndef(");
                 line = line.split("(")[1].split(")")[0];
@@ -107,8 +149,11 @@
         return ast;
     }
 
-    function pushCloneOf(item) {
+    function pushCloneOf(idx, item) {
+        /*jslint -W040*/
+        gpf.interfaces.ignoreParameter(idx);
         this.push(gpf.clone(item));
+        /*jslint +W040*/
     }
 
     gpf.context().make = function(sources, version) {
@@ -147,8 +192,8 @@
         // Parent is the placeholder (an array ending with __gpf__)
         placeholder = __gpf__.parentNode().nodeValue();
         placeholder.pop(); // remove __gpf__
-
-        for (idx = -1; idx < 0 /*sources._list.length*/; ++idx) {
+        // Add all sources
+        for (idx = -1; idx < sources._list.length; ++idx) {
             if (-1 === idx) {
                 source = "boot";
             } else {
@@ -161,18 +206,18 @@
                     + "\r\n" + e.message);
             }
             if (body instanceof Array) {
-                console.log("Adding " + body.length + " items from "
-                    + source);
+// console.log("Adding " + body.length + " items from " + source);
                 gpf.each.apply(placeholder, [body, pushCloneOf]);
             } else {
-                console.log("Adding item from " + source + "\r\n" + body.item);
+// console.log("Adding item from " + source + "\r\n" + body.item);
                 placeholder.push(gpf.clone(body));
             }
         }
+        // And generate the result
+        parsed["result.js"] = escodegen.generate(parsed.result,
+            version.rewriteOptions);
 
-        return escodegen.generate(parsed.result, {
-            comment: true
-        });
+        return parsed["result.js"];
     };
 
 }()); /* End of privacy scope */
