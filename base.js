@@ -213,7 +213,7 @@
      * Otherwise, the defaultResult is returned.
      * When defaultResult is not defined, memberCallback result is ignored.
      *  
-     * @param {Object} dictionary
+     * @param {Object|Array} dictionary
      * @param {Function} memberCallback
      * @param {*} defaultResult
      * @return {*}
