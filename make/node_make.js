@@ -27,7 +27,11 @@ for (idx = 0; idx < sources._list.length; ++idx) {
 sources.UMD = fs.readFileSync("UMD.js").toString();
 sources.boot = fs.readFileSync("../boot.js").toString();
 
-console.log(make(sources, "debug"));
+try {
+    console.log(make(sources, "debug"));
+} catch (e) {
+    console.error(e.message);
+}
 
 // ---------- For debugging purposes
 
@@ -40,22 +44,30 @@ function toXml(json) {
     return gpf.stringFromStream(stream);
 }
 
-function save (name, version, json) {
+function save (name, version, parsed) {
+    var
+        path = "tmp/" + version + "/" + name,
+        json = parsed[name];
     if (!fs.existsSync("tmp")) {
         fs.mkdirSync("tmp");
     }
     if (!fs.existsSync("tmp/" + version)) {
         fs.mkdirSync("tmp/" + version);
     }
-    fs.writeFileSync("tmp/" + version + "/" + name + ".json", JSON.stringify(json, true, 4));
-    fs.writeFileSync("tmp/" + version + "/" + name + ".xml", toXml(json));
+    if (parsed[name + ".js"]) {
+        fs.writeFileSync(path + ".js",parsed[name + ".js"]);
+    }
+    fs.writeFileSync(path + ".json", JSON.stringify(json, true, 4));
+    fs.writeFileSync(path + ".xml", toXml(json));
 }
 
 for (idx = 0; idx < sources._list.length; ++idx) {
-    save(sources._list[idx], "debug", sources.debug[sources._list[idx]]);
+    save(sources._list[idx], "debug", sources.debug);
 }
-save("UMD", "debug", sources.debug.UMD);
-save("boot", "debug", sources.debug.boot);
+save("UMD", "debug", sources.debug);
+save("boot", "debug", sources.debug);
+save("result", "debug", sources.debug);
+
 
 // fs.writeFileSync("gpf_debug.js", make(sources, "debug"));
 // fs.writeFileSync('gpf.js', make(sources, 'release'));

@@ -17,7 +17,7 @@
             }
         },
         // body/item[@type='ExpressionStatement' and expression/@name='__gpf__']
-        xpath = new gpfX.XPath({
+        xpathToGpfPlaceHolder = new gpfX.XPath({
             type: gpfX.NODE_ELEMENT,
             name: "body",
             relative: false,
@@ -107,11 +107,18 @@
         return ast;
     }
 
+    function pushCloneOf(item) {
+        this.push(gpf.clone(item));
+    }
+
     gpf.context().make = function(sources, version) {
         var
             parsed,
             __gpf__,
-            placeholder;
+            placeholder,
+            idx,
+            source,
+            body;
         if (undefined === versions[version]) {
             throw {
                 message: "Unknown version"
@@ -124,25 +131,48 @@
         parsed = sources[version] = {};
         version = versions[version];
         // First, parse everything
-        parsed.UMD = toAST(preProcess(sources.UMD, version), version);
-        parsed.boot = toAST(preProcess(sources.boot, version), version);
-        var
-            idx,
-            source;
+        parsed["UMD.js"] = preProcess(sources.UMD, version);
+        parsed.UMD = toAST(parsed["UMD.js"], version);
+        parsed.result = gpf.clone(parsed.UMD);
+        parsed["boot.js"] = preProcess(sources.boot, version);
+        parsed.boot = toAST(parsed["boot.js"], version);
         for (idx = 0; idx < sources._list.length; ++idx) {
             source = sources._list[idx];
-            parsed[source] = toAST(preProcess(sources[source], version),
-                version);
+            parsed[source + ".js"] = preProcess(sources[source], version);
+            parsed[source] = toAST(parsed[source + ".js"], version);
         }
         // Then, locate the use of __gpf__ to replace it with our content
-        __gpf__ = xpath.selectNodes(new gpfX.ConstNode(parsed.UMD))[0];
+        __gpf__ = xpathToGpfPlaceHolder
+            .selectNodes(new gpfX.ConstNode(parsed.result))[0];
         // Parent is the placeholder (an array ending with __gpf__)
         placeholder = __gpf__.parentNode().nodeValue();
         placeholder.pop(); // remove __gpf__
 
-        console.log(escodegen.generate(parsed.UMD, {
+        for (idx = -1; idx < 0 /*sources._list.length*/; ++idx) {
+            if (-1 === idx) {
+                source = "boot";
+            } else {
+                source = sources._list[idx];
+            }
+            try {
+                body = parsed[source].body;
+            } catch(e) {
+                console.error("Error while processing source: " + source
+                    + "\r\n" + e.message);
+            }
+            if (body instanceof Array) {
+                console.log("Adding " + body.length + " items from "
+                    + source);
+                gpf.each.apply(placeholder, [body, pushCloneOf]);
+            } else {
+                console.log("Adding item from " + source + "\r\n" + body.item);
+                placeholder.push(gpf.clone(body));
+            }
+        }
+
+        return escodegen.generate(parsed.result, {
             comment: true
-        }));
+        });
     };
 
 }()); /* End of privacy scope */
