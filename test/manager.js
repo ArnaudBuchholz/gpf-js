@@ -229,9 +229,13 @@
         }
         if (wscriptInclude.fso.FileExists(src)) {
             srcFile = wscriptInclude.fso.OpenTextFile(src);
-            /*jslint evil:true*/
-            eval(srcFile.ReadAll());
-            /*jslint evil:false*/
+            try {
+                /*jslint evil:true*/
+                eval(srcFile.ReadAll());
+                /*jslint evil:false*/
+            } catch (e) {
+                includeFailed(e);
+            }
             srcFile.Close();
         } else {
             includeFailed();
