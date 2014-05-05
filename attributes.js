@@ -115,6 +115,13 @@
      */
     gpf._defAttr("$Alias", {
 
+        /**
+         * Name of the alias to create
+         *
+         * @type {String}
+         */
+        _name: "",
+
         constructor: function (name) {
             this._name = name;
         },
