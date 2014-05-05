@@ -55,6 +55,10 @@
  * - _attributes (for attributes)
  *
  *
+ * 2014-05-05 #14
+ *  Found that the 'constructor' member is treated in a special way with
+ *  cscript.exe. hasOwnProperty returns false with it.
+ *
  */
 
     var
@@ -292,6 +296,11 @@
                 }
             }
         }
+        // 2014-05-05 #14
+        if ("wscript" === gpf.host() && definition.constructor !== Object) {
+            _processMember(definition, basePrototype, newPrototype,
+                "constructor", visibility);
+        }
     }
 
     /**
@@ -336,6 +345,11 @@
                         member, _CLASS_PUBLIC /*default*/);
                 }
             }
+        }
+        // 2014-05-05 #14
+        if ("wscript" === gpf.host() && definition.constructor !== Object) {
+            _processMember(definition, basePrototype, newPrototype,
+                "constructor", _CLASS_PUBLIC /*default*/);
         }
     }
 
