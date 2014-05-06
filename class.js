@@ -383,6 +383,41 @@
     }
 
     /**
+     * Template for new class constructor
+     * - Uses closure to keep track of gpf handle and constructor function
+     * - _CONSTRUCTOR_ will be replaced with the actual class name
+     *
+     * @returns {Function}
+     * @private
+     */
+    function _newClassConstructor() {
+        var
+            gpf = arguments[0],
+            constructor = function _CONSTRUCTOR_ () {
+                gpf._classInit.apply(this, [constructor, arguments]);
+            };
+        return constructor;
+    }
+
+    /**
+     * Returns the source of _newClassConstructor with the appropriate class
+     * name
+     *
+     * @param {String} name
+     * @return {String}
+     * @private
+     */
+    function _getNewClassConstructorSrc(name) {
+        var
+            src = _newClassConstructor
+                    .toString()
+                    .replace("_CONSTRUCTOR_", name),
+            start = src.indexOf("{") + 1,
+            end = src.lastIndexOf("}") - 1;
+        return src.substr(start, end - start + 1);
+    }
+
+    /**
      * Create a new Class
      *
      * @param {String} name Name of the class
@@ -400,10 +435,8 @@
             baseClassInfo,
             attributes = {};
 
-        // The new class constructor (uses closure)
-        newClass = (gpf._func("var constructor = function " + name + "() {" +
-                "gpf._classInit.apply(this, [constructor, arguments]);" +
-            "}; return constructor;"))();
+        // The new class constructor
+        newClass = gpf._func(_getNewClassConstructorSrc(name))(gpf);
 
         /*
          * Basic JavaScript inheritance mechanism:
