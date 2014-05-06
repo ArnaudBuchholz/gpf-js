@@ -30,15 +30,17 @@ function verbose(text) {
 
 if (options.release) {
     verbose("Using release version");
-    require("../../build/release.js");
-    require("../../sources.js"); // Mandatory
+    global.gpf = require("../../build/gpf.js");
 } else if (options.debug) {
     verbose("Using debug version");
-    require("../../build/debug.js");
+    global.gpf = require("../../build/gpf-debug.js");
     // Sources are included
 } else {
     verbose("Using source version");
     require("../../boot.js");
+}
+if (undefined === gpf.sources) {
+    require("../../sources.js");
 }
 require("../manager.js");
 

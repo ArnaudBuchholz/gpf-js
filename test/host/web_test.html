@@ -41,21 +41,22 @@ function loadGPF() {
         release = (-1 < window.location.search.indexOf("?release")
               || -1 < window.location.search.indexOf("&release")),
         debug = (-1 < window.location.search.indexOf("?debug")
-                || -1 < window.location.search.indexOf("&debug"));
-    var head = document.getElementsByTagName("head")[0]
-               || document.documentElement;
-    var script = document.createElement("script");
+                || -1 < window.location.search.indexOf("&debug")),
+        head = document.getElementsByTagName("head")[0]
+               || document.documentElement,
+        script = document.createElement("script");
+    window.gpfSourcesPath = "../../";
     if (release) {
         version = 'release';
-        script.src = "../../build/release.js";
+        script.src = "../../build/gpf.js";
     } else if (debug) {
         version = 'debug';
-        script.src = "../../build/debug.js";
+        script.src = "../../build/gpf-debug.js";
     } else {
         version = 'sources';
-        window.gpfSourcesPath = "../../";
         script.src = "../../boot.js";
     }
+    console.log("Using " + version + " version");
     script.language = "javascript";
     head.insertBefore(script, head.firstChild);
     window.setTimeout(waitForGPF, 0);
