@@ -19,9 +19,10 @@ var
     sources = {
         _list: gpf.sources().split(",")
     },
-    idx;
+    idx,
+    output;
 
-if (process.argv.length > 1) {
+if (process.argv.length > 2) {
     version = process.argv[2];
 } else {
     version = "debug";
@@ -72,8 +73,18 @@ function save (name, version) {
 }
 
 for (idx = 0; idx < sources._list.length; ++idx) {
-    save(sources._list[idx], version, sources.debug);
+    save(sources._list[idx], version);
 }
 save("UMD", version);
 save("boot", version);
 save("result", version);
+
+if (!fs.existsSync("../build")) {
+    fs.mkdirSync("../build");
+}
+output = ["../build/gpf"];
+if (version !== "release") {
+    output.push("-", version);
+}
+output.push(".js");
+fs.writeFileSync(output.join(""), sources[version]["result.js"]);
