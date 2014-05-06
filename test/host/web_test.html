@@ -34,7 +34,7 @@ div.log { color: gray; white-space: pre; }
         </style>
         <script language="javascript">
 var
-    version = '';
+    version = "";
 
 function loadGPF() {
     var
@@ -47,13 +47,13 @@ function loadGPF() {
         script = document.createElement("script");
     window.gpfSourcesPath = "../../";
     if (release) {
-        version = 'release';
+        version = "release";
         script.src = "../../build/gpf.js";
     } else if (debug) {
-        version = 'debug';
+        version = "debug";
         script.src = "../../build/gpf-debug.js";
     } else {
-        version = 'sources';
+        version = "sources";
         script.src = "../../boot.js";
     }
     console.log("Using " + version + " version");
@@ -91,11 +91,11 @@ waitForGPF.state = 0;
 
 function addTestResult(name, success) {
     var
-        tr = document.getElementById('results').appendChild(
+        tr = document.getElementById("results").appendChild(
                 document.createElement("TR")),
         td;
     td = tr.appendChild(document.createElement("TD"));
-    td.className = 'status';
+    td.className = "status";
     if (success) {
         tr.className = "ok";
         td.innerHTML = "OK";
@@ -104,14 +104,14 @@ function addTestResult(name, success) {
         td.innerHTML = "KO";
     }
     td = tr.appendChild(document.createElement("TD"));
-    td.className = 'details';
+    td.className = "details";
     td.innerHTML = name;
     return td;
 }
 
 var reportLocation;
 function report(event) {
-    var div = reportLocation.appendChild(document.createElement('DIV'));
+    var div = reportLocation.appendChild(document.createElement("DIV"));
     div.className = event.type();
     div.innerHTML = gpf.escapeFor(event.get("message"), "html");
 }
