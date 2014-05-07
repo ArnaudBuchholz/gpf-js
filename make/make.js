@@ -9,6 +9,7 @@
                 UMD: true,
                 DEBUG: true,
                 keepComments: true,
+                compact: false,
                 rewriteOptions: {
                     format: {
                         indent: {
@@ -35,10 +36,11 @@
                 UMD: true,
                 DEBUG: false,
                 keepComments: false,
+                compact: true,
                 rewriteOptions: {
                     format: {
                         indent: {
-                            style: " ",
+                            style: "",
                             base: 0,
                             adjustMultilineComment: false
                         },
@@ -49,7 +51,7 @@
                         hexadecimal: false,
                         quotes: "double",
                         escapeless: false,
-                        compact: true,
+                        compact: false, // true, TODO restore
                         parentheses: false,
                         semicolons: true,
                         safeConcatenation: true
@@ -149,6 +151,114 @@
         return ast;
     }
 
+    function compact(ast) {
+        if (!(ast instanceof Array)) {
+            ast = [ast];
+        }
+        for (var idx = 0; idx < ast.length; ++idx) {
+            compact.walk(ast[idx], {
+                identifiers: {
+                    // Map identifier to their replacement
+                    _stack_: [], // stack of replaced identifiers list
+                    _count_: 0   // number of replaced identifiers
+                }
+
+            });
+        }
+        return ast;
+    }
+
+    compact.FunctionExpression = {
+
+        pre: function (astItem, context) {
+            var
+                identifiers = context.identifiers,
+                idx,
+                len,
+                name,
+                newName,
+                array;
+            // Process parameters
+            if (astItem.params && astItem.params.length) {
+                len = astItem.params.length;
+                array = [];
+                for (idx = 0; idx < len; ++idx) {
+                    name = astItem.params[idx].name;
+                    array.push(name);
+                    newName = "_" + identifiers._count_;
+                    ++identifiers._count_;
+                    identifiers[name] = newName;
+console.log(">> " + name + " => " + newName);
+                }
+                identifiers._stack_.push(array);
+            }
+        },
+
+        post: function (astItem, context) {
+            var
+                identifiers = context.identifiers,
+                array,
+                idx,
+                len,
+                name;
+            // Clean parameters substitutions
+            if (astItem.params && astItem.params.length) {
+                array = identifiers._stack_.pop();
+                len = array.length;
+                identifiers._count_ -= len;
+                for (idx = 0; idx < len; ++idx) {
+                    name = array[idx];
+                    delete identifiers[name];
+                }
+            }
+        }
+    };
+
+    compact.Identifier = {
+
+        pre: function (astItem, context) {
+console.log("\t " + astItem.name + "?");
+            var
+                newName = context.identifiers[astItem.name];
+            if (undefined !== newName) {
+console.log("\t " + astItem.name + " => " + newName);
+                astItem.name = newName;
+            }
+        }
+
+    }
+
+    compact.walk = function (astItem, context) {
+        var
+            member,
+            subItem,
+            processor;
+        if (astItem instanceof Array) {
+            for (member = 0; member < astItem.length; ++member) {
+                compact.walk(astItem [member], context);
+            }
+        } else {
+            if (astItem.type) {
+                processor = this[astItem.type];
+            }
+            if (undefined !== processor && processor.pre) {
+                processor.pre(astItem, context);
+            }
+            for (member in astItem) {
+                subItem = astItem[member];
+                if (astItem.hasOwnProperty(member)
+                    && 'object' === typeof subItem) {
+                    if (subItem) { //  && subItem.type) {
+                        compact.walk(subItem, context);
+                    }
+                }
+            }
+            if (undefined !== processor && processor.post) {
+                processor.post(astItem, context);
+            }
+        }
+    };
+
     function pushCloneOf(idx, item) {
         /*jslint -W040*/
         gpf.interfaces.ignoreParameter(idx);
@@ -204,6 +314,9 @@
             } catch(e) {
                 console.error("Error while processing source: " + source
                     + "\r\n" + e.message);
+            }
+            if (version.compact) {
+                body = compact(body);
             }
             if (body instanceof Array) {
 // console.log("Adding " + body.length + " items from " + source);
