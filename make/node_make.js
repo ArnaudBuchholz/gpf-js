@@ -68,6 +68,9 @@ function save (name, version) {
     if (parsed[name + ".js"]) {
         fs.writeFileSync(path + ".js",parsed[name + ".js"]);
     }
+    if (parsed[name + ".compact.js"]) {
+        fs.writeFileSync(path + ".compact.js",parsed[name + ".compact.js"]);
+    }
     fs.writeFileSync(path + ".json", JSON.stringify(json, true, 4));
     fs.writeFileSync(path + ".xml", toXml(json));
 }

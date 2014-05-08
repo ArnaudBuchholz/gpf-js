@@ -51,7 +51,7 @@
                         hexadecimal: false,
                         quotes: "double",
                         escapeless: false,
-                        compact: false, // true, TODO restore
+                        compact: true,
                         parentheses: false,
                         semicolons: true,
                         safeConcatenation: true
@@ -86,6 +86,8 @@
             }
         })
     ;
+
+    //region Preprocessor (#ifdef)
 
     function preProcess(src, version) {
         var
@@ -134,6 +136,8 @@
         return lines.join("\n");
     }
 
+    //endregion
+
     function toAST(src, version) {
         // https://github.com/Constellation/escodegen/issues/85
         var
@@ -150,6 +154,8 @@
         }
         return ast;
     }
+
+    //region AST compactor
 
     function compact(ast) {
         if (!(ast instanceof Array)) {
@@ -188,7 +194,6 @@
                     newName = "_" + identifiers._count_;
                     ++identifiers._count_;
                     identifiers[name] = newName;
-console.log(">> " + name + " => " + newName);
                 }
                 identifiers._stack_.push(array);
             }
@@ -217,16 +222,14 @@ console.log(">> " + name + " => " + newName);
     compact.Identifier = {
 
         pre: function (astItem, context) {
-console.log("\t " + astItem.name + "?");
             var
                 newName = context.identifiers[astItem.name];
             if (undefined !== newName) {
-console.log("\t " + astItem.name + " => " + newName);
                 astItem.name = newName;
             }
         }
 
-    }
+    };
 
     compact.walk = function (astItem, context) {
         var
@@ -247,7 +250,7 @@ console.log("\t " + astItem.name + " => " + newName);
             for (member in astItem) {
                 subItem = astItem[member];
                 if (astItem.hasOwnProperty(member)
-                    && 'object' === typeof subItem) {
+                    && "object" === typeof subItem) {
                     if (subItem) { //  && subItem.type) {
                         compact.walk(subItem, context);
                     }
@@ -258,6 +261,8 @@ console.log("\t " + astItem.name + " => " + newName);
             }
         }
     };
+
+    //endregion
 
     function pushCloneOf(idx, item) {
         /*jslint -W040*/
@@ -317,6 +322,9 @@ console.log("\t " + astItem.name + " => " + newName);
             }
             if (version.compact) {
                 body = compact(body);
+                parsed[source + ".compact.js"] =
+                    escodegen.generate(parsed[source],
+                        versions.debug.rewriteOptions);
             }
             if (body instanceof Array) {
 // console.log("Adding " + body.length + " items from " + source);
