@@ -174,48 +174,71 @@
         return ast;
     }
 
+    compact.beginIdentifierMapping = function (context, names, typeVar) {
+        var
+            len = names.length,
+            idx,
+            name;
+        if (typeVar) {
+            names.isVariables = true;
+        }
+        context.identifiers._stack_.push(names);
+        for (idx = 0; idx < len; ++idx) {
+            name = names[idx];
+            context.identifiers[name] = "_" + (context.identifiers._count_++);
+        }
+    };
+
+    compact.endIdentifierMapping = function (context) {
+        var
+            names,
+            len,
+            idx,
+            name;
+        do {
+            names = context.identifiers._stack_.pop();
+            len = names.length;
+            for (idx = 0; idx < len; ++idx) {
+                name = names[idx];
+                delete context.identifiers[name];
+            }
+            context.identifiers._count_ -= names.length;
+        } while (names.isVariables);
+    };
+
+    compact.VariableDeclaration = {
+        pre: function (astItem, context) {
+            var
+                names = [],
+                len = astItem.declarations.length,
+                idx;
+            for (idx = 0; idx < len; ++idx) {
+                names.push(astItem.declarations[idx].id.name);
+            }
+            compact.beginIdentifierMapping(context, names, true);
+        }
+    };
+
     compact.FunctionExpression = {
 
         pre: function (astItem, context) {
             var
-                identifiers = context.identifiers,
+                names = [],
                 idx,
-                len,
-                name,
-                newName,
-                array;
+                len;
             // Process parameters
             if (astItem.params && astItem.params.length) {
                 len = astItem.params.length;
-                array = [];
                 for (idx = 0; idx < len; ++idx) {
-                    name = astItem.params[idx].name;
-                    array.push(name);
-                    newName = "_" + identifiers._count_;
-                    ++identifiers._count_;
-                    identifiers[name] = newName;
+                    names.push(astItem.params[idx].name);
                 }
-                identifiers._stack_.push(array);
             }
+            compact.beginIdentifierMapping(context, names);
         },
 
         post: function (astItem, context) {
-            var
-                identifiers = context.identifiers,
-                array,
-                idx,
-                len,
-                name;
-            // Clean parameters substitutions
-            if (astItem.params && astItem.params.length) {
-                array = identifiers._stack_.pop();
-                len = array.length;
-                identifiers._count_ -= len;
-                for (idx = 0; idx < len; ++idx) {
-                    name = array[idx];
-                    delete identifiers[name];
-                }
-            }
+            // Clean parameters (and inner variables) substitutions
+            compact.endIdentifierMapping(context);
         }
     };
 
@@ -224,7 +247,8 @@
         pre: function (astItem, context) {
             var
                 newName = context.identifiers[astItem.name];
-            if (undefined !== newName) {
+            if (undefined !== newName
+                && context.identifiers.hasOwnProperty(astItem.name)) {
                 astItem.name = newName;
             }
         }
