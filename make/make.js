@@ -158,18 +158,18 @@
     //region AST compactor
 
     function compact(ast) {
+        var context = {
+            identifiers: {
+                // Map identifier to their replacement
+                _stack_: [], // stack of replaced identifiers list
+                _count_: 0   // number of replaced identifiers
+            }
+        };
         if (!(ast instanceof Array)) {
             ast = [ast];
         }
         for (var idx = 0; idx < ast.length; ++idx) {
-            compact.walk(ast[idx], {
-                identifiers: {
-                    // Map identifier to their replacement
-                    _stack_: [], // stack of replaced identifiers list
-                    _count_: 0   // number of replaced identifiers
-                }
-
-            });
+            compact.walk(ast[idx], context);
         }
         return ast;
     }
@@ -187,6 +187,7 @@
             name = names[idx];
             context.identifiers[name] = "_" + (context.identifiers._count_++);
         }
+console.log("(begin) Identifier mapping: " + context.identifiers._stack_.length);
     };
 
     compact.endIdentifierMapping = function (context) {
@@ -204,6 +205,7 @@
             }
             context.identifiers._count_ -= names.length;
         } while (names.isVariables);
+console.log("(end) Identifier mapping: " + context.identifiers._stack_.length);
     };
 
     compact.VariableDeclaration = {
@@ -215,6 +217,7 @@
             for (idx = 0; idx < len; ++idx) {
                 names.push(astItem.declarations[idx].id.name);
             }
+console.log(">> vars " + names.join(", "));
             compact.beginIdentifierMapping(context, names, true);
         }
     };
@@ -233,11 +236,13 @@
                     names.push(astItem.params[idx].name);
                 }
             }
+console.log(">> function (" + names.join(", ") + ")");
             compact.beginIdentifierMapping(context, names);
         },
 
         post: function (astItem, context) {
             // Clean parameters (and inner variables) substitutions
+console.log("<< function (...)");
             compact.endIdentifierMapping(context);
         }
     };
