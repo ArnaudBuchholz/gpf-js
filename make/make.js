@@ -101,17 +101,17 @@
             line = lines[idx];
             ignore = ignoreStack[ignoreStack.length - 1];
             if (-1 < line.indexOf("/*#if")) {
-// console.log("#" + line);
+                // console.log("#" + line);
                 // In the end, we use an "ignore" flag
                 // so we invert the condition
                 ignore = -1 === line.indexOf("/*#ifndef(");
                 line = line.split("(")[1].split(")")[0];
-// console.log("\t" + line);
+                // console.log("\t" + line);
                 ignore = gpf.xor(version[line], ignore);
-// console.log("\t" + ignore);
+                // console.log("\t" + ignore);
                 ignoreStack.push(ignore);
                 ignore = true; // Ignore this line
-// console.log(">>" + ignoreStack);
+                // console.log(">>" + ignoreStack);
                 /*
                  * TODO handle imbricated when the parent is false
                  */
@@ -121,12 +121,12 @@
                 ignore = true; // Ignore this line
 
             } else if (-1 < line.indexOf("/*#endif")) {
-// console.log("#" + line);
+                // console.log("#" + line);
                 ignoreStack.pop();
                 ignore = true; // Ignore this line
-// console.log(">>" + ignoreStack);
+                // console.log(">>" + ignoreStack);
             }
-// console.log((ignore ? "-" : "+")  + line);
+            // console.log((ignore ? "-" : "+")  + line);
             if (ignore) {
                 lines.splice(idx, 1);
                 --len;
@@ -197,32 +197,37 @@
                 for (idx = 0; idx < len; ++idx) {
                     name = names[idx];
                     this._identifiers[name] = "_" + (this._identifierCount++);
+                    if (name === "gpf") {
+                        console.log("!!! gpf = " + this._identifiers[name]);
+                    }
                 }
             },
 
             endIdentifierMapping: function () {
+                console.log(">> endIdentifierMapping");
                 var
+                    stack = this._identifiersStack,
                     names,
                     len,
                     idx,
                     name;
                 do {
-                    names = this._identifiersStack.pop();
+                    names = stack.pop();
+                    console.log("<< " + names.join(","));
                     len = names.length;
                     for (idx = 0; idx < len; ++idx) {
                         name = names[idx];
                         delete this._identifiers[name];
                     }
                     this._identifierCount -= names.length;
-                } while (names.isVariables);
+                } while (0 < stack.length
+                    && stack[stack.length - 1].isVariables);
+                console.log("<< endIdentifierMapping");
             },
 
             isIdentifierMapped: function (name) {
-                var
-                    newName = this._identifiers[name];
-                if (undefined !== newName
-                    && this._identifiers.hasOwnProperty(name)) {
-                    return newName;
+                if (this._identifiers.hasOwnProperty(name)) {
+                    return this._identifiers[name];
                 }
                 return undefined;
             }
@@ -390,8 +395,14 @@
                     reducer = new ASTreducer();
                 }
                 reducer.reduce(body);
-                parsed[source + ".compact.js"] =
-                    escodegen.generate(body, versions.debug.rewriteOptions);
+                try {
+                    parsed[source + ".compact.js"] =
+                        escodegen.generate(parsed[source],
+                            versions.debug.rewriteOptions);
+                } catch (e) {
+                    console.error("Failed to generate compact source for "
+                        + source + ": " + e.message);
+                }
             }
             if (body instanceof Array) {
 // console.log("Adding " + body.length + " items from " + source);
