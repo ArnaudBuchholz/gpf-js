@@ -202,14 +202,22 @@
      * @private
      */
     function /*gpf:inline*/ _processMember(definition, basePrototype,
-        newPrototype, member/*, visibility*/) {
+        newPrototype, member, visibility) {
         // Don't know yet how I want to handle visibility
         var
             defMember = definition[member],
-            newType = typeof defMember,
-            baseMember = basePrototype[member],
-            baseType = typeof baseMember,
+            newType,
+            baseMember,
+            baseType,
             baseName;
+        if (_CLASS_STATIC === visibility) {
+            // No inheritance can be applied here
+            newPrototype.constructor[member] = defMember;
+            return;
+        }
+        newType = typeof defMember;
+        baseMember = basePrototype[member];
+        baseType = typeof baseMember;
         if ("undefined" !== baseType && newType !== baseType) {
             throw {
                 message: "You can't overload a member to change its type"
