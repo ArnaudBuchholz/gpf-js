@@ -9,7 +9,7 @@
                 UMD: true,
                 DEBUG: true,
                 keepComments: true,
-                compact: false,
+                reduce: false,
                 rewriteOptions: {
                     format: {
                         indent: {
@@ -24,7 +24,7 @@
                         hexadecimal: false,
                         quotes: "double",
                         escapeless: false,
-                        compact: false,
+                        reduce: false,
                         parentheses: true,
                         semicolons: true,
                         safeConcatenation: false
@@ -36,7 +36,7 @@
                 UMD: true,
                 DEBUG: false,
                 keepComments: false,
-                compact: true,
+                reduce: true,
                 rewriteOptions: {
                     format: {
                         indent: {
@@ -51,7 +51,7 @@
                         hexadecimal: false,
                         quotes: "double",
                         escapeless: false,
-                        compact: true,
+                        reduce: true,
                         parentheses: false,
                         semicolons: true,
                         safeConcatenation: true
@@ -157,139 +157,174 @@
 
     //region AST compactor
 
-    function compact(ast) {
-        var context = {
-            identifiers: {
-                // Map identifier to their replacement
-                _stack_: [], // stack of replaced identifiers list
-                _count_: 0   // number of replaced identifiers
-            }
-        };
-        if (!(ast instanceof Array)) {
-            ast = [ast];
-        }
-        for (var idx = 0; idx < ast.length; ++idx) {
-            compact.walk(ast[idx], context);
-        }
-        return ast;
-    }
+    /**
+     * AST Reducer
+     *
+     * @class ASTreducer
+     * @private
+     */
+    var ASTreducer = gpf.define("ASTreducer", {
 
-    compact.beginIdentifierMapping = function (context, names, typeVar) {
-        var
-            len = names.length,
-            idx,
-            name;
-        if (typeVar) {
-            names.isVariables = true;
-        }
-        context.identifiers._stack_.push(names);
-        for (idx = 0; idx < len; ++idx) {
-            name = names[idx];
-            context.identifiers[name] = "_" + (context.identifiers._count_++);
-        }
-console.log("(begin) Identifier mapping: " + context.identifiers._stack_.length);
-    };
+        public: {
 
-    compact.endIdentifierMapping = function (context) {
-        var
-            names,
-            len,
-            idx,
-            name;
-        do {
-            names = context.identifiers._stack_.pop();
-            len = names.length;
-            for (idx = 0; idx < len; ++idx) {
-                name = names[idx];
-                delete context.identifiers[name];
-            }
-            context.identifiers._count_ -= names.length;
-        } while (names.isVariables);
-console.log("(end) Identifier mapping: " + context.identifiers._stack_.length);
-    };
+            constructor: function() {
 
-    compact.VariableDeclaration = {
-        pre: function (astItem, context) {
-            var
-                names = [],
-                len = astItem.declarations.length,
-                idx;
-            for (idx = 0; idx < len; ++idx) {
-                names.push(astItem.declarations[idx].id.name);
-            }
-console.log(">> vars " + names.join(", "));
-            compact.beginIdentifierMapping(context, names, true);
-        }
-    };
+                this._identifiers = {};
+                this._identifiersStack = [];
 
-    compact.FunctionExpression = {
+            },
 
-        pre: function (astItem, context) {
-            var
-                names = [],
-                idx,
-                len;
-            // Process parameters
-            if (astItem.params && astItem.params.length) {
-                len = astItem.params.length;
-                for (idx = 0; idx < len; ++idx) {
-                    names.push(astItem.params[idx].name);
+            /**
+             * Process the AST to reduce the generated source
+             *
+             * @param {Object} ast
+             */
+            reduce: function (ast) {
+                this._walk(ast);
+            },
+
+            //region AST processing APIs
+
+            beginIdentifierMapping: function (names, forVariables) {
+                var
+                    len = names.length,
+                    idx,
+                    name;
+                if (forVariables) {
+                    names.isVariables = true;
                 }
+                this._identifiersStack.push(names);
+                for (idx = 0; idx < len; ++idx) {
+                    name = names[idx];
+                    this._identifiers[name] = "_" + (this._identifierCount++);
+                }
+            },
+
+            endIdentifierMapping: function () {
+                var
+                    names,
+                    len,
+                    idx,
+                    name;
+                do {
+                    names = this._identifiersStack.pop();
+                    len = names.length;
+                    for (idx = 0; idx < len; ++idx) {
+                        name = names[idx];
+                        delete this._identifiers[name];
+                    }
+                    this._identifierCount -= names.length;
+                } while (names.isVariables);
+            },
+
+            isIdentifierMapped: function (name) {
+                var
+                    newName = this._identifiers[name];
+                if (undefined !== newName
+                    && this._identifiers.hasOwnProperty(name)) {
+                    return newName;
+                }
+                return undefined;
             }
-console.log(">> function (" + names.join(", ") + ")");
-            compact.beginIdentifierMapping(context, names);
+
+            //endregion
+
         },
 
-        post: function (astItem, context) {
-            // Clean parameters (and inner variables) substitutions
-console.log("<< function (...)");
-            compact.endIdentifierMapping(context);
-        }
-    };
+        private: {
 
-    compact.Identifier = {
+            _identifiers: {},
+            _identifiersStack: [],
+            _identifierCount: 0,
 
-        pre: function (astItem, context) {
-            var
-                newName = context.identifiers[astItem.name];
-            if (undefined !== newName
-                && context.identifiers.hasOwnProperty(astItem.name)) {
-                astItem.name = newName;
-            }
-        }
-
-    };
-
-    compact.walk = function (astItem, context) {
-        var
-            member,
-            subItem,
-            processor;
-        if (astItem instanceof Array) {
-            for (member = 0; member < astItem.length; ++member) {
-                compact.walk(astItem [member], context);
-            }
-        } else {
-            if (astItem.type) {
-                processor = this[astItem.type];
-            }
-            if (undefined !== processor && processor.pre) {
-                processor.pre(astItem, context);
-            }
-            for (member in astItem) {
-                subItem = astItem[member];
-                if (astItem.hasOwnProperty(member)
-                    && "object" === typeof subItem) {
-                    if (subItem) { //  && subItem.type) {
-                        compact.walk(subItem, context);
+            _walk: function (ast) {
+                var
+                    myStatics = this.constructor,
+                    member,
+                    subItem,
+                    processor;
+                if (ast instanceof Array) {
+                    for (member = 0; member < ast.length; ++member) {
+                        this._walk(ast[member]);
+                    }
+                } else {
+                    if (ast.type) {
+                        processor = myStatics[ast.type];
+                    }
+                    if (undefined !== processor && processor.pre) {
+                        processor.pre(ast, this);
+                    }
+                    for (member in ast) {
+                        if (ast.hasOwnProperty(member)) {
+                            subItem = ast[member];
+                            if ("object" === typeof subItem && subItem) {
+                                this._walk(subItem);
+                            }
+                        }
+                    }
+                    if (undefined !== processor && processor.post) {
+                        processor.post(ast, this);
                     }
                 }
             }
-            if (undefined !== processor && processor.post) {
-                processor.post(astItem, context);
+
+        },
+
+        static: {
+
+            VariableDeclaration: {
+
+                pre: function (ast, reducer) {
+                    var
+                        names = [],
+                        len = ast.declarations.length,
+                        idx;
+                    for (idx = 0; idx < len; ++idx) {
+                        names.push(ast.declarations[idx].id.name);
+                    }
+                    reducer.beginIdentifierMapping(names, true);
+                }
+
+            },
+
+            FunctionExpression: {
+
+                pre: function (ast, reducer) {
+                    var
+                        names = [],
+                        idx,
+                        len;
+                    // Process parameters
+                    if (ast.params && ast.params.length) {
+                        len = ast.params.length;
+                        for (idx = 0; idx < len; ++idx) {
+                            names.push(ast.params[idx].name);
+                        }
+                    }
+                    reducer.beginIdentifierMapping(names, false);
+                },
+
+                post: function (ast, reducer) {
+                    gpf.interfaces.ignoreParameter(ast);
+                    // Clean parameters (and inner variables) substitutions
+                    reducer.endIdentifierMapping();
+                }
+            },
+
+            Identifier: {
+
+                pre: function (astItem, reducer) {
+                    var newName = reducer.isIdentifierMapped(astItem.name);
+                    if (undefined !== newName) {
+                        astItem.name = newName;
+                    }
+                }
+
             }
+
         }
-    };
+
+    });
 
     //endregion
 
@@ -307,7 +342,8 @@ console.log("<< function (...)");
             placeholder,
             idx,
             source,
-            body;
+            body,
+            reducer = null;
         if (undefined === versions[version]) {
             throw {
                 message: "Unknown version"
@@ -349,11 +385,13 @@ console.log("<< function (...)");
                 console.error("Error while processing source: " + source
                     + "\r\n" + e.message);
             }
-            if (version.compact) {
-                body = compact(body);
+            if (version.reduce) {
+                if (null === reducer) {
+                    reducer = new ASTreducer();
+                }
+                reducer.reduce(body);
                 parsed[source + ".compact.js"] =
-                    escodegen.generate(parsed[source],
-                        versions.debug.rewriteOptions);
+                    escodegen.generate(body, versions.debug.rewriteOptions);
             }
             if (body instanceof Array) {
 // console.log("Adding " + body.length + " items from " + source);
