@@ -171,6 +171,7 @@
 
                 this._identifiers = {};
                 this._identifiersStack = [];
+                this._astParents = [];
 
             },
 
@@ -186,6 +187,23 @@
             //region AST processing APIs
 
             beginIdentifierMapping: function (names, forVariables) {
+//                if (START_TRACES) {
+//                    console.log(">> beginIdentifierMapping");
+//                    if (forVariables) {
+//                        console.log("\t+[VAR] " + names.join(","));
+//                    } else {
+//                        console.log("\t+[FUN] " + names.join(","));
+//                    }
+//                    for (idx = this._identifiersStack.length - 1;
+//                         idx > 0; --idx) {
+//                        var stackedNames = this._identifiersStack[idx];
+//                        if (stackedNames.isVariables) {
+//                            console.log("\t[VAR] " + stackedNames.join(","));
+//                        } else {
+//                            console.log("\t[FUN] " + stackedNames.join(","));
+//                        }
+//                    }
+//                }
                 var
                     len = names.length,
                     idx,
@@ -197,14 +215,29 @@
                 for (idx = 0; idx < len; ++idx) {
                     name = names[idx];
                     this._identifiers[name] = "_" + (this._identifierCount++);
-                    if (name === "gpf") {
-                        console.log("!!! gpf = " + this._identifiers[name]);
-                    }
+//                    if (name === "gpf") {
+//                        console.log("!!! gpf = " + this._identifiers[name]);
+//                        START_TRACES = 5;
+//                    }
                 }
             },
 
             endIdentifierMapping: function () {
-                console.log(">> endIdentifierMapping");
+//                if (START_TRACES) {
+//                    console.log(">> endIdentifierMapping");
+//                    for (idx = this._identifiersStack.length - 1;
+//                         idx > 0; --idx) {
+//                        names = this._identifiersStack[idx];
+//                        if (names.isVariables) {
+//                            console.log("\t[VAR] " + names.join(","));
+//                        } else {
+//                            console.log("\t[FUN] " + names.join(","));
+//                        }
+//                    }
+//                }
+                /*
+                 * Undo identifiers stack until a non 'isVariables' one is found
+                 */
                 var
                     stack = this._identifiersStack,
                     names,
@@ -213,16 +246,26 @@
                     name;
                 do {
                     names = stack.pop();
-                    console.log("<< " + names.join(","));
                     len = names.length;
                     for (idx = 0; idx < len; ++idx) {
                         name = names[idx];
                         delete this._identifiers[name];
                     }
                     this._identifierCount -= names.length;
-                } while (0 < stack.length
-                    && stack[stack.length - 1].isVariables);
-                console.log("<< endIdentifierMapping");
+                } while (names.isVariables);
+//                if (START_TRACES) {
+//                    console.log("<< endIdentifierMapping");
+//                    for (idx = this._identifiersStack.length - 1;
+//                         idx > 0; --idx) {
+//                        names = this._identifiersStack[idx];
+//                        if (names.isVariables) {
+//                            console.log("\t[VAR] " + names.join(","));
+//                        } else {
+//                            console.log("\t[FUN] " + names.join(","));
+//                        }
+//                    }
+//                    START_TRACES--;
+//                }
             },
 
             isIdentifierMapped: function (name) {
@@ -242,12 +285,15 @@
             _identifiersStack: [],
             _identifierCount: 0,
 
+            _astParents: [],
+
             _walk: function (ast) {
                 var
                     myStatics = this.constructor,
                     member,
                     subItem,
                     processor;
+                this._astParents.push(ast);
                 if (ast instanceof Array) {
                     for (member = 0; member < ast.length; ++member) {
                         this._walk(ast[member]);
@@ -271,6 +317,7 @@
                         processor.post(ast, this);
                     }
                 }
+                this._astParents.pop(ast);
             }
 
         },
@@ -287,7 +334,34 @@
                     for (idx = 0; idx < len; ++idx) {
                         names.push(ast.declarations[idx].id.name);
                     }
+                    // TODO distinguish 'globals' from inner variables
                     reducer.beginIdentifierMapping(names, true);
+                }
+
+            },
+
+            FunctionDeclaration: {
+
+                pre: function (ast, reducer) {
+                    // TODO ast.id.name should be declared as 'global'
+                    var
+                        names = [],
+                        idx,
+                        len;
+                    // Process parameters
+                    if (ast.params && ast.params.length) {
+                        len = ast.params.length;
+                        for (idx = 0; idx < len; ++idx) {
+                            names.push(ast.params[idx].name);
+                        }
+                    }
+                    reducer.beginIdentifierMapping(names, false);
+                },
+
+                post: function (ast, reducer) {
+                    gpf.interfaces.ignoreParameter(ast);
+                    // Clean parameters (and inner variables) substitutions
+                    reducer.endIdentifierMapping();
                 }
 
             },
@@ -319,6 +393,7 @@
             Identifier: {
 
                 pre: function (astItem, reducer) {
+                    // TODO Check the astParent avoid !MemberExpression.property
                     var newName = reducer.isIdentifierMapped(astItem.name);
                     if (undefined !== newName) {
                         astItem.name = newName;
