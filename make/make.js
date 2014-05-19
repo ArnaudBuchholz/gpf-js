@@ -44,7 +44,7 @@
                             base: 0,
                             adjustMultilineComment: false
                         },
-                        newline: "\n",
+                        newline: "",
                         space: " ",
                         json: false,
                         renumber: false,
@@ -171,7 +171,6 @@
 
                 this._identifiers = {};
                 this._identifiersStack = [];
-                this._astParents = [];
 
             },
 
@@ -214,6 +213,7 @@
                 this._identifiersStack.push(names);
                 for (idx = 0; idx < len; ++idx) {
                     name = names[idx];
+                    // TODO find better way to allocate names
                     this._identifiers[name] = "_" + (this._identifierCount++);
 //                    if (name === "gpf") {
 //                        console.log("!!! gpf = " + this._identifiers[name]);
@@ -285,7 +285,29 @@
             _identifiersStack: [],
             _identifierCount: 0,
 
-            _astParents: [],
+            _walkArray: function (astArray) {
+                var
+                    idx,
+                    subItem,
+                    names;
+                // First pass to see if any FunctionDeclaration names
+                for (idx = 0; idx < astArray.length; ++idx) {
+                    subItem = astArray[idx];
+                    if (subItem.type === "FunctionDeclaration") {
+                        if (undefined === names) {
+                            names = [];
+                        }
+                        names.push(subItem.id.name);
+                    }
+                }
+                if (undefined !== names) {
+                    this.beginIdentifierMapping(names, true);
+                }
+                // Second pass to reduce
+                for (idx = 0; idx < astArray.length; ++idx) {
+                    this._walk(astArray[idx]);
+                }
+            },
 
             _walk: function (ast) {
                 var
@@ -293,11 +315,8 @@
                     member,
                     subItem,
                     processor;
-                this._astParents.push(ast);
                 if (ast instanceof Array) {
-                    for (member = 0; member < ast.length; ++member) {
-                        this._walk(ast[member]);
-                    }
+                    this._walkArray(ast);
                 } else {
                     if (ast.type) {
                         processor = myStatics[ast.type];
@@ -305,11 +324,15 @@
                     if (undefined !== processor && processor.pre) {
                         processor.pre(ast, this);
                     }
-                    for (member in ast) {
-                        if (ast.hasOwnProperty(member)) {
-                            subItem = ast[member];
-                            if ("object" === typeof subItem && subItem) {
-                                this._walk(subItem);
+                    if (undefined !== processor && processor.walk) {
+                        processor.walk(ast, this);
+                    } else {
+                        for (member in ast) {
+                            if (ast.hasOwnProperty(member)) {
+                                subItem = ast[member];
+                                if ("object" === typeof subItem && subItem) {
+                                    this._walk(subItem);
+                                }
                             }
                         }
                     }
@@ -317,7 +340,6 @@
                         processor.post(ast, this);
                     }
                 }
-                this._astParents.pop(ast);
             }
 
         },
@@ -343,7 +365,7 @@
             FunctionDeclaration: {
 
                 pre: function (ast, reducer) {
-                    // TODO ast.id.name should be declared as 'global'
+                    // Name is reduced at an higher level
                     var
                         names = [],
                         idx,
@@ -400,6 +422,29 @@
                     }
                 }
 
+            },
+
+            MemberExpression: {
+
+                walk: function (astItem, reducer) {
+                    reducer.reduce(astItem.object);
+                    // Reduce property only if computed
+                    if (astItem.computed) {
+                        reducer.reduce(astItem.property);
+                    }
+                }
+
+            },
+
+            ObjectExpression: {
+
+                walk: function (astItem, reducer) {
+                    var len, idx;
+                    len = astItem.properties.length;
+                    for (idx = 0; idx < len; ++idx) {
+                        reducer.reduce(astItem.properties[idx].value);
+                    }
+                }
             }
 
         }
@@ -415,14 +460,41 @@
         /*jslint +W040*/
     }
 
-    gpf.context().make = function(sources, version) {
+    function process (parsed, source, version, placeholder, reducer) {
+        var body;
+        try {
+            body = parsed[source].body;
+        } catch(e) {
+            console.error("Error while processing source: " + source
+                + "\r\n" + e.message);
+        }
+        if (version.reduce) {
+            reducer.reduce(body);
+            try {
+                parsed[source + ".compact.js"] =
+                    escodegen.generate(parsed[source],
+                        versions.debug.rewriteOptions);
+            } catch (e) {
+                console.error("Failed to generate compact source for "
+                    + source + ": " + e.message);
+            }
+        }
+        if (body instanceof Array) {
+// console.log("Adding " + body.length + " items from " + source);
+            gpf.each.apply(placeholder, [body, pushCloneOf]);
+        } else {
+// console.log("Adding item from " + source + "\r\n" + body.item);
+            placeholder.push(gpf.clone(body));
+        }
+    }
+
+    gpf.context().make = function (sources, version) {
         var
             parsed,
             __gpf__,
             placeholder,
             idx,
             source,
-            body,
             reducer = null;
         if (undefined === versions[version]) {
             throw {
@@ -452,6 +524,10 @@
         // Parent is the placeholder (an array ending with __gpf__)
         placeholder = __gpf__.parentNode().nodeValue();
         placeholder.pop(); // remove __gpf__
+        // Generate reducer (if needed)
+        if (version.reduce) {
+            reducer = new ASTreducer();
+        }
         // Add all sources
         for (idx = -1; idx < sources._list.length; ++idx) {
             if (-1 === idx) {
@@ -459,33 +535,7 @@
             } else {
                 source = sources._list[idx];
             }
-            try {
-                body = parsed[source].body;
-            } catch(e) {
-                console.error("Error while processing source: " + source
-                    + "\r\n" + e.message);
-            }
-            if (version.reduce) {
-                if (null === reducer) {
-                    reducer = new ASTreducer();
-                }
-                reducer.reduce(body);
-                try {
-                    parsed[source + ".compact.js"] =
-                        escodegen.generate(parsed[source],
-                            versions.debug.rewriteOptions);
-                } catch (e) {
-                    console.error("Failed to generate compact source for "
-                        + source + ": " + e.message);
-                }
-            }
-            if (body instanceof Array) {
-// console.log("Adding " + body.length + " items from " + source);
-                gpf.each.apply(placeholder, [body, pushCloneOf]);
-            } else {
-// console.log("Adding item from " + source + "\r\n" + body.item);
-                placeholder.push(gpf.clone(body));
-            }
+            process(parsed, source, version, placeholder, reducer);
         }
         // And generate the result
         parsed["result.js"] = escodegen.generate(parsed.result,
