@@ -85,7 +85,8 @@
                 }
             }
         }),
-        identifierCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        identifierCharacters = "abcdefghijklmnopqrstuvwxyz"
+                             + "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     ;
 
     //region Preprocessor (#ifdef)
@@ -207,10 +208,7 @@
                 var
                     len = names.length,
                     idx,
-                    name,
-                    id,
-                    newName,
-                    mod = identifierCharacters.length;
+                    name;
                 if (forVariables) {
                     names.isVariables = true;
                 }
