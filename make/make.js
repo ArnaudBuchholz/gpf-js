@@ -84,7 +84,8 @@
                     }]
                 }
             }
-        })
+        }),
+        identifierCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     ;
 
     //region Preprocessor (#ifdef)
@@ -206,15 +207,18 @@
                 var
                     len = names.length,
                     idx,
-                    name;
+                    name,
+                    id,
+                    newName,
+                    mod = identifierCharacters.length;
                 if (forVariables) {
                     names.isVariables = true;
                 }
+                names.identifierCount = this._identifierCount;
                 this._identifiersStack.push(names);
                 for (idx = 0; idx < len; ++idx) {
                     name = names[idx];
-                    // TODO find better way to allocate names
-                    this._identifiers[name] = "_" + (this._identifierCount++);
+                    this._identifiers[name] = this._newName();
 //                    if (name === "gpf") {
 //                        console.log("!!! gpf = " + this._identifiers[name]);
 //                        START_TRACES = 5;
@@ -251,7 +255,7 @@
                         name = names[idx];
                         delete this._identifiers[name];
                     }
-                    this._identifierCount -= names.length;
+                    this._identifierCount = names.identifierCount;
                 } while (names.isVariables);
 //                if (START_TRACES) {
 //                    console.log("<< endIdentifierMapping");
@@ -340,6 +344,24 @@
                         processor.post(ast, this);
                     }
                 }
+            },
+
+            _newName: function () {
+                var
+                    id,
+                    newName,
+                    mod = identifierCharacters.length;
+                do {
+                    id = this._identifierCount++;
+                    newName = [];
+                    while (id >= identifierCharacters.length) {
+                        newName.push(identifierCharacters.charAt(id % mod));
+                        id = id / mod;
+                    }
+                    newName.push(identifierCharacters.charAt(id));
+                    newName = newName.join("");
+                } while (undefined !== gpf.test(gpf.js.keywords(), newName));
+                return newName;
             }
 
         },
@@ -510,6 +532,18 @@
         // First, parse everything
         parsed["UMD.js"] = preProcess(sources.UMD, version);
         parsed.UMD = toAST(parsed["UMD.js"], version);
+        if (version.reduce) {
+            reducer = new ASTreducer();
+            reducer.reduce(parsed.UMD.body);
+            try {
+                parsed["UMD.compact.js"] =
+                    escodegen.generate(parsed.UMD,
+                        versions.debug.rewriteOptions);
+            } catch (e) {
+                console.error("Failed to generate compact source for UMD: "
+                    + e.message);
+            }
+        }
         parsed.result = gpf.clone(parsed.UMD);
         parsed["boot.js"] = preProcess(sources.boot, version);
         parsed.boot = toAST(parsed["boot.js"], version);
@@ -524,10 +558,6 @@
         // Parent is the placeholder (an array ending with __gpf__)
         placeholder = __gpf__.parentNode().nodeValue();
         placeholder.pop(); // remove __gpf__
-        // Generate reducer (if needed)
-        if (version.reduce) {
-            reducer = new ASTreducer();
-        }
         // Add all sources
         for (idx = -1; idx < sources._list.length; ++idx) {
             if (-1 === idx) {

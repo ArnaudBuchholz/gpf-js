@@ -506,6 +506,15 @@
     gpf.extend(gpf.js, {
 
         /**
+         * Returns the list of known keyword
+         *
+         * @return {String[]}
+         */
+        keywords: function () {
+            return _keywords;
+        },
+
+        /**
          * Identify tokens in the provided text, the source is supposed to be
          * complete (and valid).
          * @param {String} text Text to analyze
