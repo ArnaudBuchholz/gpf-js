@@ -58,7 +58,7 @@
     "passfail"      : false,
     "white"         : false,
 
-    "unused": strict,
+    "unused"        : "strict",
 
     "maxerr"        : 100,
 
