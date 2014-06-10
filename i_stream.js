@@ -7,6 +7,22 @@
         gpfI = gpf.interfaces;
 
     /**
+     * The Readable stream interface is the abstraction for a source of data
+     * that you are reading from. In other words, data comes out of a Readable
+     * stream.
+     *
+     * @class gpf.interfaces.IReadableStream
+     * @extends gpf.interfaces.Interface
+     */
+    gpf._defIntrf("IReadableStream", {
+
+        read: function (size, cbData, scope) {
+
+        }
+
+    });
+
+    /**
      * Text stream
      *
      * @class gpf.interfaces.ITextStream

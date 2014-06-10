@@ -4,6 +4,13 @@
 /*#endif*/
 
     var
+        /**
+         * Event broadcaster
+         *
+         * @param {String[]} [events=undefined] events
+         * @constructor
+         * @class gpf.Broadcaster
+         */
         _Broadcaster = function (events) {
             var idx, eventName;
             this._listeners = {};
@@ -21,6 +28,38 @@
             }
         },
 
+        /**
+         * Generate a closure capable of handling addEventListener on a given
+         * event
+         *
+         * @param {Number} eventIndex
+         * @returns {Function}
+         * @closure
+         * @private
+         */
+        _genOnEventClosure = function (eventIndex) {
+            return function() {
+                var
+                    args = this._events[eventIndex],
+                    len = arguments.length,
+                    idx;
+                for (idx = 0; idx < len; ++idx) {
+                    args.push(arguments[idx]);
+                }
+                return this.addEventListener.apply(this, args);
+            };
+        },
+
+        /**
+         * Event
+         *
+         * @param {String} type
+         * @param {Object} params
+         * @param {Boolean} cancelable
+         * @param {Object} that
+         * @constructor
+         * @class gpf.Event
+         */
         _Event = function (type, params, cancelable, that) {
             this._type = type;
             if (undefined === params) {
@@ -66,11 +105,7 @@
             gpf.ASSERT(closures.length >= idx, "calls must be sequential");
             while (closures.length <= idx) {
                 jdx = closures.length;
-                closures.push(gpf._func(
-                    "return this.addEventListener(this._events["
-                        + jdx
-                        + "],arguments[0],arguments[1]);"
-                ));
+                closures.push(_genOnEventClosure(jdx));
             }
             return closures[idx];
         },
@@ -80,22 +115,35 @@
          *
          * @param {String} event name
          * @param {Function} callback
-         * @param {Boolean} useCapture push it on top of the triggering queue
+         * @param {Object|Boolean} scope scope of callback or useCapture
+         * parameter
+         * @param {Boolean} [useCapture=false] useCapture push it on top of the
+         * triggering queue
          * @return {Object} this
          * @chainable
          */
-        addEventListener: function (event, callback, useCapture) {
-            var listeners = this._listeners;
-            if (!useCapture) {
-                useCapture = false;
+        addEventListener: function (event, callback, scope, useCapture) {
+            var
+                listeners = this._listeners,
+                gpfCallback;
+            if ("boolean" === typeof scope) {
+                useCapture = scope;
+            } else {
+                if (!scope) {
+                    scope = null;
+                }
+                if (!useCapture) {
+                    useCapture = false;
+                }
             }
+            gpfCallback = new gpf.Callback(callback, scope);
             if (undefined === listeners[event]) {
                 listeners[event] = [];
             }
             if (useCapture) {
-                listeners[event].unshift(callback);
+                listeners[event].unshift(gpfCallback);
             } else {
-                listeners[event].push(callback);
+                listeners[event].push(gpfCallback);
             }
             return this;
         },
@@ -105,11 +153,13 @@
          *
          * @param {String} event name
          * @param {Function} callback
+         * @param {Object} [scope=undefined] scope scope of callback
          * @return {undefined}
          * @chainable
          */
-        removeEventListener: function (event, callback) {
+        removeEventListener: function (event, callback, scope) {
             if (undefined !== this._listeners[event]) {
+                // TODO does not work like this
                 gpf.clear(this._listeners[event], callback);
             }
         },

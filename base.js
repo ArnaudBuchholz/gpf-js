@@ -422,6 +422,38 @@
          */
         xor: function (a, b) {
             return a && !b || !a && b;
+        },
+
+        /**
+         * Generic callback handler
+         *
+         * @param {Function} handler
+         * @param {Object} scope
+         * @constructor
+         * @class gpf.Callback
+         */
+        Callback: function (handler, scope) {
+            if (handler) {
+                this._handler = handler;
+            }
+            if (scope) {
+                this._scope = scope;
+            }
+        }
+
+    });
+
+    gpf.extend(gpf.Callback.prototype, {
+        _handler: gpf._func(""),
+        _scope: gpf.context(),
+
+        /**
+         * Executes the callback
+         *
+         * @returns {*}
+         */
+        execute: function() {
+            return this._handler.apply(this._scope, arguments);
         }
 
     });
