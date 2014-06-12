@@ -346,8 +346,9 @@
         test: function (dictionary, value) {
             var idx;
             if (dictionary instanceof Array) {
-                for (idx = 0; idx < dictionary.length; ++idx) {
-                    if (dictionary[idx] === value) {
+                idx = dictionary.length;
+                while (idx > 0) {
+                    if (dictionary[--idx] === value) {
                         return idx;
                     }
                 }
@@ -373,11 +374,9 @@
         set: function (array, value) {
             gpf.ASSERT(array instanceof Array,
                 "gpf.set must be used with an Array");
-            var
-                idx,
-                len = array.length;
-            for (idx = 0; idx < len; ++idx) {
-                if (array[idx] === value) {
+            var idx = array.length;
+            while (idx > 0) {
+                if (array[--idx] === value) {
                     return array; // Already set
                 }
             }
@@ -397,8 +396,9 @@
         clear: function (dictionary, value) {
             var idx;
             if (dictionary instanceof Array) {
-                for (idx = 0; idx < dictionary.length; ++idx) {
-                    if (dictionary[idx] === value) {
+                idx = dictionary.length;
+                while (idx > 0) {
+                    if (dictionary[--idx] === value) {
                         dictionary.splice(idx, 1);
                         break;
                     }
@@ -445,17 +445,59 @@
 
     gpf.extend(gpf.Callback.prototype, {
         _handler: gpf._func(""),
-        _scope: gpf.context(),
+        _scope: null,
 
         /**
-         * Executes the callback
+         * Get the handler function
          *
+         * @returns {Function}
+         */
+        handler: function () {
+            return this._handler;
+        },
+
+        /**
+         * Get the scope
+         *
+         * @returns {Object}
+         */
+        scope: function () {
+            return this._scope;
+        },
+
+        /**
+         * Executes the callback and override the scope if not defined
+         *
+         * @param {Object} scope Scope to apply if none set in the callback
+         * @param {*} ... Forwarded to the callback handler
          * @returns {*}
          */
-        execute: function() {
-            return this._handler.apply(this._scope, arguments);
-        }
+        call: function() {
+            var
+                scope = arguments[0],
+                args = [],
+                len = arguments.length,
+                idx;
+            for (idx = 1; idx < len; ++idx) {
+                args.push(arguments[idx]);
+            }
+            return this.apply(scope, args);
+        },
 
+        /**
+         * Executes the callback and override the scope if not defined
+         *
+         * @param {Object} scope Scope to apply if none set in the callback
+         * @param {*[]} args Forwarded to the callback handler
+         * @returns {*}
+         */
+        apply: function(scope, args) {
+            var finalScope = this._scope || scope;
+            if (!scope) {
+                finalScope = gpf.context();
+            }
+            return this._handler.apply(finalScope, args);
+        }
     });
 
 /*#ifndef(UMD)*/
