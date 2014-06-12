@@ -71,7 +71,7 @@ FIXME: IE10 does not detect when the script does not exist.
          * loaded handler (if needed)
          * 
          * @param {String} src
-         * @param {gpf.Broadcaster/gpf.Callback/Function}
+         * @param {gpf.events.Broadcaster/gpf.Callback/Function}
          * [eventsHandler=new gpf.events.Broadcaster] eventsHandler
          * @return {Object/function} the provided eventsHandler
          *          

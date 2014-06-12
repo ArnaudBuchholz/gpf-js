@@ -9,22 +9,20 @@
          *
          * @param {String[]} [events=undefined] events
          * @constructor
-         * @class gpf.Broadcaster
+         * @class gpf.events.Broadcaster
          */
         _Broadcaster = function (events) {
-            var idx, eventName;
+            var idx, len, eventName;
             this._listeners = {};
             if (undefined !== events) {
                 this._events = events;
-                for (idx = 0; idx < events.length; ++idx) {
+                len = events.length;
+                for (idx = 0; idx < len; ++idx) {
                     eventName = events[idx];
                     this["on" + eventName.charAt(0).toUpperCase()
                         + eventName.substr(1)] = this._onEVENT(idx);
                     this._listeners[eventName] = [];
                 }
-            } else {
-                // Used inside a dynamically created closure... so
-                this._events = null;
             }
         },
 
@@ -54,27 +52,24 @@
          * Event
          *
          * @param {String} type
-         * @param {Object} params
-         * @param {Boolean} cancelable
-         * @param {Object} that
+         * @param {Object} [params={}] params
+         * @param {Boolean} [cancelable=false] cancelable
+         * @param {Object} [scope=undefined] scope
          * @constructor
-         * @class gpf.Event
+         * @class gpf.events.Event
          */
-        _Event = function (type, params, cancelable, that) {
+        _Event = function (type, params, cancelable, scope) {
             this._type = type;
-            if (undefined === params) {
-                params = {};
+            if (undefined !== params) {
+                this._params = params;
             }
-            this._params = params;
-            this._cancelable = cancelable ? true : false;
+            if (cancelable) {
+                this._cancelable = true;
+            }
 //            this._timeStamp = new Date();
 //            this._returnValue = undefined;
-            this._propagationStopped = false;
-            this._defaultPrevented = false;
-            if (undefined !== that ) {
-                this._that = that;
-            } else {
-                this._that = that;
+            if (scope) {
+                this._scope = scope;
             }
         };
 
@@ -84,6 +79,18 @@
      * @class gpf.events.Broadcaster
      */
     gpf.extend(_Broadcaster.prototype, {
+
+        /**
+         * @type {Object} Map of event name to the list of callbacks
+         * @private
+         */
+        _listeners: {},
+
+        /**
+         * @type {String[]} List of predefined event names
+         * @private
+         */
+        _events: null,
 
         /**
          * To avoid an extensive use of closures, functions are created with an
@@ -120,7 +127,7 @@
          * specified, a new gpf.Callback object is created.
          * @param {Boolean} [useCapture=false] useCapture push it on top of the
          * triggering queue
-         * @return {gpf.Broadcaster} this
+         * @return {gpf.events.Broadcaster} this
          * @chainable
          */
         addEventListener: function (event, callback, scope, useCapture) {
@@ -162,7 +169,7 @@
          * @param {String} event name
          * @param {Function|gpf.Callback} callback
          * @param {Object} [scope=undefined] scope scope of callback
-         * @return {gpf.Broadcaster}
+         * @return {gpf.events.Broadcaster}
          * @chainable
          */
         removeEventListener: function (event, callback, scope) {
@@ -214,7 +221,7 @@
             if (event instanceof _Event) {
                 // 'Advanced' version
                 for (idx = 0; idx < listeners.length; ++idx) {
-                    listeners[idx].apply(event._that, [event]);
+                    listeners[idx].apply(event._scope, [event]);
                     if (event._propagationStopped) {
                         break;
                     }
@@ -236,6 +243,54 @@
      * @class gpf.events.Event
      */
     gpf.extend(_Event.prototype, {
+
+        /**
+         * Event type
+         *
+         * @type {String}
+         * @private
+         */
+        _type: "",
+
+        /**
+         * Event parameters
+         *
+         * @type {Object} Map of key to value
+         * @private
+         */
+        _params: {},
+
+        /**
+         * Event can be cancelled
+         *
+         * @type {Boolean}
+         * @private
+         */
+        _cancelable: false,
+
+        /**
+         * Event propagation was stopped
+         *
+         * @type {Boolean}
+         * @private
+         */
+        _propagationStopped: false,
+
+        /**
+         * Event default handling is prevented
+         *
+         * @type {Boolean}
+         * @private
+         */
+        _defaultPrevented: false,
+
+        /**
+         * Event scope
+         *
+         * @type {Object|null}
+         * @private
+         */
+        _scope: null,
 
         /**
          * Event type
@@ -292,9 +347,8 @@
 
         /**
          * Fire the event on the provided eventsHandler
-         * 
-         * @param {Object/function} eventsHandler broadcaster or callback
-         *        function
+         *
+         * @param {gpf.events.Broadcaster/gpf.Callback/Function} eventsHandler
          * @return {gpf.events.Event} this
          */
         fire: function (eventsHandler) {
@@ -316,23 +370,26 @@
          * @param {String/gpf.events.Event} event string or event object to fire
          * @param {Object} [params={}] params parameter of the event
          *                 (when type is a string)
-         * @param {Object/function} eventsHandler broadcaster or callback
-         *        function
+         * @param {gpf.events.Broadcaster/gpf.Callback/Function} eventsHandler
          * @return {gpf.events.Event} the event object
          */
         fire: function (event, params, eventsHandler) {
+            var scope;
             if (event instanceof _Event) {
-                // Already an event, no params
+                // Already an event, no params: shift parameters
                 eventsHandler = params;
             } else {
                 event = new gpf.events.Event(event, params, true, this);
             }
+            scope = event._scope;
+            if (!scope) {
+                scope = gpf.context();
+            }
             if (eventsHandler instanceof _Broadcaster) {
                 eventsHandler.broadcastEvent(event);
-            } else if (event._that) {
-                eventsHandler.apply(event._that, [event]);
             } else {
-                eventsHandler(event);
+                // Compatible with Function & gpf.Callback
+                eventsHandler.apply(scope, [event]);
             }
             return event;
         }

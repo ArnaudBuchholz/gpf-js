@@ -21,7 +21,7 @@
          *
          * @param {Number} [size=undefined] size Number of bytes to read. Read
          * as much as possible if not specified
-         * @param {gpf.Broadcaster/gpf.Callback/Function} eventsHandler
+         * @param {gpf.events.Broadcaster/gpf.Callback/Function} eventsHandler
          * @return {gpf.IReadableStream}
          * @chainable
          *
@@ -56,7 +56,7 @@
          * Triggers the writing of data
          *
          * @param {IReadOnlyArray} int8buffer Buffer to write
-         * @param {gpf.Broadcaster/gpf.Callback/Function} eventsHandler
+         * @param {gpf.events.Broadcaster/gpf.Callback/Function} eventsHandler
          * @return {gpf.IWritableStream}
          * @chainable
          */
