@@ -114,20 +114,21 @@
          * Add an event listener to the channel
          *
          * @param {String} event name
-         * @param {Function} callback
+         * @param {Function|gpf.Callback} callback
          * @param {Object|Boolean} scope scope of callback or useCapture
-         * parameter
+         * parameter. NOTE: if a gpf.Callback object is used and a scope
+         * specified, a new gpf.Callback object is created.
          * @param {Boolean} [useCapture=false] useCapture push it on top of the
          * triggering queue
-         * @return {Object} this
+         * @return {gpf.Broadcaster} this
          * @chainable
          */
         addEventListener: function (event, callback, scope, useCapture) {
             var
-                listeners = this._listeners,
-                gpfCallback;
+                listeners = this._listeners;
             if ("boolean" === typeof scope) {
                 useCapture = scope;
+                scope = undefined;
             } else {
                 if (!scope) {
                     scope = null;
@@ -136,14 +137,21 @@
                     useCapture = false;
                 }
             }
-            gpfCallback = new gpf.Callback(callback, scope);
+            if (callback instanceof gpf.Callback) {
+                if (scope && scope !== callback.scope()) {
+                    callback = callback.handler();
+                }
+            }
+            if (!(callback instanceof gpf.Callback)) {
+                callback = new gpf.Callback(callback, scope);
+            }
             if (undefined === listeners[event]) {
                 listeners[event] = [];
             }
             if (useCapture) {
-                listeners[event].unshift(gpfCallback);
+                listeners[event].unshift(callback);
             } else {
-                listeners[event].push(gpfCallback);
+                listeners[event].push(callback);
             }
             return this;
         },
@@ -152,16 +160,34 @@
          * Remove an event listener to the channel
          *
          * @param {String} event name
-         * @param {Function} callback
+         * @param {Function|gpf.Callback} callback
          * @param {Object} [scope=undefined] scope scope of callback
-         * @return {undefined}
+         * @return {gpf.Broadcaster}
          * @chainable
          */
         removeEventListener: function (event, callback, scope) {
-            if (undefined !== this._listeners[event]) {
-                // TODO does not work like this
-                gpf.clear(this._listeners[event], callback);
+            var
+                listener = this._listeners[event],
+                registeredCallback,
+                idx;
+            if (undefined !== listener) {
+                if (callback instanceof gpf.Callback) {
+                    if (!scope) {
+                        scope = callback.scope();
+                    }
+                    callback = callback.handler();
+                }
+                idx = listener.length;
+                while (idx > 0) {
+                    registeredCallback = listener[--idx];
+                    if (registeredCallback.handler() === callback
+                        && registeredCallback.scope() === scope) {
+                        listener.splice(idx, 1);
+                        break;
+                    }
+                }
             }
+            return this;
         },
 
         /**
