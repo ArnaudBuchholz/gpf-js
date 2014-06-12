@@ -11,13 +11,49 @@
      * that you are reading from. In other words, data comes out of a Readable
      * stream.
      *
+     * @event data Some data is ready to be ready
+     * @eventParam {gpf.IReadOnlyArray} int8buffer Bytes buffer
+     *
+     * @event close No more data can be read from the stream
+     *
      * @class gpf.interfaces.IReadableStream
      * @extends gpf.interfaces.Interface
      */
     gpf._defIntrf("IReadableStream", {
 
-        read: function (size, cbData, scope) {
+        /**
+         * Triggers the reading of data
+         *
+         * @param {Number} [size=undefined] size Number of bytes to read. Read
+         * as much as possible if not specified
+         */
+        read: function (size) {
+            gpf.interfaces.ignoreParameter(size);
+        }
 
+    });
+
+    /**
+     * The Writable stream interface is an abstraction for a destination that
+     * you are writing data to.
+     *
+     * @event data Some data is ready to be ready
+     * @eventParam {gpf.IReadOnlyArray} int8buffer Bytes buffer
+     *
+     * @event close No more data can be read from the stream
+     *
+     * @class gpf.interfaces.IReadableStream
+     * @extends gpf.interfaces.Interface
+     */
+    gpf._defIntrf("IWritableStream", {
+
+        /**
+         * Triggers the writing of data
+         *
+         * @param {IReadOnlyArray} buffer Buffer to write
+         */
+        write: function (buffer) {
+            gpf.interfaces.ignoreParameter(buffer);
         }
 
     });
