@@ -4,6 +4,7 @@
 /*#endif*/
 
     var
+        gpfI = gpf.interfaces,
         _escapes = {
 
             javascript: {
@@ -61,14 +62,14 @@
             /**
              * @implements gpf.interfaces.ITextStream:read
              */
-            read: function(count) {
+            read: function(count, eventsHandler) {
                 // FIFO
                 var
                     firstBuffer,
                     length,
                     result;
                 if (0 === this._buffer.length) {
-                    return null;
+                    gpf.events.fire(gpfI.IReadableStream.EVENT_END_OF_STREAM);
                 } else {
                     firstBuffer = this._buffer[0];
                     length = firstBuffer.length;
@@ -81,6 +82,9 @@
                         this._buffer.shift();
                         this._pos = 0;
                     }
+                    gpf.events.fire(gpfI.IReadableStream.EVENT_DATA, {
+                        buffer: result
+                    });
                     return result;
                 }
             },
