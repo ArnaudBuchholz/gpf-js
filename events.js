@@ -199,6 +199,7 @@
 
         /**
          * Broadcast the event
+         *
          * @param {String|gpf.events.Event} event name or object
          * @param {Object} [params={}] event parameters
          * @return {Object} this

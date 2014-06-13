@@ -28,12 +28,18 @@
          * @event data Some data is ready to be ready
          * @eventParam {gpf.IReadOnlyArray} int8buffer Bytes buffer
          *
-         * @event close No more data can be read from the stream
+         * @event eos No more data can be read from the stream
          *
          */
         read: function (size, eventsHandler) {
             gpf.interfaces.ignoreParameter(size);
             gpf.interfaces.ignoreParameter(eventsHandler);
+        },
+
+        static: {
+            EVENT_ERROR: "error",
+            EVENT_DATA: "data",
+            EVENT_END_OF_STREAM: "eos"
         }
 
     });
@@ -42,10 +48,7 @@
      * The Writable stream interface is an abstraction for a destination that
      * you are writing data to.
      *
-     * @event data Some data is ready to be ready
-     * @eventParam {gpf.IReadOnlyArray} int8buffer Bytes buffer
-     *
-     * @event close No more data can be read from the stream
+     * @event ready it is appropriate to begin writing more data to the stream
      *
      * @class gpf.interfaces.IReadableStream
      * @extends gpf.interfaces.Interface
@@ -63,6 +66,11 @@
         write: function (int8buffer, eventsHandler) {
             gpf.interfaces.ignoreParameter(int8buffer);
             gpf.interfaces.ignoreParameter(eventsHandler);
+        },
+
+        static: {
+            EVENT_ERROR: "error",
+            EVENT_READY: "ready"
         }
 
     });
@@ -91,37 +99,15 @@
     });
 
     /**
-     * Text stream
+     * Text stream: instead of an int8 buffer, the interface handles strings
      *
      * @class gpf.interfaces.ITextStream
-     * @extends gpf.interfaces.Interface
+     * @extends gpf.interfaces.IStream
+     *
+     * @event data Some data is ready to be ready
+     * @eventParam {String} buffer
      */
-    gpf._defIntrf("ITextStream", {
-
-        /**
-         * Read characters from the text stream
-         *
-         * @param {Number} [count=undefined] count Number of chars to read from,
-         * read as much as possible if not specified
-         * @return {String} null if the end of the stream is reached
-         */
-        read: function(count) {
-            gpf.interfaces.ignoreParameter(count);
-            return "";
-        },
-
-        /**
-         * Write characters to the text stream.
-         * Use null to signal the end of the stream.
-         *
-         * @arguments Convert all non-null arguments to string and write them
-         * to the string
-         *
-         * TODO create an attribute to signal the use of arguments
-         */
-        write: function() {
-        }
-
+    gpf._defIntrf("ITextStream", gpfI.IStream, {
     });
 
     /**
