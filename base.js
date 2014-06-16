@@ -492,13 +492,22 @@
          * @returns {*}
          */
         apply: function(scope, args) {
-            var finalScope = this._scope || scope;
-            if (!scope) {
-                finalScope = gpf.context();
-            }
+            var finalScope = gpf.Callback.resolveScope(this._scope || scope);
             return this._handler.apply(finalScope, args);
         }
     });
+
+    /**
+     * Resolve function scope
+     *
+     * @static
+     */
+    gpf.Callback.resolveScope = function (scope) {
+        if (!scope) {
+            scope = gpf.context();
+        }
+        return scope;
+    };
 
 /*#ifndef(UMD)*/
 }()); /* End of privacy scope */
