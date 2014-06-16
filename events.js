@@ -5,13 +5,15 @@
 
     var
         /**
-         * Event broadcaster
+         * Event Target
+         * keep track of listeners and exposes a protected method to dispatch
+         * events when fired
          *
          * @param {String[]} [events=undefined] events
          * @constructor
-         * @class gpf.events.Broadcaster
+         * @class gpf.events.Target
          */
-        _Broadcaster = function (events) {
+        Target = function (events) {
             var idx, len, eventName;
             this._listeners = {};
             if (undefined !== events) {
@@ -49,6 +51,17 @@
         },
 
         /**
+         * Event broadcaster
+         *
+         * @param {String[]} [events=undefined] events
+         * @constructor
+         * @class gpf.events.Broadcaster
+         */
+        Broadcaster = function () {
+            Target.apply(this, arguments);
+        },
+
+        /**
          * Event
          *
          * @param {String} type
@@ -58,7 +71,7 @@
          * @constructor
          * @class gpf.events.Event
          */
-        _Event = function (type, params, cancelable, scope) {
+        Event = function (type, params, cancelable, scope) {
             this._type = type;
             if (undefined !== params) {
                 this._params = params;
@@ -73,12 +86,7 @@
             }
         };
 
-    /**
-     * Event broadcaster, keep track of listeners and dispatch events when fired
-     *
-     * @class gpf.events.Broadcaster
-     */
-    gpf.extend(_Broadcaster.prototype, {
+    gpf.extend(Target.prototype, {
 
         /**
          * @type {Object} Map of event name to the list of callbacks
@@ -104,10 +112,10 @@
          */
         _onEVENT: function (idx) {
             var
-                closures = _Broadcaster.prototype._onEVENT.closures,
+                closures = Broadcaster.prototype._onEVENT.closures,
                 jdx;
             if (!closures) {
-                closures = _Broadcaster.prototype._onEVENT.closures = [];
+                closures = Broadcaster.prototype._onEVENT.closures = [];
             }
             gpf.ASSERT(closures.length >= idx, "calls must be sequential");
             while (closures.length <= idx) {
@@ -118,7 +126,7 @@
         },
 
         /**
-         * Add an event listener to the channel
+         * Add an event listener to the target
          *
          * @param {String} event name
          * @param {Function|gpf.Callback} callback
@@ -127,7 +135,7 @@
          * specified, a new gpf.Callback object is created.
          * @param {Boolean} [useCapture=false] useCapture push it on top of the
          * triggering queue
-         * @return {gpf.events.Broadcaster} this
+         * @return {gpf.events.Target}
          * @chainable
          */
         addEventListener: function (event, callback, scope, useCapture) {
@@ -164,12 +172,12 @@
         },
 
         /**
-         * Remove an event listener to the channel
+         * Remove an event listener to the target
          *
          * @param {String} event name
          * @param {Function|gpf.Callback} callback
          * @param {Object} [scope=undefined] scope scope of callback
-         * @return {gpf.events.Broadcaster}
+         * @return {gpf.events.Target}
          * @chainable
          */
         removeEventListener: function (event, callback, scope) {
@@ -202,15 +210,16 @@
          *
          * @param {String|gpf.events.Event} event name or object
          * @param {Object} [params={}] event parameters
-         * @return {Object} this
+         * @return {gpf.events.Target}
+         * @protected
          * @chainable
          */
-        broadcastEvent: function (event, params) {
+        _broadcastEvent: function (event, params) {
             var
                 idx,
                 type,
                 listeners;
-            if (event instanceof _Event) {
+            if (event instanceof Event) {
                 type = event.type();
             } else {
                 type = event;
@@ -219,7 +228,7 @@
             if (undefined === listeners) {
                 return this; // Nothing to do
             }
-            if (event instanceof _Event) {
+            if (event instanceof Event) {
                 // 'Advanced' version
                 for (idx = 0; idx < listeners.length; ++idx) {
                     listeners[idx].apply(event._scope, [event]);
@@ -238,12 +247,24 @@
 
     });
 
-    /**
-     * Event object
-     *
-     * @class gpf.events.Event
-     */
-    gpf.extend(_Event.prototype, {
+    Broadcaster.prototype = new Target();
+    gpf.extend(Broadcaster.prototype, {
+
+        /**
+         * Broadcast the event
+         *
+         * @param {String|gpf.events.Event} event name or object
+         * @param {Object} [params={}] event parameters
+         * @return {gpf.events.Target}
+         * @chainable
+         */
+        broadcastEvent: function (event, params) {
+            return this._broadcastEvent.apply(this, arguments);
+        }
+
+    });
+
+    gpf.extend(Event.prototype, {
 
         /**
          * Event type
@@ -359,8 +380,9 @@
     });
 
     gpf.events = {
-        Broadcaster: _Broadcaster,
-        Event: _Event,
+        Target: Target,
+        Broadcaster: Broadcaster,
+        Event: Event,
 
         /**
          * If necessary, build an event object and use the provided media
@@ -376,7 +398,7 @@
          */
         fire: function (event, params, eventsHandler) {
             var scope;
-            if (event instanceof _Event) {
+            if (event instanceof Event) {
                 // Already an event, no params: shift parameters
                 eventsHandler = params;
             } else {
@@ -386,7 +408,7 @@
             if (!scope) {
                 scope = gpf.context();
             }
-            if (eventsHandler instanceof _Broadcaster) {
+            if (eventsHandler instanceof Broadcaster) {
                 eventsHandler.broadcastEvent(event);
             } else {
                 // Compatible with Function & gpf.Callback
