@@ -38,10 +38,11 @@
          * Implements ITextStream on top of a stream
          *
          * @class StringStream
+         * @extend gpf.events.Target
          * @implements gpf.interfaces.ITextStream
          * @private
          */
-        StringStream = gpf.define("StringStream", {
+        StringStream = gpf.define("StringStream", gpf.events.Target, {
 
             "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.ITextStream)],
 
@@ -62,14 +63,20 @@
             /**
              * @implements gpf.interfaces.ITextStream:read
              */
-            read: function(count, eventsHandler) {
+            read: function(count) {
                 // FIFO
                 var
                     firstBuffer,
                     length,
                     result;
                 if (0 === this._buffer.length) {
-                    gpf.events.fire(gpfI.IReadableStream.EVENT_END_OF_STREAM);
+                    gpf.defer(gpf.events.Target._broadcastEvent, 0, this,
+                        [gpfI.IReadableStream.EVENT_END_OF_STREAM]);
+                } else if (undefined === count) {
+                    gpf.defer(gpf.events.Target._broadcastEvent, 0, this, [
+                        gpfI.IReadableStream.EVENT_DATA,
+                        this.consolidateString()
+                    ]);
                 } else {
                     firstBuffer = this._buffer[0];
                     length = firstBuffer.length;
@@ -82,10 +89,9 @@
                         this._buffer.shift();
                         this._pos = 0;
                     }
-                    gpf.events.fire(gpfI.IReadableStream.EVENT_DATA, {
-                        buffer: result
-                    });
-                    return result;
+                    gpf.defer(gpf.events.Target._broadcastEvent, 0, this, [
+                        gpfI.IReadableStream.EVENT_DATA, result
+                    ]);
                 }
             },
 
