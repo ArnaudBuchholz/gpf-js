@@ -12,18 +12,15 @@
      * stream.
      *
      * @class gpf.interfaces.IReadableStream
-     * @extends gpf.interfaces.Interface
+     * @extends gpf.interfaces.IEventTarget
      */
-    gpf._defIntrf("IReadableStream", {
+    gpf._defIntrf("IReadableStream", gpfI.IEventTarget, {
 
         /**
          * Triggers the reading of data
          *
          * @param {Number} [size=undefined] size Number of bytes to read. Read
          * as much as possible if not specified
-         * @param {gpf.events.Broadcaster/gpf.Callback/Function} eventsHandler
-         * @return {gpf.IReadableStream}
-         * @chainable
          *
          * @event data Some data is ready to be ready
          * @eventParam {gpf.IReadOnlyArray} int8buffer Bytes buffer
@@ -31,9 +28,8 @@
          * @event eos No more data can be read from the stream
          *
          */
-        read: function (size, eventsHandler) {
+        read: function (size) {
             gpf.interfaces.ignoreParameter(size);
-            gpf.interfaces.ignoreParameter(eventsHandler);
         },
 
         static: {
@@ -51,21 +47,17 @@
      * @event ready it is appropriate to begin writing more data to the stream
      *
      * @class gpf.interfaces.IReadableStream
-     * @extends gpf.interfaces.Interface
+     * @extends gpf.interfaces.IEventTarget
      */
-    gpf._defIntrf("IWritableStream", {
+    gpf._defIntrf("IWritableStream", gpfI.IEventTarget, {
 
         /**
          * Triggers the writing of data
          *
          * @param {IReadOnlyArray} int8buffer Buffer to write
-         * @param {gpf.events.Broadcaster/gpf.Callback/Function} eventsHandler
-         * @return {gpf.IWritableStream}
-         * @chainable
          */
-        write: function (int8buffer, eventsHandler) {
+        write: function (int8buffer) {
             gpf.interfaces.ignoreParameter(int8buffer);
-            gpf.interfaces.ignoreParameter(eventsHandler);
         },
 
         static: {
@@ -78,22 +70,20 @@
     /**
      * The stream combines both IReadableStream and IWritableStream
      */
-    gpf._defIntrf("IStream", {
+    gpf._defIntrf("IStream", gpfI.IEventTarget, {
 
         /**
          * @inheritDoc gpf.interfaces.IReadableStream:read
          */
-        read: function (size, eventsHandler) {
+        read: function (size) {
             gpf.interfaces.ignoreParameter(size);
-            gpf.interfaces.ignoreParameter(eventsHandler);
         },
 
         /**
          * @inheritDoc gpf.interfaces.IWritableStream:write
          */
-        write: function (int8buffer, eventsHandler) {
+        write: function (int8buffer) {
             gpf.interfaces.ignoreParameter(int8buffer);
-            gpf.interfaces.ignoreParameter(eventsHandler);
         }
 
     });
