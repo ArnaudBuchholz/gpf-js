@@ -57,7 +57,7 @@
          * @constructor
          * @class gpf.events.Broadcaster
          */
-        Broadcaster = function () {
+        Broadcaster = function (/*events*/) {
             Target.apply(this, arguments);
         },
 
@@ -258,7 +258,7 @@
          * @return {gpf.events.Target}
          * @chainable
          */
-        broadcastEvent: function (event, params) {
+        broadcastEvent: function (/*event, params*/) {
             return this._broadcastEvent.apply(this, arguments);
         }
 
@@ -380,6 +380,7 @@
     });
 
     gpf.events = {
+        _broadcast: Target.prototype._broadcastEvent,
         Target: Target,
         Broadcaster: Broadcaster,
         Event: Event,
