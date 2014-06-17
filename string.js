@@ -70,10 +70,10 @@
                     length,
                     result;
                 if (0 === this._buffer.length) {
-                    gpf.defer(gpf.events.Target._broadcastEvent, 0, this,
+                    gpf.defer(gpf.events._broadcast, 0, this,
                         [gpfI.IReadableStream.EVENT_END_OF_STREAM]);
                 } else if (undefined === count) {
-                    gpf.defer(gpf.events.Target._broadcastEvent, 0, this, [
+                    gpf.defer(gpf.events._broadcast, 0, this, [
                         gpfI.IReadableStream.EVENT_DATA,
                         this.consolidateString()
                     ]);
@@ -89,7 +89,7 @@
                         this._buffer.shift();
                         this._pos = 0;
                     }
-                    gpf.defer(gpf.events.Target._broadcastEvent, 0, this, [
+                    gpf.defer(gpf.events._broadcast, 0, this, [
                         gpfI.IReadableStream.EVENT_DATA, result
                     ]);
                 }
@@ -98,15 +98,13 @@
             /**
              * @implements gpf.interfaces.ITextStream:write
              */
-            write: gpf.interfaces.ITextStream._write,
-
-            write_: function (buffer) {
-                if (null === buffer) {
-                    this._buffer = [];
-                    this._pos = 0;
-                } else {
+            write: function (buffer) {
+                if (buffer && buffer.length) {
                     this._buffer.push(buffer);
                 }
+                gpf.defer(gpf.events._broadcast, 0, this, [
+                    gpfI.IWritableStream.EVENT_READY
+                ]);
             },
 
             //endregion
