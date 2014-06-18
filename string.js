@@ -63,20 +63,19 @@
             /**
              * @implements gpf.interfaces.ITextStream:read
              */
-            read: function(count) {
+            read: function(count, eventsHandler) {
                 // FIFO
                 var
                     firstBuffer,
                     length,
                     result;
                 if (0 === this._buffer.length) {
-                    gpf.defer(gpf.events._broadcast, 0, this,
-                        [gpfI.IReadableStream.EVENT_END_OF_STREAM]);
+                    gpf.events.fire(gpfI.IReadableStream.EVENT_END_OF_STREAM,
+                        eventsHandler);
                 } else if (undefined === count) {
-                    gpf.defer(gpf.events._broadcast, 0, this, [
-                        gpfI.IReadableStream.EVENT_DATA,
-                        this.consolidateString()
-                    ]);
+                    gpf.events.fire(gpfI.IReadableStream.EVENT_DATA, {
+                            buffer: this.consolidateString()
+                        }, eventsHandler);
                 } else {
                     firstBuffer = this._buffer[0];
                     length = firstBuffer.length;
@@ -89,22 +88,21 @@
                         this._buffer.shift();
                         this._pos = 0;
                     }
-                    gpf.defer(gpf.events._broadcast, 0, this, [
-                        gpfI.IReadableStream.EVENT_DATA, result
-                    ]);
+                    gpf.events.fire(gpfI.IReadableStream.EVENT_DATA, {
+                        buffer: this.consolidateString()
+                    }, result);
                 }
             },
 
             /**
              * @implements gpf.interfaces.ITextStream:write
              */
-            write: function (buffer) {
+            write: function (buffer, eventsHandler) {
                 if (buffer && buffer.length) {
                     this._buffer.push(buffer);
                 }
-                gpf.defer(gpf.events._broadcast, 0, this, [
-                    gpfI.IWritableStream.EVENT_READY
-                ]);
+                gpf.events.fire(gpfI.IReadableStream.EVENT_READY,
+                    eventsHandler);
             },
 
             //endregion
