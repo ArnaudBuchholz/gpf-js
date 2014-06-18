@@ -51,26 +51,28 @@
             + "Edward Neumeier</name><name>Robert A. Heinlein</name>"
             + "</script-writers></movie>",
 
-        _createStarshipTroopersXML = function (contentHandler) {
-            contentHandler.startDocument();
-            contentHandler.startElement("", "movie", "movie", {
-                "imdb-title": "tt0120201",
-                rating: "6.9",
-                title: "Starship Troopers"
-            });
-            contentHandler.startElement("", "release");
-            contentHandler.characters("1997-07-11 00:00:00");
-            contentHandler.endElement();
-            contentHandler.startElement("", "script-writers");
-            contentHandler.startElement("", "name");
-            contentHandler.characters("Edward Neumeier");
-            contentHandler.endElement();
-            contentHandler.startElement("", "name");
-            contentHandler.characters("Robert A. Heinlein");
-            contentHandler.endElement();
-            contentHandler.endElement();
-            contentHandler.endElement();
-            contentHandler.endDocument();
+        _createStarshipTroopersXML = function (contentHandler, callback) {
+            gpf.chain(contentHandler)
+                .startDocument()
+                .startElement("", "movie", "movie", {
+                    "imdb-title": "tt0120201",
+                    rating: "6.9",
+                    title: "Starship Troopers"
+                })
+                .startElement("", "release")
+                .characters("1997-07-11 00:00:00")
+                .endElement()
+                .startElement("", "script-writers")
+                .startElement("", "name")
+                .characters("Edward Neumeier")
+                .endElement()
+                .startElement("", "name")
+                .characters("Robert A. Heinlein")
+                .endElement()
+                .endElement()
+                .endElement()
+                .endDocument()
+                .$finally(callback);
         }
     ;
 
@@ -127,9 +129,12 @@
                 var
                     stream = gpf.stringToStream(),
                     contentHandler = new gpf.xml.Writer(stream);
-                _createStarshipTroopersXML(contentHandler);
-                test.equal(gpf.stringFromStream(stream), starshipTroopersXML,
-                    "XML is well formed");
+                test.async();
+                _createStarshipTroopersXML(contentHandler, function() {
+                    test.equal(gpf.stringFromStream(stream),
+                        starshipTroopersXML, "XML is well formed");
+                    test.done();
+                });
             }
         ],
 
@@ -140,9 +145,12 @@
                 var
                     stream = gpf.stringToStream(),
                     contentHandler = new gpf.xml.Writer(stream);
-                starshipTroopers.toXml(contentHandler);
-                test.equal(gpf.stringFromStream(stream), starshipTroopersXML,
-                    "XML is well formed");
+                test.async();
+                starshipTroopers.toXml(contentHandler, function () {
+                    test.equal(gpf.stringFromStream(stream),
+                        starshipTroopersXML, "XML is well formed");
+                    test.done();
+                });
             }
 
         ],
@@ -157,8 +165,11 @@
                 movie = new Movie();
                 contentHandler = gpf.interfaces.query(movie,
                     gpf.interfaces.IXmlContentHandler);
-                _createStarshipTroopersXML(contentHandler);
-                test.like(movie, starshipTroopers);
+                test.async();
+                _createStarshipTroopersXML(contentHandler, function() {
+                    test.like(movie, starshipTroopers);
+                    test.done();
+                });
             }
 
         ],
