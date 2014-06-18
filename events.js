@@ -3,6 +3,18 @@
     "use strict";
 /*#endif*/
 
+/*
+ * Choice between eventHandler last parameter and gpf.events.Target interface
+ * - Both must be used when asynchronous action takes place and the caller
+ *   must wait for the call to finish
+ * - The callback is always receiving a gpf.events.Event
+ * - If the event might be thrown several times or several listeners might need
+ *   it, use gpf.events.Target
+ * - Otherwise, use the eventHandler last parameter
+ */
+
+
+
     var
         /**
          * Event Target
@@ -380,10 +392,18 @@
     });
 
     gpf.events = {
-        _broadcast: Target.prototype._broadcastEvent,
         Target: Target,
         Broadcaster: Broadcaster,
         Event: Event,
+
+        /**
+         * Event Handler,
+         * - gpf.events.Broadcaster: broadcastEvent(event)
+         * - gpf.Callback|Function: apply(scope, [event])
+         * - Object: consider a map between event type and callback function
+         * @type {gpf.events.Broadcaster|gpf.Callback|Function|Object}
+         * @alias {gpf.events.Handler}
+         */
 
         /**
          * If necessary, build an event object and use the provided media
@@ -394,26 +414,31 @@
          * @param {String/gpf.events.Event} event string or event object to fire
          * @param {Object} [params={}] params parameter of the event
          *                 (when type is a string)
-         * @param {gpf.events.Broadcaster/gpf.Callback/Function} eventsHandler
+         * @param {gpf.events.Handler} eventsHandler
          * @return {gpf.events.Event} the event object
          */
         fire: function (event, params, eventsHandler) {
             var scope;
-            if (event instanceof Event) {
-                // Already an event, no params: shift parameters
+            if (undefined === eventsHandler) {
+                // no last param: shift parameters
                 eventsHandler = params;
-            } else {
+                params = undefined;
+            }
+            if (!(event instanceof Event)) {
                 event = new gpf.events.Event(event, params, true, this);
             }
-            scope = event._scope;
-            if (!scope) {
-                scope = gpf.context();
-            }
+            scope = gpf.Callback.resolveScope(event._scope);
             if (eventsHandler instanceof Broadcaster) {
                 eventsHandler.broadcastEvent(event);
-            } else {
+            } else if ("function" === typeof eventsHandler
+                       || eventsHandler instanceof gpf.Callback) {
                 // Compatible with Function & gpf.Callback
                 eventsHandler.apply(scope, [event]);
+            } else {
+                eventsHandler = eventsHandler[event.type()];
+                if (undefined !== typeof eventsHandler) {
+                    eventsHandler.apply(scope, [event]);
+                }
             }
             return event;
         }
