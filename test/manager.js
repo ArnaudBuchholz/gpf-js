@@ -183,6 +183,10 @@
 
     gpf.extend(TestReport.prototype, {
 
+        _items: [],
+        _errors: 0,
+        _async: false,
+
         output: function (eventsHandler) {
             var idx;
             for (idx = 0; idx < this._items.length; ++idx) {
@@ -203,6 +207,14 @@
                 }
             }
             return result;
+        },
+
+        async: function () {
+            this._async = true;
+        },
+
+        done: function () {
+            // Should end the test
         }
 
     });
@@ -260,9 +272,10 @@
         } else if ("nodejs" === gpf.host()) {
             return nodejsInclude(src);
         } else { // browser
-            gpf.http.include(src)
-                .onLoad(loadTestSources)
-                .onError(includeFailedAsync);
+            gpf.http.include(src, {
+                load: loadTestSources,
+                error: includeFailedAsync
+            });
             return true; // Asynchronous
         }
     }

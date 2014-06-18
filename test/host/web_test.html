@@ -74,12 +74,16 @@ function waitForGPF() {
 
     } else if (!gpf.sources) {
 
-        gpf.http.include("../../sources.js").onLoad(waitForGPF);
+        gpf.http.include("../../sources.js", {
+            load: waitForGPF
+        });
 
     } else if (!gpf.runTests) {
 
         console.log( "GPF loaded." );
-        gpf.http.include("../manager.js").onLoad(waitForGPF);
+        gpf.http.include("../manager.js", {
+            load: waitForGPF
+        });
 
     } else {
 

@@ -243,8 +243,9 @@
                         if ("undefined" !== typeof gpfSourcesPath) {
                             src = gpfSourcesPath + src;
                         }
-                        gpf.http.include(src)
-                            .onLoad(loadSources);
+                        gpf.http.include(src, {
+                            load: loadSources
+                        });
                         ++idx;
                     } else {
                         _finishLoading();
