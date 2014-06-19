@@ -4,9 +4,9 @@
     var
         _sources = [
             "base",                 // Basic functions
-            "async",                // Asynchronous handling           gpf.defer
             "events",               // Event management               gpf.events
             "http",                 // HTTP specific functions          gpf.http
+            "async",                // Asynchronous handling           gpf.defer
             "bin",                  // Binary tools                      gpf.bin
             "json",                 // JSON compatibility layer         gpf.json
             "class",                // Class

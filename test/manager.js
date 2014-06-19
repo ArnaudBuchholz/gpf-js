@@ -186,6 +186,7 @@
         _items: [],
         _errors: 0,
         _sync: true,
+        _done: false,
         _callback: null,
         _lastParams: null,
 
@@ -213,6 +214,14 @@
 
         wait: function () {
             this._sync = false;
+            gpf.defer(this._waitedTooLong, TestReport.WAIT_TIMEOUT, this);
+        },
+
+        _waitedTooLong: function () {
+            if (!this._done) {
+                this.assert(false, "Waited too long");
+                this.done();
+            }
         },
 
         synchronous: function (callback, lastParams) {
@@ -224,12 +233,16 @@
         },
 
         done: function () {
-            if (this._callback) {
-                this._callback.apply(null, [this].concat(this._lastParams));
+            if (!this._done) {
+                this._done = true;
+                if (this._callback) {
+                    this._callback.apply(null, [this].concat(this._lastParams));
+                }
             }
         }
 
     });
+    TestReport.WAIT_TIMEOUT = 100;
 
     function includeFailed(e) {
         var source = _sources[_sourcesIdx - 1];
@@ -293,10 +306,17 @@
     }
 
     function asyncTestDone(report, callback, context) {
+        var args;
         if (0 === report._items.length) {
             report.assert(false, "Empty report");
         }
-        callback.apply(null, [report, context]);
+        if (callback) {
+            args = [report];
+            if (context) {
+                args.push(context);
+            }
+            callback.apply(null, args);
+        }
     }
 
     function executeTest(name, callback, context) {
@@ -455,7 +475,9 @@
          * TODO: the idea would be to rewrite the source and debug it
          * to see where it fails
          */
-        executeTest(name).output(eventsHandler);
+        executeTest(name, function (report){
+            report.output(eventsHandler);
+        });
     };
 
 }()); /* End of privacy scope */
