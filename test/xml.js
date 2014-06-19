@@ -129,7 +129,7 @@
                 var
                     stream = gpf.stringToStream(),
                     contentHandler = new gpf.xml.Writer(stream);
-                test.async();
+                test.wait();
                 _createStarshipTroopersXML(contentHandler, function() {
                     test.equal(gpf.stringFromStream(stream),
                         starshipTroopersXML, "XML is well formed");
@@ -145,7 +145,7 @@
                 var
                     stream = gpf.stringToStream(),
                     contentHandler = new gpf.xml.Writer(stream);
-                test.async();
+                test.wait();
                 starshipTroopers.toXml(contentHandler, function () {
                     test.equal(gpf.stringFromStream(stream),
                         starshipTroopersXML, "XML is well formed");
@@ -165,7 +165,7 @@
                 movie = new Movie();
                 contentHandler = gpf.interfaces.query(movie,
                     gpf.interfaces.IXmlContentHandler);
-                test.async();
+                test.wait();
                 _createStarshipTroopersXML(contentHandler, function() {
                     test.like(movie, starshipTroopers);
                     test.done();

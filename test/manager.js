@@ -185,7 +185,9 @@
 
         _items: [],
         _errors: 0,
-        _async: false,
+        _sync: true,
+        _callback: null,
+        _lastParams: null,
 
         output: function (eventsHandler) {
             var idx;
@@ -209,12 +211,22 @@
             return result;
         },
 
-        async: function () {
-            this._async = true;
+        wait: function () {
+            this._sync = false;
+        },
+
+        synchronous: function (callback, lastParams) {
+            if (!this._sync) {
+                this._callback = callback;
+                this._lastParams = lastParams;
+            }
+            return this._sync;
         },
 
         done: function () {
-            // Should end the test
+            if (this._callback) {
+                this._callback.apply(null, [this].concat(this._lastParams));
+            }
         }
 
     });
@@ -280,7 +292,14 @@
         }
     }
 
-    function executeTest(name) {
+    function asyncTestDone(report, callback, context) {
+        if (0 === report._items.length) {
+            report.assert(false, "Empty report");
+        }
+        callback.apply(null, [report, context]);
+    }
+
+    function executeTest(name, callback, context) {
         var
             testFunction,
             report = new TestReport();
@@ -294,45 +313,57 @@
         } catch (e) {
             report.exception(e, "Unexpected exception");
         }
-        if (0 === report._items.length) {
-            report.assert(false, "Empty report");
+        if (report.synchronous(asyncTestDone, [callback, context])) {
+            asyncTestDone(report, callback, context);
         }
-        return report;
+    }
+
+    function executeNextTest(context) {
+        var name;
+        if (context.namesIdx < _names.length) {
+            name = _names[context.namesIdx];
+            ++context.total;
+            executeTest(name, executeAfterTest, context);
+        } else {
+            info("Number of tested conditions: " + context.testCount,
+                _eventsHandler);
+            if (0 === context.errors) {
+                info("All tests succeeded (" + context.total + ")",
+                    _eventsHandler);
+            } else {
+                error("Some tests failed (" + context.errors + "/"
+                    + context.total + ")", _eventsHandler);
+            }
+        }
+    }
+
+    function executeAfterTest(report, context) {
+        var name = _names[context.namesIdx];
+        context.testCount += report.getTestCount();
+        if (0 === report._errors) {
+            gpf.events.fire("success", {
+                name: name
+            }, _eventsHandler);
+        } else {
+            gpf.events.fire("failure", {
+                name: name
+            }, _eventsHandler);
+            ++context.errors;
+        }
+        ++context.namesIdx;
+        executeNextTest(context);
     }
 
     function executeTests() {
         var
-            namesIdx = 0,
-            name,
-            report,
-            errors = 0,
-            total = 0,
-            testCount = 0;
+            context = {
+                namesIdx: 0,
+                errors: 0,
+                total: 0,
+                testCount: 0
+            };
         info("Test count: " + _names.length);
-        while (namesIdx < _names.length) {
-            name = _names[namesIdx];
-            ++total;
-            report = executeTest(name);
-            testCount += report.getTestCount();
-            if (0 === report._errors) {
-                gpf.events.fire("success", {
-                    name: name
-                }, _eventsHandler);
-            } else {
-                gpf.events.fire("failure", {
-                    name: name
-                }, _eventsHandler);
-                ++errors;
-            }
-            ++namesIdx;
-        }
-        info("Number of tested conditions: " + testCount, _eventsHandler);
-        if (0 === errors) {
-            info("All tests succeeded (" + total + ")", _eventsHandler);
-        } else {
-            error("Some tests failed (" + errors + "/" + total + ")",
-                _eventsHandler);
-        }
+        executeNextTest(context);
     }
 
     function loadTestSources() {
