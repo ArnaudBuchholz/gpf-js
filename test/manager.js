@@ -360,6 +360,7 @@
     function executeAfterTest(report, context) {
         var name = _names[context.namesIdx];
         context.testCount += report.getTestCount();
+        ++context.namesIdx;
         if (0 === report._errors) {
             gpf.events.fire("success", {
                 name: name
@@ -370,8 +371,12 @@
             }, _eventsHandler);
             ++context.errors;
         }
-        ++context.namesIdx;
-        executeNextTest(context);
+        // Success or failure may lead to the inner call of gpf.testReport
+        if (gpf.testReport._inProgress) {
+            gpf.testReport._context = context;
+        } else {
+            executeNextTest(context);
+        }
     }
 
     function executeTests() {
@@ -471,13 +476,33 @@
      * @event log The manager outputs a log message
      */
     gpf.testReport = function (name, eventsHandler) {
-        /*
-         * TODO: the idea would be to rewrite the source and debug it
-         * to see where it fails
-         */
+        var context;
+        gpf.testReport._inProgress = true;
         executeTest(name, function (report){
             report.output(eventsHandler);
+            gpf.testReport._inProgress = false;
+            if (gpf.testReport._context) {
+                context = gpf.testReport._context;
+                gpf.testReport._context = null;
+                executeNextTest(context);
+            }
         });
     };
+
+    /**
+     * Used to know if a call is in progress
+     *
+     * @type {boolean}
+     * @private
+     */
+    gpf.testReport._inProgress = false;
+
+    /**
+     * Call executeNext(_context) if set on completion
+     *
+     * @type {Object}
+     * @private
+     */
+    gpf.testReport._context = null;
 
 }()); /* End of privacy scope */
