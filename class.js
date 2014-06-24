@@ -61,26 +61,32 @@
  *
  */
 
-    var
-        _CLASS_PUBLIC       = 0,
-        _CLASS_PROTECTED    = 1,
-        _CLASS_PRIVATE      = 2,
-        _CLASS_STATIC       = 3,
-
-        _classInitAllowed   = true;
-
     /**
-     * An helper to store class information
+     * An helper to create class and store its information
      *
-     * @class ClassInfo
+     * @class ClassDefinition
      * @constructor
      * @private
      */
-    function ClassInfo() {
+    function ClassDefinition (name, base, definition) {
         this._Subs = [];
+        if ("function" === typeof name) {
+            // Should try to extract class info from there
+            this._constructor = name;
+        } else {
+            this._name = name;
+            this._Base = base;
+        }
     }
 
-    gpf.extend(ClassInfo.prototype, {
+    /* Statics */
+    ClassDefinition._PUBLIC      = 0;
+    ClassDefinition._PROTECTED   = 1;
+    ClassDefinition._PRIVATE     = 2;
+    ClassDefinition._STATIC      = 3;
+    ClassDefinition._initAllowed = true;
+
+    gpf.extend(ClassDefinition.prototype, {
 
         /**
          * Class name
@@ -161,7 +167,9 @@
          * @type {Function}
          * @private
          */
-        _constructor: function () {}
+        _factory: function () {},
+
+        Factory
     });
 
     /**
@@ -170,9 +178,9 @@
      * @param {Function} constructor Class constructor
      * @returns {ClassInfo}
      */
-    gpf.classInfo = function (constructor) {
+    gpf.classDef = function (constructor) {
         if (undefined === constructor._gpf) {
-            constructor._gpf = new ClassInfo();
+            constructor._gpf = new ClassDefinition(constructor);
         }
         return constructor._gpf;
     };
@@ -186,8 +194,8 @@
      * @private
      */
     gpf._classInit = function (constructor, args) {
-        if (_classInitAllowed) {
-            gpf.classInfo(constructor)._constructor.apply(this, args);
+        if (ClassDefinition._initAllowed) {
+            gpf.classDef(constructor)._constructor.apply(this, args);
         }
     };
 
@@ -210,12 +218,12 @@
             baseMember,
             baseType,
             baseName;
+        newType = typeof defMember;
         if (_CLASS_STATIC === visibility) {
             // No inheritance can be applied here
             newPrototype.constructor[member] = defMember;
             return;
         }
-        newType = typeof defMember;
         baseMember = basePrototype[member];
         baseType = typeof baseMember;
         if ("undefined" !== baseType && newType !== baseType) {
