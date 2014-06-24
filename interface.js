@@ -99,6 +99,49 @@
 
     gpf._defIntrf("Interface");
 
+    //region IEventTarget
+
+    gpf._defIntrf("IEventTarget", {
+
+        /**
+         * Add an event listener to the target
+         *
+         * @param {String} event name
+         * @param {Function|gpf.Callback} callback
+         * @param {Object|Boolean} scope scope of callback or useCapture
+         * parameter. NOTE: if a gpf.Callback object is used and a scope
+         * specified, a new gpf.Callback object is created.
+         * @param {Boolean} [useCapture=false] useCapture push it on top of the
+         * triggering queue
+         * @return {gpf.interfaces.IEventTarget}
+         * @chainable
+         */
+        addEventListener: function (event, callback, scope, useCapture) {
+            gpf.interfaces.ignoreParameter(event);
+            gpf.interfaces.ignoreParameter(callback);
+            gpf.interfaces.ignoreParameter(scope);
+            gpf.interfaces.ignoreParameter(useCapture);
+        },
+
+        /**
+         * Remove an event listener to the target
+         *
+         * @param {String} event name
+         * @param {Function|gpf.Callback} callback
+         * @param {Object} [scope=undefined] scope scope of callback
+         * @return {gpf.interfaces.IEventTarget}
+         * @chainable
+         */
+        removeEventListener: function (event, callback, scope) {
+            gpf.interfaces.ignoreParameter(event);
+            gpf.interfaces.ignoreParameter(callback);
+            gpf.interfaces.ignoreParameter(scope);
+        }
+
+    });
+
+    //endregion
+
     //region IUnknown
 
     /**

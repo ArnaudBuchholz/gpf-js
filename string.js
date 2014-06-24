@@ -4,6 +4,7 @@
 /*#endif*/
 
     var
+        gpfI = gpf.interfaces,
         _escapes = {
 
             javascript: {
@@ -37,10 +38,11 @@
          * Implements ITextStream on top of a stream
          *
          * @class StringStream
+         * @extend gpf.events.Target
          * @implements gpf.interfaces.ITextStream
          * @private
          */
-        StringStream = gpf.define("StringStream", {
+        StringStream = gpf.define("StringStream", gpf.events.Target, {
 
             "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.ITextStream)],
 
@@ -61,14 +63,19 @@
             /**
              * @implements gpf.interfaces.ITextStream:read
              */
-            read: function(count) {
+            read: function(count, eventsHandler) {
                 // FIFO
                 var
                     firstBuffer,
                     length,
                     result;
                 if (0 === this._buffer.length) {
-                    return null;
+                    gpf.events.fire(gpfI.IReadableStream.EVENT_END_OF_STREAM,
+                        eventsHandler);
+                } else if (undefined === count) {
+                    gpf.events.fire(gpfI.IReadableStream.EVENT_DATA, {
+                            buffer: this.consolidateString()
+                        }, eventsHandler);
                 } else {
                     firstBuffer = this._buffer[0];
                     length = firstBuffer.length;
@@ -81,22 +88,21 @@
                         this._buffer.shift();
                         this._pos = 0;
                     }
-                    return result;
+                    gpf.events.fire(gpfI.IReadableStream.EVENT_DATA, {
+                        buffer: this.consolidateString()
+                    }, result);
                 }
             },
 
             /**
              * @implements gpf.interfaces.ITextStream:write
              */
-            write: gpf.interfaces.ITextStream._write,
-
-            write_: function (buffer) {
-                if (null === buffer) {
-                    this._buffer = [];
-                    this._pos = 0;
-                } else {
+            write: function (buffer, eventsHandler) {
+                if (buffer && buffer.length) {
                     this._buffer.push(buffer);
                 }
+                gpf.events.fire(gpfI.IReadableStream.EVENT_READY,
+                    eventsHandler);
             },
 
             //endregion

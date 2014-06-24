@@ -67,6 +67,15 @@
     });
 
     /**
+     * Used to flag a method which owns a last parameter being an event handler
+     *
+     * @class gpf.attributes.ClassEventMethodAttribute
+     * @extends gpf.attributes.ClassAttribute
+     * @alias gpf.$ClassEventMethod
+     */
+    gpf._defAttr("$ClassEventMethod", _base, {});
+
+    /**
      * Defines a class extension (internal)
      *
      * @param {String} ofClass

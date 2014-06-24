@@ -37,9 +37,13 @@
          * itself into XML
          *
          * @param {gpf.interfaces.IXmlContentHandler} out XML Content handler
+         * @param {gpf.events.Handler} eventsHandler
+         *
+         * @event ready
          */
-        toXml: function (out) {
+        toXml: function (out, eventsHandler) {
             gpfI.ignoreParameter(out);
+            gpfI.ignoreParameter(eventsHandler);
         }
 
     });
@@ -59,25 +63,43 @@
          * Receive notification of character data
          *
          * @param {String} buffer characters
+         * @param {gpf.events.Handler} eventsHandler
+         *
+         * @event ready
          */
-        characters: function (buffer) {
+        characters: function (buffer, /*gpf.events.Handler*/ eventsHandler) {
             gpfI.ignoreParameter(buffer);
+            gpfI.ignoreParameter(eventsHandler);
         },
 
         /**
          * Receive notification of the end of a document
+         *
+         * @param {gpf.events.Handler} eventsHandler
+         *
+         * @event ready
          */
-        endDocument: function () {},
+        endDocument: function (/*gpf.events.Handler*/ eventsHandler) {
+            gpfI.ignoreParameter(eventsHandler);
+        },
 
         /**
          * Signal the end of an element
+         *
+         * @param {gpf.events.Handler} eventsHandler
+         *
+         * @event ready
          */
-        endElement: function () {},
+        endElement: function (/*gpf.events.Handler*/ eventsHandler) {
+            gpfI.ignoreParameter(eventsHandler);
+        },
 
         /**
          *  End the scope of a prefix-URI mapping
          *
          * @param {String} prefix
+         *
+         * @event ready
          */
         endPrefixMapping: function (prefix) {
             gpfI.ignoreParameter(prefix);
@@ -87,9 +109,14 @@
          * Receive notification of ignorable whitespace in element content
          *
          * @param {String} buffer characters
+         * @param {gpf.events.Handler} eventsHandler
+         *
+         * @event ready
          */
-        ignorableWhitespace: function (buffer) {
+        ignorableWhitespace: function (buffer,
+            /*gpf.events.Handler*/ eventsHandler) {
             gpfI.ignoreParameter(buffer);
+            gpfI.ignoreParameter(eventsHandler);
         },
 
         /**
@@ -97,10 +124,15 @@
          *
          * @param {String} target
          * @param {String} data
+         * @param {gpf.events.Handler} eventsHandler
+         *
+         * @event ready
          */
-        processingInstruction: function (target, data) {
+        processingInstruction: function (target, data,
+            /*gpf.events.Handler*/ eventsHandler) {
             gpfI.ignoreParameter(target);
             gpfI.ignoreParameter(data);
+            gpfI.ignoreParameter(eventsHandler);
         },
 
         /**
@@ -123,8 +155,12 @@
 
         /**
          * Receive notification of the beginning of a document
+         *
+         * @param {gpf.events.Handler} eventsHandler
          */
-        startDocument: function () {},
+        startDocument: function (/*gpf.events.Handler*/ eventsHandler) {
+            gpfI.ignoreParameter(eventsHandler);
+        },
 
         /**
          * Receive notification of the beginning of an element
@@ -133,12 +169,15 @@
          * @param {String} localName
          * @param {String} [qName=localName] qName qualified name
          * @param {Object} attributes attribute dictionary (string/string)
+         * @param {gpf.events.Handler} eventsHandler
          */
-        startElement: function (uri, localName, qName, attributes) {
+        startElement: function (uri, localName, qName, attributes,
+            /*gpf.events.Handler*/ eventsHandler) {
             gpfI.ignoreParameter(uri);
             gpfI.ignoreParameter(localName);
             gpfI.ignoreParameter(qName);
             gpfI.ignoreParameter(attributes);
+            gpfI.ignoreParameter(eventsHandler);
         },
 
         /**
@@ -532,7 +571,7 @@
                 if (attribute) {
                     name = attribute.name();
                 } else {
-                    name = gpf.classInfo(obj.constructor).name();
+                    name = gpf.classDef(obj.constructor).name();
                     if (!name) {
                         name = "object";
                     }

@@ -71,10 +71,8 @@ FIXME: IE10 does not detect when the script does not exist.
          * loaded handler (if needed)
          * 
          * @param {String} src
-         * @param {Object/function} [eventsHandler=new gpf.events.Broadcaster]
-         *        eventsHandler
-         * @return {Object/function} the provided eventsHandler
-         *          
+         * @param {gpf.events.Handler} eventsHandler
+         *
          * @eventParam {string} url URL of the included resource
          * 
          * @event load The resource has been successfully loaded
@@ -123,7 +121,6 @@ FIXME: IE10 does not detect when the script does not exist.
                 context.headTag.insertBefore(scriptTag,
                     context.headTag.firstChild);
             }, 0);
-            return eventsHandler;
         }
 
     };

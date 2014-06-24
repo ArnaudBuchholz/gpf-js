@@ -294,7 +294,7 @@
          */
         fillFromObject: function (object) {
             var
-                classInfo = gpf.classInfo(object.constructor),
+                classInfo = gpf.classDef(object.constructor),
                 attributes;
             while (classInfo) { // !undefined && !null
                 attributes = classInfo.attributes();
@@ -302,7 +302,7 @@
                     attributes._copyTo(this);
                 }
                 if (classInfo.Base()) {
-                    classInfo = gpf.classInfo(classInfo.Base());
+                    classInfo = gpf.classDef(classInfo.Base());
                 } else {
                     break;
                 }
@@ -375,7 +375,7 @@
             len,
             idx,
             attribute;
-        attributeList = gpf.classInfo(objectClass).attributes();
+        attributeList = gpf.classDef(objectClass).attributes();
         len = attributes.length;
         for (idx = 0; idx < len; ++idx) {
             attribute = attributes[idx];

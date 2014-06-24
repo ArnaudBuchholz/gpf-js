@@ -45,5 +45,7 @@ function callback(event) {
 
 gpf.runTests(callback);
 
+gpf.runAsyncQueue();
+
     ]]></script>
 </job>

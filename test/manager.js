@@ -183,6 +183,13 @@
 
     gpf.extend(TestReport.prototype, {
 
+        _items: [],
+        _errors: 0,
+        _sync: true,
+        _done: false,
+        _callback: null,
+        _lastParams: null,
+
         output: function (eventsHandler) {
             var idx;
             for (idx = 0; idx < this._items.length; ++idx) {
@@ -203,9 +210,39 @@
                 }
             }
             return result;
+        },
+
+        wait: function () {
+            this._sync = false;
+            gpf.defer(this._waitedTooLong, TestReport.WAIT_TIMEOUT, this);
+        },
+
+        _waitedTooLong: function () {
+            if (!this._done) {
+                this.assert(false, "Waited too long");
+                this.done();
+            }
+        },
+
+        synchronous: function (callback, lastParams) {
+            if (!this._sync) {
+                this._callback = callback;
+                this._lastParams = lastParams;
+            }
+            return this._sync;
+        },
+
+        done: function () {
+            if (!this._done) {
+                this._done = true;
+                if (this._callback) {
+                    this._callback.apply(null, [this].concat(this._lastParams));
+                }
+            }
         }
 
     });
+    TestReport.WAIT_TIMEOUT = 100;
 
     function includeFailed(e) {
         var source = _sources[_sourcesIdx - 1];
@@ -260,14 +297,29 @@
         } else if ("nodejs" === gpf.host()) {
             return nodejsInclude(src);
         } else { // browser
-            gpf.http.include(src)
-                .onLoad(loadTestSources)
-                .onError(includeFailedAsync);
+            gpf.http.include(src, {
+                load: loadTestSources,
+                error: includeFailedAsync
+            });
             return true; // Asynchronous
         }
     }
 
-    function executeTest(name) {
+    function asyncTestDone(report, callback, context) {
+        var args;
+        if (0 === report._items.length) {
+            report.assert(false, "Empty report");
+        }
+        if (callback) {
+            args = [report];
+            if (context) {
+                args.push(context);
+            }
+            callback.apply(null, args);
+        }
+    }
+
+    function executeTest(name, callback, context) {
         var
             testFunction,
             report = new TestReport();
@@ -281,45 +333,62 @@
         } catch (e) {
             report.exception(e, "Unexpected exception");
         }
-        if (0 === report._items.length) {
-            report.assert(false, "Empty report");
+        if (report.synchronous(asyncTestDone, [callback, context])) {
+            asyncTestDone(report, callback, context);
         }
-        return report;
+    }
+
+    function executeNextTest(context) {
+        var name;
+        if (context.namesIdx < _names.length) {
+            name = _names[context.namesIdx];
+            ++context.total;
+            executeTest(name, executeAfterTest, context);
+        } else {
+            info("Number of tested conditions: " + context.testCount,
+                _eventsHandler);
+            if (0 === context.errors) {
+                info("All tests succeeded (" + context.total + ")",
+                    _eventsHandler);
+            } else {
+                error("Some tests failed (" + context.errors + "/"
+                    + context.total + ")", _eventsHandler);
+            }
+        }
+    }
+
+    function executeAfterTest(report, context) {
+        var name = _names[context.namesIdx];
+        context.testCount += report.getTestCount();
+        ++context.namesIdx;
+        if (0 === report._errors) {
+            gpf.events.fire("success", {
+                name: name
+            }, _eventsHandler);
+        } else {
+            gpf.events.fire("failure", {
+                name: name
+            }, _eventsHandler);
+            ++context.errors;
+        }
+        // Success or failure may lead to the inner call of gpf.testReport
+        if (gpf.testReport._inProgress) {
+            gpf.testReport._context = context;
+        } else {
+            executeNextTest(context);
+        }
     }
 
     function executeTests() {
         var
-            namesIdx = 0,
-            name,
-            report,
-            errors = 0,
-            total = 0,
-            testCount = 0;
+            context = {
+                namesIdx: 0,
+                errors: 0,
+                total: 0,
+                testCount: 0
+            };
         info("Test count: " + _names.length);
-        while (namesIdx < _names.length) {
-            name = _names[namesIdx];
-            ++total;
-            report = executeTest(name);
-            testCount += report.getTestCount();
-            if (0 === report._errors) {
-                gpf.events.fire("success", {
-                    name: name
-                }, _eventsHandler);
-            } else {
-                gpf.events.fire("failure", {
-                    name: name
-                }, _eventsHandler);
-                ++errors;
-            }
-            ++namesIdx;
-        }
-        info("Number of tested conditions: " + testCount, _eventsHandler);
-        if (0 === errors) {
-            info("All tests succeeded (" + total + ")", _eventsHandler);
-        } else {
-            error("Some tests failed (" + errors + "/" + total + ")",
-                _eventsHandler);
-        }
+        executeNextTest(context);
     }
 
     function loadTestSources() {
@@ -407,11 +476,33 @@
      * @event log The manager outputs a log message
      */
     gpf.testReport = function (name, eventsHandler) {
-        /*
-         * TODO: the idea would be to rewrite the source and debug it
-         * to see where it fails
-         */
-        executeTest(name).output(eventsHandler);
+        var context;
+        gpf.testReport._inProgress = true;
+        executeTest(name, function (report){
+            report.output(eventsHandler);
+            gpf.testReport._inProgress = false;
+            if (gpf.testReport._context) {
+                context = gpf.testReport._context;
+                gpf.testReport._context = null;
+                executeNextTest(context);
+            }
+        });
     };
+
+    /**
+     * Used to know if a call is in progress
+     *
+     * @type {boolean}
+     * @private
+     */
+    gpf.testReport._inProgress = false;
+
+    /**
+     * Call executeNext(_context) if set on completion
+     *
+     * @type {Object}
+     * @private
+     */
+    gpf.testReport._context = null;
 
 }()); /* End of privacy scope */
