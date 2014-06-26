@@ -65,38 +65,37 @@
  *
  */
 
+    var
+        _visibilityKeywords     = "public|protected|private|static".split("|"),
+        _VISIBILITY_PUBLIC      = 0,
+//        _VISIBILITY_PROTECTED   = 1,
+//        _VISIBILITY_PRIVATE     = 2,
+        _VISIBILITY_STATIC      = 3,
+        _initAllowed = true;
+
     /**
      * An helper to create class and store its information
      *
-     * @class ClassDefinition
+     * @class gpf.ClassDefinition
      * @constructor
      * @param {String|Function} name
      * @param {Function} Base
      * @param {Object} definition
-     * @private
      */
-    function ClassDefinition (name, Base, definition) {
+    gpf.ClassDefinition = function  (name, Base, definition) {
         this._Subs = [];
         if ("function" === typeof name) {
-            // Should try to extract class info from there
+            // TODO to extract class info from there
             this._Constructor = name;
         } else {
             this._name = name;
             this._Base = Base;
             this._definition = definition;
+            this._build();
         }
-    }
+    };
 
-    /* Statics */
-    ClassDefinition._visibilityKeywords =
-        "public|protected|private|static".split("|");
-    ClassDefinition._PUBLIC      = 0;
-    ClassDefinition._PROTECTED   = 1;
-    ClassDefinition._PRIVATE     = 2;
-    ClassDefinition._STATIC      = 3;
-    ClassDefinition._initAllowed = true;
-
-    gpf.extend(ClassDefinition.prototype, {
+    gpf.extend(gpf.ClassDefinition.prototype, {
 
         //region Members
 
@@ -123,7 +122,7 @@
          * @type {Function}
          * @private
          */
-        _Base: null,
+        _Base: Object,
 
         /**
          * Base class
@@ -184,6 +183,14 @@
         _Constructor: function () {},
 
         /**
+         * Class 'definition' constructor
+         *
+         * @type {Function}
+         * @private
+         */
+        _defConstructor: null,
+
+        /**
          * Class constructor
          *
          * @return {Function}
@@ -221,7 +228,7 @@
                 baseType,
                 baseName;
             newType = typeof defMember;
-            if (ClassDefinition._STATIC === visibility) {
+            if (_VISIBILITY_STATIC === visibility) {
                 // No inheritance can be applied here
                 newPrototype.constructor[member] = defMember;
                 return;
@@ -246,11 +253,11 @@
                     baseName = baseName.substr(1);
                 }
                 // Capitalize
-                baseName = baseName.charAt(0).toUpperCase() + baseName.substr(1);
+                baseName = gpf.capitalize(baseName);
                 newPrototype["_base" + baseName] = baseMember;
             }
             if ("constructor" === member) {
-                gpf.classInfo(newPrototype.constructor)._constructor = defMember;
+                this._defConstructor = defMember;
             } else {
                 newPrototype[member] = defMember;
             }
@@ -292,7 +299,7 @@
                 initialDefinition = this._definition,
                 definition,
                 member;
-            member = ClassDefinition._visibilityKeywords[visibility];
+            member = _visibilityKeywords[visibility];
             definition = initialDefinition[member];
             this._definition = definition;
             try {
@@ -349,12 +356,12 @@
                         // Attribute
                         this._processAttribute(member);
                     } else {
-                        visibility = ClassDefinition._visibilityKeywords
+                        visibility = _visibilityKeywords
                             .indexOf(member);
                         if (-1 === visibility) {
                             // Usual member
                             this._processMember(member,
-                                ClassDefinition._PUBLIC);
+                                _VISIBILITY_PUBLIC);
                         } else {
                             // Visibility
                             this._processDefWithVisibility(visibility);
@@ -364,7 +371,7 @@
             }
             // 2014-05-05 #14
             if ("wscript" === gpf.host() && definition.constructor !== Object) {
-                this._processMember("constructor", ClassDefinition._PUBLIC);
+                this._processMember("constructor", _VISIBILITY_PUBLIC);
             }
         },
 
@@ -401,26 +408,75 @@
             }
         },
 
+        /**
+         * Create the new Class constructor
+         *
+         * @closure
+         */
+        _build: function () {
+            var
+                newClass,
+                newPrototype,
+                baseClassDef;
+
+            // The new class constructor
+            newClass = gpf._func(_getNewClassConstructorSrc(this._name))(gpf);
+            this._Constructor = newClass;
+
+            /*
+             * Basic JavaScript inheritance mechanism:
+             * Defines the newClass prototype as an instance of the base class
+             * Do it in a critical section that prevents class initialization
+             */
+            /*__begin__thread_safe__*/
+            _initAllowed = false;
+            newPrototype = new this._Base();
+            _initAllowed = true;
+            /*__end_thread_safe__*/
+
+            // Populate our constructed prototype object
+            newClass.prototype = newPrototype;
+
+            // Enforce the constructor to be what we expect
+            newPrototype.constructor = newClass;
+
+            /*
+             * Defines the link between this class and its base one
+             * (It is necessary to do it here because of the gpf.addAttributes
+             * that will test the parent class)
+             */
+            baseClassDef = gpf.classDef(this._Base);
+            baseClassDef.Subs().push(newClass);
+
+            /*
+             * 2014-04-28 ABZ Changed again from two passes on all members to
+             * two passes in which the first one also collects attributes to
+             * simplify the second pass.
+             */
+            this._processDefinition();
+            this._processAttributes();
+        }
+
         //endregion
     });
 
     //region Class related helpers
 
     /**
-     * Retrieves (or allocate) the class information object
+     * Retrieves (or allocate) the class definition object
      *
      * @param {Function} constructor Class constructor
-     * @returns {ClassInfo}
+     * @returns {gpf.ClassDefinition}
      */
     gpf.classDef = function (constructor) {
         if (undefined === constructor._gpf) {
-            constructor._gpf = new ClassDefinition(constructor);
+            constructor._gpf = new gpf.ClassDefinition(constructor);
         }
         return constructor._gpf;
     };
 
     /**
-     * Class initializer: it triggers the call to this._constructor only if
+     * Class initializer: it triggers the call to this._defConstructor only if
      * _classInitAllowed is true.
      *
      * NOTE: it must belong to gpf as the created closure will use gpf as an
@@ -431,8 +487,14 @@
      * @private
      */
     gpf._classInit = function (constructor, args) {
-        if (ClassDefinition._initAllowed) {
-            gpf.classDef(constructor)._Constructor.apply(this, args);
+        if (_initAllowed) {
+            var classDef = gpf.classDef(constructor);
+            // TODO resolve prototype if not yet done
+            if (classDef._defConstructor) {
+                classDef._defConstructor.apply(this, args);
+            } else {
+                classDef._Base.apply(this, args);
+            }
         }
     };
 
@@ -443,6 +505,7 @@
      *
      * @returns {Function}
      * @private
+     * @closure
      */
     function _newClassConstructor() {
         var
@@ -474,75 +537,6 @@
     //endregion
 
     /**
-     * Create a new Class
-     *
-     * @param {String} name Name of the class
-     * @param {Function} Base Base class to inherit from
-     * @param {Object} definition Members / Attributes of the class
-     * @return {Function} new class constructor
-     * @closure
-     */
-    function _createClass(name, Base, definition) {
-        var
-            basePrototype = Base.prototype,
-            newClass,
-            newPrototype,
-            newClassInfo,
-            baseClassInfo,
-            attributes = {};
-
-        // The new class constructor
-        newClass = gpf._func(_getNewClassConstructorSrc(name))(gpf);
-
-        /*
-         * Basic JavaScript inheritance mechanism:
-         * Defines the newClass prototype as an instance of the base class
-         * Do it in a critical section that prevents class initialization
-         */
-        /*__begin__thread_safe__*/
-        _classInitAllowed = false;
-        newPrototype = new Base();
-        _classInitAllowed = true;
-        /*__end_thread_safe__*/
-
-        // Populate our constructed prototype object
-        newClass.prototype = newPrototype;
-
-        // Enforce the constructor to be what we expect
-        newPrototype.constructor = newClass;
-
-        /*
-         * Defines the link between this class and its base one
-         * (It is necessary to do it here because of the gpf.addAttributes that
-         * will test the parent class)
-         */
-        newClassInfo = gpf.classInfo(newClass);
-        newClassInfo._name = name;
-        newClassInfo._Base = Base;
-        baseClassInfo = gpf.classInfo(Base);
-        baseClassInfo.Subs().push(newClass);
-
-        /*
-         * 2014-04-28 ABZ Changed again from two passes on all members to two
-         * passes in which the first one also collects attributes to simplify
-         * the second pass.
-         */
-        _processDefinition(definition, basePrototype, newPrototype, attributes);
-        _processAttributes(attributes, newClass, newPrototype);
-
-        /*
-         * If no constructor was defined, use the inherited one
-         * TODO: Not sure this is the best way to handle the situation but at
-         * least, it is isolated here
-         */
-        if (!newClassInfo.hasOwnProperty("_constructor")) {
-            newClassInfo._constructor = Base;
-        }
-
-        return newClass;
-    }
-
-    /**
      * Defines a new class by setting a contextual name
      *
      * @param {String} name New class contextual name
@@ -554,7 +548,8 @@
         var
             result,
             ns,
-            path;
+            path,
+            classDef;
         if ("string" === typeof base) {
             // Convert base into the function
             base = gpf.context(base);
@@ -571,7 +566,8 @@
             name = path.pop();
             ns = gpf.context(path);
         }
-        result = _createClass(name, base, definition || {});
+        classDef = new gpf.ClassDefinition(name, base, definition || {});
+        result = classDef.Constructor();
         if (undefined !== ns) {
             ns[name] = result;
         }

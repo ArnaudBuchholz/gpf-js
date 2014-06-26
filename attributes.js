@@ -294,15 +294,15 @@
          */
         fillFromObject: function (object) {
             var
-                classInfo = gpf.classDef(object.constructor),
+                classDef = gpf.classDef(object.constructor),
                 attributes;
-            while (classInfo) { // !undefined && !null
-                attributes = classInfo.attributes();
+            while (classDef) { // !undefined && !null
+                attributes = classDef.attributes();
                 if (attributes) {
                     attributes._copyTo(this);
                 }
-                if (classInfo.Base()) {
-                    classInfo = gpf.classDef(classInfo.Base());
+                if (classDef.Base()) {
+                    classDef = gpf.classDef(classDef.Base());
                 } else {
                     break;
                 }
