@@ -425,6 +425,16 @@
         },
 
         /**
+         * Capitalize the string
+         *
+         * @param {String} that
+         * @return {String}
+         */
+        capitalize: function (that) {
+            return that.charAt(0).toUpperCase() + that.substr(1);
+        },
+
+        /**
          * Generic callback handler
          *
          * @param {Function} handler

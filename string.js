@@ -122,6 +122,9 @@
 
     gpf.extend(gpf, {
 
+        "[capitalize]": [gpf.$ClassExtension(String)],
+        // Declared in base.js
+
         "[replaceEx]": [gpf.$ClassExtension(String)],
 
         /**
