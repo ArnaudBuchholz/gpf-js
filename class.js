@@ -59,6 +59,10 @@
  *  Found that the 'constructor' member is treated in a special way with
  *  cscript.exe. hasOwnProperty returns false with it.
  *
+ * 2014-06-25
+ *  Rewrote to consolidate everything in a single class that handles both
+ *  definition and information
+ *
  */
 
     /**
@@ -66,20 +70,26 @@
      *
      * @class ClassDefinition
      * @constructor
+     * @param {String|Function} name
+     * @param {Function} Base
+     * @param {Object} definition
      * @private
      */
-    function ClassDefinition (name, base, definition) {
+    function ClassDefinition (name, Base, definition) {
         this._Subs = [];
         if ("function" === typeof name) {
             // Should try to extract class info from there
-            this._constructor = name;
+            this._Constructor = name;
         } else {
             this._name = name;
-            this._Base = base;
+            this._Base = Base;
+            this._definition = definition;
         }
     }
 
     /* Statics */
+    ClassDefinition._visibilityKeywords =
+        "public|protected|private|static".split("|");
     ClassDefinition._PUBLIC      = 0;
     ClassDefinition._PROTECTED   = 1;
     ClassDefinition._PRIVATE     = 2;
@@ -87,6 +97,8 @@
     ClassDefinition._initAllowed = true;
 
     gpf.extend(ClassDefinition.prototype, {
+
+        //region Members
 
         /**
          * Class name
@@ -142,6 +154,8 @@
         /**
          * Attributes of this class
          *
+         * NOTE: during definition, this member is used as a simple JavaScript
+         *
          * @type {gpf.attributes.Map}
          * @private
          */
@@ -162,15 +176,235 @@
         },
 
         /**
-         * Class constructor (when used with gpf.define)
+         * Class constructor
          *
          * @type {Function}
          * @private
          */
-        _factory: function () {},
+        _Constructor: function () {},
 
-        Factory
+        /**
+         * Class constructor
+         *
+         * @return {Function}
+         */
+        Constructor: function () {
+            return this._Constructor;
+        },
+
+        //endregion
+
+        //region Class construction
+
+        /**
+         * Class definition
+         *
+         * @type {Object}
+         * @private
+         */
+        _definition: null,
+
+        /**
+         * Defines a new member of the class
+         *
+         * @param {String} member Name of the member to define
+         * @param {Number} visibility Visibility of the members
+         * @private
+         */
+        _processMember: function (member, visibility) {
+            // Don't know yet how I want to handle visibility
+            var
+                newPrototype = this._Constructor.prototype,
+                defMember = this._definition[member],
+                newType,
+                baseMember,
+                baseType,
+                baseName;
+            newType = typeof defMember;
+            if (ClassDefinition._STATIC === visibility) {
+                // No inheritance can be applied here
+                newPrototype.constructor[member] = defMember;
+                return;
+            }
+            baseMember = this._Base.prototype[member];
+            baseType = typeof baseMember;
+            if ("undefined" !== baseType && newType !== baseType) {
+                throw {
+                    message: "You can't overload a member to change its type"
+                };
+            }
+            if ("function" === newType && "undefined" !== baseType) {
+                /*
+                 * As it is a function overload, defines a new member that will
+                 * give a quick access to the base function. This should answer
+                 * 90% of the cases.
+                 *
+                 * TODO how do we handle possible conflict name
+                 */
+                baseName = member;
+                if ("_" === baseName.charAt(0)) {
+                    baseName = baseName.substr(1);
+                }
+                // Capitalize
+                baseName = baseName.charAt(0).toUpperCase() + baseName.substr(1);
+                newPrototype["_base" + baseName] = baseMember;
+            }
+            if ("constructor" === member) {
+                gpf.classInfo(newPrototype.constructor)._constructor = defMember;
+            } else {
+                newPrototype[member] = defMember;
+            }
+        },
+
+        /**
+         * An attribute definition is found in the class definition, store it
+         * into a temporary map: it will be processed later
+         *
+         * @param {String} key Attribute name of the member to associate the
+         * attributes to ([name])
+         * @private
+         */
+        _processAttribute: function (key) {
+            var
+                attributeArray,
+                newAttributeArray = this._definition[key];
+            key = key.substr(1, key.length - 2); // Extract member name
+            if (!this._attributes) {
+                this._attributes = {};
+            }
+            attributeArray = this._attributes[key];
+            if (undefined === attributeArray) {
+                attributeArray = [];
+            }
+            this._attributes[key] = attributeArray.concat(newAttributeArray);
+        },
+
+        /**
+         * Process class definition including visibility
+         *
+         * NOTE: alters this._definition
+         *
+         * @param {Number} visibility Visibility of the members
+         * @private
+         */
+        _processDefWithVisibility: function (visibility) {
+            var
+                initialDefinition = this._definition,
+                definition,
+                member;
+            member = ClassDefinition._visibilityKeywords[visibility];
+            definition = initialDefinition[member];
+            this._definition = definition;
+            try {
+                for (member in definition) {
+                    if (definition.hasOwnProperty(member)) {
+
+                        // Attribute
+                        if ("[" === member.charAt(0)
+                            && "]" === member.charAt(member.length - 1)) {
+
+                            this._processAttribute(member);
+
+                            // Visibility
+                        } else if ("public" === member
+                            || "private" === member
+                            || "protected" === member
+                            || "static" === member) {
+                            throw {
+                                message: "Invalid visibility keyword"
+                            };
+
+                            // Usual member
+                        } else {
+                            this._processMember(member, visibility);
+                        }
+                    }
+                }
+                // 2014-05-05 #14
+                if ("wscript" === gpf.host()
+                    && definition.constructor !== Object) {
+                    this._processMember("constructor", visibility);
+                }
+            } catch (e) {
+                throw e;
+            } finally {
+                this._definition = initialDefinition;
+            }
+        },
+
+        /**
+         * Process definition
+         *
+         * @private
+         */
+        _processDefinition: function () {
+            var
+                definition = this._definition,
+                member,
+                visibility;
+            for (member in definition) {
+                if (definition.hasOwnProperty(member)) {
+                    if ("[" === member.charAt(0)
+                        && "]" === member.charAt(member.length - 1)) {
+                        // Attribute
+                        this._processAttribute(member);
+                    } else {
+                        visibility = ClassDefinition._visibilityKeywords
+                            .indexOf(member);
+                        if (-1 === visibility) {
+                            // Usual member
+                            this._processMember(member,
+                                ClassDefinition._PUBLIC);
+                        } else {
+                            // Visibility
+                            this._processDefWithVisibility(visibility);
+                        }
+                    }
+                }
+            }
+            // 2014-05-05 #14
+            if ("wscript" === gpf.host() && definition.constructor !== Object) {
+                this._processMember("constructor", ClassDefinition._PUBLIC);
+            }
+        },
+
+        /**
+         * Process the attributes collected in the definition
+         *
+         * NOTE: gpf.attributes._add is defined in attributes.js
+         *
+         * @private
+         */
+        _processAttributes: function () {
+            var
+                attributes = this._attributes,
+                Constructor,
+                newPrototype,
+                attributeName;
+            if (attributes) {
+                delete this._attributes;
+                Constructor = this._Constructor;
+                newPrototype = Constructor.prototype;
+                for (attributeName in attributes) {
+                    if (attributes.hasOwnProperty(attributeName)) {
+                        if (attributeName in newPrototype
+                            || attributeName === "Class") {
+                            gpf.attributes.add(Constructor, attributeName,
+                                attributes[attributeName]);
+                        } else {
+                            // 2013-12-15 ABZ Exceptional, trace it only
+                            console.error("gpf.define: Invalid attribute name '"
+                                + attributeName + "'");
+                        }
+                    }
+                }
+            }
+        },
+
+        //endregion
     });
+
+    //region Class related helpers
 
     /**
      * Retrieves (or allocate) the class information object
@@ -189,214 +423,18 @@
      * Class initializer: it triggers the call to this._constructor only if
      * _classInitAllowed is true.
      *
+     * NOTE: it must belong to gpf as the created closure will use gpf as an
+     * anchor point.
+     *
      * @param {Function} constructor Class constructor
      * @param {*[]} args Arguments
      * @private
      */
     gpf._classInit = function (constructor, args) {
         if (ClassDefinition._initAllowed) {
-            gpf.classDef(constructor)._constructor.apply(this, args);
+            gpf.classDef(constructor)._Constructor.apply(this, args);
         }
     };
-
-    /**
-     * Defines a new member of the class
-     *
-     * @param {Object} definition Class definition
-     * @param {Object} basePrototype Base prototype
-     * @param {Object} newPrototype Class prototype
-     * @param {String} member Name of the member to define
-     * @param {Number} visibility Visibility of the members
-     * @private
-     */
-    function /*gpf:inline*/ _processMember(definition, basePrototype,
-        newPrototype, member, visibility) {
-        // Don't know yet how I want to handle visibility
-        var
-            defMember = definition[member],
-            newType,
-            baseMember,
-            baseType,
-            baseName;
-        newType = typeof defMember;
-        if (_CLASS_STATIC === visibility) {
-            // No inheritance can be applied here
-            newPrototype.constructor[member] = defMember;
-            return;
-        }
-        baseMember = basePrototype[member];
-        baseType = typeof baseMember;
-        if ("undefined" !== baseType && newType !== baseType) {
-            throw {
-                message: "You can't overload a member to change its type"
-            };
-        }
-        if ("function" === newType && "undefined" !== baseType) {
-            /*
-             * As it is a function overload, defines a new member that will give
-             * a quick access to the base function. This should answer 90% of
-             * the cases.
-             *
-             * TODO how do we handle possible conflict name
-             */
-            baseName = member;
-            if ("_" === baseName.charAt(0)) {
-                baseName = baseName.substr(1);
-            }
-            // Capitalize
-            baseName = baseName.charAt(0).toUpperCase() + baseName.substr(1);
-            newPrototype["_base" + baseName] = baseMember;
-        }
-        if ("constructor" === member) {
-            gpf.classInfo(newPrototype.constructor)._constructor = defMember;
-        } else {
-            newPrototype[member] = defMember;
-        }
-    }
-
-    /**
-     * Add the attribute to the map
-     *
-     * @param {Object} definition Class definition
-     * @param {String} member Name of the member to define
-     * @param {Object} attributes Map of name to attribute list
-     * @private
-     */
-    function /*gpf:inline*/ _processAttribute(definition, member, attributes) {
-        var
-            attributeArray = attributes[member],
-            newAttributeArray = definition[member];
-        member = member.substr(1, member.length - 2);
-        if (undefined === attributeArray) {
-            attributeArray = [];
-        }
-        attributes[member] = attributeArray.concat(newAttributeArray);
-    }
-
-    /**
-     * Process class definition including visibility
-     *
-     * @param {Object} definition Class definition
-     * @param {Object} basePrototype Base prototype
-     * @param {Object} newPrototype Class prototype
-     * @param {Object} attributes Map of name to attribute list
-     * @param {Number} visibility Visibility of the members
-     * @private
-     */
-    function _processDefWithVisibility(definition, basePrototype, newPrototype,
-        attributes, visibility) {
-        var
-            member;
-        for (member in definition) {
-            if (definition.hasOwnProperty(member)) {
-
-                // Attribute
-                if ("[" === member.charAt(0)
-                    && "]" === member.charAt(member.length - 1)) {
-
-                    _processAttribute(definition, member, attributes);
-
-                // Visibility
-                } else if ("public" === member
-                           || "private" === member
-                           || "protected" === member
-                           || "static" === member) {
-                    throw {
-                        message: "Invalid visibility keyword"
-                    };
-
-                // Usual member
-                } else {
-                    _processMember(definition, basePrototype, newPrototype,
-                        member, visibility);
-                }
-            }
-        }
-        // 2014-05-05 #14
-        if ("wscript" === gpf.host() && definition.constructor !== Object) {
-            _processMember(definition, basePrototype, newPrototype,
-                "constructor", visibility);
-        }
-    }
-
-    /**
-     * Process class definition
-     *
-     * @param {Object} definition Class definition
-     * @param {Object} basePrototype Base prototype
-     * @param {Object} newPrototype Class prototype
-     * @param {Object} attributes Map of name to attribute list
-     * @private
-     */
-    function /*gpf:inline*/ _processDefinition(definition, basePrototype,
-        newPrototype, attributes) {
-        var
-            member;
-        for (member in definition) {
-            if (definition.hasOwnProperty(member)) {
-
-                // Attribute
-                if ("[" === member.charAt(0)
-                    && "]" === member.charAt(member.length - 1)) {
-
-                    _processAttribute(definition, member, attributes);
-
-                // Visibility
-                } else if ("public" === member) {
-                    _processDefWithVisibility(definition[member], basePrototype,
-                        newPrototype, attributes, _CLASS_PUBLIC);
-                } else if ("private" === member) {
-                    _processDefWithVisibility(definition[member], basePrototype,
-                        newPrototype, attributes, _CLASS_PRIVATE);
-                } else if ("protected" === member) {
-                    _processDefWithVisibility(definition[member], basePrototype,
-                        newPrototype, attributes, _CLASS_PROTECTED);
-                } else if ("static" === member) {
-                    _processDefWithVisibility(definition[member], basePrototype,
-                        newPrototype, attributes, _CLASS_STATIC);
-
-                // Usual member
-                } else {
-                    _processMember(definition, basePrototype, newPrototype,
-                        member, _CLASS_PUBLIC /*default*/);
-                }
-            }
-        }
-        // 2014-05-05 #14
-        if ("wscript" === gpf.host() && definition.constructor !== Object) {
-            _processMember(definition, basePrototype, newPrototype,
-                "constructor", _CLASS_PUBLIC /*default*/);
-        }
-    }
-
-    /**
-     * Process the attributes collected in the definition
-     *
-     * NOTE: gpf.attributes._add is defined in attributes.js
-
-     * @param {Object} attributes Map of name to attribute list
-     * @param {Function} newClass
-     * @param {Object} newPrototype Class prototype
-     * @private
-     */
-    function /*gpf:inline*/ _processAttributes(attributes, newClass,
-        newPrototype) {
-        var
-            attributeName;
-        for (attributeName in attributes) {
-            if (attributes.hasOwnProperty(attributeName)) {
-                if (attributeName in newPrototype
-                    || attributeName === "Class") {
-                    gpf.attributes.add(newClass, attributeName,
-                        attributes[attributeName]);
-                } else {
-                    // 2013-12-15 ABZ Consider this as exceptional, trace it
-                    console.error("gpf.Class::extend: Invalid attribute name '"
-                        + attributeName + "'");
-                }
-            }
-        }
-    }
 
     /**
      * Template for new class constructor
@@ -432,6 +470,8 @@
             end = src.lastIndexOf("}") - 1;
         return src.substr(start, end - start + 1);
     }
+
+    //endregion
 
     /**
      * Create a new Class
