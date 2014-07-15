@@ -422,6 +422,7 @@
             // The new class constructor
             newClass = gpf._func(_getNewClassConstructorSrc(this._name))(gpf);
             this._Constructor = newClass;
+            newClass._gpf = this;
 
             /*
              * Basic JavaScript inheritance mechanism:

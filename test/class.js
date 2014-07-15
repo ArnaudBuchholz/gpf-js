@@ -49,7 +49,7 @@
                 test.assert(b instanceof A, "b is an instance of A");
                 test.assert(b instanceof B, "b is an instance of B");
                 test.assert(!(a instanceof B), "a is not an instance of B");
-                test.assert(gpf.classInfo(B).Base() === A, "b inherits from A");
+                test.assert(gpf.classDef(B).Base() === A, "b inherits from A");
             }
 
         ]

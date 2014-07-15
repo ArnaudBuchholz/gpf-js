@@ -301,7 +301,7 @@
                 if (attributes) {
                     attributes._copyTo(this);
                 }
-                if (classDef.Base()) {
+                if (classDef.Base() !== Object) { // Can't go upper
                     classDef = gpf.classDef(classDef.Base());
                 } else {
                     break;
