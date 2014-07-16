@@ -109,6 +109,7 @@
 
             /**
              * Consolidate the result string
+             * @return {String}
              */
             consolidateString: function() {
                 if (this._pos !== 0) {
