@@ -8,18 +8,11 @@
     var
         // Namespaces shortcut
         gpfI = gpf.interfaces,
-        gpfA = gpf.attributes,
+        gpfA = gpf.attributes
 /*
         // XML Parser constants
-        _XMLPARSER_STATE_NONE = 0,
+        _XMLPARSER_STATE_NONE = 0
 */
-        // This error will be handled in a common way later
-        _expectedXmlContentHandler = function () {
-            throw {
-                message: "Invalid parameter, " +
-                    "expected gpf.interfaces.IXmlContentHandler"
-            };
-        }
         ;
 
     gpf.xml = {};
@@ -595,12 +588,8 @@
          * @private
          */
         _toXml = function (out) {
-            var iContentHandler = gpfI.query(out, gpfI.IXmlContentHandler);
-            if (iContentHandler) {
-                _toContentHandler(this, iContentHandler);
-            } else {
-                _expectedXmlContentHandler();
-            }
+            _toContentHandler(this, gpfI.query(out, gpfI.IXmlContentHandler,
+                true));
         },
 
         //endregion
@@ -1133,10 +1122,7 @@
         var
             iContentHandler,
             iXmlSerializable;
-        iContentHandler = gpfI.query(out, gpfI.IXmlContentHandler);
-        if (!iContentHandler) {
-            _expectedXmlContentHandler();
-        }
+        iContentHandler = gpfI.query(out, gpfI.IXmlContentHandler, true);
         if ("string" === typeof value) {
             gpf.NOT_IMPLEMENTED();
         } else if ("object" === typeof value) {

@@ -57,18 +57,26 @@
          * @param {Object} objectInstance object to inspect
          * @param {gpf.interfaces.Interface} interfaceDefinition reference
          * interface
+         * @param {Boolean} [throwError=false] throwError Throws an error if the
+         * interface is not found (otherwise, null is returned)
          * @return {Object|null}
          */
-        query: function (objectInstance, interfaceDefinition) {
+        query: function (objectInstance, interfaceDefinition, throwError) {
+            var result = null;
             if (gpf.interfaces.isImplementedBy(objectInstance,
                 interfaceDefinition)) {
                 return objectInstance;
             } else if (gpf.interfaces.isImplementedBy(objectInstance,
                 gpf.interfaces.IUnknown)) {
-                return objectInstance.queryInterface(interfaceDefinition);
-            } else {
-                return null;
+                result = objectInstance.queryInterface(interfaceDefinition);
             }
+            if (null === result && throwError) {
+                throw {
+                    message: "expected "
+                        + gpf.classDef(interfaceDefinition).name()
+                };
+            }
+            return result;
         }
 
     };
@@ -275,6 +283,8 @@
                 gpf.attributes.add(objPrototype.constructor, "Class",
                     [gpf.$InterfaceImplement(gpf.interfaces.IUnknown)]);
             }
+            // TODO may have to replicate existing attributes on the methods
+            // TODO may fill in the missing methods ('default' implementation)
         }
 
     });
