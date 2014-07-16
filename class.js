@@ -500,7 +500,7 @@
     };
 
     /**
-     * Template for new class constructor
+     * Template for new class constructor (using name that includes namespace)
      * - Uses closure to keep track of gpf handle and constructor function
      * - _CONSTRUCTOR_ will be replaced with the actual class name
      *
@@ -508,7 +508,25 @@
      * @private
      * @closure
      */
-    function _newClassConstructor() {
+    function _newClassConstructorFromFullName() {
+        var
+            gpf = arguments[0],
+            constructor = _CONSTRUCTOR_ = function () {
+                gpf._classInit.apply(this, [constructor, arguments]);
+            };
+        return constructor;
+    }
+
+    /**
+     * Template for new class constructor (using name without namespace)
+     * - Uses closure to keep track of gpf handle and constructor function
+     * - _CONSTRUCTOR_ will be replaced with the actual class name
+     *
+     * @returns {Function}
+     * @private
+     * @closure
+     */
+    function _newClassConstructorFromName() {
         var
             gpf = arguments[0],
             constructor = function _CONSTRUCTOR_ () {
@@ -527,11 +545,18 @@
      */
     function _getNewClassConstructorSrc(name) {
         var
-            src = _newClassConstructor
-                    .toString()
-                    .replace("_CONSTRUCTOR_", name),
-            start = src.indexOf("{") + 1,
-            end = src.lastIndexOf("}") - 1;
+            constructorDef,
+            src,
+            start,
+            end;
+        if (-1 < name.indexOf(".")) {
+            constructorDef = _newClassConstructorFromFullName;
+        } else {
+            constructorDef = _newClassConstructorFromName;
+        }
+        src = constructorDef.toString().replace("_CONSTRUCTOR_", name);
+        start = src.indexOf("{") + 1;
+        end = src.lastIndexOf("}") - 1;
         return src.substr(start, end - start + 1);
     }
 
@@ -564,7 +589,7 @@
         }
         if (-1 < name.indexOf(".")) {
             path = name.split(".");
-            name = path.pop();
+            path.pop();
             ns = gpf.context(path);
         }
         classDef = new gpf.ClassDefinition(name, base, definition || {});
