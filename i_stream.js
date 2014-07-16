@@ -19,8 +19,8 @@
         /**
          * Triggers the reading of data
          *
-         * @param {Number} [size=undefined] size Number of bytes to read. Read
-         * as much as possible if not specified
+         * @param {Number} [size=0] size Number of bytes to read. Read
+         * as much as possible if 0
          * @param {gpf.events.Handler} eventsHandler
          *
          * @event data Some data is ready to be ready
@@ -37,7 +37,11 @@
         static: {
             EVENT_ERROR: "error",
             EVENT_DATA: "data",
-            EVENT_END_OF_STREAM: "eos"
+            EVENT_END_OF_STREAM: "eos",
+
+            EXCEPTION_READ_IN_PROGRESS: {
+                message: "Read in progress"
+            }
         }
 
     });
@@ -68,7 +72,11 @@
 
         static: {
             EVENT_ERROR: "error",
-            EVENT_READY: "ready"
+            EVENT_READY: "ready",
+
+            EXCEPTION_WRITE_IN_PROGRESS: {
+                message: "Read in progress"
+            }
         }
 
     });
