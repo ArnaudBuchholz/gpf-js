@@ -9,7 +9,8 @@
         _MARKDOWN_ISTATE_INIT        = 0,
         _MARKDOWN_ISTATE_INPROGRESS  = 1,
         _MARKDOWN_ISTATE_WAITING     = 2,
-        _MARKDOWN_ISTATE_EOS          =3;
+        _MARKDOWN_ISTATE_EOS         = 3,
+        _MARKDOWN_PARSER_INIT        = 0;
 
     gpf.html = {};
 
@@ -154,9 +155,106 @@
                     
                 } else {
                     this._iState = _MARKDOWN_ISTATE_WAITING;
-                    // Process buffer (?)
+                    this._parse(event.get("buffer"));
+                }
+            },
+
+            /**
+             * Parser state
+             * @type {Number} see _MARKDOWN_PARSER_xxx
+             */
+            _pState: _MARKDOWN_PARSER_INIT,
+
+            /**
+             * Parses the received buffer
+             *
+             * @param {String} buffer
+             * @private
+             */
+            _parse: function (buffer) {
+                var
+                    pos = 0,
+                    char,
+                    len = buffer.length;
+                while (pos < len) {
+                    char = buffer.charAt(pos);
+/*
+ * Special chars:
+ *  Anywhere:
+ *      & => &amp;
+ *      > => &gt;
+ *      < => &lt;
+ *      \n End of line
+ *      * italic until *
+ *      ** bold until **
+ *      ` => monospace
+ *      [ => link
+ *
+ *
+ *  At the begin of a line:
+ *      # H1
+ *      ## H2
+ *      ### H3
+ *      ' ' (link is blanked until something else is found)
+ *      *' ' => list until \n
+ *
+ * 'Grammar'
+ * init
+ *      : '\n' init
+ *      | '#' title1
+ *      | '*' list
+ *      | ' ' init
+ *      | content
+ *
+ * title1
+ *      : '#' title2
+ *      | text \n
+ * title2
+ *      : '#' title3
+ *      | text \n
+ * title3
+*       : text \n
+ *
+ * list
+ *      : ' ' content // confirmed
+ *      | content
+ *
+ * content
+ *      : '\n' init
+ *      | '*' italic
+ *      | '`' monospace
+ *      | '[' link
+ *      | '&' content
+ *      | '<' content
+ *      | '>' content
+ *      | content
+ *
+ * italic
+ *      : '*' text '*' '*' // bold
+ *      : text '*' // italic
+ *
+ * monospace
+ *      : text '`'
+ *
+ * link
+ *      : (text) ']' '(' url ')'
+ */
+
+
                 }
 
+
+            },
+
+            /**
+             * Enqueue the html in the output buffer
+             *
+             * @param {String} html
+             * @private
+             */
+            _output: function (html) {
+                this._outputBuffer.push(html);
+                this._outputBufferLength += html.length;
             }
 
         }
