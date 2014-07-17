@@ -1,9 +1,9 @@
-**GPF Library**
-===========
+# GPF Library
+
 A multi-purpose JavaScript library created and maintained by
 [Arnaud Buchholz](http://gpf-js.blogspot.com/).
 
-### Features
+## Features
 
 - Compatible with several hosts
 ([cscript/wscript](http://technet.microsoft.com/en-us/library/bb490887.aspx),
@@ -17,6 +17,6 @@ This library is developed in conjunction with a
 [blog](http://gpf-js.blogspot.com/) where the concepts and algorithms are
 documented and explained.
 
-### Credits
+## Credits
 - Code rewriting based on [esprima](http://esprima.org/) and
 [escodegen](https://github.com/Constellation/escodegen)
