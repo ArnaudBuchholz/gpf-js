@@ -511,6 +511,8 @@
     function _newClassConstructorFromFullName() {
         var
             gpf = arguments[0],
+            /*global _CONSTRUCTOR_:true*/
+            /*jshint -W120*/
             constructor = _CONSTRUCTOR_ = function () {
                 gpf._classInit.apply(this, [constructor, arguments]);
             };
