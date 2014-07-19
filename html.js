@@ -20,7 +20,7 @@
      * @class gpf.html.MarkdownConverter
      * @implements gpf.interfaces.IReadableStream
      */
-    gpf.define("gpf.html.MarkdownConverter", {
+    gpf.define("gpf.html.MarkdownConverter", "gpf.Parser", {
 
         "[Class]": [gpf.$InterfaceImplement(gpfI.IReadableStream)],
 
@@ -32,7 +32,7 @@
             constructor: function (input) {
                 this._iStream = gpfI.query(input, gpfI.IReadableStream, true);
                 this._outputBuffer = [];
-                this._pState = this._parseInit;
+                this.setParserState(this._parseInit);
             },
 
             //region gpf.interfaces.IReadableStream
@@ -155,15 +155,9 @@
                     
                 } else {
                     this._iState = _MARKDOWN_ISTATE_WAITING;
-                    this._parse(event.get("buffer"));
+                    this.parse(event.get("buffer"));
                 }
             },
-
-            /**
-             * Parser state
-             * @type {Number} see _MARKDOWN_PARSER_xxx
-             */
-            _pState: null,
 
             /*
              * 'Grammar'
@@ -210,7 +204,6 @@
 
             _pTagOpened: false,
             _numberOfNL: 0,
-            _indentLevel: 0,
 
             /**
              * init
@@ -225,7 +218,6 @@
                     if (2 === ++this._numberOfNL && this._pTagOpened) {
                         closeP = true;
                     }
-                    this._indentLevel = 0;
                     // this._pState = this._parseInit;
                 } else if ("#" === char) {
                     // If a <p> is opened, close it
@@ -278,29 +270,13 @@
             _parseList: function (char) {
                 if (" " === char) {
                     // Start or append list
+                    // Use column to know which list
                 }
                 this._pState = this._parseContent;
             },
 
             _parseContent: function (char) {
 
-            },
-
-            /**
-             * Parses the received buffer
-             *
-             * @param {String} buffer
-             * @private
-             */
-            _parse: function (buffer) {
-                var
-                    pos = 0,
-                    char,
-                    len = buffer.length;
-                while (pos < len) {
-                    char = buffer.charAt(pos);
-                    this._pState(char);
-                }
             },
 
             /**
@@ -313,6 +289,13 @@
                 this._outputBuffer.push(html);
                 this._outputBufferLength += html.length;
             }
+
+        },
+
+        protected: {
+
+            //region Parser configuration
+            _ignoreCarriageReturn: true
 
         }
 
