@@ -994,108 +994,159 @@
 
     /**
      * This parser base class maintain the current stream position
-     * And also offers some basic features to improve parsing speed
+     * And also offers some basic features to ease parsing and improve speed
      *
      * @class gpf.Parser
      */
     gpf.define("gpf.Parser", {
 
-        "[Class]": [gpf.$InterfaceImplement(gpfI.ITextStream)],
+        public: {
 
-        _pos: 0,
-        _line: 0,
-        _column: 0,
-        _state: 0, // Initial state
+            constructor: function () {
+                this.reset();
+            },
 
-        constructor: function () {
-            this._init();
-        },
+            /**
+             * Resets the parser position & state
+             *
+             * @param {Function} [state=null] state
+             */
+            reset: function (state) {
+                this._pos = 0;
+                this._line = 0;
+                this._column = 0;
+                this.setState(state);
+            },
 
-        /**
-         * Initialize Parser specific members
-         *
-         * @private
-         */
-        _init: function () {
-            this._pos = 0;
-            this._line = 0;
-            this._column = 0;
-            this._state = 0;
-        },
+            /**
+             * Get current position
+             *
+             * @return {{pos: number, line: number, column: number}}
+             */
+            currentPos: function () {
+                return {
+                    pos: this._pos,
+                    line: this._line,
+                    column: this._column
+                };
+            },
 
-        /**
-         * Get current position
-         *
-         * @return {{pos: number, line: number, column: number}}
-         */
-        currentPos: function () {
-            return {
-                pos: this._pos,
-                line: this._line,
-                column: this._column
-            };
-        },
+            /**
+             * Change parser state
+             *
+             * @param {Function} [state=null] state
+             */
+            setParserState: function (state) {
+                if (!state) {
+                    state = null;
+                }
+                if (state !== this._pState) {
+                    // TODO trigger state transition
+                    this._pState = state;
+                }
+            },
 
-        /**
-         * Process the character
-         *
-         * @param {String} char
-         *
-         * @abstract
-         * @private
-         */
-        _parse: function (char) {
-            gpf.interfaces.ignoreParameter(char);
-        },
-
-        /**
-         * Consider the current state and finalize the current token (if any),
-         * go back to the initial state
-         *
-         * @abstract
-         * @private
-         */
-        _reset: function () {
-        },
-
-        //region gpf.interfaces.ITextStream
-
-        /**
-         * @implements gpf.interfaces.ITextStream.read
-         */
-        read: function(count) {
-            gpf.interfaces.ignoreParameter(count);
-            return "";
-        },
-
-        /**
-         * @implements gpf.interfaces.ITextStream.write
-         */
-        write: gpfI.ITextStream._write,
-
-        write_: function (buffer) {
-            var
-                idx,
-                char;
-            if (null === buffer) {
-                this._reset();
-                this._init();
-            } else {
+            /**
+             * Parser entry point
+             *
+             * @param {String} buffer
+             */
+            parse : function (buffer) {
+                var
+                    idx,
+                    char,
+                    state,
+                    newLine = false;
                 for (idx = 0; idx < buffer.length; ++idx) {
                     char = buffer.charAt(idx);
-                    this._parse(char);
+                    if ("\r" === char && this._ignoreCarriageReturn) {
+                        char = 0;
+                    }
+                    if ("\n" === char && this._ignoreLineFeed) {
+                        newLine = true;
+                        char = 0;
+                    }
+                    if (char) {
+                        state = this._pState(char);
+                        if (undefined !== state && state !== this._pState) {
+                            this.setParserState(state);
+                        }
+                    }
                     ++this._pos;
-                    if ("\n" === char) {
+                    if ("\n" === char || newLine) {
                         ++this._line;
                         this._column = 0;
+//                        this._parsedEndOfLine();
                     } else {
                         ++this._column;
                     }
                 }
             }
-        }
 
-        //endregion
+        },
+
+        protected: {
+
+            // Configuration / pre-defined handlers
+
+            /**
+             * Ignore \r  (i.e. no parsing function called)
+             *
+             * @type {Boolean}
+             */
+            _ignoreCarriageReturn: false,
+
+            /**
+             * Ignore \n (i.e. no parsing function called)
+             *
+             * @type {Boolean}
+             */
+            _ignoreLineFeed: false //,
+
+//            /**
+//             * Sometimes, common handling of new line can be achieved by a
+//             * single function called automatically
+//             *
+//             * @private
+//             */
+//            _parsedEndOfLine: function () {}
+        },
+
+        private: {
+
+            /**
+             * Absolute parser current position
+             *
+             * @type {Number}
+             * @private
+             */
+            _pos: 0,
+
+            /**
+             * Parser current line
+             *
+             * @type {Number}
+             * @private
+             */
+            _line: 0,
+
+            /**
+             * Parser current column
+             *
+             * @type {Number}
+             * @private
+             */
+            _column: 0,
+
+            /**
+             * Parser current state function
+             *
+             * @type {Function}
+             * @private
+             */
+            _pState: null
+
+        }
 
     });
 
