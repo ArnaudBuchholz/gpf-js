@@ -499,6 +499,7 @@
         }
     };
 
+    /*global _CONSTRUCTOR_:true*/
     /**
      * Template for new class constructor (using name that includes namespace)
      * - Uses closure to keep track of gpf handle and constructor function
@@ -511,7 +512,6 @@
     function _newClassConstructorFromFullName() {
         var
             gpf = arguments[0],
-            /*global _CONSTRUCTOR_:true*/
             /*jshint -W120*/
             constructor = _CONSTRUCTOR_ = function () {
                 gpf._classInit.apply(this, [constructor, arguments]);
@@ -575,8 +575,9 @@
     gpf.define = function (name, base, definition) {
         var
             result,
-            ns,
             path,
+            ns,
+            leafName,
             classDef;
         if ("string" === typeof base) {
             // Convert base into the function
@@ -591,13 +592,13 @@
         }
         if (-1 < name.indexOf(".")) {
             path = name.split(".");
-            path.pop();
+            leafName = path.pop();
             ns = gpf.context(path);
         }
         classDef = new gpf.ClassDefinition(name, base, definition || {});
         result = classDef.Constructor();
         if (undefined !== ns) {
-            ns[name] = result;
+            ns[leafName] = result;
         }
         return result;
     };
