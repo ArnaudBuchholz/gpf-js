@@ -112,9 +112,12 @@
 
             function (test) {
                 test.title("Direct use of MarkdownConverter parser");
-                var parser = new gpf.html.MarkdownParser();
-                parser.parse(_sampleMD);
-                // TODO determine how the output should be handled
+                var
+                    parser = new gpf.html.MarkdownParser(),
+                    output = [];
+                parser.setOutputHandler(output);
+                parser.parse(_sampleMD, gpf.Parser.FINALIZE);
+                test.equal(_sampleHTML, output.join(""), "Direct parsing");
             }
 
         ]
