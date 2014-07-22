@@ -6,6 +6,12 @@
     var
         gpfI = gpf.interfaces,
 
+        _PARSERSTREAM_BUFFER_SIZE        = 256,
+        _PARSERSTREAM_ISTATE_INIT        = 0,
+        _PARSERSTREAM_ISTATE_INPROGRESS  = 1,
+        _PARSERSTREAM_ISTATE_WAITING     = 2,
+        _PARSERSTREAM_ISTATE_EOS         = 3,
+
     //region ITokenizer
 
         /**
@@ -996,6 +1002,8 @@
      * This parser base class maintain the current stream position
      * And also offers some basic features to ease parsing and improve speed
      *
+     * The output has to be transmitted through the protected _output function.
+     *
      * @class gpf.Parser
      */
     gpf.define("gpf.Parser", {
@@ -1015,7 +1023,7 @@
                 this._pos = 0;
                 this._line = 0;
                 this._column = 0;
-                this.setState(state);
+                this._setParserState(state);
             },
 
             /**
@@ -1032,55 +1040,35 @@
             },
 
             /**
-             * Change parser state
+             * Parser entry point
              *
-             * @param {Function} [state=null] state
+             * @param {...String|null} var_args
              */
-            setParserState: function (state) {
-                if (!state) {
-                    state = null;
-                }
-                if (state !== this._pState) {
-                    // TODO trigger state transition
-                    this._pState = state;
+            parse : function () {
+                var
+                    len = arguments.length,
+                    idx,
+                    arg;
+                for (idx = 0; idx < len; ++idx) {
+                    arg = arguments[idx];
+                    if (null === arg) {
+                        this._parseEnd();
+                    } else {
+                        gpf.ASSERT("string" === typeof arg);
+                        this._parse(arg);
+                    }
                 }
             },
 
             /**
-             * Parser entry point
+             * Defines an handler for the parser output
              *
-             * @param {String} buffer
+             * @param {Array|Function|gpf.Callback) handler
+             * @private
              */
-            parse : function (buffer) {
-                var
-                    idx,
-                    char,
-                    state,
-                    newLine = false;
-                for (idx = 0; idx < buffer.length; ++idx) {
-                    char = buffer.charAt(idx);
-                    if ("\r" === char && this._ignoreCarriageReturn) {
-                        char = 0;
-                    }
-                    if ("\n" === char && this._ignoreLineFeed) {
-                        newLine = true;
-                        char = 0;
-                    }
-                    if (char) {
-                        state = this._pState(char);
-                        if (undefined !== state && state !== this._pState) {
-                            this.setParserState(state);
-                        }
-                    }
-                    ++this._pos;
-                    if ("\n" === char || newLine) {
-                        ++this._line;
-                        this._column = 0;
-//                        this._parsedEndOfLine();
-                    } else {
-                        ++this._column;
-                    }
-                }
+            setOutputHandler: function (handler) {
+                gpf.ASSERT(handler instanceof Array || handler.apply);
+                this._outputHandler = handler;
             }
 
         },
@@ -1101,7 +1089,7 @@
              *
              * @type {Boolean}
              */
-            _ignoreLineFeed: false //,
+            _ignoreLineFeed: false,
 
 //            /**
 //             * Sometimes, common handling of new line can be achieved by a
@@ -1110,6 +1098,37 @@
 //             * @private
 //             */
 //            _parsedEndOfLine: function () {}
+
+            /**
+             * Change parser state
+             *
+             * @param {Function} [state=null] state
+             */
+            _setParserState: function (state) {
+                if (!state) {
+                    state = null;
+                }
+                if (state !== this._pState) {
+                    // TODO trigger state transition
+                    this._pState = state;
+                }
+            },
+
+            /**
+             * The parser generates an output
+             *
+             * @param {*} item
+             * @private
+             */
+            _output: function (item) {
+                var handler = this._outputHandler;
+                if (handler instanceof Array) {
+                    handler.push(item);
+                } else if (null !== handler) {
+                    // Assuming a Function or a gpf.Callback
+                    handler.apply(this, [item]);
+                }
+            }
         },
 
         private: {
@@ -1144,10 +1163,250 @@
              * @type {Function}
              * @private
              */
-            _pState: null
+            _pState: null,
+
+            /**
+             * Output handler
+             *
+             * @type {Array|Function|gpf.Callback)
+             * @private
+             */
+            _outputHandler: null,
+
+            /**
+             * Parser internal entry point
+             *
+             * @param {String} buffer
+             * @private
+             */
+            _parse : function (buffer) {
+                var
+                    len,
+                    idx,
+                    char,
+                    state,
+                    newLine = false;
+                len = buffer.length;
+                for (idx = 0; idx < len; ++idx) {
+                    char = buffer.charAt(idx);
+                    if ("\r" === char && this._ignoreCarriageReturn) {
+                        char = 0;
+                    }
+                    if ("\n" === char && this._ignoreLineFeed) {
+                        newLine = true;
+                        char = 0;
+                    }
+                    if (char) {
+                        state = this._pState(char);
+                        if (undefined !== state && state !== this._pState) {
+                            this.setParserState(state);
+                        }
+                    }
+                    ++this._pos;
+                    if ("\n" === char || newLine) {
+                        ++this._line;
+                        this._column = 0;
+//                        this._parsedEndOfLine();
+                    } else {
+                        ++this._column;
+                    }
+                }
+            },
+
+            /**
+             * Parser must end current parsing
+             *
+             * @private
+             */
+            _parseEnd: function () {
+                // TODO see how to handle that properly
+                this._pState(0);
+            }
+
+        },
+
+        static: {
+
+            /**
+             * Use to finalize the parser state
+             */
+            FINALIZE: null
+        }
+    });
+
+    //endregion
+
+    //region ParserStream
+
+    /**
+     * Encapsulate a parser inside a ReadableStream interface
+     *
+     * @class gpf.ParserStream
+     * @implements gpf.interfaces.IReadableStream
+     */
+    gpf.define("gpf.ParserStream", {
+
+        "[Class]": [gpf.$InterfaceImplement(gpfI.IReadableStream)],
+
+        public: {
+
+            /**
+             * @param {gpf.Parser} parser
+             * @param {gpf.interfaces.IReadableStream} input
+             */
+            constructor: function (parser, input) {
+                this._parser = parser;
+                this._parser.setOutputHandler(new gpf.Callback(this._output,
+                    this));
+                this._iStream = gpfI.query(input, gpfI.IReadableStream, true);
+                this._outputBuffer = [];
+            },
+
+            //region gpf.interfaces.IReadableStream
+
+            /**
+             * @implements gpf.interfaces.IReadableStream:read
+             */
+            read: function (size, eventsHandler) {
+                var
+                    iState = this._iState,
+                    buffer,
+                    length = this._outputBufferLength;
+                if (_PARSERSTREAM_ISTATE_INPROGRESS === iState) {
+                    // A read call is already in progress
+                    throw gpfI.IReadableStream.EXCEPTION_READ_IN_PROGRESS;
+
+                } else if (size < length
+                    || length && _PARSERSTREAM_ISTATE_EOS === iState) {
+                    // Enough chars in the output buffer to do the read
+                    // OR there won't be any more chars
+                    buffer = this._outputBuffer.shift();
+                    length = buffer.length;
+                    if (size && size < length) {
+                        // More than requested, enqueue the extra chars
+                        this._outputBuffer.unshift(buffer.substr(size));
+                        buffer = buffer.substr(0, size);
+                        length = size;
+                    }
+                    this._outputBufferLength -= length;
+                    // Can output something
+                    gpf.events.fire(gpfI.IReadableStream.EVENT_DATA, {
+                        buffer: buffer
+                    }, eventsHandler);
+
+                } else if (_PARSERSTREAM_ISTATE_EOS === iState) {
+                    // No more input and output buffer is empty
+                    gpf.events.fire(gpfI.IReadableStream.EVENT_END_OF_STREAM,
+                        eventsHandler);
+
+                } else {
+                    // Read input
+                    if (_PARSERSTREAM_ISTATE_INIT === this._iState) {
+                        // Very first call, create callback for input reads
+                        this._cbRead = new gpf.Callback(this._onRead, this);
+                    }
+                    this._iState = _PARSERSTREAM_ISTATE_INPROGRESS;
+                    // Backup parameters
+                    this._size = size;
+                    this._eventsHandler = eventsHandler;
+                    this._iStream.read(_PARSERSTREAM_BUFFER_SIZE, this._cbRead);
+                }
+            }
+
+            //endregion
+        },
+
+        //region Implementation
+
+        private: {
+
+            /**
+             * Parser
+             * @type {gpf.Parser}
+             */
+            _parser: null,
+
+            /**
+             * Input stream
+             * @type {gpf.interfaces.IReadableStream}
+             */
+            _iStream: null,
+
+            /**
+             * Input stream read callback (pointing to this:_onRead)
+             * @type {gpf.Callback}
+             */
+            _cbRead: null,
+
+            /**
+             * Output buffer, contains decoded items
+             * @type {String[]}
+             */
+            _outputBuffer: [],
+
+            /**
+             * Size of the output buffer (number of characters)
+             * @type {Number}
+             */
+            _outputBufferLength: 0,
+
+            /**
+             * Input state
+             * @type {Number} see _PARSERSTREAM_ISTATE_xxx
+             */
+            _iState: _PARSERSTREAM_ISTATE_INIT,
+
+            /**
+             * Pending read call size
+             * @type {Number}
+             */
+            _size: 0,
+
+            /**
+             * Pending read call event handlers
+             * @type {gpf.events.Handler}
+             */
+            _eventsHandler: null,
+
+            /**
+             * Handles input stream read event
+             *
+             * @param {gpf.events.Event} event
+             * @private
+             */
+            _onRead: function (event) {
+                var
+                    type = event.type();
+                if (type === gpfI.IReadableStream.EVENT_END_OF_STREAM) {
+                    this._iState = _PARSERSTREAM_ISTATE_EOS;
+                    this._parser.parse(gpf.Parser.FINALIZE);
+                    // Redirect to read with backed parameters
+                    return this.read(this._size, this._eventsHandler);
+
+                } else if (type === gpfI.IReadableStream.EVENT_ERROR) {
+                    // Forward the event
+                    gpf.events.fire(event, this._eventsHandler);
+
+                } else {
+                    this._iState = _PARSERSTREAM_ISTATE_WAITING;
+                    this._parser.parse(event.get("buffer"));
+                }
+            },
+
+            /**
+             * Hook used in gpf.Parser:setOutputHandler
+             *
+             * @param {String} text
+             * @private
+             */
+            _output: function (text) {
+                this._outputBuffer.push(text);
+                this._outputBufferLength += text.length;
+            }
 
         }
 
+        //endregion
     });
 
     //endregion
