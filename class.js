@@ -458,6 +458,15 @@
              */
             this._processDefinition();
             this._processAttributes();
+
+            /*
+             * 2014-07-23 ABZ Adding a 'base' constructor to ease the build of
+             * consructors
+             */
+            if (this._defConstructor) {
+                newPrototype._baseConstructor =
+                    _getNewBaseConstructorFunc(this._Base);
+            }
         }
 
         //endregion
@@ -562,6 +571,21 @@
         start = src.indexOf("{") + 1;
         end = src.lastIndexOf("}") - 1;
         return src.substr(start, end - start + 1);
+    }
+
+    /**
+     * Returns the definition of _baseConstructor
+     *
+     * @param {Function} Base
+     * @private
+     * @closure
+     */
+    function _getNewBaseConstructorFunc(Base) {
+        /*jslint -W040*/
+        return function () {
+            Base.apply(this, arguments);
+        };
+        /*jslint +W040*/
     }
 
     //endregion
