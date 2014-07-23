@@ -13,110 +13,123 @@
      */
     gpf.define("gpf.html.MarkdownParser", "gpf.Parser", {
 
-        //region Implementation
+        public: {
+            constructor: function () {
+                this._baseConstructor(arguments);
+                this._openedTags = [];
+            }
+        },
 
-        private: {
+    /*
+     * 'Grammar'
+     * init
+     *      : '\n' init
+     *      | '#' title1
+     *      | '*' list
+     *      | ' ' init
+     *      | content
+     *
+     * title1
+     *      : '#' title2
+     *      | text \n init
+     * title2
+     *      : '#' title3
+     *      | text \n init
+     * title3
+     *       : text \n init
+     *
+     * list
+     *      : ' ' content // confirmed
+     *      | content
+     *
+     * content
+     *      : '\n' init
+     *      | '*' italic
+     *      | '`' monospace
+     *      | '[' link
+     *      | '&' content
+     *      | '<' content
+     *      | '>' content
+     *      | content
+     *
+     * italic
+     *      : '*' text '*' '*' // bold
+     *      : text '*' // italic
+     *
+     * monospace
+     *      : text '`'
+     *
+     * link
+     *      : (text) ']' '(' url ')'
+     */
 
-            /*
-             * 'Grammar'
-             * init
-             *      : '\n' init
-             *      | '#' title1
-             *      | '*' list
-             *      | ' ' init
-             *      | content
-             *
-             * title1
-             *      : '#' title2
-             *      | text \n
-             * title2
-             *      : '#' title3
-             *      | text \n
-             * title3
-             *       : text \n
-             *
-             * list
-             *      : ' ' content // confirmed
-             *      | content
-             *
-             * content
-             *      : '\n' init
-             *      | '*' italic
-             *      | '`' monospace
-             *      | '[' link
-             *      | '&' content
-             *      | '<' content
-             *      | '>' content
-             *      | content
-             *
-             * italic
-             *      : '*' text '*' '*' // bold
-             *      : text '*' // italic
-             *
-             * monospace
-             *      : text '`'
-             *
-             * link
-             *      : (text) ']' '(' url ')'
-             */
+        protected: {
 
-            _pTagOpened: false,
-            _numberOfNL: 0,
+            //region Parser configuration
+            _ignoreCarriageReturn: true, // \r
 
             /**
-             * init
+             * State init
+             *
              * @param {String} char
              * @private
              */
-            _parseInit: function (char) {
+            _initialParserState: function (char) {
                 var
-                    closeP = false;
+                    closeParagraph = false;
                 if ("\n" === char) {
-                    // If the second time and a <p> is opened, close it
-                    if (2 === ++this._numberOfNL && this._pTagOpened) {
-                        closeP = true;
-                    }
-                    // this._pState = this._parseInit;
+                    closeParagraph = true;
                 } else if ("#" === char) {
-                    // If a <p> is opened, close it
-                    closeP = true;
+                    closeParagraph = true;
                     this._hLevel = 1;
-                    this._pState = this._parseTitle;
+                    this._setParserState(this._parseTitle);
                 } else if ("*" === char) {
-                    // If a <p> is opened, close it
-                    closeP = true;
-                    this._pState = this._parseList;
-                } else if (" " === char || "\t" === char) {
-                    ++this._indentLevel;
-                    // this._pState = this._pStateInit;
-                } else {
-                    // If no <p> and - at least - two \n were used, open one
-                    if (1 < this._numberOfNL) {
-                        this._output("<p>");
-                        this._pTagOpened = true;
-                    }
+                    closeParagraph = true;
+                    this._setParserState(this._parseList);
+                } else if (" " !== char && "\t" !== char) {
+                    this._openTag("p");
                     this._parseContent(char);
                 }
-                if (closeP) {
-                    this._output("</p>");
-                    this._pTagOpened = false;
+                if (closeParagraph) {
+                    this._closeParagraph();
                 }
+            }
+
+        },
+
+        private: {
+
+            _openedTags: [],
+
+            _closeParagraph: function () {
+                var tag;
+                while (this._openedTags.length) {
+                    tag = this._openedTags.pop();
+                    this._output("</" + tag + ">");
+                    if ("p" === tag) {
+                        break;
+                    }
+                }
+            },
+
+            _openTag: function (tag) {
+                this._output("<" + tag + ">");
+                this._openedTags.push(tag);
             },
 
             _hLevel: 1,
 
             /**
-             * title1, ... N
+             * States title1, ... N
              * @param {String} char
              * @private
              */
             _parseTitle: function (char) {
                 if ("#" === char) {
                     ++this._hLevel;
-//                    this._pState = this._parseTitle;
                 } else {
-                    this._output("<h" + this._hLevel + ">");
-                    this._pState = this._parseText;
+                    this._openTag("h" + this._hLevel);
+                    this._setParserState(this._parseText);
                 }
             },
 
@@ -130,34 +143,23 @@
                     // Start or append list
                     // Use column to know which list
                 }
-                this._pState = this._parseContent;
+                this._setParserState(this._parseText);
             },
 
             _parseContent: function (char) {
-
+                this._parseText(char);
             },
 
-            /**
-             * Enqueue the html in the output buffer
-             *
-             * @param {String} html
-             * @private
-             */
-            _output: function (html) {
-                this._outputBuffer.push(html);
-                this._outputBufferLength += html.length;
+            _parseText: function (char) {
+                // Ignore any formatting until \n
+                if ("\n" === char) {
+                    this._setParserState(this._initialParserState);
+                } else {
+                    this._output(char);
+                }
             }
-
-        },
-
-        protected: {
-
-            //region Parser configuration
-            _ignoreCarriageReturn: true
-
         }
 
-        //endregion
     });
 
 /*#ifndef(UMD)*/
