@@ -76,23 +76,28 @@
              */
             _initialParserState: function (char) {
                 var
+                    newState,
                     closeParagraph = false;
                 if ("\n" === char) {
                     closeParagraph = true;
                 } else if ("#" === char) {
                     closeParagraph = true;
                     this._hLevel = 1;
-                    this._setParserState(this._parseTitle);
+                    newState = this._parseTitle;
                 } else if ("*" === char) {
                     closeParagraph = true;
-                    this._setParserState(this._parseList);
+                    newState = this._parseList;
                 } else if (" " !== char && "\t" !== char) {
                     this._openTag("p");
-                    this._parseContent(char);
+                    newState = this._parseContent(char);
+                    if (!newState) {
+                        newState = this._parseContent;
+                    }
                 }
                 if (closeParagraph) {
                     this._closeParagraph();
                 }
+                return newState;
             }
 
         },
