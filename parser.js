@@ -1078,6 +1078,12 @@
             // Configuration / pre-defined handlers
 
             /**
+             * Initial parser state (set with reset)
+             * @type {Function|null}
+             */
+            _initialParserState: null,
+
+            /**
              * Ignore \r  (i.e. no parsing function called)
              *
              * @type {Boolean}
@@ -1106,7 +1112,7 @@
              */
             _setParserState: function (state) {
                 if (!state) {
-                    state = null;
+                    state = this._initialParserState;
                 }
                 if (state !== this._pState) {
                     // TODO trigger state transition
