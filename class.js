@@ -235,7 +235,9 @@
             }
             baseMember = this._Base.prototype[member];
             baseType = typeof baseMember;
-            if ("undefined" !== baseType && newType !== baseType) {
+            if ("undefined" !== baseType
+                && null !== baseMember // Special case as null is common
+                && newType !== baseType) {
                 throw {
                     message: "You can't overload a member to change its type"
                 };
