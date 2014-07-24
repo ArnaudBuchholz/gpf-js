@@ -11,17 +11,17 @@
 
         _testDetailsCompare = function () {
             var
-                details = ["First: ("],
+                details = ["1:\t("],
                 type = typeof arguments[0];
-            details.push(type, ") ");
+            details.push(type, ")\t");
             if ("undefined" === type) {
                 details.push("undefined");
             } else {
                 details.push(gpf.json.stringify(arguments[0]));
             }
-            details.push("\r\nSecond: (");
+            details.push("\r\n2:\t(");
             type = typeof arguments[1];
-            details.push(type, ") ");
+            details.push(type, ")\t");
             if ("undefined" === type) {
                 details.push("undefined");
             } else {
