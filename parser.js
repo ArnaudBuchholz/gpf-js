@@ -1204,7 +1204,7 @@
                     }
                     if (char) {
                         state = this._pState(char);
-                        if (undefined !== state && state !== this._pState) {
+                        if (undefined !== state) {
                             this._setParserState(state);
                         }
                     }
