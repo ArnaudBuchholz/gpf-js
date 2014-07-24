@@ -40,6 +40,7 @@
      *
      * list
      *      : ' ' content // confirmed
+     *      : '*' text '*' '*' // bold
      *      | content
      *
      * content
@@ -77,25 +78,28 @@
             _initialParserState: function (char) {
                 var
                     newState,
-                    closeParagraph = false;
-                if ("\n" === char) {
-                    closeParagraph = true;
-                } else if ("#" === char) {
-                    closeParagraph = true;
+                    inParagraph = this._inParagraph;
+                if ("#" === char) {
                     this._hLevel = 1;
                     newState = this._parseTitle;
                 } else if ("*" === char) {
-                    closeParagraph = true;
                     newState = this._parseList;
-                } else if (" " !== char && "\t" !== char) {
-                    this._openTag("p");
+                    inParagraph = false; // Wait for disambiguation
+                } else if (" " !== char && "\t" !== char && "\n" !== char) {
+                    if (!inParagraph) {
+                        this._openTag("p");
+                        this._inParagraph = true;
+                    } else {
+                        this._output(" ");
+                        inParagraph = false; // Avoid closing below
+                    }
                     newState = this._parseContent(char);
                     if (!newState) {
                         newState = this._parseContent;
                     }
                 }
-                if (closeParagraph) {
-                    this._closeParagraph();
+                if (inParagraph) {
+                    this._closeTags();
                 }
                 return newState;
             }
@@ -104,9 +108,10 @@
 
         private: {
 
+            _inParagraph: false,
             _openedTags: [],
 
-            _closeParagraph: function () {
+            _closeTags: function () {
                 var tag;
                 while (this._openedTags.length) {
                     tag = this._openedTags.pop();
@@ -115,6 +120,8 @@
                         break;
                     }
                 }
+                // If we were in a paragraph, we are not anymore
+                this._inParagraph = false;
             },
 
             _openTag: function (tag) {
@@ -144,21 +151,39 @@
              * @private
              */
             _parseList: function (char) {
+                var
+                    inParagraph = this._inParagraph,
+                    newState;
                 if (" " === char) {
+                    if (inParagraph) {
+                        this._closeTags();
+                    }
                     // Start or append list
                     // Use column to know which list
+                } else if ("*" === char) {
+                    if (inParagraph) {
+                        this._output(" "); // new line inside a paragraph
+                    }
+                    this._openTag("b");
                 }
-                this._setParserState(this._parseText);
+                return this._parseContent;
             },
 
             _parseContent: function (char) {
-                this._parseText(char);
+                if ("*" === char) {
+                    this._openTag("em");
+                } else if ("\n" === char) {
+                    return null;
+                } else {
+                    this._output(char);
+                }
             },
 
             _parseText: function (char) {
                 // Ignore any formatting until \n
                 if ("\n" === char) {
-                    this._setParserState(this._initialParserState);
+                    this._closeTags();
+                    return null;
                 } else {
                     this._output(char);
                 }
