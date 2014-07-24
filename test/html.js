@@ -5,9 +5,8 @@
         _sampleHTML = [
             "<h1>Heading</h1>",
             "<h2>Sub-heading</h2>",
-            "<p>Paragraphs are separated",
-            "by a blank line.</p>",
-            "<p>Text attributes <em>italic</em>, ",
+            "<p>Paragraphs are separated by a blank line.</p>",
+            "<p>Text attributes <em>italic</em>,",
             "<strong>bold</strong>, ",
             "<code>monospace</code>.</p>",
             "<p>A <a href=\"http://example.com\">link</a>.</p>",
@@ -23,8 +22,7 @@
             "<li>oranges</li>",
             "<li>pears</li>",
             "</ol>",
-            "<p>The rain&mdash;not the",
-            "reign&mdash;in Spain.</p>"
+            "<p>The rain&mdash;not the reign&mdash;in Spain.</p>"
         ].join(""),
 
         _sampleMD = [
@@ -35,7 +33,7 @@
             "Paragraphs are separated",
             "by a blank line.",
             "",
-            "Text attributes *italic*, ",
+            "Text attributes *italic*,",
             "**bold**, `monospace`.",
             "",
             "A [link](http://example.com).",
