@@ -72,7 +72,7 @@ function save (name, version) {
         fs.writeFileSync(path + ".compact.js",parsed[name + ".compact.js"]);
     }
     fs.writeFileSync(path + ".json", JSON.stringify(json, true, 4));
-    fs.writeFileSync(path + ".xml", toXml(json));
+//    fs.writeFileSync(path + ".xml", toXml(json));
 }
 
 for (idx = 0; idx < sources._list.length; ++idx) {
