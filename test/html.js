@@ -6,7 +6,7 @@
             "<h1>Heading</h1>",
             "<h2>Sub-heading</h2>",
             "<p>Paragraphs are separated by a blank line.</p>",
-            "<p>Text attributes <em>italic</em>,",
+            "<p>Text attributes <em>italic</em>, ",
             "<strong>bold</strong>, ",
             "<code>monospace</code>.</p>",
             "<p>A <a href=\"http://example.com\">link</a>.</p>",
