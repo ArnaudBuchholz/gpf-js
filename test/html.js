@@ -37,7 +37,6 @@
             "**bold**, `monospace`.",
             "",
             "A [link](http://example.com).",
-            "<<<   No space between ] and (  >>>",
             "",
             "Shopping list:",
             "",
