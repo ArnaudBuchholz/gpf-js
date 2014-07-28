@@ -110,6 +110,7 @@
 
             _inParagraph: false,
             _openedTags: [],
+            _textEnd: "",
 
             _closeTags: function () {
                 var tag;
@@ -141,7 +142,7 @@
                     ++this._hLevel;
                 } else {
                     this._openTag("h" + this._hLevel);
-                    this._setParserState(this._parseText);
+                    return this._parseText; // No formatting allowed in Hx
                 }
             },
 
@@ -152,8 +153,7 @@
              */
             _parseList: function (char) {
                 var
-                    inParagraph = this._inParagraph,
-                    newState;
+                    inParagraph = this._inParagraph;
                 if (" " === char) {
                     if (inParagraph) {
                         this._closeTags();
@@ -164,14 +164,42 @@
                     if (inParagraph) {
                         this._output(" "); // new line inside a paragraph
                     }
-                    this._openTag("b");
+                    this._openTag("strong");
+                    this._textEnd = "**";
                 }
-                return this._parseContent;
+                return this._parseText;
+            },
+
+            _handleEscape: function (char) {
+                if ("<" === char) {
+                    this._output("&lt;");
+                } else if (">" === char) {
+                    this._output("&gt;");
+                } else if ("&" === char) {
+                    this._output("&amp;");
+                } else {
+                    return false;
+                }
+                return true;
             },
 
             _parseContent: function (char) {
+                if (this._handleEscape(char)) {
+                    return;
+                }
                 if ("*" === char) {
                     this._openTag("em");
+                    this._textEnd = "*";
+                    return this._parseText;
+                } else if ("`" === char) {
+                    this._openTag("code");
+                    this._textEnd = "`";
+                    return this._parseText;
+                } else if ("[" === char) {
+                    this._linkState = 0;
+                    this._linkText = [];
+                    this._linkUrl = [];
+                    return this._parseLink;
                 } else if ("\n" === char) {
                     return null;
                 } else {
@@ -180,13 +208,52 @@
             },
 
             _parseText: function (char) {
-                // Ignore any formatting until \n
-                if ("\n" === char) {
+                var
+                    tag;
+                if (this._handleEscape(char)) {
+                    return;
+                }
+                if (this._textEnd && char === this._textEnd.charAt(0)) {
+                    // TODO not efficient, find a better way
+                    this._textEnd = this._textEnd.substr(1);
+                    if (!this._textEnd) {
+                        tag = this._openedTags.pop();
+                        this._output("</" + tag + ">");
+                        return this._parseContent;
+                    }
+                } else if ("\n" === char) {
+                    // Ignore any formatting until \n
                     this._closeTags();
                     return null;
                 } else {
                     this._output(char);
                 }
+            },
+
+            _linkText: [],
+            _linkUrl: [],
+            _linkState: 0,
+
+            _parseLink: function (char) {
+                var
+                    linkState = this._linkState;
+                if ("]" === char && 0 === linkState) {
+                    ++this._linkState;
+                } else if ("(" === char && 1 === linkState) {
+                    ++this._linkState;
+                } else if (")" === char && 2 === linkState) {
+                    this._output("<a href=\"");
+                    this._output(this._linkUrl.join(""));
+                    this._output("\">");
+                    this._output(this._linkText.join(""));
+                    this._output("</a>");
+                    return this._parseContent;
+                } else if (0 === linkState) {
+                    this._linkText.push(char);
+                } else if (2 === linkState) {
+                    this._linkUrl.push(char);
+                }
+                // Else... nothing. do some kind of error handling?
             }
         }
 
