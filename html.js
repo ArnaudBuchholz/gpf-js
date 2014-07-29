@@ -9,6 +9,8 @@
      * Markdown to HTML converter using Parser interface
      * Inspired from http://en.wikipedia.org/wiki/Markdown
      *
+     * Weak -but working- implementation
+     *
      * @class gpf.html.MarkdownParser
      */
     gpf.define("gpf.html.MarkdownParser", "gpf.Parser", {
@@ -57,11 +59,11 @@
      *      | content
      *
      * italic
-     *      : '*' text '*' '*' // bold
-     *      : text '*' // italic
+     *      : '*' content '*' '*' // bold
+     *      : content '*' // italic
      *
      * monospace
-     *      : text '`'
+     *      : content '`'
      *
      * link
      *      : (text) ']' '(' url ')'
@@ -118,7 +120,6 @@
 
             _inParagraph: false,
             _openedTags: [],
-            _textEnd: "",
 
             _closeTags: function () {
                 var
@@ -156,6 +157,17 @@
                     }
                 }
                 this._openTag(listTag);
+            },
+
+            _toggleTag: function (tag) {
+                var
+                    len = this._openedTags.length;
+                if (len && this._openedTags[len - 1] === tag) {
+                    this._openedTags.pop();
+                    this._output("</" + tag + ">");
+                } else {
+                    this._openTag(tag);
+                }
             },
 
             _openTag: function (tag) {
@@ -209,7 +221,6 @@
                         this._output(" "); // new line inside a paragraph
                     }
                     this._openTag("strong");
-                    this._textEnd = "**";
                 }
                 return this._parseContent;
             },
@@ -227,18 +238,20 @@
                 return true;
             },
 
+            /**
+             * content
+             * @param {String} char
+             * @private
+             */
             _parseContent: function (char) {
                 if (this._handleEscape(char)) {
                     return;
                 }
                 if ("*" === char) {
-                    this._openTag("em");
-                    this._textEnd = "*";
-                    return this._parseText;
+                    return this._parseItalic;
                 } else if ("`" === char) {
-                    this._openTag("code");
-                    this._textEnd = "`";
-                    return this._parseText;
+                    this._toggleTag("code");
+                    return;
                 } else if ("[" === char) {
                     this._linkState = 0;
                     this._linkText = [];
@@ -251,21 +264,31 @@
                 }
             },
 
+            /**
+             * italic
+             * @param {String} char
+             * @private
+             */
+            _parseItalic: function (char) {
+                if ("*" === char) {
+                    this._toggleTag("strong");
+                } else {
+                    this._toggleTag("em");
+                    this._output(char);
+                }
+                return this._parseContent;
+            },
+
+            /**
+             * text
+             * @param {String} char
+             * @private
+             */
             _parseText: function (char) {
-                var
-                    tag;
                 if (this._handleEscape(char)) {
                     return;
                 }
-                if (this._textEnd && char === this._textEnd.charAt(0)) {
-                    // TODO not efficient, find a better way
-                    this._textEnd = this._textEnd.substr(1);
-                    if (!this._textEnd) {
-                        tag = this._openedTags.pop();
-                        this._output("</" + tag + ">");
-                        return this._parseContent;
-                    }
-                } else if ("\n" === char) {
+                if ("\n" === char) {
                     // Ignore any formatting until \n
                     this._closeTags();
                     return null;
@@ -278,6 +301,11 @@
             _linkUrl: [],
             _linkState: 0,
 
+            /**
+             * link
+             * @param {String} char
+             * @private
+             */
             _parseLink: function (char) {
                 var
                     linkState = this._linkState;
