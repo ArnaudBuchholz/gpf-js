@@ -26,6 +26,7 @@
      *      : '\n' init
      *      | '#' title1
      *      | '*' list
+     *      | '0'...'9' list
      *      | ' ' init
      *      | content
      *
@@ -40,7 +41,9 @@
      *
      * list
      *      : ' ' content // confirmed
-     *      : '*' text '*' '*' // bold
+     *      | '0'...'9' list // If started with '0'...'9'
+     *      | '.' content // confirmed, if started with '0'...'9'
+     *      | '*' text '*' '*' // bold
      *      | content
      *
      * content
@@ -82,7 +85,12 @@
                 if ("#" === char) {
                     this._hLevel = 1;
                     newState = this._parseTitle;
-                } else if ("*" === char) {
+                } else if ("*" === char || "0" <= char && "9" >= char ) {
+                    if (char !== "*") {
+                        this._numericList = 1;
+                    } else {
+                        this._numericList = 0;
+                    }
                     newState = this._parseList;
                     inParagraph = false; // Wait for disambiguation
                 } else if (" " !== char && "\t" !== char && "\n" !== char) {
@@ -113,7 +121,8 @@
             _textEnd: "",
 
             _closeTags: function () {
-                var tag;
+                var
+                    tag;
                 while (this._openedTags.length) {
                     tag = this._openedTags.pop();
                     this._output("</" + tag + ">");
@@ -123,6 +132,30 @@
                 }
                 // If we were in a paragraph, we are not anymore
                 this._inParagraph = false;
+            },
+
+            _openList: function (listTag) {
+                var
+                    tag,
+                    len = this._openedTags.length;
+                while (len) {
+                    tag = this._openedTags.pop();
+                    --len;
+                    this._output("</" + tag + ">");
+                    if ("li" === tag) {
+                        break;
+                    }
+                }
+                if (len) {
+                    tag = this._openedTags[len - 1];
+                    if (tag !== listTag) {
+                        this._openedTags.pop();
+                        this._output("</" + tag + ">");
+                    } else {
+                        return;
+                    }
+                }
+                this._openTag(listTag);
             },
 
             _openTag: function (tag) {
@@ -146,6 +179,8 @@
                 }
             },
 
+            _numericList: false,
+
             /**
              * list
              * @param {String} char
@@ -153,13 +188,22 @@
              */
             _parseList: function (char) {
                 var
-                    inParagraph = this._inParagraph;
+                    inParagraph = this._inParagraph,
+                    listTag;
                 if (" " === char) {
+                    // Start or append list
+                    if (this._numericList) {
+                        listTag = "ol";
+                    } else {
+                        listTag = "ul";
+                    }
                     if (inParagraph) {
                         this._closeTags();
+                        this._openTag(listTag);
+                    } else {
+                        this._openList(listTag);
                     }
-                    // Start or append list
-                    // Use column to know which list
+                    this._openTag("li");
                 } else if ("*" === char) {
                     if (inParagraph) {
                         this._output(" "); // new line inside a paragraph
@@ -167,7 +211,7 @@
                     this._openTag("strong");
                     this._textEnd = "**";
                 }
-                return this._parseText;
+                return this._parseContent;
             },
 
             _handleEscape: function (char) {
