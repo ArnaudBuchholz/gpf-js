@@ -70,12 +70,18 @@
                     length,
                     result;
                 if (0 === this._buffer.length) {
-                    gpf.events.fire(gpfI.IReadableStream.EVENT_END_OF_STREAM,
-                        eventsHandler);
+                    gpf.events.fire.apply(this, [
+                        gpfI.IReadableStream.EVENT_END_OF_STREAM,
+                        eventsHandler
+                    ]);
                 } else if (undefined === count) {
-                    gpf.events.fire(gpfI.IReadableStream.EVENT_DATA, {
+                    gpf.events.fire.apply(this, [
+                        gpfI.IReadableStream.EVENT_DATA,
+                        {
                             buffer: this.consolidateString()
-                        }, eventsHandler);
+                        },
+                        eventsHandler
+                    ]);
                 } else {
                     firstBuffer = this._buffer[0];
                     length = firstBuffer.length;
@@ -88,9 +94,13 @@
                         this._buffer.shift();
                         this._pos = 0;
                     }
-                    gpf.events.fire(gpfI.IReadableStream.EVENT_DATA, {
-                        buffer: this.consolidateString()
-                    }, result);
+                    gpf.events.fire.apply(this, [
+                        gpfI.IReadableStream.EVENT_DATA,
+                        {
+                            buffer: this.consolidateString()
+                        },
+                        result
+                    ]);
                 }
             },
 
@@ -101,8 +111,10 @@
                 if (buffer && buffer.length) {
                     this._buffer.push(buffer);
                 }
-                gpf.events.fire(gpfI.IReadableStream.EVENT_READY,
-                    eventsHandler);
+                gpf.events.fire.apply(this, [
+                    gpfI.IReadableStream.EVENT_READY,
+                    eventsHandler
+                ]);
             },
 
             //endregion
@@ -201,19 +213,69 @@
          * Converts the stream into a string
          *
          * @param {gpf.interfaces.ITextStream} stream
-         * @return {String}
+         * @param {gpf.events.Handler} eventsHandler
+         *
+         * @event ready finished reading the stream
+         * @eventParam {String} string
+         *
          */
-        stringFromStream: function (stream) {
+        stringFromStream: function (stream, eventsHandler) {
+            var
+                buffer,
+                callback,
+                scope;
             if (stream instanceof StringStream) {
-                return stream.consolidateString();
-            } else {
-                // READ and join...
-                gpf.NOT_IMPLEMENTED();
-                return null;
+                buffer = stream.consolidateString();
+                gpf.events.fire.apply(this, [
+                    gpfI.IReadableStream.EVENT_READY,
+                    {
+                        buffer: buffer
+                    },
+                    eventsHandler
+                ]);
+                return;
             }
+            stream = gpf.interfaces.query(stream, gpfI.IReadableStream,  true);
+            scope = {
+                buffer: [],
+                eventsHandler: eventsHandler
+            };
+            callback =  new gpf.Callback(_stringFromStreamReadCallback, scope);
+            scope.callback = callback;
+            stream.read(0, callback);
         }
 
     });
+
+    function _stringFromStreamReadCallback(event) {
+        /*jshint -W040*/ // Because used as a callback
+        // this is {buffer: [], eventsHandler: {}}
+        var
+            type = event.type();
+        if (type === gpfI.IReadableStream.EVENT_END_OF_STREAM) {
+            gpf.events.fire.apply(this, [
+                gpfI.IReadableStream.EVENT_READY,
+                {
+                    string: this.buffer.join("")
+                },
+                this.eventsHandler
+            ]);
+
+        } else if (type === gpfI.IReadableStream.EVENT_ERROR) {
+            // Forward the event
+            gpf.events.fire.apply(this, [
+                event,
+                this.eventsHandler
+            ]);
+
+        } else {
+            this.buffer.push(event.get("buffer"));
+            event.scope().read(this.callback);
+            return;
+        }
+        delete this.callback; // Remove Circular reference
+        /*jshint +W040*/
+    }
 
 /*#ifndef(UMD)*/
 }()); /* End of privacy scope */
