@@ -56,7 +56,11 @@
      *      | '&' content
      *      | '<' content
      *      | '>' content
+     *      | '-' escape
      *      | content
+     *
+     * escape
+     *      : '-' '-' content
      *
      * italic
      *      : '*' content '*' '*' // bold
@@ -75,15 +79,15 @@
             _ignoreCarriageReturn: true, // \r
 
             /**
-             * State init
+             * Initial state
              *
              * @param {String} char
-             * @private
+             * @protected
              */
             _initialParserState: function (char) {
                 var
                     newState,
-                    inParagraph = this._inParagraph;
+                    tagsOpened = 0 < this._openedTags.length;
                 if ("#" === char) {
                     this._hLevel = 1;
                     newState = this._parseTitle;
@@ -94,33 +98,50 @@
                         this._numericList = 0;
                     }
                     newState = this._parseList;
-                    inParagraph = false; // Wait for disambiguation
+                    tagsOpened = false; // Wait for disambiguation
                 } else if (" " !== char && "\t" !== char && "\n" !== char) {
-                    if (!inParagraph) {
-                        this._openTag("p");
-                        this._inParagraph = true;
-                    } else {
+                    if (tagsOpened) {
                         this._output(" ");
-                        inParagraph = false; // Avoid closing below
+                        tagsOpened = false; // Avoid closing below
+                    } else {
+                        this._openTag("p");
                     }
                     newState = this._parseContent(char);
                     if (!newState) {
                         newState = this._parseContent;
                     }
                 }
-                if (inParagraph) {
+                if (tagsOpened) {
                     this._closeTags();
                 }
                 return newState;
+            },
+
+            /**
+             * @inheritdoc gpf.Parser:_finalizeParserState
+             * @protected
+             */
+            _finalizeParserState: function () {
+                this._closeTags();
             }
 
         },
 
         private: {
 
-            _inParagraph: false,
+            /**
+             * Stack of opened tags
+             *
+             * @type {String[}}
+             * @private
+             */
             _openedTags: [],
 
+            /**
+             * Close all opened tags
+             *
+             * @private
+             */
             _closeTags: function () {
                 var
                     tag;
@@ -131,10 +152,15 @@
                         break;
                     }
                 }
-                // If we were in a paragraph, we are not anymore
-                this._inParagraph = false;
             },
 
+            /**
+             * Open (or concatenate) a list tag. This includes closing previous
+             * list item (if any)
+             *
+             * @param {String} listTag
+             * @private
+             */
             _openList: function (listTag) {
                 var
                     tag,
@@ -159,6 +185,13 @@
                 this._openTag(listTag);
             },
 
+            /**
+             * Open/Close tag depending if it has been opened previously (if it
+             * appears as the top tag on the stacked items)
+             *
+             * @param {String} tag
+             * @private
+             */
             _toggleTag: function (tag) {
                 var
                     len = this._openedTags.length;
@@ -170,15 +203,28 @@
                 }
             },
 
+            /**
+             * Open a tag (and adds it to the stack)
+             *
+             * @param {String} tag
+             * @private
+             */
             _openTag: function (tag) {
                 this._output("<" + tag + ">");
                 this._openedTags.push(tag);
             },
 
+            /**
+             * H level (number of times the # char has been found)
+             *
+             * @type {Number}
+             * @private
+             */
             _hLevel: 1,
 
             /**
              * States title1, ... N
+             *
              * @param {String} char
              * @private
              */
@@ -191,16 +237,24 @@
                 }
             },
 
+            /**
+             * Indicates a numeric list element has been found
+             *
+             * @type {Boolean}
+             * @private
+             */
             _numericList: false,
 
             /**
-             * list
+             * State list
+             * TODO: numbered list parsing is incorrect
+             *
              * @param {String} char
              * @private
              */
             _parseList: function (char) {
                 var
-                    inParagraph = this._inParagraph,
+                    tagsOpened = 0 < this._openedTags.length,
                     listTag;
                 if (" " === char) {
                     // Start or append list
@@ -209,15 +263,13 @@
                     } else {
                         listTag = "ul";
                     }
-                    if (inParagraph) {
-                        this._closeTags();
-                        this._openTag(listTag);
-                    } else {
-                        this._openList(listTag);
-                    }
+                    this._openList(listTag);
                     this._openTag("li");
+                } else if (this._numericList
+                    && ("0" <= char && "9" >= char || "." === char)) {
+                    return; // No state change
                 } else if ("*" === char) {
-                    if (inParagraph) {
+                    if (tagsOpened) {
                         this._output(" "); // new line inside a paragraph
                     }
                     this._openTag("strong");
@@ -225,7 +277,14 @@
                 return this._parseContent;
             },
 
-            _handleEscape: function (char) {
+            /**
+             * Handles <, > and & HTML entities
+             *
+             * @param {String} char
+             * @returns {boolean} The character has been processed
+             * @private
+             */
+            _handleEntities: function (char) {
                 if ("<" === char) {
                     this._output("&lt;");
                 } else if (">" === char) {
@@ -239,12 +298,55 @@
             },
 
             /**
-             * content
+             * Escape character
+             *
+             * @type {String}
+             * @private
+             */
+            _escapeChar: "",
+
+            /**
+             * Escape character count
+             *
+             * @type {Number}
+             * @private
+             */
+            _escapeCount: 0,
+
+            /**
+             * State escape
+             *
+             * @param {String} char
+             * @private
+             */
+            _parseEscape: function (char) {
+                var
+                    escapeChar = this._escapeChar,
+                    count;
+                if (char === escapeChar) {
+                    count = ++this._escapeCount;
+                    if ("-" === escapeChar && 3 === count) {
+                        this._output("&mdash;");
+                        return this._parseContent;
+                    }
+                } else {
+                    count = this._escapeCount + 1;
+                    while (--count) {
+                        this._output(escapeChar);
+                    }
+                    this._setParserState(this._parseContent);
+                    return this._parseContent(char);
+                }
+            },
+
+            /**
+             * State content
+             *
              * @param {String} char
              * @private
              */
             _parseContent: function (char) {
-                if (this._handleEscape(char)) {
+                if (this._handleEntities(char)) {
                     return;
                 }
                 if ("*" === char) {
@@ -257,6 +359,10 @@
                     this._linkText = [];
                     this._linkUrl = [];
                     return this._parseLink;
+                } else if ("-" === char) {
+                    this._escapeCount = 1;
+                    this._escapeChar = "-";
+                    return this._parseEscape;
                 } else if ("\n" === char) {
                     return null;
                 } else {
@@ -265,7 +371,8 @@
             },
 
             /**
-             * italic
+             * State italic
+             *
              * @param {String} char
              * @private
              */
@@ -280,12 +387,13 @@
             },
 
             /**
-             * text
+             * State text
+             *
              * @param {String} char
              * @private
              */
             _parseText: function (char) {
-                if (this._handleEscape(char)) {
+                if (this._handleEntities(char)) {
                     return;
                 }
                 if ("\n" === char) {
@@ -302,7 +410,9 @@
             _linkState: 0,
 
             /**
-             * link
+             * State link
+             * TODO improve?
+             *
              * @param {String} char
              * @private
              */
