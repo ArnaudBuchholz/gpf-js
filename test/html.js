@@ -115,6 +115,24 @@
                 parser.setOutputHandler(output);
                 parser.parse(_sampleMD, gpf.Parser.FINALIZE);
                 test.equal(_sampleHTML, output.join(""), "Direct parsing");
+            },
+
+            function (test) {
+                test.title("Streamed MarkdownConverter parser");
+                var
+                    parser = new gpf.html.MarkdownParser(),
+                    stream = new gpf.ParserStream(parser,
+                        gpf.stringToStream(_sampleMD));
+                test.wait();
+                gpf.stringFromStream(stream, function (event) {
+                    var result;
+                    test.equal(event.type(),
+                        gpf.interfaces.IReadableStream.EVENT_READY,
+                        "Stream is ready");
+                    result = event.get("string");
+                    test.equal(_sampleHTML, string, "Streamed parsing");
+                    test.done();
+                });
             }
 
         ]
