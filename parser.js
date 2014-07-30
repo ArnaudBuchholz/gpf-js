@@ -1301,14 +1301,20 @@
                     }
                     this._outputBufferLength -= length;
                     // Can output something
-                    gpf.events.fire(gpfI.IReadableStream.EVENT_DATA, {
-                        buffer: buffer
-                    }, eventsHandler);
+                    gpf.events.fire.apply(this, [
+                        gpfI.IReadableStream.EVENT_DATA,
+                        {
+                            buffer: buffer
+                        },
+                        eventsHandler
+                    ]);
 
                 } else if (_PARSERSTREAM_ISTATE_EOS === iState) {
                     // No more input and output buffer is empty
-                    gpf.events.fire(gpfI.IReadableStream.EVENT_END_OF_STREAM,
-                        eventsHandler);
+                    gpf.events.fire.apply(this, [
+                        gpfI.IReadableStream.EVENT_END_OF_STREAM,
+                        eventsHandler
+                    ]);
 
                 } else {
                     // Read input
@@ -1396,7 +1402,10 @@
 
                 } else if (type === gpfI.IReadableStream.EVENT_ERROR) {
                     // Forward the event
-                    gpf.events.fire(event, this._eventsHandler);
+                    gpf.events.fire.apply(this, [
+                        event,
+                        this._eventsHandler
+                    ]);
 
                 } else {
                     this._iState = _PARSERSTREAM_ISTATE_WAITING;
