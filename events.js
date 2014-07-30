@@ -336,6 +336,15 @@
         },
 
         /**
+         * Event scope
+         *
+         * @return {Object}
+         */
+        scope: function () {
+            return gpf.Callback.resolveScope(this._scope);
+        },
+
+        /**
          * Event can be cancelled
          *
          * @return {Boolean}
