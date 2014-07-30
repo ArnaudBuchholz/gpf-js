@@ -1052,7 +1052,7 @@
                 for (idx = 0; idx < len; ++idx) {
                     arg = arguments[idx];
                     if (null === arg) {
-                        this._parseEnd();
+                        this._finalizeParserState();
                     } else {
                         gpf.ASSERT("string" === typeof arg);
                         this._parse(arg);
@@ -1079,7 +1079,9 @@
 
             /**
              * Initial parser state (set with reset)
+             *
              * @type {Function|null}
+             * @protected
              */
             _initialParserState: null,
 
@@ -1087,6 +1089,7 @@
              * Ignore \r  (i.e. no parsing function called)
              *
              * @type {Boolean}
+             * @protected
              */
             _ignoreCarriageReturn: false,
 
@@ -1094,6 +1097,7 @@
              * Ignore \n (i.e. no parsing function called)
              *
              * @type {Boolean}
+             * @protected
              */
             _ignoreLineFeed: false,
 
@@ -1101,14 +1105,26 @@
 //             * Sometimes, common handling of new line can be achieved by a
 //             * single function called automatically
 //             *
-//             * @private
+//             * @protected
 //             */
 //            _parsedEndOfLine: function () {}
+
+            /**
+             * No more character will be entered, parser must end
+             * Default implementation consists in calling current state with 0
+             * as parameter. Can be overridden.
+             *
+             * @protected
+             */
+            _finalizeParserState: function () {
+                this._pState(0);
+            },
 
             /**
              * Change parser state
              *
              * @param {Function} [state=null] state
+             * @protected
              */
             _setParserState: function (state) {
                 if (!state) {
@@ -1124,7 +1140,7 @@
              * The parser generates an output
              *
              * @param {*} item
-             * @private
+             * @protected
              */
             _output: function (item) {
                 var handler = this._outputHandler;
@@ -1217,18 +1233,7 @@
                         ++this._column;
                     }
                 }
-            },
-
-            /**
-             * Parser must end current parsing
-             *
-             * @private
-             */
-            _parseEnd: function () {
-                // TODO see how to handle that properly
-                this._pState(0);
             }
-
         },
 
         static: {
