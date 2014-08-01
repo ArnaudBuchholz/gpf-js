@@ -212,9 +212,10 @@
             return result;
         },
 
-        wait: function () {
+        wait: function (timeout) {
             this._sync = false;
-            gpf.defer(this._waitedTooLong, TestReport.WAIT_TIMEOUT, this);
+            gpf.defer(this._waitedTooLong, timeout || TestReport.WAIT_TIMEOUT,
+                this);
         },
 
         _waitedTooLong: function () {
@@ -233,8 +234,10 @@
         },
 
         done: function () {
+            var timeSpent;
             if (!this._done) {
                 this._done = true;
+                warning("Waiting time: " + timeSpent + "ms");
                 if (this._callback) {
                     this._callback.apply(null, [this].concat(this._lastParams));
                 }
@@ -328,6 +331,9 @@
         } else {
             testFunction = _tests[name];
         }
+        if (context) {
+            context._start = new Date();
+        }
         try {
             testFunction(report);
         } catch (e) {
@@ -358,16 +364,23 @@
     }
 
     function executeAfterTest(report, context) {
-        var name = _names[context.namesIdx];
+        var
+            name = _names[context.namesIdx],
+            timespent;
+        if (context && context._start) {
+            timespent = (new Date()) - context._start;
+        }
         context.testCount += report.getTestCount();
         ++context.namesIdx;
         if (0 === report._errors) {
             gpf.events.fire("success", {
-                name: name
+                name: name,
+                timespent: timespent
             }, _eventsHandler);
         } else {
             gpf.events.fire("failure", {
-                name: name
+                name: name,
+                timespent: timespent
             }, _eventsHandler);
             ++context.errors;
         }

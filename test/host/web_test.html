@@ -93,11 +93,12 @@ function waitForGPF() {
 }
 waitForGPF.state = 0;
 
-function addTestResult(name, success) {
+function addTestResult(name, success, timespent) {
     var
         tr = document.getElementById("results").appendChild(
                 document.createElement("TR")),
-        td;
+        td,
+        details;
     td = tr.appendChild(document.createElement("TD"));
     td.className = "status";
     if (success) {
@@ -110,7 +111,15 @@ function addTestResult(name, success) {
     td = tr.appendChild(document.createElement("TD"));
     td.className = "details";
     td.innerHTML = name;
-    return td;
+    details = td;
+    td = tr.appendChild(document.createElement("TD"));
+    td.className = "timepsent";
+    if (undefined !== timespent) {
+        td.innerHTML = timespent;
+    } else {
+        td.innerHTML = "N/A";
+    }
+    return details;
 }
 
 var reportLocation;
@@ -130,7 +139,7 @@ function callback(event) {
     } else if ("log" === event.type()) {
         console.log(event.get("message"));
     } else if ("success" === event.type()) {
-        addTestResult(event.get("name"), true);
+        addTestResult(event.get("name"), true, event.get("timespent"));
     } else if ("failure" === event.type()) {
         reportLocation = addTestResult(event.get("name"), false);
         gpf.testReport(event.get("name"), report);
@@ -143,11 +152,12 @@ function callback(event) {
         <div id="placeholder" style="display: none;">
             <!-- Place holder for HTML manipulations -->
         </div>
-        <table border="0" width="100%">
+        <table border="0">
             <thead>
                 <tr>
                     <th>Result</th>
-                    <th width="99%">Label</th>
+                    <th>Label</th>
+                    <th>Time spent</th>
                 </tr>
             </thead>
             <tbody id="results">
