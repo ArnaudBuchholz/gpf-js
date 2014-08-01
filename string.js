@@ -97,9 +97,9 @@
                     gpf.events.fire.apply(this, [
                         gpfI.IReadableStream.EVENT_DATA,
                         {
-                            buffer: this.consolidateString()
+                            buffer: result
                         },
-                        result
+                        eventsHandler
                     ]);
                 }
             },
