@@ -242,7 +242,7 @@
             };
             callback =  new gpf.Callback(_stringFromStreamReadCallback, scope);
             scope.callback = callback;
-            stream.read(0/*as much as possible*/, callback);
+            gpf.defer(stream.read, 0, stream, [0, callback]);
         }
 
     });
@@ -251,7 +251,8 @@
         /*jshint -W040*/ // Because used as a callback
         // this is {buffer: [], eventsHandler: {}}
         var
-            type = event.type();
+            type = event.type(),
+            stream = event.scope();
         if (type === gpfI.IReadableStream.EVENT_END_OF_STREAM) {
             gpf.events.fire.apply(this, [
                 gpfI.IReadableStream.EVENT_READY,
@@ -270,7 +271,7 @@
 
         } else {
             this.buffer.push(event.get("buffer"));
-            event.scope().read(0/*as much as possible*/, this.callback);
+            gpf.defer(stream.read, 0, stream, [0, this.callback]);
             return;
         }
         delete this.callback; // Remove Circular reference
