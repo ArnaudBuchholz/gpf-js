@@ -123,14 +123,14 @@
                     parser = new gpf.html.MarkdownParser(),
                     stream = new gpf.ParserStream(parser,
                         gpf.stringToStream(_sampleMD));
-                test.wait();
+                test.wait(5000);
                 gpf.stringFromStream(stream, function (event) {
                     var result;
                     test.equal(event.type(),
                         gpf.interfaces.IReadableStream.EVENT_READY,
                         "Stream is ready");
                     result = event.get("string");
-                    test.equal(_sampleHTML, string, "Streamed parsing");
+                    test.equal(_sampleHTML, result, "Streamed parsing");
                     test.done();
                 });
             }
