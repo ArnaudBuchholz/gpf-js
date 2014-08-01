@@ -242,7 +242,7 @@
             };
             callback =  new gpf.Callback(_stringFromStreamReadCallback, scope);
             scope.callback = callback;
-            stream.read(0, callback);
+            stream.read(0/*as much as possible*/, callback);
         }
 
     });
@@ -270,7 +270,7 @@
 
         } else {
             this.buffer.push(event.get("buffer"));
-            event.scope().read(this.callback);
+            event.scope().read(0/*as much as possible*/, this.callback);
             return;
         }
         delete this.callback; // Remove Circular reference
