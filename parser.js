@@ -1410,6 +1410,14 @@
                 } else {
                     this._iState = _PARSERSTREAM_ISTATE_WAITING;
                     this._parser.parse(event.get("buffer"));
+                    if (0 < this._outputBufferLength) {
+                        // Redirect to read with backed parameters
+                        return this.read(this._size, this._eventsHandler);
+                    } else {
+                        // Try to read source again
+                        this._iStream.read(_PARSERSTREAM_BUFFER_SIZE,
+                            this._cbRead);
+                    }
                 }
             },
 
