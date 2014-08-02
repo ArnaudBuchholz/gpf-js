@@ -1291,15 +1291,10 @@
                     || length && _PARSERSTREAM_ISTATE_EOS === iState) {
                     // Enough chars in the output buffer to do the read
                     // OR there won't be any more chars
-                    buffer = this._outputBuffer.shift();
-                    length = buffer.length;
-                    if (size && size < length) {
-                        // More than requested, enqueue the extra chars
-                        this._outputBuffer.unshift(buffer.substr(size));
-                        buffer = buffer.substr(0, size);
-                        length = size;
-                    }
-                    this._outputBufferLength -= length;
+                    buffer = gpf.stringExtractFromStringArray(
+                        this._outputBuffer, size
+                    );
+                    this._outputBufferLength -= buffer.length;
                     // Can output something
                     gpf.events.fire.apply(this, [
                         gpfI.IReadableStream.EVENT_DATA,
