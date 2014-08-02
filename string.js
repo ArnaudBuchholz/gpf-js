@@ -195,6 +195,65 @@
             return that;
         },
 
+        // TODO Should be a static extension as 'that' is not used
+        "[stringExtractFromStringArray]": [gpf.$ClassExtension(String,
+            "fromStringArray")],
+
+        /**
+         * Extract the first characters of a string array
+         *
+         * @param {Strings[]} strings This array is modified after extraction
+         * @param {Number} [size=0] size Number of characters to get, all if 0
+         * @returns {string}
+         */
+        stringExtractFromStringArray: function (strings, size) {
+            var
+                stringsCount = strings.length,
+                result,
+                count,
+                string,
+                len;
+            if (0 === size) {
+                // Take the whole content & clear the array
+                result = strings.splice(0, stringsCount).join("");
+            } else {
+                // Check how many string can be included in the result
+                count = 0;
+                do {
+                    string = strings[count];
+                    len = string.length;
+                    if (len <= size) {
+                        ++count;
+                        size -= len;
+                    } else {
+                        break;
+                    }
+                } while (0 < size && count < stringsCount);
+                if (0 === size) {
+                    // Simple case (no need to cut the last item)
+                    result = strings.splice(0, count).join("");
+                } else if (count < stringsCount) {
+                    // Last item has to be cut
+                    result = [];
+                    if (0 < count) {
+                        result.push(strings.splice(0, count - 1).join(""));
+                    }
+                    // Remove first item
+                    string = strings.shift();
+                    // Add the missing characters
+                    result.push(string.substr(0, size));
+                    // Put back the remaining characters
+                    strings.unshift(string.substr(size));
+                    // Consolidate the string
+                    result = result.join("");
+                } else {
+                    // No last item to cut, the whole array fit
+                    result = strings.splice(0, stringsCount).join("");
+                }
+            }
+            return result;
+        },
+
         "[stringToStream]": [gpf.$ClassExtension(String, "toStream")],
 
         /**
@@ -207,6 +266,7 @@
             return new StringStream(that);
         },
 
+        // TODO Should be a static extension as 'that' is not used
         "[stringFromStream]": [gpf.$ClassExtension(String, "fromStream")],
 
         /**
