@@ -17,7 +17,15 @@
     gpf._defIntrf("IReadableStream", {
 
         /**
-         * Triggers the reading of data
+         * Triggers the reading of data.
+         * The expected behavior is:
+         * - The callback is asynchronous
+         * - One of the following callback must be called after a read
+         *   - EVENT_ERROR: an error occurred.
+         *     the stream can't be used after this.
+         *   - EVENT_END_OF_STREAM: stream ended.
+         *     the stream can't be used after this.
+         *   - EVENT_DATA: a buffer is provided, it can't be empty.
          *
          * @param {Number} [size=0] size Number of bytes to read. Read
          * as much as possible if 0
@@ -49,6 +57,13 @@
     /**
      * The Writable stream interface is an abstraction for a destination that
      * you are writing data to.
+     * The expected behavior is:
+     * - The callback is asynchronous
+     * - One of the following callback must be called after a read
+     *   - EVENT_ERROR: an error occurred.
+     *     the stream can't be used after this.
+     *   - EVENT_READY: the write operation succeeded, the provided buffer has
+     *     been fully written (otherwise an error is thrown)
      *
      * @class gpf.interfaces.IReadableStream
      * @extends gpf.interfaces.Interface
