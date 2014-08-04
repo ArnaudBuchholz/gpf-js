@@ -660,6 +660,9 @@
         type: function () {
             return this._type;
         },
+        scope: function () {
+            return gpf.Callback.resolveScope(this._scope);
+        },
         cancelable: function () {
             return this._cancelable;
         },
@@ -2037,6 +2040,13 @@
     /**
      * The Writable stream interface is an abstraction for a destination that
      * you are writing data to.
+     * The expected behavior is:
+     * - The callback is asynchronous
+     * - One of the following callback must be called after a read
+     *   - EVENT_ERROR: an error occurred.
+     *     the stream can't be used after this.
+     *   - EVENT_READY: the write operation succeeded, the provided buffer has
+     *     been fully written (otherwise an error is thrown)
      *
      * @class gpf.interfaces.IReadableStream
      * @extends gpf.interfaces.Interface
@@ -2141,9 +2151,16 @@
                 // FIFO
                 var firstBuffer, length, result;
                 if (0 === this._buffer.length) {
-                    gpf.events.fire(gpfI.IReadableStream.EVENT_END_OF_STREAM, eventsHandler);
+                    gpf.defer(gpf.events.fire, 0, this, [
+                        gpfI.IReadableStream.EVENT_END_OF_STREAM,
+                        eventsHandler
+                    ]);
                 } else if (undefined === count) {
-                    gpf.events.fire(gpfI.IReadableStream.EVENT_DATA, { buffer: this.consolidateString() }, eventsHandler);
+                    gpf.defer(gpf.events.fire, 0, this, [
+                        gpfI.IReadableStream.EVENT_DATA,
+                        { buffer: this.consolidateString() },
+                        eventsHandler
+                    ]);
                 } else {
                     firstBuffer = this._buffer[0];
                     length = firstBuffer.length;
@@ -2156,14 +2173,21 @@
                         this._buffer.shift();
                         this._pos = 0;
                     }
-                    gpf.events.fire(gpfI.IReadableStream.EVENT_DATA, { buffer: this.consolidateString() }, result);
+                    gpf.defer(gpf.events.fire, 0, this, [
+                        gpfI.IReadableStream.EVENT_DATA,
+                        { buffer: result },
+                        eventsHandler
+                    ]);
                 }
             },
             write: function (buffer, eventsHandler) {
                 if (buffer && buffer.length) {
                     this._buffer.push(buffer);
                 }
-                gpf.events.fire(gpfI.IReadableStream.EVENT_READY, eventsHandler);
+                gpf.events.fire.apply(this, [
+                    gpfI.IReadableStream.EVENT_READY,
+                    eventsHandler
+                ]);
             },
             consolidateString: function () {
                 if (this._pos !== 0) {
@@ -2209,21 +2233,100 @@
             }
             return that;
         },
+        "[stringExtractFromStringArray]": [gpf.$ClassExtension(String, "fromStringArray")],
+        stringExtractFromStringArray: function (strings, size) {
+            var stringsCount = strings.length, result, count, string, len;
+            if (0 === size) {
+                // Take the whole content & clear the array
+                result = strings.splice(0, stringsCount).join("");
+            } else {
+                // Check how many string can be included in the result
+                count = 0;
+                do {
+                    string = strings[count];
+                    len = string.length;
+                    if (len <= size) {
+                        ++count;
+                        size -= len;
+                    } else {
+                        break;
+                    }
+                } while (0 < size && count < stringsCount);
+                if (0 === size) {
+                    // Simple case (no need to cut the last item)
+                    result = strings.splice(0, count).join("");
+                } else if (count < stringsCount) {
+                    // Last item has to be cut
+                    result = [];
+                    if (0 < count) {
+                        result.push(strings.splice(0, count - 1).join(""));
+                    }
+                    // Remove first item
+                    string = strings.shift();
+                    // Add the missing characters
+                    result.push(string.substr(0, size));
+                    // Put back the remaining characters
+                    strings.unshift(string.substr(size));
+                    // Consolidate the string
+                    result = result.join("");
+                } else {
+                    // No last item to cut, the whole array fit
+                    result = strings.splice(0, stringsCount).join("");
+                }
+            }
+            return result;
+        },
         "[stringToStream]": [gpf.$ClassExtension(String, "toStream")],
         stringToStream: function (that) {
             return new StringStream(that);
         },
         "[stringFromStream]": [gpf.$ClassExtension(String, "fromStream")],
-        stringFromStream: function (stream) {
+        stringFromStream: function (stream, eventsHandler) {
+            var buffer, callback, scope;
             if (stream instanceof StringStream) {
-                return stream.consolidateString();
-            } else {
-                // READ and join...
-                gpf.NOT_IMPLEMENTED();
-                return null;
+                buffer = stream.consolidateString();
+                gpf.events.fire.apply(this, [
+                    gpfI.IReadableStream.EVENT_READY,
+                    { buffer: buffer },
+                    eventsHandler
+                ]);
+                return;
             }
+            stream = gpf.interfaces.query(stream, gpfI.IReadableStream, true);
+            scope = {
+                buffer: [],
+                eventsHandler: eventsHandler
+            };
+            callback = new gpf.Callback(_stringFromStreamReadCallback, scope);
+            scope.callback = callback;
+            stream.read(0, callback);
         }
     });
+    function _stringFromStreamReadCallback(event) {
+        /*jshint -W040*/
+        // Because used as a callback
+        // this is {buffer: [], eventsHandler: {}}
+        var type = event.type(), stream = event.scope();
+        if (type === gpfI.IReadableStream.EVENT_END_OF_STREAM) {
+            gpf.events.fire.apply(this, [
+                gpfI.IReadableStream.EVENT_READY,
+                { string: this.buffer.join("") },
+                this.eventsHandler
+            ]);
+        } else if (type === gpfI.IReadableStream.EVENT_ERROR) {
+            // Forward the event
+            gpf.events.fire.apply(this, [
+                event,
+                this.eventsHandler
+            ]);
+        } else {
+            this.buffer.push(event.get("buffer"));
+            stream.read(0, this.callback);
+            return;
+        }
+        delete this.callback;    // Remove Circular reference
+                                 /*jshint +W040*/
+    }
     var _z = function (x) {
         if (10 > x) {
             return "0" + x;
@@ -2899,7 +3002,7 @@
                 for (idx = 0; idx < len; ++idx) {
                     arg = arguments[idx];
                     if (null === arg) {
-                        this._parseEnd();
+                        this._finalizeParserState();
                     } else {
                         gpf.ASSERT("string" === typeof arg);
                         this._parse(arg);
@@ -2915,6 +3018,9 @@
             _initialParserState: null,
             _ignoreCarriageReturn: false,
             _ignoreLineFeed: false,
+            _finalizeParserState: function () {
+                this._pState(0);
+            },
             _setParserState: function (state) {
                 if (!state) {
                     state = this._initialParserState;
@@ -2966,10 +3072,6 @@
                         ++this._column;
                     }
                 }
-            },
-            _parseEnd: function () {
-                // TODO see how to handle that properly
-                this._pState(0);
             }
         },
         static: { FINALIZE: null }
@@ -2999,20 +3101,20 @@
                 } else if (size < length || length && _PARSERSTREAM_ISTATE_EOS === iState) {
                     // Enough chars in the output buffer to do the read
                     // OR there won't be any more chars
-                    buffer = this._outputBuffer.shift();
-                    length = buffer.length;
-                    if (size && size < length) {
-                        // More than requested, enqueue the extra chars
-                        this._outputBuffer.unshift(buffer.substr(size));
-                        buffer = buffer.substr(0, size);
-                        length = size;
-                    }
-                    this._outputBufferLength -= length;
+                    buffer = gpf.stringExtractFromStringArray(this._outputBuffer, size);
+                    this._outputBufferLength -= buffer.length;
                     // Can output something
-                    gpf.events.fire(gpfI.IReadableStream.EVENT_DATA, { buffer: buffer }, eventsHandler);
+                    gpf.events.fire.apply(this, [
+                        gpfI.IReadableStream.EVENT_DATA,
+                        { buffer: buffer },
+                        eventsHandler
+                    ]);
                 } else if (_PARSERSTREAM_ISTATE_EOS === iState) {
                     // No more input and output buffer is empty
-                    gpf.events.fire(gpfI.IReadableStream.EVENT_END_OF_STREAM, eventsHandler);
+                    gpf.events.fire.apply(this, [
+                        gpfI.IReadableStream.EVENT_END_OF_STREAM,
+                        eventsHandler
+                    ]);
                 } else {
                     // Read input
                     if (_PARSERSTREAM_ISTATE_INIT === this._iState) {
@@ -3045,10 +3147,20 @@
                     return this.read(this._size, this._eventsHandler);
                 } else if (type === gpfI.IReadableStream.EVENT_ERROR) {
                     // Forward the event
-                    gpf.events.fire(event, this._eventsHandler);
+                    gpf.events.fire.apply(this, [
+                        event,
+                        this._eventsHandler
+                    ]);
                 } else {
                     this._iState = _PARSERSTREAM_ISTATE_WAITING;
                     this._parser.parse(event.get("buffer"));
+                    if (0 < this._outputBufferLength) {
+                        // Redirect to read with backed parameters
+                        return this.read(this._size, this._eventsHandler);
+                    } else {
+                        // Try to read source again
+                        this._iStream.read(_PARSERSTREAM_BUFFER_SIZE, this._cbRead);
+                    }
                 }
             },
             _output: function (text) {
@@ -3523,9 +3635,12 @@
         }
     });
     gpf.html = {};
+    var gpfI = gpf.interfaces;
     /**
      * Markdown to HTML converter using Parser interface
      * Inspired from http://en.wikipedia.org/wiki/Markdown
+     *
+     * Weak -but working- implementation
      *
      * @class gpf.html.MarkdownParser
      */
@@ -3539,34 +3654,40 @@
         protected: {
             _ignoreCarriageReturn: true,
             _initialParserState: function (char) {
-                var newState, inParagraph = this._inParagraph;
+                var newState, tagsOpened = 0 < this._openedTags.length;
                 if ("#" === char) {
                     this._hLevel = 1;
                     newState = this._parseTitle;
-                } else if ("*" === char) {
-                    newState = this._parseList;
-                    inParagraph = false;    // Wait for disambiguation
-                } else if (" " !== char && "\t" !== char && "\n" !== char) {
-                    if (!inParagraph) {
-                        this._openTag("p");
-                        this._inParagraph = true;
+                } else if ("*" === char || "0" <= char && "9" >= char) {
+                    if (char !== "*") {
+                        this._numericList = 1;
                     } else {
+                        this._numericList = 0;
+                    }
+                    newState = this._parseList;
+                    tagsOpened = false;    // Wait for disambiguation
+                } else if (" " !== char && "\t" !== char && "\n" !== char) {
+                    if (tagsOpened) {
                         this._output(" ");
-                        inParagraph = false;    // Avoid closing below
+                        tagsOpened = false;    // Avoid closing below
+                    } else {
+                        this._openTag("p");
                     }
                     newState = this._parseContent(char);
                     if (!newState) {
                         newState = this._parseContent;
                     }
                 }
-                if (inParagraph) {
+                if (tagsOpened) {
                     this._closeTags();
                 }
                 return newState;
+            },
+            _finalizeParserState: function () {
+                this._closeTags();
             }
         },
         private: {
-            _inParagraph: false,
             _openedTags: [],
             _closeTags: function () {
                 var tag;
@@ -3577,8 +3698,36 @@
                         break;
                     }
                 }
-                // If we were in a paragraph, we are not anymore
-                this._inParagraph = false;
+            },
+            _openList: function (listTag) {
+                var tag, len = this._openedTags.length;
+                while (len) {
+                    tag = this._openedTags.pop();
+                    --len;
+                    this._output("</" + tag + ">");
+                    if ("li" === tag) {
+                        break;
+                    }
+                }
+                if (len) {
+                    tag = this._openedTags[len - 1];
+                    if (tag !== listTag) {
+                        this._openedTags.pop();
+                        this._output("</" + tag + ">");
+                    } else {
+                        return;
+                    }
+                }
+                this._openTag(listTag);
+            },
+            _toggleTag: function (tag) {
+                var len = this._openedTags.length;
+                if (len && this._openedTags[len - 1] === tag) {
+                    this._openedTags.pop();
+                    this._output("</" + tag + ">");
+                } else {
+                    this._openTag(tag);
+                }
             },
             _openTag: function (tag) {
                 this._output("<" + tag + ">");
@@ -3590,40 +3739,201 @@
                     ++this._hLevel;
                 } else {
                     this._openTag("h" + this._hLevel);
-                    this._setParserState(this._parseText);
+                    return this._parseText;    // No formatting allowed in Hx
                 }
             },
+            _numericList: false,
             _parseList: function (char) {
-                var inParagraph = this._inParagraph, newState;
+                var tagsOpened = 0 < this._openedTags.length, listTag;
                 if (" " === char) {
-                    if (inParagraph) {
-                        this._closeTags();
-                    }    // Start or append list
-                         // Use column to know which list
+                    // Start or append list
+                    if (this._numericList) {
+                        listTag = "ol";
+                    } else {
+                        listTag = "ul";
+                    }
+                    this._openList(listTag);
+                    this._openTag("li");
+                } else if (this._numericList && ("0" <= char && "9" >= char || "." === char)) {
+                    return;    // No state change
                 } else if ("*" === char) {
-                    if (inParagraph) {
+                    if (tagsOpened) {
                         this._output(" ");    // new line inside a paragraph
                     }
-                    this._openTag("b");
+                    this._openTag("strong");
                 }
                 return this._parseContent;
             },
+            _handleEntities: function (char) {
+                if ("<" === char) {
+                    this._output("&lt;");
+                } else if (">" === char) {
+                    this._output("&gt;");
+                } else if ("&" === char) {
+                    this._output("&amp;");
+                } else {
+                    return false;
+                }
+                return true;
+            },
+            _escapeChar: "",
+            _escapeCount: 0,
+            _parseEscape: function (char) {
+                var escapeChar = this._escapeChar, count;
+                if (char === escapeChar) {
+                    count = ++this._escapeCount;
+                    if ("-" === escapeChar && 3 === count) {
+                        this._output("&mdash;");
+                        return this._parseContent;
+                    }
+                } else {
+                    count = this._escapeCount + 1;
+                    while (--count) {
+                        this._output(escapeChar);
+                    }
+                    this._setParserState(this._parseContent);
+                    return this._parseContent(char);
+                }
+            },
             _parseContent: function (char) {
+                if (this._handleEntities(char)) {
+                    return;
+                }
                 if ("*" === char) {
-                    this._openTag("em");
+                    return this._parseItalic;
+                } else if ("`" === char) {
+                    this._toggleTag("code");
+                    return;
+                } else if ("[" === char) {
+                    this._linkState = 0;
+                    this._linkText = [];
+                    this._linkUrl = [];
+                    return this._parseLink;
+                } else if ("-" === char) {
+                    this._escapeCount = 1;
+                    this._escapeChar = "-";
+                    return this._parseEscape;
                 } else if ("\n" === char) {
                     return null;
                 } else {
                     this._output(char);
                 }
             },
+            _parseItalic: function (char) {
+                if ("*" === char) {
+                    this._toggleTag("strong");
+                } else {
+                    this._toggleTag("em");
+                    this._output(char);
+                }
+                return this._parseContent;
+            },
             _parseText: function (char) {
-                // Ignore any formatting until \n
+                if (this._handleEntities(char)) {
+                    return;
+                }
                 if ("\n" === char) {
+                    // Ignore any formatting until \n
                     this._closeTags();
                     return null;
                 } else {
                     this._output(char);
+                }
+            },
+            _linkText: [],
+            _linkUrl: [],
+            _linkState: 0,
+            _parseLink: function (char) {
+                var linkState = this._linkState;
+                if ("]" === char && 0 === linkState) {
+                    ++this._linkState;
+                } else if ("(" === char && 1 === linkState) {
+                    ++this._linkState;
+                } else if (")" === char && 2 === linkState) {
+                    this._output("<a href=\"");
+                    this._output(this._linkUrl.join(""));
+                    this._output("\">");
+                    this._output(this._linkText.join(""));
+                    this._output("</a>");
+                    return this._parseContent;
+                } else if (0 === linkState) {
+                    this._linkText.push(char);
+                } else if (2 === linkState) {
+                    this._linkUrl.push(char);
+                }    // Else... nothing. do some kind of error handling?
+            }
+        }
+    });
+    /**
+     * HTML5 File to ReadableStream wrapper
+     */
+    gpf.define("gpf.html.File", {
+        "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.ITextStream)],
+        public: {
+            constructor: function (file) {
+                this._file = file;
+            },
+            name: function () {
+                return this._file.name;
+            },
+            size: function () {
+                return this._file.size;
+            },
+            read: function (count, eventsHandler) {
+                var that = this, reader = this._reader, left = this._file.size - this._pos, blob;
+                if (0 === left) {
+                    gpf.defer(gpf.events.fire, 0, this, [
+                        gpfI.IReadableStream.EVENT_END_OF_STREAM,
+                        eventsHandler
+                    ]);
+                    return;
+                }
+                this._eventsHandler = eventsHandler;
+                if (null === reader) {
+                    reader = this._reader = new FileReader();
+                    reader.onloadend = function (event) {
+                        that._onLoadEnd(event);
+                    };
+                }
+                if (0 === count || count > left) {
+                    count = left;
+                }
+                blob = this._file.slice(this._pos, count);
+                this._pos += count;
+                reader.readAsArrayBuffer(blob);
+            }
+        },
+        private: {
+            _file: null,
+            _reader: null,
+            _pos: 0,
+            _eventsHandler: null,
+            _onLoadEnd: function (event) {
+                var reader = event.target, buffer, len, result, idx;
+                gpf.ASSERT(reader === this._reader);
+                if (reader.error) {
+                    gpf.events.fire.apply(this, [
+                        gpfI.IReadableStream.ERROR,
+                        {
+                            error: {
+                                name: reader.error.name,
+                                message: reader.error.message
+                            }
+                        },
+                        this._eventsHandler
+                    ]);
+                } else if (reader.readyState === FileReader.DONE) {
+                    buffer = new Int8Array(reader.result);
+                    len = buffer.length;
+                    result = [];
+                    for (idx = 0; idx < len; ++idx) {
+                        result.push(buffer[idx]);
+                    }
+                    gpf.events.fire.apply(this, [
+                        gpfI.IReadableStream.EVENT_DATA,
+                        { buffer: result },
+                        this._eventsHandler
+                    ]);
                 }
             }
         }
