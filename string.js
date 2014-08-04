@@ -70,19 +70,19 @@
                     length,
                     result;
                 if (0 === this._buffer.length) {
-                    gpf.events.fire.apply(this, [
+                    gpf.defer(gpf.events.fire, 0, this, [
                         gpfI.IReadableStream.EVENT_END_OF_STREAM,
                         eventsHandler
                     ]);
                 } else if (undefined === count) {
-                    gpf.events.fire.apply(this, [
+                    gpf.defer(gpf.events.fire, 0, this, [
                         gpfI.IReadableStream.EVENT_DATA,
                         {
                             buffer: this.consolidateString()
                         },
                         eventsHandler
                     ]);
-                } else {
+                } else {    
                     firstBuffer = this._buffer[0];
                     length = firstBuffer.length;
                     if (count > length - this._pos) {
@@ -94,7 +94,7 @@
                         this._buffer.shift();
                         this._pos = 0;
                     }
-                    gpf.events.fire.apply(this, [
+                    gpf.defer(gpf.events.fire, 0, this, [
                         gpfI.IReadableStream.EVENT_DATA,
                         {
                             buffer: result
@@ -302,7 +302,7 @@
             };
             callback =  new gpf.Callback(_stringFromStreamReadCallback, scope);
             scope.callback = callback;
-            gpf.defer(stream.read, 0, stream, [0, callback]);
+            stream.read(0, callback);
         }
 
     });
@@ -331,7 +331,7 @@
 
         } else {
             this.buffer.push(event.get("buffer"));
-            gpf.defer(stream.read, 0, stream, [0, this.callback]);
+            stream.read(0, this.callback);
             return;
         }
         delete this.callback; // Remove Circular reference
