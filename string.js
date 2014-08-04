@@ -82,7 +82,7 @@
                         },
                         eventsHandler
                     ]);
-                } else {    
+                } else {
                     firstBuffer = this._buffer[0];
                     length = firstBuffer.length;
                     if (count > length - this._pos) {
