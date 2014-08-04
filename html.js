@@ -441,6 +441,124 @@
 
     });
 
+    /**
+     * HTML5 File to ReadableStream wrapper
+     */
+    gpf.define("gpf.html.File", {
+
+        "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.ITextStream)],
+
+        public: {
+
+            constructor: function (file) {
+                this._file = file;
+            },
+
+            name: function () {
+                return this._file.name;
+            },
+
+            size: function () {
+                return this._file.size;
+            },
+
+            /**
+             * @implements gpf.interfaces.ITextStream:read
+             */
+            read: function(count, eventsHandler) {
+                var
+                    reader = this._reader,
+                    blob;
+                if (null === reader) {
+                    reader = this._reader = new FileReader();
+                    this._reader._gpf = this;
+                    reader.onloadend = gpf.html.File._onLoadEnd;
+                }
+                blob = this._file.slice(offset, offset + chunkSize);
+                reader.readAsArrayBuffer(blob);
+
+
+//                // FIFO
+//                var
+//                    firstBuffer,
+//                    length,
+//                    result;
+//                if (0 === this._buffer.length) {
+//                    gpf.defer(gpf.events.fire, 0, this, [
+//                        gpfI.IReadableStream.EVENT_END_OF_STREAM,
+//                        eventsHandler
+//                    ]);
+//                } else if (undefined === count) {
+//                    gpf.defer(gpf.events.fire, 0, this, [
+//                        gpfI.IReadableStream.EVENT_DATA,
+//                        {
+//                            buffer: this.consolidateString()
+//                        },
+//                        eventsHandler
+//                    ]);
+//                } else {
+//                    firstBuffer = this._buffer[0];
+//                    length = firstBuffer.length;
+//                    if (count > length - this._pos) {
+//                        count = length - this._pos;
+//                    }
+//                    result = firstBuffer.substr(this._pos, count);
+//                    this._pos += count;
+//                    if (this._pos === length) {
+//                        this._buffer.shift();
+//                        this._pos = 0;
+//                    }
+//                    gpf.defer(gpf.events.fire, 0, this, [
+//                        gpfI.IReadableStream.EVENT_DATA,
+//                        {
+//                            buffer: result
+//                        },
+//                        eventsHandler
+//                    ]);
+//                }
+            }
+
+        },
+
+        private: {
+
+            /**
+             * @type {File}
+             */
+            _file: null,
+
+            /**
+             * @type {FileReader}
+             */
+            _reader: null,
+
+            /**
+             * @type {gpf.events.Handler}
+             */
+            _eventsHandler: null,
+
+            _onLoadEnd: function (event) {
+                if (event.target.readyState === FileReader.DONE) { // DONE == 2
+                    var buffer = new Int8Array(event.target.result);
+
+                    task.resolve(buffer, chunkSize);
+                } else {
+                    //...
+                }
+            }
+
+        },
+
+        static: {
+
+            _onLoadEnd: function (event) {
+                var that = event.target._gpf;
+                that._onLoadEnd(event);
+            }
+        }
+
+    });
+
 /*#ifndef(UMD)*/
 }()); /* End of privacy scope */
 /*#endif*/
