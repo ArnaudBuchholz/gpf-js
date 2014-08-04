@@ -226,6 +226,9 @@
         },
 
         synchronous: function (callback, lastParams) {
+            if (this._done) {
+                return true;
+            }
             if (!this._sync) {
                 this._callback = callback;
                 this._lastParams = lastParams;
