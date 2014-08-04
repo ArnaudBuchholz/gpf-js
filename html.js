@@ -5,6 +5,9 @@
 
     gpf.html = {};
 
+    var
+        gpfI = gpf.interfaces;
+
     /**
      * Markdown to HTML converter using Parser interface
      * Inspired from http://en.wikipedia.org/wiki/Markdown
@@ -454,68 +457,54 @@
                 this._file = file;
             },
 
+            /**
+             * Name of the file
+             *
+             * @return {String}
+             */
             name: function () {
                 return this._file.name;
             },
 
+            /**
+             * Size of the file
+             *
+             * @return {Number}
+             */
             size: function () {
                 return this._file.size;
             },
 
             /**
              * @implements gpf.interfaces.ITextStream:read
+             * @closure
              */
             read: function(count, eventsHandler) {
                 var
+                    that = this,
                     reader = this._reader,
+                    left = this._file.size - this._pos,
                     blob;
+                if (0 === left) {
+                    gpf.defer(gpf.events.fire, 0, this, [
+                        gpfI.IReadableStream.EVENT_END_OF_STREAM,
+                        eventsHandler
+                    ]);
+                    return;
+                }
+                this._eventsHandler = eventsHandler;
                 if (null === reader) {
                     reader = this._reader = new FileReader();
-                    this._reader._gpf = this;
-                    reader.onloadend = gpf.html.File._onLoadEnd;
+                    reader.onloadend = function (event) {
+                        that._onLoadEnd(event);
+                    };
                 }
-                blob = this._file.slice(offset, offset + chunkSize);
+                if (0 === count || count > left) {
+                    count = left;
+                }
+                blob = this._file.slice(this._pos, count);
+                this._pos += count;
                 reader.readAsArrayBuffer(blob);
-
-
-//                // FIFO
-//                var
-//                    firstBuffer,
-//                    length,
-//                    result;
-//                if (0 === this._buffer.length) {
-//                    gpf.defer(gpf.events.fire, 0, this, [
-//                        gpfI.IReadableStream.EVENT_END_OF_STREAM,
-//                        eventsHandler
-//                    ]);
-//                } else if (undefined === count) {
-//                    gpf.defer(gpf.events.fire, 0, this, [
-//                        gpfI.IReadableStream.EVENT_DATA,
-//                        {
-//                            buffer: this.consolidateString()
-//                        },
-//                        eventsHandler
-//                    ]);
-//                } else {
-//                    firstBuffer = this._buffer[0];
-//                    length = firstBuffer.length;
-//                    if (count > length - this._pos) {
-//                        count = length - this._pos;
-//                    }
-//                    result = firstBuffer.substr(this._pos, count);
-//                    this._pos += count;
-//                    if (this._pos === length) {
-//                        this._buffer.shift();
-//                        this._pos = 0;
-//                    }
-//                    gpf.defer(gpf.events.fire, 0, this, [
-//                        gpfI.IReadableStream.EVENT_DATA,
-//                        {
-//                            buffer: result
-//                        },
-//                        eventsHandler
-//                    ]);
-//                }
             }
 
         },
@@ -524,36 +513,70 @@
 
             /**
              * @type {File}
+             * @private
              */
             _file: null,
 
             /**
              * @type {FileReader}
+             * @private
              */
             _reader: null,
 
             /**
+             * @type {Number}
+             * @private
+             */
+            _pos: 0,
+
+            /**
              * @type {gpf.events.Handler}
+             * @private
              */
             _eventsHandler: null,
 
+            /**
+             * Wrapper for the onloadend event handler
+             *
+             * @param {DOM Event} event
+             * @private
+             */
             _onLoadEnd: function (event) {
-                if (event.target.readyState === FileReader.DONE) { // DONE == 2
-                    var buffer = new Int8Array(event.target.result);
-
-                    task.resolve(buffer, chunkSize);
-                } else {
-                    //...
+                var
+                    reader = event.target,
+                    buffer,
+                    len,
+                    result,
+                    idx;
+                gpf.ASSERT(reader === this._reader);
+                if (reader.error) {
+                    gpf.events.fire.apply(this, [
+                        gpfI.IReadableStream.ERROR,
+                        {
+                            // According to W3C
+                            // http://www.w3.org/TR/domcore/#interface-domerror
+                            error: {
+                                name: reader.error.name,
+                                message: reader.error.message
+                            }
+                        },
+                        this._eventsHandler
+                    ]);
+                } else if (reader.readyState === FileReader.DONE) {
+                    buffer = new Int8Array(reader.result);
+                    len = buffer.length;
+                    result = [];
+                    for (idx = 0; idx < len; ++idx) {
+                        result.push(buffer[idx]);
+                    }
+                    gpf.events.fire.apply(this, [
+                        gpfI.IReadableStream.EVENT_DATA,
+                        {
+                            buffer: result
+                        },
+                        this._eventsHandler
+                    ]);
                 }
-            }
-
-        },
-
-        static: {
-
-            _onLoadEnd: function (event) {
-                var that = event.target._gpf;
-                that._onLoadEnd(event);
             }
         }
 
