@@ -45,7 +45,7 @@
                             adjustMultilineComment: false
                         },
                         newline: "",
-                        space: " ",
+                        space: "",
                         json: false,
                         renumber: false,
                         hexadecimal: false,
