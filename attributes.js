@@ -69,32 +69,44 @@
      */
     gpf._defAttr("Attribute", {
 
-        _member: "",
+        protected: {
 
-        /**
-         * get/set member name
-         *
-         * @param {String} name member name
-         * @return {String}
-         */
-        member: function (name) {
-            var value = this._member;
-            if (name) {
-                this._member = name;
+            /**
+             * Name of the member the attribute is associated to
+             *
+             * @type {String}
+             * @protected
+             * @friend {gpf.attributes.add}
+             */
+            _member: "",
+
+            /**
+             * This method is the implementation of the attribute: it receives
+             * the prototype to alter.
+             *
+             * NOTE: this is called *after* all declared members are set
+             *
+             * @param {Object} objPrototype Class prototype
+             * @protected
+             * @friend {gpf.attributes.add}
+             */
+            _alterPrototype: function /*abstract*/ (objPrototype) {
+                gpf.interfaces.ignoreParameter(objPrototype);
             }
-            return value;
+
         },
 
-        /**
-         * This method is the implementation of the attribute: it receives
-         * the prototype to alter.
-         *
-         * NOTE: this is called *after* all declared members are set
-         *
-         * @param {Object} objPrototype Class prototype
-         */
-        alterPrototype: function /*abstract*/ (objPrototype) {
-            gpf.interfaces.ignoreParameter(objPrototype);
+        public: {
+
+            /**
+             * Get the member name
+             *
+             * @return {String}
+             */
+            member: function () {
+                return this._member;
+            }
+
         }
 
     });
@@ -115,22 +127,41 @@
      */
     gpf._defAttr("$Alias", {
 
-        /**
-         * Name of the alias to create
-         *
-         * @type {String}
-         */
-        _name: "",
+        private: {
 
-        constructor: function (name) {
-            this._name = name;
+            /**
+             * Name of the alias to create
+             *
+             * @type {String}
+             * @private
+             */
+            _name: ""
+
         },
 
-        /**
-         * @inheritDoc gpf.attributes.Attribute:alterPrototype
-         */
-        alterPrototype: function (objPrototype) {
-            _alias(objPrototype.constructor, this._name);
+        protected: {
+
+            /**
+             * @inheritDoc gpf.attributes.Attribute:_alterPrototype
+             */
+            _alterPrototype: function (objPrototype) {
+                _alias(objPrototype.constructor, this._name);
+            }
+
+        },
+
+        public: {
+
+            /**
+             * Defines an alias
+             *
+             * @param {String} name Name of the alias to create
+             * @constructor
+             */
+            constructor: function (name) {
+                this._name = name;
+            }
+
         }
 
     });
@@ -142,53 +173,67 @@
      */
     gpf.define("gpf.attributes.Array", {
 
-        // "[_array]": [gpf.$ClassIArray(false)],
-        _array: [],
+        private: {
 
-        constructor: function () {
-            this._array = []; // Create a new instance of the array
+            /**
+             * @type {gpf.attributes.Attribute[]}
+             * @private
+             */
+            _array: []
+
         },
 
-        /**
-         * Return the first occurrence of the expected class
-         *
-         * @param {Function} expectedClass the class to match
-         * @return {gpf.attributes.Attribute}
-         */
-        has: function (expectedClass) {
-            gpf.ASSERT("function" === typeof expectedClass);
-            var
-                idx,
-                item;
-            for (idx = 0; idx < this._array.length; ++idx) {
-                item = this._array[idx];
-                if (item instanceof expectedClass) {
-                    return item;
-                }
-            }
-            return null;
-        },
+        public: {
 
-        /**
-         * Returns a new array with all attributes matching the expected
-         * class
-         *
-         * @param {Function} expectedClass the class to match
-         * @return {gpf.attributes.Array}
-         */
-        filter: function (expectedClass) {
-            gpf.ASSERT("function" === typeof expectedClass);
-            var
-                idx,
-                attribute,
-                result = new gpf.attributes.Array();
-            for (idx = 0; idx < this._array.length; ++idx) {
-                attribute = this._array[idx];
-                if (attribute instanceof expectedClass) {
-                    result._array.push(attribute);
+            /**
+             * @constructor
+             */
+            constructor: function () {
+                this._array = []; // Create a new instance of the array
+            },
+
+            /**
+             * Return the first occurrence of the expected class
+             *
+             * @param {Function} expectedClass the class to match
+             * @return {gpf.attributes.Attribute}
+             */
+            has: function (expectedClass) {
+                gpf.ASSERT("function" === typeof expectedClass);
+                var
+                    idx,
+                    item;
+                for (idx = 0; idx < this._array.length; ++idx) {
+                    item = this._array[idx];
+                    if (item instanceof expectedClass) {
+                        return item;
+                    }
                 }
+                return null;
+            },
+
+            /**
+             * Returns a new array with all attributes matching the expected
+             * class
+             *
+             * @param {Function} expectedClass the class to match
+             * @return {gpf.attributes.Array}
+             */
+            filter: function (expectedClass) {
+                gpf.ASSERT("function" === typeof expectedClass);
+                var
+                    idx,
+                    attribute,
+                    result = new gpf.attributes.Array();
+                for (idx = 0; idx < this._array.length; ++idx) {
+                    attribute = this._array[idx];
+                    if (attribute instanceof expectedClass) {
+                        result._array.push(attribute);
+                    }
+                }
+                return result;
             }
-            return result;
+
         }
 
     });
@@ -200,163 +245,180 @@
      */
     gpf.define("gpf.attributes.Map", {
 
-        _members: {},
-        _count: 0,
+        private: {
 
-        /**
-         *
-         * @param {Object} [object=undefined] object Object to read
-         *        attributes from
-         */
-        constructor: function (object) {
-            this._members = {}; // Creates a new dictionary
-            this._count = 0;
-            if (undefined !== object) {
-                this.fillFromObject(object);
-            }
-        },
+            /**
+             * @type {Object} Map(String,gpf.attributes.Array)
+             * @private
+             */
+            _members: {},
 
-        /**
-         * Gives the total number of attributes enclosed in the map
-         *
-         * @return {Number}
-         */
-        count: function () {
-            return this._count;
-        },
+            /**
+             * @type {Number}
+             * @private
+             */
+            _count: 0,
 
-        /**
-         * Associate an attribute to a member
-         *
-         * @param {String} member member name
-         * @param {gpf.attributes.Attribute} attribute attribute to map
-         */
-        add: function (member, attribute) {
-            var array = this._members[member];
-            if (undefined === array) {
-                array = this._members[member] = new gpf.attributes.Array();
-            }
-            array._array.push(attribute);
-            ++this._count;
-        },
-
-        /**
-         * Copy the content of this map to a new one
-         *
-         * @param {gpf.attributes.Map} attributesMap recipient of the copy
-         * @param {Function} [callback=undefined] callback callback function
-         * to test if the mapping should be added
-         * @param {*} [param=undefined] param additional parameter for the
-         * callback
-         * @private
-         */
-        _copyTo: function (attributesMap, callback, param) {
-            var
-                member,
-                array,
-                idx,
-                attribute;
-            if (this._count) {
-                for (member in this._members) {
-                    if (this._members.hasOwnProperty(member)) {
-                        array = this._members[member]._array;
-                        for (idx = 0; idx < array.length; ++idx) {
-                            attribute = array[ idx ];
-                            if (!callback
-                                || callback(member, attribute, param)) {
-                                attributesMap.add(member, attribute);
+            /**
+             * Copy the content of this map to a new one
+             *
+             * @param {gpf.attributes.Map} attributesMap recipient of the copy
+             * @param {Function} [callback=undefined] callback callback function
+             * to test if the mapping should be added
+             * @param {*} [param=undefined] param additional parameter for the
+             * callback
+             * @private
+             */
+            _copyTo: function (attributesMap, callback, param) {
+                var
+                    member,
+                    array,
+                    idx,
+                    attribute;
+                if (this._count) {
+                    for (member in this._members) {
+                        if (this._members.hasOwnProperty(member)) {
+                            array = this._members[member]._array;
+                            for (idx = 0; idx < array.length; ++idx) {
+                                attribute = array[ idx ];
+                                if (!callback
+                                    || callback(member, attribute, param)) {
+                                    attributesMap.add(member, attribute);
+                                }
                             }
                         }
                     }
                 }
+            },
+
+            /**
+             * Callback for _copyTo, test if attribute is of a given class
+             *
+             * @param {String} member
+             * @param {gpf.attributes.Attribute} attribute
+             * @param {Function} expectedClass
+             * @return {Boolean}
+             * @private
+             */
+            _filterCallback: function (member, attribute, expectedClass) {
+                gpf.interfaces.ignoreParameter(member);
+                return attribute instanceof expectedClass;
             }
+
         },
 
-        /**
-         * Callback for _copyTo, test if attribute is of a given class
-         *
-         * @param {String} member
-         * @param {gpf.attributes.Attribute} attribute
-         * @param {Function} expectedClass
-         * @return {Boolean}
-         * @private
-         */
-        _filterCallback: function (member, attribute, expectedClass) {
-            gpf.interfaces.ignoreParameter(member);
-            return attribute instanceof expectedClass;
-        },
+        public: {
 
-        /**
-         * Fill the map using object's attributes
-         *
-         * @param {Object} object object to get attributes from
-         * @return {Number} number of attributes in the resulting map
-         */
-        fillFromObject: function (object) {
-            var
-                classDef = gpf.classDef(object.constructor),
-                attributes;
-            while (classDef) { // !undefined && !null
-                attributes = classDef.attributes();
-                if (attributes) {
-                    attributes._copyTo(this);
+            /**
+             * @param {Object} [object=undefined] object Object to read
+             *        attributes from
+             * @constructor
+             */
+            constructor: function (object) {
+                this._members = {}; // Creates a new dictionary
+                this._count = 0;
+                if (undefined !== object) {
+                    this.fillFromObject(object);
                 }
-                if (classDef.Base() !== Object) { // Can't go upper
-                    classDef = gpf.classDef(classDef.Base());
-                } else {
-                    break;
+            },
+
+            /**
+             * Gives the total number of attributes enclosed in the map
+             *
+             * @return {Number}
+             */
+            count: function () {
+                return this._count;
+            },
+
+            /**
+             * Associate an attribute to a member
+             *
+             * @param {String} member member name
+             * @param {gpf.attributes.Attribute} attribute attribute to map
+             */
+            add: function (member, attribute) {
+                var array = this._members[member];
+                if (undefined === array) {
+                    array = this._members[member] = new gpf.attributes.Array();
                 }
+                array._array.push(attribute);
+                ++this._count;
+            },
+
+            /**
+             * Fill the map using object's attributes
+             *
+             * @param {Object} object object to get attributes from
+             * @return {Number} number of attributes in the resulting map
+             */
+            fillFromObject: function (object) {
+                var
+                    classDef = gpf.classDef(object.constructor),
+                    attributes;
+                while (classDef) { // !undefined && !null
+                    attributes = classDef.attributes();
+                    if (attributes) {
+                        attributes._copyTo(this);
+                    }
+                    if (classDef.Base() !== Object) { // Can't go upper
+                        classDef = gpf.classDef(classDef.Base());
+                    } else {
+                        break;
+                    }
+                }
+                return this._count;
+            },
+
+            /**
+             * Creates a new map that contains only instances of the given
+             * attribute class
+             *
+             * @param {Function} expectedClass
+             * @return {gpf.attributes.Map}
+             */
+            filter: function (expectedClass) {
+                gpf.ASSERT("function" === typeof expectedClass);
+                var result = new gpf.attributes.Map();
+                this._copyTo(result, this._filterCallback, expectedClass);
+                return result;
+            },
+
+            /**
+             * Returns the array of map associated to a member
+             *
+             * @param {String} name
+             * @return {gpf.attributes.Array}
+             */
+            member: function (name) {
+                var result = this._members[name];
+                if (undefined === result) {
+                    if (0 === _emptyMember) {
+                        _emptyMember = new gpf.attributes.Array();
+                    }
+                    result = _emptyMember;
+                }
+                return result;
+            },
+
+            /**
+             * Returns the list of members stored in this map
+             *
+             * @perf_warn Result is computed on each call
+             * @return {String[]}
+             */
+            members: function () {
+                var
+                    result = [],
+                    member;
+                for (member in this._members) {
+                    if (this._members.hasOwnProperty(member)) {
+                        result.push(member);
+                    }
+                }
+                return result;
             }
-            return this._count;
-        },
 
-        /**
-         * Creates a new map that contains only instances of the given
-         * attribute class
-         *
-         * @param {Function} expectedClass
-         * @return {gpf.attributes.Map}
-         */
-        filter: function (expectedClass) {
-            gpf.ASSERT("function" === typeof expectedClass);
-            var result = new gpf.attributes.Map();
-            this._copyTo(result, this._filterCallback, expectedClass);
-            return result;
-        },
-
-        /**
-         * Returns the array of map associated to a member
-         *
-         * @param {String} name
-         * @return {gpf.attributes.Array}
-         */
-        member: function (name) {
-            var result = this._members[name];
-            if (undefined === result) {
-                if (0 === _emptyMember) {
-                    _emptyMember = new gpf.attributes.Array();
-                }
-                result = _emptyMember;
-            }
-            return result;
-        },
-
-        /**
-         * Returns the list of members stored in this map
-         *
-         * @perf_warn Result is computed on each call
-         * @return {String[]}
-         */
-        members: function () {
-            var
-                result = [],
-                member;
-            for (member in this._members) {
-                if (this._members.hasOwnProperty(member)) {
-                    result.push(member);
-                }
-            }
-            return result;
         }
 
     });
@@ -379,9 +441,9 @@
         len = attributes.length;
         for (idx = 0; idx < len; ++idx) {
             attribute = attributes[idx];
-            attribute.member(name); // Assign member name
+            attribute._member = name; // Assign member name
             attributeList.add(name, attribute);
-            attribute.alterPrototype(objectClass.prototype);
+            attribute._alterPrototype(objectClass.prototype);
         }
     };
 
