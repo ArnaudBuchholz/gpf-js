@@ -582,6 +582,61 @@
 
     });
 
+    //region HTML Attributes
+
+    var
+        /**
+         * HTML attribute (base class).
+         *
+         * @class gpf.attributes.HtmlAttribute
+         * @extends gpf.attributes.Attribute
+         * @private
+         */
+        _Base = gpf._defAttr("HtmlAttribute", {});
+
+    /**
+     * HTML Handler
+     *
+     * @class gpf.attributes.HtmlHandlerAttribute
+     * @extends gpf.attributes.HtmlAttribute
+     * @alias gpf.$HtmlHandler
+     */
+    gpf._defAttr("$HtmlHandler", _Base, {
+    });
+
+    /**
+     * HTML Event Mapper
+     *
+     * @class gpf.attributes.HtmlEventAttribute
+     * @extends gpf.attributes.HtmlAttribute
+     * @alias gpf.$HtmlEvent
+     */
+    gpf._defAttr("$HtmlEvent", _Base, {
+
+        _event: "",
+        _selector: null,
+
+        /**
+         * @constructor
+         * @param {String} event
+         * @param {String} [selector=undefined] selector
+         */
+        constructor: function (event, selector) {
+            this._event = event;
+            if (selector) {
+                this._selector = selector;
+            }
+        }
+
+    });
+
+    //endregion
+
+    // TODO TBD
+    gpf.html.handle = function () {
+
+    };
+
 /*#ifndef(UMD)*/
 }()); /* End of privacy scope */
 /*#endif*/
