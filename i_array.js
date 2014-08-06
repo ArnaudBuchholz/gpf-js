@@ -93,9 +93,9 @@
         },
 
         /**
-         * @inheritDoc gpf.attributes.Attribute:alterPrototype
+         * @inheritDoc gpf.attributes.Attribute:_alterPrototype
          */
-        alterPrototype: function (objPrototype) {
+        _alterPrototype: function (objPrototype) {
             var
                 implementedInterface;
             if (this._writeAllowed) {

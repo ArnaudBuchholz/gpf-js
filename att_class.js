@@ -50,7 +50,7 @@
             }
         },
 
-        alterPrototype: function (objPrototype) {
+        _alterPrototype: function (objPrototype) {
             var
                 member = this._member,
                 publicName = this._publicName;

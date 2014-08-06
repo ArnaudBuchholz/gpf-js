@@ -257,7 +257,7 @@
             }
         },
 
-        alterPrototype: function (objPrototype) {
+        _alterPrototype: function (objPrototype) {
             if (!this._builder) {
                 // Nothing to do
                 return;

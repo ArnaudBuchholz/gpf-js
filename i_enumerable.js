@@ -91,9 +91,9 @@
     gpf._defAttr("$Enumerable", gpfA.ClassAttribute, {
 
         /**
-         * @inheritDoc gpf.attributes.Attribute:alterPrototype
+         * @inheritDoc gpf.attributes.Attribute:_alterPrototype
          */
-        alterPrototype: function (objPrototype) {
+        _alterPrototype: function (objPrototype) {
             if (!(objPrototype[this._member] instanceof Array)) {
                 throw {
                     message: "$Enumerable can be associated to arrays only"

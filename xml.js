@@ -201,7 +201,7 @@
          */
         _Base = gpf._defAttr("XmlAttribute", {
 
-            alterPrototype: function (objPrototype) {
+            _alterPrototype: function (objPrototype) {
                 /*
                  * If not yet defined creates new XML members
                  * - toXml()

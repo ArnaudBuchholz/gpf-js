@@ -596,6 +596,7 @@
 
     /**
      * HTML Handler
+     * Used to identify the member receiving the attached DOM inside an object
      *
      * @class gpf.attributes.HtmlHandlerAttribute
      * @extends gpf.attributes.HtmlAttribute
@@ -632,8 +633,24 @@
 
     //endregion
 
-    // TODO TBD
-    gpf.html.handle = function () {
+    /**
+     * Attach the selected DOM object to the object instance
+     *
+     * @param {Object} instance Object instance
+     * @param {String|Object} domSelection DOM selector or the DOM object
+     */
+    gpf.html.handle = function (instance, domSelection) {
+        if ("string" === typeof domSelection) {
+            domSelection = document.querySelector(domSelection);
+        }
+        gpf.ASSERT(domSelection);
+        if (!domSelection) {
+            return; // Nothing can be done
+        }
+        var
+            attributes = new gpf.attributes.Map(instance);
+
+
 
     };
 
