@@ -265,7 +265,17 @@
         _ALPHA: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
 
         _func: function (source) {
-            return new Func(source);
+/*#ifdef(DEBUG)*/
+            try {
+/*#endif*/
+                return new Func(source);
+/*#ifdef(DEBUG)*/
+            } catch (e) {
+                console.error('An exception occurred compiling:\r\n'
+                    + source);
+                return null;
+            }
+/*#endif*/
         },
 
         /*
