@@ -529,6 +529,58 @@
         return scope;
     };
 
+    /**
+     * Build a parameter array with
+     * - Placeholders for known parameters
+     * - Leading parameters filled wih the provided params
+     *
+     * @param {Number} count
+     * @param {*} [params=undefined] params Additional parameters
+     * appended at the end of the parameter list
+     * @return {Array}
+     * @static
+     */
+    gpf.Callback.buildParamArray = function (count, params) {
+        var
+            len,
+            result,
+            idx;
+        if (params) {
+            len = params.length;
+            result = new Array(count + len);
+            for (idx = 0; idx < len; ++idx) {
+                result[count] = params[idx];
+                ++count;
+            }
+        } else {
+            result = new Array(count);
+        }
+        return result;
+    };
+
+    /**
+     * Helper to call a function with a variable list of parameters
+     *
+     * @param {Function} callback
+     * @param {Object} scope
+     * @param {Array} paramArray array of parameters built with
+     * gpf.Callback.buildParamArray
+     * @param {...*} var_args
+     * @return {*}
+     */
+    gpf.Callback.doApply = function (callback, scope, paramArray) {
+        var
+            len = arguments.length,
+            idx = 3,
+            paramIdx = 0;
+        while (idx < len) {
+            paramArray[paramIdx] = arguments[idx];
+            ++idx;
+            ++paramIdx;
+        }
+        return callback.apply(scope, paramArray);
+    };
+
 /*#ifndef(UMD)*/
 }()); /* End of privacy scope */
 /*#endif*/
