@@ -592,44 +592,47 @@
          * @extends gpf.attributes.Attribute
          * @private
          */
-        _Base = gpf._defAttr("HtmlAttribute", {});
-
-    /**
-     * HTML Handler
-     * Used to identify the member receiving the attached DOM inside an object
-     *
-     * @class gpf.attributes.HtmlHandlerAttribute
-     * @extends gpf.attributes.HtmlAttribute
-     * @alias gpf.$HtmlHandler
-     */
-    gpf._defAttr("$HtmlHandler", _Base, {
-    });
-
-    /**
-     * HTML Event Mapper
-     *
-     * @class gpf.attributes.HtmlEventAttribute
-     * @extends gpf.attributes.HtmlAttribute
-     * @alias gpf.$HtmlEvent
-     */
-    gpf._defAttr("$HtmlEvent", _Base, {
-
-        _event: "",
-        _selector: null,
+        _Base = gpf._defAttr("HtmlAttribute", {}),
 
         /**
-         * @constructor
-         * @param {String} event
-         * @param {String} [selector=undefined] selector
+         * HTML Handler
+         * Used to identify the member receiving the attached DOM inside an
+         * object
+         *
+         * @class gpf.attributes.HtmlHandlerAttribute
+         * @extends gpf.attributes.HtmlAttribute
+         * @alias gpf.$HtmlHandler
          */
-        constructor: function (event, selector) {
-            this._event = event;
-            if (selector) {
-                this._selector = selector;
-            }
-        }
+        _Handler = gpf._defAttr("$HtmlHandler", _Base, {
+        }),
 
-    });
+
+        /**
+         * HTML Event Mapper
+         *
+         * @class gpf.attributes.HtmlEventAttribute
+         * @extends gpf.attributes.HtmlAttribute
+         * @alias gpf.$HtmlEvent
+         * @friend _handleEvent
+         */
+        _Event = gpf._defAttr("$HtmlEvent", _Base, {
+
+            _event: "",
+            _selector: null,
+
+            /**
+             * @constructor
+             * @param {String} event
+             * @param {String} [selector=undefined] selector
+             */
+            constructor: function (event, selector) {
+                this._event = event;
+                if (selector) {
+                    this._selector = selector;
+                }
+            }
+
+        });
 
     //endregion
 
@@ -638,6 +641,7 @@
      *
      * @param {Object} instance Object instance
      * @param {String|Object} domSelection DOM selector or the DOM object
+     * @closure
      */
     gpf.html.handle = function (instance, domSelection) {
         if ("string" === typeof domSelection) {
@@ -648,11 +652,69 @@
             return; // Nothing can be done
         }
         var
-            attributes = new gpf.attributes.Map(instance);
-
-
-
+            allAttributes = new gpf.attributes.Map(instance).filter(_Base),
+            handlerAttributes = allAttributes.filter(_Handler),
+            handlerMember,
+            eventAttributes;
+        if (1 !== handlerAttributes.count()) {
+            throw {
+                message: "Unexpected count of $HtmlHandler attributes"
+            };
+        }
+        handlerMember = handlerAttributes.members()[0];
+        instance[handlerMember] = domSelection;
+        // Now process event handlers
+        eventAttributes = allAttributes.filter(_Event);
+        if (0 < eventAttributes.count()) {
+            eventAttributes.each(_handleEvents, instance, [domSelection]);
+        }
     };
+
+    /**
+     * @param {String} member
+     * @param {gpf.attributes.Array} attributesArray
+     * @param {Object} domObject
+     * @private
+     */
+    function _handleEvents(member, attributesArray, domObject) {
+        /*jshint -W040*/ // Used as a callback, this is the object instance
+        debugger;
+        attributesArray.each(_handleEvent, this, [member, domObject]);
+        /*jshint +W040*/
+    }
+
+    /**
+     * Generate the event handler
+     *
+     * @param {Object} that Context
+     * @param {String} member Method name to call
+     * @closure
+     * @private
+     */
+    function _genEventHandler(that, member) {
+        return function (event) {
+            return that[member](event);
+        };
+    }
+
+    /**
+     * @param {gpf.attributes.HtmlEventAttribute} eventAttribute
+     * @param {String} member
+     * @param {Object} domObject
+     * @private
+     */
+    function _handleEvent(eventAttribute, member, domObject) {
+        /*jshint -W040*/ // Used as a callback, this is the object instance
+        var
+            domSelection = eventAttribute._selector,
+            event = eventAttribute._event;
+        domSelection = domObject.querySelector(domSelection);
+        if (!domSelection) {
+            return; // Nothing to do
+        }
+        domSelection.addEventListener(event, _genEventHandler(this, member));
+        /*jshint +W040*/
+    }
 
 /*#ifndef(UMD)*/
 }()); /* End of privacy scope */
