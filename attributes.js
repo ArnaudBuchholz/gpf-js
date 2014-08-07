@@ -195,15 +195,18 @@
             /**
              * Return the first occurrence of the expected class
              *
-             * @param {Function} expectedClass the class to match
+             * @param {gpf.attributes.Attribute} expectedClass the class to
+             * match
              * @return {gpf.attributes.Attribute}
              */
             has: function (expectedClass) {
                 gpf.ASSERT("function" === typeof expectedClass);
+                gpf.ASSERT(expectedClass instanceof gpf.attributes.Attribute);
                 var
                     idx,
+                    len = this._array.length,
                     item;
-                for (idx = 0; idx < this._array.length; ++idx) {
+                for (idx = 0; idx < len; ++idx) {
                     item = this._array[idx];
                     if (item instanceof expectedClass) {
                         return item;
@@ -223,17 +226,39 @@
                 gpf.ASSERT("function" === typeof expectedClass);
                 var
                     idx,
+                    len = this._array.length,
                     attribute,
                     result = new gpf.attributes.Array();
-                for (idx = 0; idx < this._array.length; ++idx) {
+                for (idx = 0; idx < len; ++idx) {
                     attribute = this._array[idx];
                     if (attribute instanceof expectedClass) {
                         result._array.push(attribute);
                     }
                 }
                 return result;
-            }
+            },
 
+            /**
+             * Apply the callback for each attribute in the array
+             *
+             * @param {Function} callback, defined with parameters
+             * * {gpf.attributes.Attribute} attribute
+             * No result is expected
+             * @param {Object} [scope=undefined] scope
+             * @param {*} [params=undefined] params Additional parameters
+             * appended at the end of the expected parameter list
+             */
+            each: function (callback, scope, params) {
+                scope = gpf.Callback.resolveScope(scope);
+                params = gpf.Callback.buildParamArray(1, params);
+                var
+                    idx,
+                    len = this._array.length;
+                for (idx = 0; idx < len; ++idx) {
+                    gpf.Callback.doApply(callback, scope, params,
+                        this._array[idx]);
+                }
+            }
         }
 
     });
@@ -417,6 +442,30 @@
                     }
                 }
                 return result;
+            },
+
+            /**
+             * Apply the callback for each member in the map
+             *
+             * @param {Function} callback, defined with parameters
+             * * {String} member
+             * * {gpf.attributes.Array} attributes
+             * No result is expected
+             * @param {Object} [scope=undefined] scope
+             * @param {*} [params=undefined] params Additional parameters
+             * appended at the end of the expected parameter list
+             */
+            each: function (callback, scope, params) {
+                scope = gpf.Callback.resolveScope(scope);
+                params = gpf.Callback.buildParamArray(2, params);
+                var
+                    member;
+                for (member in this._members) {
+                    if (this._members.hasOwnProperty(member)) {
+                        gpf.Callback.doApply(callback, scope, params,
+                            member, this._members[member]);
+                    }
+                }
             }
 
         }
