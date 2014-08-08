@@ -604,9 +604,7 @@
          * @extends gpf.attributes.HtmlAttribute
          * @alias gpf.$HtmlHandler
          */
-        _Handler = gpf._defAttr("$HtmlHandler", _Base, {
-        }),
-
+        _Handler = gpf._defAttr("$HtmlHandler", _Base, {}),
 
         /**
          * HTML Event Mapper
@@ -679,7 +677,6 @@
      */
     function _handleEvents(member, attributesArray, domObject) {
         /*jshint -W040*/ // Used as a callback, this is the object instance
-        debugger;
         attributesArray.each(_handleEvent, this, [member, domObject]);
         /*jshint +W040*/
     }
@@ -707,13 +704,15 @@
     function _handleEvent(eventAttribute, member, domObject) {
         /*jshint -W040*/ // Used as a callback, this is the object instance
         var
-            domSelection = eventAttribute._selector,
+            domSelector = eventAttribute._selector,
             event = eventAttribute._event;
-        domSelection = domObject.querySelector(domSelection);
-        if (!domSelection) {
+        if (domSelector) {
+            domObject = domObject.querySelector(domSelector);
+        }
+        if (!domObject) {
             return; // Nothing to do
         }
-        domSelection.addEventListener(event, _genEventHandler(this, member));
+        domObject.addEventListener(event, _genEventHandler(this, member));
         /*jshint +W040*/
     }
 
