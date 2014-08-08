@@ -548,7 +548,8 @@
                     len,
                     result,
                     idx;
-                gpf.ASSERT(reader === this._reader);
+                gpf.ASSERT(reader === this._reader,
+                    "Unexpected change of reader");
                 if (reader.error) {
                     gpf.events.fire.apply(this, [
                         gpfI.IReadableStream.ERROR,
@@ -647,7 +648,7 @@
         if ("string" === typeof domSelection) {
             domSelection = document.querySelector(domSelection);
         }
-        gpf.ASSERT(domSelection);
+        gpf.ASSERT(domSelection, "Selector does not resolve to DOM");
         if (!domSelection) {
             return; // Nothing can be done
         }

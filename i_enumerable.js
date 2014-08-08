@@ -77,7 +77,8 @@
         var
             attributes = new gpfA.Map(object).filter(gpfA.EnumerableAttribute),
             members = attributes.members();
-        gpf.ASSERT(members.length === 1);
+        gpf.ASSERT(members.length === 1,
+            "Only one member can be defined as enumerable");
         return _arrayEnumerator(object[members[0]]);
     }
 

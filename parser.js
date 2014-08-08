@@ -1054,7 +1054,7 @@
                     if (null === arg) {
                         this._finalizeParserState();
                     } else {
-                        gpf.ASSERT("string" === typeof arg);
+                        gpf.ASSERT("string" === typeof arg, "string expected");
                         this._parse(arg);
                     }
                 }
@@ -1067,7 +1067,8 @@
              * @private
              */
             setOutputHandler: function (handler) {
-                gpf.ASSERT(handler instanceof Array || handler.apply);
+                gpf.ASSERT(handler instanceof Array || handler.apply,
+                    "Invalid output handler");
                 this._outputHandler = handler;
             }
 

@@ -200,8 +200,10 @@
              * @return {gpf.attributes.Attribute}
              */
             has: function (expectedClass) {
-                gpf.ASSERT("function" === typeof expectedClass);
-                gpf.ASSERT(expectedClass instanceof gpf.attributes.Attribute);
+                gpf.ASSERT("function" === typeof expectedClass,
+                    "Expected a class parameter");
+                gpf.ASSERT(expectedClass instanceof gpf.attributes.Attribute,
+                    "Expected an Attribute-like class parameter");
                 var
                     idx,
                     len = this._array.length,
@@ -223,7 +225,10 @@
              * @return {gpf.attributes.Array}
              */
             filter: function (expectedClass) {
-                gpf.ASSERT("function" === typeof expectedClass);
+                gpf.ASSERT("function" === typeof expectedClass,
+                    "Expected a class parameter");
+                gpf.ASSERT(expectedClass instanceof gpf.attributes.Attribute,
+                    "Expected an Attribute-like class parameter");
                 var
                     idx,
                     len = this._array.length,
@@ -403,7 +408,10 @@
              * @return {gpf.attributes.Map}
              */
             filter: function (expectedClass) {
-                gpf.ASSERT("function" === typeof expectedClass);
+                gpf.ASSERT("function" === typeof expectedClass,
+                    "Expected a class parameter");
+                gpf.ASSERT(expectedClass instanceof gpf.attributes.Attribute,
+                    "Expected an Attribute-like class parameter");
                 var result = new gpf.attributes.Map();
                 this._copyTo(result, this._filterCallback, expectedClass);
                 return result;
