@@ -156,6 +156,10 @@
     // DEBUG specifics
 
     gpf.ASSERT = function (condition, message) {
+        if (undefined === message) {
+            message = "gpf.ASSERT with no message";
+            condition = false;
+        }
         if (!condition) {
             console.warn("ASSERTION FAILED: " + message);
             throw {
