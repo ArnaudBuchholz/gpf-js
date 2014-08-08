@@ -202,7 +202,8 @@
             has: function (expectedClass) {
                 gpf.ASSERT("function" === typeof expectedClass,
                     "Expected a class parameter");
-                gpf.ASSERT(expectedClass instanceof gpf.attributes.Attribute,
+                gpf.ASSERT(
+                    expectedClass.prototype instanceof gpf.attributes.Attribute,
                     "Expected an Attribute-like class parameter");
                 var
                     idx,
@@ -227,7 +228,8 @@
             filter: function (expectedClass) {
                 gpf.ASSERT("function" === typeof expectedClass,
                     "Expected a class parameter");
-                gpf.ASSERT(expectedClass instanceof gpf.attributes.Attribute,
+                gpf.ASSERT(
+                    expectedClass.prototype instanceof gpf.attributes.Attribute,
                     "Expected an Attribute-like class parameter");
                 var
                     idx,
@@ -410,7 +412,8 @@
             filter: function (expectedClass) {
                 gpf.ASSERT("function" === typeof expectedClass,
                     "Expected a class parameter");
-                gpf.ASSERT(expectedClass instanceof gpf.attributes.Attribute,
+                gpf.ASSERT(
+                    expectedClass.prototype instanceof gpf.attributes.Attribute,
                     "Expected an Attribute-like class parameter");
                 var result = new gpf.attributes.Map();
                 this._copyTo(result, this._filterCallback, expectedClass);
