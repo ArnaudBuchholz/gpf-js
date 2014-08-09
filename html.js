@@ -616,19 +616,27 @@
          */
         _Event = gpf._defAttr("$HtmlEvent", _Base, {
 
-            _event: "",
-            _selector: null,
+            private: {
 
-            /**
-             * @constructor
-             * @param {String} event
-             * @param {String} [selector=undefined] selector
-             */
-            constructor: function (event, selector) {
-                this._event = event;
-                if (selector) {
-                    this._selector = selector;
+                _event: "",
+                _selector: null
+
+            },
+
+            public: {
+
+                /**
+                 * @constructor
+                 * @param {String} event
+                 * @param {String} [selector=undefined] selector
+                 */
+                constructor: function (event, selector) {
+                    this._event = event;
+                    if (selector) {
+                        this._selector = selector;
+                    }
                 }
+
             }
 
         });
@@ -639,17 +647,13 @@
      * Attach the selected DOM object to the object instance
      *
      * @param {Object} instance Object instance
-     * @param {String|Object} domSelection DOM selector or the DOM object
+     * @param {String|Object} [domSelection=undefined] domSelection DOM
+     * selector, DOM object or nothing. If a DOM selector or object is provided
+     * it will be associated to the object using the $HtmlHandler attribute.
+     * Otherwise, this can be used to refresh the
      * @closure
      */
     gpf.html.handle = function (instance, domSelection) {
-        if ("string" === typeof domSelection) {
-            domSelection = document.querySelector(domSelection);
-        }
-        gpf.ASSERT(domSelection, "Selector does not resolve to DOM");
-        if (!domSelection) {
-            return; // Nothing can be done
-        }
         var
             allAttributes = new gpf.attributes.Map(instance).filter(_Base),
             handlerAttributes = allAttributes.filter(_Handler),
@@ -661,7 +665,19 @@
             };
         }
         handlerMember = handlerAttributes.members()[0];
-        instance[handlerMember] = domSelection;
+        if (undefined === domSelection) {
+            domSelection = instance[handlerMember];
+            gpf.ASSERT(domSelection, "Handle not previously set");
+        } else {
+            if ("string" === typeof domSelection) {
+                domSelection = document.querySelector(domSelection);
+            }
+            gpf.ASSERT(domSelection, "Selector does not resolve to DOM");
+            if (!domSelection) {
+                return; // Nothing can be done
+            }
+            instance[handlerMember] = domSelection;
+        }
         // Now process event handlers
         eventAttributes = allAttributes.filter(_Event);
         if (0 < eventAttributes.count()) {
@@ -682,20 +698,6 @@
     }
 
     /**
-     * Generate the event handler
-     *
-     * @param {Object} that Context
-     * @param {String} member Method name to call
-     * @closure
-     * @private
-     */
-    function _genEventHandler(that, member) {
-        return function (event) {
-            return that[member](event);
-        };
-    }
-
-    /**
      * @param {gpf.attributes.HtmlEventAttribute} eventAttribute
      * @param {String} member
      * @param {Object} domObject
@@ -705,14 +707,19 @@
         /*jshint -W040*/ // Used as a callback, this is the object instance
         var
             domSelector = eventAttribute._selector,
-            event = eventAttribute._event;
+            event = eventAttribute._event,
+            _boundMember = member + ":$HtmlEvent(" + event + "," + domSelector
+                + ")";
         if (domSelector) {
             domObject = domObject.querySelector(domSelector);
         }
         if (!domObject) {
             return; // Nothing to do
         }
-        domObject.addEventListener(event, _genEventHandler(this, member));
+        if (!this[_boundMember]) {
+            domObject.addEventListener(event, gpf.Callback.bind(this, member));
+            this[_boundMember] = true;
+        }
         /*jshint +W040*/
     }
 
