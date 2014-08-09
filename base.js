@@ -517,69 +517,92 @@
         }
     });
 
-    /**
-     * Resolve function scope
-     *
-     * @static
-     */
-    gpf.Callback.resolveScope = function (scope) {
-        if (!scope) {
-            scope = gpf.context();
-        }
-        return scope;
-    };
+    gpf.extend(gpf.Callback, {
 
-    /**
-     * Build a parameter array with
-     * - Placeholders for known parameters
-     * - Leading parameters filled wih the provided params
-     *
-     * @param {Number} count
-     * @param {*} [params=undefined] params Additional parameters
-     * appended at the end of the parameter list
-     * @return {Array}
-     * @static
-     */
-    gpf.Callback.buildParamArray = function (count, params) {
-        var
-            len,
-            result,
-            idx;
-        if (params) {
-            len = params.length;
-            result = new Array(count + len);
-            for (idx = 0; idx < len; ++idx) {
-                result[count] = params[idx];
-                ++count;
+        /**
+         * Resolve function scope
+         *
+         * @static
+         */
+        resolveScope: function (scope) {
+            if (!scope) {
+                scope = gpf.context();
             }
-        } else {
-            result = new Array(count);
-        }
-        return result;
-    };
+            return scope;
+        },
 
-    /**
-     * Helper to call a function with a variable list of parameters
-     *
-     * @param {Function} callback
-     * @param {Object} scope
-     * @param {Array} paramArray array of parameters built with
-     * gpf.Callback.buildParamArray
-     * @param {...*} var_args
-     * @return {*}
-     */
-    gpf.Callback.doApply = function (callback, scope, paramArray) {
-        var
-            len = arguments.length,
-            idx = 3,
-            paramIdx = 0;
-        while (idx < len) {
-            paramArray[paramIdx] = arguments[idx];
-            ++idx;
-            ++paramIdx;
+        /**
+         * Build a parameter array with
+         * - Placeholders for known parameters
+         * - Leading parameters filled wih the provided params
+         *
+         * @param {Number} count
+         * @param {*} [params=undefined] params Additional parameters
+         * appended at the end of the parameter list
+         * @return {Array}
+         * @static
+         */
+        buildParamArray: function (count, params) {
+            var
+                len,
+                result,
+                idx;
+            if (params) {
+                len = params.length;
+                result = new Array(count + len);
+                for (idx = 0; idx < len; ++idx) {
+                    result[count] = params[idx];
+                    ++count;
+                }
+            } else {
+                result = new Array(count);
+            }
+            return result;
+        },
+
+        /**
+         * Helper to call a function with a variable list of parameters
+         *
+         * @param {Function} callback
+         * @param {Object} scope
+         * @param {Array} paramArray array of parameters built with
+         * gpf.Callback.buildParamArray
+         * @param {...*} var_args
+         * @return {*}
+         */
+        doApply: function (callback, scope, paramArray) {
+            var
+                len = arguments.length,
+                idx = 3,
+                paramIdx = 0;
+            while (idx < len) {
+                paramArray[paramIdx] = arguments[idx];
+                ++idx;
+                ++paramIdx;
+            }
+            return callback.apply(scope, paramArray);
+        },
+
+        /**
+         * Get a method that is bound to the object
+         *
+         * @param {Object} obj
+         * @param {String} method
+         * @returns {*}
+         */
+        bind: function (obj, method) {
+            var _boundMember = method + ":boundToThis";
+            gpf.ASSERT("function" === typeof obj[method],
+                "Only methods can be bound");
+            if (undefined === obj[_boundMember]) {
+                obj[_boundMember] = function () {
+                    return obj[method].apply(obj, arguments);
+                };
+            }
+            return obj[_boundMember];
         }
-        return callback.apply(scope, paramArray);
-    };
+
+    });
 
 /*#ifndef(UMD)*/
 }()); /* End of privacy scope */
