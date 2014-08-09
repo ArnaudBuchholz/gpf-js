@@ -68,7 +68,7 @@
     var
         _visibilityKeywords     = "public|protected|private|static".split("|"),
         _VISIBILITY_PUBLIC      = 0,
-//        _VISIBILITY_PROTECTED   = 1,
+        _VISIBILITY_PROTECTED   = 1,
 //        _VISIBILITY_PRIVATE     = 2,
         _VISIBILITY_STATIC      = 3,
         _initAllowed = true;
@@ -361,9 +361,13 @@
                         visibility = _visibilityKeywords
                             .indexOf(member);
                         if (-1 === visibility) {
-                            // Usual member
-                            this._processMember(member,
-                                _VISIBILITY_PUBLIC);
+                            // Usual member, protected if starting with _
+                            if (member.charAt(0) === "_") {
+                                visibility = _VISIBILITY_PROTECTED;
+                            } else {
+                                visibility = _VISIBILITY_PUBLIC;
+                            }
+                            this._processMember(member, visibility);
                         } else {
                             // Visibility
                             this._processDefWithVisibility(visibility);
