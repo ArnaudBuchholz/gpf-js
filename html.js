@@ -651,6 +651,7 @@
      * selector, DOM object or nothing. If a DOM selector or object is provided
      * it will be associated to the object using the $HtmlHandler attribute.
      * Otherwise, this can be used to refresh the
+     * @return {Object|undefined} the DOM object
      * @closure
      */
     gpf.html.handle = function (instance, domSelection) {
@@ -683,6 +684,7 @@
         if (0 < eventAttributes.count()) {
             eventAttributes.each(_handleEvents, instance, [domSelection]);
         }
+        return domSelection;
     };
 
     /**
