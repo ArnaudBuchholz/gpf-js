@@ -619,7 +619,8 @@
             private: {
 
                 _event: "",
-                _selector: null
+                _selector: null,
+                _globalSelector: false
 
             },
 
@@ -629,11 +630,15 @@
                  * @constructor
                  * @param {String} event
                  * @param {String} [selector=undefined] selector
+                 * @param {Boolean} [global=false] global
                  */
-                constructor: function (event, selector) {
+                constructor: function (event, selector, global) {
                     this._event = event;
                     if (selector) {
                         this._selector = selector;
+                    }
+                    if (undefined !== global) {
+                        this._globalSelector = global === true;
                     }
                 }
 
@@ -710,10 +715,15 @@
         var
             domSelector = eventAttribute._selector,
             event = eventAttribute._event,
+            globalSelector = eventAttribute._globalSelector,
             _boundMember = member + ":$HtmlEvent(" + event + "," + domSelector
                 + ")";
         if (domSelector) {
-            domObject = domObject.querySelector(domSelector);
+            if (globalSelector) {
+                domObject = document.querySelector(domSelector);
+            } else {
+                domObject = domObject.querySelector(domSelector);
+            }
         }
         if (!domObject) {
             return; // Nothing to do
