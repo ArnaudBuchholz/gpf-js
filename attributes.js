@@ -246,7 +246,9 @@
             },
 
             /**
-             * Apply the callback for each attribute in the array
+             * Apply the callback for each attribute in the array.
+             * If the callback returns anything, the loop stops and the result
+             * is returned to the caller.
              *
              * @param {Function} callback, defined with parameters
              * * {gpf.attributes.Attribute} attribute
@@ -254,16 +256,21 @@
              * @param {Object} [scope=undefined] scope
              * @param {*} [params=undefined] params Additional parameters
              * appended at the end of the expected parameter list
+             * @return {*}
              */
             each: function (callback, scope, params) {
                 scope = gpf.Callback.resolveScope(scope);
                 params = gpf.Callback.buildParamArray(1, params);
                 var
                     idx,
-                    len = this._array.length;
+                    len = this._array.length,
+                    result;
                 for (idx = 0; idx < len; ++idx) {
-                    gpf.Callback.doApply(callback, scope, params,
+                    result = gpf.Callback.doApply(callback, scope, params,
                         this._array[idx]);
+                    if (undefined !== result) {
+                        return result;
+                    }
                 }
             }
         }
@@ -457,6 +464,8 @@
 
             /**
              * Apply the callback for each member in the map
+             * If the callback returns anything, the loop stops and the result
+             * is returned to the caller.
              *
              * @param {Function} callback, defined with parameters
              * * {String} member
@@ -465,16 +474,21 @@
              * @param {Object} [scope=undefined] scope
              * @param {*} [params=undefined] params Additional parameters
              * appended at the end of the expected parameter list
+             * @return {*}
              */
             each: function (callback, scope, params) {
                 scope = gpf.Callback.resolveScope(scope);
                 params = gpf.Callback.buildParamArray(2, params);
                 var
-                    member;
+                    member,
+                    result;
                 for (member in this._members) {
                     if (this._members.hasOwnProperty(member)) {
-                        gpf.Callback.doApply(callback, scope, params,
+                        result = gpf.Callback.doApply(callback, scope, params,
                             member, this._members[member]);
+                        if (undefined !== result) {
+                            return result;
+                        }
                     }
                 }
             }
