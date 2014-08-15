@@ -604,7 +604,11 @@
          * @extends gpf.attributes.HtmlAttribute
          * @alias gpf.$HtmlHandler
          */
-        _Handler = gpf._defAttr("$HtmlHandler", _Base, {}),
+        _Handler = gpf._defAttr("$HtmlHandler", _Base, {
+
+
+
+        }),
 
         /**
          * HTML Event Mapper
@@ -647,6 +651,8 @@
         });
 
     //endregion
+
+    //region HTML event handlers mappers through attributes
 
     /**
      * Attach the selected DOM object to the object instance
@@ -734,6 +740,78 @@
         }
         /*jshint +W040*/
     }
+
+    //endregion
+
+    //region Common HTML helpers
+
+    gpf.extend(gpf.html, {
+
+        /**
+         * Add the provided class name(s) to the DOM object
+         *
+         * @param {Object} domObject
+         * @param {String|String[]} toAdd
+         * @return {Object}
+         * @chainable
+         */
+        addClass: function (domObject, toAdd) {
+            var
+                classNames,
+                lengthBeforeAdding,
+                len,
+                idx;
+            if ("string" === typeof toAdd) {
+                toAdd = [toAdd];
+            }
+            gpf.ASSERT(toAdd instanceof Array, "Expected array");
+            classNames = domObject.className.split(" ");
+            lengthBeforeAdding = classNames.length;
+            len = toAdd.length;
+            for (idx = 0; idx < len; ++idx) {
+                gpf.set(classNames, toAdd[idx]);
+            }
+            // Avoid resource consuming refresh if nothing changed
+            if (lengthBeforeAdding !== classNames.length) {
+                domObject.className = classNames.join(" ");
+            }
+            return domObject;
+        },
+
+        /**
+         * Remove the provided class name(s) to the DOM object
+         *
+         * @param {Object} domObject
+         * @param {String|String[]} toRemove
+         * @return {Object}
+         * @chainable
+         */
+        removeClass: function (domObject, toRemove) {
+            var
+                classNames,
+                lengthBeforeAdding,
+                len,
+                idx;
+            if ("string" === typeof toRemove) {
+                toRemove = [toRemove];
+            }
+            gpf.ASSERT(toRemove instanceof Array, "Expected array");
+            classNames = domObject.className.split(" ");
+            lengthBeforeAdding = classNames.length;
+            len = toRemove.length;
+            for (idx = 0; idx < len; ++idx) {
+                gpf.clear(classNames, toRemove[idx]);
+            }
+            // Avoid resource consuming refresh if nothing changed
+            if (lengthBeforeAdding !== classNames.length) {
+                domObject.className = classNames.join(" ");
+            }
+            return domObject;
+        }
+
+    });
+
+    //endregion
 
 /*#ifndef(UMD)*/
 }()); /* End of privacy scope */
