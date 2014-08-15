@@ -603,10 +603,58 @@
          * @class gpf.attributes.HtmlHandlerAttribute
          * @extends gpf.attributes.HtmlAttribute
          * @alias gpf.$HtmlHandler
+         * @friend _handleHandlers
+         * @friend _handleEvent
          */
         _Handler = gpf._defAttr("$HtmlHandler", _Base, {
 
+            private: {
 
+                _selector: "",
+                _globalSelector: false
+
+            },
+
+            protected: {
+
+                /**
+                 * Apply selection starting from the provided object
+                 *
+                 * @param {Object} domObject
+                 * @returns {Object|undefined}
+                 * @private
+                 */
+                _select: function (domObject) {
+                    var selector = this._selector;
+                    if (selector) {
+                        if (this._globalSelector) {
+                            return document.querySelector(selector);
+                        } else {
+                            return domObject.querySelector(selector);
+                        }
+                    }
+                    return undefined;
+                }
+
+            },
+
+            public: {
+
+                /**
+                 * @constructor
+                 * @param {String} [selector=undefined] selector
+                 * @param {Boolean} [global=false] global
+                 */
+                constructor: function (event, selector, global) {
+                    if (selector) {
+                        this._selector = selector;
+                    }
+                    if (undefined !== global) {
+                        this._globalSelector = global === true;
+                    }
+                }
+
+            }
 
         }),
 
@@ -614,17 +662,15 @@
          * HTML Event Mapper
          *
          * @class gpf.attributes.HtmlEventAttribute
-         * @extends gpf.attributes.HtmlAttribute
+         * @extends gpf.attributes.HtmlHandlerAttribute
          * @alias gpf.$HtmlEvent
          * @friend _handleEvent
          */
-        _Event = gpf._defAttr("$HtmlEvent", _Base, {
+        _Event = gpf._defAttr("$HtmlEvent", _Handler, {
 
             private: {
 
-                _event: "",
-                _selector: null,
-                _globalSelector: false
+                _event: ""
 
             },
 
@@ -637,13 +683,8 @@
                  * @param {Boolean} [global=false] global
                  */
                 constructor: function (event, selector, global) {
+                    _Handler.apply(this,[selector, global]);
                     this._event = event;
-                    if (selector) {
-                        this._selector = selector;
-                    }
-                    if (undefined !== global) {
-                        this._globalSelector = global === true;
-                    }
                 }
 
             }
@@ -654,14 +695,34 @@
 
     //region HTML event handlers mappers through attributes
 
+    function _getHandlerAttribute(member, handlerAttributeArray) {
+        if (1 !== handlerAttributeArray.length()) {
+            throw {
+                message: "Too many $HtmlHandler attributes for '" + member
+                + "'"
+            };
+        }
+        return handlerAttributeArray.get(0);
+    }
+
+    function _findDefaultHandler(member, handlerAttributeArray) {
+        var
+            attribute = _getHandlerAttribute(member, handlerAttributeArray);
+        if (!attribute._selector) {
+            return attribute;
+        }
+    }
+
     /**
      * Attach the selected DOM object to the object instance
      *
      * @param {Object} instance Object instance
      * @param {String|Object} [domSelection=undefined] domSelection DOM
      * selector, DOM object or nothing. If a DOM selector or object is provided
-     * it will be associated to the object using the $HtmlHandler attribute.
-     * Otherwise, this can be used to refresh the
+     * it will be associated to the object using the default $HtmlHandler
+     * attribute.
+     * Otherwise, this can be used to refresh the missing associations.
+     *
      * @return {Object|undefined} the DOM object
      * @closure
      */
@@ -669,16 +730,22 @@
         var
             allAttributes = new gpf.attributes.Map(instance).filter(_Base),
             handlerAttributes = allAttributes.filter(_Handler),
-            handlerMember,
+            defaultHandler,
             eventAttributes;
-        if (1 !== handlerAttributes.count()) {
+        if (0 === handlerAttributes.count()) {
             throw {
-                message: "Unexpected count of $HtmlHandler attributes"
+                message: "No $HtmlHandler attributes"
             };
         }
-        handlerMember = handlerAttributes.members()[0];
+        defaultHandler = handlerAttributes.each(_findDefaultHandler);
+        if (undefined === defaultHandler) {
+            throw {
+                message: "No default $HtmlHandler attribute"
+            };
+        }
+        defaultHandler = defaultHandler.member();
         if (undefined === domSelection) {
-            domSelection = instance[handlerMember];
+            domSelection = instance[defaultHandler];
             gpf.ASSERT(domSelection, "Handle not previously set");
         } else {
             if ("string" === typeof domSelection) {
@@ -688,15 +755,32 @@
             if (!domSelection) {
                 return; // Nothing can be done
             }
-            instance[handlerMember] = domSelection;
+            instance[defaultHandler] = domSelection;
         }
-        // Now process event handlers
+        // Process other handlers
+        handlerAttributes.each(_handleHandlers, instance, [domSelection]);
+        // Process event handlers
         eventAttributes = allAttributes.filter(_Event);
         if (0 < eventAttributes.count()) {
             eventAttributes.each(_handleEvents, instance, [domSelection]);
         }
         return domSelection;
     };
+
+    function _handleHandlers(member, handlerAttributeArray, domObject) {
+        /*jshint -W040*/ // Used as a callback, this is the object instance
+        var
+            attribute = _getHandlerAttribute(member, handlerAttributeArray);
+        if (!attribute._selector) {
+            return;
+        }
+        domObject = attribute._select(domObject);
+        if (!domObject) {
+            return;
+        }
+        this[member] = domObject;
+        /*jshint +W040*/
+    }
 
     /**
      * @param {String} member
@@ -719,18 +803,10 @@
     function _handleEvent(eventAttribute, member, domObject) {
         /*jshint -W040*/ // Used as a callback, this is the object instance
         var
-            domSelector = eventAttribute._selector,
             event = eventAttribute._event,
-            globalSelector = eventAttribute._globalSelector,
-            _boundMember = member + ":$HtmlEvent(" + event + "," + domSelector
-                + ")";
-        if (domSelector) {
-            if (globalSelector) {
-                domObject = document.querySelector(domSelector);
-            } else {
-                domObject = domObject.querySelector(domSelector);
-            }
-        }
+            _boundMember = member + ":$HtmlEvent(" + event + ","
+                + eventAttribute._selector + ")";
+        domObject = eventAttribute._select(domObject);
         if (!domObject) {
             return; // Nothing to do
         }
