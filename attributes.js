@@ -170,6 +170,7 @@
      * Attribute array, generally used to list attributes on a class member
      *
      * @class gpf.attributes.Array
+     * @implements gpf.interfaces.IReadOnlyArray
      */
     gpf.define("gpf.attributes.Array", {
 
