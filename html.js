@@ -829,6 +829,33 @@
     gpf.extend(gpf.html, {
 
         /**
+         * Check if the DOM object has the requested class name(s)
+         *
+         * @param {Object} domObject
+         * @param {String|String[]} toCheck
+         * @return {Boolean}
+         * @chainable
+         */
+        hasClass: function (domObject, toCheck) {
+            var
+                classNames,
+                len,
+                idx;
+            if ("string" === typeof toCheck) {
+                toCheck = [toCheck];
+            }
+            gpf.ASSERT(toCheck instanceof Array, "Expected array");
+            classNames = domObject.className.split(" ");
+            len = toCheck.length;
+            for (idx = 0; idx < len; ++idx) {
+                if (undefined !== gpf.test(classNames, toCheck[idx])) {
+                    return true;
+                }
+            }
+            return false;
+        },
+
+        /**
          * Add the provided class name(s) to the DOM object
          *
          * @param {Object} domObject
