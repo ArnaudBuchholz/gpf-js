@@ -645,7 +645,7 @@
                  * @param {String} [selector=undefined] selector
                  * @param {Boolean} [global=false] global
                  */
-                constructor: function (event, selector, global) {
+                constructor: function (selector, global) {
                     if (selector) {
                         this._selector = selector;
                     }
@@ -696,19 +696,24 @@
     //region HTML event handlers mappers through attributes
 
     function _getHandlerAttribute(member, handlerAttributeArray) {
+        var attribute;
         if (1 !== handlerAttributeArray.length()) {
             throw {
                 message: "Too many $HtmlHandler attributes for '" + member
                 + "'"
             };
         }
-        return handlerAttributeArray.get(0);
+        attribute = handlerAttributeArray.get(0);
+        if (!(attribute instanceof _Event)) {
+            return attribute;
+        }
+        return null;
     }
 
     function _findDefaultHandler(member, handlerAttributeArray) {
         var
             attribute = _getHandlerAttribute(member, handlerAttributeArray);
-        if (!attribute._selector) {
+        if (attribute && !attribute._selector) {
             return attribute;
         }
     }
@@ -771,7 +776,7 @@
         /*jshint -W040*/ // Used as a callback, this is the object instance
         var
             attribute = _getHandlerAttribute(member, handlerAttributeArray);
-        if (!attribute._selector) {
+        if (!attribute || !attribute._selector) {
             return;
         }
         domObject = attribute._select(domObject);
