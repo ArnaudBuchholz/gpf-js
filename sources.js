@@ -23,6 +23,8 @@
             "parser",               // Parser helper                  gpf.Parser
             "tokenizer",            // Javascript parser                  gpf.js
 
+            "encoding",             // Encoding                     gpf.encoding
+
             "html",                 // HTML specific functions          gpf.html
 
             "xml",                  // Xml serializer & attributes       gpf.xml

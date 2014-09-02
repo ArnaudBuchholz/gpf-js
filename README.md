@@ -22,3 +22,5 @@ documented and explained.
 [escodegen](https://github.com/Constellation/escodegen)
 * Markdown specification inspired from
 [wikipedia](http://en.wikipedia.org/wiki/Markdown)
+* UTF-8 encode/decode based on [webtoolkit](http://www.webtoolkit.info/)
+
