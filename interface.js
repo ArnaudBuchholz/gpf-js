@@ -71,10 +71,9 @@
                 result = objectInstance.queryInterface(interfaceDefinition);
             }
             if (null === result && throwError) {
-                throw {
-                    message: "expected "
-                        + gpf.classDef(interfaceDefinition).name()
-                };
+                gpf.Error.InterfaceExpected({
+                    name: gpf.classDef(interfaceDefinition).name()
+                });
             }
             return result;
         }

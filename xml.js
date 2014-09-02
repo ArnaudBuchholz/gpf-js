@@ -1124,7 +1124,7 @@
             iXmlSerializable;
         iContentHandler = gpfI.query(out, gpfI.IXmlContentHandler, true);
         if ("string" === typeof value) {
-            gpf.NOT_IMPLEMENTED();
+            gpf.Error.NotImplemented();
         } else if ("object" === typeof value) {
             iXmlSerializable = gpfI.query(value, gpfI.IXmlSerializable);
             if (null !== iXmlSerializable) {
@@ -1182,9 +1182,7 @@
             // Try with a starting _
             newName = "_" + name;
             if (!gpf.xml.isValidName(newName)) {
-                throw {
-                    message: "Invalid name"
-                };
+                gpf.Error.XmlInvalidName();
             }
             return newName;
         }

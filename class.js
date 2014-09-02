@@ -238,9 +238,7 @@
             if ("undefined" !== baseType
                 && null !== baseMember // Special case as null is common
                 && newType !== baseType) {
-                throw {
-                    message: "You can't overload a member to change its type"
-                };
+                gpf.Error.ClassMemberOverloadWithTypeChange();
             }
             if ("function" === newType && "undefined" !== baseType) {
                 /*
@@ -319,10 +317,7 @@
                             || "private" === member
                             || "protected" === member
                             || "static" === member) {
-                            throw {
-                                message: "Invalid visibility keyword"
-                            };
-
+                            gpf.Error.ClassInvalidVisibility();
                             // Usual member
                         } else {
                             this._processMember(member, visibility);

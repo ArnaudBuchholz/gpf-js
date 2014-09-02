@@ -99,9 +99,7 @@
 
             pop: function() {
                 if (0 === this._stack.length) {
-                    throw {
-                        message: "stackunderflow"
-                    };
+                    gpf.Error.EngineStackUnderflow();
                 }
                 return this._stack.pop();
             },
@@ -109,17 +107,13 @@
             checkAndPop: function(types) {
                 var result, idx, value;
                 if (this.length() < types.length) {
-                    throw {
-                        message: "stackunderflow"
-                    };
+                    gpf.Error.EngineStackUnderflow();
                 }
                 result = [];
                 for (idx = 0; idx < types.length; ++idx) {
                     value = this.internalGet(idx);
                     if (toType(value) !== types[idx]) {
-                        throw {
-                            message: "typecheck"
-                        };
+                        gpf.Error.EngineTypeCheck();
                     }
                     result.push(value);
                 }

@@ -698,10 +698,9 @@
     function _getHandlerAttribute(member, handlerAttributeArray) {
         var attribute;
         if (1 !== handlerAttributeArray.length()) {
-            throw {
-                message: "Too many $HtmlHandler attributes for '" + member
-                + "'"
-            };
+            gpf.Error.HtmlHandlerMultiplicityError({
+                member: member
+            });
         }
         attribute = handlerAttributeArray.get(0);
         if (!(attribute instanceof _Event)) {
@@ -738,15 +737,11 @@
             defaultHandler,
             eventAttributes;
         if (0 === handlerAttributes.count()) {
-            throw {
-                message: "No $HtmlHandler attributes"
-            };
+            gpf.Error.HtmlHandlerMissing();
         }
         defaultHandler = handlerAttributes.each(_findDefaultHandler);
         if (undefined === defaultHandler) {
-            throw {
-                message: "No default $HtmlHandler attribute"
-            };
+            gpf.Error.HtmlHandlerNoDefault();
         }
         defaultHandler = defaultHandler.member();
         if (undefined === domSelection) {

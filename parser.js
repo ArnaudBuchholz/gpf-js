@@ -396,16 +396,12 @@
                             return; // Nothing to care about
                         }
                         if (parent.type() !== PatternItem.TYPE_GROUP) {
-                            throw {
-                                message: "Unexpected"
-                            };
+                            gpf.Error.PatternUnexpected();
                         }
                         // TODO should be the last
                         pos = gpf.test(parent._items, item);
                         if (undefined === pos) {
-                            throw {
-                                message: "Unexpected"
-                            };
+                            gpf.Error.PatternUnexpected();
                         }
                         parent._items[pos] = this;
                         this._parent = parent;
@@ -527,16 +523,12 @@
              */
             root: function () {
                 if (null === this._item) {
-                    throw {
-                        message: "Empty pattern"
-                    };
+                    gpf.Error.PatternEmpty();
                 }
                 this._item.finalize();
                 if (this.parse !== this._stateItem
                     && this.parse !== this._stateCount) {
-                    throw {
-                        message: "Invalid syntax"
-                    };
+                    gpf.Error.PatternInvalidSyntax();
                 }
                 return this._root;
             },
@@ -690,9 +682,7 @@
                         item = item.parent();
                     }
                     if (item === this._item) {
-                        throw {
-                            message: "Syntax error (empty group)"
-                        };
+                        gpf.Error.PatternEmptyGroup();
                     }
                     this._item = item;
                     return 0; // !undefined

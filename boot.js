@@ -140,13 +140,6 @@
 
 /*#endif*/
 
-    gpf.NOT_IMPLEMENTED = function () {
-        console.error("Not implemented");
-        throw {
-            message: "Not implemented"
-        };
-    };
-
     /*
      * Handling external options
      * TODO: provide ways to turn on/off features by adding options
@@ -162,9 +155,9 @@
         }
         if (!condition) {
             console.warn("ASSERTION FAILED: " + message);
-            throw {
-                message: "ASSERTION FAILED: " + message
-            };
+            gpf.AssertionFailed({
+                message: message
+            });
         }
     };
 
