@@ -10,62 +10,30 @@
      */
     gpf.define("gpf.Error", {
 
-        private: {
-
-            /**
-             * Error code
-             *
-             * @type {String}
-             * @private
-             */
-            _code: 0,
-
-            /**
-             * Error name
-             *
-             * @type {String}
-             * @private
-             */
-            _name: "",
-
-            /**
-             * Error message
-             *
-             * @type {String}
-             * @private
-             */
-            _message: ""
-        },
-
         public: {
 
             /**
              * Error code
              *
-             * @return {String}
+             * @type {Number}
              */
-            code: function () {
-                return this._code;
-            },
+            code: 0,
 
             /**
              * Error name
              *
-             * @return {String}
+             * @type {String}
              */
-            name: function () {
-                return this._name;
-            },
+            name: "Error",
 
             /**
              * Error message
              *
-             * @return {String}
+             * @type {String}
              */
-            message: function () {
-                return this._message;
-            }
+            message: ""
         }
+
     });
 
     var
@@ -114,6 +82,10 @@
             "EngineTypeCheck":
                 "Type check",
 
+            // encoding.js
+            "EncodingNotSupported":
+                "Encoding not supported",
+
             // xml.js
             "XmlInvalidName":
                 "Invalid XML name"
@@ -128,12 +100,25 @@
          * @closure
          */
         genThrowError = function (code, name) {
-            // TODO handle contextual parameters (see HtmlHandlerMultiplicityError)
-            return function () {
-                var error = new gpf.Error();
-                error._code = code;
-                error._name = name;
-                error._message = ERRORS[name];
+            return function (context) {
+                var
+                    error = new gpf.Error(),
+                    replacements,
+                    key;
+                error.code = code;
+                error.name = name;
+                if (context) {
+                    replacements = {};
+                    for (key in context) {
+                        if (context.hasOwnProperty(key)) {
+                            replacements["{" + key + "}"] =
+                                context[key].toString();
+                        }
+                    }
+                    error.message = gpf.replaceEx(ERRORS[name], replacements);
+                } else {
+                    error.message = ERRORS[name];
+                }
                 throw error;
             };
         },
@@ -147,7 +132,6 @@
             gpf.Error[name] = genThrowError(code, name);
         }
     }
-
 
 /*#ifndef(UMD)*/
 }()); /* End of privacy scope */
