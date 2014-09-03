@@ -1237,15 +1237,17 @@
      * Encapsulate a parser inside a ReadableStream interface
      *
      * @class gpf.ParserStream
+     * @extends gpf.BufferedOnReadStream
      * @implements gpf.interfaces.IReadableStream
      */
-    gpf.define("gpf.ParserStream", "gpf.BufferedOnReadStream", {
+    gpf.define("gpf.ParserStream", gpf.BufferedOnReadStream, {
 
         public: {
 
             /**
              * @param {gpf.Parser} parser
              * @param {gpf.interfaces.IReadableStream} input
+             * @constructor
              */
             constructor: function (parser, input) {
                 this._baseConstructor(input);
@@ -1273,19 +1275,25 @@
             },
 
             /**
-             * @inheritdoc gpf.BufferedOnReadStream:_extractFromBuffer
+             * @inheritdoc gpf.BufferedOnReadStream:_readFromBuffer
              */
-            _extractFromBuffer: function (buffer, size) {
-                return gpf.stringExtractFromStringArray(buffer, size);
-            }
+            _readFromBuffer:
+                gpf.BufferedOnReadStream.prototype._readFromStringBuffer
 
         },
 
         private: {
 
+            /**
+             * Callback used to grab the parser output that is concatenated to
+             * the buffer
+             *
+             * @param {String} text
+             * @private
+             */
             _output: function (text) {
-                this._outputBuffer.push(text);
-                this._outputBufferLength += text.length;
+                this._buffer.push(text);
+                this._bufferLength += text.length;
             }
 
         }
