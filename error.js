@@ -41,6 +41,8 @@
             // boot.js
             "NotImplemented":
                 "Not implemented",
+            "Abstract":
+                "Abstract",
             "AssertionFailed":
                 "Assertion failed: {message}",
 
