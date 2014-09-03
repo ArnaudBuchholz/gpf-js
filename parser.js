@@ -4,13 +4,6 @@
 /*#endif*/
 
     var
-        gpfI = gpf.interfaces,
-
-        _PARSERSTREAM_BUFFER_SIZE        = 256,
-        _PARSERSTREAM_ISTATE_INIT        = 0,
-        _PARSERSTREAM_ISTATE_INPROGRESS  = 1,
-        _PARSERSTREAM_ISTATE_WAITING     = 2,
-        _PARSERSTREAM_ISTATE_EOS         = 3,
 
     //region ITokenizer
 
@@ -1246,9 +1239,7 @@
      * @class gpf.ParserStream
      * @implements gpf.interfaces.IReadableStream
      */
-    gpf.define("gpf.ParserStream", {
-
-        "[Class]": [gpf.$InterfaceImplement(gpfI.IReadableStream)],
+    gpf.define("gpf.ParserStream", "gpf.BufferedOnReadStream", {
 
         public: {
 
@@ -1257,162 +1248,41 @@
              * @param {gpf.interfaces.IReadableStream} input
              */
             constructor: function (parser, input) {
+                this._baseConstructor(input);
                 this._parser = parser;
                 this._parser.setOutputHandler(new gpf.Callback(this._output,
                     this));
-                this._iStream = gpfI.query(input, gpfI.IReadableStream, true);
-                this._outputBuffer = [];
-            },
-
-            //region gpf.interfaces.IReadableStream
-
-            /**
-             * @implements gpf.interfaces.IReadableStream:read
-             */
-            read: function (size, eventsHandler) {
-                var
-                    iState = this._iState,
-                    buffer,
-                    length = this._outputBufferLength;
-                if (_PARSERSTREAM_ISTATE_INPROGRESS === iState) {
-                    // A read call is already in progress
-                    throw gpfI.IReadableStream.EXCEPTION_READ_IN_PROGRESS;
-
-                } else if (size < length
-                    || length && _PARSERSTREAM_ISTATE_EOS === iState) {
-                    // Enough chars in the output buffer to do the read
-                    // OR there won't be any more chars
-                    buffer = gpf.stringExtractFromStringArray(
-                        this._outputBuffer, size
-                    );
-                    this._outputBufferLength -= buffer.length;
-                    // Can output something
-                    gpf.events.fire.apply(this, [
-                        gpfI.IReadableStream.EVENT_DATA,
-                        {
-                            buffer: buffer
-                        },
-                        eventsHandler
-                    ]);
-
-                } else if (_PARSERSTREAM_ISTATE_EOS === iState) {
-                    // No more input and output buffer is empty
-                    gpf.events.fire.apply(this, [
-                        gpfI.IReadableStream.EVENT_END_OF_STREAM,
-                        eventsHandler
-                    ]);
-
-                } else {
-                    // Read input
-                    if (_PARSERSTREAM_ISTATE_INIT === this._iState) {
-                        // Very first call, create callback for input reads
-                        this._cbRead = new gpf.Callback(this._onRead, this);
-                    }
-                    this._iState = _PARSERSTREAM_ISTATE_INPROGRESS;
-                    // Backup parameters
-                    this._size = size;
-                    this._eventsHandler = eventsHandler;
-                    this._iStream.read(_PARSERSTREAM_BUFFER_SIZE, this._cbRead);
-                }
             }
 
-            //endregion
         },
 
-        //region Implementation
+        protected: {
+
+            /**
+             * @inheritdoc gpf.BufferedOnReadStream:_addToBuffer
+             */
+            _addToBuffer: function (buffer) {
+                this._parser.parse(buffer);
+            },
+
+            /**
+             * @inheritdoc gpf.BufferedOnReadStream:_endOfInputStream
+             */
+            _endOfInputStream: function () {
+                this._parser.parse(gpf.Parser.FINALIZE);
+            },
+
+            /**
+             * @inheritdoc gpf.BufferedOnReadStream:_extractFromBuffer
+             */
+            _extractFromBuffer: function (buffer, size) {
+                return gpf.stringExtractFromStringArray(buffer, size);
+            }
+
+        },
 
         private: {
 
-            /**
-             * Parser
-             * @type {gpf.Parser}
-             */
-            _parser: null,
-
-            /**
-             * Input stream
-             * @type {gpf.interfaces.IReadableStream}
-             */
-            _iStream: null,
-
-            /**
-             * Input stream read callback (pointing to this:_onRead)
-             * @type {gpf.Callback}
-             */
-            _cbRead: null,
-
-            /**
-             * Output buffer, contains decoded items
-             * @type {String[]}
-             */
-            _outputBuffer: [],
-
-            /**
-             * Size of the output buffer (number of characters)
-             * @type {Number}
-             */
-            _outputBufferLength: 0,
-
-            /**
-             * Input state
-             * @type {Number} see _PARSERSTREAM_ISTATE_xxx
-             */
-            _iState: _PARSERSTREAM_ISTATE_INIT,
-
-            /**
-             * Pending read call size
-             * @type {Number}
-             */
-            _size: 0,
-
-            /**
-             * Pending read call event handlers
-             * @type {gpf.events.Handler}
-             */
-            _eventsHandler: null,
-
-            /**
-             * Handles input stream read event
-             *
-             * @param {gpf.events.Event} event
-             * @private
-             */
-            _onRead: function (event) {
-                var
-                    type = event.type();
-                if (type === gpfI.IReadableStream.EVENT_END_OF_STREAM) {
-                    this._iState = _PARSERSTREAM_ISTATE_EOS;
-                    this._parser.parse(gpf.Parser.FINALIZE);
-                    // Redirect to read with backed parameters
-                    return this.read(this._size, this._eventsHandler);
-
-                } else if (type === gpfI.IReadableStream.EVENT_ERROR) {
-                    // Forward the event
-                    gpf.events.fire.apply(this, [
-                        event,
-                        this._eventsHandler
-                    ]);
-
-                } else {
-                    this._iState = _PARSERSTREAM_ISTATE_WAITING;
-                    this._parser.parse(event.get("buffer"));
-                    if (0 < this._outputBufferLength) {
-                        // Redirect to read with backed parameters
-                        return this.read(this._size, this._eventsHandler);
-                    } else {
-                        // Try to read source again
-                        this._iStream.read(_PARSERSTREAM_BUFFER_SIZE,
-                            this._cbRead);
-                    }
-                }
-            },
-
-            /**
-             * Hook used in gpf.Parser:setOutputHandler
-             *
-             * @param {String} text
-             * @private
-             */
             _output: function (text) {
                 this._outputBuffer.push(text);
                 this._outputBufferLength += text.length;
@@ -1420,7 +1290,6 @@
 
         }
 
-        //endregion
     });
 
     //endregion
