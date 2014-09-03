@@ -155,16 +155,41 @@
     };
 
     /**
-     * Handles a buffered stream that depends on another stream
+     * Handles a buffered stream that depends on a read stream.
+     * The way the underlying buffer is read and converted can be overridden
+     * through the following protected APIs:
+     * - _readSize
+     * - _addToBuffer
+     *
+     * </ul>
      *
      * @class gpf.BufferedOnReadStream
+     * @abstract
      * @implements gpf.interfaces.IReadableStream
      */
     gpf.define("gpf.BufferedOnReadStream", {
 
         "[Class]": [gpf.$InterfaceImplement(gpfI.IReadableStream)],
 
+        //region Configurable part
+
         protected: {
+
+            /**
+             * Output buffer containing content to be read
+             *
+             * @type {*[]}
+             * @protected
+             */
+            _buffer: [],
+
+            /**
+             * Length of the buffer (compared with read size)
+             *
+             * @type {Number}
+             * @protected
+             */
+            _bufferLength: 0,
 
             /**
              * Underlying stream default read size
@@ -175,17 +200,21 @@
             _readSize: _BUFREADSTREAM_READ_SIZE,
 
             /**
-             * Process underlying stream buffer
+             * Process underlying stream buffer (this should grow the output
+             * buffer)
              *
              * @param {Array} buffer
+             * @abstract
              * @protected
              */
             _addToBuffer: function (buffer) {
                 gpf.interfaces.ignoreParameter(buffer);
+                gpf.Error.Abstract();
             },
 
             /**
-             * Underlying stream reached its end
+             * Underlying stream reached its end (this may grow the output
+             * buffer)
              *
              * @protected
              */
@@ -193,28 +222,61 @@
             },
 
             /**
-             * Send buffer part to the caller of this stream.
+             * Read buffer.
              * This default implementation checks the buffer type to switch
              * between string and byte array.
              *
-             * @param {Array} buffer
+             * @param {Number} size
+             * @returns {String|Array}
+             * @protected
+             */
+            _readFromBuffer: function (size) {
+                gpf.ASSERT(0 !== this._buffer.length, "Buffer is not empty");
+                if ("string" === this._buffer[0]) {
+                    return this._readFromStringBuffer(size);
+                } else {
+                    return this._readFromByteBuffer(size);
+                }
+            },
+
+            /**
+             * Read string buffer.
+             *
+             * @param {Number} size
+             * @returns {String}
+             * @protected
+             */
+            _readFromStringBuffer: function (size) {
+                var
+                    result = gpf.stringExtractFromStringArray(this._buffer,
+                        size);
+                this._bufferLength -= result.length;
+                return result;
+            },
+
+            /**
+             * Read byte buffer.
+             *
              * @param {Number} size
              * @returns {Array}
              * @protected
              */
-            _extractFromBuffer: function (buffer, size) {
-                gpf.ASSERT(buffer.length, "Buffer is not empty");
-                if ("string" === typeof buffer[0]) {
-                    return gpf.stringExtractFromStringArray(buffer, size);
-                } else {
-                    if (size > buffer.length) {
-                        size = buffer.length;
-                    }
-                    return buffer.splice(0, size);
+            _readFromByteBuffer: function (size) {
+                var
+                    buffer = this._buffer,
+                    len = buffer.length;
+                if (size > len) {
+                    size = len;
                 }
+                this._bufferLength -= size;
+                return buffer.splice(0, size);
             }
 
         },
+
+        //endregion
+
+        //region Implementation
 
         public: {
 
@@ -224,7 +286,7 @@
              */
             constructor: function (input) {
                 this._iStream = gpfI.query(input, gpfI.IReadableStream, true);
-                this._outputBuffer = [];
+                this._buffer = [];
             },
 
             //region gpf.interfaces.IReadableStream
@@ -235,8 +297,7 @@
             read: function (size, eventsHandler) {
                 var
                     iState = this._iState,
-                    buffer,
-                    length = this._outputBufferLength;
+                    length = this._bufferLength;
                 if (_BUFREADSTREAM_ISTATE_INPROGRESS === iState) {
                     // A read call is already in progress
                     throw gpfI.IReadableStream.EXCEPTION_READ_IN_PROGRESS;
@@ -244,16 +305,11 @@
                 } else if (size < length
                     || length && _BUFREADSTREAM_ISTATE_EOS === iState) {
                     // Enough chars in the output buffer to do the read
-                    // OR there won't be any more chars
-                    buffer = this._extractFromBuffer(
-                        this._outputBuffer, size
-                    );
-                    this._outputBufferLength -= buffer.length;
-                    // Can output something
+                    // OR there won't be any more chars. Can output something.
                     gpf.events.fire.apply(this, [
                         gpfI.IReadableStream.EVENT_DATA,
                         {
-                            buffer: buffer
+                            buffer: this._readFromBuffer(size)
                         },
                         eventsHandler
                     ]);
@@ -282,8 +338,6 @@
             //endregion
         },
 
-        //region Implementation
-
         private: {
 
             /**
@@ -297,18 +351,6 @@
              * @type {gpf.Callback}
              */
             _cbRead: null,
-
-            /**
-             * Output buffer contains items to be read
-             * @type {*[]}
-             */
-            _outputBuffer: [],
-
-            /**
-             * Size of the output buffer (number of bytes)
-             * @type {Number}
-             */
-            _outputBufferLength: 0,
 
             /**
              * Input state
@@ -353,7 +395,7 @@
                 } else {
                     this._iState = _BUFREADSTREAM_ISTATE_WAITING;
                     this._addToBuffer(event.get("buffer"));
-                    if (0 < this._outputBufferLength) {
+                    if (0 < this._bufferLength) {
                         // Redirect to read with backed parameters
                         return this.read(this._size, this._eventsHandler);
                     } else {
