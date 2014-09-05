@@ -85,11 +85,11 @@
          * Encoder stream
          *
          * @class gpf.encoding.EncoderStream
-         * @extends gpf.BufferedOnReadStream
+         * @extends gpf.stream.BufferedOnRead
          * @implements gpf.interfaces.IReadableStream
          * @private
          */
-        EncoderStream = gpf.define("EncoderStream", gpf.BufferedOnReadStream, {
+        EncoderStream = gpf.define("EncoderStream", gpf.stream.BufferedOnRead, {
 
             public: {
 
@@ -108,7 +108,7 @@
             protected: {
 
                 /**
-                 * @inheritdoc gpf.BufferedOnReadStream:_addToBuffer
+                 * @inheritdoc gpf.stream.BufferedOnRead:_addToBuffer
                  */
                 _addToBuffer: function (buffer) {
                     this._buffer = this._buffer.concat(this._encoder(buffer));
@@ -116,10 +116,10 @@
                 },
 
                 /**
-                 * @inheritdoc gpf.BufferedOnReadStream:_readFromBuffer
+                 * @inheritdoc gpf.stream.BufferedOnRead:_readFromBuffer
                  */
                 _readFromBuffer:
-                    gpf.BufferedOnReadStream.prototype._readFromByteBuffer
+                    gpf.stream.BufferedOnRead.prototype._readFromByteBuffer
 
             },
 
@@ -139,11 +139,11 @@
          * Decoder stream
          *
          * @class gpf.encoding.DecoderStream
-         * @extends gpf.BufferedOnReadStream
+         * @extends gpf.stream.BufferedOnRead
          * @implements gpf.interfaces.IReadableStream
          * @private
          */
-        DecoderStream = gpf.define("DecoderStream", gpf.BufferedOnReadStream, {
+        DecoderStream = gpf.define("DecoderStream", gpf.stream.BufferedOnRead, {
 
             public: {
 
@@ -162,7 +162,7 @@
             protected: {
 
                 /**
-                 * @inheritdoc gpf.BufferedOnReadStream:_addToBuffer
+                 * @inheritdoc gpf.stream.BufferedOnRead:_addToBuffer
                  */
                 _addToBuffer: function (buffer) {
                     var string;
@@ -176,7 +176,7 @@
                 },
 
                 /**
-                 * @inheritdoc gpf.BufferedOnReadStream:_endOfInputStream
+                 * @inheritdoc gpf.stream.BufferedOnRead:_endOfInputStream
                  */
                 _endOfInputStream: function () {
                     if (this._unprocessed.length) {
@@ -185,10 +185,10 @@
                 },
 
                 /**
-                 * @inheritdoc gpf.BufferedOnReadStream:_readFromBuffer
+                 * @inheritdoc gpf.stream.BufferedOnRead:_readFromBuffer
                  */
                 _readFromBuffer:
-                    gpf.BufferedOnReadStream.prototype._readFromStringBuffer
+                    gpf.stream.BufferedOnRead.prototype._readFromStringBuffer
 
             },
 

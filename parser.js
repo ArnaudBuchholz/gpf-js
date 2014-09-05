@@ -1237,10 +1237,10 @@
      * Encapsulate a parser inside a ReadableStream interface
      *
      * @class gpf.ParserStream
-     * @extends gpf.BufferedOnReadStream
+     * @extends gpf.stream.BufferedOnRead
      * @implements gpf.interfaces.IReadableStream
      */
-    gpf.define("gpf.ParserStream", gpf.BufferedOnReadStream, {
+    gpf.define("gpf.ParserStream", gpf.stream.BufferedOnRead, {
 
         public: {
 
@@ -1261,24 +1261,24 @@
         protected: {
 
             /**
-             * @inheritdoc gpf.BufferedOnReadStream:_addToBuffer
+             * @inheritdoc gpf.stream.BufferedOnRead:_addToBuffer
              */
             _addToBuffer: function (buffer) {
                 this._parser.parse(buffer);
             },
 
             /**
-             * @inheritdoc gpf.BufferedOnReadStream:_endOfInputStream
+             * @inheritdoc gpf.stream.BufferedOnRead:_endOfInputStream
              */
             _endOfInputStream: function () {
                 this._parser.parse(gpf.Parser.FINALIZE);
             },
 
             /**
-             * @inheritdoc gpf.BufferedOnReadStream:_readFromBuffer
+             * @inheritdoc gpf.stream.BufferedOnRead:_readFromBuffer
              */
             _readFromBuffer:
-                gpf.BufferedOnReadStream.prototype._readFromStringBuffer
+                gpf.stream.BufferedOnRead.prototype._readFromStringBuffer
 
         },
 

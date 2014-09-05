@@ -16,7 +16,7 @@
             "interface",            // Interface                  gpf.interfaces
             "i_enumerable",         // IEnumerable
             "i_array",              // IArray
-            "i_stream",             // ITextStream
+            "i_stream",             // IStream and helpers            gpf.stream
             "string",               // String functions
             "array",                // Array functions
             "date",                 // Date functions
