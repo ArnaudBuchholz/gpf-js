@@ -18,6 +18,7 @@
             "i_array",              // IArray
             "i_stream",             // ITextStream
             "string",               // String functions
+            "array",                // Array functions
             "date",                 // Date functions
 
             "parser",               // Parser helper                  gpf.Parser
