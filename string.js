@@ -35,7 +35,7 @@
         },
 
         /**
-         * Implements ITextStream on top of a stream
+         * Implements ITextStream on top of a string
          *
          * @class StringStream
          * @extend gpf.events.Target
