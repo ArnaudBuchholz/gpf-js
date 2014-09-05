@@ -35,7 +35,7 @@
         },
 
         /**
-         * Implements ITextStream on top of a string
+         * Implements ITextStream on top of a string (FIFO read / write)
          *
          * @class StringStream
          * @extend gpf.events.Target
@@ -46,89 +46,79 @@
 
             "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.ITextStream)],
 
-            _buffer: [],
-            _pos: 0,
+            public: {
 
-            constructor: function(string){
-                if (undefined !== string && string.length) {
-                    this._buffer = [string];
-                } else {
-                    this._buffer = [];
-                }
-                this._pos = 0;
-            },
-
-            //region gpf.interfaces.ITextStream
-
-            /**
-             * @implements gpf.interfaces.ITextStream:read
-             */
-            read: function(count, eventsHandler) {
-                // FIFO
-                var
-                    firstBuffer,
-                    length,
-                    result;
-                if (0 === this._buffer.length) {
-                    gpf.defer(gpf.events.fire, 0, this, [
-                        gpfI.IReadableStream.EVENT_END_OF_STREAM,
-                        eventsHandler
-                    ]);
-                } else if (undefined === count) {
-                    gpf.defer(gpf.events.fire, 0, this, [
-                        gpfI.IReadableStream.EVENT_DATA,
-                        {
-                            buffer: this.consolidateString()
-                        },
-                        eventsHandler
-                    ]);
-                } else {
-                    firstBuffer = this._buffer[0];
-                    length = firstBuffer.length;
-                    if (count > length - this._pos) {
-                        count = length - this._pos;
+                /**
+                 * @param {String} [string=undefined] string
+                 * @constructor
+                 */
+                constructor: function(string){
+                    if (undefined !== string && string.length) {
+                        this._buffer = [string];
+                    } else {
+                        this._buffer = [];
                     }
-                    result = firstBuffer.substr(this._pos, count);
-                    this._pos += count;
-                    if (this._pos === length) {
-                        this._buffer.shift();
-                        this._pos = 0;
+                },
+
+                //region gpf.interfaces.ITextStream
+
+                /**
+                 * @implements gpf.interfaces.ITextStream:read
+                 */
+                read: function(count, eventsHandler) {
+                    var
+                        result;
+                    if (0 === this._buffer.length) {
+                        gpf.defer(gpf.events.fire, 0, this, [
+                            gpfI.IReadableStream.EVENT_END_OF_STREAM,
+                            eventsHandler
+                        ]);
+                    } else {
+                        result = gpf.stringExtractFromStringArray(this._buffer,
+                            count);
+                        gpf.defer(gpf.events.fire, 0, this, [
+                            gpfI.IReadableStream.EVENT_DATA,
+                            {
+                                buffer: result
+                            },
+                            eventsHandler
+                        ]);
                     }
-                    gpf.defer(gpf.events.fire, 0, this, [
-                        gpfI.IReadableStream.EVENT_DATA,
-                        {
-                            buffer: result
-                        },
+                },
+
+                /**
+                 * @implements gpf.interfaces.ITextStream:write
+                 */
+                write: function (buffer, eventsHandler) {
+                    if (buffer && buffer.length) {
+                        this._buffer.push(buffer);
+                    }
+                    gpf.events.fire.apply(this, [
+                        gpfI.IReadableStream.EVENT_READY,
                         eventsHandler
                     ]);
+                },
+
+                //endregion
+
+                /**
+                 * Consolidate the result string
+                 * @return {String}
+                 */
+                consolidateString: function() {
+                    return this._buffer.join("");
                 }
+
             },
 
-            /**
-             * @implements gpf.interfaces.ITextStream:write
-             */
-            write: function (buffer, eventsHandler) {
-                if (buffer && buffer.length) {
-                    this._buffer.push(buffer);
-                }
-                gpf.events.fire.apply(this, [
-                    gpfI.IReadableStream.EVENT_READY,
-                    eventsHandler
-                ]);
-            },
+            private: {
 
-            //endregion
+                /**
+                 * @type {String[]}
+                 * @private
+                 */
+                _buffer: []
 
-            /**
-             * Consolidate the result string
-             * @return {String}
-             */
-            consolidateString: function() {
-                if (this._pos !== 0) {
-                    this._buffer.unshift(
-                        this._buffer.shift().substr(this._pos));
-                }
-                return this._buffer.join("");
             }
 
         });
@@ -213,7 +203,7 @@
                 count,
                 string,
                 len;
-            if (0 === size) {
+            if (!size) {
                 // Take the whole content & clear the array
                 result = strings.splice(0, stringsCount).join("");
             } else {
