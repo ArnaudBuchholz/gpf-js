@@ -214,6 +214,8 @@
 
     gpf.encoding = {
 
+        UTF_8: "utf-8",
+
         /**
          * Create a encoder to convert an input text stream into an output
          * binary buffer.
