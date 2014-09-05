@@ -186,6 +186,7 @@
         _items: [],
         _errors: 0,
         _sync: true,
+        _waitDt: null,
         _done: false,
         _callback: null,
         _lastParams: null,
@@ -214,6 +215,7 @@
 
         wait: function (timeout) {
             this._sync = false;
+            this._waitDt = new Date();
             gpf.defer(this._waitedTooLong, timeout || TestReport.WAIT_TIMEOUT,
                 this);
         },
@@ -237,10 +239,10 @@
         },
 
         done: function () {
-            var timeSpent;
+            var timeSpent = (new Date()) - this._waitDt;
             if (!this._done) {
                 this._done = true;
-                warning("Waiting time: " + timeSpent + "ms");
+                this.log("Waiting time: " + timeSpent + "ms");
                 if (this._callback) {
                     this._callback.apply(null, [this].concat(this._lastParams));
                 }
