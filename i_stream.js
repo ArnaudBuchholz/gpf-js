@@ -154,6 +154,10 @@
         }
     };
 
+    //region Stream helpers
+
+    gpf.stream = {};
+
     /**
      * Handles a buffered stream that depends on a read stream.
      * The way the underlying buffer is read and converted can be overridden
@@ -161,13 +165,11 @@
      * - _readSize
      * - _addToBuffer
      *
-     * </ul>
-     *
-     * @class gpf.BufferedOnReadStream
+     * @class gpf.stream.BufferedOnRead
      * @abstract
      * @implements gpf.interfaces.IReadableStream
      */
-    gpf.define("gpf.BufferedOnReadStream", {
+    gpf.define("gpf.stream.BufferedOnRead", {
 
         "[Class]": [gpf.$InterfaceImplement(gpfI.IReadableStream)],
 
@@ -409,6 +411,67 @@
         }
 
         //endregion
+    });
+
+    /**
+     *
+     * @param {gpf.interfaces.ITextStream} stream
+     * @param {gpf.events.Handler} eventsHandler
+     * @param {Function} concatMethod
+     *
+     * @forwardThis
+     *
+     * @event ready finished reading the stream
+     * @eventParam {Array} array
+     */
+    gpf.stream.readAll = function (stream, concatMethod, eventsHandler) {
+        stream = gpf.interfaces.query(stream, gpfI.IReadableStream,  true);
+        (new StreamReader(this, eventsHandler, concatMethod)).read(stream);
+    };
+
+    function StreamReader(scope, eventsHandler, concatMethod) {
+        this._scope = gpf.Callback.resolveScope(scope);
+        this._eventsHandler = eventsHandler;
+        this._concatMethod = concatMethod;
+    }
+    gpf.extend(StreamReader.prototype, {
+
+        _scope: null,
+        _eventsHandler: null,
+        _concatMethod: null,
+        _buffer: undefined,
+
+        read: function (stream) {
+            stream.read(0, gpf.Callback.bind(this, "callback"));
+        },
+
+        callback: function (event) {
+            var
+                type = event.type(),
+                stream = event.scope();
+            if (type === gpfI.IReadableStream.EVENT_END_OF_STREAM) {
+                gpf.events.fire.apply(this._scope, [
+                    gpfI.IReadableStream.EVENT_READY,
+                    {
+                        buffer: this._concatMethod(this._buffer)
+                    },
+                    this._eventsHandler
+                ]);
+
+            } else if (type === gpfI.IReadableStream.EVENT_ERROR) {
+                // Forward the event
+                gpf.events.fire.apply(this._scope, [
+                    event,
+                    this._eventsHandler
+                ]);
+
+            } else {
+                this._buffer = this._concatMethod(this._buffer,
+                    event.get("buffer"));
+                this.read(stream);
+            }
+        }
+
     });
 
     //endregion
