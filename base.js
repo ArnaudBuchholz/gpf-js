@@ -271,7 +271,7 @@
                 return new Func(source);
 /*#ifdef(DEBUG)*/
             } catch (e) {
-                console.error('An exception occurred compiling:\r\n'
+                console.error("An exception occurred compiling:\r\n"
                     + source);
                 return null;
             }
@@ -525,7 +525,7 @@
          * @static
          */
         resolveScope: function (scope) {
-            if (!scope) {
+            if (null === scope || undefined === scope) {
                 scope = gpf.context();
             }
             return scope;
