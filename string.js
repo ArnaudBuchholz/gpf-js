@@ -90,9 +90,9 @@
                  * @implements gpf.interfaces.ITextStream:write
                  */
                 write: function (buffer, eventsHandler) {
-                    if (buffer && buffer.length) {
-                        this._buffer.push(buffer);
-                    }
+                    gpf.ASSERT(buffer && buffer.length,
+                        "Write must contain data");
+                    this._buffer.push(buffer);
                     gpf.events.fire.apply(this, [
                         gpfI.IReadableStream.EVENT_READY,
                         eventsHandler
