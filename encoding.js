@@ -2,8 +2,6 @@
     "use strict";
 
     var
-        gpfI = gpf.interfaces,
-
         //region UTF-8
         // UTF-8 encode/decode based on  http://www.webtoolkit.info/
 
@@ -81,6 +79,8 @@
             "utf-8": [_utf8Encode, _utf8Decode]
         },
 
+        //region Encoder / Decoder stream implementation
+
         /**
          * Encoder stream
          *
@@ -133,9 +133,84 @@
 
             }
 
+        }),
+
+        /**
+         * Decoder stream
+         *
+         * @class gpf.encoding.DecoderStream
+         * @extends gpf.BufferedOnReadStream
+         * @implements gpf.interfaces.IReadableStream
+         * @private
+         */
+        DecoderStream = gpf.define("DecoderStream", gpf.BufferedOnReadStream, {
+
+            public: {
+
+                /**
+                 * @param {Function} decoder
+                 * @param {gpf.interfaces.IReadableStream} input
+                 * @constructor
+                 */
+                constructor: function (decoder, input) {
+                    this._baseConstructor(input);
+                    this._decoder = decoder;
+                }
+
+            },
+
+            protected: {
+
+                /**
+                 * @inheritdoc gpf.BufferedOnReadStream:_addToBuffer
+                 */
+                _addToBuffer: function (buffer) {
+                    var string;
+                    if (this._unprocessed.length) {
+                        buffer = this._unprocessed.concat(buffer);
+                    }
+                    this._unprocessed = [];
+                    string = this._decoder(buffer, this._unprocessed);
+                    this._buffer.push(string);
+                    this._bufferLength += string.length;
+                },
+
+                /**
+                 * @inheritdoc gpf.BufferedOnReadStream:_endOfInputStream
+                 */
+                _endOfInputStream: function () {
+                    if (this._unprocessed.length) {
+                        gpf.Error.EncodingEOFWithUnprocessedBytes();
+                    }
+                },
+
+                /**
+                 * @inheritdoc gpf.BufferedOnReadStream:_readFromBuffer
+                 */
+                _readFromBuffer:
+                    gpf.BufferedOnReadStream.prototype._readFromStringBuffer
+
+            },
+
+            private: {
+
+                /**
+                 * @type {Function}
+                 * @private
+                 */
+                _decoder: null,
+
+                /**
+                 * @type {Number[]}
+                 * @private
+                 */
+                _unprocessed: []
+
+            }
+
         });
 
-        //endregion
+    //endregion
 
     gpf.encoding = {
 
@@ -148,12 +223,11 @@
          * @return {gpf.interfaces.IReadableStream}
          */
         createEncoder: function (input, encoding) {
-            var iStream = gpfI.query(input, gpfI.IReadableStream, true),
-                module = _encodings[encoding];
+            var module = _encodings[encoding];
             if (undefined === module) {
                 gpf.Error.EncodingNotSupported();
             }
-            return new EncoderStream(module[0], iStream);
+            return new EncoderStream(module[0], input);
         },
 
         /**
@@ -165,12 +239,11 @@
          * @return {gpf.interfaces.IReadableStream}
          */
         createDecoder: function (input, encoding) {
-            var iStream = gpfI.query(input, gpfI.IReadableStream, true),
-                module = _encodings[encoding];
+            var module = _encodings[encoding];
             if (undefined === module) {
                 gpf.Error.EncodingNotSupported();
             }
-            return new gpf.encoding.DecoderStream(module[1], iStream);
+            return new DecoderStream(module[1], input);
         }
     };
 

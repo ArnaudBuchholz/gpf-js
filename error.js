@@ -87,6 +87,8 @@
             // encoding.js
             "EncodingNotSupported":
                 "Encoding not supported",
+            "EncodingEOFWithUnprocessedBytes":
+                "Unexpected end of stream: unprocessed bytes",
 
             // xml.js
             "XmlInvalidName":
