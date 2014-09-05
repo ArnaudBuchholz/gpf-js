@@ -270,62 +270,30 @@
          *
          */
         stringFromStream: function (stream, eventsHandler) {
-            var
-                buffer,
-                callback,
-                scope;
             if (stream instanceof StringStream) {
-                buffer = stream.consolidateString();
                 gpf.events.fire.apply(this, [
                     gpfI.IReadableStream.EVENT_READY,
                     {
-                        buffer: buffer
+                        buffer: stream.consolidateString()
                     },
                     eventsHandler
                 ]);
-                return;
+            } else {
+                gpf.stream.readAll(stream, _stringStreamConcat, eventsHandler);
             }
-            stream = gpf.interfaces.query(stream, gpfI.IReadableStream,  true);
-            scope = {
-                buffer: [],
-                eventsHandler: eventsHandler
-            };
-            callback =  new gpf.Callback(_stringFromStreamReadCallback, scope);
-            scope.callback = callback;
-            stream.read(0, callback);
         }
 
     });
 
-    function _stringFromStreamReadCallback(event) {
-        /*jshint -W040*/ // Because used as a callback
-        // this is {buffer: [], eventsHandler: {}}
-        var
-            type = event.type(),
-            stream = event.scope();
-        if (type === gpfI.IReadableStream.EVENT_END_OF_STREAM) {
-            gpf.events.fire.apply(this, [
-                gpfI.IReadableStream.EVENT_READY,
-                {
-                    string: this.buffer.join("")
-                },
-                this.eventsHandler
-            ]);
-
-        } else if (type === gpfI.IReadableStream.EVENT_ERROR) {
-            // Forward the event
-            gpf.events.fire.apply(this, [
-                event,
-                this.eventsHandler
-            ]);
-
+    function _stringStreamConcat(previous, buffer) {
+        if (undefined === previous) {
+            return [buffer];
+        } else if (undefined !== buffer) {
+            previous.push(buffer);
+            return previous;
         } else {
-            this.buffer.push(event.get("buffer"));
-            stream.read(0, this.callback);
-            return;
+            return previous.join("");
         }
-        delete this.callback; // Remove Circular reference
-        /*jshint +W040*/
     }
 
 /*#ifndef(UMD)*/
