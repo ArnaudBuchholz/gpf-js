@@ -57,7 +57,7 @@
                             eventsHandler
                         ]);
                     } else {
-                        result = this._buffer.slice(0, count);
+                        result = this._buffer.splice(0, count);
                         gpf.defer(gpf.events.fire, 0, this, [
                             gpfI.IReadableStream.EVENT_DATA,
                             {
@@ -76,7 +76,7 @@
                         "Write must contain data");
                     this._buffer = this._buffer.concat(buffer);
                     gpf.events.fire.apply(this, [
-                        gpfI.IReadableStream.EVENT_READY,
+                        gpfI.IWritableStream.EVENT_READY,
                         eventsHandler
                     ]);
                 },
@@ -128,14 +128,14 @@
          * @param {gpf.interfaces.ITextStream} stream
          * @param {gpf.events.Handler} eventsHandler
          *
-         * @event ready finished reading the stream
-         * @eventParam {Array} array
+         * @event data finished reading the stream, the buffer is provided
+         * @eventParam {Array} buffer
          *
          */
-       arrayFromStream: function (stream, eventsHandler) {
+        arrayFromStream: function (stream, eventsHandler) {
             if (stream instanceof ArrayStream) {
                 gpf.events.fire.apply(this, [
-                    gpfI.IReadableStream.EVENT_READY,
+                    gpfI.IReadableStream.EVENT_DATA,
                     {
                         buffer: stream.consolidateArray()
                     },
@@ -149,7 +149,7 @@
 
     });
 
-    function _stringStreamConcat(previous, buffer) {
+    function _arrayStreamConcat(previous, buffer) {
         if (undefined === previous) {
             return buffer;
         } else if (undefined !== buffer) {
