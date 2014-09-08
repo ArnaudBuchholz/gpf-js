@@ -127,9 +127,9 @@
                 gpf.stringFromStream(stream, function (event) {
                     var result;
                     test.equal(event.type(),
-                        gpf.interfaces.IReadableStream.EVENT_READY,
+                        gpf.interfaces.IReadableStream.EVENT_DATA,
                         "Stream is ready");
-                    result = event.get("string");
+                    result = event.get("buffer");
                     test.equal(_sampleHTML, result, "Streamed parsing");
                     test.done();
                 });
