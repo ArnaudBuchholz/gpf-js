@@ -13,6 +13,7 @@
                     + " langues beaucoup moins fréquentes), mais très largement"
                     + " répandue depuis des décennies.",
 
+        // Obtained using notepad and saving using UTF-8
         _utf8Code = "5554462D382028616272C3A976696174696F6E206465206CE28099616E"
                     + "676C61697320556E6976657273616C20436861726163746572205365"
                     + "74205472616E73666F726D6174696F6E20466F726D6174202D203820"
@@ -60,7 +61,7 @@
                 gpf.arrayFromStream(encoder, function (event) {
                     var result;
                     test.equal(event.type(),
-                        gpf.interfaces.IReadableStream.EVENT_READY,
+                        gpf.interfaces.IReadableStream.EVENT_DATA,
                         "Stream is ready");
                     result = event.get("buffer");
                     test.like(_utf8Buffer, result, "Same buffer");
