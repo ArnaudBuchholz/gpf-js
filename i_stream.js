@@ -308,6 +308,9 @@
                     || length && _BUFREADSTREAM_ISTATE_EOS === iState) {
                     // Enough chars in the output buffer to do the read
                     // OR there won't be any more chars. Can output something.
+                    if (0 === size) {
+                        size = length;
+                    }
                     gpf.events.fire.apply(this, [
                         gpfI.IReadableStream.EVENT_DATA,
                         {
