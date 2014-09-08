@@ -36,7 +36,7 @@
          * as much as possible if 0
          * @param {gpf.events.Handler} eventsHandler
          *
-         * @event data Some data is ready to be ready
+         * @event data Some data is ready to be used
          * @eventParam {gpf.IReadOnlyArray} buffer Bytes buffer
          *
          * @event eos No more data can be read from the stream
@@ -421,8 +421,8 @@
      *
      * @forwardThis
      *
-     * @event ready finished reading the stream
-     * @eventParam {Array} array
+     * @event data finished reading the stream, the buffer is provided
+     * @eventParam {Array|String} buffer
      */
     gpf.stream.readAll = function (stream, concatMethod, eventsHandler) {
         stream = gpf.interfaces.query(stream, gpfI.IReadableStream,  true);
@@ -451,7 +451,7 @@
                 stream = event.scope();
             if (type === gpfI.IReadableStream.EVENT_END_OF_STREAM) {
                 gpf.events.fire.apply(this._scope, [
-                    gpfI.IReadableStream.EVENT_READY,
+                    gpfI.IReadableStream.EVENT_DATA,
                     {
                         buffer: this._concatMethod(this._buffer)
                     },
