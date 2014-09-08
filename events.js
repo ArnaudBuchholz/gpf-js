@@ -11,9 +11,10 @@
  * - If the event might be thrown several times or several listeners might need
  *   it, use gpf.events.Target
  * - Otherwise, use the eventHandler last parameter
+ *
+ * NOTE: none of these class are using the gpf.define syntax as they are
+ * considered primitive.
  */
-
-
 
     var
         /**
@@ -52,7 +53,7 @@
         _genOnEventClosure = function (eventIndex) {
             return function() {
                 var
-                    args = this._events[eventIndex],
+                    args = [this._events[eventIndex]],
                     len = arguments.length,
                     idx;
                 for (idx = 0; idx < len; ++idx) {
@@ -410,7 +411,7 @@
          * - gpf.events.Broadcaster: broadcastEvent(event)
          * - gpf.Callback|Function: apply(scope, [event])
          * - Object: consider a map between event type and callback function
-         * @type {gpf.events.Broadcaster|gpf.Callback|Function|Object}
+         * @type {gpf.events.Target|gpf.Callback|Function|Object}
          * @alias {gpf.events.Handler}
          */
 
@@ -437,8 +438,8 @@
                 event = new gpf.events.Event(event, params, true, this);
             }
             scope = gpf.Callback.resolveScope(event._scope);
-            if (eventsHandler instanceof Broadcaster) {
-                eventsHandler.broadcastEvent(event);
+            if (eventsHandler instanceof Target) {
+                eventsHandler._broadcastEvent(event);
             } else if ("function" === typeof eventsHandler
                        || eventsHandler instanceof gpf.Callback) {
                 // Compatible with Function & gpf.Callback
