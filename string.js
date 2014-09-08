@@ -265,14 +265,14 @@
          * @param {gpf.interfaces.ITextStream} stream
          * @param {gpf.events.Handler} eventsHandler
          *
-         * @event ready finished reading the stream
-         * @eventParam {String} string
+         * @event data finished reading the stream, the buffer is provided
+         * @eventParam {String} buffer
          *
          */
         stringFromStream: function (stream, eventsHandler) {
             if (stream instanceof StringStream) {
                 gpf.events.fire.apply(this, [
-                    gpfI.IReadableStream.EVENT_READY,
+                    gpfI.IReadableStream.EVENT_DATA,
                     {
                         buffer: stream.consolidateString()
                     },
