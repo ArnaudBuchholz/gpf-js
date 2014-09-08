@@ -34,7 +34,6 @@
             }
         ]
 
-
     });
 
 })(); /* End of privacy scope */
