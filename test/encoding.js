@@ -49,7 +49,7 @@
 
     gpf.declareTests({
 
-        "utf-8.encoding": [
+        "utf-8": [
 
             function (test) {
                 test.title("Encode to UTF-8");
@@ -65,6 +65,24 @@
                         "Stream is ready");
                     result = event.get("buffer");
                     test.like(_utf8Buffer, result, "Same buffer");
+                    test.done();
+                });
+            },
+
+            function (test) {
+                test.title("Decode from UTF-8");
+                var
+                    input = gpf.arrayToStream(_utf8Buffer),
+                    decoder = gpf.encoding.createDecoder(input,
+                        gpf.encoding.UTF_8);
+                test.wait(100);
+                gpf.stringFromStream(decoder, function (event) {
+                    var result;
+                    test.equal(event.type(),
+                        gpf.interfaces.IReadableStream.EVENT_DATA,
+                        "Stream is ready");
+                    result = event.get("buffer");
+                    test.equal(_utf8String, result, "Same buffer");
                     test.done();
                 });
             }

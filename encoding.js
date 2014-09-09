@@ -31,7 +31,7 @@
             var
                 result = [],
                 len = input.length,
-                idx,
+                idx = 0,
                 byte,
                 byte2,
                 byte3;
