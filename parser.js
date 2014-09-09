@@ -13,7 +13,6 @@
          * @class gpf.interfaces.ITokenizer
          * @extends gpf.interfaces.Interface
          */
-
         _ITokenizer = gpf._defIntrf("ITokenizer", {
 
             /**
@@ -22,10 +21,11 @@
              *
              * @param {String} char One character to analyze
              * @return {Number} < 0 means won't recognize
-             *                     0 means need more chars
-             *                   > 0 means a token is recognized (length result)
+             *                    0 means need more chars
+             *                  > 0 means a token is recognized (length result)
              *
-             * NOTE: if the result is positive, you may submit more chars until
+             * NOTE: if the result is positive, you may submit more chars and
+             * check if it changes.
              */
             write: function (char) {
                 gpf.interfaces.ignoreParameter(char);
@@ -351,7 +351,7 @@
         }),
 
         /**
-         * Pattern choice item: includes several items, matching only one amoung
+         * Pattern choice item: includes several items, matching only one among
          * them
          *
          * @class PatternChoiceItem
