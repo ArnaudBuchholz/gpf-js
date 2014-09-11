@@ -467,7 +467,7 @@
      * @extend gpf.stream.BufferedOnRead
      * @implements gpf.interfaces.IReadableStream
      */
-    gpf.define(gpf.stream.BitReader, "gpf.stream.BufferedOnRead", {
+    gpf.define("gpf.stream.BitReader", "gpf.stream.BufferedOnRead", {
 
         "[Class]": [gpf.$InterfaceImplement(gpfI.IReadableStream)],
 
@@ -492,34 +492,35 @@
                     result = [],
                     readBit = this._bit,
                     readByte,
-                    writeBit = 1,
+                    writeBit = 0,
                     writeByte = 0;
                 readByte = buffer[0];
                 while (0 < size) {
                     --size; // Expressed in bits
-                    if (1 === (readByte & readBit)) {
-                        writeByte |= writeBit;
+                    writeByte <<= 1;
+                    if (0 !== (readByte & readBit)) {
+                        writeByte |= 1;
                     }
                     // Next read
                     --this._bufferLength; // Because expressed in bits
-                    if (readBit === 128) {
+                    if (readBit === 1) {
                         // End of current byte, move to next one
                         buffer.shift();
                         readByte = buffer[0];
-                        readBit = 1;
+                        readBit = 128;
                     } else {
                         readBit >>= 1;
                     }
                     // Next write
-                    if (writeBit === 128) {
+                    if (writeBit === 7) {
                         result.push(writeByte);
                         writeByte = 0;
-                        writeBit = 1;
+                        writeBit = 0;
                     } else {
-                        writeBit >>= 1;
+                        ++writeBit;
                     }
                 }
-                if (writeBit !== 1) {
+                if (writeBit !== 0) {
                     result.push(writeByte);
                 }
                 this._bit = readBit;
@@ -536,7 +537,7 @@
              * @type {Number}
              * @private
              */
-            _bit: 1
+            _bit: 128
 
         }
 
