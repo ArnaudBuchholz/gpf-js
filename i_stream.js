@@ -395,10 +395,11 @@
     });
 
     /**
+     * Read the whole stream and concat the buffers using the provided handler
      *
      * @param {gpf.interfaces.ITextStream} stream
-     * @param {gpf.events.Handler} eventsHandler
      * @param {Function} concatMethod
+     * @param {gpf.events.Handler} eventsHandler
      *
      * @forwardThis
      *
@@ -454,6 +455,43 @@
         }
 
     });
+
+    /**
+     * Read the whole stream and returns a base64 string
+     *
+     * @param {gpf.interfaces.ITextStream} stream
+     * @param {gpf.events.Handler} eventsHandler
+     *
+     * @forwardThis
+     *
+     * @event data finished reading the stream, the buffer is provided
+     * @eventParam {Array|String} buffer
+     */
+    gpf.stream.readAllAsB64 = function (stream, eventsHandler) {
+        stream = gpf.interfaces.query(stream, gpfI.IReadableStream,  true);
+        stream.read(6, {
+            scope: eventsHandler,
+            data: _readAllAsB64Data,
+            eos: _readAllAsB64Eos,
+
+
+        })
+
+
+    };
+
+    function _readAllAsB64Data(event) {
+        result.push(gpf.bin.toBase64(event.get("buffer")[0]));
+
+        if (event.type() === _EOS) {
+            test.equal(result.join(""), _utf8, "Correct");
+            test.done();
+            return;
+        }
+        test.equal(event.type(), _DATA, "Data event");
+        reader.read(6, callback);
+
+    }
 
     //endregion
 
