@@ -136,23 +136,7 @@
     gpf._defIntrf("ITextStream", gpfI.IStream, {
     });
 
-    /**
-     * Internal helper to implement the expected write behavior in all streams
-     * @inheritDoc gpf.interfaces.ITextStream:write
-     */
-    gpfI.ITextStream._write = function () {
-        var argIdx, arg;
-        for (argIdx = 0; argIdx < arguments.length; ++argIdx) {
-            arg = arguments[argIdx];
-            if (null !== arg && "string" !== typeof arg) {
-                arg = arg.toString();
-            }
-            this.write_(arg);
-        }
-        if (0 === argIdx) { // No parameter at all
-            this.write_(null);
-        }
-    };
+    //endregion
 
     //region Stream helpers
 
@@ -264,14 +248,8 @@
              * @protected
              */
             _readFromByteBuffer: function (size) {
-                var
-                    buffer = this._buffer,
-                    len = buffer.length;
-                if (size > len) {
-                    size = len;
-                }
                 this._bufferLength -= size;
-                return buffer.splice(0, size);
+                return this._buffer.splice(0, size);
             }
 
         },
@@ -308,7 +286,7 @@
                     || length && _BUFREADSTREAM_ISTATE_EOS === iState) {
                     // Enough chars in the output buffer to do the read
                     // OR there won't be any more chars. Can output something.
-                    if (0 === size) {
+                    if (0 === size || size > length) {
                         size = length;
                     }
                     gpf.events.fire.apply(this, [
@@ -478,6 +456,93 @@
     });
 
     //endregion
+
+    //region Bit stream
+
+    /**
+     * Bit reader (count is expressed as bits)
+     * Rely on a underlying byte stream reader
+     *
+     * @class gpf.stream.BitReader
+     * @extend gpf.stream.BufferedOnRead
+     * @implements gpf.interfaces.IReadableStream
+     */
+    gpf.define(gpf.stream.BitReader, "gpf.stream.BufferedOnRead", {
+
+        "[Class]": [gpf.$InterfaceImplement(gpfI.IReadableStream)],
+
+        //region Implementation
+
+        protected: {
+
+            /**
+             * @inheritdoc gpf.stream.BufferedOnRead:_addToBuffer
+             */
+            _addToBuffer: function (buffer) {
+                this._buffer = this._buffer.concat(buffer);
+                this._bufferLength += buffer.length * 8; // Expressed in bits
+            },
+
+            /**
+             * @inheritdoc gpf.stream.BufferedOnRead:_readFromBuffer
+             */
+            _readFromBuffer: function (size) {
+                var
+                    buffer = this._buffer, // alias
+                    result = [],
+                    readBit = this._bit,
+                    readByte,
+                    writeBit = 1,
+                    writeByte = 0;
+                readByte = buffer[0];
+                while (0 < size) {
+                    --size; // Expressed in bits
+                    if (1 === (readByte & readBit)) {
+                        writeByte |= writeBit;
+                    }
+                    // Next read
+                    --this._bufferLength; // Because expressed in bits
+                    if (readBit === 128) {
+                        // End of current byte, move to next one
+                        buffer.shift();
+                        readByte = buffer[0];
+                        readBit = 1;
+                    } else {
+                        readBit >>= 1;
+                    }
+                    // Next write
+                    if (writeBit === 128) {
+                        result.push(writeByte);
+                        writeByte = 0;
+                        writeBit = 1;
+                    } else {
+                        writeBit >>= 1;
+                    }
+                }
+                if (writeBit !== 1) {
+                    result.push(writeByte);
+                }
+                this._bit = readBit;
+                return result;
+            }
+
+        },
+
+        private: {
+
+            /**
+             * Current bit cursor
+             *
+             * @type {Number}
+             * @private
+             */
+            _bit: 1
+
+        }
+
+        //endregion
+
+    });
 
 /*#ifndef(UMD)*/
 }()); /* End of privacy scope */
