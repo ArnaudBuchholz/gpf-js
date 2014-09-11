@@ -394,6 +394,108 @@
         //endregion
     });
 
+    var
+        /**
+         * Base class used to fully read a stream
+         *
+         * @class AbstractStreamReader
+         * @abstract
+         * @private
+         */
+        AbstractStreamReader = gpf.define("AbstractStreamReader", {
+
+            public: {
+
+                constructor: function (scope, eventsHandler) {
+                    this._scope = gpf.Callback.resolveScope(scope);
+                    this._eventsHandler = eventsHandler;
+                },
+
+                read: function (stream) {
+                    stream.read(0, gpf.Callback.bind(this, "callback"));
+                }
+
+            },
+
+            protected: {
+
+                _consolidateBuffer: function () {
+                    gpf.Error.Abstract();
+                    return [];
+                },
+
+                _addBuffer: function (buffer) {
+                    gpf.interfaces.ignoreParameter(buffer);
+                    gpf.Error.Abstract();
+                }
+            },
+
+            private: {
+
+                _scope: null,
+                _eventsHandler: null,
+
+                callback: function (event) {
+                    var
+                        type = event.type(),
+                        stream = event.scope();
+                    if (type === gpfI.IReadableStream.EVENT_END_OF_STREAM) {
+                        gpf.events.fire.apply(this._scope, [
+                            gpfI.IReadableStream.EVENT_DATA,
+                            {
+                                buffer: this._consolidateBuffer()
+                            },
+                            this._eventsHandler
+                        ]);
+
+                    } else if (type === gpfI.IReadableStream.EVENT_ERROR) {
+                        // Forward the event
+                        gpf.events.fire.apply(this._scope, [
+                            event,
+                            this._eventsHandler
+                        ]);
+
+                    } else {
+                        this._addBuffer(event.get("buffer"));
+                        this.read(stream);
+                    }
+                }
+
+            }
+
+        }),
+
+        StreamReader = gpf.define("StreamReader", AbstractStreamReader, {
+
+            public: {
+
+                constructor: function (scope, eventsHandler, concatMethod) {
+                    this.baseConstructor(scope, eventsHandler);
+                    this._concatMethod = concatMethod;
+                }
+
+            },
+
+            protected: {
+
+                _consolidateBuffer: function () {
+                    return _concatMethod(this._buffer);
+                },
+
+                _addBuffer: function (buffer) {
+                    this._buffer = this._concatMethod(this._buffer, buffer);
+                }
+            },
+
+            private: {
+
+                _buffer: undefined,
+                _concatMethod: null
+
+            }
+
+        });
+
     /**
      * Read the whole stream and concat the buffers using the provided handler
      *
@@ -411,51 +513,6 @@
         (new StreamReader(this, eventsHandler, concatMethod)).read(stream);
     };
 
-    function StreamReader(scope, eventsHandler, concatMethod) {
-        this._scope = gpf.Callback.resolveScope(scope);
-        this._eventsHandler = eventsHandler;
-        this._concatMethod = concatMethod;
-    }
-    gpf.extend(StreamReader.prototype, {
-
-        _scope: null,
-        _eventsHandler: null,
-        _concatMethod: null,
-        _buffer: undefined,
-
-        read: function (stream) {
-            stream.read(0, gpf.Callback.bind(this, "callback"));
-        },
-
-        callback: function (event) {
-            var
-                type = event.type(),
-                stream = event.scope();
-            if (type === gpfI.IReadableStream.EVENT_END_OF_STREAM) {
-                gpf.events.fire.apply(this._scope, [
-                    gpfI.IReadableStream.EVENT_DATA,
-                    {
-                        buffer: this._concatMethod(this._buffer)
-                    },
-                    this._eventsHandler
-                ]);
-
-            } else if (type === gpfI.IReadableStream.EVENT_ERROR) {
-                // Forward the event
-                gpf.events.fire.apply(this._scope, [
-                    event,
-                    this._eventsHandler
-                ]);
-
-            } else {
-                this._buffer = this._concatMethod(this._buffer,
-                    event.get("buffer"));
-                this.read(stream);
-            }
-        }
-
-    });
-
     /**
      * Read the whole stream and returns a base64 string
      *
@@ -469,29 +526,28 @@
      */
     gpf.stream.readAllAsB64 = function (stream, eventsHandler) {
         stream = gpf.interfaces.query(stream, gpfI.IReadableStream,  true);
-        stream.read(6, {
-            scope: eventsHandler,
-            data: _readAllAsB64Data,
-            eos: _readAllAsB64Eos,
-
-
-        })
-
+//        stream.read(6, {
+//            scope: eventsHandler,
+//            data: _readAllAsB64Data,
+//            eos: _readAllAsB64Eos,
+//
+//
+//        })
 
     };
 
-    function _readAllAsB64Data(event) {
-        result.push(gpf.bin.toBase64(event.get("buffer")[0]));
-
-        if (event.type() === _EOS) {
-            test.equal(result.join(""), _utf8, "Correct");
-            test.done();
-            return;
-        }
-        test.equal(event.type(), _DATA, "Data event");
-        reader.read(6, callback);
-
-    }
+//    function _readAllAsB64Data(event) {
+//        result.push(gpf.bin.toBase64(event.get("buffer")[0]));
+//
+//        if (event.type() === _EOS) {
+//            test.equal(result.join(""), _utf8, "Correct");
+//            test.done();
+//            return;
+//        }
+//        test.equal(event.type(), _DATA, "Data event");
+//        reader.read(6, callback);
+//
+//    }
 
     //endregion
 
