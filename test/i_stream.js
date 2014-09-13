@@ -54,7 +54,7 @@
                 gpf.stream.readAllAsB64(gpf.arrayToStream(array),
                     function (event) {
                         test.equal(event.type(), _DATA, "Data event");
-                        test.equal(event.get("result"), _utf8, "Correct");
+                        test.equal(event.get("buffer"), _utf8, "Correct");
                         test.done();
                     }
                 );
