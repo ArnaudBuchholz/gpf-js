@@ -559,7 +559,7 @@
             public: {
 
                 constructor: function (scope, eventsHandler, concatMethod) {
-                    this.baseConstructor(scope, eventsHandler);
+                    this._baseConstructor(scope, eventsHandler);
                     this._concatMethod = concatMethod;
                 }
 
