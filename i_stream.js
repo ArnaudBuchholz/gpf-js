@@ -587,6 +587,15 @@
 
         B64StreamReader = gpf.define("B64StreamReader", AbstractStreamReader, {
 
+            public: {
+
+                constructor: function (scope, eventsHandler) {
+                    this._baseConstructor(scope, eventsHandler);
+                    this._buffer = [];
+                }
+
+            },
+
             protected: {
 
                 _readSize: 6,
