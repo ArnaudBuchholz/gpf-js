@@ -216,8 +216,10 @@
         wait: function (timeout) {
             this._sync = false;
             this._waitDt = new Date();
-            gpf.defer(this._waitedTooLong, timeout || TestReport.WAIT_TIMEOUT,
-                this);
+            if (-1 !== timeout) {
+                gpf.defer(this._waitedTooLong,
+                    timeout || TestReport.WAIT_TIMEOUT, this);
+            }
         },
 
         _waitedTooLong: function () {
