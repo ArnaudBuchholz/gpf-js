@@ -8,8 +8,10 @@ A multi-purpose JavaScript library created and maintained by
 * Compatible with several hosts
 ([cscript/wscript](http://technet.microsoft.com/en-us/library/bb490887.aspx),
 [NodeJS](http://nodejs.org/), most browsers)
+* Namespace and class system
 * Java-like annotation tool (attributes)
 * Interface based
+* Asynchronous binary / textual streams
 * XML-aware
 * Self-Tested
 
