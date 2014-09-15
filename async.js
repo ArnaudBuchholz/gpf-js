@@ -32,7 +32,7 @@
         gpf._asyncQueue = [];
 
         _sortOnDt = function (a, b) {
-            return b._dt - a._dt;
+            return a._dt - b._dt;
         };
 
         gpf.defer = function (callback, timeout, scope, args) {
