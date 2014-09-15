@@ -4,8 +4,6 @@
 /*#endif*/
 
     var
-        _queue = [],
-
         /**
          * Defer the execution of the callback
          *
@@ -25,21 +23,37 @@
             return function (){
                 callback.apply(gpf.Callback.resolveScope(scope), args);
             };
-        };
+        },
+
+        _sortOnDt;
 
     if ("wscript" === gpf.host()) {
 
+        gpf._asyncQueue = [];
+
+        _sortOnDt = function (a, b) {
+            return b._dt - a._dt;
+        };
+
         gpf.defer = function (callback, timeout, scope, args) {
-            // TODO sort queue according to timeout
-            gpf.interfaces.ignoreParameter(timeout);
-            _queue.push(_callback(callback, scope, args));
+            var item = _callback(callback, scope, args);
+            if (!timeout) {
+                timeout = 0;
+            }
+            item._dt = new Date(new Date() - (-timeout));
+            gpf._asyncQueue.push(item);
+            gpf._asyncQueue.sort(_sortOnDt);
         };
 
         gpf.runAsyncQueue = function () {
             var
+                queue = gpf._asyncQueue,
                 callback;
-            while (_queue.length) {
-                callback = _queue.shift();
+            while (queue.length) {
+                callback = queue.shift();
+                if (callback._dt > new Date()) {
+                    WScript.Sleep(callback._dt - new Date());
+                }
                 callback();
             }
         };
