@@ -269,21 +269,32 @@
     }
 
     function wscriptInclude(src) {
-        var srcFile;
+        /*
+         * Fixed to read UTF-8
+         *
+         * http://stackoverflow.com/questions/13851473/
+         * read-utf-8-text-file-in-vbscript
+         */
+        var objStream,
+            content;
         if (!wscriptInclude.fso) {
             wscriptInclude.fso =
                 new ActiveXObject("Scripting.FileSystemObject");
         }
         if (wscriptInclude.fso.FileExists(src)) {
-            srcFile = wscriptInclude.fso.OpenTextFile(src);
+            objStream = new ActiveXObject("ADODB.Stream");
+            objStream.CharSet = "utf-8";
+            objStream.Open();
+            objStream.LoadFromFile(src);
+            content = objStream.ReadText();
             try {
                 /*jslint evil:true*/
-                eval(srcFile.ReadAll());
+                eval(content);
                 /*jslint evil:false*/
             } catch (e) {
                 includeFailed(e);
             }
-            srcFile.Close();
+            objStream.Close();
         } else {
             includeFailed();
         }
