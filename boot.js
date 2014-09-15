@@ -13,7 +13,7 @@
     // Microsoft cscript / wscript
     if ("undefined" !== typeof WScript) {
         _host = "wscript";
-        _context = (function () {return this; }).apply(null, []);
+        _context = (function () {return this;}).apply(null, []);
 
         // Define console APIs
         _context.console = {

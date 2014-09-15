@@ -513,7 +513,7 @@
          */
         apply: function(scope, args) {
             var finalScope = gpf.Callback.resolveScope(this._scope || scope);
-            return this._handler.apply(finalScope, args);
+            return this._handler.apply(finalScope, args || []);
         }
     });
 
