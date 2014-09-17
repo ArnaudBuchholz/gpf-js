@@ -263,6 +263,7 @@
 
         _alpha: "abcdefghijklmnopqrstuvwxyz",
         _ALPHA: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        _digit: "0123456789",
 
         _func: function (source) {
 /*#ifdef(DEBUG)*/
