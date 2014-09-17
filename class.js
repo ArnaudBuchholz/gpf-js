@@ -63,6 +63,8 @@
  *  Rewrote to consolidate everything in a single class that handles both
  *  definition and information
  *
+ * 2014-09-16
+ *  Base methods are now available through the _super method
  */
 
     var
@@ -71,7 +73,71 @@
         _VISIBILITY_PROTECTED   = 1,
 //        _VISIBILITY_PRIVATE     = 2,
         _VISIBILITY_STATIC      = 3,
-        _initAllowed = true;
+        _initAllowed            = true,
+
+        /**
+         * Used below
+         * @type {String}
+         * @private
+         */
+        _invalidSeparator = gpf._alpha + gpf._ALPHA + gpf._digit + "_",
+
+        /**
+         * Detects if the function uses ._super
+         * NOTE compared to John Reisig version, I try to stay away from
+         * regular expression.
+         *
+         * @param {Function} member
+         * @return {Boolean}
+         * @private
+         */
+        _usesSuper = function (member) {
+            var
+                pos;
+            member = member.toString();
+            pos = member.indexOf("._super");
+            if (-1 === pos) {
+                return false;
+            }
+            // Test the character *after* _super
+            return -1 === _invalidSeparator.indexOf( member.charAt(pos + 7));
+        },
+
+        /**
+         * Generates a closure in which this._super points to the base
+         * definition of the overridden member
+         *
+         * Based on http://ejohn.org/blog/simple-javascript-inheritance/
+         *
+         * @param {Function} baseMember
+         * @param {Function} member
+         * @return {Function}
+         * @private
+         * @closure
+         */
+        _super = function (baseMember, member) {
+            return function () {
+                var
+                    previousSuper = this._super,
+                    result;
+
+                // Add a new ._super() method that is the same method
+                // but on the super-class
+                this._super = baseMember;
+
+                // Execute the method
+                result = member.apply(this, arguments);
+
+                // The method only need to be bound temporarily, so we
+                // remove it when we're done executing
+                if (undefined === previousSuper) {
+                    delete this._super;
+                } else {
+                    this._super = previousSuper;
+                }
+                return result;
+            };
+        };
 
     /**
      * An helper to create class and store its information
@@ -217,46 +283,44 @@
          * @param {String} member Name of the member to define
          * @param {Number} visibility Visibility of the members
          * @private
+         * @closure
          */
         _processMember: function (member, visibility) {
             // Don't know yet how I want to handle visibility
             var
                 newPrototype = this._Constructor.prototype,
                 defMember = this._definition[member],
+                isConstructor = member === "constructor",
                 newType,
                 baseMember,
-                baseType,
-                baseName;
+                baseType;
             newType = typeof defMember;
             if (_VISIBILITY_STATIC === visibility) {
                 // No inheritance can be applied here
                 newPrototype.constructor[member] = defMember;
                 return;
             }
-            baseMember = this._Base.prototype[member];
+            if (isConstructor) {
+                baseMember = this._Base;
+            } else {
+                baseMember = this._Base.prototype[member];
+            }
             baseType = typeof baseMember;
             if ("undefined" !== baseType
                 && null !== baseMember // Special case as null is common
                 && newType !== baseType) {
                 gpf.Error.ClassMemberOverloadWithTypeChange();
             }
-            if ("function" === newType && "undefined" !== baseType) {
+            if ("function" === newType
+                && "undefined" !== baseType
+                && _usesSuper(defMember)) {
                 /*
-                 * As it is a function overload, defines a new member that will
-                 * give a quick access to the base function. This should answer
-                 * 90% of the cases.
-                 *
-                 * TODO how do we handle possible conflict name
+                 * As it is a function override, _super is a way to access the
+                 * base function.
                  */
-                baseName = member;
-                if ("_" === baseName.charAt(0)) {
-                    baseName = baseName.substr(1);
-                }
-                // Capitalize
-                baseName = gpf.capitalize(baseName);
-                newPrototype["_base" + baseName] = baseMember;
+                defMember = _super(baseMember, defMember);
             }
-            if ("constructor" === member) {
+            if (isConstructor) {
                 this._defConstructor = defMember;
             } else {
                 newPrototype[member] = defMember;
@@ -457,15 +521,6 @@
              */
             this._processDefinition();
             this._processAttributes();
-
-            /*
-             * 2014-07-23 ABZ Adding a 'base' constructor to ease the build of
-             * consructors
-             */
-            if (this._defConstructor) {
-                newPrototype._baseConstructor =
-                    _getNewBaseConstructorFunc(this._Base);
-            }
         }
 
         //endregion
@@ -570,21 +625,6 @@
         start = src.indexOf("{") + 1;
         end = src.lastIndexOf("}") - 1;
         return src.substr(start, end - start + 1);
-    }
-
-    /**
-     * Returns the definition of _baseConstructor
-     *
-     * @param {Function} Base
-     * @private
-     * @closure
-     */
-    function _getNewBaseConstructorFunc(Base) {
-        /*jslint -W040*/
-        return function () {
-            Base.apply(this, arguments);
-        };
-        /*jslint +W040*/
     }
 
     //endregion
