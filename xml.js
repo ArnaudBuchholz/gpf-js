@@ -300,7 +300,7 @@
             _objClass: null,
 
             constructor: function (name, objClass) {
-                this._baseConstructor(name);
+                this._super(name);
                 if (objClass) {
                     this._objClass = objClass;
                 }

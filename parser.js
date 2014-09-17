@@ -204,7 +204,7 @@
              * @constructor
              */
             constructor: function () {
-                this._baseConstructor(PatternItem.TYPE_SIMPLE);
+                this._super(PatternItem.TYPE_SIMPLE);
                 this._seq = [];
             },
 
@@ -269,7 +269,7 @@
             _exc: "",
 
             constructor: function () {
-                this._baseConstructor(PatternItem.TYPE_RANGE);
+                this._super(PatternItem.TYPE_RANGE);
                 this._inc = [];
             },
 
@@ -403,7 +403,7 @@
             },
 
             constructor: function () {
-                this._baseConstructor(PatternItem.TYPE_CHOICE);
+                this._super(PatternItem.TYPE_CHOICE);
                 this._choices = [];
             },
 
@@ -466,7 +466,7 @@
             },
 
             constructor: function () {
-                this._baseConstructor(PatternItem.TYPE_GROUP);
+                this._super(PatternItem.TYPE_GROUP);
                 this._items = [];
             },
 
@@ -1250,7 +1250,7 @@
              * @constructor
              */
             constructor: function (parser, input) {
-                this._baseConstructor(input);
+                this._super(input);
                 this._parser = parser;
                 this._parser.setOutputHandler(new gpf.Callback(this._output,
                     this));

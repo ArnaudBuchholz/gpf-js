@@ -39,7 +39,7 @@
             _c: 0,
 
             constructor: function (value) {
-                this._baseConstructor(value - 1);
+                this._super(value - 1);
                 this._b = value;
             },
 

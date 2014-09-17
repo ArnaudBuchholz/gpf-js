@@ -99,7 +99,7 @@
                  * @constructor
                  */
                 constructor: function (encoder, input) {
-                    this._baseConstructor(input);
+                    this._super(input);
                     this._encoder = encoder;
                 }
 
@@ -153,7 +153,7 @@
                  * @constructor
                  */
                 constructor: function (decoder, input) {
-                    this._baseConstructor(input);
+                    this._super(input);
                     this._decoder = decoder;
                 }
 

@@ -20,7 +20,7 @@
 
         public: {
             constructor: function () {
-                this._baseConstructor(arguments);
+                this._super.apply(this, arguments);
                 this._openedTags = [];
             }
         },

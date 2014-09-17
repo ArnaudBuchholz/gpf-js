@@ -22,7 +22,7 @@
 
             constructor: function (value) {
                 this._b = value;
-                this._baseConstructor(value + 1);
+                this._super(value + 1);
             },
 
             b: function () {
