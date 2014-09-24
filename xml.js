@@ -60,7 +60,7 @@
          *
          * @event ready
          */
-        characters: function (buffer, /*gpf.events.Handler*/ eventsHandler) {
+        characters: function (buffer, eventsHandler) {
             gpfI.ignoreParameter(buffer);
             gpfI.ignoreParameter(eventsHandler);
         },
@@ -72,7 +72,7 @@
          *
          * @event ready
          */
-        endDocument: function (/*gpf.events.Handler*/ eventsHandler) {
+        endDocument: function (eventsHandler) {
             gpfI.ignoreParameter(eventsHandler);
         },
 
@@ -83,7 +83,7 @@
          *
          * @event ready
          */
-        endElement: function (/*gpf.events.Handler*/ eventsHandler) {
+        endElement: function (eventsHandler) {
             gpfI.ignoreParameter(eventsHandler);
         },
 
