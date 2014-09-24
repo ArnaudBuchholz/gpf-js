@@ -82,104 +82,152 @@
          */
         PatternItem = gpf.define("PatternItem", {
 
-            /**
-             * Returns the item type (PatternItem.TYPE_xxx)
-             *
-             * @type {number}
-             */
-            "[_type]": [gpf.$ClassProperty()],
-            _type: -1,
+            private: {
 
-            /**
-             * Item parent (may be null)
-             *
-             * @type {PatternItem}
-             */
-            "[_parent]": [gpf.$ClassProperty(true)],
-            _parent: null,
+                /**
+                 * Returns the item type (PatternItem.TYPE_xxx)
+                 *
+                 * @type {number}
+                 * @private
+                 */
+                "[_type]": [gpf.$ClassProperty()],
+                _type: -1,
 
-            /**
-             * Next item: used to chain items together
-             *
-             * @type {PatternItem}
-             */
-            next: function (value) {
-                if (undefined === value) {
-                    return this._next;
-                } else {
-                    this._next = value;
-                    // Forward parent
-                    value.parent(this._parent);
+                /**
+                 * Item parent (may be null)
+                 *
+                 * @type {PatternItem}
+                 * @private
+                 */
+                "[_parent]": [gpf.$ClassProperty(true)],
+                _parent: null,
+
+                /**
+                 * Next item: used to chain items together
+                 *
+                 * @type {PatternItem}
+                 * @private
+                 */
+                next: function (value) {
+                    if (undefined === value) {
+                        return this._next;
+                    } else {
+                        this._next = value;
+                        // Forward parent
+                        value.parent(this._parent);
+                    }
+                },
+                _next: null,
+
+                /**
+                 * Min number of item iteration
+                 *
+                 * @type {number}
+                 * @private
+                 */
+                "[_min]": [gpf.$ClassProperty(true)],
+                _min: 1,
+
+                /**
+                 * Maximum number of item iteration
+                 * 0 means unlimited
+                 *
+                 * @type {number}
+                 * @private
+                 */
+                "[_max]": [gpf.$ClassProperty(true)],
+                _max: 1
+
+            },
+
+            public: {
+
+                /**
+                 * @param {Number} type
+                 * @constructor
+                 */
+                constructor: function (type) {
+                    this._type = type;
+                },
+
+                //region Compiling time
+
+                /**
+                 * adds a character to the item
+                 *
+                 * @param {String} char Character to add
+                 * @param {Boolean} inRange Used for range parsing (preceded
+                 * by -)
+                 */
+                add: function (char, inRange) {
+                    gpf.interfaces.ignoreParameter(char);
+                    gpf.interfaces.ignoreParameter(inRange);
+                },
+
+                /**
+                 *  finalize the item
+                 */
+                finalize: function () {
+                },
+
+                //endregion
+
+                //region Execution time
+
+                /**
+                 * item will be evaluated, reset tokenizer state
+                 *
+                 * @param {Object} state Free structure to add values to
+                 */
+                reset: function (state) {
+                    gpf.interfaces.ignoreParameter(state);
+                },
+
+                /**
+                 * item evaluation with a character
+                 *
+                 * @param {Object} state Free structure containing current state
+                 * @param {String} char character to test the pattern with
+                 * @return {Number} Matching result, see PatternItem.WRITE_xxx
+                 */
+                write: function (state, char) {
+                    gpf.interfaces.ignoreParameter(state);
+                    gpf.interfaces.ignoreParameter(char);
+                    return -1;
                 }
-            },
-            _next: null,
 
-            /**
-             * Min number of item iteration
-             *
-             * @type {number}
-             */
-            "[_min]": [gpf.$ClassProperty(true)],
-            _min: 1,
+                //endregion
 
-            /**
-             * Maximum number of item iteration
-             * 0 means unlimited
-             *
-             * @type {number}
-             */
-            "[_max]": [gpf.$ClassProperty(true)],
-            _max: 1,
-
-            /**
-             * @constructor
-             * @param {Number} type
-             */
-            constructor: function (type) {
-                this._type = type;
             },
 
-            /**
-             * Compiling time:
-             *  adds a character to the item
-             *
-             * @param {String} char Character to add
-             * @param {Boolean} inRange Used for range parsing (preceded by -)
-             */
-            add: function (char, inRange) {
-                gpf.interfaces.ignoreParameter(char);
-                gpf.interfaces.ignoreParameter(inRange);
-            },
+            static: {
 
-            /**
-             * Compiling time:
-             *  finalize the item
-             */
-            finalize: function () {
-            },
+                TYPE_SIMPLE: 0,
+                TYPE_RANGE: 1,
+                TYPE_CHOICE: 2,
 
-            /**
-             * Run time:
-             *  item will be evaluated, reset tokenizer state
-             *
-             * @param {Object} state Free structure to add values to
-             */
-            reset: function (state) {
-                gpf.interfaces.ignoreParameter(state);
-            },
+                WRITE_NO_MATCH: -1,
+                WRITE_NEED_DATA: 0,
+                WRITE_MATCH: 1,
 
-            /**
-             * Run time:
-             *  item evaluation with a character
-             *
-             * @param {Object} state Free structure containing current state
-             * @param {String} char character to test the pattern with
-             * @return {Number} Matching result, see PatternItem.WRITE_xxx
-             */
-            write: function (state, char) {
-                gpf.interfaces.ignoreParameter(state);
-                gpf.interfaces.ignoreParameter(char);
-                return -1;
+                _factory: null,
+
+                /**
+                 * Factory of PatternItem
+                 *
+                 * @param {Number} type
+                 * @return {PatternItem}
+                 */
+                create: function (type) {
+                    var factory = PatternItem._factory;
+                    if (!factory) {
+                        factory = PatternItem._factory = {};
+                        factory[this.TYPE_SIMPLE] = PatternSimpleItem;
+                        factory[this.TYPE_RANGE]  = PatternRangeItem;
+                        factory[this.TYPE_CHOICE] = PatternChoiceItem;
+                    }
+                    return new (factory[type])();
+                }
             }
 
         }),
@@ -901,37 +949,6 @@
             //endregion
 
         });
-
-    gpf.extend(PatternItem, {
-        TYPE_SIMPLE: 0,
-        TYPE_RANGE: 1,
-        TYPE_CHOICE: 2,
-        TYPE_GROUP: 3,
-
-        WRITE_NO_MATCH: -1,
-        WRITE_NEED_DATA: 0,
-        WRITE_MATCH: 1,
-
-        _factory: null,
-
-        /**
-         * Factory of PatternItem
-         *
-         * @param {Number} type
-         * @return {PaternItem}
-         */
-        create: function (type) {
-            var factory = PatternItem._factory;
-            if (!factory) {
-                factory = PatternItem._factory = {};
-                factory[this.TYPE_SIMPLE] = PatternSimpleItem;
-                factory[this.TYPE_RANGE] = PatternRangeItem;
-                factory[this.TYPE_CHOICE] = PatternChoiceItem;
-                factory[this.TYPE_GROUP] = PatternGroupItem;
-            }
-            return new (factory[type])();
-        }
-    });
 
     /**
      * Patterns are designed to be an efficient and stream-able alternative to
