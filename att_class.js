@@ -26,9 +26,6 @@
      * {type} MEMBER({type} [value=undefined] value)
      * When value is not set, the member acts as a getter
      *
-     * @param {Boolean} writeAllowed
-     * @param {String} [publicName=undefined] publicName When not specified,
-     * the member name (without _) is applied
      *
      * @class gpf.attributes.ClassPropertyAttribute
      * @extends gpf.attributes.ClassAttribute
@@ -36,32 +33,45 @@
      */
     gpf._defAttr("$ClassProperty", _base, {
 
-//        "[Class]": [gpf.$Alias("ClassProperty")],
-
         _writeAllowed: false,
-        _publicName: "",
+        _publicName: undefined,
+        _visibility: undefined,
 
-        constructor: function (writeAllowed, publicName) {
+        /**
+         * @param {Boolean} writeAllowed
+         * @param {String} [publicName=undefined] publicName When not specified,
+         * the member name (without _) is applied
+         * @param {String} [visibility=undefined] visibility When not specified,
+         * public is used
+         * @constructor
+         */
+        constructor: function (writeAllowed, publicName, visibility) {
             if (writeAllowed) {
                 this._writeAllowed = true;
             }
             if ("string" === typeof publicName) {
                 this._publicName = publicName;
             }
+            if ("string" === typeof visibility) {
+                this._visibility = visibility;
+            }
         },
 
         _alterPrototype: function (objPrototype) {
             var
                 member = this._member,
-                publicName = this._publicName;
+                publicName = this._publicName,
+                classDef = gpf.classDef(objPrototype.constructor),
+                accessor;
             if (!publicName) {
                 publicName = member.substr(1); // Considering it starts with _
             }
             if (this._writeAllowed) {
-                objPrototype[publicName] = _rwProperty(member);
+                accessor = _rwProperty(member);
             } else {
-                objPrototype[publicName] = _roProperty(member);
+                accessor = _roProperty(member);
             }
+            classDef.addMember(publicName, accessor, this._visibility);
         }
 
     });
