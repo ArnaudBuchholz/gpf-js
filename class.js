@@ -278,6 +278,51 @@
         _definition: null,
 
         /**
+         * Adds a member to the class definition.
+         * This method must not be used for
+         * - constructor
+         * - overriding an existing member
+         *
+         * @param {String} member
+         * @param {*} value
+         * @param {String|number} [visibility=_VISIBILITY_PUBLIC] visibility
+         */
+        addMember: function (member, value, visibility) {
+            var
+                newPrototype = this._Constructor.prototype;
+            gpf.ASSERT(member !== "constructor", "No constructor can be added");
+            gpf.ASSERT(undefined === newPrototype[member],
+                "No member can be overridden");
+            if (undefined === visibility) {
+                visibility = _VISIBILITY_PUBLIC;
+            } else if ("string" === typeof visibility) {
+                visibility = _visibilityKeywords.indexOf(visibility);
+                if (-1 === visibility) {
+                    visibility = _VISIBILITY_PUBLIC;
+                }
+            }
+            this._addMember(member, value, visibility);
+        },
+
+        /**
+         * Adds a member to the class definition
+         *
+         * @param {String} member
+         * @param {*} value
+         * @param {number} visibility
+         * @private
+         */
+        _addMember: function (member, value, visibility) {
+            var
+                newPrototype = this._Constructor.prototype;
+            if (_VISIBILITY_STATIC === visibility) {
+                newPrototype.constructor[member] = value;
+            } else {
+                newPrototype[member] = value;
+            }
+        },
+
+        /**
          * Defines a new member of the class
          *
          * @param {String} member Name of the member to define
@@ -288,7 +333,6 @@
         _processMember: function (member, visibility) {
             // Don't know yet how I want to handle visibility
             var
-                newPrototype = this._Constructor.prototype,
                 defMember = this._definition[member],
                 isConstructor = member === "constructor",
                 newType,
@@ -297,7 +341,7 @@
             newType = typeof defMember;
             if (_VISIBILITY_STATIC === visibility) {
                 // No inheritance can be applied here
-                newPrototype.constructor[member] = defMember;
+                this._addMember(member, defMember, _VISIBILITY_STATIC);
                 return;
             }
             if (isConstructor) {
@@ -323,7 +367,7 @@
             if (isConstructor) {
                 this._defConstructor = defMember;
             } else {
-                newPrototype[member] = defMember;
+                this._addMember(member, defMember, visibility);
             }
         },
 
