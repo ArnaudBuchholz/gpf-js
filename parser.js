@@ -38,8 +38,21 @@
 
     //region Pattern
 
-    /*
+    /**
+     * Pattern structure
+     * -----------------
+     *
+     * [a-zA-Z][a-zA-Z0-9]* is represented by
+     *
+     * PatternGroup
+     * |
+     * +- PatternRangeItem
+     * |
+     * +- PatternRangeItem(max:0)
+     *
+     *
      * Pattern 'grammar'
+     * -----------------
      *
      * pattern
      *      : expression+
@@ -78,46 +91,12 @@
          * Pattern item: an atomic character matching item
          *
          * @class PatternItem
+         * @abstract
          * @private
          */
         PatternItem = gpf.define("PatternItem", {
 
             private: {
-
-                /**
-                 * Returns the item type (PatternItem.TYPE_xxx)
-                 *
-                 * @type {number}
-                 * @private
-                 */
-                "[_type]": [gpf.$ClassProperty()],
-                _type: -1,
-
-                /**
-                 * Item parent (may be null)
-                 *
-                 * @type {PatternItem}
-                 * @private
-                 */
-                "[_parent]": [gpf.$ClassProperty(true)],
-                _parent: null,
-
-                /**
-                 * Next item: used to chain items together
-                 *
-                 * @type {PatternItem}
-                 * @private
-                 */
-                next: function (value) {
-                    if (undefined === value) {
-                        return this._next;
-                    } else {
-                        this._next = value;
-                        // Forward parent
-                        value.parent(this._parent);
-                    }
-                },
-                _next: null,
 
                 /**
                  * Min number of item iteration
@@ -156,12 +135,9 @@
                  * adds a character to the item
                  *
                  * @param {String} char Character to add
-                 * @param {Boolean} inRange Used for range parsing (preceded
-                 * by -)
                  */
-                add: function (char, inRange) {
+                add: function (char) {
                     gpf.interfaces.ignoreParameter(char);
-                    gpf.interfaces.ignoreParameter(inRange);
                 },
 
                 /**
@@ -205,6 +181,7 @@
                 TYPE_SIMPLE: 0,
                 TYPE_RANGE: 1,
                 TYPE_CHOICE: 2,
+                TYPE_GROUP: 3,
 
                 WRITE_NO_MATCH: -1,
                 WRITE_NEED_DATA: 0,
@@ -225,6 +202,7 @@
                         factory[this.TYPE_SIMPLE] = PatternSimpleItem;
                         factory[this.TYPE_RANGE]  = PatternRangeItem;
                         factory[this.TYPE_CHOICE] = PatternChoiceItem;
+                        factory[this.TYPE_GROUP] = PatternGroupItem;
                     }
                     return new (factory[type])();
                 }
@@ -245,7 +223,6 @@
              * The character sequence ([] at design time)
              * @type {string|string[]}
              */
-            "[_seq]": [gpf.$ClassProperty(false, "sequence")],
             _seq: "",
 
             /**
