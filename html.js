@@ -19,10 +19,15 @@
     gpf.define("gpf.html.MarkdownParser", "gpf.Parser", {
 
         public: {
+
+            /**
+             * @constructor
+             */
             constructor: function () {
                 this._super.apply(this, arguments);
                 this._openedTags = [];
             }
+
         },
 
     /*
