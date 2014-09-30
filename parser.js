@@ -668,24 +668,24 @@
                 parse: function (char) {
                     // TODO handle ^ & ]
                     var
-                        arrayOfChars,
+                        chars,
                         first,
                         last;
                     if (this.hasExclude()) {
-                        arrayOfChars = this._exc;
+                        chars = this._exc;
                     } else {
-                        arrayOfChars = this._inc;
+                        chars = this._inc;
                     }
                     if (inRange) {
-                        first = arrayOfChars[arrayOfChars.length - 1].charCodeAt(0);
+                        first = chars[chars.length - 1].charCodeAt(0);
                         last = char.charCodeAt(0);
                         while (--last > first) {
-                            arrayOfChars.push(String.fromCharCode(last));
+                            chars.push(String.fromCharCode(last));
                         }
-                        arrayOfChars.push(char);
+                        chars.push(char);
                     } else {
                         // First char of a range
-                        arrayOfChars.push(char);
+                        chars.push(char);
                     }
                 },
 
@@ -873,9 +873,10 @@
          * PatternItems
          *
          * @class PatternParserContext
+         * @extend gpf.Parser
          * @private
          */
-        PatternParserContext = gpf.define("PatternParserContext", {
+        PatternParser = gpf.define("PatternParser",  gpf.Parser, {
 
             private: {
 
@@ -885,6 +886,7 @@
                  * @type {PatternItem}
                  * @private
                  */
+                "[_root]": [gpf.$ClassProperty()],
                 _root: null,
 
                 /**
@@ -897,220 +899,237 @@
 
             },
 
+            protected: {
 
-            parse: null, // Will be overridden
-
-            constructor: function() {
-                this.parse = this._stateItem;
-            },
-
-            /**
-             * Finalizes the last item and returns the root
-             *
-             * @return {PatternItem}
-             */
-            root: function () {
-                if (null === this._item) {
-                    gpf.Error.PatternEmpty();
-                }
-                this._item.finalize();
-                if (this.parse !== this._stateItem
-                    && this.parse !== this._stateCount) {
-                    gpf.Error.PatternInvalidSyntax();
-                }
-                return this._root;
-            },
-
-            /**
-             * Get or create the item corresponding to the requested type
-             *
-             * @param {Number} type See PatternItem.TYPE_xxx
-             * @param {Boolean} force Ignore current item type, allocate new one
-             * @return {PatternItem}
-             * @private
-             */
-            _getItem: function (type, force) {
-                var
-                    item = this._item,
-                    nextItem;
-                if (force || null === item || type !== item.type()) {
-                    nextItem = PatternItem.create(type);
-                    if (null !== item) {
-                        item.finalize();
-                        item.next(nextItem);
-                    } else {
-                        this._root = nextItem;
-                    }
-                    this._item = nextItem;
-                    item = nextItem;
-                }
-                return item;
-            },
-
-            /**
-             * Parsing automate state
-             * @param {String} char
-             * @private
-             */
-            _stateItem: function (char) {
-                if ("[" === char) {
-                    this._getItem(PatternItem.TYPE_RANGE, true);
-                    this.parse = this._stateCharMatchRange;
-                } else if ("(" === char) {
-                    this._getItem(PatternItem.TYPE_GROUP, true);
-                } else {
-                    this._getItem(PatternItem.TYPE_SEQUENCE);
-                    this._afterChar = this._stateCount;
-                    this._stateChar(char);
-                }
-            },
-
-            /**
-             * Parsing automate state
-             * @param {String} char
-             * @private
-             */
-            _stateCharMatchRange: function (char) {
-                var curItem = this._getItem(PatternItem.TYPE_RANGE);
-                if ("^" === char && !curItem.hasExclude()) {
-                    curItem.enterExclude();
-                    // this.parse = this._stateCharMatchRange;
-                } else if ("]" === char) {
-                    this.parse = this._stateCount;
-                } else {
-                    this._inRange = false;
-                    this._afterChar = this._stateCharRangeSep;
-                    this._stateChar(char);
-                }
-            },
-
-            /**
-             * Parsing automate state
-             * @param {String} char
-             * @private
-             */
-            _stateCharRangeSep: function (char) {
-                if ("-" === char) {
-                    this._inRange = true;
-                    this._afterChar = this._stateCharMatchRange;
-                    this.parse = this._stateChar;
-                } else {
-                    this._stateCharMatchRange(char);
-                }
-            },
-
-            /**
-             * Parsing automate state
-             * @param {String} char
-             * @private
-             */
-            _stateChar: function (char) {
-                if ("\\" === char) {
-                    this.parse = this._stateEscapedChar;
-                } else {
-                    this._item.add(char, this._inRange);
-                    this.parse = this._afterChar;
-                }
-            },
-
-            /**
-             * Parsing automate state
-             * @param {String} char
-             * @private
-             */
-            _stateEscapedChar: function (char) {
-                this._item.add(char, this._inRange);
-                this.parse = this._afterChar;
-            },
-
-            /**
-             * Parsing automate state
-             * @type {object} map character to parsing function
-             * @private
-             */
-            _stateCountByChar: {
-
-                "?": function () {
-                    var item = this._splitSimpleOnMinMax();
-                    item.min(0);
-                },
-
-                "+": function () {
-                    var item = this._splitSimpleOnMinMax();
-                    item.max(0);
-                },
-
-                "*": function () {
-                    var item = this._splitSimpleOnMinMax();
-                    item.min(0);
-                    item.max(0);
-                },
-
-                "|": function () {
-                    var
-                        item = this._item,
-                        choice = item.parent();
-                    if (null === choice
-                        || choice.type() !== PatternItem.TYPE_CHOICE) {
-                        choice = PatternItem.create(PatternItem.TYPE_CHOICE);
-                        choice.next(item); // Overridden to 'add' the choice
-                    }
-                    if (item === this._root) {
-                        this._root = choice;
-                    }
-                    item.finalize();
-                    this._item = choice;
-                },
-
-                ")": function () {
-                    var
-                        item = this._item;
-                    item.finalize();
-                    while (item.type() !== PatternItem.TYPE_GROUP) {
-                        item = item.parent();
-                    }
-                    if (item === this._item) {
-                        gpf.Error.PatternEmptyGroup();
-                    }
-                    this._item = item;
-                    return 0; // !undefined
+                /**
+                 * @inheritdoc gpf.Parser:_initialParserState
+                 */
+                _initialParserState: function (char) {
+                    this._items[this._items.length].parse(char);
                 }
 
             },
 
-            /**
-             * Split current item if necessary for min/max
-             * @return {ParserItem}
-             * @private
-             */
-            _splitSimpleOnMinMax: function () {
-                var
-                    item = this._item,
-                    lastChar;
-                if (item.type() === PatternItem.TYPE_SEQUENCE
-                    && item.sequence().length > 1) {
-                    lastChar = item.sequence().pop();
-                    item = this._getItem(PatternItem.TYPE_SEQUENCE, true);
-                    item.add(lastChar);
-                }
-                return item;
-            },
+            public: {
 
-            /**
-             * Parsing automate state
-             * @param {String} char
-             * @private
-             */
-            _stateCount: function (char) {
-                var byChar = this._stateCountByChar[char];
-                if (undefined === byChar) {
-                    this._stateItem(char);
-                } else {
-                    if (undefined === byChar.apply(this, arguments)) {
-                        this.parse = this._stateItem;
-                    }
+                constructor: function () {
+                    this._super.apply(this, arguments);
+                    this._root = new PatternGroup();
+                    this._items = [this._root];
                 }
+
             }
+
+//
+//                /**
+//                 * Finalizes the last item and returns the root
+//                 *
+//                 * @return {PatternItem}
+//                 */
+//                    root
+//            }: function () {
+//                if (null === this._item) {
+//                    gpf.Error.PatternEmpty();
+//                }
+//                this._item.finalize();
+//                if (this.parse !== this._stateItem
+//                    && this.parse !== this._stateCount) {
+//                    gpf.Error.PatternInvalidSyntax();
+//                }
+//                return this._root;
+//            },
+//
+//            /**
+//             * Get or create the item corresponding to the requested type
+//             *
+//             * @param {Number} type See PatternItem.TYPE_xxx
+//             * @param {Boolean} force Ignore current item type, allocate new
+// one
+//             * @return {PatternItem}
+//             * @private
+//             */
+//            _getItem: function (type, force) {
+//                var
+//                    item = this._item,
+//                    nextItem;
+//                if (force || null === item || type !== item.type()) {
+//                    nextItem = PatternItem.create(type);
+//                    if (null !== item) {
+//                        item.finalize();
+//                        item.next(nextItem);
+//                    } else {
+//                        this._root = nextItem;
+//                    }
+//                    this._item = nextItem;
+//                    item = nextItem;
+//                }
+//                return item;
+//            },
+//
+//            /**
+//             * Parsing automate state
+//             * @param {String} char
+//             * @private
+//             */
+//            _stateItem: function (char) {
+//                if ("[" === char) {
+//                    this._getItem(PatternItem.TYPE_RANGE, true);
+//                    this.parse = this._stateCharMatchRange;
+//                } else if ("(" === char) {
+//                    this._getItem(PatternItem.TYPE_GROUP, true);
+//                } else {
+//                    this._getItem(PatternItem.TYPE_SEQUENCE);
+//                    this._afterChar = this._stateCount;
+//                    this._stateChar(char);
+//                }
+//            },
+//
+//            /**
+//             * Parsing automate state
+//             * @param {String} char
+//             * @private
+//             */
+//            _stateCharMatchRange: function (char) {
+//                var curItem = this._getItem(PatternItem.TYPE_RANGE);
+//                if ("^" === char && !curItem.hasExclude()) {
+//                    curItem.enterExclude();
+//                    // this.parse = this._stateCharMatchRange;
+//                } else if ("]" === char) {
+//                    this.parse = this._stateCount;
+//                } else {
+//                    this._inRange = false;
+//                    this._afterChar = this._stateCharRangeSep;
+//                    this._stateChar(char);
+//                }
+//            },
+//
+//            /**
+//             * Parsing automate state
+//             * @param {String} char
+//             * @private
+//             */
+//            _stateCharRangeSep: function (char) {
+//                if ("-" === char) {
+//                    this._inRange = true;
+//                    this._afterChar = this._stateCharMatchRange;
+//                    this.parse = this._stateChar;
+//                } else {
+//                    this._stateCharMatchRange(char);
+//                }
+//            },
+//
+//            /**
+//             * Parsing automate state
+//             * @param {String} char
+//             * @private
+//             */
+//            _stateChar: function (char) {
+//                if ("\\" === char) {
+//                    this.parse = this._stateEscapedChar;
+//                } else {
+//                    this._item.add(char, this._inRange);
+//                    this.parse = this._afterChar;
+//                }
+//            },
+//
+//            /**
+//             * Parsing automate state
+//             * @param {String} char
+//             * @private
+//             */
+//            _stateEscapedChar: function (char) {
+//                this._item.add(char, this._inRange);
+//                this.parse = this._afterChar;
+//            },
+//
+//            /**
+//             * Parsing automate state
+//             * @type {object} map character to parsing function
+//             * @private
+//             */
+//            _stateCountByChar: {
+//
+//                "?": function () {
+//                    var item = this._splitSimpleOnMinMax();
+//                    item.min(0);
+//                },
+//
+//                "+": function () {
+//                    var item = this._splitSimpleOnMinMax();
+//                    item.max(0);
+//                },
+//
+//                "*": function () {
+//                    var item = this._splitSimpleOnMinMax();
+//                    item.min(0);
+//                    item.max(0);
+//                },
+//
+//                "|": function () {
+//                    var
+//                        item = this._item,
+//                        choice = item.parent();
+//                    if (null === choice
+//                        || choice.type() !== PatternItem.TYPE_CHOICE) {
+//                        choice = PatternItem.create(PatternItem.TYPE_CHOICE);
+//                        choice.next(item); // Overridden to 'add' the choice
+//                    }
+//                    if (item === this._root) {
+//                        this._root = choice;
+//                    }
+//                    item.finalize();
+//                    this._item = choice;
+//                },
+//
+//                ")": function () {
+//                    var
+//                        item = this._item;
+//                    item.finalize();
+//                    while (item.type() !== PatternItem.TYPE_GROUP) {
+//                        item = item.parent();
+//                    }
+//                    if (item === this._item) {
+//                        gpf.Error.PatternEmptyGroup();
+//                    }
+//                    this._item = item;
+//                    return 0; // !undefined
+//                }
+//
+//            },
+//
+//            /**
+//             * Split current item if necessary for min/max
+//             * @return {ParserItem}
+//             * @private
+//             */
+//            _splitSimpleOnMinMax: function () {
+//                var
+//                    item = this._item,
+//                    lastChar;
+//                if (item.type() === PatternItem.TYPE_SEQUENCE
+//                    && item.sequence().length > 1) {
+//                    lastChar = item.sequence().pop();
+//                    item = this._getItem(PatternItem.TYPE_SEQUENCE, true);
+//                    item.add(lastChar);
+//                }
+//                return item;
+//            },
+//
+//            /**
+//             * Parsing automate state
+//             * @param {String} char
+//             * @private
+//             */
+//            _stateCount: function (char) {
+//                var byChar = this._stateCountByChar[char];
+//                if (undefined === byChar) {
+//                    this._stateItem(char);
+//                } else {
+//                    if (undefined === byChar.apply(this, arguments)) {
+//                        this.parse = this._stateItem;
+//                    }
+//                }
+//            }
 
         }),
 
@@ -1320,13 +1339,9 @@
          */
         constructor: function (pattern) {
             var
-                context = new PatternParserContext(),
-                idx,
-                len = pattern.length;
-            for (idx = 0; idx < len; ++idx) {
-                context.parse(pattern.charAt(idx));
-            }
-            this._root = context.root();
+                parser = new PatternParser();
+            parser.parse(pattern, null);
+            this._root = parser.root();
         },
 
         /**
