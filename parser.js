@@ -3,6 +3,329 @@
     "use strict";
 /*#endif*/
 
+    //region Parser
+
+    /**
+     * This parser base class maintain the current stream position
+     * And also offers some basic features to ease parsing and improve speed
+     *
+     * The output has to be transmitted through the protected _output function.
+     *
+     * @class gpf.Parser
+     */
+    gpf.define("gpf.Parser", {
+
+        public: {
+
+            constructor: function () {
+                this.reset();
+            },
+
+            /**
+             * Resets the parser position & state
+             *
+             * @param {Function} [state=null] state
+             */
+            reset: function (state) {
+                this._pos = 0;
+                this._line = 0;
+                this._column = 0;
+                this._setParserState(state);
+            },
+
+            /**
+             * Get current position
+             *
+             * @return {{pos: number, line: number, column: number}}
+             */
+            currentPos: function () {
+                return {
+                    pos: this._pos,
+                    line: this._line,
+                    column: this._column
+                };
+            },
+
+            /**
+             * Parser entry point
+             *
+             * @param {...String|null} var_args
+             */
+            parse : function () {
+                var
+                    len = arguments.length,
+                    idx,
+                    arg;
+                for (idx = 0; idx < len; ++idx) {
+                    arg = arguments[idx];
+                    if (null === arg) {
+                        this._finalizeParserState();
+                    } else {
+                        gpf.ASSERT("string" === typeof arg, "string expected");
+                        this._parse(arg);
+                    }
+                }
+            },
+
+            /**
+             * Defines an handler for the parser output
+             *
+             * @param {Array|Function|gpf.Callback) handler
+             * @private
+             */
+            setOutputHandler: function (handler) {
+                gpf.ASSERT(handler instanceof Array || handler.apply,
+                    "Invalid output handler");
+                this._outputHandler = handler;
+            }
+
+        },
+
+        protected: {
+
+            // Configuration / pre-defined handlers
+
+            /**
+             * Initial parser state (set with reset)
+             *
+             * @type {Function|null}
+             * @protected
+             */
+            _initialParserState: null,
+
+            /**
+             * Ignore \r  (i.e. no parsing function called)
+             *
+             * @type {Boolean}
+             * @protected
+             */
+            _ignoreCarriageReturn: false,
+
+            /**
+             * Ignore \n (i.e. no parsing function called)
+             *
+             * @type {Boolean}
+             * @protected
+             */
+            _ignoreLineFeed: false,
+
+//            /**
+//             * Sometimes, common handling of new line can be achieved by a
+//             * single function called automatically
+//             *
+//             * @protected
+//             */
+//            _parsedEndOfLine: function () {}
+
+            /**
+             * No more character will be entered, parser must end
+             * Default implementation consists in calling current state with 0
+             * as parameter. Can be overridden.
+             *
+             * @protected
+             */
+            _finalizeParserState: function () {
+                this._pState(0);
+            },
+
+            /**
+             * Change parser state
+             *
+             * @param {Function} [state=null] state
+             * @protected
+             */
+            _setParserState: function (state) {
+                if (!state) {
+                    state = this._initialParserState;
+                }
+                if (state !== this._pState) {
+                    // TODO trigger state transition
+                    this._pState = state;
+                }
+            },
+
+            /**
+             * The parser generates an output
+             *
+             * @param {*} item
+             * @protected
+             */
+            _output: function (item) {
+                var handler = this._outputHandler;
+                if (handler instanceof Array) {
+                    handler.push(item);
+                } else if (null !== handler) {
+                    // Assuming a Function or a gpf.Callback
+                    handler.apply(this, [item]);
+                }
+            }
+        },
+
+        private: {
+
+            /**
+             * Absolute parser current position
+             *
+             * @type {Number}
+             * @private
+             */
+            _pos: 0,
+
+            /**
+             * Parser current line
+             *
+             * @type {Number}
+             * @private
+             */
+            _line: 0,
+
+            /**
+             * Parser current column
+             *
+             * @type {Number}
+             * @private
+             */
+            _column: 0,
+
+            /**
+             * Parser current state function
+             *
+             * @type {Function}
+             * @private
+             */
+            _pState: null,
+
+            /**
+             * Output handler
+             *
+             * @type {Array|Function|gpf.Callback)
+             * @private
+             */
+            _outputHandler: null,
+
+            /**
+             * Parser internal entry point
+             *
+             * @param {String} buffer
+             * @private
+             */
+            _parse : function (buffer) {
+                var
+                    len,
+                    idx,
+                    char,
+                    state,
+                    newLine = false;
+                len = buffer.length;
+                for (idx = 0; idx < len; ++idx) {
+                    char = buffer.charAt(idx);
+                    if ("\r" === char && this._ignoreCarriageReturn) {
+                        char = 0;
+                    }
+                    if ("\n" === char && this._ignoreLineFeed) {
+                        newLine = true;
+                        char = 0;
+                    }
+                    if (char) {
+                        state = this._pState.apply(this, [char]);
+                        if (undefined !== state) {
+                            this._setParserState(state);
+                        }
+                    }
+                    ++this._pos;
+                    if ("\n" === char || newLine) {
+                        ++this._line;
+                        this._column = 0;
+//                        this._parsedEndOfLine();
+                    } else {
+                        ++this._column;
+                    }
+                }
+            }
+        },
+
+        static: {
+
+            /**
+             * Use to finalize the parser state
+             */
+            FINALIZE: null
+        }
+    });
+
+    //endregion
+
+    //region ParserStream
+
+    /**
+     * Encapsulate a parser inside a ReadableStream interface
+     *
+     * @class gpf.ParserStream
+     * @extends gpf.stream.BufferedOnRead
+     * @implements gpf.interfaces.IReadableStream
+     */
+    gpf.define("gpf.ParserStream", gpf.stream.BufferedOnRead, {
+
+        public: {
+
+            /**
+             * @param {gpf.Parser} parser
+             * @param {gpf.interfaces.IReadableStream} input
+             * @constructor
+             */
+            constructor: function (parser, input) {
+                this._super(input);
+                this._parser = parser;
+                this._parser.setOutputHandler(new gpf.Callback(this._output,
+                    this));
+            }
+
+        },
+
+        protected: {
+
+            /**
+             * @inheritdoc gpf.stream.BufferedOnRead:_addToBuffer
+             */
+            _addToBuffer: function (buffer) {
+                this._parser.parse(buffer);
+            },
+
+            /**
+             * @inheritdoc gpf.stream.BufferedOnRead:_endOfInputStream
+             */
+            _endOfInputStream: function () {
+                this._parser.parse(gpf.Parser.FINALIZE);
+            },
+
+            /**
+             * @inheritdoc gpf.stream.BufferedOnRead:_readFromBuffer
+             */
+            _readFromBuffer:
+                gpf.stream.BufferedOnRead.prototype._readFromStringBuffer
+
+        },
+
+        private: {
+
+            /**
+             * Callback used to grab the parser output that is concatenated to
+             * the buffer
+             *
+             * @param {String} text
+             * @private
+             */
+            _output: function (text) {
+                this._buffer.push(text);
+                this._bufferLength += text.length;
+            }
+
+        }
+
+    });
+
+    //endregion
+
     var
 
     //region ITokenizer
@@ -10,7 +333,7 @@
         /**
          * Tokenizer interface
          *
-         * @class gpf.interfaces.ITokenizer
+         * @interface gpf.interfaces.ITokenizer
          * @extends gpf.interfaces.Interface
          */
         _ITokenizer = gpf._defIntrf("ITokenizer", {
@@ -46,9 +369,9 @@
      *
      * PatternGroup
      * |
-     * +- PatternRangeItem
+     * +- PatternRange
      * |
-     * +- PatternRangeItem(max:0)
+     * +- PatternRange(max:0)
      *
      *
      * Pattern 'grammar'
@@ -93,6 +416,7 @@
          * @class PatternItem
          * @abstract
          * @private
+         * @abstract
          */
         PatternItem = gpf.define("PatternItem", {
 
@@ -121,29 +445,26 @@
 
             public: {
 
-                /**
-                 * @param {Number} type
-                 * @constructor
-                 */
-                constructor: function (type) {
-                    this._type = type;
-                },
-
-                //region Compiling time
+                //region Parsing time
 
                 /**
-                 * adds a character to the item
+                 * Parse the character (in the context of the pattern item)
                  *
-                 * @param {String} char Character to add
+                 * @param {String} char Character to parse
+                 * @abstract
                  */
-                add: function (char) {
+                parse: function (char) {
                     gpf.interfaces.ignoreParameter(char);
+                    gpf.Error.Abstract();
                 },
 
                 /**
-                 *  finalize the item
+                 * finalize the item
+                 *
+                 * @abstract
                  */
                 finalize: function () {
+                    gpf.Error.Abstract();
                 },
 
                 //endregion
@@ -154,9 +475,11 @@
                  * item will be evaluated, reset tokenizer state
                  *
                  * @param {Object} state Free structure to add values to
+                 * @abstract
                  */
                 reset: function (state) {
                     gpf.interfaces.ignoreParameter(state);
+                    gpf.Error.Abstract();
                 },
 
                 /**
@@ -165,10 +488,12 @@
                  * @param {Object} state Free structure containing current state
                  * @param {String} char character to test the pattern with
                  * @return {Number} Matching result, see PatternItem.WRITE_xxx
+                 * @abstract
                  */
                 write: function (state, char) {
                     gpf.interfaces.ignoreParameter(state);
                     gpf.interfaces.ignoreParameter(char);
+                    gpf.Error.Abstract();
                     return -1;
                 }
 
@@ -178,10 +503,10 @@
 
             static: {
 
-                TYPE_SIMPLE: 0,
+                TYPE_SEQUENCE: 0,
                 TYPE_RANGE: 1,
-                TYPE_CHOICE: 2,
-                TYPE_GROUP: 3,
+                TYPE_GROUP: 2,
+                TYPE_CHOICE: 3,
 
                 WRITE_NO_MATCH: -1,
                 WRITE_NEED_DATA: 0,
@@ -199,10 +524,10 @@
                     var factory = PatternItem._factory;
                     if (!factory) {
                         factory = PatternItem._factory = {};
-                        factory[this.TYPE_SIMPLE] = PatternSimpleItem;
-                        factory[this.TYPE_RANGE]  = PatternRangeItem;
-                        factory[this.TYPE_CHOICE] = PatternChoiceItem;
-                        factory[this.TYPE_GROUP] = PatternGroupItem;
+                        factory[this.TYPE_SEQUENCE] = PatternSequence;
+                        factory[this.TYPE_RANGE]  = PatternRange;
+                        factory[this.TYPE_GROUP] = PatternGroup;
+                        factory[this.TYPE_CHOICE] = PatternChoice;
                     }
                     return new (factory[type])();
                 }
@@ -211,304 +536,333 @@
         }),
 
         /**
-         * Simple pattern item: recognizes a sequence of characters
+         * Sequence pattern: recognizes a sequence of characters
          *
-         * @class PatternSimpleItem
+         * @class PatternSequence
          * @extend PatternItem
          * @private
          */
-        PatternSimpleItem = gpf.define("PatternSimpleItem", PatternItem, {
+        PatternSequence = gpf.define("PatternSequence", PatternItem, {
 
-            /**
-             * The character sequence ([] at design time)
-             * @type {string|string[]}
-             */
-            _seq: "",
+            private: {
 
-            /**
-             * @constructor
-             */
-            constructor: function () {
-                this._super(PatternItem.TYPE_SIMPLE);
-                this._seq = [];
+                /**
+                 * The character sequence ([] at parsing time)
+                 *
+                 * @type {string|string[]}
+                 * @private
+                 */
+                _seq: []
+
             },
 
-            /**
-             * @inheritDoc PatternItem:add
-             */
-            add: function (char, inRange) {
-                gpf.interfaces.ignoreParameter(inRange);
-                this._seq.push(char);
-            },
+            public: {
 
-            /**
-             * @inheritDoc PatternItem:finalize
-             */
-            finalize: function () {
-                this._seq = this._seq.join("");
-            },
+                /**
+                 * @constructor
+                 */
+                constructor: function () {
+                    this._seq = [];
+                },
 
-            /**
-             * @inheritDoc PatternItem:reset
-             */
-            reset: function (state) {
-                state.pos = 0;
-            },
+                /**
+                 * @inheritDoc PatternItem:parse
+                 */
+                parse: function (char) {
+                    this._seq.push(char);
+                },
 
-            /**
-             * @inheritDoc PatternItem:write
-             */
-            write: function (state, char) {
-                if (char !== this._seq.charAt(state.pos)) {
-                    return PatternItem.WRITE_NO_MATCH;
+                /**
+                 * @inheritDoc PatternItem:finalize
+                 */
+                finalize: function () {
+                    this._seq = this._seq.join("");
+                },
+
+                /**
+                 * @inheritDoc PatternItem:reset
+                 */
+                reset: function (state) {
+                    state.pos = 0;
+                },
+
+                /**
+                 * @inheritDoc PatternItem:write
+                 */
+                write: function (state, char) {
+                    if (char !== this._seq.charAt(state.pos)) {
+                        return PatternItem.WRITE_NO_MATCH;
+                    }
+                    ++state.pos;
+                    if (state.pos < this._seq.length) {
+                        return PatternItem.WRITE_NEED_DATA;
+                    } else {
+                        return PatternItem.WRITE_MATCH;
+                    }
                 }
-                ++state.pos;
-                if (state.pos < this._seq.length) {
-                    return PatternItem.WRITE_NEED_DATA;
-                } else {
-                    return PatternItem.WRITE_MATCH;
-                }
+
             }
+
         }),
 
         /**
-         * Range pattern item: recognizes one char
+         * Range pattern: recognizes one char only
          * (using include/exclude patterns)
          *
-         * @class PatternRangeItem
+         * @class PatternRange
          * @extend PatternItem
          * @private
          */
-        PatternRangeItem = gpf.define("PatternRangeItem", PatternItem, {
+        PatternRange = gpf.define("PatternRange", PatternItem, {
 
-            /**
-             * Included characters
-             * @type {string|string[]}
-             */
-            _inc: "",
+            private: {
 
-            /**
-             * Excluded characters
-             * @type {string|string[]}
-             */
-            _exc: "",
+                /**
+                 * Included characters
+                 *
+                 * @type {string|string[]}
+                 * @private
+                 */
+                _inc: "",
 
-            constructor: function () {
-                this._super(PatternItem.TYPE_RANGE);
-                this._inc = [];
+                /**
+                 * Excluded characters
+                 *
+                 * @type {string|string[]}
+                 * @private
+                 */
+                _exc: ""
+
             },
 
-            /**
-             * Returns true if the exclude part is defined
-             *
-             * @return {Boolean}
-             */
-            hasExclude: function () {
-                return this.hasOwnProperty("_exc");
-            },
+            public: {
 
-            /**
-             * Defines the exclude part
-             *
-             * @return {Boolean}
-             */
-            enterExclude: function () {
-                this._exc = [];
-            },
+                /**
+                 * @constructor
+                 */
+                constructor: function () {
+                    this._inc = [];
+                },
 
-            /**
-             * @inheritDoc PatternItem:add
-             */
-            add: function (char, inRange) {
-                var
-                    arrayOfChars,
-                    first,
-                    last;
-                if (this.hasExclude()) {
-                    arrayOfChars = this._exc;
-                } else {
-                    arrayOfChars = this._inc;
-                }
-                if (inRange) {
-                    first = arrayOfChars[arrayOfChars.length - 1].charCodeAt(0);
-                    last = char.charCodeAt(0);
-                    while (--last > first) {
-                        arrayOfChars.push(String.fromCharCode(last));
+//                /**
+//                 * Returns true if the exclude part is defined
+//                 *
+//                 * @return {Boolean}
+//                 */
+//                hasExclude: function () {
+//                    return this.hasOwnProperty("_exc");
+//                },
+//
+//                /**
+//                 * Defines the exclude part
+//                 *
+//                 * @return {Boolean}
+//                 */
+//                enterExclude: function () {
+//                    this._exc = [];
+//                },
+//
+                /**
+                 * @inheritDoc PatternItem:parse
+                 */
+                parse: function (char) {
+                    // TODO handle ^ & ]
+                    var
+                        arrayOfChars,
+                        first,
+                        last;
+                    if (this.hasExclude()) {
+                        arrayOfChars = this._exc;
+                    } else {
+                        arrayOfChars = this._inc;
                     }
-                    arrayOfChars.push(char);
-                } else {
-                    // First char of a range
-                    arrayOfChars.push(char);
+                    if (inRange) {
+                        first = arrayOfChars[arrayOfChars.length - 1].charCodeAt(0);
+                        last = char.charCodeAt(0);
+                        while (--last > first) {
+                            arrayOfChars.push(String.fromCharCode(last));
+                        }
+                        arrayOfChars.push(char);
+                    } else {
+                        // First char of a range
+                        arrayOfChars.push(char);
+                    }
+                },
+
+                /**
+                 * @inheritDoc PatternItem:finalize
+                 */
+                finalize: function () {
+                    this._inc = this._inc.join("");
+                    if (this.hasExclude()) {
+                        this._exc = this._exc.join("");
+                    }
+                },
+
+                /**
+                 * @inheritDoc PatternItem:write
+                 */
+                write: function (state, char) {
+                    gpf.interfaces.ignoreParameter(state);
+                    var match;
+                    if (this._inc.length) {
+                        match = -1 < this._inc.indexOf(char);
+                    } else {
+                        match = true;
+                    }
+                    if (match && this._exc.length) {
+                        match = -1 === this._exc.indexOf(char);
+                    }
+                    if (match) {
+                        return PatternItem.WRITE_MATCH;
+                    } else {
+                        return PatternItem.WRITE_NO_MATCH;
+                    }
                 }
+
+            }
+
+        }),
+
+        /**
+         * Group pattern: group several patterns
+         *
+         * @class PatternGroup
+         * @extend PatternItem
+         * @private
+         */
+        PatternGroup = gpf.define("PatternGroup", PatternItem, {
+
+            private: {
+
+                /**
+                 * @type {PatternItem[]}
+                 * @private
+                 */
+                _items: []
+
             },
 
-            /**
-             * @inheritDoc PatternItem:finalize
-             */
-            finalize: function () {
-                this._inc = this._inc.join("");
-                if (this.hasExclude()) {
-                    this._exc = this._exc.join("");
-                }
-            },
+            public: {
 
-            /**
-             * @inheritDoc PatternItem:write
-             */
-            write: function (state, char) {
-                gpf.interfaces.ignoreParameter(state);
-                var match;
-                if (this._inc.length) {
-                    match = -1 < this._inc.indexOf(char);
-                } else {
-                    match = true;
+//                /**
+//                 * @inheritDoc PatternItem:next
+//                 *
+//                 * Overridden to 'add' the choice
+//                 */
+//                next: function (value) {
+//                    if (undefined === value) {
+//                        return this._next;
+//                    } else {
+//                        if (this._items.length) {
+//                            this._next = value;
+//                            value.parent(this._parent);
+//                        } else {
+//                            this._items.push(value);
+//                            value.parent(this);
+//                        }
+//                    }
+//                },
+
+                /**
+                 * @constructor
+                 */
+                constructor: function () {
+                    this._items = [];
+                },
+
+                /**
+                 * @inheritDoc PatternItem:reset
+                 */
+                reset: function (state) {
+                    // TODO allocate an ID and create a sub state inside state
+                    this._items[0].reset(state);
+                },
+
+                /**
+                 * @inheritDoc PatternItem:write
+                 */
+                write: function (state, char) {
+                    var item = this._items[0];
+                    state.replaceItem = item;
+                    return item.write(state, char);
                 }
-                if (match && this._exc.length) {
-                    match = -1 === this._exc.indexOf(char);
-                }
-                if (match) {
-                    return PatternItem.WRITE_MATCH;
-                } else {
+
+            }
+
+        }),
+
+        /**
+         * Choice pattern: includes several items, matching only one among them
+         *
+         * @class PatternChoice
+         * @extend PatternItem
+         * @private
+         */
+        PatternChoice = gpf.define("PatternChoice", PatternItem, {
+
+            public: {
+
+//                /**
+//                 * @inheritDoc PatternItem:next
+//                 *
+//                 * Overridden to 'add' the choice
+//                 */
+//                next: function (item) {
+//                    if (undefined === item) {
+//                        /*
+//                         * The only way to have something *after* is to use ()
+//                         * In that case, it would go through the parent
+//                         */
+//                        return null;
+//                    } else {
+//                        var
+//                            parent = item.parent(),
+//                            pos;
+//                        this._choices.push(item);
+//                        item.parent(this);
+//                        if (1 === this._choices.length) {
+//                            // Care about parent
+//                            if (null === parent) {
+//                                return; // Nothing to care about
+//                            }
+//                            if (parent.type() !== PatternItem.TYPE_GROUP) {
+//                                gpf.Error.PatternUnexpected();
+//                            }
+//                            // TODO should be the last
+//                            pos = gpf.test(parent._items, item);
+//                            if (undefined === pos) {
+//                                gpf.Error.PatternUnexpected();
+//                            }
+//                            parent._items[pos] = this;
+//                            this._parent = parent;
+//                        }
+//                    }
+//                },
+
+                /**
+                 * @inheritDoc PatternItem:write
+                 */
+                write: function (state, char) {
+                    // Try all choices and stop on the first one that works
+                    var
+                        tmpState = {},
+                        idx,
+                        item,
+                        result;
+                    for (idx = this._choices.length; idx > 0;) {
+                        item = this._choices[--idx];
+                        item.reset(tmpState);
+                        result = item.write(tmpState, char);
+                        if (PatternItem.WRITE_NO_MATCH !== result) {
+                            state.replaceItem = item;
+                            gpf.extend(state, tmpState);
+                            return result;
+                        }
+                    }
                     return PatternItem.WRITE_NO_MATCH;
                 }
-            }
 
-        }),
-
-        /**
-         * Pattern choice item: includes several items, matching only one among
-         * them
-         *
-         * @class PatternChoiceItem
-         * @extend PatternItem
-         * @private
-         */
-        PatternChoiceItem = gpf.define("PatternChoiceItem", PatternItem, {
-
-            /**
-             * @type {PatternItem[]}
-             */
-            _choices: [],
-
-            /**
-             * @inheritDoc PatternItem:next
-             *
-             * Overridden to 'add' the choice
-             */
-            next: function (item) {
-                if (undefined === item) {
-                    /*
-                     * The only way to have something *after* is to use ()
-                     * In that case, it would go through the parent
-                     */
-                    return null;
-                } else {
-                    var
-                        parent = item.parent(),
-                        pos;
-                    this._choices.push(item);
-                    item.parent(this);
-                    if (1 === this._choices.length) {
-                        // Care about parent
-                        if (null === parent) {
-                            return; // Nothing to care about
-                        }
-                        if (parent.type() !== PatternItem.TYPE_GROUP) {
-                            gpf.Error.PatternUnexpected();
-                        }
-                        // TODO should be the last
-                        pos = gpf.test(parent._items, item);
-                        if (undefined === pos) {
-                            gpf.Error.PatternUnexpected();
-                        }
-                        parent._items[pos] = this;
-                        this._parent = parent;
-                    }
-                }
-            },
-
-            constructor: function () {
-                this._super(PatternItem.TYPE_CHOICE);
-                this._choices = [];
-            },
-
-            /**
-             * @inheritDoc PatternItem:write
-             */
-            write: function (state, char) {
-                // Try all choices and stop on the first one that works
-                var
-                    tmpState = {},
-                    idx,
-                    item,
-                    result;
-                for (idx = this._choices.length; idx > 0;) {
-                    item = this._choices[--idx];
-                    item.reset(tmpState);
-                    result = item.write(tmpState, char);
-                    if (PatternItem.WRITE_NO_MATCH !== result) {
-                        state.replaceItem = item;
-                        gpf.extend(state, tmpState);
-                        return result;
-                    }
-                }
-                return PatternItem.WRITE_NO_MATCH;
-            }
-
-        }),
-
-        /**
-         * Pattern group item: group several items
-         *
-         * @class PatternGroupItem
-         * @extend PatternItem
-         * @private
-         */
-        PatternGroupItem = gpf.define("PatternGroupItem", PatternItem, {
-
-            /**
-             * @type {PatternItem[]}
-             */
-            _items: [],
-
-            /**
-             * @inheritDoc PatternItem:next
-             *
-             * Overridden to 'add' the choice
-             */
-            next: function (value) {
-                if (undefined === value) {
-                    return this._next;
-                } else {
-                    if (this._items.length) {
-                        this._next = value;
-                        value.parent(this._parent);
-                    } else {
-                        this._items.push(value);
-                        value.parent(this);
-                    }
-                }
-            },
-
-            constructor: function () {
-                this._super(PatternItem.TYPE_GROUP);
-                this._items = [];
-            },
-
-            /**
-             * @inheritDoc PatternItem:reset
-             */
-            reset: function (state) {
-                this._items[0].reset(state);
-            },
-
-            /**
-             * @inheritDoc PatternItem:write
-             */
-            write: function (state, char) {
-                var item = this._items[0];
-                state.replaceItem = item;
-                return item.write(state, char);
             }
 
         }),
@@ -523,10 +877,26 @@
          */
         PatternParserContext = gpf.define("PatternParserContext", {
 
-            _root: null,
-            _item : null,
-            _inRange: false,
-            _afterChar: null,
+            private: {
+
+                /**
+                 * Pattern item to be returned
+                 *
+                 * @type {PatternItem}
+                 * @private
+                 */
+                _root: null,
+
+                /**
+                 * Pattern item stack
+                 *
+                 * @type {PatternItem[]}
+                 * @private
+                 */
+                _items: []
+
+            },
+
 
             parse: null, // Will be overridden
 
@@ -589,7 +959,7 @@
                 } else if ("(" === char) {
                     this._getItem(PatternItem.TYPE_GROUP, true);
                 } else {
-                    this._getItem(PatternItem.TYPE_SIMPLE);
+                    this._getItem(PatternItem.TYPE_SEQUENCE);
                     this._afterChar = this._stateCount;
                     this._stateChar(char);
                 }
@@ -717,10 +1087,10 @@
                 var
                     item = this._item,
                     lastChar;
-                if (item.type() === PatternItem.TYPE_SIMPLE
+                if (item.type() === PatternItem.TYPE_SEQUENCE
                     && item.sequence().length > 1) {
                     lastChar = item.sequence().pop();
-                    item = this._getItem(PatternItem.TYPE_SIMPLE, true);
+                    item = this._getItem(PatternItem.TYPE_SEQUENCE, true);
                     item.add(lastChar);
                 }
                 return item;
@@ -967,329 +1337,6 @@
          */
         allocate: function () {
             return new PatternTokenizer(this);
-        }
-
-    });
-
-    //endregion
-
-    //region Parser
-
-    /**
-     * This parser base class maintain the current stream position
-     * And also offers some basic features to ease parsing and improve speed
-     *
-     * The output has to be transmitted through the protected _output function.
-     *
-     * @class gpf.Parser
-     */
-    gpf.define("gpf.Parser", {
-
-        public: {
-
-            constructor: function () {
-                this.reset();
-            },
-
-            /**
-             * Resets the parser position & state
-             *
-             * @param {Function} [state=null] state
-             */
-            reset: function (state) {
-                this._pos = 0;
-                this._line = 0;
-                this._column = 0;
-                this._setParserState(state);
-            },
-
-            /**
-             * Get current position
-             *
-             * @return {{pos: number, line: number, column: number}}
-             */
-            currentPos: function () {
-                return {
-                    pos: this._pos,
-                    line: this._line,
-                    column: this._column
-                };
-            },
-
-            /**
-             * Parser entry point
-             *
-             * @param {...String|null} var_args
-             */
-            parse : function () {
-                var
-                    len = arguments.length,
-                    idx,
-                    arg;
-                for (idx = 0; idx < len; ++idx) {
-                    arg = arguments[idx];
-                    if (null === arg) {
-                        this._finalizeParserState();
-                    } else {
-                        gpf.ASSERT("string" === typeof arg, "string expected");
-                        this._parse(arg);
-                    }
-                }
-            },
-
-            /**
-             * Defines an handler for the parser output
-             *
-             * @param {Array|Function|gpf.Callback) handler
-             * @private
-             */
-            setOutputHandler: function (handler) {
-                gpf.ASSERT(handler instanceof Array || handler.apply,
-                    "Invalid output handler");
-                this._outputHandler = handler;
-            }
-
-        },
-
-        protected: {
-
-            // Configuration / pre-defined handlers
-
-            /**
-             * Initial parser state (set with reset)
-             *
-             * @type {Function|null}
-             * @protected
-             */
-            _initialParserState: null,
-
-            /**
-             * Ignore \r  (i.e. no parsing function called)
-             *
-             * @type {Boolean}
-             * @protected
-             */
-            _ignoreCarriageReturn: false,
-
-            /**
-             * Ignore \n (i.e. no parsing function called)
-             *
-             * @type {Boolean}
-             * @protected
-             */
-            _ignoreLineFeed: false,
-
-//            /**
-//             * Sometimes, common handling of new line can be achieved by a
-//             * single function called automatically
-//             *
-//             * @protected
-//             */
-//            _parsedEndOfLine: function () {}
-
-            /**
-             * No more character will be entered, parser must end
-             * Default implementation consists in calling current state with 0
-             * as parameter. Can be overridden.
-             *
-             * @protected
-             */
-            _finalizeParserState: function () {
-                this._pState(0);
-            },
-
-            /**
-             * Change parser state
-             *
-             * @param {Function} [state=null] state
-             * @protected
-             */
-            _setParserState: function (state) {
-                if (!state) {
-                    state = this._initialParserState;
-                }
-                if (state !== this._pState) {
-                    // TODO trigger state transition
-                    this._pState = state;
-                }
-            },
-
-            /**
-             * The parser generates an output
-             *
-             * @param {*} item
-             * @protected
-             */
-            _output: function (item) {
-                var handler = this._outputHandler;
-                if (handler instanceof Array) {
-                    handler.push(item);
-                } else if (null !== handler) {
-                    // Assuming a Function or a gpf.Callback
-                    handler.apply(this, [item]);
-                }
-            }
-        },
-
-        private: {
-
-            /**
-             * Absolute parser current position
-             *
-             * @type {Number}
-             * @private
-             */
-            _pos: 0,
-
-            /**
-             * Parser current line
-             *
-             * @type {Number}
-             * @private
-             */
-            _line: 0,
-
-            /**
-             * Parser current column
-             *
-             * @type {Number}
-             * @private
-             */
-            _column: 0,
-
-            /**
-             * Parser current state function
-             *
-             * @type {Function}
-             * @private
-             */
-            _pState: null,
-
-            /**
-             * Output handler
-             *
-             * @type {Array|Function|gpf.Callback)
-             * @private
-             */
-            _outputHandler: null,
-
-            /**
-             * Parser internal entry point
-             *
-             * @param {String} buffer
-             * @private
-             */
-            _parse : function (buffer) {
-                var
-                    len,
-                    idx,
-                    char,
-                    state,
-                    newLine = false;
-                len = buffer.length;
-                for (idx = 0; idx < len; ++idx) {
-                    char = buffer.charAt(idx);
-                    if ("\r" === char && this._ignoreCarriageReturn) {
-                        char = 0;
-                    }
-                    if ("\n" === char && this._ignoreLineFeed) {
-                        newLine = true;
-                        char = 0;
-                    }
-                    if (char) {
-                        state = this._pState(char);
-                        if (undefined !== state) {
-                            this._setParserState(state);
-                        }
-                    }
-                    ++this._pos;
-                    if ("\n" === char || newLine) {
-                        ++this._line;
-                        this._column = 0;
-//                        this._parsedEndOfLine();
-                    } else {
-                        ++this._column;
-                    }
-                }
-            }
-        },
-
-        static: {
-
-            /**
-             * Use to finalize the parser state
-             */
-            FINALIZE: null
-        }
-    });
-
-    //endregion
-
-    //region ParserStream
-
-    /**
-     * Encapsulate a parser inside a ReadableStream interface
-     *
-     * @class gpf.ParserStream
-     * @extends gpf.stream.BufferedOnRead
-     * @implements gpf.interfaces.IReadableStream
-     */
-    gpf.define("gpf.ParserStream", gpf.stream.BufferedOnRead, {
-
-        public: {
-
-            /**
-             * @param {gpf.Parser} parser
-             * @param {gpf.interfaces.IReadableStream} input
-             * @constructor
-             */
-            constructor: function (parser, input) {
-                this._super(input);
-                this._parser = parser;
-                this._parser.setOutputHandler(new gpf.Callback(this._output,
-                    this));
-            }
-
-        },
-
-        protected: {
-
-            /**
-             * @inheritdoc gpf.stream.BufferedOnRead:_addToBuffer
-             */
-            _addToBuffer: function (buffer) {
-                this._parser.parse(buffer);
-            },
-
-            /**
-             * @inheritdoc gpf.stream.BufferedOnRead:_endOfInputStream
-             */
-            _endOfInputStream: function () {
-                this._parser.parse(gpf.Parser.FINALIZE);
-            },
-
-            /**
-             * @inheritdoc gpf.stream.BufferedOnRead:_readFromBuffer
-             */
-            _readFromBuffer:
-                gpf.stream.BufferedOnRead.prototype._readFromStringBuffer
-
-        },
-
-        private: {
-
-            /**
-             * Callback used to grab the parser output that is concatenated to
-             * the buffer
-             *
-             * @param {String} text
-             * @private
-             */
-            _output: function (text) {
-                this._buffer.push(text);
-                this._bufferLength += text.length;
-            }
-
         }
 
     });
