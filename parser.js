@@ -451,11 +451,13 @@
                  * Parse the character (in the context of the pattern item)
                  *
                  * @param {String} char Character to parse
+                 * @return {Number} see PatternItem.PARSE_xxx
                  * @abstract
                  */
                 parse: function (char) {
                     gpf.interfaces.ignoreParameter(char);
                     gpf.Error.Abstract();
+                    return PatternItem.PARSE_IGNORED;
                 },
 
                 /**
@@ -507,6 +509,13 @@
                 TYPE_RANGE: 1,
                 TYPE_GROUP: 2,
                 TYPE_CHOICE: 3,
+
+                PARSE_IGNORED: 0,
+                PARSE_PROCESSED: 1,
+                PARSE_END_OF_PATTERN: 2,
+                PARSE_PROCESSED_EOP: 3, // PROCESSED + END OF PATTERN
+
+                CHARS_OF_QUANTIFICATION: "?*+{}",
 
                 WRITE_NO_MATCH: -1,
                 WRITE_NEED_DATA: 0,
@@ -569,7 +578,12 @@
                  * @inheritDoc PatternItem:parse
                  */
                 parse: function (char) {
-                    this._seq.push(char);
+                    if (-1 < PatternSequence.CHARS_OF_EOP.indexOf(char)) {
+                        return PatternItem.PARSE_END_OF_PATTERN;
+                    } else {
+                        this._seq.push(char);
+                        return PatternItem.PARSE_PROCESSED;
+                    }
                 },
 
                 /**
@@ -601,6 +615,13 @@
                     }
                 }
 
+            },
+
+            static: {
+
+                CHARS_OF_EOP: PatternItem.CHARS_OF_QUANTIFICATION
+                              + "[|"
+
             }
 
         }),
@@ -631,7 +652,17 @@
                  * @type {string|string[]}
                  * @private
                  */
-                _exc: ""
+                _exc: "",
+
+
+                /**
+                 * While parsing: the next char is used for a range
+                 * specification
+                 *
+                 * @type {Boolean}
+                 * @private
+                 */
+                _inRange: false
 
             },
 
@@ -644,49 +675,45 @@
                     this._inc = [];
                 },
 
-//                /**
-//                 * Returns true if the exclude part is defined
-//                 *
-//                 * @return {Boolean}
-//                 */
-//                hasExclude: function () {
-//                    return this.hasOwnProperty("_exc");
-//                },
-//
-//                /**
-//                 * Defines the exclude part
-//                 *
-//                 * @return {Boolean}
-//                 */
-//                enterExclude: function () {
-//                    this._exc = [];
-//                },
-//
                 /**
                  * @inheritDoc PatternItem:parse
                  */
                 parse: function (char) {
-                    // TODO handle ^ & ]
                     var
+                        hasOwnExc = this.hasOwnProperty("_exc"),
                         chars,
                         first,
                         last;
-                    if (this.hasExclude()) {
-                        chars = this._exc;
-                    } else {
-                        chars = this._inc;
-                    }
-                    if (inRange) {
-                        first = chars[chars.length - 1].charCodeAt(0);
-                        last = char.charCodeAt(0);
-                        while (--last > first) {
-                            chars.push(String.fromCharCode(last));
+                    if ("^" === char) {
+                        if (hasOwnExc) {
+                            gpf.Error.PatternInvalidSyntax();
+                        } else {
+                            this._exc = [];
                         }
-                        chars.push(char);
+                    } else if ("]" === char) {
+                        return PatternItem.PARSE_PROCESSED_EOP;
+                    } else if ("-" === char) {
+                        this._inRange = true;
                     } else {
-                        // First char of a range
-                        chars.push(char);
+                        if (hasOwnExc) {
+                            chars = this._exc;
+                        } else {
+                            chars = this._inc;
+                        }
+                        if (this._inRange) {
+                            first = chars[chars.length - 1].charCodeAt(0);
+                            last = char.charCodeAt(0);
+                            while (--last > first) {
+                                chars.push(String.fromCharCode(last));
+                            }
+                            chars.push(char);
+                            delete this._inRange;
+                        } else {
+                            // First char of a range
+                            chars.push(char);
+                        }
                     }
+                    return PatternItem.PARSE_PROCESSED;
                 },
 
                 /**
@@ -694,7 +721,7 @@
                  */
                 finalize: function () {
                     this._inc = this._inc.join("");
-                    if (this.hasExclude()) {
+                    if (this.hasOwnProperty("_exc")) {
                         this._exc = this._exc.join("");
                     }
                 },
@@ -905,7 +932,7 @@
                  * @inheritdoc gpf.Parser:_initialParserState
                  */
                 _initialParserState: function (char) {
-                    this._items[this._items.length].parse(char);
+                    this._items[this._items.length].parse(char, this);
                 }
 
             },
