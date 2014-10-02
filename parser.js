@@ -1345,10 +1345,9 @@
         },
 
         /**
-         * Allocate a context to be used with write.
-         * Context content may change, do not rely on its structure.
+         * Allocate a tokenizer based on the pattern
          *
-         * @return {PatternTokenizer}
+         * @return {gpf.interfaces.ITokenizer}
          */
         allocate: function () {
             return new PatternTokenizer(this);
