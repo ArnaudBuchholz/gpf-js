@@ -620,7 +620,7 @@
             static: {
 
                 CHARS_OF_EOP: PatternItem.CHARS_OF_QUANTIFICATION
-                              + "[|"
+                              + ")([|"
 
             }
 
@@ -654,7 +654,6 @@
                  */
                 _exc: "",
 
-
                 /**
                  * While parsing: the next char is used for a range
                  * specification
@@ -662,44 +661,34 @@
                  * @type {Boolean}
                  * @private
                  */
-                _inRange: false
-
-            },
-
-            public: {
+                _inRange: false,
 
                 /**
-                 * @constructor
+                 * Reduce the cyclomatic complexity of parse
+                 *
+                 * @param {String} char Character to parse
+                 * @param {String[]} chars Character array of already parsed
+                 * chars
+                 * @return {Boolean} True means PARSE_PROCESSED_EOP, otherwise
+                 * PARSE_PROCESSED is returned
                  */
-                constructor: function () {
-                    this._inc = [];
-                },
-
-                /**
-                 * @inheritDoc PatternItem:parse
-                 */
-                parse: function (char) {
+                _parse: function (char, chars) {
                     var
-                        hasOwnExc = this.hasOwnProperty("_exc"),
-                        chars,
                         first,
                         last;
                     if ("^" === char) {
-                        if (hasOwnExc) {
-                            gpf.Error.PatternInvalidSyntax();
-                        } else {
-                            this._exc = [];
-                        }
+                        this._exc = [];
                     } else if ("]" === char) {
-                        return PatternItem.PARSE_PROCESSED_EOP;
+                        if (this._inRange) {
+                            gpf.Error.PatternInvalidSyntax();
+                        }
+                        return true;
                     } else if ("-" === char) {
+                        if (this._inRange || 0 === chars.length) {
+                            gpf.Error.PatternInvalidSyntax();
+                        }
                         this._inRange = true;
                     } else {
-                        if (hasOwnExc) {
-                            chars = this._exc;
-                        } else {
-                            chars = this._inc;
-                        }
                         if (this._inRange) {
                             first = chars[chars.length - 1].charCodeAt(0);
                             last = char.charCodeAt(0);
@@ -712,6 +701,35 @@
                             // First char of a range
                             chars.push(char);
                         }
+                    }
+                    return false;
+                }
+
+            },
+
+            public: {
+
+                /**
+                 * @inheritDoc PatternItem:parse
+                 */
+                parse: function (char) {
+                    var
+                        chars;
+                    if (this.hasOwnProperty("_exc")) {
+                        if ("^" === char) {
+                            gpf.Error.PatternInvalidSyntax();
+                        }
+                        chars = this._exc;
+                    } else {
+                        chars = this._inc;
+                    }
+                    if ("[" === char) {
+                        if (this.hasOwnProperty("_inc")) {
+                            gpf.Error.PatternInvalidSyntax();
+                        }
+                        this._inc = [];
+                    } else if (this._parse(char, chars)) {
+                        return PatternItem.PARSE_PROCESSED_EOP;
                     }
                     return PatternItem.PARSE_PROCESSED;
                 },
@@ -766,36 +784,65 @@
                  * @type {PatternItem[]}
                  * @private
                  */
-                _items: []
+                _items: [],
+
+                /**
+                 * Currently parsed item
+                 *
+                 * @type {PatternItem}
+                 * @private
+                 */
+                _parsedItem: null,
+
+                /**
+                 * Push a new item to be parsed
+                 *
+                 * @param {PatternItem} item
+                 * @return {PatternItem}
+                 * @private
+                 */
+                _push: function (item) {
+                    this._items.push(item);
+                    this._parsedItem = item;
+                    return item;
+                }
 
             },
 
             public: {
-
-//                /**
-//                 * @inheritDoc PatternItem:next
-//                 *
-//                 * Overridden to 'add' the choice
-//                 */
-//                next: function (value) {
-//                    if (undefined === value) {
-//                        return this._next;
-//                    } else {
-//                        if (this._items.length) {
-//                            this._next = value;
-//                            value.parent(this._parent);
-//                        } else {
-//                            this._items.push(value);
-//                            value.parent(this);
-//                        }
-//                    }
-//                },
 
                 /**
                  * @constructor
                  */
                 constructor: function () {
                     this._items = [];
+                },
+
+                /**
+                 * @inheritDoc PatternItem:parse
+                 */
+                parse: function (char) {
+//                    var
+//                        parsedItem = this._parsedItem,
+//                        result;
+//                    if (!parsedItem)
+//                    if (parsedItem) {
+//                        result = parsedItem.parse(char);
+//
+//                    } else if ("[" === char) {
+//                        this._push()
+//
+//                    this._getItem(PatternItem.TYPE_RANGE, true);
+//                    this.parse = this._stateCharMatchRange;
+//                } else if ("(" === char) {
+//                    this._getItem(PatternItem.TYPE_GROUP, true);
+//                } else {
+//                    this._getItem(PatternItem.TYPE_SEQUENCE);
+//                    this._afterChar = this._stateCount;
+//                    this._stateChar(char);
+//                }
+//
+//                    }
                 },
 
                 /**
@@ -914,15 +961,7 @@
                  * @private
                  */
                 "[_root]": [gpf.$ClassProperty()],
-                _root: null,
-
-                /**
-                 * Pattern item stack
-                 *
-                 * @type {PatternItem[]}
-                 * @private
-                 */
-                _items: []
+                _root: null
 
             },
 
@@ -942,7 +981,6 @@
                 constructor: function () {
                     this._super.apply(this, arguments);
                     this._root = new PatternGroup();
-                    this._items = [this._root];
                 }
 
             }
