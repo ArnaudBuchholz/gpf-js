@@ -68,6 +68,9 @@
  *
  * 2014-10-05
  *  Statics are declared as read-only
+ *  This may become a problem if the static was designed to be modified (like
+ *  for a singleton class instance) but a private variable can do the same.
+ *  Furthermore, a solution will be provided for singletons.
  */
 
     var
