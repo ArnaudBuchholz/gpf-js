@@ -65,6 +65,9 @@
  *
  * 2014-09-16
  *  Base methods are now available through the _super method
+ *
+ * 2014-10-05
+ *  Statics are declared as read-only
  */
 
     var
@@ -316,7 +319,8 @@
             var
                 newPrototype = this._Constructor.prototype;
             if (_VISIBILITY_STATIC === visibility) {
-                newPrototype.constructor[member] = value;
+                gpf.setReadOnlyProperty(newPrototype.constructor, member,
+                    value);
             } else {
                 newPrototype[member] = value;
             }
