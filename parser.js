@@ -327,6 +327,7 @@
     //endregion
 
     var
+        bitTest = gpf.bin.test,
 
     //region ITokenizer
 
@@ -425,7 +426,7 @@
                 /**
                  * Min number of item iteration
                  *
-                 * @type {number}
+                 * @type {Number}
                  * @private
                  */
                 "[_min]": [gpf.$ClassProperty(true)],
@@ -435,7 +436,7 @@
                  * Maximum number of item iteration
                  * 0 means unlimited
                  *
-                 * @type {number}
+                 * @type {Number}
                  * @private
                  */
                 "[_max]": [gpf.$ClassProperty(true)],
@@ -822,27 +823,27 @@
                  * @inheritDoc PatternItem:parse
                  */
                 parse: function (char) {
-//                    var
-//                        parsedItem = this._parsedItem,
-//                        result;
-//                    if (!parsedItem)
-//                    if (parsedItem) {
-//                        result = parsedItem.parse(char);
-//
-//                    } else if ("[" === char) {
-//                        this._push()
-//
-//                    this._getItem(PatternItem.TYPE_RANGE, true);
-//                    this.parse = this._stateCharMatchRange;
-//                } else if ("(" === char) {
-//                    this._getItem(PatternItem.TYPE_GROUP, true);
-//                } else {
-//                    this._getItem(PatternItem.TYPE_SEQUENCE);
-//                    this._afterChar = this._stateCount;
-//                    this._stateChar(char);
-//                }
-//
-//                    }
+                    var
+                        parsedItem = this._parsedItem,
+                        result;
+                    if (parsedItem) {
+                        result = parsedItem.parse(char);
+                        if (bitTest(result, PatternItem.PARSE_END_OF_PATTERN)) {
+                            this._parsedItem = null;
+                        }
+                        if (bitTest(result, PatternItem.PARSE_PROCESSED)) {
+                            return PatternItem.PARSE_PROCESSED;
+                        }
+                    }
+                    if ("[" === char) {
+                        parsedItem = this._push(new PatternChoice());
+                    } else if ("(" === char) {
+                        parsedItem = this._push(new PatternGroup());
+                    } else {
+                        parsedItem = this._push(new PatternSequence());
+                    }
+                    parsedItem.parse(char);
+                    return PatternItem.PARSE_PROCESSED;
                 },
 
                 /**
