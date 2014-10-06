@@ -23,20 +23,6 @@
             error: function (t) {WScript.Echo("(X) " + t);}
         };
 
-        // Ugly but necessary extensions
-        if (undefined === Array.prototype.indexOf) {
-            // Introduced with JavaScript 1.5
-            Array.prototype.indexOf = function (value) {
-                var idx = this.length;
-                while (idx--) {
-                    if (this[idx] === value) {
-                        return idx;
-                    }
-                }
-                return -1;
-            };
-        }
-
     // Nodejs
     } else if ("undefined" !== typeof module && module.exports) {
         _host = "nodejs";
