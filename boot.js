@@ -263,6 +263,7 @@
                 },
                 // Sequence of things to load (followed by test)
                 bootList = ["sources", "sources",
+                    "compatibility", "setReadOnlyProperty",
                     "base", "each",
                     "events", "events",
                     "http", "http"],
