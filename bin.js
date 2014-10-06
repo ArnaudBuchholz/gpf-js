@@ -106,7 +106,7 @@
             }
         },
 
-        /*
+        /**
          * Encodes the value within the specified base.
          * Result string length can be defined and missing characters will be
          * added with safepad.
@@ -119,7 +119,7 @@
          */
         toBaseANY: _toBaseANY,
 
-        /*
+        /**
          * Decodes the text value using the specified base.
          * @param {String} base
          * @param {String} text
@@ -128,7 +128,7 @@
          */
         fromBaseANY: _fromBaseANY,
 
-        /*
+        /**
          * Returns the hexadecimal encoding of value.
          * @param {Number} value
          * @param {Number} length of encoding
@@ -139,7 +139,7 @@
             return _toBaseANY(_b16, value, length, safepad);
         },
 
-        /*
+        /**
          * Decodes the hexadecimal text value.
          * @param {String} text
          * @param {String} safepad [safepad="0"]
@@ -149,7 +149,7 @@
             return _fromBaseANY(_b16, text, safepad);
         },
 
-        /*
+        /**
          * Returns the base 64 encoding of value.
          * @param {Number} value
          * @param {Number} length of encoding
@@ -160,7 +160,7 @@
             return _toBaseANY(_b64, value, length, safepad);
         },
 
-        /*
+        /**
          * Decodes the hexadecimal text value.
          * @param {String} text
          * @param {String} safepad [safepad="0"]
@@ -168,6 +168,17 @@
          */
         fromBase64: function (text, safepad) {
             return _fromBaseANY(_b64, text, safepad);
+        },
+
+        /**
+         * Test if the value contains the bitmask.
+         *
+         * @param {Number} value
+         * @param {Number} bitmask
+         * @returns {Boolean}
+         */
+        test: function /*gpf:inline*/ (value, bitmask) {
+            return value & bitmask === bitmask;
         }
 
     };
