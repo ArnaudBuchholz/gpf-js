@@ -520,27 +520,8 @@
 
                 WRITE_NO_MATCH: -1,
                 WRITE_NEED_DATA: 0,
-                WRITE_MATCH: 1,
+                WRITE_MATCH: 1
 
-                _factory: null,
-
-                /**
-                 * Factory of PatternItem
-                 *
-                 * @param {Number} type
-                 * @return {PatternItem}
-                 */
-                create: function (type) {
-                    var factory = PatternItem._factory;
-                    if (!factory) {
-                        factory = PatternItem._factory = {};
-                        factory[this.TYPE_SEQUENCE] = PatternSequence;
-                        factory[this.TYPE_RANGE]  = PatternRange;
-                        factory[this.TYPE_GROUP] = PatternGroup;
-                        factory[this.TYPE_CHOICE] = PatternChoice;
-                    }
-                    return new (factory[type])();
-                }
             }
 
         }),
@@ -772,6 +753,7 @@
 
         /**
          * Group pattern: group several patterns
+         * May also be a 'choice' pattern
          *
          * @class PatternGroup
          * @extend PatternItem
@@ -782,10 +764,29 @@
             private: {
 
                 /**
-                 * @type {PatternItem[]}
+                 * Contains either an item list or a list of item list
+                 * (if transformed into a choice)
+                 *
+                 * @type {PatternItem[]|(PatternItem[])[]}
                  * @private
                  */
                 _items: [],
+
+                /**
+                 * Choice group (with |)
+                 *
+                 * @type {Boolean}
+                 * @private
+                 */
+                _choice: false,
+
+                /**
+                 * True if the opening parenthesis has been parsed
+                 *
+                 * @type {Boolean}
+                 * @private
+                 */
+                _parsedParenthesis: false,
 
                 /**
                  * Currently parsed item
@@ -803,7 +804,14 @@
                  * @private
                  */
                 _push: function (item) {
-                    this._items.push(item);
+                    var
+                        items;
+                    if (this._choice) {
+                        items = this._items[this._items.length - 1];
+                    } else {
+                        items = this._items;
+                    }
+                    items.push(item);
                     this._parsedItem = item;
                     return item;
                 }
@@ -835,15 +843,32 @@
                             return PatternItem.PARSE_PROCESSED;
                         }
                     }
-                    if ("[" === char) {
-                        parsedItem = this._push(new PatternChoice());
+                    if ("|" === char) {
+                        if (!this._choice) {
+                            this._items = [this._items];
+                            this._choice = true;
+                        }
+                        this._items.push([]);
+                        return PatternItem.PARSE_PROCESSED;
+                    } else if ("[" === char) {
+                        parsedItem = this._push(new PatternRange());
                     } else if ("(" === char) {
-                        parsedItem = this._push(new PatternGroup());
+                        if (this._parsedParenthesis) {
+                            parsedItem = this._push(new PatternGroup());
+                        } else {
+                            this._parsedParenthesis = true;
+                            return PatternItem.PARSE_PROCESSED;
+                        }
                     } else {
                         parsedItem = this._push(new PatternSequence());
                     }
-                    parsedItem.parse(char);
-                    return PatternItem.PARSE_PROCESSED;
+                    result = parsedItem.parse(char);
+                    if (bitTest(result, PatternItem.PARSE_END_OF_PATTERN)) {
+                        this._parsedItem = null;
+                        // Remove the flag
+                        result &= ~PatternItem.PARSE_END_OF_PATTERN;
+                    }
+                    return result;
                 },
 
                 /**
@@ -867,80 +892,82 @@
 
         }),
 
-        /**
-         * Choice pattern: includes several items, matching only one among them
-         *
-         * @class PatternChoice
-         * @extend PatternItem
-         * @private
-         */
-        PatternChoice = gpf.define("PatternChoice", PatternItem, {
-
-            public: {
-
+//        /**
+//         * Choice pattern: includes several items, matching only one among
+// them
+//         *
+//         * @class PatternChoice
+//         * @extend PatternItem
+//         * @private
+//         */
+//        PatternChoice = gpf.define("PatternChoice", PatternItem, {
+//
+//            public: {
+//
+////                /**
+////                 * @inheritDoc PatternItem:next
+////                 *
+////                 * Overridden to 'add' the choice
+////                 */
+////                next: function (item) {
+////                    if (undefined === item) {
+////                        /*
+////                         * The only way to have something *after* is to use
+// ()
+////                         * In that case, it would go through the parent
+////                         */
+////                        return null;
+////                    } else {
+////                        var
+////                            parent = item.parent(),
+////                            pos;
+////                        this._choices.push(item);
+////                        item.parent(this);
+////                        if (1 === this._choices.length) {
+////                            // Care about parent
+////                            if (null === parent) {
+////                                return; // Nothing to care about
+////                            }
+////                            if (parent.type() !== PatternItem.TYPE_GROUP) {
+////                                gpf.Error.PatternUnexpected();
+////                            }
+////                            // TODO should be the last
+////                            pos = gpf.test(parent._items, item);
+////                            if (undefined === pos) {
+////                                gpf.Error.PatternUnexpected();
+////                            }
+////                            parent._items[pos] = this;
+////                            this._parent = parent;
+////                        }
+////                    }
+////                },
+//
 //                /**
-//                 * @inheritDoc PatternItem:next
-//                 *
-//                 * Overridden to 'add' the choice
+//                 * @inheritDoc PatternItem:write
 //                 */
-//                next: function (item) {
-//                    if (undefined === item) {
-//                        /*
-//                         * The only way to have something *after* is to use ()
-//                         * In that case, it would go through the parent
-//                         */
-//                        return null;
-//                    } else {
-//                        var
-//                            parent = item.parent(),
-//                            pos;
-//                        this._choices.push(item);
-//                        item.parent(this);
-//                        if (1 === this._choices.length) {
-//                            // Care about parent
-//                            if (null === parent) {
-//                                return; // Nothing to care about
-//                            }
-//                            if (parent.type() !== PatternItem.TYPE_GROUP) {
-//                                gpf.Error.PatternUnexpected();
-//                            }
-//                            // TODO should be the last
-//                            pos = gpf.test(parent._items, item);
-//                            if (undefined === pos) {
-//                                gpf.Error.PatternUnexpected();
-//                            }
-//                            parent._items[pos] = this;
-//                            this._parent = parent;
+//                write: function (state, char) {
+//                    // Try all choices and stop on the first one that works
+//                    var
+//                        tmpState = {},
+//                        idx,
+//                        item,
+//                        result;
+//                    for (idx = this._choices.length; idx > 0;) {
+//                        item = this._choices[--idx];
+//                        item.reset(tmpState);
+//                        result = item.write(tmpState, char);
+//                        if (PatternItem.WRITE_NO_MATCH !== result) {
+//                            state.replaceItem = item;
+//                            gpf.extend(state, tmpState);
+//                            return result;
 //                        }
 //                    }
-//                },
-
-                /**
-                 * @inheritDoc PatternItem:write
-                 */
-                write: function (state, char) {
-                    // Try all choices and stop on the first one that works
-                    var
-                        tmpState = {},
-                        idx,
-                        item,
-                        result;
-                    for (idx = this._choices.length; idx > 0;) {
-                        item = this._choices[--idx];
-                        item.reset(tmpState);
-                        result = item.write(tmpState, char);
-                        if (PatternItem.WRITE_NO_MATCH !== result) {
-                            state.replaceItem = item;
-                            gpf.extend(state, tmpState);
-                            return result;
-                        }
-                    }
-                    return PatternItem.WRITE_NO_MATCH;
-                }
-
-            }
-
-        }),
+//                    return PatternItem.WRITE_NO_MATCH;
+//                }
+//
+//            }
+//
+//        }),
 
         /**
          * Pattern parser context.
@@ -956,9 +983,9 @@
             private: {
 
                 /**
-                 * Pattern item to be returned
+                 * Pattern item to be returned (PatternGroup)
                  *
-                 * @type {PatternItem}
+                 * @type {PatternGroup}
                  * @private
                  */
                 "[_root]": [gpf.$ClassProperty()],
@@ -972,7 +999,14 @@
                  * @inheritdoc gpf.Parser:_initialParserState
                  */
                 _initialParserState: function (char) {
-                    this._items[this._items.length].parse(char, this);
+                    this._root.parse(char);
+                },
+
+                /**
+                 * @inheritdoc gpf.Parser:_finalizeParserState
+                 */
+                _finalizeParserState: function () {
+                    this._root.parse(")");
                 }
 
             },
@@ -982,6 +1016,7 @@
                 constructor: function () {
                     this._super.apply(this, arguments);
                     this._root = new PatternGroup();
+                    this._root.parse("(");
                 }
 
             }
