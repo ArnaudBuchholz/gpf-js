@@ -1156,13 +1156,11 @@
             private: {
 
                 /**
-                 * Pattern item to be returned (PatternGroup)
-                 *
                  * @type {PatternGroup}
                  * @private
                  */
-                "[_root]": [gpf.$ClassProperty()],
-                _root: null
+                "[_patternItem]": [gpf.$ClassProperty()],
+                _patternItem: null
 
             },
 
@@ -1172,14 +1170,14 @@
                  * @inheritdoc gpf.Parser:_initialParserState
                  */
                 _initialParserState: function (char) {
-                    this._root.parse(char);
+                    this._patternItem.parse(char);
                 },
 
                 /**
                  * @inheritdoc gpf.Parser:_finalizeParserState
                  */
                 _finalizeParserState: function () {
-                    this._root.parse(")");
+                    this._patternItem.parse(")");
                 }
 
             },
@@ -1188,8 +1186,8 @@
 
                 constructor: function () {
                     this._super.apply(this, arguments);
-                    this._root = new PatternGroup();
-                    this._root.parse("(");
+                    this._patternItem = new PatternGroup();
+                    this._patternItem.parse("(");
                 }
 
             }
@@ -1213,37 +1211,38 @@
                  * @type {PatternItem}
                  * @private
                  */
-                _pattern: null,
+                _patternItem: null,
 
                 /**
-                 * Tokenizer state
+                 * @type {Number}
+                 * @private
+                 */
+                _lastResult: 0,
+
+                /**
+                 * @type {Number}
+                 * @private
+                 */
+                _totalLength : 0,
+
+                /**
+                 * Pattern state
                  *
                  * @type {Object}
                  * @private
                  */
-                _state: {
-                    result: 0,
-                    length : 0,
-                    matchingLength: 0,
-                    count: 0
-                }
-
+                _state: {}
             },
 
             public: {
 
                 /**
-                 * @param {PatternItem} pattern
+                 * @param {PatternItem} patternItem
                  */
-                constructor: function (pattern) {
-                    this._pattern = pattern;
-                    this._state = {
-                        result: 0,
-                        length : 0,
-                        matchingLength: 0,
-                        count: 0
-                    };
-                    this._pattern.reset(this._state);
+                constructor: function (patternItem) {
+                    this._patternItem = patternItem;
+                    this._state = {};
+                    this._patternItem.reset(this._state);
                 },
 
                 //region ITokenizer
@@ -1253,26 +1252,18 @@
                  */
                 write: function (char) {
                     var
-                        result,
-                        state = this._state,
-                        item = this._item;
-                    if (null !== item) {
-                        result = item.write(state, char);
-                        ++state.length;
-                        if (undefined !== state.replaceItem) {
-                            this._item = state.replaceItem;
-                        }
-                        // Not enough data to conclude
-                        if (PatternItem.WRITE_NEED_DATA === result) {
-                            return state.result; // Whatever the previous result
-                        }
-                        if (PatternItem.WRITE_NO_MATCH === result) {
-                            return this._writeNoMatch(char);
-                        } else {
-                            return this._writeMatch();
-                        }
+                        result;
+                    if (0 > this._lastResult) {
+                        return this._lastResult;
                     }
-                    return state.result;
+                    ++this._totalLength;
+                    result = this._patternItem.write(char, this._state);
+                    if (PatternItem.WRITE_NO_MATCH === result) {
+                        this._lastResult = -1;
+                    } else if (PatternItem.WRITE_MATCH === result) {
+                        this._lastResult = this._totalLength;
+                    }
+                    return this._lastResult;
                 }
 
                 //endregion
@@ -1293,27 +1284,39 @@
      */
     gpf.define("gpf.Pattern", {
 
-        _root: null,
+        private: {
 
-        /**
-         * Constructor, check and compile the pattern
-         *
-         * @param {String} pattern
-         */
-        constructor: function (pattern) {
-            var
-                parser = new PatternParser();
-            parser.parse(pattern, null);
-            this._root = parser.root();
+            /**
+             * @type {PatternItem}
+             * @private
+             */
+            _patternItem: null
+
         },
 
-        /**
-         * Allocate a tokenizer based on the pattern
-         *
-         * @return {gpf.interfaces.ITokenizer}
-         */
-        allocate: function () {
-            return new PatternTokenizer(this._root);
+        public: {
+
+            /**
+             * Constructor, check and compile the pattern
+             *
+             * @param {String} pattern
+             */
+            constructor: function (pattern) {
+                var
+                    parser = new PatternParser();
+                parser.parse(pattern, null);
+                this._patternItem = parser.patternItem();
+            },
+
+            /**
+             * Allocate a tokenizer based on the pattern
+             *
+             * @return {gpf.interfaces.ITokenizer}
+             */
+            allocate: function () {
+                return new PatternTokenizer(this._patternItem);
+            }
+
         }
 
     });
