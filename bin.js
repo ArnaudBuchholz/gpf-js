@@ -178,7 +178,18 @@
          * @returns {Boolean}
          */
         test: function /*gpf:inline*/ (value, bitmask) {
-            return value & bitmask === bitmask;
+            return (value & bitmask) === bitmask;
+        },
+
+        /**
+         * Clear the bitmask inside the value
+         *
+         * @param {Number} value
+         * @param {Number} bitmask
+         * @returns {Number}
+         */
+        clear: function /*gpf:inline*/ (value, bitmask) {
+            return value & ~bitmask;
         }
 
     };
