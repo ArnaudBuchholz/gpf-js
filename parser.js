@@ -328,6 +328,7 @@
 
     var
         bitTest = gpf.bin.test,
+        bitClear = gpf.bin.clear,
 
     //region ITokenizer
 
@@ -849,13 +850,16 @@
                     if (parsedItem) {
                         result = parsedItem.parse(char);
                         if (bitTest(result, PatternItem.PARSE_END_OF_PATTERN)) {
+                            parsedItem.finalize();
                             this._parsedItem = null;
+                            // Remove the flag
+                            result = bitClear(result,
+                                PatternItem.PARSE_END_OF_PATTERN);
                         }
-                        if (bitTest(result, PatternItem.PARSE_PROCESSED)) {
-                            return PatternItem.PARSE_PROCESSED;
-                        }
+                    } else {
+                        result = 0;
                     }
-                    return 0;
+                    return result;
                 },
 
                 /**
@@ -1008,7 +1012,6 @@
                  */
                 parse: function (char) {
                     var
-                        parsedItem,
                         result = this._parseItem(char);
                     if (0 !== result) {
                         return result;
@@ -1024,24 +1027,20 @@
                         this._items.push([]);
                         return PatternItem.PARSE_PROCESSED;
                     } else if ("[" === char) {
-                        parsedItem = this._push(new PatternRange());
+                        this._push(new PatternRange());
                     } else if ("(" === char) {
                         if (this._parsedParenthesis) {
-                            parsedItem = this._push(new PatternGroup());
+                            this._push(new PatternGroup());
                         } else {
                             this._parsedParenthesis = true;
                             return PatternItem.PARSE_PROCESSED;
                         }
+                    } else if (")" === char) {
+                        return PatternItem.PARSE_PROCESSED_EOF;
                     } else {
-                        parsedItem = this._push(new PatternSequence());
+                        this._push(new PatternSequence());
                     }
-                    result = parsedItem.parse(char);
-                    if (bitTest(result, PatternItem.PARSE_END_OF_PATTERN)) {
-                        this._parsedItem = null;
-                        // Remove the flag
-                        result &= ~PatternItem.PARSE_END_OF_PATTERN;
-                    }
-                    return result;
+                    return this._parseItem(char);
                 },
 
                 /**
@@ -1177,7 +1176,9 @@
                  * @inheritdoc gpf.Parser:_finalizeParserState
                  */
                 _finalizeParserState: function () {
-                    this._patternItem.parse(")");
+                    var patternItem = this._patternItem;
+                    patternItem.parse(")");
+                    patternItem.finalize();
                 }
 
             },
