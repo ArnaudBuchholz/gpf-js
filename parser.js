@@ -1044,6 +1044,14 @@
                 },
 
                 /**
+                 * @inheritDoc PatternItem:finalize
+                 */
+                finalize: function () {
+                    // Nothing to do for now
+                    // TODO in case of choice, verify they are exclusive
+                },
+
+                /**
                  * @inheritDoc PatternItem:reset
                  */
                 reset: function (state) {
@@ -1215,6 +1223,12 @@
                 _patternItem: null,
 
                 /**
+                 * @type {Boolean}
+                 * @private
+                 */
+                _noMatch: false,
+
+                /**
                  * @type {Number}
                  * @private
                  */
@@ -1254,13 +1268,16 @@
                 write: function (char) {
                     var
                         result;
-                    if (0 > this._lastResult) {
+                    if (this._noMatch) {
                         return this._lastResult;
                     }
                     ++this._totalLength;
-                    result = this._patternItem.write(char, this._state);
+                    result = this._patternItem.write(this._state, char);
                     if (PatternItem.WRITE_NO_MATCH === result) {
-                        this._lastResult = -1;
+                        this._noMatch = true;
+                        if (0 === this._lastResult) {
+                            this._lastResult = -1;
+                        }
                     } else if (PatternItem.WRITE_MATCH === result) {
                         this._lastResult = this._totalLength;
                     }
