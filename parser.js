@@ -468,7 +468,6 @@
                  * @abstract
                  */
                 finalize: function () {
-                    gpf.Error.Abstract();
                 },
 
                 //endregion
@@ -483,7 +482,6 @@
                  */
                 reset: function (state) {
                     gpf.interfaces.ignoreParameter(state);
-                    gpf.Error.Abstract();
                 },
 
                 /**
@@ -507,11 +505,6 @@
 
             static: {
 
-                TYPE_SEQUENCE: 0,
-                TYPE_RANGE: 1,
-                TYPE_GROUP: 2,
-                TYPE_CHOICE: 3,
-
                 PARSE_IGNORED: 0,
                 PARSE_PROCESSED: 1,
                 PARSE_END_OF_PATTERN: 2,
@@ -528,89 +521,53 @@
         }),
 
         /**
-         * Sequence pattern: recognizes a sequence of characters
+         * Char pattern: recognizes one character
          *
-         * @class PatternSequence
+         * @class PatternChar
          * @extend PatternItem
          * @private
          */
-        PatternSequence = gpf.define("PatternSequence", PatternItem, {
+        PatternChar = gpf.define("PatternChar", PatternItem, {
 
             private: {
 
                 /**
-                 * The character sequence ([] at parsing time)
+                 * The character to match
                  *
-                 * @type {string|string[]}
+                 * @type {string}
                  * @private
                  */
-                _seq: []
+                _match: ""
 
             },
 
             public: {
 
                 /**
-                 * @constructor
-                 */
-                constructor: function () {
-                    this._seq = [];
-                },
-
-                /**
                  * @inheritDoc PatternItem:parse
                  */
                 parse: function (char) {
-                    if (-1 < PatternSequence.CHARS_OF_EOP.indexOf(char)) {
-                        return PatternItem.PARSE_END_OF_PATTERN;
-                    } else {
-                        this._seq.push(char);
-                        return PatternItem.PARSE_PROCESSED;
-                    }
-                },
-
-                /**
-                 * @inheritDoc PatternItem:finalize
-                 */
-                finalize: function () {
-                    this._seq = this._seq.join("");
-                },
-
-                /**
-                 * @inheritDoc PatternItem:reset
-                 */
-                reset: function (state) {
-                    state.pos = 0;
+                    this._match = char;
+                    return PatternItem.PARSE_PROCESSED_EOP;
                 },
 
                 /**
                  * @inheritDoc PatternItem:write
                  */
                 write: function (state, char) {
-                    if (char !== this._seq.charAt(state.pos)) {
-                        return PatternItem.WRITE_NO_MATCH;
-                    }
-                    ++state.pos;
-                    if (state.pos < this._seq.length) {
-                        return PatternItem.WRITE_NEED_DATA;
-                    } else {
+                    gpf.interfaces.ignoreParameter(state);
+                    if (char === this._match) {
                         return PatternItem.WRITE_MATCH;
                     }
+                    return PatternItem.WRITE_NO_MATCH;
                 }
-
-            },
-
-            static: {
-
-                CHARS_OF_EOP: PatternItem.CHARS_QUANTIFICATION
-                              + ")([|"
 
             }
 
         }),
 
         /**
-         * Range pattern: recognizes one char only
+         * Range pattern: recognizes one char defined by a range
          * (using include/exclude patterns)
          *
          * @class PatternRange
@@ -800,11 +757,17 @@
                 /**
                  * Get the current list of items
                  *
-                 * @type {PatternItem[]}
+                 * @param {Number} [pos=undefined] When choices, get the items
+                 * at the given position (last one when undefined). Ignored
+                 * otherwise.
+                 * @return {PatternItem[]}
                  * @private
                  */
-                _getItems: function () {
+                _getItems: function (pos) {
                     if (this._choice) {
+                        if (undefined === pos) {
+                            pos = this._items.length - 1;
+                        }
                         return this._items[this._items.length - 1];
                     }
                     return this._items;
@@ -926,9 +889,8 @@
                  * @return {Number} write result
                  * @private
                  */
-                _writeMatch: function () {
+                _writeMatch: function (state) {
                     var
-                        state = this._state,
                         item = this._item,
                         nextItem = this._getNext(item);
                     state.matchingLength = state.length;
@@ -965,33 +927,6 @@
                         }
                     } else {
                         state.result = PatternItem.WRITE_NEED_DATA;
-                    }
-                    return state.result;
-                },
-
-                /**
-                 * @implements gpf.interfaces.ITokenizer:write
-                 */
-                _write: function (char) {
-                    var
-                        result,
-                        state = this._state,
-                        item = this._item;
-                    if (null !== item) {
-                        result = item.write(state, char);
-                        ++state.length;
-                        if (undefined !== state.replaceItem) {
-                            this._item = state.replaceItem;
-                        }
-                        // Not enough data to conclude
-                        if (PatternItem.WRITE_NEED_DATA === result) {
-                            return state.result; // Whatever the previous result
-                        }
-                        if (PatternItem.WRITE_NO_MATCH === result) {
-                            return this._writeNoMatch(char);
-                        } else {
-                            return this._writeMatch();
-                        }
                     }
                     return state.result;
                 }
@@ -1038,7 +973,7 @@
                     } else if (")" === char) {
                         return PatternItem.PARSE_PROCESSED_EOF;
                     } else {
-                        this._push(new PatternSequence());
+                        this._push(new PatternChar());
                     }
                     return this._parseItem(char);
                 },
@@ -1055,17 +990,34 @@
                  * @inheritDoc PatternItem:reset
                  */
                 reset: function (state) {
-                    // TODO allocate an ID and create a sub state inside state
-                    this._items[0].reset(state);
+                    state.index = 0;
+                    state.sub = {};
+                    if (this._choice) {
+                        state.choice = -1;
+                    } else {
+                        this._getItems(0)[0].reset(state.sub);
+                    }
                 },
 
                 /**
                  * @inheritDoc PatternItem:write
                  */
                 write: function (state, char) {
-                    var item = this._items[0];
-                    state.replaceItem = item;
-                    return item.write(state, char);
+                    var
+                        result;
+                    if (this._choice && -1 === state.choice) {
+                        // Not YET
+                        gpf.Error.NotImplemented();
+                    } else {
+                        result = this._items[state.index].write(state, char);
+                    }
+                    if (PatternItem.WRITE_NEED_DATA === result) {
+                        return result;
+                    } else if (PatternItem.WRITE_NO_MATCH === result) {
+                        return this._writeNoMatch(state, char);
+                    } else {
+                        return this._writeMatch(state);
+                    }
                 }
 
             }
