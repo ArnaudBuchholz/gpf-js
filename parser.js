@@ -514,7 +514,8 @@
 
                 WRITE_NO_MATCH: -1,
                 WRITE_NEED_DATA: 0,
-                WRITE_MATCH: 1
+                WRITE_MATCH: 1,
+                WRITE_INTERMEDIATE_MATCH: 2
 
             }
 
@@ -1178,7 +1179,7 @@
                  * @type {Boolean}
                  * @private
                  */
-                _noMatch: false,
+                _stopMatching: false,
 
                 /**
                  * @type {Number}
@@ -1219,19 +1220,23 @@
                  */
                 write: function (char) {
                     var
-                        result;
-                    if (this._noMatch) {
+                        result,
+                        match;
+                    if (this._stopMatching) {
                         return this._lastResult;
                     }
                     ++this._totalLength;
                     result = this._patternItem.write(this._state, char);
-                    if (PatternItem.WRITE_NO_MATCH === result) {
-                        this._noMatch = true;
+                    match = PatternItem.WRITE_MATCH === result;
+                    if (match
+                        || PatternItem.WRITE_INTERMEDIATE_MATCH === result) {
+                        this._lastResult = this._totalLength;
+                        this._stopMatching = match;
+                    } else if (PatternItem.WRITE_NO_MATCH === result) {
+                        this._stopMatching = true;
                         if (0 === this._lastResult) {
                             this._lastResult = -1;
                         }
-                    } else if (PatternItem.WRITE_MATCH === result) {
-                        this._lastResult = this._totalLength;
                     }
                     return this._lastResult;
                 }
