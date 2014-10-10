@@ -848,87 +848,85 @@
                 },
 
                 /**
+                 * Reset for the provided item
+                 *
+                 * @param {PatternItem} item
+                 * @param {Object} state
+                 * @private
+                 */
+                _reset: function (item, state) {
+                    state.count = 0;
+                    state.sub = {};
+                    item.reset(state.sub);
+                },
+
+                /**
+                 * Modify state to move to (and get) the next item (if any)
+                 *
+                 * @param {Object} state
+                 * @return {PatternItem}
+                 * @private
+                 */
+                _getNext: function (state) {
+                    var items = this._getItems(state.choice);
+                    if (++state.index < items.length) {
+                        return items[state.index];
+                    }
+                    return null;
+                },
+
+                /**
                  * Handles situation when current item does not match on char
                  *
+                 * @param {PatternItem} item
+                 * @param {Object} state
                  * @param {String} char
                  * @return {Number} write result
                  * @private
                  */
-                _writeNoMatch: function (char) {
-                    var
-                        state = this._state,
-                        item = this._item;
+                _writeNoMatch: function (item, state, char) {
                     if (state.count < item.min() // Not enough match
                         // or at least two characters went through
                         || state.length > state.matchingLength + 1) {
                         // Terminal error
-                        state.result = -1;
-                        this._item = null; // No need to go any further
-                        return -1;
+                        return PatternItem.WRITE_NO_MATCH;
                     }
-                    item = this._getNext(item);
+                    item = this._getNext(state);
                     if (null === item) {
-                        if (0 === state.matchingLength) {
-                            state.result = -1;
-                        } else {
-                            state.result = state.matchingLength;
-                        }
-                        this._item = null;
-                        return state.result;
+                        return PatternItem.WRITE_MATCH;
                     }
-                    item.reset(state);
-                    this._item = item;
-                    state.count = 0;
-                    --state.length;
-                    return this.write(char); // Try with this one
+                    this._reset(item, state);
+                    return this.write(state, char); // Try with this one
                 },
 
                 /**
                  * Handles situation when current item matches on char
                  *
+                 * @param {PatternItem} item
                  * @return {Number} write result
                  * @private
                  */
-                _writeMatch: function (state) {
+                _writeMatch: function (item, state) {
                     var
-                        item = this._item,
-                        nextItem = this._getNext(item);
-                    state.matchingLength = state.length;
+                        nextItem = this._getNext(state);
                     ++state.count;
                     if (0 === item.max()) {
                         // Unlimited
-                        item.reset(state);
+                        this._reset(item, state);
                         if (null !== nextItem) {
-                            state.result = PatternItem.WRITE_NEED_DATA;
+                            return PatternItem.WRITE_NEED_DATA;
                         } else {
-                            // Last item with unlimited occurrences
-                            state.result = state.length;
+                            // Last so...
+                            return PatternItem.WRITE_MATCH;
                         }
                     } else if (state.count === item.max()) {
-                        item = nextItem;
-                        this._item = item;
-                        if (null === item) {
-                            state.result = state.length;
-                        } else {
-                            item.reset(state);
-                            state.count = 0;
-                            state.result = 0;
-                            if (0 === item.min()) {
-                                // TODO this search should be done only once
-                                nextItem = this._getNext(item);
-                                while (nextItem && 0 === nextItem.min()) {
-                                    nextItem = this._getNext(nextItem);
-                                }
-                                if (!nextItem) {
-                                    // The rest being optional...
-                                    state.result = state.matchingLength;
-                                }
-                            }
+                        if (null === nextItem) {
+                            return PatternItem.WRITE_MATCH;
                         }
-                    } else {
-                        state.result = PatternItem.WRITE_NEED_DATA;
+                        this._reset(nextItem, state);
+                        // TODO should consider the optional rest
                     }
-                    return state.result;
+                    return PatternItem.WRITE_NEED_DATA;
                 }
 
             },
@@ -990,13 +988,13 @@
                  * @inheritDoc PatternItem:reset
                  */
                 reset: function (state) {
+                    var item;
                     state.index = 0;
-                    state.sub = {};
                     if (this._choice) {
                         state.choice = -1;
-                    } else {
-                        this._getItems(0)[0].reset(state.sub);
                     }
+                    item = this._getItems(0)[0];
+                    this._reset(item, state);
                 },
 
                 /**
@@ -1004,19 +1002,21 @@
                  */
                 write: function (state, char) {
                     var
+                        item,
                         result;
                     if (this._choice && -1 === state.choice) {
                         // Not YET
                         gpf.Error.NotImplemented();
                     } else {
-                        result = this._items[state.index].write(state, char);
+                        item = this._items[state.index];
                     }
+                    result = item.write(state, char);
                     if (PatternItem.WRITE_NEED_DATA === result) {
                         return result;
                     } else if (PatternItem.WRITE_NO_MATCH === result) {
-                        return this._writeNoMatch(state, char);
+                        return this._writeNoMatch(item, state, char);
                     } else {
-                        return this._writeMatch(state);
+                        return this._writeMatch(item, state);
                     }
                 }
 

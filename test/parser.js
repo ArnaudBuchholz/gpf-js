@@ -29,6 +29,7 @@
 
             function (test) {
                 test.title("Simple");
+                debugger;
                 var
                     pattern = new gpf.Pattern("abc"),
                     ctx1, ctx2;
