@@ -515,7 +515,8 @@
                 WRITE_NO_MATCH: -1,
                 WRITE_NEED_DATA: 0,
                 WRITE_MATCH: 1,
-                WRITE_INTERMEDIATE_MATCH: 2
+                WRITE_PATTERN_END: 2,
+                WRITE_FINAL_MATCH: 3
 
             }
 
@@ -558,7 +559,7 @@
                 write: function (state, char) {
                     gpf.interfaces.ignoreParameter(state);
                     if (char === this._match) {
-                        return PatternItem.WRITE_MATCH;
+                        return PatternItem.WRITE_FINAL_MATCH;
                     }
                     return PatternItem.WRITE_NO_MATCH;
                 }
@@ -700,7 +701,7 @@
                         match = -1 === this._exc.indexOf(char);
                     }
                     if (match) {
-                        return PatternItem.WRITE_MATCH;
+                        return PatternItem.WRITE_FINAL_MATCH;
                     } else {
                         return PatternItem.WRITE_NO_MATCH;
                     }
@@ -865,13 +866,14 @@
                  * Modify state to move to (and get) the next item (if any)
                  *
                  * @param {Object} state
+                 * @param {Number} index
                  * @return {PatternItem}
                  * @private
                  */
-                _getNext: function (state) {
+                _getItem: function (state, index) {
                     var items = this._getItems(state.choice);
-                    if (++state.index < items.length) {
-                        return items[state.index];
+                    if (index < items.length) {
+                        return items[index];
                     }
                     return null;
                 },
@@ -892,10 +894,11 @@
                         // Terminal error
                         return PatternItem.WRITE_NO_MATCH;
                     }
-                    item = this._getNext(state);
+                    item = this._getItem(state, state.index + 1);
                     if (null === item) {
-                        return PatternItem.WRITE_MATCH;
+                        return PatternItem.WRITE_FINAL_MATCH;
                     }
+                    ++state.index;
                     this._reset(item, state);
                     return this.write(state, char); // Try with this one
                 },
@@ -909,7 +912,7 @@
                  */
                 _writeMatch: function (item, state) {
                     var
-                        nextItem = this._getNext(state);
+                        nextItem = this._getItem(state, state.index + 1);
                     ++state.count;
                     if (0 === item.max()) {
                         // Unlimited
@@ -922,8 +925,9 @@
                         }
                     } else if (state.count === item.max()) {
                         if (null === nextItem) {
-                            return PatternItem.WRITE_MATCH;
+                            return PatternItem.WRITE_FINAL_MATCH;
                         }
+                        ++state.index;
                         this._reset(nextItem, state);
                         // TODO should consider the optional rest
                     }
@@ -1008,9 +1012,8 @@
                     if (this._choice && -1 === state.choice) {
                         // Not YET
                         gpf.Error.NotImplemented();
-                    } else {
-                        item = this._items[state.index];
                     }
+                    item = this._getItem(state, state.index);
                     result = item.write(state, char);
                     if (PatternItem.WRITE_NEED_DATA === result) {
                         return result;
@@ -1220,18 +1223,16 @@
                  */
                 write: function (char) {
                     var
-                        result,
-                        match;
+                        result;
                     if (this._stopMatching) {
                         return this._lastResult;
                     }
                     ++this._totalLength;
                     result = this._patternItem.write(this._state, char);
-                    match = PatternItem.WRITE_MATCH === result;
-                    if (match
-                        || PatternItem.WRITE_INTERMEDIATE_MATCH === result) {
+                    if (0 < result) {
                         this._lastResult = this._totalLength;
-                        this._stopMatching = match;
+                        this._stopMatching =
+                            bitTest(result, PatternItem.WRITE_PATTERN_END);
                     } else if (PatternItem.WRITE_NO_MATCH === result) {
                         this._stopMatching = true;
                         if (0 === this._lastResult) {
