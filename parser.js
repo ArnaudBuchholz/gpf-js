@@ -741,6 +741,15 @@
                 _choice: false,
 
                 /**
+                 * Computed during the finalization phase, this array keep track
+                 * of the index of last item that is not optional in the group.
+                 *
+                 * @type {Number[]}
+                 * @private
+                 */
+                _optionals: [],
+
+                /**
                  * True if the opening parenthesis has been parsed
                  *
                  * @type {Boolean}
@@ -850,6 +859,26 @@
                 },
 
                 /**
+                 * Return the position from which all items can be optional
+                 *
+                 * @param {PatterItem[]} items
+                 * @return {Number}
+                 * @private
+                 */
+                _getOptional: function (items) {
+                    var
+                        idx;
+                    idx = items.length;
+                    while (idx--) {
+                        if (0 !== items[idx].min()) {
+                            ++idx;
+                            break;
+                        }
+                    }
+                    return idx;
+                },
+
+                /**
                  * Reset for the provided item
                  *
                  * @param {PatternItem} item
@@ -896,7 +925,7 @@
                     }
                     item = this._getItem(state, state.index + 1);
                     if (null === item) {
-                        return PatternItem.WRITE_FINAL_MATCH;
+                        return PatternItem.WRITE_NO_MATCH;
                     }
                     ++state.index;
                     this._reset(item, state);
@@ -912,15 +941,21 @@
                  */
                 _writeMatch: function (item, state) {
                     var
-                        nextItem = this._getItem(state, state.index + 1);
+                        nextItem = this._getItem(state, state.index + 1),
+                        optional;
+                    if (this._choice && state.choice) {
+                        optional = this._optionals[state.choice];
+                    } else {
+                        optional = this._optionals[0];
+                    }
                     ++state.count;
                     if (0 === item.max()) {
                         // Unlimited
                         this._reset(item, state);
-                        if (null !== nextItem) {
+                        if (null !== nextItem && optional > state.index) {
                             return PatternItem.WRITE_NEED_DATA;
                         } else {
-                            // Last so...
+                            // Last (or equivalent) so...
                             return PatternItem.WRITE_MATCH;
                         }
                     } else if (state.count === item.max()) {
@@ -929,7 +964,9 @@
                         }
                         ++state.index;
                         this._reset(nextItem, state);
-                        // TODO should consider the optional rest
+                        if (optional <= state.index) {
+                            return PatternItem.WRITE_MATCH;
+                        }
                     }
                     return PatternItem.WRITE_NEED_DATA;
                 }
@@ -985,7 +1022,20 @@
                  * @inheritDoc PatternItem:finalize
                  */
                 finalize: function () {
-                    // Nothing to do for now
+                    var
+                        len,
+                        idx,
+                        array;
+                    // Compute optionals
+                    array = this._optionals = [];
+                    if (this._choice) {
+                        len = this._items.length;
+                        for (idx = 0; idx < len; ++idx) {
+                            array.push(this._getOptional(this._items[idx]));
+                        }
+                    } else {
+                        array.push(this._getOptional(this._items));
+                    }
                     // TODO in case of choice, verify they are exclusive
                 },
 
