@@ -1057,11 +1057,25 @@
                  */
                 write: function (state, char) {
                     var
+                        len,
+                        idx,
                         item,
                         result;
                     if (this._choice && -1 === state.choice) {
-                        // Not YET
-                        gpf.Error.NotImplemented();
+                        // Enumerate items and stop on first !== NO_MATCH
+                        len = this._items.length;
+                        for (idx = 0; idx < len; ++idx) {
+                            item = this._items[idx][0];
+                            this._reset(item, state);
+                            result = item.write(state, char);
+                            if (PatternItem.WRITE_NO_MATCH !== result) {
+                                state.choice = idx;
+                                return result;
+                            }
+                        }
+                        if (idx === len) {
+                            return PatternItem.WRITE_NO_MATCH;
+                        }
                     }
                     item = this._getItem(state, state.index);
                     result = item.write(state, char);
