@@ -779,7 +779,7 @@
                         if (undefined === pos) {
                             pos = this._items.length - 1;
                         }
-                        return this._items[this._items.length - 1];
+                        return this._items[pos];
                     }
                     return this._items;
                 },
@@ -943,7 +943,7 @@
                     var
                         nextItem = this._getItem(state, state.index + 1),
                         optional;
-                    if (this._choice && state.choice) {
+                    if (this._choice && -1 < state.choice) {
                         optional = this._optionals[state.choice];
                     } else {
                         optional = this._optionals[0];
@@ -1067,10 +1067,10 @@
                         for (idx = 0; idx < len; ++idx) {
                             item = this._items[idx][0];
                             this._reset(item, state);
-                            result = item.write(state, char);
+                            result = item.write(state.sub, char);
                             if (PatternItem.WRITE_NO_MATCH !== result) {
                                 state.choice = idx;
-                                return result;
+                                return this._writeMatch(item, state);
                             }
                         }
                         if (idx === len) {
@@ -1078,7 +1078,7 @@
                         }
                     }
                     item = this._getItem(state, state.index);
-                    result = item.write(state, char);
+                    result = item.write(state.sub, char);
                     if (PatternItem.WRITE_NEED_DATA === result) {
                         return result;
                     } else if (PatternItem.WRITE_NO_MATCH === result) {
