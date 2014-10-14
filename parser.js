@@ -1011,7 +1011,7 @@
                             return PatternItem.PARSE_PROCESSED;
                         }
                     } else if (")" === char) {
-                        return PatternItem.PARSE_PROCESSED_EOF;
+                        return PatternItem.PARSE_PROCESSED_EOP;
                     } else {
                         this._push(new PatternChar());
                     }
