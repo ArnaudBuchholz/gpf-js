@@ -97,23 +97,64 @@
         }
         return true;
     };
-    gpf.NOT_IMPLEMENTED = function () {
-        console.error("Not implemented");
-        throw { message: "Not implemented" };
-    };
     /*
      * Handling external options
      * TODO: provide ways to turn on/off features by adding options
      */
     // DEBUG specifics
     gpf.ASSERT = function (condition, message) {
+        if (undefined === message) {
+            message = "gpf.ASSERT with no message";
+            condition = false;
+        }
         if (!condition) {
             console.warn("ASSERTION FAILED: " + message);
-            throw { message: "ASSERTION FAILED: " + message };
+            gpf.AssertionFailed({ message: message });
         }
     };
     if (!gpf.ASSERT) {
     }
+    (function () {
+        /* Begin of privacy scope */
+        "use strict";
+        if (undefined === Array.prototype.indexOf) {
+            // Introduced with JavaScript 1.5
+            Array.prototype.indexOf = function (value) {
+                var idx = this.length;
+                while (idx--) {
+                    if (this[idx] === value) {
+                        return idx;
+                    }
+                }
+                return -1;
+            };
+        }
+        if (undefined === Object.defineProperty) {
+            /**
+         * If possible, defines a read-only property
+         *
+         * @param {Obect} obj
+         * @param {String} name
+         * @param [*} value
+         * @return {Object}
+         * @chainable
+         */
+            gpf.setReadOnlyProperty = function (obj, name, value) {
+                obj[name] = value;
+                return obj;
+            };
+        } else {
+            gpf.setReadOnlyProperty = function (obj, name, value) {
+                Object.defineProperty(obj, name, {
+                    enumerable: true,
+                    configurable: false,
+                    writable: false,
+                    value: value
+                });
+                return obj;
+            };
+        }
+    }());    /* End of privacy scope */
     var _arrayEachWithResult = function (array, memberCallback, defaultResult) {
             var result, len = array.length, idx;
             for (idx = 0; idx < len; ++idx) {
@@ -342,8 +383,14 @@
     gpf.extend(gpf, {
         _alpha: "abcdefghijklmnopqrstuvwxyz",
         _ALPHA: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        _digit: "0123456789",
         _func: function (source) {
-            return new Func(source);
+            try {
+                return new Func(source);
+            } catch (e) {
+                console.error("An exception occurred compiling:\r\n" + source);
+                return null;
+            }
         },
         value: function (value, defaultValue, expectedType) {
             var valueType = typeof value;
@@ -458,20 +505,50 @@
         },
         apply: function (scope, args) {
             var finalScope = gpf.Callback.resolveScope(this._scope || scope);
-            return this._handler.apply(finalScope, args);
+            return this._handler.apply(finalScope, args || []);
         }
     });
-    /**
-     * Resolve function scope
-     *
-     * @static
-     */
-    gpf.Callback.resolveScope = function (scope) {
-        if (!scope) {
-            scope = gpf.context();
+    gpf.extend(gpf.Callback, {
+        resolveScope: function (scope) {
+            if (null === scope || undefined === scope) {
+                scope = gpf.context();
+            }
+            return scope;
+        },
+        buildParamArray: function (count, params) {
+            var len, result, idx;
+            if (params) {
+                len = params.length;
+                result = new Array(count + len);
+                for (idx = 0; idx < len; ++idx) {
+                    result[count] = params[idx];
+                    ++count;
+                }
+            } else {
+                result = new Array(count);
+            }
+            return result;
+        },
+        doApply: function (callback, scope, paramArray) {
+            var len = arguments.length, idx = 3, paramIdx = 0;
+            while (idx < len) {
+                paramArray[paramIdx] = arguments[idx];
+                ++idx;
+                ++paramIdx;
+            }
+            return callback.apply(scope, paramArray);
+        },
+        bind: function (obj, method) {
+            var _boundMember = method + ":boundToThis";
+            gpf.ASSERT("function" === typeof obj[method], "Only methods can be bound");
+            if (undefined === obj[_boundMember]) {
+                obj[_boundMember] = function () {
+                    return obj[method].apply(obj, arguments);
+                };
+            }
+            return obj[_boundMember];
         }
-        return scope;
-    };
+    });
     var
         /**
          * Event Target
@@ -506,7 +583,7 @@
          */
         _genOnEventClosure = function (eventIndex) {
             return function () {
-                var args = this._events[eventIndex], len = arguments.length, idx;
+                var args = [this._events[eventIndex]], len = arguments.length, idx;
                 for (idx = 0; idx < len; ++idx) {
                     args.push(arguments[idx]);
                 }
@@ -697,8 +774,8 @@
                 event = new gpf.events.Event(event, params, true, this);
             }
             scope = gpf.Callback.resolveScope(event._scope);
-            if (eventsHandler instanceof Broadcaster) {
-                eventsHandler.broadcastEvent(event);
+            if (eventsHandler instanceof Target) {
+                eventsHandler._broadcastEvent(event);
             } else if ("function" === typeof eventsHandler || eventsHandler instanceof gpf.Callback) {
                 // Compatible with Function & gpf.Callback
                 eventsHandler.apply(scope, [event]);
@@ -783,7 +860,7 @@
             }, 0);
         }
     };
-    var _queue = [],
+    var
         /**
          * Defer the execution of the callback
          *
@@ -803,17 +880,28 @@
             return function () {
                 callback.apply(gpf.Callback.resolveScope(scope), args);
             };
-        };
+        }, _sortOnDt;
     if ("wscript" === gpf.host()) {
+        gpf._asyncQueue = [];
+        _sortOnDt = function (a, b) {
+            return a._dt - b._dt;
+        };
         gpf.defer = function (callback, timeout, scope, args) {
-            // TODO sort queue according to timeout
-            gpf.interfaces.ignoreParameter(timeout);
-            _queue.push(_callback(callback, scope, args));
+            var item = _callback(callback, scope, args);
+            if (!timeout) {
+                timeout = 0;
+            }
+            item._dt = new Date(new Date() - -timeout);
+            gpf._asyncQueue.push(item);
+            gpf._asyncQueue.sort(_sortOnDt);
         };
         gpf.runAsyncQueue = function () {
-            var callback;
-            while (_queue.length) {
-                callback = _queue.shift();
+            var queue = gpf._asyncQueue, callback;
+            while (queue.length) {
+                callback = queue.shift();
+                if (callback._dt > new Date()) {
+                    WScript.Sleep(callback._dt - new Date());
+                }
                 callback();
             }
         };
@@ -838,7 +926,7 @@
         gpf.runAsyncQueue = function () {
         };
     }
-    var _b64 = gpf._ALPHA + gpf._alpha + "0123456789+/", _b16 = "0123456789ABCDEF", _toBaseANY = function (base, value, length, safepad) {
+    var _b64 = gpf._ALPHA + gpf._alpha + gpf._digit + "+/", _b16 = "0123456789ABCDEF", _toBaseANY = function (base, value, length, safepad) {
             var baseLength = base.length, pow = gpf.bin.isPow2(baseLength), bits, mask, result = [], digit;
             if (-1 < pow && (undefined === length || length * pow <= 32)) {
                 /*
@@ -922,6 +1010,12 @@
         },
         fromBase64: function (text, safepad) {
             return _fromBaseANY(_b64, text, safepad);
+        },
+        test: function (value, bitmask) {
+            return (value & bitmask) === bitmask;
+        },
+        clear: function (value, bitmask) {
+            return value & ~bitmask;
         }
     };
     gpf.json = {};
@@ -970,10 +1064,64 @@
         gpf.json.stringify = JSON.stringify;
         gpf.json.parse = JSON.parse;
     }
-    var _visibilityKeywords = "public|protected|private|static".split("|"), _VISIBILITY_PUBLIC = 0,
-        //        _VISIBILITY_PROTECTED   = 1,
+    var _visibilityKeywords = "public|protected|private|static".split("|"), _VISIBILITY_PUBLIC = 0, _VISIBILITY_PROTECTED = 1,
         //        _VISIBILITY_PRIVATE     = 2,
-        _VISIBILITY_STATIC = 3, _initAllowed = true;
+        _VISIBILITY_STATIC = 3, _initAllowed = true,
+        /**
+         * Used below
+         * @type {String}
+         * @private
+         */
+        _invalidSeparator = gpf._alpha + gpf._ALPHA + gpf._digit + "_",
+        /**
+         * Detects if the function uses ._super
+         * NOTE compared to John Reisig version, I try to stay away from
+         * regular expression.
+         *
+         * @param {Function} member
+         * @return {Boolean}
+         * @private
+         */
+        _usesSuper = function (member) {
+            var pos;
+            member = member.toString();
+            pos = member.indexOf("._super");
+            if (-1 === pos) {
+                return false;
+            }
+            // Test the character *after* _super
+            return -1 === _invalidSeparator.indexOf(member.charAt(pos + 7));
+        },
+        /**
+         * Generates a closure in which this._super points to the base
+         * definition of the overridden member
+         *
+         * Based on http://ejohn.org/blog/simple-javascript-inheritance/
+         *
+         * @param {Function} baseMember
+         * @param {Function} member
+         * @return {Function}
+         * @private
+         * @closure
+         */
+        _super = function (baseMember, member) {
+            return function () {
+                var previousSuper = this._super, result;
+                // Add a new ._super() method that is the same method
+                // but on the super-class
+                this._super = baseMember;
+                // Execute the method
+                result = member.apply(this, arguments);
+                // The method only need to be bound temporarily, so we
+                // remove it when we're done executing
+                if (undefined === previousSuper) {
+                    delete this._super;
+                } else {
+                    this._super = previousSuper;
+                }
+                return result;
+            };
+        };
     /**
      * An helper to create class and store its information
      *
@@ -1024,40 +1172,57 @@
             return this._Constructor;
         },
         _definition: null,
+        addMember: function (member, value, visibility) {
+            var newPrototype = this._Constructor.prototype;
+            gpf.ASSERT(member !== "constructor", "No constructor can be added");
+            gpf.ASSERT(undefined === newPrototype[member], "No member can be overridden");
+            if (undefined === visibility) {
+                visibility = _VISIBILITY_PUBLIC;
+            } else if ("string" === typeof visibility) {
+                visibility = _visibilityKeywords.indexOf(visibility);
+                if (-1 === visibility) {
+                    visibility = _VISIBILITY_PUBLIC;
+                }
+            }
+            this._addMember(member, value, visibility);
+        },
+        _addMember: function (member, value, visibility) {
+            var newPrototype = this._Constructor.prototype;
+            if (_VISIBILITY_STATIC === visibility) {
+                gpf.setReadOnlyProperty(newPrototype.constructor, member, value);
+            } else {
+                newPrototype[member] = value;
+            }
+        },
         _processMember: function (member, visibility) {
             // Don't know yet how I want to handle visibility
-            var newPrototype = this._Constructor.prototype, defMember = this._definition[member], newType, baseMember, baseType, baseName;
+            var defMember = this._definition[member], isConstructor = member === "constructor", newType, baseMember, baseType;
             newType = typeof defMember;
             if (_VISIBILITY_STATIC === visibility) {
                 // No inheritance can be applied here
-                newPrototype.constructor[member] = defMember;
+                this._addMember(member, defMember, _VISIBILITY_STATIC);
                 return;
             }
-            baseMember = this._Base.prototype[member];
+            if (isConstructor) {
+                baseMember = this._Base;
+            } else {
+                baseMember = this._Base.prototype[member];
+            }
             baseType = typeof baseMember;
             if ("undefined" !== baseType && null !== baseMember && newType !== baseType) {
-                throw { message: "You can't overload a member to change its type" };
+                gpf.Error.ClassMemberOverloadWithTypeChange();
             }
-            if ("function" === newType && "undefined" !== baseType) {
+            if ("function" === newType && "undefined" !== baseType && _usesSuper(defMember)) {
                 /*
-                 * As it is a function overload, defines a new member that will
-                 * give a quick access to the base function. This should answer
-                 * 90% of the cases.
-                 *
-                 * TODO how do we handle possible conflict name
+                 * As it is a function override, _super is a way to access the
+                 * base function.
                  */
-                baseName = member;
-                if ("_" === baseName.charAt(0)) {
-                    baseName = baseName.substr(1);
-                }
-                // Capitalize
-                baseName = gpf.capitalize(baseName);
-                newPrototype["_base" + baseName] = baseMember;
+                defMember = _super(baseMember, defMember);
             }
-            if ("constructor" === member) {
+            if (isConstructor) {
                 this._defConstructor = defMember;
             } else {
-                newPrototype[member] = defMember;
+                this._addMember(member, defMember, visibility);
             }
         },
         _processAttribute: function (key) {
@@ -1085,7 +1250,7 @@
                         if ("[" === member.charAt(0) && "]" === member.charAt(member.length - 1)) {
                             this._processAttribute(member);    // Visibility
                         } else if ("public" === member || "private" === member || "protected" === member || "static" === member) {
-                            throw { message: "Invalid visibility keyword" };    // Usual member
+                            gpf.Error.ClassInvalidVisibility();    // Usual member
                         } else {
                             this._processMember(member, visibility);
                         }
@@ -1111,8 +1276,13 @@
                     } else {
                         visibility = _visibilityKeywords.indexOf(member);
                         if (-1 === visibility) {
-                            // Usual member
-                            this._processMember(member, _VISIBILITY_PUBLIC);
+                            // Usual member, protected if starting with _
+                            if (member.charAt(0) === "_") {
+                                visibility = _VISIBILITY_PROTECTED;
+                            } else {
+                                visibility = _VISIBILITY_PUBLIC;
+                            }
+                            this._processMember(member, visibility);
                         } else {
                             // Visibility
                             this._processDefWithVisibility(visibility);
@@ -1177,13 +1347,6 @@
              */
             this._processDefinition();
             this._processAttributes();
-            /*
-             * 2014-07-23 ABZ Adding a 'base' constructor to ease the build of
-             * consructors
-             */
-            if (this._defConstructor) {
-                newPrototype._baseConstructor = _getNewBaseConstructorFunc(this._Base);
-            }
         }    //endregion
     });
     //region Class related helpers
@@ -1279,19 +1442,6 @@
         start = src.indexOf("{") + 1;
         end = src.lastIndexOf("}") - 1;
         return src.substr(start, end - start + 1);
-    }
-    /**
-     * Returns the definition of _baseConstructor
-     *
-     * @param {Function} Base
-     * @private
-     * @closure
-     */
-    function _getNewBaseConstructorFunc(Base) {
-        /*jslint -W040*/
-        return function () {
-            Base.apply(this, arguments);
-        };    /*jslint +W040*/
     }
     //endregion
     /**
@@ -1405,16 +1555,16 @@
      * @class gpf.attributes.Attribute
      */
     gpf._defAttr("Attribute", {
-        _member: "",
-        member: function (name) {
-            var value = this._member;
-            if (name) {
-                this._member = name;
+        protected: {
+            _member: "",
+            _alterPrototype: function (objPrototype) {
+                gpf.interfaces.ignoreParameter(objPrototype);
             }
-            return value;
         },
-        alterPrototype: function (objPrototype) {
-            gpf.interfaces.ignoreParameter(objPrototype);
+        public: {
+            member: function () {
+                return this._member;
+            }
         }
     });
     /**
@@ -1432,45 +1582,65 @@
      * @alias gpf.$Alias
      */
     gpf._defAttr("$Alias", {
-        _name: "",
-        constructor: function (name) {
-            this._name = name;
+        private: { _name: "" },
+        protected: {
+            _alterPrototype: function (objPrototype) {
+                _alias(objPrototype.constructor, this._name);
+            }
         },
-        alterPrototype: function (objPrototype) {
-            _alias(objPrototype.constructor, this._name);
+        public: {
+            constructor: function (name) {
+                this._name = name;
+            }
         }
     });
     /**
      * Attribute array, generally used to list attributes on a class member
      *
      * @class gpf.attributes.Array
+     * @implements gpf.interfaces.IReadOnlyArray
      */
     gpf.define("gpf.attributes.Array", {
-        _array: [],
-        constructor: function () {
-            this._array = [];    // Create a new instance of the array
-        },
-        has: function (expectedClass) {
-            gpf.ASSERT("function" === typeof expectedClass);
-            var idx, item;
-            for (idx = 0; idx < this._array.length; ++idx) {
-                item = this._array[idx];
-                if (item instanceof expectedClass) {
-                    return item;
+        private: { _array: [] },
+        public: {
+            constructor: function () {
+                this._array = [];    // Create a new instance of the array
+            },
+            has: function (expectedClass) {
+                gpf.ASSERT("function" === typeof expectedClass, "Expected a class parameter");
+                gpf.ASSERT(expectedClass.prototype instanceof gpf.attributes.Attribute, "Expected an Attribute-like class parameter");
+                var idx, len = this._array.length, item;
+                for (idx = 0; idx < len; ++idx) {
+                    item = this._array[idx];
+                    if (item instanceof expectedClass) {
+                        return item;
+                    }
+                }
+                return null;
+            },
+            filter: function (expectedClass) {
+                gpf.ASSERT("function" === typeof expectedClass, "Expected a class parameter");
+                gpf.ASSERT(expectedClass.prototype instanceof gpf.attributes.Attribute, "Expected an Attribute-like class parameter");
+                var idx, len = this._array.length, attribute, result = new gpf.attributes.Array();
+                for (idx = 0; idx < len; ++idx) {
+                    attribute = this._array[idx];
+                    if (attribute instanceof expectedClass) {
+                        result._array.push(attribute);
+                    }
+                }
+                return result;
+            },
+            each: function (callback, scope, params) {
+                scope = gpf.Callback.resolveScope(scope);
+                params = gpf.Callback.buildParamArray(1, params);
+                var idx, len = this._array.length, result;
+                for (idx = 0; idx < len; ++idx) {
+                    result = gpf.Callback.doApply(callback, scope, params, this._array[idx]);
+                    if (undefined !== result) {
+                        return result;
+                    }
                 }
             }
-            return null;
-        },
-        filter: function (expectedClass) {
-            gpf.ASSERT("function" === typeof expectedClass);
-            var idx, attribute, result = new gpf.attributes.Array();
-            for (idx = 0; idx < this._array.length; ++idx) {
-                attribute = this._array[idx];
-                if (attribute instanceof expectedClass) {
-                    result._array.push(attribute);
-                }
-            }
-            return result;
         }
     });
     /**
@@ -1479,88 +1649,106 @@
      * @class gpf.attributes.Map
      */
     gpf.define("gpf.attributes.Map", {
-        _members: {},
-        _count: 0,
-        constructor: function (object) {
-            this._members = {};
-            // Creates a new dictionary
-            this._count = 0;
-            if (undefined !== object) {
-                this.fillFromObject(object);
-            }
-        },
-        count: function () {
-            return this._count;
-        },
-        add: function (member, attribute) {
-            var array = this._members[member];
-            if (undefined === array) {
-                array = this._members[member] = new gpf.attributes.Array();
-            }
-            array._array.push(attribute);
-            ++this._count;
-        },
-        _copyTo: function (attributesMap, callback, param) {
-            var member, array, idx, attribute;
-            if (this._count) {
-                for (member in this._members) {
-                    if (this._members.hasOwnProperty(member)) {
-                        array = this._members[member]._array;
-                        for (idx = 0; idx < array.length; ++idx) {
-                            attribute = array[idx];
-                            if (!callback || callback(member, attribute, param)) {
-                                attributesMap.add(member, attribute);
+        private: {
+            _members: {},
+            _count: 0,
+            _copyTo: function (attributesMap, callback, param) {
+                var member, array, idx, attribute;
+                if (this._count) {
+                    for (member in this._members) {
+                        if (this._members.hasOwnProperty(member)) {
+                            array = this._members[member]._array;
+                            for (idx = 0; idx < array.length; ++idx) {
+                                attribute = array[idx];
+                                if (!callback || callback(member, attribute, param)) {
+                                    attributesMap.add(member, attribute);
+                                }
                             }
                         }
                     }
                 }
+            },
+            _filterCallback: function (member, attribute, expectedClass) {
+                gpf.interfaces.ignoreParameter(member);
+                return attribute instanceof expectedClass;
             }
         },
-        _filterCallback: function (member, attribute, expectedClass) {
-            gpf.interfaces.ignoreParameter(member);
-            return attribute instanceof expectedClass;
-        },
-        fillFromObject: function (object) {
-            var classDef = gpf.classDef(object.constructor), attributes;
-            while (classDef) {
-                // !undefined && !null
-                attributes = classDef.attributes();
-                if (attributes) {
-                    attributes._copyTo(this);
+        public: {
+            constructor: function (object) {
+                this._members = {};
+                // Creates a new dictionary
+                this._count = 0;
+                if (undefined !== object) {
+                    this.fillFromObject(object);
                 }
-                if (classDef.Base() !== Object) {
-                    // Can't go upper
-                    classDef = gpf.classDef(classDef.Base());
-                } else {
-                    break;
+            },
+            count: function () {
+                return this._count;
+            },
+            add: function (member, attribute) {
+                var array = this._members[member];
+                if (undefined === array) {
+                    array = this._members[member] = new gpf.attributes.Array();
+                }
+                array._array.push(attribute);
+                ++this._count;
+            },
+            fillFromObject: function (object) {
+                var classDef = gpf.classDef(object.constructor), attributes;
+                while (classDef) {
+                    // !undefined && !null
+                    attributes = classDef.attributes();
+                    if (attributes) {
+                        attributes._copyTo(this);
+                    }
+                    if (classDef.Base() !== Object) {
+                        // Can't go upper
+                        classDef = gpf.classDef(classDef.Base());
+                    } else {
+                        break;
+                    }
+                }
+                return this._count;
+            },
+            filter: function (expectedClass) {
+                gpf.ASSERT("function" === typeof expectedClass, "Expected a class parameter");
+                gpf.ASSERT(expectedClass.prototype instanceof gpf.attributes.Attribute, "Expected an Attribute-like class parameter");
+                var result = new gpf.attributes.Map();
+                this._copyTo(result, this._filterCallback, expectedClass);
+                return result;
+            },
+            member: function (name) {
+                var result = this._members[name];
+                if (undefined === result) {
+                    if (0 === _emptyMember) {
+                        _emptyMember = new gpf.attributes.Array();
+                    }
+                    result = _emptyMember;
+                }
+                return result;
+            },
+            members: function () {
+                var result = [], member;
+                for (member in this._members) {
+                    if (this._members.hasOwnProperty(member)) {
+                        result.push(member);
+                    }
+                }
+                return result;
+            },
+            each: function (callback, scope, params) {
+                scope = gpf.Callback.resolveScope(scope);
+                params = gpf.Callback.buildParamArray(2, params);
+                var member, result;
+                for (member in this._members) {
+                    if (this._members.hasOwnProperty(member)) {
+                        result = gpf.Callback.doApply(callback, scope, params, member, this._members[member]);
+                        if (undefined !== result) {
+                            return result;
+                        }
+                    }
                 }
             }
-            return this._count;
-        },
-        filter: function (expectedClass) {
-            gpf.ASSERT("function" === typeof expectedClass);
-            var result = new gpf.attributes.Map();
-            this._copyTo(result, this._filterCallback, expectedClass);
-            return result;
-        },
-        member: function (name) {
-            var result = this._members[name];
-            if (undefined === result) {
-                if (0 === _emptyMember) {
-                    _emptyMember = new gpf.attributes.Array();
-                }
-                result = _emptyMember;
-            }
-            return result;
-        },
-        members: function () {
-            var result = [], member;
-            for (member in this._members) {
-                if (this._members.hasOwnProperty(member)) {
-                    result.push(member);
-                }
-            }
-            return result;
         }
     });
     /**
@@ -1577,33 +1765,74 @@
         len = attributes.length;
         for (idx = 0; idx < len; ++idx) {
             attribute = attributes[idx];
-            attribute.member(name);
+            attribute._member = name;
             // Assign member name
             attributeList.add(name, attribute);
-            attribute.alterPrototype(objectClass.prototype);
+            attribute._alterPrototype(objectClass.prototype);
         }
     };
     gpf.define("gpf.Error", {
-        _message: "",
-        _name: "",
-        constructor: function (message, name, extended) {
-            this._message = message;
-            if (name) {
-                this._name = name;
-            } else {
-                this._name = "Error";
-            }
-            if (extended) {
-                gpf.extend(this, extended);
-            }
-        },
-        message: function () {
-            return this._message;
-        },
-        name: function () {
-            return this._name;
+        public: {
+            code: 0,
+            name: "Error",
+            message: ""
         }
     });
+    var ERRORS = {
+            "NotImplemented": "Not implemented",
+            "Abstract": "Abstract",
+            "AssertionFailed": "Assertion failed: {message}",
+            "ClassMemberOverloadWithTypeChange": "You can't overload a member to change its type",
+            "ClassInvalidVisibility": "Invalid visibility keyword",
+            "InterfaceExpected": "Expected interface not implemented: {name}",
+            "EnumerableInvalidMember": "$Enumerable can be associated to arrays only",
+            "PatternUnexpected": "Invalid syntax (unexpected)",
+            "PatternEmpty": "Empty pattern",
+            "PatternInvalidSyntax": "Invalid syntax",
+            "PatternEmptyGroup": "Syntax error (empty group)",
+            "HtmlHandlerMultiplicityError": "Too many $HtmlHandler attributes for '{member}'",
+            "HtmlHandlerMissing": "No $HtmlHandler attributes",
+            "HtmlHandlerNoDefault": "No default $HtmlHandler attribute",
+            "EngineStackUnderflow": "Stack underflow",
+            "EngineTypeCheck": "Type check",
+            "EncodingNotSupported": "Encoding not supported",
+            "EncodingEOFWithUnprocessedBytes": "Unexpected end of stream: unprocessed bytes",
+            "XmlInvalidName": "Invalid XML name"
+        },
+        /**
+         * Generates an error function
+         *
+         * @param {Number} code
+         * @param {String} name
+         * @return {Function}
+         * @closure
+         */
+        genThrowError = function (code, name) {
+            return function (context) {
+                var error = new gpf.Error(), replacements, key;
+                error.code = code;
+                error.name = name;
+                if (context) {
+                    replacements = {};
+                    for (key in context) {
+                        if (context.hasOwnProperty(key)) {
+                            replacements["{" + key + "}"] = context[key].toString();
+                        }
+                    }
+                    error.message = gpf.replaceEx(ERRORS[name], replacements);
+                } else {
+                    error.message = ERRORS[name];
+                }
+                throw error;
+            };
+        }, name, code = 0;
+    for (name in ERRORS) {
+        if (ERRORS.hasOwnProperty(name)) {
+            ++code;
+            gpf.Error["CODE_" + name.toUpperCase()] = code;
+            gpf.Error[name] = genThrowError(code, name);
+        }
+    }
     var
         /*
          * 2013-12-15 ABZ
@@ -1620,9 +1849,6 @@
      * {type} MEMBER({type} [value=undefined] value)
      * When value is not set, the member acts as a getter
      *
-     * @param {Boolean} writeAllowed
-     * @param {String} [publicName=undefined] publicName When not specified,
-     * the member name (without _) is applied
      *
      * @class gpf.attributes.ClassPropertyAttribute
      * @extends gpf.attributes.ClassAttribute
@@ -1630,25 +1856,30 @@
      */
     gpf._defAttr("$ClassProperty", _base, {
         _writeAllowed: false,
-        _publicName: "",
-        constructor: function (writeAllowed, publicName) {
+        _publicName: undefined,
+        _visibility: undefined,
+        constructor: function (writeAllowed, publicName, visibility) {
             if (writeAllowed) {
                 this._writeAllowed = true;
             }
             if ("string" === typeof publicName) {
                 this._publicName = publicName;
             }
+            if ("string" === typeof visibility) {
+                this._visibility = visibility;
+            }
         },
-        alterPrototype: function (objPrototype) {
-            var member = this._member, publicName = this._publicName;
+        _alterPrototype: function (objPrototype) {
+            var member = this._member, publicName = this._publicName, classDef = gpf.classDef(objPrototype.constructor), accessor;
             if (!publicName) {
                 publicName = member.substr(1);    // Considering it starts with _
             }
             if (this._writeAllowed) {
-                objPrototype[publicName] = _rwProperty(member);
+                accessor = _rwProperty(member);
             } else {
-                objPrototype[publicName] = _roProperty(member);
+                accessor = _roProperty(member);
             }
+            classDef.addMember(publicName, accessor, this._visibility);
         }
     });
     /**
@@ -1712,7 +1943,7 @@
                 result = objectInstance.queryInterface(interfaceDefinition);
             }
             if (null === result && throwError) {
-                throw { message: "expected " + gpf.classDef(interfaceDefinition).name() };
+                gpf.Error.InterfaceExpected({ name: gpf.classDef(interfaceDefinition).name() });
             }
             return result;
         }
@@ -1825,7 +2056,7 @@
                 this._builder = queryInterfaceBuilder;
             }
         },
-        alterPrototype: function (objPrototype) {
+        _alterPrototype: function (objPrototype) {
             if (!this._builder) {
                 // Nothing to do
                 return;
@@ -1901,7 +2132,7 @@
     function _buildEnumerableOnArray(object) {
         // Look for related member
         var attributes = new gpfA.Map(object).filter(gpfA.EnumerableAttribute), members = attributes.members();
-        gpf.ASSERT(members.length === 1);
+        gpf.ASSERT(members.length === 1, "Only one member can be defined as enumerable");
         return _arrayEnumerator(object[members[0]]);
     }
     /**
@@ -1912,9 +2143,9 @@
      * @alias gpf.$ClassIArray
      */
     gpf._defAttr("$Enumerable", gpfA.ClassAttribute, {
-        alterPrototype: function (objPrototype) {
+        _alterPrototype: function (objPrototype) {
             if (!(objPrototype[this._member] instanceof Array)) {
-                throw { message: "$Enumerable can be associated to arrays only" };
+                gpf.Error.EnumerableInvalidMember();
             }
             gpfA.add(objPrototype.constructor, "Class", [new gpfA.InterfaceImplementAttribute(gpfI.IEnumerable, _buildEnumerableOnArray)]);
         }
@@ -1969,7 +2200,7 @@
                 this._writeAllowed = true;
             }
         },
-        alterPrototype: function (objPrototype) {
+        _alterPrototype: function (objPrototype) {
             var implementedInterface;
             if (this._writeAllowed) {
                 implementedInterface = gpfI.IArray;
@@ -2016,7 +2247,7 @@
             return array[idx];
         }
     };    //endregion
-    var gpfI = gpf.interfaces;
+    var gpfI = gpf.interfaces, _BUFREADSTREAM_READ_SIZE = 256, _BUFREADSTREAM_ISTATE_INIT = 0, _BUFREADSTREAM_ISTATE_INPROGRESS = 1, _BUFREADSTREAM_ISTATE_WAITING = 2, _BUFREADSTREAM_ISTATE_EOS = 3;
     /**
      * The Readable stream interface is the abstraction for a source of data
      * that you are reading from. In other words, data comes out of a Readable
@@ -2085,24 +2316,300 @@
      * @eventParam {String} buffer
      */
     gpf._defIntrf("ITextStream", gpfI.IStream, {});
+    //endregion
+    //region Stream helpers
+    gpf.stream = {};
     /**
-     * Internal helper to implement the expected write behavior in all streams
-     * @inheritDoc gpf.interfaces.ITextStream:write
+     * Handles a buffered stream that depends on a read stream.
+     * The way the underlying buffer is read and converted can be overridden
+     * through the following protected APIs:
+     * - _readSize
+     * - _addToBuffer
+     *
+     * @class gpf.stream.BufferedOnRead
+     * @abstract
+     * @implements gpf.interfaces.IReadableStream
      */
-    gpfI.ITextStream._write = function () {
-        var argIdx, arg;
-        for (argIdx = 0; argIdx < arguments.length; ++argIdx) {
-            arg = arguments[argIdx];
-            if (null !== arg && "string" !== typeof arg) {
-                arg = arg.toString();
+    gpf.define("gpf.stream.BufferedOnRead", {
+        "[Class]": [gpf.$InterfaceImplement(gpfI.IReadableStream)],
+        protected: {
+            _buffer: [],
+            _bufferLength: 0,
+            _readSize: _BUFREADSTREAM_READ_SIZE,
+            _addToBuffer: function (buffer) {
+                gpf.interfaces.ignoreParameter(buffer);
+                gpf.Error.Abstract();
+            },
+            _endOfInputStream: function () {
+            },
+            _readFromBuffer: function (size) {
+                gpf.ASSERT(0 !== this._buffer.length, "Buffer is not empty");
+                if ("string" === this._buffer[0]) {
+                    return this._readFromStringBuffer(size);
+                } else {
+                    return this._readFromByteBuffer(size);
+                }
+            },
+            _readFromStringBuffer: function (size) {
+                var result = gpf.stringExtractFromStringArray(this._buffer, size);
+                this._bufferLength -= result.length;
+                return result;
+            },
+            _readFromByteBuffer: function (size) {
+                this._bufferLength -= size;
+                return this._buffer.splice(0, size);
             }
-            this.write_(arg);
+        },
+        public: {
+            constructor: function (input) {
+                this._iStream = gpfI.query(input, gpfI.IReadableStream, true);
+                this._buffer = [];
+            },
+            read: function (size, eventsHandler) {
+                var iState = this._iState, length = this._bufferLength;
+                if (_BUFREADSTREAM_ISTATE_INPROGRESS === iState) {
+                    // A read call is already in progress
+                    throw gpfI.IReadableStream.EXCEPTION_READ_IN_PROGRESS;
+                } else if (size < length || length && _BUFREADSTREAM_ISTATE_EOS === iState) {
+                    // Enough chars in the output buffer to do the read
+                    // OR there won't be any more chars. Can output something.
+                    if (0 === size || size > length) {
+                        size = length;
+                    }
+                    gpf.events.fire.apply(this, [
+                        gpfI.IReadableStream.EVENT_DATA,
+                        { buffer: this._readFromBuffer(size) },
+                        eventsHandler
+                    ]);
+                } else if (_BUFREADSTREAM_ISTATE_EOS === iState) {
+                    // No more input and output buffer is empty
+                    gpf.events.fire.apply(this, [
+                        gpfI.IReadableStream.EVENT_END_OF_STREAM,
+                        eventsHandler
+                    ]);
+                } else {
+                    // Read input
+                    if (_BUFREADSTREAM_ISTATE_INIT === this._iState) {
+                        // Very first call, create callback for input reads
+                        this._cbRead = new gpf.Callback(this._onRead, this);
+                    }
+                    this._iState = _BUFREADSTREAM_ISTATE_INPROGRESS;
+                    // Backup parameters
+                    this._size = size;
+                    this._eventsHandler = eventsHandler;
+                    this._iStream.read(this._readSize, this._cbRead);
+                }
+            }    //endregion
+        },
+        private: {
+            _iStream: null,
+            _cbRead: null,
+            _iState: _BUFREADSTREAM_ISTATE_INIT,
+            _size: 0,
+            _eventsHandler: null,
+            _onRead: function (event) {
+                var type = event.type();
+                if (type === gpfI.IReadableStream.EVENT_END_OF_STREAM) {
+                    this._iState = _BUFREADSTREAM_ISTATE_EOS;
+                    this._endOfInputStream();
+                    // Redirect to read with backed parameters
+                    return this.read(this._size, this._eventsHandler);
+                } else if (type === gpfI.IReadableStream.EVENT_ERROR) {
+                    // Forward the event
+                    gpf.events.fire.apply(this, [
+                        event,
+                        this._eventsHandler
+                    ]);
+                } else {
+                    this._iState = _BUFREADSTREAM_ISTATE_WAITING;
+                    this._addToBuffer(event.get("buffer"));
+                    if (0 < this._bufferLength) {
+                        // Redirect to read with backed parameters
+                        return this.read(this._size, this._eventsHandler);
+                    } else {
+                        // Try to read source again
+                        this._iStream.read(_BUFREADSTREAM_READ_SIZE, this._cbRead);
+                    }
+                }
+            }
         }
-        if (0 === argIdx) {
-            // No parameter at all
-            this.write_(null);
-        }
+    });
+    /**
+     * Bit reader (count is expressed as bits)
+     * Rely on a underlying byte stream reader
+     *
+     * @class gpf.stream.BitReader
+     * @extend gpf.stream.BufferedOnRead
+     * @implements gpf.interfaces.IReadableStream
+     */
+    gpf.define("gpf.stream.BitReader", "gpf.stream.BufferedOnRead", {
+        "[Class]": [gpf.$InterfaceImplement(gpfI.IReadableStream)],
+        protected: {
+            _addToBuffer: function (buffer) {
+                this._buffer = this._buffer.concat(buffer);
+                this._bufferLength += buffer.length * 8;    // Expressed in bits
+            },
+            _readFromBuffer: function (size) {
+                var buffer = this._buffer,
+                    // alias
+                    result = [], readBit = this._bit, readByte, writeBit = 0, writeByte = 0;
+                readByte = buffer[0];
+                while (0 < size) {
+                    --size;
+                    // Expressed in bits
+                    writeByte <<= 1;
+                    if (0 !== (readByte & readBit)) {
+                        writeByte |= 1;
+                    }
+                    // Next read
+                    --this._bufferLength;
+                    // Because expressed in bits
+                    if (readBit === 1) {
+                        // End of current byte, move to next one
+                        buffer.shift();
+                        readByte = buffer[0];
+                        readBit = 128;
+                    } else {
+                        readBit >>= 1;
+                    }
+                    // Next write
+                    if (writeBit === 7) {
+                        result.push(writeByte);
+                        writeByte = 0;
+                        writeBit = 0;
+                    } else {
+                        ++writeBit;
+                    }
+                }
+                if (writeBit !== 0) {
+                    result.push(writeByte);
+                }
+                this._bit = readBit;
+                return result;
+            }
+        },
+        private: { _bit: 128 }
+    });
+    var
+        /**
+         * Base class used to fully read a stream
+         *
+         * @class AbstractStreamReader
+         * @abstract
+         * @private
+         */
+        AbstractStreamReader = gpf.define("AbstractStreamReader", {
+            public: {
+                constructor: function (scope, eventsHandler) {
+                    this._scope = gpf.Callback.resolveScope(scope);
+                    this._eventsHandler = eventsHandler;
+                },
+                read: function (stream) {
+                    stream.read(this._readSize, gpf.Callback.bind(this, "callback"));
+                }
+            },
+            protected: {
+                _readSize: 0,
+                _consolidateBuffer: function () {
+                    gpf.Error.Abstract();
+                    return [];
+                },
+                _addBuffer: function (buffer) {
+                    gpf.interfaces.ignoreParameter(buffer);
+                    gpf.Error.Abstract();
+                }
+            },
+            private: {
+                _scope: null,
+                _eventsHandler: null,
+                callback: function (event) {
+                    var type = event.type(), stream = event.scope();
+                    if (type === gpfI.IReadableStream.EVENT_END_OF_STREAM) {
+                        gpf.events.fire.apply(this._scope, [
+                            gpfI.IReadableStream.EVENT_DATA,
+                            { buffer: this._consolidateBuffer() },
+                            this._eventsHandler
+                        ]);
+                    } else if (type === gpfI.IReadableStream.EVENT_ERROR) {
+                        // Forward the event
+                        gpf.events.fire.apply(this._scope, [
+                            event,
+                            this._eventsHandler
+                        ]);
+                    } else {
+                        this._addBuffer(event.get("buffer"));
+                        this.read(stream);
+                    }
+                }
+            }
+        }), StreamReader = gpf.define("StreamReader", AbstractStreamReader, {
+            public: {
+                constructor: function (scope, eventsHandler, concatMethod) {
+                    this._super(scope, eventsHandler);
+                    this._concatMethod = concatMethod;
+                }
+            },
+            protected: {
+                _consolidateBuffer: function () {
+                    return this._concatMethod(this._buffer);
+                },
+                _addBuffer: function (buffer) {
+                    this._buffer = this._concatMethod(this._buffer, buffer);
+                }
+            },
+            private: {
+                _buffer: undefined,
+                _concatMethod: null
+            }
+        }), B64StreamReader = gpf.define("B64StreamReader", AbstractStreamReader, {
+            public: {
+                constructor: function (scope, eventsHandler) {
+                    this._super(scope, eventsHandler);
+                    this._buffer = [];
+                }
+            },
+            protected: {
+                _readSize: 6,
+                _consolidateBuffer: function () {
+                    return this._buffer.join("");
+                },
+                _addBuffer: function (buffer) {
+                    this._buffer.push(gpf.bin.toBase64(buffer[0]));
+                }
+            },
+            private: { _buffer: [] }
+        });
+    /**
+     * Read the whole stream and concat the buffers using the provided handler
+     *
+     * @param {gpf.interfaces.ITextStream} stream
+     * @param {Function} concatMethod
+     * @param {gpf.events.Handler} eventsHandler
+     *
+     * @forwardThis
+     *
+     * @event data finished reading the stream, the buffer is provided
+     * @eventParam {Array|String} buffer
+     */
+    gpf.stream.readAll = function (stream, concatMethod, eventsHandler) {
+        stream = gpf.interfaces.query(stream, gpfI.IReadableStream, true);
+        new StreamReader(this, eventsHandler, concatMethod).read(stream);
     };
+    /**
+     * Read the whole stream and returns a base64 string
+     *
+     * @param {gpf.interfaces.ITextStream} stream
+     * @param {gpf.events.Handler} eventsHandler
+     *
+     * @forwardThis
+     *
+     * @event data finished reading the stream, the buffer is provided
+     * @eventParam {Array|String} buffer
+     */
+    gpf.stream.readAllAsB64 = function (stream, eventsHandler) {
+        stream = new gpf.stream.BitReader(stream);
+        new B64StreamReader(this, eventsHandler).read(stream);
+    };    //endregion
     var gpfI = gpf.interfaces, _escapes = {
             javascript: {
                 "\\": "\\\\",
@@ -2128,7 +2635,7 @@
             }
         },
         /**
-         * Implements ITextStream on top of a stream
+         * Implements ITextStream on top of a string (FIFO read / write)
          *
          * @class StringStream
          * @extend gpf.events.Target
@@ -2137,64 +2644,43 @@
          */
         StringStream = gpf.define("StringStream", gpf.events.Target, {
             "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.ITextStream)],
-            _buffer: [],
-            _pos: 0,
-            constructor: function (string) {
-                if (undefined !== string && string.length) {
-                    this._buffer = [string];
-                } else {
-                    this._buffer = [];
-                }
-                this._pos = 0;
-            },
-            read: function (count, eventsHandler) {
-                // FIFO
-                var firstBuffer, length, result;
-                if (0 === this._buffer.length) {
-                    gpf.defer(gpf.events.fire, 0, this, [
-                        gpfI.IReadableStream.EVENT_END_OF_STREAM,
-                        eventsHandler
-                    ]);
-                } else if (undefined === count) {
-                    gpf.defer(gpf.events.fire, 0, this, [
-                        gpfI.IReadableStream.EVENT_DATA,
-                        { buffer: this.consolidateString() },
-                        eventsHandler
-                    ]);
-                } else {
-                    firstBuffer = this._buffer[0];
-                    length = firstBuffer.length;
-                    if (count > length - this._pos) {
-                        count = length - this._pos;
+            public: {
+                constructor: function (string) {
+                    if (undefined !== string && string.length) {
+                        this._buffer = [string];
+                    } else {
+                        this._buffer = [];
                     }
-                    result = firstBuffer.substr(this._pos, count);
-                    this._pos += count;
-                    if (this._pos === length) {
-                        this._buffer.shift();
-                        this._pos = 0;
+                },
+                read: function (count, eventsHandler) {
+                    var result;
+                    if (0 === this._buffer.length) {
+                        gpf.defer(gpf.events.fire, 0, this, [
+                            gpfI.IReadableStream.EVENT_END_OF_STREAM,
+                            eventsHandler
+                        ]);
+                    } else {
+                        result = gpf.stringExtractFromStringArray(this._buffer, count);
+                        gpf.defer(gpf.events.fire, 0, this, [
+                            gpfI.IReadableStream.EVENT_DATA,
+                            { buffer: result },
+                            eventsHandler
+                        ]);
                     }
-                    gpf.defer(gpf.events.fire, 0, this, [
-                        gpfI.IReadableStream.EVENT_DATA,
-                        { buffer: result },
-                        eventsHandler
-                    ]);
-                }
-            },
-            write: function (buffer, eventsHandler) {
-                if (buffer && buffer.length) {
+                },
+                write: function (buffer, eventsHandler) {
+                    gpf.ASSERT(buffer && buffer.length, "Write must contain data");
                     this._buffer.push(buffer);
+                    gpf.events.fire.apply(this, [
+                        gpfI.IReadableStream.EVENT_READY,
+                        eventsHandler
+                    ]);
+                },
+                consolidateString: function () {
+                    return this._buffer.join("");
                 }
-                gpf.events.fire.apply(this, [
-                    gpfI.IReadableStream.EVENT_READY,
-                    eventsHandler
-                ]);
             },
-            consolidateString: function () {
-                if (this._pos !== 0) {
-                    this._buffer.unshift(this._buffer.shift().substr(this._pos));
-                }
-                return this._buffer.join("");
-            }
+            private: { _buffer: [] }
         });
     gpf.extend(gpf, {
         "[capitalize]": [gpf.$ClassExtension(String)],
@@ -2236,7 +2722,7 @@
         "[stringExtractFromStringArray]": [gpf.$ClassExtension(String, "fromStringArray")],
         stringExtractFromStringArray: function (strings, size) {
             var stringsCount = strings.length, result, count, string, len;
-            if (0 === size) {
+            if (!size) {
                 // Take the whole content & clear the array
                 result = strings.splice(0, stringsCount).join("");
             } else {
@@ -2282,50 +2768,112 @@
         },
         "[stringFromStream]": [gpf.$ClassExtension(String, "fromStream")],
         stringFromStream: function (stream, eventsHandler) {
-            var buffer, callback, scope;
             if (stream instanceof StringStream) {
-                buffer = stream.consolidateString();
                 gpf.events.fire.apply(this, [
-                    gpfI.IReadableStream.EVENT_READY,
-                    { buffer: buffer },
+                    gpfI.IReadableStream.EVENT_DATA,
+                    { buffer: stream.consolidateString() },
+                    eventsHandler
+                ]);
+            } else {
+                gpf.stream.readAll(stream, _stringStreamConcat, eventsHandler);
+            }
+        }
+    });
+    function _stringStreamConcat(previous, buffer) {
+        if (undefined === previous) {
+            return [buffer];
+        } else if (undefined !== buffer) {
+            previous.push(buffer);
+            return previous;
+        } else {
+            return previous.join("");
+        }
+    }
+    var gpfI = gpf.interfaces,
+        /**
+         * Implements IStream on top of an array  (FIFO read / write)
+         *
+         * @class ArrayStream
+         * @extend gpf.events.Target
+         * @implements gpf.interfaces.ITextStream
+         * @private
+         */
+        ArrayStream = gpf.define("ArrayStream", gpf.events.Target, {
+            "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.IStream)],
+            public: {
+                constructor: function (array) {
+                    if (undefined !== array && array.length) {
+                        this._buffer = [].concat(array);
+                    } else {
+                        this._buffer = [];
+                    }
+                },
+                read: function (count, eventsHandler) {
+                    var result;
+                    if (0 === this._buffer.length) {
+                        gpf.defer(gpf.events.fire, 0, this, [
+                            gpfI.IReadableStream.EVENT_END_OF_STREAM,
+                            eventsHandler
+                        ]);
+                    } else if (undefined === count || count > this._buffer.length) {
+                        result = this._buffer;
+                        this._buffer = [];
+                        gpf.defer(gpf.events.fire, 0, this, [
+                            gpfI.IReadableStream.EVENT_DATA,
+                            { buffer: result },
+                            eventsHandler
+                        ]);
+                    } else {
+                        result = this._buffer.splice(0, count);
+                        gpf.defer(gpf.events.fire, 0, this, [
+                            gpfI.IReadableStream.EVENT_DATA,
+                            { buffer: result },
+                            eventsHandler
+                        ]);
+                    }
+                },
+                write: function (buffer, eventsHandler) {
+                    gpf.ASSERT(buffer && buffer.length, "Write must contain data");
+                    this._buffer = this._buffer.concat(buffer);
+                    gpf.events.fire.apply(this, [
+                        gpfI.IWritableStream.EVENT_READY,
+                        eventsHandler
+                    ]);
+                },
+                consolidateArray: function () {
+                    return [].concat(this._buffer);
+                }
+            },
+            private: { _buffer: [] }
+        });
+    gpf.extend(gpf, {
+        "[arrayToStream]": [gpf.$ClassExtension(Array, "toStream")],
+        arrayToStream: function (that) {
+            return new ArrayStream(that);
+        },
+        "[arrayFromStream]": [gpf.$ClassExtension(Array, "fromStream")],
+        arrayFromStream: function (stream, eventsHandler) {
+            if (stream instanceof ArrayStream) {
+                gpf.events.fire.apply(this, [
+                    gpfI.IReadableStream.EVENT_DATA,
+                    { buffer: stream.consolidateArray() },
                     eventsHandler
                 ]);
                 return;
+            } else {
+                gpf.stream.readAll(stream, _arrayStreamConcat, eventsHandler);
             }
-            stream = gpf.interfaces.query(stream, gpfI.IReadableStream, true);
-            scope = {
-                buffer: [],
-                eventsHandler: eventsHandler
-            };
-            callback = new gpf.Callback(_stringFromStreamReadCallback, scope);
-            scope.callback = callback;
-            stream.read(0, callback);
         }
     });
-    function _stringFromStreamReadCallback(event) {
-        /*jshint -W040*/
-        // Because used as a callback
-        // this is {buffer: [], eventsHandler: {}}
-        var type = event.type(), stream = event.scope();
-        if (type === gpfI.IReadableStream.EVENT_END_OF_STREAM) {
-            gpf.events.fire.apply(this, [
-                gpfI.IReadableStream.EVENT_READY,
-                { string: this.buffer.join("") },
-                this.eventsHandler
-            ]);
-        } else if (type === gpfI.IReadableStream.EVENT_ERROR) {
-            // Forward the event
-            gpf.events.fire.apply(this, [
-                event,
-                this.eventsHandler
-            ]);
+    function _arrayStreamConcat(previous, buffer) {
+        if (undefined === previous) {
+            return buffer;
+        } else if (undefined !== buffer) {
+            previous = previous.concat(buffer);
+            return previous;
         } else {
-            this.buffer.push(event.get("buffer"));
-            stream.read(0, this.callback);
-            return;
+            return previous;
         }
-        delete this.callback;    // Remove Circular reference
-                                 /*jshint +W040*/
     }
     var _z = function (x) {
         if (10 > x) {
@@ -2365,620 +2913,6 @@
             return date;
         }
     });
-    var gpfI = gpf.interfaces, _PARSERSTREAM_BUFFER_SIZE = 256, _PARSERSTREAM_ISTATE_INIT = 0, _PARSERSTREAM_ISTATE_INPROGRESS = 1, _PARSERSTREAM_ISTATE_WAITING = 2, _PARSERSTREAM_ISTATE_EOS = 3,
-        //region ITokenizer
-        /**
-         * Tokenizer interface
-         *
-         * @class gpf.interfaces.ITokenizer
-         * @extends gpf.interfaces.Interface
-         */
-        _ITokenizer = gpf._defIntrf("ITokenizer", {
-            write: function (char) {
-                gpf.interfaces.ignoreParameter(char);
-                return -1;
-            }
-        }),
-        // endregion
-        //region Pattern
-        /*
-     * Pattern 'grammar'
-     *
-     * pattern
-     *      : expression+
-     *
-     * expression
-     *      : item ( '|' item )*
-     *
-     * item
-     *      : match count?
-     *
-     * count
-     *      : '?'
-     *      | '*'
-     *      | '+'
-     *      | '{' <number> '}'
-     *
-     * match
-     *      : '[' char_match_include
-     *      | '(' expression ')'
-     *      | char
-     *
-     * char_match_include : '^' char_match_exclude
-     *                    | ']'
-     *                    | char char_range_sep? char_match_include
-     *
-     * char_match_exclude : ']'
-     *                    | char char_range_sep? char_match_exclude
-     *
-     * char_range_sep : '-' char
-     *
-     * char : '\' escaped_char
-     *      | <any char but ?*+{[(-[>
-     */
-        /**
-         * Pattern item: an atomic character matching item
-         *
-         * @class PatternItem
-         * @private
-         */
-        PatternItem = gpf.define("PatternItem", {
-            "[_type]": [gpf.$ClassProperty()],
-            _type: -1,
-            "[_parent]": [gpf.$ClassProperty(true)],
-            _parent: null,
-            next: function (value) {
-                if (undefined === value) {
-                    return this._next;
-                } else {
-                    this._next = value;
-                    // Forward parent
-                    value.parent(this._parent);
-                }
-            },
-            _next: null,
-            "[_min]": [gpf.$ClassProperty(true)],
-            _min: 1,
-            "[_max]": [gpf.$ClassProperty(true)],
-            _max: 1,
-            constructor: function (type) {
-                this._type = type;
-            },
-            add: function (char, inRange) {
-                gpf.interfaces.ignoreParameter(char);
-                gpf.interfaces.ignoreParameter(inRange);
-            },
-            finalize: function () {
-            },
-            reset: function (state) {
-                gpf.interfaces.ignoreParameter(state);
-            },
-            write: function (state, char) {
-                gpf.interfaces.ignoreParameter(state);
-                gpf.interfaces.ignoreParameter(char);
-                return -1;
-            }
-        }),
-        /**
-         * Simple pattern item: recognizes a sequence of characters
-         *
-         * @class PatternSimpleItem
-         * @extend PatternItem
-         * @private
-         */
-        PatternSimpleItem = gpf.define("PatternSimpleItem", PatternItem, {
-            "[_seq]": [gpf.$ClassProperty(false, "sequence")],
-            _seq: "",
-            constructor: function () {
-                this._baseConstructor(PatternItem.TYPE_SIMPLE);
-                this._seq = [];
-            },
-            add: function (char, inRange) {
-                gpf.interfaces.ignoreParameter(inRange);
-                this._seq.push(char);
-            },
-            finalize: function () {
-                this._seq = this._seq.join("");
-            },
-            reset: function (state) {
-                state.pos = 0;
-            },
-            write: function (state, char) {
-                if (char !== this._seq.charAt(state.pos)) {
-                    return PatternItem.WRITE_NO_MATCH;
-                }
-                ++state.pos;
-                if (state.pos < this._seq.length) {
-                    return PatternItem.WRITE_NEED_DATA;
-                } else {
-                    return PatternItem.WRITE_MATCH;
-                }
-            }
-        }),
-        /**
-         * Range pattern item: recognizes one char
-         * (using include/exclude patterns)
-         *
-         * @class PatternRangeItem
-         * @extend PatternItem
-         * @private
-         */
-        PatternRangeItem = gpf.define("PatternRangeItem", PatternItem, {
-            _inc: "",
-            _exc: "",
-            constructor: function () {
-                this._baseConstructor(PatternItem.TYPE_RANGE);
-                this._inc = [];
-            },
-            hasExclude: function () {
-                return this.hasOwnProperty("_exc");
-            },
-            enterExclude: function () {
-                this._exc = [];
-            },
-            add: function (char, inRange) {
-                var arrayOfChars, first, last;
-                if (this.hasExclude()) {
-                    arrayOfChars = this._exc;
-                } else {
-                    arrayOfChars = this._inc;
-                }
-                if (inRange) {
-                    first = arrayOfChars[arrayOfChars.length - 1].charCodeAt(0);
-                    last = char.charCodeAt(0);
-                    while (--last > first) {
-                        arrayOfChars.push(String.fromCharCode(last));
-                    }
-                    arrayOfChars.push(char);
-                } else {
-                    // First char of a range
-                    arrayOfChars.push(char);
-                }
-            },
-            finalize: function () {
-                this._inc = this._inc.join("");
-                if (this.hasExclude()) {
-                    this._exc = this._exc.join("");
-                }
-            },
-            write: function (state, char) {
-                gpf.interfaces.ignoreParameter(state);
-                var match;
-                if (this._inc.length) {
-                    match = -1 < this._inc.indexOf(char);
-                } else {
-                    match = true;
-                }
-                if (match && this._exc.length) {
-                    match = -1 === this._exc.indexOf(char);
-                }
-                if (match) {
-                    return PatternItem.WRITE_MATCH;
-                } else {
-                    return PatternItem.WRITE_NO_MATCH;
-                }
-            }
-        }),
-        /**
-         * Pattern choice item: includes several items, matching only one amoung
-         * them
-         *
-         * @class PatternChoiceItem
-         * @extend PatternItem
-         * @private
-         */
-        PatternChoiceItem = gpf.define("PatternChoiceItem", PatternItem, {
-            _choices: [],
-            next: function (item) {
-                if (undefined === item) {
-                    /*
-                     * The only way to have something *after* is to use ()
-                     * In that case, it would go through the parent
-                     */
-                    return null;
-                } else {
-                    var parent = item.parent(), pos;
-                    this._choices.push(item);
-                    item.parent(this);
-                    if (1 === this._choices.length) {
-                        // Care about parent
-                        if (null === parent) {
-                            return;    // Nothing to care about
-                        }
-                        if (parent.type() !== PatternItem.TYPE_GROUP) {
-                            throw { message: "Unexpected" };
-                        }
-                        // TODO should be the last
-                        pos = gpf.test(parent._items, item);
-                        if (undefined === pos) {
-                            throw { message: "Unexpected" };
-                        }
-                        parent._items[pos] = this;
-                        this._parent = parent;
-                    }
-                }
-            },
-            constructor: function () {
-                this._baseConstructor(PatternItem.TYPE_CHOICE);
-                this._choices = [];
-            },
-            write: function (state, char) {
-                // Try all choices and stop on the first one that works
-                var tmpState = {}, idx, item, result;
-                for (idx = this._choices.length; idx > 0;) {
-                    item = this._choices[--idx];
-                    item.reset(tmpState);
-                    result = item.write(tmpState, char);
-                    if (PatternItem.WRITE_NO_MATCH !== result) {
-                        state.replaceItem = item;
-                        gpf.extend(state, tmpState);
-                        return result;
-                    }
-                }
-                return PatternItem.WRITE_NO_MATCH;
-            }
-        }),
-        /**
-         * Pattern group item: group several items
-         *
-         * @class PatternGroupItem
-         * @extend PatternItem
-         * @private
-         */
-        PatternGroupItem = gpf.define("PatternGroupItem", PatternItem, {
-            _items: [],
-            next: function (value) {
-                if (undefined === value) {
-                    return this._next;
-                } else {
-                    if (this._items.length) {
-                        this._next = value;
-                        value.parent(this._parent);
-                    } else {
-                        this._items.push(value);
-                        value.parent(this);
-                    }
-                }
-            },
-            constructor: function () {
-                this._baseConstructor(PatternItem.TYPE_GROUP);
-                this._items = [];
-            },
-            reset: function (state) {
-                this._items[0].reset(state);
-            },
-            write: function (state, char) {
-                var item = this._items[0];
-                state.replaceItem = item;
-                return item.write(state, char);
-            }
-        }),
-        /**
-         * Pattern parser context.
-         * Class used to parse a pattern, will allocated and consolidate
-         * PatternItems
-         *
-         * @class PatternParserContext
-         * @private
-         */
-        PatternParserContext = gpf.define("PatternParserContext", {
-            _root: null,
-            _item: null,
-            _inRange: false,
-            _afterChar: null,
-            parse: null,
-            constructor: function () {
-                this.parse = this._stateItem;
-            },
-            root: function () {
-                if (null === this._item) {
-                    throw { message: "Empty pattern" };
-                }
-                this._item.finalize();
-                if (this.parse !== this._stateItem && this.parse !== this._stateCount) {
-                    throw { message: "Invalid syntax" };
-                }
-                return this._root;
-            },
-            _getItem: function (type, force) {
-                var item = this._item, nextItem;
-                if (force || null === item || type !== item.type()) {
-                    nextItem = PatternItem.create(type);
-                    if (null !== item) {
-                        item.finalize();
-                        item.next(nextItem);
-                    } else {
-                        this._root = nextItem;
-                    }
-                    this._item = nextItem;
-                    item = nextItem;
-                }
-                return item;
-            },
-            _stateItem: function (char) {
-                if ("[" === char) {
-                    this._getItem(PatternItem.TYPE_RANGE, true);
-                    this.parse = this._stateCharMatchRange;
-                } else if ("(" === char) {
-                    this._getItem(PatternItem.TYPE_GROUP, true);
-                } else {
-                    this._getItem(PatternItem.TYPE_SIMPLE);
-                    this._afterChar = this._stateCount;
-                    this._stateChar(char);
-                }
-            },
-            _stateCharMatchRange: function (char) {
-                var curItem = this._getItem(PatternItem.TYPE_RANGE);
-                if ("^" === char && !curItem.hasExclude()) {
-                    curItem.enterExclude();    // this.parse = this._stateCharMatchRange;
-                } else if ("]" === char) {
-                    this.parse = this._stateCount;
-                } else {
-                    this._inRange = false;
-                    this._afterChar = this._stateCharRangeSep;
-                    this._stateChar(char);
-                }
-            },
-            _stateCharRangeSep: function (char) {
-                if ("-" === char) {
-                    this._inRange = true;
-                    this._afterChar = this._stateCharMatchRange;
-                    this.parse = this._stateChar;
-                } else {
-                    this._stateCharMatchRange(char);
-                }
-            },
-            _stateChar: function (char) {
-                if ("\\" === char) {
-                    this.parse = this._stateEscapedChar;
-                } else {
-                    this._item.add(char, this._inRange);
-                    this.parse = this._afterChar;
-                }
-            },
-            _stateEscapedChar: function (char) {
-                this._item.add(char, this._inRange);
-                this.parse = this._afterChar;
-            },
-            _stateCountByChar: {
-                "?": function () {
-                    var item = this._splitSimpleOnMinMax();
-                    item.min(0);
-                },
-                "+": function () {
-                    var item = this._splitSimpleOnMinMax();
-                    item.max(0);
-                },
-                "*": function () {
-                    var item = this._splitSimpleOnMinMax();
-                    item.min(0);
-                    item.max(0);
-                },
-                "|": function () {
-                    var item = this._item, choice = item.parent();
-                    if (null === choice || choice.type() !== PatternItem.TYPE_CHOICE) {
-                        choice = PatternItem.create(PatternItem.TYPE_CHOICE);
-                        choice.next(item);    // Overridden to 'add' the choice
-                    }
-                    if (item === this._root) {
-                        this._root = choice;
-                    }
-                    item.finalize();
-                    this._item = choice;
-                },
-                ")": function () {
-                    var item = this._item;
-                    item.finalize();
-                    while (item.type() !== PatternItem.TYPE_GROUP) {
-                        item = item.parent();
-                    }
-                    if (item === this._item) {
-                        throw { message: "Syntax error (empty group)" };
-                    }
-                    this._item = item;
-                    return 0;    // !undefined
-                }
-            },
-            _splitSimpleOnMinMax: function () {
-                var item = this._item, lastChar;
-                if (item.type() === PatternItem.TYPE_SIMPLE && item.sequence().length > 1) {
-                    lastChar = item.sequence().pop();
-                    item = this._getItem(PatternItem.TYPE_SIMPLE, true);
-                    item.add(lastChar);
-                }
-                return item;
-            },
-            _stateCount: function (char) {
-                var byChar = this._stateCountByChar[char];
-                if (undefined === byChar) {
-                    this._stateItem(char);
-                } else {
-                    if (undefined === byChar.apply(this, arguments)) {
-                        this.parse = this._stateItem;
-                    }
-                }
-            }
-        }),
-        /**
-         * Pattern tokenizer
-         *
-         * @class {PatternTokenizer}
-         * @implements gpf.interfaces.ITokenizer
-         * @private
-         */
-        PatternTokenizer = gpf.define("PatternTokenizer", {
-            "[Class]": [gpf.$InterfaceImplement(_ITokenizer)],
-            _pattern: null,
-            _item: null,
-            _state: {
-                result: 0,
-                length: 0,
-                matchingLength: 0,
-                count: 0
-            },
-            constructor: function (pattern) {
-                this._pattern = pattern;
-                this._item = pattern._root;
-                this._state = {
-                    result: 0,
-                    length: 0,
-                    matchingLength: 0,
-                    count: 0
-                };
-                this._item.reset(this._state);
-            },
-            _getNext: function (item) {
-                var result = item.next();
-                while (null === result) {
-                    item = item.parent();
-                    if (null === item) {
-                        break;
-                    }
-                    result = item.next();
-                }
-                return result;
-            },
-            _writeNoMatch: function (char) {
-                var state = this._state, item = this._item;
-                if (state.count < item.min() || state.length > state.matchingLength + 1) {
-                    // Terminal error
-                    state.result = -1;
-                    this._item = null;
-                    // No need to go any further
-                    return -1;
-                }
-                item = this._getNext(item);
-                if (null === item) {
-                    if (0 === state.matchingLength) {
-                        state.result = -1;
-                    } else {
-                        state.result = state.matchingLength;
-                    }
-                    this._item = null;
-                    return state.result;
-                }
-                item.reset(state);
-                this._item = item;
-                state.count = 0;
-                --state.length;
-                return this.write(char);    // Try with this one
-            },
-            _writeMatch: function () {
-                var state = this._state, item = this._item, nextItem = this._getNext(item);
-                state.matchingLength = state.length;
-                ++state.count;
-                if (0 === item.max()) {
-                    // Unlimited
-                    item.reset(state);
-                    if (null !== nextItem) {
-                        state.result = PatternItem.WRITE_NEED_DATA;
-                    } else {
-                        // Last item with unlimited occurrences
-                        state.result = state.length;
-                    }
-                } else if (state.count === item.max()) {
-                    item = nextItem;
-                    this._item = item;
-                    if (null === item) {
-                        state.result = state.length;
-                    } else {
-                        item.reset(state);
-                        state.count = 0;
-                        state.result = 0;
-                        if (0 === item.min()) {
-                            // TODO this search should be done only once
-                            nextItem = this._getNext(item);
-                            while (nextItem && 0 === nextItem.min()) {
-                                nextItem = this._getNext(nextItem);
-                            }
-                            if (!nextItem) {
-                                // The rest being optional...
-                                state.result = state.matchingLength;
-                            }
-                        }
-                    }
-                } else {
-                    state.result = PatternItem.WRITE_NEED_DATA;
-                }
-                return state.result;
-            },
-            write: function (char) {
-                var result, state = this._state, item = this._item;
-                if (null !== item) {
-                    result = item.write(state, char);
-                    ++state.length;
-                    if (undefined !== state.replaceItem) {
-                        this._item = state.replaceItem;
-                    }
-                    // Not enough data to conclude
-                    if (PatternItem.WRITE_NEED_DATA === result) {
-                        return state.result;    // Whatever the previous result
-                    }
-                    if (PatternItem.WRITE_NO_MATCH === result) {
-                        return this._writeNoMatch(char);
-                    } else {
-                        return this._writeMatch();
-                    }
-                }
-                return state.result;
-            }    //endregion
-        });
-    gpf.extend(PatternItem, {
-        TYPE_SIMPLE: 0,
-        TYPE_RANGE: 1,
-        TYPE_CHOICE: 2,
-        TYPE_GROUP: 3,
-        WRITE_NO_MATCH: -1,
-        WRITE_NEED_DATA: 0,
-        WRITE_MATCH: 1,
-        _factory: null,
-        create: function (type) {
-            var factory = PatternItem._factory;
-            if (!factory) {
-                factory = PatternItem._factory = {};
-                factory[this.TYPE_SIMPLE] = PatternSimpleItem;
-                factory[this.TYPE_RANGE] = PatternRangeItem;
-                factory[this.TYPE_CHOICE] = PatternChoiceItem;
-                factory[this.TYPE_GROUP] = PatternGroupItem;
-            }
-            return new factory[type]();
-        }
-    });
-    /**
-     * Patterns are designed to be an efficient and stream-able alternative to
-     * regular expressions. However, the coverage is not the same
-     *
-     * Supported operators:
-     *  [a-z^0-9], [^abc], ., ?, +, *
-     *  [^a-z] exclude
-     *  . any character
-     *
-     *
-     * @class gpf.Pattern
-     */
-    gpf.define("gpf.Pattern", {
-        _root: null,
-        constructor: function (pattern) {
-            var context = new PatternParserContext(), idx, len = pattern.length;
-            for (idx = 0; idx < len; ++idx) {
-                context.parse(pattern.charAt(idx));
-            }
-            this._root = context.root();
-        },
-        allocate: function () {
-            return new PatternTokenizer(this);
-        }
-    });
-    //endregion
-    //region Parser
-    /**
-     * This parser base class maintain the current stream position
-     * And also offers some basic features to ease parsing and improve speed
-     *
-     * The output has to be transmitted through the protected _output function.
-     *
-     * @class gpf.Parser
-     */
     gpf.define("gpf.Parser", {
         public: {
             constructor: function () {
@@ -3004,13 +2938,13 @@
                     if (null === arg) {
                         this._finalizeParserState();
                     } else {
-                        gpf.ASSERT("string" === typeof arg);
+                        gpf.ASSERT("string" === typeof arg, "string expected");
                         this._parse(arg);
                     }
                 }
             },
             setOutputHandler: function (handler) {
-                gpf.ASSERT(handler instanceof Array || handler.apply);
+                gpf.ASSERT(handler instanceof Array || handler.apply, "Invalid output handler");
                 this._outputHandler = handler;
             }
         },
@@ -3059,7 +2993,7 @@
                         char = 0;
                     }
                     if (char) {
-                        state = this._pState(char);
+                        state = this._pState.apply(this, [char]);
                         if (undefined !== state) {
                             this._setParserState(state);
                         }
@@ -3082,90 +3016,642 @@
      * Encapsulate a parser inside a ReadableStream interface
      *
      * @class gpf.ParserStream
+     * @extends gpf.stream.BufferedOnRead
      * @implements gpf.interfaces.IReadableStream
      */
-    gpf.define("gpf.ParserStream", {
-        "[Class]": [gpf.$InterfaceImplement(gpfI.IReadableStream)],
+    gpf.define("gpf.ParserStream", gpf.stream.BufferedOnRead, {
         public: {
             constructor: function (parser, input) {
+                this._super(input);
                 this._parser = parser;
                 this._parser.setOutputHandler(new gpf.Callback(this._output, this));
-                this._iStream = gpfI.query(input, gpfI.IReadableStream, true);
-                this._outputBuffer = [];
+            }
+        },
+        protected: {
+            _addToBuffer: function (buffer) {
+                this._parser.parse(buffer);
             },
-            read: function (size, eventsHandler) {
-                var iState = this._iState, buffer, length = this._outputBufferLength;
-                if (_PARSERSTREAM_ISTATE_INPROGRESS === iState) {
-                    // A read call is already in progress
-                    throw gpfI.IReadableStream.EXCEPTION_READ_IN_PROGRESS;
-                } else if (size < length || length && _PARSERSTREAM_ISTATE_EOS === iState) {
-                    // Enough chars in the output buffer to do the read
-                    // OR there won't be any more chars
-                    buffer = gpf.stringExtractFromStringArray(this._outputBuffer, size);
-                    this._outputBufferLength -= buffer.length;
-                    // Can output something
-                    gpf.events.fire.apply(this, [
-                        gpfI.IReadableStream.EVENT_DATA,
-                        { buffer: buffer },
-                        eventsHandler
-                    ]);
-                } else if (_PARSERSTREAM_ISTATE_EOS === iState) {
-                    // No more input and output buffer is empty
-                    gpf.events.fire.apply(this, [
-                        gpfI.IReadableStream.EVENT_END_OF_STREAM,
-                        eventsHandler
-                    ]);
-                } else {
-                    // Read input
-                    if (_PARSERSTREAM_ISTATE_INIT === this._iState) {
-                        // Very first call, create callback for input reads
-                        this._cbRead = new gpf.Callback(this._onRead, this);
-                    }
-                    this._iState = _PARSERSTREAM_ISTATE_INPROGRESS;
-                    // Backup parameters
-                    this._size = size;
-                    this._eventsHandler = eventsHandler;
-                    this._iStream.read(_PARSERSTREAM_BUFFER_SIZE, this._cbRead);
-                }
-            }    //endregion
+            _endOfInputStream: function () {
+                this._parser.parse(gpf.Parser.FINALIZE);
+            },
+            _readFromBuffer: gpf.stream.BufferedOnRead.prototype._readFromStringBuffer
         },
         private: {
-            _parser: null,
-            _iStream: null,
-            _cbRead: null,
-            _outputBuffer: [],
-            _outputBufferLength: 0,
-            _iState: _PARSERSTREAM_ISTATE_INIT,
-            _size: 0,
-            _eventsHandler: null,
-            _onRead: function (event) {
-                var type = event.type();
-                if (type === gpfI.IReadableStream.EVENT_END_OF_STREAM) {
-                    this._iState = _PARSERSTREAM_ISTATE_EOS;
-                    this._parser.parse(gpf.Parser.FINALIZE);
-                    // Redirect to read with backed parameters
-                    return this.read(this._size, this._eventsHandler);
-                } else if (type === gpfI.IReadableStream.EVENT_ERROR) {
-                    // Forward the event
-                    gpf.events.fire.apply(this, [
-                        event,
-                        this._eventsHandler
-                    ]);
-                } else {
-                    this._iState = _PARSERSTREAM_ISTATE_WAITING;
-                    this._parser.parse(event.get("buffer"));
-                    if (0 < this._outputBufferLength) {
-                        // Redirect to read with backed parameters
-                        return this.read(this._size, this._eventsHandler);
-                    } else {
-                        // Try to read source again
-                        this._iStream.read(_PARSERSTREAM_BUFFER_SIZE, this._cbRead);
+            _output: function (text) {
+                this._buffer.push(text);
+                this._bufferLength += text.length;
+            }
+        }
+    });
+    //endregion
+    var bitTest = gpf.bin.test, bitClear = gpf.bin.clear,
+        //region ITokenizer
+        /**
+         * Tokenizer interface
+         *
+         * @interface gpf.interfaces.ITokenizer
+         * @extends gpf.interfaces.Interface
+         */
+        _ITokenizer = gpf._defIntrf("ITokenizer", {
+            write: function (char) {
+                gpf.interfaces.ignoreParameter(char);
+                return -1;
+            }
+        }),
+        // endregion
+        //region Pattern
+        /**
+     * Pattern structure
+     * -----------------
+     *
+     * [a-zA-Z][a-zA-Z0-9]* is represented by
+     *
+     * PatternGroup
+     * |
+     * +- PatternRange
+     * |
+     * +- PatternRange(max:0)
+     *
+     *
+     * Pattern 'grammar'
+     * -----------------
+     *
+     * pattern
+     *      : expression+
+     *
+     * expression
+     *      : item ( '|' item )*
+     *
+     * item
+     *      : match count?
+     *
+     * count
+     *      : '?'
+     *      | '*'
+     *      | '+'
+     *      | '{' <number> '}'
+     *
+     * match
+     *      : '[' char_match_include
+     *      | '(' expression ')'
+     *      | char
+     *
+     * char_match_include : '^' char_match_exclude
+     *                    | ']'
+     *                    | char char_range_sep? char_match_include
+     *
+     * char_match_exclude : ']'
+     *                    | char char_range_sep? char_match_exclude
+     *
+     * char_range_sep : '-' char
+     *
+     * char : '\' escaped_char
+     *      | <any char but ?*+{[(-[>
+     */
+        /**
+         * Pattern item: an atomic character matching item
+         *
+         * @class PatternItem
+         * @abstract
+         * @private
+         * @abstract
+         */
+        PatternItem = gpf.define("PatternItem", {
+            private: {
+                "[_min]": [gpf.$ClassProperty(true)],
+                _min: 1,
+                "[_max]": [gpf.$ClassProperty(true)],
+                _max: 1
+            },
+            public: {
+                parse: function (char) {
+                    gpf.interfaces.ignoreParameter(char);
+                    gpf.Error.Abstract();
+                    return PatternItem.PARSE_IGNORED;
+                },
+                finalize: function () {
+                },
+                reset: function (state) {
+                    gpf.interfaces.ignoreParameter(state);
+                },
+                write: function (state, char) {
+                    gpf.interfaces.ignoreParameter(state);
+                    gpf.interfaces.ignoreParameter(char);
+                    gpf.Error.Abstract();
+                    return -1;
+                }    //endregion
+            },
+            static: {
+                PARSE_IGNORED: 0,
+                PARSE_PROCESSED: 1,
+                PARSE_END_OF_PATTERN: 2,
+                PARSE_PROCESSED_EOP: 3,
+                CHARS_QUANTIFICATION: "?*+",
+                WRITE_NO_MATCH: -1,
+                WRITE_NEED_DATA: 0,
+                WRITE_MATCH: 1,
+                WRITE_PATTERN_END: 2,
+                WRITE_FINAL_MATCH: 3
+            }
+        }),
+        /**
+         * Char pattern: recognizes one character
+         *
+         * @class PatternChar
+         * @extend PatternItem
+         * @private
+         */
+        PatternChar = gpf.define("PatternChar", PatternItem, {
+            private: { _match: "" },
+            public: {
+                parse: function (char) {
+                    this._match = char;
+                    return PatternItem.PARSE_PROCESSED_EOP;
+                },
+                write: function (state, char) {
+                    gpf.interfaces.ignoreParameter(state);
+                    if (char === this._match) {
+                        return PatternItem.WRITE_FINAL_MATCH;
                     }
+                    return PatternItem.WRITE_NO_MATCH;
+                }
+            }
+        }),
+        /**
+         * Range pattern: recognizes one char defined by a range
+         * (using include/exclude patterns)
+         *
+         * @class PatternRange
+         * @extend PatternItem
+         * @private
+         */
+        PatternRange = gpf.define("PatternRange", PatternItem, {
+            private: {
+                _inc: "",
+                _exc: "",
+                _inRange: false,
+                _parse: function (char, chars) {
+                    var first, last;
+                    if ("^" === char) {
+                        this._exc = [];
+                    } else if ("]" === char) {
+                        if (this._inRange) {
+                            gpf.Error.PatternInvalidSyntax();
+                        }
+                        return true;
+                    } else if ("-" === char) {
+                        if (this._inRange || 0 === chars.length) {
+                            gpf.Error.PatternInvalidSyntax();
+                        }
+                        this._inRange = true;
+                    } else {
+                        if (this._inRange) {
+                            first = chars[chars.length - 1].charCodeAt(0);
+                            last = char.charCodeAt(0);
+                            while (--last > first) {
+                                chars.push(String.fromCharCode(last));
+                            }
+                            chars.push(char);
+                            delete this._inRange;
+                        } else {
+                            // First char of a range
+                            chars.push(char);
+                        }
+                    }
+                    return false;
                 }
             },
-            _output: function (text) {
-                this._outputBuffer.push(text);
-                this._outputBufferLength += text.length;
+            public: {
+                parse: function (char) {
+                    var chars;
+                    if (this.hasOwnProperty("_exc")) {
+                        if ("^" === char) {
+                            gpf.Error.PatternInvalidSyntax();
+                        }
+                        chars = this._exc;
+                    } else {
+                        chars = this._inc;
+                    }
+                    if ("[" === char) {
+                        if (this.hasOwnProperty("_inc")) {
+                            gpf.Error.PatternInvalidSyntax();
+                        }
+                        this._inc = [];
+                    } else if (this._parse(char, chars)) {
+                        return PatternItem.PARSE_PROCESSED_EOP;
+                    }
+                    return PatternItem.PARSE_PROCESSED;
+                },
+                finalize: function () {
+                    this._inc = this._inc.join("");
+                    if (this.hasOwnProperty("_exc")) {
+                        this._exc = this._exc.join("");
+                    }
+                },
+                write: function (state, char) {
+                    gpf.interfaces.ignoreParameter(state);
+                    var match;
+                    if (this._inc.length) {
+                        match = -1 < this._inc.indexOf(char);
+                    } else {
+                        match = true;
+                    }
+                    if (match && this._exc.length) {
+                        match = -1 === this._exc.indexOf(char);
+                    }
+                    if (match) {
+                        return PatternItem.WRITE_FINAL_MATCH;
+                    } else {
+                        return PatternItem.WRITE_NO_MATCH;
+                    }
+                }
+            }
+        }),
+        /**
+         * Group pattern: group several patterns
+         * May also be a 'choice' pattern
+         *
+         * @class PatternGroup
+         * @extend PatternItem
+         * @private
+         */
+        PatternGroup = gpf.define("PatternGroup", PatternItem, {
+            private: {
+                _items: [],
+                _choice: false,
+                _optionals: [],
+                _parsedParenthesis: false,
+                _parsedItem: null,
+                _getItems: function (pos) {
+                    if (this._choice) {
+                        if (undefined === pos) {
+                            pos = this._items.length - 1;
+                        }
+                        return this._items[pos];
+                    }
+                    return this._items;
+                },
+                _lastItem: function () {
+                    var items = this._getItems();
+                    return items[items.length - 1];
+                },
+                _push: function (item) {
+                    this._getItems().push(item);
+                    this._parsedItem = item;
+                    return item;
+                },
+                _parseItem: function (char) {
+                    var parsedItem = this._parsedItem, result;
+                    if (parsedItem) {
+                        result = parsedItem.parse(char);
+                        if (bitTest(result, PatternItem.PARSE_END_OF_PATTERN)) {
+                            parsedItem.finalize();
+                            this._parsedItem = null;
+                            // Remove the flag
+                            result = bitClear(result, PatternItem.PARSE_END_OF_PATTERN);
+                        }
+                    } else {
+                        result = 0;
+                    }
+                    return result;
+                },
+                _parseQuantity: function (char) {
+                    var parsedItem = this._lastItem();
+                    if ("*" === char) {
+                        parsedItem._min = 0;
+                        parsedItem._max = 0;
+                    } else if ("+" === char) {
+                        parsedItem._max = 0;
+                    } else if ("?" === char) {
+                        parsedItem._min = 0;
+                    }
+                    return PatternItem.PARSE_PROCESSED;
+                },
+                _getOptional: function (items) {
+                    var idx;
+                    idx = items.length;
+                    while (idx--) {
+                        if (0 !== items[idx].min()) {
+                            ++idx;
+                            break;
+                        }
+                    }
+                    return idx;
+                },
+                _reset: function (item, state) {
+                    state.count = 0;
+                    state.sub = {};
+                    item.reset(state.sub);
+                },
+                _getItem: function (state, index) {
+                    var items = this._getItems(state.choice);
+                    if (index < items.length) {
+                        return items[index];
+                    }
+                    return null;
+                },
+                _writeNoMatch: function (item, state, char) {
+                    if (state.count < item.min() || state.length > state.matchingLength + 1) {
+                        // Terminal error
+                        return PatternItem.WRITE_NO_MATCH;
+                    }
+                    item = this._getItem(state, state.index + 1);
+                    if (null === item) {
+                        return PatternItem.WRITE_NO_MATCH;
+                    }
+                    ++state.index;
+                    this._reset(item, state);
+                    return this.write(state, char);    // Try with this one
+                },
+                _writeMatch: function (item, state) {
+                    var nextItem = this._getItem(state, state.index + 1), optional;
+                    if (this._choice && -1 < state.choice) {
+                        optional = this._optionals[state.choice];
+                    } else {
+                        optional = this._optionals[0];
+                    }
+                    ++state.count;
+                    if (0 === item.max()) {
+                        // Unlimited
+                        this._reset(item, state);
+                        if (null !== nextItem && optional > state.index) {
+                            return PatternItem.WRITE_NEED_DATA;
+                        } else {
+                            // Last (or equivalent) so...
+                            return PatternItem.WRITE_MATCH;
+                        }
+                    } else if (state.count === item.max()) {
+                        if (null === nextItem) {
+                            return PatternItem.WRITE_FINAL_MATCH;
+                        }
+                        ++state.index;
+                        this._reset(nextItem, state);
+                        if (optional <= state.index) {
+                            return PatternItem.WRITE_MATCH;
+                        }
+                    }
+                    return PatternItem.WRITE_NEED_DATA;
+                }
+            },
+            public: {
+                constructor: function () {
+                    this._items = [];
+                },
+                parse: function (char) {
+                    var result = this._parseItem(char);
+                    if (0 !== result) {
+                        return result;
+                    }
+                    if (-1 < PatternItem.CHARS_QUANTIFICATION.indexOf(char)) {
+                        return this._parseQuantity(char);
+                    }
+                    if ("|" === char) {
+                        if (!this._choice) {
+                            this._items = [this._items];
+                            this._choice = true;
+                        }
+                        this._items.push([]);
+                        return PatternItem.PARSE_PROCESSED;
+                    } else if ("[" === char) {
+                        this._push(new PatternRange());
+                    } else if ("(" === char) {
+                        if (this._parsedParenthesis) {
+                            this._push(new PatternGroup());
+                        } else {
+                            this._parsedParenthesis = true;
+                            return PatternItem.PARSE_PROCESSED;
+                        }
+                    } else if (")" === char) {
+                        return PatternItem.PARSE_PROCESSED_EOP;
+                    } else {
+                        this._push(new PatternChar());
+                    }
+                    return this._parseItem(char);
+                },
+                finalize: function () {
+                    var len, idx, array;
+                    // Compute optionals
+                    array = this._optionals = [];
+                    if (this._choice) {
+                        len = this._items.length;
+                        for (idx = 0; idx < len; ++idx) {
+                            array.push(this._getOptional(this._items[idx]));
+                        }
+                    } else {
+                        array.push(this._getOptional(this._items));
+                    }    // TODO in case of choice, verify they are exclusive
+                },
+                reset: function (state) {
+                    var item;
+                    state.index = 0;
+                    if (this._choice) {
+                        state.choice = -1;
+                    }
+                    item = this._getItems(0)[0];
+                    this._reset(item, state);
+                },
+                write: function (state, char) {
+                    var len, idx, item, result;
+                    if (this._choice && -1 === state.choice) {
+                        // Enumerate items and stop on first !== NO_MATCH
+                        len = this._items.length;
+                        for (idx = 0; idx < len; ++idx) {
+                            item = this._items[idx][0];
+                            this._reset(item, state);
+                            result = item.write(state.sub, char);
+                            if (PatternItem.WRITE_NO_MATCH !== result) {
+                                state.choice = idx;
+                                return this._writeMatch(item, state);
+                            }
+                        }
+                        if (idx === len) {
+                            return PatternItem.WRITE_NO_MATCH;
+                        }
+                    }
+                    item = this._getItem(state, state.index);
+                    result = item.write(state.sub, char);
+                    if (PatternItem.WRITE_NEED_DATA === result) {
+                        return result;
+                    } else if (PatternItem.WRITE_NO_MATCH === result) {
+                        return this._writeNoMatch(item, state, char);
+                    } else {
+                        return this._writeMatch(item, state);
+                    }
+                }
+            }
+        }),
+        //        /**
+        //         * Choice pattern: includes several items, matching only one among
+        // them
+        //         *
+        //         * @class PatternChoice
+        //         * @extend PatternItem
+        //         * @private
+        //         */
+        //        PatternChoice = gpf.define("PatternChoice", PatternItem, {
+        //
+        //            public: {
+        //
+        ////                /**
+        ////                 * @inheritDoc PatternItem:next
+        ////                 *
+        ////                 * Overridden to 'add' the choice
+        ////                 */
+        ////                next: function (item) {
+        ////                    if (undefined === item) {
+        ////                        /*
+        ////                         * The only way to have something *after* is to use
+        // ()
+        ////                         * In that case, it would go through the parent
+        ////                         */
+        ////                        return null;
+        ////                    } else {
+        ////                        var
+        ////                            parent = item.parent(),
+        ////                            pos;
+        ////                        this._choices.push(item);
+        ////                        item.parent(this);
+        ////                        if (1 === this._choices.length) {
+        ////                            // Care about parent
+        ////                            if (null === parent) {
+        ////                                return; // Nothing to care about
+        ////                            }
+        ////                            if (parent.type() !== PatternItem.TYPE_GROUP) {
+        ////                                gpf.Error.PatternUnexpected();
+        ////                            }
+        ////                            // TODO should be the last
+        ////                            pos = gpf.test(parent._items, item);
+        ////                            if (undefined === pos) {
+        ////                                gpf.Error.PatternUnexpected();
+        ////                            }
+        ////                            parent._items[pos] = this;
+        ////                            this._parent = parent;
+        ////                        }
+        ////                    }
+        ////                },
+        //
+        //                /**
+        //                 * @inheritDoc PatternItem:write
+        //                 */
+        //                write: function (state, char) {
+        //                    // Try all choices and stop on the first one that works
+        //                    var
+        //                        tmpState = {},
+        //                        idx,
+        //                        item,
+        //                        result;
+        //                    for (idx = this._choices.length; idx > 0;) {
+        //                        item = this._choices[--idx];
+        //                        item.reset(tmpState);
+        //                        result = item.write(tmpState, char);
+        //                        if (PatternItem.WRITE_NO_MATCH !== result) {
+        //                            state.replaceItem = item;
+        //                            gpf.extend(state, tmpState);
+        //                            return result;
+        //                        }
+        //                    }
+        //                    return PatternItem.WRITE_NO_MATCH;
+        //                }
+        //
+        //            }
+        //
+        //        }),
+        /**
+         * Pattern parser context.
+         * Class used to parse a pattern, will allocated and consolidate
+         * PatternItems
+         *
+         * @class PatternParserContext
+         * @extend gpf.Parser
+         * @private
+         */
+        PatternParser = gpf.define("PatternParser", gpf.Parser, {
+            private: {
+                "[_patternItem]": [gpf.$ClassProperty()],
+                _patternItem: null
+            },
+            protected: {
+                _initialParserState: function (char) {
+                    this._patternItem.parse(char);
+                },
+                _finalizeParserState: function () {
+                    var patternItem = this._patternItem;
+                    patternItem.parse(")");
+                    patternItem.finalize();
+                }
+            },
+            public: {
+                constructor: function () {
+                    this._super.apply(this, arguments);
+                    this._patternItem = new PatternGroup();
+                    this._patternItem.parse("(");
+                }
+            }
+        }),
+        /**
+         * Pattern tokenizer
+         *
+         * @class {PatternTokenizer}
+         * @implements gpf.interfaces.ITokenizer
+         * @private
+         */
+        PatternTokenizer = gpf.define("PatternTokenizer", {
+            "[Class]": [gpf.$InterfaceImplement(_ITokenizer)],
+            private: {
+                _patternItem: null,
+                _stopMatching: false,
+                _lastResult: 0,
+                _totalLength: 0,
+                _state: {}
+            },
+            public: {
+                constructor: function (patternItem) {
+                    this._patternItem = patternItem;
+                    this._state = {};
+                    this._patternItem.reset(this._state);
+                },
+                write: function (char) {
+                    var result;
+                    if (this._stopMatching) {
+                        return this._lastResult;
+                    }
+                    ++this._totalLength;
+                    result = this._patternItem.write(this._state, char);
+                    if (0 < result) {
+                        this._lastResult = this._totalLength;
+                        this._stopMatching = bitTest(result, PatternItem.WRITE_PATTERN_END);
+                    } else if (PatternItem.WRITE_NO_MATCH === result) {
+                        this._stopMatching = true;
+                        if (0 === this._lastResult) {
+                            this._lastResult = -1;
+                        }
+                    }
+                    return this._lastResult;
+                }    //endregion
+            }
+        });
+    /**
+     * Patterns are designed to be an efficient and stream-able alternative to
+     * regular expressions. However, the coverage is not the same
+     *
+     * Supported operators:
+     *  [a-z^0-9], [^abc], ., ?, +, *
+     *  [^a-z] exclude
+     *  . any character
+     *
+     *
+     * @class gpf.Pattern
+     */
+    gpf.define("gpf.Pattern", {
+        private: { _patternItem: null },
+        public: {
+            constructor: function (pattern) {
+                var parser = new PatternParser();
+                parser.parse(pattern, null);
+                this._patternItem = parser.patternItem();
+            },
+            allocate: function () {
+                return new PatternTokenizer(this._patternItem);
             }
         }
     });    //endregion
@@ -3634,6 +4120,153 @@
             return context;
         }
     });
+    (function () {
+        /* Begin of privacy scope */
+        "use strict";
+        var
+            //region UTF-8
+            // UTF-8 encode/decode based on  http://www.webtoolkit.info/
+            _utf8Encode = function (input) {
+                var result = [], len = input.length, idx, charCode;
+                for (idx = 0; idx < len; ++idx) {
+                    charCode = input.charCodeAt(idx);
+                    if (charCode < 128) {
+                        result.push(charCode);
+                    } else if (charCode > 127 && charCode < 2048) {
+                        result.push(charCode >> 6 | 192);
+                        result.push(charCode & 63 | 128);
+                    } else {
+                        result.push(charCode >> 12 | 224);
+                        result.push(charCode >> 6 & 63 | 128);
+                        result.push(charCode & 63 | 128);
+                    }
+                }
+                return result;
+            }, _utf8Decode = function (input, unprocessed) {
+                var result = [], len = input.length, idx = 0, byte, byte2, byte3;
+                while (idx < len) {
+                    byte = input[idx];
+                    if (byte < 128) {
+                        result.push(String.fromCharCode(byte));
+                    } else if (byte > 191 && byte < 224) {
+                        if (idx + 1 === len) {
+                            break;
+                        }
+                        byte2 = input[++idx];
+                        result.push(String.fromCharCode((byte & 31) << 6 | byte2 & 63));
+                    } else {
+                        if (idx + 2 >= len) {
+                            break;
+                        }
+                        byte2 = input[++idx];
+                        byte3 = input[++idx];
+                        result.push(String.fromCharCode((byte & 15) << 12 | (byte2 & 63) << 6 | byte3 & 63));
+                    }
+                    ++idx;
+                }
+                while (idx < len) {
+                    unprocessed.push(input[idx++]);
+                }
+                return result.join("");
+            },
+            //endregion
+            /**
+         * Map that relates encoding to the appropriate encoder/decoder
+         *
+         * encode (string input) : byte[]
+         * decode (byte[] input, byte[] unprocessed) : string
+         *
+         * @type {Object}
+         * @private
+         */
+            _encodings = {
+                "utf-8": [
+                    _utf8Encode,
+                    _utf8Decode
+                ]
+            },
+            //region Encoder / Decoder stream implementation
+            /**
+         * Encoder stream
+         *
+         * @class gpf.encoding.EncoderStream
+         * @extends gpf.stream.BufferedOnRead
+         * @implements gpf.interfaces.IReadableStream
+         * @private
+         */
+            EncoderStream = gpf.define("EncoderStream", gpf.stream.BufferedOnRead, {
+                public: {
+                    constructor: function (encoder, input) {
+                        this._super(input);
+                        this._encoder = encoder;
+                    }
+                },
+                protected: {
+                    _addToBuffer: function (buffer) {
+                        this._buffer = this._buffer.concat(this._encoder(buffer));
+                        this._bufferLength = this._buffer.length;
+                    },
+                    _readFromBuffer: gpf.stream.BufferedOnRead.prototype._readFromByteBuffer
+                },
+                private: { _encoder: null }
+            }),
+            /**
+         * Decoder stream
+         *
+         * @class gpf.encoding.DecoderStream
+         * @extends gpf.stream.BufferedOnRead
+         * @implements gpf.interfaces.IReadableStream
+         * @private
+         */
+            DecoderStream = gpf.define("DecoderStream", gpf.stream.BufferedOnRead, {
+                public: {
+                    constructor: function (decoder, input) {
+                        this._super(input);
+                        this._decoder = decoder;
+                    }
+                },
+                protected: {
+                    _addToBuffer: function (buffer) {
+                        var string;
+                        if (this._unprocessed.length) {
+                            buffer = this._unprocessed.concat(buffer);
+                        }
+                        this._unprocessed = [];
+                        string = this._decoder(buffer, this._unprocessed);
+                        this._buffer.push(string);
+                        this._bufferLength += string.length;
+                    },
+                    _endOfInputStream: function () {
+                        if (this._unprocessed.length) {
+                            gpf.Error.EncodingEOFWithUnprocessedBytes();
+                        }
+                    },
+                    _readFromBuffer: gpf.stream.BufferedOnRead.prototype._readFromStringBuffer
+                },
+                private: {
+                    _decoder: null,
+                    _unprocessed: []
+                }
+            });
+        //endregion
+        gpf.encoding = {
+            UTF_8: "utf-8",
+            createEncoder: function (input, encoding) {
+                var module = _encodings[encoding];
+                if (undefined === module) {
+                    gpf.Error.EncodingNotSupported();
+                }
+                return new EncoderStream(module[0], input);
+            },
+            createDecoder: function (input, encoding) {
+                var module = _encodings[encoding];
+                if (undefined === module) {
+                    gpf.Error.EncodingNotSupported();
+                }
+                return new DecoderStream(module[1], input);
+            }
+        };
+    }());    /* End of privacy scope */
     gpf.html = {};
     var gpfI = gpf.interfaces;
     /**
@@ -3647,7 +4280,7 @@
     gpf.define("gpf.html.MarkdownParser", "gpf.Parser", {
         public: {
             constructor: function () {
-                this._baseConstructor(arguments);
+                this._super.apply(this, arguments);
                 this._openedTags = [];
             }
         },
@@ -3910,7 +4543,7 @@
             _eventsHandler: null,
             _onLoadEnd: function (event) {
                 var reader = event.target, buffer, len, result, idx;
-                gpf.ASSERT(reader === this._reader);
+                gpf.ASSERT(reader === this._reader, "Unexpected change of reader");
                 if (reader.error) {
                     gpf.events.fire.apply(this, [
                         gpfI.IReadableStream.ERROR,
@@ -3938,6 +4571,241 @@
             }
         }
     });
+    //region HTML Attributes
+    var
+        /**
+         * HTML attribute (base class).
+         *
+         * @class gpf.attributes.HtmlAttribute
+         * @extends gpf.attributes.Attribute
+         * @private
+         */
+        _Base = gpf._defAttr("HtmlAttribute", {}),
+        /**
+         * HTML Handler
+         * Used to identify the member receiving the attached DOM inside an
+         * object
+         *
+         * @class gpf.attributes.HtmlHandlerAttribute
+         * @extends gpf.attributes.HtmlAttribute
+         * @alias gpf.$HtmlHandler
+         * @friend _handleHandlers
+         * @friend _handleEvent
+         */
+        _Handler = gpf._defAttr("$HtmlHandler", _Base, {
+            private: {
+                _selector: "",
+                _globalSelector: false
+            },
+            protected: {
+                _select: function (domObject) {
+                    var selector = this._selector;
+                    if (selector) {
+                        if (this._globalSelector) {
+                            return document.querySelector(selector);
+                        } else {
+                            return domObject.querySelector(selector);
+                        }
+                    }
+                    return undefined;
+                }
+            },
+            public: {
+                constructor: function (selector, global) {
+                    if (selector) {
+                        this._selector = selector;
+                    }
+                    if (undefined !== global) {
+                        this._globalSelector = global === true;
+                    }
+                }
+            }
+        }),
+        /**
+         * HTML Event Mapper
+         *
+         * @class gpf.attributes.HtmlEventAttribute
+         * @extends gpf.attributes.HtmlHandlerAttribute
+         * @alias gpf.$HtmlEvent
+         * @friend _handleEvent
+         */
+        _Event = gpf._defAttr("$HtmlEvent", _Handler, {
+            private: { _event: "" },
+            public: {
+                constructor: function (event, selector, global) {
+                    _Handler.apply(this, [
+                        selector,
+                        global
+                    ]);
+                    this._event = event;
+                }
+            }
+        });
+    //endregion
+    //region HTML event handlers mappers through attributes
+    function _getHandlerAttribute(member, handlerAttributeArray) {
+        var attribute;
+        if (1 !== handlerAttributeArray.length()) {
+            gpf.Error.HtmlHandlerMultiplicityError({ member: member });
+        }
+        attribute = handlerAttributeArray.get(0);
+        if (!(attribute instanceof _Event)) {
+            return attribute;
+        }
+        return null;
+    }
+    function _findDefaultHandler(member, handlerAttributeArray) {
+        var attribute = _getHandlerAttribute(member, handlerAttributeArray);
+        if (attribute && !attribute._selector) {
+            return attribute;
+        }
+    }
+    /**
+     * Attach the selected DOM object to the object instance
+     *
+     * @param {Object} instance Object instance
+     * @param {String|Object} [domSelection=undefined] domSelection DOM
+     * selector, DOM object or nothing. If a DOM selector or object is provided
+     * it will be associated to the object using the default $HtmlHandler
+     * attribute.
+     * Otherwise, this can be used to refresh the missing associations.
+     *
+     * @return {Object|undefined} the DOM object
+     * @closure
+     */
+    gpf.html.handle = function (instance, domSelection) {
+        var allAttributes = new gpf.attributes.Map(instance).filter(_Base), handlerAttributes = allAttributes.filter(_Handler), defaultHandler, eventAttributes;
+        if (0 === handlerAttributes.count()) {
+            gpf.Error.HtmlHandlerMissing();
+        }
+        defaultHandler = handlerAttributes.each(_findDefaultHandler);
+        if (undefined === defaultHandler) {
+            gpf.Error.HtmlHandlerNoDefault();
+        }
+        defaultHandler = defaultHandler.member();
+        if (undefined === domSelection) {
+            domSelection = instance[defaultHandler];
+            gpf.ASSERT(domSelection, "Handle not previously set");
+        } else {
+            if ("string" === typeof domSelection) {
+                domSelection = document.querySelector(domSelection);
+            }
+            gpf.ASSERT(domSelection, "Selector does not resolve to DOM");
+            if (!domSelection) {
+                return;    // Nothing can be done
+            }
+            instance[defaultHandler] = domSelection;
+        }
+        // Process other handlers
+        handlerAttributes.each(_handleHandlers, instance, [domSelection]);
+        // Process event handlers
+        eventAttributes = allAttributes.filter(_Event);
+        if (0 < eventAttributes.count()) {
+            eventAttributes.each(_handleEvents, instance, [domSelection]);
+        }
+        return domSelection;
+    };
+    function _handleHandlers(member, handlerAttributeArray, domObject) {
+        /*jshint -W040*/
+        // Used as a callback, this is the object instance
+        var attribute = _getHandlerAttribute(member, handlerAttributeArray);
+        if (!attribute || !attribute._selector) {
+            return;
+        }
+        domObject = attribute._select(domObject);
+        if (!domObject) {
+            return;
+        }
+        this[member] = domObject;    /*jshint +W040*/
+    }
+    /**
+     * @param {String} member
+     * @param {gpf.attributes.Array} attributesArray
+     * @param {Object} domObject
+     * @private
+     */
+    function _handleEvents(member, attributesArray, domObject) {
+        /*jshint -W040*/
+        // Used as a callback, this is the object instance
+        attributesArray.each(_handleEvent, this, [
+            member,
+            domObject
+        ]);    /*jshint +W040*/
+    }
+    /**
+     * @param {gpf.attributes.HtmlEventAttribute} eventAttribute
+     * @param {String} member
+     * @param {Object} domObject
+     * @private
+     */
+    function _handleEvent(eventAttribute, member, domObject) {
+        /*jshint -W040*/
+        // Used as a callback, this is the object instance
+        var event = eventAttribute._event, _boundMember = member + ":$HtmlEvent(" + event + "," + eventAttribute._selector + ")";
+        domObject = eventAttribute._select(domObject);
+        if (!domObject) {
+            return;    // Nothing to do
+        }
+        if (!this[_boundMember]) {
+            domObject.addEventListener(event, gpf.Callback.bind(this, member));
+            this[_boundMember] = true;
+        }    /*jshint +W040*/
+    }
+    //endregion
+    //region Common HTML helpers
+    gpf.extend(gpf.html, {
+        hasClass: function (domObject, toCheck) {
+            var classNames, len, idx;
+            if ("string" === typeof toCheck) {
+                toCheck = [toCheck];
+            }
+            gpf.ASSERT(toCheck instanceof Array, "Expected array");
+            classNames = domObject.className.split(" ");
+            len = toCheck.length;
+            for (idx = 0; idx < len; ++idx) {
+                if (undefined !== gpf.test(classNames, toCheck[idx])) {
+                    return true;
+                }
+            }
+            return false;
+        },
+        addClass: function (domObject, toAdd) {
+            var classNames, lengthBeforeAdding, len, idx;
+            if ("string" === typeof toAdd) {
+                toAdd = [toAdd];
+            }
+            gpf.ASSERT(toAdd instanceof Array, "Expected array");
+            classNames = domObject.className.split(" ");
+            lengthBeforeAdding = classNames.length;
+            len = toAdd.length;
+            for (idx = 0; idx < len; ++idx) {
+                gpf.set(classNames, toAdd[idx]);
+            }
+            // Avoid resource consuming refresh if nothing changed
+            if (lengthBeforeAdding !== classNames.length) {
+                domObject.className = classNames.join(" ");
+            }
+            return domObject;
+        },
+        removeClass: function (domObject, toRemove) {
+            var classNames, lengthBeforeAdding, len, idx;
+            if ("string" === typeof toRemove) {
+                toRemove = [toRemove];
+            }
+            gpf.ASSERT(toRemove instanceof Array, "Expected array");
+            classNames = domObject.className.split(" ");
+            lengthBeforeAdding = classNames.length;
+            len = toRemove.length;
+            for (idx = 0; idx < len; ++idx) {
+                gpf.clear(classNames, toRemove[idx]);
+            }
+            // Avoid resource consuming refresh if nothing changed
+            if (lengthBeforeAdding !== classNames.length) {
+                domObject.className = classNames.join(" ");
+            }
+            return domObject;
+        }
+    });    //endregion
     var
         // Namespaces shortcut
         gpfI = gpf.interfaces, gpfA = gpf.attributes;
@@ -4024,7 +4892,7 @@
          * @private
          */
         _Base = gpf._defAttr("XmlAttribute", {
-            alterPrototype: function (objPrototype) {
+            _alterPrototype: function (objPrototype) {
                 /*
                  * If not yet defined creates new XML members
                  * - toXml()
@@ -4097,7 +4965,7 @@
             "[_objClass]": [gpf.$ClassProperty()],
             _objClass: null,
             constructor: function (name, objClass) {
-                this._baseConstructor(name);
+                this._super(name);
                 if (objClass) {
                     this._objClass = objClass;
                 }
@@ -4699,7 +5567,7 @@
         var iContentHandler, iXmlSerializable;
         iContentHandler = gpfI.query(out, gpfI.IXmlContentHandler, true);
         if ("string" === typeof value) {
-            gpf.NOT_IMPLEMENTED();
+            gpf.Error.NotImplemented();
         } else if ("object" === typeof value) {
             iXmlSerializable = gpfI.query(value, gpfI.IXmlSerializable);
             if (null !== iXmlSerializable) {
@@ -4733,7 +5601,7 @@
             // Try with a starting _
             newName = "_" + name;
             if (!gpf.xml.isValidName(newName)) {
-                throw { message: "Invalid name" };
+                gpf.Error.XmlInvalidName();
             }
             return newName;
         }
