@@ -393,8 +393,17 @@
              * @return {Number} number of attributes in the resulting map
              */
             fillFromObject: function (object) {
+                return this.fillFromClassDef(gpf.classDef(object.constructor));
+            },
+
+            /**
+             * Fill the map using class definition object
+             *
+             * @param {gpf.classDef} classDef class definition
+             * @return {Number} number of attributes in the resulting map
+             */
+            fillFromClassDef: function (classDef) {
                 var
-                    classDef = gpf.classDef(object.constructor),
                     attributes;
                 while (classDef) { // !undefined && !null
                     attributes = classDef.attributes();
