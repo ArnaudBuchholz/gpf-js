@@ -239,49 +239,95 @@
      */
     gpf._defAttr("$InterfaceImplement", {
 
-//        "[Class]": [gpf.$Alias("InterfaceImplement")],
+        private: {
 
-        "[_interfaceDefinition]": [gpf.$ClassProperty(false, "which")],
-        _interfaceDefinition: 0,
+            /**
+             * Interface definition
+             *
+             * @type {Function}
+             * @private
+             */
+            "[_interfaceDefinition]": [gpf.$ClassProperty(false, "which")],
+            _interfaceDefinition: gpf.emptyFunction(),
 
-        "[_builder]": [gpf.$ClassProperty(false, "how")],
-        _builder: null,
+            /**
+             * Builder function
+             *
+             * @type {Function|null}
+             * @private
+             */
+            "[_builder]": [gpf.$ClassProperty(false, "how")],
+            _builder: null
 
-        constructor: function (interfaceDefinition, queryInterfaceBuilder) {
-            this._interfaceDefinition = interfaceDefinition;
-            if (queryInterfaceBuilder) {
-                this._builder = queryInterfaceBuilder;
-            }
         },
 
-        _alterPrototype: function (objPrototype) {
-            if (!this._builder) {
-                // Nothing to do
-                return;
-            }
-            if (undefined !== objPrototype.queryInterface) {
-                /*
-                 * Two situations here:
-                 * - Either the class (or one of its parent) already owns
-                 *   the $InterfaceImplement attribute
-                 * - Or the class (or one of its parent) implements its
-                 *   own queryInterface
-                 * In that last case, wrap it to use the attribute version first
-                 *
-                 * In both case, we take the assumption that the class already
-                 * owns gpf.$InterfaceImplement(gpf.interfaces.IUnknown)
-                 */
-                if (_queryInterface !== objPrototype.queryInterface) {
-                    objPrototype.queryInterface =
-                        _wrapQueryInterface(objPrototype.queryInterface);
+        protected: {
+
+            /**
+             * @inheritdoc gpf.attributes.Attribute:_alterPrototype
+             */
+            _alterPrototype: function (objPrototype) {
+                var
+                    iProto = this._interfaceDefinition.prototype,
+                    iClassDef = gpf.classDef(this._interfaceDefinition),
+                    member,
+                    attributes;
+                // Get the interface's attributes apply them to the obj
+                attributes = new gpf.attributes.Map();
+                attributes.fillFromClassDef(iClassDef);
+                attributes.addTo(objPrototype.constructor);
+                if (!this._builder) {
+                    // Fill the missing methods
+                    for (member in iProto) {
+                        if (!(member in objPrototype)) {
+                            objPrototype[member] = iProto[member];
+                        }
+                    }
+                    return;
                 }
-            } else {
-                objPrototype.queryInterface = _queryInterface;
-                gpf.attributes.add(objPrototype.constructor, "Class",
-                    [gpf.$InterfaceImplement(gpf.interfaces.IUnknown)]);
+                // Handle the queryInterface logic
+                if (undefined !== objPrototype.queryInterface) {
+                    /*
+                     * Two situations here:
+                     * - Either the class (or one of its parent) already owns
+                     *   the $InterfaceImplement attribute
+                     * - Or the class (or one of its parent) implements its
+                     *   own queryInterface
+                     * In that last case, wrap it to use the attribute version
+                     * first
+                     *
+                     * In both case, we take the assumption that the class
+                     * already owns
+                     * gpf.$InterfaceImplement(gpf.interfaces.IUnknown)
+                     */
+                    if (_queryInterface !== objPrototype.queryInterface) {
+                        objPrototype.queryInterface =
+                            _wrapQueryInterface(objPrototype.queryInterface);
+                    }
+                } else {
+                    objPrototype.queryInterface = _queryInterface;
+                    gpf.attributes.add(objPrototype.constructor, "Class",
+                        [gpf.$InterfaceImplement(gpf.interfaces.IUnknown)]);
+                }
             }
-            // TODO may have to replicate existing attributes on the methods
-            // TODO may fill in the missing methods ('default' implementation)
+
+        },
+
+        public: {
+
+            /**
+             * @param {Function} interfaceDefinition Interface definition
+             * @param {Function|null} [queryInterfaceBuilder=null]
+             * queryInterfaceBuilder Builder function
+             * @constructor
+             */
+            constructor: function (interfaceDefinition, queryInterfaceBuilder) {
+                this._interfaceDefinition = interfaceDefinition;
+                if (queryInterfaceBuilder) {
+                    this._builder = queryInterfaceBuilder;
+                }
+            }
+
         }
 
     });
