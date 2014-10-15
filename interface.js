@@ -29,7 +29,6 @@
                     !== typeof objectInstance[member]) {
                     return false;
                 }
-                // TODO: check function arity
             }
             /*jslint forin:true*/
             return true;
@@ -40,8 +39,7 @@
         /**
          * Used to remove warnings about unused parameters
          */
-        ignoreParameter: function (value) {
-            // TODO remove at build time
+        ignoreParameter: function /*gpf:ignore*/ (value) {
             return value;
         },
 

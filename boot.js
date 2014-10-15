@@ -165,7 +165,7 @@
 
 /*#else*/
 
-        gpf.ASSERT = function /*gpf:inline*/ () {};
+        gpf.ASSERT = function /*gpf:ignore*/ () {};
 
 /*#endif*/
 
