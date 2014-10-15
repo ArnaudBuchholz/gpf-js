@@ -208,10 +208,11 @@
                     "Expected an Attribute-like class parameter");
                 var
                     idx,
-                    len = this._array.length,
+                    array = this._array,
+                    len = array.length,
                     item;
                 for (idx = 0; idx < len; ++idx) {
-                    item = this._array[idx];
+                    item = array[idx];
                     if (item instanceof expectedClass) {
                         return item;
                     }
@@ -234,13 +235,15 @@
                     "Expected an Attribute-like class parameter");
                 var
                     idx,
-                    len = this._array.length,
+                    array = this._array,
+                    len = array.length,
                     attribute,
-                    result = new gpf.attributes.Array();
+                    result = new gpf.attributes.Array(),
+                    resultArray = result._array;
                 for (idx = 0; idx < len; ++idx) {
-                    attribute = this._array[idx];
+                    attribute = array[idx];
                     if (attribute instanceof expectedClass) {
-                        result._array.push(attribute);
+                        resultArray.push(attribute);
                     }
                 }
                 return result;
@@ -264,11 +267,12 @@
                 params = gpf.Callback.buildParamArray(1, params);
                 var
                     idx,
-                    len = this._array.length,
+                    array = this._array,
+                    len = array.length,
                     result;
                 for (idx = 0; idx < len; ++idx) {
                     result = gpf.Callback.doApply(callback, scope, params,
-                        this._array[idx]);
+                        array[idx]);
                     if (undefined !== result) {
                         return result;
                     }
@@ -311,14 +315,15 @@
              */
             _copyTo: function (attributesMap, callback, param) {
                 var
+                    members = this._members,
                     member,
                     array,
                     idx,
                     attribute;
                 if (this._count) {
-                    for (member in this._members) {
-                        if (this._members.hasOwnProperty(member)) {
-                            array = this._members[member]._array;
+                    for (member in members) {
+                        if (members.hasOwnProperty(member)) {
+                            array = members[member]._array;
                             for (idx = 0; idx < array.length; ++idx) {
                                 attribute = array[ idx ];
                                 if (!callback
@@ -462,10 +467,11 @@
              */
             members: function () {
                 var
+                    members = this._members,
                     result = [],
                     member;
-                for (member in this._members) {
-                    if (this._members.hasOwnProperty(member)) {
+                for (member in members) {
+                    if (members.hasOwnProperty(member)) {
                         result.push(member);
                     }
                 }
@@ -490,15 +496,33 @@
                 scope = gpf.Callback.resolveScope(scope);
                 params = gpf.Callback.buildParamArray(2, params);
                 var
+                    members = this._members,
                     member,
                     result;
-                for (member in this._members) {
-                    if (this._members.hasOwnProperty(member)) {
+                for (member in members) {
+                    if (members.hasOwnProperty(member)) {
                         result = gpf.Callback.doApply(callback, scope, params,
-                            member, this._members[member]);
+                            member, members[member]);
                         if (undefined !== result) {
                             return result;
                         }
+                    }
+                }
+            },
+
+            /**
+             * Add the attributes contained in the map to the given prototype
+             *
+             * @param {Function} objectClass
+             */
+            addTo: function (objectClass) {
+                var
+                    members = this._members,
+                    member;
+                for (member in members) {
+                    if (members.hasOwnProperty(member)) {
+                        gpf.attributes.add(objectClass, member,
+                            members[member]);
                     }
                 }
             }
