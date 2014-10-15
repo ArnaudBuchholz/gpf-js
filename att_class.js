@@ -160,7 +160,7 @@
              * @type {Function}
              * @private
              */
-            _ofClass: 0,
+            _ofClass: gpf.emptyFunction(),
 
             /**
              * Name of the method if added to the class
