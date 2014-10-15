@@ -558,6 +558,7 @@
          *        and any carriage return combination)
          *
          */
+        "[tokenize]": [gpf.$ClassEventHandler()],
         tokenize: function (text, eventsHandler) {
             var
                 idx,

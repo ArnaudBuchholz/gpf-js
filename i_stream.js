@@ -42,6 +42,7 @@
          * @event eos No more data can be read from the stream
          *
          */
+        "[read]": [gpf.$ClassEventHandler()],
         read: function (size, eventsHandler) {
             gpf.interfaces.ignoreParameter(size);
             gpf.interfaces.ignoreParameter(eventsHandler);
@@ -85,6 +86,7 @@
          * stream
          *
          */
+        "[write]": [gpf.$ClassEventHandler()],
         write: function (int8buffer, eventsHandler) {
             gpf.interfaces.ignoreParameter(int8buffer);
             gpf.interfaces.ignoreParameter(eventsHandler);
@@ -109,6 +111,7 @@
         /**
          * @inheritDoc gpf.interfaces.IReadableStream:read
          */
+        "[read]": [gpf.$ClassEventHandler()],
         read: function (size, eventsHandler) {
             gpf.interfaces.ignoreParameter(size);
             gpf.interfaces.ignoreParameter(eventsHandler);
@@ -117,6 +120,7 @@
         /**
          * @inheritDoc gpf.interfaces.IWritableStream:write
          */
+        "[write]": [gpf.$ClassEventHandler()],
         write: function (int8buffer, eventsHandler) {
             gpf.interfaces.ignoreParameter(int8buffer);
             gpf.interfaces.ignoreParameter(eventsHandler);
