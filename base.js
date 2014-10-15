@@ -203,7 +203,15 @@
         },
 
         // https://github.com/jshint/jshint/issues/525
-        Func = Function; // avoid JSHint error
+        Func = Function, // avoid JSHint error
+
+        /**
+         * An empty function
+         * @private
+         */
+        _emptyFunc = function () {
+            return undefined;
+        };
 
     /*jshint unused: false */ // Because of arguments
     /*
@@ -277,6 +285,14 @@
                 return null;
             }
 /*#endif*/
+        },
+
+        /**
+         * An empty function
+         * return {Function}
+         */
+        emptyFunction: function () {
+            return _emptyFunc;
         },
 
         /*
