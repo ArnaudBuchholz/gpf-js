@@ -207,22 +207,29 @@
          */
         _Base = gpf._defAttr("XmlAttribute", {
 
-            _alterPrototype: function (objPrototype) {
-                /*
-                 * If not yet defined creates new XML members
-                 * - toXml()
-                 * - IXmlContentHandler implementation
+            protected: {
+
+                /**
+                 * @inheritdoc gpf.attributes.Attribute:_alterPrototype
                  */
-                if (undefined === objPrototype.toXml) {
-                    // Declare toXml
-                    gpfA.add(objPrototype.constructor, "Class",
-                        [gpf.$InterfaceImplement(gpfI.IXmlSerializable)]);
-                    objPrototype.toXml = _toXml;
-                    // Declare IXmlContentHandler interface through IUnknown
-                    gpfA.add(objPrototype.constructor, "Class",
-                        [gpf.$InterfaceImplement(gpfI.IXmlContentHandler,
-                            _fromXml)]);
+                _alterPrototype: function (objPrototype) {
+                    /*
+                     * If not yet defined creates new XML members
+                     * - toXml()
+                     * - IXmlContentHandler implementation
+                     */
+                    if (undefined === objPrototype.toXml) {
+                        // Declare toXml
+                        gpfA.add(objPrototype.constructor, "Class",
+                            [gpf.$InterfaceImplement(gpfI.IXmlSerializable)]);
+                        objPrototype.toXml = _toXml;
+                        // Declare IXmlContentHandler interface through IUnknown
+                        gpfA.add(objPrototype.constructor, "Class",
+                            [gpf.$InterfaceImplement(gpfI.IXmlContentHandler,
+                                _fromXml)]);
+                    }
                 }
+
             }
 
         }),
@@ -235,11 +242,7 @@
          * @extends gpf.attributes.XmlAttribute
          * @alias gpf.$XmlIgnore
          */
-        _Ignore = gpf._defAttr("$XmlIgnore", _Base, {
-
-//            "[Class]": [gpf.$Alias("XmlIgnore")]
-
-        }),
+        _Ignore = gpf._defAttr("$XmlIgnore", _Base, {}),
 
         /**
          * XML Attribute attribute
@@ -253,15 +256,31 @@
          */
         _Attribute = gpf._defAttr("$XmlAttribute", _Base, {
 
-//            "[Class]": [gpf.$Alias("XmlAttribute")],
+            private: {
 
-            "[_name]": [gpf.$ClassProperty()],
-            _name: "",
+                /**
+                 * Name of the attribute
+                 *
+                 * @type {String}
+                 * @private
+                 */
+                "[_name]": [gpf.$ClassProperty()],
+                _name: ""
 
-            constructor: function (name) {
-                gpf.ASSERT(gpf.xml.isValidName(name),
-                    "Valid XML attribute name");
-                this._name = name;
+            },
+
+            public: {
+
+                /**
+                 * @param {String} name Name of the attribute
+                 * @constructor
+                 */
+                constructor: function (name) {
+                    gpf.ASSERT(gpf.xml.isValidName(name),
+                        "Valid XML attribute name");
+                    this._name = name;
+                }
+
             }
 
         }),
@@ -276,13 +295,31 @@
          */
         _RawElement = gpf._defAttr("XmlRawElementAttribute", _Base, {
 
-            "[_name]": [gpf.$ClassProperty()],
-            _name: "",
+            private: {
 
-            constructor: function (name) {
-                gpf.ASSERT(gpf.xml.isValidName(name),
-                    "Valid XML element name");
-                this._name = name;
+                /**
+                 * Name of the element
+                 *
+                 * @type {String}
+                 * @private
+                 */
+                "[_name]": [gpf.$ClassProperty()],
+                _name: ""
+
+            },
+
+            public: {
+
+                /**
+                 * @param {String} name Name of the element
+                 * @constructor
+                 */
+                constructor: function (name) {
+                    gpf.ASSERT(gpf.xml.isValidName(name),
+                        "Valid XML element name");
+                    this._name = name;
+                }
+
             }
 
         }),
@@ -300,16 +337,33 @@
          */
         _Element = gpf._defAttr("$XmlElement", _RawElement, {
 
-//            "[Class]": [gpf.$Alias("XmlElement")],
+            private: {
 
-            "[_objClass]": [gpf.$ClassProperty()],
-            _objClass: null,
+                /**
+                 * Object constructor
+                 *
+                 * @type {Function}
+                 * @private
+                 */
+                "[_objClass]": [gpf.$ClassProperty()],
+                _objClass: null
 
-            constructor: function (name, objClass) {
-                this._super(name);
-                if (objClass) {
-                    this._objClass = objClass;
+            },
+
+            public: {
+
+                /**
+                 * @param {String} name Name of the element
+                 * @param {Function} objClass Object constructor
+                 * @constructor
+                 */
+                constructor: function (name, objClass) {
+                    this._super(name);
+                    if (objClass) {
+                        this._objClass = objClass;
+                    }
                 }
+
             }
 
         }),
@@ -322,11 +376,7 @@
          * @extends gpf.attributes.XmlRawElementAttribute
          * @alias gpf.$XmlList
          */
-        _List = gpf._defAttr("$XmlList", _RawElement, {
-
-//            "[Class]": [gpf.$Alias("XmlList")]
-
-        }),
+        _List = gpf._defAttr("$XmlList", _RawElement, {}),
 
         //endregion
 
