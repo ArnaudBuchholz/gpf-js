@@ -34,6 +34,7 @@
          *
          * @event ready
          */
+        "[toXml]": [gpf.$ClassEventHandler()],
         toXml: function (out, eventsHandler) {
             gpfI.ignoreParameter(out);
             gpfI.ignoreParameter(eventsHandler);
@@ -60,6 +61,7 @@
          *
          * @event ready
          */
+        "[characters]": [gpf.$ClassEventHandler()],
         characters: function (buffer, eventsHandler) {
             gpfI.ignoreParameter(buffer);
             gpfI.ignoreParameter(eventsHandler);
@@ -72,6 +74,7 @@
          *
          * @event ready
          */
+        "[endDocument]": [gpf.$ClassEventHandler()],
         endDocument: function (eventsHandler) {
             gpfI.ignoreParameter(eventsHandler);
         },
@@ -83,6 +86,7 @@
          *
          * @event ready
          */
+        "[endElement]": [gpf.$ClassEventHandler()],
         endElement: function (eventsHandler) {
             gpfI.ignoreParameter(eventsHandler);
         },
@@ -106,8 +110,8 @@
          *
          * @event ready
          */
-        ignorableWhitespace: function (buffer,
-            /*gpf.events.Handler*/ eventsHandler) {
+        "[ignorableWhitespace]": [gpf.$ClassEventHandler()],
+        ignorableWhitespace: function (buffer, eventsHandler) {
             gpfI.ignoreParameter(buffer);
             gpfI.ignoreParameter(eventsHandler);
         },
@@ -121,8 +125,8 @@
          *
          * @event ready
          */
-        processingInstruction: function (target, data,
-            /*gpf.events.Handler*/ eventsHandler) {
+        "[processingInstruction]": [gpf.$ClassEventHandler()],
+        processingInstruction: function (target, data, eventsHandler) {
             gpfI.ignoreParameter(target);
             gpfI.ignoreParameter(data);
             gpfI.ignoreParameter(eventsHandler);
@@ -151,7 +155,8 @@
          *
          * @param {gpf.events.Handler} eventsHandler
          */
-        startDocument: function (/*gpf.events.Handler*/ eventsHandler) {
+        "[startDocument]": [gpf.$ClassEventHandler()],
+        startDocument: function (eventsHandler) {
             gpfI.ignoreParameter(eventsHandler);
         },
 
@@ -164,8 +169,9 @@
          * @param {Object} attributes attribute dictionary (string/string)
          * @param {gpf.events.Handler} eventsHandler
          */
+        "[startElement]": [gpf.$ClassEventHandler()],
         startElement: function (uri, localName, qName, attributes,
-            /*gpf.events.Handler*/ eventsHandler) {
+                                eventsHandler) {
             gpfI.ignoreParameter(uri);
             gpfI.ignoreParameter(localName);
             gpfI.ignoreParameter(qName);
