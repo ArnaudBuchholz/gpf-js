@@ -22,6 +22,8 @@
             "array",                // Array functions
             "date",                 // Date functions
 
+            "promise",              // Promise                       gpf.Promise
+
             "parser",               // Parser helper                  gpf.Parser
             "tokenizer",            // Javascript parser                  gpf.js
 
