@@ -23,6 +23,7 @@
             "date",                 // Date functions
 
             "promise",              // Promise                       gpf.Promise
+            "i_wrapper",            // Interface wrapper  gpf.interfaces.Wrapper
 
             "parser",               // Parser helper                  gpf.Parser
             "tokenizer",            // Javascript parser                  gpf.js
