@@ -54,7 +54,7 @@
         "wrapper": [
 
             function (test) {
-                var WExample = new gpf.interfaces.Wrapper(IExample),
+                var WExample = gpf.interfaces.wrap(IExample),
                     example = new Example(),
                     wrapped = new WExample(example);
                 test.wait();
