@@ -80,6 +80,7 @@
 //        _VISIBILITY_PRIVATE     = 2,
         _VISIBILITY_STATIC      = 3,
         _initAllowed            = true,
+        _uid                    = 0,
 
         /**
          * Used below
@@ -155,6 +156,7 @@
      * @param {Object} definition
      */
     gpf.ClassDefinition = function  (name, Base, definition) {
+        this._uid = ++_uid;
         this._Subs = [];
         if ("function" === typeof name) {
             // TODO to extract class info from there
@@ -170,6 +172,23 @@
     gpf.extend(gpf.ClassDefinition.prototype, {
 
         //region Members
+
+        /**
+         * Unique identifier
+         *
+         * @type {Number}
+         * @private
+         */
+        _uid: 0,
+
+        /**
+         * Unique identifier
+         *
+         * @return {Number}
+         */
+        uid: function () {
+            return this._uid;
+        },
 
         /**
          * Class name
