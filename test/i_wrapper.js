@@ -42,12 +42,15 @@
 
                 test2: function (param1) {
                     this._sequences.push(param1);
+                },
+
+                get: function () {
+                    return this._sequences.join("");
                 }
 
             }
 
         });
-
 
     gpf.declareTests({
 
@@ -62,11 +65,15 @@
                     .test1("a")
                     .test2("b")
                     .test1("c")
-                    ._then(function (event) {
+                    .$error(function (event) {
+                        test.assert(false, "Error raised: " + event.type());
+                    })
+                    .$finally(function (/*event*/) {
+                        test.equal(example.get(), "abc", "Correct sequence");
                         test.done();
                     });
-
             }
+
         ]
 
     });
