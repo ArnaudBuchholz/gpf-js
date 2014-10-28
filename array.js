@@ -14,7 +14,7 @@
          * @implements gpf.interfaces.ITextStream
          * @private
          */
-        ArrayStream = gpf.define("ArrayStream", gpf.events.Target, {
+        ArrayStream = gpf.define("ArrayStream", {
 
             "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.IStream)],
 
