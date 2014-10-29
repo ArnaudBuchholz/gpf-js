@@ -65,7 +65,7 @@
                     .test1("a")
                     .test2("b")
                     .test1("c")
-                    .$error(function (event) {
+                    .$catch(function (event) {
                         test.assert(false, "Error raised: " + event.type());
                     })
                     .$finally(function (/*event*/) {

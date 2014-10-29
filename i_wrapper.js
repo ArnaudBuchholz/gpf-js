@@ -17,7 +17,8 @@
         _sync = function (name) {
             return function () {
                 this._calls.push(new MethodCall(true, name, arguments, 0));
-                return this.then(this._callback);
+                this._start();
+                return this;
             };
         },
 
@@ -35,7 +36,8 @@
             return function () {
                 this._calls.push(new MethodCall(false, name, arguments,
                     length));
-                return this.then(this._callback);
+                this._start();
+                return this;
             };
         },
 
@@ -48,13 +50,17 @@
                     }
                 },
                 publicMembers = result.public,
-                attributes = new gpf.attributes.Map(interfaceDef),
+                attributes = new gpf.attributes.Map(),
                 prototype = interfaceDef.prototype,
                 member,
                 method;
+            attributes.fillFromClassDef(gpf.classDef(interfaceDef));
             for (member in prototype) {
                 if (prototype.hasOwnProperty(member)) {
                     method = prototype[member];
+                    if ("constructor" === member) {
+                        continue; // ignore
+                    }
                     gpf.ASSERT("function" === typeof method, "Only methods");
                     if (attributes.member(member)
                         .has(gpf.attributes.ClassEventHandlerAttribute)) {
@@ -67,7 +73,7 @@
             return result;
         },
 
-        MethodCall = gpf.declare("MethodCall", {
+        MethodCall = gpf.define("MethodCall", {
 
             private: {
 
@@ -121,13 +127,43 @@
                     this._name = name;
                     this._args = args;
                     this._length = length;
+                },
+
+                /**
+                 * Apply the call
+                 *
+                 * @param {Object} iHandler
+                 * @param {gpf.Callback} callback
+                 */
+                apply: function (iHandler, callback) {
+                    var
+                        args = this._args,
+                        method = iHandler[this._name],
+                        finalArgs,
+                        count,
+                        idx;
+                    if (this._synchronous) {
+                        method.apply(iHandler, args);
+                        callback.call();
+                    } else {
+                        count = this._length;
+                        finalArgs = new Array(count);
+                        finalArgs[--count] = callback;
+                        if (count > args.length) {
+                            count = args.length;
+                        }
+                        for (idx = 0; idx < count; ++idx) {
+                            finalArgs[idx] = args[idx];
+                        }
+                        method.apply(iHandler, finalArgs);
+                    }
                 }
 
             }
 
         }),
 
-        WrapInterface = gpf.declare("WrapInterface", "gpf.Promise", {
+        WrapInterface = gpf.define("WrapInterface", {
 
             private: {
 
@@ -156,60 +192,66 @@
                 _callback: null,
 
                 /**
+                 * $catch callback
+                 *
+                 * @type {gpf.events.Handler}
+                 * @private
+                 */
+                _catch: null,
+
+                /**
+                 * $finally callback
+                 *
+                 * @type {gpf.events.Handler}
+                 * @private
+                 */
+                _finally: null,
+
+                /**
                  * Event handler
                  *
                  * @param {gpf.Event} event
                  * @private
                  */
                 _asyncResult: function (event) {
-                    if (event.type() === "error") {
-                        this.reject({
-                            error: event
-                        });
-                    } else {
-
-                    }
-                },
-
-                /**
-                 * Call a synchronous method
-                 *
-                 * @param {String} name
-                 * @param {Array} incomingArguments
-                 * @return {WrapInterface}
-                 * @private
-                 */
-                _sync: function (name, incomingArguments) {
-                    var
-                        iHandler = this._iHandler;
-                    iHandler[name].apply(iHandler, incomingArguments);
-                    return this;
-                },
-
-                /**
-                 * Call an asynchronous method
-                 *
-                 * @param {String} name
-                 * @param {Number} length
-                 * @param {Array} incomingArguments
-                 * @return {WrapInterface}
-                 * @private
-                 */
-                _async: function (name, length, incomingArguments) {
                     var
                         iHandler = this._iHandler,
-                        finalArguments = new Array(length),
-                        count = length - 1,
-                        idx;
-                    if (count > incomingArguments.length) {
-                        count = incomingArguments.length - 1;
+                        calls;
+                    if (event && event.type() === "error") {
+                        if (this._catch) {
+                            gpf.events.fire.apply(iHandler, [
+                                event, this._catch
+                            ]);
+                        }
+                        return;
                     }
-                    for (idx = 0; idx < count; ++idx) {
-                        finalArguments[idx] = incomingArguments[idx];
+                    calls = this._calls;
+                    if (calls.length) {
+                        calls.shift().apply(iHandler, this._callback);
+                    } else if (this._finally) {
+                        gpf.events.fire.apply(iHandler, [
+                            "done", this._finally
+                        ]);
                     }
-                    finalArguments[length - 1] = this._callback;
-                    iHandler[name].apply(iHandler, finalArguments);
-                    return this;
+                },
+
+                /**
+                 * @type {Boolean}
+                 * @private
+                 */
+                _needStart: true,
+
+                /**
+                 * When at least one method is called, this one makes sure the
+                 * execution starts
+                 *
+                 * @private
+                 */
+                _start: function () {
+                    if (this._needStart) {
+                        this._needStart = false;
+                        gpf.defer(this._asyncResult, 0, this);
+                    }
                 }
 
             },
@@ -224,9 +266,34 @@
                     this._iHandler = gpf.interfaces.query(instance,
                         this.constructor.interface);
                     this._calls = [];
-                    this._callback = new gpf.Callback(this._callback, this);
-                }
+                    this._callback = new gpf.Callback(this._asyncResult, this);
+                },
 
+                /**
+                 * Configure the error handler
+                 *
+                 * @param {gpf.events.Handler} eventHandler
+                 * @return {WrapInterface}
+                 * @chainable
+                 */
+                $catch: function (eventHandler) {
+                    this._catch = eventHandler;
+                    this._start();
+                    return this;
+                },
+
+                /**
+                 * Configure the final handler
+                 *
+                 * @param {gpf.events.Handler} eventHandler
+                 * @return {WrapInterface}
+                 * @chainable
+                 */
+                $finally: function (eventHandler) {
+                    this._finally = eventHandler;
+                    this._start();
+                    return this;
+                }
             }
 
         });
