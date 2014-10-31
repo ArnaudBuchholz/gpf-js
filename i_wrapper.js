@@ -314,7 +314,7 @@
                 result = WrapInterface;
             } else {
                 base = gpf.interfaces.wrap(classDef.Base());
-                result = gpf.define("Wrap" + classDef.name(), base,
+                result = gpf.define("Wrap" + classDef.nameOnly(), base,
                     _buildMembers(interfaceDef));
             }
             _wrappers[classDef.uid()] = result;
