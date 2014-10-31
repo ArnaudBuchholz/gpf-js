@@ -131,9 +131,11 @@
                     contentHandler = new gpf.xml.Writer(stream);
                 test.wait();
                 _createStarshipTroopersXML(contentHandler, function() {
-                    test.equal(gpf.stringFromStream(stream),
-                        starshipTroopersXML, "XML is well formed");
-                    test.done();
+                    gpf.stringFromStream(stream, function (event) {
+                        test.equal(event.get("buffer"),
+                            starshipTroopersXML, "XML is well formed");
+                        test.done();
+                    });
                 });
             }
         ],
@@ -147,9 +149,11 @@
                     contentHandler = new gpf.xml.Writer(stream);
                 test.wait();
                 starshipTroopers.toXml(contentHandler, function () {
-                    test.equal(gpf.stringFromStream(stream),
-                        starshipTroopersXML, "XML is well formed");
-                    test.done();
+                    gpf.stringFromStream(stream, function (event) {
+                        test.equal(event.get("buffer"),
+                            starshipTroopersXML, "XML is well formed");
+                        test.done();
+                    });
                 });
             }
 
@@ -182,8 +186,10 @@
                     stream = gpf.stringToStream(),
                     contentHandler = new gpf.xml.Writer(stream);
                 gpf.xml.convert(starshipTroopers, contentHandler);
-                test.equal(gpf.stringFromStream(stream), starshipTroopersXML,
-                    "XML is well formed");
+                gpf.stringFromStream(stream, function (event) {
+                    test.equal(event.get("buffer"), starshipTroopersXML,
+                        "XML is well formed");
+                });
             },
 
             function (test) {
@@ -203,11 +209,15 @@
                         },
                         "c"
                     ]
-                }, contentHandler);
-                test.equal(gpf.stringFromStream(stream), "<root attribute1=\"" +
-                    "string\" attribute2=\"1234\"><subNode1 atribute3=\"3\"/>" +
-                    "<subNode2><item>a</item><item attribute4=\"b\"/><item>c<" +
-                    "/item></subNode2></root>", "XML is well formed");
+                }, contentHandler, function () {
+                    gpf.stringFromStream(stream, function (event) {
+                        test.equal(event.get("buffer"), "<root attribute1=\"" +
+                            "string\" attribute2=\"1234\"><subNode1 atribute3" +
+                            "=\"3\"/><subNode2><item>a</item><item attribute4" +
+                            "=\"b\"/><item>c</item></subNode2></root>", "XML " +
+                            "is well formed");
+                    });
+                });
             },
 
             function (test) {
@@ -241,16 +251,20 @@
                             200
                         ]
                     }
-                ]}, contentHandler);
-                test.equal(gpf.stringFromStream(stream), "<root><leadingComme" +
-                    "nts><item type=\"Line\" value=\" Universal Module Defini" +
-                    "tion (UMD) to support AMD, CommonJS/Node.js,\"><range _0" +
-                    "=\"82\" _1=\"152\"/><extendedRange><item>74</item><item>" +
-                    "200</item></extendedRange></item><item type=\"Line\" val" +
-                    "ue=\" Rhino, and plain browser loading.\"><range _0=\"15" +
-                    "8\" _1=\"194\"/><extendedRange><item>74</item><item>200<" +
-                    "/item></extendedRange></item></leadingComments></root>",
-                    "XML is well formed");
+                ]}, contentHandler, function () {
+                    gpf.stringFromStream(stream, function (event) {
+                        test.equal(event.get("buffer"), "<root><leadingComme" +
+                            "nts><item type=\"Line\" value=\" Universal Modul" +
+                            "e Definition (UMD) to support AMD, CommonJS/Node" +
+                            ".js,\"><range _0=\"82\" _1=\"152\"/><extendedRan" +
+                            "ge><item>74</item><item>200</item></extendedRang" +
+                            "e></item><item type=\"Line\" value=\" Rhino, and" +
+                            " plain browser loading.\"><range _0=\"158\" _1=" +
+                            "\"194\"/><extendedRange><item>74</item><item>200" +
+                            "</item></extendedRange></item></leadingComments>" +
+                            "</root>", "XML is well formed");
+                    });
+                });
             }
 
         ]
