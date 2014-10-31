@@ -52,7 +52,11 @@
             + "</script-writers></movie>",
 
         _createStarshipTroopersXML = function (contentHandler, callback) {
-            gpf.chain(contentHandler)
+            var
+                WXmlContentHandler =
+                    gpf.wrapper.wrap(gpf.interfaces.IXmlContentHandler),
+                wrapper = new WXmlContentHandler(contentHandler);
+            wrapper
                 .startDocument()
                 .startElement("", "movie", "movie", {
                     "imdb-title": "tt0120201",
