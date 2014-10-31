@@ -54,7 +54,7 @@
         _createStarshipTroopersXML = function (contentHandler, callback) {
             var
                 WXmlContentHandler =
-                    gpf.wrapper.wrap(gpf.interfaces.IXmlContentHandler),
+                    gpf.interfaces.wrap(gpf.interfaces.IXmlContentHandler),
                 wrapper = new WXmlContentHandler(contentHandler);
             wrapper
                 .startDocument()
