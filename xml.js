@@ -43,7 +43,7 @@
     });
 
     /**
-     * Defines the possibility for an object to load XML
+     * Defines the possibility for an object to receive XML serialization events
      *
      * @class gpf.interfaces.IXmlContentHandler
      * @extends gpf.interfaces.Interface
@@ -640,12 +640,12 @@
         /**
          * Converts this into XML using the provided XML content handler
          *
-         * @param {gpf.interfaces.IXmlContentHandler} out XML Content handler
+         * @@implements gpf.interfaces.IIXmlSerializable:toXml
          * @private
          */
-        _toXml = function (out) {
+        _toXml = function (out, eventsHandler) {
             _toContentHandler(this, gpfI.query(out, gpfI.IXmlContentHandler,
-                true));
+                true), eventsHandler);
         },
 
         //endregion
@@ -965,177 +965,257 @@
 
         "[Class]": [gpf.$InterfaceImplement(gpfI.IXmlContentHandler)],
 
-        _stream: null,
-        _branch: [],
-        _pendingPrefixMappings: [],
+        private: {
 
-        constructor: function(stream) {
-            this._stream = stream;
-            this._branch = [];
-            this._pendingPrefixMappings = [];
-        },
+            /**
+             * @type {gpf.interfaces.IWritableStream}
+             * @private
+             */
+            _stream: null,
 
-        _closeLeafForContent: function() {
-            var leaf;
-            if (this._branch.length) {
-                leaf = this._branch[this._branch.length - 1];
-                if (!leaf.hasContent) {
-                    this._stream.write(">");
-                    leaf.hasContent = true;
-                }
-            }
-        },
+            /**
+             * @type {Boolean[]}
+             * @private
+             */
+            _branch: [],
 
-        //region gpf.interfaces.IXmlContentHandler
+            /**
+             * @type {String[]}
+             * @private
+             */
+            _pendingPrefixMappings: [],
 
-        /**
-         * @implements gpf.interfaces.IXmlContentHandler:characters
-         */
-        characters: function (buffer) {
-            this._closeLeafForContent();
-            this._stream.write(buffer);
-        },
+            /**
+             * @type {String[]}
+             * @private
+             */
+            _buffer: [],
 
-        /**
-         * @implements gpf.interfaces.IXmlContentHandler:endDocument
-         */
-        endDocument: function () {
-            // Nothing to do
-        },
+            /**
+             * @type {gpf.events.Handler}
+             * @private
+             */
+            _eventsHandler: null,
 
-        /**
-         * @implements gpf.interfaces.IXmlContentHandler:endElement
-         */
-        endElement: function () {
-            var
-                leaf = this._branch.pop(),
-                stream = this._stream;
-            if (leaf.hasContent) {
-                stream.write("</");
-                stream.write(leaf.qName);
-                stream.write(">");
-            } else {
-                stream.write("/>");
-            }
-        },
-
-        /**
-         * @implements gpf.interfaces.IXmlContentHandler:endPrefixMapping
-         */
-        endPrefixMapping: function (prefix) {
-            // Nothing to do (?)
-            gpf.interfaces.ignoreParameter(prefix);
-        },
-
-        /**
-         * @implements gpf.interfaces.IXmlContentHandler:ignorableWhitespace
-         */
-        ignorableWhitespace: function (buffer) {
-            this._closeLeafForContent();
-            this._stream.write(buffer);
-        },
-
-        /**
-         * @implements gpf.interfaces.IXmlContentHandler:processingInstruction
-         */
-        processingInstruction: function (target, data) {
-            var
-                stream = this._stream;
-            stream.write("<?");
-            stream.write(target);
-            stream.write(" ");
-            stream.write(gpf.escapeFor(data, "xml"));
-            stream.write("?>");
-        },
-
-        /**
-         * @implements gpf.interfaces.IXmlContentHandler:setDocumentLocator
-         */
-        setDocumentLocator: function (locator) {
-            // Nothing to do
-            gpf.interfaces.ignoreParameter(locator);
-        },
-
-        /**
-         * @implements gpf.interfaces.IXmlContentHandler:skippedEntity
-         */
-        skippedEntity: function (name) {
-            // Nothing to do
-            gpf.interfaces.ignoreParameter(name);
-        },
-
-        /**
-         * @implements gpf.interfaces.IXmlContentHandler:startDocument
-         */
-        startDocument: function () {
-            // Nothing to do
-        },
-
-        /**
-         * @implements gpf.interfaces.IXmlContentHandler:startElement
-         */
-        startElement: function (uri, localName, qName, attributes) {
-            var
-                attName,
-                attValue,
-                idx,
-                stream = this._stream;
-            if (undefined === qName && !uri) {
-                qName = localName;
-            }
-            this._closeLeafForContent();
-            var leaf = {
-                hasContent: false,
-                qName: qName
-            };
-            this._branch.push(leaf);
-            stream.write("<");
-            stream.write(qName);
-            if (attributes) {
-                for (attName in attributes) {
-                    if (attributes.hasOwnProperty(attName)) {
-                        stream.write(" ");
-                        stream.write(attName);
-                        stream.write("=\"");
-                        attValue = gpf.escapeFor(attributes[attName].toString(),
-                            "xml");
-                        if (-1 < attValue.indexOf("\"")) {
-                            attValue = gpf.replaceEx(attValue, {
-                                "\"": "&quot;"
-                            });
-                        }
-                        stream.write(attValue);
-                        stream.write("\"");
+            /**
+             * Close the current tag (if opened) in order to put content in it
+             *
+             * @private
+             */
+            _closeLeafForContent: function() {
+                var leaf;
+                if (this._branch.length) {
+                    leaf = this._branch[this._branch.length - 1];
+                    if (!leaf.hasContent) {
+                        this._buffer.push(">");
+                        leaf.hasContent = true;
                     }
                 }
-            }
-            if (this._pendingPrefixMappings.length) {
-                for (idx = 0; idx < this._pendingPrefixMappings.length; ++idx) {
-                    stream.write(" ");
-                    stream.write(this._pendingPrefixMappings);
+            },
+
+            /**
+             * Flush the buffer into the stream
+             *
+             * @param {gpf.events.Handler} eventsHandler
+             * @private
+             */
+            _flush: function (eventsHandler) {
+                this._eventsHandler = eventsHandler;
+                this._flushed();
+            },
+
+            /**
+             * Handle write event on stream
+             *
+             * @param {gpf.events.Event} event
+             * @private
+             */
+            _flushed: function (event) {
+                var
+                    eventsHandler;
+                if (event
+                    && event.type() === gpfI.IWritableStream.EVENT_ERROR) {
+                    gpf.events.fire.apply(this, [
+                        event,
+                        this._eventsHandler
+                    ]);
+                } else if (0 === this._buffer.length) {
+                    eventsHandler = this._eventsHandler;
+                    this._eventsHandler = null;
+                    gpf.events.fire.apply(this, [
+                        gpfI.IWritableStream.EVENT_READY,
+                        eventsHandler
+                    ]);
+                } else {
+                    this._stream.write(this._buffer.shift(),
+                        gpf.Callback.bind(this, "_flushed"));
                 }
-                this._pendingPrefixMappings = [];
             }
+
         },
 
-        /**
-         * @implements gpf.interfaces.IXmlContentHandler:startPrefixMapping
-         */
-        startPrefixMapping: function (prefix, uri) {
-            var
-                mapping= ["xmlns:", prefix, ":\"",
-                    gpf.escapeFor(uri, "xml"), "\""].join(""),
-                leaf = this._branch[this._branch.length],
-                stream = this._stream;
-            if (leaf.hasContent) {
-                this._pendingPrefixMappings.push(mapping);
-            } else {
-                stream.write(" ");
-                stream.write(mapping);
+        public: {
+
+            /**
+             * @param {gpf.interfaces.IWritableStream} stream
+             * @constructor
+             */
+            constructor: function(stream) {
+                this._stream = gpfI.query(stream, gpfI.IWritableStream, true);
+                this._branch = [];
+                this._pendingPrefixMappings = [];
+                this._buffer = [];
+            },
+
+            //region gpf.interfaces.IXmlContentHandler
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:characters
+             */
+            characters: function (buffer, eventsHandler) {
+                gpf.ASSERT(null === this._eventsHandler, "Write in progress");
+                this._closeLeafForContent();
+                this._buffer.push(buffer);
+                this._flush(eventsHandler);
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:endDocument
+             */
+            endDocument: function (eventsHandler) {
+                gpf.ASSERT(null === this._eventsHandler, "Write in progress");
+                // Nothing to do
+                this._flush(eventsHandler);
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:endElement
+             */
+            endElement: function (eventsHandler) {
+                gpf.ASSERT(null === this._eventsHandler, "Write in progress");
+                var
+                    leaf = this._branch.pop();
+                if (leaf.hasContent) {
+                    this._buffer.push("</", leaf.qName, ">");
+                } else {
+                    this._buffer.push("/>");
+                }
+                this._flush(eventsHandler);
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:endPrefixMapping
+             */
+            endPrefixMapping: function (prefix) {
+                // Nothing to do (?)
+                gpf.interfaces.ignoreParameter(prefix);
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:ignorableWhitespace
+             */
+            ignorableWhitespace: function (buffer, eventsHandler) {
+                gpf.ASSERT(null === this._eventsHandler, "Write in progress");
+                this._closeLeafForContent();
+                this._buffer.push(buffer);
+                this._flush(eventsHandler);
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:
+             * processingInstruction
+             */
+            processingInstruction: function (target, data, eventsHandler) {
+                gpf.ASSERT(null === this._eventsHandler, "Write in progress");
+                this._buffer.push("<?", target, " ", gpf.escapeFor(data, "xml"),
+                    "?>");
+                this._flush(eventsHandler);
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:setDocumentLocator
+             */
+            setDocumentLocator: function (locator) {
+                // Nothing to do
+                gpf.interfaces.ignoreParameter(locator);
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:skippedEntity
+             */
+            skippedEntity: function (name) {
+                // Nothing to do
+                gpf.interfaces.ignoreParameter(name);
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:startDocument
+             */
+            startDocument: function (eventsHandler) {
+                gpf.ASSERT(null === this._eventsHandler, "Write in progress");
+                // Nothing to do
+                this._flush(eventsHandler);
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:startElement
+             */
+            startElement: function (uri, localName, qName, attributes,
+                eventsHandler) {
+                gpf.ASSERT(null === this._eventsHandler, "Write in progress");
+                var
+                    attName,
+                    attValue,
+                    len,
+                    idx;
+                if (undefined === qName && !uri) {
+                    qName = localName;
+                }
+                this._closeLeafForContent();
+                var leaf = {
+                    hasContent: false,
+                    qName: qName
+                };
+                this._branch.push(leaf);
+                this._buffer.push("<", qName);
+                if (attributes) {
+                    for (attName in attributes) {
+                        if (attributes.hasOwnProperty(attName)) {
+                            this._buffer.push(" ", attName, "=\"");
+                            attValue = gpf.escapeFor(
+                                attributes[attName].toString(), "xml");
+                            if (-1 < attValue.indexOf("\"")) {
+                                attValue = gpf.replaceEx(attValue, {
+                                    "\"": "&quot;"
+                                });
+                            }
+                            this._buffer.push(attValue, "\"");
+                        }
+                    }
+                }
+                len = this._pendingPrefixMappings.length;
+                if (len) {
+                    for (idx = 0; idx < len; ++idx) {
+                        this._buffer.push(" ",
+                            this._pendingPrefixMappings[idx]);
+                    }
+                    this._pendingPrefixMappings = [];
+                }
+                this._flush(eventsHandler);
+            },
+
+            /**
+             * @implements gpf.interfaces.IXmlContentHandler:startPrefixMapping
+             */
+            startPrefixMapping: function (prefix, uri) {
+                this._pendingPrefixMappings.push(["xmlns:", prefix, ":\"",
+                    gpf.escapeFor(uri, "xml"), "\""].join(""));
             }
+
+            //endregion
+
         }
 
-        //endregion
     });
 
     //endregion
