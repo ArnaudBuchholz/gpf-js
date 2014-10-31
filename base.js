@@ -608,6 +608,8 @@
          * @returns {*}
          */
         bind: function (obj, method) {
+            gpf.ASSERT("string" === typeof method,
+                "Provide method name");
             var _boundMember = method + ":boundToThis";
             gpf.ASSERT("function" === typeof obj[method],
                 "Only methods can be bound");
