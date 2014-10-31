@@ -199,12 +199,27 @@
         _name: "",
 
         /**
-         * Class name
+         * Full class name
          *
          * @return {String}
          */
         name: function () {
             return this._name;
+        },
+
+        /**
+         * Class name (without namespace)
+         *
+         * @return {String}
+         */
+        nameOnly: function () {
+            var name = this._name,
+                pos = name.lastIndexOf(".");
+            if (-1 === pos) {
+                return name;
+            } else {
+                return name.substr(pos + 1);
+            }
         },
 
         /**
