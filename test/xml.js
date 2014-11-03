@@ -152,7 +152,8 @@
                     stream = gpf.stringToStream(),
                     contentHandler = new gpf.xml.Writer(stream);
                 test.wait();
-                starshipTroopers.toXml(contentHandler, function () {
+                starshipTroopers.toXml(contentHandler, function (event) {
+                    test.equal(event.type(), "ready", "Ended properly");
                     gpf.stringFromStream(stream, function (event) {
                         test.equal(event.get("buffer"),
                             starshipTroopersXML, "XML is well formed");
