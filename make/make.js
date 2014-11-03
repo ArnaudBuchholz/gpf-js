@@ -140,21 +140,26 @@
 
     //endregion
 
-    function toAST(src, version) {
+    function toAST(parsed, src, version) {
         // https://github.com/Constellation/escodegen/issues/85
-        var
-            keepComments = version.keepComments,
-            ast = esprima.parse(src, {
-                range: keepComments,
-                tokens: keepComments,
-                comment: keepComments
-            });
-        if (keepComments) {
-            ast = escodegen.attachComments(ast, ast.comments, ast.tokens);
-            delete ast.tokens;
-            delete ast.comments;
+        try {
+            var
+                keepComments = version.keepComments,
+                ast = esprima.parse(parsed[src], {
+                    range: keepComments,
+                    tokens: keepComments,
+                    comment: keepComments
+                });
+            if (keepComments) {
+                ast = escodegen.attachComments(ast, ast.comments, ast.tokens);
+                delete ast.tokens;
+                delete ast.comments;
+            }
+            return ast;
+        } catch(e) {
+            console.error("Error in \"" + src + "\": " + e.message);
+            throw e;
         }
-        return ast;
     }
 
     //region AST compactor
@@ -529,7 +534,7 @@
         version = versions[version];
         // First, parse everything
         parsed["UMD.js"] = preProcess(sources.UMD, version);
-        parsed.UMD = toAST(parsed["UMD.js"], version);
+        parsed.UMD = toAST(parsed, "UMD.js", version);
         if (version.reduce) {
             reducer = new ASTreducer();
             reducer.reduce(parsed.UMD.body);
@@ -544,11 +549,11 @@
         }
         parsed.result = gpf.clone(parsed.UMD);
         parsed["boot.js"] = preProcess(sources.boot, version);
-        parsed.boot = toAST(parsed["boot.js"], version);
+        parsed.boot = toAST(parsed, "boot.js", version);
         for (idx = 0; idx < sources._list.length; ++idx) {
             source = sources._list[idx];
             parsed[source + ".js"] = preProcess(sources[source], version);
-            parsed[source] = toAST(parsed[source + ".js"], version);
+            parsed[source] = toAST(parsed, source + ".js", version);
         }
         // Then, locate the use of __gpf__ to replace it with our content
         __gpf__ = xpathToGpfPlaceHolder
