@@ -466,12 +466,12 @@
          *
          * @param {Object} obj
          * @param {String} member Member name
-         * @param {gpf.interfaces.wrap(IXmlContentHandler)} wrapper
+         * @param {gpf.interfaces.wrap(IXmlContentHandler)} wrapped
          * @param {gpf.attributes.Map} attMap Map filled with XML attributes
          * @private
          */
         _objMemberToSubNodes = function /*gpf:inline*/ (obj, member,
-            wrapper, attMap) {
+            wrapped, attMap) {
             var
                 value,
                 attArray,
@@ -496,7 +496,7 @@
                 // TODO: what to do when value is empty?
                 if (attribute && attribute.name()) {
                     closeNode = true;
-                    wrapper.startElement("",
+                    wrapped.startElement("",
                         attribute.name());
                 }
                 // Get the list of 'candidates'
@@ -510,11 +510,11 @@
                     } else {
                         name = "item";
                     }
-                    _toContentHandler(subValue, wrapper,
+                    _toContentHandler(subValue, wrapped,
                         name);
                 }
                 if (closeNode) {
-                    wrapper.endElement();
+                    wrapped.endElement();
                 }
                 return;
             }
@@ -523,20 +523,20 @@
             if (attribute && attribute.name()) {
                 name = attribute.name();
             }
-            _toContentHandler(value, wrapper, name);
+            _toContentHandler(value, wrapped, name);
         },
 
         /**
          * Convert the object into XML using the provided XML content handler
          *
          * @param {Object} obj
-         * @param {gpf.interfaces.wrap(IXmlContentHandler)} wrapper
+         * @param {gpf.interfaces.wrap(IXmlContentHandler)} wrapped
          * @param {String} [name="object"] name Name of the root node
          * @param {gpf.attributes.Map} attMap Map filled with XML attributes
          * @private
          */
         _objPrototypeToContentHandler = function /*gpf:inline*/ (obj,
-            wrapper, name, attMap) {
+            wrapped, name, attMap) {
             var
                 attArray,
                 member,
@@ -593,11 +593,11 @@
                     subNodeMembers.push(member);
                 }
             }
-            wrapper.startElement("", name, name, xmlAttributes);
+            wrapped.startElement("", name, name, xmlAttributes);
             if (subNodeMembers) {
                 for (idx = 0; idx < subNodeMembers.length; ++idx) {
                     _objMemberToSubNodes(obj, subNodeMembers[idx],
-                        wrapper, attMap);
+                        wrapped, attMap);
                 }
             }
         },
@@ -606,11 +606,11 @@
          * Convert the parameter into XML using the provided XML content handler
          *
          * @param {*} obj
-         * @param {gpf.interfaces.wrap(IXmlContentHandler)} wrapper
+         * @param {gpf.interfaces.wrap(IXmlContentHandler)} wrapped
          * @param {String} [name="object"] name Name of the root node
         * @private
          */
-        _toContentHandler = function (obj, wrapper, name) {
+        _toContentHandler = function (obj, wrapped, name) {
             var
                 attMap = (new gpfA.Map(obj)).filter(_Base),
                 attribute;
@@ -628,13 +628,13 @@
             }
             // If not an object, serialize the textual representation
             if ("object" !== typeof obj) {
-                wrapper.startElement("", name);
-                wrapper.characters(gpf.value(obj, ""));
+                wrapped.startElement("", name);
+                wrapped.characters(gpf.value(obj, ""));
             } else {
-                _objPrototypeToContentHandler(obj, wrapper, name,
+                _objPrototypeToContentHandler(obj, wrapped, name,
                     attMap);
             }
-            wrapper.endElement();
+            wrapped.endElement();
         },
 
         /**
