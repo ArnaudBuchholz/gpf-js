@@ -1,16 +1,24 @@
 "use strict";
+/*global require, global, process*/
 
-var fs = require("fs");
+var fs = require("fs"),
+    dependencyMissing = false;
 try {
     global.esprima = require("esprima");
 } catch (e) {
     console.error("Missing esprima, use npm install esprima");
+    dependencyMissing = true;
 }
 try {
     global.escodegen = require("escodegen");
 } catch (e) {
     console.error("Missing escodegen, use npm install escodegen");
+    dependencyMissing = true;
 }
+if (dependencyMissing) {
+    process.exit();
+}
+
 require("../boot.js"); /*source version*/
 require("./make.js");  /*global make*/
 
@@ -45,15 +53,6 @@ try {
 
 // ---------- For debugging purposes
 
-function toXml(json) {
-    var
-        stream = gpf.stringToStream(),
-        contentHandler = new gpf.xml.Writer(stream),
-        node = new gpf.xml.ConstNode(json);
-    node.toXml(contentHandler);
-    return gpf.stringFromStream(stream);
-}
-
 function save (name, version) {
     var
         path = "tmp/" + version + "/" + name,
@@ -72,7 +71,6 @@ function save (name, version) {
         fs.writeFileSync(path + ".compact.js",parsed[name + ".compact.js"]);
     }
     fs.writeFileSync(path + ".json", JSON.stringify(json, true, 4));
-//    fs.writeFileSync(path + ".xml", toXml(json));
 }
 
 for (idx = 0; idx < sources._list.length; ++idx) {
