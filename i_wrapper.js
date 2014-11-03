@@ -4,6 +4,7 @@
 /*#endif*/
 
     var
+        gpfI = gpf.interfaces,
         _wrappers = {},
 
         /**
@@ -271,7 +272,7 @@
                  * @constructor
                  */
                 constructor: function (instance) {
-                    this._iHandler = gpf.interfaces.query(instance,
+                    this._iHandler = gpfI.query(instance,
                         this.constructor.interface);
                     this._calls = [];
                     this._callback = new gpf.Callback(this._asyncResult, this);
@@ -314,18 +315,18 @@
      * Get or build the wrapper class for the given interface definition
      *
      * @param {Function} interfaceDef
-     * @eturn {Function}
+     * @return {Function}
      */
-    gpf.interfaces.wrap = function (interfaceDef) {
+    gpfI.wrap = function (interfaceDef) {
         var
             classDef = gpf.classDef(interfaceDef),
             result = _wrappers[classDef.uid()],
             base;
         if (undefined === result) {
-            if (interfaceDef === gpf.interfaces.Interface) {
+            if (interfaceDef === gpfI.Interface) {
                 result = WrapInterface;
             } else {
-                base = gpf.interfaces.wrap(classDef.Base());
+                base = gpfI.wrap(classDef.Base());
                 result = gpf.define("Wrap" + classDef.nameOnly(), base,
                     _buildMembers(interfaceDef));
             }
@@ -334,4 +335,6 @@
         return result;
     };
 
-})(); /* End of privacy scope */
+/*#ifndef(UMD)*/
+}()); /* End of privacy scope */
+/*#endif*/
