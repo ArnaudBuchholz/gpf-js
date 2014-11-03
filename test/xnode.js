@@ -100,10 +100,14 @@
                     }),
                     stream = gpf.stringToStream(),
                     contentHandler = new gpf.xml.Writer(stream);
-                root.toXml(contentHandler);
-                test.equal(gpf.stringFromStream(stream), "<root att1=\"Hello" +
-                    "\" att2=\"World!\"><child1 att3=\"123\"/></root>",
-                    "XML is well formed");
+                root.toXml(contentHandler, function (event) {
+                    test.equal(event.type(), "ready", "Completed");
+                    gpf.stringFromStream(stream, function (event) {
+                        test.equal(event.get("buffer"), "<root att1=\"Hello" +
+                            "\" att2=\"World!\"><child1 att3=\"123\"/></root>",
+                            "XML is well formed");
+                    });
+                });
             },
 
             function (test) {
@@ -118,11 +122,15 @@
                     }, "complex"),
                     stream = gpf.stringToStream(),
                     contentHandler = new gpf.xml.Writer(stream);
-                root.toXml(contentHandler);
-                test.equal(gpf.stringFromStream(stream),  "<complex><array1><" +
-                    "item>Hello</item><item>World!</item></array1><array2><it" +
-                    "em att1=\"Hello\" att2=\"World!\"/><item>Mixed</item></a" +
-                    "rray2></complex>", "XML is well formed");
+                root.toXml(contentHandler, function (event) {
+                    test.equal(event.type(), "ready", "Completed");
+                    gpf.stringFromStream(stream, function (event) {
+                        test.equal(event.get("buffer"),  "<complex><array1><" +
+                        "item>Hello</item><item>World!</item></array1><array2" +
+                        "><item att1=\"Hello\" att2=\"World!\"/><item>Mixed</" +
+                        "item></array2></complex>", "XML is well formed");
+                    });
+                });
             }
 
         ]
