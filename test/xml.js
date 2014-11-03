@@ -206,6 +206,7 @@
                 var
                     stream = gpf.stringToStream(),
                     contentHandler = new gpf.xml.Writer(stream);
+                test.wait();
                 gpf.xml.convert({
                     attribute1: "string",
                     attribute2: 1234,
@@ -218,13 +219,15 @@
                         },
                         "c"
                     ]
-                }, contentHandler, function () {
+                }, contentHandler, function (event) {
+                    test.equal(event.type(), "ready", "Completed");
                     gpf.stringFromStream(stream, function (event) {
                         test.equal(event.get("buffer"), "<root attribute1=\"" +
                             "string\" attribute2=\"1234\"><subNode1 atribute3" +
                             "=\"3\"/><subNode2><item>a</item><item attribute4" +
                             "=\"b\"/><item>c</item></subNode2></root>", "XML " +
                             "is well formed");
+                        test.done();
                     });
                 });
             },

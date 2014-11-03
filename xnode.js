@@ -384,8 +384,8 @@
         /**
          * @implements gpf.interfaces.IXmlSerializable:toXml
          */
-        toXml: function (out) {
-            gpf.xml.nodeToXml(this, out);
+        toXml: function (out, eventsHandler) {
+            gpf.xml.nodeToXml(this, out, eventsHandler);
         }
 
         //endregion
@@ -396,25 +396,45 @@
      * Serialize the node into an gpf.interfaces.IXmlContentHandler
      *
      * @param {gpf.interfaces.IXmlConstNode} node Node to serialize
-     * @param {gpf.interfaces.IXmlContentHandler} out XML Content handler
+     * @param {gpf.interfaces.wrap(IXmlContentHandler)} wrapped XML Content
      */
-    gpf.xml.nodeToXml = function (node, out) {
+    function _nodeToXml(node, wrapped) {
         var
             name = node.localName(),
             attributes = node.attributes(),
             children = node.children(),
             text = node.textContent(),
             idx;
-        out.startElement("", name, name, attributes);
+        wrapped.startElement("", name, name, attributes);
         // Today the XmlConstNode may not have both children and textual content
         if (text) {
-            out.characters(text);
+            wrapped.characters(text);
         } else {
             for (idx = 0; idx < children.length; ++idx) {
-                gpf.xml.nodeToXml(children[idx], out);
+                _nodeToXml(children[idx], wrapped);
             }
         }
-        out.endElement();
+        wrapped.endElement();
+    }
+
+    /**
+     * Serialize the node into an gpf.interfaces.IXmlContentHandler
+     *
+     * @param {gpf.interfaces.IXmlConstNode} node Node to serialize
+     * @param {gpf.interfaces.IXmlContentHandler} out XML Content handler
+     * @param {gpf.events.Handler} eventsHandler
+     *
+     * @event ready
+     */
+    gpf.xml.nodeToXml = function (node, out, eventsHandler) {
+        var
+            WXmlContentHandler =
+                gpf.interfaces.wrap(gpfI.IXmlContentHandler),
+            wrapped = new WXmlContentHandler(out);
+        wrapped
+            .$catch(eventsHandler)
+            .$finally(eventsHandler, "ready");
+        _nodeToXml(node, wrapped);
     };
 
 /*#ifndef(UMD)*/
