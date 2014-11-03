@@ -466,12 +466,12 @@
          *
          * @param {Object} obj
          * @param {String} member Member name
-         * @param {gpf.interfaces.IXmlContentHandler} contentHandler
+         * @param {gpf.interfaces.wrap(IXmlContentHandler)} wrapper
          * @param {gpf.attributes.Map} attMap Map filled with XML attributes
          * @private
          */
         _objMemberToSubNodes = function /*gpf:inline*/ (obj, member,
-            contentHandler, attMap) {
+            wrapper, attMap) {
             var
                 value,
                 attArray,
@@ -496,7 +496,7 @@
                 // TODO: what to do when value is empty?
                 if (attribute && attribute.name()) {
                     closeNode = true;
-                    contentHandler.startElement("",
+                    wrapper.startElement("",
                         attribute.name());
                 }
                 // Get the list of 'candidates'
@@ -510,11 +510,11 @@
                     } else {
                         name = "item";
                     }
-                    _toContentHandler(subValue, contentHandler,
+                    _toContentHandler(subValue, wrapper,
                         name);
                 }
                 if (closeNode) {
-                    contentHandler.endElement();
+                    wrapper.endElement();
                 }
                 return;
             }
@@ -523,20 +523,20 @@
             if (attribute && attribute.name()) {
                 name = attribute.name();
             }
-            _toContentHandler(value, contentHandler, name);
+            _toContentHandler(value, wrapper, name);
         },
 
         /**
          * Convert the object into XML using the provided XML content handler
          *
          * @param {Object} obj
-         * @param {gpf.interfaces.IXmlContentHandler} contentHandler
+         * @param {gpf.interfaces.wrap(IXmlContentHandler)} wrapper
          * @param {String} [name="object"] name Name of the root node
          * @param {gpf.attributes.Map} attMap Map filled with XML attributes
          * @private
          */
         _objPrototypeToContentHandler = function /*gpf:inline*/ (obj,
-            contentHandler, name, attMap) {
+            wrapper, name, attMap) {
             var
                 attArray,
                 member,
@@ -593,11 +593,11 @@
                     subNodeMembers.push(member);
                 }
             }
-            contentHandler.startElement("", name, name, xmlAttributes);
+            wrapper.startElement("", name, name, xmlAttributes);
             if (subNodeMembers) {
                 for (idx = 0; idx < subNodeMembers.length; ++idx) {
                     _objMemberToSubNodes(obj, subNodeMembers[idx],
-                        contentHandler, attMap);
+                        wrapper, attMap);
                 }
             }
         },
@@ -606,11 +606,11 @@
          * Convert the parameter into XML using the provided XML content handler
          *
          * @param {*} obj
-         * @param {gpf.interfaces.IXmlContentHandler} contentHandler
+         * @param {gpf.interfaces.wrap(IXmlContentHandler)} wrapper
          * @param {String} [name="object"] name Name of the root node
-         * @private
+        * @private
          */
-        _toContentHandler = function (obj, contentHandler, name) {
+        _toContentHandler = function (obj, wrapper, name) {
             var
                 attMap = (new gpfA.Map(obj)).filter(_Base),
                 attribute;
@@ -628,13 +628,13 @@
             }
             // If not an object, serialize the textual representation
             if ("object" !== typeof obj) {
-                contentHandler.startElement("", name);
-                contentHandler.characters(gpf.value(obj, ""));
+                wrapper.startElement("", name);
+                wrapper.characters(gpf.value(obj, ""));
             } else {
-                _objPrototypeToContentHandler(obj, contentHandler, name,
+                _objPrototypeToContentHandler(obj, wrapper, name,
                     attMap);
             }
-            contentHandler.endElement();
+            wrapper.endElement();
         },
 
         /**
@@ -644,8 +644,14 @@
          * @private
          */
         _toXml = function (out, eventsHandler) {
-            _toContentHandler(this, gpfI.query(out, gpfI.IXmlContentHandler,
-                true), eventsHandler);
+            var
+                WXmlContentHandler =
+                    gpf.interfaces.wrap(gpfI.IXmlContentHandler),
+                wrapped = new WXmlContentHandler(out);
+            wrapped
+                .$catch(eventsHandler)
+                .$finally(eventsHandler, "ready");
+            _toContentHandler(this, wrapped);
         },
 
         //endregion
