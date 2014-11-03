@@ -208,6 +208,14 @@
                 _finally: null,
 
                 /**
+                 * $finally event type
+                 *
+                 * @type {String}
+                 * @private
+                 */
+                _finalEventType: "done",
+
+                /**
                  * Event handler
                  *
                  * @param {gpf.Event} event
@@ -230,7 +238,7 @@
                         calls.shift().apply(iHandler, this._callback);
                     } else if (this._finally) {
                         gpf.events.fire.apply(iHandler, [
-                            "done", this._finally
+                            this._finalEventType, this._finally
                         ]);
                     }
                 },
@@ -286,11 +294,15 @@
                  * Configure the final handler
                  *
                  * @param {gpf.events.Handler} eventHandler
+                 * @param {String}[eventType=done] eventType
                  * @return {WrapInterface}
                  * @chainable
                  */
-                $finally: function (eventHandler) {
+                $finally: function (eventHandler, eventType) {
                     this._finally = eventHandler;
+                    if (eventType) {
+                        this._finalEventType = eventType;
+                    }
                     this._start();
                     return this;
                 }
