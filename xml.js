@@ -171,7 +171,7 @@
          */
         "[startElement]": [gpf.$ClassEventHandler()],
         startElement: function (uri, localName, qName, attributes,
-                                eventsHandler) {
+            eventsHandler) {
             gpfI.ignoreParameter(uri);
             gpfI.ignoreParameter(localName);
             gpfI.ignoreParameter(qName);
@@ -707,7 +707,8 @@
                         .member(member)
                         .filter(_Attribute);
                     if (0 < attArray.length()) {
-                        gpf.ASSERT(attArray.length() === 1);
+                        gpf.ASSERT(attArray.length() === 1,
+                            "Expected one attribute only");
                         attName = attArray.get(0).name();
                     } else {
                         // Only private are serialized by default as att.
@@ -810,7 +811,7 @@
             /**
              * @implements gpf.interfaces.IXmlContentHandler:characters
              */
-            characters: function (buffer) {
+            characters: function (buffer, eventsHandler) {
                 var forward = this._forward[0];
                 if (undefined !== forward) {
                     if (0 === forward.type) {
@@ -819,20 +820,20 @@
                         forward.buffer.push(buffer);
                     }
                 }
-                // Ignore
+                gpf.events.fire.apply(this, ["ready", eventsHandler]);
             },
 
             /**
              * @implements gpf.interfaces.IXmlContentHandler:endDocument
              */
-            endDocument: function () {
-                // Nothing to do
+            endDocument: function (eventsHandler) {
+                gpf.events.fire.apply(this, ["ready", eventsHandler]);
             },
 
             /**
              * @implements gpf.interfaces.IXmlContentHandler:endElement
              */
-            endElement: function () {
+            endElement: function (eventsHandler) {
                 var
                     forward = this._forward[0],
                     memberValue,
@@ -857,6 +858,7 @@
                         this._forward.shift();
                     }
                 }
+                gpf.events.fire.apply(this, ["ready", eventsHandler]);
             },
 
             /**
@@ -870,19 +872,20 @@
             /**
              * @implements gpf.interfaces.IXmlContentHandler:ignorableWhitespace
              */
-            ignorableWhitespace: function (buffer) {
+            ignorableWhitespace: function (buffer, eventsHandler) {
                 // Nothing to do
-                gpfI.ignoreParameter(buffer);
+                gpf.events.fire.apply(this, ["ready", eventsHandler]);
             },
 
             /**
              * @implements gpf.interfaces
              *             .IXmlContentHandler:processingInstruction
              */
-            processingInstruction: function (target, data) {
+            processingInstruction: function (target, data, eventsHandler) {
                 // Not relevant
                 gpfI.ignoreParameter(target);
                 gpfI.ignoreParameter(data);
+                gpf.events.fire.apply(this, ["ready", eventsHandler]);
             },
 
             /**
@@ -904,14 +907,16 @@
             /**
              * @implements gpf.interfaces.IXmlContentHandler:startDocument
              */
-            startDocument: function () {
+            startDocument: function (eventsHandler) {
                 // Nothing to do
+                gpf.events.fire.apply(this, ["ready", eventsHandler]);
             },
 
             /**
              * @implements gpf.interfaces.IXmlContentHandler:startElement
              */
-            startElement: function (uri, localName, qName, attributes) {
+            startElement: function (uri, localName, qName, attributes,
+                eventsHandler) {
                 var
                     forward = this._forward[0];
                 gpf.interfaces.ignoreParameter(uri);
@@ -938,6 +943,7 @@
                      */
                     this._fillFromElement.apply(this, arguments);
                 }
+                gpf.events.fire.apply(this, ["ready", eventsHandler]);
             },
 
             /**
