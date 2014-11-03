@@ -189,11 +189,15 @@
                 test.title("Use convert on a IXMLSerializable object");
                 var
                     stream = gpf.stringToStream(),
-                    contentHandler = new gpf.xml.Writer(stream);
-                gpf.xml.convert(starshipTroopers, contentHandler);
-                gpf.stringFromStream(stream, function (event) {
-                    test.equal(event.get("buffer"), starshipTroopersXML,
-                        "XML is well formed");
+                    out = new gpf.xml.Writer(stream);
+                test.wait();
+                gpf.xml.convert(starshipTroopers, out, function (event) {
+                    test.equal(event.type(), "ready", "Completed");
+                    gpf.stringFromStream(stream, function (event) {
+                        test.equal(event.get("buffer"), starshipTroopersXML,
+                            "XML is well formed");
+                        test.done();
+                    });
                 });
             },
 

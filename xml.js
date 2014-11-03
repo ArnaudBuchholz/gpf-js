@@ -874,6 +874,7 @@
              */
             ignorableWhitespace: function (buffer, eventsHandler) {
                 // Nothing to do
+                gpfI.ignoreParameter(buffer);
                 gpf.events.fire.apply(this, ["ready", eventsHandler]);
             },
 
@@ -1265,21 +1266,21 @@
      *
      * @param {*} value
      * @param {Object} out Recipient object for XML serialization
+     * @param {gpf.events.Handler} eventsHandler
+     *
+     * @event ready
      */
-    gpf.xml.convert = function (value, out) {
+    gpf.xml.convert = function (value, out, eventsHandler) {
         var
-            iContentHandler,
             iXmlSerializable;
-        iContentHandler = gpfI.query(out, gpfI.IXmlContentHandler, true);
         if ("string" === typeof value) {
             gpf.Error.NotImplemented();
         } else if ("object" === typeof value) {
             iXmlSerializable = gpfI.query(value, gpfI.IXmlSerializable);
-            if (null !== iXmlSerializable) {
-                iXmlSerializable.toXml(iContentHandler);
-            } else {
-                (new gpf.xml.ConstNode(value)).toXml(iContentHandler);
+            if (null === iXmlSerializable) {
+                iXmlSerializable = new gpf.xml.ConstNode(value);
             }
+            iXmlSerializable.toXml(out, eventsHandler);
         }
     };
 
