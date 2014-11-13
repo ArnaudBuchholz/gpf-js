@@ -277,7 +277,11 @@
 /*#ifdef(DEBUG)*/
             try {
 /*#endif*/
-                return new Func(source);
+                if (!source) {
+                    return _emptyFunc;
+                } else {
+                    return new Func(source);
+                }
 /*#ifdef(DEBUG)*/
             } catch (e) {
                 console.error("An exception occurred compiling:\r\n"
