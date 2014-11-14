@@ -6,7 +6,8 @@
     gpf.html = {};
 
     var
-        gpfI = gpf.interfaces;
+        gpfI = gpf.interfaces,
+        gpfFireEvent = gpf.events.fire;
 
     /**
      * Markdown to HTML converter using Parser interface
@@ -491,7 +492,7 @@
                     left = this._file.size - this._pos,
                     blob;
                 if (0 === left) {
-                    gpf.defer(gpf.events.fire, 0, this, [
+                    gpfFireEvent.apply(this, [
                         gpfI.IReadableStream.EVENT_END_OF_STREAM,
                         eventsHandler
                     ]);
@@ -556,7 +557,7 @@
                 gpf.ASSERT(reader === this._reader,
                     "Unexpected change of reader");
                 if (reader.error) {
-                    gpf.events.fire.apply(this, [
+                    gpfFireEvent.apply(this, [
                         gpfI.IReadableStream.ERROR,
                         {
                             // According to W3C
@@ -575,7 +576,7 @@
                     for (idx = 0; idx < len; ++idx) {
                         result.push(buffer[idx]);
                     }
-                    gpf.events.fire.apply(this, [
+                    gpfFireEvent.apply(this, [
                         gpfI.IReadableStream.EVENT_DATA,
                         {
                             buffer: result

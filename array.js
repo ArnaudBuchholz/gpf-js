@@ -5,6 +5,7 @@
 
     var
         gpfI = gpf.interfaces,
+        gpfFireEvent = gpf.events.fire,
 
         /**
          * Implements IStream on top of an array  (FIFO read / write)
@@ -41,7 +42,7 @@
                     var
                         result;
                     if (0 === this._buffer.length) {
-                        gpf.defer(gpf.events.fire, 0, this, [
+                        gpfFireEvent.apply(this, [
                             gpfI.IReadableStream.EVENT_END_OF_STREAM,
                             eventsHandler
                         ]);
@@ -49,7 +50,7 @@
                         || count > this._buffer.length) {
                         result = this._buffer;
                         this._buffer = [];
-                        gpf.defer(gpf.events.fire, 0, this, [
+                        gpfFireEvent.apply(this, [
                             gpfI.IReadableStream.EVENT_DATA,
                             {
                                 buffer: result
@@ -58,7 +59,7 @@
                         ]);
                     } else {
                         result = this._buffer.splice(0, count);
-                        gpf.defer(gpf.events.fire, 0, this, [
+                        gpfFireEvent.apply(this, [
                             gpfI.IReadableStream.EVENT_DATA,
                             {
                                 buffer: result
@@ -75,7 +76,7 @@
                     gpf.ASSERT(buffer && buffer.length,
                         "Write must contain data");
                     this._buffer = this._buffer.concat(buffer);
-                    gpf.events.fire.apply(this, [
+                    gpfFireEvent.apply(this, [
                         gpfI.IWritableStream.EVENT_READY,
                         eventsHandler
                     ]);
@@ -134,7 +135,7 @@
          */
         arrayFromStream: function (stream, eventsHandler) {
             if (stream instanceof ArrayStream) {
-                gpf.events.fire.apply(this, [
+                gpfFireEvent.apply(this, [
                     gpfI.IReadableStream.EVENT_DATA,
                     {
                         buffer: stream.consolidateArray()

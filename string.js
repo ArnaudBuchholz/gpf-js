@@ -5,6 +5,8 @@
 
     var
         gpfI = gpf.interfaces,
+        gpfFireEvent = gpf.events.fire,
+
         _escapes = {
 
             javascript: {
@@ -69,14 +71,14 @@
                     var
                         result;
                     if (0 === this._buffer.length) {
-                        gpf.defer(gpf.events.fire, 0, this, [
+                        gpfFireEvent.apply(this, [
                             gpfI.IReadableStream.EVENT_END_OF_STREAM,
                             eventsHandler
                         ]);
                     } else {
                         result = gpf.stringExtractFromStringArray(this._buffer,
                             count);
-                        gpf.defer(gpf.events.fire, 0, this, [
+                        gpfFireEvent.apply(this, [
                             gpfI.IReadableStream.EVENT_DATA,
                             {
                                 buffer: result
@@ -93,7 +95,7 @@
                     gpf.ASSERT(buffer && buffer.length,
                         "Write must contain data");
                     this._buffer.push(buffer);
-                    gpf.events.fire.apply(this, [
+                    gpfFireEvent.apply(this, [
                         gpfI.IReadableStream.EVENT_READY,
                         eventsHandler
                     ]);
@@ -271,7 +273,7 @@
          */
         stringFromStream: function (stream, eventsHandler) {
             if (stream instanceof StringStream) {
-                gpf.events.fire.apply(this, [
+                gpfFireEvent.apply(this, [
                     gpfI.IReadableStream.EVENT_DATA,
                     {
                         buffer: stream.consolidateString()
