@@ -5,6 +5,7 @@
 
     var
         gpfI = gpf.interfaces,
+        gpfFireEvent = gpf.events.fire,
         _wrappers = {},
 
         /**
@@ -228,7 +229,7 @@
                         calls;
                     if (event && event.type() === "error") {
                         if (this._catch) {
-                            gpf.events.fire.apply(iHandler, [
+                            gpfFireEvent.apply(iHandler, [
                                 event, this._catch
                             ]);
                         }
@@ -238,7 +239,7 @@
                     if (calls.length) {
                         calls.shift().apply(iHandler, this._callback);
                     } else if (this._finally) {
-                        gpf.events.fire.apply(iHandler, [
+                        gpfFireEvent.apply(iHandler, [
                             this._finalEventType, this._finally
                         ]);
                     }

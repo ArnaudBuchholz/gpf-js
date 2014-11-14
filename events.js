@@ -18,6 +18,14 @@
 
     var
         /**
+         * Count the number of gpf.events.fire calls
+         *
+         * @type {number}
+         * @private
+         */
+        _firing = 0,
+
+        /**
          * Event Target
          * keep track of listeners and exposes a protected method to dispatch
          * events when fired

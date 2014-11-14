@@ -5,6 +5,7 @@
 
     var
         gpfI = gpf.interfaces,
+        gpfFireEvent = gpf.events.fire,
         _BUFREADSTREAM_READ_SIZE        = 256,
         _BUFREADSTREAM_ISTATE_INIT        = 0,
         _BUFREADSTREAM_ISTATE_INPROGRESS  = 1,
@@ -293,7 +294,7 @@
                     if (0 === size || size > length) {
                         size = length;
                     }
-                    gpf.events.fire.apply(this, [
+                    gpfFireEvent.apply(this, [
                         gpfI.IReadableStream.EVENT_DATA,
                         {
                             buffer: this._readFromBuffer(size)
@@ -303,7 +304,7 @@
 
                 } else if (_BUFREADSTREAM_ISTATE_EOS === iState) {
                     // No more input and output buffer is empty
-                    gpf.events.fire.apply(this, [
+                    gpfFireEvent.apply(this, [
                         gpfI.IReadableStream.EVENT_END_OF_STREAM,
                         eventsHandler
                     ]);
@@ -374,7 +375,7 @@
 
                 } else if (type === gpfI.IReadableStream.EVENT_ERROR) {
                     // Forward the event
-                    gpf.events.fire.apply(this, [
+                    gpfFireEvent.apply(this, [
                         event,
                         this._eventsHandler
                     ]);
@@ -533,7 +534,7 @@
                         type = event.type(),
                         stream = event.scope();
                     if (type === gpfI.IReadableStream.EVENT_END_OF_STREAM) {
-                        gpf.events.fire.apply(this._scope, [
+                        gpfFireEvent.apply(this._scope, [
                             gpfI.IReadableStream.EVENT_DATA,
                             {
                                 buffer: this._consolidateBuffer()
@@ -543,7 +544,7 @@
 
                     } else if (type === gpfI.IReadableStream.EVENT_ERROR) {
                         // Forward the event
-                        gpf.events.fire.apply(this._scope, [
+                        gpfFireEvent.apply(this._scope, [
                             event,
                             this._eventsHandler
                         ]);

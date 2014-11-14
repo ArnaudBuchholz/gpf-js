@@ -8,7 +8,9 @@
     var
         // Namespaces shortcut
         gpfI = gpf.interfaces,
-        gpfA = gpf.attributes
+        gpfA = gpf.attributes,
+        gpfFireEvent = gpf.events.fire
+
 /*
         // XML Parser constants
         _XMLPARSER_STATE_NONE = 0
@@ -820,14 +822,14 @@
                         forward.buffer.push(buffer);
                     }
                 }
-                gpf.events.fire.apply(this, ["ready", eventsHandler]);
+                gpfFireEvent.apply(this, ["ready", eventsHandler]);
             },
 
             /**
              * @implements gpf.interfaces.IXmlContentHandler:endDocument
              */
             endDocument: function (eventsHandler) {
-                gpf.events.fire.apply(this, ["ready", eventsHandler]);
+                gpfFireEvent.apply(this, ["ready", eventsHandler]);
             },
 
             /**
@@ -858,7 +860,7 @@
                         this._forward.shift();
                     }
                 }
-                gpf.events.fire.apply(this, ["ready", eventsHandler]);
+                gpfFireEvent.apply(this, ["ready", eventsHandler]);
             },
 
             /**
@@ -875,7 +877,7 @@
             ignorableWhitespace: function (buffer, eventsHandler) {
                 // Nothing to do
                 gpfI.ignoreParameter(buffer);
-                gpf.events.fire.apply(this, ["ready", eventsHandler]);
+                gpfFireEvent.apply(this, ["ready", eventsHandler]);
             },
 
             /**
@@ -886,7 +888,7 @@
                 // Not relevant
                 gpfI.ignoreParameter(target);
                 gpfI.ignoreParameter(data);
-                gpf.events.fire.apply(this, ["ready", eventsHandler]);
+                gpfFireEvent.apply(this, ["ready", eventsHandler]);
             },
 
             /**
@@ -910,7 +912,7 @@
              */
             startDocument: function (eventsHandler) {
                 // Nothing to do
-                gpf.events.fire.apply(this, ["ready", eventsHandler]);
+                gpfFireEvent.apply(this, ["ready", eventsHandler]);
             },
 
             /**
@@ -944,7 +946,7 @@
                      */
                     this._fillFromElement.apply(this, arguments);
                 }
-                gpf.events.fire.apply(this, ["ready", eventsHandler]);
+                gpfFireEvent.apply(this, ["ready", eventsHandler]);
             },
 
             /**
@@ -1048,14 +1050,14 @@
                     eventsHandler;
                 if (event
                     && event.type() === gpfI.IWritableStream.EVENT_ERROR) {
-                    gpf.events.fire.apply(this, [
+                    gpfFireEvent.apply(this, [
                         event,
                         this._eventsHandler
                     ]);
                 } else if (0 === this._buffer.length) {
                     eventsHandler = this._eventsHandler;
                     this._eventsHandler = null;
-                    gpf.events.fire.apply(this, [
+                    gpfFireEvent.apply(this, [
                         gpfI.IWritableStream.EVENT_READY,
                         eventsHandler
                     ]);

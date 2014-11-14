@@ -4,6 +4,8 @@
 /*#endif*/
 
     var
+        gpfFireEvent = gpf.events.fire,
+
         /**
          * Async implementation of resolve
          *
@@ -16,7 +18,7 @@
             if (this._list.length) {
                 next = this._list.shift();
                 this._pos = 0;
-                gpf.events.fire.apply(this, [gpf.Promise.THEN, params, next]);
+                gpfFireEvent.apply(this, [gpf.Promise.THEN, params, next]);
             }
         },
 
@@ -33,10 +35,10 @@
             while (this._list.length) {
                 next = this._list.shift();
                 if (undefined === event) {
-                    event = gpf.events.fire.apply(this, [gpf.Promise.FAIL,
+                    event = gpfFireEvent.apply(this, [gpf.Promise.FAIL,
                         params, next]);
                 } else {
-                    gpf.events.fire.apply(this, [event, next]);
+                    gpfFireEvent.apply(this, [event, next]);
                 }
                 if (event._propagationStopped) {
                     break;
