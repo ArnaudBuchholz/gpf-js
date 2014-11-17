@@ -26,6 +26,28 @@
         _firing = 0,
 
         /**
+         * Fire the event onto the eventsHandler
+         *
+         * @param {gpf.events.Event} event event object to fire
+         * @param {Object} scope scope of the event
+         * @param {gpf.events.Handler} eventsHandler
+         */
+        _fire = function (event, scope, eventsHandler) {
+            if (eventsHandler instanceof Target) {
+                eventsHandler._broadcastEvent(event);
+            } else if ("function" === typeof eventsHandler
+                || eventsHandler instanceof gpf.Callback) {
+                // Compatible with Function & gpf.Callback
+                eventsHandler.apply(scope, [event]);
+            } else {
+                eventsHandler = eventsHandler[event.type()];
+                if (undefined !== typeof eventsHandler) {
+                    eventsHandler.apply(scope, [event]);
+                }
+            }
+        },
+
+        /**
          * Event Target
          * keep track of listeners and exposes a protected method to dispatch
          * events when fired
@@ -446,18 +468,17 @@
                 event = new gpf.events.Event(event, params, true, this);
             }
             scope = gpf.Callback.resolveScope(event._scope);
-            if (eventsHandler instanceof Target) {
-                eventsHandler._broadcastEvent(event);
-            } else if ("function" === typeof eventsHandler
-                       || eventsHandler instanceof gpf.Callback) {
-                // Compatible with Function & gpf.Callback
-                eventsHandler.apply(scope, [event]);
+            /**
+             * This is used both to limit the number of recursion and increase
+             * the efficiency of the algorithm.
+             */
+            if (++_firing > 10) {
+                // Too much recursion
+                gpf.defer(_fire,  0, null, [event, scope, eventsHandler]);
             } else {
-                eventsHandler = eventsHandler[event.type()];
-                if (undefined !== typeof eventsHandler) {
-                    eventsHandler.apply(scope, [event]);
-                }
+                _fire(event, scope, eventsHandler);
             }
+            --_firing;
             return event;
         }
     };
