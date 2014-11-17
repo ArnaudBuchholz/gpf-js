@@ -75,7 +75,7 @@
                     input = gpf.arrayToStream(_utf8Buffer),
                     decoder = gpf.encoding.createDecoder(input,
                         gpf.encoding.UTF_8);
-                test.wait(100);
+                test.wait();
                 gpf.stringFromStream(decoder, function (event) {
                     var result;
                     test.equal(event.type(),

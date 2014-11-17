@@ -68,7 +68,7 @@
                     test.equal(event.scope(), scope1, "Event scope");
                     test.done();
                 }, scope2, false);
-                test.wait(1);
+                test.wait();
                 event.fire(target);
             },
 
@@ -89,7 +89,7 @@
                 target.addEventListener("test", function () {
                     test.assert(false, "Should never be called");
                 });
-                test.wait(1);
+                test.wait();
                 event.fire(target);
             }
 
@@ -104,7 +104,7 @@
                     test.equal(event.type(), "test", "Event type");
                     test.done();
                 });
-                test.wait(1);
+                test.wait();
                 gpf.events.fire("test", target);
             },
 
@@ -114,13 +114,13 @@
                     test.equal(event.type(), "test", "Event type");
                     test.done();
                 });
-                test.wait(1);
+                test.wait();
                 gpf.events.fire("test", callback);
             },
 
             function (test) {
                 test.title("Fire on a Function");
-                test.wait(1);
+                test.wait();
                 gpf.events.fire("test", function (event) {
                     test.equal(event.type(), "test", "Event type");
                     test.done();
@@ -129,7 +129,7 @@
 
             function (test) {
                 test.title("Fire on a Object");
-                test.wait(1);
+                test.wait();
                 gpf.events.fire("test", {
 
                     test: function (event) {

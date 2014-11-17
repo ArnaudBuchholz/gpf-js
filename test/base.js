@@ -320,14 +320,14 @@
                     test.equal(true, true, "Callback called");
                     test.done();
                 });
-                test.wait(1);
+                test.wait();
                 callback.apply();
             },
 
             function (test) {
                 test.title("Scoped callback (1)");
                 var scope = {};
-                test.wait(1);
+                test.wait();
                 var callback = new gpf.Callback(function() {
                     test.equal(this, scope, "Scope inside definition");
                     test.done();
@@ -342,7 +342,7 @@
                     test.equal(this, scope, "Scope inside apply");
                     test.done();
                 });
-                test.wait(1);
+                test.wait();
                 callback.apply(scope);
             },
 
@@ -358,7 +358,7 @@
                         "Second argument is correct");
                     test.done();
                 });
-                test.wait(1);
+                test.wait();
                 callback.apply(scope, ["string", 123]);
             },
 
@@ -407,7 +407,7 @@
             function (test) {
                 test.title("Use of param array with doApply");
                 var result = gpf.Callback.buildParamArray(2, [0, 1]);
-                test.wait(1);
+                test.wait();
                 // can use a gpf.Callback or a function
                 gpf.Callback.doApply(function() {
                     test.equal(arguments.length, 4,

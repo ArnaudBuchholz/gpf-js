@@ -36,7 +36,7 @@
                 }
                 input = gpf.arrayToStream(array);
                 reader = new gpf.stream.BitReader(input);
-                test.wait(100);
+                test.wait();
                 reader.read(6, callback);
             },
 
@@ -50,7 +50,7 @@
                 for (idx = 0; idx < len; ++idx) {
                     array[idx] = _string.charCodeAt(idx);
                 }
-                test.wait(100);
+                test.wait();
                 gpf.stream.readAllAsB64(gpf.arrayToStream(array),
                     function (event) {
                         test.equal(event.type(), _DATA, "Data event");

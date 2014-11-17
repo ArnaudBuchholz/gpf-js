@@ -35,7 +35,7 @@
                         test.like(array, [1, 2, 3], "Original not altered");
                         test.done();
                     };
-                test.wait(100);
+                test.wait();
                 stream.read(2, cb1);
             },
 
@@ -58,7 +58,7 @@
                             "Result consolidated");
                         test.done();
                     };
-                test.wait(100);
+                test.wait();
                 stream.write([1, 2], cb1);
             }
 
@@ -70,7 +70,7 @@
                 test.title("Using underlying array stream");
                 var result,
                     stream = gpf.arrayToStream([1, 2, 3]);
-                test.wait(100);
+                test.wait();
                 result = gpf.arrayFromStream(stream, function (event) {
                     test.log("Callback");
                     test.equal(event.type(),
