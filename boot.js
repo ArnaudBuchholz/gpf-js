@@ -292,5 +292,15 @@
         }());
     }
 
+/*#endif*/
+
+    if ("nodejs" === _host) {
+        // May start a web server from here
+        // 1. Need parameter parsing
+        // 2. May be mapped onto local gpf.config
+        // 3. Allow jsp
+    }
+
+/*#ifndef(UMD)*/
 }()); /* End of privacy scope */
 /*#endif*/
