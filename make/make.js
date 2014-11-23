@@ -35,7 +35,7 @@
             release: {
                 UMD: true,
                 DEBUG: false,
-                keepComments: false,
+                keepComments: true, // Needed for gpf: tags
                 reduce: true,
                 rewriteOptions: {
                     format: {
@@ -371,15 +371,37 @@
 
         static: {
 
+            isTaggedWith: function (ast, tag) {
+                var array,
+                    len,
+                    idx;
+                if (!ast.leadingComments) {
+                    return false;
+                }
+                tag = "gpf:" + tag;
+                array = ast.leadingComments;
+                len = array.length;
+                for (idx = 0; idx < len; ++idx) {
+                    if (array[idx].value === tag) {
+                        return true;
+                    }
+                }
+                return false;
+            },
+
             VariableDeclaration: {
 
                 pre: function (ast, reducer) {
                     var
                         names = [],
                         len = ast.declarations.length,
-                        idx;
+                        idx,
+                        decl;
                     for (idx = 0; idx < len; ++idx) {
-                        names.push(ast.declarations[idx].id.name);
+                        decl = ast.declarations[idx];
+                        if (!ASTreducer.isTaggedWith(decl, "no-reduce")) {
+                            names.push(decl.id.name);
+                        }
                     }
                     // TODO distinguish 'globals' from inner variables
                     reducer.beginIdentifierMapping(names, true);
@@ -418,13 +440,17 @@
                 pre: function (ast, reducer) {
                     var
                         names = [],
+                        len,
                         idx,
-                        len;
+                        param;
                     // Process parameters
                     if (ast.params && ast.params.length) {
                         len = ast.params.length;
                         for (idx = 0; idx < len; ++idx) {
-                            names.push(ast.params[idx].name);
+                            param = ast.params[idx];
+                            if (!ASTreducer.isTaggedWith(param, "no-reduce")) {
+                                names.push(ast.params[idx].name);
+                            }
                         }
                     }
                     reducer.beginIdentifierMapping(names, false);
