@@ -12,7 +12,7 @@
     } else {
         factory((root.gpf = {}));
     }
-}(this, function (gpf) {
+}(this, function (/*gpf:no-reduce*/gpf) {
     "use strict";
 
     __gpf__;
