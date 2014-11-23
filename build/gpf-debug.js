@@ -114,6 +114,8 @@
     };
     if (!gpf.ASSERT) {
     }
+    if ("nodejs" === _host) {
+    }
     (function () {
         /* Begin of privacy scope */
         "use strict";
@@ -1474,12 +1476,15 @@
      * - Uses closure to keep track of gpf handle and constructor function
      * - _CONSTRUCTOR_ will be replaced with the actual class name
      *
+     * @param {Object} gpf
      * @returns {Function}
      * @private
      * @closure
      */
     function _newClassConstructorFromFullName() {
-        var gpf = arguments[0],
+        var
+            /*gpf:no-reduce*/
+            gpf = arguments[0],
             /*jshint -W120*/
             constructor = _CONSTRUCTOR_ = function () {
                 gpf._classInit.apply(this, [
@@ -1494,12 +1499,15 @@
      * - Uses closure to keep track of gpf handle and constructor function
      * - _CONSTRUCTOR_ will be replaced with the actual class name
      *
+     * @param {Object} gpf
      * @returns {Function}
      * @private
      * @closure
      */
     function _newClassConstructorFromName() {
-        var gpf = arguments[0], constructor = function _CONSTRUCTOR_() {
+        var
+            /*gpf:no-reduce*/
+            gpf = arguments[0], constructor = function _CONSTRUCTOR_() {
                 gpf._classInit.apply(this, [
                     constructor,
                     arguments
