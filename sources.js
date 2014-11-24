@@ -34,7 +34,11 @@
 
             "xml",                  // Xml serializer & attributes       gpf.xml
             "xnode",                // Xml 'DOM' structure               gpf.xml
-            "xpath"                 // Xml 'XPATH' parser/evaluator      gpf.xml
+            "xpath",                // Xml 'XPATH' parser/evaluator      gpf.xml
+
+            "params",               // Parameters parsing             gpf.Params
+
+            "websvr"                // Simple JSP web server (nodeJS specific)
         ];
 
     gpf.sources = function () {
