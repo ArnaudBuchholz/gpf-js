@@ -7,8 +7,15 @@
      * Detect host & define global context
      */
     var
+        VERSION = "0.1",
         _host,
         _context;
+
+/*#ifdef(DEBUG)*/
+
+    VERSION += "d";
+
+/*#endif*/
 
     // Microsoft cscript / wscript
     if ("undefined" !== typeof WScript) {
@@ -46,6 +53,14 @@
 
 /*#endif*/
 
+    /**
+     * Returns the current version
+     *
+     * @return {string}
+     */
+    gpf.version = function () {
+        return VERSION;
+    };
 
     /**
      * Returns a string identifying the detected host
@@ -293,13 +308,6 @@
     }
 
 /*#endif*/
-
-    if ("nodejs" === _host) {
-        // May start a web server from here
-        // 1. Need parameter parsing
-        // 2. May be mapped onto local gpf.config
-        // 3. Allow jsp
-    }
 
 /*#ifndef(UMD)*/
 }()); /* End of privacy scope */
