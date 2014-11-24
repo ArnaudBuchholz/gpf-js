@@ -13,7 +13,7 @@
              * @type {String}
              * @private
              */
-            "[_name]": [gpf.$ClassProperty()],
+            "[_name]": [gpf.$ClassProperty(), gpf.$XmlAttribute("name")],
             _name: "",
 
             /**
@@ -22,7 +22,8 @@
              * @type {String}
              * @private
              */
-            "[_description]": [gpf.$ClassProperty()],
+            "[_description]": [gpf.$ClassProperty(),
+                gpf.$XmlElement("description")],
             _description: "",
 
             /**
@@ -31,7 +32,7 @@
              * @type {String} see gpf.Parameter.TYPE_xxx
              * @private
              */
-            "[_type]": [gpf.$ClassProperty()],
+            "[_type]": [gpf.$ClassProperty(), gpf.$XmlAttribute("type")],
             _type: "",
 
             /**
@@ -40,7 +41,8 @@
              * @type {Boolean}
              * @private
              */
-            "[_required]": [gpf.$ClassProperty()],
+            "[_required]": [gpf.$ClassProperty(),
+                gpf.$XmlAttribute("required")],
             _required: false,
 
             /**
@@ -49,7 +51,8 @@
              * @type {*}
              * @private
              */
-            "[_defaultValue]": [gpf.$ClassProperty()],
+            "[_defaultValue]": [gpf.$ClassProperty(),
+                gpf.$XmlElement("default")],
             _defaultValue: null,
 
             /**
@@ -61,7 +64,7 @@
              * @type {String}
              * @private
              */
-            "[_prefix]": [gpf.$ClassProperty()],
+            "[_prefix]": [gpf.$ClassProperty(), gpf.$XmlAttribute("prefix")],
             _prefix: "",
 
             /**
@@ -71,7 +74,8 @@
              * @type {Boolean}
              * @private
              */
-            "[_multiple]": [gpf.$ClassProperty()],
+            "[_multiple]": [gpf.$ClassProperty(),
+                gpf.$XmlAttribute("multiple")],
             _multiple: false,
 
             /**
@@ -80,7 +84,7 @@
              * @type {Boolean}
              * @private
              */
-            "[_hidden]": [gpf.$ClassProperty()],
+            "[_hidden]": [gpf.$ClassProperty(), gpf.$XmlAttribute("hidden")],
             _hidden: false
         },
 
