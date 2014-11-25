@@ -127,8 +127,8 @@
                     result = new gpf.Parameter();
                 gpf.json.load(result, definition);
                 // name is required
-                if (!definition.name) {
-                    gpf.Error.XmlInvalidName();
+                if (!result._name) {
+                    gpf.Error.ParamsNameRequired();
                 }
                 return result;
             },
