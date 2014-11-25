@@ -10,8 +10,8 @@
                 var params = gpf.Parameter.create([{
                         name: "StringParameter",
                         description: "This is a string parameter"
-                    }, {
-
+                    //}, {
+                    //
                     }]),
                     param;
                 test.equal(params.length, 1, "Correct number of parameters");
