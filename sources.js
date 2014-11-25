@@ -14,6 +14,7 @@
             "attributes",           // Attributes                 gpf.attributes
             "error",                // Error base class
             "att_class",            // Class attributes
+            "att_json",             // JSON serializer
             "interface",            // Interface                  gpf.interfaces
             "i_enumerable",         // IEnumerable
             "i_array",              // IArray
