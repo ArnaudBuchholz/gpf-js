@@ -92,7 +92,11 @@
 
             // xml.js
             "XmlInvalidName":
-                "Invalid XML name"
+                "Invalid XML name",
+
+            // params.js
+            "ParamsNameRequired":
+                "Missing name"
         },
 
         /**

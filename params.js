@@ -33,7 +33,7 @@
              * @private
              */
             "[_type]": [gpf.$ClassProperty(), gpf.$XmlAttribute("type")],
-            _type: "",
+            _type: "string",
 
             /**
              * Is required
@@ -53,7 +53,7 @@
              */
             "[_defaultValue]": [gpf.$ClassProperty(),
                 gpf.$XmlElement("default")],
-            _defaultValue: null,
+            _defaultValue: undefined,
 
             /**
              * Prefix used to locate parameter in the given parameter list.
@@ -101,12 +101,36 @@
             /**
              * Create a list of parameters
              *
-             * @param {Object[]} definition
+             * @param {Object[]} definitions
              * @return {gpf.Parameter[]}
              */
-            create: function (definition) {
-                gpf.interface.ignoreParameter(definition);
-                return [];
+            create: function (definitions) {
+                var
+                    result = [],
+                    len = definitions.length,
+                    idx;
+                for (idx = 0; idx < len; ++idx) {
+                    result.push(this._createFromObject(definitions[idx]));
+                }
+                return result;
+            },
+
+            /**
+             * Create a parameter from the definition object
+             *
+             * @param {Object} definition
+             * @return {gpf.Parameter}
+             * @private
+             */
+            _createFromObject: function (definition) {
+                var
+                    result = new gpf.Parameter();
+                gpf.json.load(result, definition);
+                // name is required
+                if (!definition.name) {
+                    gpf.Error.XmlInvalidName();
+                }
+                return result;
             },
 
             /**
