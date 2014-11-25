@@ -449,8 +449,14 @@
              * @return {gpf.attributes.Array}
              */
             member: function (name) {
+                /**
+                 * When member is a known Object member (i.e. constructor),
+                 * this generates weird results. Filter out by testing the
+                 * result type.
+                 */
                 var result = this._members[name];
-                if (undefined === result) {
+                if (undefined === result
+                    || !(result instanceof gpf.attributes.Array)) {
                     if (0 === _emptyMember) {
                         _emptyMember = new gpf.attributes.Array();
                     }
