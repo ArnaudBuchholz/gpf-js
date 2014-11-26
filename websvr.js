@@ -19,11 +19,12 @@
      */
     (function () {
         var
-            path = require("path"),
+            path,
             scriptName;
         if ("nodejs" !== gpf.host()) {
             return; // Not inside nodejs
         }
+        path = require("path");
         scriptName = path.basename(process.argv[1], ".js");
         if (scriptName === "boot"
             || scriptName === "gpf"
