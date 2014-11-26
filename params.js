@@ -98,6 +98,12 @@
             TYPE_NUMBER: "number",
             TYPE_STRING: "string",
 
+            DEFAULTS: {
+                "string": "",
+                "boolean": false,
+                "number": 0
+            },
+
             /**
              * Create a list of parameters
              *
@@ -124,11 +130,37 @@
              */
             _createFromObject: function (definition) {
                 var
-                    result = new gpf.Parameter();
+                    result = new gpf.Parameter(),
+                    typeDefaultValue;
+                if (definition.prefix === "verbose") {
+                    definition = {
+                        name: "verbose",
+                        description: "Enable verbose mode",
+                        type: "boolean",
+                        defaultValue: false,
+                        prefix: "verbose"
+                    };
+                } else if (definition.prefix === "help") {
+                    definition = {
+                        name: "help",
+                        description: "Display help",
+                        type: "boolean",
+                        defaultValue: false,
+                        prefix: "help"
+                    };
+                }
                 gpf.json.load(result, definition);
                 // name is required
                 if (!result._name) {
                     gpf.Error.ParamsNameRequired();
+                }
+                // Check that default value is appropriate
+                typeDefaultValue = this.DEFAULTS.hasOwnProperty(result._type);
+                if (result.hasOwnProperty("_defaultValue")
+                    && undefined !== typeDefaultValue) {
+                    result._defaultValue =
+                        gpf.value(result._defaultValue, typeDefaultValue,
+                            result._type);
                 }
                 return result;
             },
