@@ -3,29 +3,39 @@
     "use strict";
 /*#endif*/
 
+    /*global _NAME_:true*/
+
     var
         /**
-         * Generates a read-only property accessor
+         * Read-only property accessor template
          *
-         * @param {String} member
-         * @return {Function}
+         * @return {*}
          * @closure
          */
-        _roProperty = function (member) {
-            return gpf._func("return this." + member + ";");
+        _roProperty = function () {
+            /*jshint -W120*/
+            var template = _NAME_ = function () {
+                return this._MEMBER_;
+            };
+            return template;
         },
 
         /**
-         * Generates a property accessor
+         * Property accessor template
          *
-         * @param {String} member
          * @return {Function}
          * @closure
          */
-        _rwProperty = function (member) {
-            return gpf._func("var r = this." + member
-                + "; if (0 < arguments.length) { this." + member
-                + " = arguments[0]; } return r;");
+        _rwProperty = function () {
+            /*jshint -W120*/
+            var template = _NAME_ = function () {
+                var result = this._MEMBER_;
+                if (0 < arguments.length) {
+                    this._MEMBER_ = arguments[0];
+                }
+                return result;
+            };
+            return template;
         },
 
         /**
@@ -90,16 +100,34 @@
                     member = this._member,
                     publicName = this._publicName,
                     classDef = gpf.classDef(objPrototype.constructor),
-                    accessor;
+                    src,
+                    start,
+                    end;
                 if (!publicName) {
                     publicName = member.substr(1); // starts with _
                 }
                 if (this._writeAllowed) {
-                    accessor = _rwProperty(member);
+                    src = _rwProperty.toString();
                 } else {
-                    accessor = _roProperty(member);
+                    src = _roProperty.toString();
                 }
-                classDef.addMember(publicName, accessor, this._visibility);
+                // Replace all occurrences of _MEMBER_ zith the right name
+                src = src.split("_MEMBER_").join(member);
+                // Do the same for _NAME_ to customize accessor name
+                src = src.replace("_NAME_", classDef.name() + "." + publicName);
+                // Extract content of resulting function source
+                start = src.indexOf("{") + 1;
+                end = src.lastIndexOf("}") - 1;
+                src =  src.substr(start, end - start + 1);
+                /**
+                 * If the classDef name is not a namespace, defines an empty
+                 * object to allow the use of Name.member
+                 */
+                if (-1 === classDef.name().indexOf(".")) {
+                    src = "var " + classDef.name() + " = {};\r\n" + src;
+                }
+                classDef.addMember(publicName, gpf._func(src)(),
+                    this._visibility);
             }
 
         },
