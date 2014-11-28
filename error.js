@@ -98,7 +98,9 @@
             "ParamsNameRequired":
                 "Missing name",
             "ParamsTypeUnknown":
-                "Type unknown"
+                "Type unknown",
+            "ParamsRequiredMissing":
+                "Required parameter '{name}' is missing"
         },
 
         /**
