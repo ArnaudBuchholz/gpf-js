@@ -9,6 +9,7 @@
      * @param {String[]|Object|undefined} options
      */
     gpf.runWebServer = function (options) {
+        // Options parsing
         if (options instanceof Array) {
             options = gpf.Parameter.parse([{
                 name: "port",
@@ -22,6 +23,7 @@
                 prefix: "root"
             }, gpf.Parameter.VERBOSE, gpf.Parameter.HELP], options);
         }
+        // Server boot trace
         console.log("GPF " + gpf.version() + " web server");
         if (options.root === ".") {
             options.root = process.cwd();
