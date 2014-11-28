@@ -155,7 +155,7 @@
                     gpf.Error.ParamsNameRequired();
                 }
                 // Check type and default value
-                typeDefaultValue = this.DEFAULTS.hasOwnProperty(result._type);
+                typeDefaultValue = this.DEFAULTS[result._type];
                 if (undefined === typeDefaultValue) {
                     gpf.Error.ParamsTypeUnknown();
                 }
@@ -185,7 +185,7 @@
                     prefix = 0;
                 }
                 len = parameters.length;
-                if ("number" === prefix) {
+                if ("number" === typeof prefix) {
                     idx = prefix;
                     prefix = "";
                 }
@@ -279,13 +279,13 @@
                                 name: name
                             });
                         }
-                    }
-                    value = parameter._defaultValue;
-                    if (undefined !== value) {
-                        if (parameter._multiple) {
-                            value = [value];
+                        value = parameter._defaultValue;
+                        if (undefined !== value) {
+                            if (parameter._multiple) {
+                                value = [value];
+                            }
+                            result[name] = value;
                         }
-                        result[name] = value;
                     }
                 }
             },
