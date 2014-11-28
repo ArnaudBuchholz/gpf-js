@@ -9,8 +9,64 @@
      * @param {String[]|Object|undefined} options
      */
     gpf.runWebServer = function (options) {
+        if (options instanceof Array) {
+            options = gpf.Parameter.parse([{
+                name: "port",
+                type: "number",
+                defaultValue: 80,
+                prefix: "port"
+            }, {
+                name: "root",
+                type: "string",
+                defaultValue: ".",
+                prefix: "root"
+            }, gpf.Parameter.VERBOSE, gpf.Parameter.HELP], options);
+        }
         console.log("GPF " + gpf.version() + " web server");
-
+        if (options.root === ".") {
+            options.root = process.cwd();
+        }
+        if (options.verbose) {
+            console.log("root: " + options.root);
+            console.log("port: " + options.port);
+        }
+        // Expose ExtJS require
+        global.require = require;
+        // Build the web server
+        require("http").createServer(function (request, response) {
+            if (options.verbose) {
+                console.log([
+                    request.method,
+                    "     ".substr(request.method.length),
+                    request.url
+                ].join(""));
+            }
+            /**
+             * Pre-formatted plain answer
+             *
+             * @param {Number} statusCode
+             * @param {String} text
+             */
+            response.plain = function (statusCode, text) {
+                this.writeHead(statusCode, {"Content-Type": "text/plain"});
+                response.write([
+                    "port    : " + options.port,
+                    "method  : " + request.method,
+                    "url     : " + request.url,
+                    "root    : " + options.root,
+                    "headers : "
+                        + JSON.stringify(request.headers, null, "\t\t"),
+                    text
+                ].join("\n"));
+                response.end();
+            };
+            response.plain(200, ".");
+        }).on("close", function () {
+            console.log("Closed.");
+        }).listen(options.port);
+        if (options.verbose) {
+            console.log("Listening...");
+        }
     };
 
     /**
