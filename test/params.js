@@ -30,6 +30,27 @@
                     "Description");
                 test.equal(param.type(), gpf.Parameter.TYPE_BOOLEAN, "Type");
                 test.equal(param.defaultValue(), false, "Default value");
+            },
+
+            function (test) {
+                test.title("Use of verbose and help");
+                var params = gpf.Parameter.create(["verbose", {
+                        prefix: "help"
+                    }]),
+                    param;
+                test.equal(params.length, 2, "Correct number of parameters");
+                param = params[0];
+                test.log("Verbose parameter");
+                test.equal(param.name(), "verbose", "Name");
+                test.equal(param.type(), gpf.Parameter.TYPE_BOOLEAN, "Type");
+                test.equal(param.defaultValue(), false, "Default value");
+                test.equal(param.prefix(), gpf.Parameter.VERBOSE, "Prefix");
+                param = params[1];
+                test.log("Help parameter");
+                test.equal(param.name(), "help", "Name");
+                test.equal(param.type(), gpf.Parameter.TYPE_BOOLEAN, "Type");
+                test.equal(param.defaultValue(), false, "Default value");
+                test.equal(param.prefix(), gpf.Parameter.HELP, "Prefix");
             }
 
         ],
@@ -55,6 +76,16 @@
                     "String parameter found");
                 test.equal(result.BooleanParameter, true,
                     "Boolean parameter found");
+            },
+
+            function (test) {
+                test.title("Use of verbose and help");
+                var options = gpf.Parameter.parse(["verbose", "help"], [
+                    "-verbose",
+                    "help=true"
+                ]);
+                test.equal(options.verbose, true, "Verbose is set");
+                test.equal(options.help, true, "Help is set");
             }
 
         ]

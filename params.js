@@ -94,6 +94,9 @@
 
         static: {
 
+            VERBOSE: "verbose",
+            HELP: "help",
+
             TYPE_BOOLEAN: "boolean",
             TYPE_NUMBER: "number",
             TYPE_STRING: "string",
@@ -114,9 +117,14 @@
                 var
                     result = [],
                     len = definitions.length,
-                    idx;
+                    idx,
+                    definition;
                 for (idx = 0; idx < len; ++idx) {
-                    result.push(this._createFromObject(definitions[idx]));
+                    definition = definitions[idx];
+                    if (!(definition instanceof gpf.Parameter)) {
+                        definition = this._createFromObject(definition);
+                    }
+                    result.push(definition);
                 }
                 return result;
             },
@@ -132,21 +140,23 @@
                 var
                     result = new gpf.Parameter(),
                     typeDefaultValue;
-                if (definition.prefix === "verbose") {
+                if (definition === gpf.Parameter.VERBOSE
+                    || definition.prefix === gpf.Parameter.VERBOSE) {
                     definition = {
                         name: "verbose",
                         description: "Enable verbose mode",
                         type: "boolean",
                         defaultValue: false,
-                        prefix: "verbose"
+                        prefix: gpf.Parameter.VERBOSE
                     };
-                } else if (definition.prefix === "help") {
+                } else if (definition === gpf.Parameter.HELP
+                           || definition.prefix === gpf.Parameter.HELP) {
                     definition = {
                         name: "help",
                         description: "Display help",
                         type: "boolean",
                         defaultValue: false,
-                        prefix: "help"
+                        prefix: gpf.Parameter.HELP
                     };
                 }
                 gpf.json.load(result, definition);
@@ -188,6 +198,8 @@
                 if ("number" === typeof prefix) {
                     idx = prefix;
                     prefix = "";
+                } else {
+                    idx = 0;
                 }
                 for (; idx < len; ++idx) {
                     parameter = parameters[idx];
@@ -203,7 +215,7 @@
              * recognized parameters. Throws an error if required parameters
              * are missing.
              *
-             * @param {gpf.Parameter[]} parameters
+             * @param {gpf.Parameter[]|Object[]} parameters
              * @param {String[]} argumentsToParse
              * @return {Object}
              */
@@ -216,9 +228,10 @@
                     parameter,
                     name,
                     lastNonPrefixIdx = 0;
+                parameters = gpf.Parameter.create(parameters);
                 len = argumentsToParse.length;
                 for (idx = 0; idx < len; ++idx) {
-                    // Check if a prefix was used
+                    // Check if a prefix was used and find parameter
                     argument = this.getPrefixValuePair(argumentsToParse[idx]);
                     if (argument instanceof Array) {
                         parameter = this.getOnPrefix(parameters, argument[0]);
@@ -228,13 +241,26 @@
                             lastNonPrefixIdx);
                         lastNonPrefixIdx = parameters.indexOf(parameter) + 1;
                     }
+                    // If no parameter corresponds, ignore
                     if (!parameter) {
-                        // Nothing to do with this value, ignore?
+                        // TODO maybe an error might be more appropriate
                         continue;
                     }
+                    // Sometimes, the prefix might be used without value
+                    if (undefined === argument) {
+                        if ("boolean" === parameter._type) {
+                            argument = !parameter._defaultValue;
+                        } else {
+                            // Nothing to do with it
+                            // TODO maybe an error might be more appropriate
+                            continue;
+                        }
+                    }
+                    // Convert the value to match the type
                     // TODO change when type will be an object
                     argument = gpf.value(argument, parameter._defaultValue,
                         parameter._type);
+                    // Assign the corresponding member of the result object
                     name = parameter._name;
                     if (parameter._multiple) {
                         if (undefined === result[name]) {
@@ -296,8 +322,8 @@
              *
              * Recognized prefixes:
              * <ul>
-             *     <li>-{prefix}:</li>
-             *     <li>{prefix}=</li>
+             *     <li>-{prefix}[:value]</li>
+             *     <li>{prefix}=value</li>
              * </ul>
              *
              * @param {String} argument
@@ -307,15 +333,24 @@
                 var pos;
                 // -{prefix}:
                 if (argument.charAt(0) === "-") {
+                    argument = argument.substr(1);
                     pos = argument.indexOf(":");
                     if (-1 < pos) {
-                        return argument.substr(1).split(":");
+                        return [
+                            argument.substr(0, pos),
+                            argument.substr(pos + 1)
+                        ];
+                    } else {
+                        return [argument];
                     }
                 }
                 // {prefix}=
                 pos = argument.indexOf("=");
                 if (-1 < pos) {
-                    return argument.substr(1).split("=");
+                    return [
+                        argument.substr(0, pos),
+                        argument.substr(pos + 1)
+                    ];
                 }
                 // Default
                 return argument;
