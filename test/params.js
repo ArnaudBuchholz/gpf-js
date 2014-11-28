@@ -32,6 +32,31 @@
                 test.equal(param.defaultValue(), false, "Default value");
             }
 
+        ],
+
+        parse: [
+
+            function (test) {
+                test.title("Simple parsing");
+                var params = gpf.Parameter.create([{
+                        name: "StringParameter",
+                        description: "This is a string parameter"
+                    }, {
+                        name: "BooleanParameter",
+                        description: "This is a boolean parameter",
+                        type: "boolean"
+                    }]),
+                    result;
+                result = gpf.Parameter.parse(params, [
+                    "Test",
+                    "1"
+                ]);
+                test.equal(result.StringParameter, "Test",
+                    "String parameter found");
+                test.equal(result.BooleanParameter, True,
+                    "Boolean parameter found");
+            }
+
         ]
 
     });
