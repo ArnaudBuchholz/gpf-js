@@ -53,7 +53,7 @@
                 ]);
                 test.equal(result.StringParameter, "Test",
                     "String parameter found");
-                test.equal(result.BooleanParameter, True,
+                test.equal(result.BooleanParameter, true,
                     "Boolean parameter found");
             }
 
