@@ -96,7 +96,9 @@
 
             // params.js
             "ParamsNameRequired":
-                "Missing name"
+                "Missing name",
+            "ParamsTypeUnknown":
+                "Type unknown"
         },
 
         /**
