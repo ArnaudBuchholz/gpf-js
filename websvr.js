@@ -4,11 +4,13 @@
 /*#endif*/
 
     /**
-     * Run the GPF web server
+     * Process the options and dump the boot message
      *
-     * @param {String[]|Object|undefined} options
+     * @param {Object|String[]} options
+     * @return {Object} The parsed options
+     * @private
      */
-    gpf.runWebServer = function (options) {
+    function _processOptions (options) {
         // Options parsing
         if (options instanceof Array) {
             options = gpf.Parameter.parse([{
@@ -32,6 +34,161 @@
             console.log("root: " + options.root);
             console.log("port: " + options.port);
         }
+        return options;
+    }
+
+    var
+        /**
+         * Placeholder class to extend the NodeJS response class and provide
+         * more context to it
+         *
+         * @class ResponseHandler
+         * @private
+         */
+        ResponseHandler = gpf.define("ResponseHandler", {
+
+            private: {
+
+                /**
+                 * Web server options
+                 *
+                 * @type {Object}
+                 * @private
+                 */
+                _options: null,
+
+                /**
+                 * Request
+                 *
+                 * @type {NodeJS.http.IncomingMessage}
+                 * @private
+                 */
+                _request: null,
+
+                /**
+                 * Response
+                 *
+                 * @type {NodeJS.http.ServerResponse}
+                 * @private
+                 */
+                _response: null,
+
+                /**
+                 * Parsed URL object (see NodeJS url.parse documentation)
+                 *
+                 * @type {Object}
+                 * @private
+                 */
+                _parsedUrl: null,
+
+                /**
+                 * Corresponding file path
+                 *
+                 * @type {String}
+                 * @private
+                 */
+                _filePath: "",
+
+                /**
+                 * File extension (lowercase)
+                 *
+                 * @type {String}
+                 * @private
+                 */
+                _extName: ""
+
+            },
+
+            public: {
+
+                /**
+                 * @param {Object} options Web server options
+                 * @param {NodeJS.http.IncomingMessage} request
+                 * @param {NodeJS.http.ServerResponse} response
+                 * @constructor
+                 */
+                constructor: function (options, request, response) {
+                    var
+                        url = require("url"),
+                        path = require("path");
+                    this._options = options;
+                    this._request = request;
+                    this._response = response;
+                    // Parse and analyse URL
+                    this._parsedUrl = url.parse(request.url);
+                    this._filePath = path.join(
+                        this._options.root,
+                        this._parsedUrl.pathname
+                    );
+                    this._extName = path.extname(this._filePath).toLowerCase();
+                    // Extend response
+                    response.plain = ResponseHandler._plain;
+                },
+
+                /**
+                 * Answer the request
+                 */
+                answer: function () {
+                    var fs = require("fs");
+                    if (fs.existsSync(this._filePath)) {
+                        if (".jsp" === this._extName) {
+                            this.plain(500, "JSP not handled yet");
+                        } else {
+                            this.plain(200, "File exists");
+                        }
+                    } else {
+                        this.plain(404, "No file found");
+                    }
+                },
+
+                /**
+                 * Generates a PLAIN response to the server
+                 *
+                 * @param {Number} statusCode
+                 * @param {String} text
+                 */
+                plain: function (statusCode, text) {
+                    var resp = this._response;
+                    resp.writeHead(statusCode, {"Content-Type": "text/plain"});
+                    resp.write([
+                        "port    : " + this._options.port,
+                        "method  : " + this._request.method,
+                        "url     : " + this._request.url,
+                        "root    : " + this._options.root,
+                        "path    : " + this._filePath,
+                        "headers : "
+                        + JSON.stringify(this._request.headers, null, "\t\t"),
+                        text
+                    ].join("\n"));
+                    resp.end();
+                }
+
+            },
+
+            static: {
+
+                /**
+                 * Generates a PLAIN response to the server
+                 *
+                 * @param {Number} statusCode
+                 * @param {String} text
+                 * @private
+                 */
+                _plain: function (statusCode, text) {
+                    return this._gpf.plain(statusCode, text);
+                }
+
+            }
+        });
+
+
+    /**
+     * Run the GPF web server
+     *
+     * @param {String[]|Object|undefined} options
+     */
+    gpf.runWebServer = function (options) {
+        options = _processOptions(options);
         // Expose ExtJS require
         global.require = require;
         // Build the web server
@@ -43,31 +200,13 @@
                     request.url
                 ].join(""));
             }
-            /**
-             * Pre-formatted plain answer
-             *
-             * @param {Number} statusCode
-             * @param {String} text
-             */
-            response.plain = function (statusCode, text) {
-                this.writeHead(statusCode, {"Content-Type": "text/plain"});
-                response.write([
-                    "port    : " + options.port,
-                    "method  : " + request.method,
-                    "url     : " + request.url,
-                    "root    : " + options.root,
-                    "headers : "
-                        + JSON.stringify(request.headers, null, "\t\t"),
-                    text
-                ].join("\n"));
-                response.end();
-            };
-            response.plain(200, ".");
+            response._gpf = new ResponseHandler(options, request, response);
+            response._gpf.answer();
         }).on("close", function () {
             console.log("Closed.");
         }).listen(options.port);
         if (options.verbose) {
-            console.log("Listening...");
+            console.log("Listening... (CTRL+C to stop)");
         }
     };
 
