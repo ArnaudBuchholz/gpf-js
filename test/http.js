@@ -4,12 +4,13 @@
     var
         // List of hardcoded mime types
         _mimeTypes = {
-            "text/css":     [".css"],
-            "text/html":    [".htm", ".html"],
-            "text/plain":   [".txt", ".text", ".log"],
-            "image/gif":    [".gif"],
-            "image/jpeg":   [".jpg", ".jpeg"],
-            "image/png":    [".png"]
+            "application/javascript":       [".js"],
+            "image/gif":                    [".gif"],
+            "image/jpeg":                   [".jpg", ".jpeg"],
+            "image/png":                    [".png"],
+            "text/css":                     [".css"],
+            "text/html":                    [".htm", ".html"],
+            "text/plain":                   [".txt", ".text", ".log"]
         };
 
     gpf.declareTests({

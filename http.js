@@ -68,15 +68,18 @@ FIXME: IE10 does not detect when the script does not exist.
          * @private
          */
         _hardCodedMimeTypes = {
-            text: {
-                css: 0,
-                html: "htm,html",
-                plain: "txt,text,log"
+            application: {
+                javascript: "js"
             },
             image: {
                 gif: 0,
                 jpeg: "jpg,jpeg",
                 png: 0
+            },
+            text: {
+                css: 0,
+                html: "htm,html",
+                plain: "txt,text,log"
             }
         },
 
