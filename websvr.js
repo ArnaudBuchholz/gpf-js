@@ -12,6 +12,9 @@
      */
     function _processOptions (options) {
         // Options parsing
+        var
+            name,
+            maxLen;
         if (options instanceof Array) {
             options = gpf.Parameter.parse([{
                 name: "port",
@@ -36,8 +39,26 @@
             options.root = process.cwd();
         }
         if (options.verbose) {
-            console.log("root: " + options.root);
-            console.log("port: " + options.port);
+            maxLen = 0;
+            for (name in options) {
+                if (options.hasOwnProperty(name)) {
+                    if (name.length > maxLen) {
+                        maxLen = name.length;
+                    }
+                }
+            }
+            ++maxLen;
+            for (name in options) {
+                if (options.hasOwnProperty(name)) {
+                    console.log([
+                        "\t",
+                        name,
+                        (new Array(maxLen - name.length + 1)).join(" "),
+                        ": ",
+                        options[name]
+                    ].join(""));
+                }
+            }
         }
         return options;
     }
@@ -140,7 +161,7 @@
                         if (".jsp" === this._extName) {
                             this.plain(500, "JSP not handled yet");
                         } else {
-                            this.plain(200, "File exists");
+                            this.fromFile(this._filePath);
                         }
                     } else {
                         this.plain(404, "No file found");
@@ -184,39 +205,85 @@
                         chunkSize = me._options.chunkSize,
                         buffer,
                         pos = 0,
-                        len,
+                        size,
+                        left,
                         fileDescriptor,
                         read,
                         write;
                     read = function () {
-                        fs.read(fileDescriptor, buffer, pos, chunkSize, null,
-                            write);
+                        var len;
+                        if (chunkSize > left) {
+                            if (0 === left) {
+                                console.log("\tSent.");
+                                me._response.end();
+                                return;
+                            }
+                            len = left;
+                        } else {
+                            len = chunkSize;
+                        }
+                        //console.log("\tRead @" + pos + ", len: " + len);
+                        fs.read(fileDescriptor, buffer, 0, len, pos, write);
                     };
                     write = function (err, bytesRead, buffer) {
-
+                        if (err) {
+                            // Partly answered, close the answer and dump error
+                            me._response.end();
+                            console.error([
+                                "Error while sending '",
+                                filePath,
+                                "' (",
+                                err,
+                                ")"
+                            ].join(""));
+                            return;
+                        }
+                      //console.log("\tWrite @" + pos + ", len: " + bytesRead);
+                        pos += bytesRead;
+                        left -= bytesRead;
+                        if (!me._response.write(buffer)) {
+                            console.log("\twait...");
+                            me._response.once("drain", read);
+                        } else {
+                            read();
+                        }
                     };
                     fs.stat(filePath, function (err, stats) {
+                        var mimeType;
                         if (err) {
                             me._response.plain(500,
                                 "Unable to access file (" + err + ")");
                             return;
                         }
-                        len = stats.size;
-                        gpf.http.getMimeType(extName, function (event) {
-                            me._response.writeHead(200, {
-                                "Content-Type": event.get("mimeType"),
-                                "Content-Length": len
-                            });
-                            fs.open(filePath, "r", function (err, fd) {
-                                if (err) {
-                                    me._response.plain(500,
-                                        "Unable to open file (" + err + ")");
-                                    return;
-                                }
-                                fileDescriptor = fd;
-                                buffer = new Buffer(me._options.chunkSize);
-                                read();
-                            });
+                        if (stats.isDirectory()) {
+                            me._response.plain(200, "Directory.");
+                            return;
+                        } else if (!stats.isFile()) {
+                            me._response.plain(200, "Not a file.");
+                            return;
+                        }
+                        left = size = stats.size;
+                        mimeType = gpf.http.getMimeType(extName);
+                        if (me._options.verbose) {
+                            console.log("\tMime type  : " + mimeType);
+                            console.log("\tFile size  : " + size);
+                        }
+                        me._response.writeHead(200, {
+                            "Content-Type": mimeType,
+                            "Content-Length": size
+                        });
+                        fs.open(filePath, "r", function (err, fd) {
+                            if (err) {
+                                me._response.plain(500,
+                                    "Unable to open file (" + err + ")");
+                                return;
+                            }
+                            fileDescriptor = fd;
+                            if (me._options.verbose) {
+                                console.log("\tFile handle: " + fd);
+                            }
+                            buffer = new Buffer(me._options.chunkSize);
+                            read();
                         });
                     });
                 }
