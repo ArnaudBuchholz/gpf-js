@@ -61,22 +61,32 @@ FIXME: IE10 does not detect when the script does not exist.
         },
 
         /**
-         * Object used to generate _mimeTypesFromExtension
+         * Object used to generate _mimeTypesFromExtension and
+         * _mimeTypesToExtension
          *
          * @type {Object}
          * @private
          */
-        _mimeTypesToExtension = {
+        _hardCodedMimeTypes = {
             text: {
-                plain: "txt,text,log",
-                html: "htm,html"
+                css: 0,
+                html: "htm,html",
+                plain: "txt,text,log"
             },
             image: {
-                png: 0,
                 gif: 0,
-                jpeg: "jpg,jpeg"
+                jpeg: "jpg,jpeg",
+                png: 0
             }
         },
+
+        /**
+         * Dictionary of mime type to extension
+         *
+         * @type {Object}
+         * @private
+         */
+        _mimeTypesToExtension = null,
 
         /**
          * Dictionary of extension to mime type
@@ -90,6 +100,7 @@ FIXME: IE10 does not detect when the script does not exist.
             var
                 key,
                 mimeType,
+                fileExtension,
                 extensions,
                 len,
                 idx;
@@ -102,13 +113,20 @@ FIXME: IE10 does not detect when the script does not exist.
                     }
                     extensions = mappings[key];
                     if (0 === extensions) {
-                        _mimeTypesFromExtension["." + key] = mimeType;
+                        fileExtension = "." + key;
+                        _mimeTypesFromExtension[fileExtension] = mimeType;
+                        if (undefined === _mimeTypesToExtension[mimeType]) {
+                            _mimeTypesToExtension[mimeType] = fileExtension;
+                        }
                     } else if ("string" === typeof extensions) {
                         extensions = extensions.split(",");
                         len = extensions.length;
                         for (idx = 0; idx < len; ++idx) {
-                            _mimeTypesFromExtension["." + extensions[idx]]
-                                = mimeType;
+                            fileExtension = "." + extensions[idx];
+                            _mimeTypesFromExtension[fileExtension] = mimeType;
+                            if (undefined === _mimeTypesToExtension[mimeType]) {
+                                _mimeTypesToExtension[mimeType] = fileExtension;
+                            }
                         }
                     } else { // Assuming extensions is an object
                         _buildMimeTypeFromMappings(mimeType, extensions);
@@ -117,12 +135,17 @@ FIXME: IE10 does not detect when the script does not exist.
             }
         },
 
-        _buildMimeTypesFromExtension = function () {
+        /**
+         * Initialize _mimeTypesFromExtension and _mimeTypesToExtension
+         *
+         * @private
+         */
+        _initMimeTypes = function () {
             if (null === _mimeTypesFromExtension) {
                 _mimeTypesFromExtension = {};
-                _buildMimeTypeFromMappings("", _mimeTypesToExtension);
+                _mimeTypesToExtension = {};
+                _buildMimeTypeFromMappings("", _hardCodedMimeTypes);
             }
-            return _mimeTypesFromExtension;
         };
 
     gpf.http = {
@@ -189,24 +212,39 @@ FIXME: IE10 does not detect when the script does not exist.
         },
 
         /**
-         * Retrieve the mime type associate with the file extension.
+         * Retrieve the mime type associates with the file extension (default is
+         * "application/octet-stream")
          *
          * @param {String} fileExtension
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @eventParam {string} mimeType The result
-         *
-         * @event found The mime type has been found
-         *
-         * @event error An error occurred when processing the mime type
+         * @return {String}
          */
-        getMimeType: function (fileExtension, eventHandler) {
-            var mapping = _buildMimeTypesFromExtension(),
-                mimeType = mapping[fileExtension.toLowerCase()];
+        getMimeType: function (fileExtension) {
+            var mimeType;
+            _initMimeTypes();
+            mimeType = _mimeTypesFromExtension[fileExtension.toLowerCase()];
             if (undefined === mimeType) {
+                // Default
                 mimeType = "application/octet-stream";
             }
-            gpf.events.fire("found", {mimeType: mimeType}, eventsHandler);
+            return mimeType;
+        },
+
+        /**
+         * Retrieve the file extension associated with the mime type (default is
+         * ".bin")
+         *
+         * @param {String} mimeType
+         * @return {String}
+         */
+        getFileExtension: function (mimeType) {
+            var fileExtension;
+            _initMimeTypes();
+            fileExtension = _mimeTypesToExtension[mimeType.toLowerCase()];
+            if (undefined === fileExtension) {
+                // Default
+                fileExtension = ".bin";
+            }
+            return fileExtension;
         }
 
     };
