@@ -211,6 +211,28 @@
             },
 
             /**
+             * Helper used to manipulate the list of parameters: retrieve one
+             * using name.
+             *
+             * @param {gpf.Parameter[]} parameters
+             * @param {String] name
+             */
+            getByName: function (parameters, name) {
+                var
+                    len,
+                    idx,
+                    parameter;
+                len = parameters.length;
+                for (idx = 0; idx < len; ++idx) {
+                    parameter = parameters[idx];
+                    if (parameter._name === name) {
+                        return parameter;
+                    }
+                }
+                return null;
+            },
+
+            /**
              * Parse the arguments and return an object with the
              * recognized parameters. Throws an error if required parameters
              * are missing.
