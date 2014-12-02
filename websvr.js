@@ -23,6 +23,11 @@
                 type: "string",
                 defaultValue: ".",
                 prefix: "root"
+            }, {
+                name: "chunkSize",
+                type: "number",
+                defaultValue: 4096,
+                prefix: "chunk"
             }, gpf.Parameter.VERBOSE, gpf.Parameter.HELP], options);
         }
         // Server boot trace
@@ -122,13 +127,14 @@
                     );
                     this._extName = path.extname(this._filePath).toLowerCase();
                     // Extend response
+                    response._gpf = this;
                     response.plain = ResponseHandler._plain;
                 },
 
                 /**
-                 * Answer the request
+                 * Process the request
                  */
-                answer: function () {
+                process: function () {
                     var fs = require("fs");
                     if (fs.existsSync(this._filePath)) {
                         if (".jsp" === this._extName) {
@@ -161,6 +167,44 @@
                         text
                     ].join("\n"));
                     resp.end();
+                },
+
+                /**
+                 * Generates a response that contains the specified file
+                 *
+                 * @param {String} filePath
+                 * @private
+                 */
+                fromFile: function (filePath) {
+                    var
+                        me = this,
+                        fs = require("fs"),
+                        path = require("path"),
+                        extName = path.extname(filePath).toLowerCase(),
+                        buffer,
+                        pos = 0,
+                        len;
+                    // TODO check we have access to the file using fs.stats
+                    gpf.http.getMimeType(extName, function (event) {
+                        me._response.writeHead(200, {
+                            "Content-Type": event.get("mimeType")
+                        });
+                        fs.open(filePath, "r", function (err, fd) {
+                            if (err) {
+                                me._response.plain(500,
+                                    "Unable to open file (" + err + ")");
+                            }
+                            buffer = new Buffer(me._options.chunkSize);
+
+                            fs.read(fd, buffer, pos, me._options.chunkSize, null, function (err, bytesRead, buffer) {
+                                pos += bytesRead
+
+                            })
+
+                        });
+
+
+                    });
                 }
 
             },
@@ -176,6 +220,16 @@
                  */
                 _plain: function (statusCode, text) {
                     return this._gpf.plain(statusCode, text);
+                },
+
+                /**
+                 * Generates a response that contains the specified file
+                 *
+                 * @param {String} filePath
+                 * @private
+                 */
+                _fromFile: function (filePath) {
+                    return this._gpf.fromFile(filePath);
                 }
 
             }
@@ -200,8 +254,8 @@
                     request.url
                 ].join(""));
             }
-            response._gpf = new ResponseHandler(options, request, response);
-            response._gpf.answer();
+            var handler = new ResponseHandler(options, request, response);
+            handler.process();
         }).on("close", function () {
             console.log("Closed.");
         }).listen(options.port);
