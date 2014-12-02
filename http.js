@@ -58,6 +58,71 @@ FIXME: IE10 does not detect when the script does not exist.
                     context.eventsHandler);
                 _detachInclude(context);
             }
+        },
+
+        /**
+         * Object used to generate _mimeTypesFromExtension
+         *
+         * @type {Object}
+         * @private
+         */
+        _mimeTypesToExtension = {
+            text: {
+                plain: "txt,text,log",
+                html: "htm,html"
+            },
+            image: {
+                png: 0,
+                gif: 0,
+                jpeg: "jpg,jpeg"
+            }
+        },
+
+        /**
+         * Dictionary of extension to mime type
+         *
+         * @type {Object}
+         * @private
+         */
+        _mimeTypesFromExtension = null,
+
+        _buildMimeTypeFromMappings = function (path, mappings) {
+            var
+                key,
+                mimeType,
+                extensions,
+                len,
+                idx;
+            for (key in mappings) {
+                if (mappings.hasOwnProperty(key)) {
+                    if (path) {
+                        mimeType = path + "/" + key;
+                    } else {
+                        mimeType = key;
+                    }
+                    extensions = mappings[key];
+                    if (0 === extensions) {
+                        _mimeTypesFromExtension["." + key] = mimeType;
+                    } else if ("string" === typeof extensions) {
+                        extensions = extensions.split(",");
+                        len = extensions.length;
+                        for (idx = 0; idx < len; ++idx) {
+                            _mimeTypesFromExtension["." + extensions[idx]]
+                                = mimeType;
+                        }
+                    } else { // Assuming extensions is an object
+                        _buildMimeTypeFromMappings(mimeType, extensions);
+                    }
+                }
+            }
+        },
+
+        _buildMimeTypesFromExtension = function () {
+            if (null === _mimeTypesFromExtension) {
+                _mimeTypesFromExtension = {};
+                _buildMimeTypeFromMappings("", _mimeTypesToExtension);
+            }
+            return _mimeTypesFromExtension;
         };
 
     gpf.http = {
@@ -77,7 +142,7 @@ FIXME: IE10 does not detect when the script does not exist.
          * 
          * @event load The resource has been successfully loaded
          * 
-         * @event error An error occured when loading the resource
+         * @event error An error occurred when loading the resource
          * 
          * Inspired from http://stackoverflow.com/questions/4845762/
          * 
@@ -121,6 +186,27 @@ FIXME: IE10 does not detect when the script does not exist.
                 context.headTag.insertBefore(scriptTag,
                     context.headTag.firstChild);
             }, 0);
+        },
+
+        /**
+         * Retrieve the mime type associate with the file extension.
+         *
+         * @param {String} fileExtension
+         * @param {gpf.events.Handler} eventsHandler
+         *
+         * @eventParam {string} mimeType The result
+         *
+         * @event found The mime type has been found
+         *
+         * @event error An error occurred when processing the mime type
+         */
+        getMimeType: function (fileExtension, eventHandler) {
+            var mapping = _buildMimeTypesFromExtension(),
+                mimeType = mapping[fileExtension.toLowerCase()];
+            if (undefined === mimeType) {
+                mimeType = "application/octet-stream";
+            }
+            gpf.events.fire("found", {mimeType: mimeType}, eventsHandler);
         }
 
     };
