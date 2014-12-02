@@ -181,29 +181,43 @@
                         fs = require("fs"),
                         path = require("path"),
                         extName = path.extname(filePath).toLowerCase(),
+                        chunkSize = me._options.chunkSize,
                         buffer,
                         pos = 0,
-                        len;
-                    // TODO check we have access to the file using fs.stats
-                    gpf.http.getMimeType(extName, function (event) {
-                        me._response.writeHead(200, {
-                            "Content-Type": event.get("mimeType")
+                        len,
+                        fileDescriptor,
+                        read,
+                        write;
+                    read = function () {
+                        fs.read(fileDescriptor, buffer, pos, chunkSize, null,
+                            write);
+                    };
+                    write = function (err, bytesRead, buffer) {
+
+                    };
+                    fs.stat(filePath, function (err, stats) {
+                        if (err) {
+                            me._response.plain(500,
+                                "Unable to access file (" + err + ")");
+                            return;
+                        }
+                        len = stats.size;
+                        gpf.http.getMimeType(extName, function (event) {
+                            me._response.writeHead(200, {
+                                "Content-Type": event.get("mimeType"),
+                                "Content-Length": len
+                            });
+                            fs.open(filePath, "r", function (err, fd) {
+                                if (err) {
+                                    me._response.plain(500,
+                                        "Unable to open file (" + err + ")");
+                                    return;
+                                }
+                                fileDescriptor = fd;
+                                buffer = new Buffer(me._options.chunkSize);
+                                read();
+                            });
                         });
-                        fs.open(filePath, "r", function (err, fd) {
-                            if (err) {
-                                me._response.plain(500,
-                                    "Unable to open file (" + err + ")");
-                            }
-                            buffer = new Buffer(me._options.chunkSize);
-
-                            fs.read(fd, buffer, pos, me._options.chunkSize, null, function (err, bytesRead, buffer) {
-                                pos += bytesRead
-
-                            })
-
-                        });
-
-
                     });
                 }
 
