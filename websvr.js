@@ -29,7 +29,7 @@
             }, {
                 name: "chunkSize",
                 type: "number",
-                defaultValue: 4096,
+                defaultValue: 65536,
                 prefix: "chunk"
             }, gpf.Parameter.VERBOSE, gpf.Parameter.HELP], options);
         }
@@ -206,23 +206,19 @@
                         buffer,
                         pos = 0,
                         size,
-                        left,
                         fileDescriptor,
                         read,
                         write;
                     read = function () {
-                        var len;
-                        if (chunkSize > left) {
-                            if (0 === left) {
-                                console.log("\tSent.");
-                                me._response.end();
-                                return;
-                            }
-                            len = left;
-                        } else {
+                        var len = size - pos;
+                        if (0 === len) {
+                            // Done
+                            me._response.end();
+                            return;
+                        }
+                        if (len > chunkSize) {
                             len = chunkSize;
                         }
-                        //console.log("\tRead @" + pos + ", len: " + len);
                         fs.read(fileDescriptor, buffer, 0, len, pos, write);
                     };
                     write = function (err, bytesRead, buffer) {
@@ -238,15 +234,8 @@
                             ].join(""));
                             return;
                         }
-                      //console.log("\tWrite @" + pos + ", len: " + bytesRead);
                         pos += bytesRead;
-                        left -= bytesRead;
-                        if (!me._response.write(buffer)) {
-                            console.log("\twait...");
-                            me._response.once("drain", read);
-                        } else {
-                            read();
-                        }
+                        me._response.write(buffer, read);
                     };
                     fs.stat(filePath, function (err, stats) {
                         var mimeType;
@@ -262,7 +251,7 @@
                             me._response.plain(200, "Not a file.");
                             return;
                         }
-                        left = size = stats.size;
+                        size = stats.size;
                         mimeType = gpf.http.getMimeType(extName);
                         if (me._options.verbose) {
                             console.log("\tMime type  : " + mimeType);
@@ -282,7 +271,7 @@
                             if (me._options.verbose) {
                                 console.log("\tFile handle: " + fd);
                             }
-                            buffer = new Buffer(me._options.chunkSize);
+                            buffer = new Buffer(chunkSize);
                             read();
                         });
                     });
