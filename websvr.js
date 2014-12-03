@@ -195,6 +195,7 @@
                  *
                  * @param {String} filePath
                  * @private
+                 * @closure (a lot)
                  */
                 fromFile: function (filePath) {
                     var
@@ -207,13 +208,20 @@
                         pos = 0,
                         size,
                         fileDescriptor,
+                        close,
                         read,
                         write;
+                    close = function () {
+                        if (fileDescriptor) {
+                            fs.close(fileDescriptor);
+                        }
+                        me._response.end();
+                    };
                     read = function () {
                         var len = size - pos;
                         if (0 === len) {
                             // Done
-                            me._response.end();
+                            close();
                             return;
                         }
                         if (len > chunkSize) {
@@ -224,7 +232,6 @@
                     write = function (err, bytesRead, buffer) {
                         if (err) {
                             // Partly answered, close the answer and dump error
-                            me._response.end();
                             console.error([
                                 "Error while sending '",
                                 filePath,
@@ -232,6 +239,7 @@
                                 err,
                                 ")"
                             ].join(""));
+                            close();
                             return;
                         }
                         pos += bytesRead;
@@ -257,16 +265,16 @@
                             console.log("\tMime type  : " + mimeType);
                             console.log("\tFile size  : " + size);
                         }
-                        me._response.writeHead(200, {
-                            "Content-Type": mimeType,
-                            "Content-Length": size
-                        });
                         fs.open(filePath, "r", function (err, fd) {
                             if (err) {
                                 me._response.plain(500,
                                     "Unable to open file (" + err + ")");
                                 return;
                             }
+                            me._response.writeHead(200, {
+                                "Content-Type": mimeType,
+                                "Content-Length": size
+                            });
                             fileDescriptor = fd;
                             if (me._options.verbose) {
                                 console.log("\tFile handle: " + fd);
