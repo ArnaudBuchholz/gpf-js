@@ -359,8 +359,6 @@
             || scriptName === "gpf"
             || scriptName === "gpf-debug") {
             gpf.runWebServer(process.argv.slice(2));
-        } else {
-            console.log(scriptName);
         }
     }());
 
