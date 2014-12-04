@@ -3,43 +3,27 @@
     "use strict";
 /*#endif*/
 
-    /*global _NAME_:true*/
-
     var
         /**
          * Read-only property accessor template
          *
          * @return {*}
-         * @closure
          */
         _roProperty = function () {
-            /*jshint -W120*/
-            /*jshint unused:false*/
-            var /*gpf:no-reduce*/gpf = arguments[0],
-                template = _NAME_ = function () {
-                return this._MEMBER_;
-            };
-            return template;
+            return this._MEMBER_;
         },
 
         /**
          * Property accessor template
          *
-         * @return {Function}
-         * @closure
+         * @return {*}
          */
         _rwProperty = function () {
-            /*jshint -W120*/
-            /*jshint unused:false*/
-            var /*gpf:no-reduce*/gpf = arguments[0],
-                template = _NAME_ = function () {
-                var result = this._MEMBER_;
-                if (0 < arguments.length) {
-                    this._MEMBER_ = arguments[0];
-                }
-                return result;
-            };
-            return template;
+            var result = this._MEMBER_;
+            if (0 < arguments.length) {
+                this._MEMBER_ = arguments[0];
+            }
+            return result;
         },
 
         /**
@@ -115,22 +99,13 @@
                 } else {
                     src = _roProperty.toString();
                 }
-                // Replace all occurrences of _MEMBER_ zith the right name
+                // Replace all occurrences of _MEMBER_ with the right name
                 src = src.split("_MEMBER_").join(member);
-                // Do the same for _NAME_ to customize accessor name
-                src = src.replace("_NAME_", classDef.name() + "." + publicName);
                 // Extract content of resulting function source
                 start = src.indexOf("{") + 1;
                 end = src.lastIndexOf("}") - 1;
                 src =  src.substr(start, end - start + 1);
-                /**
-                 * If the classDef name is not a namespace, defines an empty
-                 * object to allow the use of Name.member
-                 */
-                if (-1 === classDef.name().indexOf(".")) {
-                    src = "var " + classDef.name() + " = {};\r\n" + src;
-                }
-                classDef.addMember(publicName, gpf._func(src)(gpf),
+                classDef.addMember(publicName, gpf._func(src),
                     this._visibility);
             }
 
