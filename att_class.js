@@ -14,7 +14,9 @@
          */
         _roProperty = function () {
             /*jshint -W120*/
-            var template = _NAME_ = function () {
+            /*jshint unused:false*/
+            var /*gpf:no-reduce*/gpf = arguments[0],
+                template = _NAME_ = function () {
                 return this._MEMBER_;
             };
             return template;
@@ -28,7 +30,9 @@
          */
         _rwProperty = function () {
             /*jshint -W120*/
-            var template = _NAME_ = function () {
+            /*jshint unused:false*/
+            var /*gpf:no-reduce*/gpf = arguments[0],
+                template = _NAME_ = function () {
                 var result = this._MEMBER_;
                 if (0 < arguments.length) {
                     this._MEMBER_ = arguments[0];
@@ -126,7 +130,7 @@
                 if (-1 === classDef.name().indexOf(".")) {
                     src = "var " + classDef.name() + " = {};\r\n" + src;
                 }
-                classDef.addMember(publicName, gpf._func(src)(),
+                classDef.addMember(publicName, gpf._func(src)(gpf),
                     this._visibility);
             }
 
