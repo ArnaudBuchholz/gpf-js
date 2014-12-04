@@ -315,7 +315,7 @@
         log("Reading '" + src + "'");
         if ("wscript" === gpf.host()) {
             return wscriptInclude(src);
-        } else if ("nodejs" === gpf.host()) {
+        } else if ("nodejs" === gpf.host() || "phantomjs" === gpf.host()) {
             return nodejsInclude(src);
         } else { // browser
             gpf.http.include(src, {
@@ -378,6 +378,7 @@
                 error("Some tests failed (" + context.errors + "/"
                     + context.total + ")", _eventsHandler);
             }
+            gpf.events.fire("end", _eventsHandler);
         }
     }
 
@@ -478,6 +479,8 @@
      * @eventParam {string} name The test name
      * @event success The test succeeded
      * @event failure The test failed
+     *
+     * @event end End of tests
      */
     gpf.runTests = function (eventsHandler) {
         // Check that sources are pre-loaded first
