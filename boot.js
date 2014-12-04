@@ -30,7 +30,14 @@
             error: function (t) {WScript.Echo("(X) " + t);}
         };
 
+    // PhantomJS
+    /*global phantom:true*/
+    } else if ("undefined" !== typeof phantom && phantom.version) {
+        _host = "phantomjs";
+        _context = window;
+
     // Nodejs
+        /*global module:true*/
     } else if ("undefined" !== typeof module && module.exports) {
         _host = "nodejs";
         _context = global;
@@ -68,6 +75,7 @@
      * @return {String}
      * - "wscript" for cscript and wscript
      * - "nodejs" for nodejs
+     * - "phantomjs" for phantomjs
      * - "browser" for any browser
      * - "unknown" if not detected
      */
@@ -225,7 +233,7 @@
             _finishLoading();
         }());
 
-    } else if ("nodejs" === _host) {
+    } else if ("nodejs" === _host || "phantomjs" === _host) {
         /*
          * This is probably the simplest part: use require
          */
