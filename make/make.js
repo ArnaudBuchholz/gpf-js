@@ -10,6 +10,7 @@
                 DEBUG: true,
                 keepComments: true,
                 reduce: false,
+                // escodegen options
                 rewriteOptions: {
                     format: {
                         indent: {
@@ -37,6 +38,7 @@
                 DEBUG: false,
                 keepComments: true, // Needed for gpf: tags
                 reduce: true,
+                // escodegen options
                 rewriteOptions: {
                     format: {
                         indent: {
@@ -91,44 +93,48 @@
 
     //region Preprocessor (#ifdef)
 
+    /**
+     * Preprocess the JavaScript source and process the #ifdef macros
+     *
+     * @param {String} src
+     * @param {Object} version Contains constants definition (see above)
+     * @return {String}
+     */
     function preProcess(src, version) {
         var
             lines = src.split("\n"),
             len = lines.length,
             idx,
             line,
+            macro,
+            invert,
             ignoreStack = [false],
+            ignoreTop,
             ignore;
+        // Process each line individually
         for (idx = 0; idx < len; ++idx) {
             line = lines[idx];
-            ignore = ignoreStack[ignoreStack.length - 1];
+            // Current ignore state
+            ignoreTop = ignoreStack.length - 1;
+            ignore = ignoreStack[ignoreTop];
             if (-1 < line.indexOf("/*#if")) {
-                // console.log("#" + line);
-                // In the end, we use an "ignore" flag
-                // so we invert the condition
-                ignore = -1 === line.indexOf("/*#ifndef(");
-                line = line.split("(")[1].split(")")[0];
-                // console.log("\t" + line);
-                ignore = gpf.xor(version[line], ignore);
-                // console.log("\t" + ignore);
+                invert = -1 === line.indexOf("/*#ifndef(");
+                macro = line.split("(")[1].split(")")[0];
+                ignore = gpf.xor(version[macro], invert);
                 ignoreStack.push(ignore);
                 ignore = true; // Ignore this line
-                // console.log(">>" + ignoreStack);
-                /*
-                 * TODO handle imbricated when the parent is false
-                 */
 
             } else if (-1 < line.indexOf("/*#else")) {
-                ignoreStack[ignoreStack.length - 1] = !ignore;
+                // Also handles imbricated #if/#endif
+                if (ignoreTop === 0 || !ignoreStack[ignoreTop - 1]) {
+                    ignoreStack[ignoreTop] = !ignore;
+                }
                 ignore = true; // Ignore this line
 
             } else if (-1 < line.indexOf("/*#endif")) {
-                // console.log("#" + line);
                 ignoreStack.pop();
                 ignore = true; // Ignore this line
-                // console.log(">>" + ignoreStack);
             }
-            // console.log((ignore ? "-" : "+")  + line);
             if (ignore) {
                 lines.splice(idx, 1);
                 --len;
