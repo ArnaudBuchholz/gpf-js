@@ -146,6 +146,14 @@
 
     //endregion
 
+    /**
+     * Convert the source into the AST equivalent
+     *
+     * @param {Object} parsed Dictionary of all sources
+     * @param {String} src File name
+     * @param {Object} version Options to use
+     * @return {*}
+     */
     function toAST(parsed, src, version) {
         // https://github.com/Constellation/escodegen/issues/85
         try {
