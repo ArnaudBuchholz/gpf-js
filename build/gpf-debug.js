@@ -2,12 +2,18 @@
 /*jshint maxlen:false*/
 (function (root, factory) {
     "use strict";
-    // Universal Module Definition (UMD) to support AMD, CommonJS/Node.js,
-    // Rhino, and plain browser loading.
+    /**
+     * Universal Module Definition (UMD) to support AMD, CommonJS/Node.js,
+     * Rhino, and plain browser loading.
+     *
+     * 2014-12-04 ABZ Extended for PhantomJS
+     */
     if (typeof define === "function" && define.amd) {
         define(["exports"], factory);
     } else if (typeof exports !== "undefined") {
         factory(exports);
+    } else if (typeof module !== "undefined" && module.exports) {
+        factory(module.exports);
     } else {
         factory(root.gpf = {});
     }
@@ -35,7 +41,12 @@
             error: function (t) {
                 WScript.Echo("(X) " + t);
             }
-        };    // Nodejs
+        };    // PhantomJS
+              /*global phantom:true*/
+    } else if ("undefined" !== typeof phantom && phantom.version) {
+        _host = "phantomjs";
+        _context = window;    // Nodejs
+                              /*global module:true*/
     } else if ("undefined" !== typeof module && module.exports) {
         _host = "nodejs";
         _context = global;    // Browser
@@ -60,6 +71,7 @@
      * @return {String}
      * - "wscript" for cscript and wscript
      * - "nodejs" for nodejs
+     * - "phantomjs" for phantomjs
      * - "browser" for any browser
      * - "unknown" if not detected
      */
@@ -2790,31 +2802,21 @@
          * Read-only property accessor template
          *
          * @return {*}
-         * @closure
          */
         _roProperty = function () {
-            /*jshint -W120*/
-            var template = _NAME_ = function () {
-                return this._MEMBER_;
-            };
-            return template;
+            return this._MEMBER_;
         },
         /**
          * Property accessor template
          *
-         * @return {Function}
-         * @closure
+         * @return {*}
          */
         _rwProperty = function () {
-            /*jshint -W120*/
-            var template = _NAME_ = function () {
-                var result = this._MEMBER_;
-                if (0 < arguments.length) {
-                    this._MEMBER_ = arguments[0];
-                }
-                return result;
-            };
-            return template;
+            var result = this._MEMBER_;
+            if (0 < arguments.length) {
+                this._MEMBER_ = arguments[0];
+            }
+            return result;
         },
         /**
          * Base class for class-specific attributes
@@ -2875,22 +2877,13 @@
                 } else {
                     src = _roProperty.toString();
                 }
-                // Replace all occurrences of _MEMBER_ zith the right name
+                // Replace all occurrences of _MEMBER_ with the right name
                 src = src.split("_MEMBER_").join(member);
-                // Do the same for _NAME_ to customize accessor name
-                src = src.replace("_NAME_", classDef.name() + "." + publicName);
                 // Extract content of resulting function source
                 start = src.indexOf("{") + 1;
                 end = src.lastIndexOf("}") - 1;
                 src = src.substr(start, end - start + 1);
-                /**
-                 * If the classDef name is not a namespace, defines an empty
-                 * object to allow the use of Name.member
-                 */
-                if (-1 === classDef.name().indexOf(".")) {
-                    src = "var " + classDef.name() + " = {};\r\n" + src;
-                }
-                classDef.addMember(publicName, gpf._func(src)(), this._visibility);
+                classDef.addMember(publicName, gpf._func(src), this._visibility);
             }
         },
         public: {
@@ -9756,7 +9749,7 @@
                     }
                     fs.read(fileDescriptor, buffer, 0, len, pos, write);
                 };
-                write = function (err, bytesRead, buffer) {
+                write = function (err, bytesRead, data) {
                     if (err) {
                         // Partly answered, close the answer and dump error
                         console.error([
@@ -9770,7 +9763,7 @@
                         return;
                     }
                     pos += bytesRead;
-                    me._response.write(buffer, read);
+                    me._response.write(data, read);
                 };
                 fs.stat(filePath, function (err, stats) {
                     var mimeType;
@@ -9872,8 +9865,6 @@
         scriptName = path.basename(process.argv[1], ".js");
         if (scriptName === "boot" || scriptName === "gpf" || scriptName === "gpf-debug") {
             gpf.runWebServer(process.argv.slice(2));
-        } else {
-            console.log(scriptName);
         }
     }());
 }));
