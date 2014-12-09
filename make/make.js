@@ -188,11 +188,12 @@
 
         public: {
 
+            /**
+             * @constructor
+             */
             constructor: function() {
-
                 this._identifiers = {};
                 this._identifiersStack = [];
-
             },
 
             /**
@@ -206,6 +207,12 @@
 
             //region AST processing APIs
 
+            /**
+             * Create new variable names for the provided name list.
+             *
+             * @param {String[]} names
+             * @param {Boolean} forVariables
+             */
             beginIdentifierMapping: function (names, forVariables) {
 //                if (START_TRACES) {
 //                    console.log(">> beginIdentifierMapping");
@@ -227,15 +234,20 @@
                 var
                     len = names.length,
                     idx,
-                    name;
+                    name,
+                    newNames;
                 if (forVariables) {
                     names.isVariables = true;
                 }
                 names.identifierCount = this._identifierCount;
                 this._identifiersStack.push(names);
                 for (idx = 0; idx < len; ++idx) {
-                    name = names[idx];
-                    this._identifiers[name] = this._newName();
+                    name = " " + names[idx];
+                    newNames = this._identifiers[name];
+                    if (undefined === newNames) {
+                        newNames = this._identifiers[name] = [];
+                    }
+                    newNames.unshift(this._newName());
 //                    if (name === "gpf") {
 //                        console.log("!!! gpf = " + this._identifiers[name]);
 //                        START_TRACES = 5;
@@ -243,6 +255,9 @@
                 }
             },
 
+            /**
+             * Roll back new variable names created with beginIdentifierMapping
+             */
             endIdentifierMapping: function () {
 //                if (START_TRACES) {
 //                    console.log(">> endIdentifierMapping");
@@ -264,13 +279,19 @@
                     names,
                     len,
                     idx,
-                    name;
+                    name,
+                    newNames;
                 do {
                     names = stack.pop();
                     len = names.length;
                     for (idx = 0; idx < len; ++idx) {
-                        name = names[idx];
-                        delete this._identifiers[name];
+                        name = " " + names[idx];
+                        newNames = this._identifiers[name];
+                        if (newNames.length === 1) {
+                            delete this._identifiers[name];
+                        } else {
+                            newNames.shift();
+                        }
                     }
                     this._identifierCount = names.identifierCount;
                 } while (names.isVariables);
@@ -289,9 +310,16 @@
 //                }
             },
 
+            /**
+             * Return the nmapped identifier (if any)
+             *
+             * @param {String} name
+             * @returns {String|undefined}
+             */
             isIdentifierMapped: function (name) {
+                name = " " + name;
                 if (this._identifiers.hasOwnProperty(name)) {
-                    return this._identifiers[name];
+                    return this._identifiers[name][0];
                 }
                 return undefined;
             }
@@ -302,10 +330,38 @@
 
         private: {
 
-            _identifiers: {},
+            /**
+             * Stack of name arrays (corresponding to the cumulated calls to
+             * beginIdentifierMapping)
+             *
+             * @type {String[][]}
+             * @private
+             */
             _identifiersStack: [],
+
+            /**
+             * Number of identifiers mapped
+             *
+             * @type {Number}
+             * @private
+             */
             _identifierCount: 0,
 
+            /**
+             * Dictionary of name to mapped identifiers (Array)
+             * NOTE key is escaped to avoid collision with existing members.
+             *
+             * @type {Object}
+             * @private
+             */
+            _identifiers: {},
+
+            /**
+             * Explore the AST array and apply the necessary transformations
+             *
+             * @param {Array} astArray
+             * @private
+             */
             _walkArray: function (astArray) {
                 var
                     idx,
@@ -330,6 +386,18 @@
                 }
             },
 
+            /**
+             * Explore the AST structure and apply the necessary transformations
+             * The transformations are based on processors declared as static
+             * members of this class.
+             * Each processor is matched using the AST type and it may contain:
+             * - pre: function to apply before exploring the AST
+             * - post: function to apply after exploring the AST
+             * - walk: override the AST exploring
+             *
+             * @param {Object} ast
+             * @private
+             */
             _walk: function (ast) {
                 var
                     myStatics = this.constructor,
@@ -363,6 +431,12 @@
                 }
             },
 
+            /**
+             * New name allocator (based on number of identifiers)
+             *
+             * @returns {String}
+             * @private
+             */
             _newName: function () {
                 var
                     id,
@@ -385,6 +459,13 @@
 
         static: {
 
+            /**
+             * Test if the AST item has the request gpf: tag
+             *
+             * @param {Object} ast
+             * @param {String} tag
+             * @returns {boolean}
+             */
             isTaggedWith: function (ast, tag) {
                 var array,
                     len,
@@ -525,6 +606,15 @@
         /*jslint +W040*/
     }
 
+    /**
+     * Process a specific source
+     *
+     * @param {Object} parsed Dictionary of sources
+     * @param {String} source Source name
+     * @param {Object} version Version to apply
+     * @param {Object} placeholder result AST placeholder
+     * @param {ASTreducer} reducer
+     */
     function process (parsed, source, version, placeholder, reducer) {
         var body;
         try {
@@ -553,6 +643,13 @@
         }
     }
 
+    /**
+     * Merge all sources and apply the requested version definition
+     *
+     * @param {Object} sources Dictionary of sources
+     * @param {String} version version to apply
+     * @returns {*}
+     */
     gpf.context().make = function (sources, version) {
         var
             parsed,
