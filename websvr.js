@@ -229,7 +229,7 @@
                         }
                         fs.read(fileDescriptor, buffer, 0, len, pos, write);
                     };
-                    write = function (err, bytesRead, data) {
+                    write = function (err, bytesRead, buffer) {
                         if (err) {
                             // Partly answered, close the answer and dump error
                             console.error([
@@ -243,7 +243,7 @@
                             return;
                         }
                         pos += bytesRead;
-                        me._response.write(data, read);
+                        me._response.write(buffer, read);
                     };
                     fs.stat(filePath, function (err, stats) {
                         var mimeType;
