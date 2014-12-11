@@ -857,6 +857,56 @@
         },
 
         /**
+         * Add/Remove the provided class name(s) to the DOM object
+         *
+         * @param {Object} domObject
+         * @param {String|String[]} toAdd
+         * @param {String|String[]} toRemove
+         * @return {Object}
+         * @chainable
+         */
+        alterClass: function (domObject, toAdd, toRemove) {
+            var
+                classNames,
+                lengthBefore,
+                len,
+                idx;
+            if (classNames) {
+                classNames = domObject.className.split(" ");
+            } else {
+                classNames = [];
+            }
+            lengthBefore = classNames.length;
+            // Remove first (faster)
+            if (undefined !== toRemove) {
+                if ("string" === typeof toRemove) {
+                    toRemove = [toRemove];
+                }
+                gpf.ASSERT(toRemove instanceof Array, "Expected array");
+                len = toRemove.length;
+                for (idx = 0; idx < len; ++idx) {
+                    gpf.clear(classNames, toRemove[idx]);
+                }
+            }
+            // Then add
+            if (undefined !== toAdd) {
+                if ("string" === typeof toAdd) {
+                    toAdd = [toAdd];
+                }
+                gpf.ASSERT(toAdd instanceof Array, "Expected array");
+                len = toAdd.length;
+                for (idx = 0; idx < len; ++idx) {
+                    gpf.set(classNames, toAdd[idx]);
+                }
+            }
+            // Avoid resource consuming refresh if nothing changed
+            if (lengthBefore !== classNames.length) {
+                domObject.className = classNames.join(" ");
+            }
+            return domObject;
+        },
+
+        /**
          * Add the provided class name(s) to the DOM object
          *
          * @param {Object} domObject
@@ -865,26 +915,7 @@
          * @chainable
          */
         addClass: function (domObject, toAdd) {
-            var
-                classNames,
-                lengthBeforeAdding,
-                len,
-                idx;
-            if ("string" === typeof toAdd) {
-                toAdd = [toAdd];
-            }
-            gpf.ASSERT(toAdd instanceof Array, "Expected array");
-            classNames = domObject.className.split(" ");
-            lengthBeforeAdding = classNames.length;
-            len = toAdd.length;
-            for (idx = 0; idx < len; ++idx) {
-                gpf.set(classNames, toAdd[idx]);
-            }
-            // Avoid resource consuming refresh if nothing changed
-            if (lengthBeforeAdding !== classNames.length) {
-                domObject.className = classNames.join(" ");
-            }
-            return domObject;
+            return gpf.html.alterClass(domObject, toAdd, undefined);
         },
 
         /**
@@ -896,31 +927,65 @@
          * @chainable
          */
         removeClass: function (domObject, toRemove) {
-            var
-                classNames,
-                lengthBeforeAdding,
-                len,
-                idx;
-            if ("string" === typeof toRemove) {
-                toRemove = [toRemove];
-            }
-            gpf.ASSERT(toRemove instanceof Array, "Expected array");
-            classNames = domObject.className.split(" ");
-            lengthBeforeAdding = classNames.length;
-            len = toRemove.length;
-            for (idx = 0; idx < len; ++idx) {
-                gpf.clear(classNames, toRemove[idx]);
-            }
-            // Avoid resource consuming refresh if nothing changed
-            if (lengthBeforeAdding !== classNames.length) {
-                domObject.className = classNames.join(" ");
-            }
-            return domObject;
+            return gpf.html.alterClass(domObject, undefined, toRemove);
         }
 
     });
 
     //endregion
+
+    //region Responsive page framework
+
+    /**
+     * Install (if not done) responsive framework handlers:
+     * - Listen to the resize handlers and insert body css classNames according
+     *   to the current configuration:
+     *
+     *
+     * @param {Object} options Reserved for future use
+     */
+    gpf.html.responsive = function (options) {
+        gpf.interfaces.ignoreParameter(options);
+        // Use the document to check if the framework is already installed
+        window.addEventListener("resize", _onResize);
+        window.addEventListener("scroll", _onScroll);
+        // First execution
+        _onResize();
+        _onScroll();
+    };
+
+    var
+        _width,
+        _height,
+        _scrollY,
+        _orientation = "";
+
+    function _onResize () {
+        _width = window.innerWidth;
+        _height = window.innerHeight;
+        var
+            orientation,
+            toRemove = [],
+            toAdd = [];
+        if (_width > _height) {
+            orientation = "gpf-landscape";
+        } else {
+            orientation = "gpf-portrait";
+        }
+        if (_orientation !== orientation) {
+            toRemove.push(_orientation);
+            _orientation = orientation;
+            toAdd.push(orientation);
+        }
+        gpf.html.alterClass(document.body, toAdd, toRemove);
+    }
+
+    function _onScroll () {
+        _scrollY = window.scrollY;
+    }
+
+    //endregion
+
 
 /*#ifndef(UMD)*/
 }()); /* End of privacy scope */
