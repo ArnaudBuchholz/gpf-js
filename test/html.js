@@ -135,6 +135,15 @@
                 });
             }
 
+        ],
+
+        "Responsive": [
+
+            function (test) {
+                test.title("Install responsive framework");
+                gpf.html.responsive();
+            }
+
         ]
 
     });
