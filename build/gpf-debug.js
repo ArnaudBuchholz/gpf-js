@@ -5443,6 +5443,11 @@
          * @private
          */
         _orientation = "";
+    /**
+     * HTML Event "resize" listener
+     *
+     * @private
+     */
     function _onResize() {
         _width = window.innerWidth;
         _height = window.innerHeight;
@@ -5467,9 +5472,23 @@
             _broadcaster.broadcastEvent("rotate", { orientation: orientation });
         }
     }
+    /**
+     * HTML Event "scroll" listener
+     *
+     * @private
+     */
     function _onScroll() {
         _scrollY = window.scrollY;
         _broadcaster.broadcastEvent("scroll", { top: _scrollY });
+    }
+    /**
+     * Generates the initial calls for responsive framework
+     *
+     * @private
+     */
+    function _init() {
+        _onResize();
+        _onScroll();
     }
     /**
      * Install (if not done) responsive framework handlers:
@@ -5491,8 +5510,7 @@
             window.addEventListener("resize", _onResize);
             window.addEventListener("scroll", _onScroll);
             // First execution (deferred to let caller register on them)
-            _onResize();
-            _onScroll();
+            gpf.defer(_init, 0);
         }
         return _broadcaster;
     };    //endregion
