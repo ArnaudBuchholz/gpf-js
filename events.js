@@ -172,44 +172,25 @@
          * Add an event listener to the target
          *
          * @param {String} event name
-         * @param {Function|gpf.Callback} callback
-         * @param {Object|Boolean} scope scope of callback or useCapture
-         * parameter. NOTE: if a gpf.Callback object is used and a scope
-         * specified, a new gpf.Callback object is created.
+         * @param {gpf.events.Handler} eventsHandler
          * @param {Boolean} [useCapture=false] useCapture push it on top of the
          * triggering queue
          * @return {gpf.events.Target}
          * @chainable
          */
-        addEventListener: function (event, callback, scope, useCapture) {
+        addEventListener: function (event, eventsHandler, useCapture) {
             var
                 listeners = this._listeners;
-            if ("boolean" === typeof scope) {
-                useCapture = scope;
-                scope = undefined;
-            } else {
-                if (!scope) {
-                    scope = null;
-                }
-                if (!useCapture) {
-                    useCapture = false;
-                }
-            }
-            if (callback instanceof gpf.Callback) {
-                if (scope && scope !== callback.scope()) {
-                    callback = callback.handler();
-                }
-            }
-            if (!(callback instanceof gpf.Callback)) {
-                callback = new gpf.Callback(callback, scope);
+            if (!useCapture) {
+                useCapture = false;
             }
             if (undefined === listeners[event]) {
                 listeners[event] = [];
             }
             if (useCapture) {
-                listeners[event].unshift(callback);
+                listeners[event].unshift(eventsHandler);
             } else {
-                listeners[event].push(callback);
+                listeners[event].push(eventsHandler);
             }
             return this;
         },
@@ -218,31 +199,18 @@
          * Remove an event listener to the target
          *
          * @param {String} event name
-         * @param {Function|gpf.Callback} callback
-         * @param {Object} [scope=undefined] scope scope of callback
+         * @param {gpf.events.Handler} eventsHandler
          * @return {gpf.events.Target}
          * @chainable
          */
-        removeEventListener: function (event, callback, scope) {
+        removeEventListener: function (event, eventsHandler) {
             var
-                listener = this._listeners[event],
-                registeredCallback,
+                eventsHandlers = this._listeners[event],
                 idx;
-            if (undefined !== listener) {
-                if (callback instanceof gpf.Callback) {
-                    if (!scope) {
-                        scope = callback.scope();
-                    }
-                    callback = callback.handler();
-                }
-                idx = listener.length;
-                while (idx > 0) {
-                    registeredCallback = listener[--idx];
-                    if (registeredCallback.handler() === callback
-                        && registeredCallback.scope() === scope) {
-                        listener.splice(idx, 1);
-                        break;
-                    }
+            if (undefined !== eventsHandlers) {
+                idx = eventsHandlers.indexOf(eventsHandler);
+                if (-1 !== idx) {
+                    eventsHandlers.splice(idx, 1);
                 }
             }
             return this;
@@ -271,18 +239,14 @@
             if (undefined === listeners) {
                 return this; // Nothing to do
             }
-            if (event instanceof Event) {
-                // 'Advanced' version
-                for (idx = 0; idx < listeners.length; ++idx) {
-                    listeners[idx].apply(event._scope, [event]);
-                    if (event._propagationStopped) {
-                        break;
-                    }
-                }
-            } else {
-                // 'Simple' version with no event management
-                for (idx = 0; idx < listeners.length; ++idx) {
-                    listeners[idx].apply(null, [event, params]);
+            if (!(event instanceof Event)) {
+                event = new gpf.events.Event(event, params, true, this);
+            }
+            for (idx = 0; idx < listeners.length; ++idx) {
+                gpf.events.fire.apply(this, [event, listeners[idx]]);
+                // TODO see how it complies with asynchronous processing
+                if (event._propagationStopped) {
+                    break;
                 }
             }
             return this;
