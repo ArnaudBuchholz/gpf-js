@@ -977,7 +977,12 @@
          */
         _orientation = "";
 
-    function _onResize () {
+    /**
+     * HTML Event "resize" listener
+     *
+     * @private
+     */
+    function _onResize() {
         _width = window.innerWidth;
         _height = window.innerHeight;
         var
@@ -1008,11 +1013,26 @@
         }
     }
 
-    function _onScroll () {
+    /**
+     * HTML Event "scroll" listener
+     *
+     * @private
+     */
+    function _onScroll() {
         _scrollY = window.scrollY;
         _broadcaster.broadcastEvent("scroll", {
             top: _scrollY
         });
+    }
+
+    /**
+     * Generates the initial calls for responsive framework
+     *
+     * @private
+     */
+    function _init() {
+        _onResize();
+        _onScroll();
     }
 
     /**
@@ -1051,8 +1071,7 @@
             window.addEventListener("resize", _onResize);
             window.addEventListener("scroll", _onScroll);
             // First execution (deferred to let caller register on them)
-            _onResize();
-            _onScroll();
+            gpf.defer(_init, 0);
         }
         return _broadcaster;
     };
