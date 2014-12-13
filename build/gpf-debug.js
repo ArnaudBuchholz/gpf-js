@@ -601,6 +601,7 @@
          * @param {gpf.events.Handler} eventsHandler
          */
         _fire = function (event, scope, eventsHandler) {
+            var overriddenScope;
             if (eventsHandler instanceof Target) {
                 eventsHandler._broadcastEvent(event);
             } else if ("function" === typeof eventsHandler || eventsHandler instanceof gpf.Callback) {
@@ -609,6 +610,10 @@
             } else {
                 eventsHandler = eventsHandler[event.type()];
                 if (undefined !== typeof eventsHandler) {
+                    overriddenScope = eventsHandler.scope;
+                    if (undefined !== overriddenScope) {
+                        scope = overriddenScope;
+                    }
                     eventsHandler.apply(scope, [event]);
                 }
             }
@@ -702,53 +707,27 @@
             }
             return closures[idx];
         },
-        addEventListener: function (event, callback, scope, useCapture) {
+        addEventListener: function (event, eventsHandler, useCapture) {
             var listeners = this._listeners;
-            if ("boolean" === typeof scope) {
-                useCapture = scope;
-                scope = undefined;
-            } else {
-                if (!scope) {
-                    scope = null;
-                }
-                if (!useCapture) {
-                    useCapture = false;
-                }
-            }
-            if (callback instanceof gpf.Callback) {
-                if (scope && scope !== callback.scope()) {
-                    callback = callback.handler();
-                }
-            }
-            if (!(callback instanceof gpf.Callback)) {
-                callback = new gpf.Callback(callback, scope);
+            if (!useCapture) {
+                useCapture = false;
             }
             if (undefined === listeners[event]) {
                 listeners[event] = [];
             }
             if (useCapture) {
-                listeners[event].unshift(callback);
+                listeners[event].unshift(eventsHandler);
             } else {
-                listeners[event].push(callback);
+                listeners[event].push(eventsHandler);
             }
             return this;
         },
-        removeEventListener: function (event, callback, scope) {
-            var listener = this._listeners[event], registeredCallback, idx;
-            if (undefined !== listener) {
-                if (callback instanceof gpf.Callback) {
-                    if (!scope) {
-                        scope = callback.scope();
-                    }
-                    callback = callback.handler();
-                }
-                idx = listener.length;
-                while (idx > 0) {
-                    registeredCallback = listener[--idx];
-                    if (registeredCallback.handler() === callback && registeredCallback.scope() === scope) {
-                        listener.splice(idx, 1);
-                        break;
-                    }
+        removeEventListener: function (event, eventsHandler) {
+            var eventsHandlers = this._listeners[event], idx;
+            if (undefined !== eventsHandlers) {
+                idx = eventsHandlers.indexOf(eventsHandler);
+                if (-1 !== idx) {
+                    eventsHandlers.splice(idx, 1);
                 }
             }
             return this;
@@ -764,21 +743,17 @@
             if (undefined === listeners) {
                 return this;    // Nothing to do
             }
-            if (event instanceof Event) {
-                // 'Advanced' version
-                for (idx = 0; idx < listeners.length; ++idx) {
-                    listeners[idx].apply(event._scope, [event]);
-                    if (event._propagationStopped) {
-                        break;
-                    }
-                }
-            } else {
-                // 'Simple' version with no event management
-                for (idx = 0; idx < listeners.length; ++idx) {
-                    listeners[idx].apply(null, [
-                        event,
-                        params
-                    ]);
+            if (!(event instanceof Event)) {
+                event = new gpf.events.Event(event, params, true, this);
+            }
+            for (idx = 0; idx < listeners.length; ++idx) {
+                gpf.events.fire.apply(this, [
+                    event,
+                    listeners[idx]
+                ]);
+                // TODO see how it complies with asynchronous processing
+                if (event._propagationStopped) {
+                    break;
                 }
             }
             return this;
@@ -836,7 +811,7 @@
             if (!(event instanceof Event)) {
                 event = new gpf.events.Event(event, params, true, this);
             }
-            scope = gpf.Callback.resolveScope(event._scope);
+            scope = gpf.Callback.resolveScope(this);
             /**
              * This is used both to limit the number of recursion and increase
              * the efficiency of the algorithm.
@@ -5387,43 +5362,140 @@
             }
             return false;
         },
-        addClass: function (domObject, toAdd) {
-            var classNames, lengthBeforeAdding, len, idx;
-            if ("string" === typeof toAdd) {
-                toAdd = [toAdd];
+        alterClass: function (domObject, toAdd, toRemove) {
+            var classNames, lengthBefore, len, idx;
+            if (classNames) {
+                classNames = domObject.className.split(" ");
+            } else {
+                classNames = [];
             }
-            gpf.ASSERT(toAdd instanceof Array, "Expected array");
-            classNames = domObject.className.split(" ");
-            lengthBeforeAdding = classNames.length;
-            len = toAdd.length;
-            for (idx = 0; idx < len; ++idx) {
-                gpf.set(classNames, toAdd[idx]);
+            lengthBefore = classNames.length;
+            // Remove first (faster)
+            if (undefined !== toRemove) {
+                if ("string" === typeof toRemove) {
+                    toRemove = [toRemove];
+                }
+                gpf.ASSERT(toRemove instanceof Array, "Expected array");
+                len = toRemove.length;
+                for (idx = 0; idx < len; ++idx) {
+                    gpf.clear(classNames, toRemove[idx]);
+                }
+            }
+            // Then add
+            if (undefined !== toAdd) {
+                if ("string" === typeof toAdd) {
+                    toAdd = [toAdd];
+                }
+                gpf.ASSERT(toAdd instanceof Array, "Expected array");
+                len = toAdd.length;
+                for (idx = 0; idx < len; ++idx) {
+                    gpf.set(classNames, toAdd[idx]);
+                }
             }
             // Avoid resource consuming refresh if nothing changed
-            if (lengthBeforeAdding !== classNames.length) {
+            if (lengthBefore !== classNames.length) {
                 domObject.className = classNames.join(" ");
             }
             return domObject;
         },
+        addClass: function (domObject, toAdd) {
+            return gpf.html.alterClass(domObject, toAdd, undefined);
+        },
         removeClass: function (domObject, toRemove) {
-            var classNames, lengthBeforeAdding, len, idx;
-            if ("string" === typeof toRemove) {
-                toRemove = [toRemove];
-            }
-            gpf.ASSERT(toRemove instanceof Array, "Expected array");
-            classNames = domObject.className.split(" ");
-            lengthBeforeAdding = classNames.length;
-            len = toRemove.length;
-            for (idx = 0; idx < len; ++idx) {
-                gpf.clear(classNames, toRemove[idx]);
-            }
-            // Avoid resource consuming refresh if nothing changed
-            if (lengthBeforeAdding !== classNames.length) {
-                domObject.className = classNames.join(" ");
-            }
-            return domObject;
+            return gpf.html.alterClass(domObject, undefined, toRemove);
         }
-    });    //endregion
+    });
+    //endregion
+    //region Responsive page framework
+    var
+        /**
+         * Responsive framework broadcaster
+         *
+         * @type {gpf.events.Broadcaster}
+         * @private
+         */
+        _broadcaster = null,
+        /**
+         * Current page width
+         *
+         * @type {Number}
+         * @private
+         */
+        _width,
+        /**
+         * Current page height
+         *
+         * @type {Number}
+         * @private
+         */
+        _height,
+        /**
+         * Current page scroll Y
+         *
+         * @type {Number}
+         * @private
+         */
+        _scrollY,
+        /**
+         * Current page orientation
+         *
+         * @type {String}
+         * @private
+         */
+        _orientation = "";
+    function _onResize() {
+        _width = window.innerWidth;
+        _height = window.innerHeight;
+        var orientation, orientationChanged = false, toRemove = [], toAdd = [];
+        if (_width > _height) {
+            orientation = "gpf-landscape";
+        } else {
+            orientation = "gpf-portrait";
+        }
+        if (_orientation !== orientation) {
+            toRemove.push(_orientation);
+            _orientation = orientation;
+            toAdd.push(orientation);
+            orientationChanged = true;
+        }
+        gpf.html.alterClass(document.body, toAdd, toRemove);
+        _broadcaster.broadcastEvent("resize", {
+            width: _width,
+            height: _height
+        });
+        if (orientationChanged) {
+            _broadcaster.broadcastEvent("rotate", { orientation: orientation });
+        }
+    }
+    function _onScroll() {
+        _scrollY = window.scrollY;
+        _broadcaster.broadcastEvent("scroll", { top: _scrollY });
+    }
+    /**
+     * Install (if not done) responsive framework handlers:
+     * - Listen to the resize handlers and insert body css classNames according
+     *   to the current configuration:
+     *
+     * @param {Object} options Reserved for future use
+     * @return {gpf.events.Broadcaster}
+     */
+    gpf.html.responsive = function (options) {
+        gpf.interfaces.ignoreParameter(options);
+        if (null === _broadcaster) {
+            _broadcaster = new gpf.events.Broadcaster([
+                "resize",
+                "rotate",
+                "scroll"
+            ]);
+            // Use the document to check if the framework is already installed
+            window.addEventListener("resize", _onResize);
+            window.addEventListener("scroll", _onScroll);
+            // First execution (deferred to let caller register on them)
+            _onResize();
+            _onScroll();
+        }
+        return _broadcaster;
+    };    //endregion
     var
         // Namespaces shortcut
         gpfI = gpf.interfaces, gpfA = gpf.attributes, gpfFireEvent = gpf.events.fire;
@@ -7093,7 +7165,7 @@
                         }
                         fs.read(fileDescriptor, buffer, 0, len, pos, write);
                     };
-                    write = function (err, bytesRead, data) {
+                    write = function (err, bytesRead, buffer) {
                         if (err) {
                             // Partly answered, close the answer and dump error
                             console.error([
@@ -7107,7 +7179,7 @@
                             return;
                         }
                         pos += bytesRead;
-                        me._response.write(data, read);
+                        me._response.write(buffer, read);
                     };
                     fs.stat(filePath, function (err, stats) {
                         var mimeType;
