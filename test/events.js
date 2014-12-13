@@ -52,7 +52,6 @@
             function (test) {
                 test.title("Testing Target base class no predefined events");
                 var scope1 = {},
-                    scope2 = {},
                     target = new gpf.events.Target(),
                     event = new gpf.events.Event("test", {
                         param1: "first",
@@ -60,14 +59,14 @@
                         param3: 0
                     }, true, scope1);
                 target.addEventListener("test", function (event) {
-                    test.equal(this, scope2, "Callback scope");
+                    test.equal(this, target, "Callback scope");
                     test.equal(event.type(), "test", "Event type");
                     test.equal(event.get("param1"), "first", "First parameter");
                     test.equal(event.get("param2"), true, "Second parameter");
                     test.equal(event.get("param3"), 0, "Third parameter");
                     test.equal(event.scope(), scope1, "Event scope");
                     test.done();
-                }, scope2, false);
+                }, false);
                 test.wait();
                 event.fire(target);
             },
