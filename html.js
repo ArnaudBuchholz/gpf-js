@@ -936,48 +936,6 @@
 
     //region Responsive page framework
 
-    /**
-     * Install (if not done) responsive framework handlers:
-     * - Listen to the resize handlers and insert body css classNames according
-     *   to the current configuration:
-     *
-     * @param {Object} options Reserved for future use
-     * @return {gpf.events.Broadcaster}
-     */
-    gpf.html.responsive = function (options) {
-        gpf.interfaces.ignoreParameter(options);
-        if (null === _broadcaster) {
-            _broadcaster = new gpf.events.Broadcaster([
-
-                /**
-                 * @event resize
-                 * @eventParam {Number} width
-                 * @eventParam {Number} height
-                 */
-                "resize",
-
-                /**
-                 * @event rotate
-                 * @eventParam {String} orientation
-                 */
-                "rotate",
-
-                /**
-                 * @event scroll
-                 * @eventParam {Number} top
-                 */
-                "scroll"
-            ]);
-            // Use the document to check if the framework is already installed
-            window.addEventListener("resize", _onResize);
-            window.addEventListener("scroll", _onScroll);
-            // First execution (deferred to let caller register on them)
-            _onResize();
-            _onScroll();
-        }
-        return _broadcaster;
-    };
-
     var
         /**
          * Responsive framework broadcaster
@@ -1056,6 +1014,48 @@
             top: _scrollY
         });
     }
+
+    /**
+     * Install (if not done) responsive framework handlers:
+     * - Listen to the resize handlers and insert body css classNames according
+     *   to the current configuration:
+     *
+     * @param {Object} options Reserved for future use
+     * @return {gpf.events.Broadcaster}
+     */
+    gpf.html.responsive = function (options) {
+        gpf.interfaces.ignoreParameter(options);
+        if (null === _broadcaster) {
+            _broadcaster = new gpf.events.Broadcaster([
+
+            /**
+             * @event resize
+             * @eventParam {Number} width
+             * @eventParam {Number} height
+             */
+                "resize",
+
+            /**
+             * @event rotate
+             * @eventParam {String} orientation
+             */
+                "rotate",
+
+            /**
+             * @event scroll
+             * @eventParam {Number} top
+             */
+                "scroll"
+            ]);
+            // Use the document to check if the framework is already installed
+            window.addEventListener("resize", _onResize);
+            window.addEventListener("scroll", _onScroll);
+            // First execution (deferred to let caller register on them)
+            _onResize();
+            _onScroll();
+        }
+        return _broadcaster;
+    };
 
     //endregion
 
