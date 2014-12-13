@@ -33,6 +33,7 @@
          * @param {gpf.events.Handler} eventsHandler
          */
         _fire = function (event, scope, eventsHandler) {
+            var overriddenScope;
             if (eventsHandler instanceof Target) {
                 eventsHandler._broadcastEvent(event);
             } else if ("function" === typeof eventsHandler
@@ -42,6 +43,10 @@
             } else {
                 eventsHandler = eventsHandler[event.type()];
                 if (undefined !== typeof eventsHandler) {
+                    overriddenScope = eventsHandler.scope;
+                    if (undefined !== overriddenScope) {
+                        scope = overriddenScope;
+                    }
                     eventsHandler.apply(scope, [event]);
                 }
             }
@@ -431,7 +436,7 @@
             if (!(event instanceof Event)) {
                 event = new gpf.events.Event(event, params, true, this);
             }
-            scope = gpf.Callback.resolveScope(event._scope);
+            scope = gpf.Callback.resolveScope(this);
             /**
              * This is used both to limit the number of recursion and increase
              * the efficiency of the algorithm.
