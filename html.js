@@ -1078,6 +1078,34 @@
 
     //endregion
 
+    //region Handles gpf-loaded tag
+
+    function _searchGpfLoaded () {
+        /**
+         * Look for a script tag with the gpf-loaded attribute
+         */
+        var scripts = document.getElementsByTagName("script"),
+            len = scripts.length,
+            idx,
+            value;
+        for (idx = 0; idx < len; ++idx) {
+            value = scripts[idx].getAttribute("gpf-loaded");
+            if (value) {
+                value = window[value];
+                gpf.ASSERT("function" === typeof value,
+                    "Global function name expected");
+                value();
+                return;
+            }
+        }
+    }
+
+    if ("browser" === gpf.host() || "phantomjs" === gpf.host()) {
+        _searchGpfLoaded();
+    }
+
+    //endregion
+
 /*#ifndef(UMD)*/
 }()); /* End of privacy scope */
 /*#endif*/
