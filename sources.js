@@ -31,14 +31,14 @@
 
             "encoding",             // Encoding                     gpf.encoding
 
-            "html",                 // HTML specific functions          gpf.html
-
             "xml",                  // Xml serializer & attributes       gpf.xml
             "xnode",                // Xml 'DOM' structure               gpf.xml
             "xpath",                // Xml 'XPATH' parser/evaluator      gpf.xml
 
             "params",               // Parameters parsing             gpf.Params
 
+            // The following ones must be at the end
+            "html",                 // HTML specific functions          gpf.html
             "websvr"                // Simple JSP web server (nodeJS specific)
         ];
 
