@@ -599,7 +599,7 @@
          * @extends gpf.attributes.Attribute
          * @private
          */
-        _Base = gpf._defAttr("HtmlAttribute", {}),
+        _HtmBase = gpf._defAttr("HtmlAttribute", {}),
 
         /**
          * HTML Handler
@@ -612,7 +612,7 @@
          * @friend _handleHandlers
          * @friend _handleEvent
          */
-        _Handler = gpf._defAttr("$HtmlHandler", _Base, {
+        _HtmHandler = gpf._defAttr("$HtmlHandler", _HtmBase, {
 
             private: {
 
@@ -672,7 +672,7 @@
          * @alias gpf.$HtmlEvent
          * @friend _handleEvent
          */
-        _Event = gpf._defAttr("$HtmlEvent", _Handler, {
+        _HtmEvent = gpf._defAttr("$HtmlEvent", _HtmHandler, {
 
             private: {
 
@@ -689,7 +689,7 @@
                  * @param {Boolean} [global=false] global
                  */
                 constructor: function (event, selector, global) {
-                    _Handler.apply(this,[selector, global]);
+                    _HtmHandler.apply(this,[selector, global]);
                     this._event = event;
                 }
 
@@ -709,7 +709,7 @@
             });
         }
         attribute = handlerAttributeArray.get(0);
-        if (!(attribute instanceof _Event)) {
+        if (!(attribute instanceof _HtmEvent)) {
             return attribute;
         }
         return null;
@@ -738,8 +738,8 @@
      */
     gpf.html.handle = function (instance, domSelection) {
         var
-            allAttributes = new gpf.attributes.Map(instance).filter(_Base),
-            handlerAttributes = allAttributes.filter(_Handler),
+            allAttributes = new gpf.attributes.Map(instance).filter(_HtmBase),
+            handlerAttributes = allAttributes.filter(_HtmHandler),
             defaultHandler,
             eventAttributes;
         if (0 === handlerAttributes.count()) {
@@ -766,7 +766,7 @@
         // Process other handlers
         handlerAttributes.each(_handleHandlers, instance, [domSelection]);
         // Process event handlers
-        eventAttributes = allAttributes.filter(_Event);
+        eventAttributes = allAttributes.filter(_HtmEvent);
         if (0 < eventAttributes.count()) {
             eventAttributes.each(_handleEvents, instance, [domSelection]);
         }

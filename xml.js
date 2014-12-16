@@ -207,7 +207,7 @@
          * @extends gpf.attributes.Attribute
          * @private
          */
-        _Base = gpf._defAttr("XmlAttribute", {
+        _XmlBase = gpf._defAttr("XmlAttribute", {
 
             protected: {
 
@@ -244,7 +244,7 @@
          * @extends gpf.attributes.XmlAttribute
          * @alias gpf.$XmlIgnore
          */
-        _Ignore = gpf._defAttr("$XmlIgnore", _Base, {}),
+        _XmlIgnore = gpf._defAttr("$XmlIgnore", _XmlBase, {}),
 
         /**
          * XML Attribute attribute
@@ -256,7 +256,7 @@
          * @extends gpf.attributes.XmlAttribute
          * @alias gpf.$XmlAttribute
          */
-        _Attribute = gpf._defAttr("$XmlAttribute", _Base, {
+        _XmlAttribute = gpf._defAttr("$XmlAttribute", _XmlBase, {
 
             private: {
 
@@ -295,7 +295,7 @@
          * @class gpf.attributes.XmlRawElementAttribute
          * @extends gpf.attributes.XmlAttribute
          */
-        _RawElement = gpf._defAttr("XmlRawElementAttribute", _Base, {
+        _XmlRawElement = gpf._defAttr("XmlRawElementAttribute", _XmlBase, {
 
             private: {
 
@@ -337,7 +337,7 @@
          * @extends gpf.attributes.XmlRawElementAttribute
          * @alias gpf.$XmlElement
          */
-        _Element = gpf._defAttr("$XmlElement", _RawElement, {
+        _XmlElement = gpf._defAttr("$XmlElement", _XmlRawElement, {
 
             private: {
 
@@ -378,7 +378,7 @@
          * @extends gpf.attributes.XmlRawElementAttribute
          * @alias gpf.$XmlList
          */
-        _List = gpf._defAttr("$XmlList", _RawElement, {}),
+        _XmlList = gpf._defAttr("$XmlList", _XmlRawElement, {}),
 
         //endregion
 
@@ -401,7 +401,7 @@
                 attObjClass;
             for (idx = 0; idx < array.length(); ++idx) {
                 attribute = array.get(idx);
-                if (!(attribute instanceof _Element)) {
+                if (!(attribute instanceof _XmlElement)) {
                     continue;
                 }
                 attObjClass = attribute.objClass();
@@ -446,12 +446,12 @@
             type, attArray) {
             var attribute;
             // Check if list or element
-            if (value instanceof Array || attArray.has(_List)
-                || "object" === type || attArray.has(_Element)) {
+            if (value instanceof Array || attArray.has(_XmlList)
+                || "object" === type || attArray.has(_XmlElement)) {
                 return ""; // Not an attribute
             }
             // Else attribute
-            attribute = attArray.has(_Attribute);
+            attribute = attArray.has(_XmlAttribute);
             if (attribute && attribute.name()) {
                 member = attribute.name();
             } else {
@@ -493,7 +493,7 @@
                 member = member.substr(1);
             }
             // Check if list
-            attribute = attArray.has(_List);
+            attribute = attArray.has(_XmlList);
             if (value instanceof Array || attribute) {
                 // TODO: what to do when value is empty?
                 if (attribute && attribute.name()) {
@@ -502,7 +502,7 @@
                         attribute.name());
                 }
                 // Get the list of 'candidates'
-                attArray = attArray.filter(_Element);
+                attArray = attArray.filter(_XmlElement);
                 for (idx = 0; idx < value.length; ++idx) {
                     subValue = value[ idx ];
                     // Select the right candidate
@@ -520,7 +520,7 @@
                 }
                 return;
             }
-            attribute = attArray.has(_Element);
+            attribute = attArray.has(_XmlElement);
             // Element
             if (attribute && attribute.name()) {
                 name = attribute.name();
@@ -576,7 +576,7 @@
                 // Check member's attributes
                 attArray = attMap.member(member);
                 // Ignore?
-                if (attArray.has(_Ignore)) {
+                if (attArray.has(_XmlIgnore)) {
                     continue;
                 }
                 // Decide if attribute or subNode
@@ -614,11 +614,11 @@
          */
         _toContentHandler = function (obj, wrapped, name) {
             var
-                attMap = (new gpfA.Map(obj)).filter(_Base),
+                attMap = (new gpfA.Map(obj)).filter(_XmlBase),
                 attribute;
             // If no 'name', check the Class attribute
             if (!name) {
-                attribute = attMap.member("Class").has(_Element);
+                attribute = attMap.member("Class").has(_XmlElement);
                 if (attribute) {
                     name = attribute.name();
                 } else {
@@ -707,7 +707,7 @@
                     }
                     attArray = xmlAttributes
                         .member(member)
-                        .filter(_Attribute);
+                        .filter(_XmlAttribute);
                     if (0 < attArray.length()) {
                         gpf.ASSERT(attArray.length() === 1,
                             "Expected one attribute only");
@@ -730,7 +730,7 @@
             _fillFromElement: function (uri, localName, qName, attributes) {
                 var
                     xmlAttributes = new gpfA.Map(this._target)
-                        .filter(_RawElement),
+                        .filter(_XmlRawElement),
                     forward = this._forward[0],
                     members,
                     idx,
@@ -771,7 +771,7 @@
                 var
                     obj,
                     forward;
-                if (attribute instanceof _Element) {
+                if (attribute instanceof _XmlElement) {
                     // Build new object and assign it to the member
                     if (attribute.objClass()) {
                         obj = new (attribute.objClass())();
@@ -791,7 +791,7 @@
                             buffer: []
                         };
                     }
-                } else if (attribute instanceof _List) {
+                } else if (attribute instanceof _XmlList) {
                     // The member is an array of objects
                     this._target[member] = [];
                     forward = {
