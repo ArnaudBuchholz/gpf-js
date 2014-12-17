@@ -946,6 +946,22 @@
         _broadcaster = null,
 
         /**
+         * Handle of a dynamic CSS section used for some responsive helpers
+         *
+         * @type {Object}
+         * @private
+         */
+        _dynamicCss = null,
+
+        /**
+         * gpf-top
+         *
+         * @type {boolean}
+         * @private
+         */
+        _monitorTop = false,
+
+        /**
          * Current page width
          *
          * @type {Number}
@@ -976,6 +992,14 @@
          * @private
          */
         _orientation = "";
+
+    function _updateDynamicCss() {
+        var content = [];
+        if (_monitorTop) {
+            content.push(".gpf-top { top: ", _scrollY, "px; }\n");
+        }
+        _dynamicCss.innerHTML = content.join("");
+    }
 
     /**
      * HTML Event "resize" listener
@@ -1020,6 +1044,9 @@
      */
     function _onScroll() {
         _scrollY = window.scrollY;
+        if (_monitorTop && _dynamicCss) {
+            _updateDynamicCss();
+        }
         _broadcaster.broadcastEvent("scroll", {
             top: _scrollY
         });
@@ -1040,31 +1067,55 @@
      * - Listen to the resize handlers and insert body css classNames according
      *   to the current configuration:
      *
-     * @param {Object} options Reserved for future use
+     * @param {Object} options
+     * <ul>
+     *     <li>{Boolean} [monitorTop=undefined] monitorTop If true, a CSS class
+     *     gpf-top is defined and maintained to the vertical offset of top
+     *     </li>
+     * </ul>
      * @return {gpf.events.Broadcaster}
      */
     gpf.html.responsive = function (options) {
-        gpf.interfaces.ignoreParameter(options);
+        var
+            needDynamicCss,
+            headTag;
+        if (undefined !== options.monitorTop) {
+            _monitorTop = options.monitorTop;
+        }
+        needDynamicCss = _monitorTop;
+        if (needDynamicCss) {
+            if (!_dynamicCss) {
+                headTag = document.getElementsByTagName("head")[0]
+                          || document.documentElement;
+                _dynamicCss = document.createElement("style");
+                _dynamicCss.setAttribute("type", "text/css");
+                _dynamicCss = headTag.appendChild(_dynamicCss);
+            }
+        } else if (_dynamicCss) {
+            // Remove
+            _dynamicCss.parentNode.removeChild(_dynamicCss);
+            _dynamicCss = null;
+        }
         if (null === _broadcaster) {
             _broadcaster = new gpf.events.Broadcaster([
 
-            /**
-             * @event resize
-             * @eventParam {Number} width
-             * @eventParam {Number} height
-             */
+                /**
+                 * @event resize
+                 * @eventParam {Number} width
+                 * @eventParam {Number} height
+                 */
                 "resize",
 
-            /**
-             * @event rotate
-             * @eventParam {String} orientation
-             */
+                /**
+                 * @event rotate
+                 * @eventParam {String} orientation
+                 */
                 "rotate",
 
-            /**
-             * @event scroll
-             * @eventParam {Number} top
-             */
+                /**
+                 * @event scroll
+                 * @eventParam {Number} top
+                 */
                 "scroll"
             ]);
             // Use the document to check if the framework is already installed
