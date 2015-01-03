@@ -3,7 +3,13 @@
     "use strict";
 /*#endif*/
 
-    gpf.html = {};
+    gpf.html = {
+
+        // DOM standards
+        ELEMENT_NODE: 1,
+        TEXT_NODE: 3
+
+    };
 
     var
         gpfI = gpf.interfaces,
@@ -871,7 +877,7 @@
                 lengthBefore,
                 len,
                 idx;
-            if (classNames) {
+            if (domObject.className) {
                 classNames = domObject.className.split(" ");
             } else {
                 classNames = [];
@@ -1079,7 +1085,7 @@
         var
             needDynamicCss,
             headTag;
-        if (undefined !== options.monitorTop) {
+        if (options && undefined !== options.monitorTop) {
             _monitorTop = options.monitorTop;
         }
         needDynamicCss = _monitorTop;
