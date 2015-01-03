@@ -424,23 +424,9 @@
                 return null;
             }
         },
-        /**
-         * An empty function
-         * return {Function}
-         */
         emptyFunction: function () {
             return _emptyFunc;
         },
-        /*
-         * Converts the provided value to match the expectedType.
-         * If not specified or impossible to do so, defaultValue is returned.
-         * When expectedType is not provided, it is deduced from defaultValue.
-         *
-         * @param {*} value
-         * @param {*} default value
-         * @param {String} [expectedType=typeof defaultValue] expected type
-         * @return {*}
-         */
         value: function (value, defaultValue, expectedType) {
             var valueType = typeof value;
             if (!expectedType) {
@@ -454,23 +440,6 @@
             }
             return _values[expectedType](value, valueType, defaultValue);
         },
-        /*
-         * Compares a and b and return true if they are look-alike (all members
-         * have the same type and same value).
-         * 
-         * NOTES:
-         * 14/04/2013 17:19:43
-         * Generates too much recursion, changed the algorithm to avoid
-         * recursion using document.body (and any kind of object that references
-         * other objects) I found that it was necessary to keep track of already
-         * processed objects.
-         *
-         * @param {*} a
-         * @param {*} b
-         * @param {Boolean} [alike=false] alike Allow to be tolerant on
-         *        primitive types compared with their object equivalent
-         * @return {Boolean}
-         */
         like: function (a, b, alike) {
             if (a === b) {
                 return true;
@@ -483,12 +452,6 @@
             }
             return _likeMembers(a, b, alike);
         },
-        /**
-         * Shallow copy an object
-         *
-         * @param {Object} obj
-         * @return {Object}
-         */
         clone: function (obj) {
             /*
              * http://stackoverflow.com/questions/122102/what-is-the-most-
@@ -496,13 +459,6 @@
              */
             return gpf.json.parse(gpf.json.stringify(obj));
         },
-        /*
-         * Find the first member of dictionary which value equals to value.
-         * 
-         * @param {Object/array} dictionary
-         * @param {*} value
-         * @return {String/number/undefined} undefined if not found
-         */
         test: function (dictionary, value) {
             var idx;
             if (dictionary instanceof Array) {
@@ -521,14 +477,6 @@
             }
             return undefined;
         },
-        /*
-         * Inserts the value in the array if not already present.  
-         * 
-         * @param {Array} array
-         * @param {*} value
-         * @return {Array}
-         * @chainable
-         */
         set: function (array, value) {
             gpf.ASSERT(array instanceof Array, "gpf.set must be used with an Array");
             var idx = array.length;
@@ -540,15 +488,6 @@
             array.push(value);
             return array;
         },
-        /*
-         * Removes the member of 'dictionary' which value equals 'value'.
-         * NOTE: that the object is modified. 
-         * 
-         * @param {Object/array} dictionary
-         * @param {*} value
-         * @return {Object/array} dictionary
-         * @chainable
-         */
         clear: function (dictionary, value) {
             var idx;
             if (dictionary instanceof Array) {
@@ -568,32 +507,12 @@
             }
             return dictionary;
         },
-        /**
-         * XOR
-         *
-         * @param {Boolean} a
-         * @param {Boolean} b
-         */
         xor: function (a, b) {
             return a && !b || !a && b;
         },
-        /**
-         * Capitalize the string
-         *
-         * @param {String} that
-         * @return {String}
-         */
         capitalize: function (that) {
             return that.charAt(0).toUpperCase() + that.substr(1);
         },
-        /**
-         * Generic callback handler
-         *
-         * @param {Function} handler
-         * @param {Object} scope
-         * @constructor
-         * @class gpf.Callback
-         */
         Callback: function (handler, scope) {
             if (handler) {
                 this._handler = handler;
@@ -606,29 +525,12 @@
     gpf.extend(gpf.Callback.prototype, {
         _handler: gpf._func(""),
         _scope: null,
-        /**
-         * Get the handler function
-         *
-         * @returns {Function}
-         */
         handler: function () {
             return this._handler;
         },
-        /**
-         * Get the scope
-         *
-         * @returns {Object}
-         */
         scope: function () {
             return this._scope;
         },
-        /**
-         * Executes the callback and override the scope if not defined
-         *
-         * @param {Object} scope Scope to apply if none set in the callback
-         * @param {*} ... Forwarded to the callback handler
-         * @returns {*}
-         */
         call: function () {
             var scope = arguments[0], args = [], len = arguments.length, idx;
             for (idx = 1; idx < len; ++idx) {
@@ -636,41 +538,18 @@
             }
             return this.apply(scope, args);
         },
-        /**
-         * Executes the callback and override the scope if not defined
-         *
-         * @param {Object} scope Scope to apply if none set in the callback
-         * @param {*[]} args Forwarded to the callback handler
-         * @returns {*}
-         */
         apply: function (scope, args) {
             var finalScope = gpf.Callback.resolveScope(this._scope || scope);
             return this._handler.apply(finalScope, args || []);
         }
     });
     gpf.extend(gpf.Callback, {
-        /**
-         * Resolve function scope
-         *
-         * @static
-         */
         resolveScope: function (scope) {
             if (null === scope || undefined === scope) {
                 scope = gpf.context();
             }
             return scope;
         },
-        /**
-         * Build a parameter array with
-         * - Placeholders for known parameters
-         * - Leading parameters filled wih the provided params
-         *
-         * @param {Number} count
-         * @param {*} [params=undefined] params Additional parameters
-         * appended at the end of the parameter list
-         * @return {Array}
-         * @static
-         */
         buildParamArray: function (count, params) {
             var len, result, idx;
             if (params) {
@@ -685,16 +564,6 @@
             }
             return result;
         },
-        /**
-         * Helper to call a function with a variable list of parameters
-         *
-         * @param {Function} callback
-         * @param {Object} scope
-         * @param {Array} paramArray array of parameters built with
-         * gpf.Callback.buildParamArray
-         * @param {...*} var_args
-         * @return {*}
-         */
         doApply: function (callback, scope, paramArray) {
             var len = arguments.length, idx = 3, paramIdx = 0;
             while (idx < len) {
@@ -704,13 +573,6 @@
             }
             return callback.apply(scope, paramArray);
         },
-        /**
-         * Get a method that is bound to the object
-         *
-         * @param {Object} obj
-         * @param {String} method
-         * @returns {*}
-         */
         bind: function (obj, method) {
             gpf.ASSERT("string" === typeof method, "Provide method name");
             var _boundMember = method + ":boundToThis";
@@ -831,26 +693,8 @@
             }
         };
     gpf.extend(Target.prototype, {
-        /**
-         * @type {Object} Map of event name to the list of callbacks
-         * @private
-         */
         _listeners: {},
-        /**
-         * @type {String[]} List of predefined event names
-         * @private
-         */
         _events: null,
-        /**
-         * To avoid an extensive use of closures, functions are created with an
-         * index that points to the list of 'declared' events (this._events).
-         * function _onEVENT(callback,useCapture) {
-         *     this.addEventListener(this._events[IDX],callback,useCapture);
-         * }
-         * 
-         * @param {Number} idx index of the method to create
-         * @internal
-         */
         _onEVENT: function (idx) {
             var closures = Broadcaster.prototype._onEVENT.closures, jdx;
             if (!closures) {
@@ -863,16 +707,6 @@
             }
             return closures[idx];
         },
-        /**
-         * Add an event listener to the target
-         *
-         * @param {String} event name
-         * @param {gpf.events.Handler} eventsHandler
-         * @param {Boolean} [useCapture=false] useCapture push it on top of the
-         * triggering queue
-         * @return {gpf.events.Target}
-         * @chainable
-         */
         addEventListener: function (event, eventsHandler, useCapture) {
             var listeners = this._listeners;
             if (!useCapture) {
@@ -888,14 +722,6 @@
             }
             return this;
         },
-        /**
-         * Remove an event listener to the target
-         *
-         * @param {String} event name
-         * @param {gpf.events.Handler} eventsHandler
-         * @return {gpf.events.Target}
-         * @chainable
-         */
         removeEventListener: function (event, eventsHandler) {
             var eventsHandlers = this._listeners[event], idx;
             if (undefined !== eventsHandlers) {
@@ -906,15 +732,6 @@
             }
             return this;
         },
-        /**
-         * Broadcast the event
-         *
-         * @param {String|gpf.events.Event} event name or object
-         * @param {Object} [params={}] event parameters
-         * @return {gpf.events.Target}
-         * @protected
-         * @chainable
-         */
         _broadcastEvent: function (event, params) {
             var idx, type, listeners;
             if (event instanceof Event) {
@@ -944,122 +761,38 @@
     });
     Broadcaster.prototype = new Target();
     gpf.extend(Broadcaster.prototype, {
-        /**
-         * Broadcast the event
-         *
-         * @param {String|gpf.events.Event} event name or object
-         * @param {Object} [params={}] event parameters
-         * @return {gpf.events.Target}
-         * @chainable
-         */
         broadcastEvent: function () {
             return this._broadcastEvent.apply(this, arguments);
         }
     });
     gpf.extend(Event.prototype, {
-        /**
-         * Event type
-         *
-         * @type {String}
-         * @private
-         */
         _type: "",
-        /**
-         * Event parameters
-         *
-         * @type {Object} Map of key to value
-         * @private
-         */
         _params: {},
-        /**
-         * Event can be cancelled
-         *
-         * @type {Boolean}
-         * @private
-         */
         _cancelable: false,
-        /**
-         * Event propagation was stopped
-         *
-         * @type {Boolean}
-         * @private
-         */
         _propagationStopped: false,
-        /**
-         * Event default handling is prevented
-         *
-         * @type {Boolean}
-         * @private
-         */
         _defaultPrevented: false,
-        /**
-         * Event scope
-         *
-         * @type {Object|null}
-         * @private
-         */
         _scope: null,
-        /**
-         * Event type
-         *
-         * @return {String}
-         */
         type: function () {
             return this._type;
         },
-        /**
-         * Event scope
-         *
-         * @return {Object}
-         */
         scope: function () {
             return gpf.Callback.resolveScope(this._scope);
         },
-        /**
-         * Event can be cancelled
-         *
-         * @return {Boolean}
-         */
         cancelable: function () {
             return this._cancelable;
         },
-        /**
-         * Cancel the event if it is cancelable, meaning that any default
-         * action normally taken by the implementation as a result of the event
-         * will not occur
-         */
         preventDefault: function () {
             this._defaultPrevented = true;
         },
-        /**
-         * Returns true if preventDefault has been called at least once
-         *
-         * @return {Boolean}
-         */
         defaultPrevented: function () {
             return this._defaultPrevented;
         },
-        /**
-         * To prevent further propagation of an event during event flow
-         */
         stopPropagation: function () {
             this._propagationStopped = true;
         },
-        /**
-         * Get any additional event information
-         * 
-         * @param {String} name parameter name
-         * @return {*} value of parameter
-         */
         get: function (name) {
             return this._params[name];
         },
-        /**
-         * Fire the event on the provided eventsHandler
-         *
-         * @param {gpf.events.Broadcaster/gpf.Callback/Function} eventsHandler
-         * @return {gpf.events.Event} this
-         */
         fire: function (eventsHandler) {
             return gpf.events.fire(this, eventsHandler);
         }
@@ -1068,26 +801,6 @@
         Target: Target,
         Broadcaster: Broadcaster,
         Event: Event,
-        /**
-         * Event Handler,
-         * - gpf.events.Broadcaster: broadcastEvent(event)
-         * - gpf.Callback|Function: apply(scope, [event])
-         * - Object: consider a map between event type and callback function
-         * @type {gpf.events.Target|gpf.Callback|Function|Object}
-         * @alias {gpf.events.Handler}
-         */
-        /**
-         * If necessary, build an event object and use the provided media
-         * (broadcaster or callback function) to throw it.
-         * 
-         * NOTE: this is transmitted through the call
-         * 
-         * @param {String/gpf.events.Event} event string or event object to fire
-         * @param {Object} [params={}] params parameter of the event
-         *                 (when type is a string)
-         * @param {gpf.events.Handler} eventsHandler
-         * @return {gpf.events.Event} the event object
-         */
         fire: function (event, params, eventsHandler) {
             var scope;
             if (undefined === eventsHandler) {
@@ -1227,26 +940,6 @@
             }
         };
     gpf.http = {
-        /**
-         * Loads dynamically any script
-         * Waits for the script to be loaded and calls a eventsHandler when done
-         * The following is an easy way to handle eventsHandlers whenever the
-         * process is asychronous (window.setTimeout, onload eventsHandler).
-         * The function returns an object that can be overriden with our own
-         * loaded handler (if needed)
-         * 
-         * @param {String} src
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @eventParam {string} url URL of the included resource
-         * 
-         * @event load The resource has been successfully loaded
-         * 
-         * @event error An error occurred when loading the resource
-         * 
-         * Inspired from http://stackoverflow.com/questions/4845762/
-         * 
-         */
         include: function (src, eventsHandler) {
             var context = {
                     src: src,
@@ -1286,13 +979,6 @@
                 context.headTag.insertBefore(scriptTag, context.headTag.firstChild);
             }, 0);
         },
-        /**
-         * Retrieve the mime type associates with the file extension (default is
-         * "application/octet-stream")
-         *
-         * @param {String} fileExtension
-         * @return {String}
-         */
         getMimeType: function (fileExtension) {
             var mimeType;
             _initMimeTypes();
@@ -1303,13 +989,6 @@
             }
             return mimeType;
         },
-        /**
-         * Retrieve the file extension associated with the mime type (default is
-         * ".bin")
-         *
-         * @param {String} mimeType
-         * @return {String}
-         */
         getFileExtension: function (mimeType) {
             var fileExtension;
             _initMimeTypes();
@@ -1467,21 +1146,9 @@
             return result;
         };
     gpf.bin = {
-        /**
-         * Computes the power of 2
-         *
-         * @param {Number} n the power to compute
-         * @return {Number}
-         */
         pow2: function (n) {
             return 1 << n;
         },
-        /**
-         * Check if the given value is a power of 2
-         *
-         * @param {Number} value the value to check
-         * @return {Number} the power of 2 or -1
-         */
         isPow2: function (value) {
             // http://en.wikipedia.org/wiki/Power_of_two
             if (0 < value && 0 === (value & value - 1)) {
@@ -1495,81 +1162,23 @@
                 return -1;
             }
         },
-        /**
-         * Encodes the value within the specified base.
-         * Result string length can be defined and missing characters will be
-         * added with safepad.
-         * 
-         * @param {String} base values
-         * @param {Number} value to encode
-         * @param {Number} length of encoding
-         * @param {String} safepad [safepad=base.charAt(0)]
-         * @return {String}
-         */
         toBaseANY: _toBaseANY,
-        /**
-         * Decodes the text value using the specified base.
-         * @param {String} base
-         * @param {String} text
-         * @param {String} safepad [safepad=""]
-         * @return {Number}
-         */
         fromBaseANY: _fromBaseANY,
-        /**
-         * Returns the hexadecimal encoding of value.
-         * @param {Number} value
-         * @param {Number} length of encoding
-         * @param {String} safepad [safepad="0"]
-         * @return {String}
-         */
         toHexa: function (value, length, safepad) {
             return _toBaseANY(_b16, value, length, safepad);
         },
-        /**
-         * Decodes the hexadecimal text value.
-         * @param {String} text
-         * @param {String} safepad [safepad="0"]
-         * @return {Number}
-         */
         fromHexa: function (text, safepad) {
             return _fromBaseANY(_b16, text, safepad);
         },
-        /**
-         * Returns the base 64 encoding of value.
-         * @param {Number} value
-         * @param {Number} length of encoding
-         * @param {String} safepad [safepad="0"]
-         * @return {String}
-         */
         toBase64: function (value, length, safepad) {
             return _toBaseANY(_b64, value, length, safepad);
         },
-        /**
-         * Decodes the hexadecimal text value.
-         * @param {String} text
-         * @param {String} safepad [safepad="0"]
-         * @return {Number}
-         */
         fromBase64: function (text, safepad) {
             return _fromBaseANY(_b64, text, safepad);
         },
-        /**
-         * Test if the value contains the bitmask.
-         *
-         * @param {Number} value
-         * @param {Number} bitmask
-         * @returns {Boolean}
-         */
         test: function (value, bitmask) {
             return (value & bitmask) === bitmask;
         },
-        /**
-         * Clear the bitmask inside the value
-         *
-         * @param {Number} value
-         * @param {Number} bitmask
-         * @returns {Number}
-         */
         clear: function (value, bitmask) {
             return value & ~bitmask;
         }
@@ -1701,42 +1310,14 @@
         }
     };
     gpf.extend(gpf.ClassDefinition.prototype, {
-        //region Members
-        /**
-         * Unique identifier
-         *
-         * @type {Number}
-         * @private
-         */
         _uid: 0,
-        /**
-         * Unique identifier
-         *
-         * @return {Number}
-         */
         uid: function () {
             return this._uid;
         },
-        /**
-         * Class name
-         *
-         * @type {String}
-         * @private
-         */
         _name: "",
-        /**
-         * Full class name
-         *
-         * @return {String}
-         */
         name: function () {
             return this._name;
         },
-        /**
-         * Class name (without namespace)
-         *
-         * @return {String}
-         */
         nameOnly: function () {
             var name = this._name, pos = name.lastIndexOf(".");
             if (-1 === pos) {
@@ -1745,50 +1326,15 @@
                 return name.substr(pos + 1);
             }
         },
-        /**
-         * Base class
-         *
-         * @type {Function}
-         * @private
-         */
         _Base: Object,
-        /**
-         * Base class
-         *
-         * @return {Function}
-         */
         Base: function () {
             return this._Base;
         },
-        /**
-         * Child classes
-         *
-         * @type {Function[}}
-         * @private
-         */
         _Subs: [],
-        /**
-         * Child classes
-         *
-         * @return {Function[}}
-         */
         Subs: function () {
             return this._Subs;
         },
-        /**
-         * Attributes of this class
-         *
-         * NOTE: during definition, this member is used as a simple JavaScript
-         *
-         * @type {gpf.attributes.Map}
-         * @private
-         */
         _attributes: null,
-        /**
-         * Attributes of this class
-         *
-         * @return {gpf.attributes.Map}
-         */
         attributes: function () {
             /*__begin__thread_safe__*/
             if (!this._attributes) {
@@ -1797,48 +1343,13 @@
             /*__end_thread_safe__*/
             return this._attributes;
         },
-        /**
-         * Class constructor
-         *
-         * @type {Function}
-         * @private
-         */
         _Constructor: function () {
         },
-        /**
-         * Class 'definition' constructor
-         *
-         * @type {Function}
-         * @private
-         */
         _defConstructor: null,
-        /**
-         * Class constructor
-         *
-         * @return {Function}
-         */
         Constructor: function () {
             return this._Constructor;
         },
-        //endregion
-        //region Class construction
-        /**
-         * Class definition
-         *
-         * @type {Object}
-         * @private
-         */
         _definition: null,
-        /**
-         * Adds a member to the class definition.
-         * This method must not be used for
-         * - constructor
-         * - overriding an existing member
-         *
-         * @param {String} member
-         * @param {*} value
-         * @param {String|number} [visibility=_VISIBILITY_PUBLIC] visibility
-         */
         addMember: function (member, value, visibility) {
             var newPrototype = this._Constructor.prototype;
             gpf.ASSERT(member !== "constructor", "No constructor can be added");
@@ -1853,14 +1364,6 @@
             }
             this._addMember(member, value, visibility);
         },
-        /**
-         * Adds a member to the class definition
-         *
-         * @param {String} member
-         * @param {*} value
-         * @param {number} visibility
-         * @private
-         */
         _addMember: function (member, value, visibility) {
             var newPrototype = this._Constructor.prototype;
             if (_VISIBILITY_STATIC === visibility) {
@@ -1869,14 +1372,6 @@
                 newPrototype[member] = value;
             }
         },
-        /**
-         * Defines a new member of the class
-         *
-         * @param {String} member Name of the member to define
-         * @param {Number} visibility Visibility of the members
-         * @private
-         * @closure
-         */
         _processMember: function (member, visibility) {
             // Don't know yet how I want to handle visibility
             var defMember = this._definition[member], isConstructor = member === "constructor", newType, baseMember, baseType;
@@ -1892,8 +1387,7 @@
                 baseMember = this._Base.prototype[member];
             }
             baseType = typeof baseMember;
-            if ("undefined" !== baseType && null !== baseMember    // Special case as null is common
-&& newType !== baseType) {
+            if ("undefined" !== baseType && null !== baseMember && newType !== baseType) {
                 gpf.Error.ClassMemberOverloadWithTypeChange();
             }
             if ("function" === newType && "undefined" !== baseType && _usesSuper(defMember)) {
@@ -1909,14 +1403,6 @@
                 this._addMember(member, defMember, visibility);
             }
         },
-        /**
-         * An attribute definition is found in the class definition, store it
-         * into a temporary map: it will be processed later
-         *
-         * @param {String} key Attribute name of the member to associate the
-         * attributes to ([name])
-         * @private
-         */
         _processAttribute: function (key) {
             var attributeArray, newAttributeArray = this._definition[key];
             key = key.substr(1, key.length - 2);
@@ -1930,14 +1416,6 @@
             }
             this._attributes[key] = attributeArray.concat(newAttributeArray);
         },
-        /**
-         * Process class definition including visibility
-         *
-         * NOTE: alters this._definition
-         *
-         * @param {Number} visibility Visibility of the members
-         * @private
-         */
         _processDefWithVisibility: function (visibility) {
             var initialDefinition = this._definition, definition, member;
             member = _visibilityKeywords[visibility];
@@ -1966,11 +1444,6 @@
                 this._definition = initialDefinition;
             }
         },
-        /**
-         * Process definition
-         *
-         * @private
-         */
         _processDefinition: function () {
             var definition = this._definition, member, visibility;
             for (member in definition) {
@@ -2000,13 +1473,6 @@
                 this._processMember("constructor", _VISIBILITY_PUBLIC);
             }
         },
-        /**
-         * Process the attributes collected in the definition
-         *
-         * NOTE: gpf.attributes._add is defined in attributes.js
-         *
-         * @private
-         */
         _processAttributes: function () {
             var attributes = this._attributes, Constructor, newPrototype, attributeName;
             if (attributes) {
@@ -2025,11 +1491,6 @@
                 }
             }
         },
-        /**
-         * Create the new Class constructor
-         *
-         * @closure
-         */
         _build: function () {
             var newClass, newPrototype, baseClassDef;
             // The new class constructor
@@ -2279,34 +1740,12 @@
      */
     gpf._defAttr("Attribute", {
         protected: {
-            /**
-             * Name of the member the attribute is associated to
-             *
-             * @type {String}
-             * @protected
-             * @friend {gpf.attributes.add}
-             */
             _member: "",
-            /**
-             * This method is the implementation of the attribute: it receives
-             * the prototype to alter.
-             *
-             * NOTE: this is called *after* all declared members are set
-             *
-             * @param {Object} objPrototype Class prototype
-             * @protected
-             * @friend {gpf.attributes.add}
-             */
             _alterPrototype: function (objPrototype) {
                 gpf.interfaces.ignoreParameter(objPrototype);
             }
         },
         public: {
-            /**
-             * Get the member name
-             *
-             * @return {String}
-             */
             member: function () {
                 return this._member;
             }
@@ -2327,30 +1766,13 @@
      * @alias gpf.$Alias
      */
     gpf._defAttr("$Alias", {
-        private: {
-            /**
-             * Name of the alias to create
-             *
-             * @type {String}
-             * @private
-             */
-            _name: ""
-        },
+        private: { _name: "" },
         protected: {
-            /**
-             * @inheritDoc gpf.attributes.Attribute:_alterPrototype
-             */
             _alterPrototype: function (objPrototype) {
                 _alias(objPrototype.constructor, this._name);
             }
         },
         public: {
-            /**
-             * Defines an alias
-             *
-             * @param {String} name Name of the alias to create
-             * @constructor
-             */
             constructor: function (name) {
                 this._name = name;
             }
@@ -2363,27 +1785,11 @@
      * @implements gpf.interfaces.IReadOnlyArray
      */
     gpf.define("gpf.attributes.Array", {
-        private: {
-            /**
-             * @type {gpf.attributes.Attribute[]}
-             * @private
-             */
-            _array: []
-        },
+        private: { _array: [] },
         public: {
-            /**
-             * @constructor
-             */
             constructor: function () {
                 this._array = [];    // Create a new instance of the array
             },
-            /**
-             * Return the first occurrence of the expected class
-             *
-             * @param {gpf.attributes.Attribute} expectedClass the class to
-             * match
-             * @return {gpf.attributes.Attribute}
-             */
             has: function (expectedClass) {
                 gpf.ASSERT("function" === typeof expectedClass, "Expected a class parameter");
                 gpf.ASSERT(expectedClass.prototype instanceof gpf.attributes.Attribute, "Expected an Attribute-like class parameter");
@@ -2396,13 +1802,6 @@
                 }
                 return null;
             },
-            /**
-             * Returns a new array with all attributes matching the expected
-             * class
-             *
-             * @param {Function} expectedClass the class to match
-             * @return {gpf.attributes.Array}
-             */
             filter: function (expectedClass) {
                 gpf.ASSERT("function" === typeof expectedClass, "Expected a class parameter");
                 gpf.ASSERT(expectedClass.prototype instanceof gpf.attributes.Attribute, "Expected an Attribute-like class parameter");
@@ -2415,19 +1814,6 @@
                 }
                 return result;
             },
-            /**
-             * Apply the callback for each attribute in the array.
-             * If the callback returns anything, the loop stops and the result
-             * is returned to the caller.
-             *
-             * @param {Function} callback, defined with parameters
-             * * {gpf.attributes.Attribute} attribute
-             * No result is expected
-             * @param {Object} [scope=undefined] scope
-             * @param {*} [params=undefined] params Additional parameters
-             * appended at the end of the expected parameter list
-             * @return {*}
-             */
             each: function (callback, scope, params) {
                 scope = gpf.Callback.resolveScope(scope);
                 params = gpf.Callback.buildParamArray(1, params);
@@ -2448,26 +1834,8 @@
      */
     gpf.define("gpf.attributes.Map", {
         private: {
-            /**
-             * @type {Object} Map(String,gpf.attributes.Array)
-             * @private
-             */
             _members: {},
-            /**
-             * @type {Number}
-             * @private
-             */
             _count: 0,
-            /**
-             * Copy the content of this map to a new one
-             *
-             * @param {gpf.attributes.Map} attributesMap recipient of the copy
-             * @param {Function} [callback=undefined] callback callback function
-             * to test if the mapping should be added
-             * @param {*} [param=undefined] param additional parameter for the
-             * callback
-             * @private
-             */
             _copyTo: function (attributesMap, callback, param) {
                 var members = this._members, member, array, idx, attribute;
                 if (this._count) {
@@ -2484,26 +1852,12 @@
                     }
                 }
             },
-            /**
-             * Callback for _copyTo, test if attribute is of a given class
-             *
-             * @param {String} member
-             * @param {gpf.attributes.Attribute} attribute
-             * @param {Function} expectedClass
-             * @return {Boolean}
-             * @private
-             */
             _filterCallback: function (member, attribute, expectedClass) {
                 gpf.interfaces.ignoreParameter(member);
                 return attribute instanceof expectedClass;
             }
         },
         public: {
-            /**
-             * @param {Object} [object=undefined] object Object to read
-             *        attributes from
-             * @constructor
-             */
             constructor: function (object) {
                 this._members = {};
                 // Creates a new dictionary
@@ -2512,20 +1866,9 @@
                     this.fillFromObject(object);
                 }
             },
-            /**
-             * Gives the total number of attributes enclosed in the map
-             *
-             * @return {Number}
-             */
             count: function () {
                 return this._count;
             },
-            /**
-             * Associate an attribute to a member
-             *
-             * @param {String} member member name
-             * @param {gpf.attributes.Attribute} attribute attribute to map
-             */
             add: function (member, attribute) {
                 var array = this._members[member];
                 if (undefined === array) {
@@ -2534,21 +1877,9 @@
                 array._array.push(attribute);
                 ++this._count;
             },
-            /**
-             * Fill the map using object's attributes
-             *
-             * @param {Object} object object to get attributes from
-             * @return {Number} number of attributes in the resulting map
-             */
             fillFromObject: function (object) {
                 return this.fillFromClassDef(gpf.classDef(object.constructor));
             },
-            /**
-             * Fill the map using class definition object
-             *
-             * @param {gpf.classDef} classDef class definition
-             * @return {Number} number of attributes in the resulting map
-             */
             fillFromClassDef: function (classDef) {
                 var attributes;
                 while (classDef) {
@@ -2566,13 +1897,6 @@
                 }
                 return this._count;
             },
-            /**
-             * Creates a new map that contains only instances of the given
-             * attribute class
-             *
-             * @param {Function} expectedClass
-             * @return {gpf.attributes.Map}
-             */
             filter: function (expectedClass) {
                 gpf.ASSERT("function" === typeof expectedClass, "Expected a class parameter");
                 gpf.ASSERT(expectedClass.prototype instanceof gpf.attributes.Attribute, "Expected an Attribute-like class parameter");
@@ -2580,12 +1904,6 @@
                 this._copyTo(result, this._filterCallback, expectedClass);
                 return result;
             },
-            /**
-             * Returns the array of map associated to a member
-             *
-             * @param {String} name
-             * @return {gpf.attributes.Array}
-             */
             member: function (name) {
                 /**
                  * When member is a known Object member (i.e. constructor),
@@ -2601,12 +1919,6 @@
                 }
                 return result;
             },
-            /**
-             * Returns the list of members stored in this map
-             *
-             * @perf_warn Result is computed on each call
-             * @return {String[]}
-             */
             members: function () {
                 var members = this._members, result = [], member;
                 for (member in members) {
@@ -2616,20 +1928,6 @@
                 }
                 return result;
             },
-            /**
-             * Apply the callback for each member in the map
-             * If the callback returns anything, the loop stops and the result
-             * is returned to the caller.
-             *
-             * @param {Function} callback, defined with parameters
-             * * {String} member
-             * * {gpf.attributes.Array} attributes
-             * No result is expected
-             * @param {Object} [scope=undefined] scope
-             * @param {*} [params=undefined] params Additional parameters
-             * appended at the end of the expected parameter list
-             * @return {*}
-             */
             each: function (callback, scope, params) {
                 scope = gpf.Callback.resolveScope(scope);
                 params = gpf.Callback.buildParamArray(2, params);
@@ -2643,11 +1941,6 @@
                     }
                 }
             },
-            /**
-             * Add the attributes contained in the map to the given prototype
-             *
-             * @param {Function} objectClass
-             */
             addTo: function (objectClass) {
                 var members = this._members, member;
                 for (member in members) {
@@ -2680,56 +1973,31 @@
     };
     gpf.define("gpf.Error", {
         public: {
-            /**
-             * Error code
-             *
-             * @type {Number}
-             */
             code: 0,
-            /**
-             * Error name
-             *
-             * @type {String}
-             */
             name: "Error",
-            /**
-             * Error message
-             *
-             * @type {String}
-             */
             message: ""
         }
     });
     var ERRORS = {
-            // boot.js
             "NotImplemented": "Not implemented",
             "Abstract": "Abstract",
             "AssertionFailed": "Assertion failed: {message}",
-            // class.js
             "ClassMemberOverloadWithTypeChange": "You can't overload a member to change its type",
             "ClassInvalidVisibility": "Invalid visibility keyword",
-            // interface.js
             "InterfaceExpected": "Expected interface not implemented: {name}",
-            // i_enumerable.js
             "EnumerableInvalidMember": "$Enumerable can be associated to arrays only",
-            // parser.js
             "PatternUnexpected": "Invalid syntax (unexpected)",
             "PatternEmpty": "Empty pattern",
             "PatternInvalidSyntax": "Invalid syntax",
             "PatternEmptyGroup": "Syntax error (empty group)",
-            // html.js
             "HtmlHandlerMultiplicityError": "Too many $HtmlHandler attributes for '{member}'",
             "HtmlHandlerMissing": "No $HtmlHandler attributes",
             "HtmlHandlerNoDefault": "No default $HtmlHandler attribute",
-            // engine.js
             "EngineStackUnderflow": "Stack underflow",
             "EngineTypeCheck": "Type check",
-            // encoding.js
             "EncodingNotSupported": "Encoding not supported",
             "EncodingEOFWithUnprocessedBytes": "Unexpected end of stream: unprocessed bytes",
-            // xml.js
             "XmlInvalidName": "Invalid XML name",
-            // params.js
             "ParamsNameRequired": "Missing name",
             "ParamsTypeUnknown": "Type unknown",
             "ParamsRequiredMissing": "Required parameter '{name}' is missing"
@@ -2809,35 +2077,11 @@
      */
     gpf._defAttr("$ClassProperty", _base, {
         private: {
-            /**
-             * If true, generates a write wrapper
-             *
-             * @type {Boolean}
-             * @private
-             */
             _writeAllowed: false,
-            /**
-             * If set, provides the member name. Otherwise, name is based on
-             * member.
-             *
-             * @type {String|undefined}
-             * @private
-             */
             _publicName: undefined,
-            /**
-             * If set, provides the member visibility.
-             * Default is 'public'
-             * member.
-             *
-             * @type {String|undefined}
-             * @private
-             */
             _visibility: undefined
         },
         protected: {
-            /**
-             * @inheritdoc gpf.attributes.Attribute:_alterPrototype
-             */
             _alterPrototype: function (objPrototype) {
                 var member = this._member, publicName = this._publicName, classDef = gpf.classDef(objPrototype.constructor), src, start, end;
                 if (!publicName) {
@@ -2858,14 +2102,6 @@
             }
         },
         public: {
-            /**
-             * @param {Boolean} writeAllowed
-             * @param {String} [publicName=undefined] publicName When not
-             * specified, the member name (without _) is applied
-             * @param {String} [visibility=undefined] visibility When not
-             * specified, public is used
-             * @constructor
-             */
             constructor: function (writeAllowed, publicName, visibility) {
                 if (writeAllowed) {
                     this._writeAllowed = true;
@@ -2900,28 +2136,10 @@
      */
     gpf._defAttr("$ClassExtension", _base, {
         private: {
-            /**
-             * Constructor of the class to extend
-             *
-             * @type {Function}
-             * @private
-             */
             _ofClass: gpf.emptyFunction(),
-            /**
-             * Name of the method if added to the class
-             *
-             * @type {String}
-             * @private
-             */
             _publicName: ""
         },
         public: {
-            /**
-             * @param {Function} ofClass Constructor of the class to extend
-             * @param {String} publicName Name of the method if added to the
-             * class
-             * @constructor
-             */
             constructor: function (ofClass, publicName) {
                 this._ofClass = ofClass;
                 if ("string" === typeof publicName) {
@@ -2951,6 +2169,7 @@
          * @alias gpf.$JsonIgnore
          */
         _Ignore = gpf._defAttr("$JsonIgnore", _Base, {});
+    ;
     /**
      * TODO add object sub members
      * TODO add before/after load methods
@@ -3024,14 +2243,6 @@
         return result;
     };    /*jshint +W089*/
     gpf.interfaces = {
-        /**
-         * Verify that the object implements the current interface
-         *
-         * @param {Object} objectInstance object to inspect
-         * @param {gpf.interfaces.Interface} interfaceDefinition reference
-         * interface
-         * @return {Boolean}
-         */
         isImplementedBy: function (objectInstance, interfaceDefinition) {
             var member;
             /*
@@ -3040,8 +2251,7 @@
              */
             /*jslint forin:false*/
             for (member in interfaceDefinition.prototype) {
-                if ("constructor" === member    // Object
-|| "extend" === member) {
+                if ("constructor" === member || "extend" === member) {
                     // gpf.Class
                     continue;
                 }
@@ -3052,26 +2262,9 @@
             /*jslint forin:true*/
             return true;
         },
-        /**
-         * Used to remove warnings about unused parameters
-         */
         ignoreParameter: function (value) {
             return value;
         },
-        /**
-         * Retrieve an object implementing the expected interface from an
-         * object.
-         * This is done in two passes:
-         * - Either the object implements the interface, it is returned
-         * - Or the object implements IUnknown, then queryInterface is used
-         *
-         * @param {Object} objectInstance object to inspect
-         * @param {gpf.interfaces.Interface} interfaceDefinition reference
-         * interface
-         * @param {Boolean} [throwError=false] throwError Throws an error if the
-         * interface is not found (otherwise, null is returned)
-         * @return {Object|null}
-         */
         query: function (objectInstance, interfaceDefinition, throwError) {
             var result = null;
             if (gpf.interfaces.isImplementedBy(objectInstance, interfaceDefinition)) {
@@ -3101,34 +2294,12 @@
     gpf._defIntrf("Interface");
     //region IEventTarget
     gpf._defIntrf("IEventTarget", {
-        /**
-         * Add an event listener to the target
-         *
-         * @param {String} event name
-         * @param {Function|gpf.Callback} callback
-         * @param {Object|Boolean} scope scope of callback or useCapture
-         * parameter. NOTE: if a gpf.Callback object is used and a scope
-         * specified, a new gpf.Callback object is created.
-         * @param {Boolean} [useCapture=false] useCapture push it on top of the
-         * triggering queue
-         * @return {gpf.interfaces.IEventTarget}
-         * @chainable
-         */
         addEventListener: function (event, callback, scope, useCapture) {
             gpf.interfaces.ignoreParameter(event);
             gpf.interfaces.ignoreParameter(callback);
             gpf.interfaces.ignoreParameter(scope);
             gpf.interfaces.ignoreParameter(useCapture);
         },
-        /**
-         * Remove an event listener to the target
-         *
-         * @param {String} event name
-         * @param {Function|gpf.Callback} callback
-         * @param {Object} [scope=undefined] scope scope of callback
-         * @return {gpf.interfaces.IEventTarget}
-         * @chainable
-         */
         removeEventListener: function (event, callback, scope) {
             gpf.interfaces.ignoreParameter(event);
             gpf.interfaces.ignoreParameter(callback);
@@ -3143,14 +2314,6 @@
      * / useless members)
      */
     gpf._defIntrf("IUnknown", {
-        /**
-         * Retrieves an object supporting the provided interface
-         * (maybe the object itself)
-         *
-         * @param {gpf.interfaces.Interface} interfaceDefinition The expected
-         * interface
-         * @return {Object|null} The object supporting the interface (or null)
-         */
         queryInterface: function (interfaceDefinition) {
             gpf.interfaces.ignoreParameter(interfaceDefinition);
             return null;
@@ -3214,27 +2377,12 @@
      */
     gpf._defAttr("$InterfaceImplement", {
         private: {
-            /**
-             * Interface definition
-             *
-             * @type {Function}
-             * @private
-             */
             "[_interfaceDefinition]": [gpf.$ClassProperty(false, "which")],
             _interfaceDefinition: gpf.emptyFunction(),
-            /**
-             * Builder function
-             *
-             * @type {Function|null}
-             * @private
-             */
             "[_builder]": [gpf.$ClassProperty(false, "how")],
             _builder: null
         },
         protected: {
-            /**
-             * @inheritdoc gpf.attributes.Attribute:_alterPrototype
-             */
             _alterPrototype: function (objPrototype) {
                 var iProto = this._interfaceDefinition.prototype, iClassDef = gpf.classDef(this._interfaceDefinition), member, attributes;
                 // Get the interface's attributes apply them to the obj
@@ -3275,12 +2423,6 @@
             }
         },
         public: {
-            /**
-             * @param {Function} interfaceDefinition Interface definition
-             * @param {Function|null} [queryInterfaceBuilder=null]
-             * queryInterfaceBuilder Builder function
-             * @constructor
-             */
             constructor: function (interfaceDefinition, queryInterfaceBuilder) {
                 this._interfaceDefinition = interfaceDefinition;
                 if (queryInterfaceBuilder) {
@@ -3297,25 +2439,11 @@
      * @extends gpf.interfaces.Interface
      */
     gpf._defIntrf("IEnumerable", {
-        /**
-         * Sets the enumerator to its initial position, which is before the
-         * first element in the collection
-         */
         reset: function () {
         },
-        /**
-         * Advances the enumerator to the next element of the collection
-         * @return {Boolean} true if the enumerator was successfully advanced
-         * to the next element; false if the enumerator has passed the end of
-         * the collection
-         */
         moveNext: function () {
             return false;
         },
-        /**
-         * Gets the current element in the collection
-         * @return {*}
-         */
         current: function () {
             return null;
         }
@@ -3363,9 +2491,6 @@
      * @alias gpf.$ClassIArray
      */
     gpf._defAttr("$Enumerable", gpfA.ClassAttribute, {
-        /**
-         * @inheritDoc gpf.attributes.Attribute:_alterPrototype
-         */
         _alterPrototype: function (objPrototype) {
             if (!(objPrototype[this._member] instanceof Array)) {
                 gpf.Error.EnumerableInvalidMember();
@@ -3382,19 +2507,9 @@
      * @extends gpf.interfaces.Interface
      */
     iROArray = gpf._defIntrf("IReadOnlyArray", {
-        /**
-         * Return the number of items in the array
-         * @return {Number}
-         */
         length: function () {
             return 0;
         },
-        /**
-         * Return the item inside the array (idx is 0-based)
-         *
-         * @param {Number} idx index
-         * @return {*}
-         */
         get: function (idx) {
             gpfI.ignoreParameter(idx);
             return undefined;
@@ -3407,14 +2522,6 @@
      * @extends gpf.interfaces.IReadOnlyArray
      */
     gpf._defIntrf("IArray", iROArray, {
-        /**
-         * Set the item inside the array (idx is 0-based)
-         * Return the value that was previously set (or undefined)
-         *
-         * @param {Number} idx index
-         * @param {*} value
-         * @return {*}
-         */
         set: function (idx, value) {
             gpfI.ignoreParameter(idx);
             gpfI.ignoreParameter(value);
@@ -3435,18 +2542,12 @@
      */
     gpf._defAttr("ClassArrayInterfaceAttribute", gpfA.ClassAttribute, {
         "[Class]": [gpf.$Alias("ClassIArray")],
-        /**
-         * @type {boolean}
-         */
         _writeAllowed: false,
         constructor: function (writeAllowed) {
             if (writeAllowed) {
                 this._writeAllowed = true;
             }
         },
-        /**
-         * @inheritDoc gpf.attributes.Attribute:_alterPrototype
-         */
         _alterPrototype: function (objPrototype) {
             var implementedInterface;
             if (this._writeAllowed) {
@@ -3504,27 +2605,6 @@
      * @extends gpf.interfaces.Interface
      */
     gpf._defIntrf("IReadableStream", {
-        /**
-         * Triggers the reading of data.
-         * The expected behavior is:
-         * - The callback is asynchronous
-         * - One of the following callback must be called after a read
-         *   - EVENT_ERROR: an error occurred.
-         *     the stream can't be used after this.
-         *   - EVENT_END_OF_STREAM: stream ended.
-         *     the stream can't be used after this.
-         *   - EVENT_DATA: a buffer is provided, it can't be empty.
-         *
-         * @param {Number} [size=0] size Number of bytes to read. Read
-         * as much as possible if 0
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @event data Some data is ready to be used
-         * @eventParam {gpf.IReadOnlyArray} buffer Bytes buffer
-         *
-         * @event eos No more data can be read from the stream
-         *
-         */
         "[read]": [gpf.$ClassEventHandler()],
         read: function (size, eventsHandler) {
             gpf.interfaces.ignoreParameter(size);
@@ -3552,16 +2632,6 @@
      * @extends gpf.interfaces.Interface
      */
     gpf._defIntrf("IWritableStream", {
-        /**
-         * Triggers the writing of data
-         *
-         * @param {IReadOnlyArray} int8buffer Buffer to write
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @event ready it is appropriate to begin writing more data to the
-         * stream
-         *
-         */
         "[write]": [gpf.$ClassEventHandler()],
         write: function (int8buffer, eventsHandler) {
             gpf.interfaces.ignoreParameter(int8buffer);
@@ -3577,17 +2647,11 @@
      * The stream combines both IReadableStream and IWritableStream
      */
     gpf._defIntrf("IStream", {
-        /**
-         * @inheritDoc gpf.interfaces.IReadableStream:read
-         */
         "[read]": [gpf.$ClassEventHandler()],
         read: function (size, eventsHandler) {
             gpf.interfaces.ignoreParameter(size);
             gpf.interfaces.ignoreParameter(eventsHandler);
         },
-        /**
-         * @inheritDoc gpf.interfaces.IWritableStream:write
-         */
         "[write]": [gpf.$ClassEventHandler()],
         write: function (int8buffer, eventsHandler) {
             gpf.interfaces.ignoreParameter(int8buffer);
@@ -3620,58 +2684,16 @@
      */
     gpf.define("gpf.stream.BufferedOnRead", {
         "[Class]": [gpf.$InterfaceImplement(gpfI.IReadableStream)],
-        //region Configurable part
         protected: {
-            /**
-             * Output buffer containing content to be read
-             *
-             * @type {*[]}
-             * @protected
-             */
             _buffer: [],
-            /**
-             * Length of the buffer (compared with read size)
-             *
-             * @type {Number}
-             * @protected
-             */
             _bufferLength: 0,
-            /**
-             * Underlying stream default read size
-             *
-             * @type {Number}
-             * @protected
-             */
             _readSize: _BUFREADSTREAM_READ_SIZE,
-            /**
-             * Process underlying stream buffer (this should grow the output
-             * buffer)
-             *
-             * @param {Array} buffer
-             * @abstract
-             * @protected
-             */
             _addToBuffer: function (buffer) {
                 gpf.interfaces.ignoreParameter(buffer);
                 gpf.Error.Abstract();
             },
-            /**
-             * Underlying stream reached its end (this may grow the output
-             * buffer)
-             *
-             * @protected
-             */
             _endOfInputStream: function () {
             },
-            /**
-             * Read buffer.
-             * This default implementation checks the buffer type to switch
-             * between string and byte array.
-             *
-             * @param {Number} size
-             * @returns {String|Array}
-             * @protected
-             */
             _readFromBuffer: function (size) {
                 gpf.ASSERT(0 !== this._buffer.length, "Buffer is not empty");
                 if ("string" === this._buffer[0]) {
@@ -3680,45 +2702,21 @@
                     return this._readFromByteBuffer(size);
                 }
             },
-            /**
-             * Read string buffer.
-             *
-             * @param {Number} size
-             * @returns {String}
-             * @protected
-             */
             _readFromStringBuffer: function (size) {
                 var result = gpf.stringExtractFromStringArray(this._buffer, size);
                 this._bufferLength -= result.length;
                 return result;
             },
-            /**
-             * Read byte buffer.
-             *
-             * @param {Number} size
-             * @returns {Array}
-             * @protected
-             */
             _readFromByteBuffer: function (size) {
                 this._bufferLength -= size;
                 return this._buffer.splice(0, size);
             }
         },
-        //endregion
-        //region Implementation
         public: {
-            /**
-             * @param {gpf.interfaces.IReadableStream} input
-             * @constructor
-             */
             constructor: function (input) {
                 this._iStream = gpfI.query(input, gpfI.IReadableStream, true);
                 this._buffer = [];
             },
-            //region gpf.interfaces.IReadableStream
-            /**
-             * @implements gpf.interfaces.IReadableStream:read
-             */
             read: function (size, eventsHandler) {
                 var iState = this._iState, length = this._bufferLength;
                 if (_BUFREADSTREAM_ISTATE_INPROGRESS === iState) {
@@ -3756,37 +2754,11 @@
             }    //endregion
         },
         private: {
-            /**
-             * Input stream
-             * @type {gpf.interfaces.IReadableStream}
-             */
             _iStream: null,
-            /**
-             * Input stream read callback (pointing to this:_onRead)
-             * @type {gpf.Callback}
-             */
             _cbRead: null,
-            /**
-             * Input state
-             * @type {Number} see _BUFREADSTREAM_ISTATE_xxx
-             */
             _iState: _BUFREADSTREAM_ISTATE_INIT,
-            /**
-             * Pending read call size
-             * @type {Number}
-             */
             _size: 0,
-            /**
-             * Pending read call event handlers
-             * @type {gpf.events.Handler}
-             */
             _eventsHandler: null,
-            /**
-             * Handles input stream read event
-             *
-             * @param {gpf.events.Event} event
-             * @private
-             */
             _onRead: function (event) {
                 var type = event.type();
                 if (type === gpfI.IReadableStream.EVENT_END_OF_STREAM) {
@@ -3812,7 +2784,7 @@
                     }
                 }
             }
-        }    //endregion
+        }
     });
     /**
      * Bit reader (count is expressed as bits)
@@ -3824,18 +2796,11 @@
      */
     gpf.define("gpf.stream.BitReader", "gpf.stream.BufferedOnRead", {
         "[Class]": [gpf.$InterfaceImplement(gpfI.IReadableStream)],
-        //region Implementation
         protected: {
-            /**
-             * @inheritdoc gpf.stream.BufferedOnRead:_addToBuffer
-             */
             _addToBuffer: function (buffer) {
                 this._buffer = this._buffer.concat(buffer);
                 this._bufferLength += buffer.length * 8;    // Expressed in bits
             },
-            /**
-             * @inheritdoc gpf.stream.BufferedOnRead:_readFromBuffer
-             */
             _readFromBuffer: function (size) {
                 var buffer = this._buffer,
                     // alias
@@ -3875,15 +2840,7 @@
                 return result;
             }
         },
-        private: {
-            /**
-             * Current bit cursor
-             *
-             * @type {Number}
-             * @private
-             */
-            _bit: 128
-        }    //endregion
+        private: { _bit: 128 }
     });
     var
         /**
@@ -4040,10 +2997,6 @@
         StringStream = gpf.define("StringStream", {
             "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.ITextStream)],
             public: {
-                /**
-                 * @param {String} [string=undefined] string
-                 * @constructor
-                 */
                 constructor: function (string) {
                     if (undefined !== string && string.length) {
                         this._buffer = [string];
@@ -4051,10 +3004,6 @@
                         this._buffer = [];
                     }
                 },
-                //region gpf.interfaces.ITextStream
-                /**
-                 * @implements gpf.interfaces.ITextStream:read
-                 */
                 read: function (count, eventsHandler) {
                     var result;
                     if (0 === this._buffer.length) {
@@ -4071,9 +3020,6 @@
                         ]);
                     }
                 },
-                /**
-                 * @implements gpf.interfaces.ITextStream:write
-                 */
                 write: function (buffer, eventsHandler) {
                     gpf.ASSERT(buffer && buffer.length, "Write must contain data");
                     this._buffer.push(buffer);
@@ -4082,35 +3028,15 @@
                         eventsHandler
                     ]);
                 },
-                //endregion
-                /**
-                 * Consolidate the result string
-                 * @return {String}
-                 */
                 consolidateString: function () {
                     return this._buffer.join("");
                 }
             },
-            private: {
-                /**
-                 * @type {String[]}
-                 * @private
-                 */
-                _buffer: []
-            }
+            private: { _buffer: [] }
         });
     gpf.extend(gpf, {
         "[capitalize]": [gpf.$ClassExtension(String)],
-        // Declared in base.js
         "[replaceEx]": [gpf.$ClassExtension(String)],
-        /**
-         * Substitutes all occurrences of the keys found in the replacements
-         * object with their values
-         *
-         * @param {String} that
-         * @param {Object} replacements map of strings to search and replace
-         * @return {String}
-         */
         replaceEx: function (that, replacements) {
             var result = that, key;
             for (key in replacements) {
@@ -4123,13 +3049,6 @@
             return result;
         },
         "[escapeFor]": [gpf.$ClassExtension(String)],
-        /**
-         * Adapt the string content to be compatible with the provided language
-         *
-         * @param {String} that
-         * @param {String} language
-         * @return {String}
-         */
         escapeFor: function (that, language) {
             var replacements = _escapes[language];
             if (undefined !== replacements) {
@@ -4152,15 +3071,7 @@
             }
             return that;
         },
-        // TODO Should be a static extension as 'that' is not used
         "[stringExtractFromStringArray]": [gpf.$ClassExtension(String, "fromStringArray")],
-        /**
-         * Extract the first characters of a string array
-         *
-         * @param {Strings[]} strings This array is modified after extraction
-         * @param {Number} [size=0] size Number of characters to get, all if 0
-         * @returns {string}
-         */
         stringExtractFromStringArray: function (strings, size) {
             var stringsCount = strings.length, result, count, string, len;
             if (!size) {
@@ -4204,27 +3115,10 @@
             return result;
         },
         "[stringToStream]": [gpf.$ClassExtension(String, "toStream")],
-        /**
-         * Converts the string into a stream
-         *
-         * @param {String} that
-         * @return {Object} Implementing gpf.interfaces.ITextStream
-         */
         stringToStream: function (that) {
             return new StringStream(that);
         },
-        // TODO Should be a static extension as 'that' is not used
         "[stringFromStream]": [gpf.$ClassExtension(String, "fromStream")],
-        /**
-         * Converts the stream into a string
-         *
-         * @param {gpf.interfaces.ITextStream} stream
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @event data finished reading the stream, the buffer is provided
-         * @eventParam {String} buffer
-         *
-         */
         stringFromStream: function (stream, eventsHandler) {
             if (stream instanceof StringStream) {
                 gpfFireEvent.apply(this, [
@@ -4259,10 +3153,6 @@
         ArrayStream = gpf.define("ArrayStream", {
             "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.IStream)],
             public: {
-                /**
-                 * @param {Array} [array=undefined] array Cloned
-                 * @constructor
-                 */
                 constructor: function (array) {
                     if (undefined !== array && array.length) {
                         this._buffer = [].concat(array);
@@ -4270,10 +3160,6 @@
                         this._buffer = [];
                     }
                 },
-                //region gpf.interfaces.IStream
-                /**
-                 * @implements gpf.interfaces.IStream:read
-                 */
                 read: function (count, eventsHandler) {
                     var result;
                     if (0 === this._buffer.length) {
@@ -4298,9 +3184,6 @@
                         ]);
                     }
                 },
-                /**
-                 * @implements gpf.interfaces.ITextStream:write
-                 */
                 write: function (buffer, eventsHandler) {
                     gpf.ASSERT(buffer && buffer.length, "Write must contain data");
                     this._buffer = this._buffer.concat(buffer);
@@ -4309,46 +3192,18 @@
                         eventsHandler
                     ]);
                 },
-                //endregion
-                /**
-                 * Consolidate the result array
-                 * @return {Array}
-                 */
                 consolidateArray: function () {
                     return [].concat(this._buffer);
                 }
             },
-            private: {
-                /**
-                 * @type {Array}
-                 * @private
-                 */
-                _buffer: []
-            }
+            private: { _buffer: [] }
         });
     gpf.extend(gpf, {
         "[arrayToStream]": [gpf.$ClassExtension(Array, "toStream")],
-        /**
-         * Converts the string into a stream
-         *
-         * @param {Array} that
-         * @return {Object} Implementing gpf.interfaces.IStream
-         */
         arrayToStream: function (that) {
             return new ArrayStream(that);
         },
-        // TODO Should be a static extension as 'that' is not used
         "[arrayFromStream]": [gpf.$ClassExtension(Array, "fromStream")],
-        /**
-         * Converts the stream into an array
-         *
-         * @param {gpf.interfaces.ITextStream} stream
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @event data finished reading the stream, the buffer is provided
-         * @eventParam {Array} buffer
-         *
-         */
         arrayFromStream: function (stream, eventsHandler) {
             if (stream instanceof ArrayStream) {
                 gpfFireEvent.apply(this, [
@@ -4379,40 +3234,26 @@
             return x;
         }
     };
+    ;
     gpf.extend(gpf, {
         "[dateToComparableFormat]": [gpf.$ClassExtension(Date, "toComparableFormat")],
-        /**
-         * Converts the date into a string that can be compared with another
-         * date
-         *
-         * @param {Date} that
-         * @param {Boolean} [includeTime=true] includeTime
-         * @return {String}
-         */
         dateToComparableFormat: function (that, includeTime) {
             if (undefined === includeTime) {
                 includeTime = true;
             }
             var result = [
-                that.getFullYear(),
-                "-",
-                _z(that.getMonth() + 1),
-                "-",
-                _z(that.getDate())
-            ];
+                    that.getFullYear(),
+                    "-",
+                    _z(that.getMonth() + 1),
+                    "-",
+                    _z(that.getDate())
+                ];
             if (includeTime) {
                 result.push(" ", _z(that.getHours()), ":", _z(that.getMinutes()), ":", _z(that.getSeconds()));
             }
             return result.join("");
         },
         "[dateFromComparableFormat]": [gpf.$ClassExtension(String)],
-        /**
-         * Converts a string into a Date using the format used inside the
-         * function dateToComparableFormat
-         *
-         * @param {String} that
-         * @return {Date}
-         */
         dateFromComparableFormat: function (that) {
             var date = new Date();
             date.setFullYear(parseInt(that.substr(0, 4), 10), parseInt(that.substr(5, 2), 10) - 1, parseInt(that.substr(8, 2), 10));
@@ -4477,48 +3318,21 @@
      */
     gpf.define("gpf.Promise", {
         private: {
-            /**
-             * @type {gpf.events.Handler[]}
-             * @private
-             */
             _list: [],
-            /**
-             * @type {Number}
-             * @private
-             */
             _pos: 0
         },
         public: {
-            /**
-             * @constructor
-             */
             constructor: function () {
                 this._list = [];
             },
-            /**
-             * THEN
-             *
-             * @param {gpf.events.Handler} eventsHandler
-             * @return {gpf.Promise}
-             */
             then: function (eventsHandler) {
                 this._list.splice(this._pos, 0, eventsHandler);
                 ++this._pos;
                 return this;
             },
-            /**
-             * RESOLVE
-             *
-             * @param {Object} [params=undefined] params
-             */
             resolve: function (params) {
                 gpf.defer(_resolve, 0, this, [params]);
             },
-            /**
-             * REJECT
-             *
-             * @param {Object} [params=undefined] params
-             */
             reject: function (params) {
                 gpf.defer(_reject, 0, this, [params]);
             }
@@ -4583,57 +3397,18 @@
             return result;
         }, MethodCall = gpf.define("MethodCall", {
             private: {
-                /**
-                 * Call is synchronous
-                 *
-                 * @type {Boolean}
-                 * @private
-                 */
                 _synchronous: true,
-                /**
-                 * Method name
-                 *
-                 * @type {String}
-                 * @private
-                 */
                 _name: "",
-                /**
-                 * Method arguments
-                 *
-                 * @type {Array}
-                 * @private
-                 */
                 _args: [],
-                /**
-                 * When asynchronous, length provides the position of the event
-                 * handler
-                 *
-                 * @type {Number}
-                 * @private
-                 */
                 _length: 0
             },
             public: {
-                /**
-                 *
-                 * @param {Boolean} synchronous Call is synchronous
-                 * @param {String} name Method name
-                 * @param {Array} args Method arguments
-                 * @param {Number} length When asynchronous, length provides the
-                 * position of the event handler
-                 */
                 constructor: function (synchronous, name, args, length) {
                     this._synchronous = synchronous;
                     this._name = name;
                     this._args = args;
                     this._length = length;
                 },
-                /**
-                 * Apply the call
-                 *
-                 * @param {Object} iHandler
-                 * @param {gpf.Callback} callback
-                 */
                 apply: function (iHandler, callback) {
                     var args = this._args, method = iHandler[this._name], finalArgs, count, idx;
                     if (this._synchronous) {
@@ -4655,54 +3430,12 @@
             }
         }), WrapInterface = gpf.define("WrapInterface", {
             private: {
-                /**
-                 * Interface handler
-                 *
-                 * @type {gpf.interfaces.Interface}
-                 * @private
-                 */
                 _iHandler: null,
-                /**
-                 * List of method calls
-                 *
-                 * @type {MethodCall[]}
-                 * @private
-                 */
                 _calls: [],
-                /**
-                 * Callback to be used as event handler
-                 *
-                 * @type {gpf.Callback}
-                 * @private
-                 */
                 _callback: null,
-                /**
-                 * $catch callback
-                 *
-                 * @type {gpf.events.Handler}
-                 * @private
-                 */
                 _catch: null,
-                /**
-                 * $finally callback
-                 *
-                 * @type {gpf.events.Handler}
-                 * @private
-                 */
                 _finally: null,
-                /**
-                 * $finally event type
-                 *
-                 * @type {String}
-                 * @private
-                 */
                 _finalEventType: "done",
-                /**
-                 * Event handler
-                 *
-                 * @param {gpf.Event} event
-                 * @private
-                 */
                 _asyncResult: function (event) {
                     var iHandler = this._iHandler, calls;
                     if (event && event.type() === "error") {
@@ -4724,17 +3457,7 @@
                         ]);
                     }
                 },
-                /**
-                 * @type {Boolean}
-                 * @private
-                 */
                 _needStart: true,
-                /**
-                 * When at least one method is called, this one makes sure the
-                 * execution starts
-                 *
-                 * @private
-                 */
                 _start: function () {
                     if (this._needStart) {
                         this._needStart = false;
@@ -4743,35 +3466,16 @@
                 }
             },
             public: {
-                /**
-                 * @param {Object} instance
-                 * @constructor
-                 */
                 constructor: function (instance) {
                     this._iHandler = gpfI.query(instance, this.constructor.interface);
                     this._calls = [];
                     this._callback = new gpf.Callback(this._asyncResult, this);
                 },
-                /**
-                 * Configure the error handler
-                 *
-                 * @param {gpf.events.Handler} eventHandler
-                 * @return {WrapInterface}
-                 * @chainable
-                 */
                 $catch: function (eventHandler) {
                     this._catch = eventHandler;
                     this._start();
                     return this;
                 },
-                /**
-                 * Configure the final handler
-                 *
-                 * @param {gpf.events.Handler} eventHandler
-                 * @param {String}[eventType=done] eventType
-                 * @return {WrapInterface}
-                 * @chainable
-                 */
                 $finally: function (eventHandler, eventType) {
                     this._finally = eventHandler;
                     if (eventType) {
@@ -4806,22 +3510,12 @@
             constructor: function () {
                 this.reset();
             },
-            /**
-             * Resets the parser position & state
-             *
-             * @param {Function} [state=null] state
-             */
             reset: function (state) {
                 this._pos = 0;
                 this._line = 0;
                 this._column = 0;
                 this._setParserState(state);
             },
-            /**
-             * Get current position
-             *
-             * @return {{pos: number, line: number, column: number}}
-             */
             currentPos: function () {
                 return {
                     pos: this._pos,
@@ -4829,11 +3523,6 @@
                     column: this._column
                 };
             },
-            /**
-             * Parser entry point
-             *
-             * @param {...String|null} var_args
-             */
             parse: function () {
                 var len = arguments.length, idx, arg;
                 for (idx = 0; idx < len; ++idx) {
@@ -4846,63 +3535,18 @@
                     }
                 }
             },
-            /**
-             * Defines an handler for the parser output
-             *
-             * @param {Array|Function|gpf.Callback) handler
-             * @private
-             */
             setOutputHandler: function (handler) {
                 gpf.ASSERT(handler instanceof Array || handler.apply, "Invalid output handler");
                 this._outputHandler = handler;
             }
         },
         protected: {
-            // Configuration / pre-defined handlers
-            /**
-             * Initial parser state (set with reset)
-             *
-             * @type {Function|null}
-             * @protected
-             */
             _initialParserState: null,
-            /**
-             * Ignore \r  (i.e. no parsing function called)
-             *
-             * @type {Boolean}
-             * @protected
-             */
             _ignoreCarriageReturn: false,
-            /**
-             * Ignore \n (i.e. no parsing function called)
-             *
-             * @type {Boolean}
-             * @protected
-             */
             _ignoreLineFeed: false,
-            //            /**
-            //             * Sometimes, common handling of new line can be achieved by a
-            //             * single function called automatically
-            //             *
-            //             * @protected
-            //             */
-            //            _parsedEndOfLine: function () {}
-            /**
-             * No more character will be entered, parser must end
-             * Default implementation consists in calling current state with 0
-             * as parameter. Can be overridden.
-             *
-             * @protected
-             */
             _finalizeParserState: function () {
                 this._pState(0);
             },
-            /**
-             * Change parser state
-             *
-             * @param {Function} [state=null] state
-             * @protected
-             */
             _setParserState: function (state) {
                 if (!state) {
                     state = this._initialParserState;
@@ -4912,12 +3556,6 @@
                     this._pState = state;
                 }
             },
-            /**
-             * The parser generates an output
-             *
-             * @param {*} item
-             * @protected
-             */
             _output: function (item) {
                 var handler = this._outputHandler;
                 if (handler instanceof Array) {
@@ -4929,47 +3567,11 @@
             }
         },
         private: {
-            /**
-             * Absolute parser current position
-             *
-             * @type {Number}
-             * @private
-             */
             _pos: 0,
-            /**
-             * Parser current line
-             *
-             * @type {Number}
-             * @private
-             */
             _line: 0,
-            /**
-             * Parser current column
-             *
-             * @type {Number}
-             * @private
-             */
             _column: 0,
-            /**
-             * Parser current state function
-             *
-             * @type {Function}
-             * @private
-             */
             _pState: null,
-            /**
-             * Output handler
-             *
-             * @type {Array|Function|gpf.Callback)
-             * @private
-             */
             _outputHandler: null,
-            /**
-             * Parser internal entry point
-             *
-             * @param {String} buffer
-             * @private
-             */
             _parse: function (buffer) {
                 var len, idx, char, state, newLine = false;
                 len = buffer.length;
@@ -4998,12 +3600,7 @@
                 }
             }
         },
-        static: {
-            /**
-             * Use to finalize the parser state
-             */
-            FINALIZE: null
-        }
+        static: { FINALIZE: null }
     });
     //endregion
     //region ParserStream
@@ -5016,11 +3613,6 @@
      */
     gpf.define("gpf.ParserStream", gpf.stream.BufferedOnRead, {
         public: {
-            /**
-             * @param {gpf.Parser} parser
-             * @param {gpf.interfaces.IReadableStream} input
-             * @constructor
-             */
             constructor: function (parser, input) {
                 this._super(input);
                 this._parser = parser;
@@ -5028,31 +3620,15 @@
             }
         },
         protected: {
-            /**
-             * @inheritdoc gpf.stream.BufferedOnRead:_addToBuffer
-             */
             _addToBuffer: function (buffer) {
                 this._parser.parse(buffer);
             },
-            /**
-             * @inheritdoc gpf.stream.BufferedOnRead:_endOfInputStream
-             */
             _endOfInputStream: function () {
                 this._parser.parse(gpf.Parser.FINALIZE);
             },
-            /**
-             * @inheritdoc gpf.stream.BufferedOnRead:_readFromBuffer
-             */
             _readFromBuffer: gpf.stream.BufferedOnRead.prototype._readFromStringBuffer
         },
         private: {
-            /**
-             * Callback used to grab the parser output that is concatenated to
-             * the buffer
-             *
-             * @param {String} text
-             * @private
-             */
             _output: function (text) {
                 this._buffer.push(text);
                 this._bufferLength += text.length;
@@ -5069,18 +3645,6 @@
          * @extends gpf.interfaces.Interface
          */
         _ITokenizer = gpf._defIntrf("ITokenizer", {
-            /**
-             * Submit a character to the tokenizer, result indicates if the
-             * token is recognized
-             *
-             * @param {String} char One character to analyze
-             * @return {Number} < 0 means won't recognize
-             *                    0 means need more chars
-             *                  > 0 means a token is recognized (length result)
-             *
-             * NOTE: if the result is positive, you may submit more chars and
-             * check if it changes.
-             */
             write: function (char) {
                 gpf.interfaces.ignoreParameter(char);
                 return -1;
@@ -5146,64 +3710,22 @@
          */
         PatternItem = gpf.define("PatternItem", {
             private: {
-                /**
-                 * Min number of item iteration
-                 *
-                 * @type {Number}
-                 * @private
-                 */
                 "[_min]": [gpf.$ClassProperty(true)],
                 _min: 1,
-                /**
-                 * Maximum number of item iteration
-                 * 0 means unlimited
-                 *
-                 * @type {Number}
-                 * @private
-                 */
                 "[_max]": [gpf.$ClassProperty(true)],
                 _max: 1
             },
             public: {
-                //region Parsing time
-                /**
-                 * Parse the character (in the context of the pattern item)
-                 *
-                 * @param {String} char Character to parse
-                 * @return {Number} see PatternItem.PARSE_xxx
-                 * @abstract
-                 */
                 parse: function (char) {
                     gpf.interfaces.ignoreParameter(char);
                     gpf.Error.Abstract();
                     return PatternItem.PARSE_IGNORED;
                 },
-                /**
-                 * finalize the item
-                 *
-                 * @abstract
-                 */
                 finalize: function () {
                 },
-                //endregion
-                //region Execution time
-                /**
-                 * item will be evaluated, reset tokenizer state
-                 *
-                 * @param {Object} state Free structure to add values to
-                 * @abstract
-                 */
                 reset: function (state) {
                     gpf.interfaces.ignoreParameter(state);
                 },
-                /**
-                 * item evaluation with a character
-                 *
-                 * @param {Object} state Free structure containing current state
-                 * @param {String} char character to test the pattern with
-                 * @return {Number} Matching result, see PatternItem.WRITE_xxx
-                 * @abstract
-                 */
                 write: function (state, char) {
                     gpf.interfaces.ignoreParameter(state);
                     gpf.interfaces.ignoreParameter(char);
@@ -5216,7 +3738,6 @@
                 PARSE_PROCESSED: 1,
                 PARSE_END_OF_PATTERN: 2,
                 PARSE_PROCESSED_EOP: 3,
-                // PROCESSED + END OF PATTERN
                 CHARS_QUANTIFICATION: "?*+",
                 WRITE_NO_MATCH: -1,
                 WRITE_NEED_DATA: 0,
@@ -5233,26 +3754,12 @@
          * @private
          */
         PatternChar = gpf.define("PatternChar", PatternItem, {
-            private: {
-                /**
-                 * The character to match
-                 *
-                 * @type {string}
-                 * @private
-                 */
-                _match: ""
-            },
+            private: { _match: "" },
             public: {
-                /**
-                 * @inheritDoc PatternItem:parse
-                 */
                 parse: function (char) {
                     this._match = char;
                     return PatternItem.PARSE_PROCESSED_EOP;
                 },
-                /**
-                 * @inheritDoc PatternItem:write
-                 */
                 write: function (state, char) {
                     gpf.interfaces.ignoreParameter(state);
                     if (char === this._match) {
@@ -5272,37 +3779,9 @@
          */
         PatternRange = gpf.define("PatternRange", PatternItem, {
             private: {
-                /**
-                 * Included characters
-                 *
-                 * @type {string|string[]}
-                 * @private
-                 */
                 _inc: "",
-                /**
-                 * Excluded characters
-                 *
-                 * @type {string|string[]}
-                 * @private
-                 */
                 _exc: "",
-                /**
-                 * While parsing: the next char is used for a range
-                 * specification
-                 *
-                 * @type {Boolean}
-                 * @private
-                 */
                 _inRange: false,
-                /**
-                 * Reduce the cyclomatic complexity of parse
-                 *
-                 * @param {String} char Character to parse
-                 * @param {String[]} chars Character array of already parsed
-                 * chars
-                 * @return {Boolean} True means PARSE_PROCESSED_EOP, otherwise
-                 * PARSE_PROCESSED is returned
-                 */
                 _parse: function (char, chars) {
                     var first, last;
                     if ("^" === char) {
@@ -5335,9 +3814,6 @@
                 }
             },
             public: {
-                /**
-                 * @inheritDoc PatternItem:parse
-                 */
                 parse: function (char) {
                     var chars;
                     if (this.hasOwnProperty("_exc")) {
@@ -5358,18 +3834,12 @@
                     }
                     return PatternItem.PARSE_PROCESSED;
                 },
-                /**
-                 * @inheritDoc PatternItem:finalize
-                 */
                 finalize: function () {
                     this._inc = this._inc.join("");
                     if (this.hasOwnProperty("_exc")) {
                         this._exc = this._exc.join("");
                     }
                 },
-                /**
-                 * @inheritDoc PatternItem:write
-                 */
                 write: function (state, char) {
                     gpf.interfaces.ignoreParameter(state);
                     var match;
@@ -5399,52 +3869,11 @@
          */
         PatternGroup = gpf.define("PatternGroup", PatternItem, {
             private: {
-                /**
-                 * Contains either an item list or a list of item list
-                 * (if transformed into a choice)
-                 *
-                 * @type {PatternItem[]|(PatternItem[])[]}
-                 * @private
-                 */
                 _items: [],
-                /**
-                 * Choice group (with |)
-                 *
-                 * @type {Boolean}
-                 * @private
-                 */
                 _choice: false,
-                /**
-                 * Computed during the finalization phase, this array keep track
-                 * of the index of last item that is not optional in the group.
-                 *
-                 * @type {Number[]}
-                 * @private
-                 */
                 _optionals: [],
-                /**
-                 * True if the opening parenthesis has been parsed
-                 *
-                 * @type {Boolean}
-                 * @private
-                 */
                 _parsedParenthesis: false,
-                /**
-                 * Currently parsed item
-                 *
-                 * @type {PatternItem}
-                 * @private
-                 */
                 _parsedItem: null,
-                /**
-                 * Get the current list of items
-                 *
-                 * @param {Number} [pos=undefined] When choices, get the items
-                 * at the given position (last one when undefined). Ignored
-                 * otherwise.
-                 * @return {PatternItem[]}
-                 * @private
-                 */
                 _getItems: function (pos) {
                     if (this._choice) {
                         if (undefined === pos) {
@@ -5454,36 +3883,15 @@
                     }
                     return this._items;
                 },
-                /**
-                 * Get the last parsed item
-                 *
-                 * @type {PatternItem}
-                 * @private
-                 */
                 _lastItem: function () {
                     var items = this._getItems();
                     return items[items.length - 1];
                 },
-                /**
-                 * Push a new item to be parsed
-                 *
-                 * @param {PatternItem} item
-                 * @return {PatternItem}
-                 * @private
-                 */
                 _push: function (item) {
                     this._getItems().push(item);
                     this._parsedItem = item;
                     return item;
                 },
-                /**
-                 * Reduce the cyclomatic complexity of parse
-                 * Process current item
-                 *
-                 * @param {String} char
-                 * @returns {Number}
-                 * @private
-                 */
                 _parseItem: function (char) {
                     var parsedItem = this._parsedItem, result;
                     if (parsedItem) {
@@ -5499,14 +3907,6 @@
                     }
                     return result;
                 },
-                /**
-                 * Reduce the cyclomatic complexity of parse
-                 * Process quantification char
-                 *
-                 * @param {String} char
-                 * @returns {Number}
-                 * @private
-                 */
                 _parseQuantity: function (char) {
                     var parsedItem = this._lastItem();
                     if ("*" === char) {
@@ -5519,13 +3919,6 @@
                     }
                     return PatternItem.PARSE_PROCESSED;
                 },
-                /**
-                 * Return the position from which all items can be optional
-                 *
-                 * @param {PatterItem[]} items
-                 * @return {Number}
-                 * @private
-                 */
                 _getOptional: function (items) {
                     var idx;
                     idx = items.length;
@@ -5537,26 +3930,11 @@
                     }
                     return idx;
                 },
-                /**
-                 * Reset for the provided item
-                 *
-                 * @param {PatternItem} item
-                 * @param {Object} state
-                 * @private
-                 */
                 _reset: function (item, state) {
                     state.count = 0;
                     state.sub = {};
                     item.reset(state.sub);
                 },
-                /**
-                 * Modify state to move to (and get) the next item (if any)
-                 *
-                 * @param {Object} state
-                 * @param {Number} index
-                 * @return {PatternItem}
-                 * @private
-                 */
                 _getItem: function (state, index) {
                     var items = this._getItems(state.choice);
                     if (index < items.length) {
@@ -5564,19 +3942,8 @@
                     }
                     return null;
                 },
-                /**
-                 * Handles situation when current item does not match on char
-                 *
-                 * @param {PatternItem} item
-                 * @param {Object} state
-                 * @param {String} char
-                 * @return {Number} write result
-                 * @private
-                 */
                 _writeNoMatch: function (item, state, char) {
-                    if (state.count < item.min()    // Not enough match
-                                      // or at least two characters went through
-|| state.length > state.matchingLength + 1) {
+                    if (state.count < item.min() || state.length > state.matchingLength + 1) {
                         // Terminal error
                         return PatternItem.WRITE_NO_MATCH;
                     }
@@ -5588,13 +3955,6 @@
                     this._reset(item, state);
                     return this.write(state, char);    // Try with this one
                 },
-                /**
-                 * Handles situation when current item matches on char
-                 *
-                 * @param {PatternItem} item
-                 * @return {Number} write result
-                 * @private
-                 */
                 _writeMatch: function (item, state) {
                     var nextItem = this._getItem(state, state.index + 1), optional;
                     if (this._choice && -1 < state.choice) {
@@ -5626,15 +3986,9 @@
                 }
             },
             public: {
-                /**
-                 * @constructor
-                 */
                 constructor: function () {
                     this._items = [];
                 },
-                /**
-                 * @inheritDoc PatternItem:parse
-                 */
                 parse: function (char) {
                     var result = this._parseItem(char);
                     if (0 !== result) {
@@ -5666,9 +4020,6 @@
                     }
                     return this._parseItem(char);
                 },
-                /**
-                 * @inheritDoc PatternItem:finalize
-                 */
                 finalize: function () {
                     var len, idx, array;
                     // Compute optionals
@@ -5682,9 +4033,6 @@
                         array.push(this._getOptional(this._items));
                     }    // TODO in case of choice, verify they are exclusive
                 },
-                /**
-                 * @inheritDoc PatternItem:reset
-                 */
                 reset: function (state) {
                     var item;
                     state.index = 0;
@@ -5694,9 +4042,6 @@
                     item = this._getItems(0)[0];
                     this._reset(item, state);
                 },
-                /**
-                 * @inheritDoc PatternItem:write
-                 */
                 write: function (state, char) {
                     var len, idx, item, result;
                     if (this._choice && -1 === state.choice) {
@@ -5814,23 +4159,13 @@
          */
         PatternParser = gpf.define("PatternParser", gpf.Parser, {
             private: {
-                /**
-                 * @type {PatternGroup}
-                 * @private
-                 */
                 "[_patternItem]": [gpf.$ClassProperty()],
                 _patternItem: null
             },
             protected: {
-                /**
-                 * @inheritdoc gpf.Parser:_initialParserState
-                 */
                 _initialParserState: function (char) {
                     this._patternItem.parse(char);
                 },
-                /**
-                 * @inheritdoc gpf.Parser:_finalizeParserState
-                 */
                 _finalizeParserState: function () {
                     var patternItem = this._patternItem;
                     patternItem.parse(")");
@@ -5855,47 +4190,18 @@
         PatternTokenizer = gpf.define("PatternTokenizer", {
             "[Class]": [gpf.$InterfaceImplement(_ITokenizer)],
             private: {
-                /**
-                 * @type {PatternItem}
-                 * @private
-                 */
                 _patternItem: null,
-                /**
-                 * @type {Boolean}
-                 * @private
-                 */
                 _stopMatching: false,
-                /**
-                 * @type {Number}
-                 * @private
-                 */
                 _lastResult: 0,
-                /**
-                 * @type {Number}
-                 * @private
-                 */
                 _totalLength: 0,
-                /**
-                 * Pattern state
-                 *
-                 * @type {Object}
-                 * @private
-                 */
                 _state: {}
             },
             public: {
-                /**
-                 * @param {PatternItem} patternItem
-                 */
                 constructor: function (patternItem) {
                     this._patternItem = patternItem;
                     this._state = {};
                     this._patternItem.reset(this._state);
                 },
-                //region ITokenizer
-                /**
-                 * @implements gpf.interfaces.ITokenizer:write
-                 */
                 write: function (char) {
                     var result;
                     if (this._stopMatching) {
@@ -5929,29 +4235,13 @@
      * @class gpf.Pattern
      */
     gpf.define("gpf.Pattern", {
-        private: {
-            /**
-             * @type {PatternItem}
-             * @private
-             */
-            _patternItem: null
-        },
+        private: { _patternItem: null },
         public: {
-            /**
-             * Constructor, check and compile the pattern
-             *
-             * @param {String} pattern
-             */
             constructor: function (pattern) {
                 var parser = new PatternParser();
                 parser.parse(pattern, null);
                 this._patternItem = parser.patternItem();
             },
-            /**
-             * Allocate a tokenizer based on the pattern
-             *
-             * @return {gpf.interfaces.ITokenizer}
-             */
             allocate: function () {
                 return new PatternTokenizer(this._patternItem);
             }
@@ -6012,24 +4302,15 @@
         _tokenizerInit = function () {
             return {
                 pos: 0,
-                // Position of token start
                 line: 0,
-                //    Translated to line
                 column: 0,
-                //    And column
                 state: _TOKEN_STATE_NONE,
-                // State
                 chars: [],
-                // Current token
                 nextPos: 0,
-                // Real position
                 nextLine: 0,
-                //    Translated to line
                 nextColumn: 0,
-                //    And column
                 eventsHandler: null,
-                // Events handler
-                that: null    // Transported this
+                that: null
             };
         },
         /**
@@ -6120,7 +4401,6 @@
          */
         _symbolValidator = [
             0,
-            // chars.length == 1
             function (firstChar, chars, newChar) {
                 gpf.interfaces.ignoreParameter(chars);
                 if (-1 < "(){}[].,;:?".indexOf(firstChar)) {
@@ -6131,7 +4411,6 @@
                 }
                 return "=" === newChar || firstChar === newChar;
             },
-            // chars.length == 2
             function (firstChar, chars, newChar) {
                 if (-1 < "+-|&".indexOf(firstChar)) {
                     return false;
@@ -6147,7 +4426,6 @@
                 }
                 return false;
             },
-            // chars.length == 3
             function (firstChar, chars, newChar) {
                 return ">" === firstChar && "=" !== chars[2] && "=" === newChar;
             },
@@ -6390,58 +4668,9 @@
         };
     gpf.js = {};
     gpf.extend(gpf.js, {
-        /**
-         * Returns the list of known keyword
-         *
-         * @return {String[]}
-         */
         keywords: function () {
             return _keywords;
         },
-        /**
-         * Identify tokens in the provided text, the source is supposed to be
-         * complete (and valid).
-         * @param {String} text Text to analyze
-         * @param {Object/function} eventsHandler
-         * @return {undefined}
-         * 
-         * @eventParam {string} token The token value
-         * @eventParam {number} pos Absolute position of the error (0-based)
-         * @eventParam {number} line Absolute line position of the error
-         *             (0-based)
-         * @eventParam {number} column Column position relatively to the current
-         *             line (0-based)
-         * @eventParam {number} code Error code (0 if token found)
-         * @eventParam {string} message Error message (empty if token found)
-         * 
-         * @eventDefault If prevented, an error is generated (abort) and the
-         *               processing is stopped
-         * 
-         * @eventThis Transmitted from the function call
-         * 
-         * @event error A parsing error occured, the parameters code and message
-         *        are set accordingly
-         * 
-         * @event keyword A keyword has been recognized
-         * 
-         * @event identifier An identifier has been recognized
-         * 
-         * @event string A string has been recognized. NOTE: the token keeps the
-         *        string notation intact (i.e. with surrounding quotes and
-         *        escapes)
-         * 
-         * @event number A number has been recognized. NOTE: this version
-         *        handles only positive integers (with no sign)
-         * 
-         * @event symbol A symbol has been recognized
-         * 
-         * @event comment A comment has been recognized. NOTE: the token keeps
-         *        the comment notation
-         * 
-         * @event space One or more spaces has been recognized (i.e. space, tab
-         *        and any carriage return combination)
-         *
-         */
         "[tokenize]": [gpf.$ClassEventHandler()],
         tokenize: function (text, eventsHandler) {
             var idx, len, context = _tokenizerInit();
@@ -6459,19 +4688,6 @@
                 }
             }
         },
-        /**
-         * @see gpf.tokenize
-         * 
-         * Identify tokens in the provided text, the parsing context is returned
-         * so that it can be chained with consecutive calls.
-
-         * @param {String} text Text to analyze. Use null to finalize the
-         *        parsing
-         * @param {Object/function} eventsHandler
-         * @param {Object} context Tokenizer context (initialized if not set)
-         * @return {undefined}
-         *
-         */
         tokenizeEx: function (text, eventsHandler, context) {
             var idx, len;
             if (undefined === context) {
@@ -6573,36 +4789,19 @@
          */
             EncoderStream = gpf.define("EncoderStream", gpf.stream.BufferedOnRead, {
                 public: {
-                    /**
-                 * @param {Function} encoder
-                 * @param {gpf.interfaces.IReadableStream} input
-                 * @constructor
-                 */
                     constructor: function (encoder, input) {
                         this._super(input);
                         this._encoder = encoder;
                     }
                 },
                 protected: {
-                    /**
-                 * @inheritdoc gpf.stream.BufferedOnRead:_addToBuffer
-                 */
                     _addToBuffer: function (buffer) {
                         this._buffer = this._buffer.concat(this._encoder(buffer));
                         this._bufferLength = this._buffer.length;
                     },
-                    /**
-                 * @inheritdoc gpf.stream.BufferedOnRead:_readFromBuffer
-                 */
                     _readFromBuffer: gpf.stream.BufferedOnRead.prototype._readFromByteBuffer
                 },
-                private: {
-                    /**
-                 * @type {Function}
-                 * @private
-                 */
-                    _encoder: null
-                }
+                private: { _encoder: null }
             }),
             /**
          * Decoder stream
@@ -6614,20 +4813,12 @@
          */
             DecoderStream = gpf.define("DecoderStream", gpf.stream.BufferedOnRead, {
                 public: {
-                    /**
-                 * @param {Function} decoder
-                 * @param {gpf.interfaces.IReadableStream} input
-                 * @constructor
-                 */
                     constructor: function (decoder, input) {
                         this._super(input);
                         this._decoder = decoder;
                     }
                 },
                 protected: {
-                    /**
-                 * @inheritdoc gpf.stream.BufferedOnRead:_addToBuffer
-                 */
                     _addToBuffer: function (buffer) {
                         var string;
                         if (this._unprocessed.length) {
@@ -6638,43 +4829,21 @@
                         this._buffer.push(string);
                         this._bufferLength += string.length;
                     },
-                    /**
-                 * @inheritdoc gpf.stream.BufferedOnRead:_endOfInputStream
-                 */
                     _endOfInputStream: function () {
                         if (this._unprocessed.length) {
                             gpf.Error.EncodingEOFWithUnprocessedBytes();
                         }
                     },
-                    /**
-                 * @inheritdoc gpf.stream.BufferedOnRead:_readFromBuffer
-                 */
                     _readFromBuffer: gpf.stream.BufferedOnRead.prototype._readFromStringBuffer
                 },
                 private: {
-                    /**
-                 * @type {Function}
-                 * @private
-                 */
                     _decoder: null,
-                    /**
-                 * @type {Number[]}
-                 * @private
-                 */
                     _unprocessed: []
                 }
             });
         //endregion
         gpf.encoding = {
             UTF_8: "utf-8",
-            /**
-         * Create a encoder to convert an input text stream into an output
-         * binary buffer.
-         *
-         * @param {gpf.interfaces.IReadableStream} input
-         * @param {String} encoding
-         * @return {gpf.interfaces.IReadableStream}
-         */
             createEncoder: function (input, encoding) {
                 var module = _encodings[encoding];
                 if (undefined === module) {
@@ -6682,14 +4851,6 @@
                 }
                 return new EncoderStream(module[0], input);
             },
-            /**
-         * Create a decoder to convert an input binary stream into an output
-         * string.
-         *
-         * @param {gpf.interfaces.IReadableStream} input
-         * @param {String} encoding
-         * @return {gpf.interfaces.IReadableStream}
-         */
             createDecoder: function (input, encoding) {
                 var module = _encodings[encoding];
                 if (undefined === module) {
@@ -6702,6 +4863,11 @@
     var
         // Namespaces shortcut
         gpfI = gpf.interfaces, gpfA = gpf.attributes, gpfFireEvent = gpf.events.fire;
+    /*
+        // XML Parser constants
+        _XMLPARSER_STATE_NONE = 0
+*/
+    ;
     gpf.xml = {};
     /**
      * Defines the possibility for the object to be saved as XML
@@ -6710,15 +4876,6 @@
      * @extends gpf.interfaces.Interface
      */
     gpf._defIntrf("IXmlSerializable", {
-        /**
-         * Translate obj into an gpf.interfaces.IXmlContentHandler and serialize
-         * itself into XML
-         *
-         * @param {gpf.interfaces.IXmlContentHandler} out XML Content handler
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @event ready
-         */
         "[toXml]": [gpf.$ClassEventHandler()],
         toXml: function (out, eventsHandler) {
             gpfI.ignoreParameter(out);
@@ -6735,113 +4892,43 @@
      * http://www.saxproject.org/apidoc/org/xml/sax/ContentHandler.html
      */
     gpf._defIntrf("IXmlContentHandler", {
-        /**
-         * Receive notification of character data
-         *
-         * @param {String} buffer characters
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @event ready
-         */
         "[characters]": [gpf.$ClassEventHandler()],
         characters: function (buffer, eventsHandler) {
             gpfI.ignoreParameter(buffer);
             gpfI.ignoreParameter(eventsHandler);
         },
-        /**
-         * Receive notification of the end of a document
-         *
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @event ready
-         */
         "[endDocument]": [gpf.$ClassEventHandler()],
         endDocument: function (eventsHandler) {
             gpfI.ignoreParameter(eventsHandler);
         },
-        /**
-         * Signal the end of an element
-         *
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @event ready
-         */
         "[endElement]": [gpf.$ClassEventHandler()],
         endElement: function (eventsHandler) {
             gpfI.ignoreParameter(eventsHandler);
         },
-        /**
-         *  End the scope of a prefix-URI mapping
-         *
-         * @param {String} prefix
-         *
-         * @event ready
-         */
         endPrefixMapping: function (prefix) {
             gpfI.ignoreParameter(prefix);
         },
-        /**
-         * Receive notification of ignorable whitespace in element content
-         *
-         * @param {String} buffer characters
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @event ready
-         */
         "[ignorableWhitespace]": [gpf.$ClassEventHandler()],
         ignorableWhitespace: function (buffer, eventsHandler) {
             gpfI.ignoreParameter(buffer);
             gpfI.ignoreParameter(eventsHandler);
         },
-        /**
-         * Receive notification of a processing instruction
-         *
-         * @param {String} target
-         * @param {String} data
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @event ready
-         */
         "[processingInstruction]": [gpf.$ClassEventHandler()],
         processingInstruction: function (target, data, eventsHandler) {
             gpfI.ignoreParameter(target);
             gpfI.ignoreParameter(data);
             gpfI.ignoreParameter(eventsHandler);
         },
-        /**
-         * Receive an object for locating the origin of SAX document events.
-         *
-         * @param {*} locator
-         */
         setDocumentLocator: function (locator) {
             gpfI.ignoreParameter(locator);
         },
-        /**
-         * Receive notification of a skipped entity
-         *
-         * @param {String} name
-         */
         skippedEntity: function (name) {
             gpfI.ignoreParameter(name);
         },
-        /**
-         * Receive notification of the beginning of a document
-         *
-         * @param {gpf.events.Handler} eventsHandler
-         */
         "[startDocument]": [gpf.$ClassEventHandler()],
         startDocument: function (eventsHandler) {
             gpfI.ignoreParameter(eventsHandler);
         },
-        /**
-         * Receive notification of the beginning of an element
-         *
-         * @param {String} uri [uri=""] namespace uri (if any)
-         * @param {String} localName
-         * @param {String} [qName=localName] qName qualified name
-         * @param {Object} attributes attribute dictionary (string/string)
-         * @param {gpf.events.Handler} eventsHandler
-         */
         "[startElement]": [gpf.$ClassEventHandler()],
         startElement: function (uri, localName, qName, attributes, eventsHandler) {
             gpfI.ignoreParameter(uri);
@@ -6850,12 +4937,6 @@
             gpfI.ignoreParameter(attributes);
             gpfI.ignoreParameter(eventsHandler);
         },
-        /**
-         * Begin the scope of a prefix-URI Namespace mapping
-         *
-         * @param {String} prefix
-         * @param {String} uri
-         */
         startPrefixMapping: function (prefix, uri) {
             gpfI.ignoreParameter(prefix);
             gpfI.ignoreParameter(uri);
@@ -6874,9 +4955,6 @@
          */
         _XmlBase = gpf._defAttr("XmlAttribute", {
             protected: {
-                /**
-                 * @inheritdoc gpf.attributes.Attribute:_alterPrototype
-                 */
                 _alterPrototype: function (objPrototype) {
                     /*
                      * If not yet defined creates new XML members
@@ -6914,20 +4992,10 @@
          */
         _XmlAttribute = gpf._defAttr("$XmlAttribute", _XmlBase, {
             private: {
-                /**
-                 * Name of the attribute
-                 *
-                 * @type {String}
-                 * @private
-                 */
                 "[_name]": [gpf.$ClassProperty()],
                 _name: ""
             },
             public: {
-                /**
-                 * @param {String} name Name of the attribute
-                 * @constructor
-                 */
                 constructor: function (name) {
                     gpf.ASSERT(gpf.xml.isValidName(name), "Valid XML attribute name");
                     this._name = name;
@@ -6944,20 +5012,10 @@
          */
         _XmlRawElement = gpf._defAttr("XmlRawElementAttribute", _XmlBase, {
             private: {
-                /**
-                 * Name of the element
-                 *
-                 * @type {String}
-                 * @private
-                 */
                 "[_name]": [gpf.$ClassProperty()],
                 _name: ""
             },
             public: {
-                /**
-                 * @param {String} name Name of the element
-                 * @constructor
-                 */
                 constructor: function (name) {
                     gpf.ASSERT(gpf.xml.isValidName(name), "Valid XML element name");
                     this._name = name;
@@ -6977,21 +5035,10 @@
          */
         _XmlElement = gpf._defAttr("$XmlElement", _XmlRawElement, {
             private: {
-                /**
-                 * Object constructor
-                 *
-                 * @type {Function}
-                 * @private
-                 */
                 "[_objClass]": [gpf.$ClassProperty()],
                 _objClass: null
             },
             public: {
-                /**
-                 * @param {String} name Name of the element
-                 * @param {Function} objClass Object constructor
-                 * @constructor
-                 */
                 constructor: function (name, objClass) {
                     this._super(name);
                     if (objClass) {
@@ -7248,26 +5295,10 @@
          * @private
          */
         FromXmlContentHandler = gpf.define("FromXmlContentHandler", {
-            // Even if it is not necessary, let be precise
             "[Class]": [gpf.$InterfaceImplement(gpfI.IXmlContentHandler)],
             _target: null,
-            // Object that is serialized
             _firstElement: true,
-            // startElement has not been called
             _forward: [],
-            // subsequent handlers
-            /*
-                {
-                    {number} type
-                                0 IXmlContentHandler
-                                1 Element
-                                2 List
-                    {object} iXCH
-                    {string} member
-                    {string[]} buffer
-                    {number} depth
-                }
-             */
             constructor: function (target) {
                 this._target = target;
                 this._firstElement = true;
@@ -7363,10 +5394,6 @@
                     return false;
                 }
             },
-            //region gpf.interfaces.IXmlContentHandler
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:characters
-             */
             characters: function (buffer, eventsHandler) {
                 var forward = this._forward[0];
                 if (undefined !== forward) {
@@ -7381,18 +5408,12 @@
                     eventsHandler
                 ]);
             },
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:endDocument
-             */
             endDocument: function (eventsHandler) {
                 gpfFireEvent.apply(this, [
                     "ready",
                     eventsHandler
                 ]);
             },
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:endElement
-             */
             endElement: function (eventsHandler) {
                 var forward = this._forward[0], memberValue, textValue;
                 if (undefined !== forward) {
@@ -7420,16 +5441,10 @@
                     eventsHandler
                 ]);
             },
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:endPrefixMapping
-             */
             endPrefixMapping: function (prefix) {
                 // Nothing to do (?)
                 gpfI.ignoreParameter(prefix);
             },
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:ignorableWhitespace
-             */
             ignorableWhitespace: function (buffer, eventsHandler) {
                 // Nothing to do
                 gpfI.ignoreParameter(buffer);
@@ -7438,10 +5453,6 @@
                     eventsHandler
                 ]);
             },
-            /**
-             * @implements gpf.interfaces
-             *             .IXmlContentHandler:processingInstruction
-             */
             processingInstruction: function (target, data, eventsHandler) {
                 // Not relevant
                 gpfI.ignoreParameter(target);
@@ -7451,23 +5462,14 @@
                     eventsHandler
                 ]);
             },
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:setDocumentLocator
-             */
             setDocumentLocator: function (locator) {
                 // Nothing to do
                 gpfI.ignoreParameter(locator);
             },
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:skippedEntity
-             */
             skippedEntity: function (name) {
                 // Nothing to do
                 gpfI.ignoreParameter(name);
             },
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:startDocument
-             */
             startDocument: function (eventsHandler) {
                 // Nothing to do
                 gpfFireEvent.apply(this, [
@@ -7475,9 +5477,6 @@
                     eventsHandler
                 ]);
             },
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:startElement
-             */
             startElement: function (uri, localName, qName, attributes, eventsHandler) {
                 var forward = this._forward[0];
                 gpf.interfaces.ignoreParameter(uri);
@@ -7508,9 +5507,6 @@
                     eventsHandler
                 ]);
             },
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:startPrefixMapping
-             */
             startPrefixMapping: function (prefix, uri) {
                 // Nothing to do (?)
                 gpfI.ignoreParameter(prefix);
@@ -7530,36 +5526,11 @@
     gpf.define("gpf.xml.Writer", {
         "[Class]": [gpf.$InterfaceImplement(gpfI.IXmlContentHandler)],
         private: {
-            /**
-             * @type {gpf.interfaces.IWritableStream}
-             * @private
-             */
             _stream: null,
-            /**
-             * @type {Boolean[]}
-             * @private
-             */
             _branch: [],
-            /**
-             * @type {String[]}
-             * @private
-             */
             _pendingPrefixMappings: [],
-            /**
-             * @type {String[]}
-             * @private
-             */
             _buffer: [],
-            /**
-             * @type {gpf.events.Handler}
-             * @private
-             */
             _eventsHandler: null,
-            /**
-             * Close the current tag (if opened) in order to put content in it
-             *
-             * @private
-             */
             _closeLeafForContent: function () {
                 var leaf;
                 if (this._branch.length) {
@@ -7570,22 +5541,10 @@
                     }
                 }
             },
-            /**
-             * Flush the buffer into the stream
-             *
-             * @param {gpf.events.Handler} eventsHandler
-             * @private
-             */
             _flush: function (eventsHandler) {
                 this._eventsHandler = eventsHandler;
                 this._flushed();
             },
-            /**
-             * Handle write event on stream
-             *
-             * @param {gpf.events.Event} event
-             * @private
-             */
             _flushed: function (event) {
                 var eventsHandler;
                 if (event && event.type() === gpfI.IWritableStream.EVENT_ERROR) {
@@ -7606,37 +5565,23 @@
             }
         },
         public: {
-            /**
-             * @param {gpf.interfaces.IWritableStream} stream
-             * @constructor
-             */
             constructor: function (stream) {
                 this._stream = gpfI.query(stream, gpfI.IWritableStream, true);
                 this._branch = [];
                 this._pendingPrefixMappings = [];
                 this._buffer = [];
             },
-            //region gpf.interfaces.IXmlContentHandler
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:characters
-             */
             characters: function (buffer, eventsHandler) {
                 gpf.ASSERT(null === this._eventsHandler, "Write in progress");
                 this._closeLeafForContent();
                 this._buffer.push(buffer);
                 this._flush(eventsHandler);
             },
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:endDocument
-             */
             endDocument: function (eventsHandler) {
                 gpf.ASSERT(null === this._eventsHandler, "Write in progress");
                 // Nothing to do
                 this._flush(eventsHandler);
             },
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:endElement
-             */
             endElement: function (eventsHandler) {
                 gpf.ASSERT(null === this._eventsHandler, "Write in progress");
                 var leaf = this._branch.pop();
@@ -7647,56 +5592,34 @@
                 }
                 this._flush(eventsHandler);
             },
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:endPrefixMapping
-             */
             endPrefixMapping: function (prefix) {
                 // Nothing to do (?)
                 gpf.interfaces.ignoreParameter(prefix);
             },
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:ignorableWhitespace
-             */
             ignorableWhitespace: function (buffer, eventsHandler) {
                 gpf.ASSERT(null === this._eventsHandler, "Write in progress");
                 this._closeLeafForContent();
                 this._buffer.push(buffer);
                 this._flush(eventsHandler);
             },
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:
-             * processingInstruction
-             */
             processingInstruction: function (target, data, eventsHandler) {
                 gpf.ASSERT(null === this._eventsHandler, "Write in progress");
                 this._buffer.push("<?", target, " ", gpf.escapeFor(data, "xml"), "?>");
                 this._flush(eventsHandler);
             },
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:setDocumentLocator
-             */
             setDocumentLocator: function (locator) {
                 // Nothing to do
                 gpf.interfaces.ignoreParameter(locator);
             },
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:skippedEntity
-             */
             skippedEntity: function (name) {
                 // Nothing to do
                 gpf.interfaces.ignoreParameter(name);
             },
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:startDocument
-             */
             startDocument: function (eventsHandler) {
                 gpf.ASSERT(null === this._eventsHandler, "Write in progress");
                 // Nothing to do
                 this._flush(eventsHandler);
             },
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:startElement
-             */
             startElement: function (uri, localName, qName, attributes, eventsHandler) {
                 gpf.ASSERT(null === this._eventsHandler, "Write in progress");
                 var attName, attValue, len, idx;
@@ -7705,9 +5628,9 @@
                 }
                 this._closeLeafForContent();
                 var leaf = {
-                    hasContent: false,
-                    qName: qName
-                };
+                        hasContent: false,
+                        qName: qName
+                    };
                 this._branch.push(leaf);
                 this._buffer.push("<", qName);
                 if (attributes) {
@@ -7731,9 +5654,6 @@
                 }
                 this._flush(eventsHandler);
             },
-            /**
-             * @implements gpf.interfaces.IXmlContentHandler:startPrefixMapping
-             */
             startPrefixMapping: function (prefix, uri) {
                 this._pendingPrefixMappings.push([
                     "xmlns:",
@@ -7797,13 +5717,6 @@
     //region Helpers
     var _firstValidChar = gpf._alpha + gpf._ALPHA + "_", _otherValidChars = _firstValidChar + "012345789.-";
     gpf.extend(gpf.xml, {
-        /**
-         * Check that the provided name can be use as an element or attribute
-         * name
-         *
-         * @param {String} name
-         * @return {Boolean}
-         */
         isValidName: function (name) {
             var idx;
             if (0 === name.length || -1 === _firstValidChar.indexOf(name.charAt(0))) {
@@ -7816,13 +5729,6 @@
             }
             return true;
         },
-        /**
-         * Make sure that the provided name can be use as an element or
-         * attribute name
-         *
-         * @param {String} name
-         * @return {String} a valid attribute/element name
-         */
         toValidName: function (name) {
             var newName;
             if (gpf.xml.isValidName(name)) {
@@ -7837,21 +5743,17 @@
         }
     });    //endregion
     var
-    // gpfA = gpf.attributes,
-    gpfI = gpf.interfaces;
+        // gpfA = gpf.attributes,
+        gpfI = gpf.interfaces;
     gpf.extend(gpf.xml, {
         NODE_INVALID: 0,
         NODE_ELEMENT: 1,
         NODE_ATTRIBUTE: 2,
         NODE_TEXT: 3,
-        //        NODE_CDATA_SECTION:             4,
         NODE_ENTITY_REFERENCE: 5,
-        //        NODE_ENTITY:                    6,
         NODE_PROCESSING_INSTRUCTION: 7,
         NODE_COMMENT: 8,
-        NODE_DOCUMENT: 9    //        NODE_DOCUMENT_TYPE:             10,
-             //        NODE_DOCUMENT_FRAGMENT:         11,
-             //        NODE_NOTATION:                  12
+        NODE_DOCUMENT: 9
     });
     /**
      * Defines an XML node structure (Read Only)
@@ -7860,27 +5762,10 @@
      * @extends gpf.interfaces.Interface
      */
     gpf._defIntrf("IXmlConstNode", {
-        /**
-         * Access to the attributes of this node: attributes() returns a map
-         * with attributes and their values, attributes(name) returns the
-         * selected attribute value
-         *
-         * @param {String} name When specified, name of the attribute to get or
-         *        set
-         * @return {Object|string}
-         */
         attributes: function (name) {
             gpf.interfaces.ignoreParameter(name);
             return "";
         },
-        /**
-         * Returns the array of child nodes for the node
-         *
-         * @param {Number} [idx=undefined] idx (see gpf.arrayOrItem)
-         * @return {gpf.interfaces.IXmlConstNode
-         *           |gpf.interfaces.IXmlConstNode[]
-         *           |undefined}
-         */
         children: function (idx) {
             if (undefined === idx) {
                 return [];
@@ -7888,91 +5773,36 @@
                 return undefined;
             }
         },
-        /**
-         * Returns the local part of the name of a node
-         *
-         * @return {String}
-         */
         localName: function () {
             return "";
         },
-        /**
-         * Returns the namespace URI of a node
-         *
-         * @return {String}
-         */
         namespaceURI: function () {
             return "";
         },
-        /**
-         * Returns the node immediately following a node
-         *
-         * @return {gpf.interfaces.IXmlConstNode}
-         */
         nextSibling: function () {
             return null;
         },
-        /**
-         * Returns the name of a node, depending on its type
-         *
-         * @return {String}
-         */
         nodeName: function () {
             return "";
         },
-        /**
-         * Returns the type of a node
-         *
-         * @return {Number}
-         */
         nodeType: function () {
             return 0;
         },
-        /**
-         * Returns the value of a node, depending on its type
-         *
-         * @return {*}
-         */
         nodeValue: function () {
             return null;
         },
-        /**
-         * Returns the root element (document object) for a node
-         *
-         * @return {gpf.interfaces.IXmlConstNode}
-         */
         ownerDocument: function () {
             return null;
         },
-        /**
-         * Returns the parent node of a node
-         *
-         * @return {gpf.interfaces.IXmlConstNode}
-         */
         parentNode: function () {
             return null;
         },
-        /**
-         * Sets or returns the namespace prefix of a node
-         *
-         * @return {String}
-         */
         prefix: function () {
             return "";
         },
-        /**
-         * Returns the node immediately before a node
-         *
-         * @return {gpf.interfaces.IXmlConstNode}
-         */
         previousSibling: function () {
             return null;
         },
-        /**
-         * Sets or returns the textual content of a node and its descendants
-         *
-         * @return {String}
-         */
         textContent: function () {
             return "";
         }
@@ -8028,10 +5858,6 @@
                 }
             }
         },
-        //region gpf.interfaces.IXmlConstNode
-        /**
-         * @implements gpf.interfaces.IXmlConstNode:attributes
-         */
         attributes: function (name) {
             var result, member, mappedName;
             if (null === this._attributes) {
@@ -8056,9 +5882,6 @@
             }
             return undefined;
         },
-        /**
-         * @implements gpf.interfaces.IXmlConstNode:children
-         */
         children: function (idx) {
             var jdx, child, member, name;
             if (null === this._children) {
@@ -8085,21 +5908,12 @@
             }
             return gpf.arrayOrItem(this._children, idx);
         },
-        /**
-         * @implements gpf.interfaces.IXmlConstNode:localName
-         */
         localName: function () {
             return this._name;
         },
-        /**
-         * @implements gpf.interfaces.IXmlConstNode:namespaceURI
-         */
         namespaceURI: function () {
             return "";
         },
-        /**
-         * @implements gpf.interfaces.IXmlConstNode:nextSibling
-         */
         nextSibling: function () {
             var pos;
             if (null !== this._parentNode) {
@@ -8110,45 +5924,24 @@
             }
             return null;
         },
-        /**
-         * @implements gpf.interfaces.IXmlConstNode:nodeName
-         */
         nodeName: function () {
             return this._name;
         },
-        /**
-         * @implements gpf.interfaces.IXmlConstNode:nodeType
-         */
         nodeType: function () {
             return gpf.xml.NODE_ELEMENT;
         },
-        /**
-         * @implements gpf.interfaces.IXmlConstNode:nodeValue
-         */
         nodeValue: function () {
             return this._obj;
         },
-        /**
-         * @implements gpf.interfaces.IXmlConstNode:ownerDocument
-         */
         ownerDocument: function () {
             return null;
         },
-        /**
-         * @implements gpf.interfaces.IXmlConstNode:parentNode
-         */
         parentNode: function () {
             return this._parentNode;
         },
-        /**
-         * @implements gpf.interfaces.IXmlConstNode:prefix
-         */
         prefix: function () {
             return "";
         },
-        /**
-         * @implements gpf.interfaces.IXmlConstNode:previousSibling
-         */
         previousSibling: function () {
             var pos;
             if (null !== this._parentNode) {
@@ -8159,9 +5952,6 @@
             }
             return null;
         },
-        /**
-         * @implements gpf.interfaces.IXmlConstNode:textContent
-         */
         textContent: function () {
             if ("object" !== typeof this._obj) {
                 return gpf.value(this._obj, "");
@@ -8169,11 +5959,6 @@
                 return "";
             }
         },
-        //endregion
-        //region gpf.interfaces.IXmlSerializable
-        /**
-         * @implements gpf.interfaces.IXmlSerializable:toXml
-         */
         toXml: function (out, eventsHandler) {
             gpf.xml.nodeToXml(this, out, eventsHandler);
         }    //endregion
@@ -8370,114 +6155,51 @@
         },
         _reset: function () {
         },
-        /**
-         * Compile the XPATH specifier
-         *
-         * @param {String} xpath
-         * @private
-         */
         _compile: function (xpath) {
             gpf.interfaces.ignoreParameter(xpath);
             this._xpath = null;
         },
-        /**
-         *
-         * @param {gpf.xml.IXmlConstNode} node
-         * @return {gpf.xml.IXmlConstNode[]}
-         */
         selectNodes: function (node) {
             return _select(node, this._xpath);
         }
     });
     gpf.define("gpf.Parameter", {
         private: {
-            /**
-             * Name
-             *
-             * @type {String}
-             * @private
-             */
             "[_name]": [
                 gpf.$ClassProperty(),
                 gpf.$XmlAttribute("name")
             ],
             _name: "",
-            /**
-             * Description
-             *
-             * @type {String}
-             * @private
-             */
             "[_description]": [
                 gpf.$ClassProperty(),
                 gpf.$XmlElement("description")
             ],
             _description: "",
-            /**
-             * Type
-             *
-             * @type {String} see gpf.Parameter.TYPE_xxx
-             * @private
-             */
             "[_type]": [
                 gpf.$ClassProperty(),
                 gpf.$XmlAttribute("type")
             ],
             _type: "string",
-            /**
-             * Is required
-             *
-             * @type {Boolean}
-             * @private
-             */
             "[_required]": [
                 gpf.$ClassProperty(),
                 gpf.$XmlAttribute("required")
             ],
             _required: false,
-            /**
-             * Default value to apply if not specified
-             *
-             * @type {*}
-             * @private
-             */
             "[_defaultValue]": [
                 gpf.$ClassProperty(),
                 gpf.$XmlElement("default")
             ],
             _defaultValue: undefined,
-            /**
-             * Prefix used to locate parameter in the given parameter list.
-             * NOTE: required parameter may not specify any prefix: they are
-             * have to be specified in the correct order (and they can't be
-             * multiple)
-             *
-             * @type {String}
-             * @private
-             */
             "[_prefix]": [
                 gpf.$ClassProperty(),
                 gpf.$XmlAttribute("prefix")
             ],
             _prefix: "",
-            /**
-             * Multiple parameter means they can be specified more than once.
-             * The parameter value would be then an array.
-             *
-             * @type {Boolean}
-             * @private
-             */
             "[_multiple]": [
                 gpf.$ClassProperty(),
                 gpf.$XmlAttribute("multiple")
             ],
             _multiple: false,
-            /**
-             * Hidden parameters are not displayed when calling usage
-             *
-             * @type {Boolean}
-             * @private
-             */
             "[_hidden]": [
                 gpf.$ClassProperty(),
                 gpf.$XmlAttribute("hidden")
@@ -8496,12 +6218,6 @@
                 "boolean": false,
                 "number": 0
             },
-            /**
-             * Create a list of parameters
-             *
-             * @param {Object[]} definitions
-             * @return {gpf.Parameter[]}
-             */
             create: function (definitions) {
                 var result = [], len = definitions.length, idx, definition;
                 for (idx = 0; idx < len; ++idx) {
@@ -8513,13 +6229,6 @@
                 }
                 return result;
             },
-            /**
-             * Create a parameter from the definition object
-             *
-             * @param {Object} definition
-             * @return {gpf.Parameter}
-             * @private
-             */
             _createFromObject: function (definition) {
                 var result = new gpf.Parameter(), typeDefaultValue;
                 if (definition === gpf.Parameter.VERBOSE || definition.prefix === gpf.Parameter.VERBOSE) {
@@ -8554,15 +6263,6 @@
                 }
                 return result;
             },
-            /**
-             * Helper used to manipulate the list of parameters: retrieve one
-             * using prefix. If no prefix is specified or a number is used, get
-             * the first parameter with no prefix (starting at N if a number was
-             * used).
-             *
-             * @param {gpf.Parameter[]} parameters
-             * @param {String|Number] [prefix=0] prefix
-             */
             getOnPrefix: function (parameters, prefix) {
                 var len, idx, parameter;
                 if (undefined === prefix) {
@@ -8583,13 +6283,6 @@
                 }
                 return null;
             },
-            /**
-             * Helper used to manipulate the list of parameters: retrieve one
-             * using name.
-             *
-             * @param {gpf.Parameter[]} parameters
-             * @param {String] name
-             */
             getByName: function (parameters, name) {
                 var len, idx, parameter;
                 len = parameters.length;
@@ -8601,15 +6294,6 @@
                 }
                 return null;
             },
-            /**
-             * Parse the arguments and return an object with the
-             * recognized parameters. Throws an error if required parameters
-             * are missing.
-             *
-             * @param {gpf.Parameter[]|Object[]} parameters
-             * @param {String[]} argumentsToParse
-             * @return {Object}
-             */
             parse: function (parameters, argumentsToParse) {
                 var result = {}, len, idx, argument, parameter, name, lastNonPrefixIdx = 0;
                 parameters = gpf.Parameter.create(parameters);
@@ -8660,14 +6344,6 @@
                 this._finalizeParse(parameters, result);
                 return result;
             },
-            /**
-             * Check that all required fields are set,
-             * apply default values
-             *
-             * @param {gpf.Parameter[]} parameters
-             * @param {Object} result
-             * @private
-             */
             _finalizeParse: function (parameters, result) {
                 var len, idx, parameter, name, value;
                 len = parameters.length;
@@ -8688,19 +6364,6 @@
                     }
                 }
             },
-            /**
-             * Split the argument in a prefix / value pair if it makes sense.
-             * Otherwise, only the value is returned.
-             *
-             * Recognized prefixes:
-             * <ul>
-             *     <li>-{prefix}[:value]</li>
-             *     <li>{prefix}=value</li>
-             * </ul>
-             *
-             * @param {String} argument
-             * @return {String[]|String}
-             */
             getPrefixValuePair: function (argument) {
                 var pos;
                 // -{prefix}:
@@ -8727,19 +6390,16 @@
                 // Default
                 return argument;
             },
-            /**
-             * Build the usage string for these parameters
-             *
-             * @param {gpf.Parameter[]} parameters
-             * @return {String}
-             */
             usage: function (parameters) {
                 gpf.interface.ignoreParameter(parameters);
                 return "";
             }
         }
     });
-    gpf.html = {};
+    gpf.html = {
+        ELEMENT_NODE: 1,
+        TEXT_NODE: 3
+    };
     var gpfI = gpf.interfaces, gpfFireEvent = gpf.events.fire;
     /**
      * Markdown to HTML converter using Parser interface
@@ -8751,74 +6411,13 @@
      */
     gpf.define("gpf.html.MarkdownParser", "gpf.Parser", {
         public: {
-            /**
-             * @constructor
-             */
             constructor: function () {
                 this._super.apply(this, arguments);
                 this._openedTags = [];
             }
         },
-        /*
-     * 'Grammar'
-     * init
-     *      : '\n' init
-     *      | '#' title1
-     *      | '*' list
-     *      | '0'...'9' list
-     *      | ' ' init
-     *      | content
-     *
-     * title1
-     *      : '#' title2
-     *      | text \n init
-     * title2
-     *      : '#' title3
-     *      | text \n init
-     * title3
-     *       : text \n init
-     *
-     * list
-     *      : ' ' content // confirmed
-     *      | '0'...'9' list // If started with '0'...'9'
-     *      | '.' content // confirmed, if started with '0'...'9'
-     *      | '*' text '*' '*' // bold
-     *      | content
-     *
-     * content
-     *      : '\n' init
-     *      | '*' italic
-     *      | '`' monospace
-     *      | '[' link
-     *      | '&' content
-     *      | '<' content
-     *      | '>' content
-     *      | '-' escape
-     *      | content
-     *
-     * escape
-     *      : '-' '-' content
-     *
-     * italic
-     *      : '*' content '*' '*' // bold
-     *      : content '*' // italic
-     *
-     * monospace
-     *      : content '`'
-     *
-     * link
-     *      : (text) ']' '(' url ')'
-     */
         protected: {
-            //region Parser configuration
             _ignoreCarriageReturn: true,
-            // \r
-            /**
-             * Initial state
-             *
-             * @param {String} char
-             * @protected
-             */
             _initialParserState: function (char) {
                 var newState, tagsOpened = 0 < this._openedTags.length;
                 if ("#" === char) {
@@ -8849,27 +6448,12 @@
                 }
                 return newState;
             },
-            /**
-             * @inheritdoc gpf.Parser:_finalizeParserState
-             * @protected
-             */
             _finalizeParserState: function () {
                 this._closeTags();
             }
         },
         private: {
-            /**
-             * Stack of opened tags
-             *
-             * @type {String[}}
-             * @private
-             */
             _openedTags: [],
-            /**
-             * Close all opened tags
-             *
-             * @private
-             */
             _closeTags: function () {
                 var tag;
                 while (this._openedTags.length) {
@@ -8880,13 +6464,6 @@
                     }
                 }
             },
-            /**
-             * Open (or concatenate) a list tag. This includes closing previous
-             * list item (if any)
-             *
-             * @param {String} listTag
-             * @private
-             */
             _openList: function (listTag) {
                 var tag, len = this._openedTags.length;
                 while (len) {
@@ -8908,13 +6485,6 @@
                 }
                 this._openTag(listTag);
             },
-            /**
-             * Open/Close tag depending if it has been opened previously (if it
-             * appears as the top tag on the stacked items)
-             *
-             * @param {String} tag
-             * @private
-             */
             _toggleTag: function (tag) {
                 var len = this._openedTags.length;
                 if (len && this._openedTags[len - 1] === tag) {
@@ -8924,29 +6494,11 @@
                     this._openTag(tag);
                 }
             },
-            /**
-             * Open a tag (and adds it to the stack)
-             *
-             * @param {String} tag
-             * @private
-             */
             _openTag: function (tag) {
                 this._output("<" + tag + ">");
                 this._openedTags.push(tag);
             },
-            /**
-             * H level (number of times the # char has been found)
-             *
-             * @type {Number}
-             * @private
-             */
             _hLevel: 1,
-            /**
-             * States title1, ... N
-             *
-             * @param {String} char
-             * @private
-             */
             _parseTitle: function (char) {
                 if ("#" === char) {
                     ++this._hLevel;
@@ -8955,20 +6507,7 @@
                     return this._parseText;    // No formatting allowed in Hx
                 }
             },
-            /**
-             * Indicates a numeric list element has been found
-             *
-             * @type {Boolean}
-             * @private
-             */
             _numericList: false,
-            /**
-             * State list
-             * TODO: numbered list parsing is incorrect
-             *
-             * @param {String} char
-             * @private
-             */
             _parseList: function (char) {
                 var tagsOpened = 0 < this._openedTags.length, listTag;
                 if (" " === char) {
@@ -8990,13 +6529,6 @@
                 }
                 return this._parseContent;
             },
-            /**
-             * Handles <, > and & HTML entities
-             *
-             * @param {String} char
-             * @returns {boolean} The character has been processed
-             * @private
-             */
             _handleEntities: function (char) {
                 if ("<" === char) {
                     this._output("&lt;");
@@ -9009,26 +6541,8 @@
                 }
                 return true;
             },
-            /**
-             * Escape character
-             *
-             * @type {String}
-             * @private
-             */
             _escapeChar: "",
-            /**
-             * Escape character count
-             *
-             * @type {Number}
-             * @private
-             */
             _escapeCount: 0,
-            /**
-             * State escape
-             *
-             * @param {String} char
-             * @private
-             */
             _parseEscape: function (char) {
                 var escapeChar = this._escapeChar, count;
                 if (char === escapeChar) {
@@ -9046,12 +6560,6 @@
                     return this._parseContent(char);
                 }
             },
-            /**
-             * State content
-             *
-             * @param {String} char
-             * @private
-             */
             _parseContent: function (char) {
                 if (this._handleEntities(char)) {
                     return;
@@ -9076,12 +6584,6 @@
                     this._output(char);
                 }
             },
-            /**
-             * State italic
-             *
-             * @param {String} char
-             * @private
-             */
             _parseItalic: function (char) {
                 if ("*" === char) {
                     this._toggleTag("strong");
@@ -9091,12 +6593,6 @@
                 }
                 return this._parseContent;
             },
-            /**
-             * State text
-             *
-             * @param {String} char
-             * @private
-             */
             _parseText: function (char) {
                 if (this._handleEntities(char)) {
                     return;
@@ -9112,13 +6608,6 @@
             _linkText: [],
             _linkUrl: [],
             _linkState: 0,
-            /**
-             * State link
-             * TODO improve?
-             *
-             * @param {String} char
-             * @private
-             */
             _parseLink: function (char) {
                 var linkState = this._linkState;
                 if ("]" === char && 0 === linkState) {
@@ -9149,26 +6638,12 @@
             constructor: function (file) {
                 this._file = file;
             },
-            /**
-             * Name of the file
-             *
-             * @return {String}
-             */
             name: function () {
                 return this._file.name;
             },
-            /**
-             * Size of the file
-             *
-             * @return {Number}
-             */
             size: function () {
                 return this._file.size;
             },
-            /**
-             * @implements gpf.interfaces.ITextStream:read
-             * @closure
-             */
             read: function (count, eventsHandler) {
                 var that = this, reader = this._reader, left = this._file.size - this._pos, blob;
                 if (0 === left) {
@@ -9194,32 +6669,10 @@
             }
         },
         private: {
-            /**
-             * @type {File}
-             * @private
-             */
             _file: null,
-            /**
-             * @type {FileReader}
-             * @private
-             */
             _reader: null,
-            /**
-             * @type {Number}
-             * @private
-             */
             _pos: 0,
-            /**
-             * @type {gpf.events.Handler}
-             * @private
-             */
             _eventsHandler: null,
-            /**
-             * Wrapper for the onloadend event handler
-             *
-             * @param {DOM Event} event
-             * @private
-             */
             _onLoadEnd: function (event) {
                 var reader = event.target, buffer, len, result, idx;
                 gpf.ASSERT(reader === this._reader, "Unexpected change of reader");
@@ -9227,8 +6680,6 @@
                     gpfFireEvent.apply(this, [
                         gpfI.IReadableStream.ERROR,
                         {
-                            // According to W3C
-                            // http://www.w3.org/TR/domcore/#interface-domerror
                             error: {
                                 name: reader.error.name,
                                 message: reader.error.message
@@ -9279,13 +6730,6 @@
                 _globalSelector: false
             },
             protected: {
-                /**
-                 * Apply selection starting from the provided object
-                 *
-                 * @param {Object} domObject
-                 * @returns {Object|undefined}
-                 * @private
-                 */
                 _select: function (domObject) {
                     var selector = this._selector;
                     if (selector) {
@@ -9299,11 +6743,6 @@
                 }
             },
             public: {
-                /**
-                 * @constructor
-                 * @param {String} [selector=undefined] selector
-                 * @param {Boolean} [global=false] global
-                 */
                 constructor: function (selector, global) {
                     if (selector) {
                         this._selector = selector;
@@ -9325,12 +6764,6 @@
         _HtmEvent = gpf._defAttr("$HtmlEvent", _HtmHandler, {
             private: { _event: "" },
             public: {
-                /**
-                 * @constructor
-                 * @param {String} event
-                 * @param {String} [selector=undefined] selector
-                 * @param {Boolean} [global=false] global
-                 */
                 constructor: function (event, selector, global) {
                     _HtmHandler.apply(this, [
                         selector,
@@ -9453,14 +6886,6 @@
     //endregion
     //region Common HTML helpers
     gpf.extend(gpf.html, {
-        /**
-         * Check if the DOM object has the requested class name(s)
-         *
-         * @param {Object} domObject
-         * @param {String|String[]} toCheck
-         * @return {Boolean}
-         * @chainable
-         */
         hasClass: function (domObject, toCheck) {
             var classNames, len, idx;
             if ("string" === typeof toCheck) {
@@ -9476,18 +6901,9 @@
             }
             return false;
         },
-        /**
-         * Add/Remove the provided class name(s) to the DOM object
-         *
-         * @param {Object} domObject
-         * @param {String|String[]} toAdd
-         * @param {String|String[]} toRemove
-         * @return {Object}
-         * @chainable
-         */
         alterClass: function (domObject, toAdd, toRemove) {
             var classNames, lengthBefore, len, idx;
-            if (classNames) {
+            if (domObject.className) {
                 classNames = domObject.className.split(" ");
             } else {
                 classNames = [];
@@ -9521,25 +6937,9 @@
             }
             return domObject;
         },
-        /**
-         * Add the provided class name(s) to the DOM object
-         *
-         * @param {Object} domObject
-         * @param {String|String[]} toAdd
-         * @return {Object}
-         * @chainable
-         */
         addClass: function (domObject, toAdd) {
             return gpf.html.alterClass(domObject, toAdd, undefined);
         },
-        /**
-         * Remove the provided class name(s) to the DOM object
-         *
-         * @param {Object} domObject
-         * @param {String|String[]} toRemove
-         * @return {Object}
-         * @chainable
-         */
         removeClass: function (domObject, toRemove) {
             return gpf.html.alterClass(domObject, undefined, toRemove);
         }
@@ -9554,6 +6954,20 @@
          * @private
          */
         _broadcaster = null,
+        /**
+         * Handle of a dynamic CSS section used for some responsive helpers
+         *
+         * @type {Object}
+         * @private
+         */
+        _dynamicCss = null,
+        /**
+         * gpf-top
+         *
+         * @type {boolean}
+         * @private
+         */
+        _monitorTop = false,
         /**
          * Current page width
          *
@@ -9582,6 +6996,13 @@
          * @private
          */
         _orientation = "";
+    function _updateDynamicCss() {
+        var content = [];
+        if (_monitorTop) {
+            content.push(".gpf-top { top: ", _scrollY, "px; }\n");
+        }
+        _dynamicCss.innerHTML = content.join("");
+    }
     /**
      * HTML Event "resize" listener
      *
@@ -9618,6 +7039,9 @@
      */
     function _onScroll() {
         _scrollY = window.scrollY;
+        if (_monitorTop && _dynamicCss) {
+            _updateDynamicCss();
+        }
         _broadcaster.broadcastEvent("scroll", { top: _scrollY });
     }
     /**
@@ -9634,28 +7058,36 @@
      * - Listen to the resize handlers and insert body css classNames according
      *   to the current configuration:
      *
-     * @param {Object} options Reserved for future use
+     * @param {Object} options
+     * <ul>
+     *     <li>{Boolean} [monitorTop=undefined] monitorTop If true, a CSS class
+     *     gpf-top is defined and maintained to the vertical offset of top
+     *     </li>
+     * </ul>
      * @return {gpf.events.Broadcaster}
      */
     gpf.html.responsive = function (options) {
-        gpf.interfaces.ignoreParameter(options);
+        var needDynamicCss, headTag;
+        if (options && undefined !== options.monitorTop) {
+            _monitorTop = options.monitorTop;
+        }
+        needDynamicCss = _monitorTop;
+        if (needDynamicCss) {
+            if (!_dynamicCss) {
+                headTag = document.getElementsByTagName("head")[0] || document.documentElement;
+                _dynamicCss = document.createElement("style");
+                _dynamicCss.setAttribute("type", "text/css");
+                _dynamicCss = headTag.appendChild(_dynamicCss);
+            }
+        } else if (_dynamicCss) {
+            // Remove
+            _dynamicCss.parentNode.removeChild(_dynamicCss);
+            _dynamicCss = null;
+        }
         if (null === _broadcaster) {
             _broadcaster = new gpf.events.Broadcaster([
-                /**
-             * @event resize
-             * @eventParam {Number} width
-             * @eventParam {Number} height
-             */
                 "resize",
-                /**
-             * @event rotate
-             * @eventParam {String} orientation
-             */
                 "rotate",
-                /**
-             * @event scroll
-             * @eventParam {Number} top
-             */
                 "scroll"
             ]);
             // Use the document to check if the framework is already installed
@@ -9743,216 +7175,145 @@
         return options;
     }
     var
-    /**
+        /**
          * Placeholder class to extend the NodeJS response class and provide
          * more context to it
          *
          * @class ResponseHandler
          * @private
          */
-    ResponseHandler = gpf.define("ResponseHandler", {
-        private: {
-            /**
-                 * Web server options
-                 *
-                 * @type {Object}
-                 * @private
-                 */
-            _options: null,
-            /**
-                 * Request
-                 *
-                 * @type {NodeJS.http.IncomingMessage}
-                 * @private
-                 */
-            _request: null,
-            /**
-                 * Response
-                 *
-                 * @type {NodeJS.http.ServerResponse}
-                 * @private
-                 */
-            _response: null,
-            /**
-                 * Parsed URL object (see NodeJS url.parse documentation)
-                 *
-                 * @type {Object}
-                 * @private
-                 */
-            _parsedUrl: null,
-            /**
-                 * Corresponding file path
-                 *
-                 * @type {String}
-                 * @private
-                 */
-            _filePath: "",
-            /**
-                 * File extension (lowercase)
-                 *
-                 * @type {String}
-                 * @private
-                 */
-            _extName: ""
-        },
-        public: {
-            /**
-                 * @param {Object} options Web server options
-                 * @param {NodeJS.http.IncomingMessage} request
-                 * @param {NodeJS.http.ServerResponse} response
-                 * @constructor
-                 */
-            constructor: function (options, request, response) {
-                var url = require("url"), path = require("path");
-                this._options = options;
-                this._request = request;
-                this._response = response;
-                // Parse and analyse URL
-                this._parsedUrl = url.parse(request.url);
-                this._filePath = path.join(this._options.root, this._parsedUrl.pathname);
-                this._extName = path.extname(this._filePath).toLowerCase();
-                // Extend response
-                response._gpf = this;
-                response.plain = ResponseHandler._plain;
+        ResponseHandler = gpf.define("ResponseHandler", {
+            private: {
+                _options: null,
+                _request: null,
+                _response: null,
+                _parsedUrl: null,
+                _filePath: "",
+                _extName: ""
             },
-            /**
-                 * Process the request
-                 */
-            process: function () {
-                var fs = require("fs");
-                if (fs.existsSync(this._filePath)) {
-                    if (".jsp" === this._extName) {
-                        this.plain(500, "JSP not handled yet");
+            public: {
+                constructor: function (options, request, response) {
+                    var url = require("url"), path = require("path");
+                    this._options = options;
+                    this._request = request;
+                    this._response = response;
+                    // Parse and analyse URL
+                    this._parsedUrl = url.parse(request.url);
+                    this._filePath = path.join(this._options.root, this._parsedUrl.pathname);
+                    this._extName = path.extname(this._filePath).toLowerCase();
+                    // Extend response
+                    response._gpf = this;
+                    response.plain = ResponseHandler._plain;
+                },
+                process: function () {
+                    var fs = require("fs");
+                    if (fs.existsSync(this._filePath)) {
+                        if (".jsp" === this._extName) {
+                            this.plain(500, "JSP not handled yet");
+                        } else {
+                            this.fromFile(this._filePath);
+                        }
                     } else {
-                        this.fromFile(this._filePath);
+                        this.plain(404, "No file found");
                     }
-                } else {
-                    this.plain(404, "No file found");
-                }
-            },
-            /**
-                 * Generates a PLAIN response to the server
-                 *
-                 * @param {Number} statusCode
-                 * @param {String} text
-                 */
-            plain: function (statusCode, text) {
-                var resp = this._response;
-                resp.writeHead(statusCode, { "Content-Type": "text/plain" });
-                resp.write([
-                    "port    : " + this._options.port,
-                    "method  : " + this._request.method,
-                    "url     : " + this._request.url,
-                    "root    : " + this._options.root,
-                    "path    : " + this._filePath,
-                    "headers : " + JSON.stringify(this._request.headers, null, "\t\t"),
-                    text
-                ].join("\n"));
-                resp.end();
-            },
-            /**
-                 * Generates a response that contains the specified file
-                 *
-                 * @param {String} filePath
-                 * @private
-                 * @closure (a lot)
-                 */
-            fromFile: function (filePath) {
-                var me = this, fs = require("fs"), path = require("path"), extName = path.extname(filePath).toLowerCase(), chunkSize = me._options.chunkSize, buffer, pos = 0, size, fileDescriptor, close, read, write;
-                close = function () {
-                    if (fileDescriptor) {
-                        fs.close(fileDescriptor);
-                    }
-                    me._response.end();
-                };
-                read = function () {
-                    var len = size - pos;
-                    if (0 === len) {
-                        // Done
-                        close();
-                        return;
-                    }
-                    if (len > chunkSize) {
-                        len = chunkSize;
-                    }
-                    fs.read(fileDescriptor, buffer, 0, len, pos, write);
-                };
-                write = function (err, bytesRead, buffer) {
-                    if (err) {
-                        // Partly answered, close the answer and dump error
-                        console.error([
-                            "Error while sending '",
-                            filePath,
-                            "' (",
-                            err,
-                            ")"
-                        ].join(""));
-                        close();
-                        return;
-                    }
-                    pos += bytesRead;
-                    me._response.write(buffer, read);
-                };
-                fs.stat(filePath, function (err, stats) {
-                    var mimeType;
-                    if (err) {
-                        me._response.plain(500, "Unable to access file (" + err + ")");
-                        return;
-                    }
-                    if (stats.isDirectory()) {
-                        me._response.plain(200, "Directory.");
-                        return;
-                    } else if (!stats.isFile()) {
-                        me._response.plain(200, "Not a file.");
-                        return;
-                    }
-                    size = stats.size;
-                    mimeType = gpf.http.getMimeType(extName);
-                    if (me._options.verbose) {
-                        console.log("\tMime type  : " + mimeType);
-                        console.log("\tFile size  : " + size);
-                    }
-                    fs.open(filePath, "r", function (err, fd) {
-                        if (err) {
-                            me._response.plain(500, "Unable to open file (" + err + ")");
+                },
+                plain: function (statusCode, text) {
+                    var resp = this._response;
+                    resp.writeHead(statusCode, { "Content-Type": "text/plain" });
+                    resp.write([
+                        "port    : " + this._options.port,
+                        "method  : " + this._request.method,
+                        "url     : " + this._request.url,
+                        "root    : " + this._options.root,
+                        "path    : " + this._filePath,
+                        "headers : " + JSON.stringify(this._request.headers, null, "\t\t"),
+                        text
+                    ].join("\n"));
+                    resp.end();
+                },
+                fromFile: function (filePath) {
+                    var me = this, fs = require("fs"), path = require("path"), extName = path.extname(filePath).toLowerCase(), chunkSize = me._options.chunkSize, buffer, pos = 0, size, fileDescriptor, close, read, write;
+                    close = function () {
+                        if (fileDescriptor) {
+                            fs.close(fileDescriptor);
+                        }
+                        me._response.end();
+                    };
+                    read = function () {
+                        var len = size - pos;
+                        if (0 === len) {
+                            // Done
+                            close();
                             return;
                         }
-                        me._response.writeHead(200, {
-                            "Content-Type": mimeType,
-                            "Content-Length": size
-                        });
-                        fileDescriptor = fd;
-                        if (me._options.verbose) {
-                            console.log("\tFile handle: " + fd);
+                        if (len > chunkSize) {
+                            len = chunkSize;
                         }
-                        buffer = new Buffer(chunkSize);
-                        read();
+                        fs.read(fileDescriptor, buffer, 0, len, pos, write);
+                    };
+                    write = function (err, bytesRead, buffer) {
+                        if (err) {
+                            // Partly answered, close the answer and dump error
+                            console.error([
+                                "Error while sending '",
+                                filePath,
+                                "' (",
+                                err,
+                                ")"
+                            ].join(""));
+                            close();
+                            return;
+                        }
+                        pos += bytesRead;
+                        me._response.write(buffer, read);
+                    };
+                    fs.stat(filePath, function (err, stats) {
+                        var mimeType;
+                        if (err) {
+                            me._response.plain(500, "Unable to access file (" + err + ")");
+                            return;
+                        }
+                        if (stats.isDirectory()) {
+                            me._response.plain(200, "Directory.");
+                            return;
+                        } else if (!stats.isFile()) {
+                            me._response.plain(200, "Not a file.");
+                            return;
+                        }
+                        size = stats.size;
+                        mimeType = gpf.http.getMimeType(extName);
+                        if (me._options.verbose) {
+                            console.log("\tMime type  : " + mimeType);
+                            console.log("\tFile size  : " + size);
+                        }
+                        fs.open(filePath, "r", function (err, fd) {
+                            if (err) {
+                                me._response.plain(500, "Unable to open file (" + err + ")");
+                                return;
+                            }
+                            me._response.writeHead(200, {
+                                "Content-Type": mimeType,
+                                "Content-Length": size
+                            });
+                            fileDescriptor = fd;
+                            if (me._options.verbose) {
+                                console.log("\tFile handle: " + fd);
+                            }
+                            buffer = new Buffer(chunkSize);
+                            read();
+                        });
                     });
-                });
-            }
-        },
-        static: {
-            /**
-                 * Generates a PLAIN response to the server
-                 *
-                 * @param {Number} statusCode
-                 * @param {String} text
-                 * @private
-                 */
-            _plain: function (statusCode, text) {
-                return this._gpf.plain(statusCode, text);
+                }
             },
-            /**
-                 * Generates a response that contains the specified file
-                 *
-                 * @param {String} filePath
-                 * @private
-                 */
-            _fromFile: function (filePath) {
-                return this._gpf.fromFile(filePath);
+            static: {
+                _plain: function (statusCode, text) {
+                    return this._gpf.plain(statusCode, text);
+                },
+                _fromFile: function (filePath) {
+                    return this._gpf.fromFile(filePath);
+                }
             }
-        }
-    });
+        });
     /**
      * Run the GPF web server
      *
