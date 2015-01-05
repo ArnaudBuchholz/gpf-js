@@ -213,6 +213,24 @@
             return undefined;
         };
 
+    /**
+     * Return true if the provided parameter looks like an array (i.e. it has
+     * a property length and each item can be accessed with [])
+     *
+     * @param {Object} obj
+     * @return {Boolean} True if array-like
+     */
+    if ("browser" === gpf.host() && window.HTMLCollection) {
+        gpf.isArrayLike = function (obj) {
+            return obj instanceof Array
+                || obj instanceof window.HTMLCollection;
+        };
+    } else {
+        gpf.isArrayLike = function (obj) {
+            return obj instanceof Array;
+        };
+    }
+
     /*jshint unused: false */ // Because of arguments
     /*
      * Enumerate dictionary members and call memberCallback for each of them.
@@ -230,14 +248,14 @@
      */
     gpf.each = function (dictionary, memberCallback, defaultResult) {
         if (undefined === defaultResult) {
-            if (dictionary instanceof Array) {
+            if (gpf.isArrayLike(dictionary)) {
                 _arrayEach.apply(this, arguments);
             } else {
                 _dictionaryEach.apply(this, arguments);
             }
             return undefined;
         }
-        if (dictionary instanceof Array) {
+        if (gpf.isArrayLike(dictionary)) {
             return _arrayEachWithResult.apply(this, arguments);
         }
         return _dictionaryEachWithResult.apply(this, arguments);
