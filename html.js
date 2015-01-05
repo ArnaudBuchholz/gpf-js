@@ -17,7 +17,8 @@
 
     /**
      * Markdown to HTML converter using Parser interface
-     * Inspired from http://en.wikipedia.org/wiki/Markdown
+     * Inspired from http://en.wikipedia.org/wiki/Markdown,
+     * improved with http://daringfireball.net/projects/markdown/syntax
      *
      * Weak -but working- implementation
      *
@@ -68,6 +69,7 @@
      *      | '*' italic
      *      | '`' monospace
      *      | '[' link
+     *      | '!' image (if followed by '[')
      *      | '&' content
      *      | '<' content
      *      | '>' content
@@ -86,6 +88,10 @@
      *
      * link
      *      : (text) ']' '(' url ')'
+     *
+     * image
+     *      : '[' link
+     *      : content
      */
 
         protected: {
@@ -370,10 +376,9 @@
                     this._toggleTag("code");
                     return;
                 } else if ("[" === char) {
-                    this._linkState = 0;
-                    this._linkText = [];
-                    this._linkUrl = [];
-                    return this._parseLink;
+                    return this._startLink(0);
+                } else if ("!" === char) {
+                    return this._parseImage;
                 } else if ("-" === char) {
                     this._escapeCount = 1;
                     this._escapeChar = "-";
@@ -420,9 +425,52 @@
                 }
             },
 
+            _linkType: 0,
+            _linkState: 0,
             _linkText: [],
             _linkUrl: [],
-            _linkState: 0,
+
+            /**
+             * Prepare a link parsing
+             *
+             * @return {Function}
+             * @private
+             */
+            _startLink: function (type) {
+                this._linkType = type;
+                this._linkState = 0;
+                this._linkText = [];
+                this._linkUrl = [];
+                return this._parseLink;
+            },
+
+            /**
+             * Finalize link parsing
+             *
+             * @return {Function}
+             * @private
+             */
+            _finishLink: function () {
+                var
+                    url = this._linkUrl.join(""),
+                    text = this._linkText.join("");
+                if (0 === this._linkType) {
+                    this._output("<a href=\"");
+                    this._output(url);
+                    this._output("\">");
+                    this._output(text);
+                    this._output("</a>");
+                } else if (1 ===  this._linkType) {
+                    this._output("<img src=\"");
+                    this._output(url);
+                    this._output("\" alt=\"");
+                    this._output(text);
+                    this._output("\" title=\"");
+                    this._output(text);
+                    this._output("\">");
+                }
+                return this._parseContent;
+            },
 
             /**
              * State link
@@ -439,18 +487,28 @@
                 } else if ("(" === char && 1 === linkState) {
                     ++this._linkState;
                 } else if (")" === char && 2 === linkState) {
-                    this._output("<a href=\"");
-                    this._output(this._linkUrl.join(""));
-                    this._output("\">");
-                    this._output(this._linkText.join(""));
-                    this._output("</a>");
-                    return this._parseContent;
+                    return this._finishLink();
                 } else if (0 === linkState) {
                     this._linkText.push(char);
                 } else if (2 === linkState) {
                     this._linkUrl.push(char);
                 }
                 // Else... nothing. do some kind of error handling?
+            },
+
+            /**
+             * State image
+             *
+             * @param {String} char
+             * @private
+             */
+            _parseImage: function (char) {
+                if ("[" === char) {
+                    return this._startLink(1);
+                } else {
+                    this._output("!");
+                    return this._parseContent;
+                }
             }
         }
 
