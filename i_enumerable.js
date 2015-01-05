@@ -95,7 +95,7 @@
          * @inheritDoc gpf.attributes.Attribute:_alterPrototype
          */
         _alterPrototype: function (objPrototype) {
-            if (!(objPrototype[this._member] instanceof Array)) {
+            if (!gpf.isArrayLike(objPrototype[this._member])) {
                 gpf.Error.EnumerableInvalidMember();
             }
             gpfA.add(objPrototype.constructor, "Class", [
