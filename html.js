@@ -84,10 +84,10 @@
      *      : content '*' // italic
      *
      * monospace
-     *      : content '`'
+     *      : (text) '`'
      *
      * link
-     *      : (text) ']' '(' url ')'
+     *      : (text) ']' '(' (text) ')'
      *
      * image
      *      : '[' link
@@ -374,7 +374,7 @@
                     return this._parseItalic;
                 } else if ("`" === char) {
                     this._toggleTag("code");
-                    return;
+                    return this._parseMonospace;
                 } else if ("[" === char) {
                     return this._startLink(0);
                 } else if ("!" === char) {
@@ -425,9 +425,53 @@
                 }
             },
 
+            /**
+             * State monospace
+             *
+             * @param {String} char
+             * @private
+             */
+            _parseMonospace: function (char) {
+                if ("`" === char) {
+                    this._toggleTag("code");
+                    return this._parseContent;
+                } else {
+                    this._output(char);
+                }
+            },
+
+            /**
+             * 0 for A, 1 for IMG
+             *
+             * @type {Number}
+             * @private
+             */
             _linkType: 0,
+
+            /**
+             * 0: in text
+             * 1: ], waiting for (
+             * 2: in url
+             *
+             * @type {Number}
+             * @private
+             */
             _linkState: 0,
+
+            /**
+             * Link text
+             *
+             * @type {String[]}
+             * @private
+             */
             _linkText: [],
+
+            /**
+             * Link url
+             *
+             * @type {String[]}
+             * @private
+             */
             _linkUrl: [],
 
             /**
@@ -507,7 +551,8 @@
                     return this._startLink(1);
                 } else {
                     this._output("!");
-                    return this._parseContent;
+                    this._setParserState(this._parseContent);
+                    return this._parseContent(char);
                 }
             }
         }
