@@ -353,6 +353,22 @@
         _emptyFunc = function () {
             return undefined;
         };
+    /**
+     * Return true if the provided parameter looks like an array (i.e. it has
+     * a property length and each item can be accessed with [])
+     *
+     * @param {Object} obj
+     * @return {Boolean} True if array-like
+     */
+    if ("browser" === gpf.host() && window.HTMLCollection) {
+        gpf.isArrayLike = function (obj) {
+            return obj instanceof Array || obj instanceof window.HTMLCollection;
+        };
+    } else {
+        gpf.isArrayLike = function (obj) {
+            return obj instanceof Array;
+        };
+    }
     /*jshint unused: false */
     // Because of arguments
     /*
@@ -371,14 +387,14 @@
      */
     gpf.each = function (dictionary, memberCallback, defaultResult) {
         if (undefined === defaultResult) {
-            if (dictionary instanceof Array) {
+            if (gpf.isArrayLike(dictionary)) {
                 _arrayEach.apply(this, arguments);
             } else {
                 _dictionaryEach.apply(this, arguments);
             }
             return undefined;
         }
-        if (dictionary instanceof Array) {
+        if (gpf.isArrayLike(dictionary)) {
             return _arrayEachWithResult.apply(this, arguments);
         }
         return _dictionaryEachWithResult.apply(this, arguments);
@@ -2492,7 +2508,7 @@
      */
     gpf._defAttr("$Enumerable", gpfA.ClassAttribute, {
         _alterPrototype: function (objPrototype) {
-            if (!(objPrototype[this._member] instanceof Array)) {
+            if (!gpf.isArrayLike(objPrototype[this._member])) {
                 gpf.Error.EnumerableInvalidMember();
             }
             gpfA.add(objPrototype.constructor, "Class", [new gpfA.InterfaceImplementAttribute(gpfI.IEnumerable, _buildEnumerableOnArray)]);
@@ -6403,7 +6419,8 @@
     var gpfI = gpf.interfaces, gpfFireEvent = gpf.events.fire;
     /**
      * Markdown to HTML converter using Parser interface
-     * Inspired from http://en.wikipedia.org/wiki/Markdown
+     * Inspired from http://en.wikipedia.org/wiki/Markdown,
+     * improved with http://daringfireball.net/projects/markdown/syntax
      *
      * Weak -but working- implementation
      *
@@ -6568,12 +6585,11 @@
                     return this._parseItalic;
                 } else if ("`" === char) {
                     this._toggleTag("code");
-                    return;
+                    return this._parseMonospace;
                 } else if ("[" === char) {
-                    this._linkState = 0;
-                    this._linkText = [];
-                    this._linkUrl = [];
-                    return this._parseLink;
+                    return this._startLink(0);
+                } else if ("!" === char) {
+                    return this._parseImage;
                 } else if ("-" === char) {
                     this._escapeCount = 1;
                     this._escapeChar = "-";
@@ -6605,9 +6621,44 @@
                     this._output(char);
                 }
             },
+            _parseMonospace: function (char) {
+                if ("`" === char) {
+                    this._toggleTag("code");
+                    return this._parseContent;
+                } else {
+                    this._output(char);
+                }
+            },
+            _linkType: 0,
+            _linkState: 0,
             _linkText: [],
             _linkUrl: [],
-            _linkState: 0,
+            _startLink: function (type) {
+                this._linkType = type;
+                this._linkState = 0;
+                this._linkText = [];
+                this._linkUrl = [];
+                return this._parseLink;
+            },
+            _finishLink: function () {
+                var url = this._linkUrl.join(""), text = this._linkText.join("");
+                if (0 === this._linkType) {
+                    this._output("<a href=\"");
+                    this._output(url);
+                    this._output("\">");
+                    this._output(text);
+                    this._output("</a>");
+                } else if (1 === this._linkType) {
+                    this._output("<img src=\"");
+                    this._output(url);
+                    this._output("\" alt=\"");
+                    this._output(text);
+                    this._output("\" title=\"");
+                    this._output(text);
+                    this._output("\">");
+                }
+                return this._parseContent;
+            },
             _parseLink: function (char) {
                 var linkState = this._linkState;
                 if ("]" === char && 0 === linkState) {
@@ -6615,17 +6666,21 @@
                 } else if ("(" === char && 1 === linkState) {
                     ++this._linkState;
                 } else if (")" === char && 2 === linkState) {
-                    this._output("<a href=\"");
-                    this._output(this._linkUrl.join(""));
-                    this._output("\">");
-                    this._output(this._linkText.join(""));
-                    this._output("</a>");
-                    return this._parseContent;
+                    return this._finishLink();
                 } else if (0 === linkState) {
                     this._linkText.push(char);
                 } else if (2 === linkState) {
                     this._linkUrl.push(char);
                 }    // Else... nothing. do some kind of error handling?
+            },
+            _parseImage: function (char) {
+                if ("[" === char) {
+                    return this._startLink(1);
+                } else {
+                    this._output("!");
+                    this._setParserState(this._parseContent);
+                    return this._parseContent(char);
+                }
             }
         }
     });
