@@ -1251,10 +1251,11 @@
         for (idx = 0; idx < len; ++idx) {
             value = scripts[idx].getAttribute("gpf-loaded");
             if (value) {
-                value = window[value];
-                gpf.ASSERT("function" === typeof value,
-                    "Global function name expected");
-                value();
+                value = value.split(",");
+                len = value.length;
+                for (idx = 0; idx < len; ++idx) {
+                    gpf.http.include(value[idx]);
+                }
                 return;
             }
         }
