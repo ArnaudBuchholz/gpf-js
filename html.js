@@ -1240,6 +1240,9 @@
 
     //region Handles gpf-loaded tag
 
+    var
+        _gpfIncludes = [];
+
     function _searchGpfLoaded () {
         /**
          * Look for a script tag with the gpf-loaded attribute
@@ -1247,18 +1250,40 @@
         var scripts = document.getElementsByTagName("script"),
             len = scripts.length,
             idx,
-            value;
+            script,
+            gpfLoaded;
         for (idx = 0; idx < len; ++idx) {
-            value = scripts[idx].getAttribute("gpf-loaded");
-            if (value) {
-                value = value.split(",");
-                len = value.length;
+            script = scripts[idx];
+            gpfLoaded = script.getAttribute("gpf-loaded");
+            if (gpfLoaded) {
+                script.removeAttribute("gpf-loaded");
+                gpfLoaded = gpfLoaded.split(",");
+                len = gpfLoaded.length;
                 for (idx = 0; idx < len; ++idx) {
-                    gpf.http.include(value[idx]);
+                    _gpfIncludes.push(gpfLoaded[idx]);
                 }
-                return;
             }
         }
+        // Load the scripts sequentially
+        if (_gpfIncludes.length) {
+            _loadGpfIncludes();
+        }
+    }
+
+    function _loadGpfIncludeFailed(event) {
+        console.error("gpf-loaded: failed to include '" + event.get("url")
+            + "'");
+    }
+
+    function _loadGpfIncludes() {
+        if (!_gpfIncludes.length) {
+            return;
+        }
+        var src = _gpfIncludes.shift();
+        gpf.http.include(src, {
+            load: _loadGpfIncludes,
+            error:_loadGpfIncludeFailed
+        });
     }
 
     if ("browser" === gpf.host() || "phantomjs" === gpf.host()) {
