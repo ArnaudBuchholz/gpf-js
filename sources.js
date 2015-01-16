@@ -36,6 +36,7 @@
             "xpath",                // Xml 'XPATH' parser/evaluator      gpf.xml
 
             "params",               // Parameters parsing             gpf.Params
+            "fs",                   // File system                        gpf.fs
 
             // The following ones must be at the end
             "html",                 // HTML specific functions          gpf.html
