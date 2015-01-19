@@ -658,6 +658,119 @@
 
     //endregion
 
+    //region NodeJS specific classes
+
+    if ("nodejs" === gpf.host() || "phantomjs" === gpf.host()) {
+
+        /**
+         * Wraps a readable stream from NodeJS into a IReadableStream
+         *
+         * @class gpf.stream.NodeReadable
+         * @implements gpf.interfaces.IReadableStream
+         */
+        gpf.define("gpf.stream.NodeReadable", {
+
+            "[Class]": [gpf.$InterfaceImplement(gpfI.IReadableStream)],
+
+            public: {
+
+                /**
+                 * @param {stream.Readable} stream
+                 * @constructor
+                 */
+                constructor: function (stream) {
+                    this._stream = stream;
+                    this._stream.on("data", gpf.Callback.bind(this, "_onData"));
+                    this._stream.on("end", gpf.Callback.bind(this, "_onEnd"));
+                    this._stream.on("error",
+                        gpf.Callback.bind(this, "_onError"));
+                },
+
+                /**
+                 * @inheritDoc gpf.interfaces.IReadableStream:read
+                 */
+                "[read]": [gpf.$ClassEventHandler()],
+                read: function (size, eventsHandler) {
+                    this._eventsHandler = eventsHandler;
+                    this._stream.read(size);
+                }
+
+            },
+
+            protected: {
+
+                _eventsHandler: null,
+
+                _onData: function(chunk) {
+                },
+
+                _onEnd: function () {
+                },
+
+                _onError: function (error) {
+                }
+
+            },
+
+            private: {
+
+                /**
+                 * @type {stream.Readable}
+                 * @private
+                 */
+                _stream: null
+
+            }
+
+        });
+
+        /**
+         * Wraps a writable stream from NodeJS into a IReadableStream
+         *
+         * @class gpf.stream.NodeWritable
+         * @implements gpf.interfaces.IReadableStream
+         */
+        gpf.define("gpf.stream.NodeWritable", {
+
+            "[Class]": [gpf.$InterfaceImplement(gpfI.IWritableStream)],
+
+            public: {
+
+                /**
+                 * @param {stream.Writable} stream
+                 * @constructor
+                 */
+                constructor: function (stream) {
+                    this._stream = stream;
+                },
+
+                /**
+                 * @inheritDoc gpf.interfaces.IWritableStream:write
+                 */
+                "[write]": [gpf.$ClassEventHandler()],
+                write: function (int8buffer, eventsHandler) {
+                    gpf.interfaces.ignoreParameter(int8buffer);
+                    gpf.interfaces.ignoreParameter(eventsHandler);
+                }
+
+            },
+
+            private: {
+
+                /**
+                 * @type {stream.Writable}
+                 * @private
+                 */
+                _stream: null
+
+            }
+
+        });
+
+    }
+
+    //endregion
+
 /*#ifndef(UMD)*/
 }()); /* End of privacy scope */
 /*#endif*/
