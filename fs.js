@@ -3,9 +3,6 @@
     "use strict";
 /*#endif*/
 
-    var
-        gpfI = gpf.interfaces;
-
     gpf.fs = {
 
         TYPE_NOT_FOUND: 0,
@@ -75,81 +72,20 @@
 
     };
 
-    // TODO closing a file?
-
     if ("nodejs" === gpf.host() || "phantomjs" === gpf.host()) {
 
         var _fs,
             _getNodeFS = function () {
-            if (undefined === _fs) {
-                _fs = require("fs");
-            }
-            return _fs;
-        };
-
-        /**
-         * @class NodeFileStream
-         * @implements gpf.interfaces.IStream
-         * @private
-         */
-        gpf.define("NodeFileStream", {
-
-            "[Class]": [gpf.$InterfaceImplement(gpfI.IStream)],
-
-            public: {
-
-                constructor: function (fd) {
-                    this._fd = fd;
-                    this._buffer = new Buffer(NodeFileStream.BUFFER_SIZE);
-                },
-
-                /**
-                 * @inheritDoc gpf.interfaces.IReadableStream:read
-                 */
-                "[read]": [gpf.$ClassEventHandler()],
-                read: function (size, eventsHandler) {
-                    gpf.interfaces.ignoreParameter(size);
-                    gpf.interfaces.ignoreParameter(eventsHandler);
-                },
-
-                /**
-                 * @inheritDoc gpf.interfaces.IWritableStream:write
-                 */
-                "[write]": [gpf.$ClassEventHandler()],
-                write: function (int8buffer, eventsHandler) {
-                    gpf.interfaces.ignoreParameter(int8buffer);
-                    gpf.interfaces.ignoreParameter(eventsHandler);
+                if (undefined === _fs) {
+                    _fs = require("fs");
                 }
-
+                return _fs;
             },
-
-            private: {
-
-                /**
-                 * NodeJS file descriptor
-                 *
-                 * @type {*}
-                 * private
-                 */
-                _fd: null,
-
-                /**
-                 * NodeJS buffer
-                 *
-                 * @type {Object}
-                 * private
-                 */
-                _buffer: null
-
-            },
-
-            static: {
-
-                BUFFER_SIZE: 4096
-
-            }
-
-        });
+            _fireNodeError = function (err, eventsHandler) {
+                gpf.events.fire("error", {
+                    error: err
+                }, eventsHandler);
+            };
 
         gpf.fs.getInfo = function (path, eventsHandler) {
             _getNodeFS().exists(path, function (exists) {
@@ -157,9 +93,7 @@
                     _getNodeFS().stat(path, function (err, stats) {
                         var result;
                         if (err) {
-                            gpf.events.fire("error", {
-                                error: err
-                            }, eventsHandler);
+                            _fireNodeError(err, eventsHandler);
                         } else {
                             result = {
                                 size: stats.size,
@@ -189,17 +123,24 @@
         };
 
         gpf.fs.readAsBinaryStream = function (path, eventsHandler) {
-            _getNodeFS().open(path, "r", function (err, fd) {
-                if (err) {
-                    gpf.events.fire("error", {
-                        error: err
-                    }, eventsHandler);
-                } else {
+            // TODO handle error
+            var nodeStream = _getNodeFS().createReadStream(path);
+            gpf.events.fire("ready", {
+                stream: new gpf.stream.NodeReadable(nodeStream)
+            }, eventsHandler);
+        };
 
-                }
+        gpf.fs.writeAsBinaryStream = function (path, eventsHandler) {
+            // TODO handle error
+            var nodeStream = _getNodeFS().createWriteStream(path);
+            gpf.events.fire("ready", {
+                stream: new gpf.stream.NodeWritable(nodeStream)
+            }, eventsHandler);
+        };
 
-
-            });
+        gpf.fs.close = function (stream) {
+            gpf.interfaces.ignoreParameter(stream);
+            // TODO not sure what I should do with it...
         };
 
     }
