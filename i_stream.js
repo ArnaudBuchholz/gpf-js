@@ -660,7 +660,7 @@
 
     //region NodeJS specific classes
 
-    if ("nodejs" === gpf.host() || "phantomjs" === gpf.host()) {
+    if (gpf.node) {
 
         /**
          * Wraps a readable stream from NodeJS into a IReadableStream
@@ -668,7 +668,7 @@
          * @class gpf.stream.NodeReadable
          * @implements gpf.interfaces.IReadableStream
          */
-        gpf.define("gpf.stream.NodeReadable", {
+        gpf.define("gpf.node.ReadableStream", {
 
             "[Class]": [gpf.$InterfaceImplement(gpfI.IReadableStream)],
 
@@ -691,6 +691,10 @@
                  */
                 "[read]": [gpf.$ClassEventHandler()],
                 read: function (size, eventsHandler) {
+                    if (null !== this._eventsHandler) {
+                        // A read call is already in progress
+                        throw gpfI.IReadableStream.EXCEPTION_READ_IN_PROGRESS;
+                    }
                     this._eventsHandler = eventsHandler;
                     this._stream.read(size);
                 }
@@ -701,13 +705,39 @@
 
                 _eventsHandler: null,
 
+                /**
+                 * Provides an atomic access to the _eventsHandler variable
+                 * (that is immediately cleared)
+                 *
+                 * @return {gpf.events.Handler}
+                 * @private
+                 */
+                _getEventsHandler: function () {
+                    var result = this._eventsHandler;
+                    this._eventsHandler = null;
+                    return result;
+                },
+
+                /**
+                 * Handles "data" stream event
+                 *
+                 * @param {Buffer} chunk
+                 * @private
+                 */
                 _onData: function(chunk) {
+                    gpf.events.fire("data", {
+                        buffer: gpf.node.buffer2JsArray(chunk)
+                    }, this._getEventsHandler());
                 },
 
                 _onEnd: function () {
+                    gpf.events.fire("eos", this._getEventsHandler());
                 },
 
                 _onError: function (error) {
+                    gpf.events.fire("error", {
+                        error: error
+                    }, this._getEventsHandler());
                 }
 
             },
@@ -730,7 +760,7 @@
          * @class gpf.stream.NodeWritable
          * @implements gpf.interfaces.IReadableStream
          */
-        gpf.define("gpf.stream.NodeWritable", {
+        gpf.define("gpf.node.WritableStream", {
 
             "[Class]": [gpf.$InterfaceImplement(gpfI.IWritableStream)],
 
