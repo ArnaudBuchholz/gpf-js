@@ -135,17 +135,33 @@
                 });
             }
 
-        ],
-
-        "Responsive": [
-
-            function (test) {
-                test.title("Install responsive framework");
-                gpf.html.responsive();
-            }
-
         ]
 
     });
+
+    if ("browser" === gpf.host()) {
+
+        gpf.declareTests({
+
+            "Responsive": [
+
+                function (test) {
+                    test.title("Install responsive framework");
+                    gpf.html.responsive();
+                    test.wait();
+                    setTimeout(function () {
+                        var body = document.body;
+                        test.assert(gpf.html.hasClass(body, "gpf-portrait")
+                            || gpf.html.hasClass(body, "gpf-landscape"),
+                            "Body class altered");
+                        test.done();
+                    }, 0);
+                }
+
+            ]
+
+        });
+
+    }
 
 })(); /* End of privacy scope */
