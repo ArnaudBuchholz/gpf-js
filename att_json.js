@@ -9,8 +9,6 @@
 
         /**
          * JSON attribute (base class).
-         * once the attribute is assigned to an object, it implements the
-         * IXmlSerializable interface
          *
          * @class gpf.attributes.JsonAttribute
          * @extends gpf.attributes.Attribute
