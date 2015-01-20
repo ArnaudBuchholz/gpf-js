@@ -126,7 +126,7 @@
             // TODO handle error
             var nodeStream = _getNodeFS().createReadStream(path);
             gpf.events.fire("ready", {
-                stream: new gpf.stream.NodeReadable(nodeStream)
+                stream: new gpf.node.ReadableStream(nodeStream)
             }, eventsHandler);
         };
 
@@ -134,7 +134,7 @@
             // TODO handle error
             var nodeStream = _getNodeFS().createWriteStream(path);
             gpf.events.fire("ready", {
-                stream: new gpf.stream.NodeWritable(nodeStream)
+                stream: new gpf.node.WritableStream(nodeStream)
             }, eventsHandler);
         };
 
