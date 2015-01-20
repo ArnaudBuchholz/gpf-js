@@ -645,6 +645,31 @@
 
     });
 
+    //region NodeJS helpers
+
+    if (gpf.node) {
+
+        /**
+         * Converts a NodeJS buffer into a native array containing unsigned
+         * bytes
+         *
+         * @param {Buffer} buffer
+         * @return {Number[]}
+         */
+        gpf.node.buffer2JsArray = function (buffer) {
+            var result = [],
+                len = buffer.length,
+                idx;
+            for (idx = 0; idx < len; ++idx) {
+                result.push(buffer.readUInt8(idx));
+            }
+            return result;
+        };
+
+    }
+
+    //endregion
+
 /*#ifndef(UMD)*/
 }()); /* End of privacy scope */
 /*#endif*/

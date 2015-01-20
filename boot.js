@@ -83,6 +83,11 @@
         return _host;
     };
 
+    // Prepare node namespace to handle node specific helpers
+    if ("nodejs" === gpf.host() || "phantomjs" === gpf.host()) {
+        gpf.node = {};
+    }
+
     /**
      * Resolve the provided evaluation path and returns the result
      *
@@ -233,7 +238,7 @@
             _finishLoading();
         }());
 
-    } else if ("nodejs" === _host || "phantomjs" === _host) {
+    } else if (gpf.node) {
         /*
          * This is probably the simplest part: use require
          */

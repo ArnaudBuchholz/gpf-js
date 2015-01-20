@@ -72,7 +72,7 @@
 
     };
 
-    if ("nodejs" === gpf.host() || "phantomjs" === gpf.host()) {
+    if (gpf.node) {
 
         var _fs,
             _getNodeFS = function () {
