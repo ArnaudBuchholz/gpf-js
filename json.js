@@ -30,7 +30,7 @@
                 if (isArray) {
                     return "[" + results.join(", ") + "]";
                 } else {
-                    return "(" + results.join(", ") + ")";
+                    return "{" + results.join(", ") + "}";
                 }
                 /*jshint +W089*/
             },
