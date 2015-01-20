@@ -6,6 +6,7 @@
         "simple": [
 
             function (test) {
+                test.title("Simple use of promise");
                 test.wait();
                 var
                     value = 0,
