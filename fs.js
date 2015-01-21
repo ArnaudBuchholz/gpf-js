@@ -17,7 +17,7 @@
          * @param {gpf.events.Handler} eventsHandler
          *
          * @event ready
-         * @eventParam {Object} infos contains:
+         * @eventParam {Object} info contains:
          * - type {Number} see gpf.fs.TYPE_xxx
          * - size {Number}
          * - createdDateTime
@@ -108,13 +108,13 @@
                                 result.type = gpf.fs.TYPE_UNKNOWN;
                             }
                             gpf.events.fire("ready", {
-                                infos: result
+                                info: result
                             }, eventsHandler);
                         }
                     });
                 } else {
                     gpf.events.fire("ready", {
-                        infos: {
+                        info: {
                             type: gpf.fs.TYPE_NOT_FOUND
                         }
                     }, eventsHandler);
