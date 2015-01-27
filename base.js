@@ -223,7 +223,8 @@
     if ("browser" === gpf.host() && window.HTMLCollection) {
         gpf.isArrayLike = function (obj) {
             return obj instanceof Array
-                || obj instanceof window.HTMLCollection;
+                || obj instanceof window.HTMLCollection
+                || obj instanceof window.NodeList;
         };
     } else {
         gpf.isArrayLike = function (obj) {
