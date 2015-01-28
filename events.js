@@ -42,7 +42,11 @@
                 eventsHandler.apply(scope, [event]);
             } else {
                 eventsHandler = eventsHandler[event.type()];
-                if (undefined !== typeof eventsHandler) {
+                if (undefined === eventsHandler) {
+                    // Try with a default handler
+                    eventsHandler = eventsHandler["*"];
+                }
+                if (undefined !== eventsHandler) {
                     overriddenScope = eventsHandler.scope;
                     if (undefined !== overriddenScope) {
                         scope = overriddenScope;
