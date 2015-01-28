@@ -139,9 +139,9 @@
                     }
                     return error;
                 };
-            result.code = code;
-            result.name = name;
-            result.message = message;
+            result.CODE = code;
+            result.NAME = name;
+            result.MESSAGE = message;
             return result;
         },
 
