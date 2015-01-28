@@ -269,7 +269,6 @@
          *
          * @event data finished reading the stream, the buffer is provided
          * @eventParam {String} buffer
-         *
          */
         stringFromStream: function (stream, eventsHandler) {
             if (stream instanceof StringStream) {
@@ -283,9 +282,28 @@
             } else {
                 gpf.stream.readAll(stream, _stringStreamConcat, eventsHandler);
             }
+        },
+
+        "[stringFromFile]": [gpf.$ClassExtension(String, "fromFile")],
+
+        /**
+         * Completely reads a file
+         *
+         * @param {*} path
+         * @param {String} encoding
+         * @param {gpf.events.Handler} eventsHandler
+         *
+         * @event data finished reading the file, the buffer is provided
+         * @eventParam {String} buffer
+         */
+        stringFromFile: function (path, encoding, eventsHandler) {
+            gpf.fs.getInfo(path,
+                new StringFromFileScope(path, encoding, eventsHandler));
         }
 
     });
+
+    //region stringFromStream helpers
 
     function _stringStreamConcat(previous, buffer) {
         if (undefined === previous) {
@@ -297,6 +315,68 @@
             return previous.join("");
         }
     }
+
+    //endregion
+
+    //region stringFromFile helpers
+
+    /**
+     * Creates a custom EventsHandler to sequence the calls to be made
+     *
+     * @param {*} path
+     * @param {String} encoding
+     * @param {gpf.events.Handler} eventsHandler
+     * @constructor
+     */
+    function StringFromFileScope (path, encoding, eventsHandler) {
+        this._path = path;
+        this._encoding = encoding;
+        this._eventsHandler = eventsHandler;
+        this.scope = this;
+    }
+
+    StringFromFileScope.prototype = {
+        _path: null,            // File path
+        _encoding: "",          // Encoding
+        _eventsHandler: null,   // Original events handler
+        _step: 0,               // 0: getInfo, 1: readAsBinaryStream
+        scope: null             // This eventsHandler scope
+    };
+
+    /**
+     * ready event handler
+     *
+     * @param {gpf.Event} event
+     */
+    StringFromFileScope.prototype.ready = function (event) {
+        if (0 === this._step) {
+            var info = event.get("info");
+            if (info.type === gpf.fs.TYPE_NOT_FOUND) {
+                gpf.events.fire("error", {
+                    error: gpf.Error.FileNotFound()
+                }, this._eventsHandler);
+                return;
+            }
+            this._step = 1;
+            gpf.fs.readAsBinaryStream(this._path, this);
+        } else {
+            var stream = event.get("stream");
+            var decoder = gpf.encoding.createDecoder(stream, this._encoding);
+            gpf.stringFromStream(decoder, this);
+        }
+    };
+
+    /**
+     * Any other event handler
+     *
+     * @param {gpf.Event} event
+     */
+    StringFromFileScope.prototype["*"] = function (event) {
+        // Forward to original handler (error or data)
+        gpf.events.fire(event, this._eventsHandler);
+    };
+
+    //endregion
 
 /*#ifndef(UMD)*/
 }()); /* End of privacy scope */
