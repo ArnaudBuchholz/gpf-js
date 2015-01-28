@@ -6826,7 +6826,13 @@
                 } else if (0 === linkState) {
                     this._linkText.push(char);
                 } else if (2 === linkState) {
-                    this._linkUrl.push(char);
+                    /*
+                     * https://github.com/ArnaudBuchholz/gpf-js/issues/33
+                     * Filter out tabs and carriage returns
+                     */
+                    if (-1 === "\t\n".indexOf(char)) {
+                        this._linkUrl.push(char);
+                    }
                 }    // Else... nothing. do some kind of error handling?
             },
             _parseImage: function (char) {
