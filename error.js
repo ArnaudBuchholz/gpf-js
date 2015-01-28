@@ -100,7 +100,11 @@
             "ParamsTypeUnknown":
                 "Type unknown",
             "ParamsRequiredMissing":
-                "Required parameter '{name}' is missing"
+                "Required parameter '{name}' is missing",
+
+            // fs.js
+            "FileNotFound":
+                "File not found"
         },
 
         /**
@@ -112,27 +116,33 @@
          * @closure
          */
         genThrowError = function (code, name) {
-            return function (context) {
-                var
-                    error = new gpf.Error(),
-                    replacements,
-                    key;
-                error.code = code;
-                error.name = name;
-                if (context) {
-                    replacements = {};
-                    for (key in context) {
-                        if (context.hasOwnProperty(key)) {
-                            replacements["{" + key + "}"] =
-                                context[key].toString();
+            var message = ERRORS[name],
+                result = function (context) {
+                    var
+                        error = new gpf.Error(),
+                        replacements,
+                        key;
+                    error.code = code;
+                    error.name = name;
+                    if (context) {
+                        replacements = {};
+                        for (key in context) {
+                            if (context.hasOwnProperty(key)) {
+                                replacements["{" + key + "}"] =
+                                    context[key].toString();
+                            }
                         }
+                        error.message = gpf.replaceEx(ERRORS[name],
+                            replacements);
+                    } else {
+                        error.message = message;
                     }
-                    error.message = gpf.replaceEx(ERRORS[name], replacements);
-                } else {
-                    error.message = ERRORS[name];
-                }
-                throw error;
-            };
+                    return error;
+                };
+            result.code = code;
+            result.name = name;
+            result.message = message;
+            return result;
         },
 
         name,

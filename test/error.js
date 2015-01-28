@@ -8,7 +8,7 @@
             function (test) {
                 test.title("Checking error content");
                 try {
-                    gpf.Error.Abstract();
+                    throw gpf.Error.Abstract();
                 } catch (e) {
                     test.assert(e instanceof gpf.Error, "Got a gpf.Error");
                     test.equal(e.code, gpf.Error.CODE_ABSTRACT,
@@ -21,7 +21,7 @@
             function (test) {
                 test.title("Checking parameter use in message");
                 try {
-                    gpf.Error.InterfaceExpected({
+                    throw gpf.Error.InterfaceExpected({
                         name: "Test"
                     });
                 } catch (e) {

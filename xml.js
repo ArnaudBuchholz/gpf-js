@@ -1276,7 +1276,7 @@
         var
             iXmlSerializable;
         if ("string" === typeof value) {
-            gpf.Error.NotImplemented();
+            throw gpf.Error.NotImplemented();
         } else if ("object" === typeof value) {
             iXmlSerializable = gpfI.query(value, gpfI.IXmlSerializable);
             if (null === iXmlSerializable) {
@@ -1333,7 +1333,7 @@
             // Try with a starting _
             newName = "_" + name;
             if (!gpf.xml.isValidName(newName)) {
-                gpf.Error.XmlInvalidName();
+                throw gpf.Error.XmlInvalidName();
             }
             return newName;
         }

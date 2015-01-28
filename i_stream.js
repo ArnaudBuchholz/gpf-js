@@ -200,7 +200,7 @@
              */
             _addToBuffer: function (buffer) {
                 gpf.interfaces.ignoreParameter(buffer);
-                gpf.Error.Abstract();
+                throw gpf.Error.Abstract();
             },
 
             /**
@@ -514,13 +514,13 @@
                 _readSize: 0,
 
                 _consolidateBuffer: function () {
-                    gpf.Error.Abstract();
+                    throw gpf.Error.Abstract();
                     return [];
                 },
 
                 _addBuffer: function (buffer) {
                     gpf.interfaces.ignoreParameter(buffer);
-                    gpf.Error.Abstract();
+                    throw gpf.Error.Abstract();
                 }
             },
 

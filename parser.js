@@ -458,7 +458,7 @@
                  */
                 parse: function (char) {
                     gpf.interfaces.ignoreParameter(char);
-                    gpf.Error.Abstract();
+                    throw gpf.Error.Abstract();
                     return PatternItem.PARSE_IGNORED;
                 },
 
@@ -495,7 +495,7 @@
                 write: function (state, char) {
                     gpf.interfaces.ignoreParameter(state);
                     gpf.interfaces.ignoreParameter(char);
-                    gpf.Error.Abstract();
+                    throw gpf.Error.Abstract();
                     return -1;
                 }
 
@@ -622,12 +622,12 @@
                         this._exc = [];
                     } else if ("]" === char) {
                         if (this._inRange) {
-                            gpf.Error.PatternInvalidSyntax();
+                            throw gpf.Error.PatternInvalidSyntax();
                         }
                         return true;
                     } else if ("-" === char) {
                         if (this._inRange || 0 === chars.length) {
-                            gpf.Error.PatternInvalidSyntax();
+                            throw gpf.Error.PatternInvalidSyntax();
                         }
                         this._inRange = true;
                     } else {
@@ -659,7 +659,7 @@
                         chars;
                     if (this.hasOwnProperty("_exc")) {
                         if ("^" === char) {
-                            gpf.Error.PatternInvalidSyntax();
+                            throw gpf.Error.PatternInvalidSyntax();
                         }
                         chars = this._exc;
                     } else {
@@ -667,7 +667,7 @@
                     }
                     if ("[" === char) {
                         if (this.hasOwnProperty("_inc")) {
-                            gpf.Error.PatternInvalidSyntax();
+                            throw gpf.Error.PatternInvalidSyntax();
                         }
                         this._inc = [];
                     } else if (this._parse(char, chars)) {

@@ -819,7 +819,7 @@
     function _getHandlerAttribute(member, handlerAttributeArray) {
         var attribute;
         if (1 !== handlerAttributeArray.length()) {
-            gpf.Error.HtmlHandlerMultiplicityError({
+            throw gpf.Error.HtmlHandlerMultiplicityError({
                 member: member
             });
         }
@@ -858,11 +858,11 @@
             defaultHandler,
             eventAttributes;
         if (0 === handlerAttributes.count()) {
-            gpf.Error.HtmlHandlerMissing();
+            throw gpf.Error.HtmlHandlerMissing();
         }
         defaultHandler = handlerAttributes.each(_findDefaultHandler);
         if (undefined === defaultHandler) {
-            gpf.Error.HtmlHandlerNoDefault();
+            throw gpf.Error.HtmlHandlerNoDefault();
         }
         defaultHandler = defaultHandler.member();
         if (undefined === domSelection) {

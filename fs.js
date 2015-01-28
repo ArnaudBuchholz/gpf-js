@@ -26,7 +26,7 @@
         getInfo: function (path, eventsHandler) {
             gpf.interfaces.ignoreParameter(path);
             gpf.interfaces.ignoreParameter(eventsHandler);
-            gpf.Error.Abstract();
+            throw gpf.Error.Abstract();
         },
 
         /**
@@ -41,7 +41,7 @@
         readAsBinaryStream: function (path, eventsHandler) {
             gpf.interfaces.ignoreParameter(path);
             gpf.interfaces.ignoreParameter(eventsHandler);
-            gpf.Error.Abstract();
+            throw gpf.Error.Abstract();
         },
 
         /**
@@ -56,7 +56,7 @@
         writeAsBinaryStream: function (path, eventsHandler) {
             gpf.interfaces.ignoreParameter(path);
             gpf.interfaces.ignoreParameter(eventsHandler);
-            gpf.Error.Abstract();
+            throw gpf.Error.Abstract();
         },
 
         /**
@@ -67,7 +67,7 @@
          */
         close: function (stream) {
             gpf.interfaces.ignoreParameter(stream);
-            gpf.Error.Abstract();
+            throw gpf.Error.Abstract();
         }
 
     };

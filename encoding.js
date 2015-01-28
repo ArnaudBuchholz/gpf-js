@@ -180,7 +180,7 @@
                  */
                 _endOfInputStream: function () {
                     if (this._unprocessed.length) {
-                        gpf.Error.EncodingEOFWithUnprocessedBytes();
+                        throw gpf.Error.EncodingEOFWithUnprocessedBytes();
                     }
                 },
 
@@ -227,7 +227,7 @@
         createEncoder: function (input, encoding) {
             var module = _encodings[encoding];
             if (undefined === module) {
-                gpf.Error.EncodingNotSupported();
+                throw gpf.Error.EncodingNotSupported();
             }
             return new EncoderStream(module[0], input);
         },
@@ -243,7 +243,7 @@
         createDecoder: function (input, encoding) {
             var module = _encodings[encoding];
             if (undefined === module) {
-                gpf.Error.EncodingNotSupported();
+                throw gpf.Error.EncodingNotSupported();
             }
             return new DecoderStream(module[1], input);
         }

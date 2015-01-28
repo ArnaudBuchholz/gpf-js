@@ -96,7 +96,7 @@
          */
         _alterPrototype: function (objPrototype) {
             if (!gpf.isArrayLike(objPrototype[this._member])) {
-                gpf.Error.EnumerableInvalidMember();
+                throw gpf.Error.EnumerableInvalidMember();
             }
             gpfA.add(objPrototype.constructor, "Class", [
                 new gpfA.InterfaceImplementAttribute(gpfI.IEnumerable,
