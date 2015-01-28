@@ -20,7 +20,7 @@
                 },
 
                 function (test) {
-                    test.title("Read a file");
+                    test.title("Read a file (full)");
                     var
                         stream,
                         decoder;
@@ -41,13 +41,31 @@
                             test.done();
                         });
                     });
+                },
+
+                function (test) {
+                    test.title("Read a file (stringFromFile)");
+                    test.wait();
+                    gpf.stringFromFile("../fs.js", gpf.encoding.UTF_8,
+                        function (event) {
+                            if (event.type() === "error") {
+                                console.error(event.get("error"));
+                            }
+                            test.equal(event.type(), "data", "Data event");
+                            var content = event.get("buffer"),
+                                index = content.indexOf("MyPrivateData");
+                            test.notEqual(index, -1, "Found MyPrivateData");
+                            test.done();
+                        }
+                    );
                 }
             ]
 
         });
 
-
     }
+
+    /*MyPrivateData*/
 
 })(); /* End of privacy scope */
 
