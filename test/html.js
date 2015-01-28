@@ -133,6 +133,33 @@
                     test.equal(_sampleHTML, result, "Streamed parsing");
                     test.done();
                 });
+            },
+
+            // https://github.com/ArnaudBuchholz/gpf-js/issues/33
+            function (test) {
+                test.title("Issue #33");
+                var
+                    string = [
+                        "A [link](ht",
+                        "",
+                        "tp://exa",
+                        "mple.com)"
+                    ].join("\r\n"),
+                    parser = new gpf.html.MarkdownParser(),
+                    stream = new gpf.ParserStream(parser,
+                        gpf.stringToStream(string));
+                test.wait();
+                gpf.stringFromStream(stream, function (event) {
+                    var result;
+                    test.equal(event.type(),
+                        gpf.interfaces.IReadableStream.EVENT_DATA,
+                        "Stream is ready");
+                    result = event.get("buffer");
+                    test.equal("http://example.com", result.split("\"")[1],
+                        "URL is correct");
+                    test.done();
+                });
+
             }
 
         ]
