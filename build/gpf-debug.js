@@ -638,20 +638,24 @@
          * @param {gpf.events.Handler} eventsHandler
          */
         _fire = function (event, scope, eventsHandler) {
-            var overriddenScope;
+            var eventHandler, overriddenScope;
             if (eventsHandler instanceof Target) {
                 eventsHandler._broadcastEvent(event);
             } else if ("function" === typeof eventsHandler || eventsHandler instanceof gpf.Callback) {
                 // Compatible with Function & gpf.Callback
                 eventsHandler.apply(scope, [event]);
             } else {
-                eventsHandler = eventsHandler[event.type()];
-                if (undefined !== typeof eventsHandler) {
+                eventHandler = eventsHandler[event.type()];
+                if (undefined === eventHandler) {
+                    // Try with a default handler
+                    eventHandler = eventsHandler["*"];
+                }
+                if (undefined !== eventHandler) {
                     overriddenScope = eventsHandler.scope;
                     if (undefined !== overriddenScope) {
                         scope = overriddenScope;
                     }
-                    eventsHandler.apply(scope, [event]);
+                    eventHandler.apply(scope, [event]);
                 }
             }
         },
@@ -1425,7 +1429,7 @@
             }
             baseType = typeof baseMember;
             if ("undefined" !== baseType && null !== baseMember && newType !== baseType) {
-                gpf.Error.ClassMemberOverloadWithTypeChange();
+                throw gpf.Error.ClassMemberOverloadWithTypeChange();
             }
             if ("function" === newType && "undefined" !== baseType && _usesSuper(defMember)) {
                 /*
@@ -1465,7 +1469,7 @@
                         if ("[" === member.charAt(0) && "]" === member.charAt(member.length - 1)) {
                             this._processAttribute(member);    // Visibility
                         } else if ("public" === member || "private" === member || "protected" === member || "static" === member) {
-                            gpf.Error.ClassInvalidVisibility();    // Usual member
+                            throw gpf.Error.ClassInvalidVisibility();    // Usual member
                         } else {
                             this._processMember(member, visibility);
                         }
@@ -2037,7 +2041,8 @@
             "XmlInvalidName": "Invalid XML name",
             "ParamsNameRequired": "Missing name",
             "ParamsTypeUnknown": "Type unknown",
-            "ParamsRequiredMissing": "Required parameter '{name}' is missing"
+            "ParamsRequiredMissing": "Required parameter '{name}' is missing",
+            "FileNotFound": "File not found"
         },
         /**
          * Generates an error function
@@ -2048,23 +2053,27 @@
          * @closure
          */
         genThrowError = function (code, name) {
-            return function (context) {
-                var error = new gpf.Error(), replacements, key;
-                error.code = code;
-                error.name = name;
-                if (context) {
-                    replacements = {};
-                    for (key in context) {
-                        if (context.hasOwnProperty(key)) {
-                            replacements["{" + key + "}"] = context[key].toString();
+            var message = ERRORS[name], result = function (context) {
+                    var error = new gpf.Error(), replacements, key;
+                    error.code = code;
+                    error.name = name;
+                    if (context) {
+                        replacements = {};
+                        for (key in context) {
+                            if (context.hasOwnProperty(key)) {
+                                replacements["{" + key + "}"] = context[key].toString();
+                            }
                         }
+                        error.message = gpf.replaceEx(ERRORS[name], replacements);
+                    } else {
+                        error.message = message;
                     }
-                    error.message = gpf.replaceEx(ERRORS[name], replacements);
-                } else {
-                    error.message = ERRORS[name];
-                }
-                throw error;
-            };
+                    return error;
+                };
+            result.CODE = code;
+            result.NAME = name;
+            result.MESSAGE = message;
+            return result;
         }, name, code = 0;
     for (name in ERRORS) {
         if (ERRORS.hasOwnProperty(name)) {
@@ -2307,7 +2316,7 @@
                 result = objectInstance.queryInterface(interfaceDefinition);
             }
             if (null === result && throwError) {
-                gpf.Error.InterfaceExpected({ name: gpf.classDef(interfaceDefinition).name() });
+                throw gpf.Error.InterfaceExpected({ name: gpf.classDef(interfaceDefinition).name() });
             }
             return result;
         }
@@ -2527,7 +2536,7 @@
     gpf._defAttr("$Enumerable", gpfA.ClassAttribute, {
         _alterPrototype: function (objPrototype) {
             if (!gpf.isArrayLike(objPrototype[this._member])) {
-                gpf.Error.EnumerableInvalidMember();
+                throw gpf.Error.EnumerableInvalidMember();
             }
             gpfA.add(objPrototype.constructor, "Class", [new gpfA.InterfaceImplementAttribute(gpfI.IEnumerable, _buildEnumerableOnArray)]);
         }
@@ -2724,7 +2733,7 @@
             _readSize: _BUFREADSTREAM_READ_SIZE,
             _addToBuffer: function (buffer) {
                 gpf.interfaces.ignoreParameter(buffer);
-                gpf.Error.Abstract();
+                throw gpf.Error.Abstract();
             },
             _endOfInputStream: function () {
             },
@@ -2897,12 +2906,12 @@
             protected: {
                 _readSize: 0,
                 _consolidateBuffer: function () {
-                    gpf.Error.Abstract();
+                    throw gpf.Error.Abstract();
                     return [];
                 },
                 _addBuffer: function (buffer) {
                     gpf.interfaces.ignoreParameter(buffer);
-                    gpf.Error.Abstract();
+                    throw gpf.Error.Abstract();
                 }
             },
             private: {
@@ -3231,8 +3240,13 @@
             } else {
                 gpf.stream.readAll(stream, _stringStreamConcat, eventsHandler);
             }
+        },
+        "[stringFromFile]": [gpf.$ClassExtension(String, "fromFile")],
+        stringFromFile: function (path, encoding, eventsHandler) {
+            gpf.fs.getInfo(path, new StringFromFileScope(path, encoding, eventsHandler));
         }
     });
+    //region stringFromStream helpers
     function _stringStreamConcat(previous, buffer) {
         if (undefined === previous) {
             return [buffer];
@@ -3243,6 +3257,58 @@
             return previous.join("");
         }
     }
+    //endregion
+    //region stringFromFile helpers
+    /**
+     * Creates a custom EventsHandler to sequence the calls to be made
+     *
+     * @param {*} path
+     * @param {String} encoding
+     * @param {gpf.events.Handler} eventsHandler
+     * @constructor
+     */
+    function StringFromFileScope(path, encoding, eventsHandler) {
+        this._path = path;
+        this._encoding = encoding;
+        this._eventsHandler = eventsHandler;
+        this.scope = this;
+    }
+    StringFromFileScope.prototype = {
+        _path: null,
+        _encoding: "",
+        _eventsHandler: null,
+        _step: 0,
+        scope: null
+    };
+    /**
+     * ready event handler
+     *
+     * @param {gpf.Event} event
+     */
+    StringFromFileScope.prototype.ready = function (event) {
+        if (0 === this._step) {
+            var info = event.get("info");
+            if (info.type === gpf.fs.TYPE_NOT_FOUND) {
+                gpf.events.fire("error", { error: gpf.Error.FileNotFound() }, this._eventsHandler);
+                return;
+            }
+            this._step = 1;
+            gpf.fs.readAsBinaryStream(this._path, this);
+        } else {
+            var stream = event.get("stream");
+            var decoder = gpf.encoding.createDecoder(stream, this._encoding);
+            gpf.stringFromStream(decoder, this);
+        }
+    };
+    /**
+     * Any other event handler
+     *
+     * @param {gpf.Event} event
+     */
+    StringFromFileScope.prototype["*"] = function (event) {
+        // Forward to original handler (error or data)
+        gpf.events.fire(event, this._eventsHandler);
+    };    //endregion
     var gpfI = gpf.interfaces, gpfFireEvent = gpf.events.fire,
         /**
          * Implements IStream on top of an array  (FIFO read / write)
@@ -3819,7 +3885,7 @@
             public: {
                 parse: function (char) {
                     gpf.interfaces.ignoreParameter(char);
-                    gpf.Error.Abstract();
+                    throw gpf.Error.Abstract();
                     return PatternItem.PARSE_IGNORED;
                 },
                 finalize: function () {
@@ -3830,7 +3896,7 @@
                 write: function (state, char) {
                     gpf.interfaces.ignoreParameter(state);
                     gpf.interfaces.ignoreParameter(char);
-                    gpf.Error.Abstract();
+                    throw gpf.Error.Abstract();
                     return -1;
                 }    //endregion
             },
@@ -3889,12 +3955,12 @@
                         this._exc = [];
                     } else if ("]" === char) {
                         if (this._inRange) {
-                            gpf.Error.PatternInvalidSyntax();
+                            throw gpf.Error.PatternInvalidSyntax();
                         }
                         return true;
                     } else if ("-" === char) {
                         if (this._inRange || 0 === chars.length) {
-                            gpf.Error.PatternInvalidSyntax();
+                            throw gpf.Error.PatternInvalidSyntax();
                         }
                         this._inRange = true;
                     } else {
@@ -3919,7 +3985,7 @@
                     var chars;
                     if (this.hasOwnProperty("_exc")) {
                         if ("^" === char) {
-                            gpf.Error.PatternInvalidSyntax();
+                            throw gpf.Error.PatternInvalidSyntax();
                         }
                         chars = this._exc;
                     } else {
@@ -3927,7 +3993,7 @@
                     }
                     if ("[" === char) {
                         if (this.hasOwnProperty("_inc")) {
-                            gpf.Error.PatternInvalidSyntax();
+                            throw gpf.Error.PatternInvalidSyntax();
                         }
                         this._inc = [];
                     } else if (this._parse(char, chars)) {
@@ -4932,7 +4998,7 @@
                     },
                     _endOfInputStream: function () {
                         if (this._unprocessed.length) {
-                            gpf.Error.EncodingEOFWithUnprocessedBytes();
+                            throw gpf.Error.EncodingEOFWithUnprocessedBytes();
                         }
                     },
                     _readFromBuffer: gpf.stream.BufferedOnRead.prototype._readFromStringBuffer
@@ -4948,14 +5014,14 @@
             createEncoder: function (input, encoding) {
                 var module = _encodings[encoding];
                 if (undefined === module) {
-                    gpf.Error.EncodingNotSupported();
+                    throw gpf.Error.EncodingNotSupported();
                 }
                 return new EncoderStream(module[0], input);
             },
             createDecoder: function (input, encoding) {
                 var module = _encodings[encoding];
                 if (undefined === module) {
-                    gpf.Error.EncodingNotSupported();
+                    throw gpf.Error.EncodingNotSupported();
                 }
                 return new DecoderStream(module[1], input);
             }
@@ -5800,7 +5866,7 @@
     gpf.xml.convert = function (value, out, eventsHandler) {
         var iXmlSerializable;
         if ("string" === typeof value) {
-            gpf.Error.NotImplemented();
+            throw gpf.Error.NotImplemented();
         } else if ("object" === typeof value) {
             iXmlSerializable = gpfI.query(value, gpfI.IXmlSerializable);
             if (null === iXmlSerializable) {
@@ -5833,7 +5899,7 @@
             // Try with a starting _
             newName = "_" + name;
             if (!gpf.xml.isValidName(newName)) {
-                gpf.Error.XmlInvalidName();
+                throw gpf.Error.XmlInvalidName();
             }
             return newName;
         }
@@ -6347,12 +6413,12 @@
                 gpf.json.load(result, definition);
                 // name is required
                 if (!result._name) {
-                    gpf.Error.ParamsNameRequired();
+                    throw gpf.Error.ParamsNameRequired();
                 }
                 // Check type and default value
                 typeDefaultValue = this.DEFAULTS[result._type];
                 if (undefined === typeDefaultValue) {
-                    gpf.Error.ParamsTypeUnknown();
+                    throw gpf.Error.ParamsTypeUnknown();
                 }
                 if (result.hasOwnProperty("_defaultValue")) {
                     result._defaultValue = gpf.value(result._defaultValue, typeDefaultValue, result._type);
@@ -6448,7 +6514,7 @@
                     name = parameter._name;
                     if (undefined === result[name]) {
                         if (parameter._required) {
-                            gpf.Error.ParamsRequiredMissing({ name: name });
+                            throw gpf.Error.ParamsRequiredMissing({ name: name });
                         }
                         value = parameter._defaultValue;
                         if (undefined !== value) {
@@ -6500,21 +6566,21 @@
         getInfo: function (path, eventsHandler) {
             gpf.interfaces.ignoreParameter(path);
             gpf.interfaces.ignoreParameter(eventsHandler);
-            gpf.Error.Abstract();
+            throw gpf.Error.Abstract();
         },
         readAsBinaryStream: function (path, eventsHandler) {
             gpf.interfaces.ignoreParameter(path);
             gpf.interfaces.ignoreParameter(eventsHandler);
-            gpf.Error.Abstract();
+            throw gpf.Error.Abstract();
         },
         writeAsBinaryStream: function (path, eventsHandler) {
             gpf.interfaces.ignoreParameter(path);
             gpf.interfaces.ignoreParameter(eventsHandler);
-            gpf.Error.Abstract();
+            throw gpf.Error.Abstract();
         },
         close: function (stream) {
             gpf.interfaces.ignoreParameter(stream);
-            gpf.Error.Abstract();
+            throw gpf.Error.Abstract();
         }
     };
     if (gpf.node) {
@@ -6995,7 +7061,7 @@
     function _getHandlerAttribute(member, handlerAttributeArray) {
         var attribute;
         if (1 !== handlerAttributeArray.length()) {
-            gpf.Error.HtmlHandlerMultiplicityError({ member: member });
+            throw gpf.Error.HtmlHandlerMultiplicityError({ member: member });
         }
         attribute = handlerAttributeArray.get(0);
         if (!(attribute instanceof _HtmEvent)) {
@@ -7025,11 +7091,11 @@
     gpf.html.handle = function (instance, domSelection) {
         var allAttributes = new gpf.attributes.Map(instance).filter(_HtmBase), handlerAttributes = allAttributes.filter(_HtmHandler), defaultHandler, eventAttributes;
         if (0 === handlerAttributes.count()) {
-            gpf.Error.HtmlHandlerMissing();
+            throw gpf.Error.HtmlHandlerMissing();
         }
         defaultHandler = handlerAttributes.each(_findDefaultHandler);
         if (undefined === defaultHandler) {
-            gpf.Error.HtmlHandlerNoDefault();
+            throw gpf.Error.HtmlHandlerNoDefault();
         }
         defaultHandler = defaultHandler.member();
         if (undefined === domSelection) {
