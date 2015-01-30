@@ -37,13 +37,13 @@ FIXME: IE10 does not detect when the script does not exist.
             if (!context.done
                     && (!this.readyState || this.readyState === "loaded"
                      || this.readyState === "complete")) {
+                _detachInclude(context);
                 // IE10: the event is triggered *before* the source is evaluated
                 setTimeout(function() {
                     context.done = true;
                     gpf.events.fire("load", {url: context.src},
                         context.eventsHandler);
                 }, 0);
-                _detachInclude(context);
             }
         },
 
