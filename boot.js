@@ -313,7 +313,11 @@
                         idx = gpf.test(sources, "http") + 1;
                         loadSources();
                     } else {
-                        window.setTimeout(boot, 100);
+                        /**
+                         * Use an aggressive setting but will be used only for
+                         * the source version
+                         */
+                        window.setTimeout(boot, 0);
                     }
                 };
             boot();
