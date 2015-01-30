@@ -159,7 +159,26 @@
                         "URL is correct");
                     test.done();
                 });
+            },
 
+            // https://github.com/ArnaudBuchholz/gpf-js/issues/35
+            function (test) {
+                test.title("Issue #33");
+                var
+                    parser = new gpf.html.MarkdownParser(),
+                    stream = new gpf.ParserStream(parser,
+                        gpf.stringToStream("`&lt;path&gt;`"));
+                test.wait();
+                gpf.stringFromStream(stream, function (event) {
+                    var result;
+                    test.equal(event.type(),
+                        gpf.interfaces.IReadableStream.EVENT_DATA,
+                        "Stream is ready");
+                    result = event.get("buffer");
+                    test.equal("<p><code>&lt;path&gt;</code></p>", result,
+                        "HTML is correct");
+                    test.done();
+                });
             }
 
         ]
