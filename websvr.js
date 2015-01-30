@@ -65,6 +65,13 @@
 
     var
         /**
+         * NodeJS modules that will be loaded
+         */
+        _url = null,
+        _path = null,
+        _fs = null,
+
+        /**
          * Placeholder class to extend the NodeJS response class and provide
          * more context to it
          *
@@ -121,7 +128,15 @@
                  * @type {String}
                  * @private
                  */
-                _extName: ""
+                _extName: "",
+
+                /**
+                 * For performance reasons, I keep track of the time spent
+                 *
+                 * @type {Date}
+                 * @private
+                 */
+                _startTimeStamp: null
 
             },
 
@@ -134,19 +149,17 @@
                  * @constructor
                  */
                 constructor: function (options, request, response) {
-                    var
-                        url = require("url"),
-                        path = require("path");
+                    this._startTimeStamp = new Date();
                     this._options = options;
                     this._request = request;
                     this._response = response;
                     // Parse and analyse URL
-                    this._parsedUrl = url.parse(request.url);
-                    this._filePath = path.join(
+                    this._parsedUrl = _url.parse(request.url);
+                    this._filePath = _path.join(
                         this._options.root,
                         this._parsedUrl.pathname
                     );
-                    this._extName = path.extname(this._filePath).toLowerCase();
+                    this._extName = _path.extname(this._filePath).toLowerCase();
                     // Extend response
                     response._gpf = this;
                     response.plain = ResponseHandler._plain;
@@ -156,8 +169,7 @@
                  * Process the request
                  */
                 process: function () {
-                    var fs = require("fs");
-                    if (fs.existsSync(this._filePath)) {
+                    if (_fs.existsSync(this._filePath)) {
                         if (".jsp" === this._extName) {
                             this.plain(500, "JSP not handled yet");
                         } else {
@@ -200,9 +212,7 @@
                 fromFile: function (filePath) {
                     var
                         me = this,
-                        fs = require("fs"),
-                        path = require("path"),
-                        extName = path.extname(filePath).toLowerCase(),
+                        extName = _path.extname(filePath).toLowerCase(),
                         chunkSize = me._options.chunkSize,
                         buffer,
                         pos = 0,
@@ -213,7 +223,13 @@
                         write;
                     close = function () {
                         if (fileDescriptor) {
-                            fs.close(fileDescriptor);
+                            _fs.close(fileDescriptor);
+                        }
+                        if (me._options.verbose) {
+                            console.log("\tFile handle: " + fileDescriptor);
+                            console.log("\tEnd      t+: "
+                            + ((new Date()) - me._startTimeStamp)
+                            + "ms");
                         }
                         me._response.end();
                     };
@@ -227,7 +243,7 @@
                         if (len > chunkSize) {
                             len = chunkSize;
                         }
-                        fs.read(fileDescriptor, buffer, 0, len, pos, write);
+                        _fs.read(fileDescriptor, buffer, 0, len, pos, write);
                     };
                     write = function (err, bytesRead, buffer) {
                         if (err) {
@@ -245,7 +261,7 @@
                         pos += bytesRead;
                         me._response.write(buffer, read);
                     };
-                    fs.stat(filePath, function (err, stats) {
+                    _fs.stat(filePath, function (err, stats) {
                         var mimeType;
                         if (err) {
                             me._response.plain(500,
@@ -265,7 +281,7 @@
                             console.log("\tMime type  : " + mimeType);
                             console.log("\tFile size  : " + size);
                         }
-                        fs.open(filePath, "r", function (err, fd) {
+                        _fs.open(filePath, "r", function (err, fd) {
                             if (err) {
                                 me._response.plain(500,
                                     "Unable to open file (" + err + ")");
@@ -278,6 +294,9 @@
                             fileDescriptor = fd;
                             if (me._options.verbose) {
                                 console.log("\tFile handle: " + fd);
+                                console.log("\tStart    t+: "
+                                    + ((new Date()) - me._startTimeStamp)
+                                    + "ms");
                             }
                             buffer = new Buffer(chunkSize);
                             read();
@@ -323,6 +342,10 @@
         options = _processOptions(options);
         // Expose ExtJS require
         global.require = require;
+        // Load the modules that are needed
+        _url = require("url");
+        _path = require("path");
+        _fs = require("fs");
         // Build the web server
         require("http").createServer(function (request, response) {
             if (options.verbose) {
