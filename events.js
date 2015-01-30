@@ -33,7 +33,8 @@
          * @param {gpf.events.Handler} eventsHandler
          */
         _fire = function (event, scope, eventsHandler) {
-            var overriddenScope;
+            var eventHandler,
+                overriddenScope;
             if (eventsHandler instanceof Target) {
                 eventsHandler._broadcastEvent(event);
             } else if ("function" === typeof eventsHandler
@@ -41,17 +42,17 @@
                 // Compatible with Function & gpf.Callback
                 eventsHandler.apply(scope, [event]);
             } else {
-                eventsHandler = eventsHandler[event.type()];
-                if (undefined === eventsHandler) {
+                eventHandler = eventsHandler[event.type()];
+                if (undefined === eventHandler) {
                     // Try with a default handler
-                    eventsHandler = eventsHandler["*"];
+                    eventHandler = eventsHandler["*"];
                 }
-                if (undefined !== eventsHandler) {
+                if (undefined !== eventHandler) {
                     overriddenScope = eventsHandler.scope;
                     if (undefined !== overriddenScope) {
                         scope = overriddenScope;
                     }
-                    eventsHandler.apply(scope, [event]);
+                    eventHandler.apply(scope, [event]);
                 }
             }
         },
