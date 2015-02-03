@@ -67,6 +67,7 @@
         /**
          * NodeJS modules that will be loaded
          */
+        _http = null,
         _url = null,
         _path = null,
         _fs = null,
@@ -343,11 +344,12 @@
         // Expose ExtJS require
         global.require = require;
         // Load the modules that are needed
+        _http = require("http");
         _url = require("url");
         _path = require("path");
         _fs = require("fs");
         // Build the web server
-        require("http").createServer(function (request, response) {
+        _http.createServer(function (request, response) {
             if (options.verbose) {
                 console.log([
                     request.method,
