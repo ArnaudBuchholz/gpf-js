@@ -221,7 +221,9 @@
                         fileDescriptor,
                         close,
                         read,
-                        write;
+                        write,
+                        waitForDrain,
+                        drain;
                     close = function () {
                         if (fileDescriptor) {
                             _fs.close(fileDescriptor);
@@ -260,7 +262,21 @@
                             return;
                         }
                         pos += bytesRead;
-                        me._response.write(buffer, read);
+                        if (!me._response.write(buffer, drain)) {
+                            waitForDrain = true;
+                        }
+                    };
+                    drain = function () {
+                        if (waitForDrain) {
+                            console.warn("\tWaiting for drain");
+                            me._response.once("drain", function () {
+                                console.warn("\tDrained");
+                                waitForDrain = false;
+                                read();
+                            });
+                        } else {
+                            read();
+                        }
                     };
                     _fs.stat(filePath, function (err, stats) {
                         var mimeType;
@@ -282,6 +298,33 @@
                             console.log("\tMime type  : " + mimeType);
                             console.log("\tFile size  : " + size);
                         }
+
+                        // Fastest implementation
+                        if (false) {
+                            me._response.writeHead(200, {
+                                "content-type": mimeType,
+                                "content-length": size
+                            });
+                            if (me._options.verbose) {
+                                console.log("\tStart    t+: "
+                                + ((new Date()) - me._startTimeStamp)
+                                + "ms");
+                            }
+                            var stream = _fs.createReadStream(filePath);
+                            stream.pipe(me._response);
+                            stream.on("end", function () {
+                                if (me._options.verbose) {
+                                    console.log("\tEnd      t+: "
+                                    + ((new Date()) - me._startTimeStamp)
+                                    + "ms");
+                                }
+                                me._response.statusCode = 200;
+                                me._response.end();
+                            });
+                            return;
+                        }
+
+                        // Slowest implementation
                         _fs.open(filePath, "r", function (err, fd) {
                             if (err) {
                                 me._response.plain(500,
@@ -289,8 +332,8 @@
                                 return;
                             }
                             me._response.writeHead(200, {
-                                "Content-Type": mimeType,
-                                "Content-Length": size
+                                "content-type": mimeType,
+                                "content-length": size
                             });
                             fileDescriptor = fd;
                             if (me._options.verbose) {
@@ -361,10 +404,11 @@
             handler.process();
         }).on("close", function () {
             console.log("Closed.");
-        }).listen(options.port);
-        if (options.verbose) {
-            console.log("Listening... (CTRL+C to stop)");
-        }
+        }).listen(options.port, function () {
+            if (options.verbose) {
+                console.log("Listening... (CTRL+C to stop)");
+            }
+        });
     };
 
     /**
