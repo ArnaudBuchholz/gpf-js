@@ -145,7 +145,73 @@
 
     //region Stream helpers
 
-    gpf.stream = {};
+    gpf.stream = {
+
+        /**
+         *
+         * @param {gpf.interfaces.IReadableStream} readable
+         * @param {gpf.interfaces.IWritableStream} writable
+         * @param {Object} [options=undefined] options
+         * @param {gpf.events.Handler} eventsHandler
+         *
+         * @event done The readable stream was written in the writable one
+         */
+        pipe: function (readable, writable, options, eventsHandler) {
+            var
+                scope = new StreamPipeScope(readable, writable, options,
+                eventsHandler);
+            scope.ready();
+        }
+
+    };
+
+    function StreamPipeScope (readable, writable, options, eventsHandler) {
+        this._readable = gpfI.queryInterface(readable, gpfI.IReadableStream,
+            true);
+        this._writable = gpfI.queryInterface(writable, gpfI.IWritableStream,
+            true);
+        if (undefined === eventsHandler) {
+            this._options = {};
+            this._eventsHandler = options;
+        } else {
+            this._options = options;
+            this._eventsHandler = eventsHandler;
+        }
+        this.scope = this;
+    }
+
+    StreamPipeScope.prototype = {
+        _readable: null,        // Readable stream
+        _writable: null,        // Writable stream
+        _options: null,         // Options
+        _eventsHandler: null,   // Original events handler
+        scope: null             // This eventsHandler scope
+    };
+
+    StreamPipeScope.prototype.ready = function () {
+        var chunkSize = this._options.chunkSize || 4096;
+        this._readable.read(chunkSize, this);
+    };
+
+    StreamPipeScope.prototype.eos = function (/*event*/) {
+        gpf.events.fire("done", this._eventsHandler);
+    };
+
+    StreamPipeScope.prototype.data = function (event) {
+        var buffer = event.get("buffer");
+        this._writable.write(buffer, this);
+    };
+
+    /**
+     * Any other event handler
+     *
+     * @param {gpf.Event} event
+     */
+    StreamPipeScope.prototype["*"] = function (event) {
+        // Forward to original handler (error or data)
+        gpf.events.fire(event, this._eventsHandler);
+    };
+
 
     /**
      * Handles a buffered stream that depends on a read stream.
