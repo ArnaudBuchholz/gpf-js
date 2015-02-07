@@ -515,7 +515,6 @@
 
                 _consolidateBuffer: function () {
                     throw gpf.Error.Abstract();
-                    return [];
                 },
 
                 _addBuffer: function (buffer) {
