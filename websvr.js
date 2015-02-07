@@ -211,8 +211,13 @@
                     resp.end();
                 },
 
-                // Kept for comparison
-                fromFile_fast: function (filePath) {
+                /**
+                 * Generates a response that contains the specified file
+                 *
+                 * @param {String} filePath
+                 * @private
+                 */
+                fromFile: function (filePath) {
                     var
                         me = this,
                         extName = _path.extname(filePath).toLowerCase(),
@@ -243,14 +248,14 @@
                             "content-length": size
                         });
                         stream = _fs.createReadStream(filePath);
-                        stream.on("data", function (chunk) {
-                            if (!me._response.write(chunk)) {
-                                stream.pause();
-                                me._response.once("drain", function () {
-                                    stream.resume();
-                                });
-                            }
-                        });
+                        //stream.on("data", function (chunk) {
+                        //    if (!me._response.write(chunk)) {
+                        //        stream.pause();
+                        //        me._response.once("drain", function () {
+                        //            stream.resume();
+                        //        });
+                        //    }
+                        //});
                         stream.on("end", function () {
                             if (me._options.verbose) {
                                 console.log("\tEnd      t+: "
@@ -260,109 +265,7 @@
                             me._response.statusCode = 200;
                             me._response.end();
                         });
-                    });
-                },
-
-                /**
-                 * Generates a response that contains the specified file
-                 *
-                 * @param {String} filePath
-                 * @private
-                 * @closure (a lot)
-                 */
-                fromFile: function (filePath) {
-                    var
-                        me = this,
-                        extName = _path.extname(filePath).toLowerCase(),
-                        chunkSize = me._options.chunkSize,
-                        buffer,
-                        pos = 0,
-                        size,
-                        fileDescriptor,
-                        close,
-                        read,
-                        write;
-                    close = function () {
-                        if (fileDescriptor) {
-                            _fs.close(fileDescriptor);
-                        }
-                        me._response.end();
-                        if (me._options.verbose) {
-                            console.log("\tEnd      t+: "
-                            + ((new Date()) - me._startTimeStamp)
-                            + "ms");
-                        }
-                    };
-                    read = function () {
-                        var len = size - pos;
-                        if (0 === len) {
-                            // Done
-                            close();
-                            return;
-                        }
-                        if (len > chunkSize) {
-                            len = chunkSize;
-                        }
-                        _fs.read(fileDescriptor, buffer, 0, len, null, write);
-                    };
-                    write = function (err, bytesRead, buffer) {
-                        if (err) {
-                            // Partly answered, close the answer and dump error
-                            console.error([
-                                "Error while sending '",
-                                filePath,
-                                "' (",
-                                err,
-                                ")"
-                            ].join(""));
-                            close();
-                            return;
-                        }
-                        pos += bytesRead;
-                        me._response.write(buffer, read); // Drain ignored
-                    };
-                    _fs.stat(filePath, function (err, stats) {
-                        var mimeType;
-                        if (err) {
-                            me._response.plain(500,
-                                "Unable to access file (" + err + ")");
-                            return;
-                        }
-                        if (stats.isDirectory()) {
-                            me._response.plain(200, "Directory.");
-                            return;
-                        } else if (!stats.isFile()) {
-                            me._response.plain(200, "Not a file.");
-                            return;
-                        }
-                        size = stats.size;
-                        mimeType = gpf.http.getMimeType(extName);
-                        if (me._options.verbose) {
-                            console.log("\tOpen     t=: " +
-                                (new Date() - _start));
-                            console.log("\tMime type  : " + mimeType);
-                            console.log("\tFile size  : " + size);
-                        }
-                        _fs.open(filePath, "r", function (err, fd) {
-                            if (err) {
-                                me._response.plain(500,
-                                    "Unable to open file (" + err + ")");
-                                return;
-                            }
-                            me._response.writeHead(200, {
-                                "content-type": mimeType,
-                                "content-length": size
-                            });
-                            fileDescriptor = fd;
-                            if (me._options.verbose) {
-                                console.log("\tFile handle: " + fd);
-                                console.log("\tStart    t+: "
-                                    + ((new Date()) - me._startTimeStamp)
-                                    + "ms");
-                            }
-                            buffer = new Buffer(chunkSize);
-                            read();
-                        });
+                        stream.pipe(me._response);
                     });
                 }
 
@@ -416,7 +319,8 @@
                 var timestamp = (new Date() - _start).toString();
                 console.log([
                     timestamp,
-                    "          ".substr(timestamp.length),
+                    "       ".substr(timestamp.length),
+                    " ",
                     request.method,
                     "     ".substr(request.method.length),
                     request.url
