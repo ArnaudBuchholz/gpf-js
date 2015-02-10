@@ -165,6 +165,8 @@
 
     };
 
+    //region gpf.stream.pipe implementation
+
     /**
      * Creates a custom EventsHandler to sequence the calls to be made
      *
@@ -213,7 +215,7 @@
      * @param {gpf.Event} event
      */
     StreamPipeScope.prototype.eos = function (/*event*/) {
-        gpf.events.fire("done", this._eventsHandler);
+        gpfFireEvent("done", this._eventsHandler);
     };
 
     /**
@@ -233,8 +235,82 @@
      */
     StreamPipeScope.prototype["*"] = function (event) {
         // Forward to original handler (error or data)
-        gpf.events.fire(event, this._eventsHandler);
+        gpfFireEvent(event, this._eventsHandler);
     };
+
+    //endregion
+
+    //region gpf.stream.Out
+
+    /**
+     * console.log exposed as an output stream.
+     * Line is buffered until the carriage return.
+     *
+     * @class gpf.stream.Out
+     * @implements gpf.interfaces.IWritableStream
+     */
+    gpf.define("gpf.stream.Out", {
+
+        "[Class]": [gpf.$InterfaceImplement(gpfI.IWritableStream)],
+
+        public: {
+
+            /**
+             * @constructor
+             */
+            constructor: function () {
+                this._buffer = [];
+            },
+
+            /**
+             * @inheritdoc gpf.interfaces.IWritableStream:write
+             */
+            write: function (buffer, eventsHandler) {
+                // Don't even consider \r for the moment
+                var
+                    lines = buffer.split("\n"),
+                    len,
+                    idx;
+                len = lines.length;
+                if (len) {
+                    // If the array has at least 2 elements, \n was present
+                    if (1 < len) {
+                        console.log(this._buffer.join("") + lines[0]);
+                        this._buffer = [];
+                    }
+                    --len;
+                    // The last item of the array did not have \n
+                    if (lines[len].length) {
+                        this._buffer.push(lines[len]);
+                    }
+                    // Dump other lines
+                    for (idx = 1; idx < len; ++idx) {
+                        console.log(lines[idx]);
+                    }
+                }
+                gpfFireEvent.apply(this, [
+                    gpfI.IWritableStream.EVENT_READY,
+                    eventsHandler
+                ]);
+            }
+
+        },
+
+        private: {
+
+            /**
+             * Line buffer
+             *
+             * @type {String[]}
+             * private
+             */
+            _buffer: []
+
+        }
+
+    });
+
+    //endregion
 
     /**
      * Handles a buffered stream that depends on a read stream.
