@@ -159,12 +159,21 @@
         pipe: function (readable, writable, options, eventsHandler) {
             var
                 scope = new StreamPipeScope(readable, writable, options,
-                eventsHandler);
+                    eventsHandler);
             scope.ready();
         }
 
     };
 
+    /**
+     * Creates a custom EventsHandler to sequence the calls to be made
+     *
+     * @param {gpf.interfaces.IReadableStream} readable
+     * @param {gpf.interfaces.IWritableStream} writable
+     * @param {Object} [options=undefined] options
+     * @param {gpf.events.Handler} eventsHandler
+     * @constructor
+     */
     function StreamPipeScope (readable, writable, options, eventsHandler) {
         this._readable = gpfI.queryInterface(readable, gpfI.IReadableStream,
             true);
@@ -188,15 +197,30 @@
         scope: null             // This eventsHandler scope
     };
 
+    /**
+     * ready event handler
+     *
+     * @param {gpf.Event} event
+     */
     StreamPipeScope.prototype.ready = function () {
         var chunkSize = this._options.chunkSize || 4096;
         this._readable.read(chunkSize, this);
     };
 
+    /**
+     * eos event handler
+     *
+     * @param {gpf.Event} event
+     */
     StreamPipeScope.prototype.eos = function (/*event*/) {
         gpf.events.fire("done", this._eventsHandler);
     };
 
+    /**
+     * data event handler
+     *
+     * @param {gpf.Event} event
+     */
     StreamPipeScope.prototype.data = function (event) {
         var buffer = event.get("buffer");
         this._writable.write(buffer, this);
@@ -211,7 +235,6 @@
         // Forward to original handler (error or data)
         gpf.events.fire(event, this._eventsHandler);
     };
-
 
     /**
      * Handles a buffered stream that depends on a read stream.
