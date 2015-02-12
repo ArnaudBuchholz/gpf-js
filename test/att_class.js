@@ -51,7 +51,9 @@
 
             function (test) {
                 test.title("Invalid declaration (related to attributes.js)");
-                var caught = null;
+                var caught = null,
+                    output = [];
+                test.hookConsole(output);
                 try {
                     gpf.define("B", A, {
 
@@ -63,6 +65,13 @@
                     caught = e;
                 }
                 test.assert(null === caught, caught, "No exception thrown");
+                test.releaseConsole();
+                test.assert(1 === output.length,
+                    "A console output has been generated");
+                if (1 === output.length) {
+                    test.assert(output[0].error,
+                        "An error was displayed in the console");
+                }
 /*
                 test.assert(null !== caught
                     && caught instanceof gpf.ClassAttributeError
