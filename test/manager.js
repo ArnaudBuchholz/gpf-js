@@ -249,6 +249,41 @@
                     this._callback.apply(null, [this].concat(this._lastParams));
                 }
             }
+        },
+
+        _console: null,
+        _consoleLog: null,
+        _consoleWarn: null,
+        _consoleError: null,
+
+        hookConsole: function (output) {
+            this.assert(null === this._console, "Console already hooked");
+            this._console = output;
+            this._consoleLog = console.log;
+            this._consoleWarn = console.warn;
+            this._consoleError = console.error;
+            var test = this;
+            console.log = function () {
+                test._console.push({log: arguments[0]});
+                test._consoleLog.apply(console, arguments);
+            };
+            console.warn = function () {
+                test._console.push({warn: arguments[0]});
+                test._cons_consoleWarnoleLog.apply(console, arguments);
+            };
+            console.error = function () {
+                test._console.push({error: arguments[0]});
+                test._consoleError.apply(console, arguments);
+            };
+        },
+
+        releaseConsole: function () {
+            if (this._console) {
+                this._console = null;
+                console.log = this._consoleLog;
+                console.warn = this._consoleWarn;
+                console.error = this._consoleError;
+            }
         }
 
     });
