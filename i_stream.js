@@ -143,7 +143,7 @@
 
     //endregion
 
-    //region Stream helpers
+    //region Stream namespace
 
     gpf.stream = {
 
@@ -266,7 +266,7 @@
              * @inheritdoc gpf.interfaces.IWritableStream:write
              */
             write: function (buffer, eventsHandler) {
-                // Don't even consider \r for the moment
+                // TODO handle \r
                 var
                     lines = buffer.split("\n"),
                     len,
