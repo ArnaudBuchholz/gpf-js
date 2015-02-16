@@ -60,6 +60,35 @@
                 );
             }
 
+        ],
+
+        "out": [
+
+            function (test) {
+                test.title("gpf.stream.Out");
+                var
+                    gpfI = gpf.interfaces,
+                    output = [],
+                    out,
+                    wout;
+                test.hookConsole(output);
+                test.wait();
+                out = new gpf.stream.Out();
+                wout = new (gpfI.wrap(gpfI.IWritableStream))(out);
+                wout
+                    .write("abc")
+                    .write("de")
+                    .write("f\r\nhi")
+                    .write("\n")
+                    .$finally(function () {
+                        test.releaseConsole();
+                        test.equal(output.length, 2, "Right number of lines");
+                        test.equal(output[0].log, "abcdef", "First line OK");
+                        test.equal(output[1].log, "hi", "Second line OK");
+                        test.done();
+                    });
+            }
+
         ]
 
     });
