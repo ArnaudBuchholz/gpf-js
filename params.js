@@ -164,15 +164,21 @@
                 if (!result._name) {
                     throw gpf.Error.ParamsNameRequired();
                 }
-                // Check type and default value
-                typeDefaultValue = this.DEFAULTS[result._type];
-                if (undefined === typeDefaultValue) {
-                    throw gpf.Error.ParamsTypeUnknown();
-                }
-                if (result.hasOwnProperty("_defaultValue")) {
-                    result._defaultValue =
-                        gpf.value(result._defaultValue, typeDefaultValue,
-                            result._type);
+                if (!result._multiple) {
+                    /**
+                     * When multiple is used, the default value will be an array
+                     * if not specified.
+                     * Otherwise, we get the default value based on the type
+                     */
+                    typeDefaultValue = this.DEFAULTS[result._type];
+                    if (undefined === typeDefaultValue) {
+                        throw gpf.Error.ParamsTypeUnknown();
+                    }
+                    if (result.hasOwnProperty("_defaultValue")) {
+                        result._defaultValue =
+                            gpf.value(result._defaultValue, typeDefaultValue,
+                                result._type);
+                    }
                 }
                 return result;
             },
@@ -184,7 +190,7 @@
              * used).
              *
              * @param {gpf.Parameter[]} parameters
-             * @param {String|Number] [prefix=0] prefix
+             * @param {String|Number} [prefix=0] prefix
              */
             getOnPrefix: function (parameters, prefix) {
                 var
@@ -215,7 +221,7 @@
              * using name.
              *
              * @param {gpf.Parameter[]} parameters
-             * @param {String] name
+             * @param {String} name
              */
             getByName: function (parameters, name) {
                 var
@@ -333,6 +339,8 @@
                                 value = [value];
                             }
                             result[name] = value;
+                        } else if (parameter._multiple) {
+                            result[name] = [];
                         }
                     }
                 }

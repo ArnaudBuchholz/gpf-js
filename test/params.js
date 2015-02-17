@@ -86,6 +86,37 @@
                 ]);
                 test.equal(options.verbose, true, "Verbose is set");
                 test.equal(options.help, true, "Help is set");
+            },
+
+            function (test) {
+                test.title("gpf-cypher bug on keys array");
+                var options = gpf.Parameter.parse([{
+                    name: "mode",
+                    required: true,
+                    type: "string"
+                }, {
+                    name: "input",
+                    required: true,
+                    type: "string"
+                }, {
+                    name: "output",
+                    type: "string",
+                    defaultValue: "*"
+                }, {
+                    name: "keys",
+                    type: "string",
+                    prefix: "key",
+                    multiple: true
+                }, "verbose", "help"], [
+                    "crypt",
+                    "Hello World.txt",
+                    "-verbose"
+                ]);
+                test.equal(options.mode, "crypt", "Mode is crypt");
+                test.equal(options.input, "Hello World.txt", "Input is OK");
+                test.equal(options.output, "*", "Output is OK");
+                test.like(options.keys, [], "Keys are empty");
+                test.equal(options.verbose, true, "Verbose is set");
             }
 
         ]
