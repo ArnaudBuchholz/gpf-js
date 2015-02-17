@@ -266,7 +266,6 @@
              * @inheritdoc gpf.interfaces.IWritableStream:write
              */
             write: function (buffer, eventsHandler) {
-                // TODO handle \r
                 var
                     lines = buffer.split("\n"),
                     len,
@@ -275,7 +274,8 @@
                 if (len) {
                     // If the array has at least 2 elements, \n was present
                     if (1 < len) {
-                        console.log(this._buffer.join("") + lines[0]);
+                        console.log(this._buffer.join("")
+                            + this._trimFinalR(lines[0]));
                         this._buffer = [];
                     }
                     --len;
@@ -285,7 +285,7 @@
                     }
                     // Dump other lines
                     for (idx = 1; idx < len; ++idx) {
-                        console.log(lines[idx]);
+                        console.log(this._trimFinalR(lines[idx]));
                     }
                 }
                 gpfFireEvent.apply(this, [
@@ -304,7 +304,22 @@
              * @type {String[]}
              * private
              */
-            _buffer: []
+            _buffer: [],
+
+            /**
+             * Remove final \r if any
+             *
+             * @param {String} line
+             * @return {String}
+             * @private
+             */
+            _trimFinalR: function (line) {
+                var lastCharIdx = line.length - 1;
+                if (-1 < lastCharIdx && line.charAt(lastCharIdx) === "\r") {
+                    return line.substr(0, lastCharIdx);
+                }
+                return line;
+            }
 
         }
 
