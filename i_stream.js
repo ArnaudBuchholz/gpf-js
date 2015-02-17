@@ -898,7 +898,7 @@
                  */
                 constructor: function (stream) {
                     this._stream = stream;
-                    this._stream.on("data", gpf.Callback.bind(this, "_onData"));
+                 // this._stream.on("data", gpf.Callback.bind(this, "_onData"));
                     this._stream.on("end", gpf.Callback.bind(this, "_onEnd"));
                     this._stream.on("error",
                         gpf.Callback.bind(this, "_onError"));
@@ -914,7 +914,12 @@
                         throw gpfI.IReadableStream.EXCEPTION_READ_IN_PROGRESS;
                     }
                     this._eventsHandler = eventsHandler;
-                    this._stream.read(size);
+                    var chunk = this._stream.read(size);
+                    if (chunk) {
+                        this._onData(chunk);
+                    } else {
+                        this._onEnd();
+                    }
                 }
 
             },
