@@ -898,10 +898,8 @@
                  */
                 constructor: function (stream) {
                     this._stream = stream;
-                 // this._stream.on("data", gpf.Callback.bind(this, "_onData"));
-                    this._stream.on("end", gpf.Callback.bind(this, "_onEnd"));
-                    this._stream.on("error",
-                        gpf.Callback.bind(this, "_onError"));
+                    stream.on("end", gpf.Callback.bind(this, "_onEnd"));
+                    stream.on("error", gpf.Callback.bind(this, "_onError"));
                 },
 
                 /**
@@ -909,24 +907,58 @@
                  */
                 "[read]": [gpf.$ClassEventHandler()],
                 read: function (size, eventsHandler) {
+                    var chunk;
+                    // Used as a critical section to prevent concurrent reads
                     if (null !== this._eventsHandler) {
                         // A read call is already in progress
                         throw gpfI.IReadableStream.EXCEPTION_READ_IN_PROGRESS;
                     }
                     this._eventsHandler = eventsHandler;
-                    var chunk = this._stream.read(size);
-                    if (chunk) {
-                        this._onData(chunk);
-                    } else {
-                        this._onEnd();
+                    // If we received the "readable" event
+                    if (this._readable) {
+                        // We try to read a chunk
+                        chunk = this._stream.read(size);
+                        if (chunk) {
+                            this._onData(chunk);
+                            return;
+                        }
+                        // No chunk means we must wait for next "readable"
+                        this._readable = false;
                     }
+                    this._size = size;
+                    this._stream.once("readable",
+                        gpf.Callback.bind(this, "_onReadable"));
                 }
 
             },
 
             protected: {
 
+                /**
+                 * Before doing any read on the stream, we wait for the readable
+                 * event to be thrown
+                 *
+                 * @type {Boolean}
+                 * @protected
+                 */
+                _readable: false,
+
+                /**
+                 * Last read eventsHandler
+                 * Also used as a critical section to prevent concurrent reads
+                 *
+                 * @type {gpf.events.Handler}
+                 * @protected
+                 */
                 _eventsHandler: null,
+
+                /**
+                 * Last read size (if pending)
+                 *
+                 * @type {Number}
+                 * @protected
+                 */
+                _size: 0,
 
                 /**
                  * Provides an atomic access to the _eventsHandler variable
@@ -937,8 +969,20 @@
                  */
                 _getEventsHandler: function () {
                     var result = this._eventsHandler;
+                    gpf.ASSERT(null !== result, "Event handler expected");
                     this._eventsHandler = null;
                     return result;
+                },
+
+                /**
+                 * Handles "readable" stream event
+                 * NOTE that it was registered with once
+                 *
+                 * @private
+                 */
+                _onReadable: function() {
+                    this._readable = true;
+                    this._onData(this._stream.read(this._size));
                 },
 
                 /**
