@@ -183,7 +183,7 @@
         }
         if (!condition) {
             console.warn("ASSERTION FAILED: " + message);
-            gpf.AssertionFailed({
+            throw gpf.Error.AssertionFailed({
                 message: message
             });
         }
