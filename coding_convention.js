@@ -1,3 +1,5 @@
+/*jshint ignore: start*/ // No need to validate
+
 /*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
