@@ -3,6 +3,9 @@
 A multi-purpose JavaScript library created and maintained by
 [Arnaud Buchholz](http://gpf-js.blogspot.com/).
 
+[Plato](https://github.com/es-analysis/plato)
+ [analysis](http://arnaudbuchholz.github.io/plato/gpf-js/index.html)
+
 ## Features
 
 * Compatible with several hosts
