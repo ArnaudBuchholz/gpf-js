@@ -3,8 +3,6 @@
     "use strict";
 /*#endif*/
 
-    // TODO: refactor!
-    
     var
         TYPE_NUMBER         = "N", // number
         TYPE_STRING         = "S", // string
@@ -70,7 +68,7 @@
         IdString = gpf.define("IdString", {
 
             constructor: function(label, executable) {
-                this._label = [];
+                this._label = label;
                 this._executable = executable;
             },
 
@@ -145,6 +143,7 @@
 
         execute: function(src) {
             gpf.interfaces.ignoreParameter(src);
+            gpf.interfaces.ignoreParameter(SYS_DICT);
 
         }
 
