@@ -459,7 +459,7 @@
                 parse: function (char) {
                     gpf.interfaces.ignoreParameter(char);
                     throw gpf.Error.Abstract();
-                    return PatternItem.PARSE_IGNORED;
+                    // return PatternItem.PARSE_IGNORED;
                 },
 
                 /**
@@ -496,7 +496,7 @@
                     gpf.interfaces.ignoreParameter(state);
                     gpf.interfaces.ignoreParameter(char);
                     throw gpf.Error.Abstract();
-                    return -1;
+                    // return -1;
                 }
 
                 //endregion
