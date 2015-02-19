@@ -9,7 +9,8 @@
     var
         VERSION = "0.1",
         _host,
-        _context;
+        _context,
+        _hostNamespace;
 
 /*#ifdef(DEBUG)*/
 
@@ -21,6 +22,7 @@
     if ("undefined" !== typeof WScript) {
         _host = "wscript";
         _context = (function () {return this;}).apply(null, []);
+        _hostNamespace = "ms"; // Microsoft
 
         // Define console APIs
         _context.console = {
@@ -35,19 +37,21 @@
     } else if ("undefined" !== typeof phantom && phantom.version) {
         _host = "phantomjs";
         _context = window;
+        _hostNamespace = "node";
 
     // Nodejs
-        /*global module:true*/
+    /*global module:true*/
     } else if ("undefined" !== typeof module && module.exports) {
         _host = "nodejs";
         _context = global;
+        _hostNamespace = "node";
 
     // Browser
     } else if ("undefined" !== typeof window) {
         _host = "browser";
         _context = window;
 
-    // Default: unknown
+        // Default: unknown
     } else {
         _host = "unknown";
         _context = this;
@@ -59,6 +63,11 @@
     _context.gpf = {};
 
 /*#endif*/
+
+    // Install host specific namespace (if any)
+    if (_hostNamespace) {
+        gpf[_hostNamespace] = {};
+    }
 
     /**
      * Returns the current version
@@ -73,20 +82,17 @@
      * Returns a string identifying the detected host
      *
      * @return {String}
-     * - "wscript" for cscript and wscript
-     * - "nodejs" for nodejs
-     * - "phantomjs" for phantomjs
-     * - "browser" for any browser
-     * - "unknown" if not detected
+     * <ul>
+     *      <li>"wscript" for cscript and wscript</li>
+     *      <li>"nodejs" for nodejs</li>
+     *      <li>"phantomjs" for phantomjs</li>
+     *      <li>"browser" for any browser</li>
+     *      <li>"unknown" if not detected</li>
+     * </ul>
      */
     gpf.host = function () {
         return _host;
     };
-
-    // Prepare node namespace to handle node specific helpers
-    if ("nodejs" === gpf.host() || "phantomjs" === gpf.host()) {
-        gpf.node = {};
-    }
 
     /**
      * Resolve the provided evaluation path and returns the result
