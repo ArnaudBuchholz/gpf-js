@@ -278,6 +278,7 @@
                 attributes.addTo(objPrototype.constructor);
                 if (!this._builder) {
                     // Fill the missing methods
+                    /*jshint -W089*/ // Because I also want inherited ones
                     for (member in iProto) {
                         if (!(member in objPrototype)) {
                             objPrototype[member] = iProto[member];
@@ -310,6 +311,7 @@
                         [gpf.$InterfaceImplement(gpf.interfaces.IUnknown)]);
                 }
             }
+            /*jshint +W089*/
 
         },
 
