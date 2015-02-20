@@ -72,7 +72,7 @@
 
     };
 
-    if (gpf.node) {
+    if (_gpfInNode) {
 
         var _fs,
             _getNodeFS = function () {

@@ -878,7 +878,7 @@
 
     //region NodeJS specific classes
 
-    if (gpf.node) {
+    if (_gpfInNode) {
 
         /**
          * Wraps a readable stream from NodeJS into a IReadableStream
