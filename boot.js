@@ -2,6 +2,10 @@
 "use strict";
 /*#endif*/
 
+/*jshint browser: true*/
+/*jshint node: true*/
+/*jshint wsh: true*/
+
 /*
  * Detect host & define global context
  */
