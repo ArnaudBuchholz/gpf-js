@@ -20,9 +20,9 @@ if (undefined === Object.defineProperty) {
     /**
      * If possible, defines a read-only property
      *
-     * @param {Obect} obj
+     * @param {Object} obj
      * @param {String} name
-     * @param [*} value
+     * @param {*} value
      * @return {Object}
      * @chainable
      */
