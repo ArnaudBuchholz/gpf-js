@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfEmptyFunc*/
+/*global _gpfEmptyFunc*/ // An empty function
+/*global _gpfFunc*/ // Create a new function using the source
 /*#endif*/
 
 var
@@ -29,10 +30,10 @@ var
     /**
      * Base class for class-specific attributes
      *
-     * @class gpf.attributes.ClassAttribute
+     * @class gpf.attributes._ClassAttribute
      * @extends gpf.attributes.Attribute
      */
-    _base = gpf._defAttr("ClassAttribute");
+    _ClassAttribute = gpf._defAttr("ClassAttribute");
 
 /**
  * Creates getter (and setter) methods for a private member. The created
@@ -42,10 +43,10 @@ var
  *
  *
  * @class gpf.attributes.ClassPropertyAttribute
- * @extends gpf.attributes.ClassAttribute
+ * @extends gpf.attributes._ClassAttribute
  * @alias gpf.$ClassProperty
  */
-gpf._defAttr("$ClassProperty", _base, {
+gpf._defAttr("$ClassProperty", _ClassAttribute, {
 
     private: {
 
@@ -105,7 +106,7 @@ gpf._defAttr("$ClassProperty", _base, {
             start = src.indexOf("{") + 1;
             end = src.lastIndexOf("}") - 1;
             src =  src.substr(start, end - start + 1);
-            classDef.addMember(publicName, gpf._func(src),
+            classDef.addMember(publicName, _gpfFunc(src),
                 this._visibility);
         }
 
@@ -141,10 +142,10 @@ gpf._defAttr("$ClassProperty", _base, {
  * Used to flag a method which owns a last parameter being an event handler
  *
  * @class gpf.attributes.ClassEventHandlerAttribute
- * @extends gpf.attributes.ClassAttribute
+ * @extends gpf.attributes._ClassAttribute
  * @alias gpf.$ClassEventHandler
  */
-gpf._defAttr("$ClassEventHandler", _base, {});
+gpf._defAttr("$ClassEventHandler", _ClassAttribute, {});
 
 /**
  * Defines a class extension (internal)
@@ -154,10 +155,10 @@ gpf._defAttr("$ClassEventHandler", _base, {});
  * the original method name is used
  *
  * @class gpf.attributes.ClassExtensionAttribute
- * @extends gpf.attributes.ClassAttribute
+ * @extends gpf.attributes._ClassAttribute
  * @alias gpf.$ClassExtension
  */
-gpf._defAttr("$ClassExtension", _base, {
+gpf._defAttr("$ClassExtension", _ClassAttribute, {
 
     private: {
 
