@@ -293,16 +293,6 @@ if (!gpf.ASSERT) {
 
 /*#ifndef(UMD)*/
 
-function _safeEval(src, content) {
-    try {
-        /*jslint evil: true*/
-        eval(content);
-        /*jslint evil: false*/
-    } catch (e) {
-        console.error("eval failed on '" + src + "'\n" + e.message);
-    }
-}
-
 /*
  * Loading sources occurs here because the release version will have
  * everything embedded.
@@ -314,47 +304,50 @@ if ("wscript" === _gpfHost) {
     (function () {
         var
             fso = new ActiveXObject("Scripting.FileSystemObject"),
-            include = function (src) {
+            read = function (src) {
                 /*global gpfSourcesPath*/ // Tested below
                 if ("undefined" !== typeof gpfSourcesPath) {
                     src = gpfSourcesPath + src;
                 }
-                var srcFile = fso.OpenTextFile(src);
+                var srcFile = fso.OpenTextFile(src),
+                    result;
                 // No other choice to evaluate in the current context
-                _safeEval(src, srcFile.ReadAll());
+                result = srcFile.ReadAll();
                 srcFile.Close();
+                return result;
             },
             sources,
-            idx;
-        include("sources.js");
+            idx,
+            code = [];
+        /*jslint evil: true*/
+        eval(read("sources.js"));
+        /*jslint evil: false*/
         sources = gpf.sources().split(",");
         for (idx = 0; idx < sources.length; ++idx) {
-            include(sources[idx] + ".js");
+            code.push(read(sources[idx] + ".js"));
         }
+        /*jslint evil: true*/
+        eval(code.join(""));
+        /*jslint evil: false*/
         _gpfFinishLoading();
     }());
 
 } else if (_gpfInNode) {
-    /*
-     * This is probably the simplest part: use require
-     */
-    require("./sources.js");
+    require("./sources.js"); // Get sources
     (function () {
         var
+            fs = require("fs"),
             sources = gpf.sources().split(","),
             idx,
-            fs = require("fs"),
-            src;
+            src,
+            code = [];
         for (idx = 0; idx < sources.length; ++idx) {
             src = sources[idx] + ".js";
-            /**
-             * require create private scopes.
-             * I changed my mind and remove the IIFE structure around sources
-             * so that I can share 'internal' variables.
-             * That's why I need to load the source and evaluate it here
-             */
-            _safeEval(src, fs.readFileSync(__dirname + "/" + src).toString());
+            code.push(fs.readFileSync(__dirname + "/" + src).toString());
         }
+        /*jslint evil: true*/
+        eval(code.join(""));
+        /*jslint evil: false*/
         _gpfFinishLoading();
     }());
 
