@@ -45,8 +45,7 @@ var
             }
 /*#ifdef(DEBUG)*/
         } catch (e) {
-            console.error("An exception occurred compiling:\r\n"
-                + source);
+            console.error("An exception occurred compiling:\r\n" + source);
             return null;
         }
 /*#endif*/
