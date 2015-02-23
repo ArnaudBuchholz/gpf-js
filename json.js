@@ -1,64 +1,60 @@
 /*#ifndef(UMD)*/
-(function () { /* Begin of privacy scope */
-    "use strict";
-/*#endif*/
+"use strict";
+/*global _gpfFunc*/ // Create a new function using the source
+// /*#endif*/
 
-    gpf.json = {};
+gpf.json = {};
 
-    if("undefined" === typeof JSON) {
-        var
-            _obj2json = function (object) {
-                var
-                    isArray,
-                    results,
-                    property,
-                    value;
-                isArray = object instanceof Array;
-                results = [];
-                /*jshint -W089*/
-                for (property in object) {
-                    if ("function" === typeof object[property]) {
-                        continue; // ignore
-                    }
-                    value = _json(object[property]);
-                    if (isArray) {
-                        results.push(value);
-                    } else {
-                        results.push(property + ": " + value);
-                    }
+if("undefined" === typeof JSON) {
+    var
+        _obj2json = function (object) {
+            var
+                isArray,
+                results,
+                property,
+                value;
+            isArray = object instanceof Array;
+            results = [];
+            /*jshint -W089*/
+            for (property in object) {
+                if ("function" === typeof object[property]) {
+                    continue; // ignore
                 }
+                value = _json(object[property]);
                 if (isArray) {
-                    return "[" + results.join(", ") + "]";
+                    results.push(value);
                 } else {
-                    return "{" + results.join(", ") + "}";
+                    results.push(property + ": " + value);
                 }
-                /*jshint +W089*/
-            },
-            _json = function (object) {
-                var type = typeof object;
-                if ("undefined" === type || "function" === type) {
-                    return;
-                } else if ("number" === type || "boolean" === type) {
-                    return object.toString();
-                } else if ("string" === type) {
-                    return gpf.escapeFor(object, "javascript");
-                }
-                if (null === object) {
-                    return "null";
-                } else {
-                    return _obj2json(object);
-                }
-            };
-        gpf.json.stringify = _json;
-        gpf.json.parse = function (test) {
-            return gpf._func("return " + test)();
+            }
+            if (isArray) {
+                return "[" + results.join(", ") + "]";
+            } else {
+                return "{" + results.join(", ") + "}";
+            }
+            /*jshint +W089*/
+        },
+        _json = function (object) {
+            var type = typeof object;
+            if ("undefined" === type || "function" === type) {
+                return;
+            } else if ("number" === type || "boolean" === type) {
+                return object.toString();
+            } else if ("string" === type) {
+                return gpf.escapeFor(object, "javascript");
+            }
+            if (null === object) {
+                return "null";
+            } else {
+                return _obj2json(object);
+            }
         };
+    gpf.json.stringify = _json;
+    gpf.json.parse = function (test) {
+        return _gpfFunc("return " + test)();
+    };
 
-    } else {
-        gpf.json.stringify = JSON.stringify;
-        gpf.json.parse = JSON.parse;
-    }
-
-/*#ifndef(UMD)*/
-}()); /* End of privacy scope */
-/*#endif*/
+} else {
+    gpf.json.stringify = JSON.stringify;
+    gpf.json.parse = JSON.parse;
+}
