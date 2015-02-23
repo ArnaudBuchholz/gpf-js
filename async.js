@@ -15,7 +15,7 @@ var
      * @return {Function}
      * @closure
      */
-    _gpfAsyncCallback = function (callback, scope, args) {
+    _asyncCallback = function (callback, scope, args) {
         if ("string" === typeof callback) {
             callback = _gpfFunc(callback);
         }
@@ -53,7 +53,7 @@ if ("browser" === gpf.host()) {
     // Leverage the use of setTimeout(func, delay, [param1, param2, ...])
     // as it avoids creating closures
 
-    _gpfAsyncCallback = function (parameters) {
+    _asyncCallback = function (parameters) {
         parameters[0].apply(gpf.Callback.resolveScope(parameters[1]),
             parameters[2]);
     };
@@ -65,7 +65,7 @@ if ("browser" === gpf.host()) {
         if (!timeout) {
             timeout = 0;
         }
-        setTimeout(_gpfAsyncCallback, timeout, [callback, scope, args]);
+        setTimeout(_asyncCallback, timeout, [callback, scope, args]);
     };
 
 } else if("undefined" !== typeof setTimeout) {
@@ -75,7 +75,7 @@ if ("browser" === gpf.host()) {
         if (!timeout) {
             timeout = 0;
         }
-        setTimeout(_gpfAsyncCallback(callback, scope, args), timeout);
+        setTimeout(_asyncCallback(callback, scope, args), timeout);
     };
 
 } else {
@@ -88,7 +88,7 @@ if ("browser" === gpf.host()) {
     };
 
     gpf.defer = function (callback, timeout, scope, args) {
-        var item = _gpfAsyncCallback(callback, scope, args);
+        var item = _asyncCallback(callback, scope, args);
         if (!timeout) {
             timeout = 0;
         }
