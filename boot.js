@@ -293,6 +293,16 @@ if (!gpf.ASSERT) {
 
 /*#ifndef(UMD)*/
 
+function _safeEval(src, content) {
+    try {
+        /*jslint evil: true*/
+        eval(content);
+        /*jslint evil: false*/
+    } catch (e) {
+        console.error("eval failed on '" + src + "'\n" + e.message);
+    }
+}
+
 /*
  * Loading sources occurs here because the release version will have
  * everything embedded.
@@ -310,10 +320,8 @@ if ("wscript" === _gpfHost) {
                     src = gpfSourcesPath + src;
                 }
                 var srcFile = fso.OpenTextFile(src);
-                /*jslint evil: true*/
                 // No other choice to evaluate in the current context
-                eval(srcFile.ReadAll());
-                /*jslint evil: false*/
+                _safeEval(src, srcFile.ReadAll());
                 srcFile.Close();
             },
             sources,
@@ -335,18 +343,17 @@ if ("wscript" === _gpfHost) {
         var
             sources = gpf.sources().split(","),
             idx,
-            fs = require("fs");
+            fs = require("fs"),
+            src;
         for (idx = 0; idx < sources.length; ++idx) {
-            /*jslint evil: true*/
+            src = sources[idx] + ".js";
             /**
              * require create private scopes.
              * I changed my mind and remove the IIFE structure around sources
              * so that I can share 'internal' variables.
              * That's why I need to load the source and evaluate it here
              */
-            eval(fs.readFileSync(__dirname
-                + "/" + sources[idx] + ".js").toString());
-            /*jslint evil: false*/
+            _safeEval(src, fs.readFileSync(__dirname + "/" + src).toString());
         }
         _gpfFinishLoading();
     }());
