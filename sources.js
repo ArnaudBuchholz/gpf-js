@@ -4,6 +4,7 @@
     var
         _sources = [
             "compatibility",        // JavaScript compatibility helpers
+            "constants",            // Constants
             "base",                 // Basic functions
             "events",               // Event management               gpf.events
             "http",                 // HTTP specific functions          gpf.http
