@@ -1,6 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfEmptyFunc*/
+/*global _gpfEmptyFunc*/ // An empty function
 /*#endif*/
 
 gpf.interfaces = {
