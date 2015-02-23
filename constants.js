@@ -74,3 +74,8 @@ var
      * @private
      */
     _gpfDigit = "0123456789";
+
+/*#ifndef(UMD)*/
+// Mandatory to support boot loading in a browser
+gpf._constants = true;
+/*#endif*/

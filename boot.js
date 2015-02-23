@@ -390,6 +390,7 @@ if ("wscript" === _gpfHost) {
             // Sequence of things to load (followed by test)
             bootList = ["sources", "sources",
                 "compatibility", "setReadOnlyProperty",
+                "constants", "_constants",
                 "base", "each",
                 "events", "events",
                 "http", "http"],
