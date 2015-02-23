@@ -1,13 +1,26 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfHost*/ // Host type
+/*global _gpfInNode*/ // The current host is a nodeJS like
+/*global _gpfEmptyFunc*/ // An empty function
 /*#endif*/
+
+console.log("PROUT " + typeof _gpfEmptyFunc);
 
 /*
     This package contains general helpers that will be used everywhere else
 */
 
 var
-    _arrayEachWithResult = function (array, memberCallback, defaultResult) {
+    /**
+     * gpf.each implementation on array
+     *
+     * @param {Array} array
+     * @param {Function} memberCallback
+     * @param {*} defaultResult
+     * @private
+     */
+    _gpfArrayEachWithResult = function (array, memberCallback, defaultResult) {
         var
             result,
             len = array.length,
@@ -21,7 +34,14 @@ var
         return defaultResult;
     },
 
-    _arrayEach = function (array, memberCallback) {
+    /**
+     * gpf.each implementation on array without default result
+     *
+     * @param {Array} array
+     * @param {Function} memberCallback
+     * @private
+     */
+    _gpfArrayEach = function (array, memberCallback) {
         var
             len = array.length,
             idx;
@@ -30,7 +50,15 @@ var
         }
     },
 
-    _dictionaryEachWithResult = function (dictionary, memberCallback,
+    /**
+     * gpf.each implementation on object
+     *
+     * @param {Object} dictionary
+     * @param {Function} memberCallback
+     * @param {*} defaultResult
+     * @private
+     */
+    _gpfDictionaryEachWithResult = function (dictionary, memberCallback,
         defaultResult) {
         var
             result,
@@ -47,7 +75,14 @@ var
         return defaultResult;
     },
 
-    _dictionaryEach = function (dictionary, memberCallback) {
+    /**
+     * gpf.each implementation on object without default result
+     *
+     * @param {Object} dictionary
+     * @param {Function} memberCallback
+     * @private
+     */
+    _gpfDictionaryEach = function (dictionary, memberCallback) {
         var
             member;
         for (member in dictionary) {
@@ -57,13 +92,27 @@ var
         }
     },
 
-    _assign = function (member, value) {
+    /**
+     * gpf.extend implementation of assign without any callback
+     *
+     * @param {String} member
+     * @param {*} value
+     * @private
+     */
+    _gpfAssign = function (member, value) {
         // this = gpf.extend's arguments
         // this[0] is dictionary
         this[0][member] = value;
     },
 
-    _assignOrCall = function (member, value) {
+    /**
+     * gpf.extend implementation of assign with a  callback
+     *
+     * @param {String} member
+     * @param {*} value
+     * @private
+     */
+    _gpfAssignOrCall = function (member, value) {
         // this = gpf.extend's arguments
         var
             dictionary = this[0],
@@ -76,7 +125,7 @@ var
         }
     },
 
-    _likeSearchInDone = function /*gpf:inline*/ (array, a, b) {
+    _gpfLikeSearchInDone = function /*gpf:inline*/ (array, a, b) {
         var
             idx,
             ia,
@@ -92,7 +141,7 @@ var
         return undefined;
     },
 
-    _likeTypes = function /*gpf:inline*/ (a, b, alike) {
+    _gpfLikeTypes = function /*gpf:inline*/ (a, b, alike) {
         if (alike && ("object" === typeof a || "object" === typeof b)) {
             /*
              One of the two is an object but not the other,
@@ -109,16 +158,16 @@ var
         return false;
     },
 
-    _likeCompareMembers = function /*gpf:inline*/ (ma, mb, alike, stacks) {
+    _gpfLikeCompareMembers = function /*gpf:inline*/ (ma, mb, alike, stacks) {
         if (ma !== mb) {
-            if (typeof ma !== typeof mb && !_likeTypes(ma, mb, alike)) {
+            if (typeof ma !== typeof mb && !_gpfLikeTypes(ma, mb, alike)) {
                 return false;
             }
             if (null === ma || null === mb
                 || "object" !== typeof ma) {
                 return false; // Because we know that ma !== mb
             }
-            if (undefined === _likeSearchInDone(stacks.done, ma, mb)) {
+            if (undefined === _gpfLikeSearchInDone(stacks.done, ma, mb)) {
                 stacks.todo.push(ma);
                 stacks.todo.push(mb);
             }
@@ -126,7 +175,7 @@ var
         return true;
     },
 
-    _likeMembers = function /*gpf:inline*/ (a, b, alike) {
+    _gpfLikeMembers = function /*gpf:inline*/ (a, b, alike) {
         var
             member,
             count,
@@ -145,7 +194,7 @@ var
             for (member in a) {
                 if (a.hasOwnProperty(member)) {
                     ++count;
-                    if (!_likeCompareMembers(a[member], b[member], alike,
+                    if (!_gpfLikeCompareMembers(a[member], b[member], alike,
                         stacks)) {
                         return false;
                     }
@@ -163,7 +212,7 @@ var
         return true;
     },
 
-    _values = {
+    _gpfValues = {
         boolean: function (value, valueType, defaultValue) {
             if ("string" === valueType) {
                 if ("yes" === value || "true" === value) {
@@ -199,17 +248,6 @@ var
             }
             return defaultValue;
         }
-    },
-
-    // https://github.com/jshint/jshint/issues/525
-    Func = Function, // avoid JSHint error
-
-    /**
-     * An empty function
-     * @private
-     */
-    _emptyFunc = function () {
-        return undefined;
     };
 
 /**
@@ -219,7 +257,7 @@ var
  * @param {Object} obj
  * @return {Boolean} True if array-like
  */
-if ("browser" === gpf.host() && window.HTMLCollection) {
+if ("browser" === _gpfHost && window.HTMLCollection) {
     gpf.isArrayLike = function (obj) {
         return obj instanceof Array
             || obj instanceof window.HTMLCollection
@@ -249,16 +287,16 @@ if ("browser" === gpf.host() && window.HTMLCollection) {
 gpf.each = function (dictionary, memberCallback, defaultResult) {
     if (undefined === defaultResult) {
         if (gpf.isArrayLike(dictionary)) {
-            _arrayEach.apply(this, arguments);
+            _gpfArrayEach.apply(this, arguments);
         } else {
-            _dictionaryEach.apply(this, arguments);
+            _gpfDictionaryEach.apply(this, arguments);
         }
-        return undefined;
+        return;
     }
     if (gpf.isArrayLike(dictionary)) {
-        return _arrayEachWithResult.apply(this, arguments);
+        return _gpfArrayEachWithResult.apply(this, arguments);
     }
-    return _dictionaryEachWithResult.apply(this, arguments);
+    return _gpfDictionaryEachWithResult.apply(this, arguments);
 };
 /*jshint unused: true */
 
@@ -273,49 +311,18 @@ gpf.each = function (dictionary, memberCallback, defaultResult) {
  * @return {Object} the modified dictionary
  * @chainable
  */
-gpf.extend = function (dictionary, additionalProperties,
-    overwriteCallback) {
+gpf.extend = function (dictionary, additionalProperties, overwriteCallback) {
     var callbackToUse;
     if (undefined === overwriteCallback) {
-        callbackToUse = _assign;
+        callbackToUse = _gpfAssign;
     } else {
-        callbackToUse = _assignOrCall;
+        callbackToUse = _gpfAssignOrCall;
     }
     gpf.each.apply(arguments, [additionalProperties, callbackToUse]);
     return dictionary;
 };
 
 gpf.extend(gpf, {
-
-    _alpha: "abcdefghijklmnopqrstuvwxyz",
-    _ALPHA: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-    _digit: "0123456789",
-
-    _func: function (source) {
-/*#ifdef(DEBUG)*/
-        try {
-/*#endif*/
-            if (!source) {
-                return _emptyFunc;
-            } else {
-                return new Func(source);
-            }
-/*#ifdef(DEBUG)*/
-        } catch (e) {
-            console.error("An exception occurred compiling:\r\n"
-                + source);
-            return null;
-        }
-/*#endif*/
-    },
-
-    /**
-     * An empty function
-     * return {Function}
-     */
-    emptyFunction: function () {
-        return _emptyFunc;
-    },
 
     /*
      * Converts the provided value to match the expectedType.
@@ -338,7 +345,7 @@ gpf.extend(gpf, {
         if ("undefined" === valueType || !value) {
             return defaultValue;
         }
-        return _values[expectedType](value, valueType, defaultValue);
+        return _gpfValues[expectedType](value, valueType, defaultValue);
     },
 
     /*
@@ -363,12 +370,12 @@ gpf.extend(gpf, {
             return true;
         }
         if (typeof a !== typeof b) {
-            return _likeTypes(a, b, alike);
+            return _gpfLikeTypes(a, b, alike);
         }
         if (null === a || null === b || "object" !== typeof a) {
             return false;
         }
-        return _likeMembers(a, b, alike);
+        return _gpfLikeMembers(a, b, alike);
     },
 
     /**
@@ -503,7 +510,7 @@ gpf.extend(gpf, {
 });
 
 gpf.extend(gpf.Callback.prototype, {
-    _handler: gpf._func(""),
+    _handler: _gpfEmptyFunc,
     _scope: null,
 
     /**
