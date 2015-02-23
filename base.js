@@ -5,8 +5,6 @@
 /*global _gpfEmptyFunc*/ // An empty function
 /*#endif*/
 
-console.log("PROUT " + typeof _gpfEmptyFunc);
-
 /*
     This package contains general helpers that will be used everywhere else
 */
