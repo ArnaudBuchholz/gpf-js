@@ -5,6 +5,10 @@ A multi-purpose JavaScript library created and maintained by
 
 [Plato analysis](http://arnaudbuchholz.github.io/plato/gpf-js/index.html)
 
+## Huge refactoring in progress
+
+![Work in progress](http://arnaudbuchholz.github.io/blog/wip.png)
+
 ## Features
 
 * Compatible with several hosts
