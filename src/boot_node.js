@@ -8,10 +8,13 @@
     require("./sources.js"); // Get sources
     var
         sources = gpf.sources().split(","),
+        length = sources.length,
         idx,
         src,
         concat = [];
-    for (idx = 0; idx < sources.length; ++idx) {
+
+    // Enumerate all sources and concatenate them
+    for (idx = 0; idx < length; ++idx) {
         src = sources[idx] + ".js";
         concat.push(_gpfNodeFS.readFileSync(__dirname + "/" + src).toString());
     }
@@ -19,6 +22,7 @@
     eval(concat.join("\n"));
     /*jslint evil: false*/
 
+    // Trigger finish loading
     _gpfFinishLoading();
 
 }());
