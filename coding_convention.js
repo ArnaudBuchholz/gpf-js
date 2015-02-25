@@ -4,8 +4,27 @@
 
 /* Global variables are shared within GPF sources so they might conflict */
 var
-    _gpfVariableName;
+    _gpfVariableName,
 
+    /**
+     * Private class constructor
+     *
+     * @constructor
+     * @private
+     */
+    _GpfClassName = function () {
+        this._member = 0;
+    };
+
+_GpfClassName.prototype = {
+
+    /**
+     * Private member
+     *
+     * @private
+     */
+    _member: 0
+};
 
 /*                                                                             |
  * First of all, apply JSHint with:                                            |
