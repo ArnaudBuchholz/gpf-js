@@ -1,0 +1,457 @@
+/*#ifndef(UMD)*/
+"use strict";
+/*#endif*/
+
+/*
+ * Choice between eventHandler last parameter and gpf.events.Target interface
+ * - Both must be used when asynchronous action takes place and the caller
+ *   must wait for the call to finish
+ * - The callback is always receiving a gpf.events.Event
+ * - If the event might be thrown several times or several listeners might need
+ *   it, use gpf.events.Target
+ * - Otherwise, use the eventHandler last parameter
+ *
+ * NOTE: none of these class are using the gpf.define syntax as they are
+ * considered primitive.
+ */
+
+var
+    /**
+     * Event Target
+     * keep track of listeners and exposes a protected method to dispatch
+     * events when fired
+     *
+     * @param {String[]} [events=undefined] events
+     * @constructor
+     * @class gpf.events.Target
+     */
+    Target = function (events) {
+        var idx, len, eventName;
+        this._listeners = {};
+        if (undefined !== events) {
+            this._events = events;
+            len = events.length;
+            for (idx = 0; idx < len; ++idx) {
+                eventName = events[idx];
+                this["on" + eventName.charAt(0).toUpperCase()
+                    + eventName.substr(1)] = this._onEVENT(idx);
+                this._listeners[eventName] = [];
+            }
+        }
+    },
+
+    /**
+     * Generate a closure capable of handling addEventListener on a given
+     * event
+     *
+     * @param {Number} eventIndex
+     * @returns {Function}
+     * @closure
+     * @private
+     */
+    _genOnEventClosure = function (eventIndex) {
+        return function() {
+            var
+                args = [this._events[eventIndex]],
+                len = arguments.length,
+                idx;
+            for (idx = 0; idx < len; ++idx) {
+                args.push(arguments[idx]);
+            }
+            return this.addEventListener.apply(this, args);
+        };
+    },
+
+    /**
+     * Event broadcaster
+     *
+     * @param {String[]} [events=undefined] events
+     * @constructor
+     * @class gpf.events.Broadcaster
+     */
+    Broadcaster = function (/*events*/) {
+        Target.apply(this, arguments);
+    },
+
+    /**
+     * Event
+     *
+     * @param {String} type
+     * @param {Object} [params={}] params
+     * @param {Boolean} [cancelable=false] cancelable
+     * @param {Object} [scope=undefined] scope
+     * @constructor
+     * @class gpf.events.Event
+     */
+    Event = function (type, params, cancelable, scope) {
+        this._type = type;
+        if (undefined !== params) {
+            this._params = params;
+        }
+        if (cancelable) {
+            this._cancelable = true;
+        }
+//            this._timeStamp = new Date();
+//            this._returnValue = undefined;
+        if (scope) {
+            this._scope = scope;
+        }
+    },
+
+    /**
+     * Count the number of gpf.events.fire calls
+     *
+     * @type {number}
+     * @private
+     */
+    _firing = 0,
+
+    /**
+     * Fire the event onto the eventsHandler
+     *
+     * @param {gpf.events.Event} event event object to fire
+     * @param {Object} scope scope of the event
+     * @param {gpf.events.Handler} eventsHandler
+     */
+    _fire = function (event, scope, eventsHandler) {
+        var eventHandler,
+            overriddenScope;
+        if (eventsHandler instanceof Target) {
+            eventsHandler._broadcastEvent(event);
+        } else if ("function" === typeof eventsHandler
+            || eventsHandler instanceof gpf.Callback) {
+            // Compatible with Function & gpf.Callback
+            eventsHandler.apply(scope, [event]);
+        } else {
+            eventHandler = eventsHandler[event.type()];
+            if (undefined === eventHandler) {
+                // Try with a default handler
+                eventHandler = eventsHandler["*"];
+            }
+            if (undefined !== eventHandler) {
+                overriddenScope = eventsHandler.scope;
+                if (undefined !== overriddenScope) {
+                    scope = overriddenScope;
+                }
+                eventHandler.apply(scope, [event]);
+            }
+        }
+    };
+
+gpf.extend(Target.prototype, {
+
+    /**
+     * @type {Object} Map of event name to the list of callbacks
+     * @private
+     */
+    _listeners: {},
+
+    /**
+     * @type {String[]} List of predefined event names
+     * @private
+     */
+    _events: null,
+
+    /**
+     * To avoid an extensive use of closures, functions are created with an
+     * index that points to the list of 'declared' events (this._events).
+     * function _onEVENT(callback,useCapture) {
+     *     this.addEventListener(this._events[IDX],callback,useCapture);
+     * }
+     *
+     * @param {Number} idx index of the method to create
+     * @internal
+     */
+    _onEVENT: function (idx) {
+        var
+            closures = Broadcaster.prototype._onEVENT.closures,
+            jdx;
+        if (!closures) {
+            closures = Broadcaster.prototype._onEVENT.closures = [];
+        }
+        gpf.ASSERT(closures.length >= idx, "calls must be sequential");
+        while (closures.length <= idx) {
+            jdx = closures.length;
+            closures.push(_genOnEventClosure(jdx));
+        }
+        return closures[idx];
+    },
+
+    /**
+     * Add an event listener to the target
+     *
+     * @param {String} event name
+     * @param {gpf.events.Handler} eventsHandler
+     * @param {Boolean} [useCapture=false] useCapture push it on top of the
+     * triggering queue
+     * @return {gpf.events.Target}
+     * @chainable
+     */
+    addEventListener: function (event, eventsHandler, useCapture) {
+        var
+            listeners = this._listeners;
+        if (!useCapture) {
+            useCapture = false;
+        }
+        if (undefined === listeners[event]) {
+            listeners[event] = [];
+        }
+        if (useCapture) {
+            listeners[event].unshift(eventsHandler);
+        } else {
+            listeners[event].push(eventsHandler);
+        }
+        return this;
+    },
+
+    /**
+     * Remove an event listener to the target
+     *
+     * @param {String} event name
+     * @param {gpf.events.Handler} eventsHandler
+     * @return {gpf.events.Target}
+     * @chainable
+     */
+    removeEventListener: function (event, eventsHandler) {
+        var
+            eventsHandlers = this._listeners[event],
+            idx;
+        if (undefined !== eventsHandlers) {
+            idx = eventsHandlers.indexOf(eventsHandler);
+            if (-1 !== idx) {
+                eventsHandlers.splice(idx, 1);
+            }
+        }
+        return this;
+    },
+
+    /**
+     * Broadcast the event
+     *
+     * @param {String|gpf.events.Event} event name or object
+     * @param {Object} [params={}] event parameters
+     * @return {gpf.events.Target}
+     * @protected
+     * @chainable
+     */
+    _broadcastEvent: function (event, params) {
+        var
+            idx,
+            type,
+            listeners;
+        if (event instanceof Event) {
+            type = event.type();
+        } else {
+            type = event;
+        }
+        listeners = this._listeners[type];
+        if (undefined === listeners) {
+            return this; // Nothing to do
+        }
+        if (!(event instanceof Event)) {
+            event = new gpf.events.Event(event, params, true, this);
+        }
+        for (idx = 0; idx < listeners.length; ++idx) {
+            gpf.events.fire.apply(this, [event, listeners[idx]]);
+            // TODO see how it complies with asynchronous processing
+            if (event._propagationStopped) {
+                break;
+            }
+        }
+        return this;
+    }
+
+});
+
+Broadcaster.prototype = new Target();
+gpf.extend(Broadcaster.prototype, {
+
+    /**
+     * Broadcast the event
+     *
+     * @param {String|gpf.events.Event} event name or object
+     * @param {Object} [params={}] event parameters
+     * @return {gpf.events.Target}
+     * @chainable
+     */
+    broadcastEvent: function (/*event, params*/) {
+        return this._broadcastEvent.apply(this, arguments);
+    }
+
+});
+
+gpf.extend(Event.prototype, {
+
+    /**
+     * Event type
+     *
+     * @type {String}
+     * @private
+     */
+    _type: "",
+
+    /**
+     * Event parameters
+     *
+     * @type {Object} Map of key to value
+     * @private
+     */
+    _params: {},
+
+    /**
+     * Event can be cancelled
+     *
+     * @type {Boolean}
+     * @private
+     */
+    _cancelable: false,
+
+    /**
+     * Event propagation was stopped
+     *
+     * @type {Boolean}
+     * @private
+     */
+    _propagationStopped: false,
+
+    /**
+     * Event default handling is prevented
+     *
+     * @type {Boolean}
+     * @private
+     */
+    _defaultPrevented: false,
+
+    /**
+     * Event scope
+     *
+     * @type {Object|null}
+     * @private
+     */
+    _scope: null,
+
+    /**
+     * Event type
+     *
+     * @return {String}
+     */
+    type: function () {
+        return this._type;
+    },
+
+    /**
+     * Event scope
+     *
+     * @return {Object}
+     */
+    scope: function () {
+        return gpf.Callback.resolveScope(this._scope);
+    },
+
+    /**
+     * Event can be cancelled
+     *
+     * @return {Boolean}
+     */
+    cancelable: function () {
+        return this._cancelable;
+    },
+
+    /**
+     * Cancel the event if it is cancelable, meaning that any default
+     * action normally taken by the implementation as a result of the event
+     * will not occur
+     */
+    preventDefault: function () {
+        this._defaultPrevented = true;
+    },
+
+    /**
+     * Returns true if preventDefault has been called at least once
+     *
+     * @return {Boolean}
+     */
+    defaultPrevented: function () {
+        return this._defaultPrevented;
+    },
+
+    /**
+     * To prevent further propagation of an event during event flow
+     */
+    stopPropagation: function () {
+        this._propagationStopped = true;
+    },
+
+    /**
+     * Get any additional event information
+     *
+     * @param {String} name parameter name
+     * @return {*} value of parameter
+     */
+    get: function (name) {
+        return this._params[name];
+    },
+
+    /**
+     * Fire the event on the provided eventsHandler
+     *
+     * @param {gpf.events.Broadcaster/gpf.Callback/Function} eventsHandler
+     * @return {gpf.events.Event} this
+     */
+    fire: function (eventsHandler) {
+        return gpf.events.fire(this, eventsHandler);
+    }
+
+});
+
+gpf.events = {
+    Target: Target,
+    Broadcaster: Broadcaster,
+    Event: Event,
+
+    /**
+     * Event Handler,
+     * - gpf.events.Broadcaster: broadcastEvent(event)
+     * - gpf.Callback|Function: apply(scope, [event])
+     * - Object: consider a map between event type and callback function
+     * @type {gpf.events.Target|gpf.Callback|Function|Object}
+     * @alias {gpf.events.Handler}
+     */
+
+    /**
+     * If necessary, build an event object and use the provided media
+     * (broadcaster or callback function) to throw it.
+     *
+     * NOTE: this is transmitted through the call
+     *
+     * @param {String/gpf.events.Event} event string or event object to fire
+     * @param {Object} [params={}] params parameter of the event
+     *                 (when type is a string)
+     * @param {gpf.events.Handler} eventsHandler
+     * @return {gpf.events.Event} the event object
+     */
+    fire: function (event, params, eventsHandler) {
+        var scope;
+        if (undefined === eventsHandler) {
+            // no last param: shift parameters
+            eventsHandler = params;
+            params = undefined;
+        }
+        if (!(event instanceof Event)) {
+            event = new gpf.events.Event(event, params, true, this);
+        }
+        scope = gpf.Callback.resolveScope(this);
+        /**
+         * This is used both to limit the number of recursion and increase
+         * the efficiency of the algorithm.
+         */
+        if (++_firing > 10) {
+            // Too much recursion
+            gpf.defer(_fire,  0, null, [event, scope, eventsHandler]);
+        } else {
+            _fire(event, scope, eventsHandler);
+        }
+        --_firing;
+        return event;
+    }
+};
