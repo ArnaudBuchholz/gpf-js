@@ -39,6 +39,7 @@
             "compatibility",    "setReadOnlyProperty",
             "constants",        "_constants",
             "base",             "each",
+            "like",             "like",
             "callback",         "Callback",
             "events",           "events",
             "http",             "http"
