@@ -122,93 +122,12 @@ var
         }
     },
 
-    _gpfLikeSearchInDone = function /*gpf:inline*/ (array, a, b) {
-        var
-            idx,
-            ia,
-            ib,
-            len = array.length;
-        for (idx = 0; idx < len; ++idx) {
-            ia = array[idx].a;
-            ib = array[idx].b;
-            if ((ia === a && ib === b) || (ib === a && ia === b)) {
-                return idx;
-            }
-        }
-        return undefined;
-    },
-
-    _gpfLikeTypes = function /*gpf:inline*/ (a, b, alike) {
-        if (alike && ("object" === typeof a || "object" === typeof b)) {
-            /*
-             One of the two is an object but not the other,
-             Consider downcasting Number and String
-             */
-            if (a instanceof String || b instanceof String) {
-                return a.toString() ===  b.toString();
-            }
-            if (a instanceof Number || b instanceof Number) {
-                return a.valueOf() ===  b.valueOf();
-            }
-            return false;
-        }
-        return false;
-    },
-
-    _gpfLikeCompareMembers = function /*gpf:inline*/ (ma, mb, alike, stacks) {
-        if (ma !== mb) {
-            if (typeof ma !== typeof mb && !_gpfLikeTypes(ma, mb, alike)) {
-                return false;
-            }
-            if (null === ma || null === mb
-                || "object" !== typeof ma) {
-                return false; // Because we know that ma !== mb
-            }
-            if (undefined === _gpfLikeSearchInDone(stacks.done, ma, mb)) {
-                stacks.todo.push(ma);
-                stacks.todo.push(mb);
-            }
-        }
-        return true;
-    },
-
-    _gpfLikeMembers = function /*gpf:inline*/ (a, b, alike) {
-        var
-            member,
-            count,
-            stacks = {
-                todo: [a, b],
-                done: []
-            };
-        while (0 !== stacks.todo.length) {
-            b = stacks.todo.pop();
-            a = stacks.todo.pop();
-            if (a.prototype !== b.prototype) {
-                return false;
-            }
-            stacks.done.push({a: a, b: b });
-            count = 0;
-            for (member in a) {
-                if (a.hasOwnProperty(member)) {
-                    ++count;
-                    if (!_gpfLikeCompareMembers(a[member], b[member], alike,
-                        stacks)) {
-                        return false;
-                    }
-                }
-            }
-            for (member in b) {
-                if (b.hasOwnProperty(member)) {
-                    --count;
-                }
-            }
-            if (0 !== count) {
-                return false;
-            }
-        }
-        return true;
-    },
-
+    /**
+     * gpf.value handlers per type
+     *
+     * @type {Object}
+     * @private
+     */
     _gpfValues = {
         boolean: function (value, valueType, defaultValue) {
             if ("string" === valueType) {
@@ -247,14 +166,14 @@ var
         }
     };
 
-/**
- * Return true if the provided parameter looks like an array (i.e. it has
- * a property length and each item can be accessed with [])
- *
- * @param {Object} obj
- * @return {Boolean} True if array-like
- */
-if ("browser" === _gpfHost && window.HTMLCollection) {
+if ("browser" === _gpfHost && (window.HTMLCollection || window.NodeList)) {
+    /**
+     * Return true if the provided parameter looks like an array (i.e. it has
+     * a property length and each item can be accessed with [])
+     *
+     * @param {Object} obj
+     * @return {Boolean} True if array-like
+     */
     gpf.isArrayLike = function (obj) {
         return obj instanceof Array
             || obj instanceof window.HTMLCollection
@@ -313,9 +232,11 @@ gpf.extend = function (dictionary, additionalProperties, overwriteCallback) {
     if (undefined === overwriteCallback) {
         callbackToUse = _gpfAssign;
     } else {
+        gpf.ASSERT("function" === typeof overwriteCallback,
+            "Expected function");
         callbackToUse = _gpfAssignOrCall;
     }
-    gpf.each.apply(arguments, [additionalProperties, callbackToUse]);
+    _gpfArrayEach.apply(arguments, [additionalProperties, callbackToUse]);
     return dictionary;
 };
 
@@ -343,36 +264,6 @@ gpf.extend(gpf, {
             return defaultValue;
         }
         return _gpfValues[expectedType](value, valueType, defaultValue);
-    },
-
-    /*
-     * Compares a and b and return true if they are look-alike (all members
-     * have the same type and same value).
-     *
-     * NOTES:
-     * 14/04/2013 17:19:43
-     * Generates too much recursion, changed the algorithm to avoid
-     * recursion using document.body (and any kind of object that references
-     * other objects) I found that it was necessary to keep track of already
-     * processed objects.
-     *
-     * @param {*} a
-     * @param {*} b
-     * @param {Boolean} [alike=false] alike Allow to be tolerant on
-     *        primitive types compared with their object equivalent
-     * @return {Boolean}
-     */
-    like: function (a, b, alike) {
-        if (a === b) {
-            return true;
-        }
-        if (typeof a !== typeof b) {
-            return _gpfLikeTypes(a, b, alike);
-        }
-        if (null === a || null === b || "object" !== typeof a) {
-            return false;
-        }
-        return _gpfLikeMembers(a, b, alike);
     },
 
     /**
