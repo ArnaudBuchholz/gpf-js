@@ -20,6 +20,7 @@
 /*global _gpfAlpha*/ // Letters (lowercase)
 /*global _gpfALPHA*/ // Letters (uppercase)
 /*global _gpfDigit*/ // Digits
+/*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
 
 var
     // https://github.com/jshint/jshint/issues/525
@@ -44,9 +45,8 @@ var
 /*#ifdef(DEBUG)*/
         try {
 /*#endif*/
-            if (!source) {
-                return _gpfEmptyFunc;
-            }
+            gpf.ASSERT("string" === typeof source && source.length,
+                "Source expected (or use _gpfEmptyFunc)");
             return new _GpfFunc(source);
 /*#ifdef(DEBUG)*/
         } catch (e) {
