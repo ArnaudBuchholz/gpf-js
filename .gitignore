@@ -8,6 +8,10 @@ Thumbs.db
 # Folder config file
 Desktop.ini
 
+# Temporary folder
+
+tmp/*
+
 #############
 ## WebStorm
 #############
