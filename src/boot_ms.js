@@ -13,12 +13,8 @@
          * @returns {String}
          */
         read = function (src) {
-            // gpfSourcesPath - if defined - gives the relative path to sources
-            if ("undefined" !== typeof gpfSourcesPath) {
-                src = gpfSourcesPath + src;
-            }
             // Use Scripting.FileSystem Object to read the file
-            var srcFile = _gpfMsFSO.OpenTextFile(src),
+            var srcFile = _gpfMsFSO.OpenTextFile(gpfSourcesPath + src),
                 result;
             result = srcFile.ReadAll();
             srcFile.Close();

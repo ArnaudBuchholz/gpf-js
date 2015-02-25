@@ -345,6 +345,12 @@ if (!gpf.ASSERT) {
  * Loading sources occurs here for the non UMD version.
  * UMD versions (debug / release) will have everything concatenated.
  */
+
+// gpfSourcesPath - if defined - gives the relative path to sources
+if ("undefined" === typeof gpfSourcesPath) {
+    _gpfContext.gpfSourcesPath = "";
+}
+
 if ("wscript" === _gpfHost) {
     _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
     (function () {
@@ -368,16 +374,13 @@ if ("wscript" === _gpfHost) {
     require("./boot_node.js");
 
 } else { // "browser" === _gpfHost
-    (function () {
-        var src = "boot_web.js";
-        if ("undefined" !== typeof gpfSourcesPath) {
-            src = gpfSourcesPath + src;
-        }
+    var _gpfRawHttpInclude = function (src) {
         var script = _gpfWebDocument.createElement("script");
         script.language = "javascript";
-        script.src = src;
+        script.src = gpfSourcesPath + src;
         _gpfWebHead.insertBefore(script, _gpfWebHead.firstChild);
-    }());
+    };
+    _gpfRawHttpInclude("boot_web.js");
 
 }
 
