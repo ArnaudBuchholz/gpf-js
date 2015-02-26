@@ -14,10 +14,16 @@ var
 if (undefined === Array.prototype.indexOf) {
 
     // Introduced with JavaScript 1.5
-    Array.prototype.indexOf = function (value) {
-        var idx = this.length;
-        while (idx--) {
-            if (this[idx] === value) {
+    Array.prototype.indexOf = function (searchElement, fromIndex) {
+        var idx,
+            len = this.length;
+        if (undefined !== fromIndex) {
+            idx = fromIndex;
+        } else {
+            fromIndex = 0;
+        }
+        while (idx < len) {
+            if (this[idx] === searchElement) {
                 return idx;
             }
         }
