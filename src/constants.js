@@ -16,6 +16,7 @@
 /*global _gpfMsFSO*/ // Scripting.FileSystemObject activeX
 /*global _gpfNodeFS*/ // Node FS module
 /*global _gpfEmptyFunc*/ // An empty function
+/*global _gpfFalseFunc*/ // An empty function returning false
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfAlpha*/ // Letters (lowercase)
 /*global _gpfALPHA*/ // Letters (uppercase)
@@ -23,6 +24,30 @@
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
 
 var
+/*#ifdef(RELEASE)*/
+    _gpfTypeofBoolean = "boolean",
+    _gpfTypeofFunction = "function",
+    _gpfTypeofNumber = "number",
+    _gpfTypeofObject = "object",
+    _gpfTypeofString = "string",
+    _gpfTypeofUndefined = "undefined",
+    _gpfUndefined = void 0,
+    _gpfTrue = !!1,
+    _gpfFalse = !_gpfTrue,
+    _gpfNull = null,
+
+    /*#define "boolean" _gpfTypeofBoolean*/
+    /*#define "function" _gpfTypeofFunction*/
+    /*#define "number" _gpfTypeofNumber*/
+    /*#define "object" _gpfTypeofObject*/
+    /*#define "string" _gpfTypeofString*/
+    /*#define "undefined" _gpfTypeofUndefined*/
+    /*#define undefined _gpfUndefined*/
+    /*#define true _gpfTrue*/
+    /*#define false _gpfFalse*/
+    /*#define null _gpfNull*/
+/*#endif*/
+
     // https://github.com/jshint/jshint/issues/525
     _GpfFunc = Function, // avoid JSHint error
 
@@ -32,6 +57,16 @@ var
      * @private
      */
     _gpfEmptyFunc = function () {},
+
+    /**
+     * An empty function returning false
+     *
+     * @result {Boolean} False
+     * @private
+     */
+    _gpfFalseFunc = function () {
+        return false;
+    },
 
     /**
      * Create a new function using the source
