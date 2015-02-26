@@ -10,6 +10,9 @@
             "callback",             // Callback object              gpf.Callback
             "events",               // Event management               gpf.events
             "http",                 // HTTP specific functions          gpf.http
+
+            "",                     // --- temporary end marker ---
+
             "async",                // Asynchronous handling           gpf.defer
             "bin",                  // Binary tools                      gpf.bin
             "json",                 // JSON compatibility layer         gpf.json

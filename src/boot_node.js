@@ -15,9 +15,14 @@
 
     // Enumerate all sources and concatenate them
     for (idx = 0; idx < length; ++idx) {
-        src = sources[idx] + ".js";
-        concat.push(_gpfNodeFS.readFileSync(__dirname + "/" + src).toString());
+        src = sources[idx];
+        if (!src) {
+            break;
+        }
+        src = __dirname + "/" + src + ".js";
+        concat.push(_gpfNodeFS.readFileSync(src).toString());
     }
+
     /*jslint evil: true*/
     eval(concat.join("\n"));
     /*jslint evil: false*/

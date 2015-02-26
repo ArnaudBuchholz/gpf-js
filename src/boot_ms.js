@@ -23,6 +23,7 @@
         sources,
         length,
         idx,
+        src,
         concat = [];
 
     /*jslint evil: true*/
@@ -33,7 +34,11 @@
     sources = gpf.sources().split(",");
     length = sources.length;
     for (idx = 0; idx < length; ++idx) {
-        concat.push(read(sources[idx] + ".js"));
+        src = sources[idx];
+        if (!src) {
+            break;
+        }
+        concat.push(read(src + ".js"));
     }
 
     /*jslint evil: true*/

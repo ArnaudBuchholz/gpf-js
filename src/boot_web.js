@@ -18,11 +18,13 @@
          * @param {gpf.events.Event} event (unused)
          */
         loadSources = function (/*event*/) {
+            var src;
             if (idx < length) {
-                gpf.http.include(gpfSourcesPath + sources[idx] + ".js",
-                    loadSources);
+                src = sources[idx];
+            }
+            if (src) {
+                gpf.http.include(gpfSourcesPath + src + ".js", loadSources);
                 ++idx;
-
             } else {
                 // Trigger finish loading
                 _gpfFinishLoading();
