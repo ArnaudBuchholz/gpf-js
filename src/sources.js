@@ -13,6 +13,8 @@
 
             "",                     // --- temporary end marker ---
 
+            "target",               // Event Target            gpf.events.Target
+
             "async",                // Asynchronous handling           gpf.defer
             "bin",                  // Binary tools                      gpf.bin
             "json",                 // JSON compatibility layer         gpf.json
