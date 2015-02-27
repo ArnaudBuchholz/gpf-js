@@ -14,16 +14,11 @@ var
      * @class _Event
      * @alias gpf.events.Event
      */
-    _Event = function (type, params, cancelable, scope) {
+    _Event = function (type, params, scope) {
         gpf.setReadOnlyProperty(this, "type", type);
         if (undefined !== params) {
             this._params = params;
         }
-        if (cancelable) {
-            this._cancelable = true;
-        }
-//            this._timeStamp = new Date();
-//            this._returnValue = undefined;
         if (scope) {
             this._scope = scope;
         }
@@ -74,6 +69,38 @@ var
                 eventHandler.apply(scope, [event]);
             }
         }
+    },
+
+    /**
+     * Check parameters array and re-assign default values considering that:
+     * the eventsHandler parameter is *always* the last one provided
+     * all other parameters are optional and can be defaulted provided the
+     * defaultArgs array
+     *
+     * Sample usage:
+     *
+     *  function fire (event, params, synchronous, eventsHandler) {
+     *      _gpfLookForEventsHandler(arguments, ['', {}, false]);
+     *
+     *
+     * @param {arguments} thatArgs Function arguments
+     * @param {Array} defaultArgs List of default values for all expected
+     * arguments *but* the eventsHandler
+     * @private
+     */
+    _gpfLookForEventsHandler = function (thatArgs, defaultArgs) {
+        var
+            expectedLen = defaultArgs.length + 1,
+            argsLen = thatArgs.lenth,
+            argIdx;
+        if (argsLen.length !== expectedLen) {
+            argIdx = argsLen - 1;
+            // The last argument is *always* the eventsHandler
+            thatArgs[expectedLen - 1] = thatArgs[argIdx];
+            // Then apply missing defaults
+            while (argIdx ) {
+            }
+        }
     };
 
 // _Event interface
@@ -94,14 +121,6 @@ gpf.extend(_Event.prototype, {
      * @private
      */
     _params: {},
-
-    /**
-     * Event can be cancelled
-     *
-     * @type {Boolean}
-     * @private
-     */
-    _cancelable: false,
 
     /**
      * Event propagation was stopped
@@ -134,15 +153,6 @@ gpf.extend(_Event.prototype, {
      */
     scope: function () {
         return gpf.Callback.resolveScope(this._scope);
-    },
-
-    /**
-     * Event can be cancelled
-     *
-     * @return {Boolean}
-     */
-    cancelable: function () {
-        return this._cancelable;
     },
 
     /**
@@ -219,12 +229,8 @@ gpf.events = {
      */
     fire: function (event, params, eventsHandler) {
         var scope;
-        if (undefined === eventsHandler) {
-            // no last param: shift parameters
-            eventsHandler = params;
-            params = undefined;
-        }
-        if (!(event instanceof Event)) {
+        _gpfLookForEventsHandler(arguments, [0, {}]);
+        if (!(event instanceof _Event)) {
             event = new gpf.events.Event(event, params, true, this);
         }
         scope = gpf.Callback.resolveScope(this);
