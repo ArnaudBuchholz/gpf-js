@@ -171,7 +171,7 @@ gpf.extend(Target.prototype, {
      * @protected
      * @chainable
      */
-    _broadcastEvent: function (event, params) {
+    _dispatchEvent: function (event, params) {
         var
             idx,
             type,
@@ -211,8 +211,8 @@ gpf.extend(Broadcaster.prototype, {
      * @return {gpf.events.Target}
      * @chainable
      */
-    broadcastEvent: function (/*event, params*/) {
-        return this._broadcastEvent.apply(this, arguments);
+    dispatchEvent: function (/*event, params*/) {
+        return this._dispatchEvent.apply(this, arguments);
     }
 
 });
