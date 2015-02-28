@@ -1,5 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfContext*/ // Main context object
 /*#endif*/
 
 var
@@ -20,9 +21,7 @@ var
         if (undefined !== params) {
             this._params = params;
         }
-        if (scope) {
-            this._scope = scope;
-        }
+        this._scope = scope || _gpfContext;
     },
 
     /**
@@ -63,7 +62,7 @@ var
             }
             if (undefined !== eventHandler) {
                 overriddenScope = eventsHandler.scope;
-                if (undefined !== overriddenScope) {
+                if (overriddenScope) {
                     scope = overriddenScope;
                 }
                 eventHandler.apply(scope, [event]);
@@ -148,7 +147,7 @@ gpf.extend(_Event.prototype, {
      * @return {Object}
      */
     scope: function () {
-        return gpf.Callback.resolveScope(this._scope);
+        return this._scope;
     },
 
     /**
@@ -194,7 +193,7 @@ gpf.events = {
         if (!(event instanceof _Event)) {
             event = new gpf.events.Event(event, params, true, this);
         }
-        scope = gpf.Callback.resolveScope(this);
+        scope = this || _gpfContext;
         /**
          * This is used both to limit the number of recursion and increase
          * the efficiency of the algorithm.
