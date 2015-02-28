@@ -5,6 +5,7 @@
 var
     /**
      * GPF Event class
+     * Simple implementation: type is a read-only member
      *
      * @param {String} type
      * @param {Object} [params={}] params
@@ -48,15 +49,14 @@ var
         if (eventsHandler._dispatchEvent) {
             eventsHandler._dispatchEvent(event);
 
-        // Basic function handler
-        } else if ("function" === typeof eventsHandler
-            || eventsHandler instanceof gpf.Callback) {
-            // Compatible with Function & gpf.Callback
+        // Basic function handler or gpf.Callback
+        } else if ("function" === eventsHandler.apply) {
             eventsHandler.apply(scope, [event]);
+            // Compatible with Function & gpf.Callback
 
         // Composite with a specific event handler
         } else {
-            eventHandler = eventsHandler[event.type()];
+            eventHandler = eventsHandler[event.type];
             if (undefined === eventHandler) {
                 // Try with a default handler
                 eventHandler = eventsHandler["*"];
@@ -90,15 +90,17 @@ var
      */
     _gpfLookForEventsHandler = function (thatArgs, defaultArgs) {
         var
-            expectedLen = defaultArgs.length + 1,
-            argsLen = thatArgs.lenth,
-            argIdx;
-        if (argsLen.length !== expectedLen) {
-            argIdx = argsLen - 1;
+            lastExpectedIdx = defaultArgs.length, // eventsHandler not included
+            argIdx = thatArgs.lenth - 1;
+        if (argIdx !== lastExpectedIdx) {
             // The last argument is *always* the eventsHandler
-            thatArgs[expectedLen - 1] = thatArgs[argIdx];
+            thatArgs[lastExpectedIdx] = thatArgs[argIdx];
             // Then apply missing defaults
-            while (argIdx ) {
+            --argIdx;
+            --lastExpectedIdx;
+            while (lastExpectedIdx > argIdx) {
+                thatArgs[lastExpectedIdx] = defaultArgs[lastExpectedIdx];
+                --lastExpectedIdx;
             }
         }
     };
@@ -123,62 +125,12 @@ gpf.extend(_Event.prototype, {
     _params: {},
 
     /**
-     * Event propagation was stopped
-     *
-     * @type {Boolean}
-     * @private
-     */
-    _propagationStopped: false,
-
-    /**
-     * Event default handling is prevented
-     *
-     * @type {Boolean}
-     * @private
-     */
-    _defaultPrevented: false,
-
-    /**
      * Event scope
      *
      * @type {Object|null}
      * @private
      */
     _scope: null,
-
-    /**
-     * Event scope
-     *
-     * @return {Object}
-     */
-    scope: function () {
-        return gpf.Callback.resolveScope(this._scope);
-    },
-
-    /**
-     * Cancel the event if it is cancelable, meaning that any default
-     * action normally taken by the implementation as a result of the event
-     * will not occur
-     */
-    preventDefault: function () {
-        this._defaultPrevented = true;
-    },
-
-    /**
-     * Returns true if preventDefault has been called at least once
-     *
-     * @return {Boolean}
-     */
-    defaultPrevented: function () {
-        return this._defaultPrevented;
-    },
-
-    /**
-     * To prevent further propagation of an event during event flow
-     */
-    stopPropagation: function () {
-        this._propagationStopped = true;
-    },
 
     /**
      * Get any additional event information
@@ -188,6 +140,15 @@ gpf.extend(_Event.prototype, {
      */
     get: function (name) {
         return this._params[name];
+    },
+
+    /**
+     * Event scope
+     *
+     * @return {Object}
+     */
+    scope: function () {
+        return gpf.Callback.resolveScope(this._scope);
     },
 
     /**
