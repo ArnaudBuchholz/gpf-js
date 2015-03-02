@@ -18,10 +18,10 @@ var
      */
     _Event = function (type, params, scope) {
         gpf.setReadOnlyProperty(this, "type", type);
+        gpf.setReadOnlyProperty(this, "scope", scope || _gpfContext);
         if (undefined !== params) {
             this._params = params;
         }
-        this._scope = scope || _gpfContext;
     },
 
     /**
@@ -116,20 +116,20 @@ gpf.extend(_Event.prototype, {
     type: "",
 
     /**
+     * Event scope
+     *
+     * @return {Object}
+     * @read-only
+     */
+    scope: null,
+
+    /**
      * Event parameters
      *
      * @type {Object} Map of key to value
      * @private
      */
     _params: {},
-
-    /**
-     * Event scope
-     *
-     * @type {Object|null}
-     * @private
-     */
-    _scope: null,
 
     /**
      * Get any additional event information
@@ -139,15 +139,6 @@ gpf.extend(_Event.prototype, {
      */
     get: function (name) {
         return this._params[name];
-    },
-
-    /**
-     * Event scope
-     *
-     * @return {Object}
-     */
-    scope: function () {
-        return this._scope;
     },
 
     /**
@@ -191,7 +182,7 @@ gpf.events = {
         var scope;
         _gpfLookForEventsHandler(arguments, [0, {}]);
         if (!(event instanceof _Event)) {
-            event = new gpf.events.Event(event, params, true, this);
+            event = new gpf.events.Event(event, params, this);
         }
         scope = this || _gpfContext;
         /**
