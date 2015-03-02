@@ -7,13 +7,14 @@
             "constants",            // Constants
             "base",                 // Basic functions
             "events",               // Event management               gpf.events
-            "http",                 // HTTP specific functions          gpf.http
+            "include",               // HTTP include            gpf.http.include
 
             "",                     // --- temporary end marker ---
 
             "like",                 // Comparison helper                gpf.like
             "callback",             // Callback object              gpf.Callback
             "target",               // Event Target            gpf.events.Target
+            "mimetype",             // Mime types handling  gpf.http.getMimeType
 
             "async",                // Asynchronous handling           gpf.defer
             "bin",                  // Binary tools                      gpf.bin
