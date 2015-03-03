@@ -40,9 +40,8 @@
             "sources",          "sources",
             "compatibility",    "setReadOnlyProperty",
             "constants",        "_constants",
-            "base",             "each",
             "events",           "events",
-            "http",             "http"
+            "include",          "http"
         ],
 
         /**
@@ -63,7 +62,7 @@
                  */
                 sources = gpf.sources().split(",");
                 length = sources.length;
-                idx = gpf.test(sources, "http") + 1;
+                idx = sources.indexOf(bootList[bootList.length - 2]) + 1;
                 loadSources();
 
             } else {
