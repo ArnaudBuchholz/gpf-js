@@ -48,7 +48,6 @@ var
         gpf.events.fire.apply(_gpfContext, parameters);
     };
 
-// _IncludeContext prototype
 _IncludeContext.prototype = {
 
     /**

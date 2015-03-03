@@ -29,7 +29,6 @@ var
         }
     };
 
-// _LikeContext interface
 _LikeContext.prototype = {
 
     /**
