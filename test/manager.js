@@ -269,7 +269,7 @@
             };
             console.warn = function () {
                 test._console.push({warn: arguments[0]});
-                test._cons_consoleWarnoleLog.apply(console, arguments);
+                test._consoleWarn.apply(console, arguments);
             };
             console.error = function () {
                 test._console.push({error: arguments[0]});
