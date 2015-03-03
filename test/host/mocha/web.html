@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>GPF Tests</title>
+        <link rel="stylesheet" href="mocha.css" />
+    </head>
+    <body>
+        <div id="mocha"></div>
+        <script src="../jquery.js"></script>
+        <script src="../assert.js"></script>
+        <script src="mocha.js"></script>
+        <script>
+            mocha.setup("bdd");
+            var
+                gpfSourcesPath = "../../../src/",
+                gpfTestsPath = "../../";
+        </script>
+        <script src="../web_loader.js"></script>
+        <script>
+            load(function () {
+                mocha.checkLeaks();
+                mocha.globals(['jQuery']);
+                mocha.run();
+            });
+        </script>
+    </body>
+</html>
