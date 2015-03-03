@@ -5,14 +5,14 @@
         _sources = [
             "compatibility",        // JavaScript compatibility helpers
             "constants",            // Constants
+            "events",               // Event management         gpf.events.Event
+            "include",              // HTTP include             gpf.http.include
             "base",                 // Basic functions
-            "events",               // Event management               gpf.events
-            "include",               // HTTP include            gpf.http.include
+            "like",                 // Comparison helper                gpf.like
+            "callback",             // Callback object              gpf.Callback
 
             "",                     // --- temporary end marker ---
 
-            "like",                 // Comparison helper                gpf.like
-            "callback",             // Callback object              gpf.Callback
             "target",               // Event Target            gpf.events.Target
             "mimetype",             // Mime types handling  gpf.http.getMimeType
 
