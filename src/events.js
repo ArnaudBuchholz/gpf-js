@@ -45,11 +45,11 @@ var
         gpf.ASSERT(eventsHandler, "Expected eventsHandler");
 
         // Event dispatcher expected interface
-        if (eventsHandler._dispatchEvent) {
+        if ("function" === typeof eventsHandler._dispatchEvent) {
             eventsHandler._dispatchEvent(event);
 
         // Basic function handler or gpf.Callback
-        } else if ("function" === eventsHandler.apply) {
+        } else if ("function" === typeof eventsHandler.apply) {
             eventsHandler.apply(scope, [event]);
             // Compatible with Function & gpf.Callback
 
@@ -90,7 +90,7 @@ var
     _gpfLookForEventsHandler = function (thatArgs, defaultArgs) {
         var
             lastExpectedIdx = defaultArgs.length, // eventsHandler not included
-            argIdx = thatArgs.lenth - 1;
+            argIdx = thatArgs.length - 1;
         if (argIdx !== lastExpectedIdx) {
             // The last argument is *always* the eventsHandler
             thatArgs[lastExpectedIdx] = thatArgs[argIdx];
@@ -105,7 +105,7 @@ var
     };
 
 // _Event interface
-gpf.extend(_Event.prototype, {
+_Event.prototype = {
 
     /**
      * Event type
@@ -151,7 +151,7 @@ gpf.extend(_Event.prototype, {
         return gpf.events.fire(this, eventsHandler);
     }
 
-});
+};
 
 gpf.events = {
 
