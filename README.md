@@ -32,4 +32,6 @@ documented and explained.
 * Markdown specification inspired from
 [wikipedia](http://en.wikipedia.org/wiki/Markdown)
 * UTF-8 encode/decode based on [webtoolkit](http://www.webtoolkit.info/)
+* Test suite based on [mocha](http://mochajs.org/)
+* Assertion library coming from [assert.js](https://github.com/Jxck/assert)
 
