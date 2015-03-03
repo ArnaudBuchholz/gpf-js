@@ -1,24 +1,21 @@
-(function () { /* Begin of privacy scope */
-    "use strict";
+"use strict";
+/*global describe, it, assert*/
 
-    gpf.declareTests({
+describe("compatibility", function () {
 
-        "array": [
+    describe("array", function () {
 
-            function (test) {
-                test.title("Array constructor");
-                var
-                    array = new Array(5),
-                    idx;
-                test.equal(array.length, 5, "Size of the array");
-                for (idx = 0; idx < 5; ++idx) {
-                    test.equal(array[idx], undefined, "Items are undefined");
-                }
-                test.equal(array.join(" "), "    ", "Joining works (4 spaces)");
+        it("should allow building an array with a given size", function () {
+            var
+                array = new Array(5),
+                idx;
+            assert.equal(array.length, 5, "Size of the array");
+            for (idx = 0; idx < 5; ++idx) {
+                assert.equal(array[idx], undefined, "Items are undefined");
             }
-
-        ]
+            assert.equal(array.join(" "), "    ", "Joining works (4 spaces)");
+        });
 
     });
 
-})(); /* End of privacy scope */
+});
