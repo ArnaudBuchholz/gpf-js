@@ -45,7 +45,7 @@ function loadGPF() {
         head = document.getElementsByTagName("head")[0]
                || document.documentElement,
         script = document.createElement("script");
-    window.gpfSourcesPath = "../../";
+    window.gpfSourcesPath = "../../src/";
     if (release) {
         version = "release";
         script.src = "../../build/gpf.js";
@@ -54,7 +54,7 @@ function loadGPF() {
         script.src = "../../build/gpf-debug.js";
     } else {
         version = "sources";
-        script.src = "../../boot.js";
+        script.src = "../../src/boot.js";
     }
     console.log("Using " + version + " version");
     script.language = "javascript";
