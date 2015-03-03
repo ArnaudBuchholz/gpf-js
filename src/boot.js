@@ -369,7 +369,8 @@ if ("wscript" === _gpfHost) {
     }());
 
 } else if (_gpfInNode) {
-    _gpfNodeFS =  require("fs");
+    global._gpfFinishLoading = _gpfFinishLoading;
+    global._gpfNodeFS =  require("fs");
     /*global require*/
     require("./boot_node.js");
 
