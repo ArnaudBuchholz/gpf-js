@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfContext*/ // Main context object
+/*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
 /*#endif*/
 
 var
@@ -30,44 +31,67 @@ var
      * @type {number}
      * @private
      */
-    _firing = 0,
+    _gpfEventsFiring = 0,
 
     /**
-     * Fire the event onto the eventsHandler
+     * Fire the event by calling the eventsHandler
      *
      * @param {gpf.events.Event} event event object to fire
-     * @param {Object} scope scope of the event
      * @param {gpf.events.Handler} eventsHandler
      */
-    _fire = function (event, scope, eventsHandler) {
-        var eventHandler,
-            overriddenScope;
+    _gpfEventsFireCall = function (event, eventsHandler) {
+        var scope = event.scope,
+            eventHandler;
         gpf.ASSERT(eventsHandler, "Expected eventsHandler");
 
-        // Event dispatcher expected interface
         if ("function" === typeof eventsHandler._dispatchEvent) {
+            // Event dispatcher expected interface
             eventsHandler._dispatchEvent(event);
 
-        // Basic function handler or gpf.Callback
         } else if ("function" === typeof eventsHandler.apply) {
+            // Basic Function handler or gpf.Callback
             eventsHandler.apply(scope, [event]);
-            // Compatible with Function & gpf.Callback
 
-        // Composite with a specific event handler
         } else {
+            // Composite with a specific event handler
             eventHandler = eventsHandler[event.type];
             if (undefined === eventHandler) {
                 // Try with a default handler
                 eventHandler = eventsHandler["*"];
             }
             if (undefined !== eventHandler) {
-                overriddenScope = eventsHandler.scope;
-                if (overriddenScope) {
-                    scope = overriddenScope;
-                }
-                eventHandler.apply(scope, [event]);
+                eventHandler.apply(eventsHandler.scope || eventsHandler,
+                    [event]);
             }
         }
+    },
+
+    /**
+     * gpf.events.fire implementation
+     *
+     * @param {String/gpf.events.Event} event string or event object to fire
+     * @param {Object} [params={}] params parameter of the event
+     *                 (when type is a string)
+     * @param {gpf.events.Handler} eventsHandler
+     * @return {gpf.events.Event} the event object
+     */
+    _gpfEventsFire = function (event, params, eventsHandler) {
+        var scope = this || _gpfContext;
+        if (!(event instanceof _Event)) {
+            event = new gpf.events.Event(event, params, scope);
+        }
+        /**
+         * This is used both to limit the number of recursion and increase
+         * the efficiency of the algorithm.
+         */
+        if (++_gpfEventsFiring > 10) {
+            // Too much recursion
+            gpf.defer(_gpfEventsFireCall,  0, null, [event, eventsHandler]);
+        } else {
+            _gpfEventsFireCall(event, eventsHandler);
+        }
+        --_gpfEventsFiring;
+        return event;
     },
 
     /**
@@ -76,22 +100,23 @@ var
      * all other parameters are optional and can be defaulted provided the
      * defaultArgs array
      *
-     * Sample usage:
-     *
-     *  function fire (event, params, synchronous, eventsHandler) {
-     *      _gpfLookForEventsHandler(arguments, ['', {}, false]);
-     *
-     *
      * @param {arguments} thatArgs Function arguments
      * @param {Array} defaultArgs List of default values for all expected
      * arguments *but* the eventsHandler
+     * @param {Array} defaultArgs List of default values for all expected
+     * arguments *but* the eventsHandler
+     * @param {Function} callback
+     * @return {*} the return of the callback
+     * @forwardThis
      * @private
      */
-    _gpfLookForEventsHandler = function (thatArgs, defaultArgs) {
+    _gpfLookForEventsHandler = function (thatArgs, defaultArgs, callback) {
         var
             lastExpectedIdx = defaultArgs.length, // eventsHandler not included
             argIdx = thatArgs.length - 1;
         if (argIdx !== lastExpectedIdx) {
+            // Need to transform the arguments
+            thatArgs = _gpfArraySlice.apply(thatArgs, [0]);
             // The last argument is *always* the eventsHandler
             thatArgs[lastExpectedIdx] = thatArgs[argIdx];
             // Then apply missing defaults
@@ -102,6 +127,7 @@ var
                 --lastExpectedIdx;
             }
         }
+        return callback.apply(this, thatArgs);
     };
 
 // _Event interface
@@ -167,35 +193,27 @@ gpf.events = {
      */
 
     /**
-     * If necessary, build an event object and use the provided media
-     * (broadcaster or callback function) to throw it.
+     * Use the provided events handler to fire an event
      *
-     * NOTE: this is transmitted through the call
+     * NOTE: if the event parameter is a string, an event object will be built
+     * using the parameters and the scope of the call as the scope of the event.
      *
      * @param {String/gpf.events.Event} event string or event object to fire
-     * @param {Object} [params={}] params parameter of the event
-     *                 (when type is a string)
+     * @param {Object} [params={}] params parameter of the event (when type is a
+     * string)
      * @param {gpf.events.Handler} eventsHandler
      * @return {gpf.events.Event} the event object
      */
-    fire: function (event, params, eventsHandler) {
-        var scope;
-        _gpfLookForEventsHandler(arguments, [0, {}]);
-        if (!(event instanceof _Event)) {
-            event = new gpf.events.Event(event, params, this);
+    fire: function (/*event, params, eventsHandler*/) {
+        var scope = this;
+        if (scope === gpf.events) {
+            // Will be adjusted inside _gpfEventsFire
+            scope = undefined;
         }
-        scope = this || _gpfContext;
-        /**
-         * This is used both to limit the number of recursion and increase
-         * the efficiency of the algorithm.
-         */
-        if (++_firing > 10) {
-            // Too much recursion
-            gpf.defer(_fire,  0, null, [event, scope, eventsHandler]);
-        } else {
-            _fire(event, scope, eventsHandler);
-        }
-        --_firing;
-        return event;
+        return _gpfLookForEventsHandler.apply(scope, [
+            arguments,
+            [0, {}],
+            _gpfEventsFire
+        ]);
     }
 };
