@@ -1,11 +1,15 @@
 /*jshint node: true*/
-/*global require, __dirname*/
-/*global _gpfFinishLoading*/ // Ends the loading (declared in boot.js)
+/*global gpfSourcesPath*/ // Global source path
 /*global _gpfNodeFS*/ // Node FS module
+/*global _gpfFinishLoading*/ // Ends the loading (declared in boot.js)
 (function () {
     "use strict";
 
-    require("./sources.js"); // Get sources
+    // Get sources
+    /*jslint evil: true*/
+    eval(_gpfNodeFS.readFileSync(gpfSourcesPath + "sources.js").toString());
+    /*jslint evil: false*/
+
     var
         sources = gpf.sources().split(","),
         length = sources.length,
@@ -19,7 +23,7 @@
         if (!src) {
             break;
         }
-        src = __dirname + "/" + src + ".js";
+        src = gpfSourcesPath + src + ".js";
         concat.push(_gpfNodeFS.readFileSync(src).toString());
     }
 
