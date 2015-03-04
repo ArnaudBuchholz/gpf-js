@@ -354,13 +354,9 @@ if ("undefined" === typeof gpfSourcesPath) {
 if ("wscript" === _gpfHost) {
     _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
     (function () {
-        var src = "boot_ms.js",
-            srcFile,
+        var srcFile,
             srcContent;
-        if ("undefined" !== typeof gpfSourcesPath) {
-            src = gpfSourcesPath + src;
-        }
-        srcFile = _gpfMsFSO.OpenTextFile(src);
+        srcFile = _gpfMsFSO.OpenTextFile(gpfSourcesPath + "boot_ms.js");
         srcContent = srcFile.ReadAll();
         srcFile.Close();
         /*jslint evil: true*/
@@ -369,10 +365,10 @@ if ("wscript" === _gpfHost) {
     }());
 
 } else if (_gpfInNode) {
-    global._gpfFinishLoading = _gpfFinishLoading;
-    global._gpfNodeFS =  require("fs");
-    /*global require*/
-    require("./boot_node.js");
+    _gpfNodeFS =  require("fs");
+    /*jslint evil: true*/
+    eval(_gpfNodeFS.readFileSync(gpfSourcesPath + "boot_node.js").toString());
+    /*jslint evil: false*/
 
 } else { // "browser" === _gpfHost
     var _gpfRawHttpInclude = function (src) {
