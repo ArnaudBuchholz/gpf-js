@@ -8,6 +8,9 @@ Thumbs.db
 # Folder config file
 Desktop.ini
 
+# NPM
+node_modules/
+
 # Temporary folder
 
 tmp/*
@@ -22,6 +25,5 @@ tmp/*
 ## Make
 #############
 
-make/node_modules/*
 make/tmp/*
 make/build/*
