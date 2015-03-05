@@ -105,4 +105,8 @@
         TestFolder.current.children.push(new TestCase(label, callback));
     };
 
+    context.run = function () {
+        console.log("OK");
+    };
+
 }(this));
