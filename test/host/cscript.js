@@ -1,14 +1,20 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<job id="test">
-    <script language="javascript"><![CDATA[
+"use strict";
+/*jshint wsh: true*/
 
 var
-    gpfSourcesPath = "..\\..\\",
+    DEBUG = true,
+    gpfSourcesPath = "..\\..\\src\\",
     fso = new ActiveXObject("Scripting.FileSystemObject"),
     include = function (path) {
+        /*jslint evil: true*/
         eval(fso.OpenTextFile(path, 1/*forReading*/, false, 0).ReadAll());
+        /*jslint evil: false*/
     },
-    version;
+    version,
+    sources,
+    len,
+    idx,
+    src;
 
 if (WScript.Arguments.length > 0) {
     version = WScript.Arguments(0);
@@ -18,13 +24,37 @@ if ("release" === version) {
 } else if ("debug" === version) {
     include("..\\..\\build\\gpf-debug.js");
 } else {
-    include("..\\..\\boot.js");
+    version = "source";
+    include(gpfSourcesPath + "boot.js");
 }
-WScript.Echo("Using " + version + " version");
+if (DEBUG) {
+    WScript.Echo("Using " + version + " version");
+}
+
 if (!gpf.sources) {
-    include("..\\..\\sources.js");
+    include(gpfSourcesPath + "sources.js");
 }
-include("..\\manager.js");
+
+if (DEBUG) {
+    WScript.Echo("Loading BDD");
+}
+include("bdd.js");
+
+if (DEBUG) {
+    WScript.Echo("Loading test cases");
+}
+sources = gpf.sources().split(",");
+len = sources.length;
+for (idx = 0; idx < len; ++idx) {
+    src = sources[idx];
+    if (!src) {
+        break;
+    }
+    if (DEBUG) {
+        WScript.Echo("\t" + src);
+    }
+    include("..\\" + src + ".js");
+}
 
 function callback(event) {
     if ("error" === event.type())  {
@@ -43,9 +73,9 @@ function callback(event) {
     }
 }
 
-gpf.runTests(callback);
+if (DEBUG) {
+    WScript.Echo("Running BDD");
+}
+run();
 
-gpf.runAsyncQueue();
-
-    ]]></script>
-</job>
+// gpf.runAsyncQueue();
