@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*jshint browser: true*/
+/*global _gpfInBrowser*/ // The current host is a browser like
 /*global _gpfContext*/ // Main context object
 /*global _gpfWebDocument*/ // Browser document object
 /*global _gpfWebHead*/ // Browser head tag
@@ -32,7 +33,7 @@ var
      * @param {Object} domScript
      * @private
      */
-    _gpfHttpIncludeInsert = function (domScript) {
+    _gpfWebIncludeInsert = function (domScript) {
         _gpfWebHead.insertBefore(domScript, _gpfWebHead.firstChild);
     },
 
@@ -44,8 +45,39 @@ var
      * @param {Array} parameters
      * @private
      */
-    _gpfHttpIncludeAsyncResult = function (parameters) {
+    _gpfWebIncludeAsyncResult = function (parameters) {
         gpf.events.fire.apply(_gpfContext, parameters);
+    },
+
+    /**
+     * @inheritdoc gpf.web.include
+     * Implementation of gpf.web.include
+     */
+    _gpfWebInclude = function (src, eventsHandler) {
+        var
+            context = new _IncludeContext(src, eventsHandler),
+            domScript = _gpfWebDocument.createElement("script");
+        // Configure script tag
+        domScript.language = "javascript";
+        domScript.src = src;
+        domScript.id = context.id;
+        // Attach handlers for all browsers
+        domScript.onload
+            = domScript.onreadystatechange
+            = _IncludeContext.onLoad;
+        domScript.onerror
+            = _IncludeContext.onError;
+        // Use async when supported
+        if (undefined !== domScript.async) {
+            domScript.async = true;
+        }
+        /*
+         * Use insertBefore instead of appendChild  to avoid an IE6 bug.
+         * This arises when a base node is used (#2709 and #4378).
+         * Also found a bug in IE10 that loads & triggers immediately
+         * script, use timeout
+         */
+        setTimeout(_gpfWebIncludeInsert, 0, domScript);
     };
 
 _IncludeContext.prototype = {
@@ -102,7 +134,7 @@ _IncludeContext.prototype = {
         if (!readyState || -1 < ["loaded", "complete"].indexOf(readyState)) {
             this.clean(domScript);
             // IE10: the event is triggered *before* the source is evaluated
-            setTimeout(_gpfHttpIncludeAsyncResult, 0, [
+            setTimeout(_gpfWebIncludeAsyncResult, 0, [
                 "load", {url: this.src}, this.eventsHandler
             ]);
         }
@@ -116,7 +148,7 @@ _IncludeContext.prototype = {
      */
     failed: function (domScript) {
         this.clean(domScript);
-        setTimeout(_gpfHttpIncludeAsyncResult, 0, [
+        setTimeout(_gpfWebIncludeAsyncResult, 0, [
             "error", {url: this.src}, this.eventsHandler
         ]);
     }
@@ -161,7 +193,7 @@ _IncludeContext.onError = function () {
     }
 };
 
-gpf.http = {
+if (_gpfInBrowser) {
 
     /**
      * Loads dynamically any script
@@ -182,31 +214,6 @@ gpf.http = {
      *
      * Inspired from http://stackoverflow.com/questions/4845762/
      */
-    include: function (src, eventsHandler) {
-        var
-            context = new _IncludeContext(src, eventsHandler),
-            domScript = _gpfWebDocument.createElement("script");
-        // Configure script tag
-        domScript.language = "javascript";
-        domScript.src = src;
-        domScript.id = context.id;
-        // Attach handlers for all browsers
-        domScript.onload
-            = domScript.onreadystatechange
-            = _IncludeContext.onLoad;
-        domScript.onerror
-            = _IncludeContext.onError;
-        // Use async when supported
-        if (undefined !== domScript.async) {
-            domScript.async = true;
-        }
-        /*
-         * Use insertBefore instead of appendChild  to avoid an IE6 bug.
-         * This arises when a base node is used (#2709 and #4378).
-         * Also found a bug in IE10 that loads & triggers immediately
-         * script, use timeout
-         */
-        setTimeout(_gpfHttpIncludeInsert, 0, domScript);
-    }
+    gpf.web.include = _gpfWebInclude;
 
-};
+}

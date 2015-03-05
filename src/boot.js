@@ -162,6 +162,7 @@ if (_gpfInBrowser) {
     _gpfWebDocument = document;
     _gpfWebHead = _gpfWebDocument.getElementsByTagName("head")[0]
                   || _gpfWebDocument.documentElement;
+    gpf.web = {};
 }
 
 /**
@@ -371,13 +372,13 @@ if ("wscript" === _gpfHost) {
     /*jslint evil: false*/
 
 } else { // "browser" === _gpfHost
-    var _gpfRawHttpInclude = function (src) {
+    var _gpfWebRawInclude = function (src) {
         var script = _gpfWebDocument.createElement("script");
         script.language = "javascript";
         script.src = gpfSourcesPath + src;
         _gpfWebHead.insertBefore(script, _gpfWebHead.firstChild);
     };
-    _gpfRawHttpInclude("boot_web.js");
+    _gpfWebRawInclude("boot_web.js");
 
 }
 

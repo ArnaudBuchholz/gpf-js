@@ -1,6 +1,6 @@
 /*jshint browser: true*/
 /*global gpfSourcesPath*/ // Global source path
-/*global _gpfRawHttpInclude*/ // Raw HTTP include
+/*global _gpfWebRawInclude*/ // Raw web include
 /*global _gpfFinishLoading*/ // Ends the loading (declared in boot.js)
 (function () {
     "use strict";
@@ -23,7 +23,7 @@
                 src = sources[idx];
             }
             if (src) {
-                gpf.http.include(gpfSourcesPath + src + ".js", loadSources);
+                gpf.web.include(gpfSourcesPath + src + ".js", loadSources);
                 ++idx;
             } else {
                 // Trigger finish loading
@@ -41,7 +41,7 @@
             "compatibility",    "setReadOnlyProperty",
             "constants",        "_constants",
             "events",           "events",
-            "include",          "http"
+            "include",          "web"
         ],
 
         /**
@@ -50,7 +50,7 @@
          */
         boot = function () {
             if (0 === idx % 2) {
-                _gpfRawHttpInclude(bootList[idx] + ".js");
+                _gpfWebRawInclude(bootList[idx] + ".js");
                 ++idx;
             } else if (undefined !== gpf[bootList[idx]]) {
                 ++idx;
@@ -58,7 +58,7 @@
             if (idx === bootList.length) {
                 /*
                  * Now that all initial sources are loaded,
-                 * load the rest using gpf.http.include
+                 * load the rest using gpf.web.include
                  */
                 sources = gpf.sources().split(",");
                 length = sources.length;

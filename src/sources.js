@@ -6,7 +6,8 @@
             "compatibility",        // JavaScript compatibility helpers
             "constants",            // Constants
             "events",               // Event management         gpf.events.Event
-            "include",              // HTTP include             gpf.http.include
+            "include",              // WEB include               gpf.web.include
+
             "base",                 // Basic functions
             "like",                 // Comparison helper                gpf.like
             "callback",             // Callback object              gpf.Callback
