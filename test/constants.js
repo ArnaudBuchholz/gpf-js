@@ -6,40 +6,40 @@ describe("constants", function () {
     describe("boot", function () {
 
         it("should expose a version", function () {
-            assert.equal(typeof gpf.version, "function");
-            assert.equal(typeof gpf.version(), "string");
+            assert("function" === typeof gpf.version);
+            assert("string" === typeof gpf.version());
             var version = gpf.version();
             // Expected format MAJOR.MINOR[d]
-            assert.notEqual(version.indexOf("."), -1);
-            assert.notEqual(version.match(/[0-9]+\.[0-9]+d?/), null);
+            assert(-1 !== version.indexOf("."));
+            assert(null !== version.match(/[0-9]+\.[0-9]+d?/));
         });
 
         it("should expose the host name", function () {
-            assert.equal(typeof gpf.host, "function");
-            assert.equal(typeof gpf.host(), "string");
+            assert("function" === typeof gpf.host);
+            assert("string" === typeof gpf.host());
             var host = gpf.host();
             // Must be one of these
-            assert.notEqual([
+            assert(-1 !== [
                 "wscript",
                 "phantomjs",
                 "nodejs",
                 "browser",
                 "unknown"
-            ].indexOf(host), -1);
+            ].indexOf(host));
         });
 
         it("should provide a context resolver", function () {
-            assert.equal(typeof gpf.context, "function");
-            assert.notEqual(typeof gpf.context(), null);
-            assert.equal(gpf.context("gpf"), gpf);
+            assert("function" === typeof gpf.context);
+            assert(null !== gpf.context());
+            assert(gpf === gpf.context("gpf"));
             // Known and testable contexts
-            if (gpf.host() === "browser") {
-                assert.equal(gpf.context(), window);
-            } else if (gpf.host() === "nodejs" || gpf.host() === "phantomjs") {
-                assert.equal(gpf.context(), global);
+            if ("browser" === gpf.host()) {
+                assert(window === gpf.context());
+            } else if ("nodejs" === gpf.host() || "phantomjs" === gpf.host()) {
+                assert(global === gpf.context());
             } else {
-                assert.equal(gpf.context(),
-                    (function () {return this;}).apply(null));
+                var context = (function () {return this;}).apply(null);
+                assert(context === gpf.context());
             }
         });
 

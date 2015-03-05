@@ -9,23 +9,23 @@ describe("compatibility", function () {
             var
                 array = new Array(5),
                 idx;
-            assert.equal(array.length, 5);
+            assert(5 === array.length);
             for (idx = 0; idx < 5; ++idx) {
-                assert.equal(array[idx], undefined);
+                assert(undefined === array[idx]);
             }
-            assert.equal(array.join(" "), "    ");
+            assert("    " === array.join(" "));
         });
 
         it("should expose forEach(callback)", function () {
             var
                 array = [1, 2, 3],
                 sum = 0;
-            assert.equal(typeof array.forEach, "function");
-            assert.equal(array.hasOwnProperty("forEach"), false);
+            assert("function" === typeof array.forEach);
+            assert(!array.hasOwnProperty("forEach"));
             array.forEach(function (value) {
                 sum += value;
             });
-            assert.equal(sum, 6);
+            assert(6 === sum);
         });
 
         it("should expose forEach(callback, thisArg)", function () {
@@ -37,20 +37,20 @@ describe("compatibility", function () {
             array.forEach(function (value) {
                 this.sum += value;
             }, obj);
-            assert.equal(obj.sum, 6);
+            assert(6 === obj.sum);
         });
 
         it("should expose indexOf()", function () {
             var
                 obj = {},
                 array = [1, 2, 3, obj, "abc"];
-            assert.equal(typeof array.indexOf, "function");
-            assert.equal(array.hasOwnProperty("indexOf"), false);
-            assert.equal(array.indexOf(4), -1);
-            assert.equal(array.indexOf(1), 0);
-            assert.equal(array.indexOf(obj), 3);
-            assert.equal(array.indexOf({}), -1);
-            assert.equal(array.indexOf("abc"), 4);
+            assert("function" === typeof array.indexOf);
+            assert(!array.hasOwnProperty("indexOf"));
+            assert(-1 === array.indexOf(4));
+            assert(0 === array.indexOf(1));
+            assert(3 === array.indexOf(obj));
+            assert(-1 === array.indexOf({}));
+            assert(4 === array.indexOf("abc"));
         });
 
     });
@@ -63,19 +63,19 @@ describe("compatibility", function () {
                     member: null
                 },
                 testFunction = function (value) {
-                    assert.ok(this === scope);
+                    assert(this === scope);
                     this.member = value;
                 },
                 bound;
-            assert.equal(typeof testFunction.bind, "function");
-            assert.equal(testFunction.hasOwnProperty("bind"), false);
+            assert("function" === typeof testFunction.bind);
+            assert(!testFunction.hasOwnProperty("bind"));
             bound = testFunction.bind(scope);
             // Check the scope when calling bound
             bound(true);
-            assert.equal(scope.member, true);
+            assert(true === scope.member);
             // Ignore applied scope when bound
             bound.apply({}, [false]);
-            assert.equal(scope.member, false);
+            assert(false === scope.member);
         });
 
     });
@@ -85,9 +85,9 @@ describe("compatibility", function () {
         it("allows defining read-only property", function () {
             var
                 obj = {};
-            assert.equal(typeof gpf.setReadOnlyProperty, "function");
+            assert("function" === typeof gpf.setReadOnlyProperty);
             gpf.setReadOnlyProperty(obj, "member", true);
-            assert.equal(obj.member, true);
+            assert(true === obj.member);
         });
 
         if ("wscript" !== gpf.host()) {
@@ -101,7 +101,7 @@ describe("compatibility", function () {
                 } catch (e) {
                     failed = true;
                 }
-                assert.ok(failed);
+                assert(failed);
             });
         } else {
             it("prevents modifying a read-only property");

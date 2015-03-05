@@ -7,8 +7,8 @@ describe("events", function () {
 
         it("should expose type and a default scope", function () {
             var event = new gpf.events.Event("test");
-            assert.equal(event.type, "test");
-            assert.ok(event.scope === gpf.context());
+            assert("test" === event.type);
+            assert(event.scope === gpf.context());
         });
 
         it("should transmit parameters", function () {
@@ -19,12 +19,12 @@ describe("events", function () {
                     boolean: true,
                     object: now
                 });
-            assert.equal(event.type, "test");
-            assert.equal(event.get("string"), "Hello world!");
-            assert.equal(event.get("number"), 123);
-            assert.equal(event.get("boolean"), true);
-            assert.ok(event.get("object") === now);
-            assert.ok(event.scope === gpf.context());
+            assert("test" === event.type);
+            assert("Hello world!" === event.get("string"));
+            assert(123 === event.get("number"));
+            assert(true === event.get("boolean"));
+            assert(now === event.get("object"));
+            assert(event.scope === gpf.context());
         });
 
         it("should allow a custom event scope", function () {
@@ -36,12 +36,12 @@ describe("events", function () {
                     boolean: true,
                     object: now
                 }, scope);
-            assert.equal(event.type, "test");
-            assert.equal(event.get("string"), "Hello world!");
-            assert.equal(event.get("number"), 123);
-            assert.equal(event.get("boolean"), true);
-            assert.ok(event.get("object") === now);
-            assert.ok(event.scope === scope);
+            assert("test" === event.type);
+            assert("Hello world!" === event.get("string"));
+            assert(123 === event.get("number"));
+            assert(true === event.get("boolean"));
+            assert(now === event.get("object"));
+            assert(event.scope === scope);
         });
 
     });
@@ -50,8 +50,8 @@ describe("events", function () {
 
         it("triggers any Function", function (done) {
             gpf.events.fire("test", function (event) {
-                assert.equal(event.type, "test");
-                assert.ok(event.scope === gpf.context());
+                assert("test" === event.type);
+                assert(event.scope === gpf.context());
                 done();
             });
         });
@@ -59,9 +59,9 @@ describe("events", function () {
         it("triggers Function using event scope", function (done) {
             var scope = {};
             gpf.events.fire.apply(scope, ["test", function (event) {
-                assert.equal(event.type, "test");
-                assert.ok(event.scope === scope);
-                assert.ok(this === scope);
+                assert("test" === event.type);
+                assert(event.scope === scope);
+                assert(this === scope);
                 done();
             }]);
         });
@@ -70,12 +70,12 @@ describe("events", function () {
             var scope1 = {},
                 scope2 = {},
                 event = new gpf.events.Event("test", {}, scope1);
-            assert.ok(scope1 !== scope2);
-            assert.ok(event.scope === scope1);
+            assert(scope1 !== scope2);
+            assert(event.scope === scope1);
             gpf.events.fire.apply(scope2, [event, function (event) {
-                assert.equal(event.type, "test");
-                assert.ok(event.scope === scope1);
-                assert.ok(this === scope1);
+                assert("test" === event.type);
+                assert(event.scope === scope1);
+                assert(this === scope1);
                 done();
             }]);
         });
@@ -83,12 +83,12 @@ describe("events", function () {
         it("triggers Object method", function (done) {
             var scope = {
                 fail: function (/*event*/) {
-                    assert.ok(false);
+                    assert(false);
                 },
                 test: function (event) {
-                    assert.equal(event.type, "test");
-                    assert.ok(event.scope === gpf.context());
-                    assert.ok(this === scope);
+                    assert("test" === event.type);
+                    assert(event.scope === gpf.context());
+                    assert(this === scope);
                     done();
                 }
             };
@@ -99,12 +99,12 @@ describe("events", function () {
             var scope1 = {},
                 scope2 = {
                 fail: function (/*event*/) {
-                    assert.ok(false);
+                    assert(false);
                 },
                 test: function (event) {
-                    assert.equal(event.type, "test");
-                    assert.ok(event.scope === scope1);
-                    assert.ok(this === scope2);
+                    assert("test" === event.type);
+                    assert(event.scope === scope1);
+                    assert(this === scope2);
                     done();
                 }
             };
@@ -116,12 +116,12 @@ describe("events", function () {
                 scope2 = {},
                 scope3 = {
                     fail: function (/*event*/) {
-                        assert.ok(false);
+                        assert(false);
                     },
                     test: function (event) {
-                        assert.equal(event.type, "test");
-                        assert.ok(event.scope === scope1);
-                        assert.ok(this === scope2);
+                        assert("test" === event.type);
+                        assert(event.scope === scope1);
+                        assert(this === scope2);
                         done();
                     },
                     scope: scope2
@@ -134,12 +134,12 @@ describe("events", function () {
                 scope2 = {},
                 scope3 = {
                     fail: function (/*event*/) {
-                        assert.ok(false);
+                        assert(false);
                     },
                     "*": function (event) {
-                        assert.equal(event.type, "test");
-                        assert.ok(event.scope === scope1);
-                        assert.ok(this === scope2);
+                        assert("test" === event.type);
+                        assert(event.scope === scope1);
+                        assert(this === scope2);
                         done();
                     },
                     scope: scope2
@@ -152,15 +152,15 @@ describe("events", function () {
                 scope2 = {},
                 scope3 = {
                     fail: function (/*event*/) {
-                        assert.ok(false);
+                        assert(false);
                     },
                     "*": function (/*event*/) {
-                        assert.ok(false);
+                        assert(false);
                     },
                     test: function (event) {
-                        assert.equal(event.type, "test");
-                        assert.ok(event.scope === scope1);
-                        assert.ok(this === scope2);
+                        assert("test" === event.type);
+                        assert(event.scope === scope1);
+                        assert(this === scope2);
                         done();
                     },
                     scope: scope2
