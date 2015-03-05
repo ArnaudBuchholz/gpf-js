@@ -36,7 +36,7 @@
         // Check if sources are loaded
         if (!gpf.sources) {
             console.log("Missing sources");
-            gpf.http.include(gpfSourcesPath + "sources.js", {
+            gpf.web.include(gpfSourcesPath + "sources.js", {
                 load: _load
             });
             return;
@@ -51,14 +51,13 @@
         if (sourceIdx < sources.length) {
             var source = sources[sourceIdx];
             if (source) {
-                gpf.http.include(gpfTestsPath + source + ".js", {
+                gpf.web.include(gpfTestsPath + source + ".js", {
                     load: _load
                 });
                 ++sourceIdx;
                 return;
             }
         }
-
 
         // Everything is loaded
         loadedCallback();
