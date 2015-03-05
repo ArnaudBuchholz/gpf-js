@@ -7,13 +7,17 @@
     <body>
         <div id="mocha"></div>
         <script src="../jquery.js"></script>
-        <script src="../assert.js"></script>
         <script src="mocha.js"></script>
         <script>
             mocha.setup("bdd");
             var
                 gpfSourcesPath = "../../../src/",
                 gpfTestsPath = "../../";
+            function assert(condition) {
+                if (!condition) {
+                    throw "ASSERTION failed";
+                }
+            }
         </script>
         <script src="../web_loader.js"></script>
         <script>
