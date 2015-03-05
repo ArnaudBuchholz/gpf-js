@@ -1,8 +1,9 @@
 "use strict";
 /*jshint wsh: true*/
+/*global run*/
 
 var
-    DEBUG = true,
+    DEBUG = false,
     gpfSourcesPath = "..\\..\\src\\",
     fso = new ActiveXObject("Scripting.FileSystemObject"),
     include = function (path) {
@@ -43,6 +44,12 @@ include("bdd.js");
 if (DEBUG) {
     WScript.Echo("Loading test cases");
 }
+
+// Backward compatibility management
+gpf.declareTests = function () {
+    WScript.Echo("Test file must be transformed into BDD syntax");
+};
+
 sources = gpf.sources().split(",");
 len = sources.length;
 for (idx = 0; idx < len; ++idx) {
@@ -56,26 +63,47 @@ for (idx = 0; idx < len; ++idx) {
     include("..\\" + src + ".js");
 }
 
-function callback(event) {
-    if ("error" === event.type())  {
-        WScript.Echo("(X) " + event.get("message"));
-    } else if ("warning" === event.type()) {
-        WScript.Echo("/!\\ " + event.get("message"));
-    } else if ("info" === event.type()) {
-        WScript.Echo("[?] " + event.get("message"));
-    } else if ("log" === event.type()) {
-        WScript.Echo(event.get("message"));
-    } else if ("success" === event.type()) {
-        WScript.Echo("OK " + event.get("name"));
-    } else if ("failure" === event.type()) {
-        WScript.Echo("KO " + event.get("name"));
-        gpf.testReport(event.get("name"), callback);
-    }
-}
-
 if (DEBUG) {
     WScript.Echo("Running BDD");
 }
-run();
+run(function (type, data) {
+    if ("describe" === type) {
+        WScript.Echo((new Array(data.depth + 1).join("\t")) + data.label);
+
+    } else if ("it" === type) {
+        var line = (new Array(data.depth + 1).join("\t"));
+        if (data.pending) {
+            line += "-- ";
+        } else if (data.result) {
+            line += "OK ";
+        } else {
+            line += "KO ";
+        }
+        line += data.label;
+        WScript.Echo(line);
+        if (false === data.result && data.exception) {
+            for (var key in data.exception) {
+                if (data.exception.hasOwnProperty(key)) {
+                    WScript.Echo(key + ": " + data.exception[key]);
+                }
+            }
+        }
+
+    } else if ("results" === type) {
+        WScript.Echo("--- Results: ");
+        for (var key in data) {
+            if (data.hasOwnProperty(key)) {
+                WScript.Echo(key + "        : ".substr(key.length) + data[key]);
+            }
+        }
+        if (data.fail) {
+            WScript.Echo("KO");
+            WScript.Quit(-1);
+        } else {
+            WScript.Echo("OK");
+            WScript.Quit(0);
+        }
+    }
+});
 
 // gpf.runAsyncQueue();
