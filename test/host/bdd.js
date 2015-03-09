@@ -1,5 +1,11 @@
 (function (context) {
     "use strict";
+    /*global global*/
+
+    if ("undefined" !== typeof module && module.exports) {
+        // node
+        context = global;
+    }
 
     /**
      * Simple BDD implementation
@@ -107,6 +113,91 @@
     context.it = function (label, callback) {
         BDDDescribe.current.children.push(new BDDIt(label, callback));
     };
+
+    //endregion
+
+    //region default callback (based on console.log)
+
+    var
+        _handlers = {
+
+            /**
+             * describe callback
+             *
+             * @param {Object} data
+             * <ul>
+             *     <li>{Number} depth: item depth</li>
+             *     <li>{String} label: item label</li>
+             * </ul>
+             */
+            "describe": function (data) {
+                console.log((new Array(data.depth + 1).join("\t"))
+                + data.label);
+
+            },
+
+            /**
+             * it callback
+             *
+             * @param {Object} data
+             * <ul>
+             *     <li>{Number} depth: item depth</li>
+             *     <li>{String} label: item label</li>
+             *     <li>{Boolean} pending: test with no implementation</li>
+             *     <li>{Boolean} result: test result</li>
+             *     <li>{Object} exception: exception details</li>
+             * </ul>
+             */
+            "it": function (data) {
+                var line = (new Array(data.depth + 1).join("\t"));
+                if (data.pending) {
+                    line += "-- ";
+                } else if (data.result) {
+                    line += "OK ";
+                } else {
+                    line += "KO ";
+                }
+                line += data.label;
+                console.log(line);
+                if (false === data.result && data.exception) {
+                    for (var key in data.exception) {
+                        if (data.exception.hasOwnProperty(key)) {
+                            console.log(key + ": " + data.exception[key]);
+                        }
+                    }
+                }
+            },
+
+            /**
+             * results callback
+             *
+             * @param {Object} data
+             * <ul>
+             *     <li>{Number} count: number of tests</li>
+             *     <li>{Number} success: succeeded count</li>
+             *     <li>{Number} fail: failed count</li>
+             *     <li>{Number} pending: tests with no implementation</li>
+             * </ul>
+             */
+            "results": function (data) {
+                console.log("--- Results: ");
+                for (var key in data) {
+                    if (data.hasOwnProperty(key)) {
+                        console.log(key + "        : ".substr(key.length)
+                        + data[key]);
+                    }
+                }
+                if (data.fail) {
+                    console.error("KO");
+                } else {
+                    console.log("OK");
+                }
+            }
+        },
+
+        _defaultCallback = function (type, data) {
+            _handlers[type].apply(this, [data]);
+        };
 
     //endregion
 
@@ -243,7 +334,11 @@
     }
 
     context.run = function (callback) {
-        _callback = callback;
+        if (callback) {
+            _callback = callback;
+        } else {
+            _callback = _defaultCallback;
+        }
         _stackOfDescribe = [];
         _describe = BDDDescribe.root;
         _stackOfChildIdx = [];
