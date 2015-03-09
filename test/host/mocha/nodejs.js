@@ -1,22 +1,12 @@
 "use strict";
+/*jshint node: true*/
+
 global.assert = require("assert");
 
 var Mocha = require("mocha"),
-    mocha = new Mocha({ui: "bdd"}),
-    version;
+    mocha = new Mocha({ui: "bdd"});
 
-global.gpfSourcesPath = "../../../src/";
-if ("release" === version) {
-    global.gpf = require("../../../build/gpf.js");
-} else if ("debug" === version) {
-    global.gpf = require("../../../build/gpf-debug.js");
-    // Sources are included
-} else {
-    require("../../../src/boot.js");
-}
-if (undefined === gpf.sources) {
-    require("../../src/sources.js");
-}
+require("../node_loader.js");
 
 // Add test sources to mocha
 var
@@ -31,11 +21,6 @@ for (sourceIdx = 0; sourceIdx < len; ++sourceIdx) {
     }
     mocha.addFile("../../" + source + ".js");
 }
-
-// Backward compatibility management
-gpf.declareTests = function () {
-    console.warn("Test file must be transformed into BDD syntax");
-};
 
 // Now, you can run the tests.
 mocha.run(function(failures){
