@@ -1,6 +1,9 @@
-(function () { /* Begin of privacy scope */
-    "use strict";
+"use strict";
+/*global describe, it, assert*/
 
+describe("base", function () {
+
+    // Global declarations
     var
         string = "Hello World!",
         array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -17,141 +20,131 @@
         objectMembersNoNull = "number,string,object,function",
         valuesTesting = [
             /* value parameters,                expected result, message */
-            [0, 1, undefined,                   0,
+            [0, 1, undefined, 0,
                 "No conversion between numbers"],
-            ["0", 1, undefined,                 0,
+            ["0", 1, undefined, 0,
                 "Number from string"],
-            ["0", true, undefined,              false,
+            ["0", true, undefined, false,
                 "Boolean from string (false)"],
-            ["yes", false, undefined,           true,
+            ["yes", false, undefined, true,
                 "Boolean from string (true)"],
-            [undefined, "empty", undefined,     "empty",
+            [undefined, "empty", undefined, "empty",
                 "No conversion"],
-            ["1.2", 1.1, undefined,             1.2,
+            ["1.2", 1.1, undefined, 1.2,
                 "String to float"],
-            ["1.2", 1, "number",                1.2,
+            ["1.2", 1, "number", 1.2,
                 "String to float as a number"]
         ];
 
-    gpf.declareTests({
+    describe("each", function () {
 
-        "each": [
+        it("enumerates array content", function () {
+            var
+                count = 0,
+                sum = 0;
+            gpf.each(array, function (/*idx, value*/) {
+                ++count;
+                sum += arguments[1];
+            });
+            assert(array.length === count);
+            assert(45 === sum);
+        });
 
-            function (test) {
-                test.title("Array content enumeration");
-                var
-                    count = 0,
-                    sum = 0;
-                gpf.each(array, function (/*idx, value*/) {
-                    ++count;
-                    sum += arguments[1];
-                });
-                test.equal(count, array.length, "Size of the array");
-                test.equal(sum, 45, "Sum of each array item");
-            },
-
-            function (test) {
-                test.title("Result and scope transmission, stopping condition");
-                var
-                    arrayIdx = -1,
-                    result = gpf.each.apply(object, [array,
-                        function (idx, value) {
-                            if (idx === 7 && value === 7 && this === object) {
-                                arrayIdx = idx;
-                                return true;
-                            } else {
-                                return undefined;
-                            }
-                        }, string]);
-                test.equal(arrayIdx, 7, "Stop index");
-                test.assert(result, "Result");
-            },
-
-            function (test) {
-                test.title("Object enumeration and null value");
-                var
-                    members = [],
-                    result = gpf.each(object, function (name, value) {
-                        if (typeof name === "string") {
-                            members.push(name);
+        it("transmits scope and result, handles a stop condition", function () {
+            var
+                arrayIdx = -1,
+                result = gpf.each.apply(object, [array,
+                    function (idx, value) {
+                        if (idx === 7 && value === 7 && this === object) {
+                            arrayIdx = idx;
+                            return true;
                         }
-                        if (name === "null" && value !== null) {
-                            return false;
-                        }
-                        return undefined;
-                    }, true);
+                    }, string]);
+            assert(7 === arrayIdx);
+            assert(true === result);
+        });
 
-                members = members.join(",");
-                test.equal(members, objectMembers, "All members");
-                test.assert(result, "Enumeration completed");
-            }
-
-        ],
-
-        "extend": [
-
-            function (test) {
-                test.title("Object extension and verification");
-                /* Extend an object and verify it works */
-                var
-                    result = {
-                        "number": 0,
-                        "string": 0,
-                        "object": 0,
-                        "function": 0
-                    },
-                    members = [],
-                    newResult = gpf.extend(result, object);
-                test.equal(result, newResult, "Same object returned");
-                gpf.each(object, function (name, value) {
-                    if (value === result[name]) {
+        it("enumerates object content and handles null value", function () {
+            var
+                members = [],
+                result = gpf.each(object, function (name, value) {
+                    if (typeof name === "string") {
                         members.push(name);
                     }
-                });
-                members = members.join(",");
-                test.equal(members, objectMembers,
-                    "All properties are identical");
-            },
-
-            function (test) {
-                test.title("Object extension with overwrite");
-                var
-                    result = {
-                        "number": 0,
-                        "string": 0,
-                        "object": 0,
-                        "function": 0
-                    },
-                    members = [];
-                gpf.extend(result, object, function (/*obj, member*/) {
-                    members.push(arguments[1]);
-                });
-                members = members.join(",");
-                test.equal(members, objectMembersNoNull, "Overwriting called");
-            },
-
-            function (test) {
-                test.title("Object extension with overwrite of values");
-                var
-                    result = {
-                        "number": 0,
-                        "string": 0,
-                        "null": 5,
-                        "object": 0,
-                        "function": 0
-                    },
-                    members = [];
-                gpf.extend(result, object, function (obj, member, newValue) {
-                    if (0 === obj[member]) {
-                        obj[member] = newValue;
-                        members.push(member);
+                    if (name === "null" && value !== null) {
+                        return false;
                     }
-                });
-                members = members.join(",");
-                test.equal(members, objectMembersNoNull, "Overwriting called");
-            }
+                }, true);
+            members = members.join(",");
+            assert(objectMembers === members);
+            assert(true === result);
+        });
 
-        ],
+    });
+
+    describe("extend", function () {
+
+        it("extends objects members", function () {
+            var
+                result = {
+                    "number": 0,
+                    "string": 0,
+                    "object": 0,
+                    "function": 0
+                },
+                members = [],
+                newResult = gpf.extend(result, object);
+            assert(result === newResult); // Same object returned
+            gpf.each(object, function (name, value) {
+                if (value === result[name]) {
+                    members.push(name);
+                }
+            });
+            members = members.join(",");
+            assert(members === objectMembers);
+        });
+
+        it("submits overwrite to a function", function () {
+            var
+                result = {
+                    "number": 0,
+                    "string": 0,
+                    "object": 0,
+                    "function": 0
+                },
+                members = [];
+            gpf.extend(result, object, function (/*obj, member*/) {
+                members.push(arguments[1]);
+            });
+            members = members.join(",");
+            assert(members === objectMembersNoNull);
+        });
+
+        it("provides to the overwrite function all values", function () {
+            var
+                result = {
+                    "number": 0,
+                    "string": 0,
+                    "null": 5,
+                    "object": 0,
+                    "function": 0
+                },
+                members = [];
+            gpf.extend(result, object, function (obj, member, newValue) {
+                if (0 === obj[member]) {
+                    obj[member] = newValue;
+                    members.push(member);
+                }
+            });
+            members = members.join(",");
+            assert(members === objectMembersNoNull);
+        });
+
+    });
+
+});
+
+gpf.declareTests({
 
         value: [
 
@@ -310,122 +303,6 @@
                     "Accent capitalization");
             }
 
-        ],
-
-        callback: [
-
-            function (test) {
-                test.title("Basic callback");
-                var callback = new gpf.Callback(function() {
-                    test.equal(true, true, "Callback called");
-                    test.done();
-                });
-                test.wait();
-                callback.apply();
-            },
-
-            function (test) {
-                test.title("Scoped callback (1)");
-                var scope = {};
-                test.wait();
-                var callback = new gpf.Callback(function() {
-                    test.equal(this, scope, "Scope inside definition");
-                    test.done();
-                }, scope);
-                callback.apply();
-            },
-
-            function (test) {
-                test.title("Scoped callback (2)");
-                var scope = {};
-                var callback = new gpf.Callback(function() {
-                    test.equal(this, scope, "Scope inside apply");
-                    test.done();
-                });
-                test.wait();
-                callback.apply(scope);
-            },
-
-            function (test) {
-                test.title("Callback with parameters");
-                var scope = {};
-                var callback = new gpf.Callback(function() {
-                    test.equal(arguments.length, 2,
-                        "Correct number of arguments");
-                    test.equal(arguments[0], "string",
-                        "First argument is correct");
-                    test.equal(arguments[1], 123,
-                        "Second argument is correct");
-                    test.done();
-                });
-                test.wait();
-                callback.apply(scope, ["string", 123]);
-            },
-
-            function (test) {
-                test.title("Scope resolution");
-                var scope = {};
-                test.equal(gpf.Callback.resolveScope(scope), scope,
-                    "When specified, scope is not altered");
-                test.equal(gpf.Callback.resolveScope(false), false,
-                    "When specified (false), scope is not altered");
-                test.equal(gpf.Callback.resolveScope(0), 0,
-                    "When specified (0), scope is not altered");
-                test.equal(gpf.Callback.resolveScope(null), gpf.context(),
-                    "When null, global scope is returned");
-                test.equal(gpf.Callback.resolveScope(undefined), gpf.context(),
-                    "When undefined, global scope is returned");
-            },
-
-
-            function (test) {
-                test.title("Build param array");
-                var result = gpf.Callback.buildParamArray(2);
-                test.equal(result.length, 2,
-                    "Size is based on count and parameter");
-                test.equal(result[0], undefined,
-                    "First item is not initialized");
-                test.equal(result[1], undefined,
-                    "Second item is not initialized");
-            },
-
-            function (test) {
-                test.title("Build param array with parameters");
-                var result = gpf.Callback.buildParamArray(2, [0, 1]);
-                test.equal(result.length, 4,
-                    "Size is based on count and parameter");
-                test.equal(result[0], undefined,
-                    "First item is not initialized");
-                test.equal(result[1], undefined,
-                    "Second item is not initialized");
-                test.equal(result[2], 0,
-                    "First additional parameter is set");
-                test.equal(result[3], 1,
-                    "First additional parameter is set");
-            },
-
-            function (test) {
-                test.title("Use of param array with doApply");
-                var result = gpf.Callback.buildParamArray(2, [0, 1]);
-                test.wait();
-                // can use a gpf.Callback or a function
-                gpf.Callback.doApply(function() {
-                    test.equal(arguments.length, 4,
-                        "Correct number of arguments");
-                    test.equal(arguments[0], "string",
-                        "First argument is correct");
-                    test.equal(arguments[1], 123,
-                        "Second argument is correct");
-                    test.equal(arguments[2], 0,
-                        "Third argument is correct");
-                    test.equal(arguments[3], 1,
-                        "Fourth argument is correct");
-                    test.done();
-                }, null, result, "string", 123);
-            }
-
         ]
 
     });
-
-}()); /* End of privacy scope */
