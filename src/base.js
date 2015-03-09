@@ -236,7 +236,7 @@ gpf.extend = function (dictionary, additionalProperties, overwriteCallback) {
             "Expected function");
         callbackToUse = _gpfAssignOrCall;
     }
-    _gpfArrayEach.apply(arguments, [additionalProperties, callbackToUse]);
+    _gpfDictionaryEach.apply(arguments, [additionalProperties, callbackToUse]);
     return dictionary;
 };
 
