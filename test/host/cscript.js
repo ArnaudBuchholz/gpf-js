@@ -66,44 +66,6 @@ for (idx = 0; idx < len; ++idx) {
 if (DEBUG) {
     WScript.Echo("Running BDD");
 }
-run(function (type, data) {
-    if ("describe" === type) {
-        WScript.Echo((new Array(data.depth + 1).join("\t")) + data.label);
-
-    } else if ("it" === type) {
-        var line = (new Array(data.depth + 1).join("\t"));
-        if (data.pending) {
-            line += "-- ";
-        } else if (data.result) {
-            line += "OK ";
-        } else {
-            line += "KO ";
-        }
-        line += data.label;
-        WScript.Echo(line);
-        if (false === data.result && data.exception) {
-            for (var key in data.exception) {
-                if (data.exception.hasOwnProperty(key)) {
-                    WScript.Echo(key + ": " + data.exception[key]);
-                }
-            }
-        }
-
-    } else if ("results" === type) {
-        WScript.Echo("--- Results: ");
-        for (var key in data) {
-            if (data.hasOwnProperty(key)) {
-                WScript.Echo(key + "        : ".substr(key.length) + data[key]);
-            }
-        }
-        if (data.fail) {
-            WScript.Echo("KO");
-            WScript.Quit(-1);
-        } else {
-            WScript.Echo("OK");
-            WScript.Quit(0);
-        }
-    }
-});
+run();
 
 // gpf.runAsyncQueue();
