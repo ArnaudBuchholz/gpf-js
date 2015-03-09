@@ -32,12 +32,13 @@ if (undefined === Array.prototype.indexOf) {
         if (undefined !== fromIndex) {
             idx = fromIndex;
         } else {
-            fromIndex = 0;
+            idx = 0;
         }
         while (idx < len) {
             if (this[idx] === searchElement) {
                 return idx;
             }
+            ++idx;
         }
         return -1;
     };
@@ -51,7 +52,8 @@ if (undefined === Function.prototype.bind) {
         var thisFn = this,
             prependArgs = _gpfArraySlice.apply(arguments, [1]);
         return function() {
-            thisFn.apply(thisArg, prependArgs.concat(arguments));
+            var args = _gpfArraySlice.apply(arguments, [0]);
+            thisFn.apply(thisArg, prependArgs.concat(args));
         };
     };
 
