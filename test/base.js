@@ -36,7 +36,7 @@ describe("base", function () {
                 "String to float as a number"]
         ];
 
-    describe("each", function () {
+    describe("gpf.each", function () {
 
         it("enumerates array content", function () {
             var
@@ -82,7 +82,7 @@ describe("base", function () {
 
     });
 
-    describe("extend", function () {
+    describe("gpf.extend", function () {
 
         it("extends objects members", function () {
             var
@@ -142,167 +142,119 @@ describe("base", function () {
 
     });
 
-});
+    describe("gpf.value", function () {
 
-gpf.declareTests({
-
-        value: [
-
-            function (test) {
-                test.title("Most common conversions");
-                var
-                    idx,
-                    parameters,
-                    result,
-                    date = new Date(2003,0, 22, 23, 45, 0, 0);
-                for (idx = 0; idx < valuesTesting.length; ++idx) {
-                    parameters = valuesTesting[idx];
-                    result = gpf.value.apply(null, parameters);
-                    test.equal(result, parameters[3], parameters[4]);
-                }
-                // Handle dates specifically
-                test.like(gpf.value("2003-01-22 23:45:00", date), date,
-                    "String to date");
-                test.like(gpf.value(date, ""), "2003-01-22 23:45:00",
-                    "Date to string");
+        it('handles most common conversions', function () {
+            var
+                idx,
+                parameters,
+                result,
+                date = new Date(2003, 0, 22, 23, 45, 0, 0);
+            for (idx = 0; idx < valuesTesting.length; ++idx) {
+                parameters = valuesTesting[idx];
+                result = gpf.value.apply(null, parameters);
+                assert(result === parameters[3]);
             }
+        });
 
-        ],
-
-        like: [
-
-            function (test) {
-                /*jshint -W053 */
-                test.title("Basic comparisons");
-                test.assert(gpf.like(1, 1), "Same literal integers");
-                test.assert(!gpf.like(1, new Number(1)),
-                    "Same integers but one is an object");
-                test.assert(gpf.like(1, new Number(1), true),
-                    "Same integers but one is an object");
-                test.assert(!gpf.like("1", new Number(1), true),
-                    "Same integers but one is an object");
-                test.assert(!gpf.like(1, 2), "Different integers");
-                test.assert(gpf.like(1, 1.0), "Same floats");
-                test.assert(gpf.like("abc", "abc"), "Same literal strings");
-                test.assert(!gpf.like("abc", new String("abc")),
-                    "Same strings but one is an object");
-                test.assert(gpf.like("abc", new String("abc"), true),
-                    "Same strings but one is an object");
-                test.assert(!gpf.like("abc", "abcd"), "Different strings");
-                test.assert(gpf.like(object, object), "Same object");
-                test.assert(gpf.like(object, gpf.extend({}, object)),
-                    "Object and a clone");
-                if (gpf.host() === "browser") {
-                    test.assert(gpf.like(document.body, document.body),
-                        "Body element");
-                }
-                /*jshint +W053 */
-            },
-
-            function (test) {
-                test.title("Recursive comparison (based on HTML document)");
-                if (gpf.host() !== "browser") {
-                    return;
-                }
-                /* More complex comparison */
-                var equal1div1 = document.getElementById("equal_1_div1");
-                var equal1div2;
-                if (!equal1div1) {
-                    var placeholder = document.getElementById("placeholder");
-                    equal1div1 = placeholder.appendChild(
-                        document.createElement("div"));
-                    equal1div1.id = "equal_1_div1";
-                    equal1div1.innerHTML = "<span>Hello World</span>";
-                    equal1div2 = equal1div1.cloneNode(true);
-                    equal1div2.id = "equal_1_div2";
-                    equal1div2 = placeholder.appendChild(equal1div2);
-                } else {
-                    equal1div2 = document.getElementById("equal_1_div1");
-                }
-                gpf.like(equal1div1, equal1div2, "HTML comparison");
-            }
-
-        ],
-
-        test: [
-
-            function (test) {
-                test.title("Array manipulation");
-                test.equal(gpf.test(array, 2), 2,
-                    "Value existing in the array");
-                test.equal(gpf.test(array, 11), undefined,
-                    "Value missing in the array");
-            },
-
-            function (test) {
-                test.title("Object manipulation");
-                test.equal(gpf.test(object, null), "null",
-                    "Null value existing in the object");
-                test.equal(gpf.test(object, 1), "number",
-                    "Value existing in the object");
-                test.equal(gpf.test(object, "number"), undefined,
-                    "Value missing in the array");
-            }
-
-        ],
-
-        set: [
-
-            function (test) {
-                test.title("Array manipulation");
-                var
-                    array2 = array.concat([]), // Clone array
-                    result = gpf.set(array2, 11);
-                test.equal(result, array2, "Result is the same object");
-                test.notEqual(gpf.test(result, 11), undefined,
-                    "Value existing in the array");
-            }
-
-        ],
-
-        clear: [
-
-            function (test) {
-                test.title("Array manipulation");
-                var
-                    array2 = array.concat([]), // Clone array
-                    result = gpf.clear(array2, 11);
-                test.equal(result, array2, "Result is the same object");
-                test.equal(result.length, array2.length,
-                    "Unaltered on missing value");
-                result = gpf.clear(array2, 2);
-                test.equal(result, array2, "Result is the same object");
-                test.equal(result.length, array.length - 1, "Value removed");
-                test.equal(result.join(""), "013456789", "Value removed");
-            }
-
-        ],
-
-        xor: [
-
-            function (test) {
-                test.title("XOR truth table");
-                test.equal(gpf.xor(false, false), false, "0^0=0");
-                test.equal(gpf.xor(false, true), true, "0^1=1");
-                test.equal(gpf.xor(true, false), true, "1^0=1");
-                test.equal(gpf.xor(true, true), false, "1^1=0");
-            }
-
-        ],
-
-        capitalize: [
-
-            function (test) {
-                test.title("Capitalize basic tests");
-                test.equal(gpf.capitalize("word"), "Word", "one word");
-                test.equal(gpf.capitalize("two words"), "Two words",
-                    "Two words");
-                test.equal(gpf.capitalize("Two words"), "Two words",
-                    "Already capitalized");
-                test.equal(gpf.capitalize("éric"), "Éric",
-                    "Accent capitalization");
-            }
-
-        ]
+        if (gpf.dateToComparableFormat) {
+            it('handles date conversions', function () {
+                assert(gpf.like(gpf.value("2003-01-22 23:45:00", date), date));
+                assert(gpf.value(date, "") === "2003-01-22 23:45:00");
+            });
+        } else {
+            it('handles date conversions');
+        }
 
     });
+
+    describe("gpf.test", function () {
+
+        it("checks if an item exist in an Array", function () {
+            assert(gpf.test(array, 2) === 2);
+            assert(gpf.test(array, 11) === undefined);
+        });
+
+        it("checks if a member value exist in an Object", function () {
+            assert(gpf.test(object, null) === "null");
+            assert(gpf.test(object, 1) === "number");
+            assert(gpf.test(object, "number") === undefined);
+        });
+
+    });
+
+    describe("gpf.set", function () {
+
+        it("does not alter the Array if the value already exists", function () {
+            var
+                array2 = array.concat([]), // Clone array
+                result = gpf.set(array2, 2);
+            assert(result === array2);
+            assert(result.length === array.length);
+            assert(gpf.test(result, 2) !== undefined);
+        });
+
+        it("adds the value to the Array", function () {
+            var
+                array2 = array.concat([]), // Clone array
+                result = gpf.set(array2, 11);
+            assert(result === array2);
+            assert(result.length === array.length + 1);
+            assert(gpf.test(result, 11) !== undefined);
+        });
+
+    });
+
+    describe("gpf.clear", function () {
+
+        it("does not change the Array if not found", function () {
+            var
+                array2 = array.concat([]), // Clone array
+                result = gpf.clear(array2, 11);
+            assert(result === array2);
+            assert(result.length === array2.length);
+            assert(gpf.test(result, 11) === undefined);
+        });
+
+        it("removes the value from the Array when found", function () {
+            var
+                array2 = array.concat([]), // Clone array
+                result = gpf.clear(array2, 2);
+            assert(result === array2);
+            assert(result.length === array.length - 1);
+            assert(gpf.test(result, 2) === undefined);
+            assert(result.join("") === "013456789");
+        });
+
+    });
+
+    describe("gpf.xor", function () {
+
+        it("implements XOR truth table", function () {
+            assert(gpf.xor(false, false) === false);
+            assert(gpf.xor(false, true) === true);
+            assert(gpf.xor(true, false) === true);
+            assert(gpf.xor(true, true) === false);
+        });
+
+    });
+
+    describe("gpf.capitalize", function () {
+
+        it("does nothing on empty string", function () {
+            assert(gpf.capitalize("") === "");
+        });
+
+        it("uppercases the first letter", function () {
+            assert(gpf.capitalize("word") === "Word");
+            assert(gpf.capitalize("two words") === "Two words");
+            assert(gpf.capitalize("Two words") === "Two words");
+        });
+
+        it("also handles accents", function () {
+            assert(gpf.capitalize("éric"), "Éric");
+        });
+
+    });
+
+});
