@@ -36,6 +36,8 @@ describe("like", function () {
             assert(false === gpf.like("1", new Number(1), true));
             assert(true === gpf.like("abc", new String("abc"), true));
             assert(false === gpf.like(0, new String("0"), true));
+            assert(true === gpf.like(true, new Boolean(true), true));
+            assert(false === gpf.like(0, new Boolean(false), true));
         });
 
         it("tolerates deep comparison", function () {
