@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-        <title>GPF tester</title>
+        <title>GPF Tests</title>
         <style type="text/css">
 
 body {
@@ -22,6 +22,10 @@ table td {
     font-size: 8pt;
 }
 
+td.describe {
+    font-weight: bold;
+}
+
 tr.ok td.status { background-color: lightgreen; }
 tr.ko td.status { background-color: orange; }
 
@@ -32,123 +36,59 @@ div.log { color: gray; white-space: pre; }
 
 
         </style>
+        <script>
+            var
+                    gpfSourcesPath = "../../src/",
+                    gpfTestsPath = "../";
+        </script>
+        <script src="bdd.js"></script>
+        <script src="web_loader.js"></script>
         <script language="javascript">
-var
-    version = "";
 
-function loadGPF() {
+function addLine(data) {
     var
-        release = (-1 < window.location.search.indexOf("?release")
-              || -1 < window.location.search.indexOf("&release")),
-        debug = (-1 < window.location.search.indexOf("?debug")
-                || -1 < window.location.search.indexOf("&debug")),
-        head = document.getElementsByTagName("head")[0]
-               || document.documentElement,
-        script = document.createElement("script");
-    window.gpfSourcesPath = "../../src/";
-    if (release) {
-        version = "release";
-        script.src = "../../build/gpf.js";
-    } else if (debug) {
-        version = "debug";
-        script.src = "../../build/gpf-debug.js";
-    } else {
-        version = "sources";
-        script.src = "../../src/boot.js";
-    }
-    console.log("Using " + version + " version");
-    script.language = "javascript";
-    head.insertBefore(script, head.firstChild);
-    window.setTimeout(waitForGPF, 0);
-}
-
-/*
-    Second step: wait for GPF to be loaded
-*/
-function waitForGPF() {
-
-    if ("undefined" === typeof gpf || !gpf.loaded()) {
-
-        console.log( "GPF not loaded yet..." );
-        window.setTimeout(waitForGPF, 100);
-
-    } else if (!gpf.sources) {
-
-        gpf.http.include("../../sources.js", {
-            load: waitForGPF
-        });
-
-    } else if (!gpf.runTests) {
-
-        console.log( "GPF loaded." );
-        gpf.http.include("../manager.js", {
-            load: waitForGPF
-        });
-
-    } else {
-
-        gpf.runTests(callback);
-
-    }
-}
-waitForGPF.state = 0;
-
-function addTestResult(name, success, timespent) {
-    var
-        tr = document.getElementById("results").appendChild(
-                document.createElement("TR")),
+        tr,
         td,
-        details;
+        isTest;
+    tr = document.createElement("TR");
+    tr = document.getElementById("results").appendChild(tr);
     td = tr.appendChild(document.createElement("TD"));
     td.className = "status";
-    if (success) {
-        tr.className = "ok";
-        td.innerHTML = "OK";
-    } else {
-        tr.className = "ko";
-        td.innerHTML = "KO";
-    }
-    td = tr.appendChild(document.createElement("TD"));
-    td.className = "details";
-    td.innerHTML = name;
-    details = td;
-    td = tr.appendChild(document.createElement("TD"));
-    td.className = "timepsent";
-    if (undefined !== timespent) {
-        td.innerHTML = timespent;
-    } else {
+    if (data.pending) {
+        isTest = true;
+        tr.className = "na";
         td.innerHTML = "N/A";
+    } else if (undefined !== data.result) {
+        isTest = true;
+        if (data.result) {
+            tr.className = "ok";
+            td.innerHTML = "OK";
+        } else {
+            tr.className = "ko";
+            td.innerHTML = "KO";
+        }
     }
-    return details;
-}
-
-var reportLocation;
-function report(event) {
-    var div = reportLocation.appendChild(document.createElement("DIV"));
-    div.className = event.type();
-    div.innerHTML = gpf.escapeFor(event.get("message"), "html");
-}
-
-function callback(event) {
-    if ("error" === event.type())  {
-        console.error(event.get("message"));
-    } else if ("warning" === event.type()) {
-        console.warn(event.get("message"));
-    } else if ("info" === event.type()) {
-        console.info(event.get("message"));
-    } else if ("log" === event.type()) {
-        console.log(event.get("message"));
-    } else if ("success" === event.type()) {
-        addTestResult(event.get("name"), true, event.get("timespent"));
-    } else if ("failure" === event.type()) {
-        reportLocation = addTestResult(event.get("name"), false);
-        gpf.testReport(event.get("name"), report);
+    td = tr.appendChild(document.createElement("TD"));
+    if (isTest) {
+        td.className = "it";
+    } else {
+        td.className = "describe";
+    }
+    td.innerHTML = (new Array(data.depth + 1).join("&nbsp;")) + data.label;
+    td = tr.appendChild(document.createElement("TD"));
+    if (isTest) {
+        td.className = "timespent";
+        if (undefined !== data.timeSpent) {
+            td.innerHTML = data.timeSpent;
+        } else {
+            td.innerHTML = "N/A";
+        }
     }
 }
 
         </script>
     </head>
-    <body onload="loadGPF()">
+    <body>
         <div id="placeholder" style="display: none;">
             <!-- Place holder for HTML manipulations -->
         </div>
@@ -163,5 +103,14 @@ function callback(event) {
             <tbody id="results">
             </tbody>
         </table>
+    <script language="javascript">
+        load(function () {
+            run(function (type, data) {
+                if ("results" !== type) {
+                    addLine(data);
+                }
+            });
+        });
+    </script>
     </body>
 </html>
