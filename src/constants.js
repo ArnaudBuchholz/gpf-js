@@ -15,6 +15,7 @@
 /*global _gpfWebHead*/ // Browser head tag
 /*global _gpfMsFSO*/ // Scripting.FileSystemObject activeX
 /*global _gpfNodeFS*/ // Node FS module
+/*global _gpfFSRead*/ // Phantom/Node File System read text file method (boot)
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfFalseFunc*/ // An empty function returning false
 /*global _gpfFunc*/ // Create a new function using the source

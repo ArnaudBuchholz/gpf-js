@@ -367,8 +367,21 @@ if ("wscript" === _gpfHost) {
 
 } else if (_gpfInNode) {
     _gpfNodeFS =  require("fs");
+
+    /**
+     * Phantom/Node File System read text file method (boot)
+     * @type {Function}
+     */
+    var _gpfFSRead;
+    if ("phantomjs" === _gpfHost) {
+        _gpfFSRead = _gpfNodeFS.read;
+    } else {
+        _gpfFSRead = function (path) {
+            return _gpfNodeFS.readFileSync(path).toString();
+        };
+    }
     /*jslint evil: true*/
-    eval(_gpfNodeFS.readFileSync(gpfSourcesPath + "boot_node.js").toString());
+    eval(_gpfFSRead(gpfSourcesPath + "boot_node.js"));
     /*jslint evil: false*/
 
 } else { // "browser" === _gpfHost

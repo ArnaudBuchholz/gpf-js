@@ -1,13 +1,13 @@
 /*jshint node: true*/
 /*global gpfSourcesPath*/ // Global source path
-/*global _gpfNodeFS*/ // Node FS module
+/*global _gpfFSRead*/ // Phantom/Node File System read text file method (boot)
 /*global _gpfFinishLoading*/ // Ends the loading (declared in boot.js)
 (function () {
     "use strict";
 
     // Get sources
     /*jslint evil: true*/
-    eval(_gpfNodeFS.readFileSync(gpfSourcesPath + "sources.js").toString());
+    eval(_gpfFSRead(gpfSourcesPath + "sources.js"));
     /*jslint evil: false*/
 
     var
@@ -24,7 +24,7 @@
             break;
         }
         src = gpfSourcesPath + src + ".js";
-        concat.push(_gpfNodeFS.readFileSync(src).toString());
+        concat.push(_gpfFSRead(src));
     }
 
     /*jslint evil: true*/
