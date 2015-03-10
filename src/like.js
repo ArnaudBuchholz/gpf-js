@@ -135,7 +135,29 @@ _LikeContext.prototype = {
     },
 
     /**
+     * Downcast a value to its scalar equivalent (if possible)
+     *
+     * @param {*} a
+     * @return {*}
+     */
+    _downcast: function (a) {
+        if ("object" === typeof a) {
+            if (a instanceof String) {
+                return a.toString();
+            }
+            if (a instanceof Number) {
+                return a.valueOf();
+            }
+            if (a instanceof Boolean) {
+                return !!a;
+            }
+        }
+        return a;
+    },
+
+    /**
      * gpf.like comparison of values knowing they have different types.
+     * DOWNCAST the values to their scalar equivalent (if any)
      *
      * @param {*} a
      * @param {*} b
@@ -143,20 +165,7 @@ _LikeContext.prototype = {
      * @private
      */
     _alike: function (a, b) {
-        if ("object" === typeof a || "object" === typeof b) {
-            /**
-             * One of the two is an object but not the other,
-             * Consider typecasting Number and String
-             */
-            if (a instanceof String || b instanceof String) {
-                return a.toString() ===  b.toString();
-            }
-            if (a instanceof Number || b instanceof Number) {
-                return a.valueOf() ===  b.valueOf();
-            }
-            return false;
-        }
-        return false;
+        return this._downcast(a) === this._downcast(b);
     },
 
     /**
