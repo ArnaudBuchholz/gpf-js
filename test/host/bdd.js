@@ -242,6 +242,12 @@
         _it,
 
         /**
+         * @type {Date}
+         * @private
+         */
+        _itStart,
+
+        /**
          * Test statistics
          *
          * @type {Object}
@@ -284,6 +290,7 @@
                 ++_stats.count;
                 if (item.callback) {
                     try {
+                        _itStart = new Date();
                         item.callback(_success);
                         if (0  === item.callback.length) {
                             _success();
@@ -317,7 +324,8 @@
         _callback("it", {
             depth: _stackOfDescribe.length,
             label: _it.label,
-            result: true
+            result: true,
+            timeSpent: (new Date()) - _itStart
         });
         _next();
     }
@@ -328,6 +336,7 @@
             depth: _stackOfDescribe.length,
             label: _it.label,
             result: false,
+            timeSpent: (new Date()) - _itStart,
             exception: e
         });
         _next();
