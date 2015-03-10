@@ -9,11 +9,21 @@
             release: false,
             debug: false,
             verbose: false
-        },
-        path = require("path");
+        };
 
-    if (process.argv.length > 2) {
-        process.argv.forEach(function (val/*, index, array*/) {
+    var args;
+    if ("undefined" !== typeof process) {
+        // nodejs
+        args = process.argv;
+    } else if ("undefined" !== typeof phantom) {
+        // phantomjs
+        args = require("system").args;
+    } else {
+        args = [];
+    }
+
+    if (args.length > 2) {
+        args.forEach(function (val/*, index, array*/) {
             if (val.charAt(0) === "-") {
                 val = val.substr(1);
                 if (val in options) {
@@ -25,7 +35,13 @@
         });
     }
 
-    global.gpfSourcesPath = path.resolve(__dirname, "../../src/") + "/";
+    try {
+        global.gpfSourcesPath =
+            require("path").resolve(__dirname, "../../src/") + "/";
+    } catch (e) {
+        global.gpfSourcesPath = "../../src/";
+    }
+
     if ("release" === global.version) {
         global.gpf = require("../../build/gpf.js");
     } else if ("debug" === global.version) {
