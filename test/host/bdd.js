@@ -18,7 +18,13 @@
          * @param {String} label
          * @constructor
          */
-        BDDAbstract = function (label) {
+        BDDAbstract = function (label, parent) {
+            if (undefined !== parent) {
+                this.parent = parent;
+                if (parent instanceof BDDDescribe) {
+                    parent.children.push(this);
+                }
+            }
             this.label = label;
         },
 
@@ -30,8 +36,8 @@
          * @class BDDDescribe
          * @extends BDDAbstract
          */
-        BDDDescribe = function (label) {
-            BDDAbstract.apply(this, [label]);
+        BDDDescribe = function (label, parent) {
+            BDDAbstract.apply(this, arguments);
             this.children = [];
         },
 
@@ -44,12 +50,20 @@
          * @class BDDIt
          * @extends BDDAbstract
          */
-        BDDIt = function (label, callback) {
-            BDDAbstract.apply(this, [label]);
+        BDDIt = function (label, callback, parent) {
+            BDDAbstract.apply(this, [label, parent]);
             this.callback = callback;
         };
 
     BDDAbstract.prototype = {
+
+        /**
+         * Parent item
+         *
+         * @type {BDDAbstract}
+         * @read-only
+         */
+        parent: null,
 
         /**
          * Label of the item
@@ -62,6 +76,7 @@
     };
 
     BDDDescribe.prototype = new BDDAbstract();
+
     /**
      * Children of the description
      *
@@ -103,15 +118,13 @@
                 = BDDDescribe.root
                 = new BDDDescribe();
         }
-        var lastCurrent = BDDDescribe.current;
-        BDDDescribe.current = new BDDDescribe(label);
-        lastCurrent.children.push(BDDDescribe.current);
+        BDDDescribe.current = new BDDDescribe(label, BDDDescribe.current);
         callback();
-        BDDDescribe.current = lastCurrent;
+        BDDDescribe.current = BDDDescribe.current.parent;
     };
 
     context.it = function (label, callback) {
-        BDDDescribe.current.children.push(new BDDIt(label, callback));
+        new BDDIt(label, callback, BDDDescribe.current);
     };
 
     //endregion
@@ -253,7 +266,15 @@
          * @type {Object}
          * @private
          */
-        _stats;
+        _stats,
+
+        /**
+         * The tests are currently being run
+         *
+         * @type {Boolean}
+         * @private
+         */
+        _inProgress;
 
     if (!context.assert) {
         /**
@@ -284,7 +305,7 @@
                 _stackOfChildIdx.push(_childIdx);
                 _describe = item;
                 _childIdx = 0;
-                _next();
+                // _next();
             } else if (item instanceof BDDIt) {
                 _it = item;
                 ++_stats.count;
@@ -305,17 +326,18 @@
                         label: _it.label,
                         pending: true
                     });
-                    _next();
+                    // _next();
                 }
             }
         } else if (0 < _stackOfDescribe.length) {
             // No more children, go up
             _describe = _stackOfDescribe.pop();
             _childIdx = _stackOfChildIdx.pop();
-            _next();
+            // _next();
         } else {
             // DONE!
             _callback("results", _stats);
+            _inProgress = false;
         }
     }
 
@@ -327,7 +349,7 @@
             result: true,
             timeSpent: (new Date()) - _itStart
         });
-        _next();
+        // _next();
     }
 
     function _fail(e) {
@@ -339,7 +361,7 @@
             timeSpent: (new Date()) - _itStart,
             exception: e
         });
-        _next();
+        // _next();
     }
 
     context.run = function (callback) {
@@ -358,7 +380,11 @@
             fail: 0,
             pending: 0
         };
-        _next();
+        _inProgress = true;
+        // TODO use gpf.defer to limit stack usage
+        while (_inProgress) {
+            _next();
+        }
     };
 
     //endregion
