@@ -1,6 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfContext*/ // Main context object
+/*global _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
 /*#endif*/
 
@@ -19,7 +19,7 @@ var
      */
     _Event = function (type, params, scope) {
         gpf.setReadOnlyProperty(this, "type", type);
-        gpf.setReadOnlyProperty(this, "scope", scope || _gpfContext);
+        gpf.setReadOnlyProperty(this, "scope", _gpfResolveScope(scope));
         if (undefined !== params) {
             this._params = params;
         }
@@ -76,7 +76,7 @@ var
      * @return {gpf.events.Event} the event object
      */
     _gpfEventsFire = function (event, params, eventsHandler) {
-        var scope = this || _gpfContext;
+        var scope = _gpfResolveScope(this);
         if (!(event instanceof _Event)) {
             event = new gpf.events.Event(event, params, scope);
         }
