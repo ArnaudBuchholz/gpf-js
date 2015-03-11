@@ -8,6 +8,7 @@
 /*global _gpfVersion*/ // GPF version
 /*global _gpfHost*/ // Host type
 /*global _gpfContext*/ // Main context object
+/*global _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*global _gpfInNode*/ // The current host is a nodeJS like
 /*global _gpfInBrowser*/ // The current host is a browser like
 /*global _gpfWebWindow*/ // Browser window object

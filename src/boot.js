@@ -43,6 +43,20 @@ var
     _gpfContext,
 
     /**
+     * Translate the parameter into a valid scope
+     *
+     * @param {*} scope
+     * @private
+     */
+    _gpfResolveScope = function (scope) {
+        if (null === scope // || undefined === scope
+            || 'object' !== typeof scope)  {
+            return _gpfContext;
+        }
+        return scope;
+    },
+
+    /**
      * The current host is a nodeJS like
      *
      * @type {boolean}
