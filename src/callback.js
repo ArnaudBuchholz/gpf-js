@@ -1,5 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
 /*global _gpfContext*/ // Main context object
@@ -17,7 +18,7 @@ gpf.Callback = function (handler, scope) {
     gpf.ASSERT(handler, "Handler expected");
     this._handler = handler;
     if (scope) {
-        this._scope = scope;
+        this._scope = _gpfResolveScope(scope);
     }
 };
 
@@ -77,7 +78,7 @@ gpf.extend(gpf.Callback.prototype, {
      * @returns {*}
      */
     apply: function(scope, args) {
-        var finalScope = gpf.Callback.resolveScope(this._scope || scope);
+        var finalScope = _gpfResolveScope(scope || this._scope);
         return this._handler.apply(finalScope, args || []);
     }
 });
@@ -86,7 +87,7 @@ gpf.extend(gpf.Callback.prototype, {
 gpf.extend(gpf.Callback, {
 
     /**
-     * Resolve a scope.
+     * Resolve to a valid scope.
      * If no scope is provided, the default context is used
      *
      * @param {Object} [scope=undefined] scope
@@ -94,10 +95,7 @@ gpf.extend(gpf.Callback, {
      * @static
      */
     resolveScope: function (scope) {
-        //if (null === scope || undefined === scope) {
-        //    scope = _gpfContext;
-        //}
-        return scope || _gpfContext;
+        return _gpfResolveScope(scope);
     },
 
     /**

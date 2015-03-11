@@ -44,13 +44,14 @@ describe("callback", function () {
             callback.apply(scope, ["string", 123]);
         });
 
-        it("resolves scope", function (done) {
+        it("resolves valid scope", function () {
             var scope = {};
             assert(gpf.Callback.resolveScope(scope) === scope);
-            assert(gpf.Callback.resolveScope(false) === false);
-            assert(gpf.Callback.resolveScope(0) === 0);
+            assert(gpf.Callback.resolveScope(false) ===  gpf.context());
+            assert(gpf.Callback.resolveScope(0) ===  gpf.context());
             assert(gpf.Callback.resolveScope(null) === gpf.context());
             assert(gpf.Callback.resolveScope(undefined) === gpf.context());
+            assert(gpf.Callback.resolveScope("abc") === gpf.context());
         });
 
         it("can be used in gpf.events.fire", function (done) {
