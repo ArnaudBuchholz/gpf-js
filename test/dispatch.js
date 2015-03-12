@@ -1,6 +1,72 @@
 "use strict";
-/*global describe, it, assert*/
+/*global describe, it, assert, beforeEach*/
 
+describe("dispatch", function () {
+
+    var
+        dispatcher;
+
+    describe("gpf.events.EventDispatcherImpl", function () {
+
+        beforeEach(function () {
+            // Create a new object
+            dispatcher = {};
+            // Extend it to support the EventDispatcher methods
+            gpf.extend(dispatcher, gpf.events.EventDispatcherImpl);
+        });
+
+        it("exposes addEventListener method", function () {
+            assert("function" === typeof dispatcher.addEventListener);
+            assert(3 === dispatcher.addEventListener.length);
+        });
+
+        it("exposes removeEventListener method", function () {
+            assert("function" === typeof dispatcher.removeEventListener);
+            assert(2 === dispatcher.removeEventListener.length);
+        });
+
+        describe("without registering the event", function () {
+
+            it("no call is triggered", function () {
+                dispatcher._dispatchEvent("test");
+            });
+
+        });
+
+        describe("after registering the event type", function () {
+
+            var
+                _done;
+
+            function eventHandler(event) {
+                assert(event.type === "test");
+                assert(event.scope === dispatcher);
+                assert(event.get("param1") === "first");
+                assert(event.get("param2") === true);
+                assert(event.get("param3") === 0);
+                assert(_done);
+                _done();
+            }
+
+            beforeEach(function () {
+                dispatcher.addEventListener("test", eventHandler);
+            });
+
+            it("receives the correct event", function (done) {
+                _done = done;
+                dispatcher._dispatchEvent("test", {
+                    param1: "first",
+                    param2: true,
+                    param3: 0
+                });
+            });
+
+        })
+
+    });
+
+});
+/*
 gpf.declareTests({
 
     "target": [
@@ -97,3 +163,4 @@ gpf.declareTests({
     ]
 
 });
+*/
