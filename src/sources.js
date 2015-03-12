@@ -13,10 +13,10 @@
             "base",                 // Basic functions
             "like",                 // Comparison helper                gpf.like
             "callback",             // Callback object              gpf.Callback
+            "dispatch",             //            gpf.events.EventDispatcherImpl
 
             "",                     // --- temporary end marker ---
 
-            "target",               // Event Target            gpf.events.Target
             "mimetype",             // Mime types handling  gpf.http.getMimeType
 
             "async",                // Asynchronous handling           gpf.defer
