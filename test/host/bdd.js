@@ -11,6 +11,8 @@
      * Simple BDD implementation
      */
 
+    // region BDD item classes
+
     var
         /**
          * Abstract item
@@ -22,6 +24,10 @@
             if (undefined !== parent) {
                 this.parent = parent;
                 if (parent instanceof BDDDescribe) {
+                    if (!parent.hasOwnProperty("children")) {
+                        // Make the array unique to the instance
+                        parent.children = [];
+                    }
                     parent.children.push(this);
                 }
             }
@@ -36,9 +42,8 @@
          * @class BDDDescribe
          * @extends BDDAbstract
          */
-        BDDDescribe = function (label, parent) {
+        BDDDescribe = function (/*label, parent*/) {
             BDDAbstract.apply(this, arguments);
-            this.children = [];
         },
 
         /**
@@ -86,6 +91,38 @@
     BDDDescribe.prototype.children = [];
 
     /**
+     * List of before callbacks
+     *
+     * @type {Function[]}
+     * @read-only
+     */
+    BDDDescribe.prototype.before = [];
+
+    /**
+     * List of beforeEach callbacks
+     *
+     * @type {Function[]}
+     * @read-only
+     */
+    BDDDescribe.prototype.beforeEach = [];
+
+    /**
+     * List of afterEach callbacks
+     *
+     * @type {Function[]}
+     * @read-only
+     */
+    BDDDescribe.prototype.afterEach = [];
+
+    /**
+     * List of after callbacks
+     *
+     * @type {Function[]}
+     * @read-only
+     */
+    BDDDescribe.prototype.after = [];
+
+    /**
      * Root test folder
      *
      * @type {BDDDescribe}
@@ -110,7 +147,9 @@
      */
     BDDIt.prototype.callback = null;
 
-    //region BDD interface
+    //endregion BDD item classes
+
+    //region BDD public interface
 
     context.describe = function (label, callback) {
         if (null === BDDDescribe.root) {
@@ -123,11 +162,43 @@
         BDDDescribe.current = BDDDescribe.current.parent;
     };
 
-    context.it = function (label, callback) {
-        new BDDIt(label, callback, BDDDescribe.current);
+    /**
+     * Added the callback to the list which member name is provided
+     *
+     * @param {String} listName List member name
+     * @param {Function} callback
+     * @private
+     */
+    function _addTo(listName, callback) {
+        var current = BDDDescribe.current;
+        if (!current.hasOwnProperty(listName)) {
+            // Make the array unique
+            current[listName] = [];
+        }
+        current[listName].push(callback);
+    }
+
+    context.before = function (callback) {
+        _addTo("before", callback);
     };
 
-    //endregion
+    context.beforeEach = function (callback) {
+        _addTo("beforeEach", callback);
+    };
+
+    context.it = function (label, callback) {
+        return new BDDIt(label, callback, BDDDescribe.current);
+    };
+
+    context.afterEach = function (callback) {
+        _addTo("afterEach", callback);
+    };
+
+    context.after = function (callback) {
+        _addTo("after", callback);
+    };
+
+    //endregion  BDD public interface
 
     //region default callback (based on console.log)
 
@@ -219,34 +290,72 @@
     var
 
         /**
+         * Callback used to notify the caller of the progress
+         *
          * @type {Function}
          * @private
          */
-        _callback = null,
+        _runCallback = null,
 
         /**
+         * Stack of describe items being processed
+         *
          * @type {BDDDescribe[]}
          * @private
          */
         _stackOfDescribe,
 
         /**
+         * Current describe
+         *
          * @type {BDDDescribe}
          * @private
          */
         _describe,
 
         /**
+         * Stack of childIdx (pointing to each describe child)
+         *
          * @type {Number[]}
          * @private
          */
         _stackOfChildIdx,
 
         /**
+         * Current child idx in describe
+         *
          * @type {Number}
          * @private
          */
         _childIdx,
+
+        /**
+         * List of callbacks to process (before, beforeEach, ...)
+         *
+         * @type {function[]}
+         * @private
+         */
+        _callbacks,
+
+        /**
+         * Current callback idx in _callbacks
+         *
+         * @type {Number}
+         * @private
+         */
+        _callbackIdx,
+
+        /**
+         * @type {Function[]}
+         * @private
+         */
+        _beforeEach = [],
+
+        /**
+         * @type {Function[]}
+         * @private
+         */
+        _afterEach = [],
 
         /**
          * @type {BDDIt}
@@ -291,37 +400,79 @@
         };
     }
 
+    /**
+     * Call the callback
+     *
+     * @param {Function} callback
+     * @private
+     */
+    function _processCallback(callback) {
+        try {
+            _itStart = new Date();
+            callback(_success);
+            if (0  === callback.length) {
+                _success();
+            }
+        } catch (e) {
+            _fail(e);
+        }
+    }
+
     function _next() {
         var item;
-        if (_childIdx < _describe.children.length) {
+        // Any callback list pending?
+        if (_callbacks && _callbackIdx < _callbacks.length) {
+            item = _callbacks[_callbackIdx];
+            ++_callbackIdx;
+            _processCallback(item);
+
+        } else if (_childIdx < _describe.children.length) {
             item = _describe.children[_childIdx];
             ++_childIdx;
             if (item instanceof BDDDescribe) {
-                _callback("describe", {
+                // call before if any
+                if (item.before.length && _callbacks !== item.before) {
+                    _callbacks = item.before;
+                    _callbackIdx = 0;
+                    --_childIdx;
+                    _next();
+                    return;
+                }
+                // Notify caller
+                _runCallback("describe", {
                     depth: _stackOfDescribe.length,
                     label: item.label
                 });
                 _stackOfDescribe.push(_describe);
                 _stackOfChildIdx.push(_childIdx);
+                // Concatenate lists of beforeEach and afterEach
+                _beforeEach = _beforeEach.concat(item.beforeEach);
+                _afterEach = item.afterEach.concat(_afterEach);
+                // Becomes the new describe
                 _describe = item;
                 _childIdx = 0;
                 // _next();
             } else if (item instanceof BDDIt) {
+                // Call beforeEach if any
+                if (_it !== item
+                    && _beforeEach.length && _callbacks !== _beforeEach) {
+                    _callbacks = _beforeEach;
+                    _callbackIdx = 0;
+                    --_childIdx;
+                    _next();
+                    return;
+                }
+                // Prepare list of afterEach if any
+                _callbacks = _afterEach;
+                _callbackIdx = 0;
+                // Process the item
                 _it = item;
                 ++_stats.count;
                 if (item.callback) {
-                    try {
-                        _itStart = new Date();
-                        item.callback(_success);
-                        if (0  === item.callback.length) {
-                            _success();
-                        }
-                    } catch (e) {
-                        _fail(e);
-                    }
+                    _processCallback(item.callback);
                 } else {
                     ++_stats.pending;
-                    _callback("it", {
+                    _runCallback("it", {
                         depth: _stackOfDescribe.length,
                         label: _it.label,
                         pending: true
@@ -330,20 +481,31 @@
                 }
             }
         } else if (0 < _stackOfDescribe.length) {
+            // call after if any
+            if (_describe.after.length && _callbacks !== _describe.after) {
+                _callbacks = item.before;
+                _callbackIdx = 0;
+                _next();
+                return;
+            }
+            // Remove lists of beforeEach and afterEach
+            _beforeEach = _beforeEach.slice(0, _beforeEach.length
+                - _describe.beforeEach.length);
+            _afterEach = _afterEach.slice(_describe.afterEach.length);
             // No more children, go up
             _describe = _stackOfDescribe.pop();
             _childIdx = _stackOfChildIdx.pop();
             // _next();
         } else {
             // DONE!
-            _callback("results", _stats);
+            _runCallback("results", _stats);
             _inProgress = false;
         }
     }
 
     function _success() {
         ++_stats.success;
-        _callback("it", {
+        _runCallback("it", {
             depth: _stackOfDescribe.length,
             label: _it.label,
             result: true,
@@ -354,7 +516,7 @@
 
     function _fail(e) {
         ++_stats.fail;
-        _callback("it", {
+        _runCallback("it", {
             depth: _stackOfDescribe.length,
             label: _it.label,
             result: false,
@@ -366,9 +528,9 @@
 
     context.run = function (callback) {
         if (callback) {
-            _callback = callback;
+            _runCallback = callback;
         } else {
-            _callback = _defaultCallback;
+            _runCallback = _defaultCallback;
         }
         _stackOfDescribe = [];
         _describe = BDDDescribe.root;
@@ -381,7 +543,7 @@
             pending: 0
         };
         _inProgress = true;
-        // TODO use gpf.defer to limit stack usage
+        // TODO use gpf.defer instead to limit stack usage
         while (_inProgress) {
             _next();
         }
