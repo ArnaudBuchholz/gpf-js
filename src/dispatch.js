@@ -92,7 +92,7 @@ gpf.events.EventDispatcherImpl = {
         if (!listeners) {
             return this; // No listeners at all
         }
-        if (event instanceof Event) {
+        if (event instanceof gpf.events.Event) {
             eventObj = event;
             type = event.type;
         } else {
