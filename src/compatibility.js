@@ -11,6 +11,21 @@ var
      */
     _gpfArraySlice = Array.prototype.slice;
 
+if (undefined === Array.prototype.every) {
+
+    // Introduced with JavaScript 1.6
+    Array.prototype.every = function (callback, thisArg) {
+        var len = this.length,
+            idx;
+        for (idx = 0; idx < len; ++idx) {
+            if (!callback.apply(thisArg, [this[idx], idx, this])) {
+                return false;
+            }
+        }
+        return true;
+    };
+}
+
 if (undefined === Array.prototype.forEach) {
 
     // Introduced with JavaScript 1.6

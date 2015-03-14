@@ -16,6 +16,9 @@ describe("compatibility", function () {
             assert("    " === array.join(" "));
         });
 
+        it("should expose every(callback)");
+        it("should expose every(callback, thisArg)");
+
         it("should expose forEach(callback)", function () {
             var
                 array = [1, 2, 3],
