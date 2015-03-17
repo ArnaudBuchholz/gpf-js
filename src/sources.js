@@ -14,10 +14,10 @@
             "like",                 // Comparison helper                gpf.like
             "callback",             // Callback object              gpf.Callback
             "dispatch",             //            gpf.events.EventDispatcherImpl
+            "mimetype",             // Mime types handling   gpf.web.getMimeType
 
             "",                     // --- temporary end marker ---
 
-            "mimetype",             // Mime types handling  gpf.http.getMimeType
 
             "async",                // Asynchronous handling           gpf.defer
             "bin",                  // Binary tools                      gpf.bin
