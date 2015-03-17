@@ -171,12 +171,13 @@ _gpfContext.gpf = {};
 if (_gpfInNode) {
     gpf.node = {};
 }
+// Some web-related tools will be configured even if not in a browser
+gpf.web = {};
 if (_gpfInBrowser) {
     _gpfWebWindow = window;
     _gpfWebDocument = document;
     _gpfWebHead = _gpfWebDocument.getElementsByTagName("head")[0]
                   || _gpfWebDocument.documentElement;
-    gpf.web = {};
 }
 
 /**
