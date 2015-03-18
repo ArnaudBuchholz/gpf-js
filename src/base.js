@@ -164,26 +164,37 @@ var
             }
             return defaultValue;
         }
-    };
+    },
 
-if ("browser" === _gpfHost && (window.HTMLCollection || window.NodeList)) {
+    /*exported _gpfIsArrayLike*/
     /**
-     * Return true if the provided parameter looks like an array (i.e. it has
-     * a property length and each item can be accessed with [])
+     * Return true if the parameter looks like an array
      *
      * @param {Object} obj
      * @return {Boolean} True if array-like
      */
-    gpf.isArrayLike = function (obj) {
+    _gpfIsArrayLike;
+
+if ("browser" === _gpfHost && (window.HTMLCollection || window.NodeList)) {
+    _gpfIsArrayLike = function (obj) {
         return obj instanceof Array
             || obj instanceof window.HTMLCollection
             || obj instanceof window.NodeList;
     };
 } else {
-    gpf.isArrayLike = function (obj) {
+    _gpfIsArrayLike = function (obj) {
         return obj instanceof Array;
     };
 }
+
+/**
+ * Return true if the provided parameter looks like an array (i.e. it has
+ * a property length and each item can be accessed with [])
+ *
+ * @param {Object} obj
+ * @return {Boolean} True if array-like
+ */
+gpf.isArrayLike = _gpfIsArrayLike;
 
 /*jshint unused: false */ // Because of arguments
 /*
