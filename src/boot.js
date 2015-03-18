@@ -42,6 +42,7 @@ var
      */
     _gpfContext,
 
+    /*exported _gpfResolveScope*/
     /**
      * Translate the parameter into a valid scope
      *
@@ -50,7 +51,7 @@ var
      */
     _gpfResolveScope = function (scope) {
         if (null === scope // || undefined === scope
-            || 'object' !== typeof scope)  {
+            || "object" !== typeof scope)  {
             return _gpfContext;
         }
         return scope;
