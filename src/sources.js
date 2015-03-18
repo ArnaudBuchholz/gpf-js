@@ -15,11 +15,11 @@
             "callback",             // Callback object              gpf.Callback
             "dispatch",             //            gpf.events.EventDispatcherImpl
             "mimetype",             // Mime types handling   gpf.web.getMimeType
+            "async",                // Asynchronous handling           gpf.defer
 
             "",                     // --- temporary end marker ---
 
 
-            "async",                // Asynchronous handling           gpf.defer
             "bin",                  // Binary tools                      gpf.bin
             "json",                 // JSON compatibility layer         gpf.json
             "class",                // Class

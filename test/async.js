@@ -1,37 +1,41 @@
-(function () { /* Begin of privacy scope */
-    "use strict";
+"use strict";
+/*global describe, it, assert*/
 
-    gpf.declareTests({
+describe("async", function () {
 
-        "callback": [
+    describe("gpf.defer", function () {
 
-            function (test) {
-                test.title("Checking that callback and scope are used");
-                test.wait();
-                gpf.defer(test.done, 0, test);
-            },
+        it("triggers the callback asynchronously", function (done) {
+            var flag = 0;
+            gpf.defer(function () {
+                assert(1 === flag);
+                done();
+            }, 0);
+            flag = 1;
+        });
 
-            function (test) {
-                test.title("Checking that parameters are transmitted");
-                test.wait();
-                gpf.defer(function () {
-                    test.equal(this, test, "Scope transmitted");
-                    test.equal(arguments.length, 4,
-                        "Correct number of parameters");
-                    test.equal(arguments[0], 1,
-                        "First parameter is a number");
-                    test.equal(arguments[1], "abc",
-                        "Second parameter is a string");
-                    test.equal(arguments[2], undefined,
-                        "Third parameter is undefined");
-                    test.like(arguments[3], test,
-                        "Fourth parameter is an object");
-                    test.done();
-                }, 0, test, [1, "abc", undefined, test]);
-            }
+        it("transmits scope", function (done) {
+            var scope = {};
+            gpf.defer(function () {
+                assert(this === scope);
+                done();
+            }, 0, scope);
+        });
 
-        ]
+        it("transmits parameters", function (done) {
+            var scope = {},
+                obj = {};
+            gpf.defer(function (a, b, c, d) {
+                assert(this === scope);
+                assert(arguments.length === 4);
+                assert(1 === a);
+                assert("abc" === b);
+                assert(undefined === c);
+                assert(obj === d);
+                done();
+            }, 0, scope, [1, "abc", undefined, obj]);
+        });
 
     });
 
-})(); /* End of privacy scope */
+});
