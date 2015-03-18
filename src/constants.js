@@ -9,6 +9,7 @@
 /*global _gpfHost*/ // Host type
 /*global _gpfContext*/ // Main context object
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
+/*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
 /*global _gpfInNode*/ // The current host is a nodeJS like
 /*global _gpfInBrowser*/ // The current host is a browser like
 /*global _gpfWebWindow*/ // Browser window object
@@ -18,12 +19,14 @@
 /*global _gpfNodeFS*/ // Node FS module
 /*global _gpfFSRead*/ // Phantom/Node File System read text file method (boot)
 /*global _gpfEmptyFunc*/ // An empty function
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfFalseFunc*/ // An empty function returning false
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfAlpha*/ // Letters (lowercase)
 /*global _gpfALPHA*/ // Letters (uppercase)
 /*global _gpfDigit*/ // Digits
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
+/*global _gpfDefer*/ // Defer the execution of the callback
 
 var
 /*#ifdef(RELEASE)*/
@@ -59,6 +62,14 @@ var
      * @private
      */
     _gpfEmptyFunc = function () {},
+
+    /**
+     * Helper to ignore unused parameter
+     *
+     * @param {*} param
+     * @private
+     */
+    _gpfIgnore = _gpfEmptyFunc,
 
     /**
      * An empty function returning false
