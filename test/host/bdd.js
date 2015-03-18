@@ -2,6 +2,11 @@
     "use strict";
     /*global global*/
 
+    if (undefined === typeof gpf) {
+        // gpf is required
+        console.error("GPF required");
+    }
+
     if ("undefined" !== typeof module && module.exports) {
         // node
         context = global;
@@ -375,15 +380,7 @@
          * @type {Object}
          * @private
          */
-        _stats,
-
-        /**
-         * The tests are currently being run
-         *
-         * @type {Boolean}
-         * @private
-         */
-        _inProgress;
+        _stats;
 
     if (!context.assert) {
         /**
@@ -418,6 +415,11 @@
         }
     }
 
+    /**
+     * Next test / callback
+     *
+     * @private
+     */
     function _next() {
         var item;
         // Any callback list pending?
@@ -435,7 +437,7 @@
                     _callbacks = item.before;
                     _callbackIdx = 0;
                     --_childIdx;
-                    _next();
+                    gpf.defer(_next, 0);
                     return;
                 }
                 // Notify caller
@@ -451,7 +453,8 @@
                 // Becomes the new describe
                 _describe = item;
                 _childIdx = 0;
-                // _next();
+                gpf.defer(_next, 0);
+
             } else if (item instanceof BDDIt) {
                 // Call beforeEach if any
                 if (_it !== item
@@ -459,7 +462,7 @@
                     _callbacks = _beforeEach;
                     _callbackIdx = 0;
                     --_childIdx;
-                    _next();
+                    gpf.defer(_next, 0);
                     return;
                 }
                 // Prepare list of afterEach if any
@@ -477,15 +480,16 @@
                         label: _it.label,
                         pending: true
                     });
-                    // _next();
+                    gpf.defer(_next, 0);
                 }
+
             }
         } else if (0 < _stackOfDescribe.length) {
             // call after if any
             if (_describe.after.length && _callbacks !== _describe.after) {
                 _callbacks = item.before;
                 _callbackIdx = 0;
-                _next();
+                gpf.defer(_next, 0);
                 return;
             }
             // Remove lists of beforeEach and afterEach
@@ -495,14 +499,19 @@
             // No more children, go up
             _describe = _stackOfDescribe.pop();
             _childIdx = _stackOfChildIdx.pop();
-            // _next();
+            gpf.defer(_next, 0);
+
         } else {
             // DONE!
             _runCallback("results", _stats);
-            _inProgress = false;
         }
     }
 
+    /**
+     * The last it succeeded
+     *
+     * @private
+     */
     function _success() {
         ++_stats.success;
         _runCallback("it", {
@@ -511,9 +520,14 @@
             result: true,
             timeSpent: (new Date()) - _itStart
         });
-        // _next();
+        gpf.defer(_next, 0);
     }
 
+    /**
+     * The last it failed
+     *
+     * @private
+     */
     function _fail(e) {
         ++_stats.fail;
         _runCallback("it", {
@@ -523,9 +537,14 @@
             timeSpent: (new Date()) - _itStart,
             exception: e
         });
-        // _next();
+        gpf.defer(_next, 0);
     }
 
+    /**
+     * Main entry point to run all tests
+     *
+     * @param {Function} callback see callback examples above
+     */
     context.run = function (callback) {
         if (callback) {
             _runCallback = callback;
@@ -542,11 +561,7 @@
             fail: 0,
             pending: 0
         };
-        _inProgress = true;
-        // TODO use gpf.defer instead to limit stack usage
-        while (_inProgress) {
-            _next();
-        }
+        gpf.defer(_next, 0);
     };
 
     //endregion

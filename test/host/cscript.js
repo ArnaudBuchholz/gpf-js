@@ -67,5 +67,4 @@ if (DEBUG) {
     WScript.Echo("Running BDD");
 }
 run();
-
-// gpf.runAsyncQueue();
+gpf.runAsyncQueue();
