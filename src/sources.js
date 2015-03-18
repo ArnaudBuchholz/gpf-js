@@ -16,11 +16,10 @@
             "dispatch",             //            gpf.events.EventDispatcherImpl
             "mimetype",             // Mime types handling   gpf.web.getMimeType
             "async",                // Asynchronous handling           gpf.defer
+            "bin",                  // Binary tools                      gpf.bin
 
             "",                     // --- temporary end marker ---
 
-
-            "bin",                  // Binary tools                      gpf.bin
             "json",                 // JSON compatibility layer         gpf.json
             "class",                // Class
             "attributes",           // Attributes                 gpf.attributes

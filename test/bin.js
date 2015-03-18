@@ -1,88 +1,145 @@
-(function () { /* Begin of privacy scope */
-    "use strict";
+"use strict";
+/*global describe, it, assert*/
 
-    gpf.declareTests({
+describe("bin", function () {
 
-        pow: [
+    describe("gpf.bin.pow", function () {
 
-            function (test) {
-                test.title("First powers of 2");
-                test.equal(gpf.bin.pow2(0), 1, "0");
-                test.equal(gpf.bin.pow2(1), 2, "1");
-                test.equal(gpf.bin.pow2(2), 4, "2");
-                test.equal(gpf.bin.pow2(3), 8, "3");
-                test.equal(gpf.bin.pow2(4), 16, "4");
-                test.equal(gpf.bin.pow2(5), 32, "5");
-                test.equal(gpf.bin.pow2(6), 64, "6");
-                test.equal(gpf.bin.pow2(7), 128, "7");
-                test.equal(gpf.bin.pow2(8), 256, "8");
-                test.equal(gpf.bin.pow2(9), 512, "9");
-                test.equal(gpf.bin.pow2(10), 1024, "10");
-                test.equal(gpf.bin.pow2(11), 2048, "11");
-                test.equal(gpf.bin.pow2(12), 4096, "12");
-                test.equal(gpf.bin.pow2(13), 8192, "13");
-                test.equal(gpf.bin.pow2(14), 16384, "14");
-                test.equal(gpf.bin.pow2(15), 32768, "15");
-                test.equal(gpf.bin.pow2(16), 65536, "16");
-            },
+        it("gives the powers of 2", function () {
+            assert(gpf.bin.pow2(0) ===  1);
+            assert(gpf.bin.pow2(1) ===  2);
+            assert(gpf.bin.pow2(2) ===  4);
+            assert(gpf.bin.pow2(3) ===  8);
+            assert(gpf.bin.pow2(4) ===  16);
+            assert(gpf.bin.pow2(5) ===  32);
+            assert(gpf.bin.pow2(6) ===  64);
+            assert(gpf.bin.pow2(7) ===  128);
+            assert(gpf.bin.pow2(8) ===  256);
+            assert(gpf.bin.pow2(9) ===  512);
+            assert(gpf.bin.pow2(10) ===  1024);
+            assert(gpf.bin.pow2(11) ===  2048);
+            assert(gpf.bin.pow2(12) ===  4096);
+            assert(gpf.bin.pow2(13) ===  8192);
+            assert(gpf.bin.pow2(14) ===  16384);
+            assert(gpf.bin.pow2(15) ===  32768);
+            assert(gpf.bin.pow2(16) ===  65536);
+        });
 
-            function (test) {
-                test.title("Check if powers of 2");
-                test.equal(gpf.bin.isPow2(0), -1, "-1");
-                test.equal(gpf.bin.isPow2(1), 0, "0");
-                test.equal(gpf.bin.isPow2(2), 1, "1");
-                test.equal(gpf.bin.isPow2(4), 2, "2");
-                test.equal(gpf.bin.isPow2(8), 3, "3");
-                test.equal(gpf.bin.isPow2(16), 4, "4");
-                test.equal(gpf.bin.isPow2(32), 5, "5");
-                test.equal(gpf.bin.isPow2(64), 6, "6");
-                test.equal(gpf.bin.isPow2(128), 7, "7");
-                test.equal(gpf.bin.isPow2(256), 8, "8");
-                test.equal(gpf.bin.isPow2(512), 9, "9");
-                test.equal(gpf.bin.isPow2(1024), 10, "10");
-                test.equal(gpf.bin.isPow2(2048), 11, "11");
-                test.equal(gpf.bin.isPow2(4096), 12, "12");
-                test.equal(gpf.bin.isPow2(8192), 13, "13");
-                test.equal(gpf.bin.isPow2(16384), 14, "14");
-                test.equal(gpf.bin.isPow2(32768), 15, "15");
-                test.equal(gpf.bin.isPow2(32748), -1, "-1");
-                test.equal(gpf.bin.isPow2(65536), 16, "16");
-                test.equal(gpf.bin.isPow2(65534), -1, "-1");
-            }
-        ],
-
-        baseANY: [
-
-            function (test) {
-                test.title("Encoding part: base 16 and 64 ");
-                test.equal(gpf.bin.toHexa(2882400152),
-                    "ABCDEF98", "Hexa: no padding");
-                test.equal(gpf.bin.toHexa(2882400152, 4),
-                    "EF98", "Hexa: length set to too small");
-                test.equal(gpf.bin.toHexa(-1, 8),
-                    "FFFFFFFF", "Hexa: -1");
-                test.equal(gpf.bin.toHexa(2882400152, 10),
-                    "00ABCDEF98", "Hexa: padding set to larger");
-                test.equal(gpf.bin.toBase64(2882400152), "Crze+Y",
-                    "Base64: no padding");
-                test.equal(gpf.bin.toBase64(2882400152, 8, "="), "==Crze+Y",
-                    "Base64: padding set to larger");
-            },
-
-            function (test) {
-                test.title("Decoding part: base 16 and 64 ");
-                test.equal(gpf.bin.fromHexa("ABCDEF98", "0"), 2882400152,
-                    "Hexa: no padding");
-                test.equal(gpf.bin.fromHexa("00ABCDEF98"), 2882400152,
-                    "Hexa: extra padding");
-                test.equal(gpf.bin.fromBase64("Crze+Y"), 2882400152,
-                    "Base64: no padding");
-                test.equal(gpf.bin.fromBase64("==Crze+Y", "="), 2882400152,
-                    "Base64: extra padding");
-            }
-
-        ]
+        it("checks if a number is a power of 20", function () {
+            assert(gpf.bin.isPow2(0) ===  -1);
+            assert(gpf.bin.isPow2(1) ===  0);
+            assert(gpf.bin.isPow2(2) ===  1);
+            assert(gpf.bin.isPow2(4) ===  2);
+            assert(gpf.bin.isPow2(8) ===  3);
+            assert(gpf.bin.isPow2(16) ===  4);
+            assert(gpf.bin.isPow2(32) ===  5);
+            assert(gpf.bin.isPow2(64) ===  6);
+            assert(gpf.bin.isPow2(128) ===  7);
+            assert(gpf.bin.isPow2(256) ===  8);
+            assert(gpf.bin.isPow2(512) ===  9);
+            assert(gpf.bin.isPow2(1024) ===  10);
+            assert(gpf.bin.isPow2(2048) ===  11);
+            assert(gpf.bin.isPow2(4096) ===  12);
+            assert(gpf.bin.isPow2(8192) ===  13);
+            assert(gpf.bin.isPow2(16384) ===  14);
+            assert(gpf.bin.isPow2(32768) ===  15);
+            assert(gpf.bin.isPow2(32748) ===  -1);
+            assert(gpf.bin.isPow2(65536) ===  16);
+            assert(gpf.bin.isPow2(65534) ===  -1);
+        });
 
     });
 
-}()); /* End of privacy scope */
+    describe("gpf.bin.toAny", function () {
+
+        describe("gpf.bin.toHexa", function () {
+
+            it("converts a number to its hexadecimal value", function () {
+                assert(gpf.bin.toHexa(2882400152) === "ABCDEF98");
+            });
+
+            it("truncates the value if necessary", function () {
+                assert(gpf.bin.toHexa(2882400152, 4) === "EF98");
+            });
+
+            it("pads the value if necessary", function () {
+                assert(gpf.bin.toHexa(2882400152, 10) === "00ABCDEF98");
+            });
+
+            it("handles negative numbers", function () {
+                assert(gpf.bin.toHexa(-1, 8) === "FFFFFFFF");
+            });
+
+        });
+
+        describe("gpf.bin.toBase64", function () {
+
+            it("converts a number to its base64 value", function () {
+                assert(gpf.bin.toBase64(2882400152) === "Crze+Y");
+            });
+
+            it("supports configurable padding", function () {
+                assert(gpf.bin.toBase64(2882400152, 8, "=") === "==Crze+Y");
+            });
+
+        });
+
+    });
+
+    describe("gpf.bin.fromAny", function () {
+
+        describe("gpf.bin.fromHexa", function () {
+
+            it("converts an hexadecimal value to a number", function () {
+                assert(gpf.bin.fromHexa("ABCDEF98", "0") === 2882400152);
+            });
+
+            it("supports padding", function () {
+                assert(gpf.bin.fromHexa("00ABCDEF98") === 2882400152);
+            });
+
+        });
+
+        describe("gpf.bin.fromBase64", function () {
+
+            it("converts a base64 value to a number", function () {
+                assert(gpf.bin.fromBase64("Crze+Y") === 2882400152);
+            });
+
+            it("supports configurable padding", function () {
+                assert(gpf.bin.fromBase64("==Crze+Y", "=") === 2882400152);
+            });
+
+        });
+
+    });
+
+    describe("Binary values manipulation", function () {
+
+        var
+            pow2 = gpf.bin.pow2(2),
+            pow3 = gpf.bin.pow2(3),
+            pow4 = gpf.bin.pow2(4);
+
+        describe("gpf.bin.test", function () {
+
+            it("tests bits in a value", function () {
+                assert(true === gpf.bin.test(pow4, pow4));
+                assert(false === gpf.bin.test(pow3, pow4));
+                assert(true === gpf.bin.test(255, pow2));
+                assert(true === gpf.bin.test(255, pow2 + pow3));
+            })
+
+        });
+
+        describe("gpf.bin.clear", function () {
+
+            it("clears bits in a value", function () {
+                assert(pow4 === gpf.bin.clear(pow4 + pow3, pow3));
+            })
+
+        });
+
+    });
+
+});
