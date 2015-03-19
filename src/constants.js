@@ -9,6 +9,9 @@
 /*global _gpfHost*/ // Host type
 /*global _gpfContext*/ // Main context object
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
+/*global _gpfStringCapitalize*/ // Capitalize the string
+/*global _gpfStringReplaceEx*/ // String replacement using dictionary map
+/*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
 /*global _gpfInNode*/ // The current host is a nodeJS like
 /*global _gpfInBrowser*/ // The current host is a browser like
@@ -27,6 +30,8 @@
 /*global _gpfDigit*/ // Digits
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
 /*global _gpfDefer*/ // Defer the execution of the callback
+/*global _gpfJsonStringify*/ // JSON.stringify
+/*global _gpfJsonParse*/ // JSON.parse
 
 var
 /*#ifdef(RELEASE)*/
