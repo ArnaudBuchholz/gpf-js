@@ -1,26 +1,48 @@
-(function () { /* Begin of privacy scope */
-    "use strict";
+"use strict";
+/*global describe, it, assert*/
 
-    gpf.declareTests({
+describe("json", function () {
 
-        "stringify": [
+    var
+        tests = [{
+            label: "empty object",
+            obj: {},
+            json: "{}"
 
-            function (test) {
-                test.title("Simple test");
-                test.equal(gpf.json.stringify({}), "{}", "OK");
-            }
+        } , {
+            label: "simple string property",
+            obj: {
+                a: "123"
+            },
+            json: "{\"a\":\"123\"}"
 
-        ],
+        }],
+        len = tests.length,
+        idx;
 
-        "parse": [
+    describe("gpf.json.stringify", function () {
 
-            function (test) {
-                test.title("Simple test");
-                test.like(gpf.json.parse("{}"), {}, "OK");
-            }
-
-        ]
+        for (idx = 0; idx < len; ++idx) {
+            (function (test) {
+                it("works on " + test.label, function () {
+                    assert(gpf.json.stringify(test.obj) === test.json);
+                });
+            })(tests[idx]);
+        }
 
     });
 
-})(); /* End of privacy scope */
+    describe("gpf.json.parse", function () {
+
+        for (idx = 0; idx < len; ++idx) {
+            (function (test) {
+                it("works on " + test.label, function () {
+                    var obj =  gpf.json.parse(test.json);
+                    assert(true === gpf.like(obj, test.obj));
+                });
+            })(tests[idx]);
+        }
+
+    });
+
+});

@@ -17,10 +17,10 @@
             "mimetype",             // Mime types handling   gpf.web.getMimeType
             "async",                // Asynchronous handling           gpf.defer
             "bin",                  // Binary tools                      gpf.bin
+            "json",                 // JSON compatibility layer         gpf.json
 
             "",                     // --- temporary end marker ---
 
-            "json",                 // JSON compatibility layer         gpf.json
             "class",                // Class
             "attributes",           // Attributes                 gpf.attributes
             "error",                // Error base class
