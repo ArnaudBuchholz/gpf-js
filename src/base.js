@@ -166,6 +166,89 @@ var
         }
     },
 
+     /**
+     * Capitalize the string
+     *
+     * @param that
+     * @returns {string}
+     * @private
+     */
+    _gpfStringCapitalize = function (that) {
+        return that.charAt(0).toUpperCase() + that.substr(1);
+    },
+
+    /**
+     * String replacement using dictionary map
+     *
+     * @param {String} that
+     * @param {Object} replacements map of strings to search and replace
+     * @return {String}
+     */
+    _gpfStringReplaceEx = function (that, replacements) {
+        var
+            result = that,
+            key;
+        for (key in replacements) {
+            if (replacements.hasOwnProperty(key)) {
+                if (-1 < result.indexOf(key)) {
+                    result = result.split(key).join(replacements[key]);
+                }
+            }
+        }
+        return result;
+    },
+
+    /**
+     * @type {Object} Dictionary of language to escapes
+     * @private
+     */
+    _gpfStringEscapes = {
+
+        javascript: {
+            "\\": "\\\\",
+            "\"": "\\\"",
+            "\n": "\\n",
+            "\r": "\\r",
+            "\t": "\\t"
+        },
+
+        xml: {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;"
+        },
+
+        html: {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            "\u00E9": "&eacute;",
+            "\u00E8": "&egrave;",
+            "\u00EA": "&ecirc;",
+            "\u00E1": "&aacute;",
+            "\u00E0": "&agrave;"
+        }
+
+    },
+
+    /**
+     * Make the string content compatible with lang
+     *
+     * @param {String} that
+     * @param {String} language
+     * @return {String}
+     */
+    _gpfStringEscapeFor = function (that, language) {
+        var replacements = _gpfStringEscapes[language];
+        if (undefined !== replacements) {
+            that = _gpfStringReplaceEx(that, replacements);
+            if ("javascript" === language) {
+                that = "\"" + that + "\"";
+            }
+        }
+        return that;
+    },
+
     /*exported _gpfIsArrayLike*/
     /**
      * Return true if the parameter looks like an array
@@ -379,15 +462,17 @@ gpf.extend(gpf, {
         return a && !b || !a && b;
     },
 
+    //region Basic string functions
+
     /**
      * Capitalize the string
      *
      * @param {String} that
      * @return {String}
      */
-    capitalize: function (that) {
-        return that.charAt(0).toUpperCase() + that.substr(1);
-    }
+    capitalize: _gpfStringCapitalize
+
+    //endregion
 
 });
 
