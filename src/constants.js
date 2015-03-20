@@ -28,6 +28,8 @@
 /*global _gpfAlpha*/ // Letters (lowercase)
 /*global _gpfALPHA*/ // Letters (uppercase)
 /*global _gpfDigit*/ // Digits
+/*global _gpfIdentifierFirstChar*/ // allowed first char in an identifier
+/*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
 /*global _gpfDefer*/ // Defer the execution of the callback
 /*global _gpfJsonStringify*/ // JSON.stringify
@@ -112,7 +114,7 @@ var
     /**
      * Letters (lowercase)
      *
-     * @type {string}
+     * @type {String}
      * @private
      */
     _gpfAlpha = "abcdefghijklmnopqrstuvwxyz",
@@ -120,7 +122,7 @@ var
     /**
      * Letters (uppercase)
      *
-     * @type {string}
+     * @type {String}
      * @private
      */
     _gpfALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
@@ -128,10 +130,26 @@ var
     /**
      * Digits
      *
-     * @type {string}
+     * @type {String}
      * @private
      */
-    _gpfDigit = "0123456789";
+    _gpfDigit = "0123456789",
+
+    /**
+     * List of allowed first char in an identifier
+     *
+     * @type {String}
+     * @private
+     */
+    _gpfIdentifierFirstChar = _gpfAlpha + _gpfALPHA + "_$",
+
+    /**
+     * List of allowed other chars in an identifier
+     *
+     * @type {String}
+     * @private
+     */
+    _gpfIdentifierOtherChars = _gpfAlpha + _gpfALPHA + _gpfDigit + "_$";
 
 /*#ifndef(UMD)*/
 // Mandatory to support boot loading in a browser (removed when UMD is used)
