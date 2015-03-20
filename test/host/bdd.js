@@ -401,17 +401,35 @@
      * Call the callback
      *
      * @param {Function} callback
+     * @param {Boolean} itCallback True if the callback comes form an it clause
      * @private
      */
-    function _processCallback(callback) {
+    function _processCallback(callback, itCallback) {
+        var done;
+        if (itCallback) {
+            done = _success;
+        } else {
+            done = _next;
+        }
         try {
             _itStart = new Date();
-            callback(_success);
+            callback(done);
             if (0  === callback.length) {
-                _success();
+                done();
             }
         } catch (e) {
+            if (!itCallback) {
+                // An error is not acceptable at this point, signal
+                _it = {
+                    label: "UNEXPECTED error during (before|after)(Each)?"
+                };
+            }
             _fail(e);
+            if (!itCallback) {
+                // And end everything
+                _childIdx = _describe.children.length;
+                _stackOfDescribe = [];
+            }
         }
     }
 
@@ -426,7 +444,7 @@
         if (_callbacks && _callbackIdx < _callbacks.length) {
             item = _callbacks[_callbackIdx];
             ++_callbackIdx;
-            _processCallback(item);
+            _processCallback(item, false);
 
         } else if (_childIdx < _describe.children.length) {
             item = _describe.children[_childIdx];
@@ -472,7 +490,7 @@
                 _it = item;
                 ++_stats.count;
                 if (item.callback) {
-                    _processCallback(item.callback);
+                    _processCallback(item.callback, true);
                 } else {
                     ++_stats.pending;
                     _runCallback("it", {
