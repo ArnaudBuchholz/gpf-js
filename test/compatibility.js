@@ -16,8 +16,63 @@ describe("compatibility", function () {
             assert("    " === array.join(" "));
         });
 
-        it("should expose every(callback)");
-        it("should expose every(callback, thisArg)");
+        it("should expose every", function () {
+            var
+                array = [];
+            assert("function" === typeof array.every);
+            assert(!array.hasOwnProperty("every"));
+        });
+
+        it("should return true when it goes over all items", function () {
+            var
+                array = [1, 2, 3, -6, 10],
+                sum = 0,
+                result;
+            result = array.every(function (value) {
+                sum += value;
+                return true;
+            });
+            assert(true === result);
+            assert(10 === sum);
+        });
+
+        it("should return false when it stops on a given item", function () {
+            var
+                array = [1, 2, 3, -6, 10],
+                sum = 0,
+                result;
+            result = array.every(function (value) {
+                if (value > 0) {
+                    sum += value;
+                    return true;
+                }
+                return false;
+            });
+            assert(false === result);
+            assert(6 === sum);
+        });
+
+        it("should expose every(callback, thisArg)", function () {
+            var
+                array = [1, 2, 3, -6, 10],
+                scope = {
+                    sum: 0,
+                    index: 0
+                },
+                result;
+            result = array.every(function (value, idx) {
+                assert(this === scope);
+                this.index = idx;
+                if (value > 0) {
+                    this.sum += value;
+                    return true;
+                }
+                return false;
+            }, scope);
+            assert(false === result);
+            assert(6 === scope.sum);
+            assert(3 === scope.index);
+        });
 
         it("should expose forEach(callback)", function () {
             var
