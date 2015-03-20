@@ -14,14 +14,14 @@ var
      * @constructor
      * @param {String} src
      * @param {gpf.events.Handler} eventsHandler
-     * @class _IncludeContext
+     * @class _GpfIncludeContext
      * @private
      */
-    _IncludeContext = function (src, eventsHandler) {
-        this.id = ++_IncludeContext.id;
+    _GpfIncludeContext = function (src, eventsHandler) {
+        this.id = ++_GpfIncludeContext.id;
         this.src = src;
         this.eventsHandler =  eventsHandler;
-        _IncludeContext.map[this.id] = this;
+        _GpfIncludeContext.map[this.id] = this;
     },
 
     /**
@@ -55,7 +55,7 @@ var
      */
     _gpfWebInclude = function (src, eventsHandler) {
         var
-            context = new _IncludeContext(src, eventsHandler),
+            context = new _GpfIncludeContext(src, eventsHandler),
             domScript = _gpfWebDocument.createElement("script");
         // Configure script tag
         domScript.language = "javascript";
@@ -64,9 +64,9 @@ var
         // Attach handlers for all browsers
         domScript.onload
             = domScript.onreadystatechange
-            = _IncludeContext.onLoad;
+            = _GpfIncludeContext.onLoad;
         domScript.onerror
-            = _IncludeContext.onError;
+            = _GpfIncludeContext.onError;
         // Use async when supported
         if (undefined !== domScript.async) {
             domScript.async = true;
@@ -80,7 +80,7 @@ var
         setTimeout(_gpfWebIncludeInsert, 0, domScript);
     };
 
-_IncludeContext.prototype = {
+_GpfIncludeContext.prototype = {
 
     /**
      * Unique ID of this context
@@ -121,7 +121,7 @@ _IncludeContext.prototype = {
             parent.removeChild(domScript);
         }
         // Destroy context mapping
-        delete _IncludeContext.map[this.id];
+        delete _GpfIncludeContext.map[this.id];
     },
 
     /**
@@ -161,7 +161,7 @@ _IncludeContext.prototype = {
  * @type {number}
  * @static
  */
-_IncludeContext.id = 0;
+_GpfIncludeContext.id = 0;
 
 /**
  * Dictionary of contexts associated to the includes
@@ -169,14 +169,14 @@ _IncludeContext.id = 0;
  * @type {Object}
  * @static
  */
-_IncludeContext.map = {};
+_GpfIncludeContext.map = {};
 
 /**
  * Wrapper for the load event
  */
-_IncludeContext.onLoad = function () {
+_GpfIncludeContext.onLoad = function () {
     // 'this' is the script element
-    var context = _IncludeContext.map[this.id];
+    var context = _GpfIncludeContext.map[this.id];
     if (context) {
         context.check(this);
     }
@@ -185,9 +185,9 @@ _IncludeContext.onLoad = function () {
 /**
  * Wrapper for the error event
  */
-_IncludeContext.onError = function () {
+_GpfIncludeContext.onError = function () {
     // 'this' is the script element
-    var context = _IncludeContext.map[this.id];
+    var context = _GpfIncludeContext.map[this.id];
     if (context) {
         context.failed(this);
     }

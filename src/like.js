@@ -14,11 +14,11 @@ var
      * not have the same class.
      *
      *
-     * @class _LikeContext
+     * @class _GpfLikeContext
      * @constructor
      * @private
      */
-    _LikeContext = function (alike) {
+    _GpfLikeContext = function (alike) {
         this._pending = [];
         this._done = [];
         // Override for this instance only
@@ -29,7 +29,7 @@ var
         }
     };
 
-_LikeContext.prototype = {
+_GpfLikeContext.prototype = {
 
     /**
      * Array of objects to be compared (filled by pairs)
@@ -212,6 +212,6 @@ _LikeContext.prototype = {
  * @return {Boolean}
  */
 gpf.like = function (a, b, alike) {
-    var context = new _LikeContext(alike);
+    var context = new _GpfLikeContext(alike);
     return context.like(a, b) && context.explore();
 };
