@@ -101,7 +101,15 @@
     gpf.extend(gpf, {
 
         "[capitalize]": [gpf.$ClassExtension(String)],
-        // Declared in base.js
+
+        /**
+         * Capitalize the string
+         *
+         * @param {String} that
+         * @return {String}
+         */
+        capitalize: _gpfStringCapitalize,
+
 
         "[replaceEx]": [gpf.$ClassExtension(String)],
 

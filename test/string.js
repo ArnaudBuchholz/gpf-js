@@ -1,6 +1,29 @@
-(function () { /* Begin of privacy scope */
-    "use strict";
+"use strict";
+/*global describe, it, assert*/
 
+describe("string", function () {
+
+    describe("gpf.capitalize", function () {
+
+        it("does nothing on empty string", function () {
+            assert(gpf.capitalize("") === "");
+        });
+
+        it("uppercases the first letter", function () {
+            assert(gpf.capitalize("word") === "Word");
+            assert(gpf.capitalize("two words") === "Two words");
+            assert(gpf.capitalize("Two words") === "Two words");
+        });
+
+        it("also handles accents", function () {
+            assert(gpf.capitalize("éric"), "Éric");
+        });
+
+    });
+
+});
+
+/*
     gpf.declareTests({
 
         "replaceEx": [
@@ -36,4 +59,4 @@
 
     });
 
-})(); /* End of privacy scope */
+*/

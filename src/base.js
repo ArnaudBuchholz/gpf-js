@@ -460,19 +460,7 @@ gpf.extend(gpf, {
      */
     xor: function (a, b) {
         return a && !b || !a && b;
-    },
-
-    //region Basic string functions
-
-    /**
-     * Capitalize the string
-     *
-     * @param {String} that
-     * @return {String}
-     */
-    capitalize: _gpfStringCapitalize
-
-    //endregion
+    }
 
 });
 
