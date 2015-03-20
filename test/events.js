@@ -5,6 +5,12 @@ describe("events", function () {
 
     describe("gpf.events.Event", function () {
 
+        it("has a correct class structure", function () {
+            var event = new gpf.events.Event("test");
+            assert(event instanceof gpf.events.Event);
+            assert(event.constructor === gpf.events.Event);
+        });
+
         it("should expose type and a default scope", function () {
             var event = new gpf.events.Event("test");
             assert("test" === event.type);
