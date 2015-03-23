@@ -41,19 +41,19 @@ var
      * Generates a closure in which this._super points to the base definition of
      * the overridden member
      *
-     * @param {Function} baseMember
+     * @param {Function} superMember
      * @param {Function} member
      * @return {Function}
      * @private
      * @closure
      */
-    _gpfGenSuperMember = function (baseMember, member) {
+    _gpfGenSuperMember = function (superMember, member) {
         return function () {
             var
                 previousSuper = this._super,
                 result;
             // Add a new ._super() method pointing to the base class member
-            this._super = baseMember;
+            this._super = superMember;
             try {
                 // Execute the method
                 result = member.apply(this, arguments);
@@ -77,18 +77,21 @@ var
      * @class gpf.ClassDefinition
      * @constructor
      * @param {String|Function} name
-     * @param {Function} Base
+     * @param {Function} Super
      * @param {Object} definition
+     * @private
      */
-    _GpfClassDefinition = function  (name, Base, definition) {
+    _GpfClassDefinition = function  (name, Super, definition) {
         this._gpfClassDefUID = ++_gpfClassDefUID;
         this._Subs = [];
         if ("function" === typeof name) {
-            // TODO to extract class info from there
+            // TODO use js tokenizer to extract function name (if any)
+            this._name = "anonymous";
+            // TODO how do we grab the parent constructor
             this._Constructor = name;
         } else {
             this._name = name;
-            this._Base = Base;
+            this._Super = Super;
             this._definition = definition;
             this._build();
         }
@@ -106,7 +109,7 @@ _GpfClassDefinition.prototype = {
      * @type {Number}
      * @private
      */
-    _gpfClassDefUID: 0,
+    _uid: 0,
 
     /**
      * Unique identifier
@@ -114,11 +117,11 @@ _GpfClassDefinition.prototype = {
      * @return {Number}
      */
     uid: function () {
-        return this._gpfClassDefUID;
+        return this._uid;
     },
 
     /**
-     * Class name
+     * Full class name
      *
      * @type {String}
      * @private
@@ -150,20 +153,20 @@ _GpfClassDefinition.prototype = {
     },
 
     /**
-     * Base class
+     * Super class
      *
      * @type {Function}
      * @private
      */
-    _Base: Object,
+    _Super: Object,
 
     /**
-     * Base class
+     * Super class
      *
      * @return {Function}
      */
-    Base: function () {
-        return this._Base;
+    Super: function () {
+        return this._Super;
     },
 
     /**
@@ -187,6 +190,7 @@ _GpfClassDefinition.prototype = {
      * Attributes of this class
      *
      * NOTE: during definition, this member is used as a simple JavaScript
+     * Object
      *
      * @type {gpf.attributes.Map}
      * @private
@@ -199,11 +203,9 @@ _GpfClassDefinition.prototype = {
      * @return {gpf.attributes.Map}
      */
     attributes: function () {
-        /*__begin__thread_safe__*/
         if (!this._attributes) {
             this._attributes = new gpf.attributes.Map();
         }
-        /*__end_thread_safe__*/
         return this._attributes;
     },
 
@@ -313,9 +315,9 @@ _GpfClassDefinition.prototype = {
             return;
         }
         if (isConstructor) {
-            baseMember = this._Base;
+            baseMember = this._Super;
         } else {
-            baseMember = this._Base.prototype[member];
+            baseMember = this._Super.prototype[member];
         }
         baseType = typeof baseMember;
         if ("undefined" !== baseType
@@ -508,7 +510,7 @@ _GpfClassDefinition.prototype = {
          */
         /*__begin__thread_safe__*/
         _gpfClassInitAllowed = false;
-        newPrototype = new this._Base();
+        newPrototype = new this._Super();
         _gpfClassInitAllowed = true;
         /*__end_thread_safe__*/
 
@@ -523,7 +525,7 @@ _GpfClassDefinition.prototype = {
          * (It is necessary to do it here because of the gpf.addAttributes
          * that will test the parent class)
          */
-        baseClassDef = gpf.classDef(this._Base);
+        baseClassDef = gpf.classDef(this._Super);
         baseClassDef.Subs().push(newClass);
 
         /*
@@ -571,7 +573,7 @@ gpf._classInit = function (constructor, args) {
         if (classDef._defConstructor) {
             classDef._defConstructor.apply(this, args);
         } else {
-            classDef._Base.apply(this, args);
+            classDef._Super.apply(this, args);
         }
     }
 };
