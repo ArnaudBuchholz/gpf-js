@@ -29,10 +29,18 @@ var
      *     <li>unknown: Unknown</li>
      * </ul>
      *
-     * @type {string}
+     * @type {String}
      * @private
      */
     _gpfHost,
+
+    /**
+     * Indicates that paths are DOS-like (i.e. case insensitive with /)
+     *
+     * @type {Boolean}
+     * @private
+     */
+    _gpfDosPath = false,
 
     /**
      * Main context object
@@ -60,7 +68,7 @@ var
     /**
      * The current host is a nodeJS like
      *
-     * @type {boolean}
+     * @type {Boolean}
      * @private
      */
     _gpfInNode = false,
@@ -122,6 +130,7 @@ _gpfVersion += "d";
 // Microsoft cscript / wscript
 if ("undefined" !== typeof WScript) {
     _gpfHost = "wscript";
+    _gpfDosPath = true;
     _gpfContext = (function () {return this;}).apply(null, []);
 
     // Define console APIs
@@ -144,12 +153,14 @@ if ("undefined" !== typeof WScript) {
 /*global module:true*/
 } else if ("undefined" !== typeof module && module.exports) {
     _gpfHost = "nodejs";
+    _gpfDosPath = require("path").sep === "\\";
     _gpfContext = global;
     _gpfInNode = true;
 
 // Browser
 } else if ("undefined" !== typeof window) {
     _gpfHost = "browser";
+    _gpfDosPath = require("fs").separator === "\\";
     _gpfContext = window;
     _gpfInBrowser = true;
 
