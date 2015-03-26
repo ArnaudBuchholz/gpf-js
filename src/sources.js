@@ -19,6 +19,8 @@
             "bin",                  // Binary tools                      gpf.bin
             "json",                 // JSON compatibility layer         gpf.json
 
+            "path",                 // Path helper                      gpf.path
+
             "",                     // --- temporary end marker ---
 
             "class",                // Class
