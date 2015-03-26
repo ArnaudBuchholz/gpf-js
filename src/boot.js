@@ -145,6 +145,7 @@ if ("undefined" !== typeof WScript) {
 /*global phantom:true*/
 } else if ("undefined" !== typeof phantom && phantom.version) {
     _gpfHost = "phantomjs";
+    _gpfDosPath = require("fs").separator === "\\";
     _gpfContext = window;
     _gpfInNode = true;
     _gpfInBrowser = true;
@@ -160,7 +161,6 @@ if ("undefined" !== typeof WScript) {
 // Browser
 } else if ("undefined" !== typeof window) {
     _gpfHost = "browser";
-    _gpfDosPath = require("fs").separator === "\\";
     _gpfContext = window;
     _gpfInBrowser = true;
 
