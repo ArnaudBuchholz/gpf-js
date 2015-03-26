@@ -7,6 +7,7 @@
 /*global gpfSourcesPath*/ // Global source path
 /*global _gpfVersion*/ // GPF version
 /*global _gpfHost*/ // Host type
+/*global _gpfDosPath*/ // DOS-like path
 /*global _gpfContext*/ // Main context object
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*global _gpfStringCapitalize*/ // Capitalize the string
