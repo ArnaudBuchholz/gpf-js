@@ -24,11 +24,9 @@ var
          * (otherwise, it is only the before part)
          */
         var pos = pattern.indexOf("**");
-        if (-1 < pos) {
-            gpf.ASSERT(pos === pattern.length - 2
-                       || pattern.charAt(pos + 2) === "/");
-            gpf.ASSERT(pos === 0
-                       || pattern.charAt(pos - 1) === "/");
+        if (-1 === pos) {
+            this.start = pattern.split("/");
+        } else {
             if (0 < pos) {
                 gpf.ASSERT(pattern.charAt(pos - 1) === "/");
                 this.start = pattern.substr(0, pos).split("/");
@@ -37,8 +35,6 @@ var
                 gpf.ASSERT(pattern.charAt(pos + 2) === "/");
                 this.end = pattern.substr(2).split("/").reverse();
             }
-        } else {
-            this.start = pattern.split("/");
         }
     },
 
@@ -78,13 +74,13 @@ var
      * @param pathMatcher
      * @this An object containing
      * <ul>
-     *      <li>{String} path the path being tested</li>
-     *      <li>{Boolean} [result=udnefined] result the result</li>
+     *      <li>{String[]} parts the path being tested split in parts</li>
+     *      <li>{Boolean} [result=undefined] result the result</li>
      * </ul>
      * @private
      */
     _gpfPathMatchApply = function (pathMatcher) {
-        if (pathMatcher.match(this.path)) {
+        if (pathMatcher.match(this.parts)) {
             this.result = pathMatcher.include;
             return false; // Stop the main loop
         }
@@ -102,9 +98,10 @@ var
         if (_gpfDosPath) {
             path = path.toLowerCase().split("\\").join("/");
         }
-        var matchers = _gpfPathMatchCompilePatterns(pattern),
+        var parts = path.split("/"),
+            matchers = _gpfPathMatchCompilePatterns(pattern),
             scope = {
-                path: path
+                parts: parts
             };
         matchers.every(_gpfPathMatchApply, scope);
         return scope.result;
@@ -136,17 +133,83 @@ _GpfPathMatcher.prototype = {
     end: null,
 
     /**
+     * When no * is used, the namePattern must exactly match the part.
+     * Otherwise the * represents a variable part in the part.
+     * It may contain as many variable part as necessary.
+     *
+     * a*b  matches     (start)a(anything)b(end)
+     * *b   matches     b(end)
+     * a*   matches     (start)a
+     *
+     * @param {String} namePattern
+     * @param {String} part
+     * @private
+     */
+    _matchName: function (namePattern, part) {
+        var
+            fixedPatterns = namePattern.split("*"),
+            len = fixedPatterns.length,
+            idx,
+            fixedPattern,
+            pos = 0; // end
+        for (idx = 0; idx < len; ++idx) {
+            fixedPattern = fixedPatterns[idx];
+            if (fixedPattern) {
+                pos = part.indexOf(fixedPattern, pos);
+                if (-1 === pos) {
+                    return false;
+                }
+            }
+        }
+        /**
+         * fixedPattern represents the last pattern used (and matching)
+         * If empty, we match (because we don't care about the end)
+         * Otherwise, it should leads us to the end of the part.
+         */
+        return !fixedPattern || pos + fixedPattern.length === part.length;
+    },
+
+    /**
      * Matches the provided path
      *
-     * @param {String} path
-     * @return {Boolean|undefined}
+     * @param {String[]} parts
+     * @return {Boolean}
      */
-    match: function (path) {
-        path = path.split("/");
-        var pos = -1;
+    match: function (parts) {
+        var partsLen = parts.length,
+            startPos = 0,
+            endPos = partsLen - 1,
+            array,
+            len,
+            idx,
+            namePattern;
         if (this.start) {
-
+            array = this.start;
+            len = array.length;
+            for (idx = 0; idx < len; ++idx) {
+                if (this._matchName(array[idx], parts[startPos])) {
+                    if (++startPos > partsLen) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
         }
+        if (this.end) {
+            array = this.end;
+            len = array.length;
+            for (idx = 0; idx < len; ++idx) {
+                if (this._matchName(array[idx], parts[endPos])) {
+                    if (--endPos < startPos) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
 };
