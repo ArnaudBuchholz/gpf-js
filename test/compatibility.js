@@ -111,6 +111,23 @@ describe("compatibility", function () {
             assert(4 === array.indexOf("abc"));
         });
 
+        it("should expose map(callback, thisArg)", function () {
+            var
+                obj = {},
+                array = [1, 2, 3, obj, "abc"],
+                result;
+            assert("function" === typeof array.map);
+            assert(!array.hasOwnProperty("map"));
+            result = array.map(function (value, idx) {
+                assert(this === obj);
+                assert(value === array[idx]);
+                return idx;
+            }, obj);
+            assert(result.length === array.length);
+            assert(result[0] === 0);
+            assert(result[4] === 4);
+        });
+
     });
 
     describe("Function", function () {

@@ -60,6 +60,21 @@ if (undefined === Array.prototype.indexOf) {
 
 }
 
+if (undefined === Array.prototype.map) {
+
+    // Introduced with JavaScript 1.6
+    Array.prototype.map = function (callback, thisArg) {
+        var len = this.length,
+            result = new Array(len),
+            idx;
+        for (idx = 0; idx < len; ++idx) {
+            result[idx] = callback.apply(thisArg, [this[idx], idx, this]);
+        }
+        return result;
+    };
+
+}
+
 if (undefined === Function.prototype.bind) {
 
     // Introduced with JavaScript 1.8.5
