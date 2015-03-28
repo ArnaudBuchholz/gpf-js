@@ -5,6 +5,16 @@
 
 var
     /**
+     * Split the part to be processed in _GpfPathMatcher#_matchName
+     *
+     * @param {String} part
+     * @private
+     */
+    _gpfPatternPartSplit = function (part) {
+        return part.split("*");
+    },
+
+    /**
      *
      * @param {String} pattern
      *
@@ -13,8 +23,12 @@ var
      * @private
      */
     _GpfPathMatcher = function (pattern) {
+/*#ifdef(DEBUG)*/
+        this._dbgSource = pattern;
+/*#endif*/
+
         if ("!" === pattern.charAt(0)) {
-            this.include = false;
+            this.negative = true;
             pattern = pattern.substr(1);
         }
         /**
@@ -25,15 +39,26 @@ var
          */
         var pos = pattern.indexOf("**");
         if (-1 === pos) {
-            this.start = pattern.split("/");
+            this.start = pattern
+                            .split("/")
+                            .map(_gpfPatternPartSplit);
         } else {
             if (0 < pos) {
-                gpf.ASSERT(pattern.charAt(pos - 1) === "/");
-                this.start = pattern.substr(0, pos).split("/");
+                gpf.ASSERT(pattern.charAt(pos - 1) === "/",
+                    "** must be preceded by /");
+                this.start = pattern
+                                .substr(0, pos - 1) // skip /
+                                .split("/")
+                                .map(_gpfPatternPartSplit);
             }
             if (pos < pattern.length - 2) {
-                gpf.ASSERT(pattern.charAt(pos + 2) === "/");
-                this.end = pattern.substr(2).split("/").reverse();
+                gpf.ASSERT(pattern.charAt(pos + 2) === "/",
+                    "** must be followed by /");
+                this.end = pattern
+                                .substr(pos + 3) // skip /
+                                .split("/")
+                                .map(_gpfPatternPartSplit)
+                                .reverse();
             }
         }
     },
@@ -48,7 +73,7 @@ var
      */
     _gpfPathMatchCompilePattern = function (pattern) {
         if (pattern instanceof _GpfPathMatcher) {
-            return _GpfPathMatcher;
+            return pattern;
         } else {
             return new _GpfPathMatcher(pattern);
         }
@@ -63,13 +88,14 @@ var
      */
     _gpfPathMatchCompilePatterns = function (pattern) {
         if (pattern instanceof Array) {
-            return pattern.forEach(_gpfPathMatchCompilePattern);
+            return pattern.map(_gpfPathMatchCompilePattern);
         } else {
             return [_gpfPathMatchCompilePattern(pattern)];
         }
     },
 
     /**
+     * Match a path item
      *
      * @param pathMatcher
      * @this An object containing
@@ -80,11 +106,16 @@ var
      * @private
      */
     _gpfPathMatchApply = function (pathMatcher) {
+        var negative = pathMatcher.negative;
         if (pathMatcher.match(this.parts)) {
-            this.result = pathMatcher.include;
+            this.result = !negative;
             return false; // Stop the main loop
         }
-        return true;
+        if (negative) {
+            this.result = true;
+            return false; // Stop the main loop
+        }
+        return true; // continue
     },
 
     /**
@@ -109,13 +140,28 @@ var
 
 _GpfPathMatcher.prototype = {
 
+    constructor: _GpfPathMatcher,
+
+/*#ifdef(DEBUG)*/
+
     /**
-     * Unless you are using !, this is a include pattern
+     * Source of the pattern
+     *
+     * @type {String}
+     * @private
+     */
+    _dbgSource: "",
+
+/*#endif*/
+
+
+    /**
+     * Indicate the pattern started with !
      *
      * @type {Boolean}
      * @private
      */
-    include: true,
+    negative: false,
 
     /**
      * List of name patterns to be applied on the beginning of the path
@@ -141,22 +187,27 @@ _GpfPathMatcher.prototype = {
      * *b   matches     b(end)
      * a*   matches     (start)a
      *
-     * @param {String} namePattern
+     * @param {String[]} fixedPatterns
      * @param {String} part
      * @private
      */
-    _matchName: function (namePattern, part) {
+    _matchName: function (fixedPatterns, part) {
         var
-            fixedPatterns = namePattern.split("*"),
             len = fixedPatterns.length,
             idx,
             fixedPattern,
             pos = 0; // end
         for (idx = 0; idx < len; ++idx) {
             fixedPattern = fixedPatterns[idx];
+            // an empty pattern correspond to a star position
             if (fixedPattern) {
                 pos = part.indexOf(fixedPattern, pos);
+                // part not found means not matching
                 if (-1 === pos) {
+                    return false;
+                }
+                // the first part must match the beginning
+                if (0 === idx && 0 < pos) {
                     return false;
                 }
             }
@@ -181,8 +232,7 @@ _GpfPathMatcher.prototype = {
             endPos = partsLen - 1,
             array,
             len,
-            idx,
-            namePattern;
+            idx;
         if (this.start) {
             array = this.start;
             len = array.length;
@@ -201,7 +251,7 @@ _GpfPathMatcher.prototype = {
             len = array.length;
             for (idx = 0; idx < len; ++idx) {
                 if (this._matchName(array[idx], parts[endPos])) {
-                    if (--endPos < startPos) {
+                    if (endPos-- < startPos) {
                         return false;
                     }
                 } else {
@@ -245,6 +295,18 @@ gpf.path = {
      */
     match: function (pattern, path) {
         return _gpfPathMatch(pattern, path) || false;
+    },
+
+    /**
+     * Process the pattern and return an array that can be used in match
+     * NOTE this is not mandatory but if you reuse the same pattern multiple
+     * times, this will make it more efficient.
+     *
+     * @param {Array|String} pattern
+     * @return {Array}
+     */
+    compileMatchPattern: function (pattern) {
+        return _gpfPathMatchCompilePatterns(pattern);
     }
 
 };
