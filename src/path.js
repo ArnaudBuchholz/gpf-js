@@ -250,7 +250,7 @@ _GpfPathMatcher.prototype = {
             array = this.end;
             len = array.length;
             for (idx = 0; idx < len; ++idx) {
-                if (this._matchName(array[idx], parts[endPos])) {
+                if (-1 < endPos && this._matchName(array[idx], parts[endPos])) {
                     if (endPos-- < startPos) {
                         return false;
                     }

@@ -50,17 +50,41 @@ describe("path", function () {
         it("matches patterns that includes **", function () {
             var compiledPattern = compile([
                 "src/**/*.js",
-                "src/data/**/*.json",
+                "src/data/**/*.json"
             ]);
             assert(false === match(compiledPattern, "test.js"));
             assert(true === match(compiledPattern, "src/test.js"));
             assert(true === match(compiledPattern, "src/test/test.js"));
-            assert(false === match(compiledPattern, "src/data/test.js"));
+            assert(true === match(compiledPattern, "src/data/test.js"));
+            assert(true === match(compiledPattern, "src/data/test.json"));
+            assert(false === match(compiledPattern, "src/test/test.json"));
             assert(true === match(compiledPattern, "src/test/mocha/test.js"));
         });
 
-        it("matches patterns that starts with **");
-        it("matches patterns that ends with **");
+        it("matches patterns that starts with **", function () {
+            var compiledPattern = compile([
+                "**/*.js",
+                "**/data/*.json"
+            ]);
+            assert(true === match(compiledPattern, "test.js"));
+            assert(true === match(compiledPattern, "src/test.js"));
+            assert(true === match(compiledPattern, "src/test/test.js"));
+            assert(false === match(compiledPattern, "test.json"));
+            assert(false === match(compiledPattern, "src/test.json"));
+            assert(true === match(compiledPattern, "src/data/test.json"));
+        });
+
+        it("matches patterns that ends with **", function () {
+            var compiledPattern = compile([
+                "src/**",
+                "lib/data/**"
+            ]);
+            assert(false === match(compiledPattern, "test.js"));
+            assert(true === match(compiledPattern, "src/test.js"));
+            assert(true === match(compiledPattern, "src/test/test.js"));
+            assert(false === match(compiledPattern, "lib/test.json"));
+            assert(true === match(compiledPattern, "lib/data/test.json"));
+        });
     });
 
 });
