@@ -14,6 +14,26 @@ var
     _gpfClassDefUID             = 0,
 
     /**
+     * Class initializer: it triggers the call to this._defConstructor only if
+     * _gpfClassInitAllowed is true.
+     *
+     * @param {Function} constructor Class constructor
+     * @param {*[]} args Arguments
+     * @private
+     */
+    _gpfClassInit = function (constructor, args) {
+        if (_gpfClassInitAllowed) {
+            var classDef = gpf.classDef(constructor);
+            // TODO Implement deferred class building here
+            if (classDef._defConstructor) {
+                classDef._defConstructor.apply(this, args);
+            } else {
+                classDef._Super.apply(this, args);
+            }
+        }
+    },
+
+    /**
      * Detects if the function uses ._super
      * The function source is split on the "._super" key and I look for the
      * first char after to see if it is not an identifier character.
@@ -87,7 +107,7 @@ var
         if ("function" === typeof name) {
             // TODO use js tokenizer to extract function name (if any)
             this._name = "anonymous";
-            // TODO how do we grab the parent constructor
+            // TODO how do we grab the parent constructor (?)
             this._Constructor = name;
         } else {
             this._name = name;
@@ -285,8 +305,7 @@ _GpfClassDefinition.prototype = {
         var
             newPrototype = this._Constructor.prototype;
         if (_GPF_VISIBILITY_STATIC === visibility) {
-            gpf.setReadOnlyProperty(newPrototype.constructor, member,
-                value);
+            gpf.setReadOnlyProperty(newPrototype.constructor, member, value);
         } else {
             newPrototype[member] = value;
         }
@@ -508,11 +527,9 @@ _GpfClassDefinition.prototype = {
          * Defines the newClass prototype as an instance of the base class
          * Do it in a critical section that prevents class initialization
          */
-        /*__begin__thread_safe__*/
         _gpfClassInitAllowed = false;
         newPrototype = new this._Super();
         _gpfClassInitAllowed = true;
-        /*__end_thread_safe__*/
 
         // Populate our constructed prototype object
         newClass.prototype = newPrototype;
@@ -553,29 +570,6 @@ gpf.classDef = function (constructor) {
         constructor._gpf = new gpf.ClassDefinition(constructor);
     }
     return constructor._gpf;
-};
-
-/**
- * Class initializer: it triggers the call to this._defConstructor only if
- * _classInitAllowed is true.
- *
- * NOTE: it must belong to gpf as the created closure will use gpf as an
- * anchor point.
- *
- * @param {Function} constructor Class constructor
- * @param {*[]} args Arguments
- * @private
- */
-gpf._classInit = function (constructor, args) {
-    if (_gpfClassInitAllowed) {
-        var classDef = gpf.classDef(constructor);
-        // TODO resolve prototype if not yet done
-        if (classDef._defConstructor) {
-            classDef._defConstructor.apply(this, args);
-        } else {
-            classDef._Super.apply(this, args);
-        }
-    }
 };
 
 /*global _CONSTRUCTOR_:true*/
