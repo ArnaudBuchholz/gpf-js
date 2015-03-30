@@ -46,7 +46,7 @@
             "AssertionFailed":
                 "Assertion failed: {message}",
 
-            // class.js
+            // define.js
             "ClassMemberOverloadWithTypeChange":
                 "You can't overload a member to change its type",
             "ClassInvalidVisibility":
