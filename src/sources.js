@@ -19,11 +19,12 @@
             "bin",                  // Binary tools                      gpf.bin
             "json",                 // JSON compatibility layer         gpf.json
 
-            "define",               // Class management               gpf.define
-
             "path",                 // Path helper                      gpf.path
+            "csv",                  // CSV helper                        gpf.csv
 
             "",                     // --- temporary end marker ---
+
+            "define",               // Class management               gpf.define
 
             "attributes",           // Attributes                 gpf.attributes
             "error",                // Error base class
