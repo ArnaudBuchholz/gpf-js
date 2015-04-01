@@ -34,7 +34,7 @@ var
 // Handle the empty source tag
 idx = sources._list.indexOf("");
 if (-1 < idx) {
-    sources._list.splice(idx, sources._list.length - idx - 1);
+    sources._list.splice(idx, sources._list.length - idx);
 }
 
 if (process.argv.length > 2) {
@@ -47,10 +47,10 @@ console.log("Generating version '" + version + "'");
 
 for (idx = 0; idx < sources._list.length; ++idx) {
     sources[sources._list[idx]] =
-        fs.readFileSync("../" + sources._list[idx] + ".js").toString();
+        fs.readFileSync("../src/" + sources._list[idx] + ".js").toString();
 }
 sources.UMD = fs.readFileSync("UMD.js").toString();
-sources.boot = fs.readFileSync("../boot.js").toString();
+sources.boot = fs.readFileSync("../src/boot.js").toString();
 
 try {
     make(sources, version);
