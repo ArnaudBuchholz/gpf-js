@@ -182,10 +182,10 @@ _GpfError.prototype = {
 };
 
 _gpfErrorDeclare("boot", {
-    "NotImplemented":
+    NotImplemented:
         "Not implemented",
-    "Abstract":
+    Abstract:
         "Abstract",
-    "AssertionFailed":
+    AssertionFailed:
         "Assertion failed: {message}"
 });
