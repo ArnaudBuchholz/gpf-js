@@ -377,6 +377,16 @@ if (!gpf.ASSERT) {
 // gpfSourcesPath - if defined - gives the relative path to sources
 if ("undefined" === typeof gpfSourcesPath) {
     _gpfContext.gpfSourcesPath = "";
+} else {
+    var pathSep;
+    if (_gpfDosPath) {
+        pathSep = "\\";
+    } else {
+        pathSep = "/";
+    }
+    if (gpfSourcesPath.charAt(gpfSourcesPath.length - 1) !== pathSep) {
+        gpfSourcesPath = gpfSourcesPath + pathSep;
+    }
 }
 
 if ("wscript" === _gpfHost) {
