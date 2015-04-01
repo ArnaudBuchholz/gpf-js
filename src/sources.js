@@ -20,6 +20,9 @@
             "json",                 // JSON compatibility layer         gpf.json
 
             "path",                 // Path helper                      gpf.path
+
+            "error",                // Error base class
+
             "csv",                  // CSV helper                        gpf.csv
 
             "",                     // --- temporary end marker ---
@@ -27,7 +30,6 @@
             "define",               // Class management               gpf.define
 
             "attributes",           // Attributes                 gpf.attributes
-            "error",                // Error base class
             "att_class",            // Class attributes
             "att_json",             // JSON serializer
             "interface",            // Interface                  gpf.interfaces

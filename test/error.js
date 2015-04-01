@@ -1,42 +1,45 @@
-(function () { /* Begin of privacy scope */
-    "use strict";
+"use strict";
+/*global describe, it, assert*/
 
-    gpf.declareTests({
+describe("error", function () {
 
-        "documentation": [
+    describe("gpf.Error", function () {
 
-            function (test) {
-                test.title("Checking error content");
-                try {
-                    throw gpf.Error.Abstract();
-                } catch (e) {
-                    test.assert(e instanceof gpf.Error, "Got a gpf.Error");
-                    test.equal(e.code, gpf.Error.CODE_ABSTRACT,
-                        "Error code is mapped on a constant");
-                    test.equal(e.name, "Abstract", "Error name");
-                    test.equal(e.message, "Abstract", "Error message");
-                }
-            },
-
-            function (test) {
-                test.title("Checking parameter use in message");
-                try {
-                    throw gpf.Error.InterfaceExpected({
-                        name: "Test"
-                    });
-                } catch (e) {
-                    test.assert(e instanceof gpf.Error, "Got a gpf.Error");
-                    test.equal(e.code, gpf.Error.CODE_INTERFACEEXPECTED,
-                        "Error code is mapped on a constant");
-                    test.equal(e.name, "InterfaceExpected", "Error name");
-                    test.equal(e.message,
-                        "Expected interface not implemented: Test",
-                        "Error message");
-                }
+        it("is used as an exception", function () {
+            try {
+                throw gpf.Error.Abstract();
+            } catch (e) {
+                assert(e instanceof gpf.Error);
+                assert(e.constructor === gpf.Error);
             }
+        });
 
-        ]
+        it("is documented", function () {
+            try {
+                throw gpf.Error.Abstract();
+            } catch (e) {
+                assert(e.code === gpf.Error.CODE_ABSTRACT);
+                assert(e.code === gpf.Error.Abstract.CODE);
+                assert(e.name === "Abstract");
+                assert(e.message === "Abstract");
+            }
+        });
+
+        it("can use substitution for message", function () {
+            try {
+                throw gpf.Error.InterfaceExpected({
+                    name: "Test"
+                });
+            } catch (e) {
+                assert(e instanceof gpf.Error);
+                assert(e.code === gpf.Error.CODE_INTERFACEEXPECTED);
+                assert(e.code === gpf.Error.InterfaceExpected.CODE);
+                assert(e.name === "InterfaceExpected");
+                assert(e.message
+                    === "Expected interface not implemented: Test");
+            }
+        });
 
     });
 
-})(); /* End of privacy scope */
+});
