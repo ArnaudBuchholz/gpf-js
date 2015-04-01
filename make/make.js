@@ -63,30 +63,30 @@
             }
         },
         // body/item[@type="ExpressionStatement" and expression/@name="__gpf__"]
-        xpathToGpfPlaceHolder = new gpfX.XPath({
-            type: gpfX.NODE_ELEMENT,
-            name: "body",
-            relative: false,
-            then: {
-                type: gpfX.NODE_ELEMENT,
-                name: "item",
-                filter: {
-                    and: [ {
-                        type: gpfX.NODE_ATTRIBUTE,
-                        name: "type",
-                        text: "ExpressionStatement"
-                    }, {
-                        type: gpfX.NODE_ELEMENT,
-                        name: "expression",
-                        then: {
-                            type: gpfX.NODE_ATTRIBUTE,
-                            name: "name",
-                            text: "__gpf__"
-                        }
-                    }]
-                }
-            }
-        }),
+        //xpathToGpfPlaceHolder = new gpfX.XPath({
+        //    type: gpfX.NODE_ELEMENT,
+        //    name: "body",
+        //    relative: false,
+        //    then: {
+        //        type: gpfX.NODE_ELEMENT,
+        //        name: "item",
+        //        filter: {
+        //            and: [ {
+        //                type: gpfX.NODE_ATTRIBUTE,
+        //                name: "type",
+        //                text: "ExpressionStatement"
+        //            }, {
+        //                type: gpfX.NODE_ELEMENT,
+        //                name: "expression",
+        //                then: {
+        //                    type: gpfX.NODE_ATTRIBUTE,
+        //                    name: "name",
+        //                    text: "__gpf__"
+        //                }
+        //            }]
+        //        }
+        //    }
+        //}),
         identifierCharacters = "abcdefghijklmnopqrstuvwxyz"
                              + "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     ;
@@ -693,10 +693,16 @@
             parsed[source] = toAST(parsed, source + ".js", version);
         }
         // Then, locate the use of __gpf__ to replace it with our content
-        __gpf__ = xpathToGpfPlaceHolder
-            .selectNodes(new gpfX.ConstNode(parsed.result))[0];
+        //__gpf__ = xpathToGpfPlaceHolder
+        //    .selectNodes(new gpfX.ConstNode(parsed.result))[0];
         // Parent is the placeholder (an array ending with __gpf__)
-        placeholder = __gpf__.parentNode().nodeValue();
+        //placeholder = __gpf__.parentNode().nodeValue();
+        placeholder = parsed
+            .result
+            .body[0]
+            .expression
+            ["arguments"][1]
+            .body;
         placeholder.pop(); // remove __gpf__
         // Add all sources
         for (idx = -1; idx < sources._list.length; ++idx) {
