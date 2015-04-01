@@ -19,7 +19,8 @@ if (dependencyMissing) {
     process.exit();
 }
 
-require("../boot.js"); /*source version*/
+global.gpfSourcesPath = "../src";
+require("../src/boot.js"); /*source version*/
 require("./make.js");  /*global make*/
 
 var
@@ -29,6 +30,12 @@ var
     },
     idx,
     output;
+
+// Handle the empty source tag
+idx = sources._list.indexOf("");
+if (-1 < idx) {
+    sources._list.splice(idx, sources._list.length - idx - 1);
+}
 
 if (process.argv.length > 2) {
     version = process.argv[2];
