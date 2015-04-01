@@ -3,15 +3,14 @@
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
 /*#endif*/
 
+// TODO make this list disappear
+/**
+ * Each module declare its errors, only the most common ones are below
+ */
+
 var
     _GPF_ERRORS = {
         // boot.js
-        "NotImplemented":
-            "Not implemented",
-        "Abstract":
-            "Abstract",
-        "AssertionFailed":
-            "Assertion failed: {message}",
 
         // define.js
         "ClassMemberOverloadWithTypeChange":
@@ -82,6 +81,74 @@ var
      * @alias gpf.Error
      */
     _GpfError = gpf.Error = function () {
+    },
+
+    /**
+     * Generates an error function
+     *
+     * @param {Number} code
+     * @param {String} name
+     * @return {Function}
+     * @closure
+     * @private
+     */
+    _gpfGenErrorName = function (code, name, message) {
+        var result = function (context) {
+            var
+                error = new gpf.Error(),
+                finalMessage,
+                replacements,
+                key;
+            gpf.setReadOnlyProperty(error, "code", code);
+            gpf.setReadOnlyProperty(error, "name", name);
+            if (context) {
+                replacements = {};
+                for (key in context) {
+                    if (context.hasOwnProperty(key)) {
+                        replacements["{" + key + "}"] =
+                            context[key].toString();
+                    }
+                }
+                finalMessage = _gpfStringReplaceEx(message,
+                    replacements);
+            } else {
+                finalMessage = message;
+            }
+            gpf.setReadOnlyProperty(error, "message", finalMessage);
+            return error;
+        };
+        gpf.setReadOnlyProperty(result, "CODE", code);
+        gpf.setReadOnlyProperty(result, "NAME", name);
+        gpf.setReadOnlyProperty(result, "MESSAGE", message);
+        return result;
+    },
+
+    /**
+     * Last allocated error code
+     *
+     * @type {number}
+     * @private
+     */
+    _gpfLastErrorCode = 0,
+
+    /**
+     * Declare error messages
+     *
+     * @param {String} module
+     * @param {Object} list Dictionary of name to message
+     * @private
+     */
+    _gpfErrorDeclare = function (module, list) {
+        var
+            name,
+            code;
+        for (name in list) {
+            if (list.hasOwnProperty(name)) {
+                code = ++_gpfLastErrorCode;
+                gpf.Error["CODE_" + name.toUpperCase()] = code;
+                gpf.Error[name] = _gpfGenErrorName(code, name, list[name]);
+            }
+        }
     };
 
 _GpfError.prototype = {
@@ -114,60 +181,11 @@ _GpfError.prototype = {
 
 };
 
-(function () {
-
-    var
-        /**
-         * Generates an error function
-         *
-         * @param {Number} code
-         * @param {String} name
-         * @return {Function}
-         * @closure
-         * @private
-         */
-        genThrowError = function (code, name) {
-            var message = _GPF_ERRORS[name],
-                result = function (context) {
-                    var
-                        error = new gpf.Error(),
-                        finalMessage,
-                        replacements,
-                        key;
-                    gpf.setReadOnlyProperty(error, "code", code);
-                    gpf.setReadOnlyProperty(error, "name", name);
-                    if (context) {
-                        replacements = {};
-                        for (key in context) {
-                            if (context.hasOwnProperty(key)) {
-                                replacements["{" + key + "}"] =
-                                    context[key].toString();
-                            }
-                        }
-                        finalMessage = _gpfStringReplaceEx(message,
-                            replacements);
-                    } else {
-                        finalMessage = message;
-                    }
-                    gpf.setReadOnlyProperty(error, "message", finalMessage);
-                    return error;
-                };
-            gpf.setReadOnlyProperty(result, "CODE", code);
-            gpf.setReadOnlyProperty(result, "NAME", name);
-            gpf.setReadOnlyProperty(result, "MESSAGE", message);
-            return result;
-        },
-        name,
-        code = 0;
-
-    for (name in _GPF_ERRORS) {
-        if (_GPF_ERRORS.hasOwnProperty(name)) {
-            ++code;
-            gpf.Error["CODE_" + name.toUpperCase()] = code;
-            gpf.Error[name] = genThrowError(code, name);
-        }
-    }
-
-}());
-
-
+_gpfErrorDeclare("boot", {
+    "NotImplemented":
+        "Not implemented",
+    "Abstract":
+        "Abstract",
+    "AssertionFailed":
+        "Assertion failed: {message}"
+});

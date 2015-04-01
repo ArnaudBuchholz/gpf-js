@@ -35,6 +35,7 @@
 /*global _gpfDefer*/ // Defer the execution of the callback
 /*global _gpfJsonStringify*/ // JSON.stringify
 /*global _gpfJsonParse*/ // JSON.parse
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 
 var
 /*#ifdef(RELEASE)*/

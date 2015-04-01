@@ -27,16 +27,15 @@ describe("error", function () {
 
         it("can use substitution for message", function () {
             try {
-                throw gpf.Error.InterfaceExpected({
-                    name: "Test"
+                throw gpf.Error.AssertionFailed({
+                    message: "Test"
                 });
             } catch (e) {
                 assert(e instanceof gpf.Error);
-                assert(e.code === gpf.Error.CODE_INTERFACEEXPECTED);
-                assert(e.code === gpf.Error.InterfaceExpected.CODE);
-                assert(e.name === "InterfaceExpected");
-                assert(e.message
-                    === "Expected interface not implemented: Test");
+                assert(e.code === gpf.Error.CODE_ASSERTIONFAILED);
+                assert(e.code === gpf.Error.AssertionFailed.CODE);
+                assert(e.name === "AssertionFailed");
+                assert(e.message === "Assertion failed: Test");
             }
         });
 
