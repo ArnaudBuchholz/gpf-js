@@ -32,6 +32,7 @@
 /*global _gpfIdentifierFirstChar*/ // allowed first char in an identifier
 /*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
+/*global _gpfJsKeywords*/ //  List of JavaScript keywords
 /*global _gpfDefer*/ // Defer the execution of the callback
 /*global _gpfJsonStringify*/ // JSON.stringify
 /*global _gpfJsonParse*/ // JSON.parse
@@ -151,7 +152,19 @@ var
      * @type {String}
      * @private
      */
-    _gpfIdentifierOtherChars = _gpfAlpha + _gpfALPHA + _gpfDigit + "_$";
+    _gpfIdentifierOtherChars = _gpfAlpha + _gpfALPHA + _gpfDigit + "_$",
+
+    /**
+     * List of JavaScript keywords
+     *
+     * @type {String[]}
+     * @private
+     */
+    _gpfJsKeywords = ("break,case,catch,continue,debugger,default,delete,do,"
+        + "else,finally,for,function,if,in,instanceof,new,return,switch,"
+        + "this,throw,try,typeof,var,void,while,with").split(",")
+
+    ;
 
 /*#ifndef(UMD)*/
 // Mandatory to support boot loading in a browser (removed when UMD is used)
