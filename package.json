@@ -1,6 +1,6 @@
 {
   "name": "gpf-js",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A multi-purpose JavaScript library",
   "main": "build\\gpf.js",
   "directories": {
@@ -23,5 +23,11 @@
   "bugs": {
     "url": "https://github.com/ArnaudBuchholz/gpf-js/issues"
   },
-  "homepage": "http://gpf-js.blogspot.com/"
+  "homepage": "http://gpf-js.blogspot.com/",
+  "devDependencies": {
+    "esprima": "",
+    "mocha": "",
+    "closure-compiler": "",
+    "plato": ""
+  }
 }
