@@ -50,6 +50,14 @@ var
      */
     _gpfContext,
 
+    /**
+     * Exit function
+     *
+     * @param {Number} code
+     * @private
+     */
+    _gpfExit,
+
     /*exported _gpfResolveScope*/
     /**
      * Translate the parameter into a valid scope
@@ -119,7 +127,14 @@ var
      * @type {Object}
      * @private
      */
-    _gpfNodeFS;
+    _gpfNodeFS,
+
+    /**
+     * An empty function
+     *
+     * @private
+     */
+    _gpfEmptyFunc = function () {};
 
 /*#ifdef(DEBUG)*/
 
@@ -132,6 +147,9 @@ if ("undefined" !== typeof WScript) {
     _gpfHost = "wscript";
     _gpfDosPath = true;
     _gpfContext = (function () {return this;}).apply(null, []);
+    _gpfExit = function (code) {
+        WScript.Quit(code);
+    }
 
     // Define console APIs
     _gpfContext.console = {
@@ -149,6 +167,7 @@ if ("undefined" !== typeof WScript) {
     _gpfContext = window;
     _gpfInNode = true;
     _gpfInBrowser = true;
+    _gpfExit = phantom.exit;
 
 // Nodejs
 /*global module:true*/
@@ -157,18 +176,21 @@ if ("undefined" !== typeof WScript) {
     _gpfDosPath = require("path").sep === "\\";
     _gpfContext = global;
     _gpfInNode = true;
+    _gpfExit = process.exit;
 
 // Browser
 } else if ("undefined" !== typeof window) {
     _gpfHost = "browser";
     _gpfContext = window;
     _gpfInBrowser = true;
+    _gpfExit = _gpfEmptyFunc;
 
 // Default: unknown
 /*jshint -W040*/
 } else {
     _gpfHost = "unknown";
     _gpfContext = this;
+    _gpfExit = _gpfEmptyFunc;
 
 }
 /*jshint +W040*/

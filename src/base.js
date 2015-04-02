@@ -2,6 +2,7 @@
 "use strict";
 /*global _gpfHost*/ // Host type
 /*global _gpfInNode*/ // The current host is a nodeJS like
+/*global _gpfExit*/ // Exit function
 /*#endif*/
 
 /*
@@ -460,6 +461,19 @@ gpf.extend(gpf, {
      */
     xor: function (a, b) {
         return a && !b || !a && b;
+    },
+
+
+    /**
+     * Exit function
+     *
+     * @paran {Number} [exitCode=0] exitCode
+     */
+    exit: function (exitCode) {
+        if (undefined === exitCode) {
+            exitCode = 0;
+        }
+        _gpfExit(exitCode);
     }
 
 });
