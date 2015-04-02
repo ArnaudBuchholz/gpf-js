@@ -1,3 +1,3 @@
 cd test\host
-node node_test.js
+node nodejs.js
 cd ..\..
