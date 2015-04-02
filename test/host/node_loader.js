@@ -42,12 +42,15 @@
         global.gpfSourcesPath = "../../src/";
     }
 
-    if ("release" === global.version) {
+    if (options.release) {
+        console.log("Using release version");
         global.gpf = require("../../build/gpf.js");
-    } else if ("debug" === global.version) {
+    } else if (options.debug) {
+        console.log("Using debug version");
         global.gpf = require("../../build/gpf-debug.js");
         // Sources are included
     } else {
+        console.log("Using source version");
         require("../../src/boot.js");
     }
 
