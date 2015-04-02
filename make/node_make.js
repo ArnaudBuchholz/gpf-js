@@ -90,9 +90,20 @@ save("result", version);
 if (!fs.existsSync("../build")) {
     fs.mkdirSync("../build");
 }
-output = ["../build/gpf"];
-if (version !== "release") {
-    output.push("-", version);
-}
-output.push(".js");
+output = ["../build/gpf-", version, ".js"];
 fs.writeFileSync(output.join(""), sources[version]["result.js"]);
+
+// Use google compiler
+if ("release" === version) {
+    require("closure-compiler").compile(sources[version]["result.js"], {
+            //some: 'flag'
+            //, values: ['1', '2']
+        }, function (err, stdout, stderr) {
+            if (err) {
+                console.error(err);
+            } else {
+                fs.writeFileSync("../build/gpf.js", stdout);
+            }
+        }
+    );
+}
