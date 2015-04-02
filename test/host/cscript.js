@@ -11,7 +11,7 @@ var
         eval(fso.OpenTextFile(path, 1/*forReading*/, false, 0).ReadAll());
         /*jslint evil: false*/
     },
-    version,
+    version = "source",
     sources,
     len,
     idx,
@@ -20,16 +20,16 @@ var
 if (WScript.Arguments.length > 0) {
     version = WScript.Arguments(0);
 }
+
+if (DEBUG) {
+    WScript.Echo("Using " + version + " version");
+}
 if ("release" === version) {
     include("..\\..\\build\\gpf.js");
 } else if ("debug" === version) {
     include("..\\..\\build\\gpf-debug.js");
 } else {
-    version = "source";
     include(gpfSourcesPath + "boot.js");
-}
-if (DEBUG) {
-    WScript.Echo("Using " + version + " version");
 }
 
 if (!gpf.sources) {
