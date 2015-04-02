@@ -23,6 +23,7 @@
 
             "error",                // Error base class
 
+            "javascript",           // JavaScript language tools          gpf.js
             "csv",                  // CSV helper                        gpf.csv
 
             "",                     // --- temporary end marker ---
