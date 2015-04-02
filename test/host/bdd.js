@@ -1,4 +1,4 @@
-(function (context) {
+(function () {
     "use strict";
     /*global global*/
 
@@ -7,10 +7,7 @@
         console.error("GPF required");
     }
 
-    if ("undefined" !== typeof module && module.exports) {
-        // node
-        context = global;
-    }
+    var context = gpf.context();
 
     /**
      * Simple BDD implementation
@@ -278,8 +275,10 @@
                 }
                 if (data.fail) {
                     console.error("KO");
+                    gpf.exit(data.fail);
                 } else {
                     console.log("OK");
+                    gpf.exit(0);
                 }
             }
         },
@@ -584,4 +583,4 @@
 
     //endregion
 
-}(this));
+}());
