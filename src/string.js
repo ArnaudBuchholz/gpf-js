@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
+/*global _gpfStringCapitalize*/ // Capitalize the string
 (function () { /* Begin of privacy scope */
     "use strict";
 /*#endif*/

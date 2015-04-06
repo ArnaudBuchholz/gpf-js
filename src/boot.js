@@ -1,6 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global gpfSourcesPath*/ // Global source path
+/*global gpfSourcesPath:true*/ // Global source path
 /*#endif*/
 
 /*jshint browser: true*/
@@ -149,7 +149,7 @@ if ("undefined" !== typeof WScript) {
     _gpfContext = (function () {return this;}).apply(null, []);
     _gpfExit = function (code) {
         WScript.Quit(code);
-    }
+    };
 
     // Define console APIs
     _gpfContext.console = {

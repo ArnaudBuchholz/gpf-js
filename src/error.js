@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*#endif*/
 
 // TODO make this list disappear
@@ -142,6 +143,7 @@ var
         var
             name,
             code;
+        _gpfIgnore(module);
         for (name in list) {
             if (list.hasOwnProperty(name)) {
                 code = ++_gpfLastErrorCode;

@@ -3,7 +3,6 @@
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
-/*global _gpfContext*/ // Main context object
 /*#endif*/
 
 /**

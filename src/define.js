@@ -426,8 +426,6 @@ _GpfClassDefinition.prototype = {
                 && definition.constructor !== Object) {
                 this._processMember("constructor", visibility);
             }
-        } catch (e) {
-            throw e;
         } finally {
             this._definition = initialDefinition;
         }
@@ -518,7 +516,8 @@ _GpfClassDefinition.prototype = {
             baseClassDef;
 
         // The new class constructor
-        newClass = _gpfFunc(_getNewClassConstructorSrc(this._name))(gpf);
+        newClass = _gpfFunc(_getNewClassConstructorSrc(this._name))
+            (_gpfClassInit);
         this._Constructor = newClass;
         newClass._gpf = this;
 
@@ -585,10 +584,10 @@ gpf.classDef = function (constructor) {
  */
 function _newClassConstructorFromFullName() {
     var
-    /*gpf:no-reduce*/gpf = arguments[0],
-    /*jshint -W120*/
+        _gpfClassInit = arguments[0],
+        /*jshint -W120*/
         constructor = _CONSTRUCTOR_ = function () {
-            gpf._classInit.apply(this, [constructor, arguments]);
+            _gpfClassInit.apply(this, [constructor, arguments]);
         };
     return constructor;
 }
@@ -605,9 +604,9 @@ function _newClassConstructorFromFullName() {
  */
 function _newClassConstructorFromName() {
     var
-    /*gpf:no-reduce*/gpf = arguments[0],
+        _gpfClassInit = arguments[0],
         constructor = function _CONSTRUCTOR_ () {
-            gpf._classInit.apply(this, [constructor, arguments]);
+            _gpfClassInit.apply(this, [constructor, arguments]);
         };
     return constructor;
 }

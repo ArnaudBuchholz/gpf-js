@@ -3,6 +3,8 @@
 /*global _gpfHost*/ // Host type
 /*global _gpfInNode*/ // The current host is a nodeJS like
 /*global _gpfExit*/ // Exit function
+/*exported _gpfStringCapitalize*/
+/*exported _gpfStringEscapeFor*/
 /*#endif*/
 
 /*
