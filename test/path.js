@@ -85,6 +85,11 @@ describe("path", function () {
             assert(false === match(compiledPattern, "lib/test.json"));
             assert(true === match(compiledPattern, "lib/data/test.json"));
         });
+
+        it("handles absolute patterns", function () {
+            assert(false === match("/test/rules/*.js", "test.js"));
+            assert(true === match("/test/rules/*.js", "/test/rules/any.js"));
+        });
     });
 
 });

@@ -238,8 +238,9 @@ _GpfPathMatcher.prototype = {
             len = array.length;
             for (idx = 0; idx < len; ++idx) {
                 if (this._matchName(array[idx], parts[startPos])) {
-                    if (++startPos > partsLen) {
-                        return false;
+                    if (++startPos >= partsLen) {
+                        // Match if last part of the start and no end
+                        return (idx === len - 1) && !this.end;
                     }
                 } else {
                     return false;
