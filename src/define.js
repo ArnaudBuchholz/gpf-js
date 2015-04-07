@@ -2,10 +2,13 @@
 "use strict";
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
+/*exported _gpfGenDefHandler*/
 /*#endif*/
+/*global _CONSTRUCTOR_:true*/ // Needed for constructors
 
 var
     _gpfVisibilityKeywords      = "public|protected|private|static".split("|"),
+    _GPF_CLASSDEF_MARKER        = "_gpf",
     _GPF_VISIBILITY_PUBLIC      = 0,
     _GPF_VISIBILITY_PROTECTED   = 1,
 //  _GPF_VISIBILITY_PRIVATE     = 2,
@@ -14,23 +17,67 @@ var
     _gpfClassDefUID             = 0,
 
     /**
-     * Class initializer: it triggers the call to this._defConstructor only if
-     * _gpfClassInitAllowed is true.
+     * Template for new class constructor (using name that includes namespace)
+     * - Uses closure to keep track of constructor and pass it to _gpfClassInit
+     * - _CONSTRUCTOR_ will be replaced with the actual class name
      *
-     * @param {Function} constructor Class constructor
-     * @param {*[]} args Arguments
+     * @param {Function} classInit _gpfClassInit
+     * @returns {Function}
+     * @private
+     * @closure
+     */
+     _gpfClassConstructorFromFullName = function () {
+        var
+            _gpfClassInit = arguments[0],
+        /*jshint -W120*/
+            constructor = _CONSTRUCTOR_ = function () {
+                _gpfClassInit.apply(this, [constructor, arguments]);
+            };
+        return constructor;
+    },
+
+    /**
+     * Template for new class constructor (using name without namespace)
+     * - Uses closure to keep track of constructor and pass it to _gpfClassInit
+     * - _CONSTRUCTOR_ will be replaced with the actual class name
+     *
+     * @param {Function} classInit _gpfClassInit
+     * @returns {Function}
+     * @private
+     * @closure
+     */
+    _gpfClassConstructorFromName = function () {
+        var
+            _gpfClassInit = arguments[0],
+            constructor = function _CONSTRUCTOR_ () {
+                _gpfClassInit.apply(this, [constructor, arguments]);
+            };
+        return constructor;
+    },
+
+    /**
+     * Returns the source of _newClassConstructor with the appropriate class
+     * name
+     *
+     * @param {String} name
+     * @return {String}
      * @private
      */
-    _gpfClassInit = function (constructor, args) {
-        if (_gpfClassInitAllowed) {
-            var classDef = gpf.classDef(constructor);
-            // TODO Implement deferred class building here
-            if (classDef._defConstructor) {
-                classDef._defConstructor.apply(this, args);
-            } else {
-                classDef._Super.apply(this, args);
-            }
+    _gpfNewClassConstructorSrc = function (name) {
+        var
+            constructorDef,
+            src,
+            start,
+            end;
+        if (-1 < name.indexOf(".")) {
+            constructorDef = _gpfClassConstructorFromFullName;
+        } else {
+            constructorDef = _gpfClassConstructorFromName;
         }
+        src = constructorDef.toString().replace("_CONSTRUCTOR_", name);
+        start = src.indexOf("{") + 1;
+        end = src.lastIndexOf("}") - 1;
+        return src.substr(start, end - start + 1);
     },
 
     /**
@@ -89,7 +136,41 @@ var
         };
     },
 
+    /**
+     * Allocate a new class handler that is specific to a class type
+     * (used for interfaces & attributes)
+     *
+     * @param {String} ctxRoot Default context root
+     * @param {String} defaultBase Default contextual root class
+     * @private
+     */
+    _gpfGenDefHandler = function (ctxRoot, defaultBase) {
+        ctxRoot = ctxRoot + ".";
+        return function (name, base, definition) {
+            var result;
+            if (undefined === definition && "object" === typeof base) {
+                definition = base;
+                base = ctxRoot + defaultBase;
+            } else if (undefined === base) {
+                base = ctxRoot + defaultBase;
+            }
+            if (-1 === name.indexOf(".")) {
+                name = ctxRoot + name;
+            }
+            result = gpf.define(name, base, definition);
+            return result;
+        };
+    },
+
 //region Class definition helper
+
+    /**
+     * Global dictionary of known class definitions
+     *
+     * @type {Object}
+     * @private
+     */
+    _gpfClassDefinitions = {},
 
     /**
      * An helper to create class and store its information
@@ -102,7 +183,8 @@ var
      * @private
      */
     _GpfClassDefinition = function  (name, Super, definition) {
-        this._gpfClassDefUID = ++_gpfClassDefUID;
+        this._uid = ++_gpfClassDefUID;
+        _gpfClassDefinitions[this._uid] = this;
         this._Subs = [];
         if ("function" === typeof name) {
             // TODO use js tokenizer to extract function name (if any)
@@ -115,7 +197,46 @@ var
             this._definition = definition;
             this._build();
         }
-    };
+    },
+
+    /**
+     * Retrieves (or allocate) the class definition object
+     *
+     * @param {Function} constructor Class constructor
+     * @returns {gpf.ClassDefinition}
+     */
+    _gpfGetClassDefinition = function (constructor) {
+        var classDef,
+            uid = constructor[_GPF_CLASSDEF_MARKER];
+        if (undefined === uid) {
+            classDef = new _GpfClassDefinition(constructor);
+            gpf.setReadOnlyProperty(constructor, _GPF_CLASSDEF_MARKER,
+                classDef.uid());
+        } else {
+            classDef = _gpfClassDefinitions[uid];
+        }
+        return classDef;
+    },
+
+    /**
+     * Class initializer: it triggers the call to this._defConstructor only if
+     * _gpfClassInitAllowed is true.
+     *
+     * @param {Function} constructor Class constructor
+     * @param {*[]} args Arguments
+     * @private
+     */
+    _gpfClassInit = function (constructor, args) {
+        if (_gpfClassInitAllowed) {
+            var classDef = _gpfGetClassDefinition(constructor);
+            // TODO Implement deferred class building here
+            if (classDef._defConstructor) {
+                classDef._defConstructor.apply(this, args);
+            } else {
+                classDef._Super.apply(this, args);
+            }
+        }
+    }   ;
 
 _GpfClassDefinition.prototype = {
 
@@ -516,10 +637,10 @@ _GpfClassDefinition.prototype = {
             baseClassDef;
 
         // The new class constructor
-        newClass = _gpfFunc(_getNewClassConstructorSrc(this._name))
+        newClass = _gpfFunc(_gpfNewClassConstructorSrc(this._name))
             (_gpfClassInit);
         this._Constructor = newClass;
-        newClass._gpf = this;
+        gpf.setReadOnlyProperty(newClass, _GPF_CLASSDEF_MARKER, this._uid);
 
         /*
          * Basic JavaScript inheritance mechanism:
@@ -541,7 +662,7 @@ _GpfClassDefinition.prototype = {
          * (It is necessary to do it here because of the gpf.addAttributes
          * that will test the parent class)
          */
-        baseClassDef = gpf.classDef(this._Super);
+        baseClassDef = _gpfGetClassDefinition(this._Super);
         baseClassDef.Subs().push(newClass);
 
         /*
@@ -555,86 +676,6 @@ _GpfClassDefinition.prototype = {
 
     //endregion
 };
-
-//region Class related helpers
-
-/**
- * Retrieves (or allocate) the class definition object
- *
- * @param {Function} constructor Class constructor
- * @returns {gpf.ClassDefinition}
- */
-gpf.classDef = function (constructor) {
-    if (undefined === constructor._gpf) {
-        constructor._gpf = new gpf.ClassDefinition(constructor);
-    }
-    return constructor._gpf;
-};
-
-/*global _CONSTRUCTOR_:true*/
-/**
- * Template for new class constructor (using name that includes namespace)
- * - Uses closure to keep track of gpf handle and constructor function
- * - _CONSTRUCTOR_ will be replaced with the actual class name
- *
- * @param {Object} gpf
- * @returns {Function}
- * @private
- * @closure
- */
-function _newClassConstructorFromFullName() {
-    var
-        _gpfClassInit = arguments[0],
-        /*jshint -W120*/
-        constructor = _CONSTRUCTOR_ = function () {
-            _gpfClassInit.apply(this, [constructor, arguments]);
-        };
-    return constructor;
-}
-
-/**
- * Template for new class constructor (using name without namespace)
- * - Uses closure to keep track of gpf handle and constructor function
- * - _CONSTRUCTOR_ will be replaced with the actual class name
- *
- * @param {Object} gpf
- * @returns {Function}
- * @private
- * @closure
- */
-function _newClassConstructorFromName() {
-    var
-        _gpfClassInit = arguments[0],
-        constructor = function _CONSTRUCTOR_ () {
-            _gpfClassInit.apply(this, [constructor, arguments]);
-        };
-    return constructor;
-}
-
-/**
- * Returns the source of _newClassConstructor with the appropriate class
- * name
- *
- * @param {String} name
- * @return {String}
- * @private
- */
-function _getNewClassConstructorSrc(name) {
-    var
-        constructorDef,
-        src,
-        start,
-        end;
-    if (-1 < name.indexOf(".")) {
-        constructorDef = _newClassConstructorFromFullName;
-    } else {
-        constructorDef = _newClassConstructorFromName;
-    }
-    src = constructorDef.toString().replace("_CONSTRUCTOR_", name);
-    start = src.indexOf("{") + 1;
-    end = src.lastIndexOf("}") - 1;
-    return src.substr(start, end - start + 1);
-}
 
 //endregion
 
@@ -669,36 +710,10 @@ gpf.define = function (name, base, definition) {
         leafName = path.pop();
         ns = gpf.context(path);
     }
-    classDef = new gpf.ClassDefinition(name, base, definition || {});
+    classDef = new _GpfClassDefinition(name, base, definition || {});
     result = classDef.Constructor();
     if (undefined !== ns) {
         ns[leafName] = result;
     }
     return result;
-};
-
-/**
- * Allocate a new class handler that is specific to a class type
- * (used for interfaces & attributes)
- *
- * @param {String} ctxRoot Default context root
- * @param {String} defaultBase Default contextual root class
- * @private
- */
-gpf._genDefHandler = function (ctxRoot, defaultBase) {
-    ctxRoot = ctxRoot + ".";
-    return function (name, base, definition) {
-        var result;
-        if (undefined === definition && "object" === typeof base) {
-            definition = base;
-            base = ctxRoot + defaultBase;
-        } else if (undefined === base) {
-            base = ctxRoot + defaultBase;
-        }
-        if (-1 === name.indexOf(".")) {
-            name = ctxRoot + name;
-        }
-        result = gpf.define(name, base, definition);
-        return result;
-    };
 };

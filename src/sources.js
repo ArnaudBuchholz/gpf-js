@@ -18,17 +18,14 @@
             "async",                // Asynchronous handling           gpf.defer
             "bin",                  // Binary tools                      gpf.bin
             "json",                 // JSON compatibility layer         gpf.json
-
             "path",                 // Path helper                      gpf.path
-
-            "error",                // Error base class
-
+            "error",                // Error base class                gpf.Error
             "javascript",           // JavaScript language tools          gpf.js
             "csv",                  // CSV helper                        gpf.csv
 
-            "",                     // --- temporary end marker ---
-
             "define",               // Class management               gpf.define
+
+            "",                     // --- temporary end marker ---
 
             "attributes",           // Attributes                 gpf.attributes
             "att_class",            // Class attributes

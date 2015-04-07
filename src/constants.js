@@ -38,6 +38,8 @@
 /*global _gpfJsonStringify*/ // JSON.stringify
 /*global _gpfJsonParse*/ // JSON.parse
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
+/*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
 
 var
 /*#ifdef(RELEASE)*/

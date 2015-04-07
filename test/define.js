@@ -90,4 +90,4 @@ describe("define", function () {
 
     });
 
-}()); /* End of privacy scope */
+});
