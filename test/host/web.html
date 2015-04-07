@@ -41,7 +41,6 @@ div.log { color: gray; white-space: pre; }
                     gpfSourcesPath = "../../src/",
                     gpfTestsPath = "../";
         </script>
-        <script src="bdd.js"></script>
         <script src="web_loader.js"></script>
         <script language="javascript">
 
@@ -104,7 +103,7 @@ function addLine(data) {
             </tbody>
         </table>
     <script language="javascript">
-        load(function () {
+        load("bdd.js", function () {
             run(function (type, data) {
                 if ("results" !== type) {
                     addLine(data);

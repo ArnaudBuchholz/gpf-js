@@ -12,6 +12,8 @@
 
     var
         loadedCallback,
+        dependencyIdx = -1,
+        dependencies,
         sourceIdx = -1,
         sources;
 
@@ -42,6 +44,18 @@
             return;
         }
 
+        // Check if any dependencies
+        if (-1 === dependencyIdx) {
+            dependencyIdx = 0;
+        }
+        if (dependencyIdx < dependencies.length) {
+            gpf.web.include(dependencies[dependencyIdx], {
+                load: _load
+            });
+            ++dependencyIdx;
+            return;
+        }
+
         // Load test cases that are named like sources
         if (-1 === sourceIdx) {
             sources = gpf.sources().split(",");
@@ -67,9 +81,19 @@
      * Load the GPF framework and test cases.
      * When done, execute the callback.
      *
+     * @param {String[]|String} [additionalDependencies=undefined]
      * @param {Function} callback
      */
-    window.load = function (callback) {
+    window.load = function (additionalDependencies, callback) {
+        if (undefined !== callback) {
+            if (!(additionalDependencies instanceof Array)) {
+                additionalDependencies = [additionalDependencies];
+            }
+            dependencies = additionalDependencies;
+        } else {
+            dependencies = [];
+            callback = additionalDependencies;
+        }
         loadedCallback = callback;
         var
             locationSearch = window.location.search,
