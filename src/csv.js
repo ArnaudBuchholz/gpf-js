@@ -202,7 +202,6 @@ gpf.csv = {
      *     <li>{String} [quote="\""] quote</li>
      * </ul>
      * @return {Object[]} records
-     * @private
      */
     parse: _gpfCsvParse
 
