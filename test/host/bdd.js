@@ -1,6 +1,5 @@
 (function () {
     "use strict";
-    /*global global*/
 
     if (undefined === typeof gpf) {
         // gpf is required
