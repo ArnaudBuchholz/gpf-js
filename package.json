@@ -26,6 +26,7 @@
   "homepage": "http://gpf-js.blogspot.com/",
   "devDependencies": {
     "esprima": "",
+    "jquery": "",
     "mocha": "",
     "closure-compiler": "",
     "plato": ""
