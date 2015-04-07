@@ -1,5 +1,6 @@
 "use strict";
 /*global describe, it, assert*/
+/*jshint -W053*/ // Because it is part of the test
 
 describe("like", function () {
 

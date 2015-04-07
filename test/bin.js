@@ -128,7 +128,7 @@ describe("bin", function () {
                 assert(false === gpf.bin.test(pow3, pow4));
                 assert(true === gpf.bin.test(255, pow2));
                 assert(true === gpf.bin.test(255, pow2 + pow3));
-            })
+            });
 
         });
 
@@ -136,7 +136,7 @@ describe("bin", function () {
 
             it("clears bits in a value", function () {
                 assert(pow4 === gpf.bin.clear(pow4 + pow3, pow3));
-            })
+            });
 
         });
 

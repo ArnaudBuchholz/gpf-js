@@ -144,12 +144,13 @@ describe("base", function () {
 
     describe("gpf.value", function () {
 
-        it('handles most common conversions', function () {
+        var date = new Date(2003, 0, 22, 23, 45, 0, 0);
+
+        it("handles most common conversions", function () {
             var
                 idx,
                 parameters,
-                result,
-                date = new Date(2003, 0, 22, 23, 45, 0, 0);
+                result;
             for (idx = 0; idx < valuesTesting.length; ++idx) {
                 parameters = valuesTesting[idx];
                 result = gpf.value.apply(null, parameters);
@@ -158,12 +159,12 @@ describe("base", function () {
         });
 
         if (gpf.dateToComparableFormat) {
-            it('handles date conversions', function () {
+            it("handles date conversions", function () {
                 assert(gpf.like(gpf.value("2003-01-22 23:45:00", date), date));
                 assert(gpf.value(date, "") === "2003-01-22 23:45:00");
             });
         } else {
-            it('handles date conversions');
+            it("handles date conversions");
         }
 
     });

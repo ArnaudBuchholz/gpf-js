@@ -1,5 +1,5 @@
 "use strict";
-/*global describe, it, assert, beforeEach*/
+/*global describe, it, assert*/
 
 describe("csv", function () {
 
