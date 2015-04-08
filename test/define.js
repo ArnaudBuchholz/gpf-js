@@ -84,7 +84,7 @@ describe("define", function () {
         });
 
         it("provides access to A::_a inside B::b", function () {
-            assert(b.hasOwnProperty("b"));
+            assert(!b.hasOwnProperty("b"));
             assert(b.b() === 3);
         });
 
