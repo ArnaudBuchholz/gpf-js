@@ -27,11 +27,16 @@ var
      * @closure
      */
      _gpfClassConstructorFromFullName = function () {
+        /**
+         * As this is used inside a new function (src), we loose parameter
+         * Also, google closure compiler will try to replace any use of
+         * arguments[idx] by a named parameter (can't work), so...
+         */
         var
-            _gpfClassInit = arguments[0],
+            args = arguments,
         /*jshint -W120*/
             constructor = _CONSTRUCTOR_ = function () {
-                _gpfClassInit.apply(this, [constructor, arguments]);
+                args[0].apply(this, [constructor, arguments]);
             };
         return constructor;
     },
@@ -47,10 +52,15 @@ var
      * @closure
      */
     _gpfClassConstructorFromName = function () {
+        /**
+         * As this is used inside a new function (src), we loose parameter
+         * Also, google closure compiler will try to replace any use of
+         * arguments[idx] by a named parameter (can't work), so...
+         */
         var
-            _gpfClassInit = arguments[0],
+            args = arguments,
             constructor = function _CONSTRUCTOR_ () {
-                _gpfClassInit.apply(this, [constructor, arguments]);
+                args[0].apply(this, [constructor, arguments]);
             };
         return constructor;
     },
