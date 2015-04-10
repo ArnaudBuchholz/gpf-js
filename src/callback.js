@@ -5,6 +5,46 @@
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
 /*#endif*/
 
+var
+    /**
+     * @inheritdoc gpf.Callback#buildParamArray
+     * @private
+     */
+    _gpfBuildParamArray = function (count, params) {
+        var
+            len,
+            result,
+            idx;
+        if (params) {
+            len = params.length;
+            result = new Array(count + len);
+            for (idx = 0; idx < len; ++idx) {
+                result[count] = params[idx];
+                ++count;
+            }
+        } else {
+            result = new Array(count);
+        }
+        return result;
+    },
+
+    /**
+     * @inheritdoc gpf.Callback#doApply
+     * @private
+     */
+    _gpfDoApply = function (callback, scope, paramArray) {
+        var
+            len = arguments.length,
+            idx = 3,
+            paramIdx = 0;
+        while (idx < len) {
+            paramArray[paramIdx] = arguments[idx];
+            ++idx;
+            ++paramIdx;
+        }
+        return callback.apply(scope, paramArray);
+    };
+
 /**
  * Generic callback handler
  *
@@ -93,9 +133,7 @@ gpf.extend(gpf.Callback, {
      * @return {Object}
      * @static
      */
-    resolveScope: function (scope) {
-        return _gpfResolveScope(scope);
-    },
+    resolveScope: _gpfResolveScope,
 
     /**
      * Build a parameter array with
@@ -108,23 +146,7 @@ gpf.extend(gpf.Callback, {
      * @return {Array}
      * @static
      */
-    buildParamArray: function (count, params) {
-        var
-            len,
-            result,
-            idx;
-        if (params) {
-            len = params.length;
-            result = new Array(count + len);
-            for (idx = 0; idx < len; ++idx) {
-                result[count] = params[idx];
-                ++count;
-            }
-        } else {
-            result = new Array(count);
-        }
-        return result;
-    },
+    buildParamArray: _gpfBuildParamArray,
 
     /**
      * Helper to call a function with a variable list of parameters
@@ -136,18 +158,7 @@ gpf.extend(gpf.Callback, {
      * @param {...*} var_args
      * @return {*}
      */
-    doApply: function (callback, scope, paramArray) {
-        var
-            len = arguments.length,
-            idx = 3,
-            paramIdx = 0;
-        while (idx < len) {
-            paramArray[paramIdx] = arguments[idx];
-            ++idx;
-            ++paramIdx;
-        }
-        return callback.apply(scope, paramArray);
-    },
+    doApply: _gpfDoApply,
 
     /**
      * Get a method that is bound to the object
