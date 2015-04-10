@@ -288,9 +288,13 @@ gpf.define("gpf.attributes.Array", {
          * If the callback returns anything, the loop stops and the result
          * is returned to the caller.
          *
-         * @param {Function} callback, defined with parameters
-         * * {gpf.attributes.Attribute} attribute
-         * No result is expected
+         * @param {Function} callback will receive parameters
+         * <ul>
+         *     <li>{gpf.attributes.Attribute} attribute<li>
+         *     <li>{Number} index<li>
+         *     <li>{Number} array length<li>
+         * </ul>
+         * If a result is returned, the enumeration stops and this result is returned
          * @param {Object} [scope=undefined] scope
          * @param {*} [params=undefined] params Additional parameters
          * appended at the end of the expected parameter list
