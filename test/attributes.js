@@ -90,7 +90,23 @@ describe("attributes", function () {
 
     });
 
+    describe("gpf.attributes.Array", function () {
+
+        it("allows to test the presence of an attribute"); // has
+        it("filters on attribute type"); // filter
+        it("offers an enumeration function"); // each
+
+    });
+
     describe("gpf.attributes.Map", function () {
+
+        it("lists members that have attributes", function () {
+            var attributes = new gpf.attributes.Map(a),
+                members = attributes.members();
+            assert(2 === members.length);
+            assert(undefined !== gpf.test(members, "_a"));
+            assert(undefined !== gpf.test(members, "_c"));
+        });
 
         it("filters on attribute type", function () {
             var attributes = new gpf.attributes.Map(b),
@@ -99,6 +115,9 @@ describe("attributes", function () {
             assert(2 === attributesTest2Value.count());
             assert(1 === attributesTest2Value.member("_c").count());
         });
+
+        it("offers an enumeration function"); // each
+        it("can copy attributes to another class"); //
 
     });
 
