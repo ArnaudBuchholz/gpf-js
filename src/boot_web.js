@@ -37,11 +37,11 @@
          * @type {string[]}
          */
         bootList = [
-            "sources",          "sources",
-            "compatibility",    "setReadOnlyProperty",
-            "constants",        "_constants",
-            "events",           "events",
-            "include",          "web"
+            "sources",          "gpf.sources",
+            "compatibility",    "gpf.setReadOnlyProperty",
+            "constants",        "gpf._constants",
+            "events",           "gpf.events",
+            "include",          "gpf.web.include"
         ],
 
         /**
@@ -52,7 +52,7 @@
             if (0 === idx % 2) {
                 _gpfWebRawInclude(bootList[idx] + ".js");
                 ++idx;
-            } else if (undefined !== gpf[bootList[idx]]) {
+            } else if (undefined !== gpf.context(bootList[idx])) {
                 ++idx;
             }
             if (idx === bootList.length) {
