@@ -24,10 +24,10 @@
             "csv",                  // CSV helper                        gpf.csv
 
             "define",               // Class management               gpf.define
+            "attributes",           // Attributes                 gpf.attributes
 
             "",                     // --- temporary end marker ---
 
-            "attributes",           // Attributes                 gpf.attributes
             "att_class",            // Class attributes
             "att_json",             // JSON serializer
             "interface",            // Interface                  gpf.interfaces
