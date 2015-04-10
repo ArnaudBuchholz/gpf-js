@@ -11,6 +11,8 @@
 /*global _gpfContext*/ // Main context object
 /*global _gpfExit*/ // Exit function
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
+/*global _gpfBuildParamArray*/ // Build a parameter array
+/*global _gpfDoApply*/ // Apply the parameter array through a function
 /*global _gpfStringCapitalize*/ // Capitalize the string
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
@@ -40,6 +42,8 @@
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
 /*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
+/*global _gpfA*/ // gpf.attributes
+/*global _gpfDefAttr*/ // gpf.define for attributes
 
 var
 /*#ifdef(RELEASE)*/

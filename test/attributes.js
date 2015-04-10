@@ -1,5 +1,7 @@
-(function () { /* Begin of privacy scope */
-    "use strict";
+"use strict";
+/*global describe, it, assert*/
+
+describe("attributes", function () {
 
     var
         TestAttribute = gpf.define("TestAttribute", "gpf.attributes.Attribute"),
@@ -14,81 +16,90 @@
 
         A = gpf.define("A", {
 
-            "[_a]": [ $Test1Value() ],
-            _a: 0,
+            protected: {
 
-            "[_c]": [ $Test1Value() ],
-            _c: 0,
+                "[_a]": [ $Test1Value() ],
+                _a: 0,
 
-            constructor: function (value) {
-                this._a = value;
+                "[_c]": [ $Test1Value() ],
+                _c: 0
+
             },
 
-            a: function () {
-                return this._a;
+            public: {
+
+                constructor: function (value) {
+                    this._a = value;
+                },
+
+                a: function () {
+                    return this._a;
+                }
+
             }
 
         }),
 
+        a = new A(),
+
         B = gpf.define("B", A, {
 
-            "[_b]": [ $Test2Value() ],
-            _b: 0,
+            protected: {
 
-            "[_c]": [ $Test2Value() ],
-            _c: 0,
+                "[_b]": [$Test2Value()],
+                _b: 0,
 
-            constructor: function (value) {
-                this._super(value - 1);
-                this._b = value;
+                "[_c]": [$Test2Value()],
+                _c: 0
+
             },
 
-            b: function () {
-                return this._b;
+            public: {
+
+                constructor: function (value) {
+                    this._super(value - 1);
+                    this._b = value;
+                },
+
+                b: function () {
+                    return this._b;
+                }
             }
 
-        })
-        ;
+        }),
 
-    gpf.declareTests({
+        b = new B();
 
-        "basic": [
+    describe("gpf.attributes.Attribute", function () {
 
-            function (test) {
-                test.title("Declaration & inheritance");
-                test.log("Check the existence of attributes on class A");
-                var a = new A();
-                var attributesA = new gpf.attributes.Map(a);
-                test.equal(attributesA.count(), 2, "2 attributes on a");
-                test.log("Check the existence of attributes on member A::_c");
-                test.equal(attributesA.member("_c").length(), 1,
-                    "Attribute found on _c");
-                test.log("Check the existence of attributes on class B");
-                var b = new B();
-                var attributesB = new gpf.attributes.Map(b);
-                test.equal(attributesB.count(), 4, "4 attributes on b");
-                test.log("Check the existence of attributes on member B::_c");
-                test.equal(attributesB.member("_c").length(), 2,
-                    "2 attributes on _c");
-            },
+        it("is available through gpf.attributes.Map", function () {
+            var attributes = new gpf.attributes.Map(a);
+            assert(2 === attributes.count());
+            assert(1 === attributes.member("_a").count());
+            assert(0 === attributes.member("_b").count());
+            assert(1 === attributes.member("_c").count());
+        });
 
-            function (test) {
-                test.title("AttributeList member");
-                test.log("Check the existence of attributes on class B");
-                var b = new B();
-                var attributesB = new gpf.attributes.Map(b);
-                var attributesBTest2Value = attributesB
-                    .filter(Test2ValueAttribute);
-                test.equal(attributesBTest2Value.count(), 2,
-                    "2 $Test2Value on b");
-                test.log("Check the existence of Test2Value attributes on _c");
-                test.equal(attributesBTest2Value.member("_c").length(), 1,
-                    "1 $Test2Value on _c");
-            }
-
-        ]
+        it("inherits from base class", function () {
+            var attributes = new gpf.attributes.Map(b);
+            assert(4 === attributes.count());
+            assert(1 === attributes.member("_a").count());
+            assert(1 === attributes.member("_b").count());
+            assert(2 === attributes.member("_c").count());
+        });
 
     });
 
+    describe("gpf.attributes.Map", function () {
 
-}()); /* End of privacy scope */
+        it("filters on attribute type", function () {
+            var attributes = new gpf.attributes.Map(b),
+                attributesTest2Value =
+                    attributes.filter(Test2ValueAttribute);
+            assert(2 === attributesTest2Value.count());
+            assert(1 === attributesTest2Value.member("_c").count());
+        });
+
+    });
+
+});
