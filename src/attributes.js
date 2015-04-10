@@ -450,7 +450,7 @@ gpf.define("gpf.attributes.Map", {
                 if (attributes) {
                     attributes._copyTo(this);
                 }
-                Super = classDef.Super()
+                Super = classDef.Super();
                 if (Super !== Object) { // Can't go upper
                     classDef = _gpfGetClassDefinition(Super);
                 } else {
