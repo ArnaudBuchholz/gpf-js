@@ -92,8 +92,28 @@ describe("attributes", function () {
 
     describe("gpf.attributes.Array", function () {
 
-        it("allows to test the presence of an attribute"); // has
-        it("filters on attribute type"); // filter
+        it("allows to test the presence of an attribute", function () {
+            var attributes = new gpf.attributes.Map(a),
+                attributesForA = attributes.member("_a");
+            assert(1 === attributesForA.count());
+            assert(null !== attributesForA.has(Test1ValueAttribute));
+            assert(null === attributesForA.has(Test2ValueAttribute));
+        });
+
+        it("filters on attribute type", function () {
+            var attributes = new gpf.attributes.Map(b),
+                attributesForC = attributes.member("_c"),
+                test1ValueAttributesForC =
+                    attributesForC.filter(Test1ValueAttribute),
+                test2ValueAttributesForC =
+                    attributesForC.filter(Test2ValueAttribute);
+            assert(2 === attributesForC.count());
+            assert(null !== test1ValueAttributesForC.has(Test1ValueAttribute));
+            assert(null === test1ValueAttributesForC.has(Test2ValueAttribute));
+            assert(null === test2ValueAttributesForC.has(Test1ValueAttribute));
+            assert(null !== test2ValueAttributesForC.has(Test2ValueAttribute));
+        }); // filter
+
         it("offers an enumeration function"); // each
 
     });
