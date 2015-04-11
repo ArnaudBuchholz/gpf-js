@@ -26,7 +26,7 @@ var
             len = array.length,
             idx;
         for (idx = 0; idx < len; ++idx) {
-            result = memberCallback.apply(this, [idx, array[idx]]);
+            result = memberCallback.apply(this, [idx, array[idx], len]);
             if (undefined !== result) {
                 return result;
             }
@@ -46,7 +46,7 @@ var
             len = array.length,
             idx;
         for (idx = 0; idx < len; ++idx) {
-            memberCallback.apply(this, [idx, array[idx]]);
+            memberCallback.apply(this, [idx, array[idx], len]);
         }
     },
 
@@ -292,13 +292,19 @@ gpf.isArrayLike = _gpfIsArrayLike;
  *
  * @param {Object|Array} dictionary
  * @param {Function} memberCallback
- * @param {*} defaultResult
+ * @param {Function} memberCallback will receive parameters
+ * <ul>
+ *     <li>{Number|String} index array index or member name<li>
+ *     <li>{*} value<li>
+ *     <li>{Number} length total array length (undefined for dictionary)<li>
+ * </ul>
+ * @param {*} [defaultResult=undefined] defaultResult
  * @return {*}
  * @chainable
  * @forwardThis
  */
 gpf.each = function (dictionary, memberCallback, defaultResult) {
-    if (undefined === defaultResult) {
+    if (3 > arguments.length) {
         if (gpf.isArrayLike(dictionary)) {
             _gpfArrayEach.apply(this, arguments);
         } else {

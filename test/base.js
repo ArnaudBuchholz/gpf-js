@@ -42,9 +42,12 @@ describe("base", function () {
             var
                 count = 0,
                 sum = 0;
-            gpf.each(array, function (/*idx, value*/) {
+            gpf.each(array, function (idx, value, len) {
+                assert("number" === typeof idx);
+                assert("number" === typeof len);
+                assert(len === array.length);
                 ++count;
-                sum += arguments[1];
+                sum += value;
             });
             assert(array.length === count);
             assert(45 === sum);

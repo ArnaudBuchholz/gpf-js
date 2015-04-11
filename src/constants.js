@@ -4,6 +4,7 @@
 /*jshint -W079*/ // Globals are also copied here
 /*#endif*/
 
+// TODO find a way to organize this list: either sorting or per source
 /*global gpfSourcesPath*/ // Global source path
 /*global _gpfVersion*/ // GPF version
 /*global _gpfHost*/ // Host type
@@ -44,8 +45,9 @@
 /*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
 /*global _gpfA*/ // gpf.attributes
 /*global _gpfDefAttr*/ // gpf.define for attributes
+/*global _gpfArrayEachWithResult*/ //gpf.each implementation on array
 
-var
+    var
 /*#ifdef(RELEASE)*/
     _gpfTypeofBoolean = "boolean",
     _gpfTypeofFunction = "function",
