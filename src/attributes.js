@@ -4,9 +4,8 @@
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
-/*global _gpfBuildParamArray*/ // Build a parameter array
-/*global _gpfDoApply*/ // Apply the parameter array through a function
 /*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
+/*global _gpfArrayEachWithResult*/ //gpf.each implementation on array
 // /*#endif*/
 
 var
@@ -290,30 +289,16 @@ gpf.define("gpf.attributes.Array", {
          *
          * @param {Function} callback will receive parameters
          * <ul>
-         *     <li>{gpf.attributes.Attribute} attribute<li>
          *     <li>{Number} index<li>
+         *     <li>{gpf.attributes.Attribute} attribute<li>
          *     <li>{Number} array length<li>
          * </ul>
-         * If a result is returned, the enumeration stops and this result is returned
-         * @param {Object} [scope=undefined] scope
-         * @param {*} [params=undefined] params Additional parameters
-         * appended at the end of the expected parameter list
-         * @return {*}
+         * If a result is returned, the enumeration stops and this result is
+         * returned
+         * @return {*} undefined by default
          */
-        each: function (callback, scope, params) {
-            scope = _gpfResolveScope(scope);
-            params = _gpfBuildParamArray(1, params);
-            var
-                idx,
-                array = this._array,
-                len = array.length,
-                result;
-            for (idx = 0; idx < len; ++idx) {
-                result = _gpfDoApply(callback, scope, params, array[idx]);
-                if (undefined !== result) {
-                    return result;
-                }
-            }
+        each: function (callback) {
+            return _gpfArrayEachWithResult(this._array, callback, undefined);
         }
     }
 

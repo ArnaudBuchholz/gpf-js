@@ -114,7 +114,38 @@ describe("attributes", function () {
             assert(null !== test2ValueAttributesForC.has(Test2ValueAttribute));
         }); // filter
 
-        it("offers an enumeration function"); // each
+        it("offers an enumeration function based on gpf.each", function () {
+            var attributes = new gpf.attributes.Map(b),
+                attributesForC = attributes.member("_c"),
+                dictionaryOfAttributesForC = {},
+                result = attributesForC.each(function (idx, attribute, len) {
+                    assert("number" === typeof idx);
+                    assert(attribute instanceof gpf.attributes.Attribute);
+                    assert("number" === typeof len);
+                    assert(2 === len);
+                    // TODO improve
+                    dictionaryOfAttributesForC[attribute.constructor.name]
+                        = [attribute];
+                });
+            assert(undefined === result);
+            assert(1 === dictionaryOfAttributesForC.Test1ValueAttribute.length);
+            assert(1 === dictionaryOfAttributesForC.Test2ValueAttribute.length);
+        });
+
+        it("offers a stoppable enumeration function", function () {
+            var attributes = new gpf.attributes.Map(b),
+                attributesForC = attributes.member("_c"),
+                result = attributesForC.each(function (idx, attribute, len) {
+                    assert("number" === typeof idx);
+                    assert("number" === typeof len);
+                    assert(2 === len);
+                    if (attribute instanceof Test1ValueAttribute) {
+                        return attribute;
+                    }
+                });
+            assert(null !== result);
+            assert(result instanceof Test1ValueAttribute);
+        });
 
     });
 
