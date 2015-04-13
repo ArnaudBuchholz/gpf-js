@@ -46,6 +46,7 @@
 /*global _gpfA*/ // gpf.attributes
 /*global _gpfDefAttr*/ // gpf.define for attributes
 /*global _gpfArrayEachWithResult*/ //gpf.each implementation on array
+/*global _gpfDictionaryEachWithResult*/ //gpf.each implementation on dictionary
 
     var
 /*#ifdef(RELEASE)*/
