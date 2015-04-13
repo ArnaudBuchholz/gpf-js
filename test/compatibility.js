@@ -132,6 +132,17 @@ describe("compatibility", function () {
 
     describe("Function", function () {
 
+        it("should detect undefined parameter", function () {
+            var
+                testFunction = function (expected) {
+                    assert(arguments.length === expected);
+                };
+            testFunction(1);
+            testFunction(2, "abc");
+            testFunction(2, undefined);
+            testFunction(3, undefined, undefined);
+        });
+
         it("should expose bind(thisArg)", function () {
             var
                 scope = {
