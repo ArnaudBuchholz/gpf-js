@@ -132,6 +132,12 @@ describe("compatibility", function () {
 
     describe("Function", function () {
 
+        it("exposes a name", function () {
+            function thisName() {
+            }
+            assert(thisName.name === "thisName");
+        });
+
         it("should detect undefined parameter", function () {
             var
                 testFunction = function (expected) {
