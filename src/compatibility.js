@@ -89,6 +89,40 @@ if (undefined === Function.prototype.bind) {
 
 }
 
+// Handling function name properly
+if ((function () {
+    function functionName() {}
+    if (functionName.name !== "functionName") {
+        return true;
+    } else {
+        return false;
+    }
+})()) {
+
+    Function.prototype.compatibleName = function () {
+        // Use simple parsing as a first step
+        // TODO leverage JS parser to implement this properly
+        var src = "" + this,
+            pos = src.indexOf("function"),
+            paramList = src.indexOf("(", pos);
+        return src.substr(pos + 9, paramList - pos - 9).trim();
+    };
+
+} else {
+
+    /**
+     * Return function name
+     *
+     * @returns {String}
+     */
+    Function.prototype.compatibleName = function () {
+        return this.name;
+    };
+
+}
+
+
+
 if (undefined === Object.defineProperty) {
 
     /**
@@ -116,5 +150,17 @@ if (undefined === Object.defineProperty) {
         });
         return obj;
     };
+
+}
+
+if (undefined === String.prototype.trim) {
+
+    // Introduced with JavaScript 1.8.1
+    (function () {
+        var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+        String.prototype.trim = function() {
+            return this.replace(rtrim, "");
+        };
+    }());
 
 }

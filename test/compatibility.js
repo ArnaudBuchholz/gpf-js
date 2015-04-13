@@ -135,7 +135,7 @@ describe("compatibility", function () {
         it("exposes a name", function () {
             function thisName() {
             }
-            assert(thisName.name === "thisName");
+            assert(thisName.compatibleName() === "thisName");
         });
 
         it("should detect undefined parameter", function () {
@@ -198,6 +198,18 @@ describe("compatibility", function () {
         } else {
             it("prevents modifying a read-only property");
         }
+
+    });
+
+    describe("String", function () {
+
+        it("should expose trim", function () {
+            var
+              string = " \t  abc\t \t";
+            assert("function" === typeof string.trim);
+            assert(!string.hasOwnProperty("trim"));
+            assert("abc" === string.trim());
+        });
 
     });
 
