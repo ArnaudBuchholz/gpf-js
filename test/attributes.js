@@ -167,8 +167,46 @@ describe("attributes", function () {
             assert(1 === attributesTest2Value.member("_c").count());
         });
 
-        it("offers an enumeration function"); // each
-        it("can copy attributes to another class"); //
+        it("offers an enumeration function based on gpf.each", function () {
+            var attributes = new gpf.attributes.Map(a),
+                members = [],
+                result = attributes.each(function (member, attributeArray) {
+                    assert("string" === typeof member);
+                    assert(attributeArray instanceof gpf.attributes.Array);
+                    members.push(member);
+                });
+            assert(undefined === result);
+            assert(2 === members.length);
+            assert(undefined !== gpf.test(members, "_a"));
+            assert(undefined !== gpf.test(members, "_c"));
+        });
+
+        it("offers a stoppable enumeration function", function () {
+            var attributes = new gpf.attributes.Map(a),
+                result = attributes.each(function (member, attributeArray) {
+                    assert("string" === typeof member);
+                    assert(attributeArray instanceof gpf.attributes.Array);
+                    if ("_a" === member) {
+                        return attributeArray;
+                    }
+                });
+            assert(undefined !== result);
+            assert(result instanceof gpf.attributes.Array);
+        });
+
+        it("is modifiable without altering initial list", function () {
+            var attributes = new gpf.attributes.Map(a),
+                attributesForA,
+                attributes2;
+            attributes.add("_a", new Test2ValueAttribute());
+            assert(3 === attributes.count());
+            attributesForA = attributes.member("_a");
+            assert(2 === attributesForA.count());
+            attributes2 = new gpf.attributes.Map(a);
+            assert(2 === attributes2.count());
+            attributesForA = attributes2.member("_a");
+            assert(1 === attributesForA.count());
+        });
 
     });
 
