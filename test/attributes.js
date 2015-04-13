@@ -123,8 +123,8 @@ describe("attributes", function () {
                     assert(attribute instanceof gpf.attributes.Attribute);
                     assert("number" === typeof len);
                     assert(2 === len);
-                    // TODO improve
-                    dictionaryOfAttributesForC[attribute.constructor.name]
+                    dictionaryOfAttributesForC
+                        [attribute.constructor.compatibleName()]
                         = [attribute];
                 });
             assert(undefined === result);
