@@ -3,9 +3,9 @@
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
-/*global _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
 /*global _gpfArrayEachWithResult*/ //gpf.each implementation on array
+/*global _gpfDictionaryEachWithResult*/ //gpf.each implementation on dictionary
 // /*#endif*/
 
 var
@@ -509,35 +509,22 @@ gpf.define("gpf.attributes.Map", {
         },
 
         /**
-         * Apply the callback for each member in the map
+         * Apply the callback for each member in the map.
          * If the callback returns anything, the loop stops and the result
          * is returned to the caller.
          *
-         * @param {Function} callback, defined with parameters
-         * * {String} member
-         * * {gpf.attributes.Array} attributes
-         * No result is expected
-         * @param {Object} [scope=undefined] scope
-         * @param {*} [params=undefined] params Additional parameters
-         * appended at the end of the expected parameter list
-         * @return {*}
+         * @param {Function} callback will receive parameters
+         * <ul>
+         *     <li>{String} member<li>
+         *     <li>{gpf.attributes.Array} attribute<li>
+         * </ul>
+         * If a result is returned, the enumeration stops and this result is
+         * returned
+         * @return {*} undefined by default
          */
-        each: function (callback, scope, params) {
-            scope = _gpfResolveScope(scope);
-            params = _gpfBuildParamArray(2, params);
-            var
-                members = this._members,
-                member,
-                result;
-            for (member in members) {
-                if (members.hasOwnProperty(member)) {
-                    result = _gpfDoApply(callback, scope, params,
-                        member, members[member]);
-                    if (undefined !== result) {
-                        return result;
-                    }
-                }
-            }
+        each: function (callback) {
+            return _gpfDictionaryEachWithResult(this._members, callback,
+                undefined);
         },
 
         /**
@@ -551,8 +538,7 @@ gpf.define("gpf.attributes.Map", {
                 member;
             for (member in members) {
                 if (members.hasOwnProperty(member)) {
-                    _gpfA.add(objectClass, member,
-                        members[member]);
+                    _gpfA.add(objectClass, member, members[member]);
                 }
             }
         }
