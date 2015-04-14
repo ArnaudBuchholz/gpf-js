@@ -88,6 +88,28 @@ describe("attributes", function () {
             assert(2 === attributes.member("_c").count());
         });
 
+        it("signals any use on non-existing member"/*, function () {
+            var caught = null,
+                output = [];
+            test.hookConsole(output);
+            try {
+                gpf.define("B", A, {
+                   "[_c]": [ gpf.$ClassProperty(true) ] // should fail
+               });
+            }
+            catch (e) {
+                caught = e;
+            }
+            test.assert(null === caught, caught, "No exception thrown");
+            test.releaseConsole();
+            test.assert(1 === output.length,
+              "A console output has been generated");
+            if (1 === output.length) {
+                test.assert(output[0].error,
+                  "An error was displayed in the console");
+            }
+        }*/);
+
     });
 
     describe("gpf.attributes.Array", function () {
