@@ -25,10 +25,10 @@
 
             "define",               // Class management               gpf.define
             "attributes",           // Attributes                 gpf.attributes
+            "a_class",              // Class attributes
 
             "",                     // --- temporary end marker ---
 
-            "att_class",            // Class attributes
             "att_json",             // JSON serializer
             "interface",            // Interface                  gpf.interfaces
             "i_enumerable",         // IEnumerable
