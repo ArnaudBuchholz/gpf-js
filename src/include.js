@@ -50,7 +50,7 @@ var
     },
 
     /**
-     * @inheritdoc gpf.web.include
+     * @inheritdoc gpf.web:include
      * Implementation of gpf.web.include
      */
     _gpfWebInclude = function (src, eventsHandler) {

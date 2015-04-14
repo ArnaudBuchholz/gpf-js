@@ -7,7 +7,7 @@
 
 var
     /**
-     * @inheritdoc gpf.Callback#buildParamArray
+     * @inheritdoc gpf.Callback:buildParamArray
      * @private
      */
     _gpfBuildParamArray = function (count, params) {
@@ -29,7 +29,7 @@ var
     },
 
     /**
-     * @inheritdoc gpf.Callback#doApply
+     * @inheritdoc gpf.Callback:doApply
      * @private
      */
     _gpfDoApply = function (callback, scope, paramArray) {
