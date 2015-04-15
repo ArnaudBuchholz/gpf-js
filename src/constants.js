@@ -98,17 +98,29 @@
      * Create a new function using the source
      * In DEBUG mode, it catches any error to signal the problem
      *
+     * @param {String[]} [params=undefined] params Parameter names list
      * @param {String} source
      * @returns {Function}
      * @private
      */
-    _gpfFunc = function (source) {
+    _gpfFunc = function (params, source) {
+        var args;
+        if (undefined === source) {
+            source = params;
+            params = [];
+        }
+        gpf.ASSERT("string" === typeof source && source.length,
+            "Source expected (or use _gpfEmptyFunc)");
 /*#ifdef(DEBUG)*/
         try {
 /*#endif*/
-            gpf.ASSERT("string" === typeof source && source.length,
-                "Source expected (or use _gpfEmptyFunc)");
-            return new _GpfFunc(source);
+            if (0 === params.length) {
+                return _GpfFunc(source);
+            } else {
+                args = [].concat(params);
+                args.push(source);
+                return _GpfFunc.apply(null, args);
+            }
 /*#ifdef(DEBUG)*/
         } catch (e) {
             console.error("An exception occurred compiling:\r\n" + source);
