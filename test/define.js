@@ -55,7 +55,9 @@ describe("define", function () {
 
             it("generates constructor functions", function () {
                 assert(A instanceof Function);
+                assert("A" === A.compatibleName());
                 assert(B instanceof Function);
+                assert("B" === B.compatibleName());
             });
 
         });
