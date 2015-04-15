@@ -121,8 +121,6 @@ if ((function () {
 
 }
 
-
-
 if (undefined === Object.defineProperty) {
 
     /**

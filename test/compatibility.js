@@ -132,6 +132,17 @@ describe("compatibility", function () {
 
     describe("Function", function () {
 
+        it("allows creating function with parameters", function () {
+            /*jshint -W064*/
+            /*jshint -W061*/
+            var thisName = Function ("value", "return value;");
+            /*jshint +W061*/
+            /*jshint +W064*/
+            assert("function" === typeof thisName);
+            assert(1 === thisName.length);
+            assert(123 === thisName(123));
+        });
+
         it("exposes a name", function () {
             function thisName() {
             }
