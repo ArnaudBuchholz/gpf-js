@@ -155,7 +155,7 @@ if (undefined === String.prototype.trim) {
 
     // Introduced with JavaScript 1.8.1
     (function () {
-        var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+        var rtrim = new RegExp("^[\\s\uFEFF\xA0]+|[\\s\uFEFF\xA0]+$", "g");
         String.prototype.trim = function() {
             return this.replace(rtrim, "");
         };
