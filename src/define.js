@@ -29,30 +29,17 @@ var
      * @private
      * @closure
      */
-     _gpfClassConstructorFromFullName = function () {
+    _gpfClassConstructorTpl = function () {
         var
             args = arguments,
-            constructor = /* functionFullName = */ function () {
+            constructor = function /* name will be injected here */ () {
                 args[0].apply(this, [constructor, arguments]);
             };
         return constructor;
     },
 
     /**
-     * @inheritdoc _gpfClassConstructorFromFullName
-     * Template for new class constructor (using name without namespace)
-     */
-    _gpfClassConstructorFromName = function () {
-        var
-            args = arguments,
-            constructor = function /* functionName */ () {
-                args[0].apply(this, [constructor, arguments]);
-            };
-        return constructor;
-    },
-
-    /**
-     * Returns the source of _newClassConstructor with the appropriate class
+     * Returns the source of _newClassConstructor with the appropriate function
      * name
      *
      * @param {String} name
@@ -61,25 +48,14 @@ var
      */
     _gpfNewClassConstructorSrc = function (name) {
         var
-            isFullName = -1 < name.indexOf("."),
-            src,
+            src = _gpfClassConstructorTpl.toString(),
             start,
             end;
-        // Get the right template
-        if (isFullName) {
-            src = _gpfClassConstructorFromFullName;
-        } else {
-            src = _gpfClassConstructorFromName;
-        }
         // Extract body
-        src = src.toString();
         start = src.indexOf("{") + 1;
         end = src.lastIndexOf("}") - 1;
         src = src.substr(start, end - start + 1);
-        // Inject name at the right place
-        if (isFullName) {
-            return src.replace("function", name + " = function");
-        }
+        // Inject name of the function
         return src.replace("function", "function " + name);
     },
 
@@ -637,10 +613,15 @@ _GpfClassDefinition.prototype = {
         var
             newClass,
             newPrototype,
-            baseClassDef;
+            baseClassDef,
+            name = this._name,
+            constructorName;
 
+        // Build the function name for the constructor
+        // if "." is not found, lastIndexOf = -1 and lastIndexOf + 1 = 0
+        constructorName = name.substr(name.lastIndexOf(".") + 1);
         // The new class constructor
-        newClass = _gpfFunc(_gpfNewClassConstructorSrc(this._name))
+        newClass = _gpfFunc(_gpfNewClassConstructorSrc(constructorName))
             (_gpfClassInit);
         this._Constructor = newClass;
         gpf.setReadOnlyProperty(newClass, _GPF_CLASSDEF_MARKER, this._uid);
