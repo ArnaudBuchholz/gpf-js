@@ -166,7 +166,7 @@ _gpfDefAttr("$Alias", {
     protected: {
 
         /**
-         * @inheritDoc gpf.attributes.Attribute:_alterPrototype
+         * @inheritdoc gpf.attributes.Attribute:_alterPrototype
          */
         _alterPrototype: function (objPrototype) {
             _gpfAlias(objPrototype.constructor, this._name);
