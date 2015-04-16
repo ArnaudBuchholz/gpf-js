@@ -100,6 +100,7 @@ if ((function () {
 })()) {
 
     (function () {
+        var comments = new RegExp("//.*$|/\\*.*\\*/", "g");
         Function.prototype.compatibleName = function () {
             // Use simple parsing as a first step
             // TODO leverage JS parser to implement this properly
@@ -107,6 +108,7 @@ if ((function () {
                 pos = src.indexOf("function"),
                 paramList = src.indexOf("(", pos);
             return src.substr(pos + 9, paramList - pos - 9)
+                    .replace(comments, "") // remove comments
                     .trim();
         };
 
