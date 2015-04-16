@@ -99,14 +99,18 @@ if ((function () {
     }
 })()) {
 
-    Function.prototype.compatibleName = function () {
-        // Use simple parsing as a first step
-        // TODO leverage JS parser to implement this properly
-        var src = "" + this,
-            pos = src.indexOf("function"),
-            paramList = src.indexOf("(", pos);
-        return src.substr(pos + 9, paramList - pos - 9).trim();
-    };
+    (function () {
+        Function.prototype.compatibleName = function () {
+            // Use simple parsing as a first step
+            // TODO leverage JS parser to implement this properly
+            var src = "" + this,
+                pos = src.indexOf("function"),
+                paramList = src.indexOf("(", pos);
+            return src.substr(pos + 9, paramList - pos - 9)
+                    .trim();
+        };
+
+    }());
 
 } else {
 
