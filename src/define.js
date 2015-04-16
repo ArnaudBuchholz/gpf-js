@@ -4,7 +4,6 @@
 /*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
 /*exported _gpfGenDefHandler*/
 /*#endif*/
-/*global _CONSTRUCTOR_:true*/ // Needed for constructors
 
 var
     _gpfVisibilityKeywords      = "public|protected|private|static".split("|"),
@@ -21,45 +20,32 @@ var
      * - Uses closure to keep track of constructor and pass it to _gpfClassInit
      * - _CONSTRUCTOR_ will be replaced with the actual class name
      *
-     * @param {Function} classInit _gpfClassInit
-     * @returns {Function}
-     * @private
-     * @closure
-     */
-     _gpfClassConstructorFromFullName = function () {
-        /**
-         * As this is used inside a new function (src), we loose parameter
-         * Also, google closure compiler will try to replace any use of
-         * arguments[idx] by a named parameter (can't work), so...
-         */
-        var
-            args = arguments,
-        /*jshint -W120*/
-            constructor = _CONSTRUCTOR_ = function () {
-                args[0].apply(this, [constructor, arguments]);
-            };
-        return constructor;
-    },
-
-    /**
-     * Template for new class constructor (using name without namespace)
-     * - Uses closure to keep track of constructor and pass it to _gpfClassInit
-     * - _CONSTRUCTOR_ will be replaced with the actual class name
+     * As this is used inside a new function (src), we loose parameter
+     * Also, google closure compiler will try to replace any use of
+     * arguments[idx] by a named parameter (can't work), so...
      *
      * @param {Function} classInit _gpfClassInit
      * @returns {Function}
      * @private
      * @closure
      */
-    _gpfClassConstructorFromName = function () {
-        /**
-         * As this is used inside a new function (src), we loose parameter
-         * Also, google closure compiler will try to replace any use of
-         * arguments[idx] by a named parameter (can't work), so...
-         */
+     _gpfClassConstructorFromFullName = function () {
         var
             args = arguments,
-            constructor = function _CONSTRUCTOR_ () {
+            constructor = /* functionFullName = */ function () {
+                args[0].apply(this, [constructor, arguments]);
+            };
+        return constructor;
+    },
+
+    /**
+     * @inheritdoc _gpfClassConstructorFromFullName
+     * Template for new class constructor (using name without namespace)
+     */
+    _gpfClassConstructorFromName = function () {
+        var
+            args = arguments,
+            constructor = function /* functionName */ () {
                 args[0].apply(this, [constructor, arguments]);
             };
         return constructor;
@@ -75,19 +61,26 @@ var
      */
     _gpfNewClassConstructorSrc = function (name) {
         var
-            constructorDef,
+            isFullName = -1 < name.indexOf("."),
             src,
             start,
             end;
-        if (-1 < name.indexOf(".")) {
-            constructorDef = _gpfClassConstructorFromFullName;
+        // Get the right template
+        if (isFullName) {
+            src = _gpfClassConstructorFromFullName;
         } else {
-            constructorDef = _gpfClassConstructorFromName;
+            src = _gpfClassConstructorFromName;
         }
-        src = constructorDef.toString().replace("_CONSTRUCTOR_", name);
+        // Extract body
+        src = src.toString();
         start = src.indexOf("{") + 1;
         end = src.lastIndexOf("}") - 1;
-        return src.substr(start, end - start + 1);
+        src = src.substr(start, end - start + 1);
+        // Inject name at the right place
+        if (isFullName) {
+            return src.replace("function", name + " = function");
+        }
+        return src.replace("function", "function " + name);
     },
 
     /**
