@@ -3,7 +3,15 @@
 /*global run*/
 
 var
-    DEBUG = false,
+    options = {
+        release: false,
+        debug: false,
+        verbose: false
+    },
+    len,
+    idx,
+    param,
+    verbose,
     gpfSourcesPath = "..\\..\\src\\",
     fso = new ActiveXObject("Scripting.FileSystemObject"),
     include = function (path) {
@@ -11,24 +19,40 @@ var
         eval(fso.OpenTextFile(path, 1/*forReading*/, false, 0).ReadAll());
         /*jslint evil: false*/
     },
-    version = "source",
     sources,
-    len,
-    idx,
     src;
 
-if (WScript.Arguments.length > 0) {
-    version = WScript.Arguments(0);
+// Simple parameter parsing
+len = WScript.Arguments.length;
+for (idx = 0; idx < len; ++idx) {
+    param = WScript.Arguments(idx);
+    if (param.charAt(0) === "-") {
+        param = param.substr(1);
+        if (param in options) {
+            if ("boolean" === typeof options[param]) {
+                options[param] = !options[param]; // Simple switch
+            }
+        }
+    }
 }
 
-if (DEBUG) {
-    WScript.Echo("Using " + version + " version");
+// Define a debug function that outputs when verbose is set
+if (options.verbose) {
+    verbose = function (text) {
+        WScript.Echo(text);
+    };
+} else {
+    verbose = function () {};
 }
-if ("release" === version) {
+
+if (options.release) {
+    verbose("Using release version");
     include("..\\..\\build\\gpf.js");
-} else if ("debug" === version) {
+} else if (options.debug) {
+    verbose("Using debug version");
     include("..\\..\\build\\gpf-debug.js");
 } else {
+    verbose("Using source version");
     include(gpfSourcesPath + "boot.js");
 }
 
@@ -36,18 +60,17 @@ if (!gpf.sources) {
     include(gpfSourcesPath + "sources.js");
 }
 
-if (DEBUG) {
-    WScript.Echo("Loading BDD");
-}
+verbose("Loading BDD");
 include("bdd.js");
 
-if (DEBUG) {
-    WScript.Echo("Loading test cases");
-}
+// verbose("Loading console override");
+// include("console.js");
+
+verbose("Loading test cases");
 
 // Backward compatibility management
 gpf.declareTests = function () {
-    WScript.Echo("Test file must be transformed into BDD syntax");
+    WScript.Echo("Test file '" + src + ".js' must be transformed to BDD");
 };
 
 sources = gpf.sources().split(",");
@@ -57,14 +80,10 @@ for (idx = 0; idx < len; ++idx) {
     if (!src) {
         break;
     }
-    if (DEBUG) {
-        WScript.Echo("\t" + src);
-    }
+    verbose("\t" + src);
     include("..\\" + src + ".js");
 }
 
-if (DEBUG) {
-    WScript.Echo("Running BDD");
-}
+verbose("Running BDD");
 run();
 gpf.runAsyncQueue();
