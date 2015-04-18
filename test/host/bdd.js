@@ -217,7 +217,7 @@
              */
             "describe": function (data) {
                 console.log((new Array(data.depth + 1).join("\t"))
-                + data.label);
+                    + data.label);
 
             },
 
