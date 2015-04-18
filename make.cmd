@@ -34,11 +34,11 @@ cd ..
 cd test\host
 
 echo Validating debug with cscript...
-cscript.exe /E:JScript cscript.js debug >nul
+cscript.exe /E:JScript cscript.js -debug >nul
 if %ERRORLEVEL% neq 0 goto test_failed
 
 echo Validating release with cscript...
-cscript.exe /E:JScript cscript.js release >nul
+cscript.exe /E:JScript cscript.js -release >nul
 if %ERRORLEVEL% neq 0 goto test_failed
 
 echo Validating debug with node...
