@@ -44,45 +44,68 @@ div.log { color: gray; white-space: pre; }
         <script src="web_loader.js"></script>
         <script language="javascript">
 
+var lines = [];
+
+function insertLines() {
+    if (lines.length) {
+        var results = document.getElementById("results");
+        results.innerHTML = results.innerHTML + lines.join("");
+        lines = [];
+    }
+}
+
 function addLine(data) {
     var
-        tr,
-        td,
+        line,
+        trClassName,
+        status,
         isTest;
-    tr = document.createElement("TR");
-    tr = document.getElementById("results").appendChild(tr);
-    td = tr.appendChild(document.createElement("TD"));
-    td.className = "status";
     if (data.pending) {
         isTest = true;
-        tr.className = "na";
-        td.innerHTML = "N/A";
+        trClassName = "na";
+        status = "-";
     } else if (undefined !== data.result) {
         isTest = true;
         if (data.result) {
-            tr.className = "ok";
-            td.innerHTML = "OK";
+            trClassName = "ok";
+            status = "OK";
         } else {
-            tr.className = "ko";
-            td.innerHTML = "KO";
+            trClassName = "ko";
+            status = "KO";
         }
     }
-    td = tr.appendChild(document.createElement("TD"));
+    line = [
+        "<tr class=\"", trClassName, "\">",
+        "<td class=\"status\">", status, "</td>",
+        "<td class=\""
+    ];
     if (isTest) {
-        td.className = "it";
+        line.push("it");
     } else {
-        td.className = "describe";
+        line.push("describe");
     }
-    td.innerHTML = (new Array(data.depth + 1).join("&nbsp;")) + data.label;
-    td = tr.appendChild(document.createElement("TD"));
+    line.push(
+        "\">",
+        (new Array(data.depth + 1).join("&nbsp;")),
+        data.label,
+        "</td>",
+        "<td"
+    );
     if (isTest) {
-        td.className = "timespent";
+        line.push(" class=\"timespent\">");
         if (undefined !== data.timeSpent) {
-            td.innerHTML = data.timeSpent;
+            line.push(data.timeSpent);
         } else {
-            td.innerHTML = "N/A";
+            line.push("N/A");
         }
+    } else {
+        line.push(">&nbsp;");
     }
+    line.push("</td></tr>");
+    if (0 === lines.length) {
+        setTimeout(insertLines, 250);
+    }
+    lines.push(line.join(""));
 }
 
         </script>
@@ -104,9 +127,26 @@ function addLine(data) {
         </table>
     <script language="javascript">
         load("bdd.js", function () {
+            var dtStart = new Date(),
+                line,
+                results;
             run(function (type, data) {
                 if ("results" !== type) {
                     addLine(data);
+                } else {
+                    // Insert summary line
+                    addLine({
+                        timeSpent: (new Date()) - dtStart,
+                        result: 0 === data.fail,
+                        label: "passes: " + data.success + " / " + data.count
+                            + " (pending: " + data.pending + ")"
+                            + " failure: " + data.fail,
+                        depth: 0
+                    });
+                    line = lines.pop();
+                    insertLines(); // flush
+                    results = document.getElementById("results");
+                    results.innerHTML = line + results.innerHTML;
                 }
             });
         });
