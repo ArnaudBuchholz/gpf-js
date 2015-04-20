@@ -27,12 +27,13 @@
     }
 
     for (member in realConsole) {
-        if (realConsole.hasOwnProperty(member)) {
+        if (realConsole.hasOwnProperty(member)
+            || "function" === typeof realConsole[member]) {
             newConsole[member] = genMember(member);
         }
     }
 
-    realConsole.expect = function (method, text) {
+    newConsole.expects = function (method, text) {
         expected.push(method, text);
     };
 
