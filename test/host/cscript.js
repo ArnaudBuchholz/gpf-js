@@ -63,8 +63,10 @@ if (!gpf.sources) {
 verbose("Loading BDD");
 include("bdd.js");
 
-// verbose("Loading console override");
-// include("console.js");
+verbose("Loading console override");
+var module = {};
+include("console.js");
+module.exports(true);
 
 verbose("Loading test cases");
 
