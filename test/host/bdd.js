@@ -378,7 +378,15 @@
          * @type {Object}
          * @private
          */
-        _stats;
+        _stats,
+
+        /**
+         * Count the number of nexts
+         *
+         * @type {number}
+         * @private
+         */
+        _stackedNext = 0;
 
     if (!context.assert) {
         /**
@@ -433,10 +441,26 @@
 
     /**
      * Next test / callback
+     * Protected to limit the stack depth.
      *
      * @private
      */
     function _next() {
+        if (30 === ++_stackedNext) {
+            gpf.defer(_next, 0);
+            --_stackedNext;
+            return;
+        }
+        _doNext();
+        --_stackedNext;
+    }
+
+    /**
+     * Next test / callback
+     *
+     * @private
+     */
+    function _doNext() {
         var item;
         // Any callback list pending?
         if (_callbacks && _callbackIdx < _callbacks.length) {
@@ -453,7 +477,7 @@
                     _callbacks = item.before;
                     _callbackIdx = 0;
                     --_childIdx;
-                    gpf.defer(_next, 0);
+                    _next();
                     return;
                 }
                 // Notify caller
@@ -469,7 +493,7 @@
                 // Becomes the new describe
                 _describe = item;
                 _childIdx = 0;
-                gpf.defer(_next, 0);
+                _next();
 
             } else if (item instanceof BDDIt) {
                 // Call beforeEach if any
@@ -478,7 +502,7 @@
                     _callbacks = _beforeEach;
                     _callbackIdx = 0;
                     --_childIdx;
-                    gpf.defer(_next, 0);
+                    _next();
                     return;
                 }
                 // Prepare list of afterEach if any
@@ -496,7 +520,7 @@
                         label: _it.label,
                         pending: true
                     });
-                    gpf.defer(_next, 0);
+                    _next();
                 }
 
             }
@@ -505,7 +529,7 @@
             if (_describe.after.length && _callbacks !== _describe.after) {
                 _callbacks = item.before;
                 _callbackIdx = 0;
-                gpf.defer(_next, 0);
+                _next();
                 return;
             }
             // Remove lists of beforeEach and afterEach
@@ -515,7 +539,7 @@
             // No more children, go up
             _describe = _stackOfDescribe.pop();
             _childIdx = _stackOfChildIdx.pop();
-            gpf.defer(_next, 0);
+            _next();
 
         } else {
             // DONE!
@@ -536,7 +560,7 @@
             result: true,
             timeSpent: (new Date()) - _itStart
         });
-        gpf.defer(_next, 0);
+        _next();
     }
 
     /**
@@ -553,7 +577,7 @@
             timeSpent: (new Date()) - _itStart,
             exception: e
         });
-        gpf.defer(_next, 0);
+        _next();
     }
 
     /**
@@ -577,7 +601,7 @@
             fail: 0,
             pending: 0
         };
-        gpf.defer(_next, 0);
+        _next();
     };
 
     //endregion
