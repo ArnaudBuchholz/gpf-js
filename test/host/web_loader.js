@@ -9,6 +9,7 @@
     if (!window.gpfTestsPath) {
         window.gpfTestsPath = "../";
     }
+    window.module = {}; // for console.js
 
     var
         loadedCallback,
@@ -53,6 +54,17 @@
                 load: _load
             });
             ++dependencyIdx;
+            return;
+        }
+
+        // Check if console override is defined
+        if (undefined === window.module.exports) {
+            gpf.web.include(gpfTestsPath + "host/console.js", {
+                load: function () {
+                    window.module.exports(true);
+                    _load();
+                }
+            });
             return;
         }
 
