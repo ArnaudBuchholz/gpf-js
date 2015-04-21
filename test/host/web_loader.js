@@ -9,7 +9,6 @@
     if (!window.gpfTestsPath) {
         window.gpfTestsPath = "../";
     }
-    window.module = {}; // for console.js
 
     var
         loadedCallback,
@@ -58,12 +57,9 @@
         }
 
         // Check if console override is defined
-        if (undefined === window.module.exports) {
+        if (undefined === console.expects) {
             gpf.web.include(gpfTestsPath + "host/console.js", {
-                load: function () {
-                    window.module.exports(true);
-                    _load();
-                }
+                load: _load
             });
             return;
         }
