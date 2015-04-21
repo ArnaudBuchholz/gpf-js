@@ -75,7 +75,7 @@ gpf.declareTests = function () {
     console.warn("Test file must be transformed into BDD syntax");
 };
 
-require("./console.js")(true);
+require("./console.js");
 
 /**
  * Load all tests
