@@ -18,7 +18,10 @@ gpf.interfaces = {
      * @return {Boolean}
      */
     isImplementedBy: function (objectInstance, interfaceDefinition) {
-        var member;
+        var member,
+            memberReference,
+            memberValue,
+            memberType;
         /*
          * IMPORTANT note: we test the object itself (i.e. own members and
          * the prototype). That's why the hasOwnProperty is skipped
@@ -29,8 +32,14 @@ gpf.interfaces = {
                 || "extend" === member) {                           // gpf.Class
                 continue;
             }
-            if (typeof interfaceDefinition.prototype[member]
-                !== typeof objectInstance[member]) {
+            memberReference = interfaceDefinition.prototype[member];
+            memberValue = objectInstance[member];
+            memberType = typeof memberValue;
+            if (typeof memberReference !== memberType) {
+                return false;
+            }
+            if ("function" === memberType
+                && memberReference.length !== memberValue.length) {
                 return false;
             }
         }
