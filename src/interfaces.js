@@ -7,6 +7,11 @@
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*#endif*/
 
+_gpfErrorDeclare("interfaces", {
+    InterfaceExpected:
+        "Expected interface not implemented: {name}"
+});
+
 gpf.interfaces = {
 
     /**
