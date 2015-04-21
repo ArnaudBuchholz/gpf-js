@@ -204,6 +204,17 @@
     //region default callback (based on console.log)
 
     var
+        _output = function (text, level) {
+            if (undefined === level) {
+                level = "log";
+            }
+            // Console can be mocked up to check outputs
+            if (console.expects) {
+                console.expects(level, text);
+            }
+            console[level](text);
+        },
+
         _handlers = {
 
             /**
@@ -216,9 +227,7 @@
              * </ul>
              */
             "describe": function (data) {
-                console.log((new Array(data.depth + 1).join("\t"))
-                    + data.label);
-
+                _output((new Array(data.depth + 1).join("\t")) + data.label);
             },
 
             /**
@@ -243,11 +252,11 @@
                     line += "KO ";
                 }
                 line += data.label;
-                console.log(line);
+                _output(line);
                 if (false === data.result && data.exception) {
                     for (var key in data.exception) {
                         if (data.exception.hasOwnProperty(key)) {
-                            console.log(key + ": " + data.exception[key]);
+                            _output(key + ": " + data.exception[key]);
                         }
                     }
                 }
@@ -265,18 +274,18 @@
              * </ul>
              */
             "results": function (data) {
-                console.log("--- Results: ");
+                _output("--- Results: ");
                 for (var key in data) {
                     if (data.hasOwnProperty(key)) {
-                        console.log(key + "        : ".substr(key.length)
-                        + data[key]);
+                        _output(key + "        : ".substr(key.length)
+                            + data[key]);
                     }
                 }
                 if (data.fail) {
-                    console.error("KO");
+                    _output("KO", "error");
                     gpf.exit(data.fail);
                 } else {
-                    console.log("OK");
+                    _output("OK");
                     gpf.exit(0);
                 }
             }
