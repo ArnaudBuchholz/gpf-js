@@ -19,10 +19,6 @@ var
         "ClassInvalidVisibility":
             "Invalid visibility keyword",
 
-        // interface.js
-        "InterfaceExpected":
-            "Expected interface not implemented: {name}",
-
         // i_enumerable.js
         "EnumerableInvalidMember":
             "$Enumerable can be associated to arrays only",
