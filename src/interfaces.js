@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
 /*global _gpfDefAttr*/ // gpf.define for attributes
@@ -62,7 +63,7 @@ gpf.interfaces = {
      * @param {Object} objectInstance object to inspect
      * @param {gpf.interfaces.Interface} interfaceDefinition reference
      * interface
-     * @param {Boolean} [throwError=false] throwError Throws an error if the
+     * @param {Boolean} [throwError=true] throwError Throws an error if the
      * interface is not found (otherwise, null is returned)
      * @return {Object|null}
      */
@@ -75,9 +76,12 @@ gpf.interfaces = {
             gpf.interfaces.IUnknown)) {
             result = objectInstance.queryInterface(interfaceDefinition);
         }
+        if (undefined === throwError) {
+            throwError = true;
+        }
         if (null === result && throwError) {
             throw gpf.Error.InterfaceExpected({
-                name: gpf.classDef(interfaceDefinition).name()
+                name: _gpfGetClassDefinition(interfaceDefinition).name()
             });
         }
         return result;
