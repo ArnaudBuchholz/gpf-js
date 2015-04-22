@@ -3,20 +3,39 @@
 
 describe("interfaces", function () {
 
+    var
+        SampleEventDispatcherWithAddOnly = function () {},
+        SampleEventDispatcherComplete = function () {},
+        fakeAddEventListener = function (a, b, c) {
+            a = b + c; // Just to avoid unused parameters warning
+            return this;
+        },
+        fakeRemoveEventListener = function (a, b) {
+            a = b;
+            return this;
+        };
+
+    SampleEventDispatcherWithAddOnly.prototype = {
+
+        addEventListener: fakeAddEventListener
+
+    };
+
+    SampleEventDispatcherComplete.prototype
+        = new SampleEventDispatcherWithAddOnly();
+
+    SampleEventDispatcherComplete.prototype.removeEventListener
+        = fakeRemoveEventListener;
+
     describe("gpf.interfaces.isImplementedBy", function () {
 
         it("verifies that an object implements an interface", function () {
             var test = {
-                addEventListener: function (a, b, c) {
-                    return a + b +c;
-                },
-
-                removeEventListener: function (a, b) {
-                    return a + b;
-                }
+                addEventListener: fakeAddEventListener,
+                removeEventListener: fakeRemoveEventListener
             };
             assert(true === gpf.interfaces.isImplementedBy(test,
-                gpf.interfaces.IEventDispatcher));
+              gpf.interfaces.IEventDispatcher));
         });
 
         it("checks function signatures", function () {
@@ -24,32 +43,22 @@ describe("interfaces", function () {
                 addEventListener: function (a, b) {
                     return a + b;
                 },
-
-                removeEventListener: function (a, b) {
-                    return a + b;
-                }
+                removeEventListener: fakeRemoveEventListener
             };
             assert(false === gpf.interfaces.isImplementedBy(test,
-                gpf.interfaces.IEventDispatcher));
+              gpf.interfaces.IEventDispatcher));
         });
 
         it("works through inheritance", function () {
-            var
-                testAddOnly = {
-                    addEventListener: function (a, b, c) {
-                        return a + b + c;
-                    }
-                },
-                TestWithRemove = function () {
-                },
-                testWithRemove;
-            TestWithRemove.prototype = testAddOnly;
-            TestWithRemove.prototype.removeEventListener = function (a, b) {
-                return a + b;
-            };
-            testWithRemove = new TestWithRemove();
-            assert(true === gpf.interfaces.isImplementedBy(testWithRemove,
-                gpf.interfaces.IEventDispatcher));
+            assert(true === gpf.interfaces.isImplementedBy(
+              new SampleEventDispatcherComplete(),
+              gpf.interfaces.IEventDispatcher));
+        });
+
+        it("works with classes", function () {
+            assert(true === gpf.interfaces.isImplementedBy(
+              SampleEventDispatcherComplete,
+              gpf.interfaces.IEventDispatcher));
         });
 
     });
