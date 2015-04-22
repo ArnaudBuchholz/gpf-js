@@ -18,16 +18,19 @@ gpf.interfaces = {
     /**
      * Verify that the object implements the current interface
      *
-     * @param {Object} objectInstance object to inspect
+     * @param {Object|Function} inspectedObject object (or class) to inspect
      * @param {gpf.interfaces.Interface} interfaceDefinition reference
      * interface
      * @return {Boolean}
      */
-    isImplementedBy: function (objectInstance, interfaceDefinition) {
+    isImplementedBy: function (inspectedObject, interfaceDefinition) {
         var member,
             memberReference,
             memberValue,
             memberType;
+        if (inspectedObject instanceof Function) {
+            inspectedObject = inspectedObject.prototype;
+        }
         /*
          * IMPORTANT note: we test the object itself (i.e. own members and
          * the prototype). That's why the hasOwnProperty is skipped
@@ -39,7 +42,7 @@ gpf.interfaces = {
                 continue;
             }
             memberReference = interfaceDefinition.prototype[member];
-            memberValue = objectInstance[member];
+            memberValue = inspectedObject[member];
             memberType = typeof memberValue;
             if (typeof memberReference !== memberType) {
                 return false;
@@ -270,7 +273,7 @@ _gpfDefAttr("$InterfaceImplement", {
         _alterPrototype: function (objPrototype) {
             var
                 iProto = this._interfaceDefinition.prototype,
-                iClassDef = gpf.classDef(this._interfaceDefinition),
+                iClassDef = _gpfGetClassDefinition(this._interfaceDefinition),
                 member,
                 attributes;
             // Get the interface's attributes apply them to the obj
