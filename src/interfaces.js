@@ -198,7 +198,7 @@ function _queryInterface (interfaceDefinition) {
             .filter(gpf.attributes.InterfaceImplementAttribute),
         idx,
         attribute;
-    for (idx = 0; idx < array.length(); ++idx) {
+    for (idx = 0; idx < array.count(); ++idx) {
         attribute = array.get(idx);
         if (attribute._interfaceDefinition === interfaceDefinition) {
             if (attribute._builder) {
