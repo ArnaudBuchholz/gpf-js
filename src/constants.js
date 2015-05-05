@@ -36,6 +36,7 @@
 /*global _gpfIdentifierFirstChar*/ // allowed first char in an identifier
 /*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
+/*global _gpfArrayOrItem*/ // Common way to code IArray::get
 /*global _gpfJsKeywords*/ //  List of JavaScript keywords
 /*global _gpfDefer*/ // Defer the execution of the callback
 /*global _gpfJsonStringify*/ // JSON.stringify

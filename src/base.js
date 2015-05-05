@@ -3,6 +3,7 @@
 /*global _gpfHost*/ // Host type
 /*global _gpfInNode*/ // The current host is a nodeJS like
 /*global _gpfExit*/ // Exit function
+/*exported _gpfArrayOrItem*/
 /*exported _gpfStringCapitalize*/
 /*exported _gpfStringEscapeFor*/
 /*#endif*/
@@ -47,6 +48,36 @@ var
             idx;
         for (idx = 0; idx < len; ++idx) {
             memberCallback.apply(this, [idx, array[idx], len]);
+        }
+    },
+
+    /**
+    * Provides a common way to code functions that returns either an array
+    * of results or a given item inside the array using an optional index
+    * parameter (such as for IXmlConstNode:children)
+    *
+    * @param {[]} array Array to grab items from
+    * @param {Number} [idx=undefined] idx Index of the item to get.
+    *        When not specified, a copy of the array is returned (to avoid
+    *        source modifications). When specified:
+    *        if -1, returns the last element of the array or undefined
+    *        if positive, returns the Nth element of the array or undefined
+    *        otherwise, returns undefined
+    * @return {*}
+    */
+    _gpfArrayOrItem = function (array, idx) {
+        if (undefined === idx) {
+            // To avoid result modifications altering source, clone
+            // TODO may not work with IE < 9
+            return Array.prototype.slice.call(array, 0);
+        } else if (0 === array.length) {
+            return undefined;
+        } else if (-1 === idx) {
+            return array[array.length - 1];
+        } else if (idx < -1 || idx > array.length - 1) {
+            return undefined;
+        } else {
+            return array[idx];
         }
     },
 
