@@ -197,14 +197,17 @@ function _queryInterface (interfaceDefinition) {
             .member("Class")
             .filter(gpf.attributes.InterfaceImplementAttribute),
         idx,
-        attribute;
-    for (idx = 0; idx < array.count(); ++idx) {
+        attribute,
+        builder;
+    for (idx = 0; idx < array.length(); ++idx) {
         attribute = array.get(idx);
-        if (attribute._interfaceDefinition === interfaceDefinition) {
-            if (attribute._builder) {
-                return attribute._builder(this);
+        builder = attribute._builder;
+        if (attribute._interfaceDefinition === interfaceDefinition && builder) {
+            if ("function" === typeof builder) {
+                return builder(this);
             }
-            break;
+            // Expects a member name
+            return this[builder]();
         }
     }
     // Otherwise
@@ -234,8 +237,9 @@ function _wrapQueryInterface (orgQueryInterface) {
  * Extend the class to provide an array-like interface
  *
  * @param {Function} interfaceDefinition Implemented interface definition
- * @param {Function} [queryInterfaceBuilder=undefined] queryInterfaceBuilder
- * Function applied if the implemented interface is requested
+ * @param {Function|String} [queryInterfaceBuilder=undefined]
+ * queryInterfaceBuilder. Function or member name to executed if the implemented
+ * interface is requested
  *
  * @class gpf.attributes.ClassArrayInterfaceAttribute
  * @extends gpf.attributes.ClassAttribute
