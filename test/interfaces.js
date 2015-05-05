@@ -4,6 +4,7 @@
 describe("interfaces", function () {
 
     var
+        gpfIEventDispatcher = gpf.interfaces.IEventDispatcher,
         SampleEventDispatcherWithAddOnly = function () {},
         SampleEventDispatcherComplete = function () {},
         fakeAddEventListener = function (a, b, c) {
@@ -35,7 +36,7 @@ describe("interfaces", function () {
                 removeEventListener: fakeRemoveEventListener
             };
             assert(true === gpf.interfaces.isImplementedBy(test,
-              gpf.interfaces.IEventDispatcher));
+                gpfIEventDispatcher));
         });
 
         it("checks function signatures", function () {
@@ -46,19 +47,17 @@ describe("interfaces", function () {
                 removeEventListener: fakeRemoveEventListener
             };
             assert(false === gpf.interfaces.isImplementedBy(test,
-              gpf.interfaces.IEventDispatcher));
+                gpfIEventDispatcher));
         });
 
         it("works through inheritance", function () {
             assert(true === gpf.interfaces.isImplementedBy(
-              new SampleEventDispatcherComplete(),
-              gpf.interfaces.IEventDispatcher));
+              new SampleEventDispatcherComplete(), gpfIEventDispatcher));
         });
 
         it("works with classes", function () {
             assert(true === gpf.interfaces.isImplementedBy(
-              SampleEventDispatcherComplete,
-              gpf.interfaces.IEventDispatcher));
+              SampleEventDispatcherComplete, gpfIEventDispatcher));
         });
 
     });
@@ -68,7 +67,7 @@ describe("interfaces", function () {
         it("generates an error if interface not available", function () {
             var caught;
             try {
-                gpf.interfaces.query({}, gpf.interfaces.IEventDispatcher);
+                gpf.interfaces.query({}, gpfIEventDispatcher);
             } catch (e) {
                 caught = e;
             }
@@ -81,15 +80,76 @@ describe("interfaces", function () {
         });
 
         it("can also just return null if interface not available", function () {
-            assert(null === gpf.interfaces.query({},
-                gpf.interfaces.IEventDispatcher, false));
+            assert(null === gpf.interfaces.query({}, gpfIEventDispatcher,
+                false));
         });
 
-        it("retrieves an object implementing the expected interface");
+        it("retrieves an object for the expected interface", function () {
+            var instance = new SampleEventDispatcherComplete(),
+                iEventDispatcher = gpf.interfaces.query(instance,
+                    gpfIEventDispatcher, false);
+            assert(null !== iEventDispatcher);
+            assert(instance === iEventDispatcher);
+            assert(true === gpf.interfaces.isImplementedBy(iEventDispatcher,
+                gpfIEventDispatcher));
+        });
+
+    });
+
+    describe("IUnknown", function () {
+
+        var
+            SampleBuilder = function () {};
+        SampleBuilder.prototype.queryInterface = function (iDefinition) {
+            if (gpfIEventDispatcher === iDefinition) {
+                return new SampleEventDispatcherComplete();
+            }
+            return null;
+        };
+
+        it("exposes queryInterface", function () {
+            assert(true === gpf.interfaces.isImplementedBy(SampleBuilder,
+                gpf.interfaces.IUnknown));
+        });
+
+        it("is used by gpf.interfaces.query", function () {
+            var instance = new SampleBuilder(),
+                iEventDispatcher = gpf.interfaces.query(instance,
+                    gpfIEventDispatcher, false);
+            assert(null !== iEventDispatcher);
+            assert(true === gpf.interfaces.isImplementedBy(iEventDispatcher,
+                gpfIEventDispatcher));
+        });
 
     });
 
     describe("$InterfaceImplement", function () {
+
+        var
+            SampleBuilder = gpf.define("SampleBuilder", {
+                "[Class]": [gpf.$InterfaceImplement(gpfIEventDispatcher,
+                    "_getAswEventDispatcher")],
+
+                private: {
+                    _getAswEventDispatcher: function () {
+                        return new SampleEventDispatcherComplete();
+                    }
+                }
+            });
+
+        it("exposes queryInterface", function () {
+            assert(true === gpf.interfaces.isImplementedBy(SampleBuilder,
+                gpf.interfaces.IUnknown));
+        });
+
+        it("is used by gpf.interfaces.query", function () {
+            var instance = new SampleBuilder(),
+                iEventDispatcher = gpf.interfaces.query(instance,
+                    gpfIEventDispatcher, false);
+            assert(null !== iEventDispatcher);
+            assert(true === gpf.interfaces.isImplementedBy(iEventDispatcher,
+                gpfIEventDispatcher));
+        });
 
     });
 
