@@ -75,17 +75,17 @@ describe("attributes", function () {
         it("is available through gpf.attributes.Map", function () {
             var attributes = new gpf.attributes.Map(a);
             assert(2 === attributes.count());
-            assert(1 === attributes.member("_a").count());
-            assert(0 === attributes.member("_b").count());
-            assert(1 === attributes.member("_c").count());
+            assert(1 === attributes.member("_a").length());
+            assert(0 === attributes.member("_b").length());
+            assert(1 === attributes.member("_c").length());
         });
 
         it("inherits from base class", function () {
             var attributes = new gpf.attributes.Map(b);
             assert(4 === attributes.count());
-            assert(1 === attributes.member("_a").count());
-            assert(1 === attributes.member("_b").count());
-            assert(2 === attributes.member("_c").count());
+            assert(1 === attributes.member("_a").length());
+            assert(1 === attributes.member("_b").length());
+            assert(2 === attributes.member("_c").length());
         });
 
         it("signals any use on non-existing member", function () {
@@ -109,7 +109,7 @@ describe("attributes", function () {
         it("allows to test the presence of an attribute", function () {
             var attributes = new gpf.attributes.Map(a),
                 attributesForA = attributes.member("_a");
-            assert(1 === attributesForA.count());
+            assert(1 === attributesForA.length());
             assert(null !== attributesForA.has(Test1ValueAttribute));
             assert(null === attributesForA.has(Test2ValueAttribute));
         });
@@ -121,7 +121,7 @@ describe("attributes", function () {
                     attributesForC.filter(Test1ValueAttribute),
                 test2ValueAttributesForC =
                     attributesForC.filter(Test2ValueAttribute);
-            assert(2 === attributesForC.count());
+            assert(2 === attributesForC.length());
             assert(null !== test1ValueAttributesForC.has(Test1ValueAttribute));
             assert(null === test1ValueAttributesForC.has(Test2ValueAttribute));
             assert(null === test2ValueAttributesForC.has(Test1ValueAttribute));
@@ -178,7 +178,7 @@ describe("attributes", function () {
                 attributesTest2Value =
                     attributes.filter(Test2ValueAttribute);
             assert(2 === attributesTest2Value.count());
-            assert(1 === attributesTest2Value.member("_c").count());
+            assert(1 === attributesTest2Value.member("_c").length());
         });
 
         it("offers an enumeration function based on gpf.each", function () {
@@ -215,11 +215,11 @@ describe("attributes", function () {
             attributes.add("_a", new Test2ValueAttribute());
             assert(3 === attributes.count());
             attributesForA = attributes.member("_a");
-            assert(2 === attributesForA.count());
+            assert(2 === attributesForA.length());
             attributes2 = new gpf.attributes.Map(a);
             assert(2 === attributes2.count());
             attributesForA = attributes2.member("_a");
-            assert(1 === attributesForA.count());
+            assert(1 === attributesForA.length());
         });
 
     });
