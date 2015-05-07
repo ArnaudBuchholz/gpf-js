@@ -187,3 +187,5 @@ _gpfErrorDeclare("boot", {
     AssertionFailed:
         "Assertion failed: {message}"
 });
+
+_gpfIgnore(_GPF_ERRORS);
