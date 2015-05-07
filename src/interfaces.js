@@ -6,6 +6,7 @@
 /*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
 /*global _gpfDefAttr*/ // gpf.define for attributes
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*exported _gpfI*/
 /*#endif*/
 
 _gpfErrorDeclare("interfaces", {
@@ -13,84 +14,91 @@ _gpfErrorDeclare("interfaces", {
         "Expected interface not implemented: {name}"
 });
 
-gpf.interfaces = {
-
+var
     /**
-     * Verify that the object implements the current interface
+     * gpf.attributes shortcut
      *
-     * @param {Object|Function} inspectedObject object (or class) to inspect
-     * @param {gpf.interfaces.Interface} interfaceDefinition reference
-     * interface
-     * @return {Boolean}
+     * @type {Object}
+     * @private
      */
-    isImplementedBy: function (inspectedObject, interfaceDefinition) {
-        var member,
-            memberReference,
-            memberValue,
-            memberType;
-        if (inspectedObject instanceof Function) {
-            inspectedObject = inspectedObject.prototype;
-        }
-        /*
-         * IMPORTANT note: we test the object itself (i.e. own members and
-         * the prototype). That's why the hasOwnProperty is skipped
+    _gpfI = gpf.interfaces = {
+
+        /**
+         * Verify that the object implements the current interface
+         *
+         * @param {Object|Function} inspectedObject object (or class) to inspect
+         * @param {gpf.interfaces.Interface} interfaceDefinition reference
+         * interface
+         * @return {Boolean}
          */
-        /*jslint forin:false*/
-        for (member in interfaceDefinition.prototype) {
-            if ("constructor" === member                               // Object
-                || "extend" === member) {                           // gpf.Class
-                continue;
+        isImplementedBy: function (inspectedObject, interfaceDefinition) {
+            var member,
+                memberReference,
+                memberValue,
+                memberType;
+            if (inspectedObject instanceof Function) {
+                inspectedObject = inspectedObject.prototype;
             }
-            memberReference = interfaceDefinition.prototype[member];
-            memberValue = inspectedObject[member];
-            memberType = typeof memberValue;
-            if (typeof memberReference !== memberType) {
-                return false;
+            /*
+             * IMPORTANT note: we test the object itself (i.e. own members and
+             * the prototype). That's why the hasOwnProperty is skipped
+             */
+            /*jslint forin:false*/
+            for (member in interfaceDefinition.prototype) {
+                if ("constructor" === member                           // Object
+                    || "extend" === member) {                       // gpf.Class
+                    continue;
+                }
+                memberReference = interfaceDefinition.prototype[member];
+                memberValue = inspectedObject[member];
+                memberType = typeof memberValue;
+                if (typeof memberReference !== memberType) {
+                    return false;
+                }
+                if ("function" === memberType
+                    && memberReference.length !== memberValue.length) {
+                    return false;
+                }
             }
-            if ("function" === memberType
-                && memberReference.length !== memberValue.length) {
-                return false;
-            }
-        }
-        /*jslint forin:true*/
-        return true;
-    },
+            /*jslint forin:true*/
+            return true;
+        },
 
-    /**
-     * Retrieve an object implementing the expected interface from an
-     * object.
-     * This is done in two passes:
-     * - Either the object implements the interface, it is returned
-     * - Or the object implements IUnknown, then queryInterface is used
-     *
-     * @param {Object} objectInstance object to inspect
-     * @param {gpf.interfaces.Interface} interfaceDefinition reference
-     * interface
-     * @param {Boolean} [throwError=true] throwError Throws an error if the
-     * interface is not found (otherwise, null is returned)
-     * @return {Object|null}
-     */
-    query: function (objectInstance, interfaceDefinition, throwError) {
-        var result = null;
-        if (gpf.interfaces.isImplementedBy(objectInstance,
-            interfaceDefinition)) {
-            return objectInstance;
-        } else if (gpf.interfaces.isImplementedBy(objectInstance,
-            gpf.interfaces.IUnknown)) {
-            result = objectInstance.queryInterface(interfaceDefinition);
+        /**
+         * Retrieve an object implementing the expected interface from an
+         * object.
+         * This is done in two passes:
+         * - Either the object implements the interface, it is returned
+         * - Or the object implements IUnknown, then queryInterface is used
+         *
+         * @param {Object} objectInstance object to inspect
+         * @param {gpf.interfaces.Interface} interfaceDefinition reference
+         * interface
+         * @param {Boolean} [throwError=true] throwError Throws an error if the
+         * interface is not found (otherwise, null is returned)
+         * @return {Object|null}
+         */
+        query: function (objectInstance, interfaceDefinition, throwError) {
+            var result = null;
+            if (gpf.interfaces.isImplementedBy(objectInstance,
+                interfaceDefinition)) {
+                return objectInstance;
+            } else if (gpf.interfaces.isImplementedBy(objectInstance,
+                gpf.interfaces.IUnknown)) {
+                result = objectInstance.queryInterface(interfaceDefinition);
+            }
+            if (undefined === throwError) {
+                throwError = true;
+            }
+            if (null === result && throwError) {
+                throw gpf.Error.InterfaceExpected({
+                    name: _gpfGetClassDefinition(interfaceDefinition).name()
+                });
+            }
+            return result;
         }
-        if (undefined === throwError) {
-            throwError = true;
-        }
-        if (null === result && throwError) {
-            throw gpf.Error.InterfaceExpected({
-                name: _gpfGetClassDefinition(interfaceDefinition).name()
-            });
-        }
-        return result;
-    }
 
-};
+    };
 
 /**
  * Defines an interface (relies on gpf.define)

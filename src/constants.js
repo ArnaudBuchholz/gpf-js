@@ -48,7 +48,9 @@
 /*global _gpfDefAttr*/ // gpf.define for attributes
 /*global _gpfArrayEachWithResult*/ //gpf.each implementation on array
 /*global _gpfDictionaryEachWithResult*/ //gpf.each implementation on dictionary
+/*global _gpfI*/ // gpf.interfaces
 /*global _gpfDefIntrf*/ // gpf.define for interfaces
+/*global _gpfArrayEnumerator*/ // Create an IEnumerator from an array
 
     var
 /*#ifdef(RELEASE)*/
