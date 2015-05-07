@@ -29,11 +29,11 @@
             "a_class",              // Class attributes
 
             "interfaces",           // Interfaces                 gpf.interfaces
+            "i_enumerator",         // IEnumerator
 
             "",                     // --- temporary end marker ---
 
             "att_json",             // JSON serializer
-            "i_enumerable",         // IEnumerable
             "i_array",              // IArray
             "i_stream",             // IStream and helpers            gpf.stream
             "string",               // String functions
