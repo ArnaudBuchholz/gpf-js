@@ -19,10 +19,6 @@ var
         "ClassInvalidVisibility":
             "Invalid visibility keyword",
 
-        // i_enumerable.js
-        "EnumerableInvalidMember":
-            "$Enumerable can be associated to arrays only",
-
         // parser.js
         "PatternUnexpected":
             "Invalid syntax (unexpected)",
