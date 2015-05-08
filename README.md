@@ -3,6 +3,10 @@
 A multi-purpose JavaScript library created and maintained by
 [Arnaud Buchholz](http://gpf-js.blogspot.com/).
 
+[![NPM](https://nodei.co/npm/gpf-js.png?downloads=true&&downloadRank=true&stars=true)](https://nodei.co/npm/gpf-js/)
+[![NPM](https://nodei.co/npm-dl/gpf-js.png?months=3&height=3)](https://nodei.co/npm/gpf-js/)
+
+
 [Plato analysis](http://arnaudbuchholz.github.io/plato/gpf-js/index.html)
 
 ## Huge refactoring in progress
