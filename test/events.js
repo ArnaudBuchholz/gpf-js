@@ -10,7 +10,7 @@ describe("events", function () {
             "DATA",
             "END_OF_DATA"
         ].forEach(function (eventName) {
-            it("declares EVENT_" + eventName, function () {
+            it("declares gpf.events.EVENT_" + eventName, function () {
                 assert(undefined !== gpf.events["EVENT_" + eventName]);
             });
         });

@@ -39,7 +39,7 @@
         if (!gpf.sources) {
             console.log("Missing sources");
             gpf.web.include(gpfSourcesPath + "sources.js", {
-                load: _load
+                ready: _load
             });
             return;
         }
@@ -50,7 +50,7 @@
         }
         if (dependencyIdx < dependencies.length) {
             gpf.web.include(dependencies[dependencyIdx], {
-                load: _load
+                ready: _load
             });
             ++dependencyIdx;
             return;
@@ -59,7 +59,7 @@
         // Check if console override is defined
         if (undefined === console.expects) {
             gpf.web.include(gpfTestsPath + "host/console.js", {
-                load: _load
+                ready: _load
             });
             return;
         }
@@ -74,7 +74,7 @@
             var source = sources[sourceIdx];
             if (source) {
                 gpf.web.include(gpfTestsPath + source + ".js", {
-                    load: _load
+                    ready: _load
                 });
                 ++sourceIdx;
                 return;
