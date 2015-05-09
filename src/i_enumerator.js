@@ -6,6 +6,7 @@
 /*global _gpfI*/ // gpf.interfaces
 /*global _gpfDefIntrf*/ // gpf.define for interfaces
 /*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*exported _gpfArrayEnumerator*/
 /*#endif*/
 
@@ -23,19 +24,36 @@ _gpfErrorDeclare("i_enumerator", {
 _gpfDefIntrf("IEnumerator", {
 
     /**
-     * Sets the enumerator to its initial position, which is before the
+     * Sets the enumerator to its initial position, which is *before* the
      * first element in the collection
      */
     reset: function () {
     },
 
     /**
-     * Advances the enumerator to the next element of the collection
-     * @return {Boolean} true if the enumerator was successfully advanced
-     * to the next element; false if the enumerator has passed the end of
-     * the collection
+     * Advances the enumerator to the next element of the enumeration
+     *
+     * @param {gpf.events.Handler} eventsHandler
+     * @return {Boolean}
+     * <ul>
+     *     <li>true if the enumerator was successfully advanced to the next
+     *     element</li>
+     *     <li>false if the enumerator has passed the end of the collection or
+     *     it has to go through an asynchronous operation</li>
+     *     <li></li>
+     * <ul>
+     *
+     * NOTE: if no eventsHandler is specified, no asynchronous operation will
+     * be triggered when false is returned.
+     *
+     * @event data the asynchronous operation succeeded, the current item is
+     * available
+     *
+     * @event endOfData no more data is available
      */
-    moveNext: function () {
+    "[moveNext]": [gpf.$ClassEventHandler()],
+    moveNext: function (eventsHandler) {
+        _gpfIgnore(eventsHandler);
         return false;
     },
 

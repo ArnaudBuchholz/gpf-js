@@ -3,6 +3,19 @@
 
 describe("events", function () {
 
+    describe("gpf.events.EVENT_xxx", function () {
+        [ // expected list of known events
+            "ERROR",
+            "READY",
+            "DATA",
+            "END_OF_DATA"
+        ].forEach(function (eventName) {
+            it("declares EVENT_" + eventName, function () {
+                assert(undefined !== gpf.events["EVENT_" + eventName]);
+            });
+        });
+    });
+
     describe("gpf.events.Event", function () {
 
         it("has a correct class structure", function () {

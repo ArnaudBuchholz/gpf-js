@@ -5,6 +5,9 @@
 /*global _gpfContext*/ // Main context object
 /*global _gpfWebDocument*/ // Browser document object
 /*global _gpfWebHead*/ // Browser head tag
+/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
+/*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
 /*#endif*/
 
 var
@@ -46,12 +49,14 @@ var
      * @private
      */
     _gpfWebIncludeAsyncResult = function (parameters) {
-        gpf.events.fire.apply(_gpfContext, parameters);
+        _gpfEventsFire.apply(_gpfContext, parameters);
     },
 
     /**
      * @inheritdoc gpf.web:include
      * Implementation of gpf.web.include
+     *
+     * Inspired from http://stackoverflow.com/questions/4845762/
      */
     _gpfWebInclude = function (src, eventsHandler) {
         var
@@ -135,7 +140,7 @@ _GpfIncludeContext.prototype = {
             this.clean(domScript);
             // IE10: the event is triggered *before* the source is evaluated
             setTimeout(_gpfWebIncludeAsyncResult, 0, [
-                "load", {url: this.src}, this.eventsHandler
+                _GPF_EVENT_READY, {url: this.src}, this.eventsHandler
             ]);
         }
 
@@ -149,7 +154,7 @@ _GpfIncludeContext.prototype = {
     failed: function (domScript) {
         this.clean(domScript);
         setTimeout(_gpfWebIncludeAsyncResult, 0, [
-            "error", {url: this.src}, this.eventsHandler
+            _GPF_EVENT_ERROR, {url: this.src}, this.eventsHandler
         ]);
     }
 
@@ -208,11 +213,11 @@ if (_gpfInBrowser) {
      *
      * @eventParam {string} url URL of the included resource
      *
-     * @event load The resource has been successfully loaded
+     * @event gpf.events.EVENT_READY
+     * The resource has been successfully loaded
      *
-     * @event error An error occurred when loading the resource
-     *
-     * Inspired from http://stackoverflow.com/questions/4845762/
+     * @event gpf.events.EVENT_ERROR
+     * An error occurred when loading the resource
      */
     gpf.web.include = _gpfWebInclude;
 

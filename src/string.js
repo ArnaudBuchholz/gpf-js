@@ -2,13 +2,13 @@
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*global _gpfStringCapitalize*/ // Capitalize the string
-(function () { /* Begin of privacy scope */
-    "use strict";
+/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
+"use strict";
 /*#endif*/
 
     var
         gpfI = gpf.interfaces,
-        gpfFireEvent = gpf.events.fire,
 
         /**
          * Implements ITextStream on top of a string (FIFO read / write)
@@ -45,14 +45,15 @@
                     var
                         result;
                     if (0 === this._buffer.length) {
-                        gpfFireEvent.apply(this, [
+                        _gpfEventsFire.apply(this, [
                             gpfI.IReadableStream.EVENT_END_OF_STREAM,
+                            {},
                             eventsHandler
                         ]);
                     } else {
                         result = gpf.stringExtractFromStringArray(this._buffer,
                             count);
-                        gpfFireEvent.apply(this, [
+                        _gpfEventsFire.apply(this, [
                             gpfI.IReadableStream.EVENT_DATA,
                             {
                                 buffer: result
@@ -69,8 +70,9 @@
                     gpf.ASSERT(buffer && buffer.length,
                         "Write must contain data");
                     this._buffer.push(buffer);
-                    gpfFireEvent.apply(this, [
+                    _gpfEventsFire.apply(this, [
                         gpfI.IReadableStream.EVENT_READY,
+                        {},
                         eventsHandler
                     ]);
                 },
@@ -220,7 +222,7 @@
          */
         stringFromStream: function (stream, eventsHandler) {
             if (stream instanceof StringStream) {
-                gpfFireEvent.apply(this, [
+                _gpfEventsFire.apply(this, [
                     gpfI.IReadableStream.EVENT_DATA,
                     {
                         buffer: stream.consolidateString()
@@ -300,9 +302,11 @@
         if (0 === this._step) {
             var info = event.get("info");
             if (info.type === gpf.fs.TYPE_NOT_FOUND) {
-                gpf.events.fire("error", {
-                    error: gpf.Error.FileNotFound()
-                }, this._eventsHandler);
+                _gpfEventsFire.apply(this, [
+                    _GPF_EVENT_ERROR, {
+                        error: gpf.Error.FileNotFound()
+                    }, this._eventsHandler
+                ]);
                 return;
             }
             this._step = 1;
@@ -321,11 +325,7 @@
      */
     StringFromFileScope.prototype["*"] = function (event) {
         // Forward to original handler (error or data)
-        gpf.events.fire(event, this._eventsHandler);
+        _gpfEventsFire.apply(this, [event, {}, this._eventsHandler]);
     };
 
     //endregion
-
-/*#ifndef(UMD)*/
-}()); /* End of privacy scope */
-/*#endif*/
