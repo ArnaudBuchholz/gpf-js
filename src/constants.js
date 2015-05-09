@@ -51,8 +51,14 @@
 /*global _gpfI*/ // gpf.interfaces
 /*global _gpfDefIntrf*/ // gpf.define for interfaces
 /*global _gpfArrayEnumerator*/ // Create an IEnumerator from an array
+/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
+/*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
+/*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
+/*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
+/*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
 
-    var
+var
 /*#ifdef(RELEASE)*/
     _gpfTypeofBoolean = "boolean",
     _gpfTypeofFunction = "function",
@@ -76,6 +82,20 @@
     /*#define false _gpfFalse*/
     /*#define null _gpfNull*/
 /*#endif*/
+
+    //region Events
+
+    _GPF_EVENT_ERROR               = "error",
+    _GPF_EVENT_READY               = "ready",
+    _GPF_EVENT_DATA                = "data",
+    _GPF_EVENT_END_OF_DATA         = "endOfData",
+
+    //endregion
+
+    /**
+     * @inheritdoc gpf#setReadOnlyProperty
+     */
+    _gpfSetReadOnlyProperty = gpf.setReadOnlyProperty,
 
     // https://github.com/jshint/jshint/issues/525
     _GpfFunc = Function, // avoid JSHint error

@@ -1,5 +1,10 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
+/*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
+/*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
+/*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
+/*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
 /*#endif*/
@@ -14,6 +19,24 @@ gpf.events = {
      * @alias {gpf.events.Handler}
      */
 };
+
+// Create events constants
+(function () {
+    var gpfEvents = gpf.events,
+        mappings = {
+            EVENT_ERROR: _GPF_EVENT_ERROR,
+            EVENT_READY: _GPF_EVENT_READY,
+            EVENT_DATA: _GPF_EVENT_DATA,
+            EVENT_END_OF_DATA: _GPF_EVENT_END_OF_DATA
+        },
+        key;
+    for (key in mappings) {
+        if (mappings.hasOwnProperty(key)) {
+            _gpfSetReadOnlyProperty(gpfEvents, key, mappings[key]);
+        }
+    }
+
+}());
 
 var
     /**
