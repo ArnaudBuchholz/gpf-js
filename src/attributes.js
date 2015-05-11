@@ -1,5 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
@@ -8,6 +9,13 @@
 /*global _gpfDictionaryEachWithResult*/ //gpf.each implementation on dictionary
 /*global _gpfArrayOrItem*/ // Common way to code IArray::get
 // /*#endif*/
+
+_gpfErrorDeclare("attributes", {
+    UniqueAttributeConstraint:
+        "Attribute {attributeName} already defined on {className}",
+    UniqueMemberAttributeConstraint:
+        "Attribute {attributeName} already defined on {className}::{memberName}"
+});
 
 var
     /**
@@ -185,6 +193,62 @@ _gpfDefAttr("$Alias", {
          */
         constructor: function (name) {
             this._name = name;
+        }
+
+    }
+
+});
+
+/**
+ * Used on attribute classes to mark them as unique through the class hierarchy
+ * or per member.
+ * If one try to define it more than once, an error is raised.
+ *
+ * @param {Boolean} name Name of the alias to build below gpf
+
+ * @class gpf.attributes.UniqueAttributeAttribute
+ * @extends gpf.attributes.Attribute
+ * @alias gpf.$UniqueAttribute
+ */
+_gpfDefAttr("$UniqueAttribute", {
+
+    private: {
+
+        /**
+         * The attribute is unique for the whole class when true or per member
+         * when false.
+         *
+         * @type {Boolean}
+         * @private
+         */
+        _classScope: true
+
+    },
+
+    public: {
+
+        /**
+         * Restricts attribute multiplicity
+         *
+         * @param {Boolean} [classScope=true] classScope True to set limit to
+         * one instance per class (including hierarchy) or false to limit to one
+         * instance per member.
+         * @constructor
+         */
+        constructor: function (classScope) {
+            if (undefined !== classScope) {
+                this._classScope = true === classScope;
+            }
+        },
+
+        /**
+         * The attribute is unique for the whole class when true or per member
+         * when false.
+         *
+         * @returns {Boolean}
+         */
+        classScope: function () {
+            return this._classScope;
         }
 
     }
@@ -559,20 +623,51 @@ gpf.define("gpf.attributes.Map", {
  *
  * @param {Function} objectClass class constructor
  * @param {String} name member name
- * @param {gpf.attributes.Attribute[]} attributes
+ * @param {gpf.attributes.Attribute|gpf.attributes.Attribute[]} attributes
  */
 _gpfA.add = function (objectClass, name, attributes) {
     var
-        attributeList,
+        objectClassDef,
+        objectClassAttributes,
         len,
         idx,
-        attribute;
-    attributeList = _gpfGetClassDefinition(objectClass).attributes();
+        attribute,
+        attributeClassDef,
+        uniqueAttribute,
+        sameAttributes;
+    objectClassDef = _gpfGetClassDefinition(objectClass);
+    objectClassAttributes = objectClassDef.attributes();
+    if (!(attributes instanceof Array)) {
+        attributes = [attributes];
+    }
     len = attributes.length;
     for (idx = 0; idx < len; ++idx) {
         attribute = attributes[idx];
+        attributeClassDef = _gpfGetClassDefinition(attribute.constructor);
+        // Any unique attribute defined?
+        uniqueAttribute = attributeClassDef.attributes()
+            .member("Class")
+            .has(_gpfA.UniqueAttributeAttribute);
+        if (uniqueAttribute) {
+            sameAttributes = objectClassAttributes
+                .filter(attribute.constructor);
+            if (uniqueAttribute.classScope()) {
+                if (0 < sameAttributes.count()) {
+                    throw gpf.Error.UniqueAttributeConstraint({
+                        attributeName: attributeClassDef.name(),
+                        className: objectClassDef.name()
+                    });
+                }
+            } else if (0 < sameAttributes.member(name).count()) {
+                throw gpf.Error.UniqueMemberAttributeConstraint({
+                    attributeName: attributeClassDef.name(),
+                    className: objectClassDef.name(),
+                    memberName: name
+                });
+            }
+        }
         attribute._member = name; // Assign member name
-        attributeList.add(name, attribute);
+        objectClassAttributes.add(name, attribute);
         attribute._alterPrototype(objectClass.prototype);
     }
 };

@@ -224,4 +224,26 @@ describe("attributes", function () {
 
     });
 
+    describe("gpf.$UniqueAttribute", function () {
+
+        describe("on class scope", function () {
+
+            var
+                AttributeClass = gpf.attributes.Attribute,
+                TestAttribute = gpf.define("TestAttribute", AttributeClass, {
+                    "Class": [gpf.$UniqueAttribute(true)]
+                }),
+                TestClass = gpf.define("TestClass", {
+                    "Class": [new TestAttribute()]
+                });
+
+            it("prevents defining the attribute twice", function () {
+                debugger;
+                gpf.attributes.add(TestClass, "Class", new TestAttribute());
+            });
+
+        });
+
+    });
+
 });
