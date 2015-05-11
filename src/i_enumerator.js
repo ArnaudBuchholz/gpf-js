@@ -7,6 +7,8 @@
 /*global _gpfDefIntrf*/ // gpf.define for interfaces
 /*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
 /*exported _gpfArrayEnumerator*/
 /*#endif*/
 
@@ -74,17 +76,29 @@ _gpfDefIntrf("IEnumerator", {
  * @return {Object} Object implementing the IEnumerable interface
  * @private
  */
-function _arrayEnumerator(array) {
+function _gpfArrayEnumerator(array) {
     var pos = -1;
     return {
         reset: function () {
             pos = -1;
         },
-        moveNext: function () {
+        moveNext: function (eventsHandler) {
+            var result;
             ++pos;
-            return pos < array.length;
+            result = pos < array.length;
+            if (!result && eventsHandler) {
+                _gpfEventsFire.apply(this, [
+                    _GPF_EVENT_END_OF_DATA,
+                    {},
+                    eventsHandler
+                ]);
+            }
+            return result;
         },
         current: function () {
+            if (0 > pos || pos >= array.length) {
+                return undefined;
+            }
             return array[pos];
         }
     };
@@ -102,9 +116,7 @@ function _buildEnumeratorOnObjectArray(object) {
     var
         attributes = new _gpfA.Map(object).filter(_gpfA.EnumerableAttribute),
         members = attributes.members();
-    gpf.ASSERT(members.length === 1,
-        "Only one member can be defined as enumerable");
-    return _arrayEnumerator(object[members[0]]);
+    return _gpfArrayEnumerator(object[members[0]]);
 }
 
 /**
