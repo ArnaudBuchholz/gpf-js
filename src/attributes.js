@@ -623,42 +623,66 @@ gpf.define("gpf.attributes.Map", {
  *
  * @param {Function} objectClass class constructor
  * @param {String} name member name
- * @param {gpf.attributes.Attribute|gpf.attributes.Attribute[]} attributes
+ * @param {gpf.attributes.Array
+ *        |gpf.attributes.Attribute
+ *        |gpf.attributes.Attribute[]} attributes
  */
 _gpfA.add = function (objectClass, name, attributes) {
+
+    if (attributes instanceof _gpfA.Array) {
+        attributes = attributes._array;
+    } else if (!(attributes instanceof Array)) {
+        attributes = [attributes];
+    }
     var
         objectClassDef,
         objectClassAttributes,
+        objectClassOwnAttributes,
         len,
         idx,
         attribute,
+        attributeClass,
         attributeClassDef,
+        attributeAttributes,
         uniqueAttribute,
-        sameAttributes;
+        sameAttributesInObj;
+
+    // Get class definition
     objectClassDef = _gpfGetClassDefinition(objectClass);
-    objectClassAttributes = objectClassDef.attributes();
-    if (!(attributes instanceof Array)) {
-        attributes = [attributes];
-    }
+
+    // Get *editable* own attributes
+    objectClassOwnAttributes = objectClassDef.attributes();
+
+    // Get *resolved* attributes
+    objectClassAttributes = new _gpfA.Map();
+    objectClassAttributes.fillFromClassDef(objectClassDef);
+
     len = attributes.length;
     for (idx = 0; idx < len; ++idx) {
         attribute = attributes[idx];
-        attributeClassDef = _gpfGetClassDefinition(attribute.constructor);
+        gpf.ASSERT(attribute instanceof _gpfA.Attribute, "Expected attribute");
+
+        // Get attribute class definition
+        attributeClass = attribute.constructor;
+        attributeClassDef = _gpfGetClassDefinition(attributeClass);
+
+        // Get resolved attributes for this attribute class
+        attributeAttributes = new _gpfA.Map();
+        attributeAttributes.fillFromClassDef(attributeClassDef);
+
         // Any unique attribute defined?
-        uniqueAttribute = attributeClassDef.attributes()
-            .member("Class")
+        uniqueAttribute = attributeAttributes.member("Class")
             .has(_gpfA.UniqueAttributeAttribute);
         if (uniqueAttribute) {
-            sameAttributes = objectClassAttributes
-                .filter(attribute.constructor);
+            sameAttributesInObj = objectClassAttributes.filter(attributeClass);
             if (uniqueAttribute.classScope()) {
-                if (0 < sameAttributes.count()) {
+                if (0 < sameAttributesInObj.count()) {
                     throw gpf.Error.UniqueAttributeConstraint({
                         attributeName: attributeClassDef.name(),
                         className: objectClassDef.name()
                     });
                 }
-            } else if (0 < sameAttributes.member(name).count()) {
+            } else if (0 < sameAttributesInObj.member(name).length()) {
                 throw gpf.Error.UniqueMemberAttributeConstraint({
                     attributeName: attributeClassDef.name(),
                     className: objectClassDef.name(),
@@ -667,7 +691,7 @@ _gpfA.add = function (objectClass, name, attributes) {
             }
         }
         attribute._member = name; // Assign member name
-        objectClassAttributes.add(name, attribute);
+        objectClassOwnAttributes.add(name, attribute);
         attribute._alterPrototype(objectClass.prototype);
     }
 };
