@@ -226,20 +226,90 @@ describe("attributes", function () {
 
     describe("gpf.$UniqueAttribute", function () {
 
-        describe("on class scope", function () {
+        describe("(true) for the whole class", function () {
 
             var
                 AttributeClass = gpf.attributes.Attribute,
                 TestAttribute = gpf.define("TestAttribute", AttributeClass, {
-                    "Class": [gpf.$UniqueAttribute(true)]
+                    "[Class]": [gpf.$UniqueAttribute(true)]
                 }),
                 TestClass = gpf.define("TestClass", {
-                    "Class": [new TestAttribute()]
+                    "[Class]": [new TestAttribute()]
                 });
 
-            it("prevents defining the attribute twice", function () {
-                debugger;
-                gpf.attributes.add(TestClass, "Class", new TestAttribute());
+            it("prevents defining the attribute twice (define)", function () {
+                var caught = null;
+                try {
+                    gpf.define("TestClass2", TestClass, {
+                        "[Class]": [new TestAttribute()]
+                    });
+                } catch (e) {
+                    caught = e;
+                }
+                assert(null !== caught);
+                assert(caught.name === "UniqueAttributeConstraint");
+            });
+
+            it("prevents defining the attribute twice (add)", function () {
+                var caught = null;
+                try {
+                    gpf.attributes.add(TestClass, "Class", new TestAttribute());
+                } catch (e) {
+                    caught = e;
+                }
+                assert(null !== caught);
+                assert(caught.name === "UniqueAttributeConstraint");
+            });
+
+        });
+
+        describe("(false) for members", function () {
+
+            var
+              AttributeClass = gpf.attributes.Attribute,
+              TestAttribute = gpf.define("TestAttribute", AttributeClass, {
+                  "[Class]": [gpf.$UniqueAttribute(false)]
+              }),
+              TestClass = gpf.define("TestClass", {
+                  "[a]": [new TestAttribute()],
+                  a: 0
+              });
+
+            it("prevents defining the attribute twice (define)", function () {
+                var caught = null;
+                try {
+                    gpf.define("TestClass2", TestClass, {
+                        "[a]": [new TestAttribute()]
+                    });
+                } catch (e) {
+                    caught = e;
+                }
+                assert(null !== caught);
+                assert(caught.name === "UniqueMemberAttributeConstraint");
+            });
+
+            it("prevents defining the attribute twice (add)", function () {
+                var caught = null;
+                try {
+                    gpf.attributes.add(TestClass, "a", new TestAttribute());
+                } catch (e) {
+                    caught = e;
+                }
+                assert(null !== caught);
+                assert(caught.name === "UniqueMemberAttributeConstraint");
+            });
+
+            it("allows use in different members", function () {
+                var caught = null;
+                try {
+                    gpf.define("TestClass2", TestClass, {
+                        "[b]": [new TestAttribute()],
+                        b: 0
+                    });
+                } catch (e) {
+                    caught = e;
+                }
+                assert(null === caught);
             });
 
         });
