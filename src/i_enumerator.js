@@ -128,6 +128,8 @@ function _buildEnumeratorOnObjectArray(object) {
  */
 _gpfDefAttr("$Enumerable", _gpfA.ClassAttribute, {
 
+    "Class": [gpf.$UniqueAttribute()],
+
     /**
      * @inheritDoc gpf.attributes.Attribute:_alterPrototype
      */
