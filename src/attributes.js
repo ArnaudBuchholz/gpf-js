@@ -11,6 +11,8 @@
 // /*#endif*/
 
 _gpfErrorDeclare("attributes", {
+    OnlyForAttributeClass:
+        "The attribute {attributeName} can be used only on an Attribute class",
     UniqueAttributeConstraint:
         "Attribute {attributeName} already defined on {className}",
     UniqueMemberAttributeConstraint:
@@ -200,17 +202,42 @@ _gpfDefAttr("$Alias", {
 });
 
 /**
+ * Restricts the usage of an attribute to an attribute class only.
+ *
+ * @class gpf.attributes.AttributeClassOnlyAttribute
+ * @extends gpf.attributes.Attribute
+ */
+_gpfDefAttr("AttributeClassOnlyAttribute", {
+
+    protected: {
+
+        /**
+         * @inheritdoc gpf.attributes.Attribute:_alterPrototype
+         */
+        _alterPrototype: function (objPrototype) {
+            if (!(objPrototype instanceof _gpfA.Attribute)) {
+                throw gpf.Error.OnlyForAttributeClass({
+                    attributeName: _gpfGetClassDefinition(this.constructor)
+                        .name()
+                });
+            }
+        }
+
+    }
+
+});
+
+
+/**
  * Used on attribute classes to mark them as unique through the class hierarchy
  * or per member.
  * If one try to define it more than once, an error is raised.
  *
- * @param {Boolean} name Name of the alias to build below gpf
-
  * @class gpf.attributes.UniqueAttributeAttribute
  * @extends gpf.attributes.Attribute
  * @alias gpf.$UniqueAttribute
  */
-_gpfDefAttr("$UniqueAttribute", {
+_gpfDefAttr("$UniqueAttribute", _gpfA.AttributeClassOnlyAttribute, {
 
     private: {
 
@@ -222,6 +249,72 @@ _gpfDefAttr("$UniqueAttribute", {
          * @private
          */
         _classScope: true
+
+    },
+
+    protected: {
+
+        /**
+         * @inheritdoc gpf.attributes.Attribute:_alterPrototype
+         * @closure
+         */
+        _alterPrototype: function (objPrototype) {
+            // Inherited method will take care of checking attribute class
+            this._super(objPrototype);
+
+            /**
+             * Because this is an attribute, hook the _alterPrototype and
+             * replace it with a method that will check the unicity of it
+             */
+            var me = this,
+                _alterPrototype = objPrototype._alterPrototype;
+
+            /**
+             * @inheritdoc gpf.attributes.Attribute:_alterPrototype
+             *
+             * This version will check that this attribute class is used only
+             * once in the provided prototype.
+             */
+            objPrototype._alterPrototype = function (objPrototype) {
+                var
+                    objectClass,
+                    objectClassDef,
+                    objectClassAttributes,
+                    attributeClass,
+                    attributeClassDef,
+                    attributesInObj;
+
+                // Get object class definition & attributes
+                objectClass = objPrototype.constructor;
+                objectClassDef = _gpfGetClassDefinition(objectClass);
+                objectClassAttributes = new _gpfA.Map(objectClass);
+
+                // Get attribute class definition & attributes
+                attributeClass = this.constructor;
+                attributeClassDef = _gpfGetClassDefinition(attributeClass);
+
+                attributesInObj = objectClassAttributes.filter(attributeClass);
+
+                // Don't forget THIS attribute is already added to the object
+                if (me._classScope) {
+                    if (1 < attributesInObj.count()) {
+                        throw gpf.Error.UniqueAttributeConstraint({
+                            attributeName: attributeClassDef.name(),
+                            className: objectClassDef.name()
+                        });
+                    }
+                } else if (1 < attributesInObj.member(this._member).length()) {
+                    throw gpf.Error.UniqueMemberAttributeConstraint({
+                        attributeName: attributeClassDef.name(),
+                        className: objectClassDef.name(),
+                        memberName: name
+                    });
+                }
+
+                // Call initial _alterPrototype
+                _alterPrototype.apply(this, arguments);
+            };
+        }
 
     },
 
@@ -239,16 +332,6 @@ _gpfDefAttr("$UniqueAttribute", {
             if (undefined !== classScope) {
                 this._classScope = true === classScope;
             }
-        },
-
-        /**
-         * The attribute is unique for the whole class when true or per member
-         * when false.
-         *
-         * @returns {Boolean}
-         */
-        classScope: function () {
-            return this._classScope;
         }
 
     }
@@ -447,14 +530,19 @@ gpf.define("gpf.attributes.Map", {
     public: {
 
         /**
-         * @param {Object} [object=undefined] object Object to read
-         *        attributes from
+         * @param {Object|Function} [object=undefined] object Object or
+         * constructor to read attributes from
+         *
          * @constructor
          */
         constructor: function (object) {
+            var classDef;
             this._members = {}; // Creates a new dictionary
             this._count = 0;
-            if (undefined !== object) {
+            if (object instanceof Function) {
+                classDef = _gpfGetClassDefinition(object);
+                this.fillFromClassDef(classDef);
+            } else if (undefined !== object) {
                 this.fillFromObject(object);
             }
         },
@@ -628,68 +716,28 @@ gpf.define("gpf.attributes.Map", {
  *        |gpf.attributes.Attribute[]} attributes
  */
 _gpfA.add = function (objectClass, name, attributes) {
-
+    // Check attributes parameter
     if (attributes instanceof _gpfA.Array) {
         attributes = attributes._array;
     } else if (!(attributes instanceof Array)) {
         attributes = [attributes];
     }
+
     var
         objectClassDef,
-        objectClassAttributes,
         objectClassOwnAttributes,
         len,
         idx,
-        attribute,
-        attributeClass,
-        attributeClassDef,
-        attributeAttributes,
-        uniqueAttribute,
-        sameAttributesInObj;
+        attribute;
 
-    // Get class definition
+    // Get class definition & *editable* own attributes
     objectClassDef = _gpfGetClassDefinition(objectClass);
-
-    // Get *editable* own attributes
     objectClassOwnAttributes = objectClassDef.attributes();
-
-    // Get *resolved* attributes
-    objectClassAttributes = new _gpfA.Map();
-    objectClassAttributes.fillFromClassDef(objectClassDef);
 
     len = attributes.length;
     for (idx = 0; idx < len; ++idx) {
         attribute = attributes[idx];
         gpf.ASSERT(attribute instanceof _gpfA.Attribute, "Expected attribute");
-
-        // Get attribute class definition
-        attributeClass = attribute.constructor;
-        attributeClassDef = _gpfGetClassDefinition(attributeClass);
-
-        // Get resolved attributes for this attribute class
-        attributeAttributes = new _gpfA.Map();
-        attributeAttributes.fillFromClassDef(attributeClassDef);
-
-        // Any unique attribute defined?
-        uniqueAttribute = attributeAttributes.member("Class")
-            .has(_gpfA.UniqueAttributeAttribute);
-        if (uniqueAttribute) {
-            sameAttributesInObj = objectClassAttributes.filter(attributeClass);
-            if (uniqueAttribute.classScope()) {
-                if (0 < sameAttributesInObj.count()) {
-                    throw gpf.Error.UniqueAttributeConstraint({
-                        attributeName: attributeClassDef.name(),
-                        className: objectClassDef.name()
-                    });
-                }
-            } else if (0 < sameAttributesInObj.member(name).length()) {
-                throw gpf.Error.UniqueMemberAttributeConstraint({
-                    attributeName: attributeClassDef.name(),
-                    className: objectClassDef.name(),
-                    memberName: name
-                });
-            }
-        }
         attribute._member = name; // Assign member name
         objectClassOwnAttributes.add(name, attribute);
         attribute._alterPrototype(objectClass.prototype);
