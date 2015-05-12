@@ -226,7 +226,32 @@ describe("attributes", function () {
 
     describe("gpf.$UniqueAttribute", function () {
 
+        it("can't be used on non-attribute classes", function () {
+            var caught = null;
+            try {
+                gpf.define("TestClass", {
+                    "[Class]": [gpf.$UniqueAttribute()]
+                });
+            } catch (e) {
+                caught = e;
+            }
+            assert(null !== caught);
+            assert(caught.name === "OnlyForAttributeClass");
+        });
+
         describe("(true) for the whole class", function () {
+
+            it("should allow at least one instance", function () {
+                var caught = null;
+                try {
+                    gpf.define("TestAttribute", AttributeClass, {
+                        "[Class]": [gpf.$UniqueAttribute(true)]
+                    });
+                } catch (e) {
+                    caught = e;
+                }
+                assert(null === caught);
+            });
 
             var
                 AttributeClass = gpf.attributes.Attribute,
@@ -265,6 +290,18 @@ describe("attributes", function () {
 
         describe("(false) for members", function () {
 
+            it("should allow at least one instance", function () {
+                var caught = null;
+                try {
+                    gpf.define("TestAttribute", AttributeClass, {
+                        "[Class]": [gpf.$UniqueAttribute(false)]
+                    });
+                } catch (e) {
+                    caught = e;
+                }
+                assert(null === caught);
+            });
+
             var
               AttributeClass = gpf.attributes.Attribute,
               TestAttribute = gpf.define("TestAttribute", AttributeClass, {
@@ -299,7 +336,7 @@ describe("attributes", function () {
                 assert(caught.name === "UniqueMemberAttributeConstraint");
             });
 
-            it("allows use in different members", function () {
+            it("allows use on different members", function () {
                 var caught = null;
                 try {
                     gpf.define("TestClass2", TestClass, {
