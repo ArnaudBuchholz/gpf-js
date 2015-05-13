@@ -26,6 +26,7 @@
             "define",               // Class management               gpf.define
 
             "attributes",           // Attributes                 gpf.attributes
+            "a_attributes",         // AttributeClassOnly attributes
             "a_class",              // Class attributes
 
             "interfaces",           // Interfaces                 gpf.interfaces
