@@ -38,14 +38,16 @@ describe("a_attributes", function () {
                     "[Class]": [gpf.$UniqueAttribute(true)]
                 }),
                 TestClass = gpf.define("TestClass", {
-                    "[Class]": [new TestAttribute()]
+                    "[a]": [new TestAttribute()],
+                    a: 0
                 });
 
             it("prevents defining the attribute twice (define)", function () {
                 var caught = null;
                 try {
                     gpf.define("TestClass2", TestClass, {
-                        "[Class]": [new TestAttribute()]
+                        "[b]": [new TestAttribute()],
+                        b: 0
                     });
                 } catch (e) {
                     caught = e;
