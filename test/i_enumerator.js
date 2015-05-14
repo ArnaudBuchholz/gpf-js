@@ -1,50 +1,51 @@
-(function () { /* Begin of privacy scope */
-    "use strict";
+"use strict";
+/*global describe, it, assert*/
+
+describe("i_enumerator", function () {
 
     var
         ArrayEnumerable = gpf.define("ArrayEnumerable", {
 
-            "[_items]": [gpf.$Enumerable()],
-            _items: [],
+            private: {
 
-            constructor: function (items) {
-                this._items = items;
+                "[_items]": [gpf.$Enumerable()],
+                _items: []
+
+            },
+
+            public: {
+
+                constructor: function (items) {
+                    this._items = items;
+                }
+
             }
 
         });
 
-    gpf.declareTests({
+    describe("Synchronous test", function () {
 
-        "array": [
-
-            function (test) {
-                var
-                    instance,
-                    enumerator;
-                test.title("Array enumeration");
-                instance = new ArrayEnumerable([1, 2, 3]);
-                enumerator = gpf.interfaces.query(instance,
-                    gpf.interfaces.IEnumerable);
-                test.assert(null !== enumerator, "Got the enumerator");
-                enumerator.reset();
-                test.assert(enumerator.moveNext(),
-                    "Moving to the first element");
-                test.equal(enumerator.current(), 1, "Got the first element");
-                test.assert(enumerator.moveNext(),
-                    "Moving to the second element");
-                test.equal(enumerator.current(), 2, "Got the second element");
-                test.assert(enumerator.moveNext(),
-                    "Moving to the third element");
-                test.equal(enumerator.current(), 3, "Got the third element");
-                test.assert(!enumerator.moveNext(), "No next element");
-                enumerator.reset();
-                test.assert(enumerator.moveNext(),
-                    "Moving to the first element");
-                test.equal(enumerator.current(), 1, "Got the first element");
-            }
-
-        ]
+        it("allows sequential access to items", function () {
+            var
+                instance,
+                enumerator;
+            instance = new ArrayEnumerable([1, 2, 3]);
+            enumerator = gpf.interfaces.query(instance,
+                gpf.interfaces.IEnumerator);
+            assert(null !== enumerator);
+            enumerator.reset();
+            assert(true === enumerator.moveNext());
+            assert(1 === enumerator.current());
+            assert(true === enumerator.moveNext());
+            assert(2 === enumerator.current());
+            assert(true === enumerator.moveNext());
+            assert(3 === enumerator.current());
+            assert(false === enumerator.moveNext());
+            enumerator.reset();
+            assert(true === enumerator.moveNext());
+            assert(1 === enumerator.current());
+        });
 
     });
 
-}()); /* End of privacy scope */
+});
