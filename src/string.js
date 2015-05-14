@@ -146,7 +146,7 @@
          *
          * @param {Strings[]} strings This array is modified after extraction
          * @param {Number} [size=0] size Number of characters to get, all if 0
-         * @returns {string}
+         * @return {String}
          */
         stringExtractFromStringArray: function (strings, size) {
             var

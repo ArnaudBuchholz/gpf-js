@@ -124,7 +124,7 @@ var
      *
      * @param {String[]} [params=undefined] params Parameter names list
      * @param {String} source
-     * @returns {Function}
+     * @return {Function}
      * @private
      */
     _gpfFunc = function (params, source) {

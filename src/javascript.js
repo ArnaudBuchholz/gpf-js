@@ -8,7 +8,7 @@ gpf.js = {
     /**
      * The list of JavaScript keywords
      *
-     * @returns {String[]}
+     * @return {String[]}
      */
     keywords: function () {
         return [].concat(_gpfJsKeywords);

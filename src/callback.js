@@ -83,7 +83,7 @@ gpf.extend(gpf.Callback.prototype, {
     /**
      * Get the handler function
      *
-     * @returns {Function}
+     * @return {Function}
      */
     handler: function () {
         return this._handler;
@@ -92,7 +92,7 @@ gpf.extend(gpf.Callback.prototype, {
     /**
      * Get the scope
      *
-     * @returns {Object}
+     * @return {Object}
      */
     scope: function () {
         return this._scope;
@@ -103,7 +103,7 @@ gpf.extend(gpf.Callback.prototype, {
      *
      * @param {Object} scope Scope to apply if none set in the callback
      * @param {*} ... Forwarded to the callback handler
-     * @returns {*}
+     * @return {*}
      */
     call: function() {
         return this.apply(arguments[0], _gpfArraySlice.apply(arguments, [1]));
@@ -114,7 +114,7 @@ gpf.extend(gpf.Callback.prototype, {
      *
      * @param {Object} scope Scope to apply if none set in the callback
      * @param {*[]} args Forwarded to the callback handler
-     * @returns {*}
+     * @return {*}
      */
     apply: function(scope, args) {
         var finalScope = _gpfResolveScope(scope || this._scope);
@@ -167,7 +167,7 @@ gpf.extend(gpf.Callback, {
      * @param {String} method
      * @param {Boolean} [dynamic=false] dynamic Method is bound dynamically
      * (i.e. using the name) or statically (i.e. using function object)
-     * @returns {Function}
+     * @return {Function}
      * @closure
      */
     bind: function (obj, method, dynamic) {

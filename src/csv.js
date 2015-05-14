@@ -21,7 +21,7 @@ var
      * Deduce CSV separator from line (usually, the header)
      *
      * @param {String} header
-     * @returns {string}
+     * @return {String}
      * @private
      */
     _gpfCsvComputeSeparator = function (header) {
@@ -47,7 +47,7 @@ var
      *
      * @param {String} value
      * @param {String} quote
-     * @returns {Array}
+     * @return {Array}
      * First element is the result value
      * Second element indicates if the quote escaping is still active
      * @private

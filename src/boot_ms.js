@@ -10,7 +10,7 @@
          * Read the content of the source file
          *
          * @param {String} src
-         * @returns {String}
+         * @return {String}
          */
         read = function (src) {
             // Use Scripting.FileSystem Object to read the file

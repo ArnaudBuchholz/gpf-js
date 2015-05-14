@@ -25,7 +25,7 @@ var
      * arguments[idx] by a named parameter (can't work), so...
      *
      * @param {Function} classInit _gpfClassInit
-     * @returns {Function}
+     * @return {Function}
      * @private
      * @closure
      */
@@ -182,7 +182,7 @@ var
      * Retrieves (or allocate) the class definition object
      *
      * @param {Function} constructor Class constructor
-     * @returns {gpf.ClassDefinition}
+     * @return {gpf.ClassDefinition}
      */
     _gpfGetClassDefinition = function (constructor) {
         var classDef,

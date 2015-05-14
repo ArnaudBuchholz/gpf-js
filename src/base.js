@@ -204,7 +204,7 @@ var
      * Capitalize the string
      *
      * @param that
-     * @returns {string}
+     * @return {String}
      * @private
      */
     _gpfStringCapitalize = function (that) {
