@@ -3,6 +3,105 @@
 
 describe("a_attributes", function () {
 
+    var
+        AttributeClass = gpf.attributes.Attribute;
+
+    describe("gpf.$ClassAttribute", function () {
+
+        it("can't be used on non-attribute classes", function () {
+            var caught = null;
+            try {
+                gpf.define("TestClass", {
+                    "[Class]": [gpf.$ClassAttribute()]
+                });
+            } catch (e) {
+                caught = e;
+            }
+            assert(null !== caught);
+            assert(caught.name === "OnlyForAttributeClass");
+        });
+
+        var
+            TestAttribute = gpf.define("TestAttribute", AttributeClass, {
+                "[Class]": [gpf.$ClassAttribute()]
+            });
+
+        it("can be used on Class", function () {
+            var caught = null;
+            try {
+                gpf.define("TestClass", {
+                    "[Class]": [new TestAttribute()]
+                });
+            } catch (e) {
+                caught = e;
+            }
+            assert(null === caught);
+        });
+
+        it("can't be used on members", function () {
+            var caught = null;
+            try {
+                gpf.define("TestClass", {
+                    "[a]": [new TestAttribute()],
+                    a: 0
+                });
+            } catch (e) {
+                caught = e;
+            }
+            assert(null !== caught);
+            assert(caught.name === "ClassOnlyAttribute");
+        });
+
+    });
+
+    describe("gpf.$MemberAttribute", function () {
+
+        it("can't be used on non-attribute classes", function () {
+            var caught = null;
+            try {
+                gpf.define("TestClass", {
+                    "[Class]": [gpf.$MemberAttribute()]
+                });
+            } catch (e) {
+                caught = e;
+            }
+            assert(null !== caught);
+            assert(caught.name === "OnlyForAttributeClass");
+        });
+
+        var
+            TestAttribute = gpf.define("TestAttribute", AttributeClass, {
+                "[Class]": [gpf.$MemberAttribute()]
+            });
+
+        it("can be used on members", function () {
+            var caught = null;
+            try {
+                gpf.define("TestClass", {
+                    "[a]": [new TestAttribute()],
+                    a: 0
+                });
+            } catch (e) {
+                caught = e;
+            }
+            assert(null === caught);
+        });
+
+        it("can't be used on Class", function () {
+            var caught = null;
+            try {
+                gpf.define("TestClass", {
+                    "[Class]": [new TestAttribute()]
+                });
+            } catch (e) {
+                caught = e;
+            }
+            assert(null !== caught);
+            assert(caught.name === "MemberOnlyAttribute");
+        });
+
+    });
+
     describe("gpf.$UniqueAttribute", function () {
 
         it("can't be used on non-attribute classes", function () {
@@ -33,7 +132,6 @@ describe("a_attributes", function () {
             });
 
             var
-                AttributeClass = gpf.attributes.Attribute,
                 TestAttribute = gpf.define("TestAttribute", AttributeClass, {
                     "[Class]": [gpf.$UniqueAttribute(true)]
                 }),
@@ -84,7 +182,6 @@ describe("a_attributes", function () {
             });
 
             var
-                AttributeClass = gpf.attributes.Attribute,
                 TestAttribute = gpf.define("TestAttribute", AttributeClass, {
                     "[Class]": [gpf.$UniqueAttribute(false)]
                 }),

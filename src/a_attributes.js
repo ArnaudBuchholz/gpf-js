@@ -10,6 +10,10 @@
 _gpfErrorDeclare("a_attributes", {
     OnlyForAttributeClass:
         "The attribute {attributeName} can be used only on an Attribute class",
+    ClassOnlyAttribute:
+        "The attribute {attributeName} can be used only for Class",
+    MemberOnlyAttribute:
+        "The attribute {attributeName} can be used only for members",
     UniqueAttributeConstraint:
         "Attribute {attributeName} already defined on {className}",
     UniqueMemberAttributeConstraint:
@@ -131,7 +135,7 @@ var
                 if (undefined === objPrototype[originalAlterPrototype]) {
                     objPrototype[originalAlterPrototype] =
                         objPrototype._alterPrototype;
-                    objPrototype._alterPrototype =this._checkAndAlterPrototype;
+                    objPrototype._alterPrototype = this._checkAndAlterPrototype;
                 }
             }
 
@@ -139,6 +143,65 @@ var
 
     });
 
+/**
+ * Used on attribute classes to mark them as class attribute (i.e. they can't
+ * be used on members)
+ *
+ * @class gpf.attributes.ClassAttributeAttribute
+ * @extends gpf.attributes.AttrConstraintAttribute
+ * @alias gpf.$ClassAttribute
+ */
+_gpfDefAttr("$ClassAttribute", _gpfAttrConstraint, {
+
+    protected: {
+
+        /**
+         * @inheritdoc gpf.attributes.AttrConstraintAttribute:_check
+         */
+        _check: function (targetAttribute/*, objPrototype*/) {
+            if (targetAttribute.member() !== "Class") {
+                var
+                    attributeClass = targetAttribute.constructor,
+                    attributeClassDef = _gpfGetClassDefinition(attributeClass);
+                throw gpf.Error.ClassOnlyAttribute({
+                    attributeName: attributeClassDef.name()
+                });
+            }
+        }
+
+    }
+
+});
+
+/**
+ * Used on attribute classes to mark them as member attribute (i.e. they can't
+ * be used on Class)
+ *
+ * @class gpf.attributes.MemberAttributeAttribute
+ * @extends gpf.attributes.AttrConstraintAttribute
+ * @alias gpf.$MemberAttribute
+ */
+_gpfDefAttr("$MemberAttribute", _gpfAttrConstraint, {
+
+    protected: {
+
+        /**
+         * @inheritdoc gpf.attributes.AttrConstraintAttribute:_check
+         */
+        _check: function (targetAttribute/*, objPrototype*/) {
+            if (targetAttribute.member() === "Class") {
+                var
+                    attributeClass = targetAttribute.constructor,
+                    attributeClassDef = _gpfGetClassDefinition(attributeClass);
+                throw gpf.Error.MemberOnlyAttribute({
+                    attributeName: attributeClassDef.name()
+                });
+            }
+        }
+
+    }
+
+});
 /**
  * Used on attribute classes to mark them as unique through the class hierarchy
  * or per member.
@@ -176,7 +239,7 @@ _gpfDefAttr("$UniqueAttribute", _gpfAttrConstraint, {
                 attributeClass,
                 attributeClassDef,
                 attributesInObj,
-                member = targetAttribute._member;
+                member = targetAttribute.member();
 
             // Get object class definition & attributes
             objectClass = objPrototype.constructor;
