@@ -50,6 +50,8 @@ var
  */
 _gpfDefAttr("$ClassProperty", _gpfClassAttribute, {
 
+    "[Class]": [gpf.$MemberAttribute(), gpf.$UniqueAttribute(false)],
+
     private: {
 
         /**
@@ -152,7 +154,11 @@ _gpfDefAttr("$ClassProperty", _gpfClassAttribute, {
  * @extends gpf.attributes._gpfClassAttribute
  * @alias gpf.$ClassEventHandler
  */
-_gpfDefAttr("$ClassEventHandler", _gpfClassAttribute, {});
+_gpfDefAttr("$ClassEventHandler", _gpfClassAttribute, {
+
+    "[Class]": [gpf.$MemberAttribute(), gpf.$UniqueAttribute(false)]
+
+});
 
 /**
  * Defines a class extension (internal)
