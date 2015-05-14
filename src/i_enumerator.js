@@ -27,31 +27,31 @@ _gpfDefIntrf("IEnumerator", {
 
     /**
      * Sets the enumerator to its initial position, which is *before* the
-     * first element in the collection
+     * first element in the collection.
+     *
+     * NOTE once reset has been called, you must call moveNext to access (or
+     * not)the first element.
      */
     reset: function () {
     },
 
     /**
-     * Advances the enumerator to the next element of the enumeration
+     * Moves the enumerator to the next element of the enumeration.
      *
      * @param {gpf.events.Handler} eventsHandler
      * @return {Boolean}
-     * <ul>
-     *     <li>true if the enumerator was successfully advanced to the next
-     *     element</li>
-     *     <li>false if the enumerator has passed the end of the collection or
-     *     it has to go through an asynchronous operation</li>
-     *     <li></li>
-     * <ul>
+     * - true if the enumerator was successfully advanced to the next element
+     * - false if the enumerator has passed the end of the collection or it has
+     *   to go through an asynchronous operation
      *
      * NOTE: if no eventsHandler is specified, no asynchronous operation will
      * be triggered when false is returned.
      *
-     * @event data the asynchronous operation succeeded, the current item is
-     * available
+     * @event gpf.events.EVENT_DATA
+     * The asynchronous operation succeeded, the current item is available
      *
-     * @event endOfData no more data is available
+     * @event gpf.events.EVENT_END_OF_DATA
+     * No more data is available
      */
     "[moveNext]": [gpf.$ClassEventHandler()],
     moveNext: function (eventsHandler) {
@@ -60,11 +60,50 @@ _gpfDefIntrf("IEnumerator", {
     },
 
     /**
-     * Gets the current element in the collection
+     * Gets the current element in the collection.
+     *
      * @return {*}
      */
     current: function () {
         return null;
+    },
+
+    static: {
+
+        /**
+         * Enumerates all elements of the enumerator and call the callback
+         * function.
+         *
+         * @param {gpf.interfaces.IEnumerator} enumerator
+         * @param {Function} callback receive each item of the enumerator,
+         * signature is either:
+         * - {*} element
+         *
+         * or
+         * - {*} element
+         * - {gpf.events.Handler} eventsHandler
+         *
+         * If the signature supports two parameter, the last one will be used
+         * to control the iteration. The callback function has to trigger
+         * - gpf.events.EVENT_CONTINUE
+         * - gpf.events.EVENT_STOP
+         *
+         * @param {gpf.events.Handler} eventsHandler
+         *
+         * @event gpf.events.EVENT_END_OF_DATA
+         * No more data is available, the each function terminated
+         *
+         * @event gpf.events.EVENT_STOPPED
+         * The processing function requested to stop enumeration
+         */
+        // TODO how to put attributes on static members?
+        // "[each]": [gpf.$ClassEventHandler()],
+        each: function (enumerator, callback, eventsHandler) {
+            _gpfIgnore(enumerator);
+            _gpfIgnore(callback);
+            _gpfIgnore(eventsHandler);
+        }
+
     }
 
 });
