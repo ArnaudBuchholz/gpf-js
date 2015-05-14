@@ -10,6 +10,8 @@
 _gpfErrorDeclare("a_attributes", {
     OnlyForAttributeClass:
         "The attribute {attributeName} can be used only on an Attribute class",
+    OnlyOnClassForAttributeClass:
+        "The attribute {attributeName} must be used on Class",
     ClassOnlyAttribute:
         "The attribute {attributeName} can be used only for Class",
     MemberOnlyAttribute:
@@ -37,6 +39,12 @@ var
             _alterPrototype: function (objPrototype) {
                 if (!(objPrototype instanceof _gpfA.Attribute)) {
                     throw gpf.Error.OnlyForAttributeClass({
+                        attributeName: _gpfGetClassDefinition(this.constructor)
+                            .name()
+                    });
+                }
+                if (this._member !== "Class") {
+                    throw gpf.Error.OnlyOnClassForAttributeClass({
                         attributeName: _gpfGetClassDefinition(this.constructor)
                             .name()
                     });
