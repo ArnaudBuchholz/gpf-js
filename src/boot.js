@@ -21,13 +21,12 @@ var
 
     /**
      * Host type
-     * <ul>
-     *     <li>wscript: Microsoft cscript / wscript</li>
-     *     <li>phantomjs: PhantomJS</li>
-     *     <li>nodejs: NodeJS</li>
-     *     <li>browser: Browser</li>
-     *     <li>unknown: Unknown</li>
-     * </ul>
+     *
+     * - wscript: Microsoft cscript / wscript
+     * - phantomjs: PhantomJS
+     * - nodejs: NodeJS
+     * - browser: Browser
+     * - unknown: Unknown
      *
      * @type {String}
      * @private
@@ -228,11 +227,11 @@ gpf.version = function () {
  *
  * @return {String}
  * <ul>
- *      <li>"wscript" for cscript and wscript</li>
- *      <li>"nodejs" for nodejs</li>
- *      <li>"phantomjs" for phantomjs</li>
- *      <li>"browser" for any browser</li>
- *      <li>"unknown" if not detected</li>
+ *      <li>"wscript" for cscript and wscript
+ *      <li>"nodejs" for nodejs
+ *      <li>"phantomjs" for phantomjs
+ *      <li>"browser" for any browser
+ *      <li>"unknown" if not detected
  * </ul>
  */
 gpf.host = function () {

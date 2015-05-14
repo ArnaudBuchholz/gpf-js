@@ -99,10 +99,9 @@ var
      *
      * @param pathMatcher
      * @this An object containing
-     * <ul>
-     *      <li>{String[]} parts the path being tested split in parts</li>
-     *      <li>{Boolean} [result=undefined] result the result</li>
-     * </ul>
+     * - {String[]} parts the path being tested split in parts
+     * - {Boolean} [result=undefined] result the result
+     *
      * @private
      */
     _gpfPathMatchApply = function (pathMatcher) {

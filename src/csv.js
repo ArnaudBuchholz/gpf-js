@@ -195,12 +195,10 @@ gpf.csv = {
      *
      * @param {String} content CSV content
      * @param {Object} options
-     * <ul>
-     *     <li>{String} [header=undefined] header</li>
-     *     <li>{String} [separator=undefined] separator can be deduced from
-     *     header</li>
-     *     <li>{String} [quote="\""] quote</li>
-     * </ul>
+     * - {String} [header=undefined] header
+     * - {String} [separator=undefined] separator can be deduced from header
+     * - {String} [quote="\""] quote
+     *
      * @return {Object[]} records
      */
     parse: _gpfCsvParse

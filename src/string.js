@@ -217,7 +217,9 @@
          * @param {gpf.interfaces.ITextStream} stream
          * @param {gpf.events.Handler} eventsHandler
          *
-         * @event data finished reading the stream, the buffer is provided
+         * @event gpf.events.EVENT_DATA
+         * finished reading the stream, the buffer is provided
+         *
          * @eventParam {String} buffer
          */
         stringFromStream: function (stream, eventsHandler) {
@@ -243,7 +245,9 @@
          * @param {String} encoding
          * @param {gpf.events.Handler} eventsHandler
          *
-         * @event data finished reading the file, the buffer is provided
+         * @event gpf.events.EVENT_DATA
+         * finished reading the file, the buffer is provided
+         *
          * @eventParam {String} buffer
          */
         stringFromFile: function (path, encoding, eventsHandler) {

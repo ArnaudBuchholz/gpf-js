@@ -295,11 +295,10 @@ gpf.define("gpf.attributes.Array", {
          * is returned to the caller.
          *
          * @param {Function} callback will receive parameters
-         * <ul>
-         *     <li>{Number} index<li>
-         *     <li>{gpf.attributes.Attribute} attribute<li>
-         *     <li>{Number} array length<li>
-         * </ul>
+         * - {Number} index
+         * - {gpf.attributes.Attribute} attribute
+         * - {Number} array length
+         *
          * If a result is returned, the enumeration stops and this result is
          * returned
          * @return {*} undefined by default
@@ -526,10 +525,9 @@ gpf.define("gpf.attributes.Map", {
          * is returned to the caller.
          *
          * @param {Function} callback will receive parameters
-         * <ul>
-         *     <li>{String} member<li>
-         *     <li>{gpf.attributes.Array} attribute<li>
-         * </ul>
+         * - {String} member
+         * - {gpf.attributes.Array} attribute
+         *
          * If a result is returned, the enumeration stops and this result is
          * returned
          * @return {*} undefined by default

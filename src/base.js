@@ -324,11 +324,10 @@ gpf.isArrayLike = _gpfIsArrayLike;
  * @param {Object|Array} dictionary
  * @param {Function} memberCallback
  * @param {Function} memberCallback will receive parameters
- * <ul>
- *     <li>{Number|String} index array index or member name<li>
- *     <li>{*} value<li>
- *     <li>{Number} length total array length (undefined for dictionary)<li>
- * </ul>
+ * - {Number|String} index array index or member name
+ * - {*} value
+ * - {Number} length total array length (undefined for dictionary)
+ *
  * @param {*} [defaultResult=undefined] defaultResult
  * @return {*}
  * @chainable
