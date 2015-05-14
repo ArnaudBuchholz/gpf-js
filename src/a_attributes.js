@@ -175,7 +175,8 @@ _gpfDefAttr("$UniqueAttribute", _gpfAttrConstraint, {
                 objectClassAttributes,
                 attributeClass,
                 attributeClassDef,
-                attributesInObj;
+                attributesInObj,
+                member = targetAttribute._member;
 
             // Get object class definition & attributes
             objectClass = objPrototype.constructor;
@@ -196,11 +197,11 @@ _gpfDefAttr("$UniqueAttribute", _gpfAttrConstraint, {
                         className: objectClassDef.name()
                     });
                 }
-            } else if (1 < attributesInObj.member(this._member).length()) {
+            } else if (1 < attributesInObj.member(member).length()) {
                 throw gpf.Error.UniqueMemberAttributeConstraint({
                     attributeName: attributeClassDef.name(),
                     className: objectClassDef.name(),
-                    memberName: name
+                    memberName: member
                 });
             }
         }
