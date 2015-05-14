@@ -8,7 +8,10 @@ describe("events", function () {
             "ERROR",
             "READY",
             "DATA",
-            "END_OF_DATA"
+            "END_OF_DATA",
+            "CONTINUE",
+            "STOP",
+            "STOPPED"
         ].forEach(function (eventName) {
             it("declares gpf.events.EVENT_" + eventName, function () {
                 assert(undefined !== gpf.events["EVENT_" + eventName]);

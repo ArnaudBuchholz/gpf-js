@@ -5,6 +5,9 @@
 /*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
 /*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
 /*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
+/*global _GPF_EVENT_CONTINUE*/ // gpf.events.EVENT_CONTINUE
+/*global _GPF_EVENT_STOP*/ // gpf.events.EVENT_STOP
+/*global _GPF_EVENT_STOPPED*/ // gpf.events.EVENT_STOPPED
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
 /*#endif*/
@@ -27,7 +30,10 @@ gpf.events = {
             EVENT_ERROR: _GPF_EVENT_ERROR,
             EVENT_READY: _GPF_EVENT_READY,
             EVENT_DATA: _GPF_EVENT_DATA,
-            EVENT_END_OF_DATA: _GPF_EVENT_END_OF_DATA
+            EVENT_END_OF_DATA: _GPF_EVENT_END_OF_DATA,
+            EVENT_CONTINUE: _GPF_EVENT_CONTINUE,
+            EVENT_STOP: _GPF_EVENT_STOP,
+            EVENT_STOPPED: _GPF_EVENT_STOPPED
         },
         key;
     for (key in mappings) {
