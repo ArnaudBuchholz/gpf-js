@@ -74,6 +74,8 @@ _gpfDefIntrf("IEnumerator", {
          * Enumerates all elements of the enumerator and call the callback
          * function.
          *
+         * NOTE: reset is *not* called.
+         *
          * @param {gpf.interfaces.IEnumerator} enumerator
          * @param {Function} callback receive each item of the enumerator,
          * signature is either:
@@ -99,9 +101,44 @@ _gpfDefIntrf("IEnumerator", {
         // TODO how to put attributes on static members?
         // "[each]": [gpf.$ClassEventHandler()],
         each: function (enumerator, callback, eventsHandler) {
-            _gpfIgnore(enumerator);
-            _gpfIgnore(callback);
-            _gpfIgnore(eventsHandler);
+            var
+                iEnumerator = _gpfI.query(enumerator, _gpfI.IEnumerator),
+                end = function (event) {
+                    _gpfEventsFire.apply(enumerator, [event, {},
+                        eventsHandler]);
+                },
+                process;
+            if (1 < callback.length) {
+                process = function (event) {
+                    if (gpf.events.EVENT_CONTINUE === event.type) {
+                        if (!iEnumerator.moveNext(process)) {
+                            return;
+                        }
+                    } else if (gpf.events.EVENT_STOP === event.type) {
+                        return end(gpf.events.EVENT_STOPPED);
+                    } else if (gpf.events.EVENT_DATA !== event.type) {
+                        return end(event.type);
+                    }
+                    callback(iEnumerator.current(), process);
+                };
+                if (iEnumerator.moveNext(process)) {
+                    callback(iEnumerator.current(), process);
+                }
+
+            } else {
+                process = function (event) {
+                    if (gpf.events.EVENT_DATA !== event.type) {
+                        return end(event.type);
+                    }
+                    do {
+                        callback(iEnumerator.current());
+                    } while (iEnumerator.moveNext(process));
+                };
+                while (iEnumerator.moveNext(process)) {
+                    callback(iEnumerator.current());
+                }
+            }
+            process();
         }
 
     }
