@@ -239,15 +239,37 @@ gpf.host = function () {
 };
 
 /**
+ * Get parent member named name. If missing and the constructor is specified,
+ * it is allocated.
+ *
+ * @param {Object} parent
+ * @param {String} name
+ * @param {Boolean} createMissingParts
+ * @return {Object|undefined}
+ * @private
+ */
+function _getOrCreateChild(parent, name, createMissingParts) {
+    var
+        result = parent[name];
+    if (undefined === result && createMissingParts) {
+        result = parent[name] = {};
+    }
+    return result;
+}
+
+/**
  * Resolve the provided evaluation path and returns the result
  *
  * @param {String|string[]} [path=undefined] path Dot separated list of
  * identifiers (or identifier array)
+ * @param {Boolean} [createMissingParts=false] createMissingParts if the path
+ * leads to undefined parts and createMissingParts is true, it allocates it
+ *
  * @return {*|undefined}
  * - when path is empty, it returns the current host higher object
  * - when path is "gpf" it returns the GPF object
  */
-gpf.context = function (path) {
+gpf.context = function (path, createMissingParts) {
     var
         len,
         idx,
@@ -266,11 +288,9 @@ gpf.context = function (path) {
         } else {
             result = _gpfContext;
         }
-        for (; idx < len; ++idx) {
-            result = result[path[idx]];
-            if (undefined === result) {
-                break;
-            }
+        for (; result && idx < len; ++idx) {
+            result = _getOrCreateChild(result, path[idx],
+                true === createMissingParts);
         }
         return result;
     }
