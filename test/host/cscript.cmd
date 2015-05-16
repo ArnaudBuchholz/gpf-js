@@ -1,0 +1,1 @@
+cscript.exe /D /E:JScript cscript.js
