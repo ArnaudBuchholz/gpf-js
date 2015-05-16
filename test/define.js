@@ -5,6 +5,9 @@ describe("define", function () {
 
     describe("gpf.define", function () {
 
+        /*global test*/
+        gpf.context().test = {};
+
         var
             A = gpf.define("A", {
 
@@ -51,6 +54,9 @@ describe("define", function () {
 
             });
 
+        gpf.define("test.define.C", {
+        });
+
         describe("validate definitions", function () {
 
             it("generates constructor functions", function () {
@@ -58,6 +64,11 @@ describe("define", function () {
                 assert("A" === A.compatibleName());
                 assert(B instanceof Function);
                 assert("B" === B.compatibleName());
+            });
+
+            it("extends namespaces", function () {
+                assert(test.define.C instanceof Function);
+                assert("C" === test.define.C.compatibleName());
             });
 
         });
