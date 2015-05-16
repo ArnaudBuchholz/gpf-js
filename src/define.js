@@ -692,7 +692,7 @@ gpf.define = function (name, base, definition) {
     if (-1 < name.indexOf(".")) {
         path = name.split(".");
         leafName = path.pop();
-        ns = gpf.context(path);
+        ns = gpf.context(path, true);
     }
     classDef = new _GpfClassDefinition(name, base, definition || {});
     result = classDef.Constructor();
