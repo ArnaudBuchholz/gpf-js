@@ -138,7 +138,6 @@ _gpfDefIntrf("IEnumerator", {
                     callback(iEnumerator.current());
                 }
             }
-            process();
         }
 
     }
