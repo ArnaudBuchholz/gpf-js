@@ -203,7 +203,7 @@ function _buildEnumeratorOnObjectArray(object) {
  */
 _gpfDefAttr("$Enumerable", _gpfA.ClassAttribute, {
 
-    "Class": [gpf.$UniqueAttribute()],
+    "Class": [gpf.$UniqueAttribute(), gpf.$MemberAttribute()],
 
     /**
      * @inheritDoc gpf.attributes.Attribute:_alterPrototype
