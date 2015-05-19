@@ -31,11 +31,11 @@
 
             "interfaces",           // Interfaces                 gpf.interfaces
             "i_enumerator",         // IEnumerator
+            "i_array",              // IArray
 
             "",                     // --- temporary end marker ---
 
             "att_json",             // JSON serializer
-            "i_array",              // IArray
             "i_stream",             // IStream and helpers            gpf.stream
             "string",               // String functions
             "array",                // Array functions
