@@ -207,8 +207,8 @@ function _queryInterface (interfaceDefinition) {
         idx,
         attribute,
         builder;
-    for (idx = 0; idx < array.length(); ++idx) {
-        attribute = array.get(idx);
+    for (idx = 0; idx < array.getItemsCount(); ++idx) {
+        attribute = array.getItem(idx);
         builder = attribute._builder;
         if (attribute._interfaceDefinition === interfaceDefinition && builder) {
             if ("function" === typeof builder) {

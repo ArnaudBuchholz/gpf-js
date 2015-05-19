@@ -95,10 +95,10 @@ var
                 attributes.filter(_gpfAttrConstraint)
                     .each(function (member, attributes) {
                         _gpfIgnore(member);
-                        var len = attributes.length(),
+                        var len = attributes.getItemsCount(),
                             idx;
                         for (idx = 0; idx < len; ++idx) {
-                            attributes.get(idx)
+                            attributes.getItem(idx)
                                 ._check(targetAttribute, objPrototype);
                         }
                     });
@@ -268,7 +268,7 @@ _gpfDefAttr("$UniqueAttribute", _gpfAttrConstraint, {
                         className: objectClassDef.name()
                     });
                 }
-            } else if (1 < attributesInObj.member(member).length()) {
+            } else if (1 < attributesInObj.member(member).getItemsCount()) {
                 throw gpf.Error.UniqueMemberAttributeConstraint({
                     attributeName: attributeClassDef.name(),
                     className: objectClassDef.name(),

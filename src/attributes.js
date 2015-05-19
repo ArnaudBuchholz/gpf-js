@@ -7,7 +7,7 @@
 /*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
 /*global _gpfArrayEachWithResult*/ //gpf.each implementation on array
 /*global _gpfDictionaryEachWithResult*/ //gpf.each implementation on dictionary
-/*global _gpfArrayOrItem*/ // Common way to code IArray::get
+/*global _gpfArrayOrItem*/ // Common way to code IReadOnlyArray::getItem
 // /*#endif*/
 
 var
@@ -220,16 +220,22 @@ gpf.define("gpf.attributes.Array", {
         },
 
         /**
-         * @inheritdoc gpf.interfaces.IReadOnlyArray:length
+         * @inheritdoc gpf.interfaces.IReadOnlyArray:getItemsCount
+         *
+         * NOTE: this implementation will be replaced with the one coming
+         * from IReadOnlyArray (once i_array.js is loaded)
          */
-        length: function () {
+        getItemsCount: function () {
             return this._array.length;
         },
 
         /**
-         * @inheritdoc gpf.interfaces.IReadOnlyArray:get
+         * @inheritdoc gpf.interfaces.IReadOnlyArray:getItem
+         *
+         * NOTE: this implementation will be replaced with the one coming
+         * from IReadOnlyArray (once i_array.js is loaded)
          */
-        get: function (index) {
+        getItem: function (index) {
             return _gpfArrayOrItem(this._array, index);
         },
 
