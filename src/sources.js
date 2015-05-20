@@ -18,6 +18,7 @@
             "async",                // Asynchronous handling           gpf.defer
             "bin",                  // Binary tools                      gpf.bin
             "json",                 // JSON compatibility layer         gpf.json
+                                    // (=> a_class)
             "path",                 // Path helper                      gpf.path
             "error",                // Error base class                gpf.Error
             "javascript",           // JavaScript language tools          gpf.js
@@ -26,6 +27,7 @@
             "define",               // Class management               gpf.define
 
             "attributes",           // Attributes                 gpf.attributes
+                                    // (=> i_array)
             "a_attributes",         // AttributeClassOnly attributes
             "a_class",              // Class attributes
 
@@ -35,7 +37,6 @@
 
             "",                     // --- temporary end marker ---
 
-            "att_json",             // JSON serializer
             "i_stream",             // IStream and helpers            gpf.stream
             "string",               // String functions
             "array",                // Array functions
