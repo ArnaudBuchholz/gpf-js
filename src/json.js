@@ -4,7 +4,6 @@
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*global _gpfA*/ // _gpfA
 /*global _gpfANoSerial*/ // gpf.attributes.ClassNonSerializedAttribute
-/*global _gpfI*/ // gpf.interfaces
 // /*#endif*/
 
 var
