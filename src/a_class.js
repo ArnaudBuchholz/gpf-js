@@ -35,7 +35,14 @@ var
      * @class gpf.attributes._gpfClassAttribute
      * @extends gpf.attributes.Attribute
      */
-    _gpfClassAttribute = _gpfDefAttr("ClassAttribute");
+    _gpfClassAttribute = _gpfDefAttr("ClassAttribute"),
+
+    /**
+     * alias for gpf.attributes.ClassNonSerializedAttribute
+     *
+     * @type {Function}
+     */
+    _gpfANoSerial;
 
 /**
  * Creates getter (and setter) methods for a private member. The created
@@ -155,6 +162,19 @@ _gpfDefAttr("$ClassProperty", _gpfClassAttribute, {
  * @alias gpf.$ClassEventHandler
  */
 _gpfDefAttr("$ClassEventHandler", _gpfClassAttribute, {
+
+    "[Class]": [gpf.$MemberAttribute(), gpf.$UniqueAttribute(false)]
+
+});
+
+/**
+ * Used to flag a member as non serializable
+ *
+ * @class gpf.attributes.ClassNonSerializedAttribute
+ * @extends gpf.attributes._gpfClassAttribute
+ * @alias gpf.$ClassNonSerialized
+ */
+_gpfANoSerial = _gpfDefAttr("$ClassNonSerialized", _gpfClassAttribute, {
 
     "[Class]": [gpf.$MemberAttribute(), gpf.$UniqueAttribute(false)]
 
