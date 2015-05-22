@@ -8,6 +8,15 @@ module.exports = function (grunt) {
                 jshintrc: true
             }
         },
+        mocha: {
+            test: {
+                options: {
+                    log: false,
+                    run: false
+                },
+                src: ["test/host/mocha/web.html"]
+            }
+        },
         watch: {
             files: ["<%= jshint.files %>"],
             tasks: ["jshint"]
@@ -15,6 +24,7 @@ module.exports = function (grunt) {
     });
 
     grunt.loadNpmTasks("grunt-contrib-jshint");
+    grunt.loadNpmTasks("grunt-mocha");
     grunt.loadNpmTasks("grunt-contrib-watch");
 
     grunt.registerTask("default", ["jshint"]);
