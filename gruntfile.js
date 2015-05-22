@@ -9,12 +9,26 @@ module.exports = function (grunt) {
             }
         },
         mocha: {
-            test: {
+            source: {
                 options: {
                     log: false,
                     run: false
                 },
                 src: ["test/host/mocha/web.html"]
+            },
+            debug: {
+                options: {
+                    log: false,
+                    run: false
+                },
+                src: ["test/host/mocha/web_debug.html"]
+            },
+            release: {
+                options: {
+                    log: false,
+                    run: false
+                },
+                src: ["test/host/mocha/web_release.html"]
             }
         },
         watch: {
