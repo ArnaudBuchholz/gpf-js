@@ -104,12 +104,19 @@
         }
         loadedCallback = callback;
         var
-            locationSearch = window.location.search,
-            release = -1 < locationSearch.indexOf("release"),
-            debug = -1 < locationSearch.indexOf("debug"),
+            locationSearch,
+            release,
+            debug,
             head = document.getElementsByTagName("head")[0],
             version,
             script = document.createElement("script");
+        if (window.gpfVersion) {
+            locationSearch = window.gpfVersion;
+        } else {
+            locationSearch = window.location.search;
+        }
+        release = -1 < locationSearch.indexOf("release");
+        debug = -1 < locationSearch.indexOf("debug");
         if (release) {
             version = "release";
             script.src = gpfSourcesPath + "../build/gpf.js";
