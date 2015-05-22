@@ -29,13 +29,12 @@
         _gpfVersion = "0.1",
         /**
      * Host type
-     * <ul>
-     *     <li>wscript: Microsoft cscript / wscript</li>
-     *     <li>phantomjs: PhantomJS</li>
-     *     <li>nodejs: NodeJS</li>
-     *     <li>browser: Browser</li>
-     *     <li>unknown: Unknown</li>
-     * </ul>
+     *
+     * - wscript: Microsoft cscript / wscript
+     * - phantomjs: PhantomJS
+     * - nodejs: NodeJS
+     * - browser: Browser
+     * - unknown: Unknown
      *
      * @type {String}
      * @private
@@ -70,7 +69,8 @@
      * @private
      */
         _gpfResolveScope = function (scope) {
-            if (null === scope || "object" !== typeof scope) {
+            if (null === scope    // || undefined === scope
+|| "object" !== typeof scope) {
                 return _gpfContext;
             }
             return scope;
@@ -208,26 +208,46 @@
  *
  * @return {String}
  * <ul>
- *      <li>"wscript" for cscript and wscript</li>
- *      <li>"nodejs" for nodejs</li>
- *      <li>"phantomjs" for phantomjs</li>
- *      <li>"browser" for any browser</li>
- *      <li>"unknown" if not detected</li>
+ *      <li>"wscript" for cscript and wscript
+ *      <li>"nodejs" for nodejs
+ *      <li>"phantomjs" for phantomjs
+ *      <li>"browser" for any browser
+ *      <li>"unknown" if not detected
  * </ul>
  */
     gpf.host = function () {
         return _gpfHost;
     };
     /**
+ * Get parent member named name. If missing and the constructor is specified,
+ * it is allocated.
+ *
+ * @param {Object} parent
+ * @param {String} name
+ * @param {Boolean} createMissingParts
+ * @return {Object|undefined}
+ * @private
+ */
+    function _getOrCreateChild(parent, name, createMissingParts) {
+        var result = parent[name];
+        if (undefined === result && createMissingParts) {
+            result = parent[name] = {};
+        }
+        return result;
+    }
+    /**
  * Resolve the provided evaluation path and returns the result
  *
  * @param {String|string[]} [path=undefined] path Dot separated list of
  * identifiers (or identifier array)
+ * @param {Boolean} [createMissingParts=false] createMissingParts if the path
+ * leads to undefined parts and createMissingParts is true, it allocates it
+ *
  * @return {*|undefined}
  * - when path is empty, it returns the current host higher object
  * - when path is "gpf" it returns the GPF object
  */
-    gpf.context = function (path) {
+    gpf.context = function (path, createMissingParts) {
         var len, idx, result;
         if (undefined === path) {
             return _gpfContext;
@@ -243,11 +263,8 @@
             } else {
                 result = _gpfContext;
             }
-            for (; idx < len; ++idx) {
-                result = result[path[idx]];
-                if (undefined === result) {
-                    break;
-                }
+            for (; result && idx < len; ++idx) {
+                result = _getOrCreateChild(result, path[idx], true === createMissingParts);
             }
             return result;
         }
@@ -283,13 +300,13 @@
     if (!gpf.ASSERT) {
     }
     var
-        /**
+    /**
      * Shortcut on Array.prototype.slice
      *
      * @type {Function}
      * @private
      */
-        _gpfArraySlice = Array.prototype.slice;
+    _gpfArraySlice = Array.prototype.slice;
     if (undefined === Array.prototype.every) {
         // Introduced with JavaScript 1.6
         Array.prototype.every = function (callback, thisArg) {
@@ -377,14 +394,15 @@
                 // Use simple parsing as a first step
                 // TODO leverage JS parser to implement this properly
                 var src = "" + this, pos = src.indexOf("function"), paramList = src.indexOf("(", pos);
-                return src.substr(pos + 9, paramList - pos - 9).replace(comments, "").trim();
+                return src.substr(pos + 9, paramList - pos - 9).replace(comments, "")    // remove comments
+.trim();
             };
         }());
     } else {
         /**
      * Return function name
      *
-     * @returns {String}
+     * @return {String}
      */
         Function.prototype.compatibleName = function () {
             return this.name;
@@ -425,6 +443,13 @@
         }());
     }
     var
+        //region Events
+        _GPF_EVENT_ERROR = "error", _GPF_EVENT_READY = "ready", _GPF_EVENT_DATA = "data", _GPF_EVENT_END_OF_DATA = "endOfData", _GPF_EVENT_CONTINUE = "continue", _GPF_EVENT_STOP = "stop", _GPF_EVENT_STOPPED = "stopped",
+        //endregion
+        /**
+     * @inheritdoc gpf#setReadOnlyProperty
+     */
+        _gpfSetReadOnlyProperty = gpf.setReadOnlyProperty,
         // https://github.com/jshint/jshint/issues/525
         _GpfFunc = Function,
         // avoid JSHint error
@@ -450,7 +475,7 @@
      *
      * @param {String[]} [params=undefined] params Parameter names list
      * @param {String} source
-     * @returns {Function}
+     * @return {Function}
      * @private
      */
         _gpfFunc = function (params, source) {
@@ -516,6 +541,23 @@
      */
         _gpfJsKeywords = ("break,case,catch,continue,debugger,default,delete,do," + "else,finally,for,function,if,in,instanceof,new,return,switch," + "this,throw,try,typeof,var,void,while,with").split(",");
     gpf.events = {};
+    // Create events constants
+    (function () {
+        var gpfEvents = gpf.events, mappings = {
+                EVENT_ERROR: _GPF_EVENT_ERROR,
+                EVENT_READY: _GPF_EVENT_READY,
+                EVENT_DATA: _GPF_EVENT_DATA,
+                EVENT_END_OF_DATA: _GPF_EVENT_END_OF_DATA,
+                EVENT_CONTINUE: _GPF_EVENT_CONTINUE,
+                EVENT_STOP: _GPF_EVENT_STOP,
+                EVENT_STOPPED: _GPF_EVENT_STOPPED
+            }, key;
+        for (key in mappings) {
+            if (mappings.hasOwnProperty(key)) {
+                _gpfSetReadOnlyProperty(gpfEvents, key, mappings[key]);
+            }
+        }
+    }());
     var
         /**
      * GPF Event class
@@ -638,12 +680,42 @@
     // _GpfEvent interface
     _GpfEvent.prototype = {
         constructor: _GpfEvent,
+        /**
+     * Event type
+     *
+     * @type {String}
+     * @read-only
+     */
         type: "",
+        /**
+     * Event scope
+     *
+     * @return {Object}
+     * @read-only
+     */
         scope: null,
+        /**
+     * Event parameters
+     *
+     * @type {Object} Map of key to value
+     * @private
+     */
         _params: {},
+        /**
+     * Get any additional event information
+     *
+     * @param {String} name parameter name
+     * @return {*} value of parameter
+     */
         get: function (name) {
             return this._params[name];
         },
+        /**
+     * Fire the event on the provided eventsHandler
+     *
+     * @param {gpf.events.Broadcaster/gpf.Callback/Function} eventsHandler
+     * @return {gpf.events.Event} this
+     */
         fire: function (eventsHandler) {
             return gpf.events.fire(this, eventsHandler);
         }
@@ -712,11 +784,13 @@
      * @private
      */
         _gpfWebIncludeAsyncResult = function (parameters) {
-            gpf.events.fire.apply(_gpfContext, parameters);
+            _gpfEventsFire.apply(_gpfContext, parameters);
         },
         /**
      * @inheritdoc gpf.web:include
      * Implementation of gpf.web.include
+     *
+     * Inspired from http://stackoverflow.com/questions/4845762/
      */
         _gpfWebInclude = function (src, eventsHandler) {
             var context = new _GpfIncludeContext(src, eventsHandler), domScript = _gpfWebDocument.createElement("script");
@@ -740,9 +814,32 @@
             setTimeout(_gpfWebIncludeInsert, 0, domScript);
         };
     _GpfIncludeContext.prototype = {
+        /**
+     * Unique ID of this context
+     *
+     * @type {Number}
+     * @read-only
+     */
         id: 0,
+        /**
+     * Included source
+     *
+     * @type {String}
+     * @read-only
+     */
         src: "",
+        /**
+     * Events handler
+     *
+     * @type {gpf.events.Handler}
+     * @read-only
+     */
         eventsHandler: null,
+        /**
+     * Clean the include context
+     *
+     * @param {Object} domScript The script element
+     */
         clean: function (domScript) {
             var parent = domScript.parentNode;
             domScript.onerror = domScript.onload = domScript.onreadystatechange = null;
@@ -752,6 +849,11 @@
             // Destroy context mapping
             delete _GpfIncludeContext.map[this.id];
         },
+        /**
+     * The script was loaded
+     *
+     * @param {Object} domScript The script element
+     */
         check: function (domScript) {
             var readyState = domScript.readyState;
             if (!readyState || -1 < [
@@ -761,16 +863,21 @@
                 this.clean(domScript);
                 // IE10: the event is triggered *before* the source is evaluated
                 setTimeout(_gpfWebIncludeAsyncResult, 0, [
-                    "load",
+                    _GPF_EVENT_READY,
                     { url: this.src },
                     this.eventsHandler
                 ]);
             }
         },
+        /**
+     * The script loading failed
+     *
+     * @param {Object} domScript The script element
+     */
         failed: function (domScript) {
             this.clean(domScript);
             setTimeout(_gpfWebIncludeAsyncResult, 0, [
-                "error",
+                _GPF_EVENT_ERROR,
                 { url: this.src },
                 this.eventsHandler
             ]);
@@ -824,11 +931,11 @@
      *
      * @eventParam {string} url URL of the included resource
      *
-     * @event load The resource has been successfully loaded
+     * @event gpf.events.EVENT_READY
+     * The resource has been successfully loaded
      *
-     * @event error An error occurred when loading the resource
-     *
-     * Inspired from http://stackoverflow.com/questions/4845762/
+     * @event gpf.events.EVENT_ERROR
+     * An error occurred when loading the resource
      */
         gpf.web.include = _gpfWebInclude;
     }
@@ -1015,7 +1122,7 @@
      * Capitalize the string
      *
      * @param that
-     * @returns {string}
+     * @return {String}
      * @private
      */
         _gpfStringCapitalize = function (that) {
@@ -1121,11 +1228,10 @@
  * @param {Object|Array} dictionary
  * @param {Function} memberCallback
  * @param {Function} memberCallback will receive parameters
- * <ul>
- *     <li>{Number|String} index array index or member name<li>
- *     <li>{*} value<li>
- *     <li>{Number} length total array length (undefined for dictionary)<li>
- * </ul>
+ * - {Number|String} index array index or member name
+ * - {*} value
+ * - {Number} length total array length (undefined for dictionary)
+ *
  * @param {*} [defaultResult=undefined] defaultResult
  * @return {*}
  * @chainable
@@ -1172,6 +1278,16 @@
         return dictionary;
     };
     gpf.extend(gpf, {
+        /*
+     * Converts the provided value to match the expectedType.
+     * If not specified or impossible to do so, defaultValue is returned.
+     * When expectedType is not provided, it is deduced from defaultValue.
+     *
+     * @param {*} value
+     * @param {*} default value
+     * @param {String} [expectedType=typeof defaultValue] expected type
+     * @return {*}
+     */
         value: function (value, defaultValue, expectedType) {
             var valueType = typeof value;
             if (!expectedType) {
@@ -1185,6 +1301,12 @@
             }
             return _gpfValues[expectedType](value, valueType, defaultValue);
         },
+        /**
+     * Shallow copy an object
+     *
+     * @param {Object} obj
+     * @return {Object}
+     */
         clone: function (obj) {
             /*
          * http://stackoverflow.com/questions/122102/what-is-the-most-
@@ -1192,6 +1314,13 @@
          */
             return gpf.json.parse(gpf.json.stringify(obj));
         },
+        /*
+     * Find the first member of dictionary which value equals to value.
+     *
+     * @param {Object/array} dictionary
+     * @param {*} value
+     * @return {String/number/undefined} undefined if not found
+     */
         test: function (dictionary, value) {
             var idx;
             if (dictionary instanceof Array) {
@@ -1210,6 +1339,14 @@
             }
             return undefined;
         },
+        /*
+     * Inserts the value in the array if not already present.
+     *
+     * @param {Array} array
+     * @param {*} value
+     * @return {Array}
+     * @chainable
+     */
         set: function (array, value) {
             gpf.ASSERT(array instanceof Array, "gpf.set must be used with an Array");
             var idx = array.length;
@@ -1221,6 +1358,15 @@
             array.push(value);
             return array;
         },
+        /*
+     * Removes the member of 'dictionary' which value equals 'value'.
+     * NOTE: that the object is modified.
+     *
+     * @param {Object/array} dictionary
+     * @param {*} value
+     * @return {Object/array} dictionary
+     * @chainable
+     */
         clear: function (dictionary, value) {
             var idx;
             if (dictionary instanceof Array) {
@@ -1240,9 +1386,20 @@
             }
             return dictionary;
         },
+        /**
+     * XOR
+     *
+     * @param {Boolean} a
+     * @param {Boolean} b
+     */
         xor: function (a, b) {
             return a && !b || !a && b;
         },
+        /**
+     * Exit function
+     *
+     * @paran {Number} [exitCode=0] exitCode
+     */
         exit: function (exitCode) {
             if (undefined === exitCode) {
                 exitCode = 0;
@@ -1267,7 +1424,8 @@
             return result;
         };
     }    //endregion
-    var /**
+    var
+    /**
      * Object representing the context of a like operation.
      * It remembers what objects must be compared and the ones that are already
      * matching.
@@ -1292,8 +1450,27 @@
         }
     };
     _GpfLikeContext.prototype = {
+        /**
+     * Array of objects to be compared (filled by pairs)
+     *
+     * type {Object[]}
+     * @private
+     */
         _pending: [],
+        /**
+     * Array of objects already compared (filled by pairs)
+     *
+     * type {Object[]}
+     * @private
+     */
         _done: [],
+        /**
+     * If a was never compared with b, adds the pair to the pending list.
+     *
+     * @param {Object} a
+     * @param {Object} b
+     * @private
+     */
         _stack: function (a, b) {
             var array = this._done, indexOfA, comparedWith;
             indexOfA = array.indexOf(a);
@@ -1313,9 +1490,22 @@
             array.push(a);
             array.push(b);
         },
+        /**
+     * Check if the objects have different prototypes
+     *
+     * @param {Object} a
+     * @param {Object} b
+     * @return {boolean}
+     * @private
+     */
         _haveDifferentPrototypes: function (a, b) {
             return a.prototype !== b.prototype;
         },
+        /**
+     * Process the pending list
+     *
+     * @return {boolean}
+     */
         explore: function () {
             var pending = this._pending, a, b, done = this._done, membersCount, member;
             while (0 !== pending.length) {
@@ -1349,6 +1539,12 @@
             }
             return true;
         },
+        /**
+     * Downcast a value to its scalar equivalent (if possible)
+     *
+     * @param {*} a
+     * @return {*}
+     */
         _downcast: function (a) {
             if ("object" === typeof a) {
                 if (a instanceof String) {
@@ -1363,9 +1559,25 @@
             }
             return a;
         },
+        /**
+     * gpf.like comparison of values knowing they have different types.
+     * DOWNCAST the values to their scalar equivalent (if any)
+     *
+     * @param {*} a
+     * @param {*} b
+     * @return {boolean}
+     * @private
+     */
         _alike: function (a, b) {
             return this._downcast(a) === this._downcast(b);
         },
+        /**
+     * Internal version of gpf.like
+     *
+     * @param {*} a
+     * @param {*} b
+     * @return {boolean}
+     */
         like: function (a, b) {
             if (a === b) {
                 return true;
@@ -1453,17 +1665,53 @@
     };
     // Define gpf.Callback interface (the 'old' way)
     gpf.extend(gpf.Callback.prototype, {
+        /**
+     * Function to call
+     *
+     * @type {Function}
+     * @private
+     */
         _handler: _gpfEmptyFunc,
+        /**
+     * Scope to apply
+     *
+     * @tyoe {Object}
+     * @private
+     */
         _scope: null,
+        /**
+     * Get the handler function
+     *
+     * @return {Function}
+     */
         handler: function () {
             return this._handler;
         },
+        /**
+     * Get the scope
+     *
+     * @return {Object}
+     */
         scope: function () {
             return this._scope;
         },
+        /**
+     * Executes the callback and override the scope if not defined
+     *
+     * @param {Object} scope Scope to apply if none set in the callback
+     * @param {*} ... Forwarded to the callback handler
+     * @return {*}
+     */
         call: function () {
             return this.apply(arguments[0], _gpfArraySlice.apply(arguments, [1]));
         },
+        /**
+     * Executes the callback and override the scope if not defined
+     *
+     * @param {Object} scope Scope to apply if none set in the callback
+     * @param {*[]} args Forwarded to the callback handler
+     * @return {*}
+     */
         apply: function (scope, args) {
             var finalScope = _gpfResolveScope(scope || this._scope);
             return this._handler.apply(finalScope, args || []);
@@ -1471,9 +1719,48 @@
     });
     // define Static helpers
     gpf.extend(gpf.Callback, {
+        /**
+     * Resolve to a valid scope.
+     * If no scope is provided, the default context is used
+     *
+     * @param {Object} [scope=undefined] scope
+     * @return {Object}
+     * @static
+     */
         resolveScope: _gpfResolveScope,
+        /**
+     * Build a parameter array with
+     * - Placeholders for known parameters
+     * - Leading parameters filled wih the provided params
+     *
+     * @param {Number} count
+     * @param {*} [params=undefined] params Additional parameters
+     * appended at the end of the parameter list
+     * @return {Array}
+     * @static
+     */
         buildParamArray: _gpfBuildParamArray,
+        /**
+     * Helper to call a function with a variable list of parameters
+     *
+     * @param {Function} callback
+     * @param {Object} scope
+     * @param {Array} paramArray array of parameters built with
+     * gpf.Callback.buildParamArray
+     * @param {...*} var_args
+     * @return {*}
+     */
         doApply: _gpfDoApply,
+        /**
+     * Get a method that is bound to the object
+     *
+     * @param {Object} obj
+     * @param {String} method
+     * @param {Boolean} [dynamic=false] dynamic Method is bound dynamically
+     * (i.e. using the name) or statically (i.e. using function object)
+     * @return {Function}
+     * @closure
+     */
         bind: function (obj, method, dynamic) {
             gpf.ASSERT("string" === typeof method, "Expected method name");
             gpf.ASSERT("function" === typeof obj[method], "Only methods can be bound");
@@ -1493,7 +1780,21 @@
         }
     });
     gpf.events.EventDispatcherImpl = {
+        /**
+     * @type {Object} Dictionary of event name to the list of callbacks
+     * @private
+     */
         _eventDispatcherListeners: null,
+        /**
+     * Add an event listener to the target
+     *
+     * @param {String} event name
+     * @param {gpf.events.Handler} eventsHandler
+     * @param {Boolean} [useCapture=false] useCapture push it on top of the
+     * triggering queue
+     * @return {Object}
+     * @chainable
+     */
         addEventListener: function (event, eventsHandler, useCapture) {
             var listeners = this._eventDispatcherListeners;
             if (!listeners) {
@@ -1512,6 +1813,14 @@
             }
             return this;
         },
+        /**
+     * Remove an event listener to the target
+     *
+     * @param {String} event name
+     * @param {gpf.events.Handler} eventsHandler
+     * @return {Object}
+     * @chainable
+     */
         removeEventListener: function (event, eventsHandler) {
             var listeners = this._eventDispatcherListeners, eventListeners, idx;
             if (listeners) {
@@ -1525,6 +1834,15 @@
             }
             return this;
         },
+        /**
+     * Broadcast the event
+     *
+     * @param {String|gpf.events.Event} event name or object
+     * @param {Object} [params={}] event parameters
+     * @return {Object}
+     * @protected
+     * @chainable
+     */
         _dispatchEvent: function (event, params) {
             var listeners = this._eventDispatcherListeners, eventObj, type, eventListeners, len, idx;
             if (!listeners) {
@@ -1857,9 +2175,21 @@
             return result;
         };
     gpf.bin = {
+        /**
+     * Computes the power of 2
+     *
+     * @param {Number} n the power to compute
+     * @return {Number}
+     */
         pow2: function (n) {
             return 1 << n;
         },
+        /**
+     * Check if the given value is a power of 2
+     *
+     * @param {Number} value the value to check
+     * @return {Number} the power of 2 or -1
+     */
         isPow2: function (value) {
             // http://en.wikipedia.org/wiki/Power_of_two
             if (0 < value && 0 === (value & value - 1)) {
@@ -1873,23 +2203,81 @@
                 return -1;
             }
         },
+        /**
+     * Encodes the value within the specified base.
+     * Result string length can be defined and missing characters will be
+     * added with safepad.
+     *
+     * @param {String} base values
+     * @param {Number} value to encode
+     * @param {Number} length of encoding
+     * @param {String} safepad [safepad=base.charAt(0)]
+     * @return {String}
+     */
         toBaseANY: _toBaseANY,
+        /**
+     * Decodes the text value using the specified base.
+     * @param {String} base
+     * @param {String} text
+     * @param {String} safepad [safepad=""]
+     * @return {Number}
+     */
         fromBaseANY: _fromBaseANY,
+        /**
+     * Returns the hexadecimal encoding of value.
+     * @param {Number} value
+     * @param {Number} length of encoding
+     * @param {String} safepad [safepad="0"]
+     * @return {String}
+     */
         toHexa: function (value, length, safepad) {
             return _toBaseANY(_b16, value, length, safepad);
         },
+        /**
+     * Decodes the hexadecimal text value.
+     * @param {String} text
+     * @param {String} safepad [safepad="0"]
+     * @return {Number}
+     */
         fromHexa: function (text, safepad) {
             return _fromBaseANY(_b16, text, safepad);
         },
+        /**
+     * Returns the base 64 encoding of value.
+     * @param {Number} value
+     * @param {Number} length of encoding
+     * @param {String} safepad [safepad="0"]
+     * @return {String}
+     */
         toBase64: function (value, length, safepad) {
             return _toBaseANY(_b64, value, length, safepad);
         },
+        /**
+     * Decodes the hexadecimal text value.
+     * @param {String} text
+     * @param {String} safepad [safepad="0"]
+     * @return {Number}
+     */
         fromBase64: function (text, safepad) {
             return _fromBaseANY(_b64, text, safepad);
         },
+        /**
+     * Test if the value contains the bitmask.
+     *
+     * @param {Number} value
+     * @param {Number} bitmask
+     * @return {Boolean}
+     */
         test: function (value, bitmask) {
             return (value & bitmask) === bitmask;
         },
+        /**
+     * Clear the bitmask inside the value
+     *
+     * @param {Number} value
+     * @param {Number} bitmask
+     * @return {Number}
+     */
         clear: function (value, bitmask) {
             return value & ~bitmask;
         }
@@ -1942,8 +2330,93 @@
         _gpfJsonParse = JSON.parse;
     }
     gpf.json = {
+        /**
+     * The JSON.stringify() method converts a JavaScript value to a JSON string
+     *
+     * @param {*} value the value to convert to a JSON string
+     * @return {String}
+     */
         stringify: _gpfJsonStringify,
-        parse: _gpfJsonParse
+        /**
+     * The JSON.parse() method parses a string as JSON
+     *
+     * @param {*} text The string to parse as JSON
+     * @return {Object}
+     */
+        parse: _gpfJsonParse,
+        /**
+     * TODO there must be a way to make it less specific to JSON
+     * TODO handle object sub members
+     * TODO handle before/after load methods
+     * TODO handle before/after save methods
+     */
+        /**
+     * Load the object properties from the json representation.
+     *
+     * @param {Object} object
+     * @param {Object|string} json
+     * @return {Object}
+     * @chainable
+     */
+        load: function (object, json) {
+            var prototype = object.constructor.prototype, attributes = new _gpfA.Map(object), member, jsonMember;
+            /*jshint -W089*/
+            // Actually, I want all properties
+            for (member in prototype) {
+                if ("function" === typeof prototype[member] || attributes.member(member).has(_gpfANoSerial)) {
+                    continue;    // Ignore functions & unwanted members
+                }
+                /*
+             * We have a member that must be serialized,
+             * by default members with a starting _ will be initialized from
+             * the corresponding member (without _) of the json object
+             */
+                if (0 === member.indexOf("_")) {
+                    jsonMember = member.substr(1);
+                } else {
+                    jsonMember = member;
+                }
+                if (jsonMember in json) {
+                    object[member] = json[jsonMember];
+                } else {
+                    // Reset the value coming from the prototype
+                    object[member] = prototype[member];
+                }
+            }
+            return object;
+        },
+        /*jshint +W089*/
+        /**
+     * Save the object properties into a json representation.
+     *
+     * @param {Object} object
+     * @return {Object}
+     */
+        save: function (object) {
+            var result = {}, prototype = object.constructor.prototype, attributes = new _gpfA.Map(object), member, jsonMember, value;
+            /*jshint -W089*/
+            // Actually, I want all properties
+            for (member in prototype) {
+                if ("function" === typeof prototype[member] || attributes.member(member).has(_gpfANoSerial)) {
+                    continue;    // Ignore functions & unwanted members
+                }
+                /*
+             * We have a member that must be serialized,
+             * by default members with a starting _ will be initialized from
+             * the corresponding member (without _) of the json object
+             */
+                if (0 === member.indexOf("_")) {
+                    jsonMember = member.substr(1);
+                } else {
+                    jsonMember = member;
+                }
+                value = object[member];
+                if (value !== prototype[member]) {
+                    result[jsonMember] = value;
+                }
+            }
+            return result;
+        }    /*jshint +W089*/
     };
     var
         /**
@@ -1981,11 +2454,13 @@
             } else {
                 if (0 < pos) {
                     gpf.ASSERT(pattern.charAt(pos - 1) === "/", "** must be preceded by /");
-                    this.start = pattern.substr(0, pos - 1).split("/").map(_gpfPatternPartSplit);
+                    this.start = pattern.substr(0, pos - 1)    // skip /
+.split("/").map(_gpfPatternPartSplit);
                 }
                 if (pos < pattern.length - 2) {
                     gpf.ASSERT(pattern.charAt(pos + 2) === "/", "** must be followed by /");
-                    this.end = pattern.substr(pos + 3).split("/").map(_gpfPatternPartSplit).reverse();
+                    this.end = pattern.substr(pos + 3)    // skip /
+.split("/").map(_gpfPatternPartSplit).reverse();
                 }
             }
         },
@@ -2022,10 +2497,9 @@
      *
      * @param pathMatcher
      * @this An object containing
-     * <ul>
-     *      <li>{String[]} parts the path being tested split in parts</li>
-     *      <li>{Boolean} [result=undefined] result the result</li>
-     * </ul>
+     * - {String[]} parts the path being tested split in parts
+     * - {Boolean} [result=undefined] result the result
+     *
      * @private
      */
         _gpfPathMatchApply = function (pathMatcher) {
@@ -2057,10 +2531,46 @@
         };
     _GpfPathMatcher.prototype = {
         constructor: _GpfPathMatcher,
+        /**
+     * Source of the pattern
+     *
+     * @type {String}
+     * @private
+     */
         _dbgSource: "",
+        /**
+     * Indicate the pattern started with !
+     *
+     * @type {Boolean}
+     * @private
+     */
         negative: false,
+        /**
+     * List of name patterns to be applied on the beginning of the path
+     *
+     * @type {String[]}
+     */
         start: null,
+        /**
+     * List of name patterns to be applied on the end of the path
+     * (note they are in the reverse order)
+     *
+     * @type {String[]}
+     */
         end: null,
+        /**
+     * When no * is used, the namePattern must exactly match the part.
+     * Otherwise the * represents a variable part in the part.
+     * It may contain as many variable part as necessary.
+     *
+     * a*b  matches     (start)a(anything)b(end)
+     * *b   matches     b(end)
+     * a*   matches     (start)a
+     *
+     * @param {String[]} fixedPatterns
+     * @param {String} part
+     * @private
+     */
         _matchName: function (fixedPatterns, part) {
             var len = fixedPatterns.length, idx, fixedPattern, pos = 0;
             // end
@@ -2086,6 +2596,12 @@
          */
             return !fixedPattern || pos + fixedPattern.length === part.length;
         },
+        /**
+     * Matches the provided path
+     *
+     * @param {String[]} parts
+     * @return {Boolean}
+     */
         match: function (parts) {
             var partsLen = parts.length, startPos = 0, endPos = partsLen - 1, array, len, idx;
             if (this.start) {
@@ -2119,32 +2635,75 @@
         }
     };
     gpf.path = {
+        /**
+     * Matches the provided path
+     *
+     * PATTERN FORMAT
+     * - An optional prefix "!" negates the pattern
+     * - Path separator are /
+     * - In a DOS environment, path is transformed to lowercase and path
+     * separators are converted to / (hence the pattern remains the same)
+     * - A leading slash matches the beginning of the pathname. For example,
+     * "/*.c" matches "cat-file.c" but not "mozilla-sha1/sha1.c".
+     * - Two consecutive asterisks ("**") in patterns matched against full
+     * pathname may have special meaning:
+     *   - A leading "**" followed by a slash means match in all directories.
+     *   For example, "**" + "/foo" matches file or directory "foo" anywhere,
+     *   the same as pattern "foo". "**" + "/foo/bar" matches file or directory
+     *   "bar" anywhere that is directly under directory "foo".
+     *   - A trailing "/**" matches everything inside. For example, "abc/**"
+     *   matches all files inside directory "abc"
+     *   - A slash followed by two consecutive asterisks then a slash matches
+     *   zero or more directories. For example, "a/**" + "/b" matches "a/b",
+     *   "a/x/b", "a/x/y/b" and so on.
+     * Other consecutive asterisks are considered invalid.
+     *
+     * @param {Array|String} pattern
+     * @param {String} path
+     * @return {Boolean}
+     */
         match: function (pattern, path) {
             return _gpfPathMatch(pattern, path) || false;
         },
+        /**
+     * Process the pattern and return an array that can be used in match
+     * NOTE this is not mandatory but if you reuse the same pattern multiple
+     * times, this will make it more efficient.
+     *
+     * @param {Array|String} pattern
+     * @return {Array}
+     */
         compileMatchPattern: function (pattern) {
             return _gpfPathMatchCompilePatterns(pattern);
         }
     };
     var _GPF_ERRORS = {
+            // boot.js
+            // define.js
             "ClassMemberOverloadWithTypeChange": "You can't overload a member to change its type",
             "ClassInvalidVisibility": "Invalid visibility keyword",
-            "EnumerableInvalidMember": "$Enumerable can be associated to arrays only",
+            // parser.js
             "PatternUnexpected": "Invalid syntax (unexpected)",
             "PatternEmpty": "Empty pattern",
             "PatternInvalidSyntax": "Invalid syntax",
             "PatternEmptyGroup": "Syntax error (empty group)",
+            // html.js
             "HtmlHandlerMultiplicityError": "Too many $HtmlHandler attributes for '{member}'",
             "HtmlHandlerMissing": "No $HtmlHandler attributes",
             "HtmlHandlerNoDefault": "No default $HtmlHandler attribute",
+            // engine.js
             "EngineStackUnderflow": "Stack underflow",
             "EngineTypeCheck": "Type check",
+            // encoding.js
             "EncodingNotSupported": "Encoding not supported",
             "EncodingEOFWithUnprocessedBytes": "Unexpected end of stream: unprocessed bytes",
+            // xml.js
             "XmlInvalidName": "Invalid XML name",
+            // params.js
             "ParamsNameRequired": "Missing name",
             "ParamsTypeUnknown": "Type unknown",
             "ParamsRequiredMissing": "Required parameter '{name}' is missing",
+            // fs.js
             "FileNotFound": "File not found"
         },
         /**
@@ -2216,8 +2775,26 @@
         };
     _GpfError.prototype = {
         constructor: _GpfError,
+        /**
+     * Error code
+     *
+     * @type {Number}
+     * @read-only
+     */
         code: 0,
+        /**
+     * Error name
+     *
+     * @type {String}
+     * @read-only
+     */
         name: "Error",
+        /**
+     * Error message
+     *
+     * @type {String}
+     * @read-only
+     */
         message: ""
     };
     _gpfErrorDeclare("boot", {
@@ -2225,7 +2802,13 @@
         Abstract: "Abstract",
         AssertionFailed: "Assertion failed: {message}"
     });
+    _gpfIgnore(_GPF_ERRORS);
     gpf.js = {
+        /**
+     * The list of JavaScript keywords
+     *
+     * @return {String[]}
+     */
         keywords: function () {
             return [].concat(_gpfJsKeywords);
         }
@@ -2243,7 +2826,7 @@
      * Deduce CSV separator from line (usually, the header)
      *
      * @param {String} header
-     * @returns {string}
+     * @return {String}
      * @private
      */
         _gpfCsvComputeSeparator = function (header) {
@@ -2266,7 +2849,7 @@
      *
      * @param {String} value
      * @param {String} quote
-     * @returns {Array}
+     * @return {Array}
      * First element is the result value
      * Second element indicates if the quote escaping is still active
      * @private
@@ -2390,7 +2973,20 @@
             }
             return result;
         };
-    gpf.csv = { parse: _gpfCsvParse };
+    gpf.csv = {
+        /**
+     * CSV parsing function
+     *
+     * @param {String} content CSV content
+     * @param {Object} options
+     * - {String} [header=undefined] header
+     * - {String} [separator=undefined] separator can be deduced from header
+     * - {String} [quote="\""] quote
+     *
+     * @return {Object[]} records
+     */
+        parse: _gpfCsvParse
+    };
     var _gpfVisibilityKeywords = "public|protected|private|static".split("|"), _GPF_CLASSDEF_MARKER = "_gpf", _GPF_VISIBILITY_PUBLIC = 0, _GPF_VISIBILITY_PROTECTED = 1,
         //  _GPF_VISIBILITY_PRIVATE     = 2,
         _GPF_VISIBILITY_STATIC = 3, _gpfClassInitAllowed = true, _gpfClassDefUID = 0,
@@ -2404,7 +3000,7 @@
      * arguments[idx] by a named parameter (can't work), so...
      *
      * @param {Function} classInit _gpfClassInit
-     * @returns {Function}
+     * @return {Function}
      * @private
      * @closure
      */
@@ -2546,7 +3142,7 @@
      * Retrieves (or allocate) the class definition object
      *
      * @param {Function} constructor Class constructor
-     * @returns {gpf.ClassDefinition}
+     * @return {gpf.ClassDefinition}
      */
         _gpfGetClassDefinition = function (constructor) {
             var classDef, uid = constructor[_GPF_CLASSDEF_MARKER];
@@ -2579,14 +3175,42 @@
         };
     _GpfClassDefinition.prototype = {
         constructor: _GpfClassDefinition,
+        //region Members
+        /**
+     * Unique identifier
+     *
+     * @type {Number}
+     * @private
+     */
         _uid: 0,
+        /**
+     * Unique identifier
+     *
+     * @return {Number}
+     */
         uid: function () {
             return this._uid;
         },
+        /**
+     * Full class name
+     *
+     * @type {String}
+     * @private
+     */
         _name: "",
+        /**
+     * Full class name
+     *
+     * @return {String}
+     */
         name: function () {
             return this._name;
         },
+        /**
+     * Class name (without namespace)
+     *
+     * @return {String}
+     */
         nameOnly: function () {
             var name = this._name, pos = name.lastIndexOf(".");
             if (-1 === pos) {
@@ -2595,28 +3219,99 @@
                 return name.substr(pos + 1);
             }
         },
+        /**
+     * Super class
+     *
+     * @type {Function}
+     * @private
+     */
         _Super: Object,
+        /**
+     * Super class
+     *
+     * @return {Function}
+     */
         Super: function () {
             return this._Super;
         },
+        /**
+     * Child classes
+     *
+     * @type {Function[}}
+     * @private
+     */
         _Subs: [],
+        /**
+     * Child classes
+     *
+     * @return {Function[}}
+     */
         Subs: function () {
             return this._Subs;
         },
+        /**
+     * Attributes of this class
+     *
+     * NOTE: during definition, this member is used as a simple JavaScript
+     * Object
+     *
+     * @type {gpf.attributes.Map}
+     * @private
+     */
         _attributes: null,
+        /**
+     * Attributes of this class
+     *
+     * @return {gpf.attributes.Map}
+     */
         attributes: function () {
             if (!this._attributes) {
                 this._attributes = new gpf.attributes.Map();
             }
             return this._attributes;
         },
+        /**
+     * Class constructor
+     *
+     * @type {Function}
+     * @private
+     */
         _Constructor: function () {
         },
+        /**
+     * Class 'definition' constructor
+     *
+     * @type {Function}
+     * @private
+     */
         _defConstructor: null,
+        /**
+     * Class constructor
+     *
+     * @return {Function}
+     */
         Constructor: function () {
             return this._Constructor;
         },
+        //endregion
+        //region Class construction
+        /**
+     * Class definition
+     *
+     * @type {Object}
+     * @private
+     */
         _definition: null,
+        /**
+     * Adds a member to the class definition.
+     * This method must not be used for
+     * - constructor
+     * - overriding an existing member
+     *
+     * @param {String} member
+     * @param {*} value
+     * @param {String|number} [visibility=_GPF_VISIBILITY_PUBLIC] visibility
+     */
         addMember: function (member, value, visibility) {
             var newPrototype = this._Constructor.prototype;
             gpf.ASSERT(member !== "constructor", "No constructor can be added");
@@ -2631,6 +3326,14 @@
             }
             this._addMember(member, value, visibility);
         },
+        /**
+     * Adds a member to the class definition
+     *
+     * @param {String} member
+     * @param {*} value
+     * @param {number} visibility
+     * @private
+     */
         _addMember: function (member, value, visibility) {
             var newPrototype = this._Constructor.prototype;
             if (_GPF_VISIBILITY_STATIC === visibility) {
@@ -2639,6 +3342,14 @@
                 newPrototype[member] = value;
             }
         },
+        /**
+     * Defines a new member of the class
+     *
+     * @param {String} member Name of the member to define
+     * @param {Number} visibility Visibility of the members
+     * @private
+     * @closure
+     */
         _processMember: function (member, visibility) {
             // Don't know yet how I want to handle visibility
             var defMember = this._definition[member], isConstructor = member === "constructor", newType, baseMember, baseType;
@@ -2654,7 +3365,8 @@
                 baseMember = this._Super.prototype[member];
             }
             baseType = typeof baseMember;
-            if ("undefined" !== baseType && null !== baseMember && newType !== baseType) {
+            if ("undefined" !== baseType && null !== baseMember    // Special case as null is common
+&& newType !== baseType) {
                 throw gpf.Error.ClassMemberOverloadWithTypeChange();
             }
             if ("function" === newType && "undefined" !== baseType && _gpfUsesSuper(defMember)) {
@@ -2670,6 +3382,14 @@
                 this._addMember(member, defMember, visibility);
             }
         },
+        /**
+     * An attribute definition is found in the class definition, store it
+     * into a temporary map: it will be processed later
+     *
+     * @param {String} key Attribute name of the member to associate the
+     * attributes to ([name])
+     * @private
+     */
         _processAttribute: function (key) {
             var attributeArray, newAttributeArray = this._definition[key];
             key = key.substr(1, key.length - 2);
@@ -2683,6 +3403,14 @@
             }
             this._attributes[key] = attributeArray.concat(newAttributeArray);
         },
+        /**
+     * Process class definition including visibility
+     *
+     * NOTE: alters this._definition
+     *
+     * @param {Number} visibility Visibility of the members
+     * @private
+     */
         _processDefWithVisibility: function (visibility) {
             var initialDefinition = this._definition, definition, member;
             member = _gpfVisibilityKeywords[visibility];
@@ -2709,6 +3437,11 @@
                 this._definition = initialDefinition;
             }
         },
+        /**
+     * Process definition
+     *
+     * @private
+     */
         _processDefinition: function () {
             var definition = this._definition, member, visibility;
             for (member in definition) {
@@ -2738,6 +3471,13 @@
                 this._processMember("constructor", _GPF_VISIBILITY_PUBLIC);
             }
         },
+        /**
+     * Process the attributes collected in the definition
+     *
+     * NOTE: gpf.attributes._add is defined in attributes.js
+     *
+     * @private
+     */
         _processAttributes: function () {
             var attributes = this._attributes, Constructor, newPrototype, attributeName;
             if (attributes) {
@@ -2756,6 +3496,11 @@
                 }
             }
         },
+        /**
+     * Create the new Class constructor
+     *
+     * @closure
+     */
         _build: function () {
             var newClass, newPrototype, baseClassDef, name = this._name, constructorName;
             // Build the function name for the constructor
@@ -2817,7 +3562,7 @@
         if (-1 < name.indexOf(".")) {
             path = name.split(".");
             leafName = path.pop();
-            ns = gpf.context(path);
+            ns = gpf.context(path, true);
         }
         classDef = new _GpfClassDefinition(name, base, definition || {});
         result = classDef.Constructor();
@@ -2901,12 +3646,34 @@
  */
     _gpfDefAttr("Attribute", {
         protected: {
+            /**
+         * Name of the member the attribute is associated to
+         *
+         * @type {String}
+         * @protected
+         * @friend {gpf.attributes.add}
+         */
             _member: "",
+            /**
+         * This method is the implementation of the attribute: it receives
+         * the prototype to alter.
+         *
+         * NOTE: this is called *after* all declared members are set
+         *
+         * @param {Object} objPrototype Class prototype
+         * @protected
+         * @friend {gpf.attributes.add}
+         */
             _alterPrototype: function (objPrototype) {
                 _gpfIgnore(objPrototype);
             }
         },
         public: {
+            /**
+         * Get the member name
+         *
+         * @return {String}
+         */
             member: function () {
                 return this._member;
             }
@@ -2927,13 +3694,30 @@
  * @alias gpf.$Alias
  */
     _gpfDefAttr("$Alias", {
-        private: { _name: "" },
+        private: {
+            /**
+         * Name of the alias to create
+         *
+         * @type {String}
+         * @private
+         */
+            _name: ""
+        },
         protected: {
+            /**
+         * @inheritdoc gpf.attributes.Attribute:_alterPrototype
+         */
             _alterPrototype: function (objPrototype) {
                 _gpfAlias(objPrototype.constructor, this._name);
             }
         },
         public: {
+            /**
+         * Defines an alias
+         *
+         * @param {String} name Name of the alias to create
+         * @constructor
+         */
             constructor: function (name) {
                 this._name = name;
             }
@@ -2946,17 +3730,45 @@
  * TODO implements gpf.interfaces.IReadOnlyArray
  */
     gpf.define("gpf.attributes.Array", {
-        private: { _array: [] },
+        private: {
+            /**
+         * @type {gpf.attributes.Attribute[]}
+         * @private
+         */
+            _array: []
+        },
         public: {
+            /**
+         * @constructor
+         */
             constructor: function () {
                 this._array = [];    // Create a new instance of the array
             },
-            length: function () {
+            /**
+         * @inheritdoc gpf.interfaces.IReadOnlyArray:getItemsCount
+         *
+         * NOTE: this implementation will be replaced with the one coming
+         * from IReadOnlyArray (once i_array.js is loaded)
+         */
+            getItemsCount: function () {
                 return this._array.length;
             },
-            get: function (index) {
+            /**
+         * @inheritdoc gpf.interfaces.IReadOnlyArray:getItem
+         *
+         * NOTE: this implementation will be replaced with the one coming
+         * from IReadOnlyArray (once i_array.js is loaded)
+         */
+            getItem: function (index) {
                 return _gpfArrayOrItem(this._array, index);
             },
+            /**
+         * Return the first occurrence of the expected class
+         *
+         * @param {gpf.attributes.Attribute} expectedClass the class to
+         * match
+         * @return {gpf.attributes.Attribute}
+         */
             has: function (expectedClass) {
                 gpf.ASSERT("function" === typeof expectedClass, "Expected a class parameter");
                 gpf.ASSERT(expectedClass.prototype instanceof _gpfA.Attribute, "Expected an Attribute-like class parameter");
@@ -2969,6 +3781,13 @@
                 }
                 return null;
             },
+            /**
+         * Returns a new array with all attributes matching the expected
+         * class
+         *
+         * @param {Function} expectedClass the class to match
+         * @return {gpf.attributes.Array}
+         */
             filter: function (expectedClass) {
                 gpf.ASSERT("function" === typeof expectedClass, "Expected a class parameter");
                 gpf.ASSERT(expectedClass.prototype instanceof _gpfA.Attribute, "Expected an Attribute-like class parameter");
@@ -2981,6 +3800,20 @@
                 }
                 return result;
             },
+            /**
+         * Apply the callback for each attribute in the array.
+         * If the callback returns anything, the loop stops and the result
+         * is returned to the caller.
+         *
+         * @param {Function} callback will receive parameters
+         * - {Number} index
+         * - {gpf.attributes.Attribute} attribute
+         * - {Number} array length
+         *
+         * If a result is returned, the enumeration stops and this result is
+         * returned
+         * @return {*} undefined by default
+         */
             each: function (callback) {
                 return _gpfArrayEachWithResult(this._array, callback, undefined);
             }
@@ -2993,8 +3826,26 @@
  */
     gpf.define("gpf.attributes.Map", {
         private: {
+            /**
+         * @type {Object} Map(String,gpf.attributes.Array)
+         * @private
+         */
             _members: {},
+            /**
+         * @type {Number}
+         * @private
+         */
             _count: 0,
+            /**
+         * Copy the content of this map to a new one
+         *
+         * @param {gpf.attributes.Map} attributesMap recipient of the copy
+         * @param {Function} [callback=undefined] callback callback function
+         * to test if the mapping should be added
+         * @param {*} [param=undefined] param additional parameter for the
+         * callback
+         * @private
+         */
             _copyTo: function (attributesMap, callback, param) {
                 var members = this._members, member, array, idx, attribute;
                 if (this._count) {
@@ -3011,23 +3862,53 @@
                     }
                 }
             },
+            /**
+         * Callback for _copyTo, test if attribute is of a given class
+         *
+         * @param {String} member
+         * @param {gpf.attributes.Attribute} attribute
+         * @param {Function} expectedClass
+         * @return {Boolean}
+         * @private
+         */
             _filterCallback: function (member, attribute, expectedClass) {
                 _gpfIgnore(member);
                 return attribute instanceof expectedClass;
             }
         },
         public: {
+            /**
+         * @param {Object|Function} [object=undefined] object Object or
+         * constructor to read attributes from
+         *
+         * @constructor
+         */
             constructor: function (object) {
+                var classDef;
                 this._members = {};
                 // Creates a new dictionary
                 this._count = 0;
-                if (undefined !== object) {
+                if (object instanceof Function) {
+                    classDef = _gpfGetClassDefinition(object);
+                    this.fillFromClassDef(classDef);
+                } else if (undefined !== object) {
                     this.fillFromObject(object);
                 }
             },
+            /**
+         * Gives the total number of attributes enclosed in the map
+         *
+         * @return {Number}
+         */
             count: function () {
                 return this._count;
             },
+            /**
+         * Associate an attribute to a member
+         *
+         * @param {String} member member name
+         * @param {gpf.attributes.Attribute} attribute attribute to map
+         */
             add: function (member, attribute) {
                 var array = this._members[member];
                 if (undefined === array) {
@@ -3036,10 +3917,22 @@
                 array._array.push(attribute);
                 ++this._count;
             },
+            /**
+         * Fill the map using object's attributes
+         *
+         * @param {Object} object object to get attributes from
+         * @return {Number} number of attributes in the resulting map
+         */
             fillFromObject: function (object) {
                 var classDef = _gpfGetClassDefinition(object.constructor);
                 return this.fillFromClassDef(classDef);
             },
+            /**
+         * Fill the map using class definition object
+         *
+         * @param {gpf.classDef} classDef class definition
+         * @return {Number} number of attributes in the resulting map
+         */
             fillFromClassDef: function (classDef) {
                 var attributes, Super;
                 while (classDef) {
@@ -3058,6 +3951,13 @@
                 }
                 return this._count;
             },
+            /**
+         * Creates a new map that contains only instances of the given
+         * attribute class
+         *
+         * @param {Function} expectedClass
+         * @return {gpf.attributes.Map}
+         */
             filter: function (expectedClass) {
                 gpf.ASSERT("function" === typeof expectedClass, "Expected a class parameter");
                 gpf.ASSERT(expectedClass.prototype instanceof _gpfA.Attribute, "Expected an Attribute-like class parameter");
@@ -3065,6 +3965,12 @@
                 this._copyTo(result, this._filterCallback, expectedClass);
                 return result;
             },
+            /**
+         * Returns the array of map associated to a member
+         *
+         * @param {String} name
+         * @return {gpf.attributes.Array}
+         */
             member: function (name) {
                 /**
              * When member is a known Object member (i.e. constructor),
@@ -3080,6 +3986,12 @@
                 }
                 return result;
             },
+            /**
+         * Returns the list of members stored in this map
+         *
+         * @perf_warn Result is computed on each call
+         * @return {String[]}
+         */
             members: function () {
                 var members = this._members, result = [], member;
                 for (member in members) {
@@ -3089,9 +4001,27 @@
                 }
                 return result;
             },
+            /**
+         * Apply the callback for each member in the map.
+         * If the callback returns anything, the loop stops and the result
+         * is returned to the caller.
+         *
+         * @param {Function} callback will receive parameters
+         * - {String} member
+         * - {gpf.attributes.Array} attribute
+         *
+         * If a result is returned, the enumeration stops and this result is
+         * returned
+         * @return {*} undefined by default
+         */
             each: function (callback) {
                 return _gpfDictionaryEachWithResult(this._members, callback, undefined);
             },
+            /**
+         * Add the attributes contained in the map to the given prototype
+         *
+         * @param {Function} objectClass
+         */
             addTo: function (objectClass) {
                 var members = this._members, member;
                 for (member in members) {
@@ -3108,20 +4038,240 @@
  *
  * @param {Function} objectClass class constructor
  * @param {String} name member name
- * @param {gpf.attributes.Attribute[]} attributes
+ * @param {gpf.attributes.Array
+ *        |gpf.attributes.Attribute
+ *        |gpf.attributes.Attribute[]} attributes
  */
     _gpfA.add = function (objectClass, name, attributes) {
-        var attributeList, len, idx, attribute;
-        attributeList = _gpfGetClassDefinition(objectClass).attributes();
+        // Check attributes parameter
+        if (attributes instanceof _gpfA.Array) {
+            attributes = attributes._array;
+        } else if (!(attributes instanceof Array)) {
+            attributes = [attributes];
+        }
+        var objectClassOwnAttributes, len, idx, attribute;
+        objectClassOwnAttributes = _gpfGetClassDefinition(objectClass).attributes();
         len = attributes.length;
         for (idx = 0; idx < len; ++idx) {
             attribute = attributes[idx];
+            gpf.ASSERT(attribute instanceof _gpfA.Attribute, "Expected attribute");
             attribute._member = name;
             // Assign member name
-            attributeList.add(name, attribute);
+            objectClassOwnAttributes.add(name, attribute);
             attribute._alterPrototype(objectClass.prototype);
         }
     };
+    _gpfErrorDeclare("a_attributes", {
+        OnlyForAttributeClass: "The attribute {attributeName} can be used only on an Attribute class",
+        OnlyOnClassForAttributeClass: "The attribute {attributeName} must be used on Class",
+        ClassOnlyAttribute: "The attribute {attributeName} can be used only for Class",
+        MemberOnlyAttribute: "The attribute {attributeName} can be used only for members",
+        UniqueAttributeConstraint: "Attribute {attributeName} already defined on {className}",
+        UniqueMemberAttributeConstraint: "Attribute {attributeName} already defined on {className}::{memberName}"
+    });
+    var
+        /**
+     * Restricts the usage of an attribute to an attribute class only.
+     *
+     * @class gpf.attributes.AttrClassOnlyAttribute
+     * @extends gpf.attributes.Attribute
+     */
+        _GpfAttrOnly = _gpfDefAttr("AttrClassOnlyAttribute", {
+            protected: {
+                /**
+             * @inheritdoc gpf.attributes.Attribute:_alterPrototype
+             */
+                _alterPrototype: function (objPrototype) {
+                    if (!(objPrototype instanceof _gpfA.Attribute)) {
+                        throw gpf.Error.OnlyForAttributeClass({ attributeName: _gpfGetClassDefinition(this.constructor).name() });
+                    }
+                    if (this._member !== "Class") {
+                        throw gpf.Error.OnlyOnClassForAttributeClass({ attributeName: _gpfGetClassDefinition(this.constructor).name() });
+                    }
+                }
+            }
+        }),
+        /**
+     * Provide mechanism to validate the USE of an attribute
+     *
+     * @class gpf.attributes.AttrConstraintAttribute
+     * @extends gpf.attributes.AttrClassOnlyAttribute
+     */
+        _gpfAttrConstraint = _gpfDefAttr("AttrConstraintAttribute", _GpfAttrOnly, {
+            static: {
+                /**
+             * @property {String} originalAlterPrototype Name used to remember
+             * the original _alterPrototype handler
+             */
+                originalAlterPrototype: "_alterPrototype:checked"
+            },
+            private: {
+                /**
+             * Check that all attribute constraints are respected before calling
+             * the original _alterPrototype
+             *
+             * WARNING: this actually is the target attribute
+             *
+             * @param objPrototype
+             * @private
+             */
+                _checkAndAlterPrototype: function (objPrototype) {
+                    var statics = _gpfA.AttrConstraintAttribute, originalAlterPrototype = statics.originalAlterPrototype, targetAttribute = this, attributes;
+                    // Get constraints set for THIS attribute
+                    attributes = new _gpfA.Map(this);
+                    attributes.filter(_gpfAttrConstraint).each(function (member, attributes) {
+                        _gpfIgnore(member);
+                        var len = attributes.getItemsCount(), idx;
+                        for (idx = 0; idx < len; ++idx) {
+                            attributes.getItem(idx)._check(targetAttribute, objPrototype);
+                        }
+                    });
+                    // OK, call _alterPrototype
+                    targetAttribute[originalAlterPrototype].apply(targetAttribute, [objPrototype]);
+                }
+            },
+            protected: {
+                /**
+             * Throws an exception if target attribute can't be applied to
+             * objPrototype
+             *
+             * @param {gpf.attributes.Attribute} targetAttribute
+             * @param {Object} objPrototype
+             * @private
+             */
+                _check: function (targetAttribute, objPrototype) {
+                    _gpfIgnore(targetAttribute);
+                    _gpfIgnore(objPrototype);
+                    throw gpf.Error.Abstract();
+                },
+                /**
+             * @inheritdoc gpf.attributes.Attribute:_alterPrototype
+             * @closure
+             */
+                _alterPrototype: function (objPrototype) {
+                    var statics = _gpfA.AttrConstraintAttribute, originalAlterPrototype = statics.originalAlterPrototype;
+                    // Inherited method will take care of checking attribute class
+                    this._super(objPrototype);
+                    /**
+                 * Several constraint attributes might be defined, check if
+                 * the _alterPrototype has already been overridden
+                 */
+                    if (undefined === objPrototype[originalAlterPrototype]) {
+                        objPrototype[originalAlterPrototype] = objPrototype._alterPrototype;
+                        objPrototype._alterPrototype = this._checkAndAlterPrototype;
+                    }
+                }
+            }
+        });
+    /**
+ * Used on attribute classes to mark them as class attribute (i.e. they can't
+ * be used on members)
+ *
+ * @class gpf.attributes.ClassAttributeAttribute
+ * @extends gpf.attributes.AttrConstraintAttribute
+ * @alias gpf.$ClassAttribute
+ */
+    _gpfDefAttr("$ClassAttribute", _gpfAttrConstraint, {
+        protected: {
+            /**
+         * @inheritdoc gpf.attributes.AttrConstraintAttribute:_check
+         */
+            _check: function (targetAttribute) {
+                if (targetAttribute.member() !== "Class") {
+                    var attributeClass = targetAttribute.constructor, attributeClassDef = _gpfGetClassDefinition(attributeClass);
+                    throw gpf.Error.ClassOnlyAttribute({ attributeName: attributeClassDef.name() });
+                }
+            }
+        }
+    });
+    /**
+ * Used on attribute classes to mark them as member attribute (i.e. they can't
+ * be used on Class)
+ *
+ * @class gpf.attributes.MemberAttributeAttribute
+ * @extends gpf.attributes.AttrConstraintAttribute
+ * @alias gpf.$MemberAttribute
+ */
+    _gpfDefAttr("$MemberAttribute", _gpfAttrConstraint, {
+        protected: {
+            /**
+         * @inheritdoc gpf.attributes.AttrConstraintAttribute:_check
+         */
+            _check: function (targetAttribute) {
+                if (targetAttribute.member() === "Class") {
+                    var attributeClass = targetAttribute.constructor, attributeClassDef = _gpfGetClassDefinition(attributeClass);
+                    throw gpf.Error.MemberOnlyAttribute({ attributeName: attributeClassDef.name() });
+                }
+            }
+        }
+    });
+    /**
+ * Used on attribute classes to mark them as unique through the class hierarchy
+ * or per member.
+ * If one try to define it more than once, an error is raised.
+ *
+ * @class gpf.attributes.UniqueAttributeAttribute
+ * @extends gpf.attributes.AttrConstraintAttribute
+ * @alias gpf.$UniqueAttribute
+ */
+    _gpfDefAttr("$UniqueAttribute", _gpfAttrConstraint, {
+        private: {
+            /**
+         * The attribute is unique for the whole class when true or per member
+         * when false.
+         *
+         * @type {Boolean}
+         * @private
+         */
+            _classScope: true
+        },
+        protected: {
+            /**
+         * @inheritdoc gpf.attributes.AttrConstraintAttribute:_check
+         */
+            _check: function (targetAttribute, objPrototype) {
+                var objectClass, objectClassDef, objectClassAttributes, attributeClass, attributeClassDef, attributesInObj, member = targetAttribute.member();
+                // Get object class definition & attributes
+                objectClass = objPrototype.constructor;
+                objectClassDef = _gpfGetClassDefinition(objectClass);
+                objectClassAttributes = new _gpfA.Map(objectClass);
+                // Get attribute class definition & attributes
+                attributeClass = targetAttribute.constructor;
+                attributeClassDef = _gpfGetClassDefinition(attributeClass);
+                attributesInObj = objectClassAttributes.filter(attributeClass);
+                // Don't forget that targetAttribute is already added to the object
+                if (this._classScope) {
+                    if (1 < attributesInObj.count()) {
+                        throw gpf.Error.UniqueAttributeConstraint({
+                            attributeName: attributeClassDef.name(),
+                            className: objectClassDef.name()
+                        });
+                    }
+                } else if (1 < attributesInObj.member(member).getItemsCount()) {
+                    throw gpf.Error.UniqueMemberAttributeConstraint({
+                        attributeName: attributeClassDef.name(),
+                        className: objectClassDef.name(),
+                        memberName: member
+                    });
+                }
+            }
+        },
+        public: {
+            /**
+         * Restricts attribute multiplicity
+         *
+         * @param {Boolean} [classScope=true] classScope True to set limit to
+         * one instance per class (including hierarchy) or false to limit to one
+         * instance per member.
+         * @constructor
+         */
+            constructor: function (classScope) {
+                if (undefined !== classScope) {
+                    this._classScope = true === classScope;
+                }
+            }
+        }
+    });
     var
         /**
      * Read-only property accessor template
@@ -3149,7 +4299,13 @@
      * @class gpf.attributes._gpfClassAttribute
      * @extends gpf.attributes.Attribute
      */
-        _gpfClassAttribute = _gpfDefAttr("ClassAttribute");
+        _gpfClassAttribute = _gpfDefAttr("ClassAttribute"),
+        /**
+     * alias for gpf.attributes.ClassNonSerializedAttribute
+     *
+     * @type {Function}
+     */
+        _gpfANoSerial;
     /**
  * Creates getter (and setter) methods for a private member. The created
  * accessor is a method with the following signature:
@@ -3162,12 +4318,40 @@
  * @alias gpf.$ClassProperty
  */
     _gpfDefAttr("$ClassProperty", _gpfClassAttribute, {
+        "[Class]": [
+            gpf.$MemberAttribute(),
+            gpf.$UniqueAttribute(false)
+        ],
         private: {
+            /**
+         * If true, generates a write wrapper
+         *
+         * @type {Boolean}
+         * @private
+         */
             _writeAllowed: false,
+            /**
+         * If set, provides the member name. Otherwise, name is based on
+         * member.
+         *
+         * @type {String|undefined}
+         * @private
+         */
             _publicName: undefined,
+            /**
+         * If set, provides the member visibility.
+         * Default is 'public'
+         * member.
+         *
+         * @type {String|undefined}
+         * @private
+         */
             _visibility: undefined
         },
         protected: {
+            /**
+         * @inheritdoc gpf.attributes.Attribute:_alterPrototype
+         */
             _alterPrototype: function (objPrototype) {
                 var member = this._member, publicName = this._publicName, classDef = _gpfGetClassDefinition(objPrototype.constructor), params, src, start, end;
                 if (!publicName) {
@@ -3192,6 +4376,14 @@
             }
         },
         public: {
+            /**
+         * @param {Boolean} writeAllowed
+         * @param {String} [publicName=undefined] publicName When not
+         * specified, the member name (without _) is applied
+         * @param {String} [visibility=undefined] visibility When not
+         * specified, public is used
+         * @constructor
+         */
             constructor: function (writeAllowed, publicName, visibility) {
                 if (writeAllowed) {
                     this._writeAllowed = true;
@@ -3212,7 +4404,25 @@
  * @extends gpf.attributes._gpfClassAttribute
  * @alias gpf.$ClassEventHandler
  */
-    _gpfDefAttr("$ClassEventHandler", _gpfClassAttribute, {});
+    _gpfDefAttr("$ClassEventHandler", _gpfClassAttribute, {
+        "[Class]": [
+            gpf.$MemberAttribute(),
+            gpf.$UniqueAttribute(false)
+        ]
+    });
+    /**
+ * Used to flag a member as non serializable
+ *
+ * @class gpf.attributes.ClassNonSerializedAttribute
+ * @extends gpf.attributes._gpfClassAttribute
+ * @alias gpf.$ClassNonSerialized
+ */
+    _gpfANoSerial = _gpfDefAttr("$ClassNonSerialized", _gpfClassAttribute, {
+        "[Class]": [
+            gpf.$MemberAttribute(),
+            gpf.$UniqueAttribute(false)
+        ]
+    });
     /**
  * Defines a class extension (internal)
  *
@@ -3226,10 +4436,28 @@
  */
     _gpfDefAttr("$ClassExtension", _gpfClassAttribute, {
         private: {
+            /**
+         * Constructor of the class to extend
+         *
+         * @type {Function}
+         * @private
+         */
             _ofClass: _gpfEmptyFunc,
+            /**
+         * Name of the method if added to the class
+         *
+         * @type {String}
+         * @private
+         */
             _publicName: ""
         },
         public: {
+            /**
+         * @param {Function} ofClass Constructor of the class to extend
+         * @param {String} publicName Name of the method if added to the
+         * class
+         * @constructor
+         */
             constructor: function (ofClass, publicName) {
                 this._ofClass = ofClass;
                 if ("string" === typeof publicName) {
@@ -3239,19 +4467,35 @@
         }
     });
     _gpfErrorDeclare("interfaces", { InterfaceExpected: "Expected interface not implemented: {name}" });
-    gpf.interfaces = {
+    var
+    /**
+     * gpf.attributes shortcut
+     *
+     * @type {Object}
+     * @private
+     */
+    _gpfI = gpf.interfaces = {
+        /**
+         * Verify that the object implements the current interface
+         *
+         * @param {Object|Function} inspectedObject object (or class) to inspect
+         * @param {gpf.interfaces.Interface} interfaceDefinition reference
+         * interface
+         * @return {Boolean}
+         */
         isImplementedBy: function (inspectedObject, interfaceDefinition) {
             var member, memberReference, memberValue, memberType;
             if (inspectedObject instanceof Function) {
                 inspectedObject = inspectedObject.prototype;
             }
             /*
-         * IMPORTANT note: we test the object itself (i.e. own members and
-         * the prototype). That's why the hasOwnProperty is skipped
-         */
+             * IMPORTANT note: we test the object itself (i.e. own members and
+             * the prototype). That's why the hasOwnProperty is skipped
+             */
             /*jslint forin:false*/
             for (member in interfaceDefinition.prototype) {
-                if ("constructor" === member || "extend" === member) {
+                if ("constructor" === member    // Object
+|| "extend" === member) {
                     // gpf.Class
                     continue;
                 }
@@ -3268,6 +4512,20 @@
             /*jslint forin:true*/
             return true;
         },
+        /**
+         * Retrieve an object implementing the expected interface from an
+         * object.
+         * This is done in two passes:
+         * - Either the object implements the interface, it is returned
+         * - Or the object implements IUnknown, then queryInterface is used
+         *
+         * @param {Object} objectInstance object to inspect
+         * @param {gpf.interfaces.Interface} interfaceDefinition reference
+         * interface
+         * @param {Boolean} [throwError=true] throwError Throws an error if the
+         * interface is not found (otherwise, null is returned)
+         * @return {Object|null}
+         */
         query: function (objectInstance, interfaceDefinition, throwError) {
             var result = null;
             if (gpf.interfaces.isImplementedBy(objectInstance, interfaceDefinition)) {
@@ -3300,12 +4558,34 @@
     _gpfDefIntrf("Interface");
     //region IEventTarget
     _gpfDefIntrf("IEventDispatcher", {
+        /**
+     * Add an event listener to the target
+     *
+     * @param {String} event name
+     * @param {Function|gpf.Callback} callback
+     * @param {Object|Boolean} scope scope of callback or useCapture
+     * parameter. NOTE: if a gpf.Callback object is used and a scope
+     * specified, a new gpf.Callback object is created.
+     * @param {Boolean} [useCapture=false] useCapture push it on top of the
+     * triggering queue
+     * @return {gpf.interfaces.IEventDispatcher}
+     * @chainable
+     */
         addEventListener: function (event, callback, useCapture) {
             _gpfIgnore(event);
             _gpfIgnore(callback);
             _gpfIgnore(useCapture);
             return this;
         },
+        /**
+     * Remove an event listener to the target
+     *
+     * @param {String} event name
+     * @param {Function|gpf.Callback} callback
+     * @param {Object} [scope=undefined] scope scope of callback
+     * @return {gpf.interfaces.IEventDispatcher}
+     * @chainable
+     */
         removeEventListener: function (event, callback) {
             _gpfIgnore(event);
             _gpfIgnore(callback);
@@ -3320,6 +4600,14 @@
  * / useless members)
  */
     _gpfDefIntrf("IUnknown", {
+        /**
+     * Retrieves an object supporting the provided interface
+     * (maybe the object itself)
+     *
+     * @param {gpf.interfaces.Interface} interfaceDefinition The expected
+     * interface
+     * @return {Object|null} The object supporting the interface (or null)
+     */
         queryInterface: function (interfaceDefinition) {
             _gpfIgnore(interfaceDefinition);
             return null;
@@ -3341,8 +4629,8 @@
     function _queryInterface(interfaceDefinition) {
         /*jslint -W040*/
         var array = new gpf.attributes.Map(this).member("Class").filter(gpf.attributes.InterfaceImplementAttribute), idx, attribute, builder;
-        for (idx = 0; idx < array.length(); ++idx) {
-            attribute = array.get(idx);
+        for (idx = 0; idx < array.getItemsCount(); ++idx) {
+            attribute = array.getItem(idx);
             builder = attribute._builder;
             if (attribute._interfaceDefinition === interfaceDefinition && builder) {
                 if ("function" === typeof builder) {
@@ -3386,12 +4674,27 @@
  */
     _gpfDefAttr("$InterfaceImplement", {
         private: {
+            /**
+         * Interface definition
+         *
+         * @type {Function}
+         * @private
+         */
             "[_interfaceDefinition]": [gpf.$ClassProperty(false, "which")],
             _interfaceDefinition: _gpfEmptyFunc,
+            /**
+         * Builder function
+         *
+         * @type {Function|null}
+         * @private
+         */
             "[_builder]": [gpf.$ClassProperty(false, "how")],
             _builder: null
         },
         protected: {
+            /**
+         * @inheritdoc gpf.attributes.Attribute:_alterPrototype
+         */
             _alterPrototype: function (objPrototype) {
                 var iProto = this._interfaceDefinition.prototype, iClassDef = _gpfGetClassDefinition(this._interfaceDefinition), member, attributes;
                 // Get the interface's attributes apply them to the obj
@@ -3434,6 +4737,12 @@
             }    /*jshint +W089*/
         },
         public: {
+            /**
+         * @param {Function} interfaceDefinition Interface definition
+         * @param {Function|null} [queryInterfaceBuilder=null]
+         * queryInterfaceBuilder Builder function
+         * @constructor
+         */
             constructor: function (interfaceDefinition, queryInterfaceBuilder) {
                 this._interfaceDefinition = interfaceDefinition;
                 if (queryInterfaceBuilder) {
@@ -3442,4 +4751,287 @@
             }
         }
     });    //endregion
+    _gpfErrorDeclare("i_enumerator", { EnumerableInvalidMember: "$Enumerator can be associated to arrays only" });
+    /**
+ * Enumerable interface
+ *
+ * @class gpf.interfaces.IEnumerator
+ * @extends gpf.interfaces.Interface
+ */
+    _gpfDefIntrf("IEnumerator", {
+        /**
+     * Sets the enumerator to its initial position, which is *before* the
+     * first element in the collection.
+     *
+     * NOTE once reset has been called, you must call moveNext to access (or
+     * not)the first element.
+     */
+        reset: function () {
+        },
+        /**
+     * Moves the enumerator to the next element of the enumeration.
+     *
+     * @param {gpf.events.Handler} eventsHandler
+     * @return {Boolean}
+     * - true if the enumerator was successfully advanced to the next element
+     * - false if the enumerator has passed the end of the collection or it has
+     *   to go through an asynchronous operation
+     *
+     * NOTE: if no eventsHandler is specified, no asynchronous operation will
+     * be triggered when false is returned.
+     *
+     * @event gpf.events.EVENT_DATA
+     * The asynchronous operation succeeded, the current item is available
+     *
+     * @event gpf.events.EVENT_END_OF_DATA
+     * No more data is available
+     */
+        "[moveNext]": [gpf.$ClassEventHandler()],
+        moveNext: function (eventsHandler) {
+            _gpfIgnore(eventsHandler);
+            return false;
+        },
+        /**
+     * Gets the current element in the collection.
+     *
+     * @return {*}
+     */
+        current: function () {
+            return null;
+        },
+        static: {
+            /**
+         * Enumerates all elements of the enumerator and call the callback
+         * function.
+         *
+         * NOTE: reset is *not* called.
+         *
+         * @param {gpf.interfaces.IEnumerator} enumerator
+         * @param {Function} callback receive each item of the enumerator,
+         * signature is either:
+         * - {*} element
+         *
+         * or
+         * - {*} element
+         * - {gpf.events.Handler} eventsHandler
+         *
+         * If the signature supports two parameter, the last one will be used
+         * to control the iteration. The callback function has to trigger
+         * - gpf.events.EVENT_CONTINUE
+         * - gpf.events.EVENT_STOP
+         *
+         * @param {gpf.events.Handler} eventsHandler
+         *
+         * @event gpf.events.EVENT_END_OF_DATA
+         * No more data is available, the each function terminated
+         *
+         * @event gpf.events.EVENT_STOPPED
+         * The processing function requested to stop enumeration
+         */
+            // TODO how to put attributes on static members?
+            // "[each]": [gpf.$ClassEventHandler()],
+            each: function (enumerator, callback, eventsHandler) {
+                var iEnumerator = _gpfI.query(enumerator, _gpfI.IEnumerator), end = function (event) {
+                        _gpfEventsFire.apply(enumerator, [
+                            event,
+                            {},
+                            eventsHandler
+                        ]);
+                    }, process;
+                if (1 < callback.length) {
+                    process = function (event) {
+                        if (gpf.events.EVENT_CONTINUE === event.type) {
+                            if (!iEnumerator.moveNext(process)) {
+                                return;
+                            }
+                        } else if (gpf.events.EVENT_STOP === event.type) {
+                            return end(gpf.events.EVENT_STOPPED);
+                        } else if (gpf.events.EVENT_DATA !== event.type) {
+                            return end(event.type);
+                        }
+                        callback(iEnumerator.current(), process);
+                    };
+                    if (iEnumerator.moveNext(process)) {
+                        callback(iEnumerator.current(), process);
+                    }
+                } else {
+                    process = function (event) {
+                        if (gpf.events.EVENT_DATA !== event.type) {
+                            return end(event.type);
+                        }
+                        do {
+                            callback(iEnumerator.current());
+                        } while (iEnumerator.moveNext(process));
+                    };
+                    while (iEnumerator.moveNext(process)) {
+                        callback(iEnumerator.current());
+                    }
+                }
+            }
+        }
+    });
+    /**
+ * Builds an enumerable interface based on an array
+ *
+ * @param {Object[]} array Base of the enumeration
+ * @return {Object} Object implementing the IEnumerable interface
+ * @private
+ */
+    function _gpfArrayEnumerator(array) {
+        var pos = -1;
+        return {
+            reset: function () {
+                pos = -1;
+            },
+            moveNext: function (eventsHandler) {
+                var result;
+                ++pos;
+                result = pos < array.length;
+                if (!result && eventsHandler) {
+                    _gpfEventsFire.apply(this, [
+                        _GPF_EVENT_END_OF_DATA,
+                        {},
+                        eventsHandler
+                    ]);
+                }
+                return result;
+            },
+            current: function () {
+                if (0 > pos || pos >= array.length) {
+                    return undefined;
+                }
+                return array[pos];
+            }
+        };
+    }
+    /**
+ * Interface builder that connects to the EnumerableAttribute attribute
+ *
+ * @param {Object} object
+ * @return {Object} Object implementing the IEnumerable interface
+ * @private
+ */
+    function _buildEnumeratorOnObjectArray(object) {
+        // Look for related member
+        var attributes = new _gpfA.Map(object).filter(_gpfA.EnumerableAttribute), members = attributes.members();
+        return _gpfArrayEnumerator(object[members[0]]);
+    }
+    /**
+ * Extend the class to provide an enumerator interface
+ *
+ * @class gpf.attributes.EnumerableAttribute
+ * @extends gpf.attributes.ClassAttribute
+ * @alias gpf.$Enumerable
+ */
+    _gpfDefAttr("$Enumerable", _gpfA.ClassAttribute, {
+        "Class": [
+            gpf.$UniqueAttribute(),
+            gpf.$MemberAttribute()
+        ],
+        /**
+     * @inheritDoc gpf.attributes.Attribute:_alterPrototype
+     */
+        _alterPrototype: function (objPrototype) {
+            if (!_gpfIsArrayLike(objPrototype[this._member])) {
+                throw gpf.Error.EnumerableInvalidMember();
+            }
+            _gpfA.add(objPrototype.constructor, "Class", [new _gpfA.InterfaceImplementAttribute(_gpfI.IEnumerator, _buildEnumeratorOnObjectArray)]);
+        }
+    });
+    _gpfDefIntrf("IReadOnlyArray", {
+        /**
+     * Return the number of items in the array
+     * @return {Number}
+     */
+        getItemsCount: function () {
+            return 0;
+        },
+        /**
+     * Return the item inside the array (idx is 0-based)
+     *
+     * @param {Number} idx index
+     * @return {*}
+     */
+        getItem: function (idx) {
+            _gpfIgnore(idx);
+            return undefined;
+        }
+    });
+    ///**
+    // * Array interface
+    // *
+    // * @class gpf.interfaces.IArray
+    // * @extends gpf.interfaces.IReadOnlyArray
+    // */
+    //_gpfDefIntrf("IArray", iROArray, {
+    //
+    //    /**
+    //     * Set the item inside the array (idx is 0-based)
+    //     * Return the value that was previously set (or undefined)
+    //     *
+    //     * @param {Number} idx index
+    //     * @param {*} value
+    //     * @return {*}
+    //     */
+    //    setItem: function (idx, value) {
+    //        _gpfIgnore(idx);
+    //        _gpfIgnore(value);
+    //        return undefined;
+    //    }
+    //
+    //});
+    //endregion
+    //region Class modifier to generate an array interface
+    /**
+ * Extend the class to provide an array-like interface
+ *
+ * @param {Boolean} [writeAllowed=false] writeAllowed Switch between read
+ * only array and writable one
+ *
+ * @class gpf.attributes.ClassArrayInterfaceAttribute
+ * @extends gpf.attributes.ClassAttribute
+ * @alias gpf.$ClassIArray
+ */
+    _gpfDefAttr("$ClassIArray", _gpfA.ClassAttribute, {
+        "Class": [
+            gpf.$UniqueAttribute(),
+            gpf.$MemberAttribute()
+        ],
+        private: {
+            /**
+         * @type {boolean}
+         * @private
+         */
+            _writeAllowed: false
+        },
+        protected: {
+            /**
+         * @inheritDoc gpf.attributes.Attribute:_alterPrototype
+         */
+            _alterPrototype: function (objPrototype) {
+                var implementedInterface;
+                if (this._writeAllowed) {
+                    implementedInterface = _gpfI.IArray;
+                } else {
+                    implementedInterface = _gpfI.IReadOnlyArray;
+                }
+                _gpfA.add(objPrototype.constructor, "Class", [gpf.$InterfaceImplement(implementedInterface)]);
+                objPrototype.getItemsCount = _gpfFunc("return this." + this._member + ".length;");
+                objPrototype.getItem = _gpfFunc(["_gpfArrayOrItem"], "return function (idx) { return _gpfArrayOrItem(this. " + this._member + ", idx); }")(_gpfArrayOrItem);
+                if (this._writeAllowed) {
+                    objPrototype.setItem = _gpfFunc("var i=arguments[0]," + "v=this." + this._name + "[i];this." + this._member + "[i]=arguments[1];return v;");
+                }
+            }
+        },
+        public: {
+            constructor: function (writeAllowed) {
+                if (writeAllowed) {
+                    // TODO decide how to implement IArray
+                    throw gpf.Error.NotImplemented();    //this._writeAllowed = true;
+                }
+            }
+        }
+    });
+    // Alter gpf.attributes.Array class definition
+    _gpfA.add(_gpfA.Array, "_array", [gpf.$ClassIArray(false)]);    //endregion
 }));
