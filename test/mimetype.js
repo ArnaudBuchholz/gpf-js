@@ -6,6 +6,7 @@ describe("mimetype", function () {
     describe("hard-coded mime types", function () {
 
         var
+            gpfW = gpf.web,
             // List of hardcoded mime types
             _mimeTypes = {
                 "application/javascript":       [".js"],
@@ -23,16 +24,16 @@ describe("mimetype", function () {
                 extensions,
                 len,
                 idx,
-                extension;
+                ext;
             for (mimeType in _mimeTypes) {
                 if (_mimeTypes.hasOwnProperty(mimeType)) {
                     extensions = _mimeTypes[mimeType];
                     len = extensions.length;
                     for (idx = 0; idx < len; ++idx) {
-                        extension = extensions[idx];
-                        assert(gpf.web.getMimeType(extension) === mimeType);
+                        ext = extensions[idx];
+                        assert(gpfW.getMimeType(ext) === mimeType);
                         if(0 === idx) {
-                            assert(gpf.web.getFileExtension(mimeType) === extension);
+                            assert(gpfW.getFileExtension(mimeType) === ext);
                         }
                     }
                 }
@@ -40,11 +41,11 @@ describe("mimetype", function () {
         });
 
         it("supports a default mime type", function () {
-            assert(gpf.web.getMimeType("") === "application/octet-stream");
+            assert(gpfW.getMimeType("") === "application/octet-stream");
         });
 
         it("supports a default extension", function () {
-            assert(gpf.web.getFileExtension("") === ".bin");
+            assert(gpfW.getFileExtension("") === ".bin");
         });
 
     });

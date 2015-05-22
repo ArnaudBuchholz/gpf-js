@@ -101,6 +101,83 @@
 
         });
 
+//region stringFromStream helpers
+
+function _stringStreamConcat(previous, buffer) {
+    if (undefined === previous) {
+        return [buffer];
+    } else if (undefined !== buffer) {
+        previous.push(buffer);
+        return previous;
+    } else {
+        return previous.join("");
+    }
+}
+
+//endregion
+
+//region stringFromFile helpers
+
+/**
+ * Creates a custom EventsHandler to sequence the calls to be made
+ *
+ * @param {*} path
+ * @param {String} encoding
+ * @param {gpf.events.Handler} eventsHandler
+ * @constructor
+ */
+function StringFromFileScope (path, encoding, eventsHandler) {
+    this._path = path;
+    this._encoding = encoding;
+    this._eventsHandler = eventsHandler;
+    this.scope = this;
+}
+
+StringFromFileScope.prototype = {
+    _path: null,            // File path
+    _encoding: "",          // Encoding
+    _eventsHandler: null,   // Original events handler
+    _step: 0,               // 0: getInfo, 1: readAsBinaryStream
+    scope: null             // This eventsHandler scope
+};
+
+/**
+ * ready event handler
+ *
+ * @param {gpf.Event} event
+ */
+StringFromFileScope.prototype.ready = function (event) {
+    if (0 === this._step) {
+        var info = event.get("info");
+        if (info.type === gpf.fs.TYPE_NOT_FOUND) {
+            _gpfEventsFire.apply(this, [
+                _GPF_EVENT_ERROR, {
+                    error: gpf.Error.FileNotFound()
+                }, this._eventsHandler
+            ]);
+            return;
+        }
+        this._step = 1;
+        gpf.fs.readAsBinaryStream(this._path, this);
+    } else {
+        var stream = event.get("stream");
+        var decoder = gpf.encoding.createDecoder(stream, this._encoding);
+        gpf.stringFromStream(decoder, this);
+    }
+};
+
+/**
+ * Any other event handler
+ *
+ * @param {gpf.Event} event
+ */
+StringFromFileScope.prototype["*"] = function (event) {
+    // Forward to original handler (error or data)
+    _gpfEventsFire.apply(this, [event, {}, this._eventsHandler]);
+};
+
+//endregion
+
     gpf.extend(gpf, {
 
         "[capitalize]": [gpf.$ClassExtension(String)],
@@ -257,79 +334,3 @@
 
     });
 
-    //region stringFromStream helpers
-
-    function _stringStreamConcat(previous, buffer) {
-        if (undefined === previous) {
-            return [buffer];
-        } else if (undefined !== buffer) {
-            previous.push(buffer);
-            return previous;
-        } else {
-            return previous.join("");
-        }
-    }
-
-    //endregion
-
-    //region stringFromFile helpers
-
-    /**
-     * Creates a custom EventsHandler to sequence the calls to be made
-     *
-     * @param {*} path
-     * @param {String} encoding
-     * @param {gpf.events.Handler} eventsHandler
-     * @constructor
-     */
-    function StringFromFileScope (path, encoding, eventsHandler) {
-        this._path = path;
-        this._encoding = encoding;
-        this._eventsHandler = eventsHandler;
-        this.scope = this;
-    }
-
-    StringFromFileScope.prototype = {
-        _path: null,            // File path
-        _encoding: "",          // Encoding
-        _eventsHandler: null,   // Original events handler
-        _step: 0,               // 0: getInfo, 1: readAsBinaryStream
-        scope: null             // This eventsHandler scope
-    };
-
-    /**
-     * ready event handler
-     *
-     * @param {gpf.Event} event
-     */
-    StringFromFileScope.prototype.ready = function (event) {
-        if (0 === this._step) {
-            var info = event.get("info");
-            if (info.type === gpf.fs.TYPE_NOT_FOUND) {
-                _gpfEventsFire.apply(this, [
-                    _GPF_EVENT_ERROR, {
-                        error: gpf.Error.FileNotFound()
-                    }, this._eventsHandler
-                ]);
-                return;
-            }
-            this._step = 1;
-            gpf.fs.readAsBinaryStream(this._path, this);
-        } else {
-            var stream = event.get("stream");
-            var decoder = gpf.encoding.createDecoder(stream, this._encoding);
-            gpf.stringFromStream(decoder, this);
-        }
-    };
-
-    /**
-     * Any other event handler
-     *
-     * @param {gpf.Event} event
-     */
-    StringFromFileScope.prototype["*"] = function (event) {
-        // Forward to original handler (error or data)
-        _gpfEventsFire.apply(this, [event, {}, this._eventsHandler]);
-    };
-
-    //endregion

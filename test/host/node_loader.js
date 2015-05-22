@@ -101,4 +101,4 @@ module.exports = function loadTests(readFile) {
             /*jslint evil: false*/
         }
     }
-}
+};

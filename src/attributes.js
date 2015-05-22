@@ -1,6 +1,5 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
