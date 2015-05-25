@@ -1,6 +1,6 @@
 "use strict";
 /*jshint node: true*/
-/*global process, global*/
+/*global process, global, phantom*/
 
 var
     options = {
@@ -9,7 +9,9 @@ var
         verbose: false
     },
     verbose,
-    args;
+    args,
+    path,
+    testPath;
 
 // Define a debug function that outputs when verbose is set
 if (options.verbose) {
@@ -27,11 +29,27 @@ if (options.verbose) {
 if ("undefined" !== typeof process) {
     // nodejs
     args = process.argv;
+    path = require("path");
 } else if ("undefined" !== typeof phantom) {
     // phantomjs
     args = require("system").args;
+    // https://groups.google.com/forum/#!msg/phantomjs/OswbWiKrLYI/ndoXvK13OrIJ
+    window.__dirname = phantom.libraryPath;
 } else {
     args = [];
+}
+if (!path) {
+    (function () {
+        var separator = require("fs").separator;
+        path = {
+            resolve: function (base, relative) {
+                if (base.charAt(base.length - 1) !== separator) {
+                    base = base + separator;
+                }
+                return base + relative;
+            }
+        };
+    }());
 }
 
 if (args.length > 2) {
@@ -47,12 +65,7 @@ if (args.length > 2) {
     });
 }
 
-try {
-    global.gpfSourcesPath =
-        require("path").resolve(__dirname, "../../src/");
-} catch (e) {
-    global.gpfSourcesPath = "../../src";
-}
+global.gpfSourcesPath = path.resolve(__dirname, "../../src/");
 
 if (options.release) {
     verbose("Using release version");
@@ -75,7 +88,9 @@ gpf.declareTests = function () {
     console.warn("Test file must be transformed into BDD syntax");
 };
 
-// require("./console.js");
+testPath = path.resolve(__dirname, "../../test/");
+
+require(path.resolve(testPath, "host/console.js"));
 
 /**
  * Load all tests
@@ -84,25 +99,17 @@ gpf.declareTests = function () {
  */
 module.exports = function loadTests(readFile) {
     var
-        testPath,
         sources = gpf.sources().split(","),
         len = sources.length,
         sourceIdx,
         source,
         content;
-    try {
-        testPath =
-            require("path").resolve(__dirname, "../../test/");
-    } catch (e) {
-        testPath = "../../test";
-    }
-    console.log(">> " + testPath);
     for (sourceIdx = 0; sourceIdx < len; ++sourceIdx) {
         source = sources[sourceIdx];
         if (!source) {
             break;
         }
-        content = readFile(testPath + "/" + source + ".js");
+        content = readFile(path.resolve(testPath, source + ".js"));
         if (undefined !== content) {
             /*jslint evil: true*/
             eval(content);
