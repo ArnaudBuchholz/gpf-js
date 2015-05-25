@@ -210,7 +210,7 @@
             }
             // Console can be mocked up to check outputs
             if (console.expects) {
-                console.expects(level, text);
+                console.expects(level, text, true);
             }
             console[level](text);
         },
