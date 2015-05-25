@@ -1,6 +1,9 @@
 (function () { /* Begin of privacy scope */
     "use strict";
 
+    /*jshint -W027*/ // Done on purpose until gpf.declareTests is removed
+    return;
+
     var
         _refDate = new Date(1975, 3, 26, 12, 14, 26),
         _refDateL = "1975-04-26 12:14:26",

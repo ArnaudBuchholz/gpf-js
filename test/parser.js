@@ -1,6 +1,9 @@
 (function () { /* Begin of privacy scope */
     "use strict";
 
+    /*jshint -W027*/ // Done on purpose until gpf.declareTests is removed
+    return;
+
     var
         _patterns = {
             identifiers: {

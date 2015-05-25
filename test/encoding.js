@@ -1,6 +1,9 @@
 (function () { /* Begin of privacy scope */
     "use strict";
 
+    /*jshint -W027*/ // Done on purpose until gpf.declareTests is removed
+    return;
+
     var
         _utf8String = "UTF-8 (abréviation de l’anglais Universal Character Set "
                     + "Transformation Format - 8 bits) est un codage de caractè"
