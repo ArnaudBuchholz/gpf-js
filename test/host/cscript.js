@@ -68,11 +68,6 @@ include("console.js");
 
 verbose("Loading test cases");
 
-// Backward compatibility management
-gpf.declareTests = function () {
-    WScript.Echo("Test file '" + src + ".js' must be transformed to BDD");
-};
-
 sources = gpf.sources().split(",");
 len = sources.length;
 for (idx = 0; idx < len; ++idx) {

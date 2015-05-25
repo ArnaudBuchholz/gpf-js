@@ -83,11 +83,6 @@ if (undefined === gpf.sources) {
     require("../../src/sources.js");
 }
 
-// Backward compatibility management
-gpf.declareTests = function () {
-    console.warn("Test file must be transformed into BDD syntax");
-};
-
 testPath = path.resolve(__dirname, "../../test/");
 
 require(path.resolve(testPath, "host/console.js"));

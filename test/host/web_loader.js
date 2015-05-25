@@ -18,13 +18,6 @@
         sources;
 
     /**
-     * Backward compatibility management
-     */
-    function _declareTests() {
-        console.warn("Test file must be transformed into BDD syntax");
-    }
-
-    /**
      * Actively wait for GPF to be loaded
      */
     function _load() {
@@ -68,7 +61,6 @@
         if (-1 === sourceIdx) {
             sources = gpf.sources().split(",");
             sourceIdx = 0;
-            gpf.declareTests = _declareTests;
         }
         if (sourceIdx < sources.length) {
             var source = sources[sourceIdx];
