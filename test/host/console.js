@@ -17,6 +17,11 @@
                 expectedText;
             consoleMethods[name].apply(console, arguments);
 
+            if (!text || -1 < text.indexOf("\x1B")) {
+                // Escape sequence used, must be a mocha output
+                return;
+            }
+
             if (0 !== expected.length) {
                 expectedName = expected.shift();
                 expectedText = expected.shift();
