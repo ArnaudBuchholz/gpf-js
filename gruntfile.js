@@ -39,8 +39,51 @@ module.exports = function (grunt) {
         mochaTest: {
             source: {
                 options: {
+                    reporter: "dot",
+                    quiet: false,
+                    clearRequireCache: true,
+                    require: [
+                        function (){
+                            global.gpfSourcesPath = "src/";
+                        },
+                        "./src/boot.js",
+                        function (){
+                            require("./test/host/console.js");
+                            global.assert = require("assert");
+                        }
+                    ]
                 },
-                src: ["test/host/mocha/nodejs.js"]
+                src: ["test/*.js"]
+            },
+            debug: {
+                options: {
+                    reporter: "dot",
+                    quiet: false,
+                    clearRequireCache: true,
+                    require: [
+                        function (){
+                            global.gpf = require("./build/gpf-debug.js");
+                            require("./test/host/console.js");
+                            global.assert = require("assert");
+                        }
+                    ]
+                },
+                src: ["test/*.js"]
+            },
+            release: {
+                options: {
+                    reporter: "dot",
+                    quiet: false,
+                    clearRequireCache: true,
+                    require: [
+                        function (){
+                            global.gpf = require("./build/gpf.js");
+                            require("./test/host/console.js");
+                            global.assert = require("assert");
+                        }
+                    ]
+                },
+                src: ["test/*.js"]
             }
         },
         //endregion
