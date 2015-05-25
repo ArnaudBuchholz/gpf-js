@@ -49,9 +49,9 @@ if (args.length > 2) {
 
 try {
     global.gpfSourcesPath =
-        require("path").resolve(__dirname, "../../src/") + "/";
+        require("path").resolve(__dirname, "../../src/");
 } catch (e) {
-    global.gpfSourcesPath = "../../src/";
+    global.gpfSourcesPath = "../../src";
 }
 
 if (options.release) {
@@ -75,7 +75,7 @@ gpf.declareTests = function () {
     console.warn("Test file must be transformed into BDD syntax");
 };
 
-require("./console.js");
+// require("./console.js");
 
 /**
  * Load all tests
@@ -84,17 +84,25 @@ require("./console.js");
  */
 module.exports = function loadTests(readFile) {
     var
+        testPath,
         sources = gpf.sources().split(","),
         len = sources.length,
         sourceIdx,
         source,
         content;
+    try {
+        testPath =
+            require("path").resolve(__dirname, "../../test/");
+    } catch (e) {
+        testPath = "../../test";
+    }
+    console.log(">> " + testPath);
     for (sourceIdx = 0; sourceIdx < len; ++sourceIdx) {
         source = sources[sourceIdx];
         if (!source) {
             break;
         }
-        content = readFile("../" + source + ".js");
+        content = readFile(testPath + "/" + source + ".js");
         if (undefined !== content) {
             /*jslint evil: true*/
             eval(content);
