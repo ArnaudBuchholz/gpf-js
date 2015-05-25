@@ -1,5 +1,5 @@
 "use strict";
-/*global describe, it, assert*/
+//*global describe, it, assert*/
 
 //describe("string", function () {
 //
