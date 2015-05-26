@@ -13,18 +13,6 @@ var
     path,
     testPath;
 
-// Define a debug function that outputs when verbose is set
-if (options.verbose) {
-    verbose = (function () {
-        var _console = console;
-        return function (text) {
-            _console.log(text);
-        };
-    }());
-} else {
-    verbose = function () {};
-}
-
 // Simple parameter parsing
 if ("undefined" !== typeof process) {
     // nodejs
@@ -63,6 +51,18 @@ if (args.length > 2) {
             }
         }
     });
+}
+
+// Define a debug function that outputs when verbose is set
+if (options.verbose) {
+    verbose = (function () {
+        var _console = console;
+        return function (text) {
+            _console.log(text);
+        };
+    }());
+} else {
+    verbose = function () {};
 }
 
 global.gpfSourcesPath = path.resolve(__dirname, "../../src/");
