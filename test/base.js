@@ -3,6 +3,32 @@
 
 describe("base", function () {
 
+    describe("gpf as a module", function () {
+
+        if ("nodejs" === gpf.host()) {
+
+            it("supports multiple instances", function () {
+                require("gpf-js");
+            });
+
+        } else if ("browser" === gpf.host() || "phantomjs" === gpf.host()) {
+
+            it("supports multiple includes", function (done) {
+                var basePath;
+                if (window.gpfSourcesPath) {
+                    basePath = window.gpfSourcesPath;
+                }
+                gpf.web.include(basePath + "../build/gpf-debug.js", {
+                    "ready": function () {
+                        done();
+                    }
+                });
+            });
+
+        }
+
+    });
+
     // Global declarations
     var
         string = "Hello World!",
