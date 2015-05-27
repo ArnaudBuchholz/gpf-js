@@ -23,9 +23,11 @@ describe("bin", function () {
             assert(gpf.bin.pow2(14) ===  16384);
             assert(gpf.bin.pow2(15) ===  32768);
             assert(gpf.bin.pow2(16) ===  65536);
+            assert(gpf.bin.pow2(31) ===  2147483648);
+            assert(gpf.bin.pow2(32) ===  4294967296);
         });
 
-        it("checks if a number is a power of 20", function () {
+        it("checks if a number is a power of 2", function () {
             assert(gpf.bin.isPow2(0) ===  -1);
             assert(gpf.bin.isPow2(1) ===  0);
             assert(gpf.bin.isPow2(2) ===  1);
@@ -46,6 +48,8 @@ describe("bin", function () {
             assert(gpf.bin.isPow2(32748) ===  -1);
             assert(gpf.bin.isPow2(65536) ===  16);
             assert(gpf.bin.isPow2(65534) ===  -1);
+            assert(gpf.bin.isPow2(2147483648) === 31);
+            assert(gpf.bin.isPow2(4294967296) === 32);
         });
 
     });
@@ -138,6 +142,23 @@ describe("bin", function () {
                 assert(pow4 === gpf.bin.clear(pow4 + pow3, pow3));
             });
 
+        });
+
+    });
+
+    describe("gpf.bin.random", function () {
+
+        it("generate random values between 0 and 2^32", function () {
+            var values = [],
+                value,
+                max32 = gpf.bin.pow2(32);
+            while (values.length < 1000) {
+                value = gpf.bin.random();
+                assert(0 <= value);
+                assert(value < max32);
+                assert(-1 === values.indexOf(value));
+                values.push(value);
+            }
         });
 
     });

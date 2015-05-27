@@ -1,13 +1,17 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfMax31*/ // Max value on 31 bits
+/*global _gpfMax32*/ // Max value on 32 bits
 /*global _gpfAlpha*/ // Letters (lowercase)
 /*global _gpfALPHA*/ // Letters (uppercase)
 /*global _gpfDigit*/ // Digits
 /*#endif*/
 
 var
-    _b64 = _gpfALPHA + _gpfAlpha + _gpfDigit + "+/",
-    _b16 = "0123456789ABCDEF",
+    _gpfB64 = _gpfALPHA + _gpfAlpha + _gpfDigit + "+/",
+    _gpfB16 = "0123456789ABCDEF",
+    _gpfBinZ = 987654321,
+    _gpfBinW = (new Date()).getTime() & _gpfMax32,
 
     _toBaseANY = function (base, value, length, safepad) {
         var
@@ -84,7 +88,21 @@ gpf.bin = {
      * @return {Number}
      */
     pow2: function (n) {
-        return 1 << n;
+        if (31 === n) {
+            return _gpfMax31 + 1;
+        }
+        if (32 === n) {
+            return _gpfMax32 + 1;
+        }
+        if (31 > n) {
+            return 1 << n;
+        }
+        var result = _gpfMax32 + 1;
+        n -= 31;
+        while (--n) {
+            result *= 2;
+        }
+        return result;
     },
 
     /**
@@ -99,7 +117,7 @@ gpf.bin = {
             var result = 0;
             while (1 < value) {
                 ++result;
-                value >>= 1;
+                value /= 2;
             }
             return result;
         } else {
@@ -137,7 +155,7 @@ gpf.bin = {
      * @return {String}
      */
     toHexa: function (value, length, safepad) {
-        return _toBaseANY(_b16, value, length, safepad);
+        return _toBaseANY(_gpfB16, value, length, safepad);
     },
 
     /**
@@ -147,7 +165,7 @@ gpf.bin = {
      * @return {Number}
      */
     fromHexa: function (text, safepad) {
-        return _fromBaseANY(_b16, text, safepad);
+        return _fromBaseANY(_gpfB16, text, safepad);
     },
 
     /**
@@ -158,7 +176,7 @@ gpf.bin = {
      * @return {String}
      */
     toBase64: function (value, length, safepad) {
-        return _toBaseANY(_b64, value, length, safepad);
+        return _toBaseANY(_gpfB64, value, length, safepad);
     },
 
     /**
@@ -168,7 +186,7 @@ gpf.bin = {
      * @return {Number}
      */
     fromBase64: function (text, safepad) {
-        return _fromBaseANY(_b64, text, safepad);
+        return _fromBaseANY(_gpfB64, text, safepad);
     },
 
     /**
@@ -191,6 +209,20 @@ gpf.bin = {
      */
     clear: function /*gpf:inline*/ (value, bitmask) {
         return value & ~bitmask;
+    },
+
+    /**
+     * Generate a random number between 0 inclusive and pow2(32) exclusive
+     *
+     * @returns {Number}
+     * Based on:
+     * http://en.wikipedia.org/wiki/Random_number_generation
+     * http://stackoverflow.com/questions/521295/javascript-random-seeds
+     */
+    random: function () {
+        _gpfBinZ = (36969 * (_gpfBinZ & 65535) + (_gpfBinZ >> 16)) & _gpfMax32;
+        _gpfBinW = (18000 * (_gpfBinW & 65535) + (_gpfBinW >> 16)) & _gpfMax32;
+        return (((_gpfBinZ << 16) + _gpfBinW) & _gpfMax32) + _gpfMax31;
     }
 
 };

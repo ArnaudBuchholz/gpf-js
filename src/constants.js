@@ -30,6 +30,8 @@
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfFalseFunc*/ // An empty function returning false
 /*global _gpfFunc*/ // Create a new function using the source
+/*global _gpfMax31*/ // Max value on 31 bits
+/*global _gpfMax32*/ // Max value on 32 bits
 /*global _gpfAlpha*/ // Letters (lowercase)
 /*global _gpfALPHA*/ // Letters (uppercase)
 /*global _gpfDigit*/ // Digits
@@ -159,6 +161,22 @@ var
         }
 /*#endif*/
     },
+
+    /**
+     * Max value on 31 bits
+     *
+     * @type {Number}
+     * @private
+     */
+    _gpfMax31 = 0x7FFFFFFF,
+
+    /**
+     * Max value on 32 bits
+     *
+     * @type {Number}
+     * @private
+     */
+    _gpfMax32 =  0xFFFFFFFF,
 
     /**
      * Letters (lowercase)
