@@ -135,19 +135,20 @@ if (undefined === Object.defineProperty) {
      * @param {Object} obj
      * @param {String} name
      * @param {*} value
+     * @param {Boolean} [hidden=false] hidden
      * @return {Object}
      * @chainable
      */
-    gpf.setReadOnlyProperty = function (obj, name, value) {
+    gpf.setReadOnlyProperty = function (obj, name, value/*, hidden*/) {
         obj[name] = value;
         return obj;
     };
 
 } else {
 
-    gpf.setReadOnlyProperty = function (obj, name, value) {
+    gpf.setReadOnlyProperty = function (obj, name, value, hidden) {
         Object.defineProperty(obj, name, {
-            enumerable: true,
+            enumerable: hidden !== true,
             configurable: false,
             writable: false,
             value: value

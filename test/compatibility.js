@@ -193,6 +193,21 @@ describe("compatibility", function () {
             assert(true === obj.member);
         });
 
+        it("allows defining hidden read-only property", function () {
+            var
+                obj = {},
+                members = [],
+                key;
+            gpf.setReadOnlyProperty(obj, "member", true, true);
+            assert(true === obj.member);
+            for (key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    members.push(key);
+                }
+            }
+            assert(-1 === members.indexOf("member"));
+        });
+
         if ("wscript" !== gpf.host()) {
             it("prevents modifying a read-only property", function () {
                 var
