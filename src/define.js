@@ -7,7 +7,7 @@
 
 var
     _gpfVisibilityKeywords      = "public|protected|private|static".split("|"),
-    _GPF_CLASSDEF_MARKER        = "_gpf",
+    _GPF_CLASSDEF_MARKER        = "_gpf_" + gpf.bin.toHexa(gpf.bin.random(), 8),
     _GPF_VISIBILITY_PUBLIC      = 0,
     _GPF_VISIBILITY_PROTECTED   = 1,
 //  _GPF_VISIBILITY_PRIVATE     = 2,
