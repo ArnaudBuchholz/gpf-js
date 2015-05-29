@@ -8,6 +8,7 @@
      * Rhino, and plain browser loading.
      *
      * 2014-12-04 ABZ Extended for PhantomJS
+     * 2015-05-29 ABZ Modified to catch former value of gpf
      */
     if (typeof define === "function" && define.amd) {
         define(["exports"], factory);
@@ -16,7 +17,9 @@
     } else if (typeof module !== "undefined" && module.exports) {
         factory(module.exports);
     } else {
-        factory((root.gpf = {}));
+        var newGpf = {};
+        factory(newGpf);
+        root.gpf = newGpf;
     }
 }(this, function (/*gpf:no-reduce*/gpf) {
     "use strict";
