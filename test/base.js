@@ -8,18 +8,29 @@ describe("base", function () {
         if ("nodejs" === gpf.host()) {
 
             it("supports multiple instances", function () {
-                require("gpf-js");
+                var
+                    previousGpf = gpf,
+                    gpf2 = require("gpf-js");
+                assert("object" === typeof gpf2);
+                assert(null !== gpf2);
+                assert(previousGpf === gpf);
             });
 
         } else if ("browser" === gpf.host() || "phantomjs" === gpf.host()) {
 
             it("supports multiple includes", function (done) {
-                var basePath;
+                var
+                    previousGpf = gpf,
+                    basePath;
                 if (window.gpfSourcesPath) {
                     basePath = window.gpfSourcesPath;
                 }
                 gpf.web.include(basePath + "../build/gpf-debug.js", {
                     "ready": function () {
+                        var gpf2 = gpf.noConflict();
+                        assert("object" === typeof gpf2);
+                        assert(null !== gpf2);
+                        assert(previousGpf === gpf);
                         done();
                     }
                 });
