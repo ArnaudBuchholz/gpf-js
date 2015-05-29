@@ -50,6 +50,19 @@ var
     _gpfContext,
 
     /**
+     * To implement gpf.noConflict(), we need to keep the previous content of
+     * gpf.
+     * Makes sense only for the following hosts:
+     * - phantomjs
+     * - browser
+     * - unknown
+     *
+     * @type {Object}
+     * @private
+     */
+    _gpfConflictingSymbol,
+
+    /**
      * Exit function
      *
      * @param {Number} code
@@ -194,9 +207,30 @@ if ("undefined" !== typeof WScript) {
 }
 /*jshint +W040*/
 
+
 /*#ifndef(UMD)*/
 
 _gpfContext.gpf = {};
+
+/*#else*/
+
+if (_gpfContext.gpf) {
+    _gpfConflictingSymbol = _gpfContext.gpf;
+}
+
+/**
+ * Relinquish control of the gpf variable.
+ *
+ * @returns {Object} current GPF instance
+ */
+gpf.noConflict = function () {
+    if (undefined !== _gpfConflictingSymbol) {
+        _gpfContext.gpf = _gpfConflictingSymbol;
+    } else {
+        delete _gpfContext.gpf;
+    }
+    return gpf;
+};
 
 /*#endif*/
 
