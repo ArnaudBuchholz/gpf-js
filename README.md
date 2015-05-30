@@ -30,6 +30,12 @@ This library is developed in conjunction with a
 [blog](http://gpf-js.blogspot.com/) where the concepts and algorithms are
 documented and explained.
 
+## Setup
+
+* Clone repository
+* npm install at the root of the cloned repository
+* ... enjoy!
+
 ## Testing
 
 * With mocha (relative to gpf-host folder):
@@ -55,10 +61,12 @@ documented and explained.
         * grunt exec:testWScriptRelease
 
 ## Credits
+
 * Code rewriting based on [esprima](http://esprima.org/) and
 [escodegen](https://github.com/Constellation/escodegen)
 * Markdown specification inspired from
 [wikipedia](http://en.wikipedia.org/wiki/Markdown)
 * UTF-8 encode/decode based on [webtoolkit](http://www.webtoolkit.info/)
-* Test suite based on [mocha](http://mochajs.org/)
+* Part of the test suite based on [mocha](http://mochajs.org/)
+* JavaScript task runner: [Grunt](http://gruntjs.com/)
 
