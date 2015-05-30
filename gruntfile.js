@@ -95,7 +95,21 @@ module.exports = function (grunt) {
                 stdout: false,
                 stderr: false,
                 exitCode: 0
-            }
+            },
+            testWscriptDebug: {
+                command: "cscript.exe /D /E:JScript cscript.js -debug",
+                cwd: "test/host",
+                stdout: false,
+                stderr: false,
+                exitCode: 0
+            },
+            testWscriptRelease: {
+                command: "cscript.exe /D /E:JScript cscript.js -release",
+                cwd: "test/host",
+                stdout: false,
+                stderr: false,
+                exitCode: 0
+            },
         },
         //endregion
         //region Watcher

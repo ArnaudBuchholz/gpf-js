@@ -32,14 +32,27 @@ documented and explained.
 
 ## Testing
 
-* With mocha:
-    * file:///GitHub/gpf-js/test/host/mocha/web.html
-    * node /GitHub/gpf-js/test/host/mocha/nodejs.js
-* Without mocha:
-    * file:///GitHub/gpf-js/test/host/web.html
-    * node /GitHub/gpf-js/test/host/nodejs.js
-    * phantomjs /GitHub/gpf-js/test/host/phantomjs.js
+* With mocha (relative to gpf-host folder):
+    * file:///./test/host/mocha/web.html
+    * node ./host/mocha/nodejs.js
+* Without mocha (relative to gpf-host folder):
+    * file:///./test/host/web.html
+    * node ./test/host/nodejs.js
+    * phantomjs ./host/phantomjs.js
     * cscript /E:jscript cscript.js
+* With grunt:
+    * testing with PhantomJS (as a browser): grunt mocha
+        * grunt mocha:source
+        * grunt mocha:debug
+        * grunt mocha:release
+    * testing with NodeJS: grunt mochaTest
+        * grunt mocha:source
+        * grunt mocha:debug
+        * grunt mocha:release
+    * testing with cscript:
+        * grunt exec:testWScript
+        * grunt exec:testWScriptDebug
+        * grunt exec:testWScriptRelease
 
 ## Credits
 * Code rewriting based on [esprima](http://esprima.org/) and
