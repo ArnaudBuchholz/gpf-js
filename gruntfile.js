@@ -89,7 +89,7 @@ module.exports = function (grunt) {
         //endregion
         //region Custom command lines
         exec: {
-            test_wscript: {
+            testWscript: {
                 command: "cscript.exe /D /E:JScript cscript.js",
                 cwd: "test/host",
                 stdout: false,
