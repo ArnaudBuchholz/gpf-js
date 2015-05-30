@@ -87,6 +87,17 @@ module.exports = function (grunt) {
             }
         },
         //endregion
+        //region Custom command lines
+        exec: {
+            test_wscript: {
+                command: "cscript.exe /D /E:JScript cscript.js",
+                cwd: "test/host",
+                stdout: false,
+                stderr: false,
+                exitCode: 0
+            }
+        },
+        //endregion
         //region Watcher
         watch: {
             files: ["<%= jshint.files %>"],
@@ -96,9 +107,10 @@ module.exports = function (grunt) {
     });
 
     grunt.loadNpmTasks("grunt-contrib-jshint");
+    grunt.loadNpmTasks("grunt-contrib-watch");
+    grunt.loadNpmTasks("grunt-exec");
     grunt.loadNpmTasks("grunt-mocha");
     grunt.loadNpmTasks("grunt-mocha-test");
-    grunt.loadNpmTasks("grunt-contrib-watch");
 
     grunt.registerTask("default", ["jshint"]);
 };
