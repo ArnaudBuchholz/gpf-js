@@ -98,7 +98,7 @@ if ("release" === version) {
     require("closure-compiler").compile(sources[version]["result.js"], {
             //some: 'flag'
             //, values: ['1', '2']
-        }, function (err, stdout, stderr) {
+        }, function (err, stdout/*, stderr*/) {
             if (err) {
                 console.error(err);
             } else {
