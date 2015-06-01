@@ -110,6 +110,20 @@ module.exports = function (grunt) {
                 stderr: false,
                 exitCode: 0
             },
+            buildDebug: {
+                command: "node node_make.js debug",
+                cwd: "make",
+                stdout: false,
+                stderr: false,
+                exitCode: 0
+            },
+            buildRelease: {
+                command: "node node_make.js release",
+                cwd: "make",
+                stdout: false,
+                stderr: false,
+                exitCode: 0
+            }
         },
         //endregion
         //region Watcher
@@ -127,4 +141,18 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks("grunt-mocha-test");
 
     grunt.registerTask("default", ["jshint"]);
+    grunt.registerTask("make", [
+        "jshint",
+        "mocha:source",
+        "mochaTest:source",
+        "exec:testWscript",
+        "exec:buildDebug",
+        "exec:buildRelease",
+        "mocha:debug",
+        "mochaTest:debug",
+        "exec:testWscriptDebug",
+        "mocha:release",
+        "mochaTest:release",
+        "exec:testWscriptRelease"
+    ]);
 };
