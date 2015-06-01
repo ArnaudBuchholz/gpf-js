@@ -1,6 +1,19 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*#endif*/
+
+/*                                                                             |
+ * First of all, apply JSHint with:                                            |
+ * - Tolerate continue                                                         |
+ * - Tolerate dangling _ in identifiers                                        |
+ * - Tolerate ++ and --                                                        |
+ *                                                                             |
+ * Tabs must be replaced with 4 spaces                                         |
+ *                                                   *NEVER* go over column 80 |
+ *                                                                             |
+ * try to limit the use of closures                                            |
+ */
 
 /* Global variables are shared within GPF sources so they might conflict */
 var
@@ -26,16 +39,11 @@ _GpfClassName.prototype = {
     _member: 0
 };
 
-/*                                                                             |
- * First of all, apply JSHint with:                                            |
- * - Tolerate continue                                                         |
- * - Tolerate dangling _ in identifiers                                        |
- * - Tolerate ++ and --                                                        |
- *                                                                             |
- * Tabs must be replaced with 4 spaces                                         |
- * *NEVER* go over column 80                                                   |
- *                                                                             |
- * try to limit the use of closures                                            |
+/**
+ * Functions are always documented
+ *
+ * @param {*} firstParameter
+ * @param {*} secondParameter
  */
 gpf.actionWithAdditionalKeywords = function (firstParameter, secondParameter) {
     var
@@ -44,11 +52,11 @@ gpf.actionWithAdditionalKeywords = function (firstParameter, secondParameter) {
         // Initialized variables must be the last ones
         // Try to avoid function calls in there
         thirdVariable = 0; // Initialized
-    gpf.interfaces.ignoreParameter(firstParameter);
-    gpf.interfaces.ignoreParameter(secondParameter);
-    gpf.interfaces.ignoreParameter(firstVariable);
-    gpf.interfaces.ignoreParameter(secondVariable);
-    gpf.interfaces.ignoreParameter(thirdVariable);
+    _gpfIgnore(firstParameter);
+    _gpfIgnore(secondParameter);
+    _gpfIgnore(firstVariable);
+    _gpfIgnore(secondVariable);
+    _gpfIgnore(thirdVariable);
     _gpfVariableName = 0;
 };
 
@@ -56,10 +64,12 @@ gpf.actionWithAdditionalKeywords = function (firstParameter, secondParameter) {
  * Any function triggering events
  *
  * @param {*} param1
- * @param {Object/function} eventsHandler
- * @return {undefined}
+ * @param {gpf.events.Handler} eventsHandler
+ * @returns {undefined}
  *
- * @event sample This is the sample event
+ * @event sample
+ * This is the sample event
+ *
  * @eventParam {any} ctx1 the first event parameter
  */
 gpf.AnyClass.triggerEvent = function (param1, eventsHandler) {
