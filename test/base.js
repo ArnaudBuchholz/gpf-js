@@ -9,8 +9,11 @@ describe("base", function () {
 
             it("supports multiple instances", function () {
                 var
+                    path = require("path"),
                     previousGpf = gpf,
-                    gpf2 = require("gpf-js");
+                    gpf2;
+                gpf2 = require(path.resolve(process.cwd(),
+                    "build/gpf-debug.js"));
                 assert("object" === typeof gpf2);
                 assert(null !== gpf2);
                 assert(previousGpf === gpf);
