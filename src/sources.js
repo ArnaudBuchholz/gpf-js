@@ -34,7 +34,8 @@
             "interfaces",           // Interfaces                 gpf.interfaces
             "i_enumerator",         // IEnumerator
             "i_array",              // IArray
-            "i_stream",             // IStream and helpers            gpf.stream
+            "i_stream",             // IStream
+            "stream",               // IStream helpers                gpf.stream
 
             "",                     // --- temporary end marker ---
 
