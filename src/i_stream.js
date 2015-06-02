@@ -1,121 +1,112 @@
 /*#ifndef(UMD)*/
-(function () { /* Begin of privacy scope */
-    "use strict";
+"use strict";
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfDefIntrf*/ // gpf.define for interfaces
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfI*/ // gpf.interfaces
+/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*#endif*/
 
-    var
-        gpfI = gpf.interfaces,
-        gpfFireEvent = gpf.events.fire,
-        _BUFREADSTREAM_READ_SIZE        = 256,
-        _BUFREADSTREAM_ISTATE_INIT        = 0,
-        _BUFREADSTREAM_ISTATE_INPROGRESS  = 1,
-        _BUFREADSTREAM_ISTATE_WAITING     = 2,
-        _BUFREADSTREAM_ISTATE_EOS         = 3;
+_gpfErrorDeclare("i_stream", {
+    ReadInProgress:
+        "A read operation is already in progress",
+    WriteInProgress:
+        "A write operation is already in progress"
+});
+
+var
+    _GPF_BUFREADSTREAM_READ_SIZE        = 256,
+    _GPF_BUFREADSTREAM_ISTATE_INIT        = 0,
+    _GPF_BUFREADSTREAM_ISTATE_INPROGRESS  = 1,
+    _GPF_BUFREADSTREAM_ISTATE_WAITING     = 2,
+    _GPF_BUFREADSTREAM_ISTATE_EOS         = 3;
+
+/**
+ * The Readable stream interface is the abstraction for a source of data
+ * that you are reading from. In other words, data comes out of a Readable
+ * stream.
+ *
+ * @class gpf.interfaces.IReadableStream
+ * @extends gpf.interfaces.Interface
+ */
+_gpfDefIntrf("IReadableStream", {
 
     /**
-     * The Readable stream interface is the abstraction for a source of data
-     * that you are reading from. In other words, data comes out of a Readable
-     * stream.
-     *
-     * @class gpf.interfaces.IReadableStream
-     * @extends gpf.interfaces.Interface
-     */
-    gpf._defIntrf("IReadableStream", {
-
-        /**
-         * Triggers the reading of data.
-         * The expected behavior is:
-         * - The callback is asynchronous
-         * - One of the following callback must be called after a read
-         *   - EVENT_ERROR: an error occurred.
-         *     the stream can't be used after this.
-         *   - EVENT_END_OF_STREAM: stream ended.
-         *     the stream can't be used after this.
-         *   - EVENT_DATA: a buffer is provided, it can't be empty.
-         *
-         * @param {Number} [size=0] size Number of bytes to read. Read
-         * as much as possible if 0
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @event data Some data is ready to be used
-         * @eventParam {gpf.IReadOnlyArray} buffer Bytes buffer
-         *
-         * @event eos No more data can be read from the stream
-         *
-         */
-        "[read]": [gpf.$ClassEventHandler()],
-        read: function (size, eventsHandler) {
-            gpf.interfaces.ignoreParameter(size);
-            gpf.interfaces.ignoreParameter(eventsHandler);
-        },
-
-        static: {
-            EVENT_ERROR: "error",
-            EVENT_DATA: "data",
-            EVENT_END_OF_STREAM: "eos",
-
-            EXCEPTION_READ_IN_PROGRESS: {
-                message: "Read in progress"
-            }
-        }
-
-    });
-
-    /**
-     * The Writable stream interface is an abstraction for a destination that
-     * you are writing data to.
+     * Triggers the reading of data.
      * The expected behavior is:
      * - The callback is asynchronous
      * - One of the following callback must be called after a read
      *   - EVENT_ERROR: an error occurred.
      *     the stream can't be used after this.
-     *   - EVENT_READY: the write operation succeeded, the provided buffer has
-     *     been fully written (otherwise an error is thrown)
+     *   - EVENT_END_OF_DATA: stream ended.
+     *     the stream can't be used after this.
+     *   - EVENT_DATA: a buffer is provided, it can't be empty.
      *
-     * @class gpf.interfaces.IReadableStream
-     * @extends gpf.interfaces.Interface
+     * @param {Number} [size=0] size Number of bytes to read. Read
+     * as much as possible if 0
+     * @param {gpf.events.Handler} eventsHandler
+     *
+     * @event gpf.events.EVENT_DATA
+     * Some data is ready to be used
+     * @eventParam {gpf.IReadOnlyArray} buffer Bytes buffer
+     *
+     * @event gpf.events.EVENT_END_OF_DATA
+     * No more data can be read from the stream
      */
-    gpf._defIntrf("IWritableStream", {
+    "[read]": [gpf.$ClassEventHandler()],
+    read: function (size, eventsHandler) {
+        _gpfIgnore(size);
+        _gpfIgnore(eventsHandler);
+    }
 
-        /**
-         * Triggers the writing of data
-         *
-         * @param {IReadOnlyArray} int8buffer Buffer to write
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @event ready it is appropriate to begin writing more data to the
-         * stream
-         *
-         */
-        "[write]": [gpf.$ClassEventHandler()],
-        write: function (int8buffer, eventsHandler) {
-            gpf.interfaces.ignoreParameter(int8buffer);
-            gpf.interfaces.ignoreParameter(eventsHandler);
-        },
+});
 
-        static: {
-            EVENT_ERROR: "error",
-            EVENT_READY: "ready",
+/**
+ * The Writable stream interface is an abstraction for a destination that
+ * you are writing data to.
+ * The expected behavior is:
+ * - The callback is asynchronous
+ * - One of the following callback must be called after a read
+ *   - EVENT_ERROR: an error occurred.
+ *     the stream can't be used after this.
+ *   - EVENT_READY: the write operation succeeded, the provided buffer has
+ *     been fully written (otherwise an error is thrown)
+ *
+ * @class gpf.interfaces.IReadableStream
+ * @extends gpf.interfaces.Interface
+ */
+_gpfDefIntrf("IWritableStream", {
 
-            EXCEPTION_WRITE_IN_PROGRESS: {
-                message: "Read in progress"
-            }
-        }
+    /**
+     * Triggers the writing of data
+     *
+     * @param {IReadOnlyArray} int8buffer Buffer to write
+     * @param {gpf.events.Handler} eventsHandler
+     *
+     * @event gpf.events.EVENT_READY
+     * it is appropriate to begin writing more data to the stream
+     *
+     */
+    "[write]": [gpf.$ClassEventHandler()],
+    write: function (int8buffer, eventsHandler) {
+        _gpfIgnore(int8buffer);
+        _gpfIgnore(eventsHandler);
+    }
 
-    });
+});
 
     /**
      * The stream combines both IReadableStream and IWritableStream
      */
-    gpf._defIntrf("IStream", {
+    _gpfDefIntrf("IStream", {
 
         /**
          * @inheritDoc gpf.interfaces.IReadableStream:read
          */
         "[read]": [gpf.$ClassEventHandler()],
         read: function (size, eventsHandler) {
-            gpf.interfaces.ignoreParameter(size);
-            gpf.interfaces.ignoreParameter(eventsHandler);
+            _gpfIgnore(size);
+            _gpfIgnore(eventsHandler);
         },
 
         /**
@@ -123,8 +114,8 @@
          */
         "[write]": [gpf.$ClassEventHandler()],
         write: function (int8buffer, eventsHandler) {
-            gpf.interfaces.ignoreParameter(int8buffer);
-            gpf.interfaces.ignoreParameter(eventsHandler);
+            _gpfIgnore(int8buffer);
+            _gpfIgnore(eventsHandler);
         }
 
     });
@@ -138,7 +129,7 @@
      * @event data Some data is ready to be ready
      * @eventParam {String} buffer
      */
-    gpf._defIntrf("ITextStream", gpfI.IStream, {
+    _gpfDefIntrf("ITextStream", gpfI.IStream, {
     });
 
     //endregion
@@ -407,7 +398,7 @@
              * @type {Number}
              * @protected
              */
-            _readSize: _BUFREADSTREAM_READ_SIZE,
+            _readSize: _GPF_BUFREADSTREAM_READ_SIZE,
 
             /**
              * Process underlying stream buffer (this should grow the output
@@ -418,7 +409,7 @@
              * @protected
              */
             _addToBuffer: function (buffer) {
-                gpf.interfaces.ignoreParameter(buffer);
+                _gpfIgnore(buffer);
                 throw gpf.Error.Abstract();
             },
 
@@ -502,12 +493,12 @@
                 var
                     iState = this._iState,
                     length = this._bufferLength;
-                if (_BUFREADSTREAM_ISTATE_INPROGRESS === iState) {
+                if (_GPF_BUFREADSTREAM_ISTATE_INPROGRESS === iState) {
                     // A read call is already in progress
                     throw gpfI.IReadableStream.EXCEPTION_READ_IN_PROGRESS;
 
                 } else if (size < length
-                    || length && _BUFREADSTREAM_ISTATE_EOS === iState) {
+                    || length && _GPF_BUFREADSTREAM_ISTATE_EOS === iState) {
                     // Enough chars in the output buffer to do the read
                     // OR there won't be any more chars. Can output something.
                     if (0 === size || size > length) {
@@ -521,7 +512,7 @@
                         eventsHandler
                     ]);
 
-                } else if (_BUFREADSTREAM_ISTATE_EOS === iState) {
+                } else if (_GPF_BUFREADSTREAM_ISTATE_EOS === iState) {
                     // No more input and output buffer is empty
                     gpfFireEvent.apply(this, [
                         gpfI.IReadableStream.EVENT_END_OF_STREAM,
@@ -530,11 +521,11 @@
 
                 } else {
                     // Read input
-                    if (_BUFREADSTREAM_ISTATE_INIT === this._iState) {
+                    if (_GPF_BUFREADSTREAM_ISTATE_INIT === this._iState) {
                         // Very first call, create callback for input reads
                         this._cbRead = new gpf.Callback(this._onRead, this);
                     }
-                    this._iState = _BUFREADSTREAM_ISTATE_INPROGRESS;
+                    this._iState = _GPF_BUFREADSTREAM_ISTATE_INPROGRESS;
                     // Backup parameters
                     this._size = size;
                     this._eventsHandler = eventsHandler;
@@ -563,7 +554,7 @@
              * Input state
              * @type {Number} see _BUFREADSTREAM_ISTATE_xxx
              */
-            _iState: _BUFREADSTREAM_ISTATE_INIT,
+            _iState: _GPF_BUFREADSTREAM_ISTATE_INIT,
 
             /**
              * Pending read call size
@@ -587,7 +578,7 @@
                 var
                     type = event.type();
                 if (type === gpfI.IReadableStream.EVENT_END_OF_STREAM) {
-                    this._iState = _BUFREADSTREAM_ISTATE_EOS;
+                    this._iState = _GPF_BUFREADSTREAM_ISTATE_EOS;
                     this._endOfInputStream();
                     // Redirect to read with backed parameters
                     return this.read(this._size, this._eventsHandler);
@@ -600,14 +591,14 @@
                     ]);
 
                 } else {
-                    this._iState = _BUFREADSTREAM_ISTATE_WAITING;
+                    this._iState = _GPF_BUFREADSTREAM_ISTATE_WAITING;
                     this._addToBuffer(event.get("buffer"));
                     if (0 < this._bufferLength) {
                         // Redirect to read with backed parameters
                         return this.read(this._size, this._eventsHandler);
                     } else {
                         // Try to read source again
-                        this._iStream.read(_BUFREADSTREAM_READ_SIZE,
+                        this._iStream.read(_GPF_BUFREADSTREAM_READ_SIZE,
                             this._cbRead);
                     }
                 }
@@ -737,7 +728,7 @@
                 },
 
                 _addBuffer: function (buffer) {
-                    gpf.interfaces.ignoreParameter(buffer);
+                    _gpfIgnore(buffer);
                     throw gpf.Error.Abstract();
                 }
             },
@@ -1046,8 +1037,8 @@
                  */
                 "[write]": [gpf.$ClassEventHandler()],
                 write: function (int8buffer, eventsHandler) {
-                    gpf.interfaces.ignoreParameter(int8buffer);
-                    gpf.interfaces.ignoreParameter(eventsHandler);
+                    _gpfIgnore(int8buffer);
+                    _gpfIgnore(eventsHandler);
                 }
 
             },
@@ -1067,7 +1058,3 @@
     }
 
     //endregion
-
-/*#ifndef(UMD)*/
-}()); /* End of privacy scope */
-/*#endif*/
