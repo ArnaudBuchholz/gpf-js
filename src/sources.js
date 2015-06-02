@@ -34,10 +34,10 @@
             "interfaces",           // Interfaces                 gpf.interfaces
             "i_enumerator",         // IEnumerator
             "i_array",              // IArray
+            "i_stream",             // IStream and helpers            gpf.stream
 
             "",                     // --- temporary end marker ---
 
-            "i_stream",             // IStream and helpers            gpf.stream
             "string",               // String functions
             "array",                // Array functions
             "date",                 // Date functions
