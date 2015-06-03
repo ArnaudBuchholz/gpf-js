@@ -3,6 +3,18 @@
 
 describe("i_enumerator", function () {
 
+    describe("IEnumerator", function () {
+        it("is a known and static interface", function () {
+            /* jshint unused:false */
+            assert(gpf.interfaces.isImplementedBy({
+                reset: function () {},
+                moveNext: function (eventsHandler) {},
+                current: function () {}
+            }, gpf.interfaces.IEnumerator));
+            /* jshint unused:true */
+        });
+    });
+
     var
         gpfI = gpf.interfaces,
         gpfE = gpf.events,

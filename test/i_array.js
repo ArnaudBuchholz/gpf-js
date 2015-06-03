@@ -3,6 +3,17 @@
 
 describe("i_array", function () {
 
+    describe("IReadOnlyArray", function () {
+        it("is a known and static interface", function () {
+            /* jshint unused:false */
+            assert(gpf.interfaces.isImplementedBy({
+                getItemsCount: function () {},
+                getItem: function (idx) {}
+            }, gpf.interfaces.IReadOnlyArray));
+            /* jshint unused:true */
+        });
+    });
+
     describe("$ClassIArray", function () {
 
         var
