@@ -2,8 +2,17 @@
 "use strict";
 /*global _gpfDefIntrf*/ // gpf.define for interfaces
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
-/*global _gpfI*/ // gpf.interfaces
 /*#endif*/
+
+/**
+ * For streams, the buffer can be either a number array OR a string.
+ * Both have length property and can be used with [] syntax.
+ *
+ * Each stream may have its own preferences (it's JavaScript after all).
+ * I didn't want to make the interface too complex.
+ * For write, the stream is allowed to reject the call if it does not receive
+ * the expected format.
+ */
 
 /**
  * The Readable stream interface is the abstraction for a source of data
@@ -32,7 +41,7 @@ _gpfDefIntrf("IReadableStream", {
      *
      * @event gpf.events.EVENT_DATA
      * Some data is ready to be used
-     * @eventParam {gpf.IReadOnlyArray} buffer Bytes buffer
+     * @eventParam {Number[]|String} buffer Unsigned bytes/String buffer
      *
      * @event gpf.events.EVENT_END_OF_DATA
      * No more data can be read from the stream
@@ -64,7 +73,7 @@ _gpfDefIntrf("IWritableStream", {
     /**
      * Triggers the writing of data
      *
-     * @param {IReadOnlyArray} int8buffer Buffer to write
+     * @param {Number[]|String} buffer Unsigned Bytes/String buffer to write
      * @param {gpf.events.Handler} eventsHandler
      *
      * @event gpf.events.EVENT_READY
@@ -72,8 +81,8 @@ _gpfDefIntrf("IWritableStream", {
      *
      */
     "[write]": [gpf.$ClassEventHandler()],
-    write: function (int8buffer, eventsHandler) {
-        _gpfIgnore(int8buffer);
+    write: function (buffer, eventsHandler) {
+        _gpfIgnore(buffer);
         _gpfIgnore(eventsHandler);
     }
 
@@ -97,21 +106,9 @@ _gpfDefIntrf("IStream", {
      * @inheritDoc gpf.interfaces.IWritableStream:write
      */
     "[write]": [gpf.$ClassEventHandler()],
-    write: function (int8buffer, eventsHandler) {
-        _gpfIgnore(int8buffer);
+    write: function (buffer, eventsHandler) {
+        _gpfIgnore(buffer);
         _gpfIgnore(eventsHandler);
     }
 
-});
-
-/**
- * Text stream: instead of an int8 buffer, the interface handles strings
- *
- * @class gpf.interfaces.ITextStream
- * @extends gpf.interfaces.IStream
- *
- * @event data Some data is ready to be ready
- * @eventParam {String} buffer
- */
-_gpfDefIntrf("ITextStream", _gpfI.IStream, {
 });
