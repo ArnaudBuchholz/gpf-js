@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
+/*global _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
 /*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
 /*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
 /*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
@@ -27,6 +28,7 @@ gpf.events = {
 (function () {
     var gpfEvents = gpf.events,
         mappings = {
+            EVENT_ANY: _GPF_EVENT_ANY,
             EVENT_ERROR: _GPF_EVENT_ERROR,
             EVENT_READY: _GPF_EVENT_READY,
             EVENT_DATA: _GPF_EVENT_DATA,

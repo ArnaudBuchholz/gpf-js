@@ -55,6 +55,7 @@
 /*global _gpfDefIntrf*/ // gpf.define for interfaces
 /*global _gpfArrayEnumerator*/ // Create an IEnumerator from an array
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*global _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
 /*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
 /*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
 /*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
@@ -91,6 +92,7 @@ var
 
     //region Events
 
+    _GPF_EVENT_ANY                 = "*",
     _GPF_EVENT_ERROR               = "error",
     _GPF_EVENT_READY               = "ready",
     _GPF_EVENT_DATA                = "data",
