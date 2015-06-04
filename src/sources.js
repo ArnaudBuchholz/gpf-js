@@ -37,6 +37,7 @@
             "i_stream",             // IStream
             "stream",               // IStream helpers                gpf.stream
             "stream_node",          // IStream helpers for nodeJS     gpf.stream
+            "stream_out",           // gpf.stream.Out
 
             "",                     // --- temporary end marker ---
 
