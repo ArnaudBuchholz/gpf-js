@@ -123,6 +123,11 @@ module.exports = function (grunt) {
                 stdout: false,
                 stderr: false,
                 exitCode: 0
+            },
+            plato: {
+                command: "plato -l .jshintrc -t GPF-JS -d tmp\\plato src\\*.js",
+                stdout: true,
+                stderr: true
             }
         },
         //endregion
