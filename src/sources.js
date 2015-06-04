@@ -36,6 +36,7 @@
             "i_array",              // IArray
             "i_stream",             // IStream
             "stream",               // IStream helpers                gpf.stream
+            "stream_node",          // IStream helpers for nodeJS     gpf.stream
 
             "",                     // --- temporary end marker ---
 
