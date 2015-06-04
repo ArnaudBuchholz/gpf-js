@@ -32,8 +32,7 @@ gpf.stream = {
      * @event done The readable stream was written in the writable one
      */
     pipe: function (readable, writable, options, eventsHandler) {
-        var
-            scope = new StreamPipeScope(readable, writable, options,
+        var scope = new StreamPipeScope(readable, writable, options,
                 eventsHandler);
         scope.ready();
     }
@@ -71,7 +70,7 @@ StreamPipeScope.prototype = {
     _writable: null,        // Writable stream
     _options: null,         // Options
     _eventsHandler: null,   // Original events handler
-    scope: null             // This eventsHandler scope
+    scope: null,            // This eventsHandler scope
 };
 
 /**
@@ -90,7 +89,7 @@ StreamPipeScope.prototype.ready = function () {
  * @param {gpf.Event} event
  */
 StreamPipeScope.prototype.eos = function (/*event*/) {
-    gpfFireEvent("done", this._eventsHandler);
+    _gpfEventsFire.apply(this, ["done", {}, this._eventsHandler]);
 };
 
 /**
@@ -110,134 +109,8 @@ StreamPipeScope.prototype.data = function (event) {
  */
 StreamPipeScope.prototype["*"] = function (event) {
     // Forward to original handler (error or data)
-    gpfFireEvent(event, this._eventsHandler);
+    _gpfEventsFire.apply(this, [event, {}, this._eventsHandler]);
 };
-
-//endregion
-
-//region gpf.stream.Out
-
-/**
- * console.log exposed as an output stream.
- * Line is buffered until the carriage return.
- *
- * @class gpf.stream.Out
- * @implements gpf.interfaces.IWritableStream
- */
-gpf.define("gpf.stream.Out", {
-
-    "[Class]": [gpf.$InterfaceImplement(_gpfI.IWritableStream)],
-
-    public: {
-
-        /**
-         * @constructor
-         */
-        constructor: function () {
-            this._buffer = [];
-        },
-
-        /**
-         * @inheritdoc gpf.interfaces.IWritableStream:write
-         */
-        write: function (buffer, eventsHandler) {
-            // TODO: do we allow mixin strings & buffer
-            if ("string" === typeof buffer) {
-                this._writeString(buffer, eventsHandler);
-            } else {
-                this._writeBuffer(buffer, eventsHandler);
-            }
-        }
-
-    },
-
-    private: {
-
-        /**
-         * Line buffer
-         *
-         * @type {String[]}
-         * private
-         */
-        _buffer: [],
-
-        /**
-         * @inheritdoc gpf.interfaces.IWritableStream:write
-         *
-         * String version
-         *
-         * @private
-         */
-        _writeString: function (buffer, eventsHandler) {
-            var
-                lines = buffer.split("\n"),
-                len,
-                idx;
-            len = lines.length;
-            if (len) {
-                // If the array has at least 2 elements, \n was present
-                if (1 < len) {
-                    console.log(this._buffer.join("")
-                    + this._trimFinalR(lines[0]));
-                    this._buffer = [];
-                }
-                --len;
-                // The last item of the array did not have \n
-                if (lines[len].length) {
-                    this._buffer.push(lines[len]);
-                }
-                // Dump other lines
-                for (idx = 1; idx < len; ++idx) {
-                    console.log(this._trimFinalR(lines[idx]));
-                }
-            }
-            gpfFireEvent.apply(this, [
-                _gpfI.IWritableStream.EVENT_READY,
-                eventsHandler
-            ]);
-        },
-
-        /**
-         * Remove final \r if any
-         *
-         * @param {String} line
-         * @return {String}
-         * @private
-         */
-        _trimFinalR: function (line) {
-            var lastCharIdx = line.length - 1;
-            if (-1 < lastCharIdx && line.charAt(lastCharIdx) === "\r") {
-                return line.substr(0, lastCharIdx);
-            }
-            return line;
-        },
-
-        /**
-         * @inheritdoc gpf.interfaces.IWritableStream:write
-         *
-         * String version
-         *
-         * @private
-         */
-        _writeBuffer: function (buffer, eventsHandler) {
-            gpf.interfaces.ignore(buffer);
-            gpf.interfaces.ignore(eventsHandler);
-            /**
-             * TODO implement
-             * Would need to reuse UTF8 decoder in order to output
-             * characters.
-             * Maybe I can create a ReadableStream which input would be
-             * appended with the buffer and rely on the createDecoder
-             * stream.
-             *
-             * Right now: I don't need it.
-             */
-            throw gpf.Error.NotImplemented();
-        }
-
-    }
-
-});
 
 //endregion
 
@@ -388,7 +261,7 @@ gpf.define("gpf.stream.BufferedOnRead", {
                 if (0 === size || size > length) {
                     size = length;
                 }
-                gpfFireEvent.apply(this, [
+                _gpfEventsFire.apply(this, [
                     _gpfI.IReadableStream.EVENT_DATA,
                     {
                         buffer: this._readFromBuffer(size)
@@ -398,7 +271,7 @@ gpf.define("gpf.stream.BufferedOnRead", {
 
             } else if (_GPF_BUFREADSTREAM_ISTATE_EOS === iState) {
                 // No more input and output buffer is empty
-                gpfFireEvent.apply(this, [
+                _gpfEventsFire.apply(this, [
                     _gpfI.IReadableStream.EVENT_END_OF_STREAM,
                     eventsHandler
                 ]);
@@ -469,7 +342,7 @@ gpf.define("gpf.stream.BufferedOnRead", {
 
             } else if (type === _gpfI.IReadableStream.EVENT_ERROR) {
                 // Forward the event
-                gpfFireEvent.apply(this, [
+                _gpfEventsFire.apply(this, [
                     event,
                     this._eventsHandler
                 ]);
@@ -627,7 +500,7 @@ var
                     type = event.type(),
                     stream = event.scope();
                 if (type === _gpfI.IReadableStream.EVENT_END_OF_STREAM) {
-                    gpfFireEvent.apply(this._scope, [
+                    _gpfEventsFire.apply(this._scope, [
                         _gpfI.IReadableStream.EVENT_DATA,
                         {
                             buffer: this._consolidateBuffer()
@@ -637,7 +510,7 @@ var
 
                 } else if (type === _gpfI.IReadableStream.EVENT_ERROR) {
                     // Forward the event
-                    gpfFireEvent.apply(this._scope, [
+                    _gpfEventsFire.apply(this._scope, [
                         event,
                         this._eventsHandler
                     ]);
@@ -750,193 +623,3 @@ gpf.stream.readAllAsB64 = function (stream, eventsHandler) {
 };
 
 //endregion
-
-//region NodeJS specific classes
-
-if (_gpfInNode) {
-
-    /**
-     * Wraps a readable stream from NodeJS into a IReadableStream
-     *
-     * @class gpf.stream.NodeReadable
-     * @implements gpf.interfaces.IReadableStream
-     */
-    gpf.define("gpf.node.ReadableStream", {
-
-        "[Class]": [gpf.$InterfaceImplement(_gpfI.IReadableStream)],
-
-        public: {
-
-            /**
-             * @param {stream.Readable} stream
-             * @constructor
-             */
-            constructor: function (stream) {
-                this._stream = stream;
-                stream.on("end", gpf.Callback.bind(this, "_onEnd"));
-                stream.on("error", gpf.Callback.bind(this, "_onError"));
-            },
-
-            /**
-             * @inheritDoc gpf.interfaces.IReadableStream:read
-             */
-            "[read]": [gpf.$ClassEventHandler()],
-            read: function (size, eventsHandler) {
-                var chunk;
-                // Used as a critical section to prevent concurrent reads
-                if (null !== this._eventsHandler) {
-                    // A read call is already in progress
-                    throw _gpfI.IReadableStream.EXCEPTION_READ_IN_PROGRESS;
-                }
-                this._eventsHandler = eventsHandler;
-                // If we received the "readable" event
-                if (this._readable) {
-                    // We try to read a chunk
-                    chunk = this._stream.read(size);
-                    if (chunk) {
-                        this._onData(chunk);
-                        return;
-                    }
-                    // No chunk means we must wait for next "readable"
-                    this._readable = false;
-                }
-                this._size = size;
-                this._stream.once("readable",
-                    gpf.Callback.bind(this, "_onReadable"));
-            }
-
-        },
-
-        protected: {
-
-            /**
-             * Before doing any read on the stream, we wait for the readable
-             * event to be thrown
-             *
-             * @type {Boolean}
-             * @protected
-             */
-            _readable: false,
-
-            /**
-             * Last read eventsHandler
-             * Also used as a critical section to prevent concurrent reads
-             *
-             * @type {gpf.events.Handler}
-             * @protected
-             */
-            _eventsHandler: null,
-
-            /**
-             * Last read size (if pending)
-             *
-             * @type {Number}
-             * @protected
-             */
-            _size: 0,
-
-            /**
-             * Provides an atomic access to the _eventsHandler variable
-             * (that is immediately cleared)
-             *
-             * @return {gpf.events.Handler}
-             * @private
-             */
-            _getEventsHandler: function () {
-                var result = this._eventsHandler;
-                gpf.ASSERT(null !== result, "Event handler expected");
-                this._eventsHandler = null;
-                return result;
-            },
-
-            /**
-             * Handles "readable" stream event
-             * NOTE that it was registered with once
-             *
-             * @private
-             */
-            _onReadable: function() {
-                this._readable = true;
-                this._onData(this._stream.read(this._size));
-            },
-
-            /**
-             * Handles "data" stream event
-             *
-             * @param {Buffer} chunk
-             * @private
-             */
-            _onData: function(chunk) {
-                gpf.events.fire("data", {
-                    buffer: gpf.node.buffer2JsArray(chunk)
-                }, this._getEventsHandler());
-            },
-
-            _onEnd: function () {
-                gpf.events.fire("eos", this._getEventsHandler());
-            },
-
-            _onError: function (error) {
-                gpf.events.fire("error", {
-                    error: error
-                }, this._getEventsHandler());
-            }
-
-        },
-
-        private: {
-
-            /**
-             * @type {stream.Readable}
-             * @private
-             */
-            _stream: null
-
-        }
-
-    });
-
-    /**
-     * Wraps a writable stream from NodeJS into a IReadableStream
-     *
-     * @class gpf.stream.NodeWritable
-     * @implements gpf.interfaces.IReadableStream
-     */
-    gpf.define("gpf.node.WritableStream", {
-
-        "[Class]": [gpf.$InterfaceImplement(_gpfI.IWritableStream)],
-
-        public: {
-
-            /**
-             * @param {stream.Writable} stream
-             * @constructor
-             */
-            constructor: function (stream) {
-                this._stream = stream;
-            },
-
-            /**
-             * @inheritDoc gpf.interfaces.IWritableStream:write
-             */
-            "[write]": [gpf.$ClassEventHandler()],
-            write: function (int8buffer, eventsHandler) {
-                _gpfIgnore(int8buffer);
-                _gpfIgnore(eventsHandler);
-            }
-
-        },
-
-        private: {
-
-            /**
-             * @type {stream.Writable}
-             * @private
-             */
-            _stream: null
-
-        }
-
-    });
-
-}
