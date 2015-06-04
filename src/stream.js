@@ -4,6 +4,10 @@
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfI*/ // gpf.interfaces
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
+/*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
+/*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
+/*global _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
 /*#endif*/
 
 _gpfErrorDeclare("stream", {
@@ -19,25 +23,6 @@ var
     _GPF_BUFREADSTREAM_ISTATE_INPROGRESS  = 1,
     _GPF_BUFREADSTREAM_ISTATE_WAITING     = 2,
     _GPF_BUFREADSTREAM_ISTATE_EOS         = 3;
-
-gpf.stream = {
-
-    /**
-     *
-     * @param {gpf.interfaces.IReadableStream} readable
-     * @param {gpf.interfaces.IWritableStream} writable
-     * @param {Object} [options=undefined] options
-     * @param {gpf.events.Handler} eventsHandler
-     *
-     * @event done The readable stream was written in the writable one
-     */
-    pipe: function (readable, writable, options, eventsHandler) {
-        var scope = new StreamPipeScope(readable, writable, options,
-                eventsHandler);
-        scope.ready();
-    }
-
-};
 
 //region gpf.stream.pipe implementation
 
@@ -70,49 +55,71 @@ StreamPipeScope.prototype = {
     _writable: null,        // Writable stream
     _options: null,         // Options
     _eventsHandler: null,   // Original events handler
-    scope: null,            // This eventsHandler scope
+    scope: null            // This eventsHandler scope
 };
 
 /**
- * ready event handler
+ * gpf.events.EVENT_READY event handler
  *
  * @param {gpf.Event} event
  */
-StreamPipeScope.prototype.ready = function () {
+StreamPipeScope.prototype[_GPF_EVENT_READY] = function (event) {
+    _gpfIgnore(event);
     var chunkSize = this._options.chunkSize || 4096;
     this._readable.read(chunkSize, this);
 };
 
 /**
- * eos event handler
+ * gpf.events.EVENT_END_OF_DATA event handler
  *
  * @param {gpf.Event} event
  */
-StreamPipeScope.prototype.eos = function (/*event*/) {
+StreamPipeScope.prototype[_GPF_EVENT_END_OF_DATA] = function (event) {
+    _gpfIgnore(event);
     _gpfEventsFire.apply(this, ["done", {}, this._eventsHandler]);
 };
 
 /**
- * data event handler
+ * gpf.events.EVENT_DATA event handler
  *
  * @param {gpf.Event} event
  */
-StreamPipeScope.prototype.data = function (event) {
+StreamPipeScope.prototype[_GPF_EVENT_DATA] = function (event) {
     var buffer = event.get("buffer");
     this._writable.write(buffer, this);
 };
 
 /**
- * Any other event handler
+ * gpf.events.EVENT_ANY event handler
  *
  * @param {gpf.Event} event
  */
-StreamPipeScope.prototype["*"] = function (event) {
+StreamPipeScope.prototype[_GPF_EVENT_ANY] = function (event) {
     // Forward to original handler (error or data)
     _gpfEventsFire.apply(this, [event, {}, this._eventsHandler]);
 };
 
 //endregion
+
+gpf.stream = {
+
+    /**
+     * Pipe a readable stream into a writable one
+     *
+     * @param {gpf.interfaces.IReadableStream} readable
+     * @param {gpf.interfaces.IWritableStream} writable
+     * @param {Object} [options=undefined] options
+     * @param {gpf.events.Handler} eventsHandler
+     *
+     * @event done The readable stream was written in the writable one
+     */
+    pipe: function (readable, writable, options, eventsHandler) {
+        var scope = new StreamPipeScope(readable, writable, options,
+                eventsHandler);
+        scope.ready();
+    }
+
+};
 
 /**
  * Handles a buffered stream that depends on a read stream.
