@@ -68,6 +68,65 @@ gpf.fs = {
     close: function (stream) {
         _gpfIgnore(stream);
         throw gpf.Error.Abstract();
+    },
+
+    /**
+     * Find and identify files matching the pattern, trigger a file event
+     * when a file is found
+     *
+     * @param {String} basePath
+     * @param {String[]} filters Patterns (see gpf.path.match) of files to
+     * detect
+     * @param {gpf.events.Handler} eventsHandler
+     *
+     * @event gpf.events.EVENT_DATA
+     * a matching file has been identified
+     * @eventParam {String} path
+     *
+     * @event gpf.events.EVENT_END_OF_DATA
+     */
+    find: function (basePath, filters, eventsHandler) {
+        var
+            pendingCount = 0,
+            match = _gpf.path.match;
+        filters = _gpf.path.compileMatchPattern(filters);
+        function _explore(currentPath) {
+            ++pendingCount;
+            _fs.stat(currentPath, function (err, stat) {
+                if (err) {
+                    console.error(err);
+                } else if (stat && stat.isDirectory()) {
+                    // Folder
+                    ++pendingCount;
+                    _fs.readdir(currentPath, function (err, list) {
+                        var
+                            len,
+                            idx;
+                        if (err) {
+                            console.error(err);
+                        } else {
+                            len = list.length;
+                            for (idx = 0; idx < len; ++idx) {
+                                _explore(_path.join(currentPath, list[idx]));
+                            }
+                        }
+                        if (0 === --pendingCount) {
+                            _gpfEventsFire("done", eventsHandler);
+                        }
+                    });
+                } else {
+                    if (match(filters, currentPath)) {
+                        _gpfEventsFire("file", {
+                            path: currentPath
+                        }, eventsHandler);
+                    }
+                }
+                if (0 === --pendingCount) {
+                    _gpfEventsFire("done", eventsHandler);
+                }
+            });
+        }
+        _explore(basePath);
     }
 
 };
