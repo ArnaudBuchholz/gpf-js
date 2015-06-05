@@ -36,6 +36,9 @@
             "i_array",              // IArray
             "i_stream",             // IStream
 
+            "fs",                   // File system (FS)                   gpf.fs
+            "fs_node",              // FS implementation for nodeJS       gpf.fs
+
             "",                     // --- temporary end marker ---
 
             "stream",               // IStream helpers                gpf.stream
@@ -59,7 +62,6 @@
             "xpath",                // Xml 'XPATH' parser/evaluator      gpf.xml
 
             "params",               // Parameters parsing             gpf.Params
-            "fs",                   // File system                        gpf.fs
 
             // The following ones must be at the end
             "html",                 // HTML specific functions          gpf.html
