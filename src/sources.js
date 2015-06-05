@@ -35,11 +35,12 @@
             "i_enumerator",         // IEnumerator
             "i_array",              // IArray
             "i_stream",             // IStream
-            "stream",               // IStream helpers                gpf.stream
-            "stream_node",          // IStream helpers for nodeJS     gpf.stream
-            "stream_out",           // gpf.stream.Out
 
             "",                     // --- temporary end marker ---
+
+            "stream",               // IStream helpers                gpf.stream
+            "stream_out",           // gpf.stream.Out
+            "stream_node",          // IStream helpers for nodeJS     gpf.stream
 
             "string",               // String functions
             "array",                // Array functions
