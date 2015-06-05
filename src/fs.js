@@ -1,150 +1,91 @@
 /*#ifndef(UMD)*/
-(function () { /* Begin of privacy scope */
-    "use strict";
+"use strict";
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _GPF_FS_TYPE_NOT_FOUND*/ // _GPF_FS_TYPE_NOT_FOUND
+/*global _GPF_FS_TYPE_FILE*/ // _GPF_FS_TYPE_FILE
+/*global _GPF_FS_TYPE_DIRECTORY*/ // _GPF_FS_TYPE_DIRECTORY
+/*global _GPF_FS_TYPE_UNKNOWN*/ // _GPF_FS_TYPE_UNKNOWN
+/*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
 /*#endif*/
 
-    gpf.fs = {
+gpf.fs = {
 
-        TYPE_NOT_FOUND: 0,
-        TYPE_FILE: 1,
-        TYPE_DIRECTORY: 2,
-        TYPE_UNKNOWN: 99,
+    /**
+     * Get information on the provided file path
+     *
+     * @param {*} path
+     * @param {gpf.events.Handler} eventsHandler
+     *
+     * @event gpf.events.EVENT_READY
+     * @eventParam {Object} info contains:
+     * - type {Number} see _GPF_FS_TYPE_xxx
+     * - size {Number}
+     * - createdDateTime
+     * - modifiedDateTime
+     */
+    getInfo: function (path, eventsHandler) {
+        _gpfIgnore(path);
+        _gpfIgnore(eventsHandler);
+        throw gpf.Error.Abstract();
+    },
 
-        /**
-         * Get information on the provided file path
-         *
-         * @param {*} path
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @event ready
-         * @eventParam {Object} info contains:
-         * - type {Number} see gpf.fs.TYPE_xxx
-         * - size {Number}
-         * - createdDateTime
-         * - modifiedDateTime
-         */
-        getInfo: function (path, eventsHandler) {
-            gpf.interfaces.ignoreParameter(path);
-            gpf.interfaces.ignoreParameter(eventsHandler);
-            throw gpf.Error.Abstract();
-        },
+    /**
+     * Read as a binary stream
+     *
+     * @param {*} path
+     * @param {gpf.events.Handler} eventsHandler
+     *
+     * @event gpf.events.EVENT_READY
+     * @eventParam {gpf.interface.IReadableStream} stream
+     */
+    readAsBinaryStream: function (path, eventsHandler) {
+        _gpfIgnore(path);
+        _gpfIgnore(eventsHandler);
+        throw gpf.Error.Abstract();
+    },
 
-        /**
-         * Read as a binary stream
-         *
-         * @param {*} path
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @event ready
-         * @eventParam {gpf.interface.IReadableStream} stream
-         */
-        readAsBinaryStream: function (path, eventsHandler) {
-            gpf.interfaces.ignoreParameter(path);
-            gpf.interfaces.ignoreParameter(eventsHandler);
-            throw gpf.Error.Abstract();
-        },
+    /**
+     * Write as a binary stream (overwrite file if it exists)
+     *
+     * @param {*} path
+     * @param {gpf.events.Handler} eventsHandler
+     *
+     * @event gpf.events.EVENT_READY
+     * @eventParam {gpf.interface.IWritableStream} stream
+     */
+    writeAsBinaryStream: function (path, eventsHandler) {
+        _gpfIgnore(path);
+        _gpfIgnore(eventsHandler);
+        throw gpf.Error.Abstract();
+    },
 
-        /**
-         * Write as a binary stream (overwrite file if it exists)
-         *
-         * @param {*} path
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @event ready
-         * @eventParam {gpf.interface.IWritableStream} stream
-         */
-        writeAsBinaryStream: function (path, eventsHandler) {
-            gpf.interfaces.ignoreParameter(path);
-            gpf.interfaces.ignoreParameter(eventsHandler);
-            throw gpf.Error.Abstract();
-        },
-
-        /**
-         * Close the underlying file: the stream becomes unusable
-         *
-         * @param {gpf.interfaces.IReadableStream|
-         * gpf.interfaces.IWritableStream} stream
-         */
-        close: function (stream) {
-            gpf.interfaces.ignoreParameter(stream);
-            throw gpf.Error.Abstract();
-        }
-
-    };
-
-    if (_gpfInNode) {
-
-        var _fs,
-            _getNodeFS = function () {
-                if (undefined === _fs) {
-                    _fs = require("fs");
-                }
-                return _fs;
-            },
-            _fireNodeError = function (err, eventsHandler) {
-                gpf.events.fire("error", {
-                    error: err
-                }, eventsHandler);
-            };
-
-        gpf.fs.getInfo = function (path, eventsHandler) {
-            _getNodeFS().exists(path, function (exists) {
-                if (exists) {
-                    _getNodeFS().stat(path, function (err, stats) {
-                        var result;
-                        if (err) {
-                            _fireNodeError(err, eventsHandler);
-                        } else {
-                            result = {
-                                size: stats.size,
-                                createdDateTime: stats.ctime,
-                                modifiedDateTime: stats.mtime
-                            };
-                            if (stats.isDirectory()) {
-                                result.type = gpf.fs.TYPE_DIRECTORY;
-                            } else if (stats.isFile()) {
-                                result.type = gpf.fs.TYPE_FILE;
-                            } else {
-                                result.type = gpf.fs.TYPE_UNKNOWN;
-                            }
-                            gpf.events.fire("ready", {
-                                info: result
-                            }, eventsHandler);
-                        }
-                    });
-                } else {
-                    gpf.events.fire("ready", {
-                        info: {
-                            type: gpf.fs.TYPE_NOT_FOUND
-                        }
-                    }, eventsHandler);
-                }
-            });
-        };
-
-        gpf.fs.readAsBinaryStream = function (path, eventsHandler) {
-            // TODO handle error
-            var nodeStream = _getNodeFS().createReadStream(path);
-            gpf.events.fire("ready", {
-                stream: new gpf.node.ReadableStream(nodeStream)
-            }, eventsHandler);
-        };
-
-        gpf.fs.writeAsBinaryStream = function (path, eventsHandler) {
-            // TODO handle error
-            var nodeStream = _getNodeFS().createWriteStream(path);
-            gpf.events.fire("ready", {
-                stream: new gpf.node.WritableStream(nodeStream)
-            }, eventsHandler);
-        };
-
-        gpf.fs.close = function (stream) {
-            gpf.interfaces.ignoreParameter(stream);
-            // TODO not sure what I should do with it...
-        };
-
+    /**
+     * Close the underlying file: the stream becomes unusable
+     *
+     * @param {gpf.interfaces.IReadableStream|
+     * gpf.interfaces.IWritableStream} stream
+     */
+    close: function (stream) {
+        _gpfIgnore(stream);
+        throw gpf.Error.Abstract();
     }
 
-/*#ifndef(UMD)*/
-}()); /* End of privacy scope */
-/*#endif*/
+};
+
+// Create file system constants
+(function () {
+    var gpfFs = gpf.fs,
+        mappings = {
+            TYPE_NOT_FOUND: _GPF_FS_TYPE_NOT_FOUND,
+            TYPE_FILE: _GPF_FS_TYPE_FILE,
+            TYPE_DIRECTORY: _GPF_FS_TYPE_DIRECTORY,
+            TYPE_UNKNOWN: _GPF_FS_TYPE_UNKNOWN
+        },
+        key;
+    for (key in mappings) {
+        if (mappings.hasOwnProperty(key)) {
+            _gpfSetReadOnlyProperty(gpfFs, key, mappings[key]);
+        }
+    }
+
+}());
