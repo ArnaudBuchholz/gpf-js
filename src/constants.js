@@ -63,6 +63,10 @@
 /*global _GPF_EVENT_CONTINUE*/ // gpf.events.EVENT_CONTINUE
 /*global _GPF_EVENT_STOP*/ // gpf.events.EVENT_STOP
 /*global _GPF_EVENT_STOPPED*/ // gpf.events.EVENT_STOPPED
+/*global _GPF_FS_TYPE_NOT_FOUND*/ // gpf.fs.TYPE_NOT_FOUND
+/*global _GPF_FS_TYPE_FILE*/ // gpf.fs.TYPE_FILE
+/*global _GPF_FS_TYPE_DIRECTORY*/ // gpf.fs.TYPE_DIRECTORY
+/*global _GPF_FS_TYPE_UNKNOWN*/ // gpf.fs.TYPE_UNKNOWN
 /*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
 
 var
@@ -92,14 +96,23 @@ var
 
     //region Events
 
-    _GPF_EVENT_ANY                 = "*",
-    _GPF_EVENT_ERROR               = "error",
-    _GPF_EVENT_READY               = "ready",
-    _GPF_EVENT_DATA                = "data",
-    _GPF_EVENT_END_OF_DATA         = "endOfData",
-    _GPF_EVENT_CONTINUE            = "continue",
-    _GPF_EVENT_STOP                = "stop",
-    _GPF_EVENT_STOPPED             = "stopped",
+    _GPF_EVENT_ANY                  = "*",
+    _GPF_EVENT_ERROR                = "error",
+    _GPF_EVENT_READY                = "ready",
+    _GPF_EVENT_DATA                 = "data",
+    _GPF_EVENT_END_OF_DATA          = "endOfData",
+    _GPF_EVENT_CONTINUE             = "continue",
+    _GPF_EVENT_STOP                 = "stop",
+    _GPF_EVENT_STOPPED              = "stopped",
+
+    //endregion
+
+    //region File system constants
+
+    _GPF_FS_TYPE_NOT_FOUND          = 0,
+    _GPF_FS_TYPE_FILE               = 1,
+    _GPF_FS_TYPE_DIRECTORY          = 2,
+    _GPF_FS_TYPE_UNKNOWN            = 99,
 
     //endregion
 
