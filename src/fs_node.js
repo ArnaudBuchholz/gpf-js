@@ -7,6 +7,8 @@
 /*global _GPF_FS_TYPE_UNKNOWN*/ // _GPF_FS_TYPE_UNKNOWN
 /*global _gpfInNode*/ // The current host is a nodeJS like
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
+/*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
 /*#endif*/
 
 if (_gpfInNode) {
@@ -20,7 +22,7 @@ if (_gpfInNode) {
         },
         _fireNodeError = function (err, eventsHandler) {
             _gpfEventsFire.apply(null, [
-                gpf.events.EVENT_ERROR,
+                _GPF_EVENT_ERROR,
                 {
                     error: err
                 },
@@ -49,7 +51,7 @@ if (_gpfInNode) {
                             result.type = _GPF_FS_TYPE_UNKNOWN;
                         }
                         _gpfEventsFire.apply(null, [
-                            gpf.events.EVENT_READY,
+                            _GPF_EVENT_READY,
                             {
                                 info: result
                             },
@@ -59,7 +61,7 @@ if (_gpfInNode) {
                 });
             } else {
                 _gpfEventsFire.apply(null, [
-                    gpf.events.EVENT_READY,
+                    _GPF_EVENT_READY,
                     {
                         info: {
                             type: _GPF_FS_TYPE_NOT_FOUND
@@ -75,7 +77,7 @@ if (_gpfInNode) {
         // TODO handle error
         var nodeStream = _getNodeFS().createReadStream(path);
         _gpfEventsFire.apply(null, [
-            gpf.events.EVENT_READY,
+            _GPF_EVENT_READY,
             {
                 stream: new gpf.node.ReadableStream(nodeStream)
             },
@@ -87,7 +89,7 @@ if (_gpfInNode) {
         // TODO handle error
         var nodeStream = _getNodeFS().createWriteStream(path);
         _gpfEventsFire.apply(null, [
-            gpf.events.EVENT_READY,
+            _GPF_EVENT_READY,
             {
                 stream: new gpf.node.WritableStream(nodeStream)
             },
