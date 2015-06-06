@@ -6,6 +6,10 @@
 /*global _GPF_FS_TYPE_DIRECTORY*/ // _GPF_FS_TYPE_DIRECTORY
 /*global _GPF_FS_TYPE_UNKNOWN*/ // _GPF_FS_TYPE_UNKNOWN
 /*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
+/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
+/*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
+/*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
 /*#endif*/
 
 gpf.fs = {
@@ -88,16 +92,34 @@ gpf.fs = {
     find: function (basePath, filters, eventsHandler) {
         var
             pendingCount = 0,
-            match = _gpf.path.match;
-        filters = _gpf.path.compileMatchPattern(filters);
+            match = gpf.path.match,
+            fs = gpf.fs;
+        filters = gpf.path.compileMatchPattern(filters);
+        function _done() {
+            if (0 === --pendingCount) {
+                _gpfEventsFire.apply(null, [
+                    _GPF_EVENT_END_OF_DATA,
+                    {},
+                    eventsHandler
+                ]);
+            }
+        }
         function _explore(currentPath) {
             ++pendingCount;
-            _fs.stat(currentPath, function (err, stat) {
-                if (err) {
-                    console.error(err);
-                } else if (stat && stat.isDirectory()) {
-                    // Folder
+            fs.getInfo(currentPath, function (event) {
+                if (_GPF_EVENT_ERROR === event.type) {
+                    _gpfEventsFire.apply(null, [
+                        event,
+                        {},
+                        eventsHandler
+                    ]);
+
+                } else if (_GPF_FS_TYPE_DIRECTORY === event.type) {
                     ++pendingCount;
+/**
+ * TODO create an IEnumerator on folder to get all sub elements
+                    IEnumerator
+
                     _fs.readdir(currentPath, function (err, list) {
                         var
                             len,
@@ -110,20 +132,23 @@ gpf.fs = {
                                 _explore(_path.join(currentPath, list[idx]));
                             }
                         }
-                        if (0 === --pendingCount) {
-                            _gpfEventsFire("done", eventsHandler);
-                        }
+                        _done();
                     });
+*/
+
                 } else {
                     if (match(filters, currentPath)) {
-                        _gpfEventsFire("file", {
-                            path: currentPath
-                        }, eventsHandler);
+                        _gpfEventsFire.apply(null, [
+                            _GPF_EVENT_DATA,
+                            {
+                                path: currentPath
+                            },
+                            eventsHandler
+                        ]);
                     }
                 }
-                if (0 === --pendingCount) {
-                    _gpfEventsFire("done", eventsHandler);
-                }
+                _done();
+
             });
         }
         _explore(basePath);
