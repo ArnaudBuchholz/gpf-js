@@ -35,6 +35,7 @@
             "i_enumerator",         // IEnumerator
             "i_array",              // IArray
             "i_stream",             // IStream
+            "i_filestorage",        // IFileStorage
 
             "fs",                   // File system (FS)                   gpf.fs
             "fs_node",              // FS implementation for nodeJS       gpf.fs
