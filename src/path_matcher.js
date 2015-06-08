@@ -1,7 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfDosPath*/ // DOS-like path
 /*global _gpfExtend*/ // gpf.extend
+/*global _gpfPathNormalize*/ // Normalize paths
 /*#endif*/
 
 var
@@ -126,9 +126,7 @@ var
      * @private
      */
     _gpfPathMatch = function (pattern, path) {
-        if (_gpfDosPath) {
-            path = path.toLowerCase().split("\\").join("/");
-        }
+        path = _gpfPathNormalize(path);
         var parts = path.split("/"),
             matchers = _gpfPathMatchCompilePatterns(pattern),
             scope = {
