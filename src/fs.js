@@ -10,74 +10,26 @@
 /*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
 /*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
 /*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
+/*global _gpfI*/ // gpf.interfaces
 /*#endif*/
 
 gpf.fs = {
 
     /**
-     * Get information on the provided file path
+     * Get host file storage handler
      *
-     * @param {*} path
-     * @param {gpf.events.Handler} eventsHandler
-     *
-     * @event gpf.events.EVENT_READY
-     * @eventParam {Object} info contains:
-     * - type {Number} see _GPF_FS_TYPE_xxx
-     * - size {Number}
-     * - createdDateTime
-     * - modifiedDateTime
+     * @returns {gpf.interfaces.IFileStorage}
      */
-    getInfo: function (path, eventsHandler) {
-        _gpfIgnore(path);
-        _gpfIgnore(eventsHandler);
-        throw gpf.Error.Abstract();
-    },
-
-    /**
-     * Read as a binary stream
-     *
-     * @param {*} path
-     * @param {gpf.events.Handler} eventsHandler
-     *
-     * @event gpf.events.EVENT_READY
-     * @eventParam {gpf.interface.IReadableStream} stream
-     */
-    readAsBinaryStream: function (path, eventsHandler) {
-        _gpfIgnore(path);
-        _gpfIgnore(eventsHandler);
-        throw gpf.Error.Abstract();
-    },
-
-    /**
-     * Write as a binary stream (overwrite file if it exists)
-     *
-     * @param {*} path
-     * @param {gpf.events.Handler} eventsHandler
-     *
-     * @event gpf.events.EVENT_READY
-     * @eventParam {gpf.interface.IWritableStream} stream
-     */
-    writeAsBinaryStream: function (path, eventsHandler) {
-        _gpfIgnore(path);
-        _gpfIgnore(eventsHandler);
-        throw gpf.Error.Abstract();
-    },
-
-    /**
-     * Close the underlying file: the stream becomes unusable
-     *
-     * @param {gpf.interfaces.IReadableStream|
-     * gpf.interfaces.IWritableStream} stream
-     */
-    close: function (stream) {
-        _gpfIgnore(stream);
-        throw gpf.Error.Abstract();
+    host: function () {
+        return null;
     },
 
     /**
      * Find and identify files matching the pattern, trigger a file event
      * when a file is found
      *
+     * @param {gpf.interfaces.IFileStorage|undefined} fs file storage interface.
+     * If undefined the host one is used.
      * @param {String} basePath
      * @param {String[]} filters Patterns (see gpf.path.match) of files to
      * detect
@@ -89,21 +41,56 @@ gpf.fs = {
      *
      * @event gpf.events.EVENT_END_OF_DATA
      */
-    find: function (basePath, filters, eventsHandler) {
+    find: function (fs, basePath, filters, eventsHandler) {
         var
             pendingCount = 0,
             match = gpf.path.match,
-            fs = gpf.fs;
-        filters = gpf.path.compileMatchPattern(filters);
-        function _done() {
-            if (0 === --pendingCount) {
+            _done = function () {
+                if (0 === --pendingCount) {
+                    _gpfEventsFire.apply(null, [
+                        _GPF_EVENT_END_OF_DATA,
+                        {},
+                        eventsHandler
+                    ]);
+                }
+            },
+            _error = function (event) {
                 _gpfEventsFire.apply(null, [
-                    _GPF_EVENT_END_OF_DATA,
+                    event,
                     {},
                     eventsHandler
                 ]);
-            }
+            },
+            _explore = function (fileInfo) {
+                if (_GPF_FS_TYPE_DIRECTORY === fileInfo.type) {
+
+                } else if (_GPF_FS_TYPE_FILE === fileInfo.type) {
+                    if (match(filters, fileInfo.)) {
+                        _gpfEventsFire.apply(null, [
+                            _GPF_EVENT_DATA,
+                            {
+                                path: currentPath
+                            },
+                            eventsHandler
+                        ]);
+                    }
+
+                }
+            };
+        if (undefined === fs) {
+            fs = gpf.fs.host();
         }
+        filters = gpf.path.compileMatchPattern(filters);
+        fs.getInfo(basePath, function (event) {
+            if (_GPF_EVENT_ERROR === event.type) {
+                _error(event);
+            } else {
+                _explore(event.get("info"));
+            }
+        });
+
+
+
         function _explore(currentPath) {
             ++pendingCount;
             fs.getInfo(currentPath, function (event) {
@@ -116,6 +103,20 @@ gpf.fs = {
 
                 } else if (_GPF_FS_TYPE_DIRECTORY === event.type) {
                     ++pendingCount;
+                    var enumerator;
+                    fs.explore(currentPath, function (event) {
+                        if (_GPF_EVENT_ERROR === event.type) {
+                            _gpfEventsFire.apply(null, [
+                                event,
+                                {},
+                                eventsHandler
+                            ]);
+                        } else {
+                            _gpfI.IEnumerator.each(event.get("enumerator"), function (info) {
+
+                            }, _done());
+                        }
+                    })
 /**
  * TODO create an IEnumerator on folder to get all sub elements
                     IEnumerator
