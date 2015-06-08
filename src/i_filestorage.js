@@ -22,7 +22,8 @@ _gpfDefIntrf("IFileStorage", {
      * @event gpf.events.EVENT_READY
      * @eventParam {Object} info contains:
      * - {Number} type see _GPF_FS_TYPE_xxx
-     * - {String} fileName
+     * - {String} fileName file name only
+     * - {String} filePath full path to the file
      * - {Number} size
      * - {Date} createdDateTime
      * - {Date} modifiedDateTime
