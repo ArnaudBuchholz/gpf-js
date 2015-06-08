@@ -45,27 +45,25 @@ gpf.fs = {
         var
             pendingCount = 0,
             match = gpf.path.match,
+            _fire = function (event, params) {
+                if (!params) {
+                    params = {};
+                }
+                _gpfEventsFire.apply(null, [event, params, eventsHandler]);
+            },
             _done = function () {
                 if (0 === --pendingCount) {
-                    _gpfEventsFire.apply(null, [
-                        _GPF_EVENT_END_OF_DATA,
-                        {},
-                        eventsHandler
-                    ]);
+                    _fire(_GPF_EVENT_END_OF_DATA);
                 }
             },
             _error = function (event) {
-                _gpfEventsFire.apply(null, [
-                    event,
-                    {},
-                    eventsHandler
-                ]);
+                _fire(event);
             },
             _explore = function (fileInfo) {
                 if (_GPF_FS_TYPE_DIRECTORY === fileInfo.type) {
 
                 } else if (_GPF_FS_TYPE_FILE === fileInfo.type) {
-                    if (match(filters, fileInfo.)) {
+                    if (match(filters, fileInfo.filePath)) {
                         _gpfEventsFire.apply(null, [
                             _GPF_EVENT_DATA,
                             {
@@ -77,7 +75,7 @@ gpf.fs = {
 
                 }
             };
-        if (undefined === fs) {
+        if (!fs) {
             fs = gpf.fs.host();
         }
         filters = gpf.path.compileMatchPattern(filters);
