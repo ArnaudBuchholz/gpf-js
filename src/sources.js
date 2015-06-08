@@ -20,6 +20,7 @@
             "json",                 // JSON compatibility layer         gpf.json
                                     // (=> a_class)
             "path",                 // Path helper                      gpf.path
+            "path_matcher",         // Path matcher                     gpf.path
             "error",                // Error base class                gpf.Error
             "javascript",           // JavaScript language tools          gpf.js
             "csv",                  // CSV helper                        gpf.csv
