@@ -1,7 +1,8 @@
 /*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
-    "use strict";
-/*#endif*/
+"use strict";
+/*global _gpfExtend*/ // gpf.extend
+// /*#endif*/
 
     gpf.html = {
 
@@ -942,7 +943,7 @@
 
     //region Common HTML helpers
 
-    gpf.extend(gpf.html, {
+    _gpfExtend(gpf.html, {
 
         /**
          * Check if the DOM object has the requested class name(s)

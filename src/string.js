@@ -1,10 +1,11 @@
 /*#ifndef(UMD)*/
+"use strict";
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*global _gpfStringCapitalize*/ // Capitalize the string
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
-"use strict";
+/*global _gpfExtend*/ // gpf.extend
 /*#endif*/
 
     var
@@ -178,7 +179,7 @@ StringFromFileScope.prototype["*"] = function (event) {
 
 //endregion
 
-    gpf.extend(gpf, {
+    _gpfExtend(gpf, {
 
         "[capitalize]": [gpf.$ClassExtension(String)],
 

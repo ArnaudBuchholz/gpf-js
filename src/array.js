@@ -1,7 +1,8 @@
 /*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
-    "use strict";
-    /*#endif*/
+"use strict";
+/*global _gpfExtend*/ // gpf.extend
+/*#endif*/
 
     var
         gpfI = gpf.interfaces,
@@ -106,7 +107,7 @@
 
         });
 
-    gpf.extend(gpf, {
+    _gpfExtend(gpf, {
 
         "[arrayToStream]": [gpf.$ClassExtension(Array, "toStream")],
 

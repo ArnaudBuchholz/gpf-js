@@ -1,7 +1,8 @@
 /*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
-    "use strict";
-/*#endif*/
+"use strict";
+/*global _gpfExtend*/ // gpf.extend
+// /*#endif*/
 
     var
         _z = function (x) {
@@ -13,7 +14,7 @@
         }
         ;
 
-    gpf.extend(gpf, {
+    _gpfExtend(gpf, {
 
         "[dateToComparableFormat]": [
             gpf.$ClassExtension(Date, "toComparableFormat")

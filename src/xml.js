@@ -2,6 +2,7 @@
 "use strict";
 /*global _gpfAlpha*/ // Letters (lowercase)
 /*global _gpfALPHA*/ // Letters (uppercase)
+/*global _gpfExtend*/ // gpf.extend
 /*#endif*/
 
 /*jshint forin:false*/ // Need to inspect all members of the prototype
@@ -1295,7 +1296,7 @@ var
     _firstValidChar = _gpfAlpha + _gpfALPHA + "_",
     _otherValidChars = _firstValidChar + "012345789.-";
 
-gpf.extend(gpf.xml, {
+_gpfExtend(gpf.xml, {
 
     /**
      * Check that the provided name can be use as an element or attribute

@@ -3,7 +3,8 @@
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
-/*#endif*/
+/*global _gpfExtend*/ // gpf.extend
+// /*#endif*/
 
 var
     /**
@@ -62,7 +63,7 @@ gpf.Callback = function (handler, scope) {
 };
 
 // Define gpf.Callback interface (the 'old' way)
-gpf.extend(gpf.Callback.prototype, {
+_gpfExtend(gpf.Callback.prototype, {
 
     /**
      * Function to call
@@ -123,7 +124,7 @@ gpf.extend(gpf.Callback.prototype, {
 });
 
 // define Static helpers
-gpf.extend(gpf.Callback, {
+_gpfExtend(gpf.Callback, {
 
     /**
      * Resolve to a valid scope.

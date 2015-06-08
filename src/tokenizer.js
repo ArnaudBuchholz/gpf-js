@@ -2,6 +2,7 @@
 "use strict";
 /*global _gpfAlpha*/ // Letters (lowercase)
 /*global _gpfALPHA*/ // Letters (uppercase)
+/*global _gpfExtend*/ // gpf.extend
 /*#endif*/
 
 /*
@@ -504,7 +505,7 @@ var
 
 gpf.js = {};
 
-gpf.extend(gpf.js, {
+_gpfExtend(gpf.js, {
 
     /**
      * Returns the list of known keyword

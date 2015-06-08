@@ -1,13 +1,14 @@
 /*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
-    "use strict";
+"use strict";
+/*global _gpfExtend*/ // gpf.extend
 /*#endif*/
 
     var
         // gpfA = gpf.attributes,
         gpfI = gpf.interfaces;
 
-    gpf.extend(gpf.xml, {
+    _gpfExtend(gpf.xml, {
         NODE_INVALID:                   0,
         NODE_ELEMENT:                   1,
         NODE_ATTRIBUTE:                 2,
