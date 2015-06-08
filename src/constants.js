@@ -49,6 +49,7 @@
 /*global _gpfA*/ // gpf.attributes
 /*global _gpfDefAttr*/ // gpf.define for attributes
 /*global _gpfANoSerial*/ // gpf.attributes.ClassNonSerializedAttribute
+/*global _gpfExtend*/ // gpf.extend
 /*global _gpfArrayEachWithResult*/ //gpf.each implementation on array
 /*global _gpfDictionaryEachWithResult*/ //gpf.each implementation on dictionary
 /*global _gpfI*/ // gpf.interfaces

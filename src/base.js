@@ -157,6 +157,24 @@ var
     },
 
     /**
+     * @inheritdoc gpf#extend
+     * Implementation of gpf.extend
+     * @private
+     */
+    _gpfExtend = function (dictionary, properties, overwriteCallback) {
+        var callbackToUse;
+        if (undefined === overwriteCallback) {
+            callbackToUse = _gpfAssign;
+        } else {
+            gpf.ASSERT("function" === typeof overwriteCallback,
+                "Expected function");
+            callbackToUse = _gpfAssignOrCall;
+        }
+        _gpfDictionaryEach.apply(arguments, [properties, callbackToUse]);
+        return dictionary;
+    },
+
+    /**
      * gpf.value handlers per type
      *
      * @type {Object}
@@ -349,31 +367,20 @@ gpf.each = function (dictionary, memberCallback, defaultResult) {
 };
 /*jshint unused: true */
 
-/*
- * Appends members of additionalProperties to the dictionary object.
- * If a conflict has to be handled (i.e. member exists on both objects),
- * the overwriteCallback has to handle it.
- *
- * @param {Object} dictionary
- * @param {Object} additionalProperties
- * @param {Function} overwriteCallback
- * @return {Object} the modified dictionary
- * @chainable
- */
-gpf.extend = function (dictionary, additionalProperties, overwriteCallback) {
-    var callbackToUse;
-    if (undefined === overwriteCallback) {
-        callbackToUse = _gpfAssign;
-    } else {
-        gpf.ASSERT("function" === typeof overwriteCallback,
-            "Expected function");
-        callbackToUse = _gpfAssignOrCall;
-    }
-    _gpfDictionaryEach.apply(arguments, [additionalProperties, callbackToUse]);
-    return dictionary;
-};
+_gpfExtend(gpf, {
 
-gpf.extend(gpf, {
+    /*
+     * Appends members of properties to the dictionary object.
+     * If a conflict has to be handled (i.e. member exists on both objects),
+     * the overwriteCallback has to handle it.
+     *
+     * @param {Object} dictionary
+     * @param {Object} properties
+     * @param {Function} overwriteCallback
+     * @return {Object} the modified dictionary
+     * @chainable
+     */
+    extend: _gpfExtend,
 
     /*
      * Converts the provided value to match the expectedType.
