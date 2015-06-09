@@ -1,6 +1,5 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _GPF_FS_TYPE_NOT_FOUND*/ // _GPF_FS_TYPE_NOT_FOUND
 /*global _GPF_FS_TYPE_FILE*/ // _GPF_FS_TYPE_FILE
 /*global _GPF_FS_TYPE_DIRECTORY*/ // _GPF_FS_TYPE_DIRECTORY

@@ -16,6 +16,11 @@ var
     _gpfClassDefUID             = 0,
 
     /**
+     * Shortcut for gpf.define
+     */
+    _gpfDefine = gpf.define, // Fools JSHint, it points to undefined
+
+    /**
      * Template for new class constructor (using name that includes namespace)
      * - Uses closure to keep track of constructor and pass it to _gpfClassInit
      * - _CONSTRUCTOR_ will be replaced with the actual class name
@@ -215,12 +220,7 @@ var
                 classDef._Super.apply(this, args);
             }
         }
-    },
-
-    /**
-     * Shortcut for gpf.define
-     */
-    _gpfDefine;
+    };
 
 _GpfClassDefinition.prototype = {
 
