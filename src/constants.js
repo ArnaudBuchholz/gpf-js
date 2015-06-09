@@ -70,6 +70,7 @@
 /*global _GPF_FS_TYPE_UNKNOWN*/ // gpf.fs.TYPE_UNKNOWN
 /*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
+/*global _gpfDefine*/ // Shortcut for gpf.define
 
 var
 /*#ifdef(RELEASE)*/

@@ -136,7 +136,7 @@ var
             if (-1 === name.indexOf(".")) {
                 name = ctxRoot + name;
             }
-            result = gpf.define(name, base, definition);
+            result = _gpfDefine(name, base, definition);
             return result;
         };
     },
@@ -215,7 +215,12 @@ var
                 classDef._Super.apply(this, args);
             }
         }
-    }   ;
+    },
+
+    /**
+     * Shortcut for gpf.define
+     */
+    _gpfDefine;
 
 _GpfClassDefinition.prototype = {
 
@@ -671,7 +676,7 @@ _GpfClassDefinition.prototype = {
  * @param {Object} [definition=undefined] definition Class definition
  * @return {Function}
  */
-gpf.define = function (name, base, definition) {
+_gpfDefine = gpf.define = function (name, base, definition) {
     var
         result,
         path,
