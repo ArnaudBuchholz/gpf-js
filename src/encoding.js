@@ -1,5 +1,6 @@
 (function () { /* Begin of privacy scope */
     "use strict";
+    /*global _gpfDefine*/ // Shortcut for gpf.define
 
     var
         //region UTF-8
@@ -89,7 +90,7 @@
          * @implements gpf.interfaces.IReadableStream
          * @private
          */
-        EncoderStream = gpf.define("EncoderStream", gpf.stream.BufferedOnRead, {
+        EncoderStream = _gpfDefine("EncoderStream", gpf.stream.BufferedOnRead, {
 
             public: {
 
@@ -143,7 +144,7 @@
          * @implements gpf.interfaces.IReadableStream
          * @private
          */
-        DecoderStream = gpf.define("DecoderStream", gpf.stream.BufferedOnRead, {
+        DecoderStream = _gpfDefine("DecoderStream", gpf.stream.BufferedOnRead, {
 
             public: {
 

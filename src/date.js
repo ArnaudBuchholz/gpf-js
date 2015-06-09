@@ -2,7 +2,7 @@
 (function () { /* Begin of privacy scope */
 "use strict";
 /*global _gpfExtend*/ // gpf.extend
-// /*#endif*/
+/*#endif*/
 
     var
         _z = function (x) {

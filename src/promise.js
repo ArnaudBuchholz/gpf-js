@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+    /*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
     var
@@ -51,7 +52,7 @@
      *
      * @class gpf.Promise
      */
-    gpf.define("gpf.Promise", {
+    _gpfDefine("gpf.Promise", {
 
         private: {
 

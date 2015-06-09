@@ -3,6 +3,7 @@
 /*global _gpfAlpha*/ // Letters (lowercase)
 /*global _gpfALPHA*/ // Letters (uppercase)
 /*global _gpfExtend*/ // gpf.extend
+/*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
 /*jshint forin:false*/ // Need to inspect all members of the prototype
@@ -669,7 +670,7 @@ var
      * @implements gpf.interfaces.IXmlContentHandler
      * @private
      */
-    FromXmlContentHandler = gpf.define("FromXmlContentHandler", {
+    FromXmlContentHandler = _gpfDefine("FromXmlContentHandler", {
 
         // Even if it is not necessary, let be precise
         "[Class]": [gpf.$InterfaceImplement(gpfI.IXmlContentHandler)],
@@ -978,7 +979,7 @@ var
  * @class gpf.xml.Writer
  * @implements gpf.interfaces.IXmlContentHandler
  */
-gpf.define("gpf.xml.Writer", {
+_gpfDefine("gpf.xml.Writer", {
 
     "[Class]": [gpf.$InterfaceImplement(gpfI.IXmlContentHandler)],
 

@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+    /*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
     var
@@ -75,7 +76,7 @@
             return result;
         },
 
-        MethodCall = gpf.define("MethodCall", {
+        MethodCall = _gpfDefine("MethodCall", {
 
             private: {
 
@@ -165,7 +166,7 @@
 
         }),
 
-        WrapInterface = gpf.define("WrapInterface", {
+        WrapInterface = _gpfDefine("WrapInterface", {
 
             private: {
 
@@ -328,7 +329,7 @@
                 result = WrapInterface;
             } else {
                 base = gpfI.wrap(classDef.Base());
-                result = gpf.define("Wrap" + classDef.nameOnly(), base,
+                result = _gpfDefine("Wrap" + classDef.nameOnly(), base,
                     _buildMembers(interfaceDef));
             }
             _wrappers[classDef.uid()] = result;

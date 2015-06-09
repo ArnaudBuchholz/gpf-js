@@ -3,6 +3,7 @@
 /*global _gpfI*/ // gpf.interfaces
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
+/*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
 /**
@@ -12,7 +13,7 @@
  * @class gpf.stream.Out
  * @implements gpf.interfaces.IWritableStream
  */
-gpf.define("gpf.stream.Out", {
+_gpfDefine("gpf.stream.Out", {
 
     "[Class]": [gpf.$InterfaceImplement(_gpfI.IWritableStream)],
 

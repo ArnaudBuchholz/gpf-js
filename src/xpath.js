@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+    /*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
 /*
@@ -233,7 +234,7 @@
      *
      * @class gpf.xml.XPath
      */
-    gpf.define("gpf.xml.XPath", {
+    _gpfDefine("gpf.xml.XPath", {
 
         _xpath: null,
 

@@ -1,7 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfJsKeywords*/ //  List of JavaScript keywords
-// /*#endif*/
+/*#endif*/
 
 gpf.js = {
 

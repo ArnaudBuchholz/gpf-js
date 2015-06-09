@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+    /*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
     /**
@@ -87,7 +88,7 @@
          * @class ResponseHandler
          * @private
          */
-        ResponseHandler = gpf.define("ResponseHandler", {
+        ResponseHandler = _gpfDefine("ResponseHandler", {
 
             private: {
 

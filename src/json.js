@@ -4,7 +4,7 @@
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*global _gpfA*/ // _gpfA
 /*global _gpfANoSerial*/ // gpf.attributes.ClassNonSerializedAttribute
-// /*#endif*/
+/*#endif*/
 
 var
     _gpfJsonStringify,

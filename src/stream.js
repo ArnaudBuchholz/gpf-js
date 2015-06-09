@@ -8,6 +8,7 @@
 /*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
 /*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
 /*global _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
+/*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
 _gpfErrorDeclare("stream", {
@@ -132,7 +133,7 @@ gpf.stream = {
  * @abstract
  * @implements gpf.interfaces.IReadableStream
  */
-gpf.define("gpf.stream.BufferedOnRead", {
+_gpfDefine("gpf.stream.BufferedOnRead", {
 
     "[Class]": [gpf.$InterfaceImplement(_gpfI.IReadableStream)],
 
@@ -381,7 +382,7 @@ gpf.define("gpf.stream.BufferedOnRead", {
  * @extend gpf.stream.BufferedOnRead
  * @implements gpf.interfaces.IReadableStream
  */
-gpf.define("gpf.stream.BitReader", "gpf.stream.BufferedOnRead", {
+_gpfDefine("gpf.stream.BitReader", "gpf.stream.BufferedOnRead", {
 
     "[Class]": [gpf.$InterfaceImplement(_gpfI.IReadableStream)],
 
@@ -467,7 +468,7 @@ var
      * @abstract
      * @private
      */
-    AbstractStreamReader = gpf.define("AbstractStreamReader", {
+    AbstractStreamReader = _gpfDefine("AbstractStreamReader", {
 
         public: {
 
@@ -532,7 +533,7 @@ var
 
     }),
 
-    StreamReader = gpf.define("StreamReader", AbstractStreamReader, {
+    StreamReader = _gpfDefine("StreamReader", AbstractStreamReader, {
 
         public: {
 
@@ -563,7 +564,7 @@ var
 
     }),
 
-    B64StreamReader = gpf.define("B64StreamReader", AbstractStreamReader, {
+    B64StreamReader = _gpfDefine("B64StreamReader", AbstractStreamReader, {
 
         public: {
 

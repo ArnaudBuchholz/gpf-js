@@ -2,7 +2,8 @@
 (function () { /* Begin of privacy scope */
 "use strict";
 /*global _gpfExtend*/ // gpf.extend
-// /*#endif*/
+/*global _gpfDefine*/ // Shortcut for gpf.define
+/*#endif*/
 
     gpf.html = {
 
@@ -25,7 +26,7 @@
      *
      * @class gpf.html.MarkdownParser
      */
-    gpf.define("gpf.html.MarkdownParser", "gpf.Parser", {
+    _gpfDefine("gpf.html.MarkdownParser", "gpf.Parser", {
 
         public: {
 
@@ -569,7 +570,7 @@
     /**
      * HTML5 File to ReadableStream wrapper
      */
-    gpf.define("gpf.html.File", {
+    _gpfDefine("gpf.html.File", {
 
         "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.ITextStream)],
 

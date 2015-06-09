@@ -6,6 +6,7 @@
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
 /*global _gpfExtend*/ // gpf.extend
+/*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
     var
@@ -19,7 +20,7 @@
          * @implements gpf.interfaces.ITextStream
          * @private
          */
-        StringStream = gpf.define("StringStream", {
+        StringStream = _gpfDefine("StringStream", {
 
             "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.ITextStream)],
 

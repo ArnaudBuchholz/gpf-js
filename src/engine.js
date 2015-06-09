@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+    /*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
     var
@@ -57,7 +58,7 @@
 
         },
 
-        CodeArray = gpf.define("CodeArray", {
+        CodeArray = _gpfDefine("CodeArray", {
 
             constructor: function() {
                 this._items = [];
@@ -65,7 +66,7 @@
 
         }),
 
-        IdString = gpf.define("IdString", {
+        IdString = _gpfDefine("IdString", {
 
             constructor: function(label, executable) {
                 this._label = label;
@@ -78,7 +79,7 @@
 
         }),
 
-        EngineState = gpf.define("EngineState", {
+        EngineState = _gpfDefine("EngineState", {
 
             constructor: function() {
                 this._stack = [];
@@ -135,7 +136,7 @@
         });
 
 
-    gpf.define("gpf.Engine", {
+    _gpfDefine("gpf.Engine", {
 
         constructor: function() {
             this._state = new EngineState();

@@ -2,6 +2,7 @@
 (function () { /* Begin of privacy scope */
 "use strict";
 /*global _gpfExtend*/ // gpf.extend
+/*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
     var
@@ -170,7 +171,7 @@
      * @implements gpf.interfaces.IXmlConstNode
      * @implements gpf.interfaces.IXmlSerializable
      */
-    gpf.define("gpf.xml.ConstNode", {
+    _gpfDefine("gpf.xml.ConstNode", {
 
         "[Class]": [gpf.$InterfaceImplement(gpfI.IXmlConstNode),
                     gpf.$InterfaceImplement(gpfI.IXmlSerializable)],

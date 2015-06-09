@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+    /*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
     //region Parser
@@ -13,7 +14,7 @@
      *
      * @class gpf.Parser
      */
-    gpf.define("gpf.Parser", {
+    _gpfDefine("gpf.Parser", {
 
         public: {
 
@@ -264,7 +265,7 @@
      * @extends gpf.stream.BufferedOnRead
      * @implements gpf.interfaces.IReadableStream
      */
-    gpf.define("gpf.ParserStream", gpf.stream.BufferedOnRead, {
+    _gpfDefine("gpf.ParserStream", gpf.stream.BufferedOnRead, {
 
         public: {
 
@@ -420,7 +421,7 @@
          * @private
          * @abstract
          */
-        PatternItem = gpf.define("PatternItem", {
+        PatternItem = _gpfDefine("PatternItem", {
 
             private: {
 
@@ -529,7 +530,7 @@
          * @extend PatternItem
          * @private
          */
-        PatternChar = gpf.define("PatternChar", PatternItem, {
+        PatternChar = _gpfDefine("PatternChar", PatternItem, {
 
             private: {
 
@@ -576,7 +577,7 @@
          * @extend PatternItem
          * @private
          */
-        PatternRange = gpf.define("PatternRange", PatternItem, {
+        PatternRange = _gpfDefine("PatternRange", PatternItem, {
 
             private: {
 
@@ -719,7 +720,7 @@
          * @extend PatternItem
          * @private
          */
-        PatternGroup = gpf.define("PatternGroup", PatternItem, {
+        PatternGroup = _gpfDefine("PatternGroup", PatternItem, {
 
             private: {
 
@@ -1100,7 +1101,7 @@
 //         * @extend PatternItem
 //         * @private
 //         */
-//        PatternChoice = gpf.define("PatternChoice", PatternItem, {
+//        PatternChoice = _gpfDefine("PatternChoice", PatternItem, {
 //
 //            public: {
 //
@@ -1178,7 +1179,7 @@
          * @extend gpf.Parser
          * @private
          */
-        PatternParser = gpf.define("PatternParser",  gpf.Parser, {
+        PatternParser = _gpfDefine("PatternParser",  gpf.Parser, {
 
             private: {
 
@@ -1230,7 +1231,7 @@
          * @implements gpf.interfaces.ITokenizer
          * @private
          */
-        PatternTokenizer = gpf.define("PatternTokenizer", {
+        PatternTokenizer = _gpfDefine("PatternTokenizer", {
 
             "[Class]": [gpf.$InterfaceImplement(_ITokenizer)],
 
@@ -1322,7 +1323,7 @@
      *
      * @class gpf.Pattern
      */
-    gpf.define("gpf.Pattern", {
+    _gpfDefine("gpf.Pattern", {
 
         private: {
 

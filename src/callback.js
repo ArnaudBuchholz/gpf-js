@@ -4,7 +4,7 @@
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
 /*global _gpfExtend*/ // gpf.extend
-// /*#endif*/
+/*#endif*/
 
 var
     /**

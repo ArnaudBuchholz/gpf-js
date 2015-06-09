@@ -7,6 +7,7 @@
 /*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
 /*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
 if (_gpfInNode) {
@@ -17,7 +18,7 @@ if (_gpfInNode) {
      * @class gpf.stream.NodeReadable
      * @implements gpf.interfaces.IReadableStream
      */
-    gpf.define("gpf.node.ReadableStream", {
+    _gpfDefine("gpf.node.ReadableStream", {
 
         "[Class]": [gpf.$InterfaceImplement(_gpfI.IReadableStream)],
 
@@ -168,7 +169,7 @@ if (_gpfInNode) {
      * @class gpf.stream.NodeWritable
      * @implements gpf.interfaces.IReadableStream
      */
-    gpf.define("gpf.node.WritableStream", {
+    _gpfDefine("gpf.node.WritableStream", {
 
         "[Class]": [gpf.$InterfaceImplement(_gpfI.IWritableStream)],
 

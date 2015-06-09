@@ -7,7 +7,8 @@
 /*global _gpfArrayEachWithResult*/ //gpf.each implementation on array
 /*global _gpfDictionaryEachWithResult*/ //gpf.each implementation on dictionary
 /*global _gpfArrayOrItem*/ // Common way to code IReadOnlyArray::getItem
-// /*#endif*/
+/*global _gpfDefine*/ // Shortcut for gpf.define
+/*#endif*/
 
 var
     /**
@@ -197,7 +198,7 @@ _gpfDefAttr("$Alias", {
  * @class gpf.attributes.Array
  * TODO implements gpf.interfaces.IReadOnlyArray
  */
-gpf.define("gpf.attributes.Array", {
+_gpfDefine("gpf.attributes.Array", {
 
     private: {
 
@@ -320,7 +321,7 @@ gpf.define("gpf.attributes.Array", {
  *
  * @class gpf.attributes.Map
  */
-gpf.define("gpf.attributes.Map", {
+_gpfDefine("gpf.attributes.Map", {
 
     private: {
 

@@ -2,7 +2,7 @@
 "use strict";
 /*global _gpfExtend*/ // gpf.extend
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
-// /*#endif*/
+/*#endif*/
 
 var
     /**

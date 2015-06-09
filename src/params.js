@@ -1,9 +1,10 @@
 /*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+    /*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
-    gpf.define("gpf.Parameter", {
+    _gpfDefine("gpf.Parameter", {
 
         private: {
 

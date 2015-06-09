@@ -7,7 +7,7 @@
 /*global _gpfI*/ // gpf.interfaces
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfArrayOrItem*/ // Common way to code IReadOnlyArray::getItem
-// /*#endif*/
+/*#endif*/
 
 //region IReadOnlyArray
 
