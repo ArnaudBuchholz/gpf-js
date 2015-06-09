@@ -61,19 +61,31 @@ gpf.fs = {
             },
             _explore = function (fileInfo) {
                 if (_GPF_FS_TYPE_DIRECTORY === fileInfo.type) {
+                    ++pendingCount;
+                    var enumerator;
+                    fs.explore(fileInfo.filePath, function (event) {
+                        if (_GPF_EVENT_ERROR === event.type) {
+                            _error(event);
+                        } else {
+                            enumerator = event.get("enumerator");
+                            _gpfI.IEnumerator.each(enumerator, _explore, _done);
+                        }
+                    });
 
                 } else if (_GPF_FS_TYPE_FILE === fileInfo.type) {
-                    if (match(filters, fileInfo.filePath)) {
+                    var filePath = fileInfo.filePath,
+                        relativePath = gpf.path.relative(basePath, filePath);
+                    if (match(filters, relativePath)) {
                         _gpfEventsFire.apply(null, [
                             _GPF_EVENT_DATA,
                             {
-                                path: currentPath
+                                path: relativePath
                             },
                             eventsHandler
                         ]);
                     }
+                } // other cases are ignored
 
-                }
             };
         if (!fs) {
             fs = gpf.fs.host();
@@ -86,71 +98,6 @@ gpf.fs = {
                 _explore(event.get("info"));
             }
         });
-
-
-
-        function _explore(currentPath) {
-            ++pendingCount;
-            fs.getInfo(currentPath, function (event) {
-                if (_GPF_EVENT_ERROR === event.type) {
-                    _gpfEventsFire.apply(null, [
-                        event,
-                        {},
-                        eventsHandler
-                    ]);
-
-                } else if (_GPF_FS_TYPE_DIRECTORY === event.type) {
-                    ++pendingCount;
-                    var enumerator;
-                    fs.explore(currentPath, function (event) {
-                        if (_GPF_EVENT_ERROR === event.type) {
-                            _gpfEventsFire.apply(null, [
-                                event,
-                                {},
-                                eventsHandler
-                            ]);
-                        } else {
-                            _gpfI.IEnumerator.each(event.get("enumerator"), function (info) {
-
-                            }, _done());
-                        }
-                    })
-/**
- * TODO create an IEnumerator on folder to get all sub elements
-                    IEnumerator
-
-                    _fs.readdir(currentPath, function (err, list) {
-                        var
-                            len,
-                            idx;
-                        if (err) {
-                            console.error(err);
-                        } else {
-                            len = list.length;
-                            for (idx = 0; idx < len; ++idx) {
-                                _explore(_path.join(currentPath, list[idx]));
-                            }
-                        }
-                        _done();
-                    });
-*/
-
-                } else {
-                    if (match(filters, currentPath)) {
-                        _gpfEventsFire.apply(null, [
-                            _GPF_EVENT_DATA,
-                            {
-                                path: currentPath
-                            },
-                            eventsHandler
-                        ]);
-                    }
-                }
-                _done();
-
-            });
-        }
-        _explore(basePath);
     }
 
 };
