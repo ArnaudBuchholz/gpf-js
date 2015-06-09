@@ -71,6 +71,15 @@
 /*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfFromXml*/ // XML deserializer
+/*global _gpfToXml*/ // XML serializer
+/*global _gpfIsValidXmlName*/ // XML name validation
+/*global _GpfXmlBase*/ // XML base attribute
+/*global _GpfXmlIgnore*/ // $XmlIgnore
+/*global _GpfXmlAttribute*/ // $XmlAttribute
+/*global _GpfXmlRawElement*/ // XmlRawElementAttribute
+/*global _GpfXmlElement*/ // $XmlElement
+/*global _GpfXmlList*/ // $XmlList
 
 var
 /*#ifdef(RELEASE)*/

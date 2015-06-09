@@ -59,7 +59,10 @@
 
             "encoding",             // Encoding                     gpf.encoding
 
-            "xml",                  // Xml serializer & attributes       gpf.xml
+            "i_xml",                // IXmlSerializable & IXmlContentHandler
+            "a_xml",                // Xml attributes
+            "xml",                  // Xml helpers                       gpf.xml
+            "x_serial",             // Xml serialization
             "xnode",                // Xml 'DOM' structure               gpf.xml
             "xpath",                // Xml 'XPATH' parser/evaluator      gpf.xml
 
