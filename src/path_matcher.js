@@ -1,8 +1,8 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfExtend*/ // gpf.extend
-/*global _gpfPathNormalize*/ // Normalize paths
-/*#endif*/
+/*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
+// /*#endif*/
 
 var
     /**
@@ -126,8 +126,7 @@ var
      * @private
      */
     _gpfPathMatch = function (pattern, path) {
-        path = _gpfPathNormalize(path);
-        var parts = path.split("/"),
+        var parts = _gpfPathDecompose(path),
             matchers = _gpfPathMatchCompilePatterns(pattern),
             scope = {
                 parts: parts

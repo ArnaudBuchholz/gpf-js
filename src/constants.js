@@ -69,7 +69,7 @@
 /*global _GPF_FS_TYPE_DIRECTORY*/ // gpf.fs.TYPE_DIRECTORY
 /*global _GPF_FS_TYPE_UNKNOWN*/ // gpf.fs.TYPE_UNKNOWN
 /*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
-/*global _gpfPathNormalize*/ // Normalize paths
+/*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
 
 var
 /*#ifdef(RELEASE)*/
