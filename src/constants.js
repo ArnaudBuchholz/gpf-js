@@ -89,8 +89,15 @@
 //endregion
 //region path_matcher
 //endregion
-/*global _gpfFSRead*/ // Phantom/Node File System read text file method (boot)
+//region error
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+//endregion
+//region javascript
+//endregion
+//region csv
+/*global _gpfCsvParse*/ // CSV parsing function
+//endregion
+/*global _gpfFSRead*/ // Phantom/Node File System read text file method (boot)
 /*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
 /*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
 /*global _gpfA*/ // gpf.attributes

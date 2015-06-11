@@ -1,7 +1,8 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfStringReplaceEx*/ // String replacement using dictionary map
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfStringReplaceEx*/ // String replacement using dictionary map
+/*exported _gpfErrorDeclare*/
 /*#endif*/
 
 // TODO make this list disappear

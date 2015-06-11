@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*exported _gpfCsvParse*/
 /*#endif*/
 
 _gpfErrorDeclare("csv", {
