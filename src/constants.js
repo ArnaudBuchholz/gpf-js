@@ -4,7 +4,7 @@
 /*jshint -W079*/ // Globals are also copied here
 /*#endif*/
 
-//region boot.js
+//region boot
 /*global _gpfContext*/ // Main context object
 /*global _gpfDosPath*/ // DOS-like path
 /*global _gpfEmptyFunc*/ // An empty function
@@ -21,7 +21,11 @@
 /*global _gpfWebWindow*/ // Browser window object
 /*global gpfSourcesPath*/ // Global source path
 //endregion
-//region constants.js
+//region compatibility
+/*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
+/*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
+//endregion
+//region constants
 /*global _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
 /*global _GPF_EVENT_CONTINUE*/ // gpf.events.EVENT_CONTINUE
 /*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
@@ -45,38 +49,56 @@
 /*global _gpfJsKeywords*/ //  List of JavaScript keywords
 /*global _gpfMax31*/ // Max value on 31 bits
 /*global _gpfMax32*/ // Max value on 32 bits
-/*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
 //endregion
-//region events.js
+//region events
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 //endregion
-//region include.js
+//region include
 //endregion
+//region base
+/*global _gpfArrayEachWithResult*/ //gpf.each implementation on array
+/*global _gpfArrayOrItem*/ // Common way to code IReadOnlyArray::getItem
+/*global _gpfDictionaryEachWithResult*/ //gpf.each implementation on dictionary
+/*global _gpfExtend*/ // gpf.extend
+/*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
+/*global _gpfStringCapitalize*/ // Capitalize the string
+/*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
+/*global _gpfStringReplaceEx*/ // String replacement using dictionary map
+//endregion
+//region like
+//endregion
+//region callback
 /*global _gpfBuildParamArray*/ // Build a parameter array
 /*global _gpfDoApply*/ // Apply the parameter array through a function
-/*global _gpfStringCapitalize*/ // Capitalize the string
-/*global _gpfStringReplaceEx*/ // String replacement using dictionary map
-/*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
-/*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
-/*global _gpfFSRead*/ // Phantom/Node File System read text file method (boot)
-/*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
-/*global _gpfArrayOrItem*/ // Common way to code IReadOnlyArray::getItem
+//endregion
+//region dispatch
+//endregion
+//region mimetype
+//endregion
+//region async
 /*global _gpfDefer*/ // Defer the execution of the callback
-/*global _gpfJsonStringify*/ // JSON.stringify
+//endregion
+//region bin
+//endregion
+//region json
 /*global _gpfJsonParse*/ // JSON.parse
+/*global _gpfJsonStringify*/ // JSON.stringify
+//endregion
+//region path
+/*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
+//endregion
+//region path_matcher
+//endregion
+/*global _gpfFSRead*/ // Phantom/Node File System read text file method (boot)
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
 /*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
 /*global _gpfA*/ // gpf.attributes
 /*global _gpfDefAttr*/ // gpf.define for attributes
 /*global _gpfANoSerial*/ // gpf.attributes.ClassNonSerializedAttribute
-/*global _gpfExtend*/ // gpf.extend
-/*global _gpfArrayEachWithResult*/ //gpf.each implementation on array
-/*global _gpfDictionaryEachWithResult*/ //gpf.each implementation on dictionary
 /*global _gpfI*/ // gpf.interfaces
 /*global _gpfDefIntrf*/ // gpf.define for interfaces
 /*global _gpfArrayEnumerator*/ // Create an IEnumerator from an array
-/*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfFromXml*/ // XML deserializer
 /*global _gpfToXml*/ // XML serializer
@@ -134,11 +156,6 @@ var
     _GPF_FS_TYPE_UNKNOWN            = 99,
 
     //endregion
-
-    /**
-     * @inheritdoc gpf#setReadOnlyProperty
-     */
-    _gpfSetReadOnlyProperty = gpf.setReadOnlyProperty,
 
     // https://github.com/jshint/jshint/issues/525
     _GpfFunc = Function, // avoid JSHint error

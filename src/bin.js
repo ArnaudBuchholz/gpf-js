@@ -1,10 +1,10 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfMax31*/ // Max value on 31 bits
-/*global _gpfMax32*/ // Max value on 32 bits
 /*global _gpfAlpha*/ // Letters (lowercase)
 /*global _gpfALPHA*/ // Letters (uppercase)
 /*global _gpfDigit*/ // Digits
+/*global _gpfMax31*/ // Max value on 31 bits
+/*global _gpfMax32*/ // Max value on 32 bits
 /*#endif*/
 
 var

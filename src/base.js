@@ -1,11 +1,16 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfExit*/ // Exit function
 /*global _gpfHost*/ // Host type
 /*global _gpfInNode*/ // The current host is a nodeJS like
-/*global _gpfExit*/ // Exit function
+/*exported _gpfArrayEachWithResult*/
 /*exported _gpfArrayOrItem*/
+/*exported _gpfDictionaryEachWithResult*/
+/*exported _gpfExtend*/
+/*exported _gpfIsArrayLike*/
 /*exported _gpfStringCapitalize*/
 /*exported _gpfStringEscapeFor*/
+/*exported _gpfStringReplaceEx*/
 /*#endif*/
 
 /*

@@ -1,6 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
-//*global _gpfDosPath*/ // DOS-like path
+/*exported _gpfPathDecompose*/
 /*#endif*/
 
 var

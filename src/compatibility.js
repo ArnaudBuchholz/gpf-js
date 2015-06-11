@@ -1,5 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*exported _gpfArraySlice*/
+/*exported _gpfSetReadOnlyProperty*/
 /*#endif*/
 
 var
@@ -9,7 +11,13 @@ var
      * @type {Function}
      * @private
      */
-    _gpfArraySlice = Array.prototype.slice;
+    _gpfArraySlice = Array.prototype.slice,
+
+    /**
+     * Shortcut on gpf.setReadOnlyProperty
+     * @inheritdoc gpf#setReadOnlyProperty
+     */
+     _gpfSetReadOnlyProperty;
 
 if (undefined === Array.prototype.every) {
 
@@ -129,24 +137,14 @@ if ((function () {
 
 if (undefined === Object.defineProperty) {
 
-    /**
-     * If possible, defines a read-only property
-     *
-     * @param {Object} obj
-     * @param {String} name
-     * @param {*} value
-     * @param {Boolean} [hidden=false] hidden
-     * @return {Object}
-     * @chainable
-     */
-    gpf.setReadOnlyProperty = function (obj, name, value/*, hidden*/) {
+    _gpfSetReadOnlyProperty = function (obj, name, value/*, hidden*/) {
         obj[name] = value;
         return obj;
     };
 
 } else {
 
-    gpf.setReadOnlyProperty = function (obj, name, value, hidden) {
+    _gpfSetReadOnlyProperty = function (obj, name, value, hidden) {
         Object.defineProperty(obj, name, {
             enumerable: hidden !== true,
             configurable: false,
@@ -157,6 +155,18 @@ if (undefined === Object.defineProperty) {
     };
 
 }
+
+/**
+ * If possible, defines a read-only property
+ *
+ * @param {Object} obj
+ * @param {String} name
+ * @param {*} value
+ * @param {Boolean} [hidden=false] hidden
+ * @return {Object}
+ * @chainable
+ */
+gpf.setReadOnlyProperty = _gpfSetReadOnlyProperty;
 
 if (undefined === String.prototype.trim) {
 

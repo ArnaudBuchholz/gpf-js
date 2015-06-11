@@ -1,9 +1,11 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfResolveScope*/ // Translate the parameter into a valid scope
-/*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
+/*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfExtend*/ // gpf.extend
+/*global _gpfResolveScope*/ // Translate the parameter into a valid scope
+/*exported _gpfBuildParamArray*/
+/*exported _gpfDoApply*/
 /*#endif*/
 
 var

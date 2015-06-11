@@ -1,6 +1,20 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global gpfSourcesPath:true*/ // Global source path
+/*exported _gpfContext*/
+/*exported _gpfDosPath*/
+/*exported _gpfEmptyFunc*/
+/*exported _gpfExit*/
+/*exported _gpfHost*/
+/*exported _gpfInBrowser*/
+/*exported _gpfInNode*/
+/*exported _gpfMsFSO*/
+/*exported _gpfNodeFS*/
+/*exported _gpfResolveScope*/
+/*exported _gpfVersion*/
+/*exported _gpfWebDocument*/
+/*exported _gpfWebHead*/
+/*exported _gpfWebWindow*/
 /*#endif*/
 
 /*jshint browser: true*/

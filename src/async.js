@@ -1,10 +1,13 @@
+/*#ifndef(UMD)*/
 "use strict";
-/*global _gpfHost*/ // Host type
-/*global _gpfResolveScope*/ // Translate the parameter into a valid scope
-/*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
 /*global _gpfEmptyFunc*/ // An empty function
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfFunc*/ // Create a new function using the source
+/*global _gpfHost*/ // Host type
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
+/*global _gpfResolveScope*/ // Translate the parameter into a valid scope
+/*exported _gpfDefer*/
+/*#endif*/
 
 var
     /**

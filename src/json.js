@@ -1,9 +1,11 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfFunc*/ // Create a new function using the source
-/*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*global _gpfA*/ // _gpfA
 /*global _gpfANoSerial*/ // gpf.attributes.ClassNonSerializedAttribute
+/*global _gpfFunc*/ // Create a new function using the source
+/*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
+/*exported _gpfJsonParse*/
+/*exported _gpfJsonStringify*/
 /*#endif*/
 
 var
