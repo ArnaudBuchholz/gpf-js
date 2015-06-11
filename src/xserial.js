@@ -9,23 +9,13 @@
 /*global _GpfXmlRawElement*/ // XmlRawElementAttribute
 /*global _GpfXmlElement*/ // $XmlElement
 /*global _GpfXmlList*/ // $XmlList
+/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*exported _gpfToXml*/
 /*exported _gpfFromXml*/
 /*#endif*/
 
 /*jshint forin:false*/ // Need to inspect all members of the prototype
-
-var
-// Namespaces shortcut
-    gpfFireEvent = gpf.events.fire
-
-/*
- // XML Parser constants
- _XMLPARSER_STATE_NONE = 0
- */
-    ;
-
-gpf.xml = {};
 
 var
 
@@ -154,8 +144,8 @@ var
      * @param {gpf.attributes.Map} attMap Map filled with XML attributes
      * @private
      */
-    _objMemberToSubNodes = function /*gpf:inline*/ (obj, member,
-                                                    wrapped, attMap) {
+    _objMemberToSubNodes = function /*gpf:inline*/ (obj, member, wrapped,
+        attMap) {
         var
             value,
             attArray,
@@ -180,8 +170,7 @@ var
             // TODO: what to do when value is empty?
             if (attribute && attribute.name()) {
                 closeNode = true;
-                wrapped.startElement("",
-                    attribute.name());
+                wrapped.startElement("", attribute.name());
             }
             // Get the list of 'candidates'
             attArray = attArray.filter(_GpfXmlElement);
@@ -194,8 +183,7 @@ var
                 } else {
                     name = "item";
                 }
-                _toContentHandler(subValue, wrapped,
-                    name);
+                _toContentHandler(subValue, wrapped, name);
             }
             if (closeNode) {
                 wrapped.endElement();
@@ -469,14 +457,14 @@ var
                     forward.buffer.push(buffer);
                 }
             }
-            gpfFireEvent.apply(this, ["ready", eventsHandler]);
+            _gpfEventsFire.apply(this, ["ready", {}, eventsHandler]);
         },
 
         /**
          * @implements gpf.interfaces.IXmlContentHandler:endDocument
          */
         endDocument: function (eventsHandler) {
-            gpfFireEvent.apply(this, ["ready", eventsHandler]);
+            _gpfEventsFire.apply(this, ["ready", {}, eventsHandler]);
         },
 
         /**
@@ -507,7 +495,7 @@ var
                     this._forward.shift();
                 }
             }
-            gpfFireEvent.apply(this, ["ready", eventsHandler]);
+            _gpfEventsFire.apply(this, ["ready", {}, eventsHandler]);
         },
 
         /**
@@ -515,7 +503,7 @@ var
          */
         endPrefixMapping: function (prefix) {
             // Nothing to do (?)
-            _gpfI.ignoreParameter(prefix);
+            _gpfIgnore(prefix);
         },
 
         /**
@@ -523,8 +511,8 @@ var
          */
         ignorableWhitespace: function (buffer, eventsHandler) {
             // Nothing to do
-            _gpfI.ignoreParameter(buffer);
-            gpfFireEvent.apply(this, ["ready", eventsHandler]);
+            _gpfIgnore(buffer);
+            _gpfEventsFire.apply(this, ["ready", {}, eventsHandler]);
         },
 
         /**
@@ -533,9 +521,9 @@ var
          */
         processingInstruction: function (target, data, eventsHandler) {
             // Not relevant
-            _gpfI.ignoreParameter(target);
-            _gpfI.ignoreParameter(data);
-            gpfFireEvent.apply(this, ["ready", eventsHandler]);
+            _gpfIgnore(target);
+            _gpfIgnore(data);
+            _gpfEventsFire.apply(this, ["ready", {}, eventsHandler]);
         },
 
         /**
@@ -543,7 +531,7 @@ var
          */
         setDocumentLocator: function (locator) {
             // Nothing to do
-            _gpfI.ignoreParameter(locator);
+            _gpfIgnore(locator);
         },
 
         /**
@@ -551,7 +539,7 @@ var
          */
         skippedEntity: function (name) {
             // Nothing to do
-            _gpfI.ignoreParameter(name);
+            _gpfIgnore(name);
         },
 
         /**
@@ -559,7 +547,7 @@ var
          */
         startDocument: function (eventsHandler) {
             // Nothing to do
-            gpfFireEvent.apply(this, ["ready", eventsHandler]);
+            _gpfEventsFire.apply(this, ["ready", {}, eventsHandler]);
         },
 
         /**
@@ -593,7 +581,7 @@ var
                  */
                 this._fillFromElement.apply(this, arguments);
             }
-            gpfFireEvent.apply(this, ["ready", eventsHandler]);
+            _gpfEventsFire.apply(this, ["ready", {}, eventsHandler]);
         },
 
         /**
@@ -601,8 +589,8 @@ var
          */
         startPrefixMapping: function (prefix, uri) {
             // Nothing to do (?)
-            _gpfI.ignoreParameter(prefix);
-            _gpfI.ignoreParameter(uri);
+            _gpfIgnore(prefix);
+            _gpfIgnore(uri);
         }
 
         //endregion
