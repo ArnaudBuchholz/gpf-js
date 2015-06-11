@@ -4,42 +4,63 @@
 /*jshint -W079*/ // Globals are also copied here
 /*#endif*/
 
-// TODO find a way to organize this list: either sorting or per source
-/*global gpfSourcesPath*/ // Global source path
-/*global _gpfVersion*/ // GPF version
-/*global _gpfHost*/ // Host type
-/*global _gpfDosPath*/ // DOS-like path
+//region boot.js
 /*global _gpfContext*/ // Main context object
+/*global _gpfDosPath*/ // DOS-like path
+/*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfExit*/ // Exit function
+/*global _gpfHost*/ // Host type
+/*global _gpfInBrowser*/ // The current host is a browser like
+/*global _gpfInNode*/ // The current host is a nodeJS like
+/*global _gpfMsFSO*/ // Scripting.FileSystemObject activeX
+/*global _gpfNodeFS*/ // Node FS module
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
+/*global _gpfVersion*/ // GPF version
+/*global _gpfWebDocument*/ // Browser document object
+/*global _gpfWebHead*/ // Browser head tag
+/*global _gpfWebWindow*/ // Browser window object
+/*global gpfSourcesPath*/ // Global source path
+//endregion
+//region constants.js
+/*global _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
+/*global _GPF_EVENT_CONTINUE*/ // gpf.events.EVENT_CONTINUE
+/*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
+/*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
+/*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
+/*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
+/*global _GPF_EVENT_STOP*/ // gpf.events.EVENT_STOP
+/*global _GPF_EVENT_STOPPED*/ // gpf.events.EVENT_STOPPED
+/*global _GPF_FS_TYPE_DIRECTORY*/ // gpf.fs.TYPE_DIRECTORY
+/*global _GPF_FS_TYPE_FILE*/ // gpf.fs.TYPE_FILE
+/*global _GPF_FS_TYPE_NOT_FOUND*/ // gpf.fs.TYPE_NOT_FOUND
+/*global _GPF_FS_TYPE_UNKNOWN*/ // gpf.fs.TYPE_UNKNOWN
+/*global _gpfAlpha*/ // Letters (lowercase)
+/*global _gpfALPHA*/ // Letters (uppercase)
+/*global _gpfDigit*/ // Digits
+/*global _gpfFalseFunc*/ // An empty function returning false
+/*global _gpfFunc*/ // Create a new function using the source
+/*global _gpfIdentifierFirstChar*/ // allowed first char in an identifier
+/*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfJsKeywords*/ //  List of JavaScript keywords
+/*global _gpfMax31*/ // Max value on 31 bits
+/*global _gpfMax32*/ // Max value on 32 bits
+/*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
+//endregion
+//region events.js
+/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+//endregion
+//region include.js
+//endregion
 /*global _gpfBuildParamArray*/ // Build a parameter array
 /*global _gpfDoApply*/ // Apply the parameter array through a function
 /*global _gpfStringCapitalize*/ // Capitalize the string
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
-/*global _gpfInNode*/ // The current host is a nodeJS like
-/*global _gpfInBrowser*/ // The current host is a browser like
-/*global _gpfWebWindow*/ // Browser window object
-/*global _gpfWebDocument*/ // Browser document object
-/*global _gpfWebHead*/ // Browser head tag
-/*global _gpfMsFSO*/ // Scripting.FileSystemObject activeX
-/*global _gpfNodeFS*/ // Node FS module
 /*global _gpfFSRead*/ // Phantom/Node File System read text file method (boot)
-/*global _gpfEmptyFunc*/ // An empty function
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
-/*global _gpfFalseFunc*/ // An empty function returning false
-/*global _gpfFunc*/ // Create a new function using the source
-/*global _gpfMax31*/ // Max value on 31 bits
-/*global _gpfMax32*/ // Max value on 32 bits
-/*global _gpfAlpha*/ // Letters (lowercase)
-/*global _gpfALPHA*/ // Letters (uppercase)
-/*global _gpfDigit*/ // Digits
-/*global _gpfIdentifierFirstChar*/ // allowed first char in an identifier
-/*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
 /*global _gpfArrayOrItem*/ // Common way to code IReadOnlyArray::getItem
-/*global _gpfJsKeywords*/ //  List of JavaScript keywords
 /*global _gpfDefer*/ // Defer the execution of the callback
 /*global _gpfJsonStringify*/ // JSON.stringify
 /*global _gpfJsonParse*/ // JSON.parse
@@ -55,20 +76,6 @@
 /*global _gpfI*/ // gpf.interfaces
 /*global _gpfDefIntrf*/ // gpf.define for interfaces
 /*global _gpfArrayEnumerator*/ // Create an IEnumerator from an array
-/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
-/*global _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
-/*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
-/*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
-/*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
-/*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
-/*global _GPF_EVENT_CONTINUE*/ // gpf.events.EVENT_CONTINUE
-/*global _GPF_EVENT_STOP*/ // gpf.events.EVENT_STOP
-/*global _GPF_EVENT_STOPPED*/ // gpf.events.EVENT_STOPPED
-/*global _GPF_FS_TYPE_NOT_FOUND*/ // gpf.fs.TYPE_NOT_FOUND
-/*global _GPF_FS_TYPE_FILE*/ // gpf.fs.TYPE_FILE
-/*global _GPF_FS_TYPE_DIRECTORY*/ // gpf.fs.TYPE_DIRECTORY
-/*global _GPF_FS_TYPE_UNKNOWN*/ // gpf.fs.TYPE_UNKNOWN
-/*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfFromXml*/ // XML deserializer
