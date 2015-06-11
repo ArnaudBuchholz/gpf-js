@@ -1,16 +1,17 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
 /*global _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
-/*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
-/*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
+/*global _GPF_EVENT_CONTINUE*/ // gpf.events.EVENT_CONTINUE
 /*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
 /*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
-/*global _GPF_EVENT_CONTINUE*/ // gpf.events.EVENT_CONTINUE
+/*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
+/*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
 /*global _GPF_EVENT_STOP*/ // gpf.events.EVENT_STOP
 /*global _GPF_EVENT_STOPPED*/ // gpf.events.EVENT_STOPPED
-/*global _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
+/*global _gpfResolveScope*/ // Translate the parameter into a valid scope
+/*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
+/*exported _gpfEventsFire*/
 /*#endif*/
 
 gpf.events = {
