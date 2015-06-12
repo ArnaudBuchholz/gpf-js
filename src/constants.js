@@ -15,7 +15,8 @@
 /*global _gpfInBrowser*/ // The current host is a browser like
 /*global _gpfInNode*/ // The current host is a nodeJS like
 /*global _gpfMsFSO*/ // Scripting.FileSystemObject activeX
-/*global _gpfNodeFS*/ // Node FS module
+/*global _gpfNodeFs*/ // Node require("fs")
+/*global _gpfNodePath*/ // Node require("path")
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*global _gpfVersion*/ // GPF version
 /*global _gpfWebDocument*/ // Browser document object

@@ -9,7 +9,8 @@
 /*exported _gpfInBrowser*/
 /*exported _gpfInNode*/
 /*exported _gpfMsFSO*/
-/*exported _gpfNodeFS*/
+/*exported _gpfNodeFs*/
+/*exported _gpfNodePath*/
 /*exported _gpfResolveScope*/
 /*exported _gpfVersion*/
 /*exported _gpfWebDocument*/
@@ -148,12 +149,20 @@ var
     _gpfMsFSO,
 
     /**
-     * Node FS module
+     * Node require("fs")
      *
      * @type {Object}
      * @private
      */
-    _gpfNodeFS,
+    _gpfNodeFs,
+
+    /**
+     * Node require("path")
+     *
+     * @type {Object}
+     * @private
+     */
+    _gpfNodePath,
 
     /**
      * An empty function
@@ -199,7 +208,8 @@ if ("undefined" !== typeof WScript) {
 /*global module:true*/
 } else if ("undefined" !== typeof module && module.exports) {
     _gpfHost = "nodejs";
-    _gpfDosPath = require("path").sep === "\\";
+    _gpfNodePath = require("path");
+    _gpfDosPath = _gpfNodePath.sep === "\\";
     _gpfContext = global;
     _gpfInNode = true;
     _gpfExit = process.exit;
@@ -492,7 +502,7 @@ if ("wscript" === _gpfHost) {
     }());
 
 } else if (_gpfInNode) {
-    _gpfNodeFS =  require("fs");
+    _gpfNodeFs =  require("fs");
 
     /**
      * Phantom/Node File System read text file method (boot)
@@ -500,10 +510,10 @@ if ("wscript" === _gpfHost) {
      */
     var _gpfFSRead;
     if ("phantomjs" === _gpfHost) {
-        _gpfFSRead = _gpfNodeFS.read;
+        _gpfFSRead = _gpfNodeFs.read;
     } else {
         _gpfFSRead = function (path) {
-            return _gpfNodeFS.readFileSync(path).toString();
+            return _gpfNodeFs.readFileSync(path).toString();
         };
     }
     /*jslint evil: true*/
