@@ -1,9 +1,10 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfDefAttr*/ // gpf.define for attributes
-/*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfFunc*/ // Create a new function using the source
+/*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
+/*exported _gpfANoSerial*/
 /*#endif*/
 
 var

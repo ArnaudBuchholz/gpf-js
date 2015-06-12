@@ -1,16 +1,24 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_FS_TYPE_NOT_FOUND*/ // _GPF_FS_TYPE_NOT_FOUND
-/*global _GPF_FS_TYPE_FILE*/ // _GPF_FS_TYPE_FILE
-/*global _GPF_FS_TYPE_DIRECTORY*/ // _GPF_FS_TYPE_DIRECTORY
-/*global _GPF_FS_TYPE_UNKNOWN*/ // _GPF_FS_TYPE_UNKNOWN
-/*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
-/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
-/*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
 /*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
 /*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
+/*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
+/*global _GPF_FS_TYPE_DIRECTORY*/ // _GPF_FS_TYPE_DIRECTORY
+/*global _GPF_FS_TYPE_FILE*/ // _GPF_FS_TYPE_FILE
+/*global _GPF_FS_TYPE_NOT_FOUND*/ // _GPF_FS_TYPE_NOT_FOUND
+/*global _GPF_FS_TYPE_UNKNOWN*/ // _GPF_FS_TYPE_UNKNOWN
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfI*/ // gpf.interfaces
+/*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
 /*#endif*/
+
+_gpfErrorDeclare("fs", {
+    "ClassMemberOverloadWithTypeChange":
+        "You can't overload a member to change its type",
+    "ClassInvalidVisibility":
+        "Invalid visibility keyword"
+});
 
 gpf.fs = {
 

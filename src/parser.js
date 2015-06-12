@@ -2,7 +2,19 @@
 (function () { /* Begin of privacy scope */
     "use strict";
     /*global _gpfDefine*/ // Shortcut for gpf.define
+    /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*#endif*/
+
+    _gpfErrorDeclare("parser", {
+        "PatternUnexpected":
+            "Invalid syntax (unexpected)",
+        "PatternEmpty":
+            "Empty pattern",
+        "PatternInvalidSyntax":
+            "Invalid syntax",
+        "PatternEmptyGroup":
+            "Syntax error (empty group)"
+    });
 
     //region Parser
 

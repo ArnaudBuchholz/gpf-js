@@ -1,6 +1,14 @@
 (function () { /* Begin of privacy scope */
     "use strict";
     /*global _gpfDefine*/ // Shortcut for gpf.define
+    /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+
+    _gpfErrorDeclare("encoding", {
+        "EncodingNotSupported":
+            "Encoding not supported",
+        "EncodingEOFWithUnprocessedBytes":
+            "Unexpected end of stream: unprocessed bytes"
+    });
 
     var
         //region UTF-8

@@ -2,7 +2,17 @@
 (function () { /* Begin of privacy scope */
     "use strict";
     /*global _gpfDefine*/ // Shortcut for gpf.define
+    /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*#endif*/
+
+    _gpfErrorDeclare("params", {
+        "ParamsNameRequired":
+            "Missing name",
+        "ParamsTypeUnknown":
+            "Type unknown",
+        "ParamsRequiredMissing":
+            "Required parameter '{name}' is missing"
+    });
 
     _gpfDefine("gpf.Parameter", {
 

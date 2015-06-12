@@ -1,9 +1,19 @@
 /*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
 "use strict";
-/*global _gpfExtend*/ // gpf.extend
 /*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfExtend*/ // gpf.extend
 /*#endif*/
+
+    _gpfErrorDeclare("html", {
+        "HtmlHandlerMultiplicityError":
+            "Too many $HtmlHandler attributes for '{member}'",
+        "HtmlHandlerMissing":
+            "No $HtmlHandler attributes",
+        "HtmlHandlerNoDefault":
+            "No default $HtmlHandler attribute"
+    });
 
     gpf.html = {
 

@@ -1,12 +1,13 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfA*/ // gpf.attributes
+/*global _gpfAAdd*/ // Shortcut for gpf.attributes.add
+/*global _gpfArrayOrItem*/ // Common way to code IReadOnlyArray::getItem
 /*global _gpfDefAttr*/ // gpf.define for attributes
 /*global _gpfDefIntrf*/ // gpf.define for interfaces
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
-/*global _gpfI*/ // gpf.interfaces
 /*global _gpfFunc*/ // Create a new function using the source
-/*global _gpfArrayOrItem*/ // Common way to code IReadOnlyArray::getItem
+/*global _gpfI*/ // gpf.interfaces
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*#endif*/
 
 //region IReadOnlyArray
@@ -105,7 +106,7 @@ _gpfDefAttr("$ClassIArray", _gpfA.ClassAttribute, {
             } else {
                 implementedInterface = _gpfI.IReadOnlyArray;
             }
-            _gpfA.add(objPrototype.constructor, "Class",
+            _gpfAAdd(objPrototype.constructor, "Class",
                 [gpf.$InterfaceImplement(implementedInterface)]);
             objPrototype.getItemsCount = _gpfFunc("return this."
                 + this._member + ".length;");
@@ -136,6 +137,6 @@ _gpfDefAttr("$ClassIArray", _gpfA.ClassAttribute, {
 });
 
 // Alter gpf.attributes.Array class definition
-_gpfA.add(_gpfA.Array, "_array", [gpf.$ClassIArray(false)]);
+_gpfAAdd(_gpfA.Array, "_array", [gpf.$ClassIArray(false)]);
 
 //endregion

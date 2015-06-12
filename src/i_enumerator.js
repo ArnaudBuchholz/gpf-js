@@ -1,14 +1,15 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfA*/ // gpf.attributes
-/*global _gpfDefAttr*/ // gpf.define for attributes
-/*global _gpfI*/ // gpf.interfaces
-/*global _gpfDefIntrf*/ // gpf.define for interfaces
-/*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
-/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
+/*global _gpfA*/ // gpf.attributes
+/*global _gpfAAdd*/ // Shortcut for gpf.attributes.add
+/*global _gpfDefAttr*/ // gpf.define for attributes
+/*global _gpfDefIntrf*/ // gpf.define for interfaces
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*global _gpfI*/ // gpf.interfaces
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
 /*exported _gpfArrayEnumerator*/
 /*#endif*/
 
@@ -212,7 +213,7 @@ _gpfDefAttr("$Enumerable", _gpfA.ClassAttribute, {
         if (!_gpfIsArrayLike(objPrototype[this._member])) {
             throw gpf.Error.EnumerableInvalidMember();
         }
-        _gpfA.add(objPrototype.constructor, "Class", [
+        _gpfAAdd(objPrototype.constructor, "Class", [
             new _gpfA.InterfaceImplementAttribute(_gpfI.IEnumerator,
                 _buildEnumeratorOnObjectArray)
         ]);

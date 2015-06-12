@@ -1,7 +1,7 @@
 /*jshint browser: true*/
-/*global gpfSourcesPath*/ // Global source path
-/*global _gpfWebRawInclude*/ // Raw web include
 /*global _gpfFinishLoading*/ // Ends the loading (declared in boot.js)
+/*global _gpfWebRawInclude*/ // Raw web include
+/*global gpfSourcesPath*/ // Global source path
 (function () {
     "use strict";
 

@@ -1,7 +1,7 @@
 /*jshint wsh: true*/
-/*global gpfSourcesPath*/ // Global source path
 /*global _gpfFinishLoading*/ // Ends the loading (declared in boot.js)
 /*global _gpfMsFSO*/ // Scripting.FileSystemObject activeX
+/*global gpfSourcesPath*/ // Global source path
 (function () {
     "use strict";
 

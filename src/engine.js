@@ -2,7 +2,15 @@
 (function () { /* Begin of privacy scope */
     "use strict";
     /*global _gpfDefine*/ // Shortcut for gpf.define
+    /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*#endif*/
+
+    _gpfErrorDeclare("engine", {
+        "EngineStackUnderflow":
+            "Stack underflow",
+        "EngineTypeCheck":
+            "Type check"
+    });
 
     var
         TYPE_NUMBER         = "N", // number

@@ -2,13 +2,17 @@
 "use strict";
 /*global _gpfAlpha*/ // Letters (lowercase)
 /*global _gpfALPHA*/ // Letters (uppercase)
-/*global _gpfExtend*/ // gpf.extend
 /*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfExtend*/ // gpf.extend
 /*global _gpfI*/ // gpf.interfaces
 /*exported _gpfIsValidXmlName*/
 /*#endif*/
 
-/*jshint forin:false*/ // Need to inspect all members of the prototype
+_gpfErrorDeclare("xml", {
+    "XmlInvalidName":
+        "Invalid XML name"
+});
 
 var
     // Namespaces shortcut

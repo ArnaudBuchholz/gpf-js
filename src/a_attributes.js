@@ -1,10 +1,10 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfA*/ // gpf.attributes
 /*global _gpfDefAttr*/ // gpf.define for attributes
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*#endif*/
 
 _gpfErrorDeclare("a_attributes", {

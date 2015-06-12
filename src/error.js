@@ -5,68 +5,7 @@
 /*exported _gpfErrorDeclare*/
 /*#endif*/
 
-// TODO make this list disappear
-/**
- * Each module declare its errors, only the most common ones are below
- */
-
 var
-    _GPF_ERRORS = {
-        // boot.js
-
-        // define.js
-        "ClassMemberOverloadWithTypeChange":
-            "You can't overload a member to change its type",
-        "ClassInvalidVisibility":
-            "Invalid visibility keyword",
-
-        // parser.js
-        "PatternUnexpected":
-            "Invalid syntax (unexpected)",
-        "PatternEmpty":
-            "Empty pattern",
-        "PatternInvalidSyntax":
-            "Invalid syntax",
-        "PatternEmptyGroup":
-            "Syntax error (empty group)",
-
-        // html.js
-        "HtmlHandlerMultiplicityError":
-            "Too many $HtmlHandler attributes for '{member}'",
-        "HtmlHandlerMissing":
-            "No $HtmlHandler attributes",
-        "HtmlHandlerNoDefault":
-            "No default $HtmlHandler attribute",
-
-        // engine.js
-        "EngineStackUnderflow":
-            "Stack underflow",
-        "EngineTypeCheck":
-            "Type check",
-
-        // encoding.js
-        "EncodingNotSupported":
-            "Encoding not supported",
-        "EncodingEOFWithUnprocessedBytes":
-            "Unexpected end of stream: unprocessed bytes",
-
-        // xml.js
-        "XmlInvalidName":
-            "Invalid XML name",
-
-        // params.js
-        "ParamsNameRequired":
-            "Missing name",
-        "ParamsTypeUnknown":
-            "Type unknown",
-        "ParamsRequiredMissing":
-            "Required parameter '{name}' is missing",
-
-        // fs.js
-        "FileNotFound":
-            "File not found"
-    },
-
     /**
      * GPF Error class
      *
@@ -126,7 +65,8 @@ var
     _gpfLastErrorCode = 0,
 
     /**
-     * Declare error messages
+     * Declare error messages.
+     * Each module declares its own errors.
      *
      * @param {String} module
      * @param {Object} list Dictionary of name to message
@@ -184,5 +124,3 @@ _gpfErrorDeclare("boot", {
     AssertionFailed:
         "Assertion failed: {message}"
 });
-
-_gpfIgnore(_GPF_ERRORS);

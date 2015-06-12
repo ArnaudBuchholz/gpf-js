@@ -1,7 +1,7 @@
 /*jshint node: true*/
-/*global gpfSourcesPath*/ // Global source path
-/*global _gpfFSRead*/ // Phantom/Node File System read text file method (boot)
 /*global _gpfFinishLoading*/ // Ends the loading (declared in boot.js)
+/*global _gpfFSRead*/ // Phantom/Node File System read text file method (boot)
+/*global gpfSourcesPath*/ // Global source path
 (function () {
     "use strict";
 

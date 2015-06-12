@@ -1,13 +1,16 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfFunc*/ // Create a new function using the source
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
-/*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
-/*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
 /*global _gpfArrayEachWithResult*/ //gpf.each implementation on array
-/*global _gpfDictionaryEachWithResult*/ //gpf.each implementation on dictionary
 /*global _gpfArrayOrItem*/ // Common way to code IReadOnlyArray::getItem
 /*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfDictionaryEachWithResult*/ //gpf.each implementation on dictionary
+/*global _gpfFunc*/ // Create a new function using the source
+/*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
+/*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*exported _gpfA*/
+/*exported _gpfAAdd*/
+/*exported _gpfDefAttr*/
 /*#endif*/
 
 var
@@ -86,7 +89,12 @@ var
             _gpfAlias(result, name);
         }
         return result;
-    };
+    },
+
+    /**
+     * Shortcut for gpf.attributes.add
+     */
+    _gpfAAdd;
 
 /**
  * Base class for any attribute
@@ -196,7 +204,6 @@ _gpfDefAttr("$Alias", {
  * Attribute array, generally used to list attributes on a class member
  *
  * @class gpf.attributes.Array
- * TODO implements gpf.interfaces.IReadOnlyArray
  */
 _gpfDefine("gpf.attributes.Array", {
 
@@ -554,7 +561,7 @@ _gpfDefine("gpf.attributes.Map", {
                 member;
             for (member in members) {
                 if (members.hasOwnProperty(member)) {
-                    _gpfA.add(objectClass, member, members[member]);
+                    _gpfAAdd(objectClass, member, members[member]);
                 }
             }
         }
@@ -573,7 +580,7 @@ _gpfDefine("gpf.attributes.Map", {
  *        |gpf.attributes.Attribute
  *        |gpf.attributes.Attribute[]} attributes
  */
-_gpfA.add = function (objectClass, name, attributes) {
+_gpfAAdd = _gpfA.add = function (objectClass, name, attributes) {
     // Check attributes parameter
     if (attributes instanceof _gpfA.Array) {
         attributes = attributes._array;

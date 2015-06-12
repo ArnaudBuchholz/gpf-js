@@ -1,12 +1,13 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
-/*global _gpfEmptyFunc*/ // An empty function
-/*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
 /*global _gpfDefAttr*/ // gpf.define for attributes
+/*global _gpfEmptyFunc*/ // An empty function
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
+/*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*exported _gpfI*/
+/*exported _gpfDefIntrf*/
 /*#endif*/
 
 _gpfErrorDeclare("interfaces", {

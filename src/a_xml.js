@@ -1,17 +1,18 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfA*/ // gpf.attributes
+/*global _gpfAAdd*/ // Shortcut for gpf.attributes.add
 /*global _gpfDefAttr*/ // gpf.define for attributes
-/*global _gpfI*/ // gpf.interfaces
 /*global _gpfFromXml*/ // XML deserializer
-/*global _gpfToXml*/ // XML serializer
+/*global _gpfI*/ // gpf.interfaces
 /*global _gpfIsValidXmlName*/ // XML name validation
-/*exported _GpfXmlBase*/
-/*exported _GpfXmlIgnore*/
+/*global _gpfToXml*/ // XML serializer
 /*exported _GpfXmlAttribute*/
-/*exported _GpfXmlRawElement*/
+/*exported _GpfXmlBase*/
 /*exported _GpfXmlElement*/
+/*exported _GpfXmlIgnore*/
 /*exported _GpfXmlList*/
+/*exported _GpfXmlRawElement*/
 /*#endif*/
 
 var
@@ -39,11 +40,11 @@ var
                  */
                 if (undefined === objPrototype.toXml) {
                     // Declare toXml
-                    _gpfA.add(objPrototype.constructor, "Class",
+                    _gpfAAdd(objPrototype.constructor, "Class",
                         [gpf.$InterfaceImplement(_gpfI.IXmlSerializable)]);
                     objPrototype.toXml = _gpfToXml;
                     // Declare IXmlContentHandler interface through IUnknown
-                    _gpfA.add(objPrototype.constructor, "Class",
+                    _gpfAAdd(objPrototype.constructor, "Class",
                         [gpf.$InterfaceImplement(_gpfI.IXmlContentHandler,
                             _gpfFromXml)]);
                 }

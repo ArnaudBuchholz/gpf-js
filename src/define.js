@@ -1,9 +1,17 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
+/*exported _gpfDefine*/
 /*exported _gpfGenDefHandler*/
+/*exported _gpfGetClassDefinition*/
 /*#endif*/
+
+_gpfErrorDeclare("define", {
+    "FileNotFound":
+        "File not found"
+});
 
 var
     _gpfVisibilityKeywords      = "public|protected|private|static".split("|"),

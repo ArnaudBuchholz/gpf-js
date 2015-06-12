@@ -9,6 +9,8 @@
 /*global _gpfDosPath*/ // DOS-like path
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfExit*/ // Exit function
+/*global _gpfFinishLoading*/ // Ends the loading (declared in boot.js)
+/*global _gpfFSRead*/ // Phantom/Node File System read text file method (boot)
 /*global _gpfHost*/ // Host type
 /*global _gpfInBrowser*/ // The current host is a browser like
 /*global _gpfInNode*/ // The current host is a nodeJS like
@@ -18,6 +20,7 @@
 /*global _gpfVersion*/ // GPF version
 /*global _gpfWebDocument*/ // Browser document object
 /*global _gpfWebHead*/ // Browser head tag
+/*global _gpfWebRawInclude*/ // Raw web include
 /*global _gpfWebWindow*/ // Browser window object
 /*global gpfSourcesPath*/ // Global source path
 //endregion
@@ -97,16 +100,40 @@
 //region csv
 /*global _gpfCsvParse*/ // CSV parsing function
 //endregion
-/*global _gpfFSRead*/ // Phantom/Node File System read text file method (boot)
-/*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
+//region define
+/*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
+/*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
+//endregion
+//region attributes
 /*global _gpfA*/ // gpf.attributes
+/*global _gpfAAdd*/ // Shortcut for gpf.attributes.add
 /*global _gpfDefAttr*/ // gpf.define for attributes
+//endregion
+//region a_attributes
+//endregion
+//region a_class
 /*global _gpfANoSerial*/ // gpf.attributes.ClassNonSerializedAttribute
+//endregion
+//region interfaces
 /*global _gpfI*/ // gpf.interfaces
 /*global _gpfDefIntrf*/ // gpf.define for interfaces
+//endregion
+//region i_enumerator
 /*global _gpfArrayEnumerator*/ // Create an IEnumerator from an array
-/*global _gpfDefine*/ // Shortcut for gpf.define
+//endregion
+//region i_array
+//endregion
+//region i_stream
+//endregion
+//region i_filestorage
+//endregion
+//region fs
+//endregion
+//region fs_node
+//endregion
+
+
 /*global _gpfFromXml*/ // XML deserializer
 /*global _gpfToXml*/ // XML serializer
 /*global _gpfIsValidXmlName*/ // XML name validation
