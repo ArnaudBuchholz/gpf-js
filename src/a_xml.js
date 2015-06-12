@@ -1,6 +1,5 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfA*/ // gpf.attributes
 /*global _gpfAAdd*/ // Shortcut for gpf.attributes.add
 /*global _gpfDefAttr*/ // gpf.define for attributes
 /*global _gpfFromXml*/ // XML deserializer
