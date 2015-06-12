@@ -142,6 +142,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
         explore: function (path, eventsHandler) {
             _gpfIgnore(path);
             _gpfIgnore(eventsHandler);
+            // use _gpfNodeFs.readdir
         }
 
         //endregion
