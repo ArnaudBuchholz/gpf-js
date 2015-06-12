@@ -96,6 +96,13 @@ module.exports = function (grunt) {
                 stderr: false,
                 exitCode: 0
             },
+            testWscriptVerbose: {
+                command: "cscript.exe /D /E:JScript cscript.js",
+                cwd: "test/host",
+                stdout: true,
+                stderr: true,
+                exitCode: 0
+            },
             testWscriptDebug: {
                 command: "cscript.exe /D /E:JScript cscript.js -debug",
                 cwd: "test/host",
