@@ -40,6 +40,7 @@
 
             "fs",                   // File system (FS)                   gpf.fs
             "fs_node",              // FS implementation for nodeJS       gpf.fs
+            "fs_ms",                // FS implementation for WScript      gpf.fs
 
             "",                     // --- temporary end marker ---
 
