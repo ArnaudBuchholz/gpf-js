@@ -1,17 +1,16 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
 /*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
 /*global _GPF_FS_TYPE_DIRECTORY*/ // _GPF_FS_TYPE_DIRECTORY
 /*global _GPF_FS_TYPE_FILE*/ // _GPF_FS_TYPE_FILE
 /*global _GPF_FS_TYPE_NOT_FOUND*/ // _GPF_FS_TYPE_NOT_FOUND
-/*global _GPF_FS_TYPE_UNKNOWN*/ // _GPF_FS_TYPE_UNKNOWN
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfInNode*/ // The current host is a nodeJS like
 /*global _gpfMsFSO:true*/ // Scripting.FileSystemObject activeX
-/*#endif*/
+/*global _gpfPathNormalize*/ // Normalize path
+// /*#endif*/
 
 var
     /**
@@ -36,78 +35,72 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
          * @inheritdoc IFileStorage#getInfo
          */
         getInfo: function (path, eventsHandler) {
-            _gpfNodeFs.exists(path, function (exists) {
-                if (exists) {
-                    _gpfNodeFs.stat(path, function (err, stats) {
-                        var result;
-                        if (err) {
-                            _gpfFireNodeError(err, eventsHandler);
-                        } else {
-                            result = {
-                                fileName: _gpfNodePath.basename(path),
-                                filePath: _gpfNodePath.resolve(path),
-                                size: stats.size,
-                                createdDateTime: stats.ctime,
-                                modifiedDateTime: stats.mtime
-                            };
-                            if (stats.isDirectory()) {
-                                result.type = _GPF_FS_TYPE_DIRECTORY;
-                            } else if (stats.isFile()) {
-                                result.type = _GPF_FS_TYPE_FILE;
-                            } else {
-                                result.type = _GPF_FS_TYPE_UNKNOWN;
-                            }
-                            _gpfEventsFire.apply(null, [
-                                _GPF_EVENT_READY,
-                                {
-                                    info: result
-                                },
-                                eventsHandler
-                            ]);
+            if (_gpfMsFSO.FileExists(path)) {
+                var file = _gpfMsFSO.GetFile(path);
+                _gpfEventsFire.apply(null, [
+                    _GPF_EVENT_READY,
+                    {
+                        info: {
+                            type: _GPF_FS_TYPE_FILE,
+                            fileName: _gpfPathNormalize(file.Name),
+                            filePath: _gpfPathNormalize(file.Path),
+                            size: file.Size,
+                            createdDateTime: file.DateCreated,
+                            modifiedDateTime: file.DateLastModified
                         }
-                    });
-                } else {
-                    _gpfEventsFire.apply(null, [
-                        _GPF_EVENT_READY,
-                        {
-                            info: {
-                                type: _GPF_FS_TYPE_NOT_FOUND
-                            }
-                        },
-                        eventsHandler
-                    ]);
-                }
-            });
+                    },
+                    eventsHandler
+                ]);
+
+            } else if (_gpfMsFSO.FolderExists(path)) {
+                var folder = _gpfMsFSO.GetFolder(path);
+                _gpfEventsFire.apply(null, [
+                    _GPF_EVENT_READY,
+                    {
+                        info: {
+                            type: _GPF_FS_TYPE_DIRECTORY,
+                            fileName: _gpfPathNormalize(folder.Name),
+                            filePath: _gpfPathNormalize(folder.Path),
+                            size: folder.Size,
+                            createdDateTime: folder.DateCreated,
+                            modifiedDateTime: folder.DateLastModified
+                        }
+                    },
+                    eventsHandler
+                ]);
+
+            } else {
+                _gpfEventsFire.apply(null, [
+                    _GPF_EVENT_READY,
+                    {
+                        info: {
+                            type: _GPF_FS_TYPE_NOT_FOUND
+                        }
+                    },
+                    eventsHandler
+                ]);
+            }
         },
 
         /**
          * @inheritdoc IFileStorage#readAsBinaryStream
          */
         readAsBinaryStream: function (path, eventsHandler) {
-            // TODO handle error
-            var nodeStream = _gpfNodeFs.createReadStream(path);
-            _gpfEventsFire.apply(null, [
-                _GPF_EVENT_READY,
-                {
-                    stream: new gpf.node.ReadableStream(nodeStream)
-                },
-                eventsHandler
-            ]);
+            /* Use text stream reading as Unicode and returns a byte array */
+            // var textStream = _gpfMsFSO.OpenTextFile(path, 1,false, -1);
+            // Requires IReadableStream
+            _gpfIgnore(path);
+            _gpfIgnore(eventsHandler);
+            throw gpf.Error.NotImplemented();
         },
 
         /**
          * @inheritdoc IFileStorage#writeAsBinaryStream
          */
         writeAsBinaryStream: function (path, eventsHandler) {
-            // TODO handle error
-            var nodeStream = _gpfNodeFs.createWriteStream(path);
-            _gpfEventsFire.apply(null, [
-                _GPF_EVENT_READY,
-                {
-                    stream: new gpf.node.WritableStream(nodeStream)
-                },
-                eventsHandler
-            ]);
+            _gpfIgnore(path);
+            _gpfIgnore(eventsHandler);
+            throw gpf.Error.NotImplemented();
         },
 
         /**
@@ -122,6 +115,8 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
          * @inheritdoc IFileStorage#explore
          */
         explore: function (path, eventsHandler) {
+
+            // Only if folders
             _gpfIgnore(path);
             _gpfIgnore(eventsHandler);
             // use _gpfNodeFs.readdir
