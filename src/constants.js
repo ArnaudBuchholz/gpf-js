@@ -90,6 +90,7 @@
 //endregion
 //region path
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
+/*global _gpfPathNormalize*/ // Normalize path
 //endregion
 //region path_matcher
 //endregion

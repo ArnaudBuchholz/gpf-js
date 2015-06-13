@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*exported _gpfPathDecompose*/
+/*exported _gpfPathNormalize*/
 /*#endif*/
 
 var
@@ -28,6 +29,17 @@ var
             path.pop();
         }
         return path;
+    },
+
+    /**
+     * Normalize path
+     *
+     * @param {String} path
+     * @returns {string}
+     * @private
+     */
+    _gpfPathNormalize = function (path) {
+        return _gpfPathDecompose(path).join("/");
     },
 
     /**
