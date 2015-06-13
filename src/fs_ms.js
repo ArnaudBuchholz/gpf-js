@@ -4,6 +4,7 @@
 /*global _GPF_FS_TYPE_DIRECTORY*/ // _GPF_FS_TYPE_DIRECTORY
 /*global _GPF_FS_TYPE_FILE*/ // _GPF_FS_TYPE_FILE
 /*global _GPF_FS_TYPE_NOT_FOUND*/ // _GPF_FS_TYPE_NOT_FOUND
+/*global _gpfArrayEnumerator*/ // Create an IEnumerator from an array
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
@@ -17,7 +18,26 @@ var
      * @type {gpf.fs.WScriptFileStorage}
      * @private
      */
-    _gpfWScriptFileStorage;
+    _gpfWScriptFileStorage,
+
+    /**
+     * Translate WScript object info into a file info
+     *
+     * @param {Scripting.FileSystemObject.File
+     * |Scripting.FileSystemObject.Folder} fsoObj
+     * @param {Number} type
+     * @private
+     */
+    _gpfFsoObjToInfo = function (fsoObj, type) {
+        return {
+            type: type,
+            fileName: _gpfPathNormalize(fsoObj.Name),
+            filePath: _gpfPathNormalize(fsoObj.Path),
+            size: fsoObj.Size,
+            createdDateTime: fsoObj.DateCreated,
+            modifiedDateTime: fsoObj.DateLastModified
+        };
+    };
 
 _gpfDefine("gpf.fs.WScriptFileStorage", {
 
@@ -40,14 +60,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
                 _gpfEventsFire.apply(null, [
                     _GPF_EVENT_READY,
                     {
-                        info: {
-                            type: _GPF_FS_TYPE_FILE,
-                            fileName: _gpfPathNormalize(file.Name),
-                            filePath: _gpfPathNormalize(file.Path),
-                            size: file.Size,
-                            createdDateTime: file.DateCreated,
-                            modifiedDateTime: file.DateLastModified
-                        }
+                        info: _gpfFsoObjToInfo(file, _GPF_FS_TYPE_FILE)
                     },
                     eventsHandler
                 ]);
@@ -57,14 +70,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
                 _gpfEventsFire.apply(null, [
                     _GPF_EVENT_READY,
                     {
-                        info: {
-                            type: _GPF_FS_TYPE_DIRECTORY,
-                            fileName: _gpfPathNormalize(folder.Name),
-                            filePath: _gpfPathNormalize(folder.Path),
-                            size: folder.Size,
-                            createdDateTime: folder.DateCreated,
-                            modifiedDateTime: folder.DateLastModified
-                        }
+                        info: _gpfFsoObjToInfo(folder, _GPF_FS_TYPE_DIRECTORY)
                     },
                     eventsHandler
                 ]);
@@ -115,11 +121,31 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
          * @inheritdoc IFileStorage#explore
          */
         explore: function (path, eventsHandler) {
-
-            // Only if folders
-            _gpfIgnore(path);
-            _gpfIgnore(eventsHandler);
-            // use _gpfNodeFs.readdir
+            var result = [],
+                folder,
+                fsoEnum;
+            if (_gpfMsFSO.FolderExists(path)) {
+                folder = _gpfMsFSO.GetFolder(path);
+                // files
+                fsoEnum = new Enumerator(folder.Files);
+                for(; fsoEnum.atEnd(); fsoEnum.moveNext()) {
+                    result.push(_gpfFsoObjToInfo(fsoEnum.item(),
+                        _GPF_FS_TYPE_FILE));
+                }
+                // folders
+                fsoEnum = new Enumerator(folder.SubFolders);
+                for(; fsoEnum.atEnd(); fsoEnum.moveNext()) {
+                    result.push(_gpfFsoObjToInfo(fsoEnum.item(),
+                        _GPF_FS_TYPE_DIRECTORY));
+                }
+            }
+            _gpfEventsFire.apply(null, [
+                _GPF_EVENT_READY,
+                {
+                    enumerator: _gpfArrayEnumerator(result)
+                },
+                eventsHandler
+            ]);
         }
 
         //endregion
