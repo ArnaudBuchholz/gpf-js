@@ -7,8 +7,8 @@
 /*global _gpfArrayEnumerator*/ // Create an IEnumerator from an array
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*global _gpfHost*/ // Host type
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
-/*global _gpfInNode*/ // The current host is a nodeJS like
 /*global _gpfMsFSO:true*/ // Scripting.FileSystemObject activeX
 /*global _gpfPathNormalize*/ // Normalize path
 // /*#endif*/
@@ -154,7 +154,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
 
 });
 
-if (_gpfInNode) {
+if ("wscript" === _gpfHost) {
 
     /**
      * @inheritdoc gpf.fs#host
