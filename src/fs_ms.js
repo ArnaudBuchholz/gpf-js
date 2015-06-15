@@ -8,6 +8,7 @@
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfHost*/ // Host type
+/*global _gpfI*/ // gpf.interfaces
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfMsFSO:true*/ // Scripting.FileSystemObject activeX
 /*global _gpfPathNormalize*/ // Normalize path
@@ -37,7 +38,96 @@ var
             createdDateTime: fsoObj.DateCreated,
             modifiedDateTime: fsoObj.DateLastModified
         };
-    };
+    },
+
+    /**
+     * Binary stream reader
+     *
+     * @class {WScriptBinaryReadStream}
+     * @implements {gpf.interfaces.IReadableStream}
+     * @private
+     */
+    _gpfWScriptBinReadStream = _gpfDefine("WScriptBinaryReadStream", {
+
+        "[Class]": [gpf.$InterfaceImplement(_gpfI.IReadableStream)],
+
+        public: {
+
+            /**
+             * @param {String} path
+             * @constructor
+             */
+            constructor: function (path) {
+                var stream = this._adoStream
+                    = new ActiveXObject("ADODB.Stream");
+                stream.Open();
+                stream.Type = 1; /*adTypeBinary*/
+                stream.LoadFromFile(path);
+                stream.Position = 0;
+            },
+
+            /**
+             * @inheritdoc gpf.interfaces.IReadableStream#read
+             */
+            read: function (size, eventsHandler) {
+                _gpfIgnore(size);
+                _gpfIgnore(eventsHandler);
+            }
+
+        },
+
+        private: {
+
+            _adoStream: null
+
+        }
+
+    }),
+
+    /**
+     * Binary stream writer
+     *
+     * @class {WScriptBinaryWriteStream}
+     * @implements {gpf.interfaces.IWritableStream}
+     * @private
+     */
+    _gpfWScriptBinWriteStream = _gpfDefine("WScriptBinaryWriteStream", {
+
+        "[Class]": [gpf.$InterfaceImplement(_gpfI.IWritableStream)],
+
+        public: {
+
+            /**
+             * @param {String} path
+             * @constructor
+             */
+            constructor: function (path) {
+                var stream = this._adoStream
+                    = new ActiveXObject("ADODB.Stream");
+                stream.Open();
+                stream.Type = 1; /*adTypeBinary*/
+                stream.LoadFromFile(path);
+                stream.Position = 0;
+
+            },
+
+            /**
+             * @inheritdoc gpf.interfaces.IWritableStream#write
+             */
+            write: function (buffer, eventsHandler) {
+                _gpfIgnore(buffer);
+                _gpfIgnore(eventsHandler);
+            }
+
+        },
+
+        private: {
+
+            _adoStream: null
+
+        }
+
+    });
 
 _gpfDefine("gpf.fs.WScriptFileStorage", {
 
