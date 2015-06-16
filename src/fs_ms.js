@@ -1,5 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
+/*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
 /*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
 /*global _GPF_FS_TYPE_DIRECTORY*/ // _GPF_FS_TYPE_DIRECTORY
 /*global _GPF_FS_TYPE_FILE*/ // _GPF_FS_TYPE_FILE
@@ -9,7 +11,6 @@
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfHost*/ // Host type
 /*global _gpfI*/ // gpf.interfaces
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfMsFSO:true*/ // Scripting.FileSystemObject activeX
 /*global _gpfPathNormalize*/ // Normalize path
 // /*#endif*/
@@ -41,13 +42,64 @@ var
     },
 
     /**
+     * Binary stream base class
+     *
+     * @class {WScriptBinaryStream}
+     * @private
+     */
+    _gpfWScriptBinStream = _gpfDefine("WScriptBinaryStream", {
+
+        public: {
+
+            /**
+             * @param {String} path
+             * @constructor
+             */
+            constructor: function (path) {
+                this._path = path;
+                var stream = this._adoStream
+                    = new ActiveXObject("ADODB.Stream");
+                stream.Type = 1; /*adTypeBinary*/
+                stream.Open();
+                stream.Position = 0;
+            },
+
+            /**
+             * Close the stream
+             */
+            close: function () {
+                this._adoStream.Close();
+            }
+
+        },
+
+        protected: {
+
+            /**
+             * File path
+             * @type {String}
+             */
+            _path: "",
+
+            /**
+             * ADODB.Stream
+             * @type {Object}
+             */
+            _adoStream: null
+
+        }
+
+    }),
+
+    /**
      * Binary stream reader
      *
      * @class {WScriptBinaryReadStream}
      * @implements {gpf.interfaces.IReadableStream}
      * @private
      */
-    _gpfWScriptBinReadStream = _gpfDefine("WScriptBinaryReadStream", {
+    _gpfWScriptBinReadStream = _gpfDefine("WScriptBinaryReadStream",
+        _gpfWScriptBinStream, {
 
         "[Class]": [gpf.$InterfaceImplement(_gpfI.IReadableStream)],
 
@@ -58,10 +110,8 @@ var
              * @constructor
              */
             constructor: function (path) {
-                var stream = this._adoStream
-                    = new ActiveXObject("ADODB.Stream");
-                stream.Open();
-                stream.Type = 1; /*adTypeBinary*/
+                this._super(path);
+                var stream = this._adoStream;
                 stream.LoadFromFile(path);
                 stream.Position = 0;
             },
@@ -70,15 +120,20 @@ var
              * @inheritdoc gpf.interfaces.IReadableStream#read
              */
             read: function (size, eventsHandler) {
-                _gpfIgnore(size);
-                _gpfIgnore(eventsHandler);
+                var buffer = this._adoStream.Read(size);
+                if (null === buffer) {
+                    _gpfEventsFire.apply(this, [_GPF_EVENT_END_OF_DATA, {},
+                        eventsHandler]);
+                } else {
+                    _gpfEventsFire.apply(this, [
+                        _GPF_EVENT_DATA,
+                        {
+                            buffer: buffer
+                        },
+                        eventsHandler
+                    ]);
+                }
             }
-
-        },
-
-        private: {
-
-            _adoStream: null
 
         }
 
@@ -91,39 +146,30 @@ var
      * @implements {gpf.interfaces.IWritableStream}
      * @private
      */
-    _gpfWScriptBinWriteStream = _gpfDefine("WScriptBinaryWriteStream", {
+    _gpfWScriptBinWriteStream = _gpfDefine("WScriptBinaryWriteStream",
+        _gpfWScriptBinStream, {
 
         "[Class]": [gpf.$InterfaceImplement(_gpfI.IWritableStream)],
 
         public: {
 
             /**
-             * @param {String} path
-             * @constructor
-             */
-            constructor: function (path) {
-                var stream = this._adoStream
-                    = new ActiveXObject("ADODB.Stream");
-                stream.Open();
-                stream.Type = 1; /*adTypeBinary*/
-                stream.LoadFromFile(path);
-                stream.Position = 0;
-
-            },
-
-            /**
              * @inheritdoc gpf.interfaces.IWritableStream#write
              */
             write: function (buffer, eventsHandler) {
-                _gpfIgnore(buffer);
-                _gpfIgnore(eventsHandler);
+                this._adoStream.Write(buffer);
+                _gpfEventsFire.apply(this, [_GPF_EVENT_READY, {},
+                    eventsHandler]);
+            },
+
+            /**
+             * @inheritdoc WScriptBinaryStream#close
+             */
+            close: function () {
+                this._adoStream.SaveToFile(this._path,
+                    2/*adSaveCreateOverWrite*/);
+                this._super();
             }
-
-        },
-
-        private: {
-
-            _adoStream: null
 
         }
 
@@ -182,29 +228,35 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
          * @inheritdoc IFileStorage#readAsBinaryStream
          */
         readAsBinaryStream: function (path, eventsHandler) {
-            /* Use text stream reading as Unicode and returns a byte array */
-            // var textStream = _gpfMsFSO.OpenTextFile(path, 1,false, -1);
-            // Requires IReadableStream
-            _gpfIgnore(path);
-            _gpfIgnore(eventsHandler);
-            throw gpf.Error.NotImplemented();
+            _gpfEventsFire.apply(null, [
+                _GPF_EVENT_READY,
+                {
+                    stream: new _gpfWScriptBinReadStream(path)
+                },
+                eventsHandler
+            ]);
         },
 
         /**
          * @inheritdoc IFileStorage#writeAsBinaryStream
          */
         writeAsBinaryStream: function (path, eventsHandler) {
-            _gpfIgnore(path);
-            _gpfIgnore(eventsHandler);
-            throw gpf.Error.NotImplemented();
+            _gpfEventsFire.apply(null, [
+                _GPF_EVENT_READY,
+                {
+                    stream: new _gpfWScriptBinWriteStream(path)
+                },
+                eventsHandler
+            ]);
         },
 
         /**
          * @inheritdoc IFileStorage#close
          */
         close: function (stream) {
-            _gpfIgnore(stream);
-            // TODO not sure what I should do with it...
+            if (stream instanceof _gpfWScriptBinStream) {
+                stream.close();
+            }
         },
 
         /**
