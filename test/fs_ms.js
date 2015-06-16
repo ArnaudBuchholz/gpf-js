@@ -21,6 +21,18 @@ describe("fs_ms", function () {
             assert(gpfI.isImplementedBy(iWScriptFs, gpfI.IFileStorage));
         });
 
+        it("saves binary files", function (done) {
+            iWScriptFs.writeAsBinaryStream("tmp/fs.tmp", function (event) {
+                assert(gpf.events.EVENT_READY === event.type);
+                var wStream = event.get("stream");
+                wStream.write([1, 2, 3], function (event) {
+                    assert(gpf.events.EVENT_READY === event.type);
+                    iWScriptFs.close(wStream);
+                    done();
+                });
+            });
+        });
+
     });
 
 });
