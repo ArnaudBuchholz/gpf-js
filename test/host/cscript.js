@@ -12,7 +12,9 @@ var
     idx,
     param,
     verbose,
-    gpfSourcesPath = "..\\..\\src\\",
+    scriptPath = WScript.ScriptFullName,
+    gpfSourcesPath,
+    testPath,
     fso = new ActiveXObject("Scripting.FileSystemObject"),
     include = function (path) {
         /*jslint evil: true*/
@@ -21,6 +23,14 @@ var
     },
     sources,
     src;
+
+// Compute gpfSourcesPath relatively to the current script path
+src = scriptPath.split("\\");
+src.pop(); // Remove name
+src.pop(); // Remove host folder
+testPath = src.join("\\") + "\\";
+src.pop(); // Remove test folder
+gpfSourcesPath = src.concat("src").join("\\") + "\\";
 
 // Simple parameter parsing
 len = WScript.Arguments.length;
@@ -61,10 +71,10 @@ if (!gpf.sources) {
 }
 
 verbose("Loading BDD");
-include("bdd.js");
+include(testPath + "host\\bdd.js");
 
 verbose("Loading console override");
-include("console.js");
+include(testPath + "host\\console.js");
 
 verbose("Loading test cases");
 
@@ -76,7 +86,7 @@ for (idx = 0; idx < len; ++idx) {
         break;
     }
     verbose("\t" + src);
-    include("..\\" + src + ".js");
+    include(testPath + src + ".js");
 }
 
 verbose("Running BDD");
