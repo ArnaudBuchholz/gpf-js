@@ -11,7 +11,9 @@ describe("i_filestorage", function () {
                 readAsBinaryStream: function (path, eventsHandler) {},
                 writeAsBinaryStream: function (path, eventsHandler) {},
                 close: function (stream) {},
-                explore: function (path, eventsHandler) {}
+                explore: function (path, eventsHandler) {},
+                createFolder: function (path, eventsHandler) {},
+                deleteFile: function (path, eventsHandler) {}
             }, gpf.interfaces.IFileStorage));
             /* jshint unused:true */
         });

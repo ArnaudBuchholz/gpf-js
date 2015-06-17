@@ -84,7 +84,36 @@ _gpfDefIntrf("IFileStorage", {
      * @eventParam {gpf.interface.IEnumerator} enumerator
      * Each enumerated item is like the info result of getInfo
      */
+    "[explore]": [gpf.$ClassEventHandler()],
     explore: function (path, eventsHandler) {
+        _gpfIgnore(path);
+        _gpfIgnore(eventsHandler);
+    },
+
+    /**
+     * Creates the folder
+     *
+     * @param {String} path
+     * @param {gpf.events.Handler} eventsHandler
+     *
+     * @event gpf.events.EVENT_READY
+     */
+    "[createFolder]": [gpf.$ClassEventHandler()],
+    createFolder: function (path, eventsHandler) {
+        _gpfIgnore(path);
+        _gpfIgnore(eventsHandler);
+    },
+
+    /**
+     * Deletes the file
+     *
+     * @param {String} path
+     * @param {gpf.events.Handler} eventsHandler
+     *
+     * @event gpf.events.EVENT_READY
+     */
+    "[deleteFile]": [gpf.$ClassEventHandler()],
+    deleteFile: function (path, eventsHandler) {
         _gpfIgnore(path);
         _gpfIgnore(eventsHandler);
     }
