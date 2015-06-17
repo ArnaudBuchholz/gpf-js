@@ -11,6 +11,7 @@
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfHost*/ // Host type
 /*global _gpfI*/ // gpf.interfaces
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfMsFSO:true*/ // Scripting.FileSystemObject activeX
 /*global _gpfPathNormalize*/ // Normalize path
 // /*#endif*/
@@ -349,6 +350,22 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
                 },
                 eventsHandler
             ]);
+        },
+
+        /**
+         * @inheritdoc IFileStorage#createFolder
+         */
+        createFolder: function (path, eventsHandler) {
+            _gpfIgnore(path);
+            _gpfIgnore(eventsHandler);
+        },
+
+        /**
+         * @inheritdoc IFileStorage#deleteFile
+         */
+        deleteFile: function (path, eventsHandler) {
+            _gpfIgnore(path);
+            _gpfIgnore(eventsHandler);
         }
 
         //endregion

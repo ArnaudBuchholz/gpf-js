@@ -143,6 +143,22 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
             _gpfIgnore(path);
             _gpfIgnore(eventsHandler);
             // use _gpfNodeFs.readdir
+        },
+
+        /**
+         * @inheritdoc IFileStorage#createFolder
+         */
+        createFolder: function (path, eventsHandler) {
+            _gpfIgnore(path);
+            _gpfIgnore(eventsHandler);
+        },
+
+        /**
+         * @inheritdoc IFileStorage#deleteFile
+         */
+        deleteFile: function (path, eventsHandler) {
+            _gpfIgnore(path);
+            _gpfIgnore(eventsHandler);
         }
 
         //endregion
