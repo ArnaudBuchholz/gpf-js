@@ -42,6 +42,50 @@ var
     },
 
     /**
+     * String representing character & binary mapping
+     *
+     * @type {String|String[]}
+     * @private
+     */
+    _gpf437chars = "C7|FC|E9|E2|E4|E0|E5|E7|EA|EB|E8|EF|EE|EC|C4|C5|C9|E6|C6" +
+        "|F4|F6|F2|FB|F9|FF|D6|DC|A2|A3|A5|20A7|192|E1|ED|F3|FA|F1|D1|AA|BA" +
+        "|BF|2310|AC|BD|BC|A1|AB|BB|2591|2592|2593|2502|2524|2561|2562|2556" +
+        "|2555|2563|2551|2557|255D|255C|255B|2510|2514|2534|252C|251C|2500" +
+        "|253C|255E|255F|255A|2554|2569|2566|2560|2550|256C|2567|2568|2564" +
+        "|2565|2559|2558|2552|2553|256B|256A|2518|250C|2588|2584|258C|2590" +
+        "|2580|3B1|DF|393|3C0|3A3|3C3|B5|3C4|3A6|398|3A9|3B4|221E|3C6|3B5" +
+        "|2229|2261|B1|2265|2264|2320|2321|F7|2248|B0|2219|B7|221A|207F" +
+        "|B2|25A0|A0",
+
+    /**
+     * Convert hexadecimal character code into a character
+     *
+     * @param {String} hexa Hexadecimal character code
+     * @returns {String} Character
+     * @private
+     */
+    _gpfCharCodeFromHexa = function (hexa) {
+        return String.fromCharCode(parseInt(hexa, 16));
+    },
+
+    /**
+     * Build the 256 characters composing the code page 437
+     *
+     * @private
+     */
+    _gpfBuild437chars = function () {
+        var asciiChars = [],
+            idx;
+        for (idx = 128; idx > 0;) {
+            asciiChars.unshift(String.fromCharCode(--idx));
+        }
+        _gpf437chars = asciiChars.concat(_gpf437chars
+            .split("|")
+            .map(_gpfCharCodeFromHexa)
+        );
+    },
+
+    /**
      * Binary stream base class
      *
      * @class {WScriptBinaryStream}
@@ -59,9 +103,14 @@ var
                 this._path = path;
                 var stream = this._adoStream
                     = new ActiveXObject("ADODB.Stream");
-                stream.Type = 1; /*adTypeBinary*/
+                stream.Type = 2; /*adTypeText*/
+                // https://en.wikipedia.org/wiki/Code_page_437
+                stream.CharSet = "437";
                 stream.Open();
                 stream.Position = 0;
+                if (256 !== _gpf437chars.length) {
+                    _gpfBuild437chars();
+                }
             },
 
             /**
@@ -140,6 +189,17 @@ var
     }),
 
     /**
+     * Convert bytes into its code page 437 representation
+     *
+     * @param {Number} value
+     * @returns {String}
+     * @private
+     */
+    _gpfByteTo437 = function (value) {
+        return _gpf437chars[value];
+    },
+
+    /**
      * Binary stream writer
      *
      * @class {WScriptBinaryWriteStream}
@@ -157,7 +217,8 @@ var
              * @inheritdoc gpf.interfaces.IWritableStream#write
              */
             write: function (buffer, eventsHandler) {
-                this._adoStream.Write(buffer);
+                var buffer437 = buffer.map(_gpfByteTo437);
+                this._adoStream.WriteText(buffer437.join(""));
                 _gpfEventsFire.apply(this, [_GPF_EVENT_READY, {},
                     eventsHandler]);
             },
