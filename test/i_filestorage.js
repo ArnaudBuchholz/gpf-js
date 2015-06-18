@@ -13,7 +13,8 @@ describe("i_filestorage", function () {
                 close: function (stream) {},
                 explore: function (path, eventsHandler) {},
                 createFolder: function (path, eventsHandler) {},
-                deleteFile: function (path, eventsHandler) {}
+                deleteFile: function (path, eventsHandler) {},
+                deleteFolder: function (path, eventsHandler) {}
             }, gpf.interfaces.IFileStorage));
             /* jshint unused:true */
         });

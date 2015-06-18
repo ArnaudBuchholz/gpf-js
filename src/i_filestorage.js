@@ -116,6 +116,20 @@ _gpfDefIntrf("IFileStorage", {
     deleteFile: function (path, eventsHandler) {
         _gpfIgnore(path);
         _gpfIgnore(eventsHandler);
+    },
+
+    /**
+     * Deletes the folder
+     *
+     * @param {String} path
+     * @param {gpf.events.Handler} eventsHandler
+     *
+     * @event gpf.events.EVENT_READY
+     */
+    "[deleteFolder]": [gpf.$ClassEventHandler()],
+    deleteFolder: function (path, eventsHandler) {
+        _gpfIgnore(path);
+        _gpfIgnore(eventsHandler);
     }
 
 });
