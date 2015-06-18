@@ -13,6 +13,7 @@
 /*global _gpfI*/ // gpf.interfaces
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfMsFSO:true*/ // Scripting.FileSystemObject activeX
+/*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*global _gpfPathNormalize*/ // Normalize path
 // /*#endif*/
 
@@ -34,7 +35,7 @@ var
     _gpfFsoObjToInfo = function (fsoObj, type) {
         return {
             type: type,
-            fileName: _gpfPathNormalize(fsoObj.Name),
+            fileName: fsoObj.Name.toLowerCase(),
             filePath: _gpfPathNormalize(fsoObj.Path),
             size: fsoObj.Size,
             createdDateTime: fsoObj.DateCreated,
@@ -101,7 +102,7 @@ var
              * @constructor
              */
             constructor: function (path) {
-                this._path = path;
+                this._path = _gpfPathDecompose(path).join("\\");
                 var stream = this._adoStream
                     = new ActiveXObject("ADODB.Stream");
                 stream.Type = 2; /*adTypeText*/
@@ -162,7 +163,7 @@ var
             constructor: function (path) {
                 this._super(path);
                 var stream = this._adoStream;
-                stream.LoadFromFile(path);
+                stream.LoadFromFile(this._path);
                 stream.Position = 0;
             },
 
@@ -253,6 +254,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
          * @inheritdoc IFileStorage#getInfo
          */
         getInfo: function (path, eventsHandler) {
+            path = _gpfPathDecompose(path).join("\\");
             if (_gpfMsFSO.FileExists(path)) {
                 var file = _gpfMsFSO.GetFile(path);
                 _gpfEventsFire.apply(null, [
@@ -325,6 +327,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
          * @inheritdoc IFileStorage#explore
          */
         explore: function (path, eventsHandler) {
+            path = _gpfPathDecompose(path).join("\\");
             var result = [],
                 folder,
                 fsoEnum;
