@@ -359,16 +359,27 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
          * @inheritdoc IFileStorage#createFolder
          */
         createFolder: function (path, eventsHandler) {
-            _gpfIgnore(path);
-            _gpfIgnore(eventsHandler);
+            path = _gpfPathDecompose(path).join("\\");
+            _gpfMsFSO.CreateFolder(path);
+            _gpfEventsFire.apply(null, [_GPF_EVENT_READY, {}, eventsHandler]);
         },
 
         /**
          * @inheritdoc IFileStorage#deleteFile
          */
         deleteFile: function (path, eventsHandler) {
-            _gpfIgnore(path);
-            _gpfIgnore(eventsHandler);
+            path = _gpfPathDecompose(path).join("\\");
+            _gpfMsFSO.DeleteFile(path, true);
+            _gpfEventsFire.apply(null, [_GPF_EVENT_READY, {}, eventsHandler]);
+        },
+
+        /**
+         * @inheritdoc IFileStorage#deleteFolder
+         */
+        deleteFolder: function (path, eventsHandler) {
+            path = _gpfPathDecompose(path).join("\\");
+            _gpfMsFSO.DeleteFolder(path, true);
+            _gpfEventsFire.apply(null, [_GPF_EVENT_READY, {}, eventsHandler]);
         }
 
         //endregion
