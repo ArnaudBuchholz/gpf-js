@@ -159,6 +159,14 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
         deleteFile: function (path, eventsHandler) {
             _gpfIgnore(path);
             _gpfIgnore(eventsHandler);
+        },
+
+        /**
+         * @inheritdoc IFileStorage#deleteFolder
+         */
+        deleteFolder: function (path, eventsHandler) {
+            _gpfIgnore(path);
+            _gpfIgnore(eventsHandler);
         }
 
         //endregion
