@@ -22,4 +22,30 @@ describe("fs", function () {
 
     });
 
+    //describe("data", function () {
+    //
+    //    it("generates file.bin", function (done) {
+    //        var fs = gpf.fs.host(),
+    //            count = 0,
+    //            wStream;
+    //        function loop(event) {
+    //            assert(!event || gpf.events.EVENT_READY === event.type);
+    //            if (256 === count) {
+    //                fs.close(wStream);
+    //                done();
+    //            }
+    //            wStream.write([count++], loop);
+    //        }
+    //        // TODO Need to figure out a way to compute file path
+    //        fs.writeAsBinaryStream("test/data/file.bin",
+    //            function (event) {
+    //                assert(gpf.events.EVENT_READY === event.type);
+    //                wStream = event.get("stream");
+    //                loop();
+    //            }
+    //        );
+    //    });
+    //
+    //});
+
 });
