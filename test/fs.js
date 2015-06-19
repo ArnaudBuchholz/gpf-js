@@ -36,7 +36,7 @@ describe("fs", function () {
     //            }
     //            wStream.write([count++], loop);
     //        }
-    //        // TODO Need to figure out a way to compute file path
+    //        // Current path is always root of gpf-js
     //        fs.writeAsBinaryStream("test/data/file.bin",
     //            function (event) {
     //                assert(gpf.events.EVENT_READY === event.type);
