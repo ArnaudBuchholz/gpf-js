@@ -1,6 +1,8 @@
 module.exports = function (grunt) {
     "use strict";
 
+    var CSCRIPT_CMD = "cscript.exe /D /E:JScript test\\host\\cscript.js";
+
     grunt.initConfig({
         //region JavaScript linter
         jshint: {
@@ -90,29 +92,25 @@ module.exports = function (grunt) {
         //region Custom command lines
         exec: {
             testWscript: {
-                command: "cscript.exe /D /E:JScript cscript.js",
-                cwd: "test/host",
+                command: CSCRIPT_CMD,
                 stdout: false,
                 stderr: false,
                 exitCode: 0
             },
             testWscriptVerbose: {
-                command: "cscript.exe /D /E:JScript cscript.js",
-                cwd: "test/host",
+                command: CSCRIPT_CMD,
                 stdout: true,
                 stderr: true,
                 exitCode: 0
             },
             testWscriptDebug: {
-                command: "cscript.exe /D /E:JScript cscript.js -debug",
-                cwd: "test/host",
+                command: CSCRIPT_CMD + " -debug",
                 stdout: false,
                 stderr: false,
                 exitCode: 0
             },
             testWscriptRelease: {
-                command: "cscript.exe /D /E:JScript cscript.js -release",
-                cwd: "test/host",
+                command: CSCRIPT_CMD + " -release",
                 stdout: false,
                 stderr: false,
                 exitCode: 0
