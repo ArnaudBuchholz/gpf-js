@@ -62,14 +62,17 @@ try {
 
 function save (name, version) {
     var
-        path = "tmp/" + version + "/" + name,
+        path = "../tmp/build/" + version + "/" + name,
         parsed = sources[version],
         json = parsed[name];
-    if (!fs.existsSync("tmp")) {
-        fs.mkdirSync("tmp");
+    if (!fs.existsSync("../tmp")) {
+        fs.mkdirSync("../tmp");
     }
-    if (!fs.existsSync("tmp/" + version)) {
-        fs.mkdirSync("tmp/" + version);
+    if (!fs.existsSync("../tmp/build")) {
+        fs.mkdirSync("../tmp/build");
+    }
+    if (!fs.existsSync("../tmp/build/" + version)) {
+        fs.mkdirSync("../tmp/build/" + version);
     }
     if (parsed[name + ".js"]) {
         fs.writeFileSync(path + ".js",parsed[name + ".js"]);
