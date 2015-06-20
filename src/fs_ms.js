@@ -99,17 +99,21 @@ var
 
             /**
              * @param {String} path
+             * @param {Boolean} [load=false] load load from file
              * @constructor
              */
-            constructor: function (path) {
+            constructor: function (path, load) {
                 this._path = _gpfPathDecompose(path).join("\\");
                 var stream = this._adoStream
                     = new ActiveXObject("ADODB.Stream");
-                stream.Type = 2; /*adTypeText*/
                 // https://en.wikipedia.org/wiki/Code_page_437
-                stream.CharSet = "437";
                 stream.Open();
+                if (load) {
+                    stream.LoadFromFile(this._path);
+                }
                 stream.Position = 0;
+                stream.Type = 2; /*adTypeText*/
+                stream.CharSet = "437";
                 if (256 !== _gpf437chars.length) {
                     _gpfBuild437chars();
                 }
@@ -161,17 +165,15 @@ var
              * @constructor
              */
             constructor: function (path) {
-                this._super(path);
-                var stream = this._adoStream;
-                stream.LoadFromFile(this._path);
-                stream.Position = 0;
+                this._super(path, true);
             },
 
             /**
              * @inheritdoc gpf.interfaces.IReadableStream#read
              */
             read: function (size, eventsHandler) {
-                var buffer = this._adoStream.Read(size);
+                debugger;
+                var buffer = this._adoStream.ReadText();
                 if (null === buffer) {
                     _gpfEventsFire.apply(this, [_GPF_EVENT_END_OF_DATA, {},
                         eventsHandler]);
