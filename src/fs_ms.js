@@ -172,8 +172,8 @@ var
              * @inheritdoc gpf.interfaces.IReadableStream#read
              */
             read: function (size, eventsHandler) {
-                debugger;
                 var buffer = this._adoStream.ReadText();
+                _gpfIgnore(size);
                 if (null === buffer) {
                     _gpfEventsFire.apply(this, [_GPF_EVENT_END_OF_DATA, {},
                         eventsHandler]);
