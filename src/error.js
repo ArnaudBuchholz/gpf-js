@@ -122,5 +122,7 @@ _gpfErrorDeclare("boot", {
     Abstract:
         "Abstract",
     AssertionFailed:
-        "Assertion failed: {message}"
+        "Assertion failed: {message}",
+    InvalidParameter:
+        "Invalid parameter"
 });
