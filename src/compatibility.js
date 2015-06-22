@@ -15,7 +15,7 @@ var
 
     /**
      * Shortcut on gpf.setReadOnlyProperty
-     * @inheritdoc gpf#setReadOnlyProperty
+     * @inheritdoc gpf:setReadOnlyProperty
      */
      _gpfSetReadOnlyProperty;
 

@@ -96,7 +96,7 @@ _gpfDefAttr("$ClassIArray", _gpfA.ClassAttribute, {
     protected: {
 
         /**
-         * @inheritDoc gpf.attributes.Attribute:_alterPrototype
+         * @inheritdoc gpf.attributes.Attribute:_alterPrototype
          */
         _alterPrototype: function (objPrototype) {
             var

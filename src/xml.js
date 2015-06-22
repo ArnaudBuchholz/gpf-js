@@ -327,7 +327,7 @@ var
     _otherValidChars = _firstValidChar + "012345789.-",
 
     /**
-     * @inheritdoc gpf.xml#isValidName
+     * @inheritdoc gpf.xml:isValidName
      * Implementation of gpf.xml.isValidName
      * @private
      */

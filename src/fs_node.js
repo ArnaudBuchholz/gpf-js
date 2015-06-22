@@ -51,7 +51,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
         //region IFileStorage
 
         /**
-         * @inheritdoc IFileStorage#getInfo
+         * @inheritdoc IFileStorage:getInfo
          */
         getInfo: function (path, eventsHandler) {
             _gpfNodeFs.exists(path, function (exists) {
@@ -99,7 +99,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
         },
 
         /**
-         * @inheritdoc IFileStorage#readAsBinaryStream
+         * @inheritdoc IFileStorage:readAsBinaryStream
          */
         readAsBinaryStream: function (path, eventsHandler) {
             // TODO handle error
@@ -114,7 +114,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
         },
 
         /**
-         * @inheritdoc IFileStorage#writeAsBinaryStream
+         * @inheritdoc IFileStorage:writeAsBinaryStream
          */
         writeAsBinaryStream: function (path, eventsHandler) {
             // TODO handle error
@@ -129,15 +129,16 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
         },
 
         /**
-         * @inheritdoc IFileStorage#close
+         * @inheritdoc IFileStorage:close
          */
         close: function (stream) {
+
             _gpfIgnore(stream);
             // TODO not sure what I should do with it...
         },
 
         /**
-         * @inheritdoc IFileStorage#explore
+         * @inheritdoc IFileStorage:explore
          */
         explore: function (path, eventsHandler) {
             _gpfIgnore(path);
@@ -146,7 +147,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
         },
 
         /**
-         * @inheritdoc IFileStorage#createFolder
+         * @inheritdoc IFileStorage:createFolder
          */
         createFolder: function (path, eventsHandler) {
             _gpfIgnore(path);
@@ -154,7 +155,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
         },
 
         /**
-         * @inheritdoc IFileStorage#deleteFile
+         * @inheritdoc IFileStorage:deleteFile
          */
         deleteFile: function (path, eventsHandler) {
             _gpfIgnore(path);
@@ -162,7 +163,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
         },
 
         /**
-         * @inheritdoc IFileStorage#deleteFolder
+         * @inheritdoc IFileStorage:deleteFolder
          */
         deleteFolder: function (path, eventsHandler) {
             _gpfIgnore(path);

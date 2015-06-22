@@ -207,7 +207,7 @@ _gpfDefAttr("$Enumerable", _gpfA.ClassAttribute, {
     "Class": [gpf.$UniqueAttribute(), gpf.$MemberAttribute()],
 
     /**
-     * @inheritDoc gpf.attributes.Attribute:_alterPrototype
+     * @inheritdoc gpf.attributes.Attribute:_alterPrototype
      */
     _alterPrototype: function (objPrototype) {
         if (!_gpfIsArrayLike(objPrototype[this._member])) {

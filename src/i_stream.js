@@ -94,7 +94,7 @@ _gpfDefIntrf("IWritableStream", {
 _gpfDefIntrf("IStream", {
 
     /**
-     * @inheritDoc gpf.interfaces.IReadableStream:read
+     * @inheritdoc gpf.interfaces.IReadableStream:read
      */
     "[read]": [gpf.$ClassEventHandler()],
     read: function (size, eventsHandler) {
@@ -103,7 +103,7 @@ _gpfDefIntrf("IStream", {
     },
 
     /**
-     * @inheritDoc gpf.interfaces.IWritableStream:write
+     * @inheritdoc gpf.interfaces.IWritableStream:write
      */
     "[write]": [gpf.$ClassEventHandler()],
     write: function (buffer, eventsHandler) {
