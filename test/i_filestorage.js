@@ -10,7 +10,7 @@ describe("i_filestorage", function () {
                 getInfo: function (path, eventsHandler) {},
                 readAsBinaryStream: function (path, eventsHandler) {},
                 writeAsBinaryStream: function (path, eventsHandler) {},
-                close: function (stream) {},
+                close: function (stream, eventsHandler) {},
                 explore: function (path, eventsHandler) {},
                 createFolder: function (path, eventsHandler) {},
                 deleteFile: function (path, eventsHandler) {},
