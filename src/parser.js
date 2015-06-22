@@ -559,7 +559,7 @@
             public: {
 
                 /**
-                 * @inheritDoc PatternItem:parse
+                 * @inheritdoc PatternItem:parse
                  */
                 parse: function (char) {
                     this._match = char;
@@ -567,7 +567,7 @@
                 },
 
                 /**
-                 * @inheritDoc PatternItem:write
+                 * @inheritdoc PatternItem:write
                  */
                 write: function (state, char) {
                     gpf.interfaces.ignoreParameter(state);
@@ -665,7 +665,7 @@
             public: {
 
                 /**
-                 * @inheritDoc PatternItem:parse
+                 * @inheritdoc PatternItem:parse
                  */
                 parse: function (char) {
                     var
@@ -690,7 +690,7 @@
                 },
 
                 /**
-                 * @inheritDoc PatternItem:finalize
+                 * @inheritdoc PatternItem:finalize
                  */
                 finalize: function () {
                     this._inc = this._inc.join("");
@@ -700,7 +700,7 @@
                 },
 
                 /**
-                 * @inheritDoc PatternItem:write
+                 * @inheritdoc PatternItem:write
                  */
                 write: function (state, char) {
                     gpf.interfaces.ignoreParameter(state);
@@ -996,7 +996,7 @@
                 },
 
                 /**
-                 * @inheritDoc PatternItem:parse
+                 * @inheritdoc PatternItem:parse
                  */
                 parse: function (char) {
                     var
@@ -1032,7 +1032,7 @@
                 },
 
                 /**
-                 * @inheritDoc PatternItem:finalize
+                 * @inheritdoc PatternItem:finalize
                  */
                 finalize: function () {
                     var
@@ -1053,7 +1053,7 @@
                 },
 
                 /**
-                 * @inheritDoc PatternItem:reset
+                 * @inheritdoc PatternItem:reset
                  */
                 reset: function (state) {
                     var item;
@@ -1066,7 +1066,7 @@
                 },
 
                 /**
-                 * @inheritDoc PatternItem:write
+                 * @inheritdoc PatternItem:write
                  */
                 write: function (state, char) {
                     var
@@ -1118,7 +1118,7 @@
 //            public: {
 //
 ////                /**
-////                 * @inheritDoc PatternItem:next
+////                 * @inheritdoc PatternItem:next
 ////                 *
 ////                 * Overridden to 'add' the choice
 ////                 */
@@ -1156,7 +1156,7 @@
 ////                },
 //
 //                /**
-//                 * @inheritDoc PatternItem:write
+//                 * @inheritdoc PatternItem:write
 //                 */
 //                write: function (state, char) {
 //                    // Try all choices and stop on the first one that works
