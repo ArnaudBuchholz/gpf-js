@@ -69,9 +69,13 @@ _gpfDefIntrf("IFileStorage", {
      *
      * @param {gpf.interfaces.IReadableStream|
      * gpf.interfaces.IWritableStream} stream
+     * @param {gpf.events.Handler} eventsHandler
+     *
+     * @event gpf.events.EVENT_READY
      */
-    close: function (stream) {
+    close: function (stream, eventsHandler) {
         _gpfIgnore(stream);
+        _gpfIgnore(eventsHandler);
     },
 
     /**
