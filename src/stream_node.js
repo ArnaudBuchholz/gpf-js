@@ -1,24 +1,69 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfInNode*/ // The current host is a nodeJS like
-/*global _gpfI*/ // gpf.interfaces
-/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
 /*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
 /*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
 /*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*global _gpfI*/ // gpf.interfaces
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfInNode*/ // The current host is a nodeJS like
+/*exported _GpfNodeStream*/
 /*#endif*/
 
 if (_gpfInNode) {
 
     /**
+     * Base class of GPF node streams
+     */
+    var _GpfNodeStream = _gpfDefine("gpf.node.Stream", {
+
+        public: {
+
+            /**
+             * @param {Object} stream
+             * @constructor
+             */
+            constructor: function (stream) {
+                this._stream = stream;
+            },
+
+            /**
+             * Close the current stream
+             *
+             * @param {gpf.events.Handler} eventsHandler
+             *
+             * @event gpf.events.EVENT_READY
+             */
+            close: function (eventsHandler) {
+                _gpfIgnore(eventsHandler);
+                throw gpf.Error.Abstract();
+            }
+
+        },
+
+        protected: {
+
+            /**
+             * @type {Object}
+             * @private
+             */
+            _stream: null
+
+        }
+
+    });
+
+
+    /**
      * Wraps a readable stream from NodeJS into a IReadableStream
      *
      * @class gpf.stream.NodeReadable
+     * @extends {gpf.node.Stream}
      * @implements gpf.interfaces.IReadableStream
      */
-    _gpfDefine("gpf.node.ReadableStream", {
+    _gpfDefine("gpf.node.ReadableStream", _GpfNodeStream, {
 
         "[Class]": [gpf.$InterfaceImplement(_gpfI.IReadableStream)],
 
@@ -29,13 +74,24 @@ if (_gpfInNode) {
              * @constructor
              */
             constructor: function (stream) {
-                this._stream = stream;
+                this._super(stream);
                 stream.on("end", this._onEnd.bind(this));
                 stream.on("error", this._onError.bind(this));
             },
 
             /**
-             * @inheritDoc gpf.interfaces.IReadableStream:read
+             * @inheritdoc gpf.node.Stream:close
+             */
+            close: function (eventsHandler) {
+                _gpfEventsFire.apply(this, [
+                    _GPF_EVENT_READY,
+                    {},
+                    eventsHandler
+                ]);
+            },
+
+            /**
+             * @inheritdoc gpf.interfaces.IReadableStream:read
              */
             "[read]": [gpf.$ClassEventHandler()],
             read: function (size, eventsHandler) {
@@ -149,16 +205,6 @@ if (_gpfInNode) {
                 ]);
             }
 
-        },
-
-        private: {
-
-            /**
-             * @type {stream.Readable}
-             * @private
-             */
-            _stream: null
-
         }
 
     });
@@ -167,9 +213,10 @@ if (_gpfInNode) {
      * Wraps a writable stream from NodeJS into a IReadableStream
      *
      * @class gpf.stream.NodeWritable
+     * @extends {gpf.node.Stream}
      * @implements gpf.interfaces.IReadableStream
      */
-    _gpfDefine("gpf.node.WritableStream", {
+    _gpfDefine("gpf.node.WritableStream", _GpfNodeStream, {
 
         "[Class]": [gpf.$InterfaceImplement(_gpfI.IWritableStream)],
 
@@ -180,11 +227,24 @@ if (_gpfInNode) {
              * @constructor
              */
             constructor: function (stream) {
-                this._stream = stream;
+                this._super(stream);
             },
 
             /**
-             * @inheritDoc gpf.interfaces.IWritableStream:write
+             * @inheritdoc gpf.node.Stream:close
+             */
+            close: function (eventsHandler) {
+                this._stream.end(function () {
+                    _gpfEventsFire.apply(this, [
+                        _GPF_EVENT_READY,
+                        {},
+                        eventsHandler
+                    ]);
+                });
+            },
+
+            /**
+             * @inheritdoc gpf.interfaces.IWritableStream:write
              */
             "[write]": [gpf.$ClassEventHandler()],
             write: function (buffer, eventsHandler) {
@@ -192,16 +252,6 @@ if (_gpfInNode) {
                 _gpfIgnore(eventsHandler);
                 throw gpf.Error.NotImplemented();
             }
-
-        },
-
-        private: {
-
-            /**
-             * @type {stream.Writable}
-             * @private
-             */
-            _stream: null
 
         }
 
