@@ -137,6 +137,7 @@
 //region fs_ms
 //endregion
 
+/*global _GpfNodeStream*/ // gpf.stream.Node
 /*global _gpfFromXml*/ // XML deserializer
 /*global _gpfToXml*/ // XML serializer
 /*global _gpfIsValidXmlName*/ // XML name validation
