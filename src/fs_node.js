@@ -12,6 +12,8 @@
 /*global _gpfInNode*/ // The current host is a nodeJS like
 /*global _gpfNodeFs:true*/ // Node require("fs")
 /*global _gpfNodePath*/ // Node require("path")
+/*global _GpfNodeStream*/ // gpf.stream.Node
+/*global _gpfPathNormalize*/ // Normalize path
 /*#endif*/
 
 var
@@ -30,6 +32,31 @@ var
             },
             eventsHandler
         ]);
+    },
+
+    /**
+     * Generate one of the calls based on a method name
+     *
+     * @param {String} methodName
+     * @returns {Function]
+     * @closure
+     * @private
+     */
+    _gpfGenFsCall = function (methodName) {
+        return function (path, eventsHandler) {
+            path = _gpfPathNormalize(path);
+            _gpfNodeFs[methodName](path, function (err) {
+                if (err) {
+                    _gpfFireNodeError(err, eventsHandler);
+                } else {
+                    _gpfEventsFire.apply(null, [
+                        _GPF_EVENT_READY,
+                        {},
+                        eventsHandler
+                    ]);
+                }
+            });
+        };
     },
 
     /**
@@ -54,6 +81,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
          * @inheritdoc IFileStorage:getInfo
          */
         getInfo: function (path, eventsHandler) {
+            path = _gpfPathNormalize(path);
             _gpfNodeFs.exists(path, function (exists) {
                 if (exists) {
                     _gpfNodeFs.stat(path, function (err, stats) {
@@ -103,6 +131,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
          */
         readAsBinaryStream: function (path, eventsHandler) {
             // TODO handle error
+            path = _gpfPathNormalize(path);
             var nodeStream = _gpfNodeFs.createReadStream(path);
             _gpfEventsFire.apply(null, [
                 _GPF_EVENT_READY,
@@ -118,6 +147,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
          */
         writeAsBinaryStream: function (path, eventsHandler) {
             // TODO handle error
+            path = _gpfPathNormalize(path);
             var nodeStream = _gpfNodeFs.createWriteStream(path);
             _gpfEventsFire.apply(null, [
                 _GPF_EVENT_READY,
@@ -131,17 +161,19 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
         /**
          * @inheritdoc IFileStorage:close
          */
-        close: function (stream) {
-
-            _gpfIgnore(stream);
-            // TODO not sure what I should do with it...
+        close: function (stream, eventsHandler) {
+            if (stream instanceof _GpfNodeStream) {
+                stream.close(eventsHandler);
+            } else {
+                throw gpf.Error.InvalidParameter();
+            }
         },
 
         /**
          * @inheritdoc IFileStorage:explore
          */
         explore: function (path, eventsHandler) {
-            _gpfIgnore(path);
+            path = _gpfPathNormalize(path);
             _gpfIgnore(eventsHandler);
             // use _gpfNodeFs.readdir
         },
@@ -149,26 +181,17 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
         /**
          * @inheritdoc IFileStorage:createFolder
          */
-        createFolder: function (path, eventsHandler) {
-            _gpfIgnore(path);
-            _gpfIgnore(eventsHandler);
-        },
+        createFolder: _gpfGenFsCall("mkdir"),
 
         /**
          * @inheritdoc IFileStorage:deleteFile
          */
-        deleteFile: function (path, eventsHandler) {
-            _gpfIgnore(path);
-            _gpfIgnore(eventsHandler);
-        },
+        deleteFile: _gpfGenFsCall("unlink"),
 
         /**
          * @inheritdoc IFileStorage:deleteFolder
          */
-        deleteFolder: function (path, eventsHandler) {
-            _gpfIgnore(path);
-            _gpfIgnore(eventsHandler);
-        }
+        deleteFolder: _gpfGenFsCall("rmdir")
 
         //endregion
 
