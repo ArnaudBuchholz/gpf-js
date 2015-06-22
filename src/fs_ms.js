@@ -322,6 +322,8 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
         close: function (stream) {
             if (stream instanceof _gpfWScriptBinStream) {
                 stream.close();
+            } else {
+                throw gpf.Error.InvalidParameter();
             }
         },
 
