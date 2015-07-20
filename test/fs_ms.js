@@ -44,7 +44,7 @@ describe("fs_ms", function () {
                         var buffer = event.get("buffer");
                         assert(1 === buffer.length);
                         assert(0 === buffer[0]);
-                        iWScriptFs.close(rStream);
+                        iWScriptFs.close(rStream, function () {}); // ignore
                         done();
                     });
                 });
