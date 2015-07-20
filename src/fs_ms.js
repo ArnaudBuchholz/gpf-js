@@ -319,9 +319,14 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
         /**
          * @inheritdoc IFileStorage:close
          */
-        close: function (stream) {
+        close: function (stream, eventsHandler) {
             if (stream instanceof _gpfWScriptBinStream) {
                 stream.close();
+                _gpfEventsFire.apply(stream, [
+                    _GPF_EVENT_READY,
+                    {},
+                    eventsHandler
+                ]);
             } else {
                 throw gpf.Error.InvalidParameter();
             }
