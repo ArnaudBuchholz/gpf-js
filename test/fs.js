@@ -3,6 +3,10 @@
 
 describe("fs", function () {
 
+    if ("browser" === gpf.host()) {
+        return; // Nothing done yet
+    }
+
     describe("gpf.fs.host", function () {
 
         var
