@@ -37,7 +37,8 @@
             if (expectedName !== name
                 || expectedText !== text) {
                 throw {
-                    message: "Unexpected use of console." + name
+                    message: "Unexpected use of console." + name,
+                    text: text
                 };
             }
             if (expectedOutput) {

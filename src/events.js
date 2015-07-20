@@ -86,7 +86,6 @@ var
         var scope = event.scope,
             eventHandler;
         gpf.ASSERT(eventsHandler, "Expected eventsHandler");
-
         if ("function" === typeof eventsHandler._dispatchEvent) {
             // Event dispatcher expected interface
             eventsHandler._dispatchEvent(event);
