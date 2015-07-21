@@ -9,9 +9,9 @@
 /*global _gpfArrayEnumerator*/ // Create an IEnumerator from an array
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*global _gpfExtend*/ // gpf.extend
 /*global _gpfHost*/ // Host type
 /*global _gpfI*/ // gpf.interfaces
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfMsFSO:true*/ // Scripting.FileSystemObject activeX
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*global _gpfPathNormalize*/ // Normalize path
@@ -42,6 +42,8 @@ var
             modifiedDateTime: fsoObj.DateLastModified
         };
     },
+
+    //region Write stream
 
     /**
      * String representing character & binary mapping
@@ -99,18 +101,14 @@ var
 
             /**
              * @param {String} path
-             * @param {Boolean} [load=false] load load from file
              * @constructor
              */
-            constructor: function (path, load) {
+            constructor: function (path) {
                 this._path = _gpfPathDecompose(path).join("\\");
                 var stream = this._adoStream
                     = new ActiveXObject("ADODB.Stream");
                 // https://en.wikipedia.org/wiki/Code_page_437
                 stream.Open();
-                if (load) {
-                    stream.LoadFromFile(this._path);
-                }
                 stream.Position = 0;
                 stream.Type = 2; /*adTypeText*/
                 stream.CharSet = "437";
@@ -147,52 +145,6 @@ var
     }),
 
     /**
-     * Binary stream reader
-     *
-     * @class {WScriptBinaryReadStream}
-     * @implements {gpf.interfaces.IReadableStream}
-     * @private
-     */
-    _gpfWScriptBinReadStream = _gpfDefine("WScriptBinaryReadStream",
-        _gpfWScriptBinStream, {
-
-        "[Class]": [gpf.$InterfaceImplement(_gpfI.IReadableStream)],
-
-        public: {
-
-            /**
-             * @param {String} path
-             * @constructor
-             */
-            constructor: function (path) {
-                this._super(path, true);
-            },
-
-            /**
-             * @inheritdoc gpf.interfaces.IReadableStream:read
-             */
-            read: function (size, eventsHandler) {
-                var buffer = this._adoStream.ReadText();
-                _gpfIgnore(size);
-                if (null === buffer) {
-                    _gpfEventsFire.apply(this, [_GPF_EVENT_END_OF_DATA, {},
-                        eventsHandler]);
-                } else {
-                    _gpfEventsFire.apply(this, [
-                        _GPF_EVENT_DATA,
-                        {
-                            buffer: buffer
-                        },
-                        eventsHandler
-                    ]);
-                }
-            }
-
-        }
-
-    }),
-
-    /**
      * Convert bytes into its code page 437 representation
      *
      * @param {Number} value
@@ -208,6 +160,7 @@ var
      *
      * @class {WScriptBinaryWriteStream}
      * @implements {gpf.interfaces.IWritableStream}
+     * @extends {WScriptBinaryStream}
      * @private
      */
     _gpfWScriptBinWriteStream = _gpfDefine("WScriptBinaryWriteStream",
@@ -238,38 +191,153 @@ var
 
         }
 
+    }),
+
+    //endregion
+    //region Read stream
+
+    /**
+     * Dictionary for text to byte conversion
+     *
+     * @type {Object}
+     * @private
+     */
+    _gpfTextBytes = null,
+
+    /**
+     * Builds the mapping of text to bytes
+     *
+     * @private
+     */
+    _gpfBuildTextBytes = function () {
+        _gpfTextBytes = {};
+        // Starts by filling up to 256 values
+        for (var idx = 0; idx < 256; ++idx) {
+            _gpfTextBytes[idx] = idx;
+        }
+        // Then add specifics
+        _gpfExtend(_gpfTextBytes, {
+            "8364": 128,
+            "8218": 130,
+            "402": 131,
+            "8222": 132,
+            "8230": 133,
+            "8224": 134,
+            "8225": 135,
+            "710": 136,
+            "8240": 137,
+            "352": 138,
+            "8249": 139,
+            "338": 140,
+            "381": 142,
+            "8216": 145,
+            "8217": 146,
+            "8220": 147,
+            "8221": 148,
+            "8226": 149,
+            "8211": 150,
+            "8212": 151,
+            "732": 152,
+            "8482": 153,
+            "353": 154,
+            "8250": 155,
+            "339": 156,
+            "382": 158,
+            "376": 159
+        });
+    },
+    /**
+     * Binary stream reader
+     *
+     * @class {WScriptBinaryReadStream}
+     * @implements {gpf.interfaces.IWritableStream}
+     * @private
+     */
+    _gpfWScriptBinReadStream = _gpfDefine("WScriptBinaryReadStream", {
+
+        "[Class]": [gpf.$InterfaceImplement(_gpfI.IReadableStream)],
+
+        public: {
+
+            /**
+             * @param {String} path
+             * @constructor
+             */
+            constructor: function (path) {
+                gpf.ASSERT(null !== _gpfMsFSO, "Allocated FSO object expected");
+                var file = _gpfMsFSO.getFile(path);
+                this._size = file.size;
+                this._stream =  file.openAsTextStream();
+                if (null === _gpfTextBytes) {
+                    _gpfBuildTextBytes();
+                }
+            },
+
+            /**
+             * @inheritdoc gpf.interfaces.IReadableStream:read
+             */
+            read: function (size, eventsHandler) {
+                if (this._pos + size > this._size) {
+                    size = this._size - this._pos;
+                }
+                if (0 === size) {
+                    _gpfEventsFire.apply(this, [_GPF_EVENT_END_OF_DATA, {},
+                        eventsHandler]);
+                    return;
+                }
+                var textBuffer = this._stream.read(size),
+                    buffer = [],
+                    len = textBuffer.length,
+                    idx;
+                this._pos += len; // If less has been read
+                for (idx = 0; idx < len; ++idx) {
+                    buffer.push(_gpfTextBytes[textBuffer.charCodeAt(idx)]);
+                }
+                _gpfEventsFire.apply(this, [
+                    _GPF_EVENT_DATA,
+                    {
+                        buffer: buffer
+                    },
+                    eventsHandler
+                ]);
+            },
+
+            /**
+             * Close the stream
+             */
+            close: function () {
+                this._stream.close();
+            }
+
+        },
+
+        private: {
+
+            /**
+             * Size of the file
+             *
+             * @type {Number}
+             */
+            _size: 0,
+
+            /**
+             * Current position in the file
+             *
+             * @type {Number}
+             */
+            _pos: 0,
+
+            /**
+             * FSO 'Text' stream
+             *
+             * @type {Object}
+             */
+            _stream: null
+        }
+
     });
 
-    /*
-     * TODO will use TextStream, need only some mappings with it:
-     * 8364: 128
-     * 8218: 130
-     * 402: 131
-     * 8222: 132
-     * 8230: 133
-     * 8224: 134
-     * 8225: 135
-     * 710: 136
-     * 8240: 137
-     * 352: 138
-     * 8249: 139
-     * 338: 140
-     * 381: 142
-     * 8216: 145
-     * 8217: 146
-     * 8220: 147
-     * 8221: 148
-     * 8226: 149
-     * 8211: 150
-     * 8212: 151
-     * 732: 152
-     * 8482: 153
-     * 353: 154
-     * 8250: 155
-     * 339: 156
-     * 382: 158
-     * 376: 159
-     */
+    //endregion
 
 _gpfDefine("gpf.fs.WScriptFileStorage", {
 
@@ -351,7 +419,8 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
          * @inheritdoc IFileStorage:close
          */
         close: function (stream, eventsHandler) {
-            if (stream instanceof _gpfWScriptBinStream) {
+            if (stream instanceof _gpfWScriptBinStream
+                || stream instanceof _gpfWScriptBinReadStream) {
                 stream.close();
                 _gpfEventsFire.apply(stream, [
                     _GPF_EVENT_READY,
