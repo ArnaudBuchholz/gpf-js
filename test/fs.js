@@ -108,6 +108,47 @@ describe("fs", function () {
 
         });
 
+        function _close(stream) {
+            iFs.close(stream, function () {}); // ignore
+        }
+
+        describe("readAsBinaryStream", function () {
+
+            it("reads binary files", function (done) {
+                iFs.readAsBinaryStream("test/data/file.bin", function (event) {
+                    assert(gpf.events.EVENT_READY === event.type);
+                    var rStream = event.get("stream");
+                    rStream.read(1, function (event) {
+                        assert(gpf.events.EVENT_DATA === event.type);
+                        var buffer = event.get("buffer");
+                        assert(1 === buffer.length);
+                        assert(0 === buffer[0]);
+                        _close(rStream);
+                        done();
+                    });
+                });
+            });
+
+        });
+
+        describe("writeAsBinaryStream", function () {
+
+            it("writes binary files", function (done) {
+                iFs.writeAsBinaryStream("tmp/test/fs_" + gpf.host() + ".bin",
+                    function (event) {
+                        assert(gpf.events.EVENT_READY === event.type);
+                        var wStream = event.get("stream");
+                        wStream.write([0, 34, 75, 0, 128, 255],
+                            function (event) {
+                                assert(gpf.events.EVENT_READY === event.type);
+                                _close(wStream);
+                                done();
+                            });
+                    });
+            });
+
+        });
+
     });
 
 });
