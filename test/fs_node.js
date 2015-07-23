@@ -23,6 +23,8 @@ describe("fs_node", function () {
 
     });
 
+    // Interface is tested through fs.js
+
 });
 
 
@@ -31,15 +33,6 @@ describe("fs_node", function () {
 
             "NodeJS": [
 
-                function (test) {
-                    test.title("Get file info");
-                    test.wait();
-                    gpf.fs.getInfo("../fs.js", function (event) {
-                        test.equal(event.type(), "ready", "getInfo");
-                        var info = event.get("info");
-                        test.assert(info, "Info provided");
-                        test.equal(info.type, gpf.fs.TYPE_FILE, "File type");
-                        test.done();
                     });
                 },
 

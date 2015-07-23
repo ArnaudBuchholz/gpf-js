@@ -15,4 +15,14 @@ describe("fs_ms", function () {
         iWScriptFs = new gpf.fs.WScriptFileStorage();
     });
 
+    describe("gpf.fs.WScriptFileStorage", function () {
+
+        it("implements IFileStorage", function () {
+            assert(gpfI.isImplementedBy(iWScriptFs, gpfI.IFileStorage));
+        });
+
+    });
+
+    // Interface is tested through fs.js
+
 });
