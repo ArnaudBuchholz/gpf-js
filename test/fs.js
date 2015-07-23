@@ -28,11 +28,11 @@ describe("fs", function () {
 
     describe("Data generator", function () {
 
-        it("generates file.bin", function (done) {
+        it("file.bin", function (done) {
             var fs = gpf.fs.host();
             fs.getInfo("test/data/file.bin", function (event) {
                 if (event.type === gpf.events.EVENT_READY
-                    && event.get("type") === gpf.fs.TYPE_FILE
+                    && event.get("info").type === gpf.fs.TYPE_FILE
                    ) {
                     done(); // Already exists
                     return;
