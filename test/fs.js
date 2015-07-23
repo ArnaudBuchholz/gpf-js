@@ -3,8 +3,8 @@
 
 describe("fs", function () {
 
-    if ("browser" === gpf.host()) {
-        return; // Nothing done yet
+    if (null === gpf.fs.host()) {
+        return; // No host
     }
 
     describe("gpf.fs.host", function () {
@@ -44,7 +44,7 @@ describe("fs", function () {
                 function loop(event) {
                     assert(!event || gpf.events.EVENT_READY === event.type);
                     if (256 === count) {
-                        fs.close(wStream);
+                        fs.close(wStream, function () {});
                         done();
                     }
                     wStream.write([count++], loop);
