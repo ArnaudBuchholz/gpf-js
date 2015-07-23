@@ -38,8 +38,8 @@ var
             fileName: fsoObj.Name.toLowerCase(),
             filePath: _gpfPathNormalize(fsoObj.Path),
             size: fsoObj.Size,
-            createdDateTime: fsoObj.DateCreated,
-            modifiedDateTime: fsoObj.DateLastModified
+            createdDateTime: new Date(fsoObj.DateCreated),
+            modifiedDateTime: new Date(fsoObj.DateLastModified)
         };
     },
 
