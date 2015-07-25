@@ -183,6 +183,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
                  * Need to build an enumerator that goes through the list of
                  * files and use getInfo on each of them
                  */
+                _gpfIgnore(files);
                 _gpfFireNodeError(gpf.Error.NotImplemented(), eventsHandler);
             });
         },
