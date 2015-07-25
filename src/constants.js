@@ -131,6 +131,7 @@
 //region i_filestorage
 //endregion
 //region fs
+/*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
 //endregion
 //region fs_node
 //endregion
