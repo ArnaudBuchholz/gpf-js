@@ -11,6 +11,7 @@
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfI*/ // gpf.interfaces
 /*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
+/*exported _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
 /*#endif*/
 
 _gpfErrorDeclare("fs", {
@@ -19,6 +20,58 @@ _gpfErrorDeclare("fs", {
     "ClassInvalidVisibility":
         "Invalid visibility keyword"
 });
+
+/**
+ * Automate the use of getInfo on a path array to implement IFileStorage.explore
+ *
+ * @param {gpf.interfaces.IFileStorage) iFileStorage
+ * @param {String[]} listOfPaths
+ * @returns {gpf.interfaces.IEnumerator)
+ * @private
+ */
+function _gpfFsExploreEnumerator (iFileStorage, listOfPaths) {
+    var pos = 0,
+        info;
+    // Secure the array by creating a copy
+    listOfPaths = [].concat(listOfPaths);
+    return {
+        reset: function () {
+            pos = -1;
+        },
+        moveNext: function (eventsHandler) {
+            ++pos;
+            info = undefined;
+            if (eventsHandler) {
+                if (pos < listOfPaths.length) {
+                    iFileStorage.getInfo(listOfPaths[pos], function (event) {
+                        if (_GPF_EVENT_ERROR === event.type) {
+//                            _gpfEventsFire.apply(this, [event,
+
+                        }
+                        info = event.get("info");
+                        _gpfEventsFire.apply(this, [
+                            _GPF_EVENT_DATA,
+                            {},
+                            eventsHandler
+                        ]);
+                    });
+                } else {
+                    _gpfEventsFire.apply(this, [
+                        _GPF_EVENT_END_OF_DATA,
+                        {},
+                        eventsHandler
+                    ]);
+                }
+            }
+            return false;
+        },
+        current: function () {
+            return info;
+        }
+    };
+}
+
+//endregion
 
 gpf.fs = {
 
