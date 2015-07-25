@@ -8,7 +8,7 @@
 /*global _GPF_FS_TYPE_UNKNOWN*/ // _GPF_FS_TYPE_UNKNOWN
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
 /*global _gpfInNode*/ // The current host is a nodeJS like
 /*global _gpfNodeFs:true*/ // Node require("fs")
 /*global _gpfNodePath*/ // Node require("path")
@@ -179,12 +179,13 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
                     _gpfFireNodeError(err, eventsHandler);
                     return;
                 }
-                /**
-                 * Need to build an enumerator that goes through the list of
-                 * files and use getInfo on each of them
-                 */
-                _gpfIgnore(files);
-                _gpfFireNodeError(gpf.Error.NotImplemented(), eventsHandler);
+                _gpfEventsFire.apply(null, [
+                    _GPF_EVENT_READY,
+                    {
+                        enumerator: _gpfFsExploreEnumerator(this, files)
+                    },
+                    eventsHandler
+                ]);
             });
         },
 
