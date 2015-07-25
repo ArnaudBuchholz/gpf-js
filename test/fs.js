@@ -149,6 +149,28 @@ describe("fs", function () {
 
         });
 
+        describe("explore", function () {
+
+            it("fails on a file", function (done) {
+                iFs.explore("src/fs.js", function (event) {
+                    assert(gpf.events.EVENT_ERROR === event.type);
+                    done();
+                });
+            });
+
+            it("gets an IEnumerator on a folder", function (done) {
+                iFs.explore("src", function (event) {
+                    assert(gpf.events.EVENT_READY === event.type);
+                    var enumerator = event.get("enumerator");
+                    assert(null !== enumerator);
+                    assert(gpf.interfaces.isImplementedBy(enumerator,
+                        gpf.interfaces.IEnumerator));
+                    done();
+                });
+            });
+
+        });
+
     });
 
 });
