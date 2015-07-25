@@ -174,8 +174,17 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
          */
         explore: function (path, eventsHandler) {
             path = _gpfPathNormalize(path);
-            _gpfIgnore(eventsHandler);
-            // use _gpfNodeFs.readdir
+            _gpfNodeFs.readdir(path, function (err, files) {
+                if (err) {
+                    _gpfFireNodeError(err, eventsHandler);
+                    return;
+                }
+                /**
+                 * Need to build an enumerator that goes through the list of
+                 * files and use getInfo on each of them
+                 */
+                _gpfFireNodeError(gpf.Error.NotImplemented(), eventsHandler);
+            });
         },
 
         /**
