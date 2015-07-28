@@ -111,9 +111,9 @@ var
     /**
      * gpf.events.fire implementation
      *
-     * @param {String/gpf.events.Event} event string or event object to fire
-     * @param {Object} [params={}] params parameter of the event
-     *                 (when type is a string)
+     * @param {String/gpf.events.Event} event event name or event object to fire
+     * @param {Object} params dictionary of parameters for the event object
+     * creation, they are ignored if an event object is specified
      * @param {gpf.events.Handler} eventsHandler
      * @return {gpf.events.Event} the event object
      */
