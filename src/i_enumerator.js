@@ -50,6 +50,7 @@ _gpfDefIntrf("IEnumerator", {
      *
      * @event gpf.events.EVENT_DATA
      * The asynchronous operation succeeded, the current item is available
+     * through the current method
      *
      * @event gpf.events.EVENT_END_OF_DATA
      * No more data is available
