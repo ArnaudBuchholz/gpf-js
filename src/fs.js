@@ -45,8 +45,13 @@ function _gpfFsExploreEnumerator (iFileStorage, listOfPaths) {
                 if (pos < listOfPaths.length) {
                     iFileStorage.getInfo(listOfPaths[pos], function (event) {
                         if (_GPF_EVENT_ERROR === event.type) {
-//                            _gpfEventsFire.apply(this, [event,
-
+                            // forward the event
+                            _gpfEventsFire.apply(this, [
+                                event,
+                                {},
+                                eventsHandler
+                            ]);
+                            return;
                         }
                         info = event.get("info");
                         _gpfEventsFire.apply(this, [
