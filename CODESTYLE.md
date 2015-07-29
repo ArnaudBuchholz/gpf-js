@@ -2,25 +2,104 @@
 
 ## Source structure
 
-### Internal variable names
+### Source
 
-Because there are many way to load the sources, all internal variables of the library are prefixed by:
+All sources start with:
 
-* **_gpf** for variables (including functions)
+```javascript
+/*#ifndef(UMD)*/
+"use strict";
+/*global 'IMPORTED' VARIABLE OR FUNCTIONS*/
+/*exported 'EXPORTED' VARIABLE OR FUNCTIONS*/
+/*#endif*/
+```
+
+Consequently, [strict mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode) is applied
+everywhere.
+
+Globals and exported are written to make sure that JSHint can relate to:
+
+* Variables or functions that are declared in a different source
+* Variables or functions that are being declared without being used in this source
+
+They are sorted alphabetically.
+
+ A list of available *global* variables is consolidated in the **constants** source, it is organized like the following:
+
+```javascript
+//region compatibility
+/*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
+/*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
+//endregion
+```
+
+where the region provides the source name.
+
+## Coding style
+
+### Naming conventions
+
+Identifiers are using [lowerCamelCase](https://en.wikipedia.org/wiki/CamelCase) naming convention except for constants
+that are uppercase.
+
+Because there are many way to load the sources and, in particular, one evaluates everything in the global context,
+all internal variables of the library are prefixed by:
+
+* **_gpf** for variables and functions
 * **_Gpf** for classes
+* **_GPF_** for constants
 
 ### Functions
 
-Functions are documented using [jsduck](https://github.com/senchalabs/jsduck) tags.
+Functions that are used outside of the source are documented using [jsduck](https://github.com/senchalabs/jsduck) tags.
+
 In particular:
+
 * @param
 * @returns
 * @property
+* @inheritdoc <namespace/class>:<method>
 
 And those extensions
 * @this
+* @chainable
 
-### Documentation
+For global methods: *@private* means it remains internal to the library, *@public* means it is exposed.
+
+variables are all declared at the beginning of the functions.
+
+### Forbidden syntaxes
+
+The use of the [conditional ternary operator]
+(https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Conditional_Operator) is prohibited.
+
+The following keywords are prohibited:
+
+* with
+* switch
+
+### Particular syntaxes
+
+Variable initialisation:
+the following syntax
+
+```javascript
+function sample (fromIndex) {
+    var index = fromIndex || 0;
+}
+```javascript
+
+
+is sometimes used to reduce the following:
+
+```javascript
+function sample (fromIndex) {
+    var index;
+    if (undefined === fromIndex) {
+        fromIndex = 0;
+    }
+}
+```
 
 ## JShint validations
 
