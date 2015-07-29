@@ -80,7 +80,7 @@ if (_gpfInNode) {
             },
 
             /**
-             * @inheritdoc gpf.node.Stream:close
+             * @inheritdoc gpf.node.Stream#close
              */
             close: function (eventsHandler) {
                 _gpfEventsFire.apply(this, [
@@ -91,7 +91,7 @@ if (_gpfInNode) {
             },
 
             /**
-             * @inheritdoc gpf.interfaces.IReadableStream:read
+             * @inheritdoc gpf.interfaces.IReadableStream#read
              */
             "[read]": [gpf.$ClassEventHandler()],
             read: function (size, eventsHandler) {
@@ -231,7 +231,7 @@ if (_gpfInNode) {
             },
 
             /**
-             * @inheritdoc gpf.node.Stream:close
+             * @inheritdoc gpf.node.Stream#close
              */
             close: function (eventsHandler) {
                 this._stream.end(function () {
@@ -244,7 +244,7 @@ if (_gpfInNode) {
             },
 
             /**
-             * @inheritdoc gpf.interfaces.IWritableStream:write
+             * @inheritdoc gpf.interfaces.IWritableStream#write
              */
             "[write]": [gpf.$ClassEventHandler()],
             write: function (buffer, eventsHandler) {

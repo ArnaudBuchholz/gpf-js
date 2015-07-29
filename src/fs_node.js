@@ -38,7 +38,7 @@ var
      * Generate one of the calls based on a method name
      *
      * @param {String} methodName
-     * @returns {Function]
+     * @return {Function]
      * @closure
      * @private
      */
@@ -78,7 +78,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
         //region IFileStorage
 
         /**
-         * @inheritdoc IFileStorage:getInfo
+         * @inheritdoc IFileStorage#getInfo
          */
         getInfo: function (path, eventsHandler) {
             path = _gpfPathNormalize(path);
@@ -127,7 +127,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
         },
 
         /**
-         * @inheritdoc IFileStorage:readAsBinaryStream
+         * @inheritdoc IFileStorage#readAsBinaryStream
          */
         readAsBinaryStream: function (path, eventsHandler) {
             // TODO handle error
@@ -143,7 +143,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
         },
 
         /**
-         * @inheritdoc IFileStorage:writeAsBinaryStream
+         * @inheritdoc IFileStorage#writeAsBinaryStream
          */
         writeAsBinaryStream: function (path, eventsHandler) {
             // TODO handle error
@@ -159,7 +159,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
         },
 
         /**
-         * @inheritdoc IFileStorage:close
+         * @inheritdoc IFileStorage#close
          */
         close: function (stream, eventsHandler) {
             if (stream instanceof _GpfNodeStream) {
@@ -170,7 +170,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
         },
 
         /**
-         * @inheritdoc IFileStorage:explore
+         * @inheritdoc IFileStorage#explore
          */
         explore: function (path, eventsHandler) {
             path = _gpfPathNormalize(path);
@@ -190,17 +190,17 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
         },
 
         /**
-         * @inheritdoc IFileStorage:createFolder
+         * @inheritdoc IFileStorage#createFolder
          */
         createFolder: _gpfGenFsCall("mkdir"),
 
         /**
-         * @inheritdoc IFileStorage:deleteFile
+         * @inheritdoc IFileStorage#deleteFile
          */
         deleteFile: _gpfGenFsCall("unlink"),
 
         /**
-         * @inheritdoc IFileStorage:deleteFolder
+         * @inheritdoc IFileStorage#deleteFolder
          */
         deleteFolder: _gpfGenFsCall("rmdir")
 

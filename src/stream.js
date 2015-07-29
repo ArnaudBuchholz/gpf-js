@@ -193,7 +193,7 @@ _gpfDefine("gpf.stream.BufferedOnRead", {
          * between string and byte array.
          *
          * @param {Number} size
-         * @returns {String|Array}
+         * @return {String|Array}
          * @protected
          */
         _readFromBuffer: function (size) {
@@ -209,7 +209,7 @@ _gpfDefine("gpf.stream.BufferedOnRead", {
          * Read string buffer.
          *
          * @param {Number} size
-         * @returns {String}
+         * @return {String}
          * @protected
          */
         _readFromStringBuffer: function (size) {
@@ -224,7 +224,7 @@ _gpfDefine("gpf.stream.BufferedOnRead", {
          * Read byte buffer.
          *
          * @param {Number} size
-         * @returns {Array}
+         * @return {Array}
          * @protected
          */
         _readFromByteBuffer: function (size) {

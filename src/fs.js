@@ -26,7 +26,7 @@ _gpfErrorDeclare("fs", {
  *
  * @param {gpf.interfaces.IFileStorage) iFileStorage
  * @param {String[]} listOfPaths
- * @returns {gpf.interfaces.IEnumerator)
+ * @return {gpf.interfaces.IEnumerator)
  * @private
  */
 function _gpfFsExploreEnumerator (iFileStorage, listOfPaths) {
@@ -83,7 +83,7 @@ gpf.fs = {
     /**
      * Get host file storage handler
      *
-     * @returns {gpf.interfaces.IFileStorage}
+     * @return {gpf.interfaces.IFileStorage}
      */
     host: function () {
         return null;

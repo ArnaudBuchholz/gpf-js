@@ -227,7 +227,7 @@ _gpfDefine("gpf.attributes.Array", {
         },
 
         /**
-         * @inheritdoc gpf.interfaces.IReadOnlyArray:getItemsCount
+         * @inheritdoc gpf.interfaces.IReadOnlyArray#getItem
          *
          * NOTE: this implementation will be replaced with the one coming
          * from IReadOnlyArray (once i_array.js is loaded)
@@ -237,7 +237,7 @@ _gpfDefine("gpf.attributes.Array", {
         },
 
         /**
-         * @inheritdoc gpf.interfaces.IReadOnlyArray:getItem
+         * @inheritdoc gpf.interfaces.IReadOnlyArray#getItem
          *
          * NOTE: this implementation will be replaced with the one coming
          * from IReadOnlyArray (once i_array.js is loaded)

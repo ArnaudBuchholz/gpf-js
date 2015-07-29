@@ -559,7 +559,7 @@
             public: {
 
                 /**
-                 * @inheritdoc PatternItem:parse
+                 * @inheritdoc PatternItem#parse
                  */
                 parse: function (char) {
                     this._match = char;
@@ -567,7 +567,7 @@
                 },
 
                 /**
-                 * @inheritdoc PatternItem:write
+                 * @inheritdoc PatternItem#write
                  */
                 write: function (state, char) {
                     gpf.interfaces.ignoreParameter(state);
@@ -665,7 +665,7 @@
             public: {
 
                 /**
-                 * @inheritdoc PatternItem:parse
+                 * @inheritdoc PatternItem#parse
                  */
                 parse: function (char) {
                     var
@@ -690,7 +690,7 @@
                 },
 
                 /**
-                 * @inheritdoc PatternItem:finalize
+                 * @inheritdoc PatternItem#finalize
                  */
                 finalize: function () {
                     this._inc = this._inc.join("");
@@ -700,7 +700,7 @@
                 },
 
                 /**
-                 * @inheritdoc PatternItem:write
+                 * @inheritdoc PatternItem#write
                  */
                 write: function (state, char) {
                     gpf.interfaces.ignoreParameter(state);
@@ -827,7 +827,7 @@
                  * Process current item
                  *
                  * @param {String} char
-                 * @returns {Number}
+                 * @return {Number}
                  * @private
                  */
                 _parseItem: function (char) {
@@ -854,7 +854,7 @@
                  * Process quantification char
                  *
                  * @param {String} char
-                 * @returns {Number}
+                 * @return {Number}
                  * @private
                  */
                 _parseQuantity: function (char) {
@@ -996,7 +996,7 @@
                 },
 
                 /**
-                 * @inheritdoc PatternItem:parse
+                 * @inheritdoc PatternItem#parse
                  */
                 parse: function (char) {
                     var
@@ -1032,7 +1032,7 @@
                 },
 
                 /**
-                 * @inheritdoc PatternItem:finalize
+                 * @inheritdoc PatternItem#finalize
                  */
                 finalize: function () {
                     var
@@ -1053,7 +1053,7 @@
                 },
 
                 /**
-                 * @inheritdoc PatternItem:reset
+                 * @inheritdoc PatternItem#reset
                  */
                 reset: function (state) {
                     var item;
@@ -1066,7 +1066,7 @@
                 },
 
                 /**
-                 * @inheritdoc PatternItem:write
+                 * @inheritdoc PatternItem#write
                  */
                 write: function (state, char) {
                     var
@@ -1118,7 +1118,7 @@
 //            public: {
 //
 ////                /**
-////                 * @inheritdoc PatternItem:next
+////                 * @inheritdoc PatternItem#next
 ////                 *
 ////                 * Overridden to 'add' the choice
 ////                 */
@@ -1156,7 +1156,7 @@
 ////                },
 //
 //                /**
-//                 * @inheritdoc PatternItem:write
+//                 * @inheritdoc PatternItem#write
 //                 */
 //                write: function (state, char) {
 //                    // Try all choices and stop on the first one that works

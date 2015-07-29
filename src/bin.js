@@ -214,7 +214,7 @@ gpf.bin = {
     /**
      * Generate a random number between 0 inclusive and pow2(32) exclusive
      *
-     * @returns {Number}
+     * @return {Number}
      * Based on:
      * http://en.wikipedia.org/wiki/Random_number_generation
      * http://stackoverflow.com/questions/521295/javascript-random-seeds

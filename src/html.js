@@ -314,7 +314,7 @@
              * Handles <, > and & HTML entities
              *
              * @param {String} char
-             * @returns {boolean} The character has been processed
+             * @return {boolean} The character has been processed
              * @private
              */
             _handleEntities: function (char) {
@@ -754,7 +754,7 @@
                  * Apply selection starting from the provided object
                  *
                  * @param {Object} domObject
-                 * @returns {Object|undefined}
+                 * @return {Object|undefined}
                  * @private
                  */
                 _select: function (domObject) {

@@ -53,7 +53,7 @@ var
     },
 
     /**
-     * @inheritdoc gpf.web:include
+     * @inheritdoc gpf.web#include
      * Implementation of gpf.web.include
      *
      * Inspired from http://stackoverflow.com/questions/4845762/

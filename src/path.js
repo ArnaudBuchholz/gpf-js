@@ -10,7 +10,7 @@ var
      * If a DOS-like path is detected (use of \), it is lower-cased
      *
      * @param {String} path
-     * @returns {String[]}
+     * @return {String[]}
      * @private
      */
     _gpfPathDecompose = function (path) {
@@ -35,7 +35,7 @@ var
      * Normalize path
      *
      * @param {String} path
-     * @returns {string}
+     * @return {string}
      * @private
      */
     _gpfPathNormalize = function (path) {
@@ -46,7 +46,7 @@ var
      * Get the last name of a path
      *
      * @param {String} path
-     * @returns {String}
+     * @return {String}
      * @private
      */
     _gpfPathName = function (path) {
@@ -88,7 +88,7 @@ gpf.path = {
      * Get the parent of a path
      *
      * @param {String} path
-     * @returns {String}
+     * @return {String}
      */
     parent: function (path) {
         path = _gpfPathDecompose(path);
@@ -103,7 +103,7 @@ gpf.path = {
      * Get the last name of a path
      *
      * @param {String} path
-     * @returns {String}
+     * @return {String}
      */
     name: _gpfPathName,
 
@@ -111,7 +111,7 @@ gpf.path = {
      * Get the last name of a path without the extension
      *
      * @param {String} path
-     * @returns {String}
+     * @return {String}
      */
     nameOnly: function (path) {
         var name = _gpfPathName(path),
@@ -126,7 +126,7 @@ gpf.path = {
      * Get the extension of the last name of a path (including dot)
      *
      * @param {String} path
-     * @returns {String}
+     * @return {String}
      */
     extension: function (path) {
         var name = _gpfPathName(path),

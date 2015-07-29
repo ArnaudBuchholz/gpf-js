@@ -162,7 +162,7 @@ var
     },
 
     /**
-     * @inheritdoc gpf:extend
+     * @inheritdoc gpf#extend
      * Implementation of gpf.extend
      * @private
      */

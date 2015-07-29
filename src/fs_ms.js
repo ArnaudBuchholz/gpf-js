@@ -65,7 +65,7 @@ var
      * Convert hexadecimal character code into a character
      *
      * @param {String} hexa Hexadecimal character code
-     * @returns {String} Character
+     * @return {String} Character
      * @private
      */
     _gpfCharCodeFromHexa = function (hexa) {
@@ -148,7 +148,7 @@ var
      * Convert bytes into its code page 437 representation
      *
      * @param {Number} value
-     * @returns {String}
+     * @return {String}
      * @private
      */
     _gpfByteTo437 = function (value) {
@@ -171,7 +171,7 @@ var
         public: {
 
             /**
-             * @inheritdoc gpf.interfaces.IWritableStream:write
+             * @inheritdoc gpf.interfaces.IWritableStream#write
              */
             write: function (buffer, eventsHandler) {
                 var buffer437 = buffer.map(_gpfByteTo437);
@@ -181,7 +181,7 @@ var
             },
 
             /**
-             * @inheritdoc WScriptBinaryStream:close
+             * @inheritdoc WScriptBinaryStream#close
              */
             close: function () {
                 this._adoStream.SaveToFile(this._path,
@@ -274,7 +274,7 @@ var
             },
 
             /**
-             * @inheritdoc gpf.interfaces.IReadableStream:read
+             * @inheritdoc gpf.interfaces.IReadableStream#read
              */
             read: function (size, eventsHandler) {
                 if (this._pos + size > this._size) {
@@ -352,7 +352,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
         //region IFileStorage
 
         /**
-         * @inheritdoc IFileStorage:getInfo
+         * @inheritdoc IFileStorage#getInfo
          */
         getInfo: function (path, eventsHandler) {
             path = _gpfPathDecompose(path).join("\\");
@@ -390,7 +390,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
         },
 
         /**
-         * @inheritdoc IFileStorage:readAsBinaryStream
+         * @inheritdoc IFileStorage#readAsBinaryStream
          */
         readAsBinaryStream: function (path, eventsHandler) {
             _gpfEventsFire.apply(null, [
@@ -403,7 +403,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
         },
 
         /**
-         * @inheritdoc IFileStorage:writeAsBinaryStream
+         * @inheritdoc IFileStorage#writeAsBinaryStream
          */
         writeAsBinaryStream: function (path, eventsHandler) {
             _gpfEventsFire.apply(null, [
@@ -416,7 +416,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
         },
 
         /**
-         * @inheritdoc IFileStorage:close
+         * @inheritdoc IFileStorage#close
          */
         close: function (stream, eventsHandler) {
             if (stream instanceof _gpfWScriptBinStream
@@ -433,7 +433,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
         },
 
         /**
-         * @inheritdoc IFileStorage:explore
+         * @inheritdoc IFileStorage#explore
          */
         explore: function (path, eventsHandler) {
             path = _gpfPathDecompose(path).join("\\");
@@ -465,7 +465,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
         },
 
         /**
-         * @inheritdoc IFileStorage:createFolder
+         * @inheritdoc IFileStorage#createFolder
          */
         createFolder: function (path, eventsHandler) {
             path = _gpfPathDecompose(path).join("\\");
@@ -474,7 +474,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
         },
 
         /**
-         * @inheritdoc IFileStorage:deleteFile
+         * @inheritdoc IFileStorage#deleteFile
          */
         deleteFile: function (path, eventsHandler) {
             path = _gpfPathDecompose(path).join("\\");
@@ -483,7 +483,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
         },
 
         /**
-         * @inheritdoc IFileStorage:deleteFolder
+         * @inheritdoc IFileStorage#deleteFolder
          */
         deleteFolder: function (path, eventsHandler) {
             path = _gpfPathDecompose(path).join("\\");

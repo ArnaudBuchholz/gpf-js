@@ -13,14 +13,14 @@ var
      * @param {Object} array array-like parameter (arguments, Array)
      * @param {Number} from
      * @param {Number} to
-     * @private
+     * @return {Array}
      */
     _gpfArraySlice = function (array, from, to) {
         return _gpfArrayPrototypeSlice.apply(array, [from, to]);
     },
 
     /**
-     * If possible, defines a constant (i.e. read-only property)
+     * If possible, defines a constant (i.e. read-only property) member of the object
      *
      * @param {Object} object
      * @param {Object} propertyDefinition dictionary defining the property, containing
@@ -29,7 +29,6 @@ var
      * - {Boolean} [hidden=false] hidden
      * @return {Object}
      * @chainable
-     * @private
      */
      _gpfSetConstant;
 
@@ -126,7 +125,8 @@ if ((function () {
             var functionSource = Object.prototype.toString.apply(this),
                 functionKeywordPos = functionSource.indexOf("function"),
                 parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
-            return functionSource.substr(functionKeywordPos + 9, parameterListStartPos - functionKeywordPos - 9)
+            return functionSource
+                    .substr(functionKeywordPos + 9, parameterListStartPos - functionKeywordPos - 9)
                     .replace(comments, "") // remove comments
                     .trim();
         };

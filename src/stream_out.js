@@ -27,7 +27,7 @@ _gpfDefine("gpf.stream.Out", {
         },
 
         /**
-         * @inheritdoc gpf.interfaces.IWritableStream:write
+         * @inheritdoc gpf.interfaces.IWritableStream#write
          */
         write: function (buffer, eventsHandler) {
             // TODO: do we allow mixin strings & buffer
@@ -51,7 +51,7 @@ _gpfDefine("gpf.stream.Out", {
         _buffer: [],
 
         /**
-         * @inheritdoc gpf.interfaces.IWritableStream:write
+         * @inheritdoc gpf.interfaces.IWritableStream#write
          *
          * String version
          *
@@ -103,7 +103,7 @@ _gpfDefine("gpf.stream.Out", {
         },
 
         /**
-         * @inheritdoc gpf.interfaces.IWritableStream:write
+         * @inheritdoc gpf.interfaces.IWritableStream#write
          *
          * String version
          *

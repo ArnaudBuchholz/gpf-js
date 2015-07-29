@@ -161,7 +161,7 @@ var
     },
 
     /**
-     * @inheritdoc gpf.csv:parse
+     * @inheritdoc gpf.csv#parse
      * @private
      */
     _gpfCsvParse = function (content, options) {

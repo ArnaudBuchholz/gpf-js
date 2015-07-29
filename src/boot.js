@@ -245,7 +245,7 @@ if (_gpfContext.gpf) {
 /**
  * Relinquish control of the gpf variable.
  *
- * @returns {Object} current GPF instance
+ * @return {Object} current GPF instance
  */
 gpf.noConflict = function () {
     if (undefined !== _gpfConflictingSymbol) {
