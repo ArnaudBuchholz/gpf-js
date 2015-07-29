@@ -37,6 +37,19 @@ where the region provides the source name.
 
 ## Coding style
 
+### Formatting
+
+The project comes with an [.editorconfig file](http://editorconfig.org/).
+
+All files are using UTF-8 encoding with DOS-like carriage return.
+
+The maximum line length has recently been changed from 80 to 120.
+When breaking a line, the following principles are applied:
+
+```javascript
+functionCall("long parameter one", "long parameter two
+```
+
 ### Naming conventions
 
 Identifiers are using [lowerCamelCase](https://en.wikipedia.org/wiki/CamelCase) naming convention except for constants
@@ -49,24 +62,90 @@ all internal variables of the library are prefixed by:
 * **_Gpf** for classes
 * **_GPF** for constants
 
-### Functions
+### Documentation
 
-Functions that are used outside of the source are documented using [jsduck](https://github.com/senchalabs/jsduck) tags.
+There are two levels of documentation:
+
+- Functions, classes, constants that are exposed by the library (there should not be any variable).
+  They are easily distinguished as they all belong to the gpf namespace.
+
+- Functions, classes and variables (including constants) that are exposed by any source and might be reused in a
+  different source. They do not belong to the gpf namespace (but they must start with _gpf as explained in the naming
+  convention).
+
+Any other function / class / variable that are internal to sources might not be documented (hoping they are clear
+enough).
+Within a class declaration (leveraging gpf.define), members visibility is based on public / private / protected
+modifiers.
+
+Documentation is based on [jsduck](https://github.com/senchalabs/jsduck) tags.
 
 In particular:
 
-* @param
-* @returns
-* @property
-* @inheritdoc <namespace/class>:<method>
+* [@param](https://github.com/senchalabs/jsduck/wiki/%40param)
+* [@return](https://github.com/senchalabs/jsduck/wiki/%40return)
+* [@property](https://github.com/senchalabs/jsduck/wiki/%40property)
+* [@inheritdoc](https://github.com/senchalabs/jsduck/wiki/%40inheritdoc) <namespace/class>#<method>
 
-And those extensions
-* @this
-* @chainable
+TODO add class related tags
 
-For global methods: *@private* means it remains internal to the library, *@public* means it is exposed.
+Some extensions were added
+* @this: if the scope of the function has to be clarified it provides the type and explanations
+* @chainable: whenever a method of an object returns the object
+* @closure: if the function *directly* creates a closure
 
-variables are all declared at the beginning of the functions.
+It happens sometimes that a variable might be assigned different function versions (to manage host compatibilities).
+The placeholder selected to insert documentation must make the variable path clear. For instance:
+
+A counter example (where both private & public version exist):
+
+```javascript
+
+    /**
+     * @inheritdoc gpf:extend
+     * Implementation of gpf.extend
+     */
+    _gpfExtend = function (dictionary, properties, overwriteCallback) {
+        /* ... */
+    }
+
+    _gpfExtend(gpf, {
+
+        /*
+         * Appends members of properties to the dictionary object.
+         * If a conflict has to be handled (i.e. member exists on both objects),
+         * the overwriteCallback has to handle it.
+         *
+         * @param {Object} dictionary
+         * @param {Object} properties
+         * @param {Function} overwriteCallback
+         * @return {Object} the modified dictionary
+         * @chainable
+         */
+        extend: _gpfExtend,
+
+
+```
+
+
+
+### Functions
+
+Function variables are all declared at the beginning of the function.
+If a function create closures, the @closure tag is added.
+
+### Classes
+
+GPF Library provides its own mechanism to define classes.
+To encapsulate the notion of member accessors, no public member is exposed by built-in classes.
+The convention is to create getter/setter functions which name is based on the member name:
+
+```javascript
+instance.getName() // Read the name property
+instance.setName("newValue") // Write the name property
+```
+
+*THIS MIGHT BE REVIEWED TO INCREASE CODE CLARITY
 
 ### Forbidden syntaxes
 
@@ -88,7 +167,6 @@ function sample (fromIndex) {
     var index = fromIndex || 0;
 }
 ```
-
 
 is sometimes used to reduce the following:
 
@@ -118,25 +196,8 @@ maxparams | 3 | maximum of 3 parameters per function
 maxdepth| 4 | no more than 4 nested blocks
 maxcomplexity | 6 | limits cyclomatic complexity
 
-## Formatting
+### Turning off JSHint warnings
 
-The project comes with an [.editorconfig file](http://editorconfig.org/).
+Turning off a warning is allowed provided a comment explains why this is turned off
 
-All files are using UTF-8 encoding with DOS-like carriage return.
-
-### Max line length
-
-The maximum line length has recently been changed from 80 to 120.
-When breaking a line, the following principles are applied:
-
-```javascript
-
-functionCall("long parameter one", "long parameter two
-
-```
-
-### Indentation
-
-Indeen
-
-
+## Code testing
