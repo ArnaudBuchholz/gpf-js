@@ -47,7 +47,7 @@ all internal variables of the library are prefixed by:
 
 * **_gpf** for variables and functions
 * **_Gpf** for classes
-* **_GPF_** for constants
+* **_GPF** for constants
 
 ### Functions
 
@@ -87,7 +87,7 @@ the following syntax
 function sample (fromIndex) {
     var index = fromIndex || 0;
 }
-```javascript
+```
 
 
 is sometimes used to reduce the following:
