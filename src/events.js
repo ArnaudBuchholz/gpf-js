@@ -10,7 +10,7 @@
 /*global _GPF_EVENT_STOPPED*/ // gpf.events.EVENT_STOPPED
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
-/*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
+/*global _gpfSetConstant*/ // If possible, defines a constant (i.e. read-only property)
 /*exported _gpfEventsFire*/
 /*#endif*/
 
@@ -61,8 +61,14 @@ var
      * @alias gpf.events.Event
      */
     _GpfEvent = gpf.events.Event = function (type, params, scope) {
-        gpf.setReadOnlyProperty(this, "type", type);
-        gpf.setReadOnlyProperty(this, "scope", _gpfResolveScope(scope));
+        _gpfSetConstant(this, {
+            name: "type",
+            value: type
+        });
+        _gpfSetConstant(this, {
+            name: "scope",
+            value: _gpfResolveScope(scope)
+        });
         if (undefined !== params) {
             this._params = params;
         }
@@ -158,7 +164,7 @@ var
             argIdx = thatArgs.length - 1;
         if (argIdx !== lastExpectedIdx) {
             // Need to transform the arguments
-            thatArgs = _gpfArraySlice.apply(thatArgs, [0]);
+            thatArgs = _gpfArraySlice(thatArgs, 0);
             // The last argument is *always* the eventsHandler
             thatArgs[lastExpectedIdx] = thatArgs[argIdx];
             // Then apply missing defaults

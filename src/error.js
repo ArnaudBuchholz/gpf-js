@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfSetConstant*/ // If possible, defines a constant (i.e. read-only property)
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
 /*exported _gpfErrorDeclare*/
 /*#endif*/
@@ -32,8 +33,14 @@ var
                 finalMessage,
                 replacements,
                 key;
-            gpf.setReadOnlyProperty(error, "code", code);
-            gpf.setReadOnlyProperty(error, "name", name);
+            _gpfSetConstant(error, {
+                name: "code",
+                value: code
+            });
+            _gpfSetConstant(error, {
+                name: "name",
+                value: name
+            });
             if (context) {
                 replacements = {};
                 for (key in context) {
@@ -47,12 +54,21 @@ var
             } else {
                 finalMessage = message;
             }
-            gpf.setReadOnlyProperty(error, "message", finalMessage);
+            _gpfSetConstant(error, "message", finalMessage);
             return error;
         };
-        gpf.setReadOnlyProperty(result, "CODE", code);
-        gpf.setReadOnlyProperty(result, "NAME", name);
-        gpf.setReadOnlyProperty(result, "MESSAGE", message);
+        _gpfSetConstant(result, {
+            name: "CODE",
+            value: code
+        });
+        _gpfSetConstant(result, {
+            name: "NAME",
+            value: name
+        });
+        _gpfSetConstant(result, {
+            name: "MESSAGE",
+            value: message
+        });
         return result;
     },
 

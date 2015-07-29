@@ -27,7 +27,7 @@
 //endregion
 //region compatibility
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
-/*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
+/*global _gpfSetConstant*/ // If possible, defines a constant (i.e. read-only property)
 //endregion
 //region constants
 /*global _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
