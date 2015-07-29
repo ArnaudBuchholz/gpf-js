@@ -4,6 +4,9 @@
     var
         _sources = [
             "compatibility",        // JavaScript compatibility helpers
+
+            /* new JSHint settings */
+
             "constants",            // Constants
             "events",               // Event management         gpf.events.Event
             "include",              // WEB include               gpf.web.include
