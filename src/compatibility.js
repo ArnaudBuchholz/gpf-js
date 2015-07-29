@@ -1,23 +1,37 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*exported _gpfArraySlice*/
-/*exported _gpfSetReadOnlyProperty*/
+/*exported _gpfSetConstant*/
 /*#endif*/
 
 var
-    /**
-     * Shortcut on Array.prototype.slice
-     *
-     * @type {Function}
-     * @private
-     */
-    _gpfArraySlice = Array.prototype.slice,
+    _gpfArrayPrototypeSlice = Array.prototype.slice,
 
     /**
-     * Shortcut on gpf.setReadOnlyProperty
-     * @inheritdoc gpf:setReadOnlyProperty
+     * Slice an array-like object
+     *
+     * @param {Object} array array-like parameter (arguments, Array)
+     * @param {Number} from
+     * @param {Number} to
+     * @private
      */
-     _gpfSetReadOnlyProperty;
+    _gpfArraySlice = function (array, from, to) {
+        return _gpfArrayPrototypeSlice.apply(array, [from, to]);
+    },
+
+    /**
+     * If possible, defines a constant (i.e. read-only property)
+     *
+     * @param {Object} object
+     * @param {Object} propertyDefinition dictionary defining the property, containing
+     * - {String} name
+     * - {*} value
+     * - {Boolean} [hidden=false] hidden
+     * @return {Object}
+     * @chainable
+     * @private
+     */
+     _gpfSetConstant;
 
 if (undefined === Array.prototype.every) {
 
@@ -50,18 +64,13 @@ if (undefined === Array.prototype.indexOf) {
 
     // Introduced with JavaScript 1.5
     Array.prototype.indexOf = function (searchElement, fromIndex) {
-        var idx,
-            len = this.length;
-        if (undefined !== fromIndex) {
-            idx = fromIndex;
-        } else {
-            idx = 0;
-        }
-        while (idx < len) {
-            if (this[idx] === searchElement) {
-                return idx;
+        var index = fromIndex || 0,
+            thisLength = this.length;
+        while (index < thisLength) {
+            if (this[index] === searchElement) {
+                return index;
             }
-            ++idx;
+            ++index;
         }
         return -1;
     };
@@ -72,11 +81,11 @@ if (undefined === Array.prototype.map) {
 
     // Introduced with JavaScript 1.6
     Array.prototype.map = function (callback, thisArg) {
-        var len = this.length,
-            result = new Array(len),
-            idx;
-        for (idx = 0; idx < len; ++idx) {
-            result[idx] = callback.apply(thisArg, [this[idx], idx, this]);
+        var thisLength = this.length,
+            result = new Array(thisLength),
+            index;
+        for (index = 0; index < thisLength; ++index) {
+            result[index] = callback.apply(thisArg, [this[index], index, this]);
         }
         return result;
     };
@@ -87,11 +96,11 @@ if (undefined === Function.prototype.bind) {
 
     // Introduced with JavaScript 1.8.5
     Function.prototype.bind = function (thisArg) {
-        var thisFn = this,
-            prependArgs = _gpfArraySlice.apply(arguments, [1]);
+        var thisFunction = this,
+            prependArgs = _gpfArraySlice(arguments, 1);
         return function() {
-            var args = _gpfArraySlice.apply(arguments, [0]);
-            thisFn.apply(thisArg, prependArgs.concat(args));
+            var args = _gpfArraySlice(arguments, 0);
+            thisFunction.apply(thisArg, prependArgs.concat(args));
         };
     };
 
@@ -108,14 +117,16 @@ if ((function () {
 })()) {
 
     (function () {
+
         var comments = new RegExp("//.*$|/\\*.*\\*/", "g");
+
         Function.prototype.compatibleName = function () {
             // Use simple parsing as a first step
             // TODO leverage JS parser to implement this properly
-            var src = "" + this,
-                pos = src.indexOf("function"),
-                paramList = src.indexOf("(", pos);
-            return src.substr(pos + 9, paramList - pos - 9)
+            var functionSource = Object.prototype.toString.apply(this),
+                functionKeywordPos = functionSource.indexOf("function"),
+                parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
+            return functionSource.substr(functionKeywordPos + 9, parameterListStartPos - functionKeywordPos - 9)
                     .replace(comments, "") // remove comments
                     .trim();
         };
@@ -137,36 +148,24 @@ if ((function () {
 
 if (undefined === Object.defineProperty) {
 
-    _gpfSetReadOnlyProperty = function (obj, name, value/*, hidden*/) {
-        obj[name] = value;
-        return obj;
+    _gpfSetConstant = function (object, propertyDefinition) {
+        object[name] = propertyDefinition.value;
+        return object;
     };
 
 } else {
 
-    _gpfSetReadOnlyProperty = function (obj, name, value, hidden) {
-        Object.defineProperty(obj, name, {
-            enumerable: hidden !== true,
+    _gpfSetConstant = function (object, propertyDefinition) {
+        Object.defineProperty(object, propertyDefinition.name, {
+            enumerable: propertyDefinition.hidden !== true,
             configurable: false,
             writable: false,
-            value: value
+            value: propertyDefinition.value
         });
-        return obj;
+        return object;
     };
 
 }
-
-/**
- * If possible, defines a read-only property
- *
- * @param {Object} obj
- * @param {String} name
- * @param {*} value
- * @param {Boolean} [hidden=false] hidden
- * @return {Object}
- * @chainable
- */
-gpf.setReadOnlyProperty = _gpfSetReadOnlyProperty;
 
 if (undefined === String.prototype.trim) {
 
