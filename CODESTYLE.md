@@ -83,14 +83,21 @@ Documentation is based on [jsduck](https://github.com/senchalabs/jsduck) tags.
 In particular:
 
 * [@param](https://github.com/senchalabs/jsduck/wiki/%40param)
+  Must be specified with type (and optional specification)
 * [@return](https://github.com/senchalabs/jsduck/wiki/%40return)
 * [@property](https://github.com/senchalabs/jsduck/wiki/%40property)
+  Can be detected if a member is not a function (type might be based on prototype value)
 * [@chainable](https://github.com/senchalabs/jsduck/wiki/%40chainable)
-* [@inheritdoc](https://github.com/senchalabs/jsduck/wiki/%40inheritdoc) <namespace/class>#<method>
+  Can be detected if all function paths returns this
+* [@inheritdoc](https://github.com/senchalabs/jsduck/wiki/%40inheritdoc) (<namespace/class>#<method>)
+  Can be detected if inheritance is clear and function names are the same
 * [@class](https://github.com/senchalabs/jsduck/wiki/%40class)
+  Can be detected when the class is defined by gpf.define
 * [@extends](https://github.com/senchalabs/jsduck/wiki/%40extends)
+  Can be detected when the class is defined by gpf.define or recognizing the syntax A.prototype = new B
 * [@alias](https://github.com/senchalabs/jsduck/wiki/%40alias)
 * [@constructor](https://github.com/senchalabs/jsduck/wiki/%40constructor)
+  Can be detected on the function name (must be constructor in gpf.define)
 
 However, and as much as possible, documentation generation should rely on simple patterns to detect properties.
 For instance, the following situation is easily recognizable:
