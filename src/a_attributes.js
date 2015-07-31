@@ -143,7 +143,6 @@ _gpfDefAttr("$ClassAttribute", _gpfAttrConstraint, {
 
     protected: {
 
-        // @inheritdoc gpf.attributes.AttrConstraintAttribute:_check
         _check: function (targetAttribute, objPrototype) {
             _gpfIgnore(objPrototype);
             if (targetAttribute.member() !== "Class") {
@@ -172,7 +171,6 @@ _gpfDefAttr("$MemberAttribute", _gpfAttrConstraint, {
 
     protected: {
 
-        // @inheritdoc gpf.attributes.AttrConstraintAttribute:_check
         _check: function (targetAttribute/*, objPrototype*/) {
             if (targetAttribute.member() === "Class") {
                 var
@@ -206,7 +204,6 @@ _gpfDefAttr("$UniqueAttribute", _gpfAttrConstraint, {
 
     protected: {
 
-        // @inheritdoc gpf.attributes.AttrConstraintAttribute:_check
         _check: function (targetAttribute, objPrototype) {
             var
                 objectClass,
@@ -252,10 +249,8 @@ _gpfDefAttr("$UniqueAttribute", _gpfAttrConstraint, {
         /**
          * Restricts attribute multiplicity
          *
-         * @param {Boolean} [classScope=true] classScope True to set limit to
-         * one instance per class (including hierarchy) or false to limit to one
-         * instance per member.
-         * @constructor
+         * @param {Boolean} [classScope=true] classScope True to set limit to one instance per class
+         * (including hierarchy) or false to limit to one instance per member.
          */
         constructor: function (classScope) {
             if (undefined !== classScope) {
