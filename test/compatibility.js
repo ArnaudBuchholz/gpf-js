@@ -128,6 +128,39 @@ describe("compatibility", function () {
             assert(result[4] === 4);
         });
 
+        it("should expose reduce()", function () {
+            var array = [0, 1, 2, 3, 4];
+            assert("function" === typeof array.reduce);
+            assert(4 === array.reduce.length);
+            assert(!array.hasOwnProperty("reduce"));
+        });
+
+        it("should expose reduce() - with no initial value", function () {
+            var array = [0, 1, 2, 3, 4],
+                lastIndex = 1;
+            /*jshint -W072*/ // Because this is the signature of reduce
+            assert(10 === array.reduce(function (previousValue, currentValue, index, processedArray) {
+                assert(array === processedArray);
+                assert(lastIndex === index);
+                ++lastIndex;
+                return previousValue + currentValue;
+            }));
+            /*jshint +W072*/
+        });
+
+        it("should expose reduce() - with value", function () {
+            var array = [0, 1, 2, 3, 4],
+                lastIndex = 0;
+            /*jshint -W072*/ // Because this is the signature of reduce
+            assert(20 === array.reduce(function (previousValue, currentValue, index, processedArray) {
+                assert(array === processedArray);
+                assert(lastIndex === index);
+                ++lastIndex;
+                return previousValue + currentValue;
+            }, 10));
+            /*jshint +W072*/
+        });
+
     });
 
     describe("Function", function () {

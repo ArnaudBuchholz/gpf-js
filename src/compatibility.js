@@ -91,6 +91,39 @@ if (undefined === Array.prototype.map) {
 
 }
 
+if (undefined === Array.prototype.reduce) {
+
+    // Introduced with JavaScript 1.8
+    Array.prototype.reduce = function(callback /*, initialValue*/) {
+        'use strict';
+        if (this == null) {
+            throw new TypeError('Array.prototype.reduce appelé sur null ou undefined');
+        }
+        if (typeof callback !== 'function') {
+            throw new TypeError(callback + ' n est pas une fonction');
+        }
+        var t = Object(this), len = t.length >>> 0, k = 0, value;
+        if (arguments.length == 2) {
+            value = arguments[1];
+        } else {
+            while (k < len && ! (k in t)) {
+                k++;
+            }
+            if (k >= len) {
+                throw new TypeError('Réduction de tableau vide sans valeur initiale');
+            }
+            value = t[k++];
+        }
+        for (; k < len; k++) {
+            if (k in t) {
+                value = callback(value, t[k], k, t);
+            }
+        }
+        return value;
+    };
+
+}
+
 if (undefined === Function.prototype.bind) {
 
     // Introduced with JavaScript 1.8.5
