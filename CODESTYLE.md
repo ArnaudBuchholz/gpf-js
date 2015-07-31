@@ -85,13 +85,32 @@ In particular:
 * [@param](https://github.com/senchalabs/jsduck/wiki/%40param)
 * [@return](https://github.com/senchalabs/jsduck/wiki/%40return)
 * [@property](https://github.com/senchalabs/jsduck/wiki/%40property)
+* [@chainable](https://github.com/senchalabs/jsduck/wiki/%40chainable)
 * [@inheritdoc](https://github.com/senchalabs/jsduck/wiki/%40inheritdoc) <namespace/class>#<method>
+* [@class](https://github.com/senchalabs/jsduck/wiki/%40class)
+* [@extends](https://github.com/senchalabs/jsduck/wiki/%40extends)
+* [@alias](https://github.com/senchalabs/jsduck/wiki/%40alias)
+* [@constructor](https://github.com/senchalabs/jsduck/wiki/%40constructor)
 
-TODO add class related tags
+However, and as much as possible, documentation generation should rely on simple patterns to detect properties.
+For instance, the following situation is easily recognizable:
 
-Some extensions were added
+```javascript
+_gpfDefAttr("$UniqueAttribute", _gpfAttrConstraint, {
+
+    private: {
+
+        /**
+         * The attribute is unique for the whole class when true or per member
+         * when false.
+         */
+        _classScope: true
+
+    },
+```
+
+Some 'extensions' are defined
 * @this: if the scope of the function has to be clarified it provides the type and explanations
-* @chainable: whenever a method of an object returns the object
 * @closure: if the function *directly* creates a closure
 
 It happens sometimes that a variable might be assigned different function versions (to manage host compatibilities).
@@ -101,33 +120,39 @@ A counter example (where both private & public version exist):
 
 ```javascript
 
-    /**
-     * @inheritdoc gpf:extend
-     * Implementation of gpf.extend
+/**
+ * @inheritdoc gpf:extend
+ * Implementation of gpf.extend
+ */
+_gpfExtend = function (dictionary, properties, overwriteCallback) {
+    /* ... */
+}
+
+_gpfExtend(gpf, {
+
+    /*
+     * Appends members of properties to the dictionary object.
+     * If a conflict has to be handled (i.e. member exists on both objects),
+     * the overwriteCallback has to handle it.
+     *
+     * @param {Object} dictionary
+     * @param {Object} properties
+     * @param {Function} overwriteCallback
+     * @return {Object} the modified dictionary
+     * @chainable
      */
-    _gpfExtend = function (dictionary, properties, overwriteCallback) {
-        /* ... */
-    }
-
-    _gpfExtend(gpf, {
-
-        /*
-         * Appends members of properties to the dictionary object.
-         * If a conflict has to be handled (i.e. member exists on both objects),
-         * the overwriteCallback has to handle it.
-         *
-         * @param {Object} dictionary
-         * @param {Object} properties
-         * @param {Function} overwriteCallback
-         * @return {Object} the modified dictionary
-         * @chainable
-         */
-        extend: _gpfExtend,
+    extend: _gpfExtend,
 
 
 ```
 
+### Comments
 
+Following Robert Martin's excellent Clean Code principles, comments should be reduced to the minimum.
+When needed:
+
+* Comments standing on one line **must** use //
+* Comments on multiple lines **must** use /* */
 
 ### Functions
 
