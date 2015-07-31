@@ -3,6 +3,7 @@
 
     var
         _sources = [
+        //  "boot",                 // Loader
             "compatibility",        // JavaScript compatibility helpers
 
             /* new JSHint settings */

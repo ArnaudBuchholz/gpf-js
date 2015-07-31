@@ -62,30 +62,20 @@ _gpfDefAttr("$ClassProperty", _gpfClassAttribute, {
 
     private: {
 
-        /**
-         * If true, generates a write wrapper
-         *
-         * @type {Boolean}
-         * @private
-         */
+        // If true, generates a write wrapper
         _writeAllowed: false,
 
         /**
-         * If set, provides the member name. Otherwise, name is based on
-         * member.
+         * If set, provides the member name. Otherwise, name is based on member.
          *
          * @type {String|undefined}
-         * @private
          */
         _publicName: undefined,
 
         /**
-         * If set, provides the member visibility.
-         * Default is 'public'
-         * member.
+         * If set, provides the member visibility. Default is 'public' member.
          *
          * @type {String|undefined}
-         * @private
          */
         _visibility: undefined
 
@@ -93,9 +83,7 @@ _gpfDefAttr("$ClassProperty", _gpfClassAttribute, {
 
     protected: {
 
-        /**
-         * @inheritdoc gpf.attributes.Attribute:_alterPrototype
-         */
+        // @inheritdoc gpf.attributes.Attribute:_alterPrototype
         _alterPrototype: function (objPrototype) {
             var
                 member = this._member,
@@ -196,20 +184,10 @@ _gpfDefAttr("$ClassExtension", _gpfClassAttribute, {
 
     private: {
 
-        /**
-         * Constructor of the class to extend
-         *
-         * @type {Function}
-         * @private
-         */
+        // Constructor of the class to extend
         _ofClass: _gpfEmptyFunc,
 
-        /**
-         * Name of the method if added to the class
-         *
-         * @type {String}
-         * @private
-         */
+        // Name of the method if added to the class
         _publicName: ""
 
     },

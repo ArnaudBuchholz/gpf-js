@@ -135,9 +135,7 @@ _gpfDefIntrf("IEventDispatcher", {
      * @chainable
      */
     addEventListener: function (event, callback, useCapture) {
-        _gpfIgnore(event);
-        _gpfIgnore(callback);
-        _gpfIgnore(useCapture);
+        _gpfIgnore(event, callback, useCapture);
         return this;
     },
 
@@ -151,8 +149,7 @@ _gpfDefIntrf("IEventDispatcher", {
      * @chainable
      */
     removeEventListener: function (event, callback) {
-        _gpfIgnore(event);
-        _gpfIgnore(callback);
+        _gpfIgnore(event, callback);
         return this;
     }
 

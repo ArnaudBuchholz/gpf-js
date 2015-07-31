@@ -521,8 +521,7 @@ var
          */
         processingInstruction: function (target, data, eventsHandler) {
             // Not relevant
-            _gpfIgnore(target);
-            _gpfIgnore(data);
+            _gpfIgnore(target, data);
             _gpfEventsFire.apply(this, ["ready", {}, eventsHandler]);
         },
 
@@ -589,8 +588,7 @@ var
          */
         startPrefixMapping: function (prefix, uri) {
             // Nothing to do (?)
-            _gpfIgnore(prefix);
-            _gpfIgnore(uri);
+            _gpfIgnore(prefix, uri);
         }
 
         //endregion

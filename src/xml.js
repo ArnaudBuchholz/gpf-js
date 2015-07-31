@@ -233,10 +233,11 @@ _gpfDefine("gpf.xml.Writer", {
         /**
          * @implements gpf.interfaces.IXmlContentHandler:startElement
          */
-        startElement: function (uri, localName, qName, attributes,
-            eventsHandler) {
+        startElement: function (name, attributes, eventsHandler) {
             gpf.ASSERT(null === this._eventsHandler, "Write in progress");
             var
+                qName = name.qName,
+                localName = name.localName,
                 attName,
                 attValue,
                 len,

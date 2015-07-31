@@ -539,7 +539,7 @@
          * Char pattern: recognizes one character
          *
          * @class PatternChar
-         * @extend PatternItem
+         * @extends PatternItem
          * @private
          */
         PatternChar = _gpfDefine("PatternChar", PatternItem, {
@@ -586,7 +586,7 @@
          * (using include/exclude patterns)
          *
          * @class PatternRange
-         * @extend PatternItem
+         * @extends PatternItem
          * @private
          */
         PatternRange = _gpfDefine("PatternRange", PatternItem, {
@@ -729,7 +729,7 @@
          * May also be a 'choice' pattern
          *
          * @class PatternGroup
-         * @extend PatternItem
+         * @extends PatternItem
          * @private
          */
         PatternGroup = _gpfDefine("PatternGroup", PatternItem, {
@@ -1110,7 +1110,7 @@
 // them
 //         *
 //         * @class PatternChoice
-//         * @extend PatternItem
+//         * @extends PatternItem
 //         * @private
 //         */
 //        PatternChoice = _gpfDefine("PatternChoice", PatternItem, {
@@ -1188,7 +1188,7 @@
          * PatternItems
          *
          * @class PatternParserContext
-         * @extend gpf.Parser
+         * @extends gpf.Parser
          * @private
          */
         PatternParser = _gpfDefine("PatternParser",  gpf.Parser, {

@@ -12,9 +12,8 @@
          * Implements IStream on top of an array  (FIFO read / write)
          *
          * @class ArrayStream
-         * @extend gpf.events.Target
+         * @extends gpf.events.Target
          * @implements gpf.interfaces.ITextStream
-         * @private
          */
         ArrayStream = gpf.define("ArrayStream", {
 
@@ -99,7 +98,6 @@
 
                 /**
                  * @type {Array}
-                 * @private
                  */
                 _buffer: []
 

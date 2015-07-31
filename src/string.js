@@ -16,7 +16,7 @@
          * Implements ITextStream on top of a string (FIFO read / write)
          *
          * @class StringStream
-         * @extend gpf.events.Target
+         * @extends gpf.events.Target
          * @implements gpf.interfaces.ITextStream
          * @private
          */

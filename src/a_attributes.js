@@ -24,7 +24,7 @@ _gpfErrorDeclare("a_attributes", {
 
 var
     /**
-     * Restricts the usage of an attribute to an attribute class only.
+     * Restricts the usage of an attribute to an attribute class only
      *
      * @class gpf.attributes.AttrClassOnlyAttribute
      * @extends gpf.attributes.Attribute
@@ -33,20 +33,15 @@ var
 
         protected: {
 
-            /**
-             * @inheritdoc gpf.attributes.Attribute:_alterPrototype
-             */
             _alterPrototype: function (objPrototype) {
                 if (!(objPrototype instanceof _gpfA.Attribute)) {
                     throw gpf.Error.OnlyForAttributeClass({
-                        attributeName: _gpfGetClassDefinition(this.constructor)
-                            .name()
+                        attributeName: _gpfGetClassDefinition(this.constructor).name()
                     });
                 }
                 if (this._member !== "Class") {
                     throw gpf.Error.OnlyOnClassForAttributeClass({
-                        attributeName: _gpfGetClassDefinition(this.constructor)
-                            .name()
+                        attributeName: _gpfGetClassDefinition(this.constructor).name()
                     });
                 }
             }
@@ -65,10 +60,7 @@ var
 
         static: {
 
-            /**
-             * @property {String} originalAlterPrototype Name used to remember
-             * the original _alterPrototype handler
-             */
+            // Name used to remember the original _alterPrototype handler
             originalAlterPrototype: "_alterPrototype:checked"
 
         },
@@ -76,13 +68,10 @@ var
         private: {
 
             /**
-             * Check that all attribute constraints are respected before calling
-             * the original _alterPrototype
+             * Check that all attribute constraints are respected before calling the original _alterPrototype
              *
-             * WARNING: this actually is the target attribute
-             *
-             * @param objPrototype
-             * @private
+             * @param {Object} objPrototype
+             * @this {gpf.attributes.Attribute} the child class attribute
              */
             _checkAndAlterPrototype: function (objPrototype) {
                 var statics = _gpfA.AttrConstraintAttribute,
@@ -92,19 +81,17 @@ var
 
                 // Get constraints set for THIS attribute
                 attributes = new _gpfA.Map(this);
-                attributes.filter(_gpfAttrConstraint)
-                    .each(function (member, attributes) {
-                        _gpfIgnore(member);
-                        var len = attributes.getItemsCount(),
-                            idx;
-                        for (idx = 0; idx < len; ++idx) {
-                            attributes.getItem(idx)
-                                ._check(targetAttribute, objPrototype);
-                        }
-                    });
+                attributes.filter(_gpfAttrConstraint).each(function (member, attributes) {
+                    _gpfIgnore(member);
+                    var itemsCount = attributes.getItemsCount(),
+                        idx;
+                    for (idx = 0; idx < itemsCount; ++idx) {
+                        attributes.getItem(idx)._check(targetAttribute, objPrototype);
+                    }
+                });
+
                 // OK, call _alterPrototype
-                targetAttribute[originalAlterPrototype]
-                    .apply(targetAttribute, [objPrototype]);
+                targetAttribute[originalAlterPrototype].apply(targetAttribute, [objPrototype]);
             }
 
         },
@@ -117,18 +104,13 @@ var
              *
              * @param {gpf.attributes.Attribute} targetAttribute
              * @param {Object} objPrototype
-             * @private
              */
             _check: function (targetAttribute, objPrototype) {
-                _gpfIgnore(targetAttribute);
-                _gpfIgnore(objPrototype);
+                _gpfIgnore(targetAttribute, objPrototype);
                 throw gpf.Error.Abstract();
             },
 
-            /**
-             * @inheritdoc gpf.attributes.Attribute:_alterPrototype
-             * @closure
-             */
+            // @closure
             _alterPrototype: function (objPrototype) {
                 var statics = _gpfA.AttrConstraintAttribute,
                     originalAlterPrototype = statics.originalAlterPrototype;
@@ -141,8 +123,7 @@ var
                  * the _alterPrototype has already been overridden
                  */
                 if (undefined === objPrototype[originalAlterPrototype]) {
-                    objPrototype[originalAlterPrototype] =
-                        objPrototype._alterPrototype;
+                    objPrototype[originalAlterPrototype] = objPrototype._alterPrototype;
                     objPrototype._alterPrototype = this._checkAndAlterPrototype;
                 }
             }
@@ -152,8 +133,7 @@ var
     });
 
 /**
- * Used on attribute classes to mark them as class attribute (i.e. they can't
- * be used on members)
+ * Used on attribute classes to mark them as class attribute (i.e. they can't be used on members)
  *
  * @class gpf.attributes.ClassAttributeAttribute
  * @extends gpf.attributes.AttrConstraintAttribute
@@ -163,10 +143,9 @@ _gpfDefAttr("$ClassAttribute", _gpfAttrConstraint, {
 
     protected: {
 
-        /**
-         * @inheritdoc gpf.attributes.AttrConstraintAttribute:_check
-         */
-        _check: function (targetAttribute/*, objPrototype*/) {
+        // @inheritdoc gpf.attributes.AttrConstraintAttribute:_check
+        _check: function (targetAttribute, objPrototype) {
+            _gpfIgnore(objPrototype);
             if (targetAttribute.member() !== "Class") {
                 var
                     attributeClass = targetAttribute.constructor,
@@ -193,9 +172,7 @@ _gpfDefAttr("$MemberAttribute", _gpfAttrConstraint, {
 
     protected: {
 
-        /**
-         * @inheritdoc gpf.attributes.AttrConstraintAttribute:_check
-         */
+        // @inheritdoc gpf.attributes.AttrConstraintAttribute:_check
         _check: function (targetAttribute/*, objPrototype*/) {
             if (targetAttribute.member() === "Class") {
                 var
@@ -211,8 +188,7 @@ _gpfDefAttr("$MemberAttribute", _gpfAttrConstraint, {
 
 });
 /**
- * Used on attribute classes to mark them as unique through the class hierarchy
- * or per member.
+ * Used on attribute classes to mark them as unique through the class hierarchy or per member.
  * If one try to define it more than once, an error is raised.
  *
  * @class gpf.attributes.UniqueAttributeAttribute
@@ -223,22 +199,14 @@ _gpfDefAttr("$UniqueAttribute", _gpfAttrConstraint, {
 
     private: {
 
-        /**
-         * The attribute is unique for the whole class when true or per member
-         * when false.
-         *
-         * @type {Boolean}
-         * @private
-         */
+        // The attribute is unique for the whole class when true or per member when false
         _classScope: true
 
     },
 
     protected: {
 
-        /**
-         * @inheritdoc gpf.attributes.AttrConstraintAttribute:_check
-         */
+        // @inheritdoc gpf.attributes.AttrConstraintAttribute:_check
         _check: function (targetAttribute, objPrototype) {
             var
                 objectClass,

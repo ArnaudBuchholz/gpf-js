@@ -248,8 +248,7 @@ if (_gpfInNode) {
              */
             "[write]": [gpf.$ClassEventHandler()],
             write: function (buffer, eventsHandler) {
-                _gpfIgnore(buffer);
-                _gpfIgnore(eventsHandler);
+                _gpfIgnore(buffer, eventsHandler);
                 throw gpf.Error.NotImplemented();
             }
 

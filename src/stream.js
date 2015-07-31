@@ -379,7 +379,7 @@ _gpfDefine("gpf.stream.BufferedOnRead", {
  * Rely on a underlying byte stream reader
  *
  * @class gpf.stream.BitReader
- * @extend gpf.stream.BufferedOnRead
+ * @extends gpf.stream.BufferedOnRead
  * @implements gpf.interfaces.IReadableStream
  */
 _gpfDefine("gpf.stream.BitReader", "gpf.stream.BufferedOnRead", {

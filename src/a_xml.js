@@ -22,7 +22,6 @@ var
      *
      * @class gpf.attributes.XmlAttribute
      * @extends gpf.attributes.Attribute
-     * @private
      */
     _GpfXmlBase = _gpfDefAttr("XmlAttribute", {
 
@@ -82,7 +81,6 @@ var
              * Name of the attribute
              *
              * @type {String}
-             * @private
              */
             "[_name]": [gpf.$ClassProperty()],
             _name: ""
@@ -121,7 +119,6 @@ var
              * Name of the element
              *
              * @type {String}
-             * @private
              */
             "[_name]": [gpf.$ClassProperty()],
             _name: ""
@@ -162,7 +159,6 @@ var
              * Object constructor
              *
              * @type {Function}
-             * @private
              */
             "[_objClass]": [gpf.$ClassProperty()],
             _objClass: null

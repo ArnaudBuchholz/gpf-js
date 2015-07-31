@@ -23,8 +23,7 @@ _gpfDefIntrf("IXmlSerializable", {
      */
     "[toXml]": [gpf.$ClassEventHandler()],
     toXml: function (out, eventsHandler) {
-        _gpfIgnore(out);
-        _gpfIgnore(eventsHandler);
+        _gpfIgnore(out, eventsHandler);
     }
 
 });
@@ -50,8 +49,7 @@ _gpfDefIntrf("IXmlContentHandler", {
      */
     "[characters]": [gpf.$ClassEventHandler()],
     characters: function (buffer, eventsHandler) {
-        _gpfIgnore(buffer);
-        _gpfIgnore(eventsHandler);
+        _gpfIgnore(buffer, eventsHandler);
     },
 
     /**
@@ -99,8 +97,7 @@ _gpfDefIntrf("IXmlContentHandler", {
      */
     "[ignorableWhitespace]": [gpf.$ClassEventHandler()],
     ignorableWhitespace: function (buffer, eventsHandler) {
-        _gpfIgnore(buffer);
-        _gpfIgnore(eventsHandler);
+        _gpfIgnore(buffer, eventsHandler);
     },
 
     /**
@@ -114,9 +111,7 @@ _gpfDefIntrf("IXmlContentHandler", {
      */
     "[processingInstruction]": [gpf.$ClassEventHandler()],
     processingInstruction: function (target, data, eventsHandler) {
-        _gpfIgnore(target);
-        _gpfIgnore(data);
-        _gpfIgnore(eventsHandler);
+        _gpfIgnore(target, data, eventsHandler);
     },
 
     /**
@@ -150,20 +145,16 @@ _gpfDefIntrf("IXmlContentHandler", {
     /**
      * Receive notification of the beginning of an element
      *
-     * @param {String} uri [uri=""] namespace uri (if any)
-     * @param {String} localName
-     * @param {String} [qName=localName] qName qualified name
+     * @param {Object} name structure containing
+     * - {String} uri [uri=""] namespace uri (if any)
+     * - {String} localName
+     * - {String} [qName=localName] qName qualified name
      * @param {Object} attributes attribute dictionary (string/string)
      * @param {gpf.events.Handler} eventsHandler
      */
     "[startElement]": [gpf.$ClassEventHandler()],
-    startElement: function (uri, localName, qName, attributes,
-                            eventsHandler) {
-        _gpfIgnore(uri);
-        _gpfIgnore(localName);
-        _gpfIgnore(qName);
-        _gpfIgnore(attributes);
-        _gpfIgnore(eventsHandler);
+    startElement: function (name, attributes, eventsHandler) {
+        _gpfIgnore(name, attributes, eventsHandler);
     },
 
     /**
@@ -173,8 +164,7 @@ _gpfDefIntrf("IXmlContentHandler", {
      * @param {String} uri
      */
     startPrefixMapping: function (prefix, uri) {
-        _gpfIgnore(prefix);
-        _gpfIgnore(uri);
+        _gpfIgnore(prefix, uri);
     }
 
 });

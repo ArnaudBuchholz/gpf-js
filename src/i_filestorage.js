@@ -30,8 +30,7 @@ _gpfDefIntrf("IFileStorage", {
      */
     "[getInfo]": [gpf.$ClassEventHandler()],
     getInfo: function (path, eventsHandler) {
-        _gpfIgnore(path);
-        _gpfIgnore(eventsHandler);
+        _gpfIgnore(path, eventsHandler);
     },
 
     /**
@@ -45,8 +44,7 @@ _gpfDefIntrf("IFileStorage", {
      */
     "[readAsBinaryStream]": [gpf.$ClassEventHandler()],
     readAsBinaryStream: function (path, eventsHandler) {
-        _gpfIgnore(path);
-        _gpfIgnore(eventsHandler);
+        _gpfIgnore(path, eventsHandler);
     },
 
     /**
@@ -60,8 +58,7 @@ _gpfDefIntrf("IFileStorage", {
      */
     "[writeAsBinaryStream]": [gpf.$ClassEventHandler()],
     writeAsBinaryStream: function (path, eventsHandler) {
-        _gpfIgnore(path);
-        _gpfIgnore(eventsHandler);
+        _gpfIgnore(path, eventsHandler);
     },
 
     /**
@@ -74,8 +71,7 @@ _gpfDefIntrf("IFileStorage", {
      * @event gpf.events.EVENT_READY
      */
     close: function (stream, eventsHandler) {
-        _gpfIgnore(stream);
-        _gpfIgnore(eventsHandler);
+        _gpfIgnore(stream, eventsHandler);
     },
 
     /**
@@ -90,8 +86,7 @@ _gpfDefIntrf("IFileStorage", {
      */
     "[explore]": [gpf.$ClassEventHandler()],
     explore: function (path, eventsHandler) {
-        _gpfIgnore(path);
-        _gpfIgnore(eventsHandler);
+        _gpfIgnore(path, eventsHandler);
     },
 
     /**
@@ -104,8 +99,7 @@ _gpfDefIntrf("IFileStorage", {
      */
     "[createFolder]": [gpf.$ClassEventHandler()],
     createFolder: function (path, eventsHandler) {
-        _gpfIgnore(path);
-        _gpfIgnore(eventsHandler);
+        _gpfIgnore(path, eventsHandler);
     },
 
     /**
@@ -118,8 +112,7 @@ _gpfDefIntrf("IFileStorage", {
      */
     "[deleteFile]": [gpf.$ClassEventHandler()],
     deleteFile: function (path, eventsHandler) {
-        _gpfIgnore(path);
-        _gpfIgnore(eventsHandler);
+        _gpfIgnore(path, eventsHandler);
     },
 
     /**
@@ -132,8 +125,7 @@ _gpfDefIntrf("IFileStorage", {
      */
     "[deleteFolder]": [gpf.$ClassEventHandler()],
     deleteFolder: function (path, eventsHandler) {
-        _gpfIgnore(path);
-        _gpfIgnore(eventsHandler);
+        _gpfIgnore(path, eventsHandler);
     }
 
 });

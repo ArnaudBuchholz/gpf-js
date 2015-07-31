@@ -48,8 +48,7 @@ _gpfDefIntrf("IReadableStream", {
      */
     "[read]": [gpf.$ClassEventHandler()],
     read: function (size, eventsHandler) {
-        _gpfIgnore(size);
-        _gpfIgnore(eventsHandler);
+        _gpfIgnore(size, eventsHandler);
     }
 
 });
@@ -82,8 +81,7 @@ _gpfDefIntrf("IWritableStream", {
      */
     "[write]": [gpf.$ClassEventHandler()],
     write: function (buffer, eventsHandler) {
-        _gpfIgnore(buffer);
-        _gpfIgnore(eventsHandler);
+        _gpfIgnore(buffer, eventsHandler);
     }
 
 });
@@ -98,8 +96,7 @@ _gpfDefIntrf("IStream", {
      */
     "[read]": [gpf.$ClassEventHandler()],
     read: function (size, eventsHandler) {
-        _gpfIgnore(size);
-        _gpfIgnore(eventsHandler);
+        _gpfIgnore(size, eventsHandler);
     },
 
     /**
@@ -107,8 +104,7 @@ _gpfDefIntrf("IStream", {
      */
     "[write]": [gpf.$ClassEventHandler()],
     write: function (buffer, eventsHandler) {
-        _gpfIgnore(buffer);
-        _gpfIgnore(eventsHandler);
+        _gpfIgnore(buffer, eventsHandler);
     }
 
 });

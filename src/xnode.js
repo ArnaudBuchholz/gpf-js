@@ -407,7 +407,11 @@
             children = node.children(),
             text = node.textContent(),
             idx;
-        wrapped.startElement("", name, name, attributes);
+        wrapped.startElement({
+            uri: "",
+            localName: name,
+            qName: name
+        }, attributes);
         // Today the XmlConstNode may not have both children and textual content
         if (text) {
             wrapped.characters(text);
