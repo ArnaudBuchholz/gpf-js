@@ -74,8 +74,7 @@ There are two levels of documentation:
   convention).
 
 Any other function / class / variable that are internal to sources might not be documented (hoping they are clear
-enough).
-Within a class declaration (leveraging gpf.define), members visibility is based on public / private / protected
+enough). Within a class declaration (leveraging gpf.define), members visibility is based on public / private / protected
 modifiers.
 
 Documentation is based on [jsduck](https://github.com/senchalabs/jsduck) tags.
@@ -161,10 +160,33 @@ When needed:
 * Comments standing on one line **must** use //
 * Comments on multiple lines **must** use /* */
 
+### Variables declaration
+
+To simplify minification, functions are always using function declaration.
+Variables are grouped as much as possible: for instance, if the variable is used in one function only, its declaration
+will remain close to the function where it is used.
+
+Multiple variable declaration should be grouped in one var statement. Alignment of the first variable depends on the
+comment it may have.
+
+```javascript
+var first,
+    second,
+    third;
+
+var
+    // Whatever the documentation
+    commentedFirst,
+    second;
+```
+
 ### Functions
 
 Function variables are all declared at the beginning of the function.
 If a function create closures, the @closure tag is added.
+
+Functions signatures are checked by some APIs, hence it is important to declare all parameters. If they are not used,
+and to avoid JSHint warning, the _gpfIgnore function might be used: you may pass all unused parameters.
 
 ### Classes
 
