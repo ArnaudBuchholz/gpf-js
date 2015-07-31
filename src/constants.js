@@ -5,7 +5,7 @@
 /*#endif*/
 
 //region boot
-/*global _gpfContext*/ // Main context object
+/*global _gpfContext*/ // Resolve contextual string
 /*global _gpfDosPath*/ // DOS-like path
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfExit*/ // Exit function
@@ -14,6 +14,7 @@
 /*global _gpfHost*/ // Host type
 /*global _gpfInBrowser*/ // The current host is a browser like
 /*global _gpfInNode*/ // The current host is a nodeJS like
+/*global _gpfMainContext*/ // Main context object
 /*global _gpfMsFSO*/ // Scripting.FileSystemObject activeX
 /*global _gpfNodeFs*/ // Node require("fs")
 /*global _gpfNodePath*/ // Node require("path")

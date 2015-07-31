@@ -1,4 +1,5 @@
 /*jshint browser: true*/
+/*global _gpfContext*/ // Resolve contextual string
 /*global _gpfFinishLoading*/ // Ends the loading (declared in boot.js)
 /*global _gpfWebRawInclude*/ // Raw web include
 /*global gpfSourcesPath*/ // Global source path
@@ -52,7 +53,7 @@
             if (0 === idx % 2) {
                 _gpfWebRawInclude(bootList[idx] + ".js");
                 ++idx;
-            } else if (undefined !== gpf.context(bootList[idx])) {
+            } else if (undefined !== _gpfContext(bootList[idx].split("."))) {
                 ++idx;
             }
             if (idx === bootList.length) {

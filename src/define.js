@@ -1,5 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfContext*/ // Resolve contextual string
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
@@ -702,7 +703,7 @@ _gpfDefine = gpf.define = function (name, base, definition) {
         classDef;
     if ("string" === typeof base) {
         // Convert base into the function
-        base = gpf.context(base);
+        base = _gpfContext(base);
 
     } else if ("object" === typeof base) {
         definition = base;
@@ -714,7 +715,7 @@ _gpfDefine = gpf.define = function (name, base, definition) {
     if (-1 < name.indexOf(".")) {
         path = name.split(".");
         leafName = path.pop();
-        ns = gpf.context(path, true);
+        ns = _gpfContext(path, true);
     }
     classDef = new _GpfClassDefinition(name, base, definition || {});
     result = classDef.Constructor();

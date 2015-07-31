@@ -3,9 +3,9 @@
 /*jshint browser: true*/
 /*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
 /*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
-/*global _gpfContext*/ // Main context object
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfInBrowser*/ // The current host is a browser like
+/*global _gpfMainContext*/ // Main context object
 /*global _gpfWebDocument*/ // Browser document object
 /*global _gpfWebHead*/ // Browser head tag
 /*#endif*/
@@ -49,7 +49,7 @@ var
      * @private
      */
     _gpfWebIncludeAsyncResult = function (parameters) {
-        _gpfEventsFire.apply(_gpfContext, parameters);
+        _gpfEventsFire.apply(_gpfMainContext, parameters);
     },
 
     /**

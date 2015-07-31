@@ -8,6 +8,7 @@
 /*exported _gpfHost*/
 /*exported _gpfInBrowser*/
 /*exported _gpfInNode*/
+/*exported _gpfMainContext*/
 /*exported _gpfMsFSO*/
 /*exported _gpfNodeFs*/
 /*exported _gpfNodePath*/
@@ -18,20 +19,13 @@
 /*exported _gpfWebWindow*/
 /*#endif*/
 
+/*global phantom:true*/
 /*jshint browser: true*/
 /*jshint node: true*/
 /*jshint wsh: true*/
 
-/*
- * Detect host & define global context
- */
 var
-    /**
-     * GPF version
-     *
-     * @type {string}
-     * @private
-     */
+    // GPF version
     _gpfVersion = "0.1",
 
     /**
@@ -42,85 +36,60 @@ var
      * - nodejs: NodeJS
      * - browser: Browser
      * - unknown: Unknown
-     *
-     * @type {String}
-     * @private
      */
-    _gpfHost,
+    _gpfHost = "unknown",
 
-    /**
-     * Indicates that paths are DOS-like (i.e. case insensitive with /)
-     *
-     * @type {Boolean}
-     * @private
-     */
+    // Indicates that paths are DOS-like (i.e. case insensitive with /)
     _gpfDosPath = false,
 
-    /**
-     * Main context object
-     *
-     * @type {Object}
-     * @private
-     */
-    _gpfContext,
+    /*jshint -W040*/ // This is the common way to get the global context
+    // Main context object
+    _gpfMainContext = this,
+    /*jshint +W040*/
 
     /**
-     * To implement gpf.noConflict(), we need to keep the previous content of
-     * gpf.
+     * To implement gpf.noConflict(), we need to keep the previous content of gpf.
      * Makes sense only for the following hosts:
      * - phantomjs
      * - browser
      * - unknown
      *
-     * @type {Object}
-     * @private
+     * @type {undefined|Object}
      */
     _gpfConflictingSymbol,
+
+    // An empty function
+    _gpfEmptyFunc = function () {},
 
     /**
      * Exit function
      *
      * @param {Number} code
-     * @private
      */
-    _gpfExit,
+    _gpfExit = _gpfEmptyFunc,
 
-    /*exported _gpfResolveScope*/
     /**
      * Translate the parameter into a valid scope
      *
      * @param {*} scope
-     * @private
      */
     _gpfResolveScope = function (scope) {
-        if (null === scope // || undefined === scope
-            || "object" !== typeof scope)  {
-            return _gpfContext;
+        if (null === scope || "object" !== typeof scope) {
+            return _gpfMainContext;
         }
         return scope;
     },
 
-    /**
-     * The current host is a nodeJS like
-     *
-     * @type {Boolean}
-     * @private
-     */
+    // The current host is a nodeJS like
     _gpfInNode = false,
 
-    /**
-     * The current host is a browser like
-     *
-     * @type {boolean}
-     * @private
-     */
+    // The current host is a browser like
     _gpfInBrowser = false,
 
     /**
      * Browser window object
      *
      * @type {Object}
-     * @private
      */
     _gpfWebWindow,
 
@@ -128,7 +97,6 @@ var
      * Browser document object
      *
      * @type {Object}
-     * @private
      */
      _gpfWebDocument,
 
@@ -136,7 +104,6 @@ var
      * Browser head tag
      *
      * @type {Object}
-     * @private
      */
     _gpfWebHead,
 
@@ -144,7 +111,6 @@ var
      * Scripting.FileSystemObject activeX
      *
      * @type {Object}
-     * @private
      */
     _gpfMsFSO,
 
@@ -152,7 +118,6 @@ var
      * Node require("fs")
      *
      * @type {Object}
-     * @private
      */
     _gpfNodeFs,
 
@@ -160,16 +125,8 @@ var
      * Node require("path")
      *
      * @type {Object}
-     * @private
      */
-    _gpfNodePath,
-
-    /**
-     * An empty function
-     *
-     * @private
-     */
-    _gpfEmptyFunc = function () {};
+    _gpfNodePath;
 
 /*#ifdef(DEBUG)*/
 
@@ -181,13 +138,13 @@ _gpfVersion += "d";
 if ("undefined" !== typeof WScript) {
     _gpfHost = "wscript";
     _gpfDosPath = true;
-    _gpfContext = (function () {return this;}).apply(null, []);
+    _gpfMainContext = (function () {return this;}).apply(null, []);
     _gpfExit = function (code) {
         WScript.Quit(code);
     };
 
     // Define console APIs
-    _gpfContext.console = {
+    _gpfMainContext.console = {
         log: function (t) {WScript.Echo("    " + t);},
         info: function (t) {WScript.Echo("[?] " + t);},
         warn: function (t) {WScript.Echo("/!\\ " + t);},
@@ -195,52 +152,43 @@ if ("undefined" !== typeof WScript) {
     };
 
 // PhantomJS
-/*global phantom:true*/
 } else if ("undefined" !== typeof phantom && phantom.version) {
     _gpfHost = "phantomjs";
     _gpfDosPath = require("fs").separator === "\\";
-    _gpfContext = window;
+    _gpfMainContext = window;
     _gpfInNode = true;
     _gpfInBrowser = true;
     _gpfExit = phantom.exit;
 
 // Nodejs
-/*global module:true*/
 } else if ("undefined" !== typeof module && module.exports) {
     _gpfHost = "nodejs";
     _gpfNodePath = require("path");
     _gpfDosPath = _gpfNodePath.sep === "\\";
-    _gpfContext = global;
+    _gpfMainContext = global;
     _gpfInNode = true;
     _gpfExit = process.exit;
 
 // Browser
 } else if ("undefined" !== typeof window) {
     _gpfHost = "browser";
-    _gpfContext = window;
+    _gpfMainContext = window;
     _gpfInBrowser = true;
     _gpfExit = _gpfEmptyFunc;
-
-// Default: unknown
-/*jshint -W040*/
-} else {
-    _gpfHost = "unknown";
-    _gpfContext = this;
-    _gpfExit = _gpfEmptyFunc;
+    _gpfWebWindow = window;
+    _gpfWebDocument = document;
+    _gpfWebHead = _gpfWebDocument.getElementsByTagName("head")[0] || _gpfWebDocument.documentElement;
 
 }
-/*jshint +W040*/
 
 
 /*#ifndef(UMD)*/
 
-_gpfContext.gpf = {};
+_gpfMainContext.gpf = {};
 
 /*#else*/
 
-if (_gpfContext.gpf) {
-    _gpfConflictingSymbol = _gpfContext.gpf;
-}
+_gpfConflictingSymbol = _gpfMainContext.gpf;
 
 /**
  * Relinquish control of the gpf variable.
@@ -249,9 +197,9 @@ if (_gpfContext.gpf) {
  */
 gpf.noConflict = function () {
     if (undefined !== _gpfConflictingSymbol) {
-        _gpfContext.gpf = _gpfConflictingSymbol;
+        _gpfMainContext.gpf = _gpfConflictingSymbol;
     } else {
-        delete _gpfContext.gpf;
+        delete _gpfMainContext.gpf;
     }
     return gpf;
 };
@@ -262,20 +210,10 @@ gpf.noConflict = function () {
 if (_gpfInNode) {
     gpf.node = {};
 }
-// Some web-related tools will be configured even if not in a browser
+// Some web-related tools will be configured even if not in a browser, declare the namespace now
 gpf.web = {};
-if (_gpfInBrowser) {
-    _gpfWebWindow = window;
-    _gpfWebDocument = document;
-    _gpfWebHead = _gpfWebDocument.getElementsByTagName("head")[0]
-                  || _gpfWebDocument.documentElement;
-}
 
-/**
- * Returns the current version
- *
- * @return {string}
- */
+// Returns the current version
 gpf.version = function () {
     return _gpfVersion;
 };
@@ -284,31 +222,18 @@ gpf.version = function () {
  * Returns a string identifying the detected host
  *
  * @return {String}
- * <ul>
- *      <li>"wscript" for cscript and wscript
- *      <li>"nodejs" for nodejs
- *      <li>"phantomjs" for phantomjs
- *      <li>"browser" for any browser
- *      <li>"unknown" if not detected
- * </ul>
+ * - "wscript" for cscript and wscript
+ * - "nodejs" for nodejs
+ * - "phantomjs" for phantomjs
+ * - "browser" for any browser
+ * - "unknown" if not detected
  */
 gpf.host = function () {
     return _gpfHost;
 };
 
-/**
- * Get parent member named name. If missing and the constructor is specified,
- * it is allocated.
- *
- * @param {Object} parent
- * @param {String} name
- * @param {Boolean} createMissingParts
- * @return {Object|undefined}
- * @private
- */
-function _getOrCreateChild(parent, name, createMissingParts) {
-    var
-        result = parent[name];
+function _getOrCreateObjectProperty(parent, name, createMissingParts) {
+    var result = parent[name];
     if (undefined === result && createMissingParts) {
         result = parent[name] = {};
     }
@@ -316,68 +241,63 @@ function _getOrCreateChild(parent, name, createMissingParts) {
 }
 
 /**
- * Resolve the provided evaluation path and returns the result
+ * Resolve the provided contextual path and returns the result
  *
- * @param {String|string[]} [path=undefined] path Dot separated list of
- * identifiers (or identifier array)
- * @param {Boolean} [createMissingParts=false] createMissingParts if the path
- * leads to undefined parts and createMissingParts is true, it allocates it
+ * @param {String[]} path array of identifiers
+ * @param {Boolean} [createMissingParts=false] createMissingParts if the path leads to undefined parts and
+ * createMissingParts is true, it allocates a default empty object
  *
  * @return {*|undefined}
- * - when path is empty, it returns the current host higher object
+ * - when path is undefined, it returns the current host higher object
  * - when path is "gpf" it returns the GPF object
  */
-gpf.context = function (path, createMissingParts) {
-    var
-        len,
-        idx,
+function _gpfContext (path, createMissingParts) {
+    var pathLength = path.length,
+        idx = 0,
         result;
-    if (undefined === path) {
-        return _gpfContext;
+    createMissingParts = true === createMissingParts;
+    if (path[0] === "gpf") {
+        result = gpf;
+        ++idx;
     } else {
-        if ("string" === typeof path) {
-            path = path.split(".");
-        }
-        len = path.length;
-        idx = 0;
-        if (path[0] === "gpf") {
-            result = gpf;
-            ++idx;
-        } else {
-            result = _gpfContext;
-        }
-        for (; result && idx < len; ++idx) {
-            result = _getOrCreateChild(result, path[idx],
-                true === createMissingParts);
-        }
-        return result;
+        result = _gpfMainContext;
     }
+    for (; result && idx < pathLength; ++idx) {
+        result = _getOrCreateObjectProperty(result, path[idx], createMissingParts);
+    }
+    return result;
+}
+
+/**
+ * Resolve the provided contextual path and returns the result
+ *
+ * @param {String} path Dot separated list of identifiers
+ *
+ * @return {*|undefined}
+ * - when path is undefined, it returns the current host higher object
+ * - when path is "gpf" it returns the GPF object
+ */
+gpf.context = function (path) {
+    if (undefined === path) {
+        return _gpfMainContext;
+    }
+    return _gpfContext(path.split("."));
 };
 
 /*#ifndef(UMD)*/
 
 var
-    /**
-     * Set to true once all sources of GPF are loaded
-     *
-     * @type {boolean}
-     * @private
-     */
+    // Set to true once all sources of GPF are loaded
     _gpfLoaded = false,
 
     /**
      * List of functions to call on load
      *
      * @type {Function[]}
-     * @private
      */
     _gpfLoadCallbacks = [],
 
-    /**
-     * Callback used once all sources are loaded, invoke the callbacks
-     *
-     * @private
-     */
+    // Callback used once all sources are loaded, invoke the callbacks
     _gpfFinishLoading = function () {
         _gpfLoaded = true;
         while (_gpfLoadCallbacks.length) {
@@ -475,7 +395,7 @@ if (!gpf.ASSERT) {
 
 // gpfSourcesPath - if defined - gives the relative path to sources
 if ("undefined" === typeof gpfSourcesPath) {
-    _gpfContext.gpfSourcesPath = "";
+    _gpfMainContext.gpfSourcesPath = "";
 } else {
     var pathSep;
     if (_gpfDosPath) {
