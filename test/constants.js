@@ -20,11 +20,11 @@ describe("constants", function () {
             var host = gpf.host();
             // Must be one of these
             assert(-1 !== [
-                "wscript",
-                "phantomjs",
-                "nodejs",
-                "browser",
-                "unknown"
+                gpf.HOST_WSCRIPT,
+                gpf.HOST_PHANTOMJS,
+                gpf.HOST_NODEJS,
+                gpf.HOST_BROWSER,
+                gpf.HOST_UNKNOWN
             ].indexOf(host));
         });
 
@@ -33,9 +33,9 @@ describe("constants", function () {
             assert(null !== gpf.context());
             assert(gpf === gpf.context("gpf"));
             // Known and testable contexts
-            if ("browser" === gpf.host()) {
+            if (gpf.HOST_BROWSER === gpf.host()) {
                 assert(window === gpf.context());
-            } else if ("nodejs" === gpf.host() || "phantomjs" === gpf.host()) {
+            } else if (gpf.HOST_NODEJS === gpf.host() || gpf.HOST_PHANTOMJS === gpf.host()) {
                 assert(global === gpf.context());
             } else {
                 var context = (function () {return this;}).apply(null);

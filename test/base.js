@@ -5,7 +5,7 @@ describe("base", function () {
 
     describe("gpf as a module", function () {
 
-        if ("nodejs" === gpf.host()) {
+        if (gpf.HOST_NODEJS === gpf.host()) {
 
             it("supports multiple instances", function () {
                 var
@@ -19,7 +19,7 @@ describe("base", function () {
                 assert(previousGpf === gpf);
             });
 
-        } else if ("browser" === gpf.host() || "phantomjs" === gpf.host()) {
+        } else if (gpf.HOST_BROWSER === gpf.host() || gpf.HOST_PHANTOMJS === gpf.host()) {
 
             it("supports multiple includes", function (done) {
                 var

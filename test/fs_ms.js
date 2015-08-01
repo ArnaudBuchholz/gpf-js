@@ -3,7 +3,7 @@
 
 describe("fs_ms", function () {
 
-    if ("wscript" !== gpf.host()) {
+    if (gpf.HOST_WSCRIPT !== gpf.host()) {
         return; // Skip
     }
 

@@ -226,7 +226,7 @@ describe("compatibility", function () {
             assert(true === obj.member);
         });
 
-        if ("wscript" !== gpf.host()) {
+        if (gpf.HOST_WSCRIPT !== gpf.host()) {
             it("prevents modifying a read-only property", function () {
                 var
                     obj = {},

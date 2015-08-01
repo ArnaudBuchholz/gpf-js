@@ -3,7 +3,7 @@
 
 describe("fs_node", function () {
 
-    if ("nodejs" !== gpf.host()) {
+    if (gpf.HOST_NODEJS !== gpf.host()) {
         return; // Skip
     }
 
