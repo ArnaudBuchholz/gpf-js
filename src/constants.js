@@ -43,6 +43,11 @@
 /*global _GPF_FS_TYPE_FILE*/ // gpf.fs.TYPE_FILE
 /*global _GPF_FS_TYPE_NOT_FOUND*/ // gpf.fs.TYPE_NOT_FOUND
 /*global _GPF_FS_TYPE_UNKNOWN*/ // gpf.fs.TYPE_UNKNOWN
+/*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
+/*global _GPF_HOST_NODEJS*/ // gpf.HOST_NODEJS
+/*global _GPF_HOST_PHANTOMJS*/ // gpf.HOST_PHANTOMJS
+/*global _GPF_HOST_UNKNOWN*/ // gpf.HOST_UNKNOWN
+/*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
 /*global _gpfAlpha*/ // Letters (lowercase)
 /*global _gpfALPHA*/ // Letters (uppercase)
 /*global _gpfDigit*/ // Digits
@@ -194,6 +199,16 @@ var
     _GPF_FS_TYPE_FILE               = 1,
     _GPF_FS_TYPE_DIRECTORY          = 2,
     _GPF_FS_TYPE_UNKNOWN            = 99,
+
+    //endregion
+
+    //region Hosts constants
+
+    _GPF_HOST_BROWSER               = "browser",
+    _GPF_HOST_NODEJS                = "nodejs",
+    _GPF_HOST_PHANTOMJS             = "phantomjs",
+    _GPF_HOST_UNKNOWN               = "unknown",
+    _GPF_HOST_WSCRIPT               = "wscript",
 
     //endregion
 
