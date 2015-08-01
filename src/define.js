@@ -1,5 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
 /*global _gpfContext*/ // Resolve contextual string
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunc*/ // Create a new function using the source
@@ -542,7 +543,7 @@ _GpfClassDefinition.prototype = {
                 }
             }
             // 2014-05-05 #14
-            if ("wscript" === gpf.host()
+            if (_GPF_HOST_WSCRIPT === _gpfHost
                 && definition.constructor !== Object) {
                 this._processMember("constructor", visibility);
             }
@@ -586,7 +587,7 @@ _GpfClassDefinition.prototype = {
             }
         }
         // 2014-05-05 #14
-        if ("wscript" === gpf.host() && definition.constructor !== Object) {
+        if (_GPF_HOST_WSCRIPT === _gpfHost && definition.constructor !== Object) {
             this._processMember("constructor", _GPF_VISIBILITY_PUBLIC);
         }
     },

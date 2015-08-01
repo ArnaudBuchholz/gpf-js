@@ -1,7 +1,8 @@
 /*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
-    /*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _GPF_HOST_NODEJS*/ // gpf.HOST_NODEJS
+/*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
     /**
@@ -346,7 +347,7 @@
         var
             path,
             scriptName;
-        if ("nodejs" !== gpf.host()) {
+        if (_GPF_HOST_NODEJS !== gpf.host()) {
             return; // Not inside nodejs
         }
         path = require("path");

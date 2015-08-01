@@ -1,6 +1,8 @@
 /*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
 "use strict";
+/*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
+/*global _GPF_HOST_PHANTOMJS*/ // gpf.HOST_PHANTOMJS
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfExtend*/ // gpf.extend
@@ -1304,7 +1306,7 @@
         });
     }
 
-    if ("browser" === gpf.host() || "phantomjs" === gpf.host()) {
+    if (_GPF_HOST_BROWSER === gpf.host() || _GPF_HOST_PHANTOMJS === gpf.host()) {
         _searchGpfLoaded();
     }
 

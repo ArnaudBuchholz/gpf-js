@@ -1,5 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
+/*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfHost*/ // Host type
@@ -68,7 +70,7 @@ var
  */
 gpf.runAsyncQueue = _gpfEmptyFunc;
 
-if ("browser" === _gpfHost) {
+if (_GPF_HOST_BROWSER === _gpfHost) {
     // Leverage the use of setTimeout(func, delay, [param1, param2, ...])
     // as it avoids creating closures
 
@@ -102,7 +104,7 @@ if ("browser" === _gpfHost) {
         setTimeout(_gpfAsyncCallback(callback, scope, args), timeout);
     };
 
-} else if ("wscript" === _gpfHost) {
+} else if (_GPF_HOST_WSCRIPT === _gpfHost) {
     // Custom mechanism
 
     _gpfDefer = function (callback, timeout, scope, args) {

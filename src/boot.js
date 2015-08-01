@@ -1,5 +1,11 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
+/*global _GPF_HOST_NODEJS*/ // gpf.HOST_NODEJS
+/*global _GPF_HOST_PHANTOMJS*/ // gpf.HOST_PHANTOMJS
+/*global _GPF_HOST_UNKNOWN*/ // gpf.HOST_UNKNOWN
+/*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
+/*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
 /*global gpfSourcesPath:true*/ // Global source path
 /*exported _gpfContext*/
 /*exported _gpfDosPath*/
@@ -28,16 +34,8 @@ var
     // GPF version
     _gpfVersion = "0.1",
 
-    /**
-     * Host type
-     *
-     * - wscript: Microsoft cscript / wscript
-     * - phantomjs: PhantomJS
-     * - nodejs: NodeJS
-     * - browser: Browser
-     * - unknown: Unknown
-     */
-    _gpfHost = "unknown",
+    // Host type, see _GPF_HOST_xxx
+    _gpfHost = _GPF_HOST_UNKNOWN,
 
     // Indicates that paths are DOS-like (i.e. case insensitive with /)
     _gpfDosPath = false,
@@ -136,7 +134,7 @@ _gpfVersion += "d";
 
 // Microsoft cscript / wscript
 if ("undefined" !== typeof WScript) {
-    _gpfHost = "wscript";
+    _gpfHost = _GPF_HOST_WSCRIPT;
     _gpfDosPath = true;
     _gpfMainContext = (function () {return this;}).apply(null, []);
     _gpfExit = function (code) {
@@ -153,7 +151,7 @@ if ("undefined" !== typeof WScript) {
 
 // PhantomJS
 } else if ("undefined" !== typeof phantom && phantom.version) {
-    _gpfHost = "phantomjs";
+    _gpfHost = _GPF_HOST_PHANTOMJS;
     _gpfDosPath = require("fs").separator === "\\";
     _gpfMainContext = window;
     _gpfInNode = true;
@@ -162,7 +160,7 @@ if ("undefined" !== typeof WScript) {
 
 // Nodejs
 } else if ("undefined" !== typeof module && module.exports) {
-    _gpfHost = "nodejs";
+    _gpfHost = _GPF_HOST_NODEJS;
     _gpfNodePath = require("path");
     _gpfDosPath = _gpfNodePath.sep === "\\";
     _gpfMainContext = global;
@@ -171,7 +169,7 @@ if ("undefined" !== typeof WScript) {
 
 // Browser
 } else if ("undefined" !== typeof window) {
-    _gpfHost = "browser";
+    _gpfHost = _GPF_HOST_BROWSER;
     _gpfMainContext = window;
     _gpfInBrowser = true;
     _gpfExit = _gpfEmptyFunc;
@@ -222,19 +220,27 @@ gpf.version = function () {
  * Returns a string identifying the detected host
  *
  * @return {String}
- * - "wscript" for cscript and wscript
- * - "nodejs" for nodejs
- * - "phantomjs" for phantomjs
- * - "browser" for any browser
- * - "unknown" if not detected
+ * - gpf.HOST_WSCRIPT for cscript and wscript
+ * - gpf.HOST_NODEJS for nodejs
+ * - gpf.HOST_PHANTOMJS for phantomjs
+ * - gpf.HOST_BROWSER for any browser
+ * - gpf.HOST_UNKNOWN if not detected
  */
 gpf.host = function () {
     return _gpfHost;
 };
 
-function _getOrCreateObjectProperty(parent, name, createMissingParts) {
+// TODO create gpf.HOST_xxx using a createConstants method
+
+function _getObjectProperty(parent, name) {
+    if (undefined !== parent) {
+        return parent[name];
+    }
+}
+
+function _getOrCreateObjectProperty(parent, name) {
     var result = parent[name];
-    if (undefined === result && createMissingParts) {
+    if (undefined === result) {
         result = parent[name] = {};
     }
     return result;
@@ -252,20 +258,20 @@ function _getOrCreateObjectProperty(parent, name, createMissingParts) {
  * - when path is "gpf" it returns the GPF object
  */
 function _gpfContext (path, createMissingParts) {
-    var pathLength = path.length,
-        idx = 0,
-        result;
-    createMissingParts = true === createMissingParts;
-    if (path[0] === "gpf") {
-        result = gpf;
-        ++idx;
+    var reducer,
+        rootContext;
+    if (createMissingParts) {
+        reducer = _getOrCreateObjectProperty;
     } else {
-        result = _gpfMainContext;
+        reducer = _getObjectProperty;
     }
-    for (; result && idx < pathLength; ++idx) {
-        result = _getOrCreateObjectProperty(result, path[idx], createMissingParts);
+    if (path[0] === "gpf") {
+        rootContext = gpf;
+        path = _gpfArraySlice(path, 1);
+    } else {
+        rootContext = _gpfMainContext;
     }
-    return result;
+    return path.reduce(reducer, rootContext);
 }
 
 /**
@@ -286,6 +292,8 @@ gpf.context = function (path) {
 
 /*#ifndef(UMD)*/
 
+/*exported _gpfFinishLoading*/ // Will be used by the boot specifics
+
 var
     // Set to true once all sources of GPF are loaded
     _gpfLoaded = false,
@@ -304,13 +312,12 @@ var
             _gpfLoadCallbacks.shift()();
         }
     };
-    /*exported _gpfFinishLoading*/ // Will be used by the boot specifics
 
 /**
  * Test if GPF is loaded
  *
- * @param {Function} [callback=undefined] callback This callback is invoked when
- * GPF is loaded (may be immediately if already loaded)
+ * @param {Function} [callback=undefined] callback This callback is invoked when GPF is loaded (may be immediately if
+ * already loaded)
  * @return {boolean} True if GPF is fully loaded, false otherwise
  */
 gpf.loaded = function (callback) {
@@ -343,11 +350,6 @@ if(!gpf.loaded) {
 
 /*#endif*/
 
-/*
- * Handling external options
- * TODO: provide ways to turn on/off features by adding options
- */
-
 /*#ifdef(DEBUG)*/
 
 // DEBUG specifics
@@ -376,7 +378,7 @@ if (!gpf.ASSERT) {
 
 /*#else*/
 
-    gpf.ASSERT = function /*gpf:ignore*/ () {};
+    gpf.ASSERT = _gpfEmptyFunc;
 
 /*#endif*/
 
@@ -408,7 +410,7 @@ if ("undefined" === typeof gpfSourcesPath) {
     }
 }
 
-if ("wscript" === _gpfHost) {
+if (_GPF_HOST_WSCRIPT === _gpfHost) {
     _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
     (function () {
         var srcFile,
@@ -429,7 +431,7 @@ if ("wscript" === _gpfHost) {
      * @type {Function}
      */
     var _gpfFSRead;
-    if ("phantomjs" === _gpfHost) {
+    if (_GPF_HOST_PHANTOMJS === _gpfHost) {
         _gpfFSRead = _gpfNodeFs.read;
     } else {
         _gpfFSRead = function (path) {
@@ -440,7 +442,7 @@ if ("wscript" === _gpfHost) {
     eval(_gpfFSRead(gpfSourcesPath + "boot_node.js"));
     /*jslint evil: false*/
 
-} else { // "browser" === _gpfHost
+} else { // _GPF_HOST_BROWSER === _gpfHost
     var _gpfWebRawInclude = function (src) {
         var script = _gpfWebDocument.createElement("script");
         script.language = "javascript";

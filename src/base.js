@@ -1,5 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
 /*global _gpfExit*/ // Exit function
 /*global _gpfHost*/ // Host type
 /*global _gpfInNode*/ // The current host is a nodeJS like
@@ -315,7 +316,7 @@ var
      */
     _gpfIsArrayLike;
 
-if ("browser" === _gpfHost && (window.HTMLCollection || window.NodeList)) {
+if (_GPF_HOST_BROWSER === _gpfHost && (window.HTMLCollection || window.NodeList)) {
     _gpfIsArrayLike = function (obj) {
         return obj instanceof Array
             || obj instanceof window.HTMLCollection
