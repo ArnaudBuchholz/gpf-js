@@ -131,7 +131,8 @@ describe("compatibility", function () {
         it("should expose reduce()", function () {
             var array = [0, 1, 2, 3, 4];
             assert("function" === typeof array.reduce);
-            assert(4 === array.reduce.length);
+            // It appears that it is equal to 1 on some implementations (Chrome, NodeJS)
+            assert(2 === array.reduce.length || 1 === array.reduce.length);
             assert(!array.hasOwnProperty("reduce"));
         });
 
@@ -213,52 +214,6 @@ describe("compatibility", function () {
             bound.apply({}, [false]);
             assert(false === scope.member);
         });
-
-    });
-
-    describe("Object", function () {
-
-        it("allows defining read-only property", function () {
-            var
-                obj = {};
-            assert("function" === typeof gpf.setReadOnlyProperty);
-            gpf.setReadOnlyProperty(obj, "member", true);
-            assert(true === obj.member);
-        });
-
-        if (gpf.HOST_WSCRIPT !== gpf.host()) {
-            it("prevents modifying a read-only property", function () {
-                var
-                    obj = {},
-                    failed = false;
-                gpf.setReadOnlyProperty(obj, "member", true);
-                try {
-                    obj.member = false;
-                } catch (e) {
-                    failed = true;
-                }
-                assert(failed);
-            });
-
-            it("allows defining hidden read-only property", function () {
-                var
-                    obj = {},
-                    members = [],
-                    key;
-                gpf.setReadOnlyProperty(obj, "member", true, true);
-                assert(true === obj.member);
-                for (key in obj) {
-                    if (obj.hasOwnProperty(key)) {
-                        members.push(key);
-                    }
-                }
-                assert(-1 === members.indexOf("member"));
-            });
-        } else {
-            // Does not work
-            it("prevents modifying a read-only property");
-            it("allows defining hidden read-only property");
-        }
 
     });
 
