@@ -1,12 +1,12 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
-/*global _GPF_HOST_NODEJS*/ // gpf.HOST_NODEJS
-/*global _GPF_HOST_PHANTOMJS*/ // gpf.HOST_PHANTOMJS
-/*global _GPF_HOST_UNKNOWN*/ // gpf.HOST_UNKNOWN
-/*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
 /*global gpfSourcesPath:true*/ // Global source path
+/*exported _GPF_HOST_BROWSER*/
+/*exported _GPF_HOST_NODEJS*/
+/*exported _GPF_HOST_PHANTOMJS*/
+/*exported _GPF_HOST_UNKNOWN*/
+/*exported _GPF_HOST_WSCRIPT*/
 /*exported _gpfContext*/
 /*exported _gpfDosPath*/
 /*exported _gpfEmptyFunc*/
@@ -33,6 +33,13 @@
 var
     // GPF version
     _gpfVersion = "0.1",
+
+    // Host type constants
+    _GPF_HOST_BROWSER               = "browser",
+    _GPF_HOST_NODEJS                = "nodejs",
+    _GPF_HOST_PHANTOMJS             = "phantomjs",
+    _GPF_HOST_UNKNOWN               = "unknown",
+    _GPF_HOST_WSCRIPT               = "wscript",
 
     // Host type, see _GPF_HOST_xxx
     _gpfHost = _GPF_HOST_UNKNOWN,
@@ -265,7 +272,7 @@ function _gpfContext (path, createMissingParts) {
     }
     if (path[0] === "gpf") {
         rootContext = gpf;
-        path = _gpfArraySlice(path, 1);
+        path = path.splice(1);
     } else {
         rootContext = _gpfMainContext;
     }
