@@ -7,6 +7,7 @@
 /*global _GPF_FS_TYPE_FILE*/ // _GPF_FS_TYPE_FILE
 /*global _GPF_FS_TYPE_NOT_FOUND*/ // _GPF_FS_TYPE_NOT_FOUND
 /*global _GPF_FS_TYPE_UNKNOWN*/ // _GPF_FS_TYPE_UNKNOWN
+/*global _gpfCreateConstants*/
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfI*/ // gpf.interfaces
@@ -167,20 +168,9 @@ gpf.fs = {
 
 };
 
-// Create file system constants
-(function () {
-    var gpfFs = gpf.fs,
-        mappings = {
-            TYPE_NOT_FOUND: _GPF_FS_TYPE_NOT_FOUND,
-            TYPE_FILE: _GPF_FS_TYPE_FILE,
-            TYPE_DIRECTORY: _GPF_FS_TYPE_DIRECTORY,
-            TYPE_UNKNOWN: _GPF_FS_TYPE_UNKNOWN
-        },
-        key;
-    for (key in mappings) {
-        if (mappings.hasOwnProperty(key)) {
-            _gpfSetReadOnlyProperty(gpfFs, key, mappings[key]);
-        }
-    }
-
-}());
+_gpfCreateConstants(gpf.fs, {
+    TYPE_NOT_FOUND: _GPF_FS_TYPE_NOT_FOUND,
+    TYPE_FILE: _GPF_FS_TYPE_FILE,
+    TYPE_DIRECTORY: _GPF_FS_TYPE_DIRECTORY,
+    TYPE_UNKNOWN: _GPF_FS_TYPE_UNKNOWN
+});

@@ -50,6 +50,7 @@
 /*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
 /*global _gpfAlpha*/ // Letters (lowercase)
 /*global _gpfALPHA*/ // Letters (uppercase)
+/*global _gpfCreateConstants*/
 /*global _gpfDigit*/ // Digits
 /*global _gpfFalseFunc*/ // An empty function returning false
 /*global _gpfFunc*/ // Create a new function using the source
@@ -333,10 +334,30 @@ var
     _gpfJsKeywords = ("break,case,catch,continue,debugger,default,delete,do,"
         + "else,finally,for,function,if,in,instanceof,new,return,switch,"
         + "this,throw,try,typeof,var,void,while,with").split(",")
-
     ;
 
-/*#ifndef(UMD)*/
-// Mandatory to support boot loading in a browser (removed when UMD is used)
-gpf._constants = true;
-/*#endif*/
+/**
+ * Add constants to the provided object
+ *
+ * @param {Object} obj
+ * @param {Object} dictionary
+ */
+function _gpfCreateConstants(obj, dictionary) {
+    var key;
+    for (key in dictionary) {
+        if (dictionary.hasOwnProperty(key)) {
+            _gpfSetConstant(obj, {
+                name: key,
+                value: dictionary[key]
+            });
+        }
+    }
+}
+
+_gpfCreateConstants(gpf, {
+    HOST_BROWSER: _GPF_HOST_BROWSER,
+    HOST_NODEJS: _GPF_HOST_NODEJS,
+    HOST_PHANTOMJS: _GPF_HOST_PHANTOMJS,
+    HOST_UNKNOWN: _GPF_HOST_UNKNOWN,
+    HOST_WSCRIPT: _GPF_HOST_WSCRIPT
+});

@@ -9,6 +9,7 @@
 /*global _GPF_EVENT_STOP*/ // gpf.events.EVENT_STOP
 /*global _GPF_EVENT_STOPPED*/ // gpf.events.EVENT_STOPPED
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
+/*global _gpfCreateConstants*/
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*global _gpfSetConstant*/ // If possible, defines a constant (i.e. read-only property)
 /*exported _gpfEventsFire*/
@@ -25,27 +26,16 @@ gpf.events = {
      */
 };
 
-// Create events constants
-(function () {
-    var gpfEvents = gpf.events,
-        mappings = {
-            EVENT_ANY: _GPF_EVENT_ANY,
-            EVENT_ERROR: _GPF_EVENT_ERROR,
-            EVENT_READY: _GPF_EVENT_READY,
-            EVENT_DATA: _GPF_EVENT_DATA,
-            EVENT_END_OF_DATA: _GPF_EVENT_END_OF_DATA,
-            EVENT_CONTINUE: _GPF_EVENT_CONTINUE,
-            EVENT_STOP: _GPF_EVENT_STOP,
-            EVENT_STOPPED: _GPF_EVENT_STOPPED
-        },
-        key;
-    for (key in mappings) {
-        if (mappings.hasOwnProperty(key)) {
-            _gpfSetReadOnlyProperty(gpfEvents, key, mappings[key]);
-        }
-    }
-
-}());
+_gpfCreateConstants(gpf.events, {
+    EVENT_ANY: _GPF_EVENT_ANY,
+    EVENT_ERROR: _GPF_EVENT_ERROR,
+    EVENT_READY: _GPF_EVENT_READY,
+    EVENT_DATA: _GPF_EVENT_DATA,
+    EVENT_END_OF_DATA: _GPF_EVENT_END_OF_DATA,
+    EVENT_CONTINUE: _GPF_EVENT_CONTINUE,
+    EVENT_STOP: _GPF_EVENT_STOP,
+    EVENT_STOPPED: _GPF_EVENT_STOPPED
+});
 
 var
     /**

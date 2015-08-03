@@ -169,7 +169,7 @@ if ((function () {
 if (undefined === Object.defineProperty) {
 
     _gpfSetConstant = function (object, propertyDefinition) {
-        object[name] = propertyDefinition.value;
+        object[propertyDefinition.name] = propertyDefinition.value;
         return object;
     };
 
