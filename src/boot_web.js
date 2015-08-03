@@ -39,7 +39,7 @@
          */
         bootList = [
             "sources",          "gpf.sources",
-            "compatibility",    "gpf.setReadOnlyProperty",
+            "compatibility",    "Function.prototype.compatibleName",
             "constants",        "gpf.HOST_UNKNOWN",
             "events",           "gpf.events",
             "include",          "gpf.web.include"
