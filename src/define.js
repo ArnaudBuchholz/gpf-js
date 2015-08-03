@@ -704,7 +704,7 @@ _gpfDefine = gpf.define = function (name, base, definition) {
         classDef;
     if ("string" === typeof base) {
         // Convert base into the function
-        base = _gpfContext(base);
+        base = _gpfContext(base.split("."));
 
     } else if ("object" === typeof base) {
         definition = base;
