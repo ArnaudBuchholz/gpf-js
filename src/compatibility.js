@@ -94,30 +94,17 @@ if (undefined === Array.prototype.map) {
 if (undefined === Array.prototype.reduce) {
 
     // Introduced with JavaScript 1.8
-    Array.prototype.reduce = function(callback /*, initialValue*/) {
-        'use strict';
-        if (this == null) {
-            throw new TypeError('Array.prototype.reduce appelé sur null ou undefined');
-        }
-        if (typeof callback !== 'function') {
-            throw new TypeError(callback + ' n est pas une fonction');
-        }
-        var t = Object(this), len = t.length >>> 0, k = 0, value;
-        if (arguments.length == 2) {
-            value = arguments[1];
+    Array.prototype.reduce = function (callback, initialValue) {
+        var thisLength = this.length,
+            index = 0,
+            value;
+        if (undefined === initialValue) {
+            value = this[index++];
         } else {
-            while (k < len && ! (k in t)) {
-                k++;
-            }
-            if (k >= len) {
-                throw new TypeError('Réduction de tableau vide sans valeur initiale');
-            }
-            value = t[k++];
+            value = initialValue;
         }
-        for (; k < len; k++) {
-            if (k in t) {
-                value = callback(value, t[k], k, t);
-            }
+        for (; index < thisLength; ++index) {
+            value = callback(value, this[index], index, this);
         }
         return value;
     };
