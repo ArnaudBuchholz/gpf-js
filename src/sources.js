@@ -6,10 +6,10 @@
         //  "boot",                 // Loader
             "compatibility",        // JavaScript compatibility helpers
             "constants",            // Constants
+            "events",               // Event management         gpf.events.Event
 
             /* new JSHint settings */
 
-            "events",               // Event management         gpf.events.Event
             "include",              // WEB include               gpf.web.include
 
                                     // --- Minimum required for boot_web.js ---

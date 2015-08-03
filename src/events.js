@@ -65,14 +65,6 @@ var
     },
 
     /**
-     * Count the number of gpf.events.fire calls
-     *
-     * @type {number}
-     * @private
-     */
-    _gpfEventsFiring = 0,
-
-    /**
      * Fire the event by calling the eventsHandler
      *
      * @param {gpf.events.Event} event event object to fire
@@ -98,11 +90,13 @@ var
                 eventHandler = eventsHandler["*"];
             }
             if (undefined !== eventHandler) {
-                eventHandler.apply(eventsHandler.scope || eventsHandler,
-                    [event]);
+                eventHandler.apply(eventsHandler.scope || eventsHandler, [event]);
             }
         }
     },
+
+    // Count the number of gpf.events.fire calls
+    _gpfEventsFiring = 0,
 
     /**
      * gpf.events.fire implementation
@@ -146,7 +140,6 @@ var
      * @param {Function} callback
      * @return {*} the return of the callback
      * @forwardThis
-     * @private
      */
     _gpfLookForEventsHandler = function (thatArgs, defaultArgs, callback) {
         var
@@ -175,26 +168,17 @@ _GpfEvent.prototype = {
 
     /**
      * Event type
-     *
-     * @type {String}
      * @read-only
      */
     type: "",
 
     /**
      * Event scope
-     *
-     * @return {Object}
      * @read-only
      */
     scope: null,
 
-    /**
-     * Event parameters
-     *
-     * @type {Object} Map of key to value
-     * @private
-     */
+    // Event parameters
     _params: {},
 
     /**
@@ -214,7 +198,7 @@ _GpfEvent.prototype = {
      * @return {gpf.events.Event} this
      */
     fire: function (eventsHandler) {
-        return gpf.events.fire(this, eventsHandler);
+        return _gpfEventsFire.apply(this, [this, {}, eventsHandler]);
     }
 
 };
@@ -237,9 +221,5 @@ gpf.events.fire = function (/*event, params, eventsHandler*/) {
         // Will be adjusted inside _gpfEventsFire
         scope = undefined;
     }
-    return _gpfLookForEventsHandler.apply(scope, [
-        arguments,
-        [0, {}],
-        _gpfEventsFire
-    ]);
+    return _gpfLookForEventsHandler.apply(scope, [arguments, [0, {}], _gpfEventsFire]);
 };

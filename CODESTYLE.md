@@ -86,6 +86,7 @@ In particular:
 * [@return](https://github.com/senchalabs/jsduck/wiki/%40return)
 * [@property](https://github.com/senchalabs/jsduck/wiki/%40property)
   Can be detected if a member is not a function (type might be based on prototype value)
+* [@readonly](https://github.com/senchalabs/jsduck/wiki/%40readonly)
 * [@chainable](https://github.com/senchalabs/jsduck/wiki/%40chainable)
   Can be detected if all function paths returns this
 * [@inheritdoc](https://github.com/senchalabs/jsduck/wiki/%40inheritdoc) (<namespace/class>#<method>)
