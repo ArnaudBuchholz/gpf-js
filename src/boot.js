@@ -230,8 +230,6 @@ gpf.host = function () {
     return _gpfHost;
 };
 
-// TODO create gpf.HOST_xxx using a createConstants method
-
 function _getObjectProperty(parent, name) {
     if (undefined !== parent) {
         return parent[name];

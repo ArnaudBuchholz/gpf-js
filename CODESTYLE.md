@@ -117,6 +117,7 @@ _gpfDefAttr("$UniqueAttribute", _gpfAttrConstraint, {
 
 Some 'extensions' are defined
 * @this: if the scope of the function has to be clarified it provides the type and explanations
+* @forwardThis: the scope of the function is fowarded to the callback function
 * @closure: if the function *directly* creates a closure
 
 It happens sometimes that a variable might be assigned different function versions (to manage host compatibilities).

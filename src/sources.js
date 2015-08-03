@@ -5,10 +5,10 @@
         _sources = [
         //  "boot",                 // Loader
             "compatibility",        // JavaScript compatibility helpers
+            "constants",            // Constants
 
             /* new JSHint settings */
 
-            "constants",            // Constants
             "events",               // Event management         gpf.events.Event
             "include",              // WEB include               gpf.web.include
 
