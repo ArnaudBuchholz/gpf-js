@@ -5,110 +5,75 @@
 /*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfInBrowser*/ // The current host is a browser like
-/*global _gpfMainContext*/ // Main context object
 /*global _gpfWebDocument*/ // Browser document object
 /*global _gpfWebHead*/ // Browser head tag
 /*#endif*/
 
-var
-    /**
-     * Context of an include
-     *
-     * @constructor
-     * @param {String} src
-     * @param {gpf.events.Handler} eventsHandler
-     * @class _GpfIncludeContext
-     * @private
-     */
-    _GpfIncludeContext = function (src, eventsHandler) {
-        this.id = ++_GpfIncludeContext.id;
-        this.src = src;
-        this.eventsHandler =  eventsHandler;
-        _GpfIncludeContext.map[this.id] = this;
-    },
+/**
+ * Context of an include
+ *
+ * @constructor
+ * @param {String} src
+ * @param {gpf.events.Handler} eventsHandler
+ * @class _GpfWebIncludeContext
+ */
+function _GpfWebIncludeContext (src, eventsHandler) {
+    /*jshint validthis:true*/
+    if (undefined === _GpfWebIncludeContext.id) {
+        // Unique IDs for each include
+        _GpfWebIncludeContext.id = 0;
+        // Dictionary of contexts associated to the includes
+        _GpfWebIncludeContext.map = {};
+    }
+    this.id = ++_GpfWebIncludeContext.id;
+    this.src = src;
+    this.eventsHandler = eventsHandler;
+    _GpfWebIncludeContext.map[this.id] = this;
+}
 
-    /**
-     * Use insertBefore instead of appendChild  to avoid an IE6 bug.
-     * This arises when a base node is used (#2709 and #4378).
-     * Also found a bug in IE10 that loads & triggers immediately
-     * script, use timeout
-     *
-     * @param {Object} domScript
-     * @private
-     */
-    _gpfWebIncludeInsert = function (domScript) {
-        _gpfWebHead.insertBefore(domScript, _gpfWebHead.firstChild);
-    },
+/**
+ * Use insertBefore instead of appendChild  to avoid an IE6 bug.
+ * This arises when a base node is used (#2709 and #4378).
+ *
+ * @param {Object} domScript
+ */
+function _gpfWebIncludeInsert (domScript) {
+    _gpfWebHead.insertBefore(domScript, _gpfWebHead.firstChild);
+}
 
-    /**
-     * The loading result is notified asynchronously using a setTimeout.
-     * This function is the callback that forward the parameters to the
-     * gpf.events.fire function
-     *
-     * @param {Array} parameters
-     * @private
-     */
-    _gpfWebIncludeAsyncResult = function (parameters) {
-        _gpfEventsFire.apply(_gpfMainContext, parameters);
-    },
+/**
+ * @inheritdoc gpf.web#include
+ * Implementation of gpf.web.include
+ *
+ * Inspired from http://stackoverflow.com/questions/4845762/
+ */
+ function _gpfWebInclude (src, eventsHandler) {
+    var context = new _GpfWebIncludeContext(src, eventsHandler),
+        domScript = _gpfWebDocument.createElement("script");
+    // Configure script tag
+    domScript.language = "javascript";
+    domScript.src = src;
+    domScript.id = context.id;
+    // Attach handlers for all browsers
+    domScript.onload = domScript.onreadystatechange = _GpfWebIncludeContext.onLoad;
+    domScript.onerror = _GpfWebIncludeContext.onError;
+    // Use async when supported
+    if (undefined !== domScript.async) {
+        domScript.async = true;
+    }
+    // Bug in IE10 that loads & triggers immediately, use timeout
+    setTimeout(_gpfWebIncludeInsert, 0, domScript);
+}
 
-    /**
-     * @inheritdoc gpf.web#include
-     * Implementation of gpf.web.include
-     *
-     * Inspired from http://stackoverflow.com/questions/4845762/
-     */
-    _gpfWebInclude = function (src, eventsHandler) {
-        var
-            context = new _GpfIncludeContext(src, eventsHandler),
-            domScript = _gpfWebDocument.createElement("script");
-        // Configure script tag
-        domScript.language = "javascript";
-        domScript.src = src;
-        domScript.id = context.id;
-        // Attach handlers for all browsers
-        domScript.onload
-            = domScript.onreadystatechange
-            = _GpfIncludeContext.onLoad;
-        domScript.onerror
-            = _GpfIncludeContext.onError;
-        // Use async when supported
-        if (undefined !== domScript.async) {
-            domScript.async = true;
-        }
-        /*
-         * Use insertBefore instead of appendChild  to avoid an IE6 bug.
-         * This arises when a base node is used (#2709 and #4378).
-         * Also found a bug in IE10 that loads & triggers immediately
-         * script, use timeout
-         */
-        setTimeout(_gpfWebIncludeInsert, 0, domScript);
-    };
+_GpfWebIncludeContext.prototype = {
 
-_GpfIncludeContext.prototype = {
-
-    /**
-     * Unique ID of this context
-     *
-     * @type {Number}
-     * @read-only
-     */
+    // Unique ID of this context
     id: 0,
 
-    /**
-     * Included source
-     *
-     * @type {String}
-     * @read-only
-     */
+    // Included source
     src: "",
 
-    /**
-     * Events handler
-     *
-     * @type {gpf.events.Handler}
-     * @read-only
-     */
+     // @property {gpf.events.Handler} Events handler
     eventsHandler: null,
 
     /**
@@ -118,19 +83,16 @@ _GpfIncludeContext.prototype = {
      */
     clean: function (domScript) {
         var parent = domScript.parentNode;
-        domScript.onerror
-            = domScript.onload
-            = domScript.onreadystatechange
-            = null;
+        domScript.onerror = domScript.onload = domScript.onreadystatechange = null;
         if (parent) {
             parent.removeChild(domScript);
         }
         // Destroy context mapping
-        delete _GpfIncludeContext.map[this.id];
+        delete _GpfWebIncludeContext.map[this.id];
     },
 
     /**
-     * The script was loaded
+     * The script may be loaded
      *
      * @param {Object} domScript The script element
      */
@@ -139,11 +101,8 @@ _GpfIncludeContext.prototype = {
         if (!readyState || -1 < ["loaded", "complete"].indexOf(readyState)) {
             this.clean(domScript);
             // IE10: the event is triggered *before* the source is evaluated
-            setTimeout(_gpfWebIncludeAsyncResult, 0, [
-                _GPF_EVENT_READY, {url: this.src}, this.eventsHandler
-            ]);
+            setTimeout(_gpfEventsFire, 0, _GPF_EVENT_READY, {url: this.src}, this.eventsHandler);
         }
-
     },
 
     /**
@@ -153,35 +112,17 @@ _GpfIncludeContext.prototype = {
      */
     failed: function (domScript) {
         this.clean(domScript);
-        setTimeout(_gpfWebIncludeAsyncResult, 0, [
-            _GPF_EVENT_ERROR, {url: this.src}, this.eventsHandler
-        ]);
+        setTimeout(_gpfEventsFire, 0, _GPF_EVENT_ERROR, {url: this.src}, this.eventsHandler);
     }
 
 };
 
 /**
- * Unique IDs used for include tags
- *
- * @type {number}
- * @static
- */
-_GpfIncludeContext.id = 0;
-
-/**
- * Dictionary of contexts associated to the includes
- *
- * @type {Object}
- * @static
- */
-_GpfIncludeContext.map = {};
-
-/**
  * Wrapper for the load event
  */
-_GpfIncludeContext.onLoad = function () {
+_GpfWebIncludeContext.onLoad = function () {
     // 'this' is the script element
-    var context = _GpfIncludeContext.map[this.id];
+    var context = _GpfWebIncludeContext.map[this.id];
     if (context) {
         context.check(this);
     }
@@ -190,9 +131,9 @@ _GpfIncludeContext.onLoad = function () {
 /**
  * Wrapper for the error event
  */
-_GpfIncludeContext.onError = function () {
+_GpfWebIncludeContext.onError = function () {
     // 'this' is the script element
-    var context = _GpfIncludeContext.map[this.id];
+    var context = _GpfWebIncludeContext.map[this.id];
     if (context) {
         context.failed(this);
     }
