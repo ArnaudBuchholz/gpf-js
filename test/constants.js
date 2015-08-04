@@ -14,7 +14,7 @@ describe("constants", function () {
             assert(null !== version.match(/[0-9]+\.[0-9]+d?/));
         });
 
-        it("should expose the host name", function () {
+        it("should expose the host type", function () {
             assert("function" === typeof gpf.host);
             assert("string" === typeof gpf.host());
             var host = gpf.host();
@@ -26,6 +26,20 @@ describe("constants", function () {
                 gpf.HOST_BROWSER,
                 gpf.HOST_UNKNOWN
             ].indexOf(host));
+        });
+
+        describe("gpf.HOST_xxx", function () {
+            [ // expected list of known host types
+                "BROWSER",
+                "NODEJS",
+                "PHANTOMJS",
+                "UNKNOWN",
+                "WSCRIPT"
+            ].forEach(function (eventName) {
+                it("declares gpf.HOST_" + eventName, function () {
+                    assert(undefined !== gpf["HOST_" + eventName]);
+                });
+            });
         });
 
         it("should provide a context resolver", function () {
