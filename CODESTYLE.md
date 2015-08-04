@@ -256,4 +256,20 @@ maxcomplexity | 6 | limits cyclomatic complexity
 
 Turning off a warning is allowed provided a comment explains why this is turned off
 
+The following syntax is used on internal constructors as the function name starts with _Gpf (and it is not detected
+as a valid constructor function).
+
+```javascript
+/*jshint validthis:true*/
+```
+
+Or it may be temporarily turned of using -W040 / +W040 as the following:
+
+```javascript
+    /*jshint -W040*/ // This is the common way to get the global context
+    // Main context object
+    _gpfMainContext = this,
+    /*jshint +W040*/
+```
+
 ## Code testing
