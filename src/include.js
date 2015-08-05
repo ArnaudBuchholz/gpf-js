@@ -9,26 +9,100 @@
 /*global _gpfWebHead*/ // Browser head tag
 /*#endif*/
 
+var _GPF_WEB_INCLUDE_ID_PREFIX = "gpf-include-",
+    // Unique IDs for each include
+    _GpfWebIncludeLastId = 0,
+    // Dictionary of contexts associated to the includes
+    _GpfWebIncludeMap = {};
+
 /**
  * Context of an include
  *
- * @constructor
- * @param {String} src
+ * @param {String} url
  * @param {gpf.events.Handler} eventsHandler
  * @class _GpfWebIncludeContext
+ * @constructor
  */
-function _GpfWebIncludeContext (src, eventsHandler) {
+function _GpfWebIncludeContext (url, eventsHandler) {
     /*jshint validthis:true*/
-    if (undefined === _GpfWebIncludeContext.id) {
-        // Unique IDs for each include
-        _GpfWebIncludeContext.id = 0;
-        // Dictionary of contexts associated to the includes
-        _GpfWebIncludeContext.map = {};
-    }
-    this.id = ++_GpfWebIncludeContext.id;
-    this.src = src;
+    this.id = ++_GpfWebIncludeLastId;
+    this.url = url;
     this.eventsHandler = eventsHandler;
-    _GpfWebIncludeContext.map[this.id] = this;
+    _GpfWebIncludeMap[this.id] = this;
+}
+
+_GpfWebIncludeContext.prototype = {
+
+    // Unique ID of this context
+    id: 0,
+
+    // Include URL
+    url: "",
+
+    // @property {gpf.events.Handler} Events handler
+    eventsHandler: null,
+
+    /**
+     * Clean the include context
+     *
+     * @param {Object} domScript The script element
+     */
+    clean: function (domScript) {
+        var parent = domScript.parentNode;
+        domScript.onerror = domScript.onload = domScript.onreadystatechange = null;
+        if (parent) {
+            parent.removeChild(domScript);
+        }
+        // Destroy context mapping
+        delete _GpfWebIncludeMap[this.id];
+    },
+
+    /**
+     * The script may be loaded
+     *
+     * @param {Object} domScript The script element
+     */
+    check: function (domScript) {
+        var readyState = domScript.readyState;
+        if (!readyState || -1 < ["loaded", "complete"].indexOf(readyState)) {
+            this.clean(domScript);
+            // IE10: the event is triggered *before* the source is evaluated
+            setTimeout(_gpfEventsFire, 0, _GPF_EVENT_READY, {url: this.url}, this.eventsHandler);
+        }
+    },
+
+    /**
+     * The script loading failed
+     *
+     * @param {Object} domScript The script element
+     */
+    failed: function (domScript) {
+        this.clean(domScript);
+        setTimeout(_gpfEventsFire, 0, _GPF_EVENT_ERROR, {url: this.url}, this.eventsHandler);
+    }
+
+};
+
+function _GpfWebIncludeGetContextFromId (id) {
+    return _GpfWebIncludeMap[id.substr(_GPF_WEB_INCLUDE_ID_PREFIX.length)];
+}
+
+// Wrapper for the load event
+function _GpfWebIncludeOnLoad () {
+    /*jshint validthis:true*/ // 'this' is the script element
+    var context = _GpfWebIncludeGetContextFromId(this.id);
+    if (context) {
+        context.check(this);
+    }
+}
+
+// Wrapper for the error event
+function _GpfWebIncludeOnError () {
+    /*jshint validthis:true*/ // 'this' is the script element
+    var context = _GpfWebIncludeGetContextFromId(this.id);
+    if (context) {
+        context.failed(this);
+    }
 }
 
 /**
@@ -47,16 +121,16 @@ function _gpfWebIncludeInsert (domScript) {
  *
  * Inspired from http://stackoverflow.com/questions/4845762/
  */
- function _gpfWebInclude (src, eventsHandler) {
-    var context = new _GpfWebIncludeContext(src, eventsHandler),
+ function _gpfWebInclude (url, eventsHandler) {
+    var context = new _GpfWebIncludeContext(url, eventsHandler),
         domScript = _gpfWebDocument.createElement("script");
     // Configure script tag
     domScript.language = "javascript";
-    domScript.src = src;
-    domScript.id = context.id;
+    domScript.src = url;
+    domScript.id = _GPF_WEB_INCLUDE_ID_PREFIX + context.id;
     // Attach handlers for all browsers
-    domScript.onload = domScript.onreadystatechange = _GpfWebIncludeContext.onLoad;
-    domScript.onerror = _GpfWebIncludeContext.onError;
+    domScript.onload = domScript.onreadystatechange = _GpfWebIncludeOnLoad;
+    domScript.onerror = _GpfWebIncludeOnError;
     // Use async when supported
     if (undefined !== domScript.async) {
         domScript.async = true;
@@ -65,91 +139,12 @@ function _gpfWebIncludeInsert (domScript) {
     setTimeout(_gpfWebIncludeInsert, 0, domScript);
 }
 
-_GpfWebIncludeContext.prototype = {
-
-    // Unique ID of this context
-    id: 0,
-
-    // Included source
-    src: "",
-
-     // @property {gpf.events.Handler} Events handler
-    eventsHandler: null,
-
-    /**
-     * Clean the include context
-     *
-     * @param {Object} domScript The script element
-     */
-    clean: function (domScript) {
-        var parent = domScript.parentNode;
-        domScript.onerror = domScript.onload = domScript.onreadystatechange = null;
-        if (parent) {
-            parent.removeChild(domScript);
-        }
-        // Destroy context mapping
-        delete _GpfWebIncludeContext.map[this.id];
-    },
-
-    /**
-     * The script may be loaded
-     *
-     * @param {Object} domScript The script element
-     */
-    check: function (domScript) {
-        var readyState = domScript.readyState;
-        if (!readyState || -1 < ["loaded", "complete"].indexOf(readyState)) {
-            this.clean(domScript);
-            // IE10: the event is triggered *before* the source is evaluated
-            setTimeout(_gpfEventsFire, 0, _GPF_EVENT_READY, {url: this.src}, this.eventsHandler);
-        }
-    },
-
-    /**
-     * The script loading failed
-     *
-     * @param {Object} domScript The script element
-     */
-    failed: function (domScript) {
-        this.clean(domScript);
-        setTimeout(_gpfEventsFire, 0, _GPF_EVENT_ERROR, {url: this.src}, this.eventsHandler);
-    }
-
-};
-
-/**
- * Wrapper for the load event
- */
-_GpfWebIncludeContext.onLoad = function () {
-    // 'this' is the script element
-    var context = _GpfWebIncludeContext.map[this.id];
-    if (context) {
-        context.check(this);
-    }
-};
-
-/**
- * Wrapper for the error event
- */
-_GpfWebIncludeContext.onError = function () {
-    // 'this' is the script element
-    var context = _GpfWebIncludeContext.map[this.id];
-    if (context) {
-        context.failed(this);
-    }
-};
-
 if (_gpfInBrowser) {
 
     /**
-     * Loads dynamically any script
-     * Waits for the script to be loaded and calls a eventsHandler when done
-     * The following is an easy way to handle eventsHandlers whenever the
-     * process is asychronous (window.setTimeout, onload eventsHandler).
-     * The function returns an object that can be overridden with our own
-     * loaded handler (if needed)
+     * Dynamically loads a script in the browser, wait until the script is loaded to fire the eventsHandler when done.
      *
-     * @param {String} src
+     * @param {String} url
      * @param {gpf.events.Handler} eventsHandler
      *
      * @eventParam {string} url URL of the included resource
