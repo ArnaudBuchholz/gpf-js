@@ -3,7 +3,25 @@
 
 describe("constants", function () {
 
-    describe("boot", function () {
+    describe("gpf", function () {
+
+        it("does not expose any 'private' member", function () {
+            function check(obj, done) {
+                var property,
+                    value;
+                for (property in obj) {
+                    if (obj.hasOwnProperty(property)) {
+                        assert(property.charAt(0) !== "_");
+                        value = obj[property];
+                        if ("object" === typeof value && -1 === done.indexOf(value)) {
+                            done.push(value);
+                            check(value, done);
+                        }
+                    }
+                }
+            }
+            check(gpf, [gpf]);
+        });
 
         it("should expose a version", function () {
             assert("function" === typeof gpf.version);
