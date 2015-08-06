@@ -7,14 +7,14 @@
             "compatibility",        // JavaScript compatibility helpers
             "constants",            // Constants
             "events",               // Event management         gpf.events.Event
-
-            /* new JSHint settings */
-
             "include",              // WEB include               gpf.web.include
 
                                     // --- Minimum required for boot_web.js ---
 
             "base",                 // Basic functions
+
+            /* new JSHint settings */
+
             "like",                 // Comparison helper                gpf.like
             "callback",             // Callback object              gpf.Callback
             "dispatch",             //            gpf.events.EventDispatcherImpl
