@@ -1,5 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*#endif*/
 
 /**
@@ -74,6 +75,14 @@ gpf.events.EventDispatcherImpl.prototype = {
         return this;
     },
 
+    _triggerListeners: function (eventObj, eventListeners) {
+        var idx,
+            len = eventListeners.length;
+        for (idx = 0; idx < len; ++idx) {
+            _gpfEventsFire.apply(this, [eventObj, {}, eventListeners[idx]]);
+        }
+    },
+
     /**
      * Broadcast the event
      *
@@ -88,9 +97,7 @@ gpf.events.EventDispatcherImpl.prototype = {
             listeners = this._eventDispatcherListeners,
             eventObj,
             type,
-            eventListeners,
-            len,
-            idx;
+            eventListeners;
         if (!listeners) {
             return this; // No listeners at all
         }
@@ -107,10 +114,7 @@ gpf.events.EventDispatcherImpl.prototype = {
         if (!eventObj) {
             eventObj = new gpf.events.Event(type, params, this);
         }
-        len = eventListeners.length;
-        for (idx = 0; idx < len; ++idx) {
-            gpf.events.fire.apply(this, [eventObj, eventListeners[idx]]);
-        }
+        this._triggerListeners(eventObj, eventListeners);
         return this;
     }
 
