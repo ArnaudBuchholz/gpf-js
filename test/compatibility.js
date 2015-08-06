@@ -6,8 +6,7 @@ describe("compatibility", function () {
     describe("Array", function () {
 
         it("should allow building an array with a given size", function () {
-            var
-                array = new Array(5),
+            var array = new Array(5),
                 idx;
             assert(5 === array.length);
             for (idx = 0; idx < 5; ++idx) {
@@ -17,15 +16,13 @@ describe("compatibility", function () {
         });
 
         it("should expose every", function () {
-            var
-                array = [];
+            var array = [];
             assert("function" === typeof array.every);
             assert(!array.hasOwnProperty("every"));
         });
 
         it("should return true when it goes over all items", function () {
-            var
-                array = [1, 2, 3, -6, 10],
+            var array = [1, 2, 3, -6, 10],
                 sum = 0,
                 result;
             result = array.every(function (value) {
@@ -37,8 +34,7 @@ describe("compatibility", function () {
         });
 
         it("should return false when it stops on a given item", function () {
-            var
-                array = [1, 2, 3, -6, 10],
+            var array = [1, 2, 3, -6, 10],
                 sum = 0,
                 result;
             result = array.every(function (value) {
@@ -53,8 +49,7 @@ describe("compatibility", function () {
         });
 
         it("should expose every(callback, thisArg)", function () {
-            var
-                array = [1, 2, 3, -6, 10],
+            var array = [1, 2, 3, -6, 10],
                 scope = {
                     sum: 0,
                     index: 0
@@ -75,8 +70,7 @@ describe("compatibility", function () {
         });
 
         it("should expose forEach(callback)", function () {
-            var
-                array = [1, 2, 3],
+            var array = [1, 2, 3],
                 sum = 0;
             assert("function" === typeof array.forEach);
             assert(!array.hasOwnProperty("forEach"));
@@ -87,8 +81,7 @@ describe("compatibility", function () {
         });
 
         it("should expose forEach(callback, thisArg)", function () {
-            var
-                array = [1, 2, 3],
+            var array = [1, 2, 3],
                 obj = {
                     sum: 0
                 };
@@ -99,8 +92,7 @@ describe("compatibility", function () {
         });
 
         it("should expose indexOf()", function () {
-            var
-                obj = {},
+            var obj = {},
                 array = [1, 2, 3, obj, "abc"];
             assert("function" === typeof array.indexOf);
             assert(!array.hasOwnProperty("indexOf"));
@@ -112,8 +104,7 @@ describe("compatibility", function () {
         });
 
         it("should expose map(callback, thisArg)", function () {
-            var
-                obj = {},
+            var obj = {},
                 array = [1, 2, 3, obj, "abc"],
                 result;
             assert("function" === typeof array.map);
@@ -195,8 +186,7 @@ describe("compatibility", function () {
         });
 
         it("should expose bind(thisArg)", function () {
-            var
-                scope = {
+            var scope = {
                     member: null
                 },
                 testFunction = function (value) {
@@ -220,8 +210,7 @@ describe("compatibility", function () {
     describe("String", function () {
 
         it("should expose trim", function () {
-            var
-              string = " \t  abc\t \t";
+            var string = " \t  abc\t \t";
             assert("function" === typeof string.trim);
             assert(!string.hasOwnProperty("trim"));
             assert("abc" === string.trim());
