@@ -5,12 +5,14 @@
 /**
  * Abstract implementation of an event dispatcher.
  * A typical use would be:
- *   gpf.extend(YourClass.prototype, gpf.events.EventDispatcherImpl)
+ *   gpf.extend(YourClass.prototype, gpf.events.EventDispatcherImpl.prototype)
  *
  * @type {Object}
  */
-gpf.events.EventDispatcherImpl = {
+gpf.events.EventDispatcherImpl = function () {
+};
 
+gpf.events.EventDispatcherImpl.prototype = {
     /**
      * @type {Object} Dictionary of event name to the list of callbacks
      * @private
