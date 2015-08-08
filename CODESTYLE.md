@@ -148,6 +148,22 @@ _gpfExtend(gpf, {
     extend: _gpfExtend,
 ```
 
+If a parameter documentation needs several lines, text should start at the beginning of each line.
+'Simple' formatting helpers can be used (based on [markdown](http://en.wikipedia.org/wiki/Markdown)):
+
+```javascript
+    /**
+     * To implement gpf.noConflict(), we need to keep the previous content of gpf.
+     * Makes sense only for the following hosts:
+     * - phantomjs
+     * - browser
+     * - unknown
+     *
+     * @type {undefined|Object}
+     */
+    _gpfConflictingSymbol,
+```
+
 ### Comments
 
 Following Robert Martin's excellent Clean Code principles, comments should be reduced to the minimum.
