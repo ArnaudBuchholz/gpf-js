@@ -1,6 +1,5 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
 /*global gpfSourcesPath:true*/ // Global source path
 /*exported _GPF_HOST_BROWSER*/
 /*exported _GPF_HOST_NODEJS*/
