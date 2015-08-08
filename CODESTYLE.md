@@ -107,10 +107,7 @@ _gpfDefAttr("$UniqueAttribute", _gpfAttrConstraint, {
 
     private: {
 
-        /**
-         * The attribute is unique for the whole class when true or per member
-         * when false.
-         */
+         // The attribute is unique for the whole class when true or per member when false.
         _classScope: true
 
     },
@@ -127,7 +124,6 @@ The placeholder selected to insert documentation must make the variable path cle
 A counter example (where both private & public version exist):
 
 ```javascript
-
 /**
  * @inheritdoc gpf:extend
  * Implementation of gpf.extend
@@ -150,8 +146,6 @@ _gpfExtend(gpf, {
      * @chainable
      */
     extend: _gpfExtend,
-
-
 ```
 
 ### Comments
