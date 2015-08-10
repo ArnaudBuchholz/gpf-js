@@ -72,8 +72,7 @@ _gpfDefIntrf("IReadOnlyArray", {
 /**
  * Extend the class to provide an array-like interface
  *
- * @param {Boolean} [writeAllowed=false] writeAllowed Switch between read
- * only array and writable one
+ * @param {Boolean} [writeAllowed=false] writeAllowed Switch between read only array and writable one
  *
  * @class gpf.attributes.ClassArrayInterfaceAttribute
  * @extends gpf.attributes.ClassAttribute
@@ -85,38 +84,30 @@ _gpfDefAttr("$ClassIArray", _gpfA.ClassAttribute, {
 
     private: {
 
-        /**
-         * @type {boolean}
-         * @private
-         */
         _writeAllowed: false
 
     },
 
     protected: {
 
-        /**
-         * @inheritdoc gpf.attributes.Attribute:_alterPrototype
-         */
+        // @inheritdoc gpf.attributes.Attribute:_alterPrototype
         _alterPrototype: function (objPrototype) {
-            var
-                implementedInterface;
+            var implementedInterface,
+                member = this._member;
             if (this._writeAllowed) {
                 implementedInterface = _gpfI.IArray;
             } else {
                 implementedInterface = _gpfI.IReadOnlyArray;
             }
-            _gpfAAdd(objPrototype.constructor, "Class",
-                [gpf.$InterfaceImplement(implementedInterface)]);
-            objPrototype.getItemsCount = _gpfFunc("return this."
-                + this._member + ".length;");
-            objPrototype.getItem = _gpfFunc(["_gpfArrayOrItem"],
-                "return function (idx) { return _gpfArrayOrItem(this. "
-                + this._member + ", idx); }")(_gpfArrayOrItem);
+            _gpfAAdd(objPrototype.constructor, "Class", [gpf.$InterfaceImplement(implementedInterface)]);
+            objPrototype.getItemsCount = _gpfFunc("return this." + member + ".length;");
+            objPrototype.getItem = _gpfFunc(["idx"], "return this." + member + "[idx];");
             if (this._writeAllowed) {
-                objPrototype.setItem = _gpfFunc("var i=arguments[0],"
-                    + "v=this." + this._name + "[i];this."
-                    + this._member + "[i]=arguments[1];return v;");
+                objPrototype.setItem = _gpfFunc(["idx", "value"], [
+                    "var oldValue = this." + member + "[idx];",
+                    "this." + member + "[idx] = value;",
+                    "return oldValue;"
+                ].join(""));
             }
         }
 

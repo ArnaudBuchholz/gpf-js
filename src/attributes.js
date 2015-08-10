@@ -1,7 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfArrayEachWithResult*/ //gpf.each implementation on array
-/*global _gpfArrayOrItem*/ // Common way to code IReadOnlyArray::getItem
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfDictionaryEachWithResult*/ //gpf.each implementation on dictionary
 /*global _gpfFunc*/ // Create a new function using the source
@@ -243,7 +242,7 @@ _gpfDefine("gpf.attributes.Array", {
          * from IReadOnlyArray (once i_array.js is loaded)
          */
         getItem: function (index) {
-            return _gpfArrayOrItem(this._array, index);
+            return this._array[index];
         },
 
         /**
@@ -367,8 +366,7 @@ _gpfDefine("gpf.attributes.Map", {
                         array = members[member]._array;
                         for (idx = 0; idx < array.length; ++idx) {
                             attribute = array[ idx ];
-                            if (!callback
-                                || callback(member, attribute, param)) {
+                            if (!callback || callback(member, attribute, param)) {
                                 attributesMap.add(member, attribute);
                             }
                         }
