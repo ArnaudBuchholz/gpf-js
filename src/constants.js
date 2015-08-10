@@ -32,7 +32,7 @@
 /*global gpfSourcesPath*/ // Global source path
 //endregion
 //region compatibility
-/*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
+/*global _gpfArraySlice*/ // Slice an array-like object
 /*global _gpfSetConstant*/ // If possible, defines a constant (i.e. read-only property)
 //endregion
 //region constants
