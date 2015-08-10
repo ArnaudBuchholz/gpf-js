@@ -1,6 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfArrayEachWithResult*/ //gpf.each implementation on array
+/*global _gpfArraySlice*/ // Slice an array-like object
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfDictionaryEachWithResult*/ //gpf.each implementation on dictionary
 /*global _gpfFunc*/ // Create a new function using the source
@@ -307,16 +307,16 @@ _gpfDefine("gpf.attributes.Array", {
          * is returned to the caller.
          *
          * @param {Function} callback will receive parameters
-         * - {Number} index
          * - {gpf.attributes.Attribute} attribute
-         * - {Number} array length
+         * - {Number} index
+         * - {gpf.attributes.Attribute[]} attribute array
          *
          * If a result is returned, the enumeration stops and this result is
          * returned
          * @return {*} undefined by default
          */
-        each: function (callback) {
-            return _gpfArrayEachWithResult(this._array, callback, undefined);
+        forEach: function (callback) {
+            _gpfArraySlice(this._array, 0).forEach(callback);
         }
     }
 
