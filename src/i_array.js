@@ -2,7 +2,6 @@
 "use strict";
 /*global _gpfA*/ // gpf.attributes
 /*global _gpfAAdd*/ // Shortcut for gpf.attributes.add
-/*global _gpfArrayOrItem*/ // Common way to code IReadOnlyArray::getItem
 /*global _gpfDefAttr*/ // gpf.define for attributes
 /*global _gpfDefIntrf*/ // gpf.define for interfaces
 /*global _gpfFunc*/ // Create a new function using the source
