@@ -4,90 +4,103 @@
 /*global _gpfExit*/ // Exit function
 /*global _gpfHost*/ // Host type
 /*global _gpfInNode*/ // The current host is a nodeJS like
-/*exported _gpfArrayEachWithResult*/
-/*exported _gpfArrayOrItem*/
-/*exported _gpfDictionaryEachWithResult*/
 /*exported _gpfExtend*/
 /*exported _gpfIsArrayLike*/
+/*exported _gpfObjectForEach*/
 /*exported _gpfStringCapitalize*/
 /*exported _gpfStringEscapeFor*/
 /*exported _gpfStringReplaceEx*/
 /*#endif*/
 
+//region String helpers (will be reused in string module)
+
 /**
- * gpf.each implementation on array
+ * Capitalize the string
  *
- * @param {Array} array
- * @param {Function} memberCallback
- * @param {*} defaultResult
- * @forwardThis
+ * @param {String} that
+ * @return {String}
  */
-function _gpfArrayEachWithResult (array, memberCallback, defaultResult) {
-    /*jshint validthis:true*/ // this is forwarded
-    var result,
-        len = array.length,
-        idx;
-    for (idx = 0; idx < len; ++idx) {
-        result = memberCallback.apply(this, [idx, array[idx], len]);
-        if (undefined !== result) {
-            return result;
-        }
-    }
-    return defaultResult;
+function _gpfStringCapitalize (that) {
+    return that.charAt(0).toUpperCase() + that.substr(1);
 }
 
 /**
- * gpf.each implementation on array without default result
+ * String replacement using dictionary map
  *
- * @param {Array} array
- * @param {Function} memberCallback
- * @forwardThis
+ * @param {String} that
+ * @param {Object} replacements map of strings to search and replace
+ * @return {String}
  */
-function _gpfArrayEach (array, memberCallback) {
-    /*jshint validthis:true*/ // this is forwarded
-    var len = array.length,
-        idx;
-    for (idx = 0; idx < len; ++idx) {
-        memberCallback.apply(this, [idx, array[idx], len]);
-    }
-}
-
-/**
- * gpf.each implementation on object
- *
- * @param {Object} dictionary
- * @param {Function} memberCallback
- * @param {*} defaultResult
- * @forwardThis
- */
-function _gpfDictionaryEachWithResult (dictionary, memberCallback, defaultResult) {
-    /*jshint validthis:true*/ // this is forwarded
-    var result,
-        member;
-    for (member in dictionary) {
-        if (dictionary.hasOwnProperty(member)) {
-            result = memberCallback.apply(this, [member, dictionary[member]]);
-            if (undefined !== result) {
-                return result;
+function _gpfStringReplaceEx (that, replacements) {
+    var
+        result = that,
+        key;
+    for (key in replacements) {
+        if (replacements.hasOwnProperty(key)) {
+            if (-1 < result.indexOf(key)) {
+                result = result.split(key).join(replacements[key]);
             }
         }
     }
-    return defaultResult;
+    return result;
 }
 
+var
+    // Dictionary of language to escapes
+    _gpfStringEscapes = {
+
+        javascript: {
+            "\\": "\\\\",
+            "\"": "\\\"",
+            "\n": "\\n",
+            "\r": "\\r",
+            "\t": "\\t"
+        },
+
+        xml: {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;"
+        },
+
+        html: {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            "\u00E9": "&eacute;",
+            "\u00E8": "&egrave;",
+            "\u00EA": "&ecirc;",
+            "\u00E1": "&aacute;",
+            "\u00E0": "&agrave;"
+        }
+
+    };
+
 /**
- * gpf.each implementation on object without default result
+ * Make the string content compatible with lang
  *
- * @param {Object} dictionary
- * @param {Function} memberCallback
- * @forwardThis
+ * @param {String} that
+ * @param {String} language
+ * @return {String}
  */
- function _gpfDictionaryEach (dictionary, memberCallback) {
-    /*jshint validthis:true*/ // this is forwarded
-    var member;
-    for (member in dictionary) {
-        if (dictionary.hasOwnProperty(member)) {
-            memberCallback.apply(this, [member, dictionary[member]]);
+function _gpfStringEscapeFor (that, language) {
+    var replacements = _gpfStringEscapes[language];
+    if (undefined !== replacements) {
+        that = _gpfStringReplaceEx(that, replacements);
+        if ("javascript" === language) {
+            that = "\"" + that + "\"";
+        }
+    }
+    return that;
+}
+
+//endregion
+
+// Similar to [].forEach but for objects
+function _gpfObjectForEach(object, callback, thisArg) {
+    for (var property in object) {
+        if (object.hasOwnProperty(property)) {
+            callback.apply(thisArg, [property, object[property]]);
         }
     }
 }
@@ -142,88 +155,7 @@ function _gpfDictionaryEachWithResult (dictionary, memberCallback, defaultResult
 
 
 
- /**
- * Capitalize the string
- *
- * @param {String} that
- * @return {String}
- */
-function _gpfStringCapitalize (that) {
-    return that.charAt(0).toUpperCase() + that.substr(1);
-}
 
-/**
- * String replacement using dictionary map
- *
- * @param {String} that
- * @param {Object} replacements map of strings to search and replace
- * @return {String}
- */
-function _gpfStringReplaceEx (that, replacements) {
-    var
-        result = that,
-        key;
-    for (key in replacements) {
-        if (replacements.hasOwnProperty(key)) {
-            if (-1 < result.indexOf(key)) {
-                result = result.split(key).join(replacements[key]);
-            }
-        }
-    }
-    return result;
-}
-
-var
-    /**
-     * @type {Object} Dictionary of language to escapes
-     * @private
-     */
-    _gpfStringEscapes = {
-
-        javascript: {
-            "\\": "\\\\",
-            "\"": "\\\"",
-            "\n": "\\n",
-            "\r": "\\r",
-            "\t": "\\t"
-        },
-
-        xml: {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;"
-        },
-
-        html: {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            "\u00E9": "&eacute;",
-            "\u00E8": "&egrave;",
-            "\u00EA": "&ecirc;",
-            "\u00E1": "&aacute;",
-            "\u00E0": "&agrave;"
-        }
-
-    };
-
-/**
- * Make the string content compatible with lang
- *
- * @param {String} that
- * @param {String} language
- * @return {String}
- */
-function _gpfStringEscapeFor (that, language) {
-    var replacements = _gpfStringEscapes[language];
-    if (undefined !== replacements) {
-        that = _gpfStringReplaceEx(that, replacements);
-        if ("javascript" === language) {
-            that = "\"" + that + "\"";
-        }
-    }
-    return that;
-}
 
 var
     /*exported _gpfIsArrayLike*/
