@@ -67,8 +67,6 @@
 //region include
 //endregion
 //region base
-/*global _gpfArrayEachWithResult*/ //gpf.each implementation on array
-/*global _gpfArrayOrItem*/ // Common way to code IReadOnlyArray::getItem
 /*global _gpfDictionaryEachWithResult*/ //gpf.each implementation on dictionary
 /*global _gpfExtend*/ // gpf.extend
 /*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
