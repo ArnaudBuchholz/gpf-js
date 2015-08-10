@@ -11,7 +11,7 @@
 
                                     // --- Minimum required for boot_web.js ---
 
-            "base",                 // Basic functions
+            "base",                 // General helpers
 
             /* new JSHint settings */
 
