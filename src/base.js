@@ -14,248 +14,166 @@
 /*exported _gpfStringReplaceEx*/
 /*#endif*/
 
-/*
-    This package contains general helpers that will be used everywhere else
-*/
+/**
+ * gpf.each implementation on array
+ *
+ * @param {Array} array
+ * @param {Function} memberCallback
+ * @param {*} defaultResult
+ * @forwardThis
+ */
+function _gpfArrayEachWithResult (array, memberCallback, defaultResult) {
+    /*jshint validthis:true*/ // this is forwarded
+    var result,
+        len = array.length,
+        idx;
+    for (idx = 0; idx < len; ++idx) {
+        result = memberCallback.apply(this, [idx, array[idx], len]);
+        if (undefined !== result) {
+            return result;
+        }
+    }
+    return defaultResult;
+}
 
-var
-    /**
-     * gpf.each implementation on array
-     *
-     * @param {Array} array
-     * @param {Function} memberCallback
-     * @param {*} defaultResult
-     * @private
-     */
-    _gpfArrayEachWithResult = function (array, memberCallback, defaultResult) {
-        var
-            result,
-            len = array.length,
-            idx;
-        for (idx = 0; idx < len; ++idx) {
-            result = memberCallback.apply(this, [idx, array[idx], len]);
+/**
+ * gpf.each implementation on array without default result
+ *
+ * @param {Array} array
+ * @param {Function} memberCallback
+ * @forwardThis
+ */
+function _gpfArrayEach (array, memberCallback) {
+    /*jshint validthis:true*/ // this is forwarded
+    var len = array.length,
+        idx;
+    for (idx = 0; idx < len; ++idx) {
+        memberCallback.apply(this, [idx, array[idx], len]);
+    }
+}
+
+/**
+ * gpf.each implementation on object
+ *
+ * @param {Object} dictionary
+ * @param {Function} memberCallback
+ * @param {*} defaultResult
+ * @forwardThis
+ */
+function _gpfDictionaryEachWithResult (dictionary, memberCallback, defaultResult) {
+    /*jshint validthis:true*/ // this is forwarded
+    var result,
+        member;
+    for (member in dictionary) {
+        if (dictionary.hasOwnProperty(member)) {
+            result = memberCallback.apply(this, [member, dictionary[member]]);
             if (undefined !== result) {
                 return result;
             }
         }
-        return defaultResult;
-    },
+    }
+    return defaultResult;
+}
 
-    /**
-     * gpf.each implementation on array without default result
-     *
-     * @param {Array} array
-     * @param {Function} memberCallback
-     * @private
-     */
-    _gpfArrayEach = function (array, memberCallback) {
-        var
-            len = array.length,
-            idx;
-        for (idx = 0; idx < len; ++idx) {
-            memberCallback.apply(this, [idx, array[idx], len]);
+/**
+ * gpf.each implementation on object without default result
+ *
+ * @param {Object} dictionary
+ * @param {Function} memberCallback
+ * @forwardThis
+ */
+ function _gpfDictionaryEach (dictionary, memberCallback) {
+    /*jshint validthis:true*/ // this is forwarded
+    var member;
+    for (member in dictionary) {
+        if (dictionary.hasOwnProperty(member)) {
+            memberCallback.apply(this, [member, dictionary[member]]);
         }
-    },
+    }
+}
 
-    /**
-    * Provides a common way to code functions that returns either an array
-    * of results or a given item inside the array using an optional index
-    * parameter (such as for IXmlConstNode:children)
-    *
-    * @param {[]} array Array to grab items from
-    * @param {Number} [idx=undefined] idx Index of the item to get.
-    *        When not specified, a copy of the array is returned (to avoid
-    *        source modifications). When specified:
-    *        if -1, returns the last element of the array or undefined
-    *        if positive, returns the Nth element of the array or undefined
-    *        otherwise, returns undefined
-    * @return {*}
-    */
-    _gpfArrayOrItem = function (array, idx) {
-        if (undefined === idx) {
-            // To avoid result modifications altering source, clone
-            // TODO may not work with IE < 9
-            return Array.prototype.slice.call(array, 0);
-        } else if (0 === array.length) {
-            return undefined;
-        } else if (-1 === idx) {
-            return array[array.length - 1];
-        } else if (idx < -1 || idx > array.length - 1) {
-            return undefined;
-        } else {
-            return array[idx];
-        }
-    },
+/**
+ * gpf.extend implementation of assign without any callback
+ *
+ * @param {String} member
+ * @param {*} value
+ */
+ function _gpfAssign (member, value) {
+    /*jshint validthis:true*/ // gpf.extend's arguments
+    // this[0] is dictionary
+    this[0][member] = value;
+}
 
-    /**
-     * gpf.each implementation on object
-     *
-     * @param {Object} dictionary
-     * @param {Function} memberCallback
-     * @param {*} defaultResult
-     * @private
-     */
-    _gpfDictionaryEachWithResult = function (dictionary, memberCallback,
-        defaultResult) {
-        var
-            result,
-            member;
-        for (member in dictionary) {
-            if (dictionary.hasOwnProperty(member)) {
-                result = memberCallback.apply(this, [member,
-                    dictionary[member]]);
-                if (undefined !== result) {
-                    return result;
-                }
+/**
+ * gpf.extend implementation of assign with a  callback
+ *
+ * @param {String} member
+ * @param {*} value
+ */
+ function _gpfAssignOrCall (member, value) {
+    /*jshint validthis:true*/ // gpf.extend's arguments
+    var
+        dictionary = this[0],
+        overwriteCallback = this[2];
+    // TODO: see if in is faster
+    if (undefined !== dictionary[member]) {
+        overwriteCallback(dictionary, member, value);
+    } else {
+        dictionary[member] = value;
+    }
+}
+
+/**
+ * @inheritdoc gpf#extend
+ * Implementation of gpf.extend
+ */
+ function _gpfExtend (dictionary, properties, overwriteCallback) {
+    var callbackToUse;
+    if (undefined === overwriteCallback) {
+        callbackToUse = _gpfAssign;
+    } else {
+        gpf.ASSERT("function" === typeof overwriteCallback,
+            "Expected function");
+        callbackToUse = _gpfAssignOrCall;
+    }
+    _gpfDictionaryEach.apply(arguments, [properties, callbackToUse]);
+    return dictionary;
+}
+
+
+
+ /**
+ * Capitalize the string
+ *
+ * @param {String} that
+ * @return {String}
+ */
+function _gpfStringCapitalize (that) {
+    return that.charAt(0).toUpperCase() + that.substr(1);
+}
+
+/**
+ * String replacement using dictionary map
+ *
+ * @param {String} that
+ * @param {Object} replacements map of strings to search and replace
+ * @return {String}
+ */
+function _gpfStringReplaceEx (that, replacements) {
+    var
+        result = that,
+        key;
+    for (key in replacements) {
+        if (replacements.hasOwnProperty(key)) {
+            if (-1 < result.indexOf(key)) {
+                result = result.split(key).join(replacements[key]);
             }
         }
-        return defaultResult;
-    },
+    }
+    return result;
+}
 
-    /**
-     * gpf.each implementation on object without default result
-     *
-     * @param {Object} dictionary
-     * @param {Function} memberCallback
-     * @private
-     */
-    _gpfDictionaryEach = function (dictionary, memberCallback) {
-        var
-            member;
-        for (member in dictionary) {
-            if (dictionary.hasOwnProperty(member)) {
-                memberCallback.apply(this, [member, dictionary[member]]);
-            }
-        }
-    },
-
-    /**
-     * gpf.extend implementation of assign without any callback
-     *
-     * @param {String} member
-     * @param {*} value
-     * @private
-     */
-    _gpfAssign = function (member, value) {
-        // this = gpf.extend's arguments
-        // this[0] is dictionary
-        this[0][member] = value;
-    },
-
-    /**
-     * gpf.extend implementation of assign with a  callback
-     *
-     * @param {String} member
-     * @param {*} value
-     * @private
-     */
-    _gpfAssignOrCall = function (member, value) {
-        // this = gpf.extend's arguments
-        var
-            dictionary = this[0],
-            overwriteCallback = this[2];
-        // TODO: see if in is faster
-        if (undefined !== dictionary[member]) {
-            overwriteCallback(dictionary, member, value);
-        } else {
-            dictionary[member] = value;
-        }
-    },
-
-    /**
-     * @inheritdoc gpf#extend
-     * Implementation of gpf.extend
-     * @private
-     */
-    _gpfExtend = function (dictionary, properties, overwriteCallback) {
-        var callbackToUse;
-        if (undefined === overwriteCallback) {
-            callbackToUse = _gpfAssign;
-        } else {
-            gpf.ASSERT("function" === typeof overwriteCallback,
-                "Expected function");
-            callbackToUse = _gpfAssignOrCall;
-        }
-        _gpfDictionaryEach.apply(arguments, [properties, callbackToUse]);
-        return dictionary;
-    },
-
-    /**
-     * gpf.value handlers per type
-     *
-     * @type {Object}
-     * @private
-     */
-    _gpfValues = {
-        boolean: function (value, valueType, defaultValue) {
-            if ("string" === valueType) {
-                if ("yes" === value || "true" === value) {
-                    return true;
-                }
-                return 0 !== parseInt(value, 10);
-            }
-            if ("number" === valueType) {
-                return 0 !== value;
-            }
-            return defaultValue;
-        },
-
-        number:  function (value, valueType, defaultValue) {
-            if ("string" === valueType) {
-                return parseFloat(value);
-            }
-            return defaultValue;
-        },
-
-        string: function (value, valueType, defaultValue) {
-            gpf.interfaces.ignoreParameter(valueType);
-            gpf.interfaces.ignoreParameter(defaultValue);
-            if (value instanceof Date) {
-                return gpf.dateToComparableFormat(value);
-            }
-            return value.toString();
-        },
-
-        object: function (value, valueType, defaultValue) {
-            if (defaultValue instanceof Date && "string" === valueType) {
-                return gpf.dateFromComparableFormat(value);
-            }
-            return defaultValue;
-        }
-    },
-
-     /**
-     * Capitalize the string
-     *
-     * @param that
-     * @return {String}
-     * @private
-     */
-    _gpfStringCapitalize = function (that) {
-        return that.charAt(0).toUpperCase() + that.substr(1);
-    },
-
-    /**
-     * String replacement using dictionary map
-     *
-     * @param {String} that
-     * @param {Object} replacements map of strings to search and replace
-     * @return {String}
-     */
-    _gpfStringReplaceEx = function (that, replacements) {
-        var
-            result = that,
-            key;
-        for (key in replacements) {
-            if (replacements.hasOwnProperty(key)) {
-                if (-1 < result.indexOf(key)) {
-                    result = result.split(key).join(replacements[key]);
-                }
-            }
-        }
-        return result;
-    },
-
+var
     /**
      * @type {Object} Dictionary of language to escapes
      * @private
@@ -287,26 +205,27 @@ var
             "\u00E0": "&agrave;"
         }
 
-    },
+    };
 
-    /**
-     * Make the string content compatible with lang
-     *
-     * @param {String} that
-     * @param {String} language
-     * @return {String}
-     */
-    _gpfStringEscapeFor = function (that, language) {
-        var replacements = _gpfStringEscapes[language];
-        if (undefined !== replacements) {
-            that = _gpfStringReplaceEx(that, replacements);
-            if ("javascript" === language) {
-                that = "\"" + that + "\"";
-            }
+/**
+ * Make the string content compatible with lang
+ *
+ * @param {String} that
+ * @param {String} language
+ * @return {String}
+ */
+function _gpfStringEscapeFor (that, language) {
+    var replacements = _gpfStringEscapes[language];
+    if (undefined !== replacements) {
+        that = _gpfStringReplaceEx(that, replacements);
+        if ("javascript" === language) {
+            that = "\"" + that + "\"";
         }
-        return that;
-    },
+    }
+    return that;
+}
 
+var
     /*exported _gpfIsArrayLike*/
     /**
      * Return true if the parameter looks like an array
@@ -366,12 +285,56 @@ gpf.each = function (dictionary, memberCallback, defaultResult) {
         }
         return;
     }
-    if (gpf.isArrayLike(dictionary)) {
+    if (_gpfIsArrayLike(dictionary)) {
         return _gpfArrayEachWithResult.apply(this, arguments);
     }
     return _gpfDictionaryEachWithResult.apply(this, arguments);
 };
 /*jshint unused: true */
+
+var
+    /**
+     * gpf.value handlers per type
+     *
+     * @type {Object}
+     */
+    _gpfValues = {
+        boolean: function (value, valueType, defaultValue) {
+            if ("string" === valueType) {
+                if ("yes" === value || "true" === value) {
+                    return true;
+                }
+                return 0 !== parseInt(value, 10);
+            }
+            if ("number" === valueType) {
+                return 0 !== value;
+            }
+            return defaultValue;
+        },
+
+        number:  function (value, valueType, defaultValue) {
+            if ("string" === valueType) {
+                return parseFloat(value);
+            }
+            return defaultValue;
+        },
+
+        string: function (value, valueType, defaultValue) {
+            gpf.interfaces.ignoreParameter(valueType);
+            gpf.interfaces.ignoreParameter(defaultValue);
+            if (value instanceof Date) {
+                return gpf.dateToComparableFormat(value);
+            }
+            return value.toString();
+        },
+
+        object: function (value, valueType, defaultValue) {
+            if (defaultValue instanceof Date && "string" === valueType) {
+                return gpf.dateFromComparableFormat(value);
+            }
+            return defaultValue;
+        }
+    };
 
 _gpfExtend(gpf, {
 
