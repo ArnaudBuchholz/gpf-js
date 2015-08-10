@@ -1,12 +1,11 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfArraySlice*/ // Slice an array-like object
 /*global _gpfDefine*/ // Shortcut for gpf.define
-/*global _gpfDictionaryEachWithResult*/ //gpf.each implementation on dictionary
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
 /*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfObjectForEach*/
 /*exported _gpfA*/
 /*exported _gpfAAdd*/
 /*exported _gpfDefAttr*/
@@ -114,9 +113,7 @@ _gpfDefAttr("Attribute", {
         _member: "",
 
         /**
-         * This method is the implementation of the attribute: it receives
-         * the prototype to alter.
-         *
+         * This method is the implementation of the attribute: it receives the prototype to alter
          * NOTE: this is called *after* all declared members are set
          *
          * @param {Object} objPrototype Class prototype
@@ -302,21 +299,17 @@ _gpfDefine("gpf.attributes.Array", {
         },
 
         /**
-         * Apply the callback for each attribute in the array.
-         * If the callback returns anything, the loop stops and the result
-         * is returned to the caller.
+         * The forEach() method executes a provided function once per array element
          *
-         * @param {Function} callback will receive parameters
+         * @param {Function} callback function to execute for each element, taking three arguments
          * - {gpf.attributes.Attribute} attribute
          * - {Number} index
          * - {gpf.attributes.Attribute[]} attribute array
-         *
-         * If a result is returned, the enumeration stops and this result is
-         * returned
-         * @return {*} undefined by default
+         * @param {Object} [thisArg=undefined] thisArg value to use as this when executing callback
          */
-        forEach: function (callback) {
-            _gpfArraySlice(this._array, 0).forEach(callback);
+        forEach: function (callback, thisArg) {
+            // TODO decide if the array should be read-only (_gpfArraySlice might be used)
+            this._array.forEach(callback, thisArg);
         }
     }
 
@@ -531,21 +524,16 @@ _gpfDefine("gpf.attributes.Map", {
         },
 
         /**
-         * Apply the callback for each member in the map.
-         * If the callback returns anything, the loop stops and the result
-         * is returned to the caller.
+         * The forEach() method executes a provided function once per object property
          *
-         * @param {Function} callback will receive parameters
-         * - {String} member
-         * - {gpf.attributes.Array} attribute
-         *
-         * If a result is returned, the enumeration stops and this result is
-         * returned
-         * @return {*} undefined by default
+         * @param {Function} callback function to execute for each element, taking three arguments
+         * - {gpf.attributes.Array} array
+         * - {String} property
+         * - {Object} dictionary
+         * @param {Object} [thisArg=undefined] thisArg value to use as this when executing callback
          */
-        each: function (callback) {
-            return _gpfDictionaryEachWithResult(this._members, callback,
-                undefined);
+        forEach: function (callback, thisArg) {
+            _gpfObjectForEach(this._members, callback, thisArg);
         },
 
         /**
