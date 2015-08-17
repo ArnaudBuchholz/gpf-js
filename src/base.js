@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
+/*global _gpfArraySlice*/ // Slice an array-like object
 /*global _gpfExit*/ // Exit function
 /*global _gpfHost*/ // Host type
 /*global _gpfInNode*/ // The current host is a nodeJS like
@@ -96,7 +97,18 @@ function _gpfStringEscapeFor (that, language) {
 
 //endregion
 
-// Similar to [].forEach but for objects
+//region gpf.forEach
+
+/**
+ * Similar to [].forEach but for objects
+ *
+ * @param {Object} object
+ * @param {Function} callback Function to execute for each own property, taking three arguments:
+ * - {*} currentValue The current element being processed
+ * - {String} property The name of the current property being processed
+ * - {Object} object The object currently being processed
+ * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback.
+ */
 function _gpfObjectForEach(object, callback, thisArg) {
     for (var property in object) {
         if (object.hasOwnProperty(property)) {
@@ -106,19 +118,40 @@ function _gpfObjectForEach(object, callback, thisArg) {
 }
 
 /**
- * gpf.extend implementation of assign without any callback
+ * Executes a provided function once per structure element.
+ *
+ * @param {Array|Object} structure
+ * @param {Function} callback Function to execute for each element, taking three arguments:
+ * - {*} currentValue The current element being processed
+ * - {String} property The name of the current property or the index being processed
+ * - {Array|Object} structure The structure currently being processed
+ * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback.
+ */
+gpf.forEach = function (structure, callback, thisArg) {
+    if (_gpfIsArrayLike(structure)) {
+        _gpfArraySlice(structure, 0).forEach(callback, thisArg);
+        return;
+    }
+    _gpfObjectForEach(structure, callback, thisArg);
+};
+
+//endregion
+
+//region gpf.extend
+
+/**
+ * gpf.extend implementation of assign with no callback
  *
  * @param {String} member
  * @param {*} value
  */
  function _gpfAssign (member, value) {
-    /*jshint validthis:true*/ // gpf.extend's arguments
-    // this[0] is dictionary
+    /*jshint validthis:true*/ // gpf.extend's arguments: this[0] is dst
     this[0][member] = value;
 }
 
 /**
- * gpf.extend implementation of assign with a  callback
+ * gpf.extend implementation of assign with a callback
  *
  * @param {String} member
  * @param {*} value
@@ -126,34 +159,42 @@ function _gpfObjectForEach(object, callback, thisArg) {
  function _gpfAssignOrCall (member, value) {
     /*jshint validthis:true*/ // gpf.extend's arguments
     var
-        dictionary = this[0],
+        dst = this[0],
         overwriteCallback = this[2];
     // TODO: see if in is faster
-    if (undefined !== dictionary[member]) {
-        overwriteCallback(dictionary, member, value);
+    if (undefined !== dst[member]) {
+        overwriteCallback(dst, member, value);
     } else {
-        dictionary[member] = value;
+        dst[member] = value;
     }
 }
 
 /**
- * @inheritdoc gpf#extend
- * Implementation of gpf.extend
+ * Extends the destination object dst by copying own enumerable properties from the src object(s) to dst.
+ * If a conflict has to be handled (i.e. member exists on both objects), the overwriteCallback has to handle it.
+ *
+ * @param {Object} dst
+ * @param {Object} src
+ * @param {Function} overwriteCallback
+ * @return {Object} the modified dst
+ * @chainable
  */
- function _gpfExtend (dictionary, properties, overwriteCallback) {
+ function _gpfExtend (dst, src, overwriteCallback) {
     var callbackToUse;
     if (undefined === overwriteCallback) {
         callbackToUse = _gpfAssign;
     } else {
-        gpf.ASSERT("function" === typeof overwriteCallback,
-            "Expected function");
+        gpf.ASSERT("function" === typeof overwriteCallback, "Expected function");
         callbackToUse = _gpfAssignOrCall;
     }
-    _gpfDictionaryEach.apply(arguments, [properties, callbackToUse]);
-    return dictionary;
+    _gpfObjectForEach(src, callbackToUse, arguments);
+    return dst;
 }
 
+// @inheritdoc _gpfExtend
+gpf.extend = _gpfExtend;
 
+//endregion
 
 
 
@@ -188,41 +229,6 @@ if (_GPF_HOST_BROWSER === _gpfHost && (window.HTMLCollection || window.NodeList)
  */
 gpf.isArrayLike = _gpfIsArrayLike;
 
-/*jshint unused: false */ // Because of arguments
-/*
- * Enumerate dictionary members and call memberCallback for each of them.
- * If defaultResult is defined, memberCallback may return a result.
- * If memberCallback returns anything, the function stops and returns it.
- * Otherwise, the defaultResult is returned.
- * When defaultResult is not defined, memberCallback result is ignored.
- *
- * @param {Object|Array} dictionary
- * @param {Function} memberCallback
- * @param {Function} memberCallback will receive parameters
- * - {Number|String} index array index or member name
- * - {*} value
- * - {Number} length total array length (undefined for dictionary)
- *
- * @param {*} [defaultResult=undefined] defaultResult
- * @return {*}
- * @chainable
- * @forwardThis
- */
-gpf.each = function (dictionary, memberCallback, defaultResult) {
-    if (3 > arguments.length) {
-        if (gpf.isArrayLike(dictionary)) {
-            _gpfArrayEach.apply(this, arguments);
-        } else {
-            _gpfDictionaryEach.apply(this, arguments);
-        }
-        return;
-    }
-    if (_gpfIsArrayLike(dictionary)) {
-        return _gpfArrayEachWithResult.apply(this, arguments);
-    }
-    return _gpfDictionaryEachWithResult.apply(this, arguments);
-};
-/*jshint unused: true */
 
 var
     /**
@@ -269,19 +275,6 @@ var
     };
 
 _gpfExtend(gpf, {
-
-    /*
-     * Appends members of properties to the dictionary object.
-     * If a conflict has to be handled (i.e. member exists on both objects),
-     * the overwriteCallback has to handle it.
-     *
-     * @param {Object} dictionary
-     * @param {Object} properties
-     * @param {Function} overwriteCallback
-     * @return {Object} the modified dictionary
-     * @chainable
-     */
-    extend: _gpfExtend,
 
     /*
      * Converts the provided value to match the expectedType.
