@@ -11,6 +11,7 @@
 /*exported _gpfEmptyFunc*/
 /*exported _gpfExit*/
 /*exported _gpfHost*/
+/*exported _gpfIgnore*/
 /*exported _gpfInBrowser*/
 /*exported _gpfInNode*/
 /*exported _gpfMainContext*/
@@ -64,6 +65,13 @@ var
 
     // An empty function
     _gpfEmptyFunc = function () {},
+
+    /**
+     * Helper to ignore unused parameter
+     *
+     * @param {*} param
+     */
+    _gpfIgnore = _gpfEmptyFunc,
 
     /**
      * Exit function

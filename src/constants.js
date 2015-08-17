@@ -17,6 +17,7 @@
 /*global _gpfFinishLoading*/ // Ends the loading (declared in boot.js)
 /*global _gpfFSRead*/ // Phantom/Node File System read text file method (boot)
 /*global _gpfHost*/ // Host type
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfInBrowser*/ // The current host is a browser like
 /*global _gpfInNode*/ // The current host is a nodeJS like
 /*global _gpfMainContext*/ // Main context object
@@ -56,7 +57,6 @@
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfIdentifierFirstChar*/ // allowed first char in an identifier
 /*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfJsKeywords*/ //  List of JavaScript keywords
 /*global _gpfMax31*/ // Max value on 31 bits
 /*global _gpfMax32*/ // Max value on 32 bits
@@ -203,14 +203,6 @@ var
 
     // https://github.com/jshint/jshint/issues/525
     _GpfFunc = Function, // avoid JSHint error
-
-    /**
-     * Helper to ignore unused parameter
-     *
-     * @param {*} param
-     * @private
-     */
-    _gpfIgnore = _gpfEmptyFunc,
 
     /**
      * An empty function returning false
