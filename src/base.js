@@ -4,6 +4,7 @@
 /*global _gpfArraySlice*/ // Slice an array-like object
 /*global _gpfExit*/ // Exit function
 /*global _gpfHost*/ // Host type
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfInNode*/ // The current host is a nodeJS like
 /*exported _gpfExtend*/
 /*exported _gpfIsArrayLike*/
@@ -232,7 +233,11 @@ gpf.extend = _gpfExtend;
 
 var
     /**
-     * gpf.value handlers per type
+     * gpf.value handlers per type.
+     * Each handler signature is:
+     * - {*} value the value to convert
+     * - {String} valueType typeof value
+     * - {*} defaultValue the expected default value if not convertible
      *
      * @type {Object}
      */
@@ -258,8 +263,8 @@ var
         },
 
         string: function (value, valueType, defaultValue) {
-            gpf.interfaces.ignoreParameter(valueType);
-            gpf.interfaces.ignoreParameter(defaultValue);
+            _gpfIgnore(valueType);
+            _gpfIgnore(defaultValue);
             if (value instanceof Date) {
                 return gpf.dateToComparableFormat(value);
             }
@@ -284,7 +289,7 @@ var
  * @param {String} [expectedType=typeof defaultValue] expected type
  * @return {*}
  */
-gpf.value = function (value, defaultValue, expectedType) {
+function _gpfValue (value, defaultValue, expectedType) {
     var valueType = typeof value;
     if (!expectedType) {
         expectedType = typeof defaultValue;
@@ -296,12 +301,14 @@ gpf.value = function (value, defaultValue, expectedType) {
         return defaultValue;
     }
     return _gpfValues[expectedType](value, valueType, defaultValue);
-};
+}
+
+// @inheritdoc _gpfValue
+gpf.value = _gpfValue;
 
 //endregion
 
 _gpfExtend(gpf, {
-
 
     /**
      * Shallow copy an object
@@ -310,10 +317,7 @@ _gpfExtend(gpf, {
      * @return {Object}
      */
     clone: function (obj) {
-        /*
-         * http://stackoverflow.com/questions/122102/what-is-the-most-
-         * efficient-way-to-clone-an-object/5344074#5344074
-         */
+        // http://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-clone-an-object/5344074#5344074
         return gpf.json.parse(gpf.json.stringify(obj));
     },
 
@@ -335,8 +339,7 @@ _gpfExtend(gpf, {
             }
         } else {
             for (idx in dictionary) {
-                if (dictionary.hasOwnProperty(idx)
-                    && dictionary[idx] === value) {
+                if (dictionary.hasOwnProperty(idx) && dictionary[idx] === value) {
                     return idx;
                 }
             }
@@ -353,8 +356,7 @@ _gpfExtend(gpf, {
      * @chainable
      */
     set: function (array, value) {
-        gpf.ASSERT(array instanceof Array,
-            "gpf.set must be used with an Array");
+        gpf.ASSERT(array instanceof Array, "gpf.set must be used with an Array");
         var idx = array.length;
         while (idx > 0) {
             if (array[--idx] === value) {
@@ -386,8 +388,7 @@ _gpfExtend(gpf, {
             }
         } else {
             for (idx in dictionary) {
-                if (dictionary.hasOwnProperty(idx)
-                    && dictionary[idx] === value) {
+                if (dictionary.hasOwnProperty(idx) && dictionary[idx] === value) {
                     break;
                 }
             }
@@ -404,7 +405,6 @@ _gpfExtend(gpf, {
     xor: function (a, b) {
         return a && !b || !a && b;
     },
-
 
     /**
      * Exit function
