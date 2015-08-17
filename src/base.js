@@ -134,6 +134,24 @@ gpf.isArrayLike = _gpfIsArrayLike;
 //region gpf.forEach
 
 /**
+ * Similar to [].forEach but works on array-like
+ *
+ * @param {Array} array
+ * @param {Function} callback Function to execute for each own property, taking three arguments:
+ * - {*} currentValue The current element being processed
+ * - {String} property The current index being processed
+ * - {Object} array The array currently being processed
+ * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback.
+ */
+function _gpfArrayForEach(array, callback, thisArg) {
+    var index,
+        length = array.length;
+    for (index = 0; index < length; ++index) {
+        callback.apply(thisArg, [array[index], index, array]);
+    }
+}
+
+/**
  * Similar to [].forEach but for objects
  *
  * @param {Object} object
@@ -146,7 +164,7 @@ gpf.isArrayLike = _gpfIsArrayLike;
 function _gpfObjectForEach(object, callback, thisArg) {
     for (var property in object) {
         if (object.hasOwnProperty(property)) {
-            callback.apply(thisArg, [property, object[property]]);
+            callback.apply(thisArg, [object[property], property, object]);
         }
     }
 }
@@ -163,7 +181,7 @@ function _gpfObjectForEach(object, callback, thisArg) {
  */
 gpf.forEach = function (structure, callback, thisArg) {
     if (_gpfIsArrayLike(structure)) {
-        _gpfArraySlice(structure, 0).forEach(callback, thisArg);
+        _gpfArrayForEach(structure, callback, thisArg);
         return;
     }
     _gpfObjectForEach(structure, callback, thisArg);
@@ -176,10 +194,10 @@ gpf.forEach = function (structure, callback, thisArg) {
 /**
  * gpf.extend implementation of assign with no callback
  *
- * @param {String} member
  * @param {*} value
+ * @param {String} member
  */
- function _gpfAssign (member, value) {
+ function _gpfAssign (value, member) {
     /*jshint validthis:true*/ // gpf.extend's arguments: this[0] is dst
     this[0][member] = value;
 }
@@ -187,10 +205,10 @@ gpf.forEach = function (structure, callback, thisArg) {
 /**
  * gpf.extend implementation of assign with a callback
  *
- * @param {String} member
  * @param {*} value
+ * @param {String} member
  */
- function _gpfAssignOrCall (member, value) {
+ function _gpfAssignOrCall (value, member) {
     /*jshint validthis:true*/ // gpf.extend's arguments
     var dst = this[0],
         overwriteCallback = this[2];
