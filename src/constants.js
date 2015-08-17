@@ -70,6 +70,7 @@
 /*global _gpfDictionaryEachWithResult*/ //gpf.each implementation on dictionary
 /*global _gpfExtend*/ // gpf.extend
 /*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
+/*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*global _gpfStringCapitalize*/ // Capitalize the string
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
