@@ -33,8 +33,7 @@ function _gpfStringCapitalize (that) {
  * @return {String}
  */
 function _gpfStringReplaceEx (that, replacements) {
-    var
-        result = that,
+    var result = that,
         key;
     for (key in replacements) {
         if (replacements.hasOwnProperty(key)) {
@@ -94,6 +93,40 @@ function _gpfStringEscapeFor (that, language) {
     }
     return that;
 }
+
+//endregion
+
+//region _gpfIsArrayLike
+
+var
+    /**
+     * Return true if the parameter looks like an array
+     *
+     * @param {Object} obj
+     * @return {Boolean} True if array-like
+     */
+    _gpfIsArrayLike;
+
+if (_GPF_HOST_BROWSER === _gpfHost && (window.HTMLCollection || window.NodeList)) {
+    _gpfIsArrayLike = function (obj) {
+        return obj instanceof Array
+            || obj instanceof window.HTMLCollection
+            || obj instanceof window.NodeList;
+    };
+} else {
+    _gpfIsArrayLike = function (obj) {
+        return obj instanceof Array;
+    };
+}
+
+/**
+ * Return true if the provided parameter looks like an array (i.e. it has a property length and each item can be
+ * accessed with [])
+ *
+ * @param {Object} obj
+ * @return {Boolean} True if array-like
+ */
+gpf.isArrayLike = _gpfIsArrayLike;
 
 //endregion
 
@@ -158,8 +191,7 @@ gpf.forEach = function (structure, callback, thisArg) {
  */
  function _gpfAssignOrCall (member, value) {
     /*jshint validthis:true*/ // gpf.extend's arguments
-    var
-        dst = this[0],
+    var dst = this[0],
         overwriteCallback = this[2];
     // TODO: see if in is faster
     if (undefined !== dst[member]) {
@@ -196,39 +228,7 @@ gpf.extend = _gpfExtend;
 
 //endregion
 
-
-
-var
-    /*exported _gpfIsArrayLike*/
-    /**
-     * Return true if the parameter looks like an array
-     *
-     * @param {Object} obj
-     * @return {Boolean} True if array-like
-     */
-    _gpfIsArrayLike;
-
-if (_GPF_HOST_BROWSER === _gpfHost && (window.HTMLCollection || window.NodeList)) {
-    _gpfIsArrayLike = function (obj) {
-        return obj instanceof Array
-            || obj instanceof window.HTMLCollection
-            || obj instanceof window.NodeList;
-    };
-} else {
-    _gpfIsArrayLike = function (obj) {
-        return obj instanceof Array;
-    };
-}
-
-/**
- * Return true if the provided parameter looks like an array (i.e. it has
- * a property length and each item can be accessed with [])
- *
- * @param {Object} obj
- * @return {Boolean} True if array-like
- */
-gpf.isArrayLike = _gpfIsArrayLike;
-
+//region gpf.value
 
 var
     /**
@@ -274,31 +274,34 @@ var
         }
     };
 
+/*
+ * Converts the provided value to match the expectedType.
+ * If not specified or impossible to do so, defaultValue is returned.
+ * When expectedType is not provided, it is deduced from defaultValue.
+ *
+ * @param {*} value
+ * @param {*} default value
+ * @param {String} [expectedType=typeof defaultValue] expected type
+ * @return {*}
+ */
+gpf.value = function (value, defaultValue, expectedType) {
+    var valueType = typeof value;
+    if (!expectedType) {
+        expectedType = typeof defaultValue;
+    }
+    if (expectedType === valueType) {
+        return value;
+    }
+    if ("undefined" === valueType || !value) {
+        return defaultValue;
+    }
+    return _gpfValues[expectedType](value, valueType, defaultValue);
+};
+
+//endregion
+
 _gpfExtend(gpf, {
 
-    /*
-     * Converts the provided value to match the expectedType.
-     * If not specified or impossible to do so, defaultValue is returned.
-     * When expectedType is not provided, it is deduced from defaultValue.
-     *
-     * @param {*} value
-     * @param {*} default value
-     * @param {String} [expectedType=typeof defaultValue] expected type
-     * @return {*}
-     */
-    value: function (value, defaultValue, expectedType) {
-        var valueType = typeof value;
-        if (!expectedType) {
-            expectedType = typeof defaultValue;
-        }
-        if (expectedType === valueType) {
-            return value;
-        }
-        if ("undefined" === valueType || !value) {
-            return defaultValue;
-        }
-        return _gpfValues[expectedType](value, valueType, defaultValue);
-    },
 
     /**
      * Shallow copy an object
