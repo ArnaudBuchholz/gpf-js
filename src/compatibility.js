@@ -12,7 +12,7 @@ var
      *
      * @param {Object} array array-like parameter (arguments, Array)
      * @param {Number} from
-     * @param {Number} to
+     * @param {Number} [to=undefined] to
      * @return {Array}
      */
     _gpfArraySlice = function (array, from, to) {
