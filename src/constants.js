@@ -204,24 +204,18 @@ var
     // https://github.com/jshint/jshint/issues/525
     _GpfFunc = Function, // avoid JSHint error
 
-    /**
-     * An empty function returning false
-     *
-     * @result {Boolean} False
-     * @private
-     */
+    // An empty function returning false
     _gpfFalseFunc = function () {
         return false;
     },
 
     /**
-     * Create a new function using the source
-     * In DEBUG mode, it catches any error to signal the problem
+     * Create a new function from the source and parameter list.
+     * In DEBUG mode, it catches any error to log the problem.
      *
      * @param {String[]} [params=undefined] params Parameter names list
      * @param {String} source
      * @return {Function}
-     * @private
      */
     _gpfFunc = function (params, source) {
         var args;
@@ -229,8 +223,7 @@ var
             source = params;
             params = [];
         }
-        gpf.ASSERT("string" === typeof source && source.length,
-            "Source expected (or use _gpfEmptyFunc)");
+        gpf.ASSERT("string" === typeof source && source.length, "Source expected (or use _gpfEmptyFunc)");
 /*#ifdef(DEBUG)*/
         try {
 /*#endif*/
@@ -249,71 +242,30 @@ var
 /*#endif*/
     },
 
-    /**
-     * Max value on 31 bits
-     *
-     * @type {Number}
-     * @private
-     */
+    // Max value on 31 bits
     _gpfMax31 = 0x7FFFFFFF,
 
-    /**
-     * Max value on 32 bits
-     *
-     * @type {Number}
-     * @private
-     */
+    // Max value on 32 bits
     _gpfMax32 =  0xFFFFFFFF,
 
-    /**
-     * Letters (lowercase)
-     *
-     * @type {String}
-     * @private
-     */
+    // Letters (lowercase)
     _gpfAlpha = "abcdefghijklmnopqrstuvwxyz",
 
-    /**
-     * Letters (uppercase)
-     *
-     * @type {String}
-     * @private
-     */
+    // Letters (uppercase)
     _gpfALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
 
-    /**
-     * Digits
-     *
-     * @type {String}
-     * @private
-     */
+    // Digits
     _gpfDigit = "0123456789",
 
-    /**
-     * List of allowed first char in an identifier
-     *
-     * @type {String}
-     * @private
-     */
+    // List of allowed first char in an identifier
     _gpfIdentifierFirstChar = _gpfAlpha + _gpfALPHA + "_$",
 
-    /**
-     * List of allowed other chars in an identifier
-     *
-     * @type {String}
-     * @private
-     */
+    // List of allowed other chars in an identifier
     _gpfIdentifierOtherChars = _gpfAlpha + _gpfALPHA + _gpfDigit + "_$",
 
-    /**
-     * List of JavaScript keywords
-     *
-     * @type {String[]}
-     * @private
-     */
-    _gpfJsKeywords = ("break,case,catch,continue,debugger,default,delete,do,"
-        + "else,finally,for,function,if,in,instanceof,new,return,switch,"
-        + "this,throw,try,typeof,var,void,while,with").split(",")
+    // List of JavaScript keywords
+    _gpfJsKeywords = ("break,case,catch,continue,debugger,default,delete,do,else,finally,for,function,if,in,instanceof,"
+        + "new,return,switch,this,throw,try,typeof,var,void,while,with").split(",")
     ;
 
 /**
