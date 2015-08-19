@@ -330,7 +330,7 @@ var
  *
  * @param {Function} [callback=undefined] callback This callback is invoked when GPF is loaded (may be immediately if
  * already loaded)
- * @return {boolean} True if GPF is fully loaded, false otherwise
+ * @return {Boolean} True if GPF is fully loaded, false otherwise
  */
 gpf.loaded = function (callback) {
     if (callback) {

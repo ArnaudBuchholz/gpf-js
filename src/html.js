@@ -316,7 +316,7 @@
              * Handles <, > and & HTML entities
              *
              * @param {String} char
-             * @return {boolean} The character has been processed
+             * @return {Boolean} The character has been processed
              * @private
              */
             _handleEntities: function (char) {
