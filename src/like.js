@@ -3,48 +3,34 @@
 /*global _gpfFalseFunc*/ // An empty function returning false
 /*#endif*/
 
-var
-    /**
-     * Object representing the context of a like operation.
-     * It remembers what objects must be compared and the ones that are already
-     * matching.
-     *
-     * @param {Boolean} [alike=false] alike Allow to be tolerant on primitive
-     * types compared with their object equivalent. If alike, the objects may
-     * not have the same class.
-     *
-     *
-     * @class _GpfLikeContext
-     * @constructor
-     * @private
-     */
-    _GpfLikeContext = function (alike) {
-        this._pending = [];
-        this._done = [];
-        // Override for this instance only
-        if (true !== alike) {
-            this._alike = _gpfFalseFunc;
-        } else {
-            this._haveDifferentPrototypes = _gpfFalseFunc;
-        }
-    };
+/**
+ * Object representing the context of a like operation.
+ * It remembers what objects must be compared and the ones that are already matching.
+ *
+ * @param {Boolean} [alike=false] alike Allow to be tolerant on primitive types compared with their object equivalent.
+ * If alike, the objects may not have the same class.
+ *
+ * @class _GpfLikeContext
+ * @constructor
+ */
+function _GpfLikeContext (alike) {
+    /*jshint validthis:true*/ // constructor
+    this._pending = [];
+    this._done = [];
+    // Override for this instance only
+    if (true !== alike) {
+        this._alike = _gpfFalseFunc;
+    } else {
+        this._haveDifferentPrototypes = _gpfFalseFunc;
+    }
+}
 
 _GpfLikeContext.prototype = {
 
-    /**
-     * Array of objects to be compared (filled by pairs)
-     *
-     * type {Object[]}
-     * @private
-     */
+    // Array of objects to be compared (filled by pairs)
     _pending: [],
 
-    /**
-     * Array of objects already compared (filled by pairs)
-     *
-     * type {Object[]}
-     * @private
-     */
+    // Array of objects already compared (filled by pairs)
     _done: [],
 
     /**
@@ -52,11 +38,9 @@ _GpfLikeContext.prototype = {
      *
      * @param {Object} a
      * @param {Object} b
-     * @private
      */
     _stack: function (a, b) {
-        var
-            array = this._done,
+        var array = this._done,
             indexOfA,
             comparedWith;
         indexOfA = array.indexOf(a);
@@ -82,8 +66,7 @@ _GpfLikeContext.prototype = {
      *
      * @param {Object} a
      * @param {Object} b
-     * @return {boolean}
-     * @private
+     * @return {Boolean}
      */
     _haveDifferentPrototypes: function (a, b) {
         return a.prototype !== b.prototype;
@@ -92,46 +75,54 @@ _GpfLikeContext.prototype = {
     /**
      * Process the pending list
      *
-     * @return {boolean}
+     * @return {Boolean}
      */
     explore: function () {
-        var
-            pending = this._pending,
-            a,
-            b,
+        var pending = this._pending,
             done = this._done,
-            membersCount,
-            member;
+            a,
+            b;
         while (0 !== pending.length) {
             b = pending.pop();
             a = pending.pop();
-            // Are the object sharing the same prototype?
+            done.push(a, b);
             if (this._haveDifferentPrototypes(a, b)) {
                 return false;
             }
-            done.push(a, b);
-            membersCount = 0;
-            // a members
-            for (member in a) {
-                if (a.hasOwnProperty(member)) {
-                    ++membersCount;
-                    if (!this.like(a, b)) {
-                        return false;
-                    }
-                }
-            }
-            // b members
-            for (member in b) {
-                if (b.hasOwnProperty(member)) {
-                    --membersCount;
-                }
-            }
-            // Difference on members count?
-            if (0 !== membersCount) {
+            if (this._checkMembersDifferences(a, b)) {
                 return false;
             }
         }
         return true;
+    },
+
+    /**
+     * Check if members are different
+     *
+     * @param {*} a
+     * @param {*} b
+     * @returns {Number}
+     */
+    _checkMembersDifferences: function (a, b) {
+        var membersCount = 0,
+            member;
+        // a members
+        for (member in a) {
+            if (a.hasOwnProperty(member)) {
+                ++membersCount;
+                if (!this.like(a, b)) {
+                    return true;
+                }
+            }
+        }
+        // b members
+        for (member in b) {
+            if (b.hasOwnProperty(member)) {
+                --membersCount;
+            }
+        }
+        // Difference on members count?
+        return 0 !== membersCount;
     },
 
     /**
@@ -161,8 +152,7 @@ _GpfLikeContext.prototype = {
      *
      * @param {*} a
      * @param {*} b
-     * @return {boolean}
-     * @private
+     * @return {Boolean}
      */
     _alike: function (a, b) {
         return this._downcast(a) === this._downcast(b);
@@ -173,7 +163,7 @@ _GpfLikeContext.prototype = {
      *
      * @param {*} a
      * @param {*} b
-     * @return {boolean}
+     * @return {Boolean}
      */
     like: function (a, b) {
         if (a === b) {
@@ -192,23 +182,19 @@ _GpfLikeContext.prototype = {
 };
 
 /*
- * Compares a and b and return true if they are look-alike (all members
- * have the same type and same value).
+ * Compares a and b and return true if they are look-alike (all members have the same type and same value).
  *
  * NOTES:
  * 2013-04-14
- * Generates too much recursion, changed the algorithm to avoid
- * recursion using document.body (and any kind of object that references
- * other objects) I found that it was necessary to keep track of already
- * processed objects.
+ * Generates too much recursion, changed the algorithm to avoid recursion using document.body (and any kind of object
+ * that references other objects) I found that it was necessary to keep track of already processed objects.
  *
  * 2015-02-26
  * Rewrote to be easier to maintain (and easier to understand).
  *
  * @param {*} a
  * @param {*} b
- * @param {Boolean} [alike=false] alike Allow to be tolerant on primitive types
- * compared with their object equivalent
+ * @param {Boolean} [alike=false] alike Allow to be tolerant on primitive types compared with their object equivalent
  * @return {Boolean}
  */
 gpf.like = function (a, b, alike) {
