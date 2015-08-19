@@ -12,10 +12,10 @@
                                     // --- Minimum required for boot_web.js ---
 
             "base",                 // General helpers
+            "like",                 // Comparison helper                gpf.like
 
             /* new JSHint settings */
 
-            "like",                 // Comparison helper                gpf.like
             "callback",             // Callback object              gpf.Callback
             "dispatch",             //            gpf.events.EventDispatcherImpl
             "mimetype",             // Mime types handling   gpf.web.getMimeType
