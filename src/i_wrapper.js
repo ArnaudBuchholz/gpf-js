@@ -136,7 +136,7 @@
                  * Apply the call
                  *
                  * @param {Object} iHandler
-                 * @param {gpf.Callback} callback
+                 * @param {Function} callback
                  */
                 apply: function (iHandler, callback) {
                     var
@@ -189,7 +189,7 @@
                 /**
                  * Callback to be used as event handler
                  *
-                 * @type {gpf.Callback}
+                 * @type {Function}
                  * @private
                  */
                 _callback: null,
@@ -277,7 +277,7 @@
                     this._iHandler = gpfI.query(instance,
                         this.constructor.interface);
                     this._calls = [];
-                    this._callback = new gpf.Callback(this._asyncResult, this);
+                    this._callback = this._asyncResult.bind(this);
                 },
 
                 /**

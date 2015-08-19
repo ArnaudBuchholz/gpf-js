@@ -1,14 +1,15 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
-/*global _gpfI*/ // gpf.interfaces
-/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
-/*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
+/*global _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
 /*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
 /*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
-/*global _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
+/*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
 /*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*global _gpfI*/ // gpf.interfaces
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*#endif*/
 
 _gpfErrorDeclare("stream", {
@@ -288,7 +289,7 @@ _gpfDefine("gpf.stream.BufferedOnRead", {
                 // Read input
                 if (_GPF_BUFREADSTREAM_ISTATE_INIT === this._iState) {
                     // Very first call, create callback for input reads
-                    this._cbRead = new gpf.Callback(this._onRead, this);
+                    this._cbRead = this._onRead.bind(this);
                 }
                 this._iState = _GPF_BUFREADSTREAM_ISTATE_INPROGRESS;
                 // Backup parameters
@@ -311,7 +312,7 @@ _gpfDefine("gpf.stream.BufferedOnRead", {
 
         /**
          * Input stream read callback (pointing to this:_onRead)
-         * @type {gpf.Callback}
+         * @type {Function}
          */
         _cbRead: null,
 
@@ -473,13 +474,12 @@ var
         public: {
 
             constructor: function (scope, eventsHandler) {
-                this._scope = gpf.Callback.resolveScope(scope);
+                this._scope = _gpfResolveScope(scope);
                 this._eventsHandler = eventsHandler;
             },
 
             read: function (stream) {
-                stream.read(this._readSize,
-                    gpf.Callback.bind(this, "callback"));
+                stream.read(this._readSize, this.callback.bind(this));
             }
 
         },

@@ -946,7 +946,7 @@
             return; // Nothing to do
         }
         if (!this[_boundMember]) {
-            domObject.addEventListener(event, gpf.Callback.bind(this, member));
+            domObject.addEventListener(event, this[member].bind(this));
             this[_boundMember] = true;
         }
         /*jshint +W040*/

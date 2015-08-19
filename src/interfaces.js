@@ -125,10 +125,8 @@ _gpfDefIntrf("IEventDispatcher", {
      * Add an event listener to the target
      *
      * @param {String} event name
-     * @param {Function|gpf.Callback} callback
-     * @param {Object|Boolean} scope scope of callback or useCapture
-     * parameter. NOTE: if a gpf.Callback object is used and a scope
-     * specified, a new gpf.Callback object is created.
+     * @param {Function} callback
+     * @param {Object|Boolean} scope scope of callback or useCapture parameter.
      * @param {Boolean} [useCapture=false] useCapture push it on top of the
      * triggering queue
      * @return {gpf.interfaces.IEventDispatcher}
@@ -143,7 +141,7 @@ _gpfDefIntrf("IEventDispatcher", {
      * Remove an event listener to the target
      *
      * @param {String} event name
-     * @param {Function|gpf.Callback} callback
+     * @param {Function} callback
      * @param {Object} [scope=undefined] scope scope of callback
      * @return {gpf.interfaces.IEventDispatcher}
      * @chainable

@@ -19,9 +19,9 @@ gpf.events = {
     /**
      * Event Handler,
      * - gpf.events.Broadcaster: broadcastEvent(event)
-     * - gpf.Callback|Function: apply(scope, [event])
+     * - Function: apply(scope, [event])
      * - Object: consider a map between event type and callback function
-     * @type {gpf.events.Target|gpf.Callback|Function|Object}
+     * @type {gpf.events.Target|Function|Object}
      * @alias {gpf.events.Handler}
      */
 };
@@ -79,7 +79,7 @@ var
             eventsHandler._dispatchEvent(event);
 
         } else if ("function" === typeof eventsHandler.apply) {
-            // Basic Function handler or gpf.Callback
+            // Basic Function handler
             eventsHandler.apply(scope, [event]);
 
         } else {
@@ -194,7 +194,7 @@ _GpfEvent.prototype = {
     /**
      * Fire the event on the provided eventsHandler
      *
-     * @param {gpf.events.Broadcaster/gpf.Callback/Function} eventsHandler
+     * @param {gpf.events.Handler} eventsHandler
      * @return {gpf.events.Event} this
      */
     fire: function (eventsHandler) {

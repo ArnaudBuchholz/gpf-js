@@ -120,8 +120,7 @@ _gpfDefine("gpf.xml.Writer", {
                     eventsHandler
                 ]);
             } else {
-                this._stream.write(this._buffer.shift(),
-                    gpf.Callback.bind(this, "_flushed"));
+                this._stream.write(this._buffer.shift(), this._flushed.bind(this));
             }
         }
 

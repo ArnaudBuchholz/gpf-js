@@ -83,7 +83,7 @@
             /**
              * Defines an handler for the parser output
              *
-             * @param {Array|Function|gpf.Callback) handler
+             * @param {Array|Function) handler
              * @private
              */
             setOutputHandler: function (handler) {
@@ -168,7 +168,7 @@
                 if (handler instanceof Array) {
                     handler.push(item);
                 } else if (null !== handler) {
-                    // Assuming a Function or a gpf.Callback
+                    // Assuming a Function
                     handler.apply(this, [item]);
                 }
             }
@@ -211,7 +211,7 @@
             /**
              * Output handler
              *
-             * @type {Array|Function|gpf.Callback)
+             * @type {Array|Function)
              * @private
              */
             _outputHandler: null,
@@ -289,8 +289,7 @@
             constructor: function (parser, input) {
                 this._super(input);
                 this._parser = parser;
-                this._parser.setOutputHandler(new gpf.Callback(this._output,
-                    this));
+                this._parser.setOutputHandler(this._output.bind(this));
             }
 
         },
