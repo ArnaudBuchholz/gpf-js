@@ -1,7 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
-/*global _gpfArraySlice*/ // Slice an array-like object
 /*global _gpfExit*/ // Exit function
 /*global _gpfHost*/ // Host type
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
@@ -226,7 +225,7 @@ gpf.forEach = function (structure, callback, thisArg) {
  *
  * @param {Object} dst
  * @param {Object} src
- * @param {Function} overwriteCallback
+ * @param {Function} [overwriteCallback=undefined] overwriteCallback
  * @return {Object} the modified dst
  * @chainable
  */

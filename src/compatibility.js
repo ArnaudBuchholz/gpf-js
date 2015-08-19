@@ -128,11 +128,7 @@ if (undefined === Function.prototype.bind) {
 // Handling function name properly
 if ((function () {
     function functionName() {}
-    if (functionName.name !== "functionName") {
-        return true;
-    } else {
-        return false;
-    }
+    return functionName.name !== "functionName";
 })()) {
 
     (function () {

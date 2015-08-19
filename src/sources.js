@@ -16,7 +16,9 @@
 
             /* new JSHint settings */
 
-            "dispatch",             //            gpf.events.EventDispatcherImpl
+            "error",                // Error base class                gpf.Error
+
+            "dispatch",             //               gpf.events.createDispatcher
             "mimetype",             // Mime types handling   gpf.web.getMimeType
             "async",                // Asynchronous handling           gpf.defer
             "bin",                  // Binary tools                      gpf.bin
@@ -24,7 +26,6 @@
                                     // (=> a_class)
             "path",                 // Path helper                      gpf.path
             "path_matcher",         // Path matcher                     gpf.path
-            "error",                // Error base class                gpf.Error
             "javascript",           // JavaScript language tools          gpf.js
             "csv",                  // CSV helper                        gpf.csv
 

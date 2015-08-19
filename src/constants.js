@@ -62,6 +62,7 @@
 /*global _gpfMax32*/ // Max value on 32 bits
 //endregion
 //region events
+/*global _GpfEvent*/ // gpf.Events.Event
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 //endregion
 //region include

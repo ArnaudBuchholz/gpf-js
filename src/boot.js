@@ -29,6 +29,7 @@
 /*jshint browser: true*/
 /*jshint node: true*/
 /*jshint wsh: true*/
+/*global WScript*/
 
 var
     // GPF version
