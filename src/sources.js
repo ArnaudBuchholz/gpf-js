@@ -16,7 +16,6 @@
 
             /* new JSHint settings */
 
-            "callback",             // Callback object              gpf.Callback
             "dispatch",             //            gpf.events.EventDispatcherImpl
             "mimetype",             // Mime types handling   gpf.web.getMimeType
             "async",                // Asynchronous handling           gpf.defer
