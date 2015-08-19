@@ -10,6 +10,7 @@
 /*global _GPF_EVENT_STOPPED*/ // gpf.events.EVENT_STOPPED
 /*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
 /*global _gpfCreateConstants*/
+/*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*global _gpfSetConstant*/ // If possible, defines a constant (i.e. read-only property)
@@ -18,18 +19,20 @@
 /*#endif*/
 
 gpf.events = {
+
     /**
-     * Event Handler,
-     * -
+     * Event Handler
      * - Function: apply(scope, [event])
-     * - Object: consider a map between event type and callback function
-     * @type {gpf.events.Target|Function|Object}
+     * - Object with a dispatchEvent method
+     * - Object used as dictionary associating type to callback functions
+     * @type {Function|Object}
      * @alias {gpf.events.Handler}
      */
+/*#ifdef(DEBUG)*/
 
-    /*#ifdef(DEBUG)*/
+    Handler: _gpfEmptyFunc
 
-    /*#endif*/
+/*#endif*/
 
 };
 
@@ -124,6 +127,7 @@ function _gpfEventsFire (event, params, eventsHandler) {
  * @forwardThis
  */
 function _gpfLookForEventsHandler (thatArgs, defaultArgs, callback) {
+    /*jshint validthis:true*/ // will be invoked with apply
     var
         lastExpectedIdx = defaultArgs.length, // eventsHandler not included
         argIdx = thatArgs.length - 1;
