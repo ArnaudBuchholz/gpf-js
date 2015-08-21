@@ -16,6 +16,19 @@
 /*exported _GpfEvent*/
 /*#endif*/
 
+gpf.events = {
+
+    /**
+     * Event Handler
+     * - Function: apply(scope, [event])
+     * - Object with a dispatchEvent method
+     * - Object used as dictionary associating type to callback functions
+     * @type {Function|Object}
+     * @alias {gpf.events.Handler}
+     */
+
+};
+
 /**
  * GPF Event class
  * Simple implementation: type is a read-only member
@@ -26,7 +39,7 @@
  * @param {Object} [scope=undefined] scope
  * @constructor
  */
-function _GpfEvent (type, params, scope) {
+var _GpfEvent = gpf.events.Event = function (type, params, scope) {
     /*jshint validthis:true*/ // constructor
     _gpfSetConstant(this, {
         name: "type",
@@ -39,7 +52,7 @@ function _GpfEvent (type, params, scope) {
     if (undefined !== params) {
         this._params = params;
     }
-}
+};
 
 // _GpfEvent interface
 _GpfEvent.prototype = {
@@ -147,45 +160,30 @@ _GpfEvent.prototype.fire = function (eventsHandler) {
     return _gpfEventsFire.apply(this, [this, {}, eventsHandler]);
 };
 
-gpf.events = {
-
-    /**
-     * Event Handler
-     * - Function: apply(scope, [event])
-     * - Object with a dispatchEvent method
-     * - Object used as dictionary associating type to callback functions
-     * @type {Function|Object}
-     * @alias {gpf.events.Handler}
-     */
-
-    // @inheritdoc _GpfEvent
-    Event: _GpfEvent,
-
-    /**
-     * Use the provided events handler to fire an event
-     *
-     * NOTE: if the event parameter is a string, an event object will be built
-     * using the parameters and the scope of the call as the scope of the event.
-     *
-     * @param {String/gpf.events.Event} event string or event object to fire
-     * @param {Object} [params={}] params parameter of the event (when type is a
-     * string)
-     * @param {gpf.events.Handler} eventsHandler
-     * @return {gpf.events.Event} the event object
-     */
-    fire: function (event, params, eventsHandler) {
-        _gpfIgnore(event, params, eventsHandler);
-        var scope = this;
-        if (scope === gpf.events) {
-            // Will be adjusted inside _gpfEventsFire
-            scope = undefined;
-        }
-        if (undefined === eventsHandler) {
-            eventsHandler = params;
-            params = {};
-        }
-        _gpfEventsFire.apply(scope, [event, params, eventsHandler]);
+/**
+ * Use the provided events handler to fire an event
+ *
+ * NOTE: if the event parameter is a string, an event object will be built
+ * using the parameters and the scope of the call as the scope of the event.
+ *
+ * @param {String/gpf.events.Event} event string or event object to fire
+ * @param {Object} [params={}] params parameter of the event (when type is a
+ * string)
+ * @param {gpf.events.Handler} eventsHandler
+ * @return {gpf.events.Event} the event object
+ */
+gpf.events.fire = function (event, params, eventsHandler) {
+    _gpfIgnore(event, params, eventsHandler);
+    var scope = this;
+    if (scope === gpf.events) {
+        // Will be adjusted inside _gpfEventsFire
+        scope = undefined;
     }
+    if (undefined === eventsHandler) {
+        eventsHandler = params;
+        params = {};
+    }
+    _gpfEventsFire.apply(scope, [event, params, eventsHandler]);
 };
 
 _gpfCreateConstants(gpf.events, {
