@@ -4,6 +4,9 @@
 
 ### Source
 
+All source file must be using UTF-8 encoding and DOS-like carriage return.
+They end with an empty line.
+
 All sources start with:
 
 ```javascript
