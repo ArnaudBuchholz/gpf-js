@@ -13,89 +13,6 @@
 /*exported _gpfStringReplaceEx*/
 /*#endif*/
 
-//region String helpers (will be reused in string module)
-
-/**
- * Capitalize the string
- *
- * @param {String} that
- * @return {String}
- */
-function _gpfStringCapitalize (that) {
-    return that.charAt(0).toUpperCase() + that.substr(1);
-}
-
-/**
- * String replacement using dictionary map
- *
- * @param {String} that
- * @param {Object} replacements map of strings to search and replace
- * @return {String}
- */
-function _gpfStringReplaceEx (that, replacements) {
-    var result = that,
-        key;
-    for (key in replacements) {
-        if (replacements.hasOwnProperty(key)) {
-            if (-1 < result.indexOf(key)) {
-                result = result.split(key).join(replacements[key]);
-            }
-        }
-    }
-    return result;
-}
-
-var
-    // Dictionary of language to escapes
-    _gpfStringEscapes = {
-
-        javascript: {
-            "\\": "\\\\",
-            "\"": "\\\"",
-            "\n": "\\n",
-            "\r": "\\r",
-            "\t": "\\t"
-        },
-
-        xml: {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;"
-        },
-
-        html: {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            "\u00E9": "&eacute;",
-            "\u00E8": "&egrave;",
-            "\u00EA": "&ecirc;",
-            "\u00E1": "&aacute;",
-            "\u00E0": "&agrave;"
-        }
-
-    };
-
-/**
- * Make the string content compatible with lang
- *
- * @param {String} that
- * @param {String} language
- * @return {String}
- */
-function _gpfStringEscapeFor (that, language) {
-    var replacements = _gpfStringEscapes[language];
-    if (undefined !== replacements) {
-        that = _gpfStringReplaceEx(that, replacements);
-        if ("javascript" === language) {
-            that = "\"" + that + "\"";
-        }
-    }
-    return that;
-}
-
-//endregion
-
 //region _gpfIsArrayLike
 
 var
@@ -185,6 +102,84 @@ gpf.forEach = function (structure, callback, thisArg) {
     }
     _gpfObjectForEach(structure, callback, thisArg);
 };
+
+//endregion
+
+//region String helpers (will be reused in string module)
+
+/**
+ * Capitalize the string
+ *
+ * @param {String} that
+ * @return {String}
+ */
+function _gpfStringCapitalize (that) {
+    return that.charAt(0).toUpperCase() + that.substr(1);
+}
+
+/**
+ * String replacement using dictionary map
+ *
+ * @param {String} that
+ * @param {Object} replacements map of strings to search and replace
+ * @return {String}
+ */
+function _gpfStringReplaceEx (that, replacements) {
+    var result = that;
+    _gpfObjectForEach(replacements, function (replacement, key) {
+        result = result.split(key).join(replacement);
+    });
+    return result;
+}
+
+var
+// Dictionary of language to escapes
+    _gpfStringEscapes = {
+
+        javascript: {
+            "\\": "\\\\",
+            "\"": "\\\"",
+            "\n": "\\n",
+            "\r": "\\r",
+            "\t": "\\t"
+        },
+
+        xml: {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;"
+        },
+
+        html: {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            "\u00E9": "&eacute;",
+            "\u00E8": "&egrave;",
+            "\u00EA": "&ecirc;",
+            "\u00E1": "&aacute;",
+            "\u00E0": "&agrave;"
+        }
+
+    };
+
+/**
+ * Make the string content compatible with lang
+ *
+ * @param {String} that
+ * @param {String} language
+ * @return {String}
+ */
+function _gpfStringEscapeFor (that, language) {
+    var replacements = _gpfStringEscapes[language];
+    if (undefined !== replacements) {
+        that = _gpfStringReplaceEx(that, replacements);
+        if ("javascript" === language) {
+            that = "\"" + that + "\"";
+        }
+    }
+    return that;
+}
 
 //endregion
 
