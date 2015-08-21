@@ -184,7 +184,7 @@ gpf.events = {
             eventsHandler = params;
             params = {};
         }
-        _gpfEventsFire.apply(this, [event, params, eventsHandler]);
+        _gpfEventsFire.apply(scope, [event, params, eventsHandler]);
     }
 };
 
