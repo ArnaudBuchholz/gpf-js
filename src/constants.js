@@ -34,7 +34,6 @@
 //endregion
 //region compatibility
 /*global _gpfArraySlice*/ // Slice an array-like object
-/*global _gpfSetConstant*/ // If possible, defines a constant (i.e. read-only property)
 //endregion
 //region constants
 /*global _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY

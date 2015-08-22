@@ -162,27 +162,6 @@ if ((function () {
 
 }
 
-if (undefined === Object.defineProperty) {
-
-    _gpfSetConstant = function (object, propertyDefinition) {
-        object[propertyDefinition.name] = propertyDefinition.value;
-        return object;
-    };
-
-} else {
-
-    _gpfSetConstant = function (object, propertyDefinition) {
-        Object.defineProperty(object, propertyDefinition.name, {
-            enumerable: propertyDefinition.hidden !== true,
-            configurable: false,
-            writable: false,
-            value: propertyDefinition.value
-        });
-        return object;
-    };
-
-}
-
 if (undefined === String.prototype.trim) {
 
     // Introduced with JavaScript 1.8.1
