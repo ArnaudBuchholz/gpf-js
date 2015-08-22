@@ -5,7 +5,6 @@
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
-/*global _gpfSetConstant*/ // If possible, defines a constant (i.e. read-only property)
 /*exported _gpfDefine*/
 /*exported _gpfGenDefHandler*/
 /*exported _gpfGetClassDefinition*/
@@ -205,10 +204,7 @@ var
             uid = constructor[_GPF_CLASSDEF_MARKER];
         if (undefined === uid) {
             classDef = new _GpfClassDefinition(constructor);
-            _gpfSetConstant(constructor, {
-                name: _GPF_CLASSDEF_MARKER,
-                value: classDef.uid()
-            });
+            /*constant*/ constructor[_GPF_CLASSDEF_MARKER] = classDef.uid();
         } else {
             classDef = _gpfClassDefinitions[uid];
         }
@@ -423,10 +419,7 @@ _GpfClassDefinition.prototype = {
         var
             newPrototype = this._Constructor.prototype;
         if (_GPF_VISIBILITY_STATIC === visibility) {
-            _gpfSetConstant(newPrototype.constructor, {
-                name: member,
-                value: value
-            });
+            /*constant*/ newPrototype.constructor[member] = value;
         } else {
             newPrototype[member] = value;
         }
@@ -645,10 +638,7 @@ _GpfClassDefinition.prototype = {
         newClass = _gpfFunc(_gpfNewClassConstructorSrc(constructorName))
             (_gpfClassInit);
         this._Constructor = newClass;
-        _gpfSetConstant(newClass, {
-            name: _GPF_CLASSDEF_MARKER,
-            value: this._uid
-        });
+        /*constant*/ newClass[_GPF_CLASSDEF_MARKER] = this._uid;
 
         /*
          * Basic JavaScript inheritance mechanism:

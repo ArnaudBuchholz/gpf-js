@@ -280,10 +280,7 @@ function _gpfCreateConstants(obj, dictionary) {
     var key;
     for (key in dictionary) {
         if (dictionary.hasOwnProperty(key)) {
-            _gpfSetConstant(obj, {
-                name: key,
-                value: dictionary[key]
-            });
+            /*constant*/ obj[key] = dictionary[key];
         }
     }
 }

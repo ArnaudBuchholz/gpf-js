@@ -1,36 +1,21 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*exported _gpfArraySlice*/
-/*exported _gpfSetConstant*/
 /*#endif*/
 
-var
-    _gpfArrayPrototypeSlice = Array.prototype.slice,
+var _gpfArrayPrototypeSlice = Array.prototype.slice;
 
-    /**
-     * Slice an array-like object
-     *
-     * @param {Object} array array-like parameter (arguments, Array)
-     * @param {Number} from
-     * @param {Number} [to=undefined] to
-     * @return {Array}
-     */
-    _gpfArraySlice = function (array, from, to) {
-        return _gpfArrayPrototypeSlice.apply(array, [from, to]);
-    },
-
-    /**
-     * If possible, defines a constant (i.e. read-only property) member of the object
-     *
-     * @param {Object} object
-     * @param {Object} propertyDefinition dictionary defining the property, containing
-     * - {String} name
-     * - {*} value
-     * - {Boolean} [hidden=false] hidden
-     * @return {Object}
-     * @chainable
-     */
-     _gpfSetConstant;
+/**
+ * Slice an array-like object
+ *
+ * @param {Object} array array-like parameter (arguments, Array)
+ * @param {Number} from
+ * @param {Number} [to=undefined] to
+ * @return {Array}
+ */
+function _gpfArraySlice (array, from, to) {
+    return _gpfArrayPrototypeSlice.apply(array, [from, to]);
+}
 
 if (undefined === Array.prototype.every) {
 

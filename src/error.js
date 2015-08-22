@@ -2,7 +2,6 @@
 "use strict";
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*global _gpfSetConstant*/ // If possible, defines a constant (i.e. read-only property)
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
 /*exported _gpfErrorDeclare*/
 /*#endif*/
@@ -44,14 +43,8 @@ _GpfError.prototype = {
         var error = new _GpfError(),
             finalMessage,
             replacements;
-        _gpfSetConstant(error, {
-            name: "code",
-            value: code
-        });
-        _gpfSetConstant(error, {
-            name: "name",
-            value: name
-        });
+        /*constant*/ error.code = code;
+        /*constant*/ error.name = name;
         if (context) {
             replacements = {};
             _gpfObjectForEach(context, function (value, key) {
@@ -61,24 +54,12 @@ _GpfError.prototype = {
         } else {
             finalMessage = message;
         }
-        _gpfSetConstant(error, {
-            name: "message",
-            value: finalMessage
-        });
+        /*constant*/ error.message = finalMessage;
         return error;
     };
-    _gpfSetConstant(result, {
-        name: "CODE",
-        value: code
-    });
-    _gpfSetConstant(result, {
-        name: "NAME",
-        value: name
-    });
-    _gpfSetConstant(result, {
-        name: "MESSAGE",
-        value: message
-    });
+    /*constant*/ result.CODE = code;
+    /*constant*/ result.NAME = name;
+    /*constant*/ result.MESSAGE = message;
     return result;
 }
 

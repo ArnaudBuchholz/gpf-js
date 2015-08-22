@@ -11,7 +11,6 @@
 /*global _gpfCreateConstants*/
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
-/*global _gpfSetConstant*/ // If possible, defines a constant (i.e. read-only property)
 /*exported _gpfEventsFire*/
 /*exported _GpfEvent*/
 /*#endif*/
@@ -41,14 +40,8 @@ gpf.events = {
  */
 var _GpfEvent = gpf.events.Event = function (type, params, scope) {
     /*jshint validthis:true*/ // constructor
-    _gpfSetConstant(this, {
-        name: "type",
-        value: type
-    });
-    _gpfSetConstant(this, {
-        name: "scope",
-        value: _gpfResolveScope(scope)
-    });
+    /*constant*/ this.type = type;
+    /*constant*/ this.scope = _gpfResolveScope(scope);
     if (undefined !== params) {
         this._params = params;
     }
