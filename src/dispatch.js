@@ -1,16 +1,8 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _GpfEvent*/ // gpf.Events.Event
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
-/*global _gpfExtend*/ // gpf.extend
-/*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*#endif*/
-
-_gpfErrorDeclare("dispatch", {
-    "DispatcherMemberConflict":
-        "Can't override an existing dispatcher member"
-});
 
 // Retrieve or allocate the _eventDispatcherListeners member
 function _gpfAllocateEventDispatcherListeners(object) {
@@ -83,9 +75,8 @@ function _gpfTriggerListeners (eventObj, eventListeners) {
  *
  * @param {String|gpf.events.Event} event name or object
  * @param {Object} [params={}] event parameters
- * @return {Object}
+ * @return {gpf.events.Event}
  * @protected
- * @chainable
  */
 function _gpfDispatchEvent(event, params) {
     /*jshint validthis:true*/ // will be invoked as an object method
@@ -110,42 +101,27 @@ function _gpfDispatchEvent(event, params) {
         eventObj = new _GpfEvent(type, params, this);
     }
     _gpfTriggerListeners(eventObj, eventListeners);
-    return this;
+    return eventObj;
 }
 
-var
-    _gpfDispatcherMethods = {
-        addEventListener: _gpfAddEventListener,
-        removeEventListener: _gpfRemoveEventListener,
-        dispatchEvent: _gpfDispatchEvent
-    };
+gpf.mixins = {
 
-/**
- * Transform the object into an event dispatcher (that can be passed to gpf.events.fire).
- * NOTE: the method will fail if any of the created member conflict with existing one.
- *
- * Added members are:
- * - {Object} _eventDispatcherListeners
- * - {Function} addEventListener
- *   - {String} event
- *   - {gpf.events.Handler} handler
- * - {Function} removeEventListener
- *   - {String} event
- *   - {gpf.events.Handler} handler
- * - {Function} dispatchEvent
- *   - {gpf.events.Event} event
- *
- * @param {Object} object
- * @return {Object}
- * @chainable
- */
-gpf.events.addDispatcherMethods = function (object) {
-    // First pass, verify no conflict
-    _gpfObjectForEach(_gpfDispatcherMethods, function (member) {
-        if (undefined !== object[member]) {
-            throw gpf.Error.DispatcherMemberConflict();
-        }
-    });
-    // Then assign
-    _gpfExtend(object, _gpfDispatcherMethods);
+    /**
+     * Event dispatcher mixin
+     *
+     * @mixin gpf.mixins.EventDispatcher
+     */
+    EventDispatcher: {
+
+        // @inheritdoc _gpfAddEventListener
+        addEventListener: _gpfAddEventListener,
+
+        // @inheritdoc _gpfRemoveEventListener
+        removeEventListener: _gpfRemoveEventListener,
+
+        // @inheritdoc _gpfDispatchEvent
+        dispatchEvent: _gpfDispatchEvent
+    }
+
 };
+

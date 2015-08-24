@@ -6,13 +6,13 @@ describe("dispatch", function () {
     var
         dispatcher;
 
-    describe("gpf.events.addDispatcherMethods", function () {
+    describe("gpf.mixins.EventDispatcher", function () {
 
         beforeEach(function () {
             // Create a new object
             dispatcher = {};
             // Extend it to support the EventDispatcher methods
-            gpf.events.addDispatcherMethods(dispatcher);
+            gpf.extend(dispatcher, gpf.mixins.EventDispatcher);
         });
 
         it("exposes addEventListener method", function () {
@@ -28,7 +28,7 @@ describe("dispatch", function () {
         describe("without registering the event", function () {
 
             it("no call is triggered", function () {
-                dispatcher._dispatchEvent("test");
+                dispatcher.dispatchEvent("test");
             });
 
         });
@@ -62,7 +62,7 @@ describe("dispatch", function () {
             });
 
             it("receives the event", function (done) {
-                dispatcher._dispatchEvent("test", {
+                dispatcher.dispatchEvent("test", {
                     param1: "first",
                     param2: true,
                     param3: 0,
@@ -77,7 +77,7 @@ describe("dispatch", function () {
                 });
 
                 it("still receives the initial event", function (done) {
-                    dispatcher._dispatchEvent("test", {
+                    dispatcher.dispatchEvent("test", {
                         param1: "first",
                         param2: true,
                         param3: 0,
@@ -86,7 +86,7 @@ describe("dispatch", function () {
                 });
 
                 it("receives the new event", function (done) {
-                    dispatcher._dispatchEvent("test2", {
+                    dispatcher.dispatchEvent("test2", {
                         expected: true,
                         done: done
                     });
@@ -99,7 +99,7 @@ describe("dispatch", function () {
                     });
 
                     it("ignores the last event", function (done) {
-                        dispatcher._dispatchEvent("test2", {
+                        dispatcher.dispatchEvent("test2", {
                             expected: false,
                             done: done
                         });
@@ -108,7 +108,7 @@ describe("dispatch", function () {
                     });
 
                     it("still receives the initial event", function (done) {
-                        dispatcher._dispatchEvent("test", {
+                        dispatcher.dispatchEvent("test", {
                             param1: "first",
                             param2: true,
                             param3: 0,
