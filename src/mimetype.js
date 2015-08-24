@@ -1,14 +1,13 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*#endif*/
 
 var
     /**
-     * Object used to generate _gpfMimeTypesFromExtension and
-     * _gpfMimeTypesToExtension
+     * Dictionary used to generate _gpfMimeTypesFromExtension and _gpfMimeTypesToExtension
      *
      * @type {Object}
-     * @private
      */
     _gpfHardCodedMimeTypes = {
         application: {
@@ -30,7 +29,6 @@ var
      * Dictionary of mime type to extension
      *
      * @type {Object}
-     * @private
      */
     _gpfMimeTypesToExtension = null,
 
@@ -38,80 +36,54 @@ var
      * Dictionary of extension to mime type
      *
      * @type {Object}
-     * @private
      */
-    _gpfMimeTypesFromExtension = null,
+    _gpfMimeTypesFromExtension = null;
 
-    _gpfBuildMimeTypeFromMappings = function (path, mappings) {
-        var
-            key,
-            mimeType,
-            fileExtension,
-            extensions,
-            len,
-            idx;
-        for (key in mappings) {
-            if (mappings.hasOwnProperty(key)) {
-                if (path) {
-                    mimeType = path + "/" + key;
-                } else {
-                    mimeType = key;
-                }
-                extensions = mappings[key];
-                if (0 === extensions) {
-                    fileExtension = "." + key;
-                    _gpfMimeTypesFromExtension[fileExtension] = mimeType;
-                    if (undefined === _gpfMimeTypesToExtension[mimeType]) {
-                        _gpfMimeTypesToExtension[mimeType] = fileExtension;
-                    }
-                } else if ("string" === typeof extensions) {
-                    extensions = extensions.split(",");
-                    len = extensions.length;
-                    for (idx = 0; idx < len; ++idx) {
-                        fileExtension = "." + extensions[idx];
-                        _gpfMimeTypesFromExtension[fileExtension] = mimeType;
-                        if (undefined === _gpfMimeTypesToExtension[mimeType]) {
-                            _gpfMimeTypesToExtension[mimeType] = fileExtension;
-                        }
-                    }
-                } else { // Assuming extensions is an object
-                    _gpfBuildMimeTypeFromMappings(mimeType, extensions);
-                }
-            }
-        }
-    },
-
-    /**
-     * Initialize _gpfMimeTypesFromExtension and _gpfMimeTypesToExtension
-     *
-     * @private
-     */
-    _gpfInitMimeTypes = function () {
-        if (null === _gpfMimeTypesFromExtension) {
-            _gpfMimeTypesFromExtension = {};
-            _gpfMimeTypesToExtension = {};
-            _gpfBuildMimeTypeFromMappings("", _gpfHardCodedMimeTypes);
-        }
-    };
-
+function _createMimeTypeExtensionMapping (mimeType, fileExtension) {
+    _gpfMimeTypesFromExtension[fileExtension] = mimeType;
+    if (undefined === _gpfMimeTypesToExtension[mimeType]) {
+        _gpfMimeTypesToExtension[mimeType] = fileExtension;
+    }
+}
 
 /**
- * Retrieve the mime type associates with the file extension (default is
- * "application/octet-stream")
+ * Recursive function that fills _gpfMimeTypesToExtension & _gpfMimeTypesFromExtension
+ *
+ * @param {String} path
+ * @param {Object} mappings
+ * @private
+ */
+function _gpfBuildMimeTypeFromMappings (path, mappings) {
+    _gpfObjectForEach(mappings, function (extensions, key) {
+        var mimeType = path + key;
+        if (0 === extensions) {
+            _createMimeTypeExtensionMapping(mimeType, "." + key);
+
+        } else if ("string" === typeof extensions) {
+            extensions.split(",").forEach(function (extension) {
+                _createMimeTypeExtensionMapping(mimeType, "." + extension);
+            });
+
+        } else { // Assuming extensions is an object
+            _gpfBuildMimeTypeFromMappings(mimeType + "/", extensions);
+        }
+    });
+}
+
+/**
+ * Retrieve the mime type associates with the file extension (default is "application/octet-stream")
  *
  * @param {String} fileExtension
  * @return {String}
  */
-gpf.web.getMimeType = function (fileExtension) {
-    var mimeType;
-    _gpfInitMimeTypes();
-    mimeType = _gpfMimeTypesFromExtension[fileExtension.toLowerCase()];
+function _gpfGetMimeType (fileExtension) {
+    var mimeType = _gpfMimeTypesFromExtension[fileExtension.toLowerCase()];
     if (undefined === mimeType) {
         // Default
         mimeType = "application/octet-stream";
     }
     return mimeType;
-};
+}
 
 /**
  * Retrieve the file extension associated with the mime type (default is ".bin")
@@ -119,13 +91,37 @@ gpf.web.getMimeType = function (fileExtension) {
  * @param {String} mimeType
  * @return {String}
  */
-gpf.web.getFileExtension = function (mimeType) {
-    var fileExtension;
-    _gpfInitMimeTypes();
-    fileExtension = _gpfMimeTypesToExtension[mimeType.toLowerCase()];
+function _gpfGetFileExtension (mimeType) {
+    var fileExtension = _gpfMimeTypesToExtension[mimeType.toLowerCase()];
     if (undefined === fileExtension) {
         // Default
         fileExtension = ".bin";
     }
     return fileExtension;
+}
+
+/**
+ * Initialize _gpfMimeTypesFromExtension and _gpfMimeTypesToExtension
+ *
+ * @param {Function} callback
+ * @param {Array] parameters
+ * @private
+ */
+function _gpfInitMimeTypes (callback, parameters) {
+    _gpfMimeTypesFromExtension = {};
+    _gpfMimeTypesToExtension = {};
+    _gpfBuildMimeTypeFromMappings("", _gpfHardCodedMimeTypes);
+    gpf.web.getMimeType = _gpfGetMimeType;
+    gpf.web.getFileExtension = _gpfGetFileExtension;
+    return callback.apply(gpf.web, parameters);
+}
+
+// @inheritdoc _gpfGetMimeType
+gpf.web.getMimeType = function () {
+    return _gpfInitMimeTypes(_gpfGetMimeType, arguments);
+};
+
+// @inheritdoc _gpfGetFileExtension
+gpf.web.getFileExtension = function () {
+    return _gpfInitMimeTypes(_gpfGetFileExtension, arguments);
 };

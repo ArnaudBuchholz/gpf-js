@@ -13,13 +13,12 @@
 
             "base",                 // General helpers
             "like",                 // Comparison helper                gpf.like
+            "error",                // Error base class                gpf.Error
+            "dispatch",             //                gpf.mixins.EventDispatcher
+            "mimetype",             // Mime types handling   gpf.web.getMimeType
 
             /* new JSHint settings */
 
-            "error",                // Error base class                gpf.Error
-
-            "dispatch",             //               gpf.events.createDispatcher
-            "mimetype",             // Mime types handling   gpf.web.getMimeType
             "async",                // Asynchronous handling           gpf.defer
             "bin",                  // Binary tools                      gpf.bin
             "json",                 // JSON compatibility layer         gpf.json
