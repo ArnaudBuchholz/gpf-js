@@ -204,7 +204,7 @@ var
             uid = constructor[_GPF_CLASSDEF_MARKER];
         if (undefined === uid) {
             classDef = new _GpfClassDefinition(constructor);
-            /*constant*/ constructor[_GPF_CLASSDEF_MARKER] = classDef.uid();
+            /*gpf:constant*/ constructor[_GPF_CLASSDEF_MARKER] = classDef.uid();
         } else {
             classDef = _gpfClassDefinitions[uid];
         }
@@ -419,7 +419,7 @@ _GpfClassDefinition.prototype = {
         var
             newPrototype = this._Constructor.prototype;
         if (_GPF_VISIBILITY_STATIC === visibility) {
-            /*constant*/ newPrototype.constructor[member] = value;
+            /*gpf:constant*/ newPrototype.constructor[member] = value;
         } else {
             newPrototype[member] = value;
         }
@@ -638,7 +638,7 @@ _GpfClassDefinition.prototype = {
         newClass = _gpfFunc(_gpfNewClassConstructorSrc(constructorName))
             (_gpfClassInit);
         this._Constructor = newClass;
-        /*constant*/ newClass[_GPF_CLASSDEF_MARKER] = this._uid;
+        /*gpf:constant*/ newClass[_GPF_CLASSDEF_MARKER] = this._uid;
 
         /*
          * Basic JavaScript inheritance mechanism:

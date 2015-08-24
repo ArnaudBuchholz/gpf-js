@@ -43,8 +43,8 @@ _GpfError.prototype = {
         var error = new _GpfError(),
             finalMessage,
             replacements;
-        /*constant*/ error.code = code;
-        /*constant*/ error.name = name;
+        /*gpf:constant*/ error.code = code;
+        /*gpf:constant*/ error.name = name;
         if (context) {
             replacements = {};
             _gpfObjectForEach(context, function (value, key) {
@@ -54,12 +54,12 @@ _GpfError.prototype = {
         } else {
             finalMessage = message;
         }
-        /*constant*/ error.message = finalMessage;
+        /*gpf:constant*/ error.message = finalMessage;
         return error;
     };
-    /*constant*/ result.CODE = code;
-    /*constant*/ result.NAME = name;
-    /*constant*/ result.MESSAGE = message;
+    /*gpf:constant*/ result.CODE = code;
+    /*gpf:constant*/ result.NAME = name;
+    /*gpf:constant*/ result.MESSAGE = message;
     return result;
 }
 
