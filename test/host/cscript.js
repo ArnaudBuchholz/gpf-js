@@ -91,4 +91,4 @@ for (idx = 0; idx < len; ++idx) {
 
 verbose("Running BDD");
 run();
-gpf.runAsyncQueue();
+gpf.handleTimeout();
