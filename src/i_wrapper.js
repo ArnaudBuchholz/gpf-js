@@ -261,7 +261,7 @@
                 _start: function () {
                     if (this._needStart) {
                         this._needStart = false;
-                        gpf.defer(this._asyncResult, 0, this);
+                        setTimeout(this._asyncResult.bind(this), 0);
                     }
                 }
 

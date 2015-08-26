@@ -135,7 +135,7 @@ function _gpfEventsFire (event, params, eventsHandler) {
      */
     if (++_gpfEventsFiring > 10) {
         // Too much recursion
-        gpf.defer(_gpfEventsTriggerHandler,  0, null, [event, eventsHandler]);
+        setTimeout(_gpfEventsTriggerHandler.bind(null, event, eventsHandler), 0);
     } else {
         _gpfEventsTriggerHandler(event, eventsHandler);
     }

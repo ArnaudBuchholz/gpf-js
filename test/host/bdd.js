@@ -456,7 +456,7 @@
      */
     function _next() {
         if (30 === ++_stackedNext) {
-            gpf.defer(_next, 0);
+            setTimeout(_next, 0);
             --_stackedNext;
             return;
         }

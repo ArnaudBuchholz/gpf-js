@@ -96,7 +96,7 @@
              * @param {Object} [params=undefined] params
              */
             resolve: function (params) {
-                gpf.defer(_resolve, 0, this, [params]);
+                setTimeout(_resolve.bind(this, params), 0);
             },
 
             /**
@@ -105,7 +105,7 @@
              * @param {Object} [params=undefined] params
              */
             reject: function (params) {
-                gpf.defer(_reject, 0, this, [params]);
+                setTimeout(_reject.bind(this, params), 0);
             }
 
         },

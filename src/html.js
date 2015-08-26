@@ -1251,7 +1251,7 @@
             window.addEventListener("resize", _onResize);
             window.addEventListener("scroll", _onScroll);
             // First execution (deferred to let caller register on them)
-            gpf.defer(_init, 0);
+            setTimeout(_init, 0);
         }
         return _broadcaster;
     };
