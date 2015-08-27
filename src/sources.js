@@ -16,10 +16,10 @@
             "error",                // Error base class                gpf.Error
             "dispatch",             //                gpf.mixins.EventDispatcher
             "mimetype",             // Mime types handling   gpf.web.getMimeType
+            "timeout",              //                                setTimeout
 
             /* new JSHint settings */
 
-            "timeout",              //                                setTimeout
             "bin",                  // Binary tools                      gpf.bin
             "json",                 // JSON compatibility layer         gpf.json
                                     // (=> a_class)

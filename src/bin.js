@@ -11,73 +11,73 @@ var
     _gpfB64 = _gpfALPHA + _gpfAlpha + _gpfDigit + "+/",
     _gpfB16 = "0123456789ABCDEF",
     _gpfBinZ = 987654321,
-    _gpfBinW = (new Date()).getTime() & _gpfMax32,
+    _gpfBinW = (new Date()).getTime() & _gpfMax32;
 
-    _toBaseANY = function (base, value, length, safepad) {
-        var
-            baseLength = base.length,
-            pow = gpf.bin.isPow2(baseLength),
-            bits,
-            mask,
-            result = [],
-            digit;
-        if (-1 < pow && (undefined === length || length * pow <= 32)) {
-            /*
-             * Good conditions to use bits masking & shifting,
-             * will work with negative values and will be faster
-             */
-            if (undefined === length) {
-                bits = 32;
-            } else {
-                bits = length * pow;
-            }
-            mask = (1 << (bits - pow)) - 1;
-            bits = (1 << pow) - 1;
-            while (0 !== value) {
-                digit = value & bits;
-                result.unshift(base.charAt(digit));
-                value = (value >> pow) & mask;
-            }
+function _toBaseANY (base, value, length, safepad) {
+    var
+        baseLength = base.length,
+        pow = gpf.bin.isPow2(baseLength),
+        bits,
+        mask,
+        result = [],
+        digit;
+    if (-1 < pow && (undefined === length || length * pow <= 32)) {
+        /*
+         * Good conditions to use bits masking & shifting,
+         * will work with negative values and will be faster
+         */
+        if (undefined === length) {
+            bits = 32;
         } else {
-            while (0 !== value) {
-                digit = value % baseLength;
-                result.unshift(base.charAt(digit));
-                value = (value - digit) / baseLength;
-            }
+            bits = length * pow;
         }
-        if (undefined !== length) {
-            if (undefined === safepad) {
-                safepad = base.charAt(0);
-            }
-            while (result.length < length) {
-                result.unshift(safepad.charAt(result.length % safepad.length));
-            }
-        } else if (0 === result.length) {
-            result = [base.charAt(0)]; // 0
+        mask = (1 << (bits - pow)) - 1;
+        bits = (1 << pow) - 1;
+        while (0 !== value) {
+            digit = value & bits;
+            result.unshift(base.charAt(digit));
+            value = (value >> pow) & mask;
         }
-        return result.join("");
-    },
-
-    _fromBaseANY = function (base, text, safepad) {
-        var
-            baseLength = base.length,
-            result = 0,
-            idx = 0;
+    } else {
+        while (0 !== value) {
+            digit = value % baseLength;
+            result.unshift(base.charAt(digit));
+            value = (value - digit) / baseLength;
+        }
+    }
+    if (undefined !== length) {
         if (undefined === safepad) {
             safepad = base.charAt(0);
         }
-        while (idx < text.length) {
-            if (-1 === safepad.indexOf(text.charAt(idx))) {
-                break;
-            } else {
-                ++idx;
-            }
+        while (result.length < length) {
+            result.unshift(safepad.charAt(result.length % safepad.length));
         }
-        while (idx < text.length) {
-            result = baseLength * result + base.indexOf(text.charAt(idx++));
+    } else if (0 === result.length) {
+        result = [base.charAt(0)]; // 0
+    }
+    return result.join("");
+}
+
+function _fromBaseANY (base, text, safepad) {
+    var
+        baseLength = base.length,
+        result = 0,
+        idx = 0;
+    if (undefined === safepad) {
+        safepad = base.charAt(0);
+    }
+    while (idx < text.length) {
+        if (-1 === safepad.indexOf(text.charAt(idx))) {
+            break;
+        } else {
+            ++idx;
         }
-        return result;
-    };
+    }
+    while (idx < text.length) {
+        result = baseLength * result + base.indexOf(text.charAt(idx++));
+    }
+    return result;
+}
 
 gpf.bin = {
 
@@ -127,8 +127,7 @@ gpf.bin = {
 
     /**
      * Encodes the value within the specified base.
-     * Result string length can be defined and missing characters will be
-     * added with safepad.
+     * Result string length can be defined and missing characters will be added with safepad.
      *
      * @param {String} base values
      * @param {Number} value to encode
@@ -140,6 +139,7 @@ gpf.bin = {
 
     /**
      * Decodes the text value using the specified base.
+     *
      * @param {String} base
      * @param {String} text
      * @param {String} safepad [safepad=""]
@@ -149,6 +149,7 @@ gpf.bin = {
 
     /**
      * Returns the hexadecimal encoding of value.
+     *
      * @param {Number} value
      * @param {Number} length of encoding
      * @param {String} safepad [safepad="0"]
@@ -160,6 +161,7 @@ gpf.bin = {
 
     /**
      * Decodes the hexadecimal text value.
+     *
      * @param {String} text
      * @param {String} safepad [safepad="0"]
      * @return {Number}
@@ -170,6 +172,7 @@ gpf.bin = {
 
     /**
      * Returns the base 64 encoding of value.
+     *
      * @param {Number} value
      * @param {Number} length of encoding
      * @param {String} safepad [safepad="0"]
@@ -181,6 +184,7 @@ gpf.bin = {
 
     /**
      * Decodes the hexadecimal text value.
+     *
      * @param {String} text
      * @param {String} safepad [safepad="0"]
      * @return {Number}

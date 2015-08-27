@@ -176,6 +176,27 @@ When needed:
 * Comments standing on one line **must** use //
 * Comments on multiple lines **must** use /* */
 
+Ending dots are optional. They must be added to separate sentences (new line is not enough).
+
+For instance:
+
+```javascript
+    /**
+     * This comment stands on one line, no ending dot is required
+     *
+     * @type {Object}
+     */
+```
+
+```javascript
+    /**
+     * For this comment, two lines are needed.
+     * That's why a dot was added on the previous line.
+     *
+     * @type {Object}
+     */
+```
+
 ### Variables declaration
 
 To simplify minification, functions are always using function declaration.
