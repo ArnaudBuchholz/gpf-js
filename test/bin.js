@@ -3,53 +3,28 @@
 
 describe("bin", function () {
 
+    var verifiedPows = [
+        1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536,
+        131072, 262144, 524288, 1048576, 2097152, 4194304, 8388608, 16777216,
+        33554432, 67108864, 134217728, 268435456, 536870912, 1073741824, 2147483648, 4294967296
+    ];
+
     describe("gpf.bin.pow", function () {
 
         it("gives the powers of 2", function () {
-            assert(gpf.bin.pow2(0) ===  1);
-            assert(gpf.bin.pow2(1) ===  2);
-            assert(gpf.bin.pow2(2) ===  4);
-            assert(gpf.bin.pow2(3) ===  8);
-            assert(gpf.bin.pow2(4) ===  16);
-            assert(gpf.bin.pow2(5) ===  32);
-            assert(gpf.bin.pow2(6) ===  64);
-            assert(gpf.bin.pow2(7) ===  128);
-            assert(gpf.bin.pow2(8) ===  256);
-            assert(gpf.bin.pow2(9) ===  512);
-            assert(gpf.bin.pow2(10) ===  1024);
-            assert(gpf.bin.pow2(11) ===  2048);
-            assert(gpf.bin.pow2(12) ===  4096);
-            assert(gpf.bin.pow2(13) ===  8192);
-            assert(gpf.bin.pow2(14) ===  16384);
-            assert(gpf.bin.pow2(15) ===  32768);
-            assert(gpf.bin.pow2(16) ===  65536);
-            assert(gpf.bin.pow2(31) ===  2147483648);
-            assert(gpf.bin.pow2(32) ===  4294967296);
+            verifiedPows.forEach(function (value, index) {
+                assert(gpf.bin.pow2(index) ===  value);
+            });
         });
 
         it("checks if a number is a power of 2", function () {
-            assert(gpf.bin.isPow2(0) ===  -1);
-            assert(gpf.bin.isPow2(1) ===  0);
-            assert(gpf.bin.isPow2(2) ===  1);
-            assert(gpf.bin.isPow2(4) ===  2);
-            assert(gpf.bin.isPow2(8) ===  3);
-            assert(gpf.bin.isPow2(16) ===  4);
-            assert(gpf.bin.isPow2(32) ===  5);
-            assert(gpf.bin.isPow2(64) ===  6);
-            assert(gpf.bin.isPow2(128) ===  7);
-            assert(gpf.bin.isPow2(256) ===  8);
-            assert(gpf.bin.isPow2(512) ===  9);
-            assert(gpf.bin.isPow2(1024) ===  10);
-            assert(gpf.bin.isPow2(2048) ===  11);
-            assert(gpf.bin.isPow2(4096) ===  12);
-            assert(gpf.bin.isPow2(8192) ===  13);
-            assert(gpf.bin.isPow2(16384) ===  14);
-            assert(gpf.bin.isPow2(32768) ===  15);
-            assert(gpf.bin.isPow2(32748) ===  -1);
-            assert(gpf.bin.isPow2(65536) ===  16);
-            assert(gpf.bin.isPow2(65534) ===  -1);
-            assert(gpf.bin.isPow2(2147483648) === 31);
-            assert(gpf.bin.isPow2(4294967296) === 32);
+            [
+                0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 32748, 65536, 65534,
+                2147483648, 4294967296
+            ].forEach(function (value) {
+                var fromVerifiedPos = verifiedPows.indexOf(value);
+                assert(gpf.bin.isPow2(value) ===  fromVerifiedPos);
+            });
         });
 
     });
