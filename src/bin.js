@@ -13,44 +13,73 @@ var
     _gpfBinZ = 987654321,
     _gpfBinW = (new Date()).getTime() & _gpfMax32;
 
-function _toBaseANY (base, value, length, safepad) {
-    var
-        baseLength = base.length,
-        pow = gpf.bin.isPow2(baseLength),
+function _gpfToBaseAnyEncodeValueUsingBitShifting (base, value, pow, length) {
+    var result = [],
         bits,
         mask,
-        result = [],
         digit;
-    if (-1 < pow && (undefined === length || length * pow <= 32)) {
-        /*
-         * Good conditions to use bits masking & shifting,
-         * will work with negative values and will be faster
-         */
-        if (undefined === length) {
-            bits = 32;
-        } else {
-            bits = length * pow;
-        }
-        mask = (1 << (bits - pow)) - 1;
-        bits = (1 << pow) - 1;
-        while (0 !== value) {
-            digit = value & bits;
-            result.unshift(base.charAt(digit));
-            value = (value >> pow) & mask;
-        }
+    if (undefined === length) {
+        bits = 32;
     } else {
-        while (0 !== value) {
-            digit = value % baseLength;
-            result.unshift(base.charAt(digit));
-            value = (value - digit) / baseLength;
-        }
+        bits = length * pow;
     }
+    mask = (1 << (bits - pow)) - 1;
+    bits = (1 << pow) - 1;
+    while (0 !== value) {
+        digit = value & bits;
+        result.unshift(base.charAt(digit));
+        value = (value >> pow) & mask;
+    }
+    return result;
+}
+
+function _gpfToBaseAnyEncodeValueUsingModulo (base, value) {
+    var result = [],
+        baseLength = base.length,
+        digit;
+    while (0 !== value) {
+        digit = value % baseLength;
+        result.unshift(base.charAt(digit));
+        value = (value - digit) / baseLength;
+    }
+    return result;
+}
+
+function _gpfToBaseAnyEncodeValue (base, value, length) {
+    var pow = gpf.bin.isPow2(base.length);
+    if (-1 < pow && (undefined === length || length * pow <= 32)) {
+        // Good conditions to use bits masking & shifting, will work with negative values and will be faster
+        return _gpfToBaseAnyEncodeValueUsingBitShifting(base, value, pow, length);
+    }
+    return _gpfToBaseAnyEncodeValueUsingModulo(base, value);
+}
+
+/**
+ * Encodes the value within the specified base.
+ * Result string length can be defined (formattingOptions.length) and missing characters will be added from
+ * formattingOptions.pad
+ *
+ * @param {String} base values
+ * @param {Number} value to encode
+ * @param {Object} formattingOptions
+ * - {Number} [length=undefined] length of encoding
+ * - {String} [pad="0"] pad
+ * @return {String}
+ */
+function _gpfToBaseANY (base, value, formattingOptions) {
+    if (undefined === formattingOptions) {
+        formattingOptions = {};
+    }
+    var length = formattingOptions.length,
+        pad = formattingOptions.pad,
+        result = _gpfToBaseAnyEncodeValue(base, value, length);
+    // Padding
     if (undefined !== length) {
-        if (undefined === safepad) {
-            safepad = base.charAt(0);
+        if (undefined === pad) {
+            pad = base.charAt(0);
         }
         while (result.length < length) {
-            result.unshift(safepad.charAt(result.length % safepad.length));
+            result.unshift(pad.charAt(result.length % pad.length));
         }
     } else if (0 === result.length) {
         result = [base.charAt(0)]; // 0
@@ -58,16 +87,24 @@ function _toBaseANY (base, value, length, safepad) {
     return result.join("");
 }
 
-function _fromBaseANY (base, text, safepad) {
+/**
+ * Decodes the text value using the specified base.
+ *
+ * @param {String} base
+ * @param {String} text
+ * @param {String} [pad=base.charAt(0)] pad
+ * @return {Number}
+ */
+function _gpfFromBaseANY (base, text, pad) {
     var
         baseLength = base.length,
         result = 0,
         idx = 0;
-    if (undefined === safepad) {
-        safepad = base.charAt(0);
+    if (undefined === pad) {
+        pad = base.charAt(0);
     }
     while (idx < text.length) {
-        if (-1 === safepad.indexOf(text.charAt(idx))) {
+        if (-1 === pad.indexOf(text.charAt(idx))) {
             break;
         } else {
             ++idx;
@@ -126,48 +163,29 @@ gpf.bin = {
     },
 
     /**
-     * Encodes the value within the specified base.
-     * Result string length can be defined and missing characters will be added with safepad.
-     *
-     * @param {String} base values
-     * @param {Number} value to encode
-     * @param {Number} length of encoding
-     * @param {String} safepad [safepad=base.charAt(0)]
-     * @return {String}
-     */
-    toBaseANY: _toBaseANY,
-
-    /**
-     * Decodes the text value using the specified base.
-     *
-     * @param {String} base
-     * @param {String} text
-     * @param {String} safepad [safepad=""]
-     * @return {Number}
-     */
-    fromBaseANY: _fromBaseANY,
-
-    /**
      * Returns the hexadecimal encoding of value.
      *
      * @param {Number} value
      * @param {Number} length of encoding
-     * @param {String} safepad [safepad="0"]
+     * @param {String} [pad="0"] pad
      * @return {String}
      */
-    toHexa: function (value, length, safepad) {
-        return _toBaseANY(_gpfB16, value, length, safepad);
+    toHexa: function (value, length, pad) {
+        return _gpfToBaseANY(_gpfB16, value, {
+            length: length,
+            pad: pad
+        });
     },
 
     /**
      * Decodes the hexadecimal text value.
      *
      * @param {String} text
-     * @param {String} safepad [safepad="0"]
+     * @param {String} [pad="0"] pad
      * @return {Number}
      */
-    fromHexa: function (text, safepad) {
-        return _fromBaseANY(_gpfB16, text, safepad);
+    fromHexa: function (text, pad) {
+        return _gpfFromBaseANY(_gpfB16, text, pad);
     },
 
     /**
@@ -175,22 +193,25 @@ gpf.bin = {
      *
      * @param {Number} value
      * @param {Number} length of encoding
-     * @param {String} safepad [safepad="0"]
+     * @param {String} [pad="0"] pad
      * @return {String}
      */
-    toBase64: function (value, length, safepad) {
-        return _toBaseANY(_gpfB64, value, length, safepad);
+    toBase64: function (value, length, pad) {
+        return _gpfToBaseANY(_gpfB64, value, {
+            length: length,
+            pad: pad
+        });
     },
 
     /**
      * Decodes the hexadecimal text value.
      *
      * @param {String} text
-     * @param {String} safepad [safepad="0"]
+     * @param {String} [pad="0"] pad
      * @return {Number}
      */
-    fromBase64: function (text, safepad) {
-        return _fromBaseANY(_gpfB64, text, safepad);
+    fromBase64: function (text, pad) {
+        return _gpfFromBaseANY(_gpfB64, text, pad);
     },
 
     /**
