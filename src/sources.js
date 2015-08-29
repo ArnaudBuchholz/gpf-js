@@ -17,10 +17,10 @@
             "dispatch",             //                gpf.mixins.EventDispatcher
             "mimetype",             // Mime types handling   gpf.web.getMimeType
             "timeout",              //                                setTimeout
+            "bin",                  // Binary tools                      gpf.bin
 
             /* new JSHint settings */
 
-            "bin",                  // Binary tools                      gpf.bin
             "json",                 // JSON compatibility layer         gpf.json
                                     // (=> a_class)
             "path",                 // Path helper                      gpf.path
