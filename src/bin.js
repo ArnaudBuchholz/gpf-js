@@ -13,7 +13,7 @@ var
     _gpfBinZ = 987654321,
     _gpfBinW = (new Date()).getTime() & _gpfMax32;
 
-function _gpfToBaseAnyEncodeValueUsingBitShifting (base, value, pow, length) {
+        result = [],
     var result = [],
         bits,
         mask,
@@ -33,8 +33,7 @@ function _gpfToBaseAnyEncodeValueUsingBitShifting (base, value, pow, length) {
     return result;
 }
 
-function _gpfToBaseAnyEncodeValueUsingModulo (base, value) {
-    var result = [],
+        result = [],
         baseLength = base.length,
         digit;
     while (0 !== value) {
@@ -45,13 +44,9 @@ function _gpfToBaseAnyEncodeValueUsingModulo (base, value) {
     return result;
 }
 
-function _gpfToBaseAnyEncodeValue (base, value, length) {
-    var pow = gpf.bin.isPow2(base.length);
     if (-1 < pow && (undefined === length || length * pow <= 32)) {
         // Good conditions to use bits masking & shifting, will work with negative values and will be faster
-        return _gpfToBaseAnyEncodeValueUsingBitShifting(base, value, pow, length);
     }
-    return _gpfToBaseAnyEncodeValueUsingModulo(base, value);
 }
 
 /**
@@ -72,7 +67,10 @@ function _gpfToBaseANY (base, value, formattingOptions) {
     }
     var length = formattingOptions.length,
         pad = formattingOptions.pad,
-        result = _gpfToBaseAnyEncodeValue(base, value, length);
+        result = _gpfToBaseAnyEncode({
+            base: base,
+            value: value
+        }, length);
     // Padding
     if (undefined !== length) {
         if (undefined === pad) {
