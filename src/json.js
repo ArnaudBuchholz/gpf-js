@@ -2,14 +2,29 @@
 "use strict";
 /*global _gpfA*/ // _gpfA
 /*global _gpfANoSerial*/ // gpf.attributes.ClassNonSerializedAttribute
+/*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfFunc*/ // Create a new function using the source
+/*global _gpfMainContext*/ // Main context object
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*exported _gpfJsonParse*/
 /*exported _gpfJsonStringify*/
 /*#endif*/
 
 var
+    /**
+     * The JSON.stringify() method converts a JavaScript value to a JSON string
+     *
+     * @param {*} value the value to convert to a JSON string
+     * @return {String}
+     */
     _gpfJsonStringify,
+
+    /**
+     * The JSON.parse() method parses a string as JSON
+     *
+     * @param {*} text The string to parse as JSON
+     * @return {Object}
+     */
     _gpfJsonParse;
 
 function _gpfObject2Json (object) {
@@ -20,7 +35,7 @@ function _gpfObject2Json (object) {
         value;
     isArray = object instanceof Array;
     results = [];
-    /*jshint -W089*/
+    /*jshint -W089*/ // Actually, I want all properties
     for (property in object) {
         if ("function" === typeof object[property]) {
             continue; // ignore
@@ -29,8 +44,7 @@ function _gpfObject2Json (object) {
         if (isArray) {
             results.push(value);
         } else {
-            results.push(_gpfStringEscapeFor(property, "javascript")
-                + ":" + value);
+            results.push(_gpfStringEscapeFor(property, "javascript") + ":" + value);
         }
     }
     if (isArray) {
@@ -41,51 +55,51 @@ function _gpfObject2Json (object) {
     /*jshint +W089*/
 }
 
-// Need to use typeof as this is a global object
-if("undefined" === typeof JSON) {
+function _gpfJsonStringifyObject (object) {
+    return object.toString();
+}
+
+if ("undefined" === typeof JSON) {
+
+    var _gpfJsonStringifyMapping = {
+        undefined: _gpfEmptyFunc,
+        function: _gpfEmptyFunc,
+        number: _gpfJsonStringifyObject,
+        boolean: _gpfJsonStringifyObject,
+        string: function (object) {
+            return _gpfStringEscapeFor(object, "javascript");
+        }
+    };
 
     _gpfJsonStringify = function (object) {
-        var type = typeof object;
-        if ("undefined" === type || "function" === type) {
-            return;
-        } else if ("number" === type || "boolean" === type) {
-            return object.toString();
-        } else if ("string" === type) {
-            return _gpfStringEscapeFor(object, "javascript");
+        var mapper = _gpfJsonStringifyMapping[typeof object];
+        if (undefined !== mapper) {
+            return mapper(object);
         }
         if (null === object) {
             return "null";
-        } else {
-            return _gpfObject2Json(object);
         }
+        return _gpfObject2Json(object);
     };
 
     _gpfJsonParse = function (test) {
         return _gpfFunc("return " + test)();
     };
 
+    // Creates the JSON global object
+    _gpfMainContext.JSON = {
+        stringify: _gpfJsonStringify,
+        parse: _gpfJsonParse
+    };
+
 } else {
+
     _gpfJsonStringify = JSON.stringify;
     _gpfJsonParse = JSON.parse;
+
 }
 
 gpf.json = {
-
-    /**
-     * The JSON.stringify() method converts a JavaScript value to a JSON string
-     *
-     * @param {*} value the value to convert to a JSON string
-     * @return {String}
-     */
-    stringify: _gpfJsonStringify,
-
-    /**
-     * The JSON.parse() method parses a string as JSON
-     *
-     * @param {*} text The string to parse as JSON
-     * @return {Object}
-     */
-    parse: _gpfJsonParse,
 
     /**
      * TODO there must be a way to make it less specific to JSON
@@ -175,5 +189,3 @@ gpf.json = {
     /*jshint +W089*/
 
 };
-
-
