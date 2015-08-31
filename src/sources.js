@@ -18,11 +18,10 @@
             "mimetype",             // Mime types handling   gpf.web.getMimeType
             "timeout",              //                                setTimeout
             "bin",                  // Binary tools                      gpf.bin
+            "json",                 // JSON compatibility layer             JSON
 
             /* new JSHint settings */
 
-            "json",                 // JSON compatibility layer         gpf.json
-                                    // (=> a_class)
             "path",                 // Path helper                      gpf.path
             "path_matcher",         // Path matcher                     gpf.path
             "javascript",           // JavaScript language tools          gpf.js
@@ -71,6 +70,8 @@
             "xpath",                // Xml 'XPATH' parser/evaluator      gpf.xml
 
             "params",               // Parameters parsing             gpf.Params
+
+            "serial",               // Object serialization           gpf.serial
 
             // The following ones must be at the end
             "html",                 // HTML specific functions          gpf.html
