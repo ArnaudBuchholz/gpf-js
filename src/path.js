@@ -4,52 +4,51 @@
 /*exported _gpfPathNormalize*/
 /*#endif*/
 
-var
-    /**
-     * Normalize paths and returns an array of parts.
-     * If a DOS-like path is detected (use of \), it is lower-cased
-     *
-     * @param {String} path
-     * @return {String[]}
-     */
-    _gpfPathDecompose = function (path) {
-        // Split on separator
-        if (-1 < path.indexOf("/")) {
-            path = path.split("/");
-        } else if (-1 < path.indexOf("\\")) {
-            // DOS path is case insensitive, hence lowercase it
-            path = path.toLowerCase().split("\\");
-        } else {
-            // TODO what about _gpfDosPath?
-            return [path];
-        }
-        // Remove trailing /
-        if (path.length && !path[path.length - 1]) {
-            path.pop();
-        }
-        return path;
-    },
+/**
+ * Normalize paths and returns an array of parts.
+ * If a DOS-like path is detected (use of \), it is lower-cased
+ *
+ * @param {String} path
+ * @return {String[]}
+ */
+function _gpfPathDecompose (path) {
+    // Split on separator
+    if (-1 < path.indexOf("/")) {
+        path = path.split("/");
+    } else if (-1 < path.indexOf("\\")) {
+        // DOS path is case insensitive, hence lowercase it
+        path = path.toLowerCase().split("\\");
+    } else {
+        // TODO what about _gpfDosPath?
+        return [path];
+    }
+    // Remove trailing /
+    if (path.length && !path[path.length - 1]) {
+        path.pop();
+    }
+    return path;
+}
 
-    /**
-     * Normalize path
-     *
-     * @param {String} path
-     * @return {string}
-     */
-    _gpfPathNormalize = function (path) {
-        return _gpfPathDecompose(path).join("/");
-    },
+/**
+ * Normalize path
+ *
+ * @param {String} path
+ * @return {string}
+ */
+function _gpfPathNormalize (path) {
+    return _gpfPathDecompose(path).join("/");
+}
 
-    /**
-     * Get the last name of a path
-     *
-     * @param {String} path
-     * @return {String}
-     */
-    _gpfPathName = function (path) {
-        path = _gpfPathDecompose(path);
-        return path[path.length - 1];
-    };
+/**
+ * Get the last name of a path
+ *
+ * @param {String} path
+ * @return {String}
+ */
+function _gpfPathName (path) {
+    path = _gpfPathDecompose(path);
+    return path[path.length - 1];
+}
 
 gpf.path = {
 
