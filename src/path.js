@@ -6,12 +6,11 @@
 
 var
     /**
-     * Normalize paths and returns an array of parts
+     * Normalize paths and returns an array of parts.
      * If a DOS-like path is detected (use of \), it is lower-cased
      *
      * @param {String} path
      * @return {String[]}
-     * @private
      */
     _gpfPathDecompose = function (path) {
         // Split on separator
@@ -36,7 +35,6 @@ var
      *
      * @param {String} path
      * @return {string}
-     * @private
      */
     _gpfPathNormalize = function (path) {
         return _gpfPathDecompose(path).join("/");
@@ -47,7 +45,6 @@ var
      *
      * @param {String} path
      * @return {String}
-     * @private
      */
     _gpfPathName = function (path) {
         path = _gpfPathDecompose(path);
