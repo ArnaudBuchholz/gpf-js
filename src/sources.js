@@ -19,10 +19,10 @@
             "timeout",              //                                setTimeout
             "bin",                  // Binary tools                      gpf.bin
             "json",                 // JSON compatibility layer             JSON
+            "path",                 // Path helper                      gpf.path
 
             /* new JSHint settings */
 
-            "path",                 // Path helper                      gpf.path
             "path_matcher",         // Path matcher                     gpf.path
             "javascript",           // JavaScript language tools          gpf.js
             "csv",                  // CSV helper                        gpf.csv
