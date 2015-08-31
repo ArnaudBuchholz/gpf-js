@@ -88,11 +88,14 @@ describe("path", function () {
             extension: ""
         }];
 
+    function buildTestFunc (source) {
+        return new Func ("assert(gpf.path." + source + ");");
+    }
+
     describe("gpf.path.name", function () {
 
         tests.forEach(function (item) {
-            it(item.label, new Func ("assert(gpf.path.name(\""
-                + item.path + "\") === \"" + item.name + "\");"));
+            it(item.label, buildTestFunc("name(\"" + item.path + "\") === \"" + item.name + "\""));
         });
 
     });
@@ -100,8 +103,7 @@ describe("path", function () {
     describe("gpf.path.nameOnly", function () {
 
         tests.forEach(function (item) {
-            it(item.label, new Func ("assert(gpf.path.nameOnly(\""
-                + item.path + "\") === \"" + item.nameOnly + "\");"));
+            it(item.label, buildTestFunc("nameOnly(\"" + item.path + "\") === \"" + item.nameOnly + "\""));
         });
 
     });
@@ -109,8 +111,7 @@ describe("path", function () {
     describe("gpf.path.extension", function () {
 
         tests.forEach(function (item) {
-            it(item.label, new Func ("assert(gpf.path.extension(\""
-                + item.path + "\") === \"" + item.extension + "\");"));
+            it(item.label, buildTestFunc("extension(\"" + item.path + "\") === \"" + item.extension + "\""));
         });
 
     });
@@ -130,9 +131,9 @@ describe("path", function () {
         });
 
         it("works on non matching roots (any level)", function () {
-            assert(path.relative("a/bc/def", "g/h/i/jkl")
-                === "../../../g/h/i/jkl");
+            assert(path.relative("a/bc/def", "g/h/i/jkl") === "../../../g/h/i/jkl");
         });
 
     });
+
 });
