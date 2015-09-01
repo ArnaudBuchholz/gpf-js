@@ -4,11 +4,7 @@
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*#endif*/
 
-/**
- * Split the part to be processed in _GpfPathMatcher#_matchName
- *
- * @param {String} part
- */
+// Split the part to be processed in _GpfPathMatcher#_matchName
 function _gpfPatternPartSplit (part) {
     return part.split("*");
 }
@@ -196,6 +192,46 @@ _GpfPathMatcher.prototype = {
         return !fixedPattern || pos + fixedPattern.length === part.length;
     },
 
+    _matchStart: function (context) {
+        var parts = context.parts,
+            partsLen = parts.length,
+            startPos = context.startPos,
+            array = this.start,
+            len = array.length,
+            idx;
+        for (idx = 0; idx < len; ++idx) {
+            if (this._matchName(array[idx], parts[startPos])) {
+                if (++startPos >= partsLen) {
+                    // Match if last part of the start and no end
+                    return (idx === len - 1) && !this.end;
+                }
+            } else {
+                return false;
+            }
+        }
+        context.startPos = startPos;
+        return undefined;
+    },
+
+    _matchEnd: function (context) {
+        var parts = context.parts,
+            startPos = context.startPos,
+            endPos = parts.length - 1,
+            array = this.end,
+            len = array.length,
+            idx;
+        for (idx = 0; idx < len; ++idx) {
+            if (-1 < endPos && this._matchName(array[idx], parts[endPos])) {
+                if (endPos-- < startPos) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+        return undefined;
+    },
+
     /**
      * Matches the provided path
      *
@@ -203,37 +239,21 @@ _GpfPathMatcher.prototype = {
      * @return {Boolean}
      */
     match: function (parts) {
-        var partsLen = parts.length,
-            startPos = 0,
-            endPos = partsLen - 1,
-            array,
-            len,
-            idx;
+        var result,
+            context = {
+                parts: parts,
+                startPos: 0
+            };
         if (this.start) {
-            array = this.start;
-            len = array.length;
-            for (idx = 0; idx < len; ++idx) {
-                if (this._matchName(array[idx], parts[startPos])) {
-                    if (++startPos >= partsLen) {
-                        // Match if last part of the start and no end
-                        return (idx === len - 1) && !this.end;
-                    }
-                } else {
-                    return false;
-                }
+            result = this._matchStart(context);
+            if (undefined !== result) {
+                return result;
             }
         }
         if (this.end) {
-            array = this.end;
-            len = array.length;
-            for (idx = 0; idx < len; ++idx) {
-                if (-1 < endPos && this._matchName(array[idx], parts[endPos])) {
-                    if (endPos-- < startPos) {
-                        return false;
-                    }
-                } else {
-                    return false;
-                }
+            result = this._matchEnd(context);
+            if (undefined !== result) {
+                return result;
             }
         }
         return true;
@@ -258,8 +278,8 @@ _gpfExtend(gpf.path, {
      *     For example, "**" + "/foo" matches file or directory "foo" anywhere, the same as pattern "foo".
      *     "**" + "/foo/bar" matches file or directory "bar" anywhere that is directly under directory "foo".
      *   - A trailing "/**" matches everything inside. For example, "abc/**" matches all files inside directory "abc"
-     *   - A slash followed by two consecutive asterisks then a slash matches zero or more directories. For example,
-     *     "a/**" + "/b" matches "a/b", "a/x/b", "a/x/y/b" and so on.
+     *   - A slash followed by two consecutive asterisks then a slash matches zero or more directories.
+     *     For example, "a/**" + "/b" matches "a/b", "a/x/b", "a/x/y/b" and so on.
      * Other consecutive asterisks are considered invalid.
      *
      * @param {Array|String} pattern
