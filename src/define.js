@@ -27,139 +27,121 @@ var
     _gpfClassInitAllowed        = true,
     _gpfClassDefUID             = 0,
 
-    /**
-     * Shortcut for gpf.define
-     */
-    _gpfDefine = gpf.define, // Fools JSHint, it points to undefined
+    // Shortcut for gpf.define
+    _gpfDefine;
 
-    /**
-     * Template for new class constructor (using name that includes namespace)
-     * - Uses closure to keep track of constructor and pass it to _gpfClassInit
-     * - _CONSTRUCTOR_ will be replaced with the actual class name
-     *
-     * As this is used inside a new function (src), we loose parameter
-     * Also, google closure compiler will try to replace any use of
-     * arguments[idx] by a named parameter (can't work), so...
-     *
-     * @param {Function} classInit _gpfClassInit
-     * @return {Function}
-     * @private
-     * @closure
-     */
-    _gpfClassConstructorTpl = function () {
-        var
-            args = arguments,
-            constructor = function /* name will be injected here */ () {
-                args[0].apply(this, [constructor, arguments]);
-            };
-        return constructor;
-    },
+/**
+ * Template for new class constructor (using name that includes namespace)
+ * - Uses closure to keep track of constructor and pass it to _gpfClassInit
+ * - Class name will be injected at the right place
+ *
+ * NOTE: As this is used inside a new function (src), we loose parameter.
+ * Also, google closure compiler will try to replace any use of arguments[idx] by a named parameter and it can't work,
+ * so the arguments are copied in a variable and used to call _gpfClassInit
+ *
+ * @param {Function} classInit _gpfClassInit
+ * @return {Function}
+ * @closure
+ */
+function _gpfClassConstructorTpl () {
+    var
+        args = arguments,
+        constructor = function /* name will be injected here */ () {
+            args[0].apply(this, [constructor, arguments]);
+        };
+    return constructor;
+}
 
-    /**
-     * Returns the source of _newClassConstructor with the appropriate function
-     * name
-     *
-     * @param {String} name
-     * @return {String}
-     * @private
-     */
-    _gpfNewClassConstructorSrc = function (name) {
-        var
-            src = _gpfClassConstructorTpl.toString(),
-            start,
-            end;
-        // Extract body
-        start = src.indexOf("{") + 1;
-        end = src.lastIndexOf("}") - 1;
-        src = src.substr(start, end - start + 1);
-        // Inject name of the function
-        return src.replace("function", "function " + name);
-    },
+/**
+ * Returns the source of _newClassConstructor with the appropriate function name
+ *
+ * @param {String} name
+ * @return {String}
+ */
+function _gpfNewClassConstructorSrc (name) {
+    var
+        src = _gpfClassConstructorTpl.toString(),
+        start,
+        end;
+    // Extract body
+    start = src.indexOf("{") + 1;
+    end = src.lastIndexOf("}") - 1;
+    src = src.substr(start, end - start + 1);
+    // Inject name of the function
+    return src.replace("function", "function " + name);
+}
 
-    /**
-     * Detects if the function uses ._super
-     * The function source is split on the "._super" key and I look for the
-     * first char after to see if it is not an identifier character.
-     *
-     * @param {Function} member
-     * @return {Boolean}
-     * @private
-     */
-    _gpfUsesSuper = function (member) {
-        var
-            parts,
-            len,
-            idx;
-        parts = member.toString().split("._super");
-        len = parts.length;
-        for (idx = 1; idx < len; ++idx) {
-            if (-1 === _gpfIdentifierOtherChars.indexOf(parts[idx].charAt(0))) {
-                return true; // Used
+/**
+ * Detects if the function uses ._super
+ * The function source is split on the "._super" key and I look for the first char after to see if it is not an
+ * identifier character.
+ *
+ * @param {Function} member
+ * @return {Boolean}
+ */
+function _gpfUsesSuper (member) {
+    var parts = member.toString().split("._super");
+    /*gpf:inline(array)*/ return !parts.every(function (part) {
+        return -1 !== _gpfIdentifierOtherChars.indexOf(part.charAt(0));
+    });
+}
+
+/**
+ * Generates a closure in which this._super points to the base definition of the overridden member
+ *
+ * @param {Function} superMember
+ * @param {Function} member
+ * @return {Function}
+ * @closure
+ */
+ function _gpfGenSuperMember (superMember, member) {
+    return function () {
+        var previousSuper = this._super,
+            result;
+        // Add a new ._super() method pointing to the base class member
+        this._super = superMember;
+        try {
+            // Execute the method
+            result = member.apply(this, arguments);
+        } finally {
+            // Remove it when we're done executing
+            if (undefined === previousSuper) {
+                delete this._super;
+            } else {
+                this._super = previousSuper;
             }
         }
-        return false; // Not used
-    },
+        return result;
+    };
+}
 
-    /**
-     * Generates a closure in which this._super points to the base definition of
-     * the overridden member
-     *
-     * @param {Function} superMember
-     * @param {Function} member
-     * @return {Function}
-     * @private
-     * @closure
-     */
-    _gpfGenSuperMember = function (superMember, member) {
-        return function () {
-            var
-                previousSuper = this._super,
-                result;
-            // Add a new ._super() method pointing to the base class member
-            this._super = superMember;
-            try {
-                // Execute the method
-                result = member.apply(this, arguments);
-            } finally {
-                // Remove it when we're done executing
-                if (undefined === previousSuper) {
-                    delete this._super;
-                } else {
-                    this._super = previousSuper;
-                }
-            }
-            return result;
-        };
-    },
-
-    /**
-     * Allocate a new class handler that is specific to a class type
-     * (used for interfaces & attributes)
-     *
-     * @param {String} ctxRoot Default context root
-     * @param {String} defaultBase Default contextual root class
-     * @private
-     */
-    _gpfGenDefHandler = function (ctxRoot, defaultBase) {
-        ctxRoot = ctxRoot + ".";
-        return function (name, base, definition) {
-            var result;
-            if (undefined === definition && "object" === typeof base) {
-                definition = base;
-                base = ctxRoot + defaultBase;
-            } else if (undefined === base) {
-                base = ctxRoot + defaultBase;
-            }
-            if (-1 === name.indexOf(".")) {
-                name = ctxRoot + name;
-            }
-            result = _gpfDefine(name, base, definition);
-            return result;
-        };
-    },
+/**
+ * Allocate a new class handler that is specific to a class type (used for interfaces & attributes)
+ *
+ * @param {String} ctxRoot Default context root
+ * @param {String} defaultBase Default contextual root class
+ */
+function _gpfGenDefHandler (ctxRoot, defaultBase) {
+    ctxRoot = ctxRoot + ".";
+    return function (name, base, definition) {
+        var result;
+        if (undefined === definition && "object" === typeof base) {
+            definition = base;
+            base = ctxRoot + defaultBase;
+        } else if (undefined === base) {
+            base = ctxRoot + defaultBase;
+        }
+        if (-1 === name.indexOf(".")) {
+            name = ctxRoot + name;
+        }
+        result = _gpfDefine(name, base, definition);
+        return result;
+    };
+}
 
 //region Class definition helper
 
+var
     /**
      * Global dictionary of known class definitions
      *
