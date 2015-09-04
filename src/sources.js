@@ -22,10 +22,9 @@
             "path",                 // Path helper                      gpf.path
             "path_matcher",         // Path matcher                     gpf.path
             "javascript",           // JavaScript language tools          gpf.js
+            "csv",                  // CSV helper                        gpf.csv
 
             /* new JSHint settings */
-
-            "csv",                  // CSV helper                        gpf.csv
 
             "define",               // Class management               gpf.define
 
