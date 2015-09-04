@@ -25,7 +25,7 @@ function _gpfCsvComputeSeparator (header) {
         separator;
     for(idx = 0; idx < len; ++idx) {
         separator = _gpfCsvSeparators.charAt(idx);
-        if( -1 !== header.indexOf(separator)) {
+        if (-1 !== header.indexOf(separator)) {
             return separator;
         }
     }
@@ -46,7 +46,6 @@ function _gpfTrimFinalR (line) {
     }
     return line;
 }
-
 
 /**
  * CSV Parser
@@ -80,18 +79,18 @@ _GpfCsvParser.prototype = {
     // Quote
     _quote: "",
 
-    // @property {String[]} Columns
+    // @property {String[]} Columns' name
     _columns: [],
 
     /**
-     * Handle quoted value.
+     * Process quoted value to unescape it properly.
      * Either the quote appears in the middle of the value: it must be followed by another quote.
      * And/Or it appears at the end of the value: it means this ends the quoted value
      *
      * @param {String} value
      * @return {Array}
-     * - First element is the result value
-     * - Second element indicates if the quote escaping is still active
+     * - {String} 0 The result value
+     * - {Boolean} 1 Indicates if the quote escaping is still active
      */
     _unquote: function (value) {
         var quote = this._quote,
@@ -117,12 +116,22 @@ _GpfCsvParser.prototype = {
         return [value, inQuotedString];
     },
 
-    _processQuotedLineValue: function (line, idx, values) {
+    /**
+     * Process the line value knowing it is quoted
+     *
+     * @param {String[]} line Line split on separator
+     * @param {Number} idx Index of the value to consider
+     * @param {Object} flags
+     * - {Boolean} inQuotedString
+     * - {Boolean} includeCarriageReturn
+     * @returns {Number} Next value index
+     */
+    _processQuotedLineValue: function (line, idx, flags) {
         var value = line[idx],
             unQuoted;
         // Concatenate with 'previous' item
         var previousValue = [line[idx - 1]];
-        if (values.includeCarriageReturn) {
+        if (flags.includeCarriageReturn) {
             previousValue.push("\r\n");
         } else {
             // part of the escaped string
@@ -130,60 +139,85 @@ _GpfCsvParser.prototype = {
         }
         unQuoted = this._unquote(value);
         previousValue.push(unQuoted[0]);
-        values.inQuotedString = unQuoted[1];
+        flags.inQuotedString = unQuoted[1];
         line[idx - 1] = previousValue.join("");
-        values.includeCarriageReturn = false;
+        flags.includeCarriageReturn = false;
         line.splice(idx, 1);
         return idx;
     },
 
-    _processLineValue: function (line, idx, values) {
+    /**
+     * Process the line value to check if any quote exists
+     *
+     * @param {String[]} line Line split on separator
+     * @param {Number} idx Index of the value to consider
+     * @param {Object} flags
+     * - {Boolean} inQuotedString
+     * - {Boolean} includeCarriageReturn
+     * @returns {Number} Next value index
+     */
+    _processLineValue: function (line, idx, flags) {
         var value = line[idx],
             unQuoted;
         if (0 === value.indexOf(this._quote)) {
-            values.inQuotedString = true;
+            flags.inQuotedString = true;
             unQuoted = this._unquote(value.substr(1));
             line[idx] = unQuoted[0];
-            values.inQuotedString = unQuoted[1];
+            flags.inQuotedString = unQuoted[1];
         }
         return idx + 1;
     },
 
-    _processLineValues: function (line, values) {
+    /**
+     * Convert the line into values
+     *
+     * @param {String} line
+     * @param {String[]} values
+     * @param {Object} flags
+     * - {Boolean} inQuotedString
+     * - {Boolean} includeCarriageReturn
+     * @returns {Boolean}
+     * @private
+     */
+    _processLineValues: function (line, values, flags) {
         var idx;
-        if (values.inQuotedString) {
-            values.includeCarriageReturn = true;
+        if (flags.inQuotedString) {
+            flags.includeCarriageReturn = true;
             line.unshift(values.pop()); // Last value is not completed
             idx = 1;
         } else {
             idx = 0;
-            values.includeCarriageReturn = false;
+            flags.includeCarriageReturn = false;
         }
         while (idx < line.length) {
-            if (values.inQuotedString) {
-                idx = this._processQuotedLineValue(line, idx, values);
+            if (flags.inQuotedString) {
+                idx = this._processQuotedLineValue(line, idx, flags);
             } else {
-                idx = this._processLineValue(line, idx, values);
+                idx = this._processLineValue(line, idx, flags);
             }
         }
         [].splice.apply(values, [values.length, 0].concat(line));
-        return !values.inQuotedString;
+        return !flags.inQuotedString;
     },
 
     /**
      * Read one 'line' of values.
-     * Quote escaping is handled meaning that a line might be on several lines.
+     * Quote escaping is handled meaning that a line might be on several lines
+     *
+     * @returns {String[]}
      */
     _readValues: function () {
         var lines = this._lines,
             separator = this._separator,
             values = [],
+            flags = {
+                inQuotedString: false,
+                includeCarriageReturn: false
+            },
             line;
-        values.inQuotedString = false;
-        values.includeCarriageReturn = undefined;
         while (lines.length) {
             line = lines.shift().split(separator);
-            if (this._processLineValues(line, values)) {
+            if (this._processLineValues(line, values, flags)) {
                 break;
             }
         }
