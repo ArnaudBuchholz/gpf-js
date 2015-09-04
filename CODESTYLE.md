@@ -197,6 +197,30 @@ For instance:
      */
 ```
 
+### Special comments
+
+Some preprocessing instructions are defined inside comments:
+
+```javascript
+/*#ifdef(DEBUG)*/
+/*#else*/
+/*#endif*/
+```
+
+The following tags are inserted to prepare future optimizations / improvement:
+
+* The assignment should considered as a constant definition
+
+```javascript
+        /*gpf:constant*/ error.code = code;
+```
+
+* The forEach instruction can be optimized with an inline substitution
+
+```javascript
+        /*gpf:inline(array)*/ this._columns.forEach(function (name, idx) {
+```
+
 ### Variables declaration
 
 To simplify minification, functions are always using function declaration.
