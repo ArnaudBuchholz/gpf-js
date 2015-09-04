@@ -11,8 +11,10 @@
 /*#endif*/
 
 _gpfErrorDeclare("define", {
-    "FileNotFound":
-        "File not found"
+    "ClassMemberOverloadWithTypeChange":
+        "You can't overload a member to change its type",
+    "ClassInvalidVisibility":
+        "Invalid visibility keyword"
 });
 
 var

@@ -16,10 +16,8 @@
 /*#endif*/
 
 _gpfErrorDeclare("fs", {
-    "ClassMemberOverloadWithTypeChange":
-        "You can't overload a member to change its type",
-    "ClassInvalidVisibility":
-        "Invalid visibility keyword"
+    "FileNotFound":
+        "File not found"
 });
 
 /**
