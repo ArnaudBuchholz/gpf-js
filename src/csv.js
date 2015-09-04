@@ -166,7 +166,7 @@ _GpfCsvParser.prototype = {
                 idx = this._processLineValue(line, idx, values);
             }
         }
-        [].splice.apply(values, [-1, 0].concat(line));
+        [].splice.apply(values, [values.length, 0].concat(line));
         return !values.inQuotedString;
     },
 
