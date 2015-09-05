@@ -19,13 +19,10 @@ _gpfErrorDeclare("define", {
 
 var
     _gpfVisibilityKeywords      = "public|protected|private|static".split("|"),
-    _GPF_CLASSDEF_MARKER        = "_gpf_" + gpf.bin.toHexa(gpf.bin.random(), 8),
     _GPF_VISIBILITY_PUBLIC      = 0,
     _GPF_VISIBILITY_PROTECTED   = 1,
 //  _GPF_VISIBILITY_PRIVATE     = 2,
     _GPF_VISIBILITY_STATIC      = 3,
-    _gpfClassInitAllowed        = true,
-    _gpfClassDefUID             = 0,
 
     // Shortcut for gpf.define
     _gpfDefine;
@@ -146,74 +143,83 @@ var
      * Global dictionary of known class definitions
      *
      * @type {Object}
-     * @private
      */
     _gpfClassDefinitions = {},
 
-    /**
-     * An helper to create class and store its information
-     *
-     * @class gpf.ClassDefinition
-     * @constructor
-     * @param {String|Function} name
-     * @param {Function} Super
-     * @param {Object} definition
-     * @private
-     */
-    _GpfClassDefinition = function  (name, Super, definition) {
-        this._uid = ++_gpfClassDefUID;
-        _gpfClassDefinitions[this._uid] = this;
-        this._Subs = [];
-        if ("function" === typeof name) {
-            // TODO use js tokenizer to extract function name (if any)
+    // Unique class definition ID
+    _gpfClassDefUID = 0,
+
+    // Tag to associate class definition to class
+    _GPF_CLASSDEF_MARKER = "_gpf_" + gpf.bin.toHexa(gpf.bin.random(), 8);
+
+/**
+ * An helper to create class and store its information
+ *
+ * @param {String|Function} name
+ * @param {Function} Super
+ * @param {Object} definition
+ * @class gpf.ClassDefinition
+ * @constructor
+ */
+function  _GpfClassDefinition (name, Super, definition) {
+    /*jshint validthis:true*/
+    this._uid = ++_gpfClassDefUID;
+    _gpfClassDefinitions[this._uid] = this;
+    this._Subs = [];
+    if ("function" === typeof name) {
+        this._name = name.compatibleName();
+        if (!this._name) {
             this._name = "anonymous";
-            // TODO how do we grab the parent constructor (?)
-            this._Constructor = name;
-        } else {
-            this._name = name;
-            this._Super = Super;
-            this._definition = definition;
-            this._build();
         }
-    },
+        // TODO how do we grab the parent constructor (?)
+        this._Constructor = name;
+    } else {
+        this._name = name;
+        this._Super = Super;
+        this._definition = definition;
+        this._build();
+    }
+}
 
-    /**
-     * Retrieves (or allocate) the class definition object
-     *
-     * @param {Function} constructor Class constructor
-     * @return {gpf.ClassDefinition}
-     */
-    _gpfGetClassDefinition = function (constructor) {
-        var classDef,
-            uid = constructor[_GPF_CLASSDEF_MARKER];
-        if (undefined === uid) {
-            classDef = new _GpfClassDefinition(constructor);
-            /*gpf:constant*/ constructor[_GPF_CLASSDEF_MARKER] = classDef.uid();
-        } else {
-            classDef = _gpfClassDefinitions[uid];
-        }
-        return classDef;
-    },
+/**
+ * Retrieves (or allocate) the class definition object
+ *
+ * @param {Function} constructor Class constructor
+ * @return {gpf.ClassDefinition}
+ */
+ function _gpfGetClassDefinition (constructor) {
+    var classDef,
+        uid = constructor[_GPF_CLASSDEF_MARKER];
+    if (undefined === uid) {
+        classDef = new _GpfClassDefinition(constructor);
+        /*gpf:constant*/ constructor[_GPF_CLASSDEF_MARKER] = classDef.uid();
+    } else {
+        classDef = _gpfClassDefinitions[uid];
+    }
+    return classDef;
+}
 
-    /**
-     * Class initializer: it triggers the call to this._defConstructor only if
-     * _gpfClassInitAllowed is true.
-     *
-     * @param {Function} constructor Class constructor
-     * @param {*[]} args Arguments
-     * @private
-     */
-    _gpfClassInit = function (constructor, args) {
-        if (_gpfClassInitAllowed) {
-            var classDef = _gpfGetClassDefinition(constructor);
-            // TODO Implement deferred class building here
-            if (classDef._defConstructor) {
-                classDef._defConstructor.apply(this, args);
-            } else {
-                classDef._Super.apply(this, args);
-            }
+// Critical section to prevent constructor call when creating inheritance relationship
+var _gpfClassInitAllowed = true;
+
+/**
+ * Class initializer: it triggers the call to this._defConstructor only if _gpfClassInitAllowed is true.
+ *
+ * @param {Function} constructor Class constructor
+ * @param {*[]} args Arguments
+ */
+function _gpfClassInit (constructor, args) {
+    /*jshint validthis:true*/ // will be used as a constructor
+    if (_gpfClassInitAllowed) {
+        var classDef = _gpfGetClassDefinition(constructor);
+        // TODO Implement deferred class building here
+        if (classDef._defConstructor) {
+            classDef._defConstructor.apply(this, args);
+        } else {
+            classDef._Super.apply(this, args);
         }
-    };
+    }
+}
 
 _GpfClassDefinition.prototype = {
 
