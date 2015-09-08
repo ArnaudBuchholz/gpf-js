@@ -2,8 +2,10 @@
 "use strict";
 /*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
 /*global _gpfContext*/ // Resolve contextual string
+/*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunc*/ // Create a new function using the source
+/*global _gpfHost*/ // Host type
 /*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
 /*exported _gpfDefine*/
 /*exported _gpfGenDefHandler*/
@@ -187,7 +189,7 @@ function  _GpfClassDefinition (name, Super, definition) {
  * @param {Function} constructor Class constructor
  * @return {gpf.ClassDefinition}
  */
- function _gpfGetClassDefinition (constructor) {
+function _gpfGetClassDefinition (constructor) {
     var classDef,
         uid = constructor[_GPF_CLASSDEF_MARKER];
     if (undefined === uid) {
@@ -204,6 +206,8 @@ var _gpfClassInitAllowed = true;
 
 /**
  * Class initializer: it triggers the call to this._defConstructor only if _gpfClassInitAllowed is true.
+ *
+ * TODO: there should be a way to make it simpler (combining with _gpfClassConstructorTpl)
  *
  * @param {Function} constructor Class constructor
  * @param {*[]} args Arguments
@@ -227,45 +231,13 @@ _GpfClassDefinition.prototype = {
 
     //region Members
 
-    /**
-     * Unique identifier
-     *
-     * @type {Number}
-     * @private
-     */
+    // Unique identifier
     _uid: 0,
 
-    /**
-     * Unique identifier
-     *
-     * @return {Number}
-     */
-    uid: function () {
-        return this._uid;
-    },
-
-    /**
-     * Full class name
-     *
-     * @type {String}
-     * @private
-     */
+    // Full class name
     _name: "",
 
-    /**
-     * Full class name
-     *
-     * @return {String}
-     */
-    name: function () {
-        return this._name;
-    },
-
-    /**
-     * Class name (without namespace)
-     *
-     * @return {String}
-     */
+    // Class name (without namespace)
     nameOnly: function () {
         var name = this._name,
             pos = name.lastIndexOf(".");
@@ -276,48 +248,18 @@ _GpfClassDefinition.prototype = {
         }
     },
 
-    /**
-     * Super class
-     *
-     * @type {Function}
-     * @private
-     */
+    // Super class
     _Super: Object,
 
-    /**
-     * Super class
-     *
-     * @return {Function}
-     */
-    Super: function () {
-        return this._Super;
-    },
-
-    /**
-     * Child classes
-     *
-     * @type {Function[}}
-     * @private
-     */
+    // @property {Function[}} Child classes
     _Subs: [],
-
-    /**
-     * Child classes
-     *
-     * @return {Function[}}
-     */
-    Subs: function () {
-        return this._Subs;
-    },
 
     /**
      * Attributes of this class
      *
-     * NOTE: during definition, this member is used as a simple JavaScript
-     * Object
+     * NOTE: during definition, this member is used as a simple JavaScript Object
      *
      * @type {gpf.attributes.Map}
-     * @private
      */
     _attributes: null,
 
@@ -333,30 +275,11 @@ _GpfClassDefinition.prototype = {
         return this._attributes;
     },
 
-    /**
-     * Class constructor
-     *
-     * @type {Function}
-     * @private
-     */
-    _Constructor: function () {},
+    // Class constructor
+    _Constructor: _gpfEmptyFunc,
 
-    /**
-     * Class 'definition' constructor
-     *
-     * @type {Function}
-     * @private
-     */
+    // Class 'definition' constructor
     _defConstructor: null,
-
-    /**
-     * Class constructor
-     *
-     * @return {Function}
-     */
-    Constructor: function () {
-        return this._Constructor;
-    },
 
     //endregion
 
@@ -381,11 +304,9 @@ _GpfClassDefinition.prototype = {
      * @param {String|number} [visibility=_GPF_VISIBILITY_PUBLIC] visibility
      */
     addMember: function (member, value, visibility) {
-        var
-            newPrototype = this._Constructor.prototype;
+        var newPrototype = this._Constructor.prototype;
         gpf.ASSERT(member !== "constructor", "No constructor can be added");
-        gpf.ASSERT(undefined === newPrototype[member],
-            "No member can be overridden");
+        gpf.ASSERT(undefined === newPrototype[member], "No member can be overridden");
         if (undefined === visibility) {
             visibility = _GPF_VISIBILITY_PUBLIC;
         } else if ("string" === typeof visibility) {
@@ -403,11 +324,9 @@ _GpfClassDefinition.prototype = {
      * @param {String} member
      * @param {*} value
      * @param {number} visibility
-     * @private
      */
     _addMember: function (member, value, visibility) {
-        var
-            newPrototype = this._Constructor.prototype;
+        var newPrototype = this._Constructor.prototype;
         if (_GPF_VISIBILITY_STATIC === visibility) {
             /*gpf:constant*/ newPrototype.constructor[member] = value;
         } else {
@@ -420,61 +339,67 @@ _GpfClassDefinition.prototype = {
      *
      * @param {String} member Name of the member to define
      * @param {Number} visibility Visibility of the members
-     * @private
-     * @closure
      */
     _processMember: function (member, visibility) {
         // Don't know yet how I want to handle visibility
-        var
-            defMember = this._definition[member],
-            isConstructor = member === "constructor",
-            newType,
-            baseMember,
-            baseType;
-        newType = typeof defMember;
+        var memberValue = this._definition[member];
         if (_GPF_VISIBILITY_STATIC === visibility) {
             // No inheritance can be applied here
-            this._addMember(member, defMember, _GPF_VISIBILITY_STATIC);
+            this._addMember(member, memberValue, _GPF_VISIBILITY_STATIC);
             return;
         }
+        return this._processNonStaticMember(member, memberValue, visibility);
+    },
+
+    /**
+     * Defines a new non-static member of the class
+     *
+     * @param {String} member Name of the member to define
+     * @param {*} memberValue
+     * @param {Number} visibility Visibility of the members
+     * @closure
+     */
+    _processNonStaticMember: function (member, memberValue, visibility) {
+        var newType = typeof memberValue,
+            isConstructor = member === "constructor",
+            baseMemberValue,
+            baseType;
         if (isConstructor) {
-            baseMember = this._Super;
+            baseMemberValue = this._Super;
         } else {
-            baseMember = this._Super.prototype[member];
+            baseMemberValue = this._Super.prototype[member];
         }
-        baseType = typeof baseMember;
+        baseType = typeof baseMemberValue;
         if ("undefined" !== baseType
-            && null !== baseMember // Special case as null is common
+            && null !== baseMemberValue // Special case as null is common
             && newType !== baseType) {
             throw gpf.Error.ClassMemberOverloadWithTypeChange();
         }
         if ("function" === newType
             && "undefined" !== baseType
-            && _gpfUsesSuper(defMember)) {
+            && _gpfUsesSuper(memberValue)) {
             /*
              * As it is a function override, _super is a way to access the
              * base function.
              */
-            defMember = _gpfGenSuperMember(baseMember, defMember);
+            memberValue = _gpfGenSuperMember(baseMemberValue, memberValue);
         }
         if (isConstructor) {
-            this._defConstructor = defMember;
+            this._defConstructor = memberValue;
         } else {
-            this._addMember(member, defMember, visibility);
+            this._addMember(member, memberValue, visibility);
         }
     },
 
     /**
-     * An attribute definition is found in the class definition, store it
-     * into a temporary map: it will be processed later
+     * An attribute definition is found in the class definition, store it into a temporary map:
+     * it will be processed later
      *
-     * @param {String} key Attribute name of the member to associate the
-     * attributes to ([name])
+     * @param {String} key Attribute name of the member to associate the attributes to ([name])
      * @private
      */
     _processAttribute: function (key) {
-        var
-            attributeArray,
+        var attributeArray,
             newAttributeArray = this._definition[key];
         key = key.substr(1, key.length - 2); // Extract member name
         if (!this._attributes) {
@@ -526,8 +451,7 @@ _GpfClassDefinition.prototype = {
                 }
             }
             // 2014-05-05 #14
-            if (_GPF_HOST_WSCRIPT === _gpfHost
-                && definition.constructor !== Object) {
+            if (_GPF_HOST_WSCRIPT === _gpfHost && definition.constructor !== Object) {
                 this._processMember("constructor", visibility);
             }
         } finally {
