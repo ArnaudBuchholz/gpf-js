@@ -7,6 +7,7 @@
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfHost*/ // Host type
 /*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
+/*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _gpfDefine*/
 /*exported _gpfGenDefHandler*/
 /*exported _gpfGetClassDefinition*/
@@ -392,24 +393,56 @@ _GpfClassDefinition.prototype = {
     },
 
     /**
-     * An attribute definition is found in the class definition, store it into a temporary map:
-     * it will be processed later
+     * Check if the current member is an attribute declaration.
+     * If so, stores it into a temporary map that will be processed as the last step.
      *
-     * @param {String} key Attribute name of the member to associate the attributes to ([name])
-     * @private
+     * @param {String} member
+     * @returns {Boolean}
      */
-    _processAttribute: function (key) {
+    _filterAttribute: function (member) {
         var attributeArray,
-            newAttributeArray = this._definition[key];
-        key = key.substr(1, key.length - 2); // Extract member name
+            newAttributeArray = this._definition[member];
+        if ("[" !== member.charAt(0)
+            || "]" !== member.charAt(member.length - 1)) {
+            return false;
+        }
+        newAttributeArray = this._definition[member];
+        member = member.substr(1, member.length - 2); // Extract member name
         if (!this._attributes) {
             this._attributes = {};
         }
-        attributeArray = this._attributes[key];
+        attributeArray = this._attributes[member];
         if (undefined === attributeArray) {
             attributeArray = [];
         }
-        this._attributes[key] = attributeArray.concat(newAttributeArray);
+        this._attributes[member] = attributeArray.concat(newAttributeArray);
+        return true;
+    },
+
+    _processDefinitionItem: function (visibility, memberValue, member) {
+        if (this._filterAttribute(member)) {
+            return;
+        }
+        var newVisibility = _gpfVisibilityKeywords.indexOf(member);
+        if (-1 === newVisibility) {
+            if (-1 === visibility) {
+                // Usual member, protected if starting with _
+                if (member.charAt(0) === "_") {
+                    visibility = _GPF_VISIBILITY_PROTECTED;
+                } else {
+                    visibility = _GPF_VISIBILITY_PUBLIC;
+                }
+            }
+            return this._processMember(member, visibility);
+        }
+        if (-1 !== visibility) {
+            throw gpf.Error.ClassInvalidVisibility();
+        }
+        _gpfObjectForEach(memberValue, this._processDefinitionItem.bind(this, newVisibility));
+        // 2014-05-05 #14
+        if (_GPF_HOST_WSCRIPT === _gpfHost && definition.constructor !== Object) {
+            this._processMember("constructor", visibility);
+        }
     },
 
     /**
@@ -421,83 +454,70 @@ _GpfClassDefinition.prototype = {
      * @private
      */
     _processDefWithVisibility: function (visibility) {
-        var
-            initialDefinition = this._definition,
+        var initialDefinition = this._definition,
             definition,
             member;
         member = _gpfVisibilityKeywords[visibility];
         definition = initialDefinition[member];
         this._definition = definition;
         try {
-            for (member in definition) {
-                if (definition.hasOwnProperty(member)) {
+            /*gpf:inline(object)*/ _gpfObjectForEach(definition, function (memberValue, member) {
+                if (this.)
+                // Attribute
+                if ("[" === member.charAt(0)
+                    && "]" === member.charAt(member.length - 1)) {
 
-                    // Attribute
-                    if ("[" === member.charAt(0)
-                        && "]" === member.charAt(member.length - 1)) {
+                    this._filterAttribute(member);
 
-                        this._processAttribute(member);
-
-                        // Visibility
-                    } else if ("public" === member
-                        || "private" === member
-                        || "protected" === member
-                        || "static" === member) {
-                        throw gpf.Error.ClassInvalidVisibility();
-                        // Usual member
-                    } else {
-                        this._processMember(member, visibility);
-                    }
+                    // Visibility
+                } else if ("public" === member
+                    || "private" === member
+                    || "protected" === member
+                    || "static" === member) {
+                    throw gpf.Error.ClassInvalidVisibility();
+                    // Usual member
+                } else {
+                    this._processMember(member, visibility);
                 }
-            }
-            // 2014-05-05 #14
-            if (_GPF_HOST_WSCRIPT === _gpfHost && definition.constructor !== Object) {
-                this._processMember("constructor", visibility);
-            }
+            });
         } finally {
             this._definition = initialDefinition;
         }
     },
 
-    /**
-     * Process definition
-     *
-     * @private
-     */
+    // Process class definition
     _processDefinition: function () {
-        var
-            definition = this._definition,
-            member,
-            visibility;
-        for (member in definition) {
-            if (definition.hasOwnProperty(member)) {
-                if ("[" === member.charAt(0)
-                    && "]" === member.charAt(member.length - 1)) {
-                    // Attribute
-                    this._processAttribute(member);
-                } else {
-                    visibility = _gpfVisibilityKeywords
-                        .indexOf(member);
-                    if (-1 === visibility) {
-                        // Usual member, protected if starting with _
-                        if (member.charAt(0) === "_") {
-                            visibility = _GPF_VISIBILITY_PROTECTED;
-                        } else {
-                            visibility = _GPF_VISIBILITY_PUBLIC;
-                        }
-                        this._processMember(member, visibility);
+        var definition = this._definition,
+        /*gpf:inline(object)*/ _gpfObjectForEach(definition, function (memberValue, member) {
+
+            if ("[" === member.charAt(0)
+                && "]" === member.charAt(member.length - 1)) {
+                // Attribute
+                this._filterAttribute(member);
+            } else {
+                visibility = _gpfVisibilityKeywords.indexOf(member);
+                if (-1 === visibility) {
+                    // Usual member, protected if starting with _
+                    if (member.charAt(0) === "_") {
+                        visibility = _GPF_VISIBILITY_PROTECTED;
                     } else {
-                        // Visibility
-                        this._processDefWithVisibility(visibility);
+                        visibility = _GPF_VISIBILITY_PUBLIC;
                     }
+                    this._processMember(member, visibility);
+                } else {
+                    // Visibility
+                    this._processDefWithVisibility(visibility);
                 }
             }
-        }
+
+        });
         // 2014-05-05 #14
         if (_GPF_HOST_WSCRIPT === _gpfHost && definition.constructor !== Object) {
             this._processMember("constructor", _GPF_VISIBILITY_PUBLIC);
         }
     },
+
+
 
     /**
      * Process the attributes collected in the definition
