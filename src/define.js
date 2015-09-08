@@ -15,20 +15,18 @@
 
 _gpfErrorDeclare("define", {
     "ClassMemberOverloadWithTypeChange":
-        "You can't overload a member to change its type",
+        "You can't overload a member and change its type",
     "ClassInvalidVisibility":
         "Invalid visibility keyword"
 });
 
 var
     _gpfVisibilityKeywords      = "public|protected|private|static".split("|"),
+    _GPF_VISIBILITY_UNKNOWN     = -1,
     _GPF_VISIBILITY_PUBLIC      = 0,
     _GPF_VISIBILITY_PROTECTED   = 1,
 //  _GPF_VISIBILITY_PRIVATE     = 2,
-    _GPF_VISIBILITY_STATIC      = 3,
-
-    // Shortcut for gpf.define
-    _gpfDefine;
+    _GPF_VISIBILITY_STATIC      = 3;
 
 /**
  * Template for new class constructor (using name that includes namespace)
@@ -104,7 +102,7 @@ function _gpfUsesSuper (member) {
             // Execute the method
             result = member.apply(this, arguments);
         } finally {
-            // Remove it when we're done executing
+            // Remove it after execution
             if (undefined === previousSuper) {
                 delete this._super;
             } else {
@@ -115,38 +113,8 @@ function _gpfUsesSuper (member) {
     };
 }
 
-/**
- * Allocate a new class handler that is specific to a class type (used for interfaces & attributes)
- *
- * @param {String} ctxRoot Default context root
- * @param {String} defaultBase Default contextual root class
- */
-function _gpfGenDefHandler (ctxRoot, defaultBase) {
-    ctxRoot = ctxRoot + ".";
-    return function (name, base, definition) {
-        var result;
-        if (undefined === definition && "object" === typeof base) {
-            definition = base;
-            base = ctxRoot + defaultBase;
-        } else if (undefined === base) {
-            base = ctxRoot + defaultBase;
-        }
-        if (-1 === name.indexOf(".")) {
-            name = ctxRoot + name;
-        }
-        result = _gpfDefine(name, base, definition);
-        return result;
-    };
-}
-
-//region Class definition helper
-
 var
-    /**
-     * Global dictionary of known class definitions
-     *
-     * @type {Object}
-     */
+    // Global dictionary of known class definitions
     _gpfClassDefinitions = {},
 
     // Unique class definition ID
@@ -165,21 +133,19 @@ var
  * @constructor
  */
 function  _GpfClassDefinition (name, Super, definition) {
-    /*jshint validthis:true*/
+    /*jshint validthis:true*/ // constructor
     this._uid = ++_gpfClassDefUID;
     _gpfClassDefinitions[this._uid] = this;
     this._Subs = [];
     if ("function" === typeof name) {
-        this._name = name.compatibleName();
-        if (!this._name) {
-            this._name = "anonymous";
-        }
+        this._name = name.compatibleName() || "anonymous";
         // TODO how do we grab the parent constructor (?)
         this._Constructor = name;
     } else {
         this._name = name;
         this._Super = Super;
         this._definition = definition;
+        this._attributes = {};
         this._build();
     }
 }
@@ -230,8 +196,6 @@ _GpfClassDefinition.prototype = {
 
     constructor: _GpfClassDefinition,
 
-    //region Members
-
     // Unique identifier
     _uid: 0,
 
@@ -258,9 +222,9 @@ _GpfClassDefinition.prototype = {
     /**
      * Attributes of this class
      *
-     * NOTE: during definition, this member is used as a simple JavaScript Object
+     * NOTE: during definition parsing, this member is used as a simple dictionary
      *
-     * @type {gpf.attributes.Map}
+     * @type {Object|gpf.attributes.Map}
      */
     _attributes: null,
 
@@ -282,16 +246,7 @@ _GpfClassDefinition.prototype = {
     // Class 'definition' constructor
     _defConstructor: null,
 
-    //endregion
-
-    //region Class construction
-
-    /**
-     * Class definition
-     *
-     * @type {Object}
-     * @private
-     */
+    // @property {Object} Class definition
     _definition: null,
 
     /**
@@ -301,10 +256,10 @@ _GpfClassDefinition.prototype = {
      * - overriding an existing member
      *
      * @param {String} member
-     * @param {*} value
+     * @param {*} memberValue
      * @param {String|number} [visibility=_GPF_VISIBILITY_PUBLIC] visibility
      */
-    addMember: function (member, value, visibility) {
+    addMember: function (member, memberValue, visibility) {
         var newPrototype = this._Constructor.prototype;
         gpf.ASSERT(member !== "constructor", "No constructor can be added");
         gpf.ASSERT(undefined === newPrototype[member], "No member can be overridden");
@@ -316,7 +271,7 @@ _GpfClassDefinition.prototype = {
                 visibility = _GPF_VISIBILITY_PUBLIC;
             }
         }
-        this._addMember(member, value, visibility);
+        this._addMember(member, memberValue, visibility);
     },
 
     /**
@@ -338,18 +293,18 @@ _GpfClassDefinition.prototype = {
     /**
      * Defines a new member of the class
      *
+     * @param {Object} definition
      * @param {String} member Name of the member to define
      * @param {Number} visibility Visibility of the members
      */
-    _processMember: function (member, visibility) {
-        // Don't know yet how I want to handle visibility
-        var memberValue = this._definition[member];
+    _processMember: function (definition, member, visibility) {
+        var memberValue = definition[member];
         if (_GPF_VISIBILITY_STATIC === visibility) {
             // No inheritance can be applied here
             this._addMember(member, memberValue, _GPF_VISIBILITY_STATIC);
-            return;
+        } else {
+            this._processNonStaticMember(member, memberValue, visibility);
         }
-        return this._processNonStaticMember(member, memberValue, visibility);
     },
 
     /**
@@ -371,21 +326,16 @@ _GpfClassDefinition.prototype = {
             baseMemberValue = this._Super.prototype[member];
         }
         baseType = typeof baseMemberValue;
-        if ("undefined" !== baseType
-            && null !== baseMemberValue // Special case as null is common
-            && newType !== baseType) {
-            throw gpf.Error.ClassMemberOverloadWithTypeChange();
-        }
-        if ("function" === newType
-            && "undefined" !== baseType
-            && _gpfUsesSuper(memberValue)) {
-            /*
-             * As it is a function override, _super is a way to access the
-             * base function.
-             */
-            memberValue = _gpfGenSuperMember(baseMemberValue, memberValue);
+        if ("undefined" !== baseType) {
+            if (null !== baseMemberValue && newType !== baseType) {
+                throw gpf.Error.ClassMemberOverloadWithTypeChange();
+            }
+            if ("function" === newType && _gpfUsesSuper(memberValue)) {
+                memberValue = _gpfGenSuperMember(baseMemberValue, memberValue);
+            }
         }
         if (isConstructor) {
+            // TODO check visibility & _defConstructor is empty
             this._defConstructor = memberValue;
         } else {
             this._addMember(member, memberValue, visibility);
@@ -397,25 +347,20 @@ _GpfClassDefinition.prototype = {
      * If so, stores it into a temporary map that will be processed as the last step.
      *
      * @param {String} member
-     * @returns {Boolean}
+     * @param {*} memberValue
+     * @returns {Boolean} True when an attribute is detected
      */
-    _filterAttribute: function (member) {
-        var attributeArray,
-            newAttributeArray = this._definition[member];
-        if ("[" !== member.charAt(0)
-            || "]" !== member.charAt(member.length - 1)) {
+    _filterAttribute: function (member, memberValue) {
+        var attributeArray;
+        if ("[" !== member.charAt(0) || "]" !== member.charAt(member.length - 1)) {
             return false;
         }
-        newAttributeArray = this._definition[member];
         member = member.substr(1, member.length - 2); // Extract member name
-        if (!this._attributes) {
-            this._attributes = {};
-        }
         attributeArray = this._attributes[member];
         if (undefined === attributeArray) {
             attributeArray = [];
         }
-        this._attributes[member] = attributeArray.concat(newAttributeArray);
+        this._attributes[member] = attributeArray.concat(memberValue);
         return true;
     },
 
@@ -424,8 +369,8 @@ _GpfClassDefinition.prototype = {
             return;
         }
         var newVisibility = _gpfVisibilityKeywords.indexOf(member);
-        if (-1 === newVisibility) {
-            if (-1 === visibility) {
+        if (_GPF_VISIBILITY_UNKNOWN === newVisibility) {
+            if (_GPF_VISIBILITY_UNKNOWN === visibility) {
                 // Usual member, protected if starting with _
                 if (member.charAt(0) === "_") {
                     visibility = _GPF_VISIBILITY_PROTECTED;
@@ -438,117 +383,40 @@ _GpfClassDefinition.prototype = {
         if (-1 !== visibility) {
             throw gpf.Error.ClassInvalidVisibility();
         }
-        _gpfObjectForEach(memberValue, this._processDefinitionItem.bind(this, newVisibility));
-        // 2014-05-05 #14
-        if (_GPF_HOST_WSCRIPT === _gpfHost && definition.constructor !== Object) {
-            this._processMember("constructor", visibility);
-        }
-    },
-
-    /**
-     * Process class definition including visibility
-     *
-     * NOTE: alters this._definition
-     *
-     * @param {Number} visibility Visibility of the members
-     * @private
-     */
-    _processDefWithVisibility: function (visibility) {
-        var initialDefinition = this._definition,
-            definition,
-            member;
-        member = _gpfVisibilityKeywords[visibility];
-        definition = initialDefinition[member];
-        this._definition = definition;
-        try {
-            /*gpf:inline(object)*/ _gpfObjectForEach(definition, function (memberValue, member) {
-                if (this.)
-                // Attribute
-                if ("[" === member.charAt(0)
-                    && "]" === member.charAt(member.length - 1)) {
-
-                    this._filterAttribute(member);
-
-                    // Visibility
-                } else if ("public" === member
-                    || "private" === member
-                    || "protected" === member
-                    || "static" === member) {
-                    throw gpf.Error.ClassInvalidVisibility();
-                    // Usual member
-                } else {
-                    this._processMember(member, visibility);
-                }
-            });
-        } finally {
-            this._definition = initialDefinition;
-        }
+        this._processDefinition(memberValue, newVisibility);
     },
 
     // Process class definition
-    _processDefinition: function () {
-        var definition = this._definition,
-        /*gpf:inline(object)*/ _gpfObjectForEach(definition, function (memberValue, member) {
-
-            if ("[" === member.charAt(0)
-                && "]" === member.charAt(member.length - 1)) {
-                // Attribute
-                this._filterAttribute(member);
-            } else {
-                visibility = _gpfVisibilityKeywords.indexOf(member);
-                if (-1 === visibility) {
-                    // Usual member, protected if starting with _
-                    if (member.charAt(0) === "_") {
-                        visibility = _GPF_VISIBILITY_PROTECTED;
-                    } else {
-                        visibility = _GPF_VISIBILITY_PUBLIC;
-                    }
-                    this._processMember(member, visibility);
-                } else {
-                    // Visibility
-                    this._processDefWithVisibility(visibility);
-                }
-            }
-
-        });
+    _processDefinition: function (definition, visibility) {
+        /*gpf:inline(object)*/ _gpfObjectForEach(definition, this._processDefinitionItem.bind(this, visibility));
         // 2014-05-05 #14
         if (_GPF_HOST_WSCRIPT === _gpfHost && definition.constructor !== Object) {
-            this._processMember("constructor", _GPF_VISIBILITY_PUBLIC);
+            this._processMember("constructor", definition.constructor, visibility);
         }
     },
-
-
 
     /**
      * Process the attributes collected in the definition
      *
      * NOTE: gpf.attributes._add is defined in attributes.js
-     *
-     * @private
      */
     _processAttributes: function () {
         var
             attributes = this._attributes,
             Constructor,
-            newPrototype,
-            attributeName;
+            newPrototype;
         if (attributes) {
             delete this._attributes;
             Constructor = this._Constructor;
             newPrototype = Constructor.prototype;
-            for (attributeName in attributes) {
-                if (attributes.hasOwnProperty(attributeName)) {
-                    if (attributeName in newPrototype
-                        || attributeName === "Class") {
-                        gpf.attributes.add(Constructor, attributeName,
-                            attributes[attributeName]);
-                    } else {
-                        // 2013-12-15 ABZ Exceptional, trace it only
-                        console.error("gpf.define: Invalid attribute name '"
-                        + attributeName + "'");
-                    }
+            /*gpf:inline(object)*/ _gpfObjectForEach(attributes, function (attributeList, attributeName) {
+                if (attributeName in newPrototype || attributeName === "Class") {
+                    gpf.attributes.add(Constructor, attributeName, attributeList);
+                } else {
+                    // 2013-12-15 ABZ Exceptional, trace it only
+                    console.error("gpf.define: Invalid attribute name '" + attributeName + "'");
                 }
-            }
+            });
         }
     },
 
@@ -569,9 +437,8 @@ _GpfClassDefinition.prototype = {
         // if "." is not found, lastIndexOf = -1 and lastIndexOf + 1 = 0
         constructorName = name.substr(name.lastIndexOf(".") + 1);
         // The new class constructor
-        newClass = _gpfFunc(_gpfNewClassConstructorSrc(constructorName))
-            (_gpfClassInit);
-        this._Constructor = newClass;
+        newClass = _gpfFunc(_gpfNewClassConstructorSrc(constructorName))(_gpfClassInit);
+        /*gpf:constant*/ this._Constructor = newClass;
         /*gpf:constant*/ newClass[_GPF_CLASSDEF_MARKER] = this._uid;
 
         /*
@@ -591,25 +458,48 @@ _GpfClassDefinition.prototype = {
 
         /*
          * Defines the link between this class and its base one
-         * (It is necessary to do it here because of the gpf.addAttributes
-         * that will test the parent class)
+         * (It is necessary to do it here because of the gpf.addAttributes that will test the parent class)
          */
         baseClassDef = _gpfGetClassDefinition(this._Super);
         baseClassDef.Subs().push(newClass);
 
         /*
-         * 2014-04-28 ABZ Changed again from two passes on all members to
-         * two passes in which the first one also collects attributes to
-         * simplify the second pass.
+         * 2014-04-28 ABZ Changed again from two passes on all members to two passes in which the first one also
+         * collects attributes to simplify the second pass.
          */
-        this._processDefinition();
+        this._processDefinition(this._definition, _GPF_VISIBILITY_UNKNOWN);
         this._processAttributes();
     }
 
-    //endregion
 };
 
-//endregion
+/**
+ * Defines a new class by setting a contextual name
+ *
+ * @param {String} name New class contextual name
+ * @param {String} base Base class contextual name
+ * @param {Object} definition Class definition
+ * @return {Function}
+ */
+function _gpfDefine (name, base, definition) {
+    var
+        result,
+        path,
+        ns,
+        leafName,
+        classDef;
+    if (-1 < name.indexOf(".")) {
+        path = name.split(".");
+        leafName = path.pop();
+        ns = _gpfContext(path, true);
+    }
+    classDef = new _GpfClassDefinition(name, base, definition);
+    result = classDef._Constructor;
+    if (undefined !== ns) {
+        ns[leafName] = result;
+    }
+    return result;
+}
 
 /**
  * Defines a new class by setting a contextual name
@@ -619,13 +509,7 @@ _GpfClassDefinition.prototype = {
  * @param {Object} [definition=undefined] definition Class definition
  * @return {Function}
  */
-_gpfDefine = gpf.define = function (name, base, definition) {
-    var
-        result,
-        path,
-        ns,
-        leafName,
-        classDef;
+gpf.define = function (name, base, definition) {
     if ("string" === typeof base) {
         // Convert base into the function
         base = _gpfContext(base.split("."));
@@ -637,15 +521,31 @@ _gpfDefine = gpf.define = function (name, base, definition) {
     if (undefined === base) {
         base = Object; // Root class
     }
-    if (-1 < name.indexOf(".")) {
-        path = name.split(".");
-        leafName = path.pop();
-        ns = _gpfContext(path, true);
-    }
-    classDef = new _GpfClassDefinition(name, base, definition || {});
-    result = classDef.Constructor();
-    if (undefined !== ns) {
-        ns[leafName] = result;
-    }
-    return result;
+    return _gpfDefine(name, base, definition || {});
 };
+
+/**
+ * Allocate a new class handler that is specific to a class type (used for interfaces & attributes)
+ *
+ * @param {String} ctxRoot Default context root
+ * @param {String} defaultBase Default contextual root class
+ * @return {Function}
+ * @closure
+ */
+function _gpfGenDefHandler (ctxRoot, defaultBase) {
+    ctxRoot = ctxRoot + ".";
+    return function (name, base, definition) {
+        var result;
+        if (undefined === definition && "object" === typeof base) {
+            definition = base;
+            base = ctxRoot + defaultBase;
+        } else if (undefined === base) {
+            base = ctxRoot + defaultBase;
+        }
+        if (-1 === name.indexOf(".")) {
+            name = ctxRoot + name;
+        }
+        result = _gpfDefine(name, base, definition);
+        return result;
+    };
+}
