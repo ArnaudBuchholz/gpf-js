@@ -323,14 +323,15 @@
         var
             classDef = gpf.classDef(interfaceDef),
             result = _wrappers[classDef.uid()],
-            base;
+            base,
+            nameOnly;
         if (undefined === result) {
             if (interfaceDef === gpfI.Interface) {
                 result = WrapInterface;
             } else {
                 base = gpfI.wrap(classDef.Base());
-                result = _gpfDefine("Wrap" + classDef.nameOnly(), base,
-                    _buildMembers(interfaceDef));
+                nameOnly = classDef._name.split(".").pop();
+                result = _gpfDefine("Wrap" + nameOnly, base, _buildMembers(interfaceDef));
             }
             _wrappers[classDef.uid()] = result;
         }

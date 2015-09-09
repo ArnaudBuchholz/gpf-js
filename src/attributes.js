@@ -450,7 +450,7 @@ _gpfDefine("gpf.attributes.Map", {
                 attributes,
                 Super;
             while (classDef) { // !undefined && !null
-                attributes = classDef.attributes();
+                attributes = classDef._attributes;
                 if (attributes) {
                     attributes._copyTo(this);
                 }
@@ -578,7 +578,7 @@ _gpfAAdd = _gpfA.add = function (objectClass, name, attributes) {
         len,
         idx,
         attribute;
-    objectClassOwnAttributes = _gpfGetClassDefinition(objectClass).attributes();
+    objectClassOwnAttributes = _gpfGetClassDefinition(objectClass)._attributes;
     len = attributes.length;
     for (idx = 0; idx < len; ++idx) {
         attribute = attributes[idx];
