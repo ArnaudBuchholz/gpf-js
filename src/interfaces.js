@@ -115,7 +115,7 @@ var
  */
 var _gpfDefIntrf = _gpfGenDefHandler("gpf.interfaces", "Interface");
 
-_gpfDefIntrf("Interface");
+_gpfDefIntrf("Interface", {});
 
 //region IEventTarget
 
