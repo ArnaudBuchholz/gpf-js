@@ -20,19 +20,16 @@ _gpfErrorDeclare("define", {
         "Invalid visibility keyword"
 });
 
-var _gpfVisibilityKeywords      = "public|protected|private|static".split("|"),
-    _GPF_VISIBILITY_UNKNOWN     = -1,
-    _GPF_VISIBILITY_PUBLIC      = 0,
-    _GPF_VISIBILITY_PROTECTED   = 1,
-//  _GPF_VISIBILITY_PRIVATE     = 2,
-    _GPF_VISIBILITY_STATIC      = 3,
+//region Class constructor
+
+var
     // Critical section to prevent constructor call when creating inheritance relationship
-    _gpfClassInitAllowed = true;
+    _gpfClassConstructorAllowed = true;
 
 /**
  * Template for new class constructor
- * - Uses closure to keep track of constructor and pass it to _gpfClassInit
- * - Class name will be injected at the right place
+ * - Uses closure to keep track of the class definition
+ * - Class name will be injected at the right place by _gpfNewClassConstructorSrc
  *
  * NOTE: As this is used inside a new function (src), we loose parameter.
  * Also, google closure compiler will try to replace any use of arguments[idx] by a named parameter and it can't work,
@@ -45,12 +42,8 @@ var _gpfVisibilityKeywords      = "public|protected|private|static".split("|"),
 function _gpfClassConstructorTpl () {
     var classDef = arguments[0],
         constructor = function /* name will be injected here */ () {
-            if (_gpfClassInitAllowed) {
-                if (classDef._defConstructor) {
-                    classDef._defConstructor.apply(this, arguments);
-                } else {
-                    classDef._Super.apply(this, arguments);
-                }
+            if (_gpfClassConstructorAllowed) {
+                classDef._resolvedConstructor.apply(this, arguments);
             }
         };
     return constructor;
@@ -75,38 +68,42 @@ function _gpfNewClassConstructorSrc (name) {
     return src.replace("function", "function " + name);
 }
 
+//endregion
+
+//region _super method
+
 /**
- * Detects if the function uses ._super
- * The function source is split on the "._super" key and I look for the first char after to see if it is not an
- * identifier character.
+ * Detects if the method calls the _super method.
+ * The method source is split on the "._super" key and it check first char after to see if it is not an identifier
+ * character (meaning it is more than just _super).
  *
- * @param {Function} member
+ * @param {Function} method
  * @return {Boolean}
  */
-function _gpfUsesSuper (member) {
-    var parts = member.toString().split("._super");
+function _gpfUsesSuper (method) {
+    var parts = method.toString().split("._super");
     /*gpf:inline(array)*/ return !parts.every(function (part) {
         return -1 !== _gpfIdentifierOtherChars.indexOf(part.charAt(0));
     });
 }
 
 /**
- * Generates a closure in which this._super points to the base definition of the overridden member
+ * Generates a closure in which this._super points to the base method of the overridden member
  *
- * @param {Function} superMember
- * @param {Function} member
+ * @param {Function} superMethod
+ * @param {Function} method
  * @return {Function}
  * @closure
  */
- function _gpfGenSuperMember (superMember, member) {
+function _gpfGenSuperMember (superMethod, method) {
     return function () {
         var previousSuper = this._super,
             result;
         // Add a new ._super() method pointing to the base class member
-        this._super = superMember;
+        this._super = superMethod;
         try {
             // Execute the method
-            result = member.apply(this, arguments);
+            result = method.apply(this, arguments);
         } finally {
             // Remove it after execution
             if (undefined === previousSuper) {
@@ -118,6 +115,10 @@ function _gpfUsesSuper (member) {
         return result;
     };
 }
+
+//endregion
+
+//region Class definition
 
 var
     // Global dictionary of known class definitions
@@ -174,6 +175,13 @@ function _gpfGetClassDefinition (constructor) {
     return classDef;
 }
 
+var _gpfVisibilityKeywords      = "public|protected|private|static".split("|"),
+    _GPF_VISIBILITY_UNKNOWN     = -1,
+    _GPF_VISIBILITY_PUBLIC      = 0,
+    _GPF_VISIBILITY_PROTECTED   = 1,
+//  _GPF_VISIBILITY_PRIVATE     = 2,
+    _GPF_VISIBILITY_STATIC      = 3;
+
 _GpfClassDefinition.prototype = {
 
     constructor: _GpfClassDefinition,
@@ -184,51 +192,25 @@ _GpfClassDefinition.prototype = {
     // Full class name
     _name: "",
 
-    // Class name (without namespace)
-    nameOnly: function () {
-        var name = this._name,
-            pos = name.lastIndexOf(".");
-        if (-1 === pos) {
-            return name;
-        } else {
-            return name.substr(pos + 1);
-        }
-    },
-
     // Super class
     _Super: Object,
 
-    // @property {Function[}} Child classes
+    // @property {Function[]} Child classes
     _Subs: [],
 
-    /**
-     * Attributes of this class
-     *
-     * NOTE: during definition parsing, this member is used as a simple dictionary
-     *
-     * @type {Object|gpf.attributes.Map}
-     */
-    _attributes: null,
+    // @property {Object|gpf.attributes.Map} Attributes of this class
+    _attributes: null, // NOTE: during definition parsing, this member is used as a simple dictionary
 
-    /**
-     * Attributes of this class
-     *
-     * @return {gpf.attributes.Map}
-     */
-    attributes: function () {
-        if (!this._attributes) {
-            this._attributes = new gpf.attributes.Map();
-        }
-        return this._attributes;
-    },
-
-    // Class constructor
+    // Class constructor (as it is exposed)
     _Constructor: _gpfEmptyFunc,
 
-    // Class 'definition' constructor
-    _defConstructor: null,
+    // Class constructor according to the definition
+    _definitionConstructor: null,
 
-    // @property {Object} Class definition
+    // Resolved constructor (_definitionConstructor or _Super)
+    _resolvedConstructor: _gpfEmptyFunc,
+
+    // @property {Object} Class definition (as provided to define)
     _definition: null,
 
     /**
@@ -316,8 +298,8 @@ _GpfClassDefinition.prototype = {
             }
         }
         if (isConstructor) {
-            // TODO check visibility & _defConstructor is empty
-            this._defConstructor = memberValue;
+            // TODO check visibility & _definitionConstructor is empty
+            this._definitionConstructor = memberValue;
         } else {
             this._addMember(member, memberValue, visibility);
         }
@@ -408,7 +390,7 @@ _GpfClassDefinition.prototype = {
             Constructor,
             newPrototype;
         if (attributes) {
-            delete this._attributes;
+            this._attributes = new gpf.attributes.Map();
             Constructor = this._Constructor;
             newPrototype = Constructor.prototype;
             /*gpf:inline(object)*/ _gpfObjectForEach(attributes, function (attributeList, attributeName) {
@@ -422,31 +404,33 @@ _GpfClassDefinition.prototype = {
         }
     },
 
+    // Wraps super constructor within critical section to prevents class initialization (and unexpected side effects)
+    _safeNewSuper: function () {
+        var result;
+        _gpfClassConstructorAllowed = false;
+        result = new this._Super();
+        _gpfClassConstructorAllowed = true;
+        return result;
+    },
+
     // Create the new Class constructor
     _build: function () {
         var
             newClass,
             newPrototype,
             baseClassDef,
-            name = this._name,
             constructorName;
 
         // Build the function name for the constructor
-        // if "." is not found, lastIndexOf = -1 and lastIndexOf + 1 = 0
-        constructorName = name.substr(name.lastIndexOf(".") + 1);
+        constructorName = this._name.split(".").pop();
+
         // The new class constructor
         newClass = _gpfFunc(_gpfNewClassConstructorSrc(constructorName))(this);
         /*gpf:constant*/ this._Constructor = newClass;
         /*gpf:constant*/ newClass[_GPF_CLASSDEF_MARKER] = this._uid;
 
-        /*
-         * Basic JavaScript inheritance mechanism:
-         * Defines the newClass prototype as an instance of the base class
-         * Do it in a critical section that prevents class initialization
-         */
-        _gpfClassInitAllowed = false;
-        newPrototype = new this._Super();
-        _gpfClassInitAllowed = true;
+        // Basic JavaScript inheritance mechanism: Defines the newClass prototype as an instance of the super class
+        newPrototype = this._safeNewSuper();
 
         // Populate our constructed prototype object
         newClass.prototype = newPrototype;
@@ -467,9 +451,24 @@ _GpfClassDefinition.prototype = {
          */
         this._processDefinition(this._definition);
         this._processAttributes();
+
+        // Optimization for the constructor
+        this._resolveConstructor();
+    },
+
+    _resolveConstructor: function () {
+        if (this._definitionConstructor) {
+            this._resolvedConstructor = this._definitionConstructor;
+        } else if (Object !== this._Super) {
+            this._resolvedConstructor = this._Super;
+        }
     }
 
 };
+
+//endregion
+
+//region define
 
 /**
  * Defines a new class by setting a contextual name
@@ -525,25 +524,20 @@ gpf.define = function (name, base, definition) {
 /**
  * Allocate a new class handler that is specific to a class type (used for interfaces & attributes)
  *
- * @param {String} ctxRoot Default context root
- * @param {String} defaultBase Default contextual root class
+ * @param {String} ctxRoot Default context root (for intance: gpf.interfaces)
+ * @param {String} defaultBase Default contextual root class (for instance: Interface)
  * @return {Function}
  * @closure
  */
 function _gpfGenDefHandler (ctxRoot, defaultBase) {
     ctxRoot = ctxRoot + ".";
     return function (name, base, definition) {
-        var result;
         if (undefined === definition && "object" === typeof base) {
             definition = base;
             base = ctxRoot + defaultBase;
-        } else if (undefined === base) {
-            base = ctxRoot + defaultBase;
         }
-        if (-1 === name.indexOf(".")) {
-            name = ctxRoot + name;
-        }
-        result = _gpfDefine(name, base, definition);
-        return result;
+        return _gpfDefine(name, base, definition);
     };
 }
+
+//endregion
