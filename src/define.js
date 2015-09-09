@@ -20,16 +20,17 @@ _gpfErrorDeclare("define", {
         "Invalid visibility keyword"
 });
 
-var
-    _gpfVisibilityKeywords      = "public|protected|private|static".split("|"),
+var _gpfVisibilityKeywords      = "public|protected|private|static".split("|"),
     _GPF_VISIBILITY_UNKNOWN     = -1,
     _GPF_VISIBILITY_PUBLIC      = 0,
     _GPF_VISIBILITY_PROTECTED   = 1,
 //  _GPF_VISIBILITY_PRIVATE     = 2,
-    _GPF_VISIBILITY_STATIC      = 3;
+    _GPF_VISIBILITY_STATIC      = 3,
+    // Critical section to prevent constructor call when creating inheritance relationship
+    _gpfClassInitAllowed = true;
 
 /**
- * Template for new class constructor (using name that includes namespace)
+ * Template for new class constructor
  * - Uses closure to keep track of constructor and pass it to _gpfClassInit
  * - Class name will be injected at the right place
  *
@@ -37,21 +38,26 @@ var
  * Also, google closure compiler will try to replace any use of arguments[idx] by a named parameter and it can't work,
  * so the arguments are copied in a variable and used to call _gpfClassInit
  *
- * @param {Function} classInit _gpfClassInit
+ * @param {_GpfClassDefinition} classDef
  * @return {Function}
  * @closure
  */
 function _gpfClassConstructorTpl () {
-    var
-        args = arguments,
+    var classDef = arguments[0],
         constructor = function /* name will be injected here */ () {
-            args[0].apply(this, [constructor, arguments]);
+            if (_gpfClassInitAllowed) {
+                if (classDef._defConstructor) {
+                    classDef._defConstructor.apply(this, arguments);
+                } else {
+                    classDef._Super.apply(this, arguments);
+                }
+            }
         };
     return constructor;
 }
 
 /**
- * Returns the source of _newClassConstructor with the appropriate function name
+ * Returns the source of _gpfClassConstructorTpl with the appropriate function name
  *
  * @param {String} name
  * @return {String}
@@ -168,30 +174,6 @@ function _gpfGetClassDefinition (constructor) {
     return classDef;
 }
 
-// Critical section to prevent constructor call when creating inheritance relationship
-var _gpfClassInitAllowed = true;
-
-/**
- * Class initializer: it triggers the call to this._defConstructor only if _gpfClassInitAllowed is true.
- *
- * TODO: there should be a way to make it simpler (combining with _gpfClassConstructorTpl)
- *
- * @param {Function} constructor Class constructor
- * @param {*[]} args Arguments
- */
-function _gpfClassInit (constructor, args) {
-    /*jshint validthis:true*/ // will be used as a constructor
-    if (_gpfClassInitAllowed) {
-        var classDef = _gpfGetClassDefinition(constructor);
-        // TODO Implement deferred class building here
-        if (classDef._defConstructor) {
-            classDef._defConstructor.apply(this, args);
-        } else {
-            classDef._Super.apply(this, args);
-        }
-    }
-}
-
 _GpfClassDefinition.prototype = {
 
     constructor: _GpfClassDefinition,
@@ -293,12 +275,11 @@ _GpfClassDefinition.prototype = {
     /**
      * Defines a new member of the class
      *
-     * @param {Object} definition
      * @param {String} member Name of the member to define
+     * @param {*} memberValue
      * @param {Number} visibility Visibility of the members
      */
-    _processMember: function (definition, member, visibility) {
-        var memberValue = definition[member];
+    _processMember: function (member, memberValue, visibility) {
         if (_GPF_VISIBILITY_STATIC === visibility) {
             // No inheritance can be applied here
             this._addMember(member, memberValue, _GPF_VISIBILITY_STATIC);
@@ -364,34 +345,55 @@ _GpfClassDefinition.prototype = {
         return true;
     },
 
-    _processDefinitionItem: function (visibility, memberValue, member) {
-        if (this._filterAttribute(member)) {
+    // Default member visibility
+    _visibility: _GPF_VISIBILITY_UNKNOWN,
+
+    // Compute member visibility from current visibility & name
+    _deduceVisibility: function (memberName) {
+        var visibility = this._visibility;
+        if (_GPF_VISIBILITY_UNKNOWN === visibility) {
+            if (memberName.charAt(0) === "_") {
+                visibility = _GPF_VISIBILITY_PROTECTED;
+            } else {
+                visibility = _GPF_VISIBILITY_PUBLIC;
+            }
+        }
+        return visibility;
+    },
+
+    /**
+     * Process definition member
+     *
+     * @param {*} memberValue
+     * @param {string} memberName
+     * @private
+     */
+    _processDefinitionMember: function (memberValue, memberName) {
+        if (this._filterAttribute(memberName, memberValue)) {
             return;
         }
-        var newVisibility = _gpfVisibilityKeywords.indexOf(member);
+        var newVisibility = _gpfVisibilityKeywords.indexOf(memberName);
         if (_GPF_VISIBILITY_UNKNOWN === newVisibility) {
-            if (_GPF_VISIBILITY_UNKNOWN === visibility) {
-                // Usual member, protected if starting with _
-                if (member.charAt(0) === "_") {
-                    visibility = _GPF_VISIBILITY_PROTECTED;
-                } else {
-                    visibility = _GPF_VISIBILITY_PUBLIC;
-                }
-            }
-            return this._processMember(member, visibility);
+            return this._processMember(memberName, memberValue, this._deduceVisibility(memberName));
         }
-        if (-1 !== visibility) {
+        if (_GPF_VISIBILITY_UNKNOWN !== this._visibility) {
             throw gpf.Error.ClassInvalidVisibility();
         }
         this._processDefinition(memberValue, newVisibility);
     },
 
-    // Process class definition
+    /**
+     * Process class definition
+     *
+     * @param {Object} definition
+     * @param {Number} [visibility=_GPF_VISIBILITY_UNKNOWN] visibility
+     */
     _processDefinition: function (definition, visibility) {
-        /*gpf:inline(object)*/ _gpfObjectForEach(definition, this._processDefinitionItem.bind(this, visibility));
+        this._visibility = visibility || _GPF_VISIBILITY_UNKNOWN;
+        /*gpf:inline(object)*/ _gpfObjectForEach(definition, this._processDefinitionMember, this);
         // 2014-05-05 #14
         if (_GPF_HOST_WSCRIPT === _gpfHost && definition.constructor !== Object) {
-            this._processMember("constructor", definition.constructor, visibility);
+            this._processMember("constructor", definition.constructor, this._visibility);
         }
     },
 
@@ -420,11 +422,7 @@ _GpfClassDefinition.prototype = {
         }
     },
 
-    /**
-     * Create the new Class constructor
-     *
-     * @closure
-     */
+    // Create the new Class constructor
     _build: function () {
         var
             newClass,
@@ -437,7 +435,7 @@ _GpfClassDefinition.prototype = {
         // if "." is not found, lastIndexOf = -1 and lastIndexOf + 1 = 0
         constructorName = name.substr(name.lastIndexOf(".") + 1);
         // The new class constructor
-        newClass = _gpfFunc(_gpfNewClassConstructorSrc(constructorName))(_gpfClassInit);
+        newClass = _gpfFunc(_gpfNewClassConstructorSrc(constructorName))(this);
         /*gpf:constant*/ this._Constructor = newClass;
         /*gpf:constant*/ newClass[_GPF_CLASSDEF_MARKER] = this._uid;
 
@@ -467,7 +465,7 @@ _GpfClassDefinition.prototype = {
          * 2014-04-28 ABZ Changed again from two passes on all members to two passes in which the first one also
          * collects attributes to simplify the second pass.
          */
-        this._processDefinition(this._definition, _GPF_VISIBILITY_UNKNOWN);
+        this._processDefinition(this._definition);
         this._processAttributes();
     }
 
