@@ -364,10 +364,10 @@ _GpfClassDefinition.prototype = {
      * Process class definition
      *
      * @param {Object} definition
-     * @param {Number} [visibility=_GPF_VISIBILITY_UNKNOWN] visibility
+     * @param {Number} visibility
      */
     _processDefinition: function (definition, visibility) {
-        this._defaultVisibility = visibility || _GPF_VISIBILITY_UNKNOWN;
+        this._defaultVisibility = visibility;
         /*gpf:inline(object)*/ _gpfObjectForEach(definition, this._processDefinitionMember, this);
         this._defaultVisibility = _GPF_VISIBILITY_UNKNOWN;
         // 2014-05-05 #14
@@ -446,7 +446,7 @@ _GpfClassDefinition.prototype = {
          * 2014-04-28 ABZ Changed again from two passes on all members to two passes in which the first one also
          * collects attributes to simplify the second pass.
          */
-        this._processDefinition(this._definition);
+        this._processDefinition(this._definition, _GPF_VISIBILITY_UNKNOWN);
         this._processAttributes();
 
         // Optimization for the constructor
