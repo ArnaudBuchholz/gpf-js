@@ -7,6 +7,7 @@
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfHost*/ // Host type
 /*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _gpfDefine*/
 /*exported _gpfGenDefHandler*/
@@ -215,24 +216,18 @@ _GpfClassDefinition.prototype = {
 
     /**
      * Adds a member to the class definition.
-     * This method must not be used for
-     * - constructor
-     * - overriding an existing member
      *
      * @param {String} member
      * @param {*} memberValue
      * @param {String|number} [visibility=_GPF_VISIBILITY_PUBLIC] visibility
      */
     addMember: function (member, memberValue, visibility) {
-        var newPrototype = this._Constructor.prototype;
-        gpf.ASSERT(member !== "constructor", "No constructor can be added");
-        gpf.ASSERT(undefined === newPrototype[member], "No member can be overridden");
         if (undefined === visibility) {
             visibility = _GPF_VISIBILITY_PUBLIC;
         } else if ("string" === typeof visibility) {
             visibility = _gpfVisibilityKeywords.indexOf(visibility);
             if (-1 === visibility) {
-                visibility = _GPF_VISIBILITY_PUBLIC;
+                throw gpf.Error.ClassInvalidVisibility();
             }
         }
         this._addMember(member, memberValue, visibility);
@@ -242,32 +237,35 @@ _GpfClassDefinition.prototype = {
      * Adds a member to the class definition
      *
      * @param {String} member
-     * @param {*} value
+     * @param {*} memberValue
      * @param {number} visibility
      */
-    _addMember: function (member, value, visibility) {
-        var newPrototype = this._Constructor.prototype;
+    _addMember: function (member, memberValue, visibility) {
         if (_GPF_VISIBILITY_STATIC === visibility) {
-            /*gpf:constant*/ newPrototype.constructor[member] = value;
+            gpf.ASSERT(undefined === this._Constructor[member], "Static members can't be overridden");
+            /*gpf:constant*/ this._Constructor[member] = memberValue;
+        } else if ("constructor" === member) {
+            this._addConstructor(memberValue, visibility);
         } else {
-            newPrototype[member] = value;
+            this._addNonStaticMember(member, memberValue, visibility);
         }
     },
 
     /**
-     * Defines a new member of the class
+     * Adds a constructor the class definition
      *
-     * @param {String} member Name of the member to define
-     * @param {*} memberValue
-     * @param {Number} visibility Visibility of the members
+     * @param {*} memberValue Must be a function
+     * @param {number} visibility
+     * @closure
      */
-    _processMember: function (member, memberValue, visibility) {
-        if (_GPF_VISIBILITY_STATIC === visibility) {
-            // No inheritance can be applied here
-            this._addMember(member, memberValue, _GPF_VISIBILITY_STATIC);
-        } else {
-            this._processNonStaticMember(member, memberValue, visibility);
+    _addConstructor: function (memberValue, visibility) {
+        gpf.ASSERT("function" === typeof memberValue, "Constructor must be a function");
+        gpf.ASSERT(null === this._definitionConstructor, "Own constructor can't be overridden");
+        if (_gpfUsesSuper(memberValue)) {
+            memberValue = _gpfGenSuperMember(this._Super, memberValue);
         }
+        _gpfIgnore(visibility); // TODO Handle constructor visibility
+        this._definitionConstructor = memberValue;
     },
 
     /**
@@ -278,16 +276,13 @@ _GpfClassDefinition.prototype = {
      * @param {Number} visibility Visibility of the members
      * @closure
      */
-    _processNonStaticMember: function (member, memberValue, visibility) {
+    _addNonStaticMember: function (member, memberValue, visibility) {
         var newType = typeof memberValue,
-            isConstructor = member === "constructor",
             baseMemberValue,
-            baseType;
-        if (isConstructor) {
-            baseMemberValue = this._Super;
-        } else {
-            baseMemberValue = this._Super.prototype[member];
-        }
+            baseType,
+            prototype = this._Constructor.prototype;
+        gpf.ASSERT(!prototype.hasOwnProperty(member), "Existing own member can't be overridden");
+        baseMemberValue = this._Super.prototype[member];
         baseType = typeof baseMemberValue;
         if ("undefined" !== baseType) {
             if (null !== baseMemberValue && newType !== baseType) {
@@ -297,12 +292,8 @@ _GpfClassDefinition.prototype = {
                 memberValue = _gpfGenSuperMember(baseMemberValue, memberValue);
             }
         }
-        if (isConstructor) {
-            // TODO check visibility & _definitionConstructor is empty
-            this._definitionConstructor = memberValue;
-        } else {
-            this._addMember(member, memberValue, visibility);
-        }
+        _gpfIgnore(visibility); // TODO Handle constructor visibility
+        prototype[member] = memberValue;
     },
 
     /**
@@ -328,11 +319,11 @@ _GpfClassDefinition.prototype = {
     },
 
     // Default member visibility
-    _visibility: _GPF_VISIBILITY_UNKNOWN,
+    _defaultVisibility: _GPF_VISIBILITY_UNKNOWN,
 
-    // Compute member visibility from current visibility & name
+    // Compute member visibility from default visibility & member name
     _deduceVisibility: function (memberName) {
-        var visibility = this._visibility;
+        var visibility = this._defaultVisibility;
         if (_GPF_VISIBILITY_UNKNOWN === visibility) {
             if (memberName.charAt(0) === "_") {
                 visibility = _GPF_VISIBILITY_PROTECTED;
@@ -344,11 +335,11 @@ _GpfClassDefinition.prototype = {
     },
 
     /**
-     * Process definition member
+     * Process definition member.
+     * The member may be a visibility keyword, in that case _processDefinition is called recursively
      *
      * @param {*} memberValue
      * @param {string} memberName
-     * @private
      */
     _processDefinitionMember: function (memberValue, memberName) {
         if (this._filterAttribute(memberName, memberValue)) {
@@ -356,9 +347,9 @@ _GpfClassDefinition.prototype = {
         }
         var newVisibility = _gpfVisibilityKeywords.indexOf(memberName);
         if (_GPF_VISIBILITY_UNKNOWN === newVisibility) {
-            return this._processMember(memberName, memberValue, this._deduceVisibility(memberName));
+            return this._addMember(memberName, memberValue, this._deduceVisibility(memberName));
         }
-        if (_GPF_VISIBILITY_UNKNOWN !== this._visibility) {
+        if (_GPF_VISIBILITY_UNKNOWN !== this._defaultVisibility) {
             throw gpf.Error.ClassInvalidVisibility();
         }
         this._processDefinition(memberValue, newVisibility);
@@ -371,11 +362,11 @@ _GpfClassDefinition.prototype = {
      * @param {Number} [visibility=_GPF_VISIBILITY_UNKNOWN] visibility
      */
     _processDefinition: function (definition, visibility) {
-        this._visibility = visibility || _GPF_VISIBILITY_UNKNOWN;
+        this._defaultVisibility = visibility || _GPF_VISIBILITY_UNKNOWN;
         /*gpf:inline(object)*/ _gpfObjectForEach(definition, this._processDefinitionMember, this);
         // 2014-05-05 #14
         if (_GPF_HOST_WSCRIPT === _gpfHost && definition.constructor !== Object) {
-            this._processMember("constructor", definition.constructor, this._visibility);
+            this._addConstructor(definition.constructor, this._defaultVisibility);
         }
     },
 
