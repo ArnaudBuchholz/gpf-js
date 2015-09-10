@@ -110,6 +110,7 @@
 /*global _gpfCsvParse*/ // CSV parsing function
 //endregion
 //region define
+/*global _GpfClassDefinition*/ // GPF class definition
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
 /*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor

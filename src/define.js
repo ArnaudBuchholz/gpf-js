@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
+/*global _gpfAAdd*/ // Shortcut for gpf.attributes.add
 /*global _gpfContext*/ // Resolve contextual string
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
@@ -9,6 +10,7 @@
 /*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
+/*exported _GpfClassDefinition*/
 /*exported _gpfDefine*/
 /*exported _gpfGenDefHandler*/
 /*exported _gpfGetClassDefinition*/
@@ -153,7 +155,6 @@ function  _GpfClassDefinition (name, Super, definition) {
         this._name = name;
         this._Super = Super;
         this._definition = definition;
-        this._attributes = {};
         this._build();
     }
 }
@@ -169,7 +170,7 @@ function _gpfGetClassDefinition (constructor) {
         uid = constructor[_GPF_CLASSDEF_MARKER];
     if (undefined === uid) {
         classDef = new _GpfClassDefinition(constructor);
-        /*gpf:constant*/ constructor[_GPF_CLASSDEF_MARKER] = classDef.uid();
+        /*gpf:constant*/ constructor[_GPF_CLASSDEF_MARKER] = classDef._uid;
     } else {
         classDef = _gpfClassDefinitions[uid];
     }
@@ -199,8 +200,8 @@ _GpfClassDefinition.prototype = {
     // @property {Function[]} Child classes
     _Subs: [],
 
-    // @property {Object|gpf.attributes.Map} Attributes of this class
-    _attributes: null, // NOTE: during definition parsing, this member is used as a simple dictionary
+    // @property {Object|null} Dictionary of attributes to define (null if none)
+    _definitionAttributes: null,
 
     // Class constructor (as it is exposed)
     _Constructor: _gpfEmptyFunc,
@@ -310,11 +311,15 @@ _GpfClassDefinition.prototype = {
             return false;
         }
         member = member.substr(1, member.length - 2); // Extract member name
-        attributeArray = this._attributes[member];
+        if (this._definitionAttributes) {
+            attributeArray = this._definitionAttributes[member];
+        } else {
+            this._definitionAttributes = {};
+        }
         if (undefined === attributeArray) {
             attributeArray = [];
         }
-        this._attributes[member] = attributeArray.concat(memberValue);
+        this._definitionAttributes[member] = attributeArray.concat(memberValue);
         return true;
     },
 
@@ -364,6 +369,7 @@ _GpfClassDefinition.prototype = {
     _processDefinition: function (definition, visibility) {
         this._defaultVisibility = visibility || _GPF_VISIBILITY_UNKNOWN;
         /*gpf:inline(object)*/ _gpfObjectForEach(definition, this._processDefinitionMember, this);
+        this._defaultVisibility = _GPF_VISIBILITY_UNKNOWN;
         // 2014-05-05 #14
         if (_GPF_HOST_WSCRIPT === _gpfHost && definition.constructor !== Object) {
             this._addConstructor(definition.constructor, this._defaultVisibility);
@@ -377,16 +383,16 @@ _GpfClassDefinition.prototype = {
      */
     _processAttributes: function () {
         var
-            attributes = this._attributes,
+            attributes = this._definitionAttributes,
             Constructor,
             newPrototype;
         if (attributes) {
-            this._attributes = new gpf.attributes.Map();
+            gpf.ASSERT("function" === typeof _gpfAAdd, "Attributes can't be defined before they exist");
             Constructor = this._Constructor;
             newPrototype = Constructor.prototype;
             /*gpf:inline(object)*/ _gpfObjectForEach(attributes, function (attributeList, attributeName) {
                 if (attributeName in newPrototype || attributeName === "Class") {
-                    gpf.attributes.add(Constructor, attributeName, attributeList);
+                    _gpfAAdd(Constructor, attributeName, attributeList);
                 } else {
                     // 2013-12-15 ABZ Exceptional, trace it only
                     console.error("gpf.define: Invalid attribute name '" + attributeName + "'");
@@ -434,7 +440,7 @@ _GpfClassDefinition.prototype = {
          * (It is necessary to do it here because of the gpf.addAttributes that will test the parent class)
          */
         baseClassDef = _gpfGetClassDefinition(this._Super);
-        baseClassDef.Subs().push(newClass);
+        baseClassDef._Subs.push(newClass);
 
         /*
          * 2014-04-28 ABZ Changed again from two passes on all members to two passes in which the first one also

@@ -1,5 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GpfClassDefinition*/ // GPF class definition
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
@@ -10,6 +11,9 @@
 /*exported _gpfAAdd*/
 /*exported _gpfDefAttr*/
 /*#endif*/
+
+// @property {gpf.attributes.Map|null} Attributes of this class (null if none)
+_GpfClassDefinition.prototype._attributes = null;
 
 var
     /**
@@ -574,11 +578,14 @@ _gpfAAdd = _gpfA.add = function (objectClass, name, attributes) {
         attributes = [attributes];
     }
     var
-        objectClassOwnAttributes,
+        classDef = _gpfGetClassDefinition(objectClass),
+        objectClassOwnAttributes = classDef._attributes,
         len,
         idx,
         attribute;
-    objectClassOwnAttributes = _gpfGetClassDefinition(objectClass)._attributes;
+    if (!objectClassOwnAttributes) {
+        objectClassOwnAttributes = classDef._attributes = new _gpfA.Map();
+    }
     len = attributes.length;
     for (idx = 0; idx < len; ++idx) {
         attribute = attributes[idx];
