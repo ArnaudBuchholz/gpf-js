@@ -392,7 +392,7 @@ _gpfDefine("gpf.stream.BitReader", "gpf.stream.BufferedOnRead", {
     protected: {
 
         /**
-         * @inheritdoc gpf.stream.BufferedOnRead:_addToBuffer
+         * @inheritdoc gpf.stream.BufferedOnRead#_addToBuffer
          */
         _addToBuffer: function (buffer) {
             this._buffer = this._buffer.concat(buffer);
@@ -400,7 +400,7 @@ _gpfDefine("gpf.stream.BitReader", "gpf.stream.BufferedOnRead", {
         },
 
         /**
-         * @inheritdoc gpf.stream.BufferedOnRead:_readFromBuffer
+         * @inheritdoc gpf.stream.BufferedOnRead#_readFromBuffer
          */
         _readFromBuffer: function (size) {
             var

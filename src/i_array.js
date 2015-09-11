@@ -89,7 +89,7 @@ _gpfDefAttr("$ClassIArray", _gpfA.ClassAttribute, {
 
     protected: {
 
-        // @inheritdoc gpf.attributes.Attribute:_alterPrototype
+        // @inheritdoc gpf.attributes.Attribute#_alterPrototype
         _alterPrototype: function (objPrototype) {
             var implementedInterface,
                 member = this._member;

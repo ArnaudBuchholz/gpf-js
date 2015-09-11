@@ -297,21 +297,21 @@
         protected: {
 
             /**
-             * @inheritdoc gpf.stream.BufferedOnRead:_addToBuffer
+             * @inheritdoc gpf.stream.BufferedOnRead#_addToBuffer
              */
             _addToBuffer: function (buffer) {
                 this._parser.parse(buffer);
             },
 
             /**
-             * @inheritdoc gpf.stream.BufferedOnRead:_endOfInputStream
+             * @inheritdoc gpf.stream.BufferedOnRead#_endOfInputStream
              */
             _endOfInputStream: function () {
                 this._parser.parse(gpf.Parser.FINALIZE);
             },
 
             /**
-             * @inheritdoc gpf.stream.BufferedOnRead:_readFromBuffer
+             * @inheritdoc gpf.stream.BufferedOnRead#_readFromBuffer
              */
             _readFromBuffer:
                 gpf.stream.BufferedOnRead.prototype._readFromStringBuffer
@@ -1206,14 +1206,14 @@
             protected: {
 
                 /**
-                 * @inheritdoc gpf.Parser:_initialParserState
+                 * @inheritdoc gpf.Parser#_initialParserState
                  */
                 _initialParserState: function (char) {
                     this._patternItem.parse(char);
                 },
 
                 /**
-                 * @inheritdoc gpf.Parser:_finalizeParserState
+                 * @inheritdoc gpf.Parser#_finalizeParserState
                  */
                 _finalizeParserState: function () {
                     var patternItem = this._patternItem;

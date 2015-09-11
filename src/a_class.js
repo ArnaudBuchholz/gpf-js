@@ -83,7 +83,7 @@ _gpfDefAttr("$ClassProperty", _gpfClassAttribute, {
 
     protected: {
 
-        // @inheritdoc gpf.attributes.Attribute:_alterPrototype
+        // @inheritdoc gpf.attributes.Attribute#_alterPrototype
         _alterPrototype: function (objPrototype) {
             var
                 member = this._member,

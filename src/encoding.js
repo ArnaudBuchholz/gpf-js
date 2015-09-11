@@ -117,7 +117,7 @@
             protected: {
 
                 /**
-                 * @inheritdoc gpf.stream.BufferedOnRead:_addToBuffer
+                 * @inheritdoc gpf.stream.BufferedOnRead#_addToBuffer
                  */
                 _addToBuffer: function (buffer) {
                     this._buffer = this._buffer.concat(this._encoder(buffer));
@@ -125,7 +125,7 @@
                 },
 
                 /**
-                 * @inheritdoc gpf.stream.BufferedOnRead:_readFromBuffer
+                 * @inheritdoc gpf.stream.BufferedOnRead#_readFromBuffer
                  */
                 _readFromBuffer:
                     gpf.stream.BufferedOnRead.prototype._readFromByteBuffer
@@ -171,7 +171,7 @@
             protected: {
 
                 /**
-                 * @inheritdoc gpf.stream.BufferedOnRead:_addToBuffer
+                 * @inheritdoc gpf.stream.BufferedOnRead#_addToBuffer
                  */
                 _addToBuffer: function (buffer) {
                     var string;
@@ -185,7 +185,7 @@
                 },
 
                 /**
-                 * @inheritdoc gpf.stream.BufferedOnRead:_endOfInputStream
+                 * @inheritdoc gpf.stream.BufferedOnRead#_endOfInputStream
                  */
                 _endOfInputStream: function () {
                     if (this._unprocessed.length) {
@@ -194,7 +194,7 @@
                 },
 
                 /**
-                 * @inheritdoc gpf.stream.BufferedOnRead:_readFromBuffer
+                 * @inheritdoc gpf.stream.BufferedOnRead#_readFromBuffer
                  */
                 _readFromBuffer:
                     gpf.stream.BufferedOnRead.prototype._readFromStringBuffer

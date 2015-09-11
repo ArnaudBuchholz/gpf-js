@@ -153,7 +153,7 @@
             },
 
             /**
-             * @inheritdoc gpf.Parser:_finalizeParserState
+             * @inheritdoc gpf.Parser#_finalizeParserState
              * @protected
              */
             _finalizeParserState: function () {

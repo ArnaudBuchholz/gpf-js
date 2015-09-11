@@ -23,10 +23,9 @@
             "path_matcher",         // Path matcher                     gpf.path
             "javascript",           // JavaScript language tools          gpf.js
             "csv",                  // CSV helper                        gpf.csv
+            "define",               // Class management               gpf.define
 
             /* new JSHint settings */
-
-            "define",               // Class management               gpf.define
 
             "attributes",           // Attributes                 gpf.attributes
                                     // (=> i_array)
