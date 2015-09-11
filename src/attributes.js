@@ -2,13 +2,15 @@
 "use strict";
 /*global _GpfClassDefinition*/ // GPF class definition
 /*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
 /*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/
 /*exported _gpfA*/
-/*exported _gpfAAdd*/
+/*exported _gpfAttribute*/
+/*exported _gpfAttributesAdd*/
 /*exported _gpfDefAttr*/
 /*#endif*/
 
@@ -16,104 +18,78 @@
 _GpfClassDefinition.prototype._attributes = null;
 
 var
-    /**
-     * gpf.attributes shortcut
-     *
-     * @type {Object}
-     * @private
-     */
+    // gpf.attributes shortcut
     _gpfA = gpf.attributes = {},
 
     /**
      * Used for empty members
      *
      * @type {gpf.attributes.Array}
-     * @private
      */
-    _gpfEmptyMemberArray = 0,
+    _gpfEmptyMemberArray = 0;
 
-    /**
-     * Generates a factory capable of creating a new instance of a class
-     *
-     * @param {Function} objectClass Object constructor
-     * @param {String} name Alias name (will be prefixed by $)
-     * @private
-     * @closure
-     */
-    _gpfAlias = function (objectClass, name) {
-        name = "$" + name;
-        gpf[name] = (function(){
-            var Proxy = (_gpfFunc("return function " + name + "(args) {" +
-                "this.constructor.apply(this, args);" +
-            "};"))();
-            Proxy.prototype = objectClass.prototype;
-            return function() {
-                return new Proxy(arguments);
-            };
-        }());
-    },
+/**
+ * Generates a factory capable of creating a new instance of a class
+ *
+ * @param {Function} objectClass Object constructor
+ * @param {String} name Alias name (will be prefixed by $)
+ * @closure
+ */
+function _gpfAlias (objectClass, name) {
+    name = "$" + name;
+    gpf[name] = (function(){
+        var Proxy = (_gpfFunc("return function " + name + "(args) {this.constructor.apply(this, args);};"))();
+        Proxy.prototype = objectClass.prototype;
+        return function() {
+            return new Proxy(arguments);
+        };
+    }());
+}
 
-    /**
-     * gpf.define handler for attributes
-     *
-     * @type {Function}
-     * @private
-     */
-    _gpfDefAttrBase = _gpfGenDefHandler("gpf.attributes", "Attribute"),
+/**
+ * gpf.define handler for attributes
+ *
+ * @type {Function}
+ */
+var _gpfDefAttrBase = _gpfGenDefHandler("gpf.attributes", "Attribute");
 
-    /**
-     * gpf.define for attributes
-     *
-     * @param {String} name Attribute name. If it contains a dot, it is
-     * treated as absolute contextual. Otherwise, it is relative to
-     * "gpf.attributes". If starting with $ (and no dot), the contextual name
-     * will be the "gpf.attributes." + name(without $) + "Attribute" and an
-     * alias is automatically created (otherwise, use $Alias attribute on class)
-     * @param {Function|string} [base=undefined] base Base attribute
-     * (or contextual name)
-     * @param {Object} [definition=undefined] definition Attribute definition
-     * @return {Function}
-     * @private
-     */
-    _gpfDefAttr = function (name, base, definition) {
-        var
-            isAlias = name.charAt(0) === "$",
-            fullName,
-            result;
-        if (isAlias) {
-            name = name.substr(1);
-            fullName = name + "Attribute";
-        } else {
-            fullName = name;
-        }
-        result = _gpfDefAttrBase(fullName, base, definition);
-        if (isAlias) {
-            _gpfAlias(result, name);
-        }
-        return result;
-    },
-
-    /**
-     * Shortcut for gpf.attributes.add
-     */
-    _gpfAAdd;
+/**
+ * gpf.define for attributes
+ *
+ * @param {String} name Attribute name. If it contains a dot, it is treated as absolute contextual.
+ * Otherwise, it is relative to "gpf.attributes". If starting with $ (and no dot), the contextual name will be the
+ * "gpf.attributes." + name(without $) + "Attribute" and an alias is automatically created
+ * @param {Function|string} [base=undefined] base Base attribute (or contextual name)
+ * @param {Object} [definition=undefined] definition Attribute definition
+ * @return {Function}
+ */
+function _gpfDefAttr (name, base, definition) {
+    var
+        isAlias = name.charAt(0) === "$",
+        fullName,
+        result;
+    if (isAlias) {
+        name = name.substr(1);
+        fullName = name + "Attribute";
+    } else {
+        fullName = name;
+    }
+    result = _gpfDefAttrBase(fullName, base, definition);
+    if (isAlias) {
+        _gpfAlias(result, name);
+    }
+    return result;
+}
 
 /**
  * Base class for any attribute
  *
  * @class gpf.attributes.Attribute
  */
-_gpfDefAttr("Attribute", {
-
+var _gpfAttribute = _gpfDefAttr("Attribute", {
     protected: {
 
-        /**
-         * Name of the member the attribute is associated to
-         *
-         * @type {String}
-         * @protected
-         * @friend {gpf.attributes.add}
-         */
+        // Name of the member the attribute is associated to
         _member: "",
 
         /**
@@ -121,84 +97,43 @@ _gpfDefAttr("Attribute", {
          * NOTE: this is called *after* all declared members are set
          *
          * @param {Object} objPrototype Class prototype
-         * @protected
-         * @friend {gpf.attributes.add}
          */
-        _alterPrototype: function /*abstract*/ (objPrototype) {
+        _alterPrototype: function (objPrototype) {
             _gpfIgnore(objPrototype);
+            throw gpf.Error.Abstract();
         }
 
     },
-
     public: {
 
-        /**
-         * Get the member name
-         *
-         * @return {String}
-         */
-        member: function () {
+        getMemberName: function () {
             return this._member;
         }
 
     }
-
 });
 
-/**
- * Generates an alias for the attribute. An alias is a factory function that
- * allocates an attribute instance (parameters are forwarded).
- * As a result, instead of using:
- * "[Class]" : [new gpf.attributes.AliasAttribute("Name")]
- * It is reduced to:
- * "[Class]" : [$Alias("Name")]
- *
- * @param {String} name Name of the alias to build below gpf
- *
- * @class gpf.attributes.AliasAttribute
- * @extends gpf.attributes.Attribute
- * @alias gpf.$Alias
- */
-_gpfDefAttr("$Alias", {
+/*#ifdef(DEBUG)*/
 
-    private: {
+// DEBUG specifics
 
-        /**
-         * Name of the alias to create
-         *
-         * @type {String}
-         * @private
-         */
-        _name: ""
+gpf.ASSERT_ATTRIBUTE_ONLY = function (value) {
+    gpf.ASSERT("function" === typeof value, "Expected a class parameter");
+    gpf.ASSERT(value.prototype instanceof _gpfAttribute, "Expected an Attribute-like class parameter");
+};
 
-    },
+if (!gpf.ASSERT) {
 
-    protected: {
+/*#else*/
 
-        /**
-         * @inheritdoc gpf.attributes.Attribute:_alterPrototype
-         */
-        _alterPrototype: function (objPrototype) {
-            _gpfAlias(objPrototype.constructor, this._name);
-        }
+    /*gpf:nop*/ gpf.ASSERT_ATTRIBUTE_ONLY = _gpfEmptyFunc;
 
-    },
+/*#endif*/
 
-    public: {
+/*#ifdef(DEBUG)*/
 
-        /**
-         * Defines an alias
-         *
-         * @param {String} name Name of the alias to create
-         * @constructor
-         */
-        constructor: function (name) {
-            this._name = name;
-        }
+}
 
-    }
-
-});
 
 /**
  * Attribute array, generally used to list attributes on a class member
@@ -206,22 +141,14 @@ _gpfDefAttr("$Alias", {
  * @class gpf.attributes.Array
  */
 _gpfDefine("gpf.attributes.Array", {
-
     private: {
 
-        /**
-         * @type {gpf.attributes.Attribute[]}
-         * @private
-         */
+        // @property {gpf.attributes.Attribute[]}
         _array: []
 
     },
-
     public: {
 
-        /**
-         * @constructor
-         */
         constructor: function () {
             this._array = []; // Create a new instance of the array
         },
@@ -229,8 +156,7 @@ _gpfDefine("gpf.attributes.Array", {
         /**
          * @inheritdoc gpf.interfaces.IReadOnlyArray#getItem
          *
-         * NOTE: this implementation will be replaced with the one coming
-         * from IReadOnlyArray (once i_array.js is loaded)
+         * NOTE: will be replaced with IReadOnlyArray implementation (once i_array.js is loaded)
          */
         getItemsCount: function () {
             return this._array.length;
@@ -239,8 +165,7 @@ _gpfDefine("gpf.attributes.Array", {
         /**
          * @inheritdoc gpf.interfaces.IReadOnlyArray#getItem
          *
-         * NOTE: this implementation will be replaced with the one coming
-         * from IReadOnlyArray (once i_array.js is loaded)
+         * NOTE: will be replaced with IReadOnlyArray implementation (once i_array.js is loaded)
          */
         getItem: function (index) {
             return this._array[index];
@@ -249,57 +174,27 @@ _gpfDefine("gpf.attributes.Array", {
         /**
          * Return the first occurrence of the expected class
          *
-         * @param {gpf.attributes.Attribute} expectedClass the class to
-         * match
-         * @return {gpf.attributes.Attribute}
+         * @param {gpf.attributes.Attribute} expectedClass the class to match
+         * @return {Boolean}
          */
         has: function (expectedClass) {
-            gpf.ASSERT("function" === typeof expectedClass,
-                "Expected a class parameter");
-            gpf.ASSERT(
-                expectedClass.prototype instanceof _gpfA.Attribute,
-                "Expected an Attribute-like class parameter");
-            var
-                idx,
-                array = this._array,
-                len = array.length,
-                item;
-            for (idx = 0; idx < len; ++idx) {
-                item = array[idx];
-                if (item instanceof expectedClass) {
-                    return item;
-                }
-            }
-            return null;
+            gpf.ASSERT_ATTRIBUTE_ONLY(expectedClass);
+            /*gpf:inline(array)*/ return !this._array.every(function (attribute) {
+                return !(attribute instanceof expectedClass);
+            });
         },
 
         /**
-         * Returns a new array with all attributes matching the expected
-         * class
+         * Returns a new array with all attributes matching the expected class
          *
          * @param {Function} expectedClass the class to match
          * @return {gpf.attributes.Array}
          */
         filter: function (expectedClass) {
-            gpf.ASSERT("function" === typeof expectedClass,
-                "Expected a class parameter");
-            gpf.ASSERT(
-                expectedClass.prototype instanceof _gpfA.Attribute,
-                "Expected an Attribute-like class parameter");
-            var
-                idx,
-                array = this._array,
-                len = array.length,
-                attribute,
-                result = new _gpfA.Array(),
-                resultArray = result._array;
-            for (idx = 0; idx < len; ++idx) {
-                attribute = array[idx];
-                if (attribute instanceof expectedClass) {
-                    resultArray.push(attribute);
-                }
-            }
-            return result;
+            gpf.ASSERT_ATTRIBUTE_ONLY(expectedClass);
+            /*gpf:inline(array)*/ return this._array.filter(function (attribute) {
+                return !(attribute instanceof expectedClass);
+            });
         },
 
         /**
@@ -312,8 +207,7 @@ _gpfDefine("gpf.attributes.Array", {
          * @param {Object} [thisArg=undefined] thisArg value to use as this when executing callback
          */
         forEach: function (callback, thisArg) {
-            // TODO decide if the array should be read-only (_gpfArraySlice might be used)
-            this._array.forEach(callback, thisArg);
+            /*gpf:inline(array)*/ this._array.forEach(callback, thisArg);
         }
     }
 
@@ -478,7 +372,7 @@ _gpfDefine("gpf.attributes.Map", {
         filter: function (expectedClass) {
             gpf.ASSERT("function" === typeof expectedClass,
                 "Expected a class parameter");
-            gpf.ASSERT( expectedClass.prototype instanceof _gpfA.Attribute,
+            gpf.ASSERT( expectedClass.prototype instanceof _gpfAttribute,
                 "Expected an Attribute-like class parameter");
             var result = new _gpfA.Map();
             this._copyTo(result, this._filterCallback, expectedClass);
@@ -537,7 +431,7 @@ _gpfDefine("gpf.attributes.Map", {
          * @param {Object} [thisArg=undefined] thisArg value to use as this when executing callback
          */
         forEach: function (callback, thisArg) {
-            _gpfObjectForEach(this._members, callback, thisArg);
+            /*gpf:inline(object)*/ _gpfObjectForEach(this._members, callback, thisArg);
         },
 
         /**
@@ -551,7 +445,8 @@ _gpfDefine("gpf.attributes.Map", {
                 member;
             for (member in members) {
                 if (members.hasOwnProperty(member)) {
-                    _gpfAAdd(objectClass, member, members[member]);
+                    // TODO Remove this dependency to _gpfAttributesAdd
+                    _gpfAttributesAdd(objectClass, member, members[member]);
                 }
             }
         }
@@ -570,7 +465,7 @@ _gpfDefine("gpf.attributes.Map", {
  *        |gpf.attributes.Attribute
  *        |gpf.attributes.Attribute[]} attributes
  */
-_gpfAAdd = _gpfA.add = function (objectClass, name, attributes) {
+var _gpfAttributesAdd = _gpfA.add = function (objectClass, name, attributes) {
     // Check attributes parameter
     if (attributes instanceof _gpfA.Array) {
         attributes = attributes._array;
@@ -589,7 +484,7 @@ _gpfAAdd = _gpfA.add = function (objectClass, name, attributes) {
     len = attributes.length;
     for (idx = 0; idx < len; ++idx) {
         attribute = attributes[idx];
-        gpf.ASSERT(attribute instanceof _gpfA.Attribute, "Expected attribute");
+        gpf.ASSERT(attribute instanceof _gpfAttribute, "Expected attribute");
         attribute._member = name; // Assign member name
         objectClassOwnAttributes.add(name, attribute);
         attribute._alterPrototype(objectClass.prototype);
