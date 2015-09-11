@@ -1,7 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfA*/ // gpf.attributes
-/*global _gpfAAdd*/ // Shortcut for gpf.attributes.add
+/*global _gpfAttributesAdd*/ // Shortcut for gpf.attributes.add
 /*global _gpfDefAttr*/ // gpf.define for attributes
 /*global _gpfDefIntrf*/ // gpf.define for interfaces
 /*global _gpfFunc*/ // Create a new function using the source
@@ -98,7 +98,7 @@ _gpfDefAttr("$ClassIArray", _gpfA.ClassAttribute, {
             } else {
                 implementedInterface = _gpfI.IReadOnlyArray;
             }
-            _gpfAAdd(objPrototype.constructor, "Class", [gpf.$InterfaceImplement(implementedInterface)]);
+            _gpfAttributesAdd(objPrototype.constructor, "Class", [gpf.$InterfaceImplement(implementedInterface)]);
             objPrototype.getItemsCount = _gpfFunc("return this." + member + ".length;");
             objPrototype.getItem = _gpfFunc(["idx"], "return this." + member + "[idx];");
             if (this._writeAllowed) {
@@ -127,6 +127,6 @@ _gpfDefAttr("$ClassIArray", _gpfA.ClassAttribute, {
 });
 
 // Alter gpf.attributes.Array class definition
-_gpfAAdd(_gpfA.Array, "_array", [gpf.$ClassIArray(false)]);
+_gpfAttributesAdd(_gpfA.Array, "_array", [gpf.$ClassIArray(false)]);
 
 //endregion

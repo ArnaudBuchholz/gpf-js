@@ -1,6 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfAAdd*/ // Shortcut for gpf.attributes.add
+/*global _gpfAttributesAdd*/ // Shortcut for gpf.attributes.add
 /*global _gpfDefAttr*/ // gpf.define for attributes
 /*global _gpfFromXml*/ // XML deserializer
 /*global _gpfI*/ // gpf.interfaces
@@ -38,11 +38,11 @@ var
                  */
                 if (undefined === objPrototype.toXml) {
                     // Declare toXml
-                    _gpfAAdd(objPrototype.constructor, "Class",
+                    _gpfAttributesAdd(objPrototype.constructor, "Class",
                         [gpf.$InterfaceImplement(_gpfI.IXmlSerializable)]);
                     objPrototype.toXml = _gpfToXml;
                     // Declare IXmlContentHandler interface through IUnknown
-                    _gpfAAdd(objPrototype.constructor, "Class",
+                    _gpfAttributesAdd(objPrototype.constructor, "Class",
                         [gpf.$InterfaceImplement(_gpfI.IXmlContentHandler,
                             _gpfFromXml)]);
                 }

@@ -1,7 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
-/*global _gpfAAdd*/ // Shortcut for gpf.attributes.add
+/*global _gpfAttributesAdd*/ // Shortcut for gpf.attributes.add
 /*global _gpfContext*/ // Resolve contextual string
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
@@ -387,12 +387,12 @@ _GpfClassDefinition.prototype = {
             Constructor,
             newPrototype;
         if (attributes) {
-            gpf.ASSERT("function" === typeof _gpfAAdd, "Attributes can't be defined before they exist");
+            gpf.ASSERT("function" === typeof _gpfAttributesAdd, "Attributes can't be defined before they exist");
             Constructor = this._Constructor;
             newPrototype = Constructor.prototype;
             /*gpf:inline(object)*/ _gpfObjectForEach(attributes, function (attributeList, attributeName) {
                 if (attributeName in newPrototype || attributeName === "Class") {
-                    _gpfAAdd(Constructor, attributeName, attributeList);
+                    _gpfAttributesAdd(Constructor, attributeName, attributeList);
                 } else {
                     // 2013-12-15 ABZ Exceptional, trace it only
                     console.error("gpf.define: Invalid attribute name '" + attributeName + "'");
