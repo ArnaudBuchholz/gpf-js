@@ -139,12 +139,12 @@ describe("define", function () {
                     }
                 });
 
-            it("super constructor is called implicitly", function () {
+            it("calls super constructor implicitly", function () {
                 var e = new E(5);
                 assert(e.dMember() === 5);
             });
 
-            it("super method can be called", function () {
+            it("allows calling super method", function () {
                 var e = new E(0);
                 assert(e.overriddenMethod(5) === 7);
             });
@@ -153,6 +153,15 @@ describe("define", function () {
 
         describe("static members", function () {
 
+            var D = gpf.define("D", {
+                    static: {
+                        test: 1
+                    }
+                });
+
+            it("declares members on the 'class'", function () {
+                assert(D.test === 1);
+            });
 
         });
 
