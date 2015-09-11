@@ -100,7 +100,7 @@ gpf.forEach = function (structure, callback, thisArg) {
         _gpfArrayForEach(structure, callback, thisArg);
         return;
     }
-    _gpfObjectForEach(structure, callback, thisArg);
+    /*gpf:inline(object)*/ _gpfObjectForEach(structure, callback, thisArg);
 };
 
 //endregion
@@ -126,7 +126,7 @@ function _gpfStringCapitalize (that) {
  */
 function _gpfStringReplaceEx (that, replacements) {
     var result = that;
-    _gpfObjectForEach(replacements, function (replacement, key) {
+    /*gpf:inline(object)*/ _gpfObjectForEach(replacements, function (replacement, key) {
         result = result.split(key).join(replacement);
     });
     return result;
@@ -232,7 +232,7 @@ function _gpfStringEscapeFor (that, language) {
         gpf.ASSERT("function" === typeof overwriteCallback, "Expected function");
         callbackToUse = _gpfAssignOrCall;
     }
-    _gpfObjectForEach(src, callbackToUse, arguments);
+    /*gpf:inline(object)*/ _gpfObjectForEach(src, callbackToUse, arguments);
     return dst;
 }
 

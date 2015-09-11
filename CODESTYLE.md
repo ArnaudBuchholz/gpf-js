@@ -215,10 +215,22 @@ The following tags are inserted to prepare future optimizations / improvement:
         /*gpf:constant*/ error.code = code;
 ```
 
-* The forEach instruction can be optimized with an inline substitution
+* The forEach/every/map/... instructions can be optimized with an inline substitution
 
 ```javascript
         /*gpf:inline(array)*/ this._columns.forEach(function (name, idx) {
+```
+
+* The _gpfObjectForEach instruction can be optimized with an inline substitution
+
+```javascript
+            /*gpf:inline(object)*/ _gpfObjectForEach(this._members, callback, thisArg);
+```
+
+* Some functions must be completely removed in RELEASE mode, the nop tag is used to flag the functions
+
+```javascript
+    /*gpf:nop*/ gpf.ASSERT = _gpfEmptyFunc;
 ```
 
 ### Variables declaration

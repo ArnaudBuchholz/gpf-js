@@ -54,7 +54,7 @@ function _createMimeTypeExtensionMapping (mimeType, fileExtension) {
  * @private
  */
 function _gpfBuildMimeTypeFromMappings (path, mappings) {
-    _gpfObjectForEach(mappings, function (extensions, key) {
+    /*gpf:inline(object)*/ _gpfObjectForEach(mappings, function (extensions, key) {
         var mimeType = path + key;
         if (0 === extensions) {
             _createMimeTypeExtensionMapping(mimeType, "." + key);

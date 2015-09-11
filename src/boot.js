@@ -391,7 +391,7 @@ if (!gpf.ASSERT) {
 
 /*#else*/
 
-    gpf.ASSERT = _gpfEmptyFunc;
+    /*gpf:nop*/ gpf.ASSERT = _gpfEmptyFunc;
 
 /*#endif*/
 

@@ -47,7 +47,7 @@ _GpfError.prototype = {
         /*gpf:constant*/ error.name = name;
         if (context) {
             replacements = {};
-            _gpfObjectForEach(context, function (value, key) {
+            /*gpf:inline(object)*/ _gpfObjectForEach(context, function (value, key) {
                 replacements["{" + key + "}"] = value.toString();
             });
             finalMessage = _gpfStringReplaceEx(message, replacements);
