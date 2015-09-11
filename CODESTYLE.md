@@ -262,6 +262,38 @@ instance.setName("newValue") // Write the name property
 
 *THIS MIGHT BE REVIEWED TO INCREASE CODE CLARITY
 
+Classes definition allows defining the visibility of members through the public, protected, private and static keywords.
+To increase the readability of the class declaration, the following structure is proposed:
+
+```javascript
+gpf.define("ClassName", {
+    static: {
+
+        myStaticMethod: function() {}
+
+    },
+    private: {
+
+        _myPrivateProperty: 0,
+
+        _myPrivateMethod: function() {}
+
+    },
+    protected: {
+
+        _myProtectedProperty: 0,
+
+        _myProtectedMethod: function() {}
+
+    },
+    public: {
+
+        myPublicMethod: function() {}
+
+    }
+});
+```
+
 ### Forbidden syntaxes
 
 The use of the [conditional ternary operator]
