@@ -118,6 +118,7 @@
 //region attributes
 /*global _gpfA*/ // gpf.attributes
 /*global _gpfAAdd*/ // Shortcut for gpf.attributes.add
+/*global _gpfAttribute*/ // Shortcut for gpf.attributes.Attribute
 /*global _gpfDefAttr*/ // gpf.define for attributes
 //endregion
 //region a_attributes

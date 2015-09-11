@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfA*/ // gpf.attributes
+/*global _gpfAttribute*/ // Shortcut for gpf.attributes.Attribute
 /*global _gpfDefAttr*/ // gpf.define for attributes
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
@@ -34,7 +35,7 @@ var
         protected: {
 
             _alterPrototype: function (objPrototype) {
-                if (!(objPrototype instanceof _gpfA.Attribute)) {
+                if (!(objPrototype instanceof _gpfAttribute)) {
                     throw gpf.Error.OnlyForAttributeClass({
                         attributeName: _gpfGetClassDefinition(this.constructor).name()
                     });
