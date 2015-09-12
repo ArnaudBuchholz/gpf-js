@@ -91,6 +91,32 @@ describe("compatibility", function () {
             assert(6 === obj.sum);
         });
 
+        it("should expose filter(callback)", function () {
+            var array = [1, 2, 3, 4, 5],
+                result;
+            assert("function" === typeof array.filter);
+            assert(!array.hasOwnProperty("filter"));
+            result = array.filter(function (value) {
+                return value %2 === 0;
+            });
+            assert(result.length === 2);
+            assert(result[0] === 2);
+            assert(result[1] === 4);
+        });
+
+        it("should expose filter(callback, thisArg)", function () {
+            var array = [1, 2, 3, 4, 5],
+                obj = {},
+                result;
+            result = array.filter(function (value) {
+                assert(this === obj);
+                return value %2 === 0;
+            }, obj);
+            assert(result.length === 2);
+            assert(result[0] === 2);
+            assert(result[1] === 4);
+        });
+
         it("should expose indexOf()", function () {
             var obj = {},
                 array = [1, 2, 3, obj, "abc"];

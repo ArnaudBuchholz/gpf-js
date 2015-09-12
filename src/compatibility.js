@@ -32,6 +32,24 @@ if (undefined === Array.prototype.every) {
     };
 }
 
+if (undefined === Array.prototype.filter) {
+
+    // Introduced with JavaScript 1.6
+    Array.prototype.filter = function (callback, thisArg) {
+        var result = [],
+            len = this.length,
+            idx,
+            item;
+        for (idx = 0; idx < len; ++idx) {
+            item = this[idx];
+            if (callback.apply(thisArg, [this[idx], idx, this])) {
+                result.push(item);
+            }
+        }
+        return result;
+    };
+}
+
 if (undefined === Array.prototype.forEach) {
 
     // Introduced with JavaScript 1.6
