@@ -72,7 +72,7 @@ var
      *
      * @param {*} param
      */
-    _gpfIgnore = _gpfEmptyFunc,
+    /*gpf:nop*/ _gpfIgnore = _gpfEmptyFunc,
 
     /**
      * Exit function
