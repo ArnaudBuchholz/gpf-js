@@ -287,7 +287,9 @@ _gpfDefAttr("$InterfaceImplement", {
             // Get the interface's attributes apply them to the obj
             attributes = new gpf.attributes.Map();
             attributes.fillFromClassDef(iClassDef);
-            attributes.addTo(objPrototype.constructor);
+            attributes.forEach(function (attributes, member) {
+                _gpfAttributesAdd(objPrototype.constructor, member, attributes);
+            });
             if (!this._builder) {
                 // Fill the missing methods
                 /*jshint -W089*/ // Because I also want inherited ones
