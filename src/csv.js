@@ -177,7 +177,6 @@ _GpfCsvParser.prototype = {
      * - {Boolean} inQuotedString
      * - {Boolean} includeCarriageReturn
      * @returns {Boolean}
-     * @private
      */
     _processLineValues: function (line, values, flags) {
         var idx;
