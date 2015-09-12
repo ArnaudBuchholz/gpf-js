@@ -171,7 +171,7 @@
      * @implements gpf.interfaces.IXmlConstNode
      * @implements gpf.interfaces.IXmlSerializable
      */
-    _gpfDefine("gpf.xml.ConstNode", {
+    _gpfDefine("gpf.xml.ConstNode", Object, {
 
         "[Class]": [gpf.$InterfaceImplement(gpfI.IXmlConstNode),
                     gpf.$InterfaceImplement(gpfI.IXmlSerializable)],

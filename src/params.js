@@ -14,7 +14,7 @@
             "Required parameter '{name}' is missing"
     });
 
-    _gpfDefine("gpf.Parameter", {
+    _gpfDefine("gpf.Parameter", Object, {
 
         private: {
 

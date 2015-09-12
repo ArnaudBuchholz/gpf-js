@@ -52,7 +52,7 @@
      *
      * @class gpf.Promise
      */
-    _gpfDefine("gpf.Promise", {
+    _gpfDefine("gpf.Promise", Object, {
 
         private: {
 

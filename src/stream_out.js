@@ -13,7 +13,7 @@
  * @class gpf.stream.Out
  * @implements gpf.interfaces.IWritableStream
  */
-_gpfDefine("gpf.stream.Out", {
+_gpfDefine("gpf.stream.Out", Object, {
 
     "[Class]": [gpf.$InterfaceImplement(_gpfI.IWritableStream)],
 

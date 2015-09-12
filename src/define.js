@@ -476,6 +476,9 @@ _GpfClassDefinition.prototype = {
  * @return {Function}
  */
 function _gpfDefine (name, base, definition) {
+    gpf.ASSERT("string" === typeof name, "name is required (String)");
+    gpf.ASSERT("string" === typeof base || base instanceof Function, "base is required (String|Function)");
+    gpf.ASSERT("object" === typeof definition, "definition is required (Object)");
     var
         result,
         path,
@@ -486,6 +489,11 @@ function _gpfDefine (name, base, definition) {
         path = name.split(".");
         leafName = path.pop();
         ns = _gpfContext(path, true);
+    }
+    if ("string" === typeof base) {
+        // Convert base into the function
+        base = _gpfContext(base.split("."));
+        gpf.ASSERT(base instanceof Function, "base must resolve to a function");
     }
     classDef = new _GpfClassDefinition(name, base, definition);
     result = classDef._Constructor;
@@ -504,11 +512,7 @@ function _gpfDefine (name, base, definition) {
  * @return {Function}
  */
 gpf.define = function (name, base, definition) {
-    if ("string" === typeof base) {
-        // Convert base into the function
-        base = _gpfContext(base.split("."));
-
-    } else if ("object" === typeof base) {
+    if ("object" === typeof base) {
         definition = base;
         base = undefined;
     }
@@ -528,12 +532,13 @@ gpf.define = function (name, base, definition) {
  */
 function _gpfGenDefHandler (ctxRoot, defaultBase) {
     ctxRoot = ctxRoot + ".";
+    defaultBase = ctxRoot + defaultBase;
     return function (name, base, definition) {
         if (undefined === definition && "object" === typeof base) {
             definition = base;
-            base = ctxRoot + defaultBase;
+            base = defaultBase;
         }
-        return _gpfDefine(name, base, definition);
+        return _gpfDefine(name, base || defaultBase, definition || {});
     };
 }
 

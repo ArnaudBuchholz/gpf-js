@@ -234,7 +234,7 @@
      *
      * @class gpf.xml.XPath
      */
-    _gpfDefine("gpf.xml.XPath", {
+    _gpfDefine("gpf.xml.XPath", Object, {
 
         _xpath: null,
 

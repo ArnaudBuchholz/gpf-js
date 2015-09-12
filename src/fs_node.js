@@ -65,7 +65,7 @@ var
      */
     _gpfNodeFileStorage;
 
-_gpfDefine("gpf.fs.NodeFileStorage", {
+_gpfDefine("gpf.fs.NodeFileStorage", Object, {
 
     public: {
 

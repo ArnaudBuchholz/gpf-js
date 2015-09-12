@@ -134,7 +134,7 @@ gpf.stream = {
  * @abstract
  * @implements gpf.interfaces.IReadableStream
  */
-_gpfDefine("gpf.stream.BufferedOnRead", {
+_gpfDefine("gpf.stream.BufferedOnRead", Object, {
 
     "[Class]": [gpf.$InterfaceImplement(_gpfI.IReadableStream)],
 
@@ -469,7 +469,7 @@ var
      * @abstract
      * @private
      */
-    AbstractStreamReader = _gpfDefine("AbstractStreamReader", {
+    AbstractStreamReader = _gpfDefine("AbstractStreamReader", Object, {
 
         public: {
 

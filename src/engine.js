@@ -66,7 +66,7 @@
 
         },
 
-        CodeArray = _gpfDefine("CodeArray", {
+        CodeArray = _gpfDefine("CodeArray", Object, {
 
             constructor: function() {
                 this._items = [];
@@ -74,7 +74,7 @@
 
         }),
 
-        IdString = _gpfDefine("IdString", {
+        IdString = _gpfDefine("IdString", Object, {
 
             constructor: function(label, executable) {
                 this._label = label;
@@ -87,7 +87,7 @@
 
         }),
 
-        EngineState = _gpfDefine("EngineState", {
+        EngineState = _gpfDefine("EngineState", Object, {
 
             constructor: function() {
                 this._stack = [];
@@ -144,7 +144,7 @@
         });
 
 
-    _gpfDefine("gpf.Engine", {
+    _gpfDefine("gpf.Engine", Object, {
 
         constructor: function() {
             this._state = new EngineState();

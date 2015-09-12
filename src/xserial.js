@@ -302,7 +302,7 @@ var
      * @implements gpf.interfaces.IXmlContentHandler
      * @private
      */
-    FromXmlContentHandler = _gpfDefine("FromXmlContentHandler", {
+    FromXmlContentHandler = _gpfDefine("FromXmlContentHandler", Object, {
 
         // Even if it is not necessary, let be precise
         "[Class]": [gpf.$InterfaceImplement(_gpfI.IXmlContentHandler)],

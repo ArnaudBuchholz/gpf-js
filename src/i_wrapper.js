@@ -76,7 +76,7 @@
             return result;
         },
 
-        MethodCall = _gpfDefine("MethodCall", {
+        MethodCall = _gpfDefine("MethodCall", Object, {
 
             private: {
 
@@ -166,7 +166,7 @@
 
         }),
 
-        WrapInterface = _gpfDefine("WrapInterface", {
+        WrapInterface = _gpfDefine("WrapInterface", Object, {
 
             private: {
 

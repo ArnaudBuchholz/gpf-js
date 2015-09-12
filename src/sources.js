@@ -29,6 +29,9 @@
 
             "attributes",           // Attributes                 gpf.attributes
                                     // (=> i_array)
+
+            "",                     // --- temporary end marker ---
+
             "a_attributes",         // AttributeClassOnly attributes
             "a_class",              // Class attributes
 

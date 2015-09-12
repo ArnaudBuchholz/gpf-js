@@ -17,7 +17,7 @@ if (_gpfInNode) {
     /**
      * Base class of GPF node streams
      */
-    var _GpfNodeStream = _gpfDefine("gpf.node.Stream", {
+    var _GpfNodeStream = _gpfDefine("gpf.node.Stream", Object, {
 
         public: {
 

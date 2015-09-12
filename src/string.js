@@ -20,7 +20,7 @@
          * @implements gpf.interfaces.ITextStream
          * @private
          */
-        StringStream = _gpfDefine("StringStream", {
+        StringStream = _gpfDefine("StringStream", Object, {
 
             "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.ITextStream)],
 

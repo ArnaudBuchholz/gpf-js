@@ -26,7 +26,7 @@
      *
      * @class gpf.Parser
      */
-    _gpfDefine("gpf.Parser", {
+    _gpfDefine("gpf.Parser", Object, {
 
         public: {
 
@@ -1242,7 +1242,7 @@
          * @implements gpf.interfaces.ITokenizer
          * @private
          */
-        PatternTokenizer = _gpfDefine("PatternTokenizer", {
+        PatternTokenizer = _gpfDefine("PatternTokenizer", Object, {
 
             "[Class]": [gpf.$InterfaceImplement(_ITokenizer)],
 
@@ -1334,7 +1334,7 @@
      *
      * @class gpf.Pattern
      */
-    _gpfDefine("gpf.Pattern", {
+    _gpfDefine("gpf.Pattern", Object, {
 
         private: {
 
