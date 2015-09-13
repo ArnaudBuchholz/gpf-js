@@ -24,15 +24,15 @@
             "javascript",           // JavaScript language tools          gpf.js
             "csv",                  // CSV helper                        gpf.csv
             "define",               // Class management               gpf.define
-
-            /* new JSHint settings */
-
             "attributes",           // Attributes                 gpf.attributes
                                     // (=> i_array)
 
-            "",                     // --- temporary end marker ---
+            /* new JSHint settings */
 
             "a_attributes",         // AttributeClassOnly attributes
+
+            "",                     // --- temporary end marker ---
+
             "a_class",              // Class attributes
 
             "interfaces",           // Interfaces                 gpf.interfaces
