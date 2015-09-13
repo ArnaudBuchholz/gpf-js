@@ -31,7 +31,6 @@ var
      * @extends gpf.attributes.Attribute
      */
     _GpfAttrOnly = _gpfDefAttr("AttrClassOnlyAttribute", {
-
         protected: {
 
             _alterPrototype: function (objPrototype) {
@@ -48,7 +47,6 @@ var
             }
 
         }
-
     }),
 
     /**

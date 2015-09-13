@@ -195,9 +195,11 @@ _gpfDefine("gpf.attributes.Array", Object, {
          */
         filter: function (expectedClass) {
             gpf.ASSERT_ATTRIBUTE_CLASS_ONLY(expectedClass);
-            /*gpf:inline(array)*/ return this._array.filter(function (attribute) {
-                return !(attribute instanceof expectedClass);
+            var result = new _gpfA.Array();
+            /*gpf:inline(array)*/ result._array = this._array.filter(function (attribute) {
+                return attribute instanceof expectedClass;
             });
+            return result;
         },
 
         /**
