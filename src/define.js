@@ -538,6 +538,9 @@ function _gpfGenDefHandler (ctxRoot, defaultBase) {
             definition = base;
             base = defaultBase;
         }
+        if (-1 === name.indexOf(".")) {
+            name = ctxRoot + name;
+        }
         return _gpfDefine(name, base || defaultBase, definition || {});
     };
 }
