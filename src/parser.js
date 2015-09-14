@@ -87,8 +87,7 @@
              * @private
              */
             setOutputHandler: function (handler) {
-                gpf.ASSERT(handler instanceof Array || handler.apply,
-                    "Invalid output handler");
+                gpf.ASSERT(handler instanceof Array || handler.apply, "Invalid output handler");
                 this._outputHandler = handler;
             }
 

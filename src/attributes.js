@@ -117,15 +117,17 @@ var _gpfAttribute = _gpfDefine("gpf.attributes.Attribute", Object, {
 // DEBUG specifics
 
 gpf.ASSERT_ATTRIBUTE_CLASS_ONLY = function (value) {
-    gpf.ASSERT("function" === typeof value, "Expected a class parameter");
-    gpf.ASSERT(value.prototype instanceof _gpfAttribute, "Expected an Attribute-like class parameter");
+    gpf.ASSERTS({
+        "Expected a class parameter": "function" === typeof value,
+        "Expected an Attribute-like class parameter": value.prototype instanceof _gpfAttribute
+    });
 };
 
 gpf.ASSERT_ATTRIBUTE_ONLY = function (value) {
     gpf.ASSERT(value instanceof _gpfAttribute, "Expected an Attribute-like parameter");
 };
 
-if (!gpf.ASSERT) {
+if (!gpf.ASSERT_ATTRIBUTE_CLASS_ONLY) {
 
 /*#else*/
 

@@ -683,8 +683,7 @@
                     len,
                     result,
                     idx;
-                gpf.ASSERT(reader === this._reader,
-                    "Unexpected change of reader");
+                gpf.ASSERT(reader === this._reader, "Unexpected change of reader");
                 if (reader.error) {
                     gpfFireEvent.apply(this, [
                         gpfI.IReadableStream.ERROR,

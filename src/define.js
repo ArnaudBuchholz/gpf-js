@@ -260,8 +260,10 @@ _GpfClassDefinition.prototype = {
      * @closure
      */
     _addConstructor: function (memberValue, visibility) {
-        gpf.ASSERT("function" === typeof memberValue, "Constructor must be a function");
-        gpf.ASSERT(null === this._definitionConstructor, "Own constructor can't be overridden");
+        gpf.ASSERTS({
+            "Constructor must be a function": "function" === typeof memberValue,
+            "Own constructor can't be overridden": null === this._definitionConstructor
+        });
         if (_gpfUsesSuper(memberValue)) {
             memberValue = _gpfGenSuperMember(this._Super, memberValue);
         }
@@ -476,9 +478,11 @@ _GpfClassDefinition.prototype = {
  * @return {Function}
  */
 function _gpfDefine (name, base, definition) {
-    gpf.ASSERT("string" === typeof name, "name is required (String)");
-    gpf.ASSERT("string" === typeof base || base instanceof Function, "base is required (String|Function)");
-    gpf.ASSERT("object" === typeof definition, "definition is required (Object)");
+    gpf.ASSERTS({
+        "name is required (String)": "string" === typeof name,
+        "base is required (String|Function)": "string" === typeof base || base instanceof Function,
+        "definition is required (Object)": "object" === typeof definition
+    });
     var
         result,
         path,

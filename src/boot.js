@@ -371,8 +371,7 @@ if(!gpf.loaded) {
  * Assertion helper
  *
  * @param {Boolean} condition May be a truthy value
- * @param {String} message Assertion message (to explain the violation if it
- * fails)
+ * @param {String} message Assertion message (to explain the violation if it fails)
  */
 gpf.ASSERT = function (condition, message) {
     if (undefined === message) {
@@ -387,11 +386,25 @@ gpf.ASSERT = function (condition, message) {
     }
 };
 
+/**
+ * Batch assertion helper
+ *
+ * @param {Object} messages Dictionary of messages (value being the condition)
+ */
+gpf.ASSERTS = function (messages) {
+    for (var message in messages) {
+        if (messages.hasOwnProperty(message)) {
+            gpf.ASSERT(messages[message], message);
+        }
+    }
+};
+
 if (!gpf.ASSERT) {
 
 /*#else*/
 
     /*gpf:nop*/ gpf.ASSERT = _gpfEmptyFunc;
+    /*gpf:nop*/ gpf.ASSERTS = _gpfEmptyFunc;
 
 /*#endif*/
 

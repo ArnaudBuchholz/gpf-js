@@ -168,6 +168,34 @@ If a parameter documentation needs several lines, text should start at the begin
     _gpfConflictingSymbol,
 ```
 
+### Assertions
+
+Two functions are provided for assertions:
+
+```javascript
+/**
+ * Assertion helper
+ *
+ * @param {Boolean} condition May be a truthy value
+ * @param {String} message Assertion message (to explain the violation if it fails)
+ */
+gpf.ASSERT = function (condition, message) {/*...*/}
+
+/**
+ * Batch assertion helper
+ *
+ * @param {Object} messages Dictionary of messages (value being the condition)
+ */
+gpf.ASSERTS = function (messages) {/*...*/}
+```
+
+Ideally, there should be only one assertion per function (to reduce the number of necessary instructions), this is the
+reason why gpf.ASSERTS was introduced.
+
+For instance:
+
+
+
 ### Comments
 
 Following Robert Martin's excellent Clean Code principles, comments should be reduced to the minimum.

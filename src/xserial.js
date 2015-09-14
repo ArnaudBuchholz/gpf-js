@@ -344,8 +344,7 @@ var
                     .member(member)
                     .filter(_GpfXmlAttribute);
                 if (0 < attArray.length()) {
-                    gpf.ASSERT(attArray.length() === 1,
-                        "Expected one attribute only");
+                    gpf.ASSERT(attArray.length() === 1, "Expected one attribute only");
                     attName = attArray.get(0).name();
                 } else {
                     // Only private are serialized by default as att.

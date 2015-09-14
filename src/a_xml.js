@@ -94,8 +94,7 @@ var
              * @constructor
              */
             constructor: function (name) {
-                gpf.ASSERT(_gpfIsValidXmlName(name),
-                    "Valid XML attribute name");
+                gpf.ASSERT(_gpfIsValidXmlName(name), "Valid XML attribute name");
                 this._name = name;
             }
 
