@@ -12,15 +12,12 @@ describe("fs", function () {
         it("file.bin", function (done) {
             var fs = gpf.fs.host();
             fs.getInfo("test/data/file.bin", function (event) {
-                if (event.type === gpf.events.EVENT_READY
-                    && event.get("info").type === gpf.fs.TYPE_FILE
-                ) {
+                if (event.type === gpf.events.EVENT_READY && event.get("info").type === gpf.fs.TYPE_FILE) {
                     done(); // Already exists
                     return;
                 }
                 // File does not exist, generates
-                var
-                    count = 0,
+                var count = 0,
                     wStream;
                 function loop(event) {
                     assert(!event || gpf.events.EVENT_READY === event.type);
@@ -31,13 +28,11 @@ describe("fs", function () {
                     wStream.write([count++], loop);
                 }
                 // Current path is always root of gpf-js
-                fs.writeAsBinaryStream("test/data/file.bin",
-                    function (event) {
-                        assert(gpf.events.EVENT_READY === event.type);
-                        wStream = event.get("stream");
-                        loop();
-                    }
-                );
+                fs.writeAsBinaryStream("test/data/file.bin", function (event) {
+                    assert(gpf.events.EVENT_READY === event.type);
+                    wStream = event.get("stream");
+                    loop();
+                });
             });
         });
 
@@ -45,8 +40,7 @@ describe("fs", function () {
 
     describe("gpf.fs.host", function () {
 
-        var
-            gpfI = gpf.interfaces,
+        var gpfI = gpf.interfaces,
             iFs;
 
         beforeEach(function () {
@@ -134,17 +128,15 @@ describe("fs", function () {
         describe("writeAsBinaryStream", function () {
 
             it("writes binary files", function (done) {
-                iFs.writeAsBinaryStream("tmp/test/fs_" + gpf.host() + ".bin",
-                    function (event) {
+                iFs.writeAsBinaryStream("tmp/test/fs_" + gpf.host() + ".bin", function (event) {
+                    assert(gpf.events.EVENT_READY === event.type);
+                    var wStream = event.get("stream");
+                    wStream.write([0, 34, 75, 0, 128, 255], function (event) {
                         assert(gpf.events.EVENT_READY === event.type);
-                        var wStream = event.get("stream");
-                        wStream.write([0, 34, 75, 0, 128, 255],
-                            function (event) {
-                                assert(gpf.events.EVENT_READY === event.type);
-                                _close(wStream);
-                                done();
-                            });
+                        _close(wStream);
+                        done();
                     });
+                });
             });
 
         });
@@ -163,8 +155,7 @@ describe("fs", function () {
                     assert(gpf.events.EVENT_READY === event.type);
                     var enumerator = event.get("enumerator");
                     assert(null !== enumerator);
-                    assert(gpf.interfaces.isImplementedBy(enumerator,
-                        gpf.interfaces.IEnumerator));
+                    assert(gpf.interfaces.isImplementedBy(enumerator, gpf.interfaces.IEnumerator));
                     done();
                 });
             });
