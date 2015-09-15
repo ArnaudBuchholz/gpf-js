@@ -15,9 +15,9 @@ var
     },
 
     // Property accessor template
-    _gpfSetProperty = function () {
+    _gpfSetProperty = function (value) {
         var result = this._MEMBER_;
-        this._MEMBER_ = arguments[0];
+        this._MEMBER_ = value;
         return result;
     },
 
@@ -30,15 +30,22 @@ var
      */
     _gpfBuildPropertyFunc = function (template, member) {
         var src,
+            params,
             start,
             end;
         // Replace all occurrences of _MEMBER_ with the right name
         src = template.toString().split("_MEMBER_").join(member);
-        // Extract content of resulting function source
+        // Extract parameters
+        start = src.indexOf("(") + 1;
+        end = src.indexOf(")", start) - 1;
+        params = src.substr(start, end - start + 1).split(",").map(function (name) {
+            return name.trim();
+        });
+        // Extract body
         start = src.indexOf("{") + 1;
         end = src.lastIndexOf("}") - 1;
         src = src.substr(start, end - start + 1);
-        return _gpfFunc(src);
+        return _gpfFunc(params, src);
     },
 
     /**
