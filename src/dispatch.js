@@ -76,7 +76,6 @@ function _gpfTriggerListeners (eventObj, eventListeners) {
  * @param {String|gpf.events.Event} event name or object
  * @param {Object} [params={}] event parameters
  * @return {gpf.events.Event}
- * @protected
  */
 function _gpfDispatchEvent(event, params) {
     /*jshint validthis:true*/ // will be invoked as an object method
