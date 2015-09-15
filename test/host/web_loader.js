@@ -59,7 +59,7 @@
 
         // Load test cases that are named like sources
         if (-1 === sourceIdx) {
-            sources = gpf.sources().split(",");
+            sources = gpf.sources();
             sourceIdx = 0;
         }
         if (sourceIdx < sources.length) {

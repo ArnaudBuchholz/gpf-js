@@ -26,7 +26,7 @@ require("./make.js");  /*global make*/
 var
     version,
     sources = {
-        _list: gpf.sources().split(",")
+        _list: gpf.sources()
     },
     idx,
     output;

@@ -78,7 +78,7 @@
         ];
 
     gpf.sources = function () {
-        return _sources.join(",");
+        return [].concat(_sources);
     };
 
 }()); /* End of privacy scope */
