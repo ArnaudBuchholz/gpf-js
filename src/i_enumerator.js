@@ -27,11 +27,9 @@ _gpfErrorDeclare("i_enumerator", {
 _gpfDefIntrf("IEnumerator", {
 
     /**
-     * Sets the enumerator to its initial position, which is *before* the
-     * first element in the collection.
+     * Sets the enumerator to its initial position, which is *before* the first element in the collection.
      *
-     * NOTE once reset has been called, you must call moveNext to access (or
-     * not)the first element.
+     * NOTE once reset has been called, you must call moveNext to access (or not)the first element.
      */
     reset: function () {
     },
@@ -42,15 +40,12 @@ _gpfDefIntrf("IEnumerator", {
      * @param {gpf.events.Handler} eventsHandler
      * @return {Boolean}
      * - true if the enumerator was successfully advanced to the next element
-     * - false if the enumerator has passed the end of the collection or it has
-     *   to go through an asynchronous operation
+     * - false if the enumerator has passed the end of the collection or it has to go through an asynchronous operation
      *
-     * NOTE: if no eventsHandler is specified, no asynchronous operation will
-     * be triggered when false is returned.
+     * NOTE: if no eventsHandler is specified, no asynchronous operation will be triggered when false is returned.
      *
      * @event gpf.events.EVENT_DATA
-     * The asynchronous operation succeeded, the current item is available
-     * through the current method
+     * The asynchronous operation succeeded, the current item is available through the current method
      *
      * @event gpf.events.EVENT_END_OF_DATA
      * No more data is available
@@ -73,22 +68,19 @@ _gpfDefIntrf("IEnumerator", {
     static: {
 
         /**
-         * Enumerates all elements of the enumerator and call the callback
-         * function.
+         * Enumerates all elements of the enumerator and call the callback function.
          *
          * NOTE: reset is *not* called.
          *
          * @param {gpf.interfaces.IEnumerator} enumerator
-         * @param {Function} callback receive each item of the enumerator,
-         * signature is either:
+         * @param {Function} callback receive each item of the enumerator, signature is either:
          * - {*} element
-         *
          * or
          * - {*} element
          * - {gpf.events.Handler} eventsHandler
          *
-         * If the signature supports two parameter, the last one will be used
-         * to control the iteration. The callback function has to trigger
+         * If the signature supports two parameter, the last one will be used to control the iteration.
+         * The callback function has to trigger
          * - gpf.events.EVENT_CONTINUE
          * - gpf.events.EVENT_STOP
          *
@@ -103,11 +95,9 @@ _gpfDefIntrf("IEnumerator", {
         // TODO how to put attributes on static members?
         // "[each]": [gpf.$ClassEventHandler()],
         each: function (enumerator, callback, eventsHandler) {
-            var
-                iEnumerator = _gpfI.query(enumerator, _gpfI.IEnumerator),
+            var iEnumerator = _gpfI.query(enumerator, _gpfI.IEnumerator),
                 end = function (event) {
-                    _gpfEventsFire.apply(enumerator, [event, {},
-                        eventsHandler]);
+                    _gpfEventsFire.apply(enumerator, [event, {}, eventsHandler]);
                 },
                 process;
             if (1 < callback.length) {
@@ -151,7 +141,6 @@ _gpfDefIntrf("IEnumerator", {
  *
  * @param {Object[]} array Base of the enumeration
  * @return {Object} Object implementing the IEnumerable interface
- * @private
  */
 function _gpfArrayEnumerator(array) {
     var pos = -1;
@@ -164,11 +153,7 @@ function _gpfArrayEnumerator(array) {
             ++pos;
             result = pos < array.length;
             if (!result && eventsHandler) {
-                _gpfEventsFire.apply(this, [
-                    _GPF_EVENT_END_OF_DATA,
-                    {},
-                    eventsHandler
-                ]);
+                _gpfEventsFire.apply(this, [_GPF_EVENT_END_OF_DATA, {}, eventsHandler]);
             }
             return result;
         },
@@ -186,13 +171,10 @@ function _gpfArrayEnumerator(array) {
  *
  * @param {Object} object
  * @return {Object} Object implementing the IEnumerable interface
- * @private
  */
 function _buildEnumeratorOnObjectArray(object) {
-    // Look for related member
-    var
-        attributes = new _gpfA.Map(object).filter(_gpfA.EnumerableAttribute),
-        members = attributes.members();
+    var attributes = new _gpfA.Map(object).filter(_gpfA.EnumerableAttribute),
+        members = attributes.getMembers();
     return _gpfArrayEnumerator(object[members[0]]);
 }
 
@@ -207,16 +189,13 @@ _gpfDefAttr("$Enumerable", _gpfA.ClassAttribute, {
 
     "Class": [gpf.$UniqueAttribute(), gpf.$MemberAttribute()],
 
-    /**
-     * @inheritdoc gpf.attributes.Attribute#_alterPrototype
-     */
+    // @inheritdoc gpf.attributes.Attribute#_alterPrototype
     _alterPrototype: function (objPrototype) {
         if (!_gpfIsArrayLike(objPrototype[this._member])) {
             throw gpf.Error.EnumerableInvalidMember();
         }
         _gpfAttributesAdd(objPrototype.constructor, "Class", [
-            new _gpfA.InterfaceImplementAttribute(_gpfI.IEnumerator,
-                _buildEnumeratorOnObjectArray)
+            new _gpfA.InterfaceImplementAttribute(_gpfI.IEnumerator, _buildEnumeratorOnObjectArray)
         ]);
     }
 

@@ -15,18 +15,15 @@ describe("i_enumerator", function () {
         });
     });
 
-    var
-        gpfI = gpf.interfaces,
+    var gpfI = gpf.interfaces,
         gpfE = gpf.events,
         ArrayEnumerable = gpf.define("ArrayEnumerable", {
-
             private: {
 
                 "[_items]": [gpf.$Enumerable()],
                 _items: []
 
             },
-
             public: {
 
                 constructor: function (items) {
@@ -34,14 +31,12 @@ describe("i_enumerator", function () {
                 }
 
             }
-
         });
 
     describe("Synchronous test", function () {
 
         it("allows sequential access to items", function () {
-            var
-                instance,
+            var instance,
                 enumerator;
             instance = new ArrayEnumerable([1, 2, 3]);
             enumerator = gpfI.query(instance, gpfI.IEnumerator);
@@ -77,7 +72,7 @@ describe("i_enumerator", function () {
         }
 
         function syncMoveNext (eventsHandler) {
-            /*jshint -W040*/
+            /*jshint validthis:true*/ // Will be part of enumeration object
             if (++this._current < 10) {
                 return true;
             }
@@ -86,7 +81,7 @@ describe("i_enumerator", function () {
         }
 
         function asyncMoveNext (eventsHandler) {
-            /*jshint -W040*/
+            /*jshint validthis:true*/ // Will be part of enumeration object
             if (++this._current < 10) {
                 gpfE.fire(gpfE.EVENT_DATA, eventsHandler);
             } else {
