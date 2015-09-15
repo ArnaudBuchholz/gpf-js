@@ -31,16 +31,15 @@
             "interfaces",           // Interfaces                 gpf.interfaces
             "i_enumerator",         // IEnumerator
             "i_array",              // IArray
+            "i_stream",             // IStream
+            "i_filestorage",        // IFileStorage
 
             /* new JSHint settings */
 
-            "i_stream",             // IStream
+            "fs",                   // File system (FS)                   gpf.fs
 
             "",                     // --- temporary end marker ---
 
-            "i_filestorage",        // IFileStorage
-
-            "fs",                   // File system (FS)                   gpf.fs
             "fs_node",              // FS implementation for nodeJS       gpf.fs
             "fs_ms",                // FS implementation for WScript      gpf.fs
 
