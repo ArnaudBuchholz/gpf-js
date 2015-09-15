@@ -116,13 +116,10 @@
                 // We should have IUnknown & IXmlContentHandler only
                 for (idx = 0; idx < array.length(); ++idx) {
                     interfaceImplement = array.get(idx);
-                    if (interfaceImplement.which() !== gpf.interfaces.IUnknown
-                        && interfaceImplement.which()
-                           !== gpf.interfaces.IXmlContentHandler
-                        && interfaceImplement.which()
-                            !== gpf.interfaces.IXmlSerializable) {
-                        test.assert(false,
-                            "Found unexpected implemented interface");
+                    if (interfaceImplement.getInterfaceDefinition() !== gpf.interfaces.IUnknown
+                        && interfaceImplement.getInterfaceDefinition() !== gpf.interfaces.IXmlContentHandler
+                        && interfaceImplement.getInterfaceDefinition() !== gpf.interfaces.IXmlSerializable) {
+                        test.assert(false, "Found unexpected implemented interface");
                     }
                 }
             }
