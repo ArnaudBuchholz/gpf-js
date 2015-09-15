@@ -136,27 +136,20 @@ describe("attributes", function () {
             assert(1 === dictionaryOfAttributesForC.Test2ValueAttribute.length);
         });
 
-        if (gpf.attributes.Array.prototype.every) {
-            it("offers a stoppable enumeration function", function () {
-                var attributes = new gpf.attributes.Map(b),
-                    attributesForC = attributes.getMemberAttributes("_c"),
-                    selectedAttribute,
-                    result = attributesForC.every(function (attribute, idx, array) {
-                        assert("number" === typeof idx);
-                        assert("number" === typeof len);
-                        assert(2 === array.length);
-                        if (attribute instanceof Test1ValueAttribute) {
-                            selectedAttribute = attribute;
-                            return false;
-                        }
-                        return true;
-                    });
-                assert(false === result);
-                assert(selectedAttribute instanceof Test1ValueAttribute);
-            });
-        } else {
-            it("offers a stoppable enumeration function");
-        }
+        it("offers an enumeration function based on [].every", function () {
+            var attributes = new gpf.attributes.Map(b),
+                attributesForC = attributes.getMemberAttributes("_c"),
+                selectedAttribute,
+                result = attributesForC.every(function (attribute, idx, array) {
+                    assert("number" === typeof idx);
+                    assert(2 === array.length);
+                    selectedAttribute = attribute;
+                    return !(attribute instanceof Test1ValueAttribute);
+                });
+            assert(false === result);
+            assert(selectedAttribute instanceof Test1ValueAttribute);
+        });
+
     });
 
     describe("gpf.attributes.Map", function () {
