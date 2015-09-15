@@ -204,18 +204,16 @@ _gpfDefine("gpf.attributes.Array", Object, {
             return result;
         },
 
-        /**
-         * The forEach() method executes a provided function once per array element
-         *
-         * @param {Function} callback function to execute for each element, taking three arguments
-         * - {gpf.attributes.Attribute} attribute
-         * - {Number} index
-         * - {gpf.attributes.Attribute[]} attribute array
-         * @param {Object} [thisArg=undefined] thisArg value to use as this when executing callback
-         */
+        // [].forEach
         forEach: function (callback, thisArg) {
             /*gpf:inline(array)*/ this._array.forEach(callback, thisArg);
+        },
+
+        // [].every
+        every: function (callback, thisArg) {
+            return /*gpf:inline(array)*/ this._array.every(callback, thisArg);
         }
+
     }
 
 });

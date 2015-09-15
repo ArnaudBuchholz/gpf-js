@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfDefAttr*/ // gpf.define for attributes
+/*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
@@ -15,6 +16,41 @@ _gpfErrorDeclare("interfaces", {
         "Expected interface not implemented: {name}"
 });
 
+/**
+ * Verify that the object implements the current interface
+ *
+ * @param {Object} inspectedObject object (or class) to inspect
+ * @param {gpf.interfaces.Interface} interfaceDefinition reference interface
+ * @return {Boolean}
+ */
+function _gpfIsImplementedBy(inspectedObject, interfaceDefinition) {
+    var member,
+        memberReference,
+        memberValue,
+        memberType;
+    /*
+     * IMPORTANT note: we test the object itself (i.e. own members and the prototype).
+     * That's why the hasOwnProperty is skipped
+     */
+    /*jslint forin:false*/
+    for (member in interfaceDefinition.prototype) {
+        if ("constructor" === member) { // Object
+            continue;
+        }
+        memberReference = interfaceDefinition.prototype[member];
+        memberValue = inspectedObject[member];
+        memberType = typeof memberValue;
+        if (typeof memberReference !== memberType) {
+            return false;
+        }
+        if ("function" === memberType && memberReference.length !== memberValue.length) {
+            return false;
+        }
+    }
+    /*jslint forin:true*/
+    return true;
+}
+
 var
     /**
      * gpf.attributes shortcut
@@ -25,75 +61,41 @@ var
     _gpfI = gpf.interfaces = {
 
         /**
-         * Verify that the object implements the current interface
+         * Verify that the object (or class) implements the current interface
          *
          * @param {Object|Function} inspectedObject object (or class) to inspect
-         * @param {gpf.interfaces.Interface} interfaceDefinition reference
-         * interface
+         * @param {gpf.interfaces.Interface} interfaceDefinition reference interface
          * @return {Boolean}
          */
         isImplementedBy: function (inspectedObject, interfaceDefinition) {
-            var member,
-                memberReference,
-                memberValue,
-                memberType;
             if (inspectedObject instanceof Function) {
                 inspectedObject = inspectedObject.prototype;
             }
-            /*
-             * IMPORTANT note: we test the object itself (i.e. own members and
-             * the prototype). That's why the hasOwnProperty is skipped
-             */
-            /*jslint forin:false*/
-            for (member in interfaceDefinition.prototype) {
-                if ("constructor" === member                           // Object
-                    || "extend" === member) {                       // gpf.Class
-                    continue;
-                }
-                memberReference = interfaceDefinition.prototype[member];
-                memberValue = inspectedObject[member];
-                memberType = typeof memberValue;
-                if (typeof memberReference !== memberType) {
-                    return false;
-                }
-                if ("function" === memberType
-                    && memberReference.length !== memberValue.length) {
-                    return false;
-                }
-            }
-            /*jslint forin:true*/
-            return true;
+            return _gpfIsImplementedBy(inspectedObject, interfaceDefinition);
         },
 
         /**
-         * Retrieve an object implementing the expected interface from an
-         * object.
-         * This is done in two passes:
+         * Retrieve an object implementing the expected interface from an object.
+         * This is done in two tests:
          * - Either the object implements the interface, it is returned
          * - Or the object implements IUnknown, then queryInterface is used
          *
          * @param {Object} objectInstance object to inspect
-         * @param {gpf.interfaces.Interface} interfaceDefinition reference
-         * interface
-         * @param {Boolean} [throwError=true] throwError Throws an error if the
-         * interface is not found (otherwise, null is returned)
+         * @param {gpf.interfaces.Interface} interfaceDefinition reference interface
+         * @param {Boolean} [throwError=true] throwError Throws an error if the interface is not found (otherwise, null
+         * is returned)
          * @return {Object|null}
          */
         query: function (objectInstance, interfaceDefinition, throwError) {
             var result = null;
-            if (gpf.interfaces.isImplementedBy(objectInstance,
-                interfaceDefinition)) {
+            if (_gpfIsImplementedBy(objectInstance, interfaceDefinition)) {
                 return objectInstance;
-            } else if (gpf.interfaces.isImplementedBy(objectInstance,
-                gpf.interfaces.IUnknown)) {
+            } else if (_gpfIsImplementedBy(objectInstance, gpf.interfaces.IUnknown)) {
                 result = objectInstance.queryInterface(interfaceDefinition);
             }
-            if (undefined === throwError) {
-                throwError = true;
-            }
-            if (null === result && throwError) {
+            if (null === result && (undefined === throwError || throwError)) {
                 throw gpf.Error.InterfaceExpected({
-                    name: _gpfGetClassDefinition(interfaceDefinition).name()
+                    name: _gpfGetClassDefinition(interfaceDefinition)._name
                 });
             }
             return result;
@@ -104,51 +106,60 @@ var
 /**
  * Defines an interface (relies on gpf.define)
  *
- * @param {String} name Interface name. If it contains a dot, it is
- * treated as absolute contextual. Otherwise, it is relative to
- * "gpf.interfaces"
- * @param {Function|string} [base=undefined] base Base interface
- * (or contextual name)
+ * @param {String} name Interface name. If it contains a dot, it is treated as absolute contextual.
+ * Otherwise, it is relative to "gpf.interfaces"
+ * @param {Function|string} [base=undefined] base Base interface (or contextual name)
  * @param {Object} [definition=undefined] definition Interface definition
  * @return {Function}
- * @private
  */
 var _gpfDefIntrf = _gpfGenDefHandler("gpf.interfaces", "Interface");
 
-_gpfDefIntrf("Interface", {});
+/**
+ * Base class for any interface
+ *
+ * @class gpf.interfaces.Interface
+ */
+_gpfDefine("gpf.interfaces.Interface", Object, {});
 
 //region IEventTarget
 
 _gpfDefIntrf("IEventDispatcher", {
 
     /**
-     * Add an event listener to the target
+     * Add an event listener to the dispatcher
      *
      * @param {String} event name
-     * @param {Function} callback
-     * @param {Object|Boolean} scope scope of callback or useCapture parameter.
-     * @param {Boolean} [useCapture=false] useCapture push it on top of the
-     * triggering queue
+     * @param {gpf.events.Handler} eventsHandler
      * @return {gpf.interfaces.IEventDispatcher}
      * @chainable
      */
-    addEventListener: function (event, callback, useCapture) {
-        _gpfIgnore(event, callback, useCapture);
+    addEventListener: function (event, eventsHandler) {
+        _gpfIgnore(event, eventsHandler);
         return this;
     },
 
     /**
-     * Remove an event listener to the target
+     * Remove an event listener from the dispatcher
      *
      * @param {String} event name
-     * @param {Function} callback
-     * @param {Object} [scope=undefined] scope scope of callback
+     * @param {gpf.events.Handler} eventsHandler
      * @return {gpf.interfaces.IEventDispatcher}
      * @chainable
      */
-    removeEventListener: function (event, callback) {
-        _gpfIgnore(event, callback);
+    removeEventListener: function (event, eventsHandler) {
+        _gpfIgnore(event, eventsHandler);
         return this;
+    },
+
+    /**
+     * Broadcast the event
+     *
+     * @param {String|gpf.events.Event} event name or object
+     * @param {Object} [params={}] event parameters
+     * @return {gpf.events.Event}
+     */
+    dispatchEvent: function (event, params) {
+        _gpfIgnore(event, params);
     }
 
 });
@@ -158,18 +169,15 @@ _gpfDefIntrf("IEventDispatcher", {
 //region IUnknown
 
 /**
- * Provide a way for any object to implement an interface using an
- * intermediate object (this avoids overloading the object with temporary
- * / useless members)
+ * Provide a way for any object to implement an interface using an intermediate object (this avoids overloading the
+ * object with temporary / useless members)
  */
 _gpfDefIntrf("IUnknown", {
 
     /**
-     * Retrieves an object supporting the provided interface
-     * (maybe the object itself)
+     * Retrieves an object supporting the provided interface (maybe the object itself)
      *
-     * @param {gpf.interfaces.Interface} interfaceDefinition The expected
-     * interface
+     * @param {gpf.interfaces.Interface} interfaceDefinition The expected interface
      * @return {Object|null} The object supporting the interface (or null)
      */
     queryInterface: function (interfaceDefinition) {
@@ -184,27 +192,22 @@ _gpfDefIntrf("IUnknown", {
 //region InterfaceImplement attribute
 
 /**
- * Retrieves an object supporting the provided interface
- * (maybe the object itself). This function (added to any object declaring
- * the attribute InterfaceImplementAttribute with a builder) uses the
- * InterfaceImplementAttribute attribute list to see if the one
- * corresponding to the interface provides a builder and calls it
+ * Retrieves an object supporting the provided interface (maybe the object itself).
+ * This function (added to any object declaring the attribute InterfaceImplementAttribute with a builder) uses the
+ * InterfaceImplementAttribute attribute list to see if the one corresponding to the interface provides a builder and
+ * calls it
  *
- * @param {gpf.interfaces.Interface} interfaceDefinition The expected
- * interface
+ * @param {gpf.interfaces.Interface} interfaceDefinition The expected interface
  * @return {Object|null} The object supporting the interface (or null)
  */
 function _queryInterface (interfaceDefinition) {
     /*jslint -W040*/
     var
         array = (new gpf.attributes.Map(this))
-            .member("Class")
+            .getMemberAttributes("Class")
             .filter(gpf.attributes.InterfaceImplementAttribute),
-        idx,
-        attribute,
         builder;
-    for (idx = 0; idx < array.getItemsCount(); ++idx) {
-        attribute = array.getItem(idx);
+    array.forEach(function (attribute) {
         builder = attribute._builder;
         if (attribute._interfaceDefinition === interfaceDefinition && builder) {
             if ("function" === typeof builder) {
@@ -213,7 +216,7 @@ function _queryInterface (interfaceDefinition) {
             // Expects a member name
             return this[builder]();
         }
-    }
+    });
     // Otherwise
     return null;
     /*jslint +W040*/
