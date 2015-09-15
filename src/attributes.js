@@ -302,7 +302,8 @@ _gpfDefine("gpf.attributes.Map", Object, {
          * Fill the map using class definition object
          *
          * @param {gpf.classDef} classDef class definition
-         * @return {Number} number of attributes in the resulting map
+         * @return {gpf.attributes.Map}
+         * @chainable
          */
         fillFromClassDef: function (classDef) {
             var attributes,
@@ -319,14 +320,15 @@ _gpfDefine("gpf.attributes.Map", Object, {
                     break;
                 }
             }
-            return this._count;
+            return this;
         },
 
         /**
          * Fill the map using object's attributes
          *
          * @param {Object} object object to get attributes from
-         * @return {Number} number of attributes in the resulting map
+         * @return {gpf.attributes.Map}
+         * @chainable
          */
         fillFromObject: function (object) {
             var classDef = _gpfGetClassDefinition(object.constructor);
