@@ -1,5 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfAttributesAdd*/ // Shortcut for gpf.attributes.add
 /*global _gpfDefAttr*/ // gpf.define for attributes
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEmptyFunc*/ // An empty function
@@ -32,7 +33,7 @@ function _gpfIsImplementedBy(inspectedObject, interfaceDefinition) {
      * IMPORTANT note: we test the object itself (i.e. own members and the prototype).
      * That's why the hasOwnProperty is skipped
      */
-    /*jslint forin:false*/
+    /*jslint forin:true*/
     for (member in interfaceDefinition.prototype) {
         if ("constructor" === member) { // Object
             continue;
@@ -47,7 +48,6 @@ function _gpfIsImplementedBy(inspectedObject, interfaceDefinition) {
             return false;
         }
     }
-    /*jslint forin:true*/
     return true;
 }
 
@@ -172,7 +172,7 @@ _gpfDefIntrf("IEventDispatcher", {
  * Provide a way for any object to implement an interface using an intermediate object (this avoids overloading the
  * object with temporary / useless members)
  */
-_gpfDefIntrf("IUnknown", {
+var _gpfIUnknown = _gpfDefIntrf("IUnknown", {
 
     /**
      * Retrieves an object supporting the provided interface (maybe the object itself)
@@ -201,33 +201,31 @@ _gpfDefIntrf("IUnknown", {
  * @return {Object|null} The object supporting the interface (or null)
  */
 function _queryInterface (interfaceDefinition) {
-    /*jslint -W040*/
+    /*jshint validthis:true*/ // Called with apply
     var
         array = (new gpf.attributes.Map(this))
             .getMemberAttributes("Class")
             .filter(gpf.attributes.InterfaceImplementAttribute),
         builder;
-    array.forEach(function (attribute) {
+    if (array.every(function (attribute) {
         builder = attribute._builder;
-        if (attribute._interfaceDefinition === interfaceDefinition && builder) {
-            if ("function" === typeof builder) {
-                return builder(this);
-            }
-            // Expects a member name
-            return this[builder]();
+        return attribute._interfaceDefinition !== interfaceDefinition || !builder;
+    })) {
+        if ("function" === typeof builder) {
+            return builder(this);
         }
-    });
+        // Expects a member name
+        return this[builder]();
+    }
     // Otherwise
     return null;
-    /*jslint +W040*/
 }
 
 /**
- * Creates a wrapper calling _queryInterface and, if no result is built, the
- * original one defined in the object prototype.
+ * Creates a wrapper calling _queryInterface and, if no result is built, the original one defined in the object
+ * prototype
  *
  * @param {Function} orgQueryInterface
- * @private
  * @closure
  */
 function _wrapQueryInterface (orgQueryInterface) {
@@ -241,94 +239,81 @@ function _wrapQueryInterface (orgQueryInterface) {
 }
 
 /**
- * Extend the class to provide an array-like interface
+ * Document the class by telling the interface is implemented and may provide a builder to access it
  *
  * @param {Function} interfaceDefinition Implemented interface definition
- * @param {Function|String} [queryInterfaceBuilder=undefined]
- * queryInterfaceBuilder. Function or member name to executed if the implemented
- * interface is requested
+ * @param {Function|String} [queryInterfaceBuilder=undefined] queryInterfaceBuilder Function or member name to executed
+ * if the implemented interface is requested
  *
- * @class gpf.attributes.ClassArrayInterfaceAttribute
+ * @class gpf.attributes.InterfaceImplementAttribute
  * @extends gpf.attributes.ClassAttribute
- * @alias gpf.$ClassIArray
+ * @alias gpf.$InterfaceImplement
  */
 _gpfDefAttr("$InterfaceImplement", {
-
     private: {
 
-        /**
-         * Interface definition
-         *
-         * @type {Function}
-         * @private
-         */
-        "[_interfaceDefinition]": [gpf.$ClassProperty(false, "which")],
+        // Interface definition
+        "[_interfaceDefinition]": [gpf.$ClassProperty(false)],
         _interfaceDefinition: _gpfEmptyFunc,
 
         /**
          * Builder function
          *
          * @type {Function|null}
-         * @private
          */
-        "[_builder]": [gpf.$ClassProperty(false, "how")],
-        _builder: null
+        "[_builder]": [gpf.$ClassProperty(false)],
+        _builder: null,
 
-    },
-
-    protected: {
-
-        /**
-         * @inheritdoc gpf.attributes.Attribute#_alterPrototype
-         */
-        _alterPrototype: function (objPrototype) {
+        _addMissingInterfaceMembers: function (objPrototype) {
             var
                 iProto = this._interfaceDefinition.prototype,
-                iClassDef = _gpfGetClassDefinition(this._interfaceDefinition),
-                member,
-                attributes;
-            // Get the interface's attributes apply them to the obj
-            attributes = new gpf.attributes.Map();
-            attributes.fillFromClassDef(iClassDef);
-            attributes.forEach(function (attributes, member) {
-                _gpfAttributesAdd(objPrototype.constructor, member, attributes);
-            });
-            if (!this._builder) {
-                // Fill the missing methods
-                /*jshint -W089*/ // Because I also want inherited ones
-                for (member in iProto) {
-                    if (!(member in objPrototype)) {
-                        objPrototype[member] = iProto[member];
-                    }
+                member;
+            // Fill the missing methods
+            /*jslint forin:true*/ // Wants inherited members too
+            for (member in iProto) {
+                if (!(member in objPrototype)) {
+                    objPrototype[member] = iProto[member];
                 }
-                return;
             }
-            // Handle the queryInterface logic
+        },
+
+        _addQueryInterface: function (objPrototype) {
             if (undefined !== objPrototype.queryInterface) {
                 /*
                  * Two situations here:
-                 * - Either the class (or one of its parent) already owns
-                 *   the $InterfaceImplement attribute
-                 * - Or the class (or one of its parent) implements its
-                 *   own queryInterface
-                 * In that last case, wrap it to use the attribute version
-                 * first
+                 * - Either the class (or one of its parent) already owns the $InterfaceImplement attribute
+                 * - Or the class (or one of its parent) implements its own queryInterface
+                 * In that last case, wrap it to use the attribute version first
                  *
-                 * In both case, we take the assumption that the class
-                 * already owns
+                 * In both case, we take the assumption that the class already owns
                  * gpf.$InterfaceImplement(gpf.interfaces.IUnknown)
                  */
                 if (_queryInterface !== objPrototype.queryInterface) {
-                    objPrototype.queryInterface =
-                        _wrapQueryInterface(objPrototype.queryInterface);
+                    objPrototype.queryInterface = _wrapQueryInterface(objPrototype.queryInterface);
                 }
             } else {
                 objPrototype.queryInterface = _queryInterface;
-                gpf.attributes.add(objPrototype.constructor, "Class",
-                    [gpf.$InterfaceImplement(gpf.interfaces.IUnknown)]);
+                _gpfAttributesAdd(objPrototype.constructor, "Class", [gpf.$InterfaceImplement(_gpfIUnknown)]);
             }
         }
-        /*jshint +W089*/
+
+    },
+    protected: {
+
+        // @inheritdoc gpf.attributes.Attribute#_alterPrototype
+        _alterPrototype: function (objPrototype) {
+            if (!this._builder) {
+                this._addMissingInterfaceMembers(objPrototype);
+                // Get the interface's attributes apply them to the obj
+                new gpf.attributes.Map()
+                    .fillFromClassDef(_gpfGetClassDefinition(this._interfaceDefinition))
+                    .forEach(function (attributes, member) {
+                        _gpfAttributesAdd(objPrototype.constructor, member, attributes);
+                    });
+            } else {
+                this._addQueryInterface(objPrototype);
+            }
+        }
 
     },
 
