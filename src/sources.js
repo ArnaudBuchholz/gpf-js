@@ -28,15 +28,15 @@
                                     // (=> i_array)
             "a_attributes",         // AttributeClassOnly attributes
             "a_class",              // Class attributes
+            "interfaces",           // Interfaces                 gpf.interfaces
+            "i_enumerator",         // IEnumerator
 
             /* new JSHint settings */
 
-            "interfaces",           // Interfaces                 gpf.interfaces
+            "i_array",              // IArray
 
             "",                     // --- temporary end marker ---
 
-            "i_enumerator",         // IEnumerator
-            "i_array",              // IArray
             "i_stream",             // IStream
             "i_filestorage",        // IFileStorage
 
