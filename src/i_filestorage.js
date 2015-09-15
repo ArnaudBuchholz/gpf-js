@@ -5,8 +5,7 @@
 /*#endif*/
 
 /**
- * File Storage interface, defines base methods to access any kind of file
- * storage.
+ * File Storage interface, defines base methods to access any kind of file storage
  *
  * @class gpf.interfaces.IFileStorage
  * @extends gpf.interfaces.Interface
@@ -64,8 +63,7 @@ _gpfDefIntrf("IFileStorage", {
     /**
      * Close the underlying file: the stream becomes unusable
      *
-     * @param {gpf.interfaces.IReadableStream|
-     * gpf.interfaces.IWritableStream} stream
+     * @param {gpf.interfaces.IReadableStream|gpf.interfaces.IWritableStream} stream
      * @param {gpf.events.Handler} eventsHandler
      *
      * @event gpf.events.EVENT_READY
