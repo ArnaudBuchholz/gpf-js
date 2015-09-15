@@ -30,14 +30,14 @@
             "a_class",              // Class attributes
             "interfaces",           // Interfaces                 gpf.interfaces
             "i_enumerator",         // IEnumerator
+            "i_array",              // IArray
 
             /* new JSHint settings */
 
-            "i_array",              // IArray
+            "i_stream",             // IStream
 
             "",                     // --- temporary end marker ---
 
-            "i_stream",             // IStream
             "i_filestorage",        // IFileStorage
 
             "fs",                   // File system (FS)                   gpf.fs
