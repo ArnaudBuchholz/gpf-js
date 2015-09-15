@@ -23,8 +23,15 @@ module.exports = function (grunt) {
             options: {
                 jshintrc: ".jshintrc"
             },
-            files: ["Gruntfile.js"]
-                .concat(srcFiles)
+            files: [
+                "Gruntfile.js",
+                "make/make.js",
+                "make/node_make.js",
+                "make/UMD.js",
+                "test/host/*.js",
+                "test/host/mocha/nodejs.js"
+
+            ]   .concat(srcFiles)
                 .concat(testFiles)
         },
         //endregion
