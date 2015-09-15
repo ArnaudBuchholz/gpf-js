@@ -27,14 +27,14 @@
             "attributes",           // Attributes                 gpf.attributes
                                     // (=> i_array)
             "a_attributes",         // AttributeClassOnly attributes
+            "a_class",              // Class attributes
 
             /* new JSHint settings */
 
-            "a_class",              // Class attributes
+            "interfaces",           // Interfaces                 gpf.interfaces
 
             "",                     // --- temporary end marker ---
 
-            "interfaces",           // Interfaces                 gpf.interfaces
             "i_enumerator",         // IEnumerator
             "i_array",              // IArray
             "i_stream",             // IStream
