@@ -33,14 +33,14 @@
             "i_array",              // IArray
             "i_stream",             // IStream
             "i_filestorage",        // IFileStorage
+            "fs",                   // File system (FS)                   gpf.fs
 
             /* new JSHint settings */
 
-            "fs",                   // File system (FS)                   gpf.fs
+            "fs_node",              // FS implementation for nodeJS       gpf.fs
 
             "",                     // --- temporary end marker ---
 
-            "fs_node",              // FS implementation for nodeJS       gpf.fs
             "fs_ms",                // FS implementation for WScript      gpf.fs
 
             "",                     // --- temporary end marker ---
