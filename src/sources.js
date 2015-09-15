@@ -26,14 +26,13 @@
             "define",               // Class management               gpf.define
             "attributes",           // Attributes                 gpf.attributes
                                     // (=> i_array)
+            "a_attributes",         // AttributeClassOnly attributes
 
             /* new JSHint settings */
 
-            "a_attributes",         // AttributeClassOnly attributes
+            "a_class",              // Class attributes
 
             "",                     // --- temporary end marker ---
-
-            "a_class",              // Class attributes
 
             "interfaces",           // Interfaces                 gpf.interfaces
             "i_enumerator",         // IEnumerator

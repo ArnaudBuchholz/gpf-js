@@ -3,9 +3,7 @@
 
 describe("a_class", function () {
 
-    var
-        A = gpf.define("A", {
-
+    var A = gpf.define("A", {
             private: {
 
                 "[_a]": [gpf.$ClassProperty(false)],
@@ -15,7 +13,6 @@ describe("a_class", function () {
                 _aLittleBitMoreThanB: 0
 
             },
-
             public: {
 
                 constructor: function () {
@@ -24,38 +21,29 @@ describe("a_class", function () {
                 }
 
             }
-
         }),
-
         a = new A();
 
     describe("gpf.$ClassProperty", function () {
 
-        it("declares a public member", function () {
-            assert("function" === typeof a.a);
-            assert(!a.hasOwnProperty("a"));
-            assert("function" === typeof a.b);
-            assert(!a.hasOwnProperty("b"));
+        it("declares only one getter for read-only members", function () {
+            assert("function" === typeof a.getA);
+            assert(0 === a.getA.length);
+            assert(!a.hasOwnProperty("getA"));
+            assert(undefined === a.setA);
+            assert(0 === a.getA());
         });
 
-        it("declares a read-only accessor method", function () {
-            var caught = null;
-            assert(0 === a.a.length);
-            assert(0 === a.a());
-            try {
-                a.a(2); // Should be read only
-            } catch (e) {
-                caught = e;
-            }
-            assert(null === caught);
-            assert(0 === a.a());
-        });
-
-        it("declares a read-write accessor method", function () {
-            assert(1 === a.b.length);
-            assert(1 === a.b());
-            a.b(2);
-            assert(2 === a.b());
+        it("declares a getter and a setter members", function () {
+            assert("function" === typeof a.getB);
+            assert(0 === a.getB.length);
+            assert(!a.hasOwnProperty("getB"));
+            assert("function" === typeof a.setB);
+            assert(1 === a.setB.length);
+            assert(!a.hasOwnProperty("setB"));
+            assert(1 === a.getB());
+            assert(1 === a.setB(2)); // Returns former value
+            assert(2 === a.getB());
         });
 
     });
