@@ -207,7 +207,7 @@ function _queryInterface (interfaceDefinition) {
             .getMemberAttributes("Class")
             .filter(gpf.attributes.InterfaceImplementAttribute),
         builder;
-    if (array.every(function (attribute) {
+    if (!array.every(function (attribute) {
         builder = attribute._builder;
         return attribute._interfaceDefinition !== interfaceDefinition || !builder;
     })) {
