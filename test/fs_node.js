@@ -7,8 +7,7 @@ describe("fs_node", function () {
         return; // Skip
     }
 
-    var
-        gpfI = gpf.interfaces,
+    var gpfI = gpf.interfaces,
         iNodeFs;
 
     beforeEach(function () {
