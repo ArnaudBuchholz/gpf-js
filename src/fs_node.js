@@ -16,57 +16,37 @@
 /*global _gpfPathNormalize*/ // Normalize path
 /*#endif*/
 
-var
-    /**
-     * Helper to wrap node error
-     *
-     * @param {*} err
-     * @param {gpf.events.Handler} eventsHandler
-     * @private
-     */
-    _gpfFireNodeError = function (err, eventsHandler) {
-        _gpfEventsFire.apply(null, [
-            _GPF_EVENT_ERROR,
-            {
-                error: err
-            },
-            eventsHandler
-        ]);
-    },
+/**
+ * Helper to wrap node error
+ *
+ * @param {*} err
+ * @param {gpf.events.Handler} eventsHandler
+ */
+function _gpfFireNodeError (err, eventsHandler) {
+    _gpfEventsFire.apply(null, [_GPF_EVENT_ERROR, {error: err}, eventsHandler]);
+}
 
-    /**
-     * Generate one of the calls based on a method name
-     *
-     * @param {String} methodName
-     * @return {Function]
-     * @closure
-     * @private
-     */
-    _gpfGenFsCall = function (methodName) {
-        return function (path, eventsHandler) {
-            path = _gpfPathNormalize(path);
-            _gpfNodeFs[methodName](path, function (err) {
-                if (err) {
-                    _gpfFireNodeError(err, eventsHandler);
-                } else {
-                    _gpfEventsFire.apply(null, [
-                        _GPF_EVENT_READY,
-                        {},
-                        eventsHandler
-                    ]);
-                }
-            });
-        };
-    },
-
-    /**
-     * @type {gpf.fs.NodeFileStorage}
-     * @private
-     */
-    _gpfNodeFileStorage;
+/**
+ * Generate one of the calls based on a method name
+ *
+ * @param {String} methodName
+ * @return {Function]
+ * @closure
+ */
+function _gpfGenFsCall(methodName) {
+    return function (path, eventsHandler) {
+        path = _gpfPathNormalize(path);
+        _gpfNodeFs[methodName](path, function (err) {
+            if (err) {
+                _gpfFireNodeError(err, eventsHandler);
+            } else {
+                _gpfEventsFire.apply(null, [_GPF_EVENT_READY, {}, eventsHandler]);
+            }
+        });
+    };
+}
 
 _gpfDefine("gpf.fs.NodeFileStorage", Object, {
-
     public: {
 
         constructor: function () {
@@ -77,9 +57,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", Object, {
 
         //region IFileStorage
 
-        /**
-         * @inheritdoc IFileStorage#getInfo
-         */
+        // @inheritdoc IFileStorage#getInfo
         getInfo: function (path, eventsHandler) {
             path = _gpfPathNormalize(path);
             _gpfNodeFs.exists(path, function (exists) {
@@ -209,6 +187,10 @@ _gpfDefine("gpf.fs.NodeFileStorage", Object, {
     }
 
 });
+
+var
+    // @type {gpf.fs.NodeFileStorage}
+    _gpfNodeFileStorage;
 
 if (_gpfInNode) {
 
