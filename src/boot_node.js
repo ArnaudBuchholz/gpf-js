@@ -11,7 +11,7 @@
     /*jslint evil: false*/
 
     var
-        sources = gpf.sources().split(","),
+        sources = gpf.sources(),
         length = sources.length,
         idx,
         src,

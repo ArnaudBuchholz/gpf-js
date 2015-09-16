@@ -17,25 +17,18 @@
      * @returns {Function}
      */
     function genMember(name) {
-        return function (text) {
+        function _process(text) {
             var
                 expectedName,
                 expectedText,
                 expectedOutput;
-
-            if (!text || -1 < text.indexOf("\x1B")) {
-                // Escape sequence used, must be a mocha output
-                consoleMethods[name].apply(console, arguments);
-                return;
-            }
 
             if (0 !== expected.length) {
                 expectedName = expected.shift();
                 expectedText = expected.shift();
                 expectedOutput = expected.shift();
             }
-            if (expectedName !== name
-                || expectedText !== text) {
+            if (expectedName !== name || expectedText !== text) {
                 throw {
                     message: "Unexpected use of console." + name,
                     text: text
@@ -44,18 +37,26 @@
             if (expectedOutput) {
                 consoleMethods[name].apply(console, arguments);
             }
+        }
+        return function (text) {
+            if (!text || -1 < text.indexOf("\x1B")) {
+                // Escape sequence used, must be a mocha output
+                consoleMethods[name].apply(console, arguments);
+                return;
+            }
+            _process(text);
         };
     }
 
     for (member in console) {
-        if (console.hasOwnProperty(member)
-            || "function" === typeof console[member]) {
+        if (console.hasOwnProperty(member) || "function" === typeof console[member]) {
             consoleMethods[member] = console[member];
             console[member] = genMember(member);
         }
     }
 
     /**
+     * Way to prevent failure of console usage
      *
      * @param {String} method method that will be called (log, warn or error)
      * @param {String} text expected text

@@ -1,15 +1,38 @@
 module.exports = function (grunt) {
     "use strict";
 
-    var CSCRIPT_CMD = "cscript.exe /D /E:JScript test\\host\\cscript.js";
+    var CSCRIPT_CMD = "cscript.exe /D /E:JScript test\\host\\cscript.js",
+        srcFiles = [],
+        testFiles = [];
+
+    // Build the list of valid source files based on sources.js
+    global.gpf = {};
+    require("./src/sources.js");
+    gpf.sources().every(function (name) {
+        if (name) {
+            srcFiles.push("src/" + name + ".js");
+            testFiles.push("test/" + name + ".js");
+            return true;
+        }
+        return false;
+    });
 
     grunt.initConfig({
         //region JavaScript linter
         jshint: {
-            files: ["Gruntfile.js", "src/**/*.js", "test/**/*.js"],
             options: {
-                jshintrc: true
-            }
+                jshintrc: ".jshintrc"
+            },
+            files: [
+                "Gruntfile.js",
+                "make/make.js",
+                "make/node_make.js",
+                "make/UMD.js",
+                "test/host/*.js",
+                "test/host/mocha/nodejs.js"
+
+            ]   .concat(srcFiles)
+                .concat(testFiles)
         },
         //endregion
         //region Mocha test automation inside PhantomJS

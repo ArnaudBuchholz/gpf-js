@@ -52,7 +52,7 @@
             }
             if (idx === bootList.length) {
                 // Now that all initial sources are loaded, load the rest using gpf.web.include
-                sources = gpf.sources().split(",");
+                sources = gpf.sources();
                 length = sources.length;
                 idx = sources.indexOf(bootList[bootList.length - 2]) + 1;
                 loadSources();

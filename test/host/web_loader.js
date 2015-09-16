@@ -18,66 +18,6 @@
         sources;
 
     /**
-     * Actively wait for GPF to be loaded
-     */
-    function _load() {
-        // Check if the GPF library is loaded
-        if ("undefined" === typeof gpf || !gpf.loaded()) {
-            console.log("GPF not loaded yet...");
-            window.setTimeout(_load, 100);
-            return;
-        }
-
-        // Check if sources are loaded
-        if (!gpf.sources) {
-            console.log("Missing sources");
-            gpf.web.include(gpfSourcesPath + "sources.js", {
-                ready: _load
-            });
-            return;
-        }
-
-        // Check if any dependencies
-        if (-1 === dependencyIdx) {
-            dependencyIdx = 0;
-        }
-        if (dependencyIdx < dependencies.length) {
-            gpf.web.include(dependencies[dependencyIdx], {
-                ready: _load
-            });
-            ++dependencyIdx;
-            return;
-        }
-
-        // Check if console override is defined
-        if (undefined === console.expects) {
-            gpf.web.include(gpfTestsPath + "host/console.js", {
-                ready: _load
-            });
-            return;
-        }
-
-        // Load test cases that are named like sources
-        if (-1 === sourceIdx) {
-            sources = gpf.sources().split(",");
-            sourceIdx = 0;
-        }
-        if (sourceIdx < sources.length) {
-            var source = sources[sourceIdx];
-            if (source) {
-                gpf.web.include(gpfTestsPath + source + ".js", {
-                    ready: _load
-                });
-                ++sourceIdx;
-                return;
-            }
-        }
-
-        // Everything is loaded
-        loadedCallback();
-    }
-
-    /**
      * Load the GPF framework and test cases.
      * When done, execute the callback.
      *
@@ -95,13 +35,14 @@
             callback = additionalDependencies;
         }
         loadedCallback = callback;
-        var
-            locationSearch,
+        _loadVersion();
+    };
+
+    function _detectVersion (script) {
+        var locationSearch,
             release,
             debug,
-            head = document.getElementsByTagName("head")[0],
-            version,
-            script = document.createElement("script");
+            version;
         if (window.gpfVersion) {
             locationSearch = window.gpfVersion;
         } else {
@@ -120,9 +61,78 @@
             script.src = gpfSourcesPath + "boot.js";
         }
         console.log("Using " + version + " version");
+    }
+
+    function _loadVersion () {
+        var head = document.getElementsByTagName("head")[0],
+            script = document.createElement("script");
+        _detectVersion(script);
         script.language = "javascript";
         head.insertBefore(script, head.firstChild);
-        _load();
-    };
+        _waitForLoad();
+    }
+
+    /**
+     * Actively wait for GPF to be loaded
+     */
+    function _waitForLoad () {
+        // Check if the GPF library is loaded
+        if ("undefined" === typeof gpf || !gpf.loaded()) {
+            console.log("GPF not loaded yet...");
+            window.setTimeout(_waitForLoad, 100);
+            return;
+        }
+        // Check if sources are loaded
+        if (!gpf.sources) {
+            console.log("Missing sources");
+            gpf.web.include(gpfSourcesPath + "sources.js", {
+                ready: _waitForLoad
+            });
+            return;
+        }
+        _waitForDependencies();
+    }
+
+    function _waitForDependencies () {
+        // Check if any dependencies
+        if (-1 === dependencyIdx) {
+            dependencyIdx = 0;
+        }
+        if (dependencyIdx < dependencies.length) {
+            gpf.web.include(dependencies[dependencyIdx], {
+                ready: _waitForLoad
+            });
+            ++dependencyIdx;
+            return;
+        }
+        // Check if console override is defined
+        if (undefined === console.expects) {
+            gpf.web.include(gpfTestsPath + "host/console.js", {
+                ready: _waitForLoad
+            });
+            return;
+        }
+        _waitForTestCases();
+    }
+
+    function _waitForTestCases () {
+        // Load test cases that are named like sources
+        if (-1 === sourceIdx) {
+            sources = gpf.sources();
+            sourceIdx = 0;
+        }
+        if (sourceIdx < sources.length) {
+            var source = sources[sourceIdx];
+            if (source) {
+                gpf.web.include(gpfTestsPath + source + ".js", {
+                    ready: _waitForLoad
+                });
+                ++sourceIdx;
+                return;
+            }
+        }
+        // Everything is loaded
+        loadedCallback();
+    }
 
 }());

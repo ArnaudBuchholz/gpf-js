@@ -1,5 +1,7 @@
 /*global define, exports*/
 /*jshint maxlen:false*/
+/*jshint -W098*/ // ignore unused gpf
+/*global __gpf__*/
 (function (root, factory) {
     "use strict";
 
@@ -23,6 +25,6 @@
     }
 }(this, function (/*gpf:no-reduce*/gpf) {
     "use strict";
-
+    /*jshint -W030*/ // Is used as a placeholder for injecting modules
     __gpf__;
 }));

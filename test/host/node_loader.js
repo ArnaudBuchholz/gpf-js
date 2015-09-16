@@ -94,7 +94,7 @@ require(path.resolve(testPath, "host/console.js"));
  */
 module.exports = function loadTests(readFile) {
     var
-        sources = gpf.sources().split(","),
+        sources = gpf.sources(),
         len = sources.length,
         sourceIdx,
         source,

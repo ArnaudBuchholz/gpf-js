@@ -31,7 +31,7 @@
     /*jslint evil: false*/
 
     // Enumerate all sources and concatenate them
-    sources = gpf.sources().split(",");
+    sources = gpf.sources();
     length = sources.length;
     for (idx = 0; idx < length; ++idx) {
         src = sources[idx];
