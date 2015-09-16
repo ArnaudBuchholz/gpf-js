@@ -1,95 +1,8 @@
 (function () { /* Begin of privacy scope */
     "use strict";
-    /*global esprima, escodegen*/
 
     var
-        gpfX = gpf.xml,
-        versions = {
-            debug: {
-                UMD: true,
-                DEBUG: true,
-                keepComments: true,
-                reduce: false,
-                // escodegen options
-                rewriteOptions: {
-                    format: {
-                        indent: {
-                            style: "    ",
-                            base: 0,
-                            adjustMultilineComment: false
-                        },
-                        newline: "\n",
-                        space: " ",
-                        json: false,
-                        renumber: false,
-                        hexadecimal: false,
-                        quotes: "double",
-                        escapeless: false,
-                        reduce: false,
-                        parentheses: true,
-                        semicolons: true,
-                        safeConcatenation: false
-                    },
-                    comment: true
-                }
-            },
-            release: {
-                UMD: true,
-                DEBUG: false,
-                keepComments: true, // Needed for gpf: tags
-                reduce: true,
-                // escodegen options
-                rewriteOptions: {
-                    format: {
-                        indent: {
-                            style: "",
-                            base: 0,
-                            adjustMultilineComment: false
-                        },
-                        newline: "",
-                        space: "",
-                        json: false,
-                        renumber: false,
-                        hexadecimal: false,
-                        quotes: "double",
-                        escapeless: false,
-                        reduce: true,
-                        parentheses: false,
-                        semicolons: true,
-                        safeConcatenation: true
-                    },
-                    comment: false
-                }
-            }
-        },
-        // body/item[@type="ExpressionStatement" and expression/@name="__gpf__"]
-        //xpathToGpfPlaceHolder = new gpfX.XPath({
-        //    type: gpfX.NODE_ELEMENT,
-        //    name: "body",
-        //    relative: false,
-        //    then: {
-        //        type: gpfX.NODE_ELEMENT,
-        //        name: "item",
-        //        filter: {
-        //            and: [ {
-        //                type: gpfX.NODE_ATTRIBUTE,
-        //                name: "type",
-        //                text: "ExpressionStatement"
-        //            }, {
-        //                type: gpfX.NODE_ELEMENT,
-        //                name: "expression",
-        //                then: {
-        //                    type: gpfX.NODE_ATTRIBUTE,
-        //                    name: "name",
-        //                    text: "__gpf__"
-        //                }
-        //            }]
-        //        }
-        //    }
-        //}),
-        identifierCharacters = "abcdefghijklmnopqrstuvwxyz"
-                             + "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    ;
+        identifierCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     //region Preprocessor (#ifdef)
 
@@ -100,7 +13,7 @@
      * @param {Object} version Contains constants definition (see above)
      * @return {String}
      */
-    function preProcess(src, version) {
+    function preProcess (src, version) {
         var
             lines = src.split("\n"),
             len = lines.length,
@@ -144,6 +57,8 @@
         return lines.join("\n");
     }
 
+
+
     //endregion
 
     /**
@@ -154,21 +69,18 @@
      * @param {Object} version Options to use
      * @return {*}
      */
-    function toAST(parsed, src, version) {
+    function toAST(parsed, src) {
         // https://github.com/Constellation/escodegen/issues/85
         try {
             var
-                keepComments = version.keepComments,
                 ast = esprima.parse(parsed[src], {
-                    range: keepComments,
-                    tokens: keepComments,
-                    comment: keepComments
+                    range: true,
+                    tokens: true,
+                    comment: true
                 });
-            if (keepComments) {
-                ast = escodegen.attachComments(ast, ast.comments, ast.tokens);
-                delete ast.tokens;
-                delete ast.comments;
-            }
+            ast = escodegen.attachComments(ast, ast.comments, ast.tokens);
+            delete ast.tokens;
+            delete ast.comments;
             return ast;
         } catch(e) {
             console.error("Error in \"" + src + "\": " + e.message);
@@ -593,9 +505,8 @@
     //endregion
 
     function pushCloneOf(idx, item) {
-        /*jslint -W040*/
+        /*jshint validthis:true*/ //
         this.push(gpf.clone(item));
-        /*jslint +W040*/
     }
 
     /**
@@ -618,12 +529,9 @@
         if (version.reduce) {
             reducer.reduce(body);
             try {
-                parsed[source + ".compact.js"] =
-                    escodegen.generate(parsed[source],
-                        versions.debug.rewriteOptions);
+                parsed[source + ".compact.js"] = escodegen.generate(parsed[source], versions.debug.rewriteOptions);
             } catch (e) {
-                console.error("Failed to generate compact source for "
-                    + source + ": " + e.message);
+                console.error("Failed to generate compact source for " + source + ": " + e.message);
             }
         }
         if (body instanceof Array) {
@@ -643,9 +551,7 @@
      * @returns {*}
      */
     gpf.context().make = function (sources, version) {
-        var
-            parsed,
-            __gpf__,
+        var parsed,
             placeholder,
             idx,
             source,
@@ -654,10 +560,6 @@
             throw {
                 message: "Unknown version"
             };
-        }
-        parsed = sources[version];
-        if (undefined !== parsed) {
-            return parsed.gpf;
         }
         parsed = sources[version] = {};
         version = versions[version];
@@ -668,12 +570,9 @@
             reducer = new ASTreducer();
             reducer.reduce(parsed.UMD.body);
             try {
-                parsed["UMD.compact.js"] =
-                    escodegen.generate(parsed.UMD,
-                        versions.debug.rewriteOptions);
+                parsed["UMD.compact.js"] = escodegen.generate(parsed.UMD, version.rewriteOptions);
             } catch (e) {
-                console.error("Failed to generate compact source for UMD: "
-                    + e.message);
+                console.error("Failed to generate compact source for UMD: " + e.message);
             }
         }
         parsed.result = gpf.clone(parsed.UMD);
@@ -684,17 +583,7 @@
             parsed[source + ".js"] = preProcess(sources[source], version);
             parsed[source] = toAST(parsed, source + ".js", version);
         }
-        // Then, locate the use of __gpf__ to replace it with our content
-        //__gpf__ = xpathToGpfPlaceHolder
-        //    .selectNodes(new gpfX.ConstNode(parsed.result))[0];
-        // Parent is the placeholder (an array ending with __gpf__)
-        //placeholder = __gpf__.parentNode().nodeValue();
-        placeholder = parsed
-            .result
-            .body[0]
-            .expression
-            ["arguments"][1]
-            .body.body;
+        placeholder = parsed.result.body[0].expression["arguments"][1].body.body;
         placeholder.pop(); // remove __gpf__
         // Add all sources
         for (idx = -1; idx < sources._list.length; ++idx) {
@@ -706,9 +595,7 @@
             process(parsed, source, version, placeholder, reducer);
         }
         // And generate the result
-        parsed["result.js"] = escodegen.generate(parsed.result,
-            version.rewriteOptions);
-
+        parsed["result.js"] = escodegen.generate(parsed.result, version.rewriteOptions);
         return parsed["result.js"];
     };
 
