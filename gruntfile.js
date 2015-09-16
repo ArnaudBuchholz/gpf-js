@@ -27,6 +27,7 @@ module.exports = function (grunt) {
                 "Gruntfile.js",
                 "make/make.js",
                 "make/node_make.js",
+                "make/*.json",
                 "make/UMD.js",
                 "test/host/*.js",
                 "test/host/mocha/nodejs.js"
