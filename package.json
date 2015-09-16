@@ -26,6 +26,7 @@
   "homepage": "http://gpf-js.blogspot.com/",
   "devDependencies": {
     "closure-compiler": "^0.2.6",
+    "escodegen": "^1.7.0",
     "esprima": "^2.2.0",
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
