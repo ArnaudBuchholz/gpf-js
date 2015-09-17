@@ -1,44 +1,106 @@
 "use strict";
 
-var preprocess = require("./preprocess.js"),
+var fs = require("fs"),
+    preprocess = require("./preprocess.js"),
     ast = require("./ast.js");
 
-function pushCloneOf(idx, item) {
-    /*jshint validthis:true*/ //
-    this.push(gpf.clone(item));
+function clone (obj) {
+    return JSON.parse(JSON.stringify(obj));
 }
 
-/**
- * Process a specific source
- *
- * @param {Object} parsed Dictionary of sources
- * @param {String} source Source name
- * @param {Object} version Version to apply
- * @param {Object} placeholder result AST placeholder
- * @param {ASTreducer} reducer
- */
-function process (parsed, source, version, placeholder, reducer) {
-    var body;
-    try {
-        body = parsed[source].body;
-    } catch(e) {
-        console.error("Error while processing source: " + source
-        + "\r\n" + e.message);
-    }
-    if (version.reduce) {
-        reducer.reduce(body);
-        try {
-            parsed[source + ".compact.js"] = ast.rewrite(parsed[source], versions.debug.rewriteOptions);
-        } catch (e) {
-            console.error("Failed to generate compact source for " + source + ": " + e.message);
-        }
-    }
-    if (body instanceof Array) {
-        gpf.each.apply(placeholder, [body, pushCloneOf]);
-    } else {
-        placeholder.push(gpf.clone(body));
-    }
+function Builder(sources, parameters) {
+    this._sources = sources;
+    this._parameters = parameters;
 }
+
+Builder.prototype = {
+
+    // Sources dictionary (name => String)
+    _sources: {},
+
+    // Parameters of the build
+    _parameters: {},
+
+    // AST objects (name => Object)
+    _asts: {},
+
+    // AST result placeholder
+    _placeholder: {},
+
+    // save temporary files
+    _save: function (fileName, data) {
+        if (this._parameters.saveTemporaryfiles) {
+            fs.writeFileSync(this._parameters.temporaryPath+ "/" + fileName, data);
+        }
+    },
+
+    // preprocess source file, convert to AST and reduce it if necessary
+    _toAst: function (name) {
+        var source,
+            astObject;
+        try {
+            preprocess(this._sources[name], this._parameters.define);
+        } catch (e) {
+            e.sourceName = name;
+            e.step = "preprocess";
+            throw e;
+        }
+        this._save(name + ".js", source);
+        try {
+            astObject = ast.transform(source);
+        } catch (e) {
+            e.sourceName = name;
+            e.step = "ast.transform";
+            throw e;
+        }
+        this._save(name + ".ast.json", JSON.stringify(astObject));
+        if (this.parameters.reduce) {
+            try {
+                astObject = ast.reduce(astObject);
+            } catch (e) {
+                e.sourceName = name;
+                e.step = "ast.reduce";
+                throw e;
+            }
+            this._save(name + ".ast.reduced.json", JSON.stringify(astObject));
+            this._save(name + ".ast.reduced.js", ast.rewrite(astObject, this._parameters.debugRewriteOptions));
+        }
+        this._asts[name] = astObject;
+        return astObject;
+    },
+
+    // _toAst and append to _placeholder
+    _addAst: function (name) {
+        var astObject = this._toAst(name),
+            astBody = clone(astObject.body),
+            placeholder = this._placeholder;
+        if (astBody instanceof Array) {
+            astBody.forEach(placeholder.push, placeholder);
+        } else {
+            placeholder.push(astBody);
+        }
+    },
+
+    build: function () {
+        var resultAst,
+            name;
+        // Generate UMD AST
+        resultAst = clone(this._toAst("UMD"));
+        // Grab the final placeholder
+        this._placeholder = resultAst.body[0].expression["arguments"][1].body.body;
+        this._placeholder.pop(); // remove __gpf__
+        // Generate all ASTs and aggregate to the final result
+        this._addAst("boot");
+        for (name in this._sources) {
+            if (this._sources.hasOwnProperty(name)) {
+                this._addAst(name);
+            }
+        }
+        // Generate the final result
+        return ast.rewrite(resultAst, this._parameters.rewriteOptions);
+    }
+
+};
 
 /**
  * Build the requested version
@@ -48,43 +110,7 @@ function process (parsed, source, version, placeholder, reducer) {
  * @param {Object} temporary Dictionary of intermediate results
  * @returns {String}
  */
-module.exports = function (sources, parameters, temporary) {
-    var parsed,
-        placeholder,
-        idx,
-        source,
-        reducer = null;
-    // First, parse everything
-    temporary["UMD.js"] = preprocess(sources.UMD, parameters);
-    temporary.UMD = ast.transform(temporary["UMD.js"], parameters);
-    if (parameters.reduce) {
-        ast.reduce(temporary.UMD.body);
-        try {
-            temporary["UMD.compact.js"] = ast.rewrite(temporary.UMD, parameters.rewriteOptions);
-        } catch (e) {
-            console.error("Failed to generate compact source for UMD: " + e.message);
-        }
-    }
-    parsed.result = gpf.clone(temporary.UMD);
-    parsed["boot.js"] = preProcess(sources.boot, version);
-    parsed.boot = toAST(parsed, "boot.js", version);
-    for (idx = 0; idx < sources._list.length; ++idx) {
-        source = sources._list[idx];
-        parsed[source + ".js"] = preProcess(sources[source], version);
-        parsed[source] = toAST(parsed, source + ".js", version);
-    }
-    placeholder = parsed.result.body[0].expression["arguments"][1].body.body;
-    placeholder.pop(); // remove __gpf__
-    // Add all sources
-    for (idx = -1; idx < sources._list.length; ++idx) {
-        if (-1 === idx) {
-            source = "boot";
-        } else {
-            source = sources._list[idx];
-        }
-        process(parsed, source, version, placeholder, reducer);
-    }
-    // And generate the result
-    parsed["result.js"] = escodegen.generate(parsed.result, version.rewriteOptions);
-    return parsed["result.js"];
+module.exports = function (sources, parameters) {
+    var builder = new Builder(sources, parameters);
+    return builder.build();
 };
