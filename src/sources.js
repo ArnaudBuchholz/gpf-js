@@ -1,8 +1,7 @@
 (function () { /* Begin of privacy scope */
     "use strict";
 
-    var
-        _sources = [
+    var _sources = [
         //  "boot",                 // Loader
             "compatibility",        // JavaScript compatibility helpers
             "constants",            // Constants
