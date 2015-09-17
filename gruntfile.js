@@ -25,10 +25,8 @@ module.exports = function (grunt) {
             },
             files: [
                 "Gruntfile.js",
-                "make/make.js",
-                "make/node_make.js",
+                "make/*.js",
                 "make/*.json",
-                "make/UMD.js",
                 "test/host/*.js",
                 "test/host/mocha/nodejs.js"
 
@@ -140,14 +138,14 @@ module.exports = function (grunt) {
                 exitCode: 0
             },
             buildDebug: {
-                command: "node node_make.js debug",
+                command: "node make.js debug",
                 cwd: "make",
                 stdout: false,
                 stderr: false,
                 exitCode: 0
             },
             buildRelease: {
-                command: "node node_make.js release",
+                command: "node make.js release",
                 cwd: "make",
                 stdout: false,
                 stderr: false,
