@@ -1,4 +1,5 @@
 {
+    "saveTemporaryfiles": true,
     "define": {
         "UMD": true,
         "DEBUG": false
