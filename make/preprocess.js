@@ -1,3 +1,86 @@
+"use strict";
+
+function Preprocessor (src, defines) {
+    this._lines = src.split("\n");
+    this._defines = defines;
+    this._ignoreStack = [];
+}
+
+Preprocessor.tags = {
+
+    "/*#if": function (line) {
+        /*jshint validthis:true*/ // Called with the context of Preprocessor
+        var invert = -1 === line.indexOf("/*#ifndef("),
+            define = line.split("(")[1].split(")")[0],
+            ignore;
+        ignore = !this._defines[define];
+        if (invert) {
+            ignore = !ignore;
+        }
+        this._ignoreStack.unshift(ignore);
+    },
+
+    "/*#else": function (line) {
+        /*jshint validthis:true*/ // Called with the context of Preprocessor
+        if (this._ignoreStack.length) {
+            this._ignoreStack[0] = !this._ignoreStack[0];
+        }
+    },
+
+    "/*#endif": function (line) {
+        /*jshint validthis:true*/ // Called with the context of Preprocessor
+        this._ignoreStack.shift();
+    }
+
+};
+
+function or(previousValue, currentValue) {
+    return previousValue || currentValue;
+}
+
+Preprocessor.prototype = {
+
+    // @property {String[]} lines
+    _lines: [],
+
+    // Defines
+    _defines: {},
+
+    // @property {Boolean[]}
+    _ignoreStack: [false],
+
+    _searchForMatch: function (line) {
+        var match;
+        for (match in Preprocessor.tags) {
+            if (Preprocessor.tags.hasOwnProperty(match)) {
+                if (-1 < line.indexOf(match)) {
+                    Preprocessor.tags[match].apply(this, [line]);
+                    return true;
+                }
+            }
+        }
+    },
+
+    getOutput: function () {
+        var lines = this._lines,
+            length = lines.length,
+            idx,
+            line,
+            match,
+            matched;
+        for (idx = 0; idx < length; ++idx) {
+            line = lines[idx];
+            matched = this._searchForMatch(line);
+            if (matched || this._ignoreStack.reduce(or, false)) {
+                lines.splice(idx, 1);
+                --length;
+                --idx;
+            }
+        }
+        return this._lines.join("\n");
+    }
+};
+
 /**
  * Preprocess the JavaScript source and resolve the #ifdef macros
  *
@@ -6,45 +89,6 @@
  * @return {String}
  */
 module.exports = function (src, defines) {
-    var
-        lines = src.split("\n"),
-        len = lines.length,
-        idx,
-        line,
-        macro,
-        invert,
-        ignoreStack = [false],
-        ignoreTop,
-        ignore;
-    // Process each line individually
-    for (idx = 0; idx < len; ++idx) {
-        line = lines[idx];
-        // Current ignore state
-        ignoreTop = ignoreStack.length - 1;
-        ignore = ignoreStack[ignoreTop];
-        if (-1 < line.indexOf("/*#if")) {
-            invert = -1 === line.indexOf("/*#ifndef(");
-            macro = line.split("(")[1].split(")")[0];
-            ignore = gpf.xor(version[macro], invert);
-            ignoreStack.push(ignore);
-            ignore = true; // Ignore this line
-
-        } else if (-1 < line.indexOf("/*#else")) {
-            // Also handles imbricated #if/#endif
-            if (ignoreTop === 0 || !ignoreStack[ignoreTop - 1]) {
-                ignoreStack[ignoreTop] = !ignore;
-            }
-            ignore = true; // Ignore this line
-
-        } else if (-1 < line.indexOf("/*#endif")) {
-            ignoreStack.pop();
-            ignore = true; // Ignore this line
-        }
-        if (ignore) {
-            lines.splice(idx, 1);
-            --len;
-            --idx;
-        }
-    }
-    return lines.join("\n");
-}
+    var preprocessor = new Preprocessor(src, defines);
+    return preprocessor.getOutput();
+};
