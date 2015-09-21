@@ -23,8 +23,7 @@
         sources,
         length,
         idx,
-        src,
-        concat = [];
+        src;
 
     /*jslint evil: true*/
     eval(read("sources.js")); // Get sources list
@@ -38,12 +37,15 @@
         if (!src) {
             break;
         }
-        concat.push(read(src + ".js"));
+        try {
+            /*jslint evil: true*/
+            eval(read(src + ".js"));
+            /*jslint evil: false*/
+        } catch (e) {
+            console.error("An error occurred while evaluating src/" + src + ".js: " + e.message);
+            throw e;
+        }
     }
-
-    /*jslint evil: true*/
-    eval(concat.join(""));
-    /*jslint evil: false*/
 
     // Trigger finish loading
     _gpfFinishLoading();
