@@ -17,9 +17,13 @@ var
     testPath,
     fso = new ActiveXObject("Scripting.FileSystemObject"),
     include = function (path) {
-        /*jslint evil: true*/
-        eval(fso.OpenTextFile(path, 1/*forReading*/, false, 0).ReadAll());
-        /*jslint evil: false*/
+        try {
+            /*jslint evil: true*/
+            eval(fso.OpenTextFile(path, 1/*forReading*/, false, 0).ReadAll());
+            /*jslint evil: false*/
+        } catch (e) {
+            WScript.Echo("An error occurred while evaluating: " + path + "\r\n" + e.message);
+        }
     },
     sources,
     src;
