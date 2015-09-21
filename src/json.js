@@ -61,7 +61,7 @@ if ("undefined" === typeof JSON) {
 
     var _gpfJsonStringifyMapping = {
         undefined: _gpfEmptyFunc,
-        function: _gpfEmptyFunc,
+        "function": _gpfEmptyFunc,
         number: _gpfJsonStringifyObject,
         boolean: _gpfJsonStringifyObject,
         string: function (object) {
