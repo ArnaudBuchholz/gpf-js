@@ -20,14 +20,14 @@ Preprocessor.tags = {
         this._ignoreStack.unshift(ignore);
     },
 
-    "/*#else": function (line) {
+    "/*#else": function (/*line*/) {
         /*jshint validthis:true*/ // Called with the context of Preprocessor
         if (this._ignoreStack.length) {
             this._ignoreStack[0] = !this._ignoreStack[0];
         }
     },
 
-    "/*#endif": function (line) {
+    "/*#endif": function (/*line*/) {
         /*jshint validthis:true*/ // Called with the context of Preprocessor
         this._ignoreStack.shift();
     }
