@@ -66,7 +66,6 @@ Preprocessor.prototype = {
             length = lines.length,
             idx,
             line,
-            match,
             matched;
         for (idx = 0; idx < length; ++idx) {
             line = lines[idx];
