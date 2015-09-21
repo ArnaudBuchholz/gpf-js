@@ -268,8 +268,9 @@ var
     _gpfIdentifierOtherChars = _gpfAlpha + _gpfALPHA + _gpfDigit + "_$",
 
     // List of JavaScript keywords
-    _gpfJsKeywords = ("break,case,catch,continue,debugger,default,delete,do,else,finally,for,function,if,in,instanceof,"
-        + "new,return,switch,this,throw,try,typeof,var,void,while,with").split(",")
+    _gpfJsKeywords = ("break,case,class,catch,const,continue,debugger,default,delete,do,else,export,extends,finally,"
+        + "for,function,if,import,in,instanceof,let,new,return,super,switch,this,throw,try,typeof,var,void,while,with,"
+        + "yield").split(",")
     ;
 
 /**
