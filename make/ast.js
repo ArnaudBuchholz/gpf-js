@@ -16,16 +16,10 @@ var ASTreducer = function() {
 
 ASTreducer.prototype = {
 
-    /**
-     * Process the AST to reduce the generated source
-     *
-     * @param {Object} ast
-     */
+    // Process the AST to reduce the generated source
     reduce: function (ast) {
         this._walk(ast);
     },
-
-    //region AST processing APIs
 
     /**
      * Create new variable names for the provided name list.
@@ -34,23 +28,6 @@ ASTreducer.prototype = {
      * @param {Boolean} forVariables
      */
     beginIdentifierMapping: function (names, forVariables) {
-        //if (START_TRACES) {
-        //    console.log(">> beginIdentifierMapping");
-        //    if (forVariables) {
-        //        console.log("\t+[VAR] " + names.join(","));
-        //    } else {
-        //        console.log("\t+[FUN] " + names.join(","));
-        //    }
-        //    for (idx = this._identifiersStack.length - 1;
-        //         idx > 0; --idx) {
-        //        var stackedNames = this._identifiersStack[idx];
-        //        if (stackedNames.isVariables) {
-        //            console.log("\t[VAR] " + stackedNames.join(","));
-        //        } else {
-        //            console.log("\t[FUN] " + stackedNames.join(","));
-        //        }
-        //    }
-        //}
         var
             len = names.length,
             idx,
@@ -68,32 +45,12 @@ ASTreducer.prototype = {
                 newNames = this._identifiers[name] = [];
             }
             newNames.unshift(this._newName());
-            //if (name === "gpf") {
-            //    console.log("!!! gpf = " + this._identifiers[name]);
-            //    START_TRACES = 5;
-            //}
         }
     },
 
-    /**
-     * Roll back new variable names created with beginIdentifierMapping
-     */
+    // Roll back new variable names created with beginIdentifierMapping
     endIdentifierMapping: function () {
-        //if (START_TRACES) {
-        //    console.log(">> endIdentifierMapping");
-        //    for (idx = this._identifiersStack.length - 1;
-        //         idx > 0; --idx) {
-        //        names = this._identifiersStack[idx];
-        //        if (names.isVariables) {
-        //            console.log("\t[VAR] " + names.join(","));
-        //        } else {
-        //            console.log("\t[FUN] " + names.join(","));
-        //        }
-        //    }
-        //}
-        /*
-         * Undo identifiers stack until a non 'isVariables' one is found
-         */
+        // Undo identifiers stack until a non 'isVariables' one is found
         var
             stack = this._identifiersStack,
             names,
@@ -115,19 +72,6 @@ ASTreducer.prototype = {
             }
             this._identifierCount = names.identifierCount;
         } while (names.isVariables);
-        //if (START_TRACES) {
-        //    console.log("<< endIdentifierMapping");
-        //    for (idx = this._identifiersStack.length - 1;
-        //         idx > 0; --idx) {
-        //        names = this._identifiersStack[idx];
-        //        if (names.isVariables) {
-        //            console.log("\t[VAR] " + names.join(","));
-        //        } else {
-        //            console.log("\t[FUN] " + names.join(","));
-        //        }
-        //    }
-        //    START_TRACES--;
-        //}
     },
 
     /**
@@ -144,45 +88,19 @@ ASTreducer.prototype = {
         return undefined;
     },
 
-    //endregion
-
-    //region members
-
-    /**
-     * Stack of name arrays (corresponding to the cumulated calls to
-     * beginIdentifierMapping)
-     *
-     * @type {String[][]}
-     * @private
-     */
+    // @property {String[][]} Stack of name arrays (corresponding to the cumulated calls to beginIdentifierMapping)
     _identifiersStack: [],
 
-    /**
-     * Number of identifiers mapped
-     *
-     * @type {Number}
-     * @private
-     */
+    // Number of identifiers mapped
     _identifierCount: 0,
 
-    /**
-     * Dictionary of name to mapped identifiers (Array)
-     * NOTE key is escaped to avoid collision with existing members.
-     *
-     * @type {Object}
-     * @private
-     */
-    _identifiers: {},
-
-    //endregion
-
-    //region Internal methods
+    // Dictionary of name to mapped identifiers (Array)
+    _identifiers: {}, // NOTE key is escaped to avoid collision with existing members
 
     /**
      * Explore the AST array and apply the necessary transformations
      *
      * @param {Array} astArray
-     * @private
      */
     _walkArray: function (astArray) {
         var
@@ -209,6 +127,41 @@ ASTreducer.prototype = {
     },
 
     /**
+     * Explore the AST members and apply the necessary transformations
+     *
+     * @param {Object} ast
+     */
+    _walkItem: function (ast) {
+        var member,
+            subItem;
+        for (member in ast) {
+            if (ast.hasOwnProperty(member)) {
+                subItem = ast[member];
+                if ("object" === typeof subItem && subItem) {
+                    this._walk(subItem);
+                }
+            }
+        }
+    },
+
+    _reduce: function (ast) {
+        var
+            myStatics = this.constructor,
+            processor = myStatics[ast.type] || {};
+        if (processor.pre) {
+            processor.pre(ast, this);
+        }
+        if (processor.walk) {
+            processor.walk(ast, this);
+        } else {
+            this._walkItem(ast);
+        }
+        if (processor.post) {
+            processor.post(this, ast);
+        }
+    },
+
+    /**
      * Explore the AST structure and apply the necessary transformations
      * The transformations are based on processors declared as static
      * members of this class.
@@ -218,38 +171,12 @@ ASTreducer.prototype = {
      * - walk: override the AST exploring
      *
      * @param {Object} ast
-     * @private
      */
     _walk: function (ast) {
-        var
-            myStatics = this.constructor,
-            member,
-            subItem,
-            processor;
         if (ast instanceof Array) {
             this._walkArray(ast);
         } else {
-            if (ast.type) {
-                processor = myStatics[ast.type];
-            }
-            if (undefined !== processor && processor.pre) {
-                processor.pre(ast, this);
-            }
-            if (undefined !== processor && processor.walk) {
-                processor.walk(ast, this);
-            } else {
-                for (member in ast) {
-                    if (ast.hasOwnProperty(member)) {
-                        subItem = ast[member];
-                        if ("object" === typeof subItem && subItem) {
-                            this._walk(subItem);
-                        }
-                    }
-                }
-            }
-            if (undefined !== processor && processor.post) {
-                processor.post(ast, this);
-            }
+            this._reduce(ast);
         }
     },
 
@@ -257,7 +184,6 @@ ASTreducer.prototype = {
      * New name allocator (based on number of identifiers)
      *
      * @returns {String}
-     * @private
      */
     _newName: function () {
         var
@@ -276,8 +202,6 @@ ASTreducer.prototype = {
         } while (undefined !== gpf.test(gpf.js.keywords(), newName));
         return newName;
     }
-
-    //endregion
 
 };
 
@@ -344,7 +268,7 @@ ASTreducer.FunctionDeclaration = {
         reducer.beginIdentifierMapping(names, false);
     },
 
-    post: function (ast, reducer) {
+    post: function (reducer/*, ast*/) {
         // Clean parameters (and inner variables) substitutions
         reducer.endIdentifierMapping();
     }
@@ -372,7 +296,7 @@ ASTreducer.FunctionExpression = {
         reducer.beginIdentifierMapping(names, false);
     },
 
-    post: function (ast, reducer) {
+    post: function (reducer/*, ast*/) {
         // Clean parameters (and inner variables) substitutions
         reducer.endIdentifierMapping();
     }
@@ -437,9 +361,27 @@ module.exports = {
         return ast;
     },
 
+    /**
+     * Apply the reduction algorithm
+     *
+     * @param {Object} ast
+     * @return {Object}
+     */
     reduce: function (ast) {
+        var reducer = new ASTreducer();
+        reducer.reduce(ast);
+        return ast;
+    },
 
+    /**
+     * Generate source code from the AST
+     *
+     * @param {Object} ast
+     * @param {Object} options
+     * @return {String}
+     */
+    rewrite: function (ast, options) {
+        return escodegen.generate(ast, options);
     }
 
-
-}
+};
