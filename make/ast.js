@@ -144,6 +144,11 @@ ASTreducer.prototype = {
         }
     },
 
+    /**
+     * Apply AST reducer to reduce it
+     *
+     * @param {Object} ast
+     */
     _reduce: function (ast) {
         var
             myStatics = this.constructor,
@@ -162,9 +167,8 @@ ASTreducer.prototype = {
     },
 
     /**
-     * Explore the AST structure and apply the necessary transformations
-     * The transformations are based on processors declared as static
-     * members of this class.
+     * Explore the AST structure and apply the necessary transformations.
+     * The transformations are based on processors declared as static members of this class.
      * Each processor is matched using the AST type and it may contain:
      * - pre: function to apply before exploring the AST
      * - post: function to apply after exploring the AST
