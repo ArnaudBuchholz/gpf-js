@@ -15,6 +15,14 @@ describe("compatibility", function () {
             assert("    " === array.join(" "));
         });
 
+        it("provides standard slice", function () {
+            var fruits = ["Banana", "Orange", "Lemon", "Apple", "Mango"],
+                citrus = fruits.slice(1, 3);
+            assert(2 === citrus.length);
+            assert(citrus[0] === "Orange");
+            assert(citrus[1] === "Lemon");
+        });
+
         it("should expose every", function () {
             var array = [];
             assert("function" === typeof array.every);
@@ -195,8 +203,7 @@ describe("compatibility", function () {
         });
 
         it("exposes a name", function () {
-            function thisName() {
-            }
+            function thisName() {}
             assert(thisName.compatibleName() === "thisName");
         });
 
