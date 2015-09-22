@@ -399,7 +399,7 @@
      * Protected to limit the stack depth.
      */
     function _next() {
-        if (30 === ++_stackedNext) {
+        if (10 === ++_stackedNext) {
             setTimeout(_next, 0);
             --_stackedNext;
             return;
