@@ -280,7 +280,7 @@ function _gpfContext (path, createMissingParts) {
     }
     if (path[0] === "gpf") {
         rootContext = gpf;
-        path = path.splice(1);
+        path = path.slice(1);
     } else {
         rootContext = _gpfMainContext;
     }
