@@ -1,162 +1,103 @@
-(function () {
+(function (context) {
     "use strict";
-
-    if (undefined === typeof gpf) {
-        // gpf is required
-        console.error("GPF required");
-    }
-
-    var context = gpf.context();
 
     /**
      * Simple BDD implementation
      */
 
-    // region BDD item classes
+    //region BDD item classes
 
-    var
-        /**
-         * Abstract item
-         *
-         * @param {String} label
-         * @constructor
-         */
-        BDDAbstract = function (label, parent) {
-            if (undefined !== parent) {
-                this.parent = parent;
-                if (parent instanceof BDDDescribe) {
-                    if (!parent.hasOwnProperty("children")) {
-                        // Make the array unique to the instance
-                        parent.children = [];
-                    }
-                    parent.children.push(this);
+    /**
+     * Abstract item
+     *
+     * @param {String} label
+     * @constructor
+     */
+     function BDDAbstract (label, parent) {
+        if (undefined !== parent) {
+            this.parent = parent;
+            if (parent instanceof BDDDescribe) {
+                if (!parent.hasOwnProperty("children")) {
+                    // Make the array unique to the instance
+                    parent.children = [];
                 }
+                parent.children.push(this);
             }
-            this.label = label;
-        },
-
-        /**
-         * Test description
-         *
-         * @constructor
-         * @param {String} label
-         * @class BDDDescribe
-         * @extends BDDAbstract
-         */
-        BDDDescribe = function (/*label, parent*/) {
-            BDDAbstract.apply(this, arguments);
-        },
-
-        /**
-         * Test case
-         *
-         * @constructor
-         * @param {String} label
-         * @param {Function} callback
-         * @class BDDIt
-         * @extends BDDAbstract
-         */
-        BDDIt = function (label, callback, parent) {
-            BDDAbstract.apply(this, [label, parent]);
-            this.callback = callback;
-        };
+        }
+        this.label = label;
+    }
 
     BDDAbstract.prototype = {
 
-        /**
-         * Parent item
-         *
-         * @type {BDDAbstract}
-         * @read-only
-         */
+        // @property {BDDAbstract} Parent item
         parent: null,
 
-        /**
-         * Label of the item
-         *
-         * @type {String}
-         * @read-only
-         */
+        // Label of the item
         label: ""
 
     };
 
+    /**
+     * Test description
+     *
+     * @constructor
+     * @param {String} label
+     * @class BDDDescribe
+     * @extends BDDAbstract
+     */
+    function BDDDescribe (/*label, parent*/) {
+        BDDAbstract.apply(this, arguments);
+    }
+
     BDDDescribe.prototype = new BDDAbstract();
 
-    /**
-     * Children of the description
-     *
-     * @type {BDDDescribe[]}
-     * @read-only
-     */
+    // @prototype {BDDDescribe[]} Children of the description
     BDDDescribe.prototype.children = [];
 
-    /**
-     * List of before callbacks
-     *
-     * @type {Function[]}
-     * @read-only
-     */
+    // @property {Function[]} List of before callbacks
     BDDDescribe.prototype.before = [];
 
-    /**
-     * List of beforeEach callbacks
-     *
-     * @type {Function[]}
-     * @read-only
-     */
+    // @property {Function[]} List of beforeEach callbacks
     BDDDescribe.prototype.beforeEach = [];
 
-    /**
-     * List of afterEach callbacks
-     *
-     * @type {Function[]}
-     * @read-only
-     */
+    // @property {Function[]} List of afterEach callbacks
     BDDDescribe.prototype.afterEach = [];
 
-    /**
-     * List of after callbacks
-     *
-     * @type {Function[]}
-     * @read-only
-     */
+    // @property {Function[]} List of after callbacks
     BDDDescribe.prototype.after = [];
 
-    /**
-     * Root test folder
-     *
-     * @type {BDDDescribe}
-     * @static
-     */
+    // @property {BDDDescribe} Root test folder
     BDDDescribe.root = null;
 
-    /**
-     * Current test folder
-     *
-     * @type {BDDDescribe}
-     * @static
-     */
+    // @property {BDDDescribe} Current test folder
     BDDDescribe.current = null;
 
-    BDDIt.prototype = new BDDAbstract();
     /**
-     * Test case callback
+     * Test case
      *
-     * @type {Function}
-     * @read-only
+     * @constructor
+     * @param {String} label
+     * @param {Function} callback
+     * @class BDDIt
+     * @extends BDDAbstract
      */
+    function BDDIt (label, callback, parent) {
+        BDDAbstract.apply(this, [label, parent]);
+        this.callback = callback;
+    }
+
+    BDDIt.prototype = new BDDAbstract();
+
+    // @prototype {Function} Test case callback (null if pending)
     BDDIt.prototype.callback = null;
 
-    //endregion BDD item classes
+    //endregion
 
     //region BDD public interface
 
     context.describe = function (label, callback) {
         if (null === BDDDescribe.root) {
-            BDDDescribe.current
-                = BDDDescribe.root
-                = new BDDDescribe();
+            BDDDescribe.current = BDDDescribe.root = new BDDDescribe();
         }
         BDDDescribe.current = new BDDDescribe(label, BDDDescribe.current);
         callback();
@@ -168,7 +109,6 @@
      *
      * @param {String} listName List member name
      * @param {Function} callback
-     * @private
      */
     function _addTo(listName, callback) {
         var current = BDDDescribe.current;
@@ -615,4 +555,4 @@
 
     //endregion
 
-}());
+}(this));
