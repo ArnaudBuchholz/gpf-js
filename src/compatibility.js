@@ -14,7 +14,7 @@ var _gpfArrayPrototypeSlice = Array.prototype.slice;
  * @return {Array}
  */
 function _gpfArraySlice (array, from, to) {
-    return _gpfArrayPrototypeSlice.apply(array, [from, to]);
+    return _gpfArrayPrototypeSlice.apply(array, [from || 0, to || array.length + 1]);
 }
 
 if (undefined === Array.prototype.every) {
@@ -141,7 +141,7 @@ if ((function () {
         Function.prototype.compatibleName = function () {
             // Use simple parsing as a first step
             // TODO leverage JS parser to implement this properly
-            var functionSource = Object.prototype.toString.apply(this),
+            var functionSource = Function.prototype.toString.apply(this),
                 functionKeywordPos = functionSource.indexOf("function"),
                 parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
             return functionSource
