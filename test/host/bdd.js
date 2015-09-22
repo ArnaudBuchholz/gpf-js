@@ -5,7 +5,27 @@
      * Simple BDD implementation
      */
 
+    // Enumeration helper
+    function _objectForEach(dictionary, callback, thisArg) {
+        for (var property in dictionary) {
+            if (dictionary.hasOwnProperty(property)) {
+                callback.apply(thisArg, [dictionary[property], property, dictionary]);
+            }
+        }
+    }
+
     //region BDD item classes
+
+    Function.prototype.toClass = function (BaseClass, members, statics) {
+        this.prototype = new BaseClass();
+        _objectForEach(members, function (memberValue, memberName) {
+            this.prototype[memberName] = memberValue;
+        }, this);
+        _objectForEach(statics, function (memberValue, memberName) {
+            this[memberName] = memberValue;
+        }, this);
+        return this;
+    };
 
     /**
      * Abstract item
@@ -13,7 +33,7 @@
      * @param {String} label
      * @constructor
      */
-     function BDDAbstract (label, parent) {
+    var BDDAbstract  = (function (label, parent) {
         if (undefined !== parent) {
             this.parent = parent;
             if (parent instanceof BDDDescribe) {
@@ -25,9 +45,7 @@
             }
         }
         this.label = label;
-    }
-
-    BDDAbstract.prototype = {
+    }).toClass(Object, {
 
         // @property {BDDAbstract} Parent item
         parent: null,
@@ -35,7 +53,7 @@
         // Label of the item
         label: ""
 
-    };
+    }, {});
 
     /**
      * Test description
@@ -45,32 +63,49 @@
      * @class BDDDescribe
      * @extends BDDAbstract
      */
-    function BDDDescribe (/*label, parent*/) {
+    var BDDDescribe = (function (/*label, parent*/) {
         BDDAbstract.apply(this, arguments);
-    }
+    }).toClass(BDDAbstract, {
 
-    BDDDescribe.prototype = new BDDAbstract();
+        // @prototype {BDDDescribe[]} Children of the description
+        children: [],
 
-    // @prototype {BDDDescribe[]} Children of the description
-    BDDDescribe.prototype.children = [];
+        // @property {Function[]} List of before callbacks
+        before: [],
 
-    // @property {Function[]} List of before callbacks
-    BDDDescribe.prototype.before = [];
+        // @property {Function[]} List of beforeEach callbacks
+        beforeEach: [],
 
-    // @property {Function[]} List of beforeEach callbacks
-    BDDDescribe.prototype.beforeEach = [];
+        // @property {Function[]} List of afterEach callbacks
+        afterEach: [],
 
-    // @property {Function[]} List of afterEach callbacks
-    BDDDescribe.prototype.afterEach = [];
+        // @property {Function[]} List of after callbacks
+        after: []
 
-    // @property {Function[]} List of after callbacks
-    BDDDescribe.prototype.after = [];
+    }, {
 
-    // @property {BDDDescribe} Root test folder
-    BDDDescribe.root = null;
+        // @property {BDDDescribe} Root test folder
+        root: null,
 
-    // @property {BDDDescribe} Current test folder
-    BDDDescribe.current = null;
+        // @property {BDDDescribe} Current test folder
+        current: null,
+
+        /**
+         * Added the callback to the list which member name is provided
+         *
+         * @param {String} listName List member name
+         * @param {Function} callback
+         */
+        addCallback: function (listName, callback) {
+            var current = BDDDescribe.current;
+            if (!current.hasOwnProperty(listName)) {
+                // Make the array unique
+                current[listName] = [];
+            }
+            current[listName].push(callback);
+        }
+
+    });
 
     /**
      * Test case
@@ -81,90 +116,93 @@
      * @class BDDIt
      * @extends BDDAbstract
      */
-    function BDDIt (label, callback, parent) {
+    var BDDIt = (function (label, callback, parent) {
         BDDAbstract.apply(this, [label, parent]);
         this.callback = callback;
-    }
+    }).toClass(BDDAbstract, {
 
-    BDDIt.prototype = new BDDAbstract();
+        // @prototype {Function} Test case callback (null if pending)
+        callback: null
 
-    // @prototype {Function} Test case callback (null if pending)
-    BDDIt.prototype.callback = null;
+    }, {});
 
-    //endregion
+    //endregion BDD item classes
 
     //region BDD public interface
 
-    context.describe = function (label, callback) {
-        if (null === BDDDescribe.root) {
-            BDDDescribe.current = BDDDescribe.root = new BDDDescribe();
+    _objectForEach({
+
+        describe: function (label, callback) {
+            if (null === BDDDescribe.root) {
+                BDDDescribe.current = BDDDescribe.root = new BDDDescribe();
+            }
+            BDDDescribe.current = new BDDDescribe(label, BDDDescribe.current);
+            callback();
+            BDDDescribe.current = BDDDescribe.current.parent;
+        },
+
+        before: function (callback) {
+            BDDDescribe.addCallback("before", callback);
+        },
+
+        beforeEach: function (callback) {
+            BDDDescribe.addCallback("beforeEach", callback);
+        },
+
+        it: function (label, callback) {
+            return new BDDIt(label, callback, BDDDescribe.current);
+        },
+
+        afterEach: function (callback) {
+            BDDDescribe.addCallback("afterEach", callback);
+        },
+
+        after: function (callback) {
+            BDDDescribe.addCallback("after", callback);
+        },
+
+        /**
+         * Fails by throwing an exception if the value is falsy
+         *
+         * @param {*} condition
+         */
+        assert: function (condition) {
+            if (!condition) {
+                throw {
+                    message: "ASSERTION failed"
+                };
+            }
         }
-        BDDDescribe.current = new BDDDescribe(label, BDDDescribe.current);
-        callback();
-        BDDDescribe.current = BDDDescribe.current.parent;
-    };
 
-    /**
-     * Added the callback to the list which member name is provided
-     *
-     * @param {String} listName List member name
-     * @param {Function} callback
-     */
-    function _addTo(listName, callback) {
-        var current = BDDDescribe.current;
-        if (!current.hasOwnProperty(listName)) {
-            // Make the array unique
-            current[listName] = [];
+    }, function (memberValue, memberName) {
+        if (!this[memberName]) {
+            this[memberName] = memberValue;
         }
-        current[listName].push(callback);
-    }
-
-    context.before = function (callback) {
-        _addTo("before", callback);
-    };
-
-    context.beforeEach = function (callback) {
-        _addTo("beforeEach", callback);
-    };
-
-    context.it = function (label, callback) {
-        return new BDDIt(label, callback, BDDDescribe.current);
-    };
-
-    context.afterEach = function (callback) {
-        _addTo("afterEach", callback);
-    };
-
-    context.after = function (callback) {
-        _addTo("after", callback);
-    };
+    }, context);
 
     //endregion  BDD public interface
 
     //region default callback (based on console.log)
 
-    var
-        _output = function (text, level) {
-            if (undefined === level) {
-                level = "log";
-            }
-            // Console can be mocked up to check outputs
-            if (console.expects) {
-                console.expects(level, text, true);
-            }
-            console[level](text);
-        },
+    function _output (text, level) {
+        if (undefined === level) {
+            level = "log";
+        }
+        // Console can be mocked up to check outputs
+        if (console.expects) {
+            console.expects(level, text, true);
+        }
+        console[level](text);
+    }
 
-        _handlers = {
+    var _handlers = {
 
             /**
              * describe callback
              *
              * @param {Object} data
-             * <ul>
-             *     <li>{Number} depth: item depth</li>
-             *     <li>{String} label: item label</li>
-             * </ul>
+             * - {Number} depth item depth
+             * - {String} label item label
              */
             "describe": function (data) {
                 _output((new Array(data.depth + 1).join("\t")) + data.label);
@@ -174,13 +212,11 @@
              * it callback
              *
              * @param {Object} data
-             * <ul>
-             *     <li>{Number} depth: item depth</li>
-             *     <li>{String} label: item label</li>
-             *     <li>{Boolean} pending: test with no implementation</li>
-             *     <li>{Boolean} result: test result</li>
-             *     <li>{Object} exception: exception details</li>
-             * </ul>
+             * - {Number} depth item depth
+             * - {String} label item label
+             * - {Boolean} pending test with no implementation
+             * - {Boolean} result test result
+             * - {Object} exception exception details
              */
             "it": function (data) {
                 var line = (new Array(data.depth + 1).join("\t"));
@@ -206,12 +242,10 @@
              * results callback
              *
              * @param {Object} data
-             * <ul>
-             *     <li>{Number} count: number of tests</li>
-             *     <li>{Number} success: succeeded count</li>
-             *     <li>{Number} fail: failed count</li>
-             *     <li>{Number} pending: tests with no implementation</li>
-             * </ul>
+             * - {Number} count number of tests
+             * - {Number} success succeeded count
+             * - {Number} fail failed count
+             * - {Number} pending tests with no implementation
              */
             "results": function (data) {
                 _output("--- Results: ");
@@ -229,11 +263,12 @@
                     gpf.exit(0);
                 }
             }
-        },
-
-        _defaultCallback = function (type, data) {
-            _handlers[type].apply(this, [data]);
         };
+
+    function _defaultCallback (type, data) {
+        /*jshint validthis:true*/
+        _handlers[type].apply(this, [data]);
+    }
 
     //endregion
 
@@ -245,7 +280,6 @@
          * Callback used to notify the caller of the progress
          *
          * @type {Function}
-         * @private
          */
         _runCallback = null,
 
@@ -253,7 +287,6 @@
          * Stack of describe items being processed
          *
          * @type {BDDDescribe[]}
-         * @private
          */
         _stackOfDescribe,
 
@@ -261,7 +294,6 @@
          * Current describe
          *
          * @type {BDDDescribe}
-         * @private
          */
         _describe,
 
@@ -269,7 +301,6 @@
          * Stack of childIdx (pointing to each describe child)
          *
          * @type {Number[]}
-         * @private
          */
         _stackOfChildIdx,
 
@@ -277,7 +308,6 @@
          * Current child idx in describe
          *
          * @type {Number}
-         * @private
          */
         _childIdx,
 
@@ -285,7 +315,6 @@
          * List of callbacks to process (before, beforeEach, ...)
          *
          * @type {function[]}
-         * @private
          */
         _callbacks,
 
@@ -293,31 +322,26 @@
          * Current callback idx in _callbacks
          *
          * @type {Number}
-         * @private
          */
         _callbackIdx,
 
         /**
          * @type {Function[]}
-         * @private
          */
         _beforeEach = [],
 
         /**
          * @type {Function[]}
-         * @private
          */
         _afterEach = [],
 
         /**
          * @type {BDDIt}
-         * @private
          */
         _it,
 
         /**
          * @type {Date}
-         * @private
          */
         _itStart,
 
@@ -325,7 +349,6 @@
          * Test statistics
          *
          * @type {Object}
-         * @private
          */
         _stats,
 
@@ -333,31 +356,14 @@
          * Count the number of nexts
          *
          * @type {number}
-         * @private
          */
         _stackedNext = 0;
-
-    if (!context.assert) {
-        /**
-         * Fails by throwing an exception if the value is falsy
-         *
-         * @param {*} condition
-         */
-        context.assert = function (condition) {
-            if (!condition) {
-                throw {
-                    message: "ASSERTION failed"
-                };
-            }
-        };
-    }
 
     /**
      * Call the callback
      *
      * @param {Function} callback
      * @param {Boolean} itCallback True if the callback comes form an it clause
-     * @private
      */
     function _processCallback(callback, itCallback) {
         var done;
@@ -391,8 +397,6 @@
     /**
      * Next test / callback
      * Protected to limit the stack depth.
-     *
-     * @private
      */
     function _next() {
         if (30 === ++_stackedNext) {
@@ -406,8 +410,6 @@
 
     /**
      * Next test / callback
-     *
-     * @private
      */
     function _doNext() {
         var item;
@@ -498,8 +500,6 @@
 
     /**
      * The last it succeeded
-     *
-     * @private
      */
     function _success() {
         ++_stats.success;
@@ -514,8 +514,6 @@
 
     /**
      * The last it failed
-     *
-     * @private
      */
     function _fail(e) {
         ++_stats.fail;
