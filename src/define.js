@@ -45,7 +45,7 @@ var
 function _gpfClassConstructorTpl () {
     var classDef = arguments[0],
         constructor = function /* name will be injected here */ () {
-            if (_gpfClassConstructorAllowed) {
+            if (classDef.constructionAllowed()) {
                 classDef._resolvedConstructor.apply(this, arguments);
             }
         };
@@ -214,6 +214,11 @@ _GpfClassDefinition.prototype = {
 
     // @property {Object} Class definition (as provided to define)
     _definition: null,
+
+    // Prevent construction when doing inheritance
+    constructionAllowed: function () {
+        return _gpfClassConstructorAllowed;
+    },
 
     /**
      * Adds a member to the class definition.
