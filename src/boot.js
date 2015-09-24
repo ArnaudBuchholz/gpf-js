@@ -465,6 +465,35 @@ if ("undefined" === typeof gpfSourcesPath) {
     }
 }
 
+var _gpfAsyncLoadForBoot,
+    _gpfSyncLoadForBoot;
+if (_gpfSyncLoadForBoot) {
+    _gpfAsyncLoadForBoot = function (name, callback) {
+        _gpfSyncLoadForBoot(name);
+        callback();
+    };
+} else {
+    gpf.ASSERT(undefined !== _gpfAsyncLoadForBoot);
+}
+
+_gpfAsyncLoadForBoot(gpfSourcesPath + "sources.js", function (err) {
+    gpf.ASSERT(undefined === err);
+    var sources = gpf.sources(),
+        idx = 0;
+
+    function next(err) {
+        gpf.ASSERT(undefined === err);
+        var src = sources[idx];
+        if (!src) {
+            _gpfFinishLoading();
+        }
+        _gpfAsyncLoadForBoot(gpfSourcesPath + src + ".js", next);
+    }
+
+    next();
+});
+
+
 if (_GPF_HOST_WSCRIPT === _gpfHost) {
     _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
     (function () {
