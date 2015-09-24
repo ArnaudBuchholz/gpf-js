@@ -177,7 +177,7 @@ if ("undefined" !== typeof WScript) {
         }
     };
 
-} else if ("undefined" !== typeof print) {
+} else if ("undefined" !== typeof print && "undefined" !== typeof java) {
     _gpfHost = _GPF_HOST_RHINO;
     _gpfDosPath = false;
     _gpfMainContext = (function () {return this;}).apply(null, []);
