@@ -37,6 +37,7 @@
     "grunt-mocha-test": "^0.12.7",
     "jquery": "^2.1.4",
     "mocha": "^2.2.5",
-    "plato": "^1.4.0"
+    "plato": "^1.4.0",
+    "rhino-1_7r5-bin": "^1.0.1"
   }
 }
