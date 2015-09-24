@@ -2,6 +2,7 @@ module.exports = function (grunt) {
     "use strict";
 
     var CSCRIPT_CMD = "cscript.exe /D /E:JScript test\\host\\cscript.js",
+        RHINO_CMD = "java -jar node_modules\\rhino-1_7r5-bin\\rhino1_7R5\\js.jar test\\host\\rhino.js",
         srcFiles = [],
         testFiles = [];
 
@@ -113,6 +114,18 @@ module.exports = function (grunt) {
         //endregion
         //region Custom command lines
         exec: {
+            testRhino: {
+                command: RHINO_CMD,
+                stdout: false,
+                stderr: false,
+                exitCode: 0
+            },
+            testRhinoVerbose: {
+                command: RHINO_CMD,
+                stdout: true,
+                stderr: true,
+                exitCode: 0
+            },
             testWscript: {
                 command: CSCRIPT_CMD,
                 stdout: false,
