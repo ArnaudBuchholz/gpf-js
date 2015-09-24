@@ -15,7 +15,6 @@
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfExit*/ // Exit function
 /*global _gpfFinishLoading*/ // Ends the loading (declared in boot.js)
-/*global _gpfFSRead*/ // Phantom/Node File System read text file method (boot)
 /*global _gpfHost*/ // Host type
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfInBrowser*/ // The current host is a browser like
