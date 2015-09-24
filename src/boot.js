@@ -4,6 +4,7 @@
 /*exported _GPF_HOST_BROWSER*/
 /*exported _GPF_HOST_NODEJS*/
 /*exported _GPF_HOST_PHANTOMJS*/
+/*exported _GPF_HOST_RHINO*/
 /*exported _GPF_HOST_UNKNOWN*/
 /*exported _GPF_HOST_WSCRIPT*/
 /*exported _gpfContext*/
@@ -28,6 +29,7 @@
 /*global phantom:true*/
 /*jshint browser: true*/
 /*jshint node: true*/
+/*jshint rhino: true*/
 /*jshint wsh: true*/
 /*global WScript*/
 
@@ -39,6 +41,7 @@ var
     _GPF_HOST_BROWSER               = "browser",
     _GPF_HOST_NODEJS                = "nodejs",
     _GPF_HOST_PHANTOMJS             = "phantomjs",
+    _GPF_HOST_RHINO                 = "rhino",
     _GPF_HOST_UNKNOWN               = "unknown",
     _GPF_HOST_WSCRIPT               = "wscript",
 
@@ -151,17 +154,43 @@ _gpfVersion += "d";
 if ("undefined" !== typeof WScript) {
     _gpfHost = _GPF_HOST_WSCRIPT;
     _gpfDosPath = true;
-    _gpfMainContext = (function () {return this;}).apply(null, []);
+    _gpfMainContext = (function () {
+        return this;
+    }).apply(null, []);
     _gpfExit = function (code) {
         WScript.Quit(code);
     };
 
     // Define console APIs
     _gpfMainContext.console = {
-        log: function (t) {WScript.Echo("    " + t);},
-        info: function (t) {WScript.Echo("[?] " + t);},
-        warn: function (t) {WScript.Echo("/!\\ " + t);},
-        error: function (t) {WScript.Echo("(X) " + t);}
+        log: function (t) {
+            WScript.Echo("    " + t);
+        },
+        info: function (t) {
+            WScript.Echo("[?] " + t);
+        },
+        warn: function (t) {
+            WScript.Echo("/!\\ " + t);
+        },
+        error: function (t) {
+            WScript.Echo("(X) " + t);
+        }
+    };
+
+} else if ("undefined" !== typeof print) {
+    _gpfHost = _GPF_HOST_RHINO;
+    _gpfDosPath = false;
+    _gpfMainContext = (function () {return this;}).apply(null, []);
+    _gpfExit = function (code) {
+        java.lang.System.exit(code);
+    };
+
+    // Define console APIs
+    _gpfMainContext.console = {
+        log: function (t) {print("    " + t);},
+        info: function (t) {print("[?] " + t);},
+        warn: function (t) {print("/!\\ " + t);},
+        error: function (t) {print("(X) " + t);}
     };
 
 // PhantomJS
