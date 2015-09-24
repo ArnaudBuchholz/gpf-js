@@ -150,6 +150,15 @@ _gpfVersion += "d";
 
 /*#endif*/
 
+/*#ifndef(UMD)*/
+
+var // Asynchronous load function
+    _gpfAsyncLoadForBoot,
+   // Synchronous load function
+    _gpfSyncLoadForBoot;
+
+/*#endif*/
+
 // Microsoft cscript / wscript
 if ("undefined" !== typeof WScript) {
     _gpfHost = _GPF_HOST_WSCRIPT;
@@ -177,6 +186,23 @@ if ("undefined" !== typeof WScript) {
         }
     };
 
+/*#ifndef(UMD)*/
+
+    _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
+
+    _gpfSyncLoadForBoot = function (srcFileName) {
+        // Use Scripting.FileSystem Object to read the file
+        var srcFile = _gpfMsFSO.OpenTextFile(srcFileName),
+            srcContent;
+        srcContent = srcFile.ReadAll();
+        srcFile.Close();
+        /*jslint evil: true*/
+        eval(srcContent);
+        /*jslint evil: false*/
+    };
+
+/*#endif*/
+
 } else if ("undefined" !== typeof print && "undefined" !== typeof java) {
     _gpfHost = _GPF_HOST_RHINO;
     _gpfDosPath = false;
@@ -193,6 +219,12 @@ if ("undefined" !== typeof WScript) {
         error: function (t) {print("(X) " + t);}
     };
 
+/*#ifndef(UMD)*/
+
+    _gpfSyncLoadForBoot = load;
+
+/*#endif*/
+
 // PhantomJS
 } else if ("undefined" !== typeof phantom && phantom.version) {
     _gpfHost = _GPF_HOST_PHANTOMJS;
@@ -202,6 +234,18 @@ if ("undefined" !== typeof WScript) {
     _gpfInBrowser = true;
     _gpfExit = phantom.exit;
 
+/*#ifndef(UMD)*/
+
+    _gpfNodeFs =  require("fs");
+
+    _gpfSyncLoadForBoot = function (srcFileName) {
+        /*jslint evil: true*/
+        eval(_gpfNodeFs.read(srcFileName));
+        /*jslint evil: false*/
+    };
+
+/*#endif*/
+
 // Nodejs
 } else if ("undefined" !== typeof module && module.exports) {
     _gpfHost = _GPF_HOST_NODEJS;
@@ -210,6 +254,18 @@ if ("undefined" !== typeof WScript) {
     _gpfMainContext = global;
     _gpfInNode = true;
     _gpfExit = process.exit;
+
+/*#ifndef(UMD)*/
+
+    _gpfNodeFs =  require("fs");
+
+    _gpfSyncLoadForBoot = function (srcFileName) {
+        /*jslint evil: true*/
+        eval(_gpfNodeFs.readFileSync(srcFileName).toString());
+        /*jslint evil: false*/
+    };
+
+/*#endif*/
 
 // Browser
 } else if ("undefined" !== typeof window) {
@@ -221,8 +277,48 @@ if ("undefined" !== typeof WScript) {
     _gpfWebDocument = document;
     _gpfWebHead = _gpfWebDocument.getElementsByTagName("head")[0] || _gpfWebDocument.documentElement;
 
-}
+/*#ifndef(UMD)*/
 
+    _gpfAsyncLoadForBoot = function (srcFileName, callback) {
+        if (gpf.web.include) {
+            gpf.web.include(srcFileName, function (event) {
+                if (gpf.events.EVENT_ERROR === event.type) {
+                    callback(event.get("error"));
+                } else {
+                    callback();
+                }
+            });
+            return;
+        }
+        var script = _gpfWebDocument.createElement("script");
+        script.language = "javascript";
+        script.src = srcFileName;
+        _gpfWebHead.insertBefore(script, _gpfWebHead.firstChild);
+        // TODO Need to wait for the module to be loaded...
+        var bootList = {
+            "sources":          "gpf.sources",
+            "compatibility":    "Function.prototype.compatibleName",
+            "constants":        "gpf.HOST_UNKNOWN",
+            "events":           "gpf.events",
+            "include":          "gpf.web.include"
+        };
+            //if (undefined !== _gpfContext(bootList[idx].split("."))) {
+            //    ++idx;
+            //}
+            //if (idx === bootList.length) {
+            //    // Now that all initial sources are loaded, load the rest using gpf.web.include
+            //    sources = gpf.sources();
+            //    length = sources.length;
+            //    idx = sources.indexOf(bootList[bootList.length - 2]) + 1;
+            //    loadSources();
+            //} else {
+            //    // Use an aggressive setting as it will be used only for the non UMD version
+            //    setTimeout(boot, 0);
+    };
+
+/*#endif*/
+
+}
 
 /*#ifndef(UMD)*/
 
@@ -465,8 +561,6 @@ if ("undefined" === typeof gpfSourcesPath) {
     }
 }
 
-var _gpfAsyncLoadForBoot,
-    _gpfSyncLoadForBoot;
 if (_gpfSyncLoadForBoot) {
     _gpfAsyncLoadForBoot = function (name, callback) {
         _gpfSyncLoadForBoot(name);
@@ -492,52 +586,5 @@ _gpfAsyncLoadForBoot(gpfSourcesPath + "sources.js", function (err) {
 
     next();
 });
-
-
-if (_GPF_HOST_WSCRIPT === _gpfHost) {
-    _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
-    (function () {
-        var srcFile,
-            srcContent;
-        srcFile = _gpfMsFSO.OpenTextFile(gpfSourcesPath + "boot_ms.js");
-        srcContent = srcFile.ReadAll();
-        srcFile.Close();
-        /*jslint evil: true*/
-        eval(srcContent);
-        /*jslint evil: false*/
-    }());
-
-} else if (_GPF_HOST_RHINO === _gpfHost) {
-    load(gpfSourcesPath + "boot_rhino.js");
-
-} else if (_gpfInNode) {
-    _gpfNodeFs =  require("fs");
-
-    /**
-     * Phantom/Node File System read text file method (boot)
-     * @type {Function}
-     */
-    var _gpfFSRead;
-    if (_GPF_HOST_PHANTOMJS === _gpfHost) {
-        _gpfFSRead = _gpfNodeFs.read;
-    } else {
-        _gpfFSRead = function (path) {
-            return _gpfNodeFs.readFileSync(path).toString();
-        };
-    }
-    /*jslint evil: true*/
-    eval(_gpfFSRead(gpfSourcesPath + "boot_node.js"));
-    /*jslint evil: false*/
-
-} else { // _GPF_HOST_BROWSER === _gpfHost
-    var _gpfWebRawInclude = function (src) {
-        var script = _gpfWebDocument.createElement("script");
-        script.language = "javascript";
-        script.src = gpfSourcesPath + src;
-        _gpfWebHead.insertBefore(script, _gpfWebHead.firstChild);
-    };
-    _gpfWebRawInclude("boot_web.js");
-
-}
 
 /*#endif*/
