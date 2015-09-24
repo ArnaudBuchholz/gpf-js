@@ -478,6 +478,9 @@ if (_GPF_HOST_WSCRIPT === _gpfHost) {
         /*jslint evil: false*/
     }());
 
+} else if (_GPF_HOST_RHINO === _gpfHost) {
+    load(gpfSourcesPath + "boot_rhino.js");
+
 } else if (_gpfInNode) {
     _gpfNodeFs =  require("fs");
 
