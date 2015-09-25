@@ -8,6 +8,7 @@
 /*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
 /*global _GPF_HOST_NODEJS*/ // gpf.HOST_NODEJS
 /*global _GPF_HOST_PHANTOMJS*/ // gpf.HOST_PHANTOMJS
+/*global _GPF_HOST_RHINO*/ // gpf.HOST_RHINO
 /*global _GPF_HOST_UNKNOWN*/ // gpf.HOST_UNKNOWN
 /*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
 /*global _gpfContext*/ // Resolve contextual string
