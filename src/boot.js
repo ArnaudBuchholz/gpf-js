@@ -159,6 +159,48 @@ var // Asynchronous load function
 
 /*#endif*/
 
+function _getObjectProperty(parent, name) {
+    if (undefined !== parent) {
+        return parent[name];
+    }
+}
+
+function _getOrCreateObjectProperty(parent, name) {
+    var result = parent[name];
+    if (undefined === result) {
+        result = parent[name] = {};
+    }
+    return result;
+}
+
+/**
+ * Resolve the provided contextual path and returns the result
+ *
+ * @param {String[]} path array of identifiers
+ * @param {Boolean} [createMissingParts=false] createMissingParts if the path leads to undefined parts and
+ * createMissingParts is true, it allocates a default empty object
+ *
+ * @return {*|undefined}
+ * - when path is undefined, it returns the current host higher object
+ * - when path is "gpf" it returns the GPF object
+ */
+function _gpfContext (path, createMissingParts) {
+    var reducer,
+        rootContext;
+    if (createMissingParts) {
+        reducer = _getOrCreateObjectProperty;
+    } else {
+        reducer = _getObjectProperty;
+    }
+    if (path[0] === "gpf") {
+        rootContext = gpf;
+        path = path.slice(1);
+    } else {
+        rootContext = _gpfMainContext;
+    }
+    return path.reduce(reducer, rootContext);
+}
+
 // Microsoft cscript / wscript
 if ("undefined" !== typeof WScript) {
     _gpfHost = _GPF_HOST_WSCRIPT;
@@ -283,7 +325,7 @@ if ("undefined" !== typeof WScript) {
         if (gpf.web.include) {
             gpf.web.include(srcFileName, function (event) {
                 if (gpf.events.EVENT_ERROR === event.type) {
-                    callback(event.get("error"));
+                    console.error(event.get("error").message);
                 } else {
                     callback();
                 }
@@ -294,26 +336,23 @@ if ("undefined" !== typeof WScript) {
         script.language = "javascript";
         script.src = srcFileName;
         _gpfWebHead.insertBefore(script, _gpfWebHead.firstChild);
-        // TODO Need to wait for the module to be loaded...
-        var bootList = {
-            "sources":          "gpf.sources",
-            "compatibility":    "Function.prototype.compatibleName",
-            "constants":        "gpf.HOST_UNKNOWN",
-            "events":           "gpf.events",
-            "include":          "gpf.web.include"
-        };
-            //if (undefined !== _gpfContext(bootList[idx].split("."))) {
-            //    ++idx;
-            //}
-            //if (idx === bootList.length) {
-            //    // Now that all initial sources are loaded, load the rest using gpf.web.include
-            //    sources = gpf.sources();
-            //    length = sources.length;
-            //    idx = sources.indexOf(bootList[bootList.length - 2]) + 1;
-            //    loadSources();
-            //} else {
-            //    // Use an aggressive setting as it will be used only for the non UMD version
-            //    setTimeout(boot, 0);
+        var source = srcFileName.split("/").pop().split(".")[0],
+            test = {
+                "sources":          "gpf.sources",
+                "compatibility":    "Function.prototype.compatibleName",
+                "constants":        "gpf.HOST_UNKNOWN",
+                "events":           "gpf.events",
+                "include":          "gpf.web.include"
+            }[source].split(".");
+        function wait () {
+            if (undefined !== _gpfContext(test)) {
+                callback();
+            } else {
+                // Use an aggressive setting as it will be used only for the non UMD version
+                setTimeout(wait, 0);
+            }
+        }
+        wait();
     };
 
 /*#endif*/
@@ -369,48 +408,6 @@ gpf.version = function () {
 gpf.host = function () {
     return _gpfHost;
 };
-
-function _getObjectProperty(parent, name) {
-    if (undefined !== parent) {
-        return parent[name];
-    }
-}
-
-function _getOrCreateObjectProperty(parent, name) {
-    var result = parent[name];
-    if (undefined === result) {
-        result = parent[name] = {};
-    }
-    return result;
-}
-
-/**
- * Resolve the provided contextual path and returns the result
- *
- * @param {String[]} path array of identifiers
- * @param {Boolean} [createMissingParts=false] createMissingParts if the path leads to undefined parts and
- * createMissingParts is true, it allocates a default empty object
- *
- * @return {*|undefined}
- * - when path is undefined, it returns the current host higher object
- * - when path is "gpf" it returns the GPF object
- */
-function _gpfContext (path, createMissingParts) {
-    var reducer,
-        rootContext;
-    if (createMissingParts) {
-        reducer = _getOrCreateObjectProperty;
-    } else {
-        reducer = _getObjectProperty;
-    }
-    if (path[0] === "gpf") {
-        rootContext = gpf;
-        path = path.slice(1);
-    } else {
-        rootContext = _gpfMainContext;
-    }
-    return path.reduce(reducer, rootContext);
-}
 
 /**
  * Resolve the provided contextual path and returns the result
@@ -567,21 +564,20 @@ if (_gpfSyncLoadForBoot) {
         callback();
     };
 } else {
-    gpf.ASSERT(undefined !== _gpfAsyncLoadForBoot);
+    gpf.ASSERT(undefined !== _gpfAsyncLoadForBoot, "A method must be defined to load sources");
 }
 
-_gpfAsyncLoadForBoot(gpfSourcesPath + "sources.js", function (err) {
-    gpf.ASSERT(undefined === err);
+_gpfAsyncLoadForBoot(gpfSourcesPath + "sources.js", function () {
     var sources = gpf.sources(),
         idx = 0;
 
-    function next(err) {
-        gpf.ASSERT(undefined === err);
-        var src = sources[idx];
+    function next() {
+        var src = sources[idx++];
         if (!src) {
             _gpfFinishLoading();
+        } else {
+            _gpfAsyncLoadForBoot(gpfSourcesPath + src + ".js", next);
         }
-        _gpfAsyncLoadForBoot(gpfSourcesPath + src + ".js", next);
     }
 
     next();
