@@ -553,4 +553,4 @@
 
     //endregion
 
-}(this));
+}(global || this));
