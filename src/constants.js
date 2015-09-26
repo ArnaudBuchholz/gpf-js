@@ -8,6 +8,7 @@
 /*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
 /*global _GPF_HOST_NODEJS*/ // gpf.HOST_NODEJS
 /*global _GPF_HOST_PHANTOMJS*/ // gpf.HOST_PHANTOMJS
+/*global _GPF_HOST_RHINO*/ // gpf.HOST_RHINO
 /*global _GPF_HOST_UNKNOWN*/ // gpf.HOST_UNKNOWN
 /*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
 /*global _gpfContext*/ // Resolve contextual string
@@ -15,7 +16,6 @@
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfExit*/ // Exit function
 /*global _gpfFinishLoading*/ // Ends the loading (declared in boot.js)
-/*global _gpfFSRead*/ // Phantom/Node File System read text file method (boot)
 /*global _gpfHost*/ // Host type
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfInBrowser*/ // The current host is a browser like

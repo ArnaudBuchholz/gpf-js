@@ -150,6 +150,70 @@ _gpfVersion += "d";
 
 /*#endif*/
 
+/*#ifndef(UMD)*/
+
+var
+    /**
+     * Asynchronous load function
+     *
+     * @param {String} srcFileName
+     * @param {Function} callback
+     * - {String} [content=undefined] content if provided, the content is concatenated to be evaluated in the end.
+     * If not provided, it is assumed that the source was evaluated in the global context
+     */
+    _gpfAsyncLoadForBoot,
+    /**
+     * Synchronous read function
+     *
+     * @param {String} srcFileName
+     * @return {String} content of the srcFileName
+     */
+    _gpfSyncReadForBoot;
+
+/*#endif*/
+
+function _getObjectProperty(parent, name) {
+    if (undefined !== parent) {
+        return parent[name];
+    }
+}
+
+function _getOrCreateObjectProperty(parent, name) {
+    var result = parent[name];
+    if (undefined === result) {
+        result = parent[name] = {};
+    }
+    return result;
+}
+
+/**
+ * Resolve the provided contextual path and returns the result
+ *
+ * @param {String[]} path array of identifiers
+ * @param {Boolean} [createMissingParts=false] createMissingParts if the path leads to undefined parts and
+ * createMissingParts is true, it allocates a default empty object
+ *
+ * @return {*|undefined}
+ * - when path is undefined, it returns the current host higher object
+ * - when path is "gpf" it returns the GPF object
+ */
+function _gpfContext (path, createMissingParts) {
+    var reducer,
+        rootContext;
+    if (createMissingParts) {
+        reducer = _getOrCreateObjectProperty;
+    } else {
+        reducer = _getObjectProperty;
+    }
+    if (path[0] === "gpf") {
+        rootContext = gpf;
+        path = path.slice(1);
+    } else {
+        rootContext = _gpfMainContext;
+    }
+    return path.reduce(reducer, rootContext);
+}
+
 // Microsoft cscript / wscript
 if ("undefined" !== typeof WScript) {
     _gpfHost = _GPF_HOST_WSCRIPT;
@@ -177,6 +241,19 @@ if ("undefined" !== typeof WScript) {
         }
     };
 
+/*#ifndef(UMD)*/
+
+    _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
+
+    _gpfSyncReadForBoot = function (srcFileName) {
+        var srcFile = _gpfMsFSO.OpenTextFile(srcFileName),
+            srcContent = srcFile.ReadAll();
+        srcFile.Close();
+        return srcContent;
+    };
+
+/*#endif*/
+
 } else if ("undefined" !== typeof print && "undefined" !== typeof java) {
     _gpfHost = _GPF_HOST_RHINO;
     _gpfDosPath = false;
@@ -193,6 +270,12 @@ if ("undefined" !== typeof WScript) {
         error: function (t) {print("(X) " + t);}
     };
 
+/*#ifndef(UMD)*/
+
+    _gpfSyncReadForBoot = readFile;
+
+/*#endif*/
+
 // PhantomJS
 } else if ("undefined" !== typeof phantom && phantom.version) {
     _gpfHost = _GPF_HOST_PHANTOMJS;
@@ -202,6 +285,16 @@ if ("undefined" !== typeof WScript) {
     _gpfInBrowser = true;
     _gpfExit = phantom.exit;
 
+/*#ifndef(UMD)*/
+
+    _gpfNodeFs =  require("fs");
+
+    _gpfSyncReadForBoot = function (srcFileName) {
+        return _gpfNodeFs.read(srcFileName);
+    };
+
+/*#endif*/
+
 // Nodejs
 } else if ("undefined" !== typeof module && module.exports) {
     _gpfHost = _GPF_HOST_NODEJS;
@@ -210,6 +303,16 @@ if ("undefined" !== typeof WScript) {
     _gpfMainContext = global;
     _gpfInNode = true;
     _gpfExit = process.exit;
+
+/*#ifndef(UMD)*/
+
+    _gpfNodeFs =  require("fs");
+
+    _gpfSyncReadForBoot = function (srcFileName) {
+        return _gpfNodeFs.readFileSync(srcFileName).toString();
+    };
+
+/*#endif*/
 
 // Browser
 } else if ("undefined" !== typeof window) {
@@ -221,8 +324,46 @@ if ("undefined" !== typeof WScript) {
     _gpfWebDocument = document;
     _gpfWebHead = _gpfWebDocument.getElementsByTagName("head")[0] || _gpfWebDocument.documentElement;
 
-}
+/*#ifndef(UMD)*/
 
+    _gpfAsyncLoadForBoot = function (srcFileName, callback) {
+        if (gpf.web.include) {
+            gpf.web.include(srcFileName, function (event) {
+                if (gpf.events.EVENT_ERROR === event.type) {
+                    console.error(event.get("error").message);
+                } else {
+                    callback();
+                }
+            });
+            return;
+        }
+        var script = _gpfWebDocument.createElement("script");
+        script.language = "javascript";
+        script.src = srcFileName;
+        script = _gpfWebHead.insertBefore(script, _gpfWebHead.firstChild);
+        var source = srcFileName.split("/").pop().split(".")[0],
+            test = {
+                "sources":          "gpf.sources",
+                "compatibility":    "Function.prototype.compatibleName",
+                "constants":        "gpf.HOST_UNKNOWN",
+                "events":           "gpf.events",
+                "include":          "gpf.web.include"
+            }[source].split(".");
+        function wait () {
+            if (undefined !== _gpfContext(test)) {
+                _gpfWebHead.removeChild(script);
+                callback();
+            } else {
+                // Use an aggressive setting as it will be used only for the non UMD version
+                setTimeout(wait, 0);
+            }
+        }
+        wait();
+    };
+
+/*#endif*/
+
+}
 
 /*#ifndef(UMD)*/
 
@@ -273,48 +414,6 @@ gpf.version = function () {
 gpf.host = function () {
     return _gpfHost;
 };
-
-function _getObjectProperty(parent, name) {
-    if (undefined !== parent) {
-        return parent[name];
-    }
-}
-
-function _getOrCreateObjectProperty(parent, name) {
-    var result = parent[name];
-    if (undefined === result) {
-        result = parent[name] = {};
-    }
-    return result;
-}
-
-/**
- * Resolve the provided contextual path and returns the result
- *
- * @param {String[]} path array of identifiers
- * @param {Boolean} [createMissingParts=false] createMissingParts if the path leads to undefined parts and
- * createMissingParts is true, it allocates a default empty object
- *
- * @return {*|undefined}
- * - when path is undefined, it returns the current host higher object
- * - when path is "gpf" it returns the GPF object
- */
-function _gpfContext (path, createMissingParts) {
-    var reducer,
-        rootContext;
-    if (createMissingParts) {
-        reducer = _getOrCreateObjectProperty;
-    } else {
-        reducer = _getObjectProperty;
-    }
-    if (path[0] === "gpf") {
-        rootContext = gpf;
-        path = path.slice(1);
-    } else {
-        rootContext = _gpfMainContext;
-    }
-    return path.reduce(reducer, rootContext);
-}
 
 /**
  * Resolve the provided contextual path and returns the result
@@ -465,50 +564,42 @@ if ("undefined" === typeof gpfSourcesPath) {
     }
 }
 
-if (_GPF_HOST_WSCRIPT === _gpfHost) {
-    _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
-    (function () {
-        var srcFile,
-            srcContent;
-        srcFile = _gpfMsFSO.OpenTextFile(gpfSourcesPath + "boot_ms.js");
-        srcContent = srcFile.ReadAll();
-        srcFile.Close();
-        /*jslint evil: true*/
-        eval(srcContent);
-        /*jslint evil: false*/
-    }());
-
-} else if (_GPF_HOST_RHINO === _gpfHost) {
-    load(gpfSourcesPath + "boot_rhino.js");
-
-} else if (_gpfInNode) {
-    _gpfNodeFs =  require("fs");
-
-    /**
-     * Phantom/Node File System read text file method (boot)
-     * @type {Function}
-     */
-    var _gpfFSRead;
-    if (_GPF_HOST_PHANTOMJS === _gpfHost) {
-        _gpfFSRead = _gpfNodeFs.read;
-    } else {
-        _gpfFSRead = function (path) {
-            return _gpfNodeFs.readFileSync(path).toString();
-        };
-    }
-    /*jslint evil: true*/
-    eval(_gpfFSRead(gpfSourcesPath + "boot_node.js"));
-    /*jslint evil: false*/
-
-} else { // _GPF_HOST_BROWSER === _gpfHost
-    var _gpfWebRawInclude = function (src) {
-        var script = _gpfWebDocument.createElement("script");
-        script.language = "javascript";
-        script.src = gpfSourcesPath + src;
-        _gpfWebHead.insertBefore(script, _gpfWebHead.firstChild);
+if (_gpfSyncReadForBoot) {
+    _gpfAsyncLoadForBoot = function (name, callback) {
+        callback(_gpfSyncReadForBoot(name));
     };
-    _gpfWebRawInclude("boot_web.js");
-
+} else {
+    gpf.ASSERT(undefined !== _gpfAsyncLoadForBoot, "A method must be defined to load sources");
 }
+
+_gpfAsyncLoadForBoot(gpfSourcesPath + "sources.js", function (content) {
+    if (content) {
+        /*jslint evil: true*/
+        eval(content);
+        /*jslint evil: false*/
+    }
+    var sources = gpf.sources(),
+        allContent = [],
+        idx = 0;
+
+    function next(content) {
+        if (content) {
+            allContent.push(content);
+        }
+        var src = sources[idx++];
+        if (!src) {
+            if (allContent.length) {
+                /*jslint evil: true*/
+                eval(allContent.join("\r\n"));
+                /*jslint evil: false*/
+            }
+            _gpfFinishLoading();
+        } else {
+            _gpfAsyncLoadForBoot(gpfSourcesPath + src + ".js", next);
+        }
+    }
+
+    next();
+});
 
 /*#endif*/

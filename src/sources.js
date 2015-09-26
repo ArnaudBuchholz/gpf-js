@@ -7,9 +7,6 @@
             "constants",            // Constants
             "events",               // Event management         gpf.events.Event
             "include",              // WEB include               gpf.web.include
-
-                                    // --- Minimum required for boot_web.js ---
-
             "base",                 // General helpers
             "like",                 // Comparison helper                gpf.like
             "error",                // Error base class                gpf.Error
