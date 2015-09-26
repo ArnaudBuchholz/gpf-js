@@ -1,6 +1,10 @@
 (function (context) {
     "use strict";
 
+    if ("object" === typeof global) {
+        context = global;
+    }
+
     /**
      * Simple BDD implementation
      */
@@ -553,4 +557,4 @@
 
     //endregion
 
-}(global || this));
+}(this));
