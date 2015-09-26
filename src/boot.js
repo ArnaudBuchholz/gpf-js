@@ -152,10 +152,23 @@ _gpfVersion += "d";
 
 /*#ifndef(UMD)*/
 
-var // Asynchronous load function
+var
+    /**
+     * Asynchronous load function
+     *
+     * @param {String} srcFileName
+     * @param {Function} callback
+     * - {String} [content=undefined] content if provided, the content is concatenated to be evaluated in the end.
+     * If not provided, it is assumed that the source was evaluated in the global context
+     */
     _gpfAsyncLoadForBoot,
-   // Synchronous load function
-    _gpfSyncLoadForBoot;
+    /**
+     * Synchronous read function
+     *
+     * @param {String} srcFileName
+     * @return {String} content of the srcFileName
+     */
+    _gpfSyncReadForBoot;
 
 /*#endif*/
 
@@ -232,15 +245,11 @@ if ("undefined" !== typeof WScript) {
 
     _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
 
-    _gpfSyncLoadForBoot = function (srcFileName) {
-        // Use Scripting.FileSystem Object to read the file
+    _gpfSyncReadForBoot = function (srcFileName) {
         var srcFile = _gpfMsFSO.OpenTextFile(srcFileName),
-            srcContent;
-        srcContent = srcFile.ReadAll();
+            srcContent = srcFile.ReadAll();
         srcFile.Close();
-        /*jslint evil: true*/
-        eval(srcContent);
-        /*jslint evil: false*/
+        return srcContent;
     };
 
 /*#endif*/
@@ -263,7 +272,7 @@ if ("undefined" !== typeof WScript) {
 
 /*#ifndef(UMD)*/
 
-    _gpfSyncLoadForBoot = load;
+    _gpfSyncReadForBoot = readFile;
 
 /*#endif*/
 
@@ -280,10 +289,8 @@ if ("undefined" !== typeof WScript) {
 
     _gpfNodeFs =  require("fs");
 
-    _gpfSyncLoadForBoot = function (srcFileName) {
-        /*jslint evil: true*/
-        eval(_gpfNodeFs.read(srcFileName));
-        /*jslint evil: false*/
+    _gpfSyncReadForBoot = function (srcFileName) {
+        return _gpfNodeFs.read(srcFileName);
     };
 
 /*#endif*/
@@ -301,10 +308,8 @@ if ("undefined" !== typeof WScript) {
 
     _gpfNodeFs =  require("fs");
 
-    _gpfSyncLoadForBoot = function (srcFileName) {
-        /*jslint evil: true*/
-        eval(_gpfNodeFs.readFileSync(srcFileName).toString());
-        /*jslint evil: false*/
+    _gpfSyncReadForBoot = function (srcFileName) {
+        return _gpfNodeFs.readFileSync(srcFileName).toString();
     };
 
 /*#endif*/
@@ -335,7 +340,7 @@ if ("undefined" !== typeof WScript) {
         var script = _gpfWebDocument.createElement("script");
         script.language = "javascript";
         script.src = srcFileName;
-        _gpfWebHead.insertBefore(script, _gpfWebHead.firstChild);
+        script = _gpfWebHead.insertBefore(script, _gpfWebHead.firstChild);
         var source = srcFileName.split("/").pop().split(".")[0],
             test = {
                 "sources":          "gpf.sources",
@@ -346,6 +351,7 @@ if ("undefined" !== typeof WScript) {
             }[source].split(".");
         function wait () {
             if (undefined !== _gpfContext(test)) {
+                _gpfWebHead.removeChild(script);
                 callback();
             } else {
                 // Use an aggressive setting as it will be used only for the non UMD version
@@ -558,22 +564,35 @@ if ("undefined" === typeof gpfSourcesPath) {
     }
 }
 
-if (_gpfSyncLoadForBoot) {
+if (_gpfSyncReadForBoot) {
     _gpfAsyncLoadForBoot = function (name, callback) {
-        _gpfSyncLoadForBoot(name);
-        callback();
+        callback(_gpfSyncReadForBoot(name));
     };
 } else {
     gpf.ASSERT(undefined !== _gpfAsyncLoadForBoot, "A method must be defined to load sources");
 }
 
-_gpfAsyncLoadForBoot(gpfSourcesPath + "sources.js", function () {
+_gpfAsyncLoadForBoot(gpfSourcesPath + "sources.js", function (content) {
+    if (content) {
+        /*jslint evil: true*/
+        eval(content);
+        /*jslint evil: false*/
+    }
     var sources = gpf.sources(),
+        allContent = [],
         idx = 0;
 
-    function next() {
+    function next(content) {
+        if (content) {
+            allContent.push(content);
+        }
         var src = sources[idx++];
         if (!src) {
+            if (allContent.length) {
+                /*jslint evil: true*/
+                eval(allContent.join("\r\n"));
+                /*jslint evil: false*/
+            }
             _gpfFinishLoading();
         } else {
             _gpfAsyncLoadForBoot(gpfSourcesPath + src + ".js", next);
