@@ -291,6 +291,10 @@
             fail: 0,
             pending: 0
         };
+        // Create bound version of some APIs
+        this._boundNext = this.next.bind(this);
+        this._boundSuccess = this._success.bind(this);
+        this._boundDoNext = this._doNext.bind(this);
     }
 
     Runner.prototype = {
@@ -328,61 +332,72 @@
         // @property {Object} Test statistics
         _statistics: {},
 
+        /**
+         * Call the it test callback
+         *
+         * @param {Function} callback
+         */
+        _processItCallback: function (callback) {
+            try {
+                this._itStart = new Date();
+                callback(this._boundSuccess);
+                if (0 === callback.length) {
+                    // synchronous
+                    this._success();
+                }
+            } catch (e) {
+                this._fail(e);
+            }
+        },
+
+        /**
+         * Call (before|after)(Each)? callback
+         *
+         * @param {Function} callback
+         */
+        _processCallback: function (callback) {
+            try {
+                callback(this._boundNext);
+                if (0  === callback.length) {
+                    // synchronous
+                    this.next();
+                }
+            } catch (e) {
+                // TODO right now, an error is not acceptable at this point, signal and ends everything
+                this._it = {
+                    label: "UNEXPECTED error during (before|after)(Each)?"
+                };
+                this._fail(e);
+                // Ends everything
+                this._childIndex = this._describe.children.length;
+                this._describes = [];
+            }
+        },
+
         // @property {Number} Count the number of nexts executed sequentially
         _stackedNext: 0,
 
-        /**
-         * Call the callback
-         *
-         * @param {Function} callback
-         * @param {Boolean} itCallback True if the callback comes form an it clause
-         */
-        _processCallback: function (callback, itCallback) {
-            var done;
-            if (itCallback) {
-                done = this._success;
-            } else {
-                done = this._next;
-            }
-            try {
-                this._itStart = new Date();
-                callback(done);
-                if (0  === callback.length) {
-                    done();
-                }
-            } catch (e) {
-                if (!itCallback) {
-                    // An error is not acceptable at this point, signal
-                    this._it = {
-                        label: "UNEXPECTED error during (before|after)(Each)?"
-                    };
-                }
-                _fail(e);
-                if (!itCallback) {
-                    // And end everything
-                    this._childIndex = this._describe.children.length;
-                    this._describes = [];
-                }
-            }
-        },
+        // @property {Function} next bound to this
+        _boundNext: 0,
 
         /**
          * Next test / callback
          * Protected to limit the stack depth.
          */
-        _next: function () {
-            if (10 === ++_stackedNext) {
-                setTimeout(this._doNext, 0);
-                --_stackedNext;
+        next: function () {
+            if (10 === ++this._stackedNext) {
+                setTimeout(this._boundDoNext, 0);
+                --this._stackedNext;
                 return;
             }
             this._doNext();
-            --_stackedNext;
+            --this._stackedNext;
         },
 
-        /**
-         * Next test / callback
-         */
+        // @property {Function} _doNext bound to this
+        _boundDoNext: 0,
+
+        // Next test / callback
         _doNext: function () {
             var item;
             // Any callback list pending?
@@ -470,30 +485,29 @@
             }
         },
 
-        /**
-         * The last it succeeded
-         */
+        // @property {Function} _success bound to this
+        _boundSuccess: 0,
+
+        // The last it succeeded
         _success: function () {
-            ++_statistics.success;
-            _runCallback("it", {
-                depth: _describes.length,
-                label: _it.label,
+            ++this._statistics.success;
+            this._runCallback("it", {
+                depth: this._describes.length,
+                label: this._it.label,
                 result: true,
-                timeSpent: (new Date()) - _itStart
+                timeSpent: (new Date()) - this._itStart
             });
             this.next();
         },
 
-        /**
-         * The last it failed
-         */
+        // The last it failed
         _fail: function (e) {
-            ++_statistics.fail;
-            _runCallback("it", {
-                depth: _describes.length,
-                label: _it.label,
+            ++this._statistics.fail;
+            this._runCallback("it", {
+                depth: this._describes.length,
+                label: this._it.label,
                 result: false,
-                timeSpent: (new Date()) - _itStart,
+                timeSpent: (new Date()) - this._itStart,
                 exception: e
             });
             this.next();
