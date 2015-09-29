@@ -297,7 +297,7 @@
         this._boundSuccess = this._success.bind(this);
         this._boundDoNext = this._doNext.bind(this);
     }).toClass(Object, {
-        
+
         // The current state
         _state: 0,
 
@@ -356,14 +356,12 @@
          * Call (before|after)(Each)? callback
          *
          * @param {Function} callback
+         * @return {Boolean} true if asynchronous
          */
         _processCallback: function (callback) {
             try {
                 callback(this._boundNext);
-                if (0  === callback.length) {
-                    // synchronous
-                    this.next();
-                }
+                return 0  !== callback.length;
             } catch (e) {
                 // TODO right now, an error is not acceptable at this point, signal and ends everything
                 this._it = {
@@ -374,6 +372,7 @@
                 this._childIndex = this._describe.children.length;
                 this._describes = [];
             }
+            return true;
         },
 
         // @property {Number} Count the number of nexts executed sequentially
@@ -401,126 +400,47 @@
 
         // Next step in test
         _doNext: function () {
-            // Check if any pending callback
-            if (this._pendingCallbacks.length) {
-                this._processCallback(this._pendingCallbacks.shift());
-                return;
-
-            }
+            do {
+                // Check if any pending callback
+                while (this._pendingCallbacks.length) {
+                    if (this._processCallback(this._pendingCallbacks.shift())) {
+                        // Asynchronous, have to wait for callback
+                        return;
+                    }
+                }
             // _state contains the member to execute
-            while (this[this._state]()) {}
+            } while (this[this._state]());
         },
-        
+
+        // STATE_DESCRIBE_BEFORE
         _onDescribeBefore: function () {
             var describe = this._describe;
             this._state = Runner.STATE_DESCRIBE_CHILDREN;
-            if (0 < describe.before.length) {
-                this._pendingCallbacks = [].concat(describe.before);
-                this.next();
-                return false;
+            this._pendingCallbacks = [].concat(describe.before);
+            return true;
+        },
+
+        // STATE_DESCRIBE_CHILDREN
+        _onDescribeChildren: function () {
+            var children = this._describe.children;
+            if (this._childIndex < children.length) {
+                var item = children[this._childIndex++];
+                if (item instanceof BDDDescribe) {
+                    this._stackDescribe(item);
+
+                } else if (item instanceof BDDIt) {
+                    this._state = Runner.STATE_DESCRIBE_CHILDIT_BEFORE;
+                    this._it = item;
+                }
+            } else {
+                this._state = Runner.STATE_DESCRIBE_AFTER;
             }
             return true;
-        }
-            
-        _todo: function () {
-            var state = this._state,
-                describe = this._describe;
-            if (Runner.STATE_DESCRIBE_BEFORE === state) {
-
-            }
-
-            if (Runner.STATE_DESCRIBE_CHILDREN === state) {
-                
-            }
-
-            if (Runner.STATE_DESCRIBE_CHILDIT_BEFORE === state) {
-                
-            }
-
-            if (Runner.STATE_DESCRIBE_CHILDIT_EXECUTE === state) {
-                
-            }
-            
-            if (Runner.STATE_DESCRIBE_CHILDIT_AFTER === state) {
-                
-            }
-            
-            if (Runner.STATE_DESCRIBE_AFTER === state) {
-                
-            }
-            
-            if (Runner.STATE_DESCRIBE_DONE === state) {
-                
-            }
-            
-
-            if (this.STATE_CALLING_BEFORE === this._describeState) {
-                this._describeState = this.STATE_PROCESSING_CHILDREN;
-            }
-
-            if (this.STATE_PROCESSING_CHILDREN === this._describeState) {
-                _processDescribeChildren(describe);
-
-            }
-
-            if (this.STATE_CALLING_AFTER === this._describeState) {
-                this._describeState = this.STATE_DESCRIBE_DONE;
-                if (0 < describe.after.length) {
-                    this._pendingCallbacks = [].concat(describe.after);
-                    this.next();
-                    return;
-                }
-            }
-
-            if (0 < this._describes.length) {
-                // What's in the describe stack
-                this._unstackDescribe();
-
-            } else {
-                // DONE!
-                this._runCallback("results", _statistics);
-            }
         },
 
-        _processDescribeChildren: function (describe) {
-            var item = describe.children[this._childIndex++];
-            if (item instanceof BDDDescribe) {
-                this._describeState = "init";
-                this._stackDescribe(item);
-
-            } else if (item instanceof BDDIt) {
-                // Call beforeEach if any
-                if (_it !== item
-                    && _beforeEach.length && _callbacks !== _beforeEach) {
-                    _callbacks = _beforeEach;
-                    _callbackIdx = 0;
-                    --_childIndex;
-                    this.next();
-                    return;
-                }
-                // Prepare list of afterEach if any
-                _callbacks = _afterEach;
-                _callbackIdx = 0;
-                // Process the item
-                _it = item;
-                ++_statistics.count;
-                if (item.callback) {
-                    _processCallback(item.callback, true);
-                } else {
-                    ++_statistics.pending;
-                    _runCallback("it", {
-                        depth: _describes.length,
-                        label: _it.label,
-                        pending: true
-                    });
-                    this.next();
-                }
-
-            }
-        },
-
+        // STATE_DESCRIBE_CHILDREN: describe found
         _stackDescribe: function (describe) {
-            this._describeState = this.STATE_CALLING_BEFORE;
+            this._describeState = Runner.STATE_DESCRIBE_BEFORE;
             this._runCallback("describe", {
                 depth: this._describes.length,
                 label: describe.label
@@ -533,7 +453,59 @@
             // Becomes the new describe
             this._describe = describe;
             this._childIndex = 0;
-            this.next();
+        },
+
+        // STATE_DESCRIBE_CHILDIT_BEFORE
+        _onItBefore: function () {
+            this._state = Runner.STATE_DESCRIBE_CHILDIT_EXECUTE;
+            this._pendingCallbacks = [].concat(this._beforeEach);
+            return true;
+        },
+
+        // STATE_DESCRIBE_CHILDIT_EXECUTE
+        _onItExecute: function () {
+            this._state = Runner.STATE_DESCRIBE_CHILDIT_AFTER;
+            var it = this._it;
+            ++this._statistics.count;
+            if (it.callback) {
+                this._processItCallback(it.callback);
+                return false;
+            } else {
+                ++this._statistics.pending;
+                this._runCallback("it", {
+                    depth: this._describes.length,
+                    label: this._it.label,
+                    pending: true
+                });
+                return true;
+            }
+        },
+
+        // STATE_DESCRIBE_CHILDIT_AFTER
+        _onItAfter: function () {
+            this._state = Runner.STATE_DESCRIBE_CHILDREN;
+            this._pendingCallbacks = [].concat(this._afterEach);
+            return true;
+        },
+
+        // STATE_DESCRIBE_AFTER
+        _onDescribeAfter: function () {
+            var describe = this._describe;
+            this._state = Runner.STATE_DESCRIBE_DONE;
+            this._pendingCallbacks = [].concat(describe.after);
+            return true;
+        },
+
+        // STATE_DESCRIBE_DONE
+        _onDescribeDone: function () {
+            if (0 < this._describes.length) {
+                // What's in the describe stack
+                this._unstackDescribe();
+
+            } else {
+                // DONE!
+                this._runCallback("results", this._statistics);
+            }
         },
 
         _unstackDescribe: function () {
@@ -583,13 +555,13 @@
         }
 
     }, {
-        STATE_DESCRIBE_BEFORE: '_onDescribeBefore',
-        STATE_DESCRIBE_CHILDREN: '_onDescribeChildren',
-        STATE_DESCRIBE_CHILDIT_BEFORE: 2,
-        STATE_DESCRIBE_CHILDIT_EXECUTE: 3,
-        STATE_DESCRIBE_CHILDIT_AFTER: 4,
-        STATE_DESCRIBE_AFTER: 5,
-        STATE_DESCRIBE_DONE: 6
+        STATE_DESCRIBE_BEFORE: "_onDescribeBefore",
+        STATE_DESCRIBE_CHILDREN: "_onDescribeChildren",
+        STATE_DESCRIBE_CHILDIT_BEFORE: "_onItBefore",
+        STATE_DESCRIBE_CHILDIT_EXECUTE: "_onItExecute",
+        STATE_DESCRIBE_CHILDIT_AFTER: "_onItAfter",
+        STATE_DESCRIBE_AFTER: "_onDescribeAfter",
+        STATE_DESCRIBE_DONE: "_onDescribeDone"
     });
 
     /**
