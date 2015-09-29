@@ -485,27 +485,18 @@
 
         _stackDescribe: function (describe) {
             this._describeState = this.STATE_CALLING_BEFORE;
-            // call before if any
-            if (describe.before.length && "init" === this._describeState) {
-                _callbacks = describe.before;
-                _callbackIdx = 0;
-                --_childIndex;
-                this.next();
-                return;
-            }
-            // Notify caller
-            _runCallback("describe", {
-                depth: _describes.length,
+            this._runCallback("describe", {
+                depth: this._describes.length,
                 label: describe.label
             });
-            _describes.push(_describe);
-            _childIndexes.push(_childIndex);
+            this._describes.push(this._describe);
+            this._childIndexes.push(this._childIndex);
             // Concatenate lists of beforeEach and afterEach
-            _beforeEach = _beforeEach.concat(describe.beforeEach);
-            _afterEach = describe.afterEach.concat(_afterEach);
+            this._beforeEach = this._beforeEach.concat(describe.beforeEach);
+            this._afterEach = describe.afterEach.concat(this._afterEach);
             // Becomes the new describe
-            _describe = describe;
-            _childIndex = 0;
+            this._describe = describe;
+            this._childIndex = 0;
             this.next();
         },
 
