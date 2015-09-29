@@ -308,14 +308,21 @@
         // @property {BDDDescribe} Current describe
         _describe: null,
 
+        // The current describe state
+        _describeState: 0,
+        STATE_CALLING_BEFORE: 0,
+        STATE_PROCESSING_CHILDREN: 1,
+        STATE_CALLING_AFTER: 2,
+        STATE_DESCRIBE_DONE: 3,
+
         // @property {Number[]} Stack of childIndex (pointing to each describe child)
         _childIndexes: [],
 
         // Current child idx of current describe
         _childIndex: 0,
 
-        // @property {function[]|null} List of callbacks to process (before, beforeEach, ...)
-        _pendingCallbacks: null,
+        // @property {function[]} List of callbacks to process (before, beforeEach, ...)
+        _pendingCallbacks: [],
 
         // @property {Function[]} stacked beforeEach callbacks
         _beforeEach: [],
@@ -397,92 +404,127 @@
         // @property {Function} _doNext bound to this
         _boundDoNext: 0,
 
-        // Next test / callback
+        // Next step in test
         _doNext: function () {
-            var item;
-            // Any callback list pending?
-            if (_callbacks && _callbackIdx < _callbacks.length) {
-                item = _callbacks[_callbackIdx];
-                ++_callbackIdx;
-                _processCallback(item, false);
+            // Check if any pending callback
+            if (this._pendingCallbacks.length) {
+                this._processCallback(this._pendingCallbacks.shift());
+                return;
 
-            } else if (_childIndex < _describe.children.length) {
-                item = _describe.children[_childIndex];
-                ++_childIndex;
-                if (item instanceof BDDDescribe) {
-                    // call before if any
-                    if (item.before.length && _callbacks !== item.before) {
-                        _callbacks = item.before;
-                        _callbackIdx = 0;
-                        --_childIndex;
-                        this.next();
-                        return;
-                    }
-                    // Notify caller
-                    _runCallback("describe", {
-                        depth: _describes.length,
-                        label: item.label
-                    });
-                    _describes.push(_describe);
-                    _childIndexes.push(_childIndex);
-                    // Concatenate lists of beforeEach and afterEach
-                    _beforeEach = _beforeEach.concat(item.beforeEach);
-                    _afterEach = item.afterEach.concat(_afterEach);
-                    // Becomes the new describe
-                    _describe = item;
-                    _childIndex = 0;
-                    this.next();
-
-                } else if (item instanceof BDDIt) {
-                    // Call beforeEach if any
-                    if (_it !== item
-                        && _beforeEach.length && _callbacks !== _beforeEach) {
-                        _callbacks = _beforeEach;
-                        _callbackIdx = 0;
-                        --_childIndex;
-                        this.next();
-                        return;
-                    }
-                    // Prepare list of afterEach if any
-                    _callbacks = _afterEach;
-                    _callbackIdx = 0;
-                    // Process the item
-                    _it = item;
-                    ++_statistics.count;
-                    if (item.callback) {
-                        _processCallback(item.callback, true);
-                    } else {
-                        ++_statistics.pending;
-                        _runCallback("it", {
-                            depth: _describes.length,
-                            label: _it.label,
-                            pending: true
-                        });
-                        this.next();
-                    }
-
-                }
-            } else if (0 < _describes.length) {
-                // call after if any
-                if (_describe.after.length && _callbacks !== _describe.after) {
-                    _callbacks = item.before;
-                    _callbackIdx = 0;
+            }
+            var describe = this._describe;
+            if (this.STATE_CALLING_BEFORE === this._describeState) {
+                this._describeState = this.STATE_PROCESSING_CHILDREN;
+                if (0 < describe.before.length) {
+                    this._pendingCallbacks = [].concat(describe.before);
                     this.next();
                     return;
                 }
-                // Remove lists of beforeEach and afterEach
-                _beforeEach = _beforeEach.slice(0, _beforeEach.length
-                - _describe.beforeEach.length);
-                _afterEach = _afterEach.slice(_describe.afterEach.length);
-                // No more children, go up
-                _describe = _describes.pop();
-                _childIndex = _childIndexes.pop();
-                this.next();
+            }
+
+            if (this.STATE_PROCESSING_CHILDREN === this._describeState) {
+                _processDescribeChildren(describe);
+
+            }
+
+            if (this.STATE_CALLING_AFTER === this._describeState) {
+                this._describeState = this.STATE_DESCRIBE_DONE;
+                if (0 < describe.after.length) {
+                    this._pendingCallbacks = [].concat(describe.after);
+                    this.next();
+                    return;
+                }
+            }
+
+            if (0 < this._describes.length) {
+                // What's in the describe stack
+                this._unstackDescribe();
 
             } else {
                 // DONE!
-                _runCallback("results", _statistics);
+                this._runCallback("results", _statistics);
             }
+        },
+
+        _processDescribeChildren: function (describe) {
+            var item = describe.children[this._childIndex++];
+            if (item instanceof BDDDescribe) {
+                this._describeState = "init";
+                this._stackDescribe(item);
+
+            } else if (item instanceof BDDIt) {
+                // Call beforeEach if any
+                if (_it !== item
+                    && _beforeEach.length && _callbacks !== _beforeEach) {
+                    _callbacks = _beforeEach;
+                    _callbackIdx = 0;
+                    --_childIndex;
+                    this.next();
+                    return;
+                }
+                // Prepare list of afterEach if any
+                _callbacks = _afterEach;
+                _callbackIdx = 0;
+                // Process the item
+                _it = item;
+                ++_statistics.count;
+                if (item.callback) {
+                    _processCallback(item.callback, true);
+                } else {
+                    ++_statistics.pending;
+                    _runCallback("it", {
+                        depth: _describes.length,
+                        label: _it.label,
+                        pending: true
+                    });
+                    this.next();
+                }
+
+            }
+        },
+
+        _stackDescribe: function (describe) {
+            this._describeState = this.STATE_CALLING_BEFORE;
+            // call before if any
+            if (describe.before.length && "init" === this._describeState) {
+                _callbacks = describe.before;
+                _callbackIdx = 0;
+                --_childIndex;
+                this.next();
+                return;
+            }
+            // Notify caller
+            _runCallback("describe", {
+                depth: _describes.length,
+                label: describe.label
+            });
+            _describes.push(_describe);
+            _childIndexes.push(_childIndex);
+            // Concatenate lists of beforeEach and afterEach
+            _beforeEach = _beforeEach.concat(describe.beforeEach);
+            _afterEach = describe.afterEach.concat(_afterEach);
+            // Becomes the new describe
+            _describe = describe;
+            _childIndex = 0;
+            this.next();
+        },
+
+        _unstackDescribe: function () {
+            // call after if any
+            var currentDescribe = this._describe;
+            if (currentDescribe.after.length && this._describeState !== "end") {
+                this._describeState = "end";
+                this._pendingCallbacks = [].concat(currentDescribe.after);
+                this.next();
+                return;
+            }
+            // Remove lists of beforeEach and afterEach
+            this._beforeEach = this._beforeEach.slice(0, this._beforeEach.length - currentDescribe.beforeEach.length);
+            this._afterEach = this._afterEach.slice(currentDescribe.afterEach.length);
+            // No more children, go up
+            this._describe = this._describes.pop();
+            this._childIndex = this._childIndexes.pop();
+            this.next();
         },
 
         // @property {Function} _success bound to this
