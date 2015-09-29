@@ -278,7 +278,7 @@
 
     //region Running the tests
 
-    function Runner(callback) {
+    var Runner = (function (callback) {
         this._callback = callback || _defaultCallback;
         this._describes = [];
         this._describe = BDDDescribe.root;
@@ -295,9 +295,10 @@
         this._boundNext = this.next.bind(this);
         this._boundSuccess = this._success.bind(this);
         this._boundDoNext = this._doNext.bind(this);
-    }
-
-    Runner.prototype = {
+    }).toClass(Object, {
+        
+        // The current state
+        _state: 0,
 
         // @property {Function} Callback used to notify the caller of the progress
         _callback: null,
@@ -307,13 +308,6 @@
 
         // @property {BDDDescribe} Current describe
         _describe: null,
-
-        // The current describe state
-        _describeState: 0,
-        STATE_CALLING_BEFORE: 0,
-        STATE_PROCESSING_CHILDREN: 1,
-        STATE_CALLING_AFTER: 2,
-        STATE_DESCRIBE_DONE: 3,
 
         // @property {Number[]} Stack of childIndex (pointing to each describe child)
         _childIndexes: [],
@@ -412,6 +406,14 @@
                 return;
 
             }
+            
+            var state = this._state;
+            if (Runner.STATE_DESCRIBE_BEFORE === state) {
+                this._state = Runner.STATE_DESCRIBE_CHILDREN;
+                
+            }
+            
+            
             var describe = this._describe;
             if (this.STATE_CALLING_BEFORE === this._describeState) {
                 this._describeState = this.STATE_PROCESSING_CHILDREN;
@@ -546,7 +548,15 @@
             this.next();
         }
 
-    };
+    }, {
+        STATE_DESCRIBE_BEFORE: 0,
+        STATE_DESCRIBE_CHILDREN: 1,
+        STATE_DESCRIBE_CHILDIT_BEFORE: 2,
+        STATE_DESCRIBE_CHILDIT_EXECUTE: 3,
+        STATE_DESCRIBE_CHILDIT_AFTER: 4,
+        STATE_DESCRIBE_AFTER: 5,
+        STATE_DESCRIBE_DONE: 6
+    });
 
     /**
      * Main entry point to run all tests
