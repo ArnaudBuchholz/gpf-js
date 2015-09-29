@@ -279,6 +279,7 @@
     //region Running the tests
 
     var Runner = (function (callback) {
+        this._state = Runner.STATE_DESCRIBE_BEFORE;
         this._callback = callback || _defaultCallback;
         this._describes = [];
         this._describe = BDDDescribe.root;
@@ -406,22 +407,55 @@
                 return;
 
             }
+            // _state contains the member to execute
+            while (this[this._state]()) {}
+        },
+        
+        _onDescribeBefore: function () {
+            var describe = this._describe;
+            this._state = Runner.STATE_DESCRIBE_CHILDREN;
+            if (0 < describe.before.length) {
+                this._pendingCallbacks = [].concat(describe.before);
+                this.next();
+                return false;
+            }
+            return true;
+        }
             
-            var state = this._state;
+        _todo: function () {
+            var state = this._state,
+                describe = this._describe;
             if (Runner.STATE_DESCRIBE_BEFORE === state) {
-                this._state = Runner.STATE_DESCRIBE_CHILDREN;
+
+            }
+
+            if (Runner.STATE_DESCRIBE_CHILDREN === state) {
+                
+            }
+
+            if (Runner.STATE_DESCRIBE_CHILDIT_BEFORE === state) {
+                
+            }
+
+            if (Runner.STATE_DESCRIBE_CHILDIT_EXECUTE === state) {
                 
             }
             
+            if (Runner.STATE_DESCRIBE_CHILDIT_AFTER === state) {
+                
+            }
             
-            var describe = this._describe;
+            if (Runner.STATE_DESCRIBE_AFTER === state) {
+                
+            }
+            
+            if (Runner.STATE_DESCRIBE_DONE === state) {
+                
+            }
+            
+
             if (this.STATE_CALLING_BEFORE === this._describeState) {
                 this._describeState = this.STATE_PROCESSING_CHILDREN;
-                if (0 < describe.before.length) {
-                    this._pendingCallbacks = [].concat(describe.before);
-                    this.next();
-                    return;
-                }
             }
 
             if (this.STATE_PROCESSING_CHILDREN === this._describeState) {
@@ -549,8 +583,8 @@
         }
 
     }, {
-        STATE_DESCRIBE_BEFORE: 0,
-        STATE_DESCRIBE_CHILDREN: 1,
+        STATE_DESCRIBE_BEFORE: '_onDescribeBefore',
+        STATE_DESCRIBE_CHILDREN: '_onDescribeChildren',
         STATE_DESCRIBE_CHILDIT_BEFORE: 2,
         STATE_DESCRIBE_CHILDIT_EXECUTE: 3,
         STATE_DESCRIBE_CHILDIT_AFTER: 4,
