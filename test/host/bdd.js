@@ -176,6 +176,20 @@
                     message: "ASSERTION failed"
                 };
             }
+        },
+
+        /*global exit*/
+        /**
+         * Simulates a way to terminate the process with a result code
+         *
+         * @param {Number} code
+         */
+        exit: function (code) {
+            if (0 === code) {
+                _output("exit(0)", "log");
+            } else {
+                _output("exit(" + code + ")", "error");
+            }
         }
 
     }, function (memberValue, memberName) {
@@ -261,10 +275,10 @@
             }
             if (data.fail) {
                 _output("KO", "error");
-                gpf.exit(data.fail);
+                exit(data.fail);
             } else {
                 _output("OK");
-                gpf.exit(0);
+                exit(0);
             }
         }
     };
@@ -441,7 +455,7 @@
         // STATE_DESCRIBE_CHILDREN: describe found
         _stackDescribe: function (describe) {
             this._describeState = Runner.STATE_DESCRIBE_BEFORE;
-            this._runCallback("describe", {
+            this._callback("describe", {
                 depth: this._describes.length,
                 label: describe.label
             });
@@ -472,7 +486,7 @@
                 return false;
             } else {
                 ++this._statistics.pending;
-                this._runCallback("it", {
+                this._callback("it", {
                     depth: this._describes.length,
                     label: this._it.label,
                     pending: true
@@ -504,7 +518,7 @@
 
             } else {
                 // DONE!
-                this._runCallback("results", this._statistics);
+                this._callback("results", this._statistics);
             }
         },
 
@@ -532,7 +546,7 @@
         // The last it succeeded
         _success: function () {
             ++this._statistics.success;
-            this._runCallback("it", {
+            this._callback("it", {
                 depth: this._describes.length,
                 label: this._it.label,
                 result: true,
@@ -544,7 +558,7 @@
         // The last it failed
         _fail: function (e) {
             ++this._statistics.fail;
-            this._runCallback("it", {
+            this._callback("it", {
                 depth: this._describes.length,
                 label: this._it.label,
                 result: false,
