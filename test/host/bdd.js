@@ -454,7 +454,7 @@
 
         // STATE_DESCRIBE_CHILDREN: describe found
         _stackDescribe: function (describe) {
-            this._describeState = Runner.STATE_DESCRIBE_BEFORE;
+            this._state = Runner.STATE_DESCRIBE_BEFORE;
             this._callback("describe", {
                 depth: this._describes.length,
                 label: describe.label
@@ -523,14 +523,8 @@
         },
 
         _unstackDescribe: function () {
-            // call after if any
+            this._state = Runner.STATE_DESCRIBE_CHILDREN;
             var currentDescribe = this._describe;
-            if (currentDescribe.after.length && this._describeState !== "end") {
-                this._describeState = "end";
-                this._pendingCallbacks = [].concat(currentDescribe.after);
-                this.next();
-                return;
-            }
             // Remove lists of beforeEach and afterEach
             this._beforeEach = this._beforeEach.slice(0, this._beforeEach.length - currentDescribe.beforeEach.length);
             this._afterEach = this._afterEach.slice(currentDescribe.afterEach.length);
