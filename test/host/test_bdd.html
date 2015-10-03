@@ -42,7 +42,7 @@ body {
         _wrapMethod = function (methodName) {
             return function () {
                 _console[methodName].apply(_console, arguments);
-                var div = document.createElement('div');
+                var div = document.createElement("div");
                 div.appendChild(document.createTextNode(arguments[0].toString()));
                 document.body.appendChild(div).className = methodName;
             };
@@ -63,24 +63,51 @@ body {
 <script language="javascript">
 "use strict";
 
-describe("This is the topmost group", function () {
-
-    it("works", function () {
+// Samples from http://gpf-js.blogspot.ca/2015/10/my-own-bdd-implementation.html
+describe("My first test", function () {
+    it("always succeed", function () {
         assert(true);
     });
+    describe("An error example", function () {
+        it("will throw an exception", function () {
+            var exception;
+            try {
+                assert(false);
+            } catch (e) {
+                exception = e;
+            }
+            if (undefined === exception) {
+                throw {
+                    message: "Exception not thrown by assert"
+                };
+            }
+        });
+    });
+});
 
-    it("fails on false assertions", function () {
-        var exception;
-        try {
-            assert(false);
-        } catch (e) {
-            exception = e;
-        }
-        if (undefined === exception) {
-            throw {
-                message: "Exception not thrown by assert"
-            };
-        }
+describe("This is a topmost group", function () {
+
+    var
+        topMostValue = 0,
+        savedTopMostValue;
+
+    beforeEach(function () {
+        savedTopMostValue = topMostValue;
+        ++topMostValue;
+    });
+
+    beforeEach(function (done) {
+
+        done();
+    });
+
+    afterEach(function () {
+
+    });
+
+    afterEach(function (done) {
+
+        setTimeout(done, 100);
     });
 
     describe("A group with before / after", function () {
