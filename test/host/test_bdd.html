@@ -85,49 +85,31 @@ describe("My first test", function () {
     });
 });
 
-describe("This is a topmost group", function () {
-
-    var
-        topMostValue = 0,
-        savedTopMostValue;
-
-    beforeEach(function () {
-        savedTopMostValue = topMostValue;
-        ++topMostValue;
-    });
-
-    beforeEach(function (done) {
-
-        done();
-    });
-
-    afterEach(function () {
-
-    });
-
-    afterEach(function (done) {
-
-        setTimeout(done, 100);
-    });
-
-    describe("A group with before / after", function () {
-
-        var groupState = "";
-
-        before(function () {
-            groupState += "<";
-        });
-
+describe("Context handling", function () {
+    var context1 = 0;
+    describe("Setting the context1 only once", function () {
         after(function () {
-            groupState += ">";
+            // The position does not count, it will be executed when terminating the describe
+            assert(1 === context1);
+            --context1; // Back to 0
         });
-
-        it("generates a context for the tests under group", function () {
-            assert(groupState === "<");
+        before(function () {
+            // The position does not count, it will be executed when starting the describe
+            assert(0 === context1);
+            ++context1; // Set to 1
         });
-
+        it("was set before executing this test", function () {
+            assert(1 === context1);
+        });
+        it("keeps its value in between two tests", function () {
+            assert(1 === context1);
+        });
     });
-
+    describe("Sibling describe lost context1", function () {
+        it("does not have access to context1Started", function () {
+            assert(0 === context1);
+        });
+    });
 });
 
 run();
