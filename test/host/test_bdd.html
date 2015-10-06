@@ -88,25 +88,57 @@ describe("My first test", function () {
 describe("Context handling", function () {
     var context1 = 0;
     describe("Setting the context1 only once", function () {
+        var sumOfContext1,
+            numberOfLoops;
         after(function () {
             // The position does not count, it will be executed when terminating the describe
-            assert(1 === context1);
-            --context1; // Back to 0
+            assert(0 !== context1);
+            context1 = 0; // Clean-up: back to 0
         });
         before(function () {
             // The position does not count, it will be executed when starting the describe
             assert(0 === context1);
-            ++context1; // Set to 1
+            context1 = Math.floor(1 + 100 * Math.random()); // Initialization: set to a random value
+            sumOfContext1 = 0;
+            numberOfLoops = 0;
         });
-        it("was set before executing this test", function () {
-            assert(1 === context1);
-        });
-        it("keeps its value in between two tests", function () {
-            assert(1 === context1);
+        // loop 10 times and check that context1 always have the same value
+        for (var idx = 0; idx < 10; ++idx) {
+            it("context1 remains the same", function () {
+                sumOfContext1 += context1;
+                ++numberOfLoops;
+                assert(sumOfContext1 / numberOfLoops === context1);
+            });
+        }
+        describe("Changing context1 for each test", function () {
+            var context1Backup,
+                lastContext1;
+            before(function () {
+                assert(0 !== context1);
+                context1Backup = context1;
+                lastContext1 = -1;
+            });
+            after(function () {
+                context1 = context1Backup;
+            });
+            beforeEach(function () {
+                var newValue = context1;
+                while (newValue === context1) {
+                    newValue = Math.floor(1 + 100 * Math.random());
+                }
+                context1 = newValue;
+            });
+            // loop 10 times and check that context1 changes
+            for (var idx = 0; idx < 10; ++idx) {
+                it("context1 changes", function () {
+                    assert(lastContext1 !== context1);
+                    lastContext1 = context1;
+                });
+            }
         });
     });
     describe("Sibling describe lost context1", function () {
-        it("does not have access to context1Started", function () {
+        it("context1 should not be set", function () {
             assert(0 === context1);
         });
     });
