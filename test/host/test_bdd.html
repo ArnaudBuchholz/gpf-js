@@ -84,7 +84,7 @@ body {
 	        });
 	    });
 	});
-    
+
 	describe("Context handling", function () {
 		var context1;
 	    describe("Setting the context1 only once", function () {
@@ -120,7 +120,7 @@ body {
 	            label = "context1 remains the same (" + idx + "/" + MAX_LOOPS + ")";
 	            it(label, testIfTheSame);
 	        }
-	        /* In this sub context, 
+	        /* In this sub context,
 	         * the value of context1 will be changed for each it using beforeEach
 	         */
 	        describe("Changing context1 for each test", function () {
@@ -166,8 +166,7 @@ body {
 	});
 
 }());
-		</script>    
+		</script>
 	</head>
-	<body onload="run()">
-	</body>
+	<body onload="run()"></body>
 </html>

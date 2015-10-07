@@ -297,7 +297,7 @@
         this._callback = callback || _defaultCallback;
         this._describes = [];
         this._describe = BDDDescribe.root;
-        this._childIndexes = [];
+        this._nextChildIndexes = [];
         this._beforeEach = [];
         this._afterEach = [];
         this._statistics = {
@@ -306,10 +306,6 @@
             fail: 0,
             pending: 0
         };
-        // Create bound version of some APIs
-        this._boundNext = this.next.bind(this);
-        this._boundSuccess = this._success.bind(this);
-        this._boundDoNext = this._doNext.bind(this);
     }).toClass(Object, {
 
         // The current state
@@ -324,11 +320,11 @@
         // @property {BDDDescribe} Current describe
         _describe: null,
 
-        // @property {Number[]} Stack of childIndex (pointing to each describe child)
-        _childIndexes: [],
+        // @property {Number[]} Stack of nextChildIndex (pointing to each describe child)
+        _nextChildIndexes: [],
 
-        // Current child idx of current describe
-        _childIndex: 0,
+        // Next child index of current describe
+        _nextChildIndex: 0,
 
         // @property {function[]} List of callbacks to process (before, beforeEach, ...)
         _pendingCallbacks: [],
@@ -339,31 +335,86 @@
         // @property {Function[]} stacked afterEach callbacks
         _afterEach: [],
 
-        // @property {BDDIt} Current it
-        _it: null,
-
-        // @property {Date} datetime when the it has been started
-        _itStart: null,
-
         // @property {Object} Test statistics
         _statistics: {},
+
+        // Log a success
+        _success: function (label, startDate) {
+            ++this._statistics.success;
+            this._callback("it", {
+                depth: this._describes.length,
+                label: label,
+                result: true,
+                timeSpent: (new Date()) - startDate
+            });
+        },
+
+        // Log a failure
+        _fail: function (label, startDate, e) {
+            ++this._statistics.fail;
+            this._callback("it", {
+                depth: this._describes.length,
+                label: label,
+                result: false,
+                timeSpent: (new Date()) - startDate,
+                exception: e
+            });
+        },
+
+        /**
+         * Executes the callback and monitor its result
+         *
+         * @param {Function} callback
+         * @param {String} label
+         * @param {Function} [onError=undefined] onError (will be bound to this)
+         * @return {Boolean} true if asynchronous
+         */
+        _monitorCallback: function (callback, label, onError) {
+            var runner = this,
+                startDate = new Date(),
+                signaled = false;
+            function done(error) {
+                if (signaled) {
+                    // TODO signal an error
+
+                    return;
+                }
+                signaled = true;
+                if (error) {
+                    runner._fail(label, startDate, error);
+                } else if (!onError) {
+                    runner._success(label, startDate, error);
+                }
+                runner.next();
+            }
+            try {
+                var result = callback(done); // TODO done function
+                if (Runner.isPromise(result)) {
+                    // register on success
+                    result.then(done);
+                    return false;
+                } else if (0 === callback.length) {
+                    this._success(label, startDate);
+                    return false;
+                } else {
+                    // asynchronous
+                    return true;
+                }
+            } catch (e) {
+                done(e);
+            }
+            return false;
+        },
 
         /**
          * Call the it test callback
          *
          * @param {Function} callback
+         * @param {String} label
+         * @return {Boolean} true if asynchronous
          */
-        _processItCallback: function (callback) {
-            try {
-                this._itStart = new Date();
-                callback(this._boundSuccess);
-                if (0 === callback.length) {
-                    // synchronous
-                    this._success();
-                }
-            } catch (e) {
-                this._fail(e);
-            }
+        _processItCallback: function (callback, label) {
+            return this._monitorCallback(callback, label);
         },
 
         /**
@@ -373,47 +424,15 @@
          * @return {Boolean} true if asynchronous
          */
         _processCallback: function (callback) {
-            try {
-                callback(this._boundNext);
-                return 0  !== callback.length;
-            } catch (e) {
+            return this._monitorCallback(callback, "UNEXPECTED error during (before|after)(Each)?", function () {
                 // TODO right now, an error is not acceptable at this point, signal and ends everything
-                this._it = {
-                    label: "UNEXPECTED error during (before|after)(Each)?"
-                };
-                this._fail(e);
-                // Ends everything
-                this._childIndex = this._describe.children.length;
+                this._nextChildIndex = this._describe.children.length;
                 this._describes = [];
-            }
-            return true;
+            });
         },
-
-        // @property {Number} Count the number of nexts executed sequentially
-        _stackedNext: 0,
-
-        // @property {Function} next bound to this
-        _boundNext: 0,
-
-        /**
-         * Next test / callback
-         * Protected to limit the stack depth.
-         */
-        next: function () {
-            if (10 === ++this._stackedNext) {
-                setTimeout(this._boundDoNext, 0);
-                --this._stackedNext;
-                return;
-            }
-            this._doNext();
-            --this._stackedNext;
-        },
-
-        // @property {Function} _doNext bound to this
-        _boundDoNext: 0,
 
         // Next step in test
-        _doNext: function () {
+        next: function () {
             do {
                 // Check if any pending callback
                 while (this._pendingCallbacks.length) {
@@ -437,14 +456,13 @@
         // STATE_DESCRIBE_CHILDREN
         _onDescribeChildren: function () {
             var children = this._describe.children;
-            if (this._childIndex < children.length) {
-                var item = children[this._childIndex++];
+            if (this._nextChildIndex < children.length) {
+                var item = children[this._nextChildIndex++];
                 if (item instanceof BDDDescribe) {
                     this._stackDescribe(item);
 
                 } else if (item instanceof BDDIt) {
                     this._state = Runner.STATE_DESCRIBE_CHILDIT_BEFORE;
-                    this._it = item;
                 }
             } else {
                 this._state = Runner.STATE_DESCRIBE_AFTER;
@@ -460,13 +478,13 @@
                 label: describe.label
             });
             this._describes.push(this._describe);
-            this._childIndexes.push(this._childIndex);
+            this._nextChildIndexes.push(this._nextChildIndex);
             // Concatenate lists of beforeEach and afterEach
             this._beforeEach = this._beforeEach.concat(describe.beforeEach);
             this._afterEach = describe.afterEach.concat(this._afterEach);
             // Becomes the new describe
             this._describe = describe;
-            this._childIndex = 0;
+            this._nextChildIndex = 0;
         },
 
         // STATE_DESCRIBE_CHILDIT_BEFORE
@@ -479,16 +497,15 @@
         // STATE_DESCRIBE_CHILDIT_EXECUTE
         _onItExecute: function () {
             this._state = Runner.STATE_DESCRIBE_CHILDIT_AFTER;
-            var it = this._it;
+            var it = this._describe.children[this._nextChildIndex - 1];
             ++this._statistics.count;
             if (it.callback) {
-                this._processItCallback(it.callback);
-                return false;
+                return !this._processItCallback(it.callback, it.label);
             } else {
                 ++this._statistics.pending;
                 this._callback("it", {
                     depth: this._describes.length,
-                    label: this._it.label,
+                    label: it.label,
                     pending: true
                 });
                 return true;
@@ -515,10 +532,12 @@
             if (0 < this._describes.length) {
                 // What's in the describe stack
                 this._unstackDescribe();
+                return true;
 
             } else {
-                // DONE!
+                this._state = Runner.STATE_FINISHED;
                 this._callback("results", this._statistics);
+                return false;
             }
         },
 
@@ -530,36 +549,12 @@
             this._afterEach = this._afterEach.slice(currentDescribe.afterEach.length);
             // No more children, go up
             this._describe = this._describes.pop();
-            this._childIndex = this._childIndexes.pop();
-            this.next();
+            this._nextChildIndex = this._nextChildIndexes.pop();
         },
 
-        // @property {Function} _success bound to this
-        _boundSuccess: 0,
-
-        // The last it succeeded
-        _success: function () {
-            ++this._statistics.success;
-            this._callback("it", {
-                depth: this._describes.length,
-                label: this._it.label,
-                result: true,
-                timeSpent: (new Date()) - this._itStart
-            });
-            this.next();
-        },
-
-        // The last it failed
-        _fail: function (e) {
-            ++this._statistics.fail;
-            this._callback("it", {
-                depth: this._describes.length,
-                label: this._it.label,
-                result: false,
-                timeSpent: (new Date()) - this._itStart,
-                exception: e
-            });
-            this.next();
+        // STATE_FINISHED
+        _onFinished: function () {
+            return false;
         }
 
     }, {
@@ -569,7 +564,13 @@
         STATE_DESCRIBE_CHILDIT_EXECUTE: "_onItExecute",
         STATE_DESCRIBE_CHILDIT_AFTER: "_onItAfter",
         STATE_DESCRIBE_AFTER: "_onDescribeAfter",
-        STATE_DESCRIBE_DONE: "_onDescribeDone"
+        STATE_DESCRIBE_DONE: "_onDescribeDone",
+        STATE_FINISHED: "_onFinished",
+
+        // Test if the provided parameter looks like a promise
+        isPromise: function (obj) {
+            return "object" === typeof obj && "function" === typeof obj.then;
+        }
     });
 
     /**
