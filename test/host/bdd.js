@@ -365,36 +365,38 @@
          * Executes the callback and monitor its result
          *
          * @param {Function} callback
-         * @param {String} label
-         * @param {Function} [onError=undefined] onError (will be bound to this)
+         * @param {Function} [callbackCompleted=undefined] callbackCompleted Function called when callback completed
+         * (will be bound to this)
          * @return {Boolean} true if asynchronous
          */
-        _monitorCallback: function (callback, label, onError) {
+        _monitorCallback: function (callback, callbackCompleted) {
+            // TODO need to keep track of the context to report on the appropriate callback function
             var runner = this,
                 startDate = new Date(),
-                signaled = false;
+                signaled = 0;
             function done(error) {
-                if (signaled) {
-                    // TODO signal an error
-
-                    return;
+                ++signaled;
+                if (1 < signaled) {
+                    error = {
+                        message: "Done function called several times"
+                    };
                 }
-                signaled = true;
-                if (error) {
-                    runner._fail(label, startDate, error);
-                } else if (!onError) {
-                    runner._success(label, startDate, error);
+                callbackCompleted.apply(runner, [startDate, error]);
+                if (1 === signaled) {
+                    runner.next();
                 }
-                runner.next();
             }
             try {
                 var result = callback(done); // TODO done function
                 if (Runner.isPromise(result)) {
                     // register on success
                     result.then(done);
+                    if (result.catch) {
+                        result.catch(done);
+                    }
                     return false;
                 } else if (0 === callback.length) {
-                    this._success(label, startDate);
+                    done();
                     return false;
                 } else {
                     // asynchronous
@@ -406,6 +408,10 @@
             return false;
         },
 
+        _getCurrentIt: function () {
+            return this._describe.children[this._nextChildIndex - 1];
+        },
+
         /**
          * Call the it test callback
          *
@@ -413,8 +419,24 @@
          * @param {String} label
          * @return {Boolean} true if asynchronous
          */
-        _processItCallback: function (callback, label) {
-            return this._monitorCallback(callback, label);
+        _processItCallback: function () {
+            var it = this._getCurrentIt();
+            return this._monitorCallback(it.callback, this._itCallbackCompleted);
+        },
+
+        /**
+         * IT Callback completion function
+         *
+         * @param {Date} startDate
+         * @param {*} error handler
+         */
+        _itCallbackCompleted: function (startDate, e) {
+            var it = this._getCurrentIt();
+            if (e) {
+                this._fail(it.label, startDate, e);
+            } else {
+                this._success(it.label, startDate);
+            }
         },
 
         /**
@@ -424,11 +446,22 @@
          * @return {Boolean} true if asynchronous
          */
         _processCallback: function (callback) {
-            return this._monitorCallback(callback, "UNEXPECTED error during (before|after)(Each)?", function () {
+            return this._monitorCallback(callback, this._callbackCompleted);
+        },
+
+        /**
+         * Callback completion function
+         *
+         * @param {Date} startDate
+         * @param {*} error handler
+         */
+        _callbackCompleted: function (startDate, e) {
+            if (e) {
+                this._fail("UNEXPECTED error during (before|after)(Each)?", startDate, e);
                 // TODO right now, an error is not acceptable at this point, signal and ends everything
                 this._nextChildIndex = this._describe.children.length;
                 this._describes = [];
-            });
+            }
         },
 
         // Next step in test
@@ -497,10 +530,10 @@
         // STATE_DESCRIBE_CHILDIT_EXECUTE
         _onItExecute: function () {
             this._state = Runner.STATE_DESCRIBE_CHILDIT_AFTER;
-            var it = this._describe.children[this._nextChildIndex - 1];
+            var it = this._getCurrentIt();
             ++this._statistics.count;
             if (it.callback) {
-                return !this._processItCallback(it.callback, it.label);
+                return !this._processItCallback();
             } else {
                 ++this._statistics.pending;
                 this._callback("it", {
