@@ -125,8 +125,11 @@
         this.callback = callback;
     }).toClass(BDDAbstract, {
 
-        // @prototype {Function} Test case callback (null if pending)
-        callback: null
+        // @property {Function} Test case callback (null if pending)
+        callback: null,
+
+        // Allows to make a success from a failure (and test error cases)
+        failureExpected: false
 
     }, {});
 
@@ -153,8 +156,11 @@
             BDDDescribe.addCallback("beforeEach", callback);
         },
 
-        it: function (label, callback) {
-            return new BDDIt(label, callback, BDDDescribe.current);
+        it: function (label, callback, failureExpected) {
+            var it = new BDDIt(label, callback, BDDDescribe.current);
+            if (failureExpected) {
+                it.failureExpected = true;
+            }
         },
 
         afterEach: function (callback) {
@@ -380,21 +386,27 @@
          */
         _monitorCallback: function (callback, callbackCompleted, context) {
             var runner = this,
+                doneError,
                 startDate = new Date(),
-                signaled = 0,
+                doneCalled = 0,
                 timeoutId,
                 result,
                 isPromise;
             function done(error) {
-                ++signaled;
-                if (1 < signaled) {
+                ++doneCalled;
+                if (1 < doneCalled) {
                     // Whatever the situation, done MUST be called only once, so overwrite any error here
                     error = {
-                        message: "Done function called " + signaled + " times"
+                        message: "Done function called " + doneCalled + " times"
                     };
                 }
-                callbackCompleted.apply(runner, [context, startDate, error]);
-                if (1 === signaled && timeoutId) {
+                if (1 < doneCalled || timeoutId) {
+                    callbackCompleted.apply(runner, [context, startDate, error]);
+                } else {
+                    // Can still be processed as synchronous
+                    doneError = error;
+                }
+                if (1 === doneCalled && timeoutId) {
                     // This is an asynchronous, call: first, prevent timeout execution (no more necessary)...
                     clearTimeout(timeoutId);
                     // ...then, trigger the next step execution (required to continue the test)
@@ -402,7 +414,7 @@
                 }
             }
             try {
-                result = callback(done);
+                result = this._secureCall(callback, done);
                 isPromise = Runner.isPromise(result);
                 // Synchronous call?
                 if (!isPromise && 0 === callback.length) {
@@ -410,7 +422,10 @@
                     return false;
                 }
                 // Was done already called?
-                if (0 < signaled) {
+                if (1 === doneCalled) {
+                    callbackCompleted.apply(this, [context, startDate, doneError]);
+                    return false;
+                } else if (0 < doneCalled) {
                     return false;
                 }
                 // From there, the callback is asynchronous!
@@ -427,6 +442,20 @@
                 done(e);
             }
             return false;
+        },
+
+        /**
+         * @param {Function} callback
+         * @param {Function} done
+         * @return {*}
+         */
+        _secureCall: function (callback, done) {
+            // If someone wants to mess with arguments, this will prevent it
+            var callbackArgument;
+            if (0 < callback.length) {
+                callbackArgument = done;
+            }
+            return callback(callbackArgument);
         },
 
         /**
@@ -469,6 +498,15 @@
 
         // IT Callback completion function (see _monitorCallback)
         _itCallbackCompleted: function (it, startDate, e) {
+            if (it.failureExpected) {
+                if (e) {
+                    e = null;
+                } else {
+                    e = {
+                        message: "Failure was expected"
+                    };
+                }
+            }
             if (e) {
                 this._fail(it.label, startDate, e);
             } else {
