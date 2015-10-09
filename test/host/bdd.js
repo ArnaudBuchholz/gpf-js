@@ -292,9 +292,10 @@
 
     //region Running the tests
 
-    var Runner = (function (callback) {
+    var Runner = (function (callback, timeoutDelay) {
         this._state = Runner.STATE_DESCRIBE_BEFORE;
         this._callback = callback || _defaultCallback;
+        this._timeoutDelay = timeoutDelay || Runner.DEFAULT_TIMEOUT_DELAY;
         this._describes = [];
         this._describe = BDDDescribe.root;
         this._nextChildIndexes = [];
@@ -313,6 +314,9 @@
 
         // @property {Function} Callback used to notify the caller of the progress
         _callback: null,
+
+        // @property asynchronous test limit in time
+        _timeoutDelay: 0,
 
         // @property {BDDDescribe[]} Stack of describe items being processed
         _describes: [],
@@ -366,46 +370,85 @@
          *
          * @param {Function} callback
          * @param {Function} [callbackCompleted=undefined] callbackCompleted Function called when callback completed
-         * (will be bound to this)
+         * (will be bound to this), expected parameters are
+         * - {Object} context
+         * - {Date} startDate
+         * - {Object} [error=undefined] error When not specified, it means the callback succeeded, otherwise this
+         * parameter is the error object transmitted by the test execution
+         * @param {Object} context
          * @return {Boolean} true if asynchronous
          */
-        _monitorCallback: function (callback, callbackCompleted) {
-            // TODO need to keep track of the context to report on the appropriate callback function
+        _monitorCallback: function (callback, callbackCompleted, context) {
             var runner = this,
                 startDate = new Date(),
-                signaled = 0;
+                signaled = 0,
+                timeoutId,
+                result,
+                isPromise;
             function done(error) {
                 ++signaled;
                 if (1 < signaled) {
+                    // Whatever the situation, done MUST be called only once, so overwrite any error here
                     error = {
-                        message: "Done function called several times"
+                        message: "Done function called " + signaled + " times"
                     };
                 }
-                callbackCompleted.apply(runner, [startDate, error]);
-                if (1 === signaled) {
+                callbackCompleted.apply(runner, [context, startDate, error]);
+                if (1 === signaled && timeoutId) {
+                    // This is an asynchronous, call: first, prevent timeout execution (no more necessary)...
+                    clearTimeout(timeoutId);
+                    // ...then, trigger the next step execution (required to continue the test)
                     runner.next();
                 }
             }
             try {
-                var result = callback(done); // TODO done function
-                if (Runner.isPromise(result)) {
-                    // register on success
-                    result.then(done);
-                    if (result.catch) {
-                        result.catch(done);
-                    }
-                    return false;
-                } else if (0 === callback.length) {
+                result = callback(done);
+                isPromise = Runner.isPromise(result);
+                // Synchronous call?
+                if (!isPromise && 0 === callback.length) {
                     done();
                     return false;
-                } else {
-                    // asynchronous
-                    return true;
                 }
+                // Was done already called?
+                if (0 < signaled) {
+                    return false;
+                }
+                // From there, the callback is asynchronous!
+                timeoutId = setTimeout(function () {
+                    done({
+                        message: "Timeout exceeded"
+                    });
+                }, this._timeoutDelay);
+                if (isPromise) {
+                    this._attachToPromise(result);
+                }
+                return true;
             } catch (e) {
                 done(e);
             }
             return false;
+        },
+
+        /**
+         * @param {Function} done done callback
+         * @param {Promise} promise
+         */
+        _attachToPromise: function (done, promise) {
+            function fulfilled() {
+                done(); // Must have no parameter
+            }
+            function rejected(reason) {
+                if (!reason) {
+                    reason = {
+                        message: "Promise rejected with no reason"
+                    };
+                }
+                done(reason);
+            }
+            promise.then(fulfilled, rejected);
+            if (promise.catch) {
+                promise.catch(rejected);
+            }
         },
 
         _getCurrentIt: function () {
@@ -421,17 +464,11 @@
          */
         _processItCallback: function () {
             var it = this._getCurrentIt();
-            return this._monitorCallback(it.callback, this._itCallbackCompleted);
+            return this._monitorCallback(it.callback, this._itCallbackCompleted, it);
         },
 
-        /**
-         * IT Callback completion function
-         *
-         * @param {Date} startDate
-         * @param {*} error handler
-         */
-        _itCallbackCompleted: function (startDate, e) {
-            var it = this._getCurrentIt();
+        // IT Callback completion function (see _monitorCallback)
+        _itCallbackCompleted: function (it, startDate, e) {
             if (e) {
                 this._fail(it.label, startDate, e);
             } else {
@@ -445,19 +482,14 @@
          * @param {Function} callback
          * @return {Boolean} true if asynchronous
          */
-        _processCallback: function (callback) {
-            return this._monitorCallback(callback, this._callbackCompleted);
+        _processCallback: function (type, callback) {
+            return this._monitorCallback(callback, this._callbackCompleted, type);
         },
 
-        /**
-         * Callback completion function
-         *
-         * @param {Date} startDate
-         * @param {*} error handler
-         */
-        _callbackCompleted: function (startDate, e) {
+        // Callback completion function (see _monitorCallback)
+        _callbackCompleted: function (type, startDate, e) {
             if (e) {
-                this._fail("UNEXPECTED error during (before|after)(Each)?", startDate, e);
+                this._fail("UNEXPECTED error during " + type + "?", startDate, e);
                 // TODO right now, an error is not acceptable at this point, signal and ends everything
                 this._nextChildIndex = this._describe.children.length;
                 this._describes = [];
@@ -469,7 +501,7 @@
             do {
                 // Check if any pending callback
                 while (this._pendingCallbacks.length) {
-                    if (this._processCallback(this._pendingCallbacks.shift())) {
+                    if (this._processCallback(Runner.CALLBACKS_TYPE[this._state], this._pendingCallbacks.shift())) {
                         // Asynchronous, have to wait for callback
                         return;
                     }
@@ -600,6 +632,15 @@
         STATE_DESCRIBE_DONE: "_onDescribeDone",
         STATE_FINISHED: "_onFinished",
 
+        DEFAULT_TIMEOUT_DELAY: 2000, // 2s
+
+        CALLBACKS_TYPE: {
+            "_onDescribeBefore": "before",
+            "_onItBefore": "beforeEach",
+            "_onItAfter": "afterEach",
+            "_onDescribeAfter": "after"
+        },
+
         // Test if the provided parameter looks like a promise
         isPromise: function (obj) {
             return "object" === typeof obj && "function" === typeof obj.then;
@@ -610,9 +651,10 @@
      * Main entry point to run all tests
      *
      * @param {Function} callback see callback examples above
+     * @param {Number} timeoutDelay asynchronous test limit in time
      */
-    context.run = function (callback) {
-        var runner = new Runner(callback);
+    context.run = function (callback, timeoutDelay) {
+        var runner = new Runner(callback, timeoutDelay);
         runner.next();
     };
 
