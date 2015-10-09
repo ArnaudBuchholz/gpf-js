@@ -348,121 +348,113 @@
         // @property {Object} Test statistics
         _statistics: {},
 
-        // Log a success
-        _success: function (label, startDate) {
-            ++this._statistics.success;
-            this._callback("it", {
-                depth: this._describes.length,
-                label: label,
-                result: true,
-                timeSpent: (new Date()) - startDate
-            });
-        },
-
-        // Log a failure
-        _fail: function (label, startDate, e) {
-            ++this._statistics.fail;
-            this._callback("it", {
-                depth: this._describes.length,
-                label: label,
-                result: false,
-                timeSpent: (new Date()) - startDate,
-                exception: e
-            });
-        },
-
         /**
          * Executes the callback and monitor its result
          *
          * @param {Function} callback
-         * @param {Function} [callbackCompleted=undefined] callbackCompleted Function called when callback completed
-         * (will be bound to this), expected parameters are
+         * @param {Function} [callbackCompleted=undefined] callbackCompleted Function called when the callback completed
+         * (will be bound to the Runner), expected parameters are
          * - {Object} context
          * - {Date} startDate
          * - {Object} [error=undefined] error When not specified, it means the callback succeeded, otherwise this
          * parameter is the error object transmitted by the test execution
-         * @param {Object} context
+         * @param {Object} callbackContext context parameter of the callbackCompleted function
          * @return {Boolean} true if asynchronous
          */
-        _monitorCallback: function (callback, callbackCompleted, context) {
-            var runner = this,
-                doneError,
-                startDate = new Date(),
-                doneCalled = 0,
-                timeoutId,
-                result,
-                isPromise;
-            function done(error) {
-                ++doneCalled;
-                if (1 < doneCalled) {
-                    // Whatever the situation, done MUST be called only once, so overwrite any error here
-                    error = {
-                        message: "Done function called " + doneCalled + " times"
-                    };
-                }
-                if (1 < doneCalled || timeoutId) {
-                    callbackCompleted.apply(runner, [context, startDate, error]);
-                } else {
-                    // Can still be processed as synchronous
-                    doneError = error;
-                }
-                if (1 === doneCalled && timeoutId) {
-                    // This is an asynchronous, call: first, prevent timeout execution (no more necessary)...
-                    clearTimeout(timeoutId);
-                    // ...then, trigger the next step execution (required to continue the test)
-                    runner.next();
-                }
-            }
+        _monitorCallback: function (callback, callbackCompleted, callbackContext) {
+            var monitorContext = {
+                    runner: this,
+                    doneExpected: 0 <callback.length,
+                    callbackCompleted: callbackCompleted,
+                    callbackContext: callbackContext,
+                    error: null,
+                    startDate: new Date(),
+                    numberOfCall: 0,
+                    timeoutId: null,
+                    complete: this._complete
+                },
+                done;
             try {
-                result = this._secureCall(callback, done);
-                isPromise = Runner.isPromise(result);
-                // Synchronous call?
-                if (!isPromise && 0 === callback.length) {
-                    done();
-                    return false;
-                }
-                // Was done already called?
-                if (1 === doneCalled) {
-                    callbackCompleted.apply(this, [context, startDate, doneError]);
-                    return false;
-                } else if (0 < doneCalled) {
-                    return false;
-                }
-                // From there, the callback is asynchronous!
-                timeoutId = setTimeout(function () {
-                    done({
-                        message: "Timeout exceeded"
-                    });
-                }, this._timeoutDelay);
-                if (isPromise) {
-                    this._attachToPromise(result);
-                }
-                return true;
+                done = this._done.bind(monitorContext);
+                return this._secureCall(callback, monitorContext, done);
             } catch (e) {
                 done(e);
             }
             return false;
         },
 
-        /**
-         * @param {Function} callback
-         * @param {Function} done
-         * @return {*}
-         */
-        _secureCall: function (callback, done) {
-            // If someone wants to mess with arguments, this will prevent it
+        // done function, is bound to a monitorContext
+        _done: function (error) {
+            ++this.numberOfCall;
+            if (1 < this.numberOfCall) {
+                // Whatever the situation, done MUST be called only once, so overwrite any error here
+                error = {
+                    message: "Done function called " + this.numberOfCall + " times"
+                };
+            }
+            if (1 < this.numberOfCall || this.timeoutId) {
+                // More than one call (i.e. error) or asynchronous
+                this.complete(error);
+            } else {
+                // Can still be processed as synchronous, keep track of error parameter
+                this.error = error;
+            }
+            if (1 === this.numberOfCall && this.timeoutId) {
+                // First call in asynchronous mode, prevent timeout execution (no more necessary)...
+                clearTimeout(this.timeoutId);
+                // ...then, trigger the next step execution (required to continue the test)
+                this.runner.next();
+            }
+        },
+
+        // complete wrapper, is bound to a monitorContext
+        _complete: function (error) {
+            this.callbackCompleted.apply(this.runner, [this.callbackContext, this.startDate, error]);
+        },
+
+        // provide done parameter only if requested
+        _secureCall: function (callback, monitorContext, done) {
             var callbackArgument;
-            if (0 < callback.length) {
+            // If someone wants to mess with arguments, this will prevent it
+            if (monitorContext.doneExpected) {
                 callbackArgument = done;
             }
-            return callback(callbackArgument);
+            return this._processCallResult(callback(callbackArgument), monitorContext, done);
+        },
+
+        // handle the result of the callback
+        _processCallResult: function (result, monitorContext, done) {
+            var isPromise = Runner.isPromise(result);
+            // Synchronous call?
+            if (!isPromise && !monitorContext.doneExpected) {
+                monitorContext.complete(monitorContext.error);
+                done();
+                return false;
+            }
+            // Was done already called?
+            if (1 === monitorContext.numberOfCall) {
+                monitorContext.complete(monitorContext.error);
+                return false;
+            } else if (0 < monitorContext.numberOfCall) {
+                return false;
+            }
+            // From there, the callback is asynchronous!
+            monitorContext.timeoutId = setTimeout(function () {
+                done({
+                    message: "Timeout exceeded"
+                });
+            }, this._timeoutDelay);
+            if (isPromise) {
+                this._attachToPromise(result, done);
+            }
+            return true;
         },
 
         /**
-         * @param {Function} done done callback
          * @param {Promise} promise
+         * @param {Function} done done callback
          */
-        _attachToPromise: function (done, promise) {
+        _attachToPromise: function (promise, done) {
             function fulfilled() {
                 done(); // Must have no parameter
             }
@@ -480,19 +472,13 @@
             }
         },
 
-        _getCurrentIt: function () {
-            return this._describe.children[this._nextChildIndex - 1];
-        },
-
         /**
          * Call the it test callback
          *
-         * @param {Function} callback
-         * @param {String} label
+         * @param {BDDIt} it
          * @return {Boolean} true if asynchronous
          */
-        _processItCallback: function () {
-            var it = this._getCurrentIt();
+        _processItCallback: function (it) {
             return this._monitorCallback(it.callback, this._itCallbackCompleted, it);
         },
 
@@ -512,6 +498,29 @@
             } else {
                 this._success(it.label, startDate);
             }
+        },
+
+        // Log a failure
+        _fail: function (label, startDate, e) {
+            ++this._statistics.fail;
+            this._callback("it", {
+                depth: this._describes.length,
+                label: label,
+                result: false,
+                timeSpent: (new Date()) - startDate,
+                exception: e
+            });
+        },
+
+        // Log a success
+        _success: function (label, startDate) {
+            ++this._statistics.success;
+            this._callback("it", {
+                depth: this._describes.length,
+                label: label,
+                result: true,
+                timeSpent: (new Date()) - startDate
+            });
         },
 
         /**
@@ -600,10 +609,10 @@
         // STATE_DESCRIBE_CHILDIT_EXECUTE
         _onItExecute: function () {
             this._state = Runner.STATE_DESCRIBE_CHILDIT_AFTER;
-            var it = this._getCurrentIt();
+            var it = this._describe.children[this._nextChildIndex - 1];
             ++this._statistics.count;
             if (it.callback) {
-                return !this._processItCallback();
+                return !this._processItCallback(it);
             } else {
                 ++this._statistics.pending;
                 this._callback("it", {
