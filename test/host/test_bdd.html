@@ -58,6 +58,7 @@ body {
 	    </script>
 	    <script src="bdd.js"></script>
 	    <script src="console.js"></script>
+        <script src="../../node_modules/q/q.js"></script>
 		<script language="javascript">
 
 // Samples from http://gpf-js.blogspot.ca/2015/10/my-own-bdd-implementation.html
@@ -206,9 +207,41 @@ body {
                     }, 100);
                 });
             })
-
         });
-
+        describe("using promises", function () {
+            describe("synchronously", function () {
+                it("succeeds if the promise is resolved", function (done) {
+                    var defer = Q.defer();
+                    defer.resolve();
+                    return defer.promise;
+                });
+                it("fails if the promise is rejected", function () {
+                    var defer = Q.defer();
+                    defer.reject({
+                        message: "Error sample"
+                    });
+                    return defer.promise;
+                }, true);
+            });
+            describe("asynchronous", function () {
+                it("waits for the promise to be resolved", function (done) {
+                    var defer = Q.defer();
+                    setTimeout(function () {
+                        defer.resolve();
+                    }, 100);
+                    return defer.promise;
+                });
+                it("fails when the promise is rejected", function () {
+                    var defer = Q.defer();
+                    setTimeout(function () {
+                        defer.reject({
+                            message: "Error sample"
+                        });
+                    }, 100);
+                    return defer.promise;
+                }, true);
+            });
+        });
     });
 
 }());
