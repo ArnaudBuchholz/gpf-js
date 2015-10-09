@@ -68,6 +68,9 @@ body {
 	    it("always succeed", function () {
 	        assert(true);
 	    });
+        it("will fail", function () {
+            assert(false);
+        }, true);
 	    describe("An error example", function () {
 	        it("will throw an exception", function () {
 	            var exception;
@@ -164,6 +167,49 @@ body {
 	        });
 	    });
 	});
+
+    describe("Asynchronous tests", function () {
+        describe("using callbacks", function () {
+            describe("synchronously", function () {
+                it("supports synchronous call to done", function (done) {
+                    done();
+                });
+                it("fails if a parameter is given to done", function (done) {
+                    done({
+                        message: "Error sample"
+                    });
+                }, true);
+                it("fails if an exception occurs in the test function", function (done) {
+                    assert(false);
+                    done();
+                }, true);
+                it("fails if done is called twice", function (done) {
+                    done();
+                    done();
+                }, true);
+            });
+            describe("asynchronous", function () {
+                it("waits for call to done", function (done) {
+                    setTimeout(done, 100);
+                });
+                it("fails if a parameter is given to done", function (done) {
+                    setTimeout(function () {
+                        done({
+                            message: "Error sample"
+                        });
+                    }, 100);
+                }, true);
+                it("fails - later - if done is called twice", function (done) {
+                    setTimeout(function () {
+                        done();
+                        done();
+                    }, 100);
+                });
+            })
+
+        });
+
+    });
 
 }());
 		</script>
