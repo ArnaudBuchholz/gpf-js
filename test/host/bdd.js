@@ -381,6 +381,7 @@
                 return this._secureCall(callback, monitorContext, done);
             } catch (e) {
                 monitorContext.error = e;
+                monitorContext.doneExpected = false; // Assume synchronous function
                 this._processCallResult(null, monitorContext, done);
             }
             return false;
