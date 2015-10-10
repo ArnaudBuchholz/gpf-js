@@ -313,6 +313,8 @@
             fail: 0,
             pending: 0
         };
+        // bind next to this (and hide the prototype version)
+        this.next = this.next.bind(this);
     }).toClass(Object, {
 
         // The current state
@@ -403,7 +405,7 @@
                 // First call in asynchronous mode, prevent timeout execution (no more necessary)...
                 clearTimeout(this.timeoutId);
                 // ...then, trigger the next step execution (required to continue the test)
-                this.runner.next();
+                setTimeout(this.runner.next, 0); // next is bound
             }
         },
 
@@ -458,17 +460,24 @@
             function fulfilled() {
                 done(); // Must have no parameter
             }
+            var _rejectionReason;
             function rejected(reason) {
                 if (!reason) {
                     reason = {
                         message: "Promise rejected with no reason"
                     };
                 }
+                _rejectionReason = reason;
                 done(reason);
+            }
+            function caught(reason) {
+                if (reason !== _rejectionReason) {
+                    done(reason);
+                }
             }
             promise.then(fulfilled, rejected);
             if (promise.catch) {
-                promise.catch(rejected);
+                promise.catch(caught);
             }
         },
 
