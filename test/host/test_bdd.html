@@ -65,7 +65,7 @@ body {
 (function () {
     "use strict";
 
-	describe("My first test", function () {
+    describe("My first test", function () {
 	    it("always succeed", function () {
 	        assert(true);
 	    });
@@ -89,7 +89,7 @@ body {
 	    });
 	});
 
-	describe("Context handling", function () {
+    describe("Context handling", function () {
 		var context1;
 	    describe("Setting the context1 only once", function () {
 	    	var MAX_LOOPS = 10,
@@ -180,7 +180,7 @@ body {
                         message: "Error sample"
                     });
                 }, true);
-                it("fails if an exception occurs in the test function", function (done) {
+                it("fails if an exception occurs", function (done) {
                     assert(false);
                     done();
                 }, true);
@@ -215,7 +215,7 @@ body {
 //                        setTimeout(done, 100);
 //                    }, 100);
 //                }, true);
-            })
+            });
         });
         describe("using promises", function () {
             describe("synchronously", function () {
