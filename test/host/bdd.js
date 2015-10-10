@@ -380,7 +380,8 @@
                 done = this._done.bind(monitorContext);
                 return this._secureCall(callback, monitorContext, done);
             } catch (e) {
-                done(e);
+                monitorContext.error = e;
+                this._processCallResult(null, monitorContext, done);
             }
             return false;
         },
@@ -699,7 +700,7 @@
 
         // Test if the provided parameter looks like a promise
         isPromise: function (obj) {
-            return "object" === typeof obj && "function" === typeof obj.then;
+            return null !== obj && "object" === typeof obj && "function" === typeof obj.then;
         }
     });
 
