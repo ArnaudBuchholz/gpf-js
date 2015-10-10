@@ -193,6 +193,8 @@ body {
                 it("waits for call to done", function (done) {
                     setTimeout(done, 100);
                 });
+                it("fails if done is never called", function (done) {
+                }, true);
                 it("fails if a parameter is given to done", function (done) {
                     setTimeout(function () {
                         done({
@@ -200,12 +202,19 @@ body {
                         });
                     }, 100);
                 }, true);
-                it("fails - later - if done is called twice", function (done) {
-                    setTimeout(function () {
-                        done();
-                        done();
-                    }, 100);
-                });
+// Disabled as not relevant (and hard to compensate)
+//                it("fails - later - if done is called twice", function (done) {
+//                    setTimeout(function () {
+//                        done();
+//                        done();
+//                    }, 100);
+//                }, true);
+//                it("fails - later - if done is called twice (asynchronous)", function (done) {
+//                    setTimeout(function () {
+//                        done();
+//                        setTimeout(done, 100);
+//                    }, 100);
+//                }, true);
             })
         });
         describe("using promises", function () {
