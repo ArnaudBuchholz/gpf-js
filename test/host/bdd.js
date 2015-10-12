@@ -478,8 +478,9 @@
                 }
             }
             promise.then(fulfilled, rejected);
-            if (promise.catch) {
-                promise.catch(caught);
+            var catchMethod = promise["catch"]; // Because of cscript compatibility
+            if (catchMethod) {
+                catchMethod.apply(promise, [caught]);
             }
         },
 
@@ -556,7 +557,8 @@
 
         // Next step in test
         next: function () {
-            do {
+            // Because of cscript compatibility
+            while(true) {
                 // Check if any pending callback
                 while (this._pendingCallbacks.length) {
                     if (this._processCallback(Runner.CALLBACKS_TYPE[this._state], this._pendingCallbacks.shift())) {
@@ -564,8 +566,11 @@
                         return;
                     }
                 }
-            // _state contains the member to execute
-            } while (this[this._state]());
+                // _state contains the member to execute
+                if (!this[this._state]()) {
+                    break;
+                }
+            }
         },
 
         // STATE_DESCRIBE_BEFORE
