@@ -240,6 +240,38 @@ describe("compatibility", function () {
 
     });
 
+    describe("Object", function () {
+
+        it("allows creating objects with a given prototype", function () {
+            var object = Object.create({
+                method: function () {
+                    return "myMethod";
+                }
+            });
+            assert(!object.hasOwnProperty("method"));
+            assert("function" === typeof object.method);
+            assert(object.method() === "myMethod");
+        });
+
+        it("allows adding properties to the object", function () {
+            var object = Object.create({
+                method: function () {
+                    return this.myValue;
+                }
+            }, {
+                myValue: {
+                    value: "myMethod"
+                }
+            });
+            assert(!object.hasOwnProperty("method"));
+            assert("function" === typeof object.method);
+            assert(object.method() === "myMethod");
+            assert(object.hasOwnProperty("myValue"));
+            assert(object.myValue === "myMethod");
+        });
+
+    }),
+
     describe("String", function () {
 
         it("should expose trim", function () {
