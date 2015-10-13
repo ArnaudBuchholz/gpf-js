@@ -4,11 +4,14 @@
 describe("timeout", function () {
 
     it("triggers the callback asynchronously", function (done) {
-        var flag = 0;
-        setTimeout(function () {
+        debugger;
+        var flag = 0,
+            timeoutId;
+        timeoutId = setTimeout(function () {
             assert(1 === flag);
             done();
         }, 0);
+        assert(timeoutId !== undefined);
         flag = 1;
     });
 
