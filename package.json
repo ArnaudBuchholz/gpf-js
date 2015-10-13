@@ -14,10 +14,7 @@
     "url": "https://github.com/ArnaudBuchholz/gpf-js.git"
   },
   "author": "Arnaud Buchholz <arnaud.buchholz@free.fr> (http://gpf-js.blogspot.com/)",
-  "license": {
-    "type": "MIT",
-    "url": "https://github.com/ArnaudBuchholz/gpf-js/blob/master/LICENSE"
-  },
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/ArnaudBuchholz/gpf-js/issues"
   },
