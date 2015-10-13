@@ -38,11 +38,12 @@ describe("constants", function () {
             var host = gpf.host();
             // Must be one of these
             assert(-1 !== [
-                gpf.HOST_WSCRIPT,
-                gpf.HOST_PHANTOMJS,
-                gpf.HOST_NODEJS,
                 gpf.HOST_BROWSER,
-                gpf.HOST_UNKNOWN
+                gpf.HOST_NODEJS,
+                gpf.HOST_PHANTOMJS,
+                gpf.HOST_RHINO,
+                gpf.HOST_UNKNOWN,
+                gpf.HOST_WSCRIPT
             ].indexOf(host));
         });
 
