@@ -17,8 +17,8 @@ A multi-purpose JavaScript library created and maintained by
 
 * Compatible with several hosts
 ([cscript/wscript](http://technet.microsoft.com/en-us/library/bb490887.aspx),
-[NodeJS](http://nodejs.org/), [PhantomJS](http://phantomjs.org/),
-most browsers)
+[NodeJS](http://nodejs.org/), [Rhino](https://developer.mozilla.org/en-US/docs/Mozilla/Projects/Rhino),
+[PhantomJS](http://phantomjs.org/), most browsers)
 * Namespace and class system
 * Java-like annotation tool (attributes)
 * Interface based
@@ -46,6 +46,7 @@ documented and explained.
     * node ./test/host/nodejs.js
     * phantomjs ./host/phantomjs.js
     * cscript /E:jscript cscript.js
+    * java -jar node_modules\rhino-1_7r5-bin\rhino1_7R5\js.jar test\host\rhino.js
 * With grunt:
     * testing with PhantomJS (as a browser): grunt mocha
         * grunt mocha:source
@@ -57,8 +58,12 @@ documented and explained.
         * grunt mocha:release
     * testing with cscript:
         * grunt exec:testWScript
+        * grunt exec:testWScriptVerbose
         * grunt exec:testWScriptDebug
         * grunt exec:testWScriptRelease
+    * testing with rhino:
+        * grunt exec:testRhino
+        * grunt exec:testRhinoVerbose
 
 ## Credits
 
