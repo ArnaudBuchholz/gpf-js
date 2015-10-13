@@ -4,7 +4,6 @@
 describe("timeout", function () {
 
     it("triggers the callback asynchronously", function (done) {
-        debugger;
         var flag = 0,
             timeoutId;
         timeoutId = setTimeout(function () {
