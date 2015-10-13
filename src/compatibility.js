@@ -167,22 +167,15 @@ if ((function () {
 
 if (undefined === Object.create) {
 
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create
+    /*jshint -W103*/
     Object.create = (function() {
         function Temp() {}
-        var hasOwn = Object.prototype.hasOwnProperty;
         return function (O) {
             Temp.prototype = O;
             var obj = new Temp();
-            Temp.prototype = null; // Let's not keep a stray reference to O...
-            if (arguments.length > 1) {
-                // Object.defineProperties does ToObject on its first argument.
-                var Properties = Object(arguments[1]);
-                for (var prop in Properties) {
-                    if (hasOwn.call(Properties, prop)) {
-                        obj[prop] = Properties[prop];
-                    }
-                }
+            Temp.prototype = null;
+            if (!obj.__proto__) {
+                obj.__proto__ = O;
             }
             return obj;
         };
@@ -192,18 +185,10 @@ if (undefined === Object.create) {
 
 if (undefined === Object.getPrototypeOf) {
 
-    // http://ejohn.org/blog/objectgetprototypeof/
-    /*jshint -W103*/
-    if ( typeof "".__proto__ === "object" ) {
-        Object.getPrototypeOf = function (object) {
-            return object.__proto__;
-        };
-    } else {
-        Object.getPrototypeOf = function (object){
-            // May break if the constructor has been tampered with
-            return object.constructor.prototype;
-        };
-    }
+    Object.getPrototypeOf = function (object){
+        // May break if the constructor has been tampered with
+        return object.__proto__ || object.constructor.prototype;
+    };
     /*jshint +W103*/
 
 }
