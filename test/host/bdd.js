@@ -1,6 +1,9 @@
 (function (context) {
     "use strict";
 
+    /*global console, setTimeout, clearTimeout*/
+    
+    /*global global*/ // NodeJS global
     if ("object" === typeof global) {
         context = global;
     }
@@ -22,7 +25,7 @@
     function _toClass (Constructor, BaseClass, members) {
         Constructor.prototype = new BaseClass();
         _objectForEach(members, function (memberValue, memberName) {
-            if ("static" === memberName) {
+            if ("statics" === memberName) {
                 _objectForEach(memberValue, function (memberValue, memberName) {
                     Constructor[memberName] = memberValue;
                 }, Constructor);
@@ -88,7 +91,7 @@
         // @property {Function[]} List of after callbacks
         after: [],
 
-        static: {
+        statics: {
 
             // @property {BDDDescribe} Root test folder
             root: null,
@@ -181,9 +184,7 @@
          */
         assert: function (condition) {
             if (!condition) {
-                throw {
-                    message: "ASSERTION failed"
-                };
+                throw new Error("ASSERTION failed");
             }
         },
 
@@ -561,7 +562,8 @@
         // Next step in test
         next: function () {
             // Because of cscript compatibility
-            while(true) {
+            var loop = true;
+            while(loop) {
                 // Check if any pending callback
                 while (this._pendingCallbacks.length) {
                     if (this._processCallback(Runner.CALLBACKS_TYPE[this._state], this._pendingCallbacks.shift())) {
@@ -570,9 +572,7 @@
                     }
                 }
                 // _state contains the member to execute
-                if (!this[this._state]()) {
-                    break;
-                }
+                loop = this[this._state]();
             }
         },
 
@@ -688,7 +688,7 @@
             return false;
         },
 
-        static: {
+        statics: {
             STATE_DESCRIBE_BEFORE: "_onDescribeBefore",
             STATE_DESCRIBE_CHILDREN: "_onDescribeChildren",
             STATE_DESCRIBE_CHILDIT_BEFORE: "_onItBefore",
