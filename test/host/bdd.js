@@ -44,13 +44,11 @@
     var BDDAbstract  = _toClass(function (label, parent) {
         if (undefined !== parent) {
             this.parent = parent;
-            if (parent instanceof BDDDescribe) {
-                if (!parent.hasOwnProperty("children")) {
-                    // Make the array unique to the instance
-                    parent.children = [];
-                }
-                parent.children.push(this);
+            if (!parent.hasOwnProperty("children")) {
+                // Make the array unique to the instance
+                parent.children = [];
             }
+            parent.children.push(this);
         }
         this.label = label;
     }, Object, {
