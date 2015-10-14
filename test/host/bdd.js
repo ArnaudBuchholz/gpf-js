@@ -18,18 +18,22 @@
         }
     }
 
-    //region BDD item classes
-
-    Function.prototype.toClass = function (BaseClass, members, statics) {
-        this.prototype = new BaseClass();
+    // Class helper
+    function _toClass (Constructor, BaseClass, members) {
+        Constructor.prototype = new BaseClass();
         _objectForEach(members, function (memberValue, memberName) {
-            this.prototype[memberName] = memberValue;
-        }, this);
-        _objectForEach(statics, function (memberValue, memberName) {
-            this[memberName] = memberValue;
-        }, this);
-        return this;
-    };
+            if ("static" === memberName) {
+                _objectForEach(memberValue, function (memberValue, memberName) {
+                    Constructor[memberName] = memberValue;
+                }, Constructor);
+            } else {
+                Constructor.prototype[memberName] = memberValue;
+            }
+        }, Constructor);
+        return Constructor;
+    }
+
+    //region BDD item classes
 
     /**
      * Abstract item
@@ -37,7 +41,7 @@
      * @param {String} label
      * @constructor
      */
-    var BDDAbstract  = (function (label, parent) {
+    var BDDAbstract  = _toClass(function (label, parent) {
         if (undefined !== parent) {
             this.parent = parent;
             if (parent instanceof BDDDescribe) {
@@ -49,7 +53,7 @@
             }
         }
         this.label = label;
-    }).toClass(Object, {
+    }, Object, {
 
         // @property {BDDAbstract} Parent item
         parent: null,
@@ -57,7 +61,7 @@
         // Label of the item
         label: ""
 
-    }, {});
+    });
 
     /**
      * Test description
@@ -67,9 +71,9 @@
      * @class BDDDescribe
      * @extends BDDAbstract
      */
-    var BDDDescribe = (function (/*label, parent*/) {
+    var BDDDescribe = _toClass(function (/*label, parent*/) {
         BDDAbstract.apply(this, arguments);
-    }).toClass(BDDAbstract, {
+    }, BDDAbstract, {
 
         // @prototype {BDDDescribe[]} Children of the description
         children: [],
@@ -84,31 +88,32 @@
         afterEach: [],
 
         // @property {Function[]} List of after callbacks
-        after: []
+        after: [],
 
-    }, {
+        static: {
 
-        // @property {BDDDescribe} Root test folder
-        root: null,
+            // @property {BDDDescribe} Root test folder
+            root: null,
 
-        // @property {BDDDescribe} Current test folder
-        current: null,
+            // @property {BDDDescribe} Current test folder
+            current: null,
 
-        /**
-         * Added the callback to the list which member name is provided
-         *
-         * @param {String} listName List member name
-         * @param {Function} callback
-         */
-        addCallback: function (listName, callback) {
-            var current = BDDDescribe.current;
-            if (!current.hasOwnProperty(listName)) {
-                // Make the array unique
-                current[listName] = [];
+            /**
+             * Added the callback to the list which member name is provided
+             *
+             * @param {String} listName List member name
+             * @param {Function} callback
+             */
+            addCallback: function (listName, callback) {
+                var current = BDDDescribe.current;
+                if (!current.hasOwnProperty(listName)) {
+                    // Make the array unique
+                    current[listName] = [];
+                }
+                current[listName].push(callback);
             }
-            current[listName].push(callback);
-        }
 
+        }
     });
 
     /**
@@ -120,10 +125,10 @@
      * @class BDDIt
      * @extends BDDAbstract
      */
-    var BDDIt = (function (label, callback, parent) {
+    var BDDIt = _toClass(function (label, callback, parent) {
         BDDAbstract.apply(this, [label, parent]);
         this.callback = callback;
-    }).toClass(BDDAbstract, {
+    }, BDDAbstract, {
 
         // @property {Function} Test case callback (null if pending)
         callback: null,
@@ -131,7 +136,7 @@
         // Allows to make a success from a failure (and test error cases)
         failureExpected: false
 
-    }, {});
+    });
 
     //endregion BDD item classes
 
@@ -298,7 +303,7 @@
 
     //region Running the tests
 
-    var Runner = (function (callback, timeoutDelay) {
+    var Runner = _toClass(function (callback, timeoutDelay) {
         this._state = Runner.STATE_DESCRIBE_BEFORE;
         this._callback = callback || _defaultCallback;
         this._timeoutDelay = timeoutDelay || Runner.DEFAULT_TIMEOUT_DELAY;
@@ -315,7 +320,7 @@
         };
         // bind next to this (and hide the prototype version)
         this.next = this.next.bind(this);
-    }).toClass(Object, {
+    }, Object, {
 
         // The current state
         _state: 0,
@@ -683,30 +688,31 @@
         // STATE_FINISHED
         _onFinished: function () {
             return false;
-        }
-
-    }, {
-        STATE_DESCRIBE_BEFORE: "_onDescribeBefore",
-        STATE_DESCRIBE_CHILDREN: "_onDescribeChildren",
-        STATE_DESCRIBE_CHILDIT_BEFORE: "_onItBefore",
-        STATE_DESCRIBE_CHILDIT_EXECUTE: "_onItExecute",
-        STATE_DESCRIBE_CHILDIT_AFTER: "_onItAfter",
-        STATE_DESCRIBE_AFTER: "_onDescribeAfter",
-        STATE_DESCRIBE_DONE: "_onDescribeDone",
-        STATE_FINISHED: "_onFinished",
-
-        DEFAULT_TIMEOUT_DELAY: 2000, // 2s
-
-        CALLBACKS_TYPE: {
-            "_onDescribeBefore": "before",
-            "_onItBefore": "beforeEach",
-            "_onItAfter": "afterEach",
-            "_onDescribeAfter": "after"
         },
 
-        // Test if the provided parameter looks like a promise
-        isPromise: function (obj) {
-            return null !== obj && "object" === typeof obj && "function" === typeof obj.then;
+        static: {
+            STATE_DESCRIBE_BEFORE: "_onDescribeBefore",
+            STATE_DESCRIBE_CHILDREN: "_onDescribeChildren",
+            STATE_DESCRIBE_CHILDIT_BEFORE: "_onItBefore",
+            STATE_DESCRIBE_CHILDIT_EXECUTE: "_onItExecute",
+            STATE_DESCRIBE_CHILDIT_AFTER: "_onItAfter",
+            STATE_DESCRIBE_AFTER: "_onDescribeAfter",
+            STATE_DESCRIBE_DONE: "_onDescribeDone",
+            STATE_FINISHED: "_onFinished",
+
+            DEFAULT_TIMEOUT_DELAY: 2000, // 2s
+
+            CALLBACKS_TYPE: {
+                "_onDescribeBefore": "before",
+                "_onItBefore": "beforeEach",
+                "_onItAfter": "afterEach",
+                "_onDescribeAfter": "after"
+            },
+
+            // Test if the provided parameter looks like a promise
+            isPromise: function (obj) {
+                return null !== obj && "object" === typeof obj && "function" === typeof obj.then;
+            }
         }
     });
 
