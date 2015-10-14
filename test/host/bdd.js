@@ -58,6 +58,9 @@
         // @property {BDDAbstract} Parent item
         parent: null,
 
+        // @prototype {BDDDescribe[]} Children of the description
+        children: [],
+
         // Label of the item
         label: ""
 
@@ -74,9 +77,6 @@
     var BDDDescribe = _toClass(function (/*label, parent*/) {
         BDDAbstract.apply(this, arguments);
     }, BDDAbstract, {
-
-        // @prototype {BDDDescribe[]} Children of the description
-        children: [],
 
         // @property {Function[]} List of before callbacks
         before: [],
