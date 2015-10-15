@@ -1,5 +1,6 @@
 "use strict";
 /*jshint wsh: true*/
+/*eslint-env wsh*/
 /*global run*/
 
 var

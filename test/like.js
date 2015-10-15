@@ -1,5 +1,7 @@
 "use strict";
-/*global describe, it, assert*/
+/*jshint mocha: true*/
+/*eslint-env mocha*/
+/*global assert*/
 /*jshint -W053*/ // Because it is part of the test
 
 describe("like", function () {

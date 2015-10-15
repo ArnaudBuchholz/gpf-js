@@ -1,5 +1,7 @@
 "use strict";
-/*global describe, it, assert*/
+/*jshint mocha: true*/
+/*eslint-env mocha*/
+/*global assert*/
 
 describe("a_class", function () {
 
