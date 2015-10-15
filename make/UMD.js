@@ -1,6 +1,7 @@
 /*global define, exports*/
 /*jshint maxlen:false*/
 /*jshint -W098*/ // ignore unused gpf
+/*eslint no-unused-vars: 0*/ // ignore unused gpf
 /*global __gpf__*/
 (function (root, factory) {
     "use strict";
