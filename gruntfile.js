@@ -4,10 +4,10 @@ module.exports = function (grunt) {
     var CSCRIPT_CMD = "cscript.exe /D /E:JScript test\\host\\cscript.js",
         RHINO_CMD = "java -jar node_modules\\rhino-1_7r5-bin\\rhino1_7R5\\js.jar test\\host\\rhino.js",
         srcFiles = [],
-        testFiles = [];
+        testFiles = [],
+        jsLintedFiles;
 
     // Build the list of valid source files based on sources.js
-    global.gpf = {};
     require("./src/sources.js");
     gpf.sources().every(function (name) {
         if (name) {
@@ -18,21 +18,30 @@ module.exports = function (grunt) {
         return false;
     });
 
+    jsLintedFiles = [
+        "Gruntfile.js",
+        "make/*.js",
+        "make/*.json",
+        "test/host/*.js",
+        "test/host/mocha/nodejs.js"
+    ]   .concat(srcFiles)
+        .concat(testFiles);
+
+    require("load-grunt-tasks")(grunt);
+
     grunt.initConfig({
-        //region JavaScript linter
+        //region JavaScript linters
         jshint: {
             options: {
                 jshintrc: ".jshintrc"
             },
-            files: [
-                "Gruntfile.js",
-                "make/*.js",
-                "make/*.json",
-                "test/host/*.js",
-                "test/host/mocha/nodejs.js"
-
-            ]   .concat(srcFiles)
-                .concat(testFiles)
+            files: jsLintedFiles
+        },
+        eslint: {
+            options: {
+                configFile: ".eslintrc"
+            },
+            target: jsLintedFiles
         },
         //endregion
         //region Mocha test automation inside PhantomJS
@@ -181,6 +190,7 @@ module.exports = function (grunt) {
 
     grunt.loadNpmTasks("grunt-contrib-jshint");
     grunt.loadNpmTasks("grunt-contrib-watch");
+    grunt.loadNpmTasks("grunt-eslint");
     grunt.loadNpmTasks("grunt-exec");
     grunt.loadNpmTasks("grunt-mocha");
     grunt.loadNpmTasks("grunt-mocha-test");
