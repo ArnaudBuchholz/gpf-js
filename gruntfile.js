@@ -21,7 +21,6 @@ module.exports = function (grunt) {
     jsLintedFiles = [
         "Gruntfile.js",
         "make/*.js",
-        "make/*.json",
         "test/host/*.js",
         "test/host/mocha/nodejs.js"
     ]   .concat(srcFiles)
@@ -35,7 +34,7 @@ module.exports = function (grunt) {
             options: {
                 jshintrc: ".jshintrc"
             },
-            files: jsLintedFiles
+            files: jsLintedFiles.concat("make/*.json")
         },
         eslint: {
             options: {
