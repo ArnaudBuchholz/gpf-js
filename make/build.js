@@ -36,37 +36,49 @@ Builder.prototype = {
 
     // preprocess source file, convert to AST and reduce it if necessary
     _toAst: function (name) {
-        var source,
+        var source = this._sources[name],
             astObject;
-        try {
-            preprocess(this._sources[name], this._parameters.define);
-        } catch (e) {
-            e.sourceName = name;
-            e.step = "preprocess";
-            throw e;
-        }
+        this._preProcess(source, name);
         this._save(name + ".js", source);
-        try {
-            astObject = ast.transform(source);
-        } catch (e) {
-            e.sourceName = name;
-            e.step = "ast.transform";
-            throw e;
-        }
+        astObject = this._transform(source, name);
         this._save(name + ".ast.json", JSON.stringify(astObject));
         if (this.parameters.reduce) {
-            try {
-                astObject = ast.reduce(astObject);
-            } catch (e) {
-                e.sourceName = name;
-                e.step = "ast.reduce";
-                throw e;
-            }
+            astObject = this._reduce(astObject);
             this._save(name + ".ast.reduced.json", JSON.stringify(astObject));
             this._save(name + ".ast.reduced.js", ast.rewrite(astObject, this._parameters.debugRewriteOptions));
         }
         this._asts[name] = astObject;
         return astObject;
+    },
+
+    _preProcess: function (source, name) {
+        try {
+            preprocess(source, this._parameters.define);
+        } catch (e) {
+            e.sourceName = name;
+            e.step = "preprocess";
+            throw e;
+        }
+    },
+
+    _transform: function (source, name) {
+        try {
+            return ast.transform(source);
+        } catch (e) {
+            e.sourceName = name;
+            e.step = "ast.transform";
+            throw e;
+        }
+    },
+
+    _reduce: function (astObject, name) {
+        try {
+            return ast.reduce(astObject);
+        } catch (e) {
+            e.sourceName = name;
+            e.step = "ast.reduce";
+            throw e;
+        }
     },
 
     // _toAst and append to _placeholder
@@ -82,12 +94,13 @@ Builder.prototype = {
     },
 
     build: function () {
-        var resultAst,
+        var ARGUMENTS = "arguments",
+            resultAst,
             name;
         // Generate UMD AST
         resultAst = clone(this._toAst("UMD"));
         // Grab the final placeholder
-        this._placeholder = resultAst.body[0].expression["arguments"][1].body.body;
+        this._placeholder = resultAst.body[0].expression[ARGUMENTS][1].body.body;
         this._placeholder.pop(); // remove __gpf__
         // Generate all ASTs and aggregate to the final result
         this._addAst("boot");

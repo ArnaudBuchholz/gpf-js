@@ -9,10 +9,10 @@ var esprima = require("esprima"),
  *
  * @class ASTreducer
  */
-var ASTreducer = function() {
+function ASTreducer () {
     this._identifiers = {};
     this._identifiersStack = [];
-};
+}
 
 ASTreducer.prototype = {
 

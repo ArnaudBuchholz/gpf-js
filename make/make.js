@@ -1,5 +1,5 @@
 "use strict";
-/*global require, global, process*/
+/*global require, process*/
 
 var fs = require("fs"),
     build = require("./build.js"),
