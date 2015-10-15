@@ -2,7 +2,7 @@
     "use strict";
 
     /*global console, setTimeout, clearTimeout*/
-    
+
     /*global global*/ // NodeJS global
     if ("object" === typeof global) {
         context = global;
@@ -26,8 +26,8 @@
         Constructor.prototype = new BaseClass();
         _objectForEach(members, function (memberValue, memberName) {
             if ("statics" === memberName) {
-                _objectForEach(memberValue, function (memberValue, memberName) {
-                    Constructor[memberName] = memberValue;
+                _objectForEach(memberValue, function (staticValue, staticName) {
+                    Constructor[staticName] = staticValue;
                 }, Constructor);
             } else {
                 Constructor.prototype[memberName] = memberValue;
@@ -44,7 +44,7 @@
      * @param {String} label
      * @constructor
      */
-    var BDDAbstract  = _toClass(function (label, parent) {
+    var BDDAbstract  = _toClass(function BDDAbstract (label, parent) {
         if (undefined !== parent) {
             this.parent = parent;
             if (!parent.hasOwnProperty("children")) {
@@ -75,7 +75,7 @@
      * @class BDDDescribe
      * @extends BDDAbstract
      */
-    var BDDDescribe = _toClass(function (/*label, parent*/) {
+    var BDDDescribe = _toClass(function BDDDescribe (/*label, parent*/) {
         BDDAbstract.apply(this, arguments);
     }, BDDAbstract, {
 
@@ -126,7 +126,7 @@
      * @class BDDIt
      * @extends BDDAbstract
      */
-    var BDDIt = _toClass(function (label, callback, parent) {
+    var BDDIt = _toClass(function BDDIt (label, callback, parent) {
         BDDAbstract.apply(this, [label, parent]);
         this.callback = callback;
     }, BDDAbstract, {
@@ -142,6 +142,17 @@
     //endregion BDD item classes
 
     //region BDD public interface
+
+    function _output (text, level) {
+        if (undefined === level) {
+            level = "log";
+        }
+        // Console can be mocked up to check outputs
+        if (console.expects) {
+            console.expects(level, text, true);
+        }
+        console[level](text);
+    }
 
     _objectForEach({
 
@@ -203,25 +214,14 @@
         }
 
     }, function (memberValue, memberName) {
-        if (!this[memberName]) {
-            this[memberName] = memberValue;
+        if (!context[memberName]) {
+            context[memberName] = memberValue;
         }
-    }, context);
+    });
 
     //endregion  BDD public interface
 
     //region default callback (based on console.log)
-
-    function _output (text, level) {
-        if (undefined === level) {
-            level = "log";
-        }
-        // Console can be mocked up to check outputs
-        if (console.expects) {
-            console.expects(level, text, true);
-        }
-        console[level](text);
-    }
 
     var _handlers = {
 
@@ -302,7 +302,7 @@
 
     //region Running the tests
 
-    var Runner = _toClass(function (callback, timeoutDelay) {
+    var Runner = _toClass(function Runner (callback, timeoutDelay) {
         this._state = Runner.STATE_DESCRIBE_BEFORE;
         this._callback = callback || _defaultCallback;
         this._timeoutDelay = timeoutDelay || Runner.DEFAULT_TIMEOUT_DELAY;
@@ -463,10 +463,11 @@
          * @param {Function} done done callback
          */
         _attachToPromise: function (promise, done) {
+            var catchName = "catch", // Because of cscript compatibility (reserved keyword)
+                _rejectionReason;
             function fulfilled() {
                 done(); // Must have no parameter
             }
-            var _rejectionReason;
             function rejected(reason) {
                 if (!reason) {
                     reason = {
@@ -482,7 +483,7 @@
                 }
             }
             promise.then(fulfilled, rejected);
-            var catchMethod = promise["catch"]; // Because of cscript compatibility
+            var catchMethod = promise[catchName];
             if (catchMethod) {
                 catchMethod.apply(promise, [caught]);
             }
