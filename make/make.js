@@ -24,7 +24,6 @@ try {
 }
 
 // Get the list of sources
-global.gpf = {};
 require("../src/sources.js");
 
 // Read sources
