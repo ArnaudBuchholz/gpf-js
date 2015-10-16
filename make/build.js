@@ -1,4 +1,6 @@
 "use strict";
+/*jshint node: true*/
+/*eslint-env node*/
 
 var fs = require("fs"),
     preprocess = require("./preprocess.js"),
