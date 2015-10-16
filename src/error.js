@@ -38,7 +38,7 @@ _GpfError.prototype = {
  * @return {Function}
  * @closure
  */
- function _gpfGenErrorName (code, name, message) {
+function _gpfGenErrorName (code, name, message) {
     var result = function (context) {
         var error = new _GpfError(),
             finalMessage,
