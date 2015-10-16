@@ -1,5 +1,6 @@
 "use strict";
-/*global require, process*/
+/*jshint node: true*/
+/*eslint-env node*/
 
 var fs = require("fs"),
     build = require("./build.js"),
