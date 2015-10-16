@@ -25,7 +25,7 @@
         "max-len":                      [2, 120],
         "max-params":                   [2, 3],
         "max-statements":               [2, 15],
-        "new-cap":                      2,
+        "new-cap":                      [2, {"capIsNewExceptions": ["ASSERT"]}],
         "no-bitwise":                   0,
         "no-caller":                    2,
         "no-empty":                     2,
@@ -51,12 +51,11 @@
         "strict":                       0,
         "wrap-iife":                    [ 2, "any" ]
     },
-    "env": {
-        "node":     true,
-        "browser":  true
-    },
     "globals": {
-        "gpf":      false
+        "gpf":                          false,
+        "gpfSourcesPath":               true,
+        "console":                      true,
+        "setTimeout":                   true
     },
     "extends": "eslint:recommended"
 }
