@@ -1,6 +1,8 @@
 "use strict";
 /*jshint node: true*/
-/*global process, global, phantom*/
+/*jshint phantom: true*/
+/*eslint-env node, phantomjs*/
+/*global window*/ // missing from phantomjs
 
 var
     options = {
@@ -107,7 +109,7 @@ module.exports = function loadTests(readFile) {
         content = readFile(path.resolve(testPath, source + ".js"));
         if (undefined !== content) {
             /*jslint evil: true*/
-            eval(content);
+            eval(content); //eslint-disable-line no-eval
             /*jslint evil: false*/
         }
     }
