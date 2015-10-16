@@ -5,6 +5,7 @@
 /*global _gpfHost*/ // Host type
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfInNode*/ // The current host is a nodeJS like
+/*global _gpfWebWindow*/ // Browser window object
 /*exported _gpfExtend*/
 /*exported _gpfIsArrayLike*/
 /*exported _gpfObjectForEach*/
@@ -24,11 +25,11 @@ var
      */
     _gpfIsArrayLike;
 
-if (_GPF_HOST_BROWSER === _gpfHost && (window.HTMLCollection || window.NodeList)) {
+if (_GPF_HOST_BROWSER === _gpfHost && (_gpfWebWindow.HTMLCollection || _gpfWebWindow.NodeList)) {
     _gpfIsArrayLike = function (obj) {
         return obj instanceof Array
-            || obj instanceof window.HTMLCollection
-            || obj instanceof window.NodeList;
+            || obj instanceof _gpfWebWindow.HTMLCollection
+            || obj instanceof _gpfWebWindow.NodeList;
     };
 } else {
     _gpfIsArrayLike = function (obj) {
@@ -191,7 +192,7 @@ function _gpfStringEscapeFor (that, language) {
  * @param {*} value
  * @param {String} member
  */
- function _gpfAssign (value, member) {
+function _gpfAssign (value, member) {
     /*jshint validthis:true*/ // gpf.extend's arguments: this[0] is dst
     this[0][member] = value;
 }
@@ -202,7 +203,7 @@ function _gpfStringEscapeFor (that, language) {
  * @param {*} value
  * @param {String} member
  */
- function _gpfAssignOrCall (value, member) {
+function _gpfAssignOrCall (value, member) {
     /*jshint validthis:true*/ // gpf.extend's arguments
     var dst = this[0],
         overwriteCallback = this[2];
@@ -224,7 +225,7 @@ function _gpfStringEscapeFor (that, language) {
  * @return {Object} the modified dst
  * @chainable
  */
- function _gpfExtend (dst, src, overwriteCallback) {
+function _gpfExtend (dst, src, overwriteCallback) {
     var callbackToUse;
     if (undefined === overwriteCallback) {
         callbackToUse = _gpfAssign;
