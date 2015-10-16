@@ -121,7 +121,7 @@ function _gpfWebIncludeInsert (domScript) {
  *
  * Inspired from http://stackoverflow.com/questions/4845762/
  */
- function _gpfWebInclude (url, eventsHandler) {
+function _gpfWebInclude (url, eventsHandler) {
     var context = new _GpfWebIncludeContext(url, eventsHandler),
         domScript = _gpfWebDocument.createElement("script");
     // Configure script tag
