@@ -32,15 +32,17 @@ gpf.handleTimeout = _gpfEmptyFunc;
 
 if ("undefined" === typeof setTimeout) {
 
-    /*jshint rhino: true*/
     /*jshint wsh: true*/
+    /*eslint-env wsh*/
+    /*jshint rhino: true*/
+    /*eslint-env rhino*/
 
     _gpfTimeoutQueue = [];
     _gpfTimeoutID = 0;
 
     if (_GPF_HOST_WSCRIPT === _gpfHost) {
         _gpfSleep =  function (t) {
-            WScript.Sleep(t);
+            WScript.Sleep(t); //eslint-disable-line new-cap
         };
     } else if (_GPF_HOST_RHINO === _gpfHost) {
         _gpfSleep = java.lang.Thread.sleep;
@@ -65,12 +67,12 @@ if ("undefined" === typeof setTimeout) {
     _gpfMainContext.clearTimeout = function (timeoutId) {
         var pos;
         /*gpf:inline(array)*/ if (!_gpfTimeoutQueue.every(function (timeoutItem, index) {
-                if (timeoutItem.id === timeoutId) {
-                    pos = index;
-                    return false;
-                }
-                return true;
-            })) {
+            if (timeoutItem.id === timeoutId) {
+                pos = index;
+                return false;
+            }
+            return true;
+        })) {
             _gpfTimeoutQueue.splice(pos, 1);
         }
     };
@@ -83,7 +85,7 @@ if ("undefined" === typeof setTimeout) {
             timeoutItem = queue.shift();
             now = new Date();
             if (timeoutItem.dt > now) {
-               _gpfSleep(timeoutItem.dt - now);
+                _gpfSleep(timeoutItem.dt - now);
             }
             timeoutItem.cb();
         }
