@@ -1,5 +1,6 @@
 "use strict";
 /*jshint node: true*/
+/*eslint-env node*/
 var fs = require("fs"),
     loadTests = require("./node_loader.js");
 require("./bdd.js"); /*global run*/
