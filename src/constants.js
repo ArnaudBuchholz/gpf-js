@@ -1,6 +1,8 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*jshint -W098*/ // This is a constant list, they won't be used in here
+/*eslint-disable no-unused-vars*/
+/*eslint-disable no-undef*/
 /*jshint -W079*/ // Globals are also copied here
 /*#endif*/
 
