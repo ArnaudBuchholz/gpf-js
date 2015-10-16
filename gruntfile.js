@@ -1,3 +1,5 @@
+/*jshint node: true*/
+/*eslint-env node*/
 module.exports = function (grunt) {
     "use strict";
 
