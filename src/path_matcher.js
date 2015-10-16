@@ -76,7 +76,7 @@ function _gpfPathMatchCompilePattern (pattern) {
  * @param {Array|String} pattern
  * @return {_GpfPathMatcher[]}
  */
- function _gpfPathMatchCompilePatterns (pattern) {
+function _gpfPathMatchCompilePatterns (pattern) {
     if (pattern instanceof Array) {
         return pattern.map(_gpfPathMatchCompilePattern);
     } else {
