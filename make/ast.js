@@ -1,4 +1,6 @@
 "use strict";
+/*jshint node: true*/
+/*eslint-env node*/
 
 var esprima = require("esprima"),
     escodegen = require("escodegen"),
