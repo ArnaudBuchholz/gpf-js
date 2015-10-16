@@ -1,4 +1,5 @@
 /*jshint rhino:true*/
+/*eslint-env rhino*/
 /*global run*/
 
 print("Rhino showcase");
