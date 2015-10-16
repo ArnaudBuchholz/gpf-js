@@ -1,9 +1,9 @@
 (function () {
     "use strict";
+    /*global console: true*/
 
     /**
-     * Simulate console object to generate exceptions when the output is not
-     * expected. Relies on GPF.
+     * Simulate console object to generate exceptions when the output is not expected.
      */
 
     var consoleMethods = {},
@@ -29,10 +29,9 @@
                 expectedOutput = expected.shift();
             }
             if (expectedName !== name || expectedText !== text) {
-                throw {
-                    message: "Unexpected use of console." + name,
-                    text: text
-                };
+                var error = new Error("Unexpected use of console." + name);
+                error.text = text;
+                throw error;
             }
             if (expectedOutput) {
                 consoleMethods[name].apply(console, arguments);
