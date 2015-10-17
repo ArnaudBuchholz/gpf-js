@@ -7,6 +7,7 @@
 /*global _GPF_FS_TYPE_FILE*/ // _GPF_FS_TYPE_FILE
 /*global _GPF_FS_TYPE_NOT_FOUND*/ // _GPF_FS_TYPE_NOT_FOUND
 /*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfArrayEnumerator*/ // Create an IEnumerator from an array
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
@@ -17,6 +18,9 @@
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*global _gpfPathNormalize*/ // Normalize path
 // /*#endif*/
+
+/*jshint wsh:true*/
+/*eslint-env wsh*/
 
 var
     /**
@@ -264,7 +268,7 @@ var
              * @constructor
              */
             constructor: function (path) {
-                gpf.ASSERT(null !== _gpfMsFSO, "Allocated FSO object expected");
+                _gpfAssert(null !== _gpfMsFSO, "Allocated FSO object expected");
                 var file = _gpfMsFSO.getFile(path);
                 this._size = file.size;
                 this._stream =  file.openAsTextStream();
@@ -428,7 +432,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", Object, {
                     eventsHandler
                 ]);
             } else {
-                throw gpf.Error.InvalidParameter();
+                throw gpf.Error.invalidParameter();
             }
         },
 

@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
 "use strict";
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfExtend*/ // gpf.extend
 /*#endif*/
 
@@ -73,7 +74,7 @@
                  * @implements gpf.interfaces.ITextStream:write
                  */
                 write: function (buffer, eventsHandler) {
-                    gpf.ASSERT(buffer && buffer.length, "Write must contain data");
+                    _gpfAssert(buffer && buffer.length, "Write must contain data");
                     this._buffer = this._buffer.concat(buffer);
                     gpfFireEvent.apply(this, [
                         gpfI.IWritableStream.EVENT_READY,

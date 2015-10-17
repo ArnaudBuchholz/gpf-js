@@ -1,5 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfAttributesAdd*/ // Shortcut for gpf.attributes.add
 /*global _gpfDefAttr*/ // gpf.define for attributes
 /*global _gpfFromXml*/ // XML deserializer
@@ -94,7 +95,7 @@ var
              * @constructor
              */
             constructor: function (name) {
-                gpf.ASSERT(_gpfIsValidXmlName(name), "Valid XML attribute name");
+                _gpfAssert(_gpfIsValidXmlName(name), "Valid XML attribute name");
                 this._name = name;
             }
 
@@ -131,7 +132,7 @@ var
              * @constructor
              */
             constructor: function (name) {
-                gpf.ASSERT(_gpfIsValidXmlName(name), "Valid XML element name");
+                _gpfAssert(_gpfIsValidXmlName(name), "Valid XML element name");
                 this._name = name;
             }
 

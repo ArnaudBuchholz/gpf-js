@@ -1,6 +1,8 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
+/*global _gpfAssert*/ // Assertion method
+/*global _gpfAsserts*/ // Multiple assertion method
 /*global _gpfAttributesAdd*/ // Shortcut for gpf.attributes.add
 /*global _gpfContext*/ // Resolve contextual string
 /*global _gpfEmptyFunc*/ // An empty function
@@ -17,9 +19,9 @@
 /*#endif*/
 
 _gpfErrorDeclare("define", {
-    "ClassMemberOverloadWithTypeChange":
+    "classMemberOverloadWithTypeChange":
         "You can't overload a member and change its type",
-    "ClassInvalidVisibility":
+    "classInvalidVisibility":
         "Invalid visibility keyword"
 });
 
@@ -44,6 +46,9 @@ var
  */
 function _gpfClassConstructorTpl () {
     var classDef = arguments[0],
+        /**
+         * @this created object
+         */
         constructor = function /* name will be injected here */ () {
             if (classDef.constructionAllowed()) {
                 classDef._resolvedConstructor.apply(this, arguments);
@@ -99,7 +104,7 @@ function _gpfUsesSuper (method) {
  * @closure
  */
 function _gpfGenSuperMember (superMethod, method) {
-    return function () {
+    return function GpfSuperableMethod () {
         var previousSuper = this._super,
             result;
         // Add a new ._super() method pointing to the base class member
@@ -233,7 +238,7 @@ _GpfClassDefinition.prototype = {
         } else if ("string" === typeof visibility) {
             visibility = _gpfVisibilityKeywords.indexOf(visibility);
             if (-1 === visibility) {
-                throw gpf.Error.ClassInvalidVisibility();
+                throw gpf.Error.classInvalidVisibility();
             }
         }
         this._addMember(member, memberValue, visibility);
@@ -248,7 +253,7 @@ _GpfClassDefinition.prototype = {
      */
     _addMember: function (member, memberValue, visibility) {
         if (_GPF_VISIBILITY_STATIC === visibility) {
-            gpf.ASSERT(undefined === this._Constructor[member], "Static members can't be overridden");
+            _gpfAssert(undefined === this._Constructor[member], "Static members can't be overridden");
             /*gpf:constant*/ this._Constructor[member] = memberValue;
         } else if ("constructor" === member) {
             this._addConstructor(memberValue, visibility);
@@ -265,7 +270,7 @@ _GpfClassDefinition.prototype = {
      * @closure
      */
     _addConstructor: function (memberValue, visibility) {
-        gpf.ASSERTS({
+        _gpfAsserts({
             "Constructor must be a function": "function" === typeof memberValue,
             "Own constructor can't be overridden": null === this._definitionConstructor
         });
@@ -289,12 +294,12 @@ _GpfClassDefinition.prototype = {
             baseMemberValue,
             baseType,
             prototype = this._Constructor.prototype;
-        gpf.ASSERT(!prototype.hasOwnProperty(member), "Existing own member can't be overridden");
+        _gpfAssert(!prototype.hasOwnProperty(member), "Existing own member can't be overridden");
         baseMemberValue = this._Super.prototype[member];
         baseType = typeof baseMemberValue;
         if ("undefined" !== baseType) {
             if (null !== baseMemberValue && newType !== baseType) {
-                throw gpf.Error.ClassMemberOverloadWithTypeChange();
+                throw gpf.Error.classMemberOverloadWithTypeChange();
             }
             if ("function" === newType && _gpfUsesSuper(memberValue)) {
                 memberValue = _gpfGenSuperMember(baseMemberValue, memberValue);
@@ -362,7 +367,7 @@ _GpfClassDefinition.prototype = {
             return this._addMember(memberName, memberValue, this._deduceVisibility(memberName));
         }
         if (_GPF_VISIBILITY_UNKNOWN !== this._defaultVisibility) {
-            throw gpf.Error.ClassInvalidVisibility();
+            throw gpf.Error.classInvalidVisibility();
         }
         this._processDefinition(memberValue, newVisibility);
     },
@@ -394,7 +399,7 @@ _GpfClassDefinition.prototype = {
             Constructor,
             newPrototype;
         if (attributes) {
-            gpf.ASSERT("function" === typeof _gpfAttributesAdd, "Attributes can't be defined before they exist");
+            _gpfAssert("function" === typeof _gpfAttributesAdd, "Attributes can't be defined before they exist");
             Constructor = this._Constructor;
             newPrototype = Constructor.prototype;
             /*gpf:inline(object)*/ _gpfObjectForEach(attributes, function (attributeList, attributeName) {
@@ -483,7 +488,7 @@ _GpfClassDefinition.prototype = {
  * @return {Function}
  */
 function _gpfDefine (name, base, definition) {
-    gpf.ASSERTS({
+    _gpfAsserts({
         "name is required (String)": "string" === typeof name,
         "base is required (String|Function)": "string" === typeof base || base instanceof Function,
         "definition is required (Object)": "object" === typeof definition
@@ -502,7 +507,7 @@ function _gpfDefine (name, base, definition) {
     if ("string" === typeof base) {
         // Convert base into the function
         base = _gpfContext(base.split("."));
-        gpf.ASSERT(base instanceof Function, "base must resolve to a function");
+        _gpfAssert(base instanceof Function, "base must resolve to a function");
     }
     classDef = new _GpfClassDefinition(name, base, definition);
     result = classDef._Constructor;

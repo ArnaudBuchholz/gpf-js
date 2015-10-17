@@ -1,5 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfAssert*/ // Assertion method
+/*global _gpfAsserts*/ // Multiple assertion method
 /*global _GpfClassDefinition*/ // GPF class definition
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEmptyFunc*/ // An empty function
@@ -114,25 +116,28 @@ var _gpfAttribute = _gpfDefine("gpf.attributes.Attribute", Object, {
 
 /*#ifdef(DEBUG)*/
 
+var _gpfAssertAttributeClassOnly,
+    _gpfAssertAttributeOnly;
+
 // DEBUG specifics
 
-gpf.ASSERT_ATTRIBUTE_CLASS_ONLY = function (value) {
-    gpf.ASSERTS({
+_gpfAssertAttributeClassOnly = function (value) {
+    _gpfAsserts({
         "Expected a class parameter": "function" === typeof value,
         "Expected an Attribute-like class parameter": value.prototype instanceof _gpfAttribute
     });
 };
 
-gpf.ASSERT_ATTRIBUTE_ONLY = function (value) {
-    gpf.ASSERT(value instanceof _gpfAttribute, "Expected an Attribute-like parameter");
+_gpfAssertAttributeOnly = function (value) {
+    _gpfAssert(value instanceof _gpfAttribute, "Expected an Attribute-like parameter");
 };
 
-if (!gpf.ASSERT_ATTRIBUTE_CLASS_ONLY) {
+if (!_gpfAssertAttributeClassOnly) {
 
 /*#else*/
 
-    /*gpf:nop*/ gpf.ASSERT_ATTRIBUTE_CLASS_ONLY = _gpfEmptyFunc;
-    /*gpf:nop*/ gpf.ASSERT_ATTRIBUTE_ONLY = _gpfEmptyFunc;
+    /*gpf:nop*/ _gpfAssertAttributeClassOnly = _gpfEmptyFunc;
+    /*gpf:nop*/ _gpfAssertAttributeOnly = _gpfEmptyFunc;
 
 /*#endif*/
 
@@ -183,7 +188,7 @@ _gpfDefine("gpf.attributes.Array", Object, {
          * @return {Boolean}
          */
         has: function (expectedClass) {
-            gpf.ASSERT_ATTRIBUTE_CLASS_ONLY(expectedClass);
+            _gpfAssertAttributeClassOnly(expectedClass);
             /*gpf:inline(array)*/ return !this._array.every(function (attribute) {
                 return !(attribute instanceof expectedClass);
             });
@@ -196,7 +201,7 @@ _gpfDefine("gpf.attributes.Array", Object, {
          * @return {gpf.attributes.Array}
          */
         filter: function (expectedClass) {
-            gpf.ASSERT_ATTRIBUTE_CLASS_ONLY(expectedClass);
+            _gpfAssertAttributeClassOnly(expectedClass);
             var result = new _gpfA.Array();
             /*gpf:inline(array)*/ result._array = this._array.filter(function (attribute) {
                 return attribute instanceof expectedClass;
@@ -346,7 +351,7 @@ _gpfDefine("gpf.attributes.Map", Object, {
          * @param {gpf.attributes.Attribute} attribute attribute to map
          */
         add: function (member, attribute) {
-            gpf.ASSERT_ATTRIBUTE_ONLY(attribute);
+            _gpfAssertAttributeOnly(attribute);
             member = _encodeMember(member);
             var array = this._members[member];
             if (undefined === array) {
@@ -364,7 +369,7 @@ _gpfDefine("gpf.attributes.Map", Object, {
          * @return {gpf.attributes.Map}
          */
         filter: function (expectedClass) {
-            gpf.ASSERT_ATTRIBUTE_CLASS_ONLY(expectedClass);
+            _gpfAssertAttributeClassOnly(expectedClass);
             return this._copy(new _gpfA.Map(), this._filterCallback, expectedClass);
         },
 
@@ -444,7 +449,7 @@ var _gpfAttributesAdd = _gpfA.add = function (objectClass, name, attributes) {
     len = attributes.length;
     for (idx = 0; idx < len; ++idx) {
         attribute = attributes[idx];
-        gpf.ASSERT(attribute instanceof _gpfAttribute, "Expected attribute");
+        _gpfAssert(attribute instanceof _gpfAttribute, "Expected attribute");
         attribute._member = name; // Assign member name
         objectClassOwnAttributes.add(name, attribute);
         attribute._alterPrototype(objectClass.prototype);

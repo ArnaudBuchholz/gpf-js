@@ -8,6 +8,7 @@
 /*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
 /*global _GPF_EVENT_STOP*/ // gpf.events.EVENT_STOP
 /*global _GPF_EVENT_STOPPED*/ // gpf.events.EVENT_STOPPED
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfCreateConstants*/
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
@@ -88,7 +89,7 @@ _GpfEvent.prototype = {
 function _gpfEventsTriggerHandler (event, eventsHandler) {
     var scope = event.scope,
         eventHandler;
-    gpf.ASSERT(eventsHandler, "Expected eventsHandler");
+    _gpfAssert(eventsHandler, "Expected eventsHandler");
     if ("function" === typeof eventsHandler.dispatchEvent) {
         // Event dispatcher expected interface
         eventsHandler.dispatchEvent(event);

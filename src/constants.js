@@ -13,6 +13,8 @@
 /*global _GPF_HOST_RHINO*/ // gpf.HOST_RHINO
 /*global _GPF_HOST_UNKNOWN*/ // gpf.HOST_UNKNOWN
 /*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
+/*global _gpfAssert*/ // Assertion method
+/*global _gpfAsserts*/ // Multiple assertion method
 /*global _gpfContext*/ // Resolve contextual string
 /*global _gpfDosPath*/ // DOS-like path
 /*global _gpfEmptyFunc*/ // An empty function
@@ -229,7 +231,7 @@ var
             source = params;
             params = [];
         }
-        gpf.ASSERT("string" === typeof source && source.length, "Source expected (or use _gpfEmptyFunc)");
+        _gpfAssert("string" === typeof source && source.length, "Source expected (or use _gpfEmptyFunc)");
 /*#ifdef(DEBUG)*/
         try {
 /*#endif*/

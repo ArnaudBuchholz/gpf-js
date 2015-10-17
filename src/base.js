@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfExit*/ // Exit function
 /*global _gpfHost*/ // Host type
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
@@ -230,7 +231,7 @@ function _gpfExtend (dst, src, overwriteCallback) {
     if (undefined === overwriteCallback) {
         callbackToUse = _gpfAssign;
     } else {
-        gpf.ASSERT("function" === typeof overwriteCallback, "Expected function");
+        _gpfAssert("function" === typeof overwriteCallback, "Expected function");
         callbackToUse = _gpfAssignOrCall;
     }
     /*gpf:inline(object)*/ _gpfObjectForEach(src, callbackToUse, arguments);
@@ -369,7 +370,7 @@ _gpfExtend(gpf, {
      * @chainable
      */
     set: function (array, value) {
-        gpf.ASSERT(array instanceof Array, "gpf.set must be used with an Array");
+        _gpfAssert(array instanceof Array, "gpf.set must be used with an Array");
         var idx = array.length;
         while (idx > 0) {
             if (array[--idx] === value) {
