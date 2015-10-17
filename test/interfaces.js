@@ -75,8 +75,8 @@ describe("interfaces", function () {
             }
             assert(null !== caught);
             assert(caught.code === gpf.Error.CODE_INTERFACEEXPECTED);
-            assert(caught.code === gpf.Error.InterfaceExpected.CODE);
-            assert(caught.name === "InterfaceExpected");
+            assert(caught.code === gpf.Error.interfaceExpected.CODE);
+            assert(caught.name === "interfaceExpected");
             assert(caught.message === "Expected interface not implemented: gpf.interfaces.IEventDispatcher");
         });
 

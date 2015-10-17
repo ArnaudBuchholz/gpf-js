@@ -20,7 +20,7 @@ describe("a_attributes", function () {
                 caught = e;
             }
             assert(null !== caught);
-            assert(caught.name === "OnlyForAttributeClass");
+            assert(caught.name === "onlyForAttributeClass");
         });
 
         var
@@ -51,7 +51,7 @@ describe("a_attributes", function () {
                 caught = e;
             }
             assert(null !== caught);
-            assert(caught.name === "ClassOnlyAttribute");
+            assert(caught.name === "classOnlyAttribute");
         });
 
     });
@@ -68,7 +68,7 @@ describe("a_attributes", function () {
                 caught = e;
             }
             assert(null !== caught);
-            assert(caught.name === "OnlyForAttributeClass");
+            assert(caught.name === "onlyForAttributeClass");
         });
 
         var
@@ -99,7 +99,7 @@ describe("a_attributes", function () {
                 caught = e;
             }
             assert(null !== caught);
-            assert(caught.name === "MemberOnlyAttribute");
+            assert(caught.name === "memberOnlyAttribute");
         });
 
     });
@@ -116,7 +116,7 @@ describe("a_attributes", function () {
                 caught = e;
             }
             assert(null !== caught);
-            assert(caught.name === "OnlyForAttributeClass");
+            assert(caught.name === "onlyForAttributeClass");
         });
 
         describe("(true) for the whole class", function () {
@@ -153,7 +153,7 @@ describe("a_attributes", function () {
                     caught = e;
                 }
                 assert(null !== caught);
-                assert(caught.name === "UniqueAttributeConstraint");
+                assert(caught.name === "uniqueAttributeConstraint");
             });
 
             it("prevents defining the attribute twice (add)", function () {
@@ -164,7 +164,7 @@ describe("a_attributes", function () {
                     caught = e;
                 }
                 assert(null !== caught);
-                assert(caught.name === "UniqueAttributeConstraint");
+                assert(caught.name === "uniqueAttributeConstraint");
             });
 
         });
@@ -202,7 +202,7 @@ describe("a_attributes", function () {
                     caught = e;
                 }
                 assert(null !== caught);
-                assert(caught.name === "UniqueMemberAttributeConstraint");
+                assert(caught.name === "uniqueMemberAttributeConstraint");
             });
 
             it("prevents defining the attribute twice (add)", function () {
@@ -213,7 +213,7 @@ describe("a_attributes", function () {
                     caught = e;
                 }
                 assert(null !== caught);
-                assert(caught.name === "UniqueMemberAttributeConstraint");
+                assert(caught.name === "uniqueMemberAttributeConstraint");
             });
 
             it("allows use on different members", function () {
