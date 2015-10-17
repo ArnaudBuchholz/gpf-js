@@ -16,7 +16,7 @@
 /*#endif*/
 
 _gpfErrorDeclare("fs", {
-    "FileNotFound":
+    "fileNotFound":
         "File not found"
 });
 
@@ -37,6 +37,7 @@ function _gpfFsExploreEnumerator (iFileStorage, listOfPaths) {
             pos = -1;
         },
         moveNext: function (eventsHandler) {
+            var me = this;
             ++pos;
             info = undefined;
             if (eventsHandler) {
@@ -44,14 +45,14 @@ function _gpfFsExploreEnumerator (iFileStorage, listOfPaths) {
                     iFileStorage.getInfo(listOfPaths[pos], function (event) {
                         if (_GPF_EVENT_ERROR === event.type) {
                             // forward the event
-                            _gpfEventsFire.apply(this, [event, {}, eventsHandler]);
+                            _gpfEventsFire.apply(me, [event, {}, eventsHandler]);
                             return;
                         }
                         info = event.get("info");
-                        _gpfEventsFire.apply(this, [_GPF_EVENT_DATA, {}, eventsHandler]);
+                        _gpfEventsFire.apply(me, [_GPF_EVENT_DATA, {}, eventsHandler]);
                     });
                 } else {
-                    _gpfEventsFire.apply(this, [_GPF_EVENT_END_OF_DATA, {}, eventsHandler]);
+                    _gpfEventsFire.apply(me, [_GPF_EVENT_END_OF_DATA, {}, eventsHandler]);
                 }
             }
             return false;
@@ -132,6 +133,7 @@ var /**
      * @inheritdoc gpf.fs#find
      *
      * This function (on first execution) updates gpf.fs.find
+     * @this gpf.fs
      */
     _gpfFsFind = function (basePath, filters, eventsHandler) {
         _gpfIgnore(basePath, filters, eventsHandler); // Will be used as arguments

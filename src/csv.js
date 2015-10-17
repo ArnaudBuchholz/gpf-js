@@ -5,7 +5,7 @@
 /*#endif*/
 
 _gpfErrorDeclare("csv", {
-    CsvInvalid:
+    csvInvalid:
         "Invalid CSV syntax (bad quote sequence or missing end of file)"
 });
 
@@ -108,7 +108,7 @@ _GpfCsvParser.prototype = {
                     // Double quote means escaped one
                     value = value.substr(0, pos) + value.substr(pos + 1);
                 } else {
-                    throw gpf.Error.CsvInvalid();
+                    throw gpf.Error.csvInvalid();
                 }
             }
             pos = value.indexOf(quote, pos + 1);
@@ -221,7 +221,7 @@ _GpfCsvParser.prototype = {
             }
         }
         if (values.inQuotedString) {
-            throw gpf.Error.CsvInvalid();
+            throw gpf.Error.csvInvalid();
         }
         return values;
     },

@@ -16,6 +16,9 @@
 /*global _gpfPathNormalize*/ // Normalize path
 /*#endif*/
 
+/*jshint node:true*/
+/*eslint-env node*/
+
 /**
  * Helper to wrap node error
  *
@@ -143,7 +146,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", Object, {
             if (stream instanceof _GpfNodeStream) {
                 stream.close(eventsHandler);
             } else {
-                throw gpf.Error.InvalidParameter();
+                throw gpf.Error.invalidParameter();
             }
         },
 
@@ -151,6 +154,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", Object, {
          * @inheritdoc IFileStorage#explore
          */
         explore: function (path, eventsHandler) {
+            var me = this;
             path = _gpfPathNormalize(path);
             _gpfNodeFs.readdir(path, function (err, files) {
                 if (err) {
@@ -160,7 +164,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", Object, {
                 _gpfEventsFire.apply(null, [
                     _GPF_EVENT_READY,
                     {
-                        enumerator: _gpfFsExploreEnumerator(this, files)
+                        enumerator: _gpfFsExploreEnumerator(me, files)
                     },
                     eventsHandler
                 ]);

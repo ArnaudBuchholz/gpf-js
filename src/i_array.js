@@ -119,7 +119,7 @@ _gpfDefAttr("$ClassIArray", _gpfA.ClassAttribute, {
         constructor: function (writeAllowed) {
             if (writeAllowed) {
                 // TODO decide how to implement IArray
-                throw gpf.Error.NotImplemented();
+                throw gpf.Error.notImplemented();
                 //this._writeAllowed = true;
             }
         }

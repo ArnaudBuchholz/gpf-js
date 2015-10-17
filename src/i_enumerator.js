@@ -14,7 +14,7 @@
 /*#endif*/
 
 _gpfErrorDeclare("i_enumerator", {
-    EnumerableInvalidMember:
+    enumerableInvalidMember:
         "$Enumerator can be associated to arrays only"
 });
 
@@ -192,7 +192,7 @@ _gpfDefAttr("$Enumerable", _gpfA.ClassAttribute, {
     // @inheritdoc gpf.attributes.Attribute#_alterPrototype
     _alterPrototype: function (objPrototype) {
         if (!_gpfIsArrayLike(objPrototype[this._member])) {
-            throw gpf.Error.EnumerableInvalidMember();
+            throw gpf.Error.enumerableInvalidMember();
         }
         _gpfAttributesAdd(objPrototype.constructor, "Class", [
             new _gpfA.InterfaceImplementAttribute(_gpfI.IEnumerator, _buildEnumeratorOnObjectArray)

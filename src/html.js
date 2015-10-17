@@ -3,17 +3,18 @@
 "use strict";
 /*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
 /*global _GPF_HOST_PHANTOMJS*/ // gpf.HOST_PHANTOMJS
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfExtend*/ // gpf.extend
 /*#endif*/
 
     _gpfErrorDeclare("html", {
-        "HtmlHandlerMultiplicityError":
+        "htmlHandlerMultiplicityError":
             "Too many $HtmlHandler attributes for '{member}'",
-        "HtmlHandlerMissing":
+        "htmlHandlerMissing":
             "No $HtmlHandler attributes",
-        "HtmlHandlerNoDefault":
+        "htmlHandlerNoDefault":
             "No default $HtmlHandler attribute"
     });
 
@@ -683,7 +684,7 @@
                     len,
                     result,
                     idx;
-                gpf.ASSERT(reader === this._reader, "Unexpected change of reader");
+                _gpfAssert(reader === this._reader, "Unexpected change of reader");
                 if (reader.error) {
                     gpfFireEvent.apply(this, [
                         gpfI.IReadableStream.ERROR,
@@ -832,7 +833,7 @@
     function _getHandlerAttribute(member, handlerAttributeArray) {
         var attribute;
         if (1 !== handlerAttributeArray.length()) {
-            throw gpf.Error.HtmlHandlerMultiplicityError({
+            throw gpf.Error.htmlHandlerMultiplicityError({
                 member: member
             });
         }
@@ -871,21 +872,21 @@
             defaultHandler,
             eventAttributes;
         if (0 === handlerAttributes.count()) {
-            throw gpf.Error.HtmlHandlerMissing();
+            throw gpf.Error.htmlHandlerMissing();
         }
         defaultHandler = handlerAttributes.each(_findDefaultHandler);
         if (undefined === defaultHandler) {
-            throw gpf.Error.HtmlHandlerNoDefault();
+            throw gpf.Error.htmlHandlerNoDefault();
         }
         defaultHandler = defaultHandler.member();
         if (undefined === domSelection) {
             domSelection = instance[defaultHandler];
-            gpf.ASSERT(domSelection, "Handle not previously set");
+            _gpfAssert(domSelection, "Handle not previously set");
         } else {
             if ("string" === typeof domSelection) {
                 domSelection = document.querySelector(domSelection);
             }
-            gpf.ASSERT(domSelection, "Selector does not resolve to DOM");
+            _gpfAssert(domSelection, "Selector does not resolve to DOM");
             if (!domSelection) {
                 return; // Nothing can be done
             }
@@ -973,7 +974,7 @@
             if ("string" === typeof toCheck) {
                 toCheck = [toCheck];
             }
-            gpf.ASSERT(toCheck instanceof Array, "Expected array");
+            _gpfAssert(toCheck instanceof Array, "Expected array");
             classNames = domObject.className.split(" ");
             len = toCheck.length;
             for (idx = 0; idx < len; ++idx) {
@@ -1010,7 +1011,7 @@
                 if ("string" === typeof toRemove) {
                     toRemove = [toRemove];
                 }
-                gpf.ASSERT(toRemove instanceof Array, "Expected array");
+                _gpfAssert(toRemove instanceof Array, "Expected array");
                 len = toRemove.length;
                 for (idx = 0; idx < len; ++idx) {
                     gpf.clear(classNames, toRemove[idx]);
@@ -1021,7 +1022,7 @@
                 if ("string" === typeof toAdd) {
                     toAdd = [toAdd];
                 }
-                gpf.ASSERT(toAdd instanceof Array, "Expected array");
+                _gpfAssert(toAdd instanceof Array, "Expected array");
                 len = toAdd.length;
                 for (idx = 0; idx < len; ++idx) {
                     gpf.set(classNames, toAdd[idx]);

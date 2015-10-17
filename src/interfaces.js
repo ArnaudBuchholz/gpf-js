@@ -13,7 +13,7 @@
 /*#endif*/
 
 _gpfErrorDeclare("interfaces", {
-    InterfaceExpected:
+    interfaceExpected:
         "Expected interface not implemented: {name}"
 });
 
@@ -94,7 +94,7 @@ var
                 result = objectInstance.queryInterface(interfaceDefinition);
             }
             if (null === result && (undefined === throwError || throwError)) {
-                throw gpf.Error.InterfaceExpected({
+                throw gpf.Error.interfaceExpected({
                     name: _gpfGetClassDefinition(interfaceDefinition)._name
                 });
             }

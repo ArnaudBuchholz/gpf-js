@@ -4,6 +4,7 @@
 /*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
 /*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
 /*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
@@ -13,9 +14,9 @@
 /*#endif*/
 
 _gpfErrorDeclare("stream", {
-    ReadInProgress:
+    readInProgress:
         "A read operation is already in progress",
-    WriteInProgress:
+    writeInProgress:
         "A write operation is already in progress"
 });
 
@@ -176,7 +177,7 @@ _gpfDefine("gpf.stream.BufferedOnRead", Object, {
          */
         _addToBuffer: function (buffer) {
             _gpfIgnore(buffer);
-            throw gpf.Error.Abstract();
+            throw gpf.Error.abstract();
         },
 
         /**
@@ -198,7 +199,7 @@ _gpfDefine("gpf.stream.BufferedOnRead", Object, {
          * @protected
          */
         _readFromBuffer: function (size) {
-            gpf.ASSERT(0 !== this._buffer.length, "Buffer is not empty");
+            _gpfAssert(0 !== this._buffer.length, "Buffer is not empty");
             if ("string" === this._buffer[0]) {
                 return this._readFromStringBuffer(size);
             } else {
@@ -489,12 +490,12 @@ var
             _readSize: 0,
 
             _consolidateBuffer: function () {
-                throw gpf.Error.Abstract();
+                throw gpf.Error.abstract();
             },
 
             _addBuffer: function (buffer) {
                 _gpfIgnore(buffer);
-                throw gpf.Error.Abstract();
+                throw gpf.Error.abstract();
             }
         },
 

@@ -4,6 +4,7 @@
 /*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
 /*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
 /*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfI*/ // gpf.interfaces
@@ -38,7 +39,7 @@ if (_gpfInNode) {
              */
             close: function (eventsHandler) {
                 _gpfIgnore(eventsHandler);
-                throw gpf.Error.Abstract();
+                throw gpf.Error.abstract();
             }
 
         },
@@ -155,7 +156,7 @@ if (_gpfInNode) {
              */
             _getEventsHandler: function () {
                 var result = this._eventsHandler;
-                gpf.ASSERT(null !== result, "Event handler expected");
+                _gpfAssert(null !== result, "Event handler expected");
                 this._eventsHandler = null;
                 return result;
             },
@@ -249,7 +250,7 @@ if (_gpfInNode) {
             "[write]": [gpf.$ClassEventHandler()],
             write: function (buffer, eventsHandler) {
                 _gpfIgnore(buffer, eventsHandler);
-                throw gpf.Error.NotImplemented();
+                throw gpf.Error.notImplemented();
             }
 
         }

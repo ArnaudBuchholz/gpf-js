@@ -6,9 +6,9 @@
 /*#endif*/
 
     _gpfErrorDeclare("engine", {
-        "EngineStackUnderflow":
+        "engineStackUnderflow":
             "Stack underflow",
-        "EngineTypeCheck":
+        "engineTypeCheck":
             "Type check"
     });
 
@@ -106,7 +106,7 @@
 
             pop: function() {
                 if (0 === this._stack.length) {
-                    throw gpf.Error.EngineStackUnderflow();
+                    throw gpf.Error.engineStackUnderflow();
                 }
                 return this._stack.pop();
             },
@@ -114,13 +114,13 @@
             checkAndPop: function(types) {
                 var result, idx, value;
                 if (this.length() < types.length) {
-                    throw gpf.Error.EngineStackUnderflow();
+                    throw gpf.Error.engineStackUnderflow();
                 }
                 result = [];
                 for (idx = 0; idx < types.length; ++idx) {
                     value = this.internalGet(idx);
                     if (toType(value) !== types[idx]) {
-                        throw gpf.Error.EngineTypeCheck();
+                        throw gpf.Error.engineTypeCheck();
                     }
                     result.push(value);
                 }

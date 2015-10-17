@@ -4,9 +4,9 @@
     /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 
     _gpfErrorDeclare("encoding", {
-        "EncodingNotSupported":
+        "encodingNotSupported":
             "Encoding not supported",
-        "EncodingEOFWithUnprocessedBytes":
+        "encodingEOFWithUnprocessedBytes":
             "Unexpected end of stream: unprocessed bytes"
     });
 
@@ -189,7 +189,7 @@
                  */
                 _endOfInputStream: function () {
                     if (this._unprocessed.length) {
-                        throw gpf.Error.EncodingEOFWithUnprocessedBytes();
+                        throw gpf.Error.encodingEOFWithUnprocessedBytes();
                     }
                 },
 
@@ -236,7 +236,7 @@
         createEncoder: function (input, encoding) {
             var module = _encodings[encoding];
             if (undefined === module) {
-                throw gpf.Error.EncodingNotSupported();
+                throw gpf.Error.encodingNotSupported();
             }
             return new EncoderStream(module[0], input);
         },
@@ -252,7 +252,7 @@
         createDecoder: function (input, encoding) {
             var module = _encodings[encoding];
             if (undefined === module) {
-                throw gpf.Error.EncodingNotSupported();
+                throw gpf.Error.encodingNotSupported();
             }
             return new DecoderStream(module[1], input);
         }

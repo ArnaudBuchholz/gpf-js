@@ -88,12 +88,12 @@ function _gpfErrorDeclare (module, list) {
 }
 
 _gpfErrorDeclare("boot", {
-    NotImplemented:
+    notImplemented:
         "Not implemented",
-    Abstract:
+    abstract:
         "Abstract",
-    AssertionFailed:
+    assertionFailed:
         "Assertion failed: {message}",
-    InvalidParameter:
+    invalidParameter:
         "Invalid parameter"
 });

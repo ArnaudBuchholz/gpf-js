@@ -6,11 +6,11 @@
 /*#endif*/
 
     _gpfErrorDeclare("params", {
-        "ParamsNameRequired":
+        "paramsNameRequired":
             "Missing name",
-        "ParamsTypeUnknown":
+        "paramsTypeUnknown":
             "Type unknown",
-        "ParamsRequiredMissing":
+        "paramsRequiredMissing":
             "Required parameter '{name}' is missing"
     });
 
@@ -173,7 +173,7 @@
                 gpf.json.load(result, definition);
                 // name is required
                 if (!result._name) {
-                    throw gpf.Error.ParamsNameRequired();
+                    throw gpf.Error.paramsNameRequired();
                 }
                 if (!result._multiple) {
                     /**
@@ -183,7 +183,7 @@
                      */
                     typeDefaultValue = this.DEFAULTS[result._type];
                     if (undefined === typeDefaultValue) {
-                        throw gpf.Error.ParamsTypeUnknown();
+                        throw gpf.Error.paramsTypeUnknown();
                     }
                     if (result.hasOwnProperty("_defaultValue")) {
                         result._defaultValue =
@@ -340,7 +340,7 @@
                     name = parameter._name;
                     if (undefined === result[name]) {
                         if (parameter._required) {
-                            throw gpf.Error.ParamsRequiredMissing({
+                            throw gpf.Error.paramsRequiredMissing({
                                 name: name
                             });
                         }

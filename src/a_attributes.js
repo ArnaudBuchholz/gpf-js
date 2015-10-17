@@ -9,17 +9,17 @@
 /*#endif*/
 
 _gpfErrorDeclare("a_attributes", {
-    OnlyForAttributeClass:
+    onlyForAttributeClass:
         "The attribute {attributeName} can be used only on an Attribute class",
-    OnlyOnClassForAttributeClass:
+    onlyOnClassForAttributeClass:
         "The attribute {attributeName} must be used on Class",
-    ClassOnlyAttribute:
+    classOnlyAttribute:
         "The attribute {attributeName} can be used only for Class",
-    MemberOnlyAttribute:
+    memberOnlyAttribute:
         "The attribute {attributeName} can be used only for members",
-    UniqueAttributeConstraint:
+    uniqueAttributeConstraint:
         "Attribute {attributeName} already defined on {className}",
-    UniqueMemberAttributeConstraint:
+    uniqueMemberAttributeConstraint:
         "Attribute {attributeName} already defined on {className}::{memberName}"
 });
 
@@ -35,12 +35,12 @@ var
 
             _alterPrototype: function (objPrototype) {
                 if (!(objPrototype instanceof _gpfAttribute)) {
-                    throw gpf.Error.OnlyForAttributeClass({
+                    throw gpf.Error.onlyForAttributeClass({
                         attributeName: _gpfGetClassDefinition(this.constructor)._name
                     });
                 }
                 if (this._member !== "Class") {
-                    throw gpf.Error.OnlyOnClassForAttributeClass({
+                    throw gpf.Error.onlyOnClassForAttributeClass({
                         attributeName: _gpfGetClassDefinition(this.constructor)._name
                     });
                 }
@@ -76,8 +76,8 @@ var
                     targetAttribute = this,
                     attributes = new _gpfA.Map(this);
                 // Get constraints set for THIS attribute
-                attributes.filter(_gpfAttrConstraint).forEach(function (attributes) {
-                    attributes.forEach(function(attribute) {
+                attributes.filter(_gpfAttrConstraint).forEach(function (constraintAttributes) {
+                    constraintAttributes.forEach(function(attribute) {
                         attribute._check(targetAttribute, objPrototype);
                     });
                 });
@@ -96,7 +96,7 @@ var
              */
             _check: function (targetAttribute, objPrototype) {
                 _gpfIgnore(targetAttribute, objPrototype);
-                throw gpf.Error.Abstract();
+                throw gpf.Error.abstract();
             },
 
             // @inheritdoc gpf.attributes.Attribute#_alterPrototype
@@ -136,7 +136,7 @@ _gpfDefAttr("$ClassAttribute", _gpfAttrConstraint, {
             if (targetAttribute._member !== "Class") {
                 var attributeClass = targetAttribute.constructor,
                     attributeClassDef = _gpfGetClassDefinition(attributeClass);
-                throw gpf.Error.ClassOnlyAttribute({
+                throw gpf.Error.classOnlyAttribute({
                     attributeName: attributeClassDef._name
                 });
             }
@@ -161,7 +161,7 @@ _gpfDefAttr("$MemberAttribute", _gpfAttrConstraint, {
             if (targetAttribute._member === "Class") {
                 var attributeClass = targetAttribute.constructor,
                     attributeClassDef = _gpfGetClassDefinition(attributeClass);
-                throw gpf.Error.MemberOnlyAttribute({
+                throw gpf.Error.memberOnlyAttribute({
                     attributeName: attributeClassDef._name
                 });
             }
@@ -210,13 +210,13 @@ _gpfDefAttr("$UniqueAttribute", _gpfAttrConstraint, {
             // Don't forget that targetAttribute is already added to the object
             if (this._classScope) {
                 if (1 < attributesInObj.getCount()) {
-                    throw gpf.Error.UniqueAttributeConstraint({
+                    throw gpf.Error.uniqueAttributeConstraint({
                         attributeName: attributeClassDef._name,
                         className: objectClassDef._name
                     });
                 }
             } else if (1 < attributesInObj.getMemberAttributes(member).getItemsCount()) {
-                throw gpf.Error.UniqueMemberAttributeConstraint({
+                throw gpf.Error.uniqueMemberAttributeConstraint({
                     attributeName: attributeClassDef._name,
                     className: objectClassDef._name,
                     memberName: member

@@ -1,18 +1,19 @@
 /*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+    /*global _gpfAssert*/ // Assertion method
     /*global _gpfDefine*/ // Shortcut for gpf.define
     /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*#endif*/
 
     _gpfErrorDeclare("parser", {
-        "PatternUnexpected":
+        "patternUnexpected":
             "Invalid syntax (unexpected)",
-        "PatternEmpty":
+        "patternEmpty":
             "Empty pattern",
-        "PatternInvalidSyntax":
+        "patternInvalidSyntax":
             "Invalid syntax",
-        "PatternEmptyGroup":
+        "patternEmptyGroup":
             "Syntax error (empty group)"
     });
 
@@ -74,7 +75,7 @@
                     if (null === arg) {
                         this._finalizeParserState();
                     } else {
-                        gpf.ASSERT("string" === typeof arg, "string expected");
+                        _gpfAssert("string" === typeof arg, "string expected");
                         this._parse(arg);
                     }
                 }
@@ -87,7 +88,7 @@
              * @private
              */
             setOutputHandler: function (handler) {
-                gpf.ASSERT(handler instanceof Array || handler.apply, "Invalid output handler");
+                _gpfAssert(handler instanceof Array || handler.apply, "Invalid output handler");
                 this._outputHandler = handler;
             }
 
@@ -469,7 +470,7 @@
                  */
                 parse: function (char) {
                     gpf.interfaces.ignoreParameter(char);
-                    throw gpf.Error.Abstract();
+                    throw gpf.Error.abstract();
                     // return PatternItem.PARSE_IGNORED;
                 },
 
@@ -506,7 +507,7 @@
                 write: function (state, char) {
                     gpf.interfaces.ignoreParameter(state);
                     gpf.interfaces.ignoreParameter(char);
-                    throw gpf.Error.Abstract();
+                    throw gpf.Error.abstract();
                     // return -1;
                 }
 
@@ -633,12 +634,12 @@
                         this._exc = [];
                     } else if ("]" === char) {
                         if (this._inRange) {
-                            throw gpf.Error.PatternInvalidSyntax();
+                            throw gpf.Error.patternInvalidSyntax();
                         }
                         return true;
                     } else if ("-" === char) {
                         if (this._inRange || 0 === chars.length) {
-                            throw gpf.Error.PatternInvalidSyntax();
+                            throw gpf.Error.patternInvalidSyntax();
                         }
                         this._inRange = true;
                     } else {
@@ -670,7 +671,7 @@
                         chars;
                     if (this.hasOwnProperty("_exc")) {
                         if ("^" === char) {
-                            throw gpf.Error.PatternInvalidSyntax();
+                            throw gpf.Error.patternInvalidSyntax();
                         }
                         chars = this._exc;
                     } else {
@@ -678,7 +679,7 @@
                     }
                     if ("[" === char) {
                         if (this.hasOwnProperty("_inc")) {
-                            throw gpf.Error.PatternInvalidSyntax();
+                            throw gpf.Error.patternInvalidSyntax();
                         }
                         this._inc = [];
                     } else if (this._parse(char, chars)) {
@@ -1140,12 +1141,12 @@
 ////                                return; // Nothing to care about
 ////                            }
 ////                            if (parent.type() !== PatternItem.TYPE_GROUP) {
-////                                gpf.Error.PatternUnexpected();
+////                                gpf.Error.patternUnexpected();
 ////                            }
 ////                            // TODO should be the last
 ////                            pos = gpf.test(parent._items, item);
 ////                            if (undefined === pos) {
-////                                gpf.Error.PatternUnexpected();
+////                                gpf.Error.patternUnexpected();
 ////                            }
 ////                            parent._items[pos] = this;
 ////                            this._parent = parent;
