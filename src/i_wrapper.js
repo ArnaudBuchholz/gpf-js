@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 (function () { /* Begin of privacy scope */
     "use strict";
+    /*global _gpfAssert*/ // Assertion method
     /*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
@@ -64,7 +65,7 @@
                     if ("constructor" === member) {
                         continue; // ignore
                     }
-                    gpf.ASSERT("function" === typeof method, "Only methods");
+                    _gpfAssert("function" === typeof method, "Only methods");
                     if (attributes.member(member)
                         .has(gpf.attributes.ClassEventHandlerAttribute)) {
                         publicMembers[member] = _async(member, method.length);

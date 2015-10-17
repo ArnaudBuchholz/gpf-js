@@ -1,5 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfExtend*/ // gpf.extend
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*#endif*/
@@ -39,14 +40,14 @@ function _GpfPathMatcher (pattern) {
             .map(_gpfPatternPartSplit);
     } else {
         if (0 < pos) {
-            gpf.ASSERT(pattern.charAt(pos - 1) === "/", "** must be preceded by /");
+            _gpfAssert(pattern.charAt(pos - 1) === "/", "** must be preceded by /");
             this.start = pattern
                 .substr(0, pos - 1) // skip /
                 .split("/")
                 .map(_gpfPatternPartSplit);
         }
         if (pos < pattern.length - 2) {
-            gpf.ASSERT(pattern.charAt(pos + 2) === "/", "** must be followed by /");
+            _gpfAssert(pattern.charAt(pos + 2) === "/", "** must be followed by /");
             this.end = pattern
                 .substr(pos + 3) // skip /
                 .split("/")

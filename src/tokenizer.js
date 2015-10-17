@@ -2,6 +2,7 @@
 "use strict";
 /*global _gpfAlpha*/ // Letters (lowercase)
 /*global _gpfALPHA*/ // Letters (uppercase)
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfExtend*/ // gpf.extend
 /*#endif*/
 
@@ -497,7 +498,7 @@ var
         } else if (4 === action) {                    // Unterminated string
             _tokenizerCallback(context, _TOKEN_ERROR_USTRING);
         }
-        gpf.ASSERT(_TOKEN_STATE_NONE === context.state
+        _gpfAssert(_TOKEN_STATE_NONE === context.state
             || _TOKEN_STATE_ERROR === context.state
             || _TOKEN_STATE_SPACE === context.state,
             "Unexpected non-final state");

@@ -1,16 +1,17 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfA*/ // gpf.attributes
-/*global _gpfI*/ // gpf.interfaces
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfDefine*/ // Shortcut for gpf.define
-/*global _GpfXmlBase*/ // XML base attribute
-/*global _GpfXmlIgnore*/ // $XmlIgnore
-/*global _GpfXmlAttribute*/ // $XmlAttribute
-/*global _GpfXmlRawElement*/ // XmlRawElementAttribute
-/*global _GpfXmlElement*/ // $XmlElement
-/*global _GpfXmlList*/ // $XmlList
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*global _gpfI*/ // gpf.interfaces
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _GpfXmlAttribute*/ // $XmlAttribute
+/*global _GpfXmlBase*/ // XML base attribute
+/*global _GpfXmlElement*/ // $XmlElement
+/*global _GpfXmlIgnore*/ // $XmlIgnore
+/*global _GpfXmlList*/ // $XmlList
+/*global _GpfXmlRawElement*/ // XmlRawElementAttribute
 /*exported _gpfToXml*/
 /*exported _gpfFromXml*/
 /*#endif*/
@@ -344,7 +345,7 @@ var
                     .member(member)
                     .filter(_GpfXmlAttribute);
                 if (0 < attArray.length()) {
-                    gpf.ASSERT(attArray.length() === 1, "Expected one attribute only");
+                    _gpfAssert(attArray.length() === 1, "Expected one attribute only");
                     attName = attArray.get(0).name();
                 } else {
                     // Only private are serialized by default as att.
@@ -381,7 +382,7 @@ var
                 members = xmlAttributes.members();
             } else {
                 // At least one forward exists, it is related to a member
-                gpf.ASSERT(forward.type !== 0, "No content handler here");
+                _gpfAssert(forward.type !== 0, "No content handler here");
                 members = [forward.member];
             }
             for (idx = 0; idx < members.length; ++idx) {

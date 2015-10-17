@@ -2,6 +2,7 @@
 "use strict";
 /*global _gpfAlpha*/ // Letters (lowercase)
 /*global _gpfALPHA*/ // Letters (uppercase)
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfExtend*/ // gpf.extend
@@ -10,7 +11,7 @@
 /*#endif*/
 
 _gpfErrorDeclare("xml", {
-    "XmlInvalidName":
+    "xmlInvalidName":
         "Invalid XML name"
 });
 
@@ -145,7 +146,7 @@ _gpfDefine("gpf.xml.Writer", Object, {
          * @implements gpf.interfaces.IXmlContentHandler:characters
          */
         characters: function (buffer, eventsHandler) {
-            gpf.ASSERT(null === this._eventsHandler, "Write in progress");
+            _gpfAssert(null === this._eventsHandler, "Write in progress");
             this._closeLeafForContent();
             this._buffer.push(buffer);
             this._flush(eventsHandler);
@@ -155,7 +156,7 @@ _gpfDefine("gpf.xml.Writer", Object, {
          * @implements gpf.interfaces.IXmlContentHandler:endDocument
          */
         endDocument: function (eventsHandler) {
-            gpf.ASSERT(null === this._eventsHandler, "Write in progress");
+            _gpfAssert(null === this._eventsHandler, "Write in progress");
             // Nothing to do
             this._flush(eventsHandler);
         },
@@ -164,7 +165,7 @@ _gpfDefine("gpf.xml.Writer", Object, {
          * @implements gpf.interfaces.IXmlContentHandler:endElement
          */
         endElement: function (eventsHandler) {
-            gpf.ASSERT(null === this._eventsHandler, "Write in progress");
+            _gpfAssert(null === this._eventsHandler, "Write in progress");
             var
                 leaf = this._branch.pop();
             if (leaf.hasContent) {
@@ -187,7 +188,7 @@ _gpfDefine("gpf.xml.Writer", Object, {
          * @implements gpf.interfaces.IXmlContentHandler:ignorableWhitespace
          */
         ignorableWhitespace: function (buffer, eventsHandler) {
-            gpf.ASSERT(null === this._eventsHandler, "Write in progress");
+            _gpfAssert(null === this._eventsHandler, "Write in progress");
             this._closeLeafForContent();
             this._buffer.push(buffer);
             this._flush(eventsHandler);
@@ -198,7 +199,7 @@ _gpfDefine("gpf.xml.Writer", Object, {
          * processingInstruction
          */
         processingInstruction: function (target, data, eventsHandler) {
-            gpf.ASSERT(null === this._eventsHandler, "Write in progress");
+            _gpfAssert(null === this._eventsHandler, "Write in progress");
             this._buffer.push("<?", target, " ", gpf.escapeFor(data, "xml"),
                 "?>");
             this._flush(eventsHandler);
@@ -224,7 +225,7 @@ _gpfDefine("gpf.xml.Writer", Object, {
          * @implements gpf.interfaces.IXmlContentHandler:startDocument
          */
         startDocument: function (eventsHandler) {
-            gpf.ASSERT(null === this._eventsHandler, "Write in progress");
+            _gpfAssert(null === this._eventsHandler, "Write in progress");
             // Nothing to do
             this._flush(eventsHandler);
         },
@@ -233,7 +234,7 @@ _gpfDefine("gpf.xml.Writer", Object, {
          * @implements gpf.interfaces.IXmlContentHandler:startElement
          */
         startElement: function (name, attributes, eventsHandler) {
-            gpf.ASSERT(null === this._eventsHandler, "Write in progress");
+            _gpfAssert(null === this._eventsHandler, "Write in progress");
             var
                 qName = name.qName,
                 localName = name.localName,
@@ -308,7 +309,7 @@ gpf.xml.convert = function (value, out, eventsHandler) {
     var
         iXmlSerializable;
     if ("string" === typeof value) {
-        throw gpf.Error.NotImplemented();
+        throw gpf.Error.notImplemented();
     } else if ("object" === typeof value) {
         iXmlSerializable = _gpfI.query(value, _gpfI.IXmlSerializable);
         if (null === iXmlSerializable) {
@@ -372,7 +373,7 @@ _gpfExtend(gpf.xml, {
         // Try with a starting _
         newName = "_" + name;
         if (!gpf.xml.isValidName(newName)) {
-            throw gpf.Error.XmlInvalidName();
+            throw gpf.Error.xmlInvalidName();
         }
         return newName;
     }

@@ -1,5 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*global _gpfStringCapitalize*/ // Capitalize the string
@@ -69,7 +70,7 @@
                  * @implements gpf.interfaces.ITextStream:write
                  */
                 write: function (buffer, eventsHandler) {
-                    gpf.ASSERT(buffer && buffer.length, "Write must contain data");
+                    _gpfAssert(buffer && buffer.length, "Write must contain data");
                     this._buffer.push(buffer);
                     _gpfEventsFire.apply(this, [
                         gpfI.IReadableStream.EVENT_READY,
