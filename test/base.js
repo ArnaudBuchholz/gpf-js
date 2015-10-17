@@ -8,6 +8,8 @@ describe("base", function () {
     describe("gpf as a module", function () {
 
         if (gpf.HOST_NODEJS === gpf.host()) {
+            /*jshint node: true*/
+            /*eslint-env node*/
 
             it("supports multiple instances", function () {
                 var path = require("path"),
@@ -20,6 +22,8 @@ describe("base", function () {
             });
 
         } else if (gpf.HOST_BROWSER === gpf.host() || gpf.HOST_PHANTOMJS === gpf.host()) {
+            /*jshint browser: true*/
+            /*eslint-env browser*/
 
             it("supports multiple includes", function (done) {
                 var previousGpf = gpf,
@@ -88,7 +92,7 @@ describe("base", function () {
                 sum = 0,
                 result;
             result = gpf.forEach(array, function (value, idx, refArray) {
-                assert(this === object);
+                assert(this === object); //eslint-disable-line no-invalid-this
                 assert("number" === typeof idx);
                 assert(refArray === array);
                 ++count;
@@ -117,7 +121,7 @@ describe("base", function () {
 
         it("transmits scope on object content", function () {
             var result = gpf.forEach(object, function (/*value, name, refObject*/) {
-                assert(this === object);
+                assert(this === object); //eslint-disable-line no-invalid-this
             }, object);
             assert(undefined === result);
         });

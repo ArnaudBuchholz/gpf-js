@@ -18,6 +18,11 @@ describe("timeout", function () {
 
     it("transmits scope", function (done) {
         var scope = {},
+            /**
+             * Will be bound
+             *
+             * @this
+             */
             callback = function () {
                 assert(this === scope);
                 done();
@@ -28,6 +33,11 @@ describe("timeout", function () {
     it("transmits parameters", function (done) {
         var scope = {},
             obj = {},
+            /**
+             * Will be bound
+             *
+             * @this
+             */
             callback = function (a, b, c) {
                 assert(this === scope);
                 assert(arguments.length === 3);

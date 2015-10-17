@@ -3,6 +3,10 @@
 /*eslint-env mocha*/
 /*global assert*/
 
+// Because some of this functions have more than 3 parameters
+/*jshint -W072*/
+/*eslint-disable max-params*/
+
 describe("compatibility", function () {
 
     describe("Array", function () {
@@ -184,27 +188,23 @@ describe("compatibility", function () {
             it("should expose reduce() - with no initial value", function () {
                 var array = [0, 1, 2, 3, 4],
                     lastIndex = 1;
-                /*jshint -W072*/ // Because this is the signature of reduce
                 assert(10 === array.reduce(function (previousValue, currentValue, index, processedArray) {
-                        assert(array === processedArray);
-                        assert(lastIndex === index);
-                        ++lastIndex;
-                        return previousValue + currentValue;
-                    }));
-                /*jshint +W072*/
+                    assert(array === processedArray);
+                    assert(lastIndex === index);
+                    ++lastIndex;
+                    return previousValue + currentValue;
+                }));
             });
 
             it("should expose reduce() - with value", function () {
                 var array = [0, 1, 2, 3, 4],
                     lastIndex = 0;
-                /*jshint -W072*/ // Because this is the signature of reduce
                 assert(20 === array.reduce(function (previousValue, currentValue, index, processedArray) {
-                        assert(array === processedArray);
-                        assert(lastIndex === index);
-                        ++lastIndex;
-                        return previousValue + currentValue;
-                    }, 10));
-                /*jshint +W072*/
+                    assert(array === processedArray);
+                    assert(lastIndex === index);
+                    ++lastIndex;
+                    return previousValue + currentValue;
+                }, 10));
             });
 
         });
@@ -228,7 +228,7 @@ describe("compatibility", function () {
         it("allows creating function with parameters", function () {
             /*jshint -W064*/
             /*jshint -W061*/
-            var thisName = Function ("value", "return value;");
+            var thisName = Function ("value", "return value;"); //eslint-disable-line no-new-func
             /*jshint +W061*/
             /*jshint +W064*/
             assert("function" === typeof thisName);
@@ -256,6 +256,12 @@ describe("compatibility", function () {
             var scope = {
                     member: null
                 },
+                /**
+                 * Will be bound
+                 *
+                 * @param value
+                 * @this
+                 */
                 testFunction = function (value) {
                     assert(this === scope);
                     this.member = value;

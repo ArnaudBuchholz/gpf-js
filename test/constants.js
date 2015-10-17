@@ -63,6 +63,7 @@ describe("constants", function () {
             });
         });
 
+        /*global window, global*/
         it("should provide a context resolver", function () {
             assert("function" === typeof gpf.context);
             assert(null !== gpf.context());
@@ -73,7 +74,7 @@ describe("constants", function () {
             } else if (gpf.HOST_NODEJS === gpf.host() || gpf.HOST_PHANTOMJS === gpf.host()) {
                 assert(global === gpf.context());
             } else {
-                var context = (function () {return this;}).apply(null);
+                var context = (function () {return this;}).apply(null); //eslint-disable-line no-invalid-this
                 assert(context === gpf.context());
             }
         });

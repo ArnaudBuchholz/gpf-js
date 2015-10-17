@@ -156,10 +156,10 @@ describe("define", function () {
         describe("static members", function () {
 
             var D = gpf.define("D", {
-                    static: {
-                        test: 1
-                    }
-                });
+                static: {
+                    test: 1
+                }
+            });
 
             it("declares members on the 'class'", function () {
                 assert(D.test === 1);

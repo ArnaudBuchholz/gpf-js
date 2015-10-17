@@ -89,8 +89,8 @@ describe("attributes", function () {
             console.expects("error", "gpf.define: Invalid attribute name '_b'");
             try {
                 gpf.define("C", A, {
-                   "[_b]": [$Test1Value()] // should fail
-               });
+                    "[_b]": [$Test1Value()] // should fail
+                });
             }
             catch (e) {
                 caught = e;

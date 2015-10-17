@@ -85,7 +85,7 @@ describe("events", function () {
             gpf.events.fire.apply(scope, ["test", function (event) {
                 assert("test" === event.type);
                 assert(event.scope === scope);
-                assert(this === scope);
+                assert(this === scope); //eslint-disable-line no-invalid-this
                 done();
             }]);
         });
@@ -93,13 +93,13 @@ describe("events", function () {
         it("triggers Function using initial event scope", function (done) {
             var scope1 = {},
                 scope2 = {},
-                event = new gpf.events.Event("test", {}, scope1);
+                eventObj = new gpf.events.Event("test", {}, scope1);
             assert(scope1 !== scope2);
-            assert(event.scope === scope1);
-            gpf.events.fire.apply(scope2, [event, function (event) {
+            assert(eventObj.scope === scope1);
+            gpf.events.fire.apply(scope2, [eventObj, function (event) {
                 assert("test" === event.type);
                 assert(event.scope === scope1);
-                assert(this === scope1);
+                assert(this === scope1);  //eslint-disable-line no-invalid-this
                 done();
             }]);
         });
@@ -122,16 +122,16 @@ describe("events", function () {
         it("triggers Object method using object scope", function (done) {
             var scope1 = {},
                 scope2 = {
-                fail: function (/*event*/) {
-                    assert(false);
-                },
-                test: function (event) {
-                    assert("test" === event.type);
-                    assert(event.scope === scope1);
-                    assert(this === scope2);
-                    done();
-                }
-            };
+                    fail: function (/*event*/) {
+                        assert(false);
+                    },
+                    test: function (event) {
+                        assert("test" === event.type);
+                        assert(event.scope === scope1);
+                        assert(this === scope2);
+                        done();
+                    }
+                };
             gpf.events.fire.apply(scope1, ["test", scope2]);
         });
 

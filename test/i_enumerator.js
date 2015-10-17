@@ -7,13 +7,15 @@ describe("i_enumerator", function () {
 
     describe("IEnumerator", function () {
         it("is a known and static interface", function () {
-            /* jshint unused:false */
+            /*jshint unused:false*/
+            /*eslint-disable no-unused-vars*/
             assert(gpf.interfaces.isImplementedBy({
                 reset: function () {},
                 moveNext: function (eventsHandler) {},
                 current: function () {}
             }, gpf.interfaces.IEnumerator));
-            /* jshint unused:true */
+            /*jshint unused:true*/
+            /*eslint-enable no-unused-vars*/
         });
     });
 
@@ -73,6 +75,13 @@ describe("i_enumerator", function () {
             };
         }
 
+        /**
+         * Belongs to the enumeration object
+         *
+         * @param eventsHandler
+         * @returns {boolean}
+         * @this
+         */
         function syncMoveNext (eventsHandler) {
             /*jshint validthis:true*/ // Will be part of enumeration object
             if (++this._current < 10) {
@@ -82,6 +91,13 @@ describe("i_enumerator", function () {
             return false;
         }
 
+        /**
+         * Belongs to the enumeration object
+         *
+         * @param eventsHandler
+         * @returns {boolean}
+         * @this
+         */
         function asyncMoveNext (eventsHandler) {
             /*jshint validthis:true*/ // Will be part of enumeration object
             if (++this._current < 10) {

@@ -2,7 +2,10 @@
 /*jshint mocha: true*/
 /*eslint-env mocha*/
 /*global assert*/
-/*jshint -W053*/ // Because it is part of the test
+
+// Because it is part of the test
+/*jshint -W053*/
+/*eslint-disable no-new-wrappers*/
 
 describe("like", function () {
 

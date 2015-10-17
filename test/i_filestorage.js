@@ -7,7 +7,8 @@ describe("i_filestorage", function () {
 
     describe("IFileStorage", function () {
         it("is a known and static interface", function () {
-            /* jshint unused:false */
+            /*jshint unused:false*/
+            /*eslint-disable no-unused-vars*/
             assert(gpf.interfaces.isImplementedBy({
                 getInfo: function (path, eventsHandler) {},
                 readAsBinaryStream: function (path, eventsHandler) {},
@@ -18,7 +19,7 @@ describe("i_filestorage", function () {
                 deleteFile: function (path, eventsHandler) {},
                 deleteFolder: function (path, eventsHandler) {}
             }, gpf.interfaces.IFileStorage));
-            /* jshint unused:true */
+            /*jshint unused:true*/
         });
     });
 

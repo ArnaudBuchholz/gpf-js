@@ -13,8 +13,8 @@ describe("fs", function () {
 
         it("file.bin", function (done) {
             var fs = gpf.fs.host();
-            fs.getInfo("test/data/file.bin", function (event) {
-                if (event.type === gpf.events.EVENT_READY && event.get("info").type === gpf.fs.TYPE_FILE) {
+            fs.getInfo("test/data/file.bin", function (infoEvent) {
+                if (infoEvent.type === gpf.events.EVENT_READY && infoEvent.get("info").type === gpf.fs.TYPE_FILE) {
                     done(); // Already exists
                     return;
                 }
@@ -114,9 +114,9 @@ describe("fs", function () {
                 iFs.readAsBinaryStream("test/data/file.bin", function (event) {
                     assert(gpf.events.EVENT_READY === event.type);
                     var rStream = event.get("stream");
-                    rStream.read(1, function (event) {
-                        assert(gpf.events.EVENT_DATA === event.type);
-                        var buffer = event.get("buffer");
+                    rStream.read(1, function (readEvent) {
+                        assert(gpf.events.EVENT_DATA === readEvent.type);
+                        var buffer = readEvent.get("buffer");
                         assert(1 === buffer.length);
                         assert(0 === buffer[0]);
                         _close(rStream);
@@ -133,8 +133,8 @@ describe("fs", function () {
                 iFs.writeAsBinaryStream("tmp/test/fs_" + gpf.host() + ".bin", function (event) {
                     assert(gpf.events.EVENT_READY === event.type);
                     var wStream = event.get("stream");
-                    wStream.write([0, 34, 75, 0, 128, 255], function (event) {
-                        assert(gpf.events.EVENT_READY === event.type);
+                    wStream.write([0, 34, 75, 0, 128, 255], function (writeEvent) {
+                        assert(gpf.events.EVENT_READY === writeEvent.type);
                         _close(wStream);
                         done();
                     });

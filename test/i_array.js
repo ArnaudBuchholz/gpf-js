@@ -7,25 +7,29 @@ describe("i_array", function () {
 
     describe("IReadOnlyArray", function () {
         it("is a known and static interface", function () {
-            /* jshint unused:false */
+            /*jshint unused:false*/
+            /*eslint-disable no-unused-vars*/
             assert(gpf.interfaces.isImplementedBy({
                 getItemsCount: function () {},
                 getItem: function (idx) {}
             }, gpf.interfaces.IReadOnlyArray));
-            /* jshint unused:true */
+            /*jshint unused:true*/
+            /*eslint-enable no-unused-vars*/
         });
     });
 
     describe("IArray", function () {
         it("is a known and static interface", function () {
             /* jshint unused:false */
+            /*eslint-disable no-unused-vars*/
             assert(gpf.interfaces.isImplementedBy({
                 getItemsCount: function () {},
                 setItemsCount: function (count) {},
                 getItem: function (idx) {},
                 setItem: function (idx, value) {}
             }, gpf.interfaces.IArray));
-            /* jshint unused:true */
+            /*jshint unused:true*/
+            /*eslint-enable no-unused-vars*/
         });
     });
 
