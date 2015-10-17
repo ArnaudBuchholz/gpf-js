@@ -12,12 +12,12 @@ describe("interfaces", function () {
         fakeAddEventListener = function (a, b) {
             assert(a);
             assert(b);
-            return this;
+            return this; //eslint-disable-line no-invalid-this
         },
         fakeRemoveEventListener = function (a, b) {
             assert(a);
             assert(b);
-            return this;
+            return this; //eslint-disable-line no-invalid-this
         },
         fakeDispatchEvent = function (a, b) {
             assert(a);
@@ -122,13 +122,13 @@ describe("interfaces", function () {
         describe("member name", function () {
 
             var SampleBuilder = gpf.define("SampleBuilder", {
-                    "[Class]": [gpf.$InterfaceImplement(gpfIEventDispatcher, "_getAswEventDispatcher")],
-                    private: {
-                        _getAswEventDispatcher: function () {
-                            return new SampleEventDispatcherComplete();
-                        }
+                "[Class]": [gpf.$InterfaceImplement(gpfIEventDispatcher, "_getAswEventDispatcher")],
+                private: {
+                    _getAswEventDispatcher: function () {
+                        return new SampleEventDispatcherComplete();
                     }
-                });
+                }
+            });
 
             it("exposes queryInterface", function () {
                 assert(true === gpf.interfaces.isImplementedBy(SampleBuilder, gpf.interfaces.IUnknown));
