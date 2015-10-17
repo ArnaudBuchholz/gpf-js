@@ -24,14 +24,8 @@
 /*exported _gpfWebDocument*/
 /*exported _gpfWebHead*/
 /*exported _gpfWebWindow*/
+/*eslint-disable no-unused-vars*/
 /*#endif*/
-
-/*global phantom:true*/
-/*jshint browser: true*/
-/*jshint node: true*/
-/*jshint rhino: true*/
-/*jshint wsh: true*/
-/*global WScript*/
 
 var
     // GPF version
@@ -39,11 +33,26 @@ var
 
     // Host type constants
     _GPF_HOST_BROWSER               = "browser",
+    /*jshint browser: true*/
+    /*eslint-env browser*/
+
     _GPF_HOST_NODEJS                = "nodejs",
+    /*jshint node: true*/
+    /*eslint-env node*/
+
     _GPF_HOST_PHANTOMJS             = "phantomjs",
+    /*jshint phantom: true*/
+    /*eslint-env phantomjs*/
+
     _GPF_HOST_RHINO                 = "rhino",
+    /*jshint rhino: true*/
+    /*eslint-env rhino*/
+
     _GPF_HOST_UNKNOWN               = "unknown",
+
     _GPF_HOST_WSCRIPT               = "wscript",
+    /*jshint wsh: true*/
+    /*eslint-env wsh*/
 
     // Host type, see _GPF_HOST_xxx
     _gpfHost = _GPF_HOST_UNKNOWN,
@@ -53,7 +62,7 @@ var
 
     /*jshint -W040*/ // This is the common way to get the global context
     // Main context object
-    _gpfMainContext = this,
+    _gpfMainContext = this, //eslint-disable-line no-invalid-this
     /*jshint +W040*/
 
     /**
@@ -114,7 +123,7 @@ var
      *
      * @type {Object}
      */
-     _gpfWebDocument,
+    _gpfWebDocument,
 
     /**
      * Browser head tag
@@ -219,7 +228,7 @@ if ("undefined" !== typeof WScript) {
     _gpfHost = _GPF_HOST_WSCRIPT;
     _gpfDosPath = true;
     _gpfMainContext = (function () {
-        return this;
+        return this; //eslint-disable-line no-invalid-this
     }).apply(null, []);
     _gpfExit = function (code) {
         WScript.Quit(code);
@@ -257,7 +266,7 @@ if ("undefined" !== typeof WScript) {
 } else if ("undefined" !== typeof print && "undefined" !== typeof java) {
     _gpfHost = _GPF_HOST_RHINO;
     _gpfDosPath = false;
-    _gpfMainContext = (function () {return this;}).apply(null, []);
+    _gpfMainContext = (function () {return this;}).apply(null, []); //eslint-disable-line no-invalid-this
     _gpfExit = function (code) {
         java.lang.System.exit(code);
     };
@@ -493,6 +502,9 @@ if(!gpf.loaded) {
 
 /*#ifdef(DEBUG)*/
 
+var _gpfAssert,
+    _gpfAsserts;
+
 // DEBUG specifics
 
 /**
@@ -501,14 +513,14 @@ if(!gpf.loaded) {
  * @param {Boolean} condition May be a truthy value
  * @param {String} message Assertion message (to explain the violation if it fails)
  */
-gpf.ASSERT = function (condition, message) {
+_gpfAssert = function (condition, message) {
     if (undefined === message) {
-        message = "gpf.ASSERT with no message";
+        message = "_gpfAssert with no message";
         condition = false;
     }
     if (!condition) {
         console.warn("ASSERTION FAILED: " + message);
-        throw gpf.Error.AssertionFailed({
+        throw gpf.Error.assertionFailed({
             message: message
         });
     }
@@ -519,20 +531,20 @@ gpf.ASSERT = function (condition, message) {
  *
  * @param {Object} messages Dictionary of messages (value being the condition)
  */
-gpf.ASSERTS = function (messages) {
+_gpfAsserts = function (messages) {
     for (var message in messages) {
         if (messages.hasOwnProperty(message)) {
-            gpf.ASSERT(messages[message], message);
+            _gpfAssert(messages[message], message);
         }
     }
 };
 
-if (!gpf.ASSERT) {
+if (!_gpfAssert) {
 
 /*#else*/
 
-    /*gpf:nop*/ gpf.ASSERT = _gpfEmptyFunc;
-    /*gpf:nop*/ gpf.ASSERTS = _gpfEmptyFunc;
+    /*gpf:nop*/ _gpfAssert = _gpfEmptyFunc;
+    /*gpf:nop*/ _gpfAsserts = _gpfEmptyFunc;
 
 /*#endif*/
 
@@ -569,13 +581,13 @@ if (_gpfSyncReadForBoot) {
         callback(_gpfSyncReadForBoot(name));
     };
 } else {
-    gpf.ASSERT(undefined !== _gpfAsyncLoadForBoot, "A method must be defined to load sources");
+    _gpfAssert(undefined !== _gpfAsyncLoadForBoot, "A method must be defined to load sources");
 }
 
-_gpfAsyncLoadForBoot(gpfSourcesPath + "sources.js", function (content) {
-    if (content) {
+_gpfAsyncLoadForBoot(gpfSourcesPath + "sources.js", function (sourcesContent) {
+    if (sourcesContent) {
         /*jslint evil: true*/
-        eval(content);
+        eval(sourcesContent); //eslint-disable-line no-eval
         /*jslint evil: false*/
     }
     var sources = gpf.sources(),
@@ -590,7 +602,7 @@ _gpfAsyncLoadForBoot(gpfSourcesPath + "sources.js", function (content) {
         if (!src) {
             if (allContent.length) {
                 /*jslint evil: true*/
-                eval(allContent.join("\r\n"));
+                eval(allContent.join("\r\n")); //eslint-disable-line no-eval
                 /*jslint evil: false*/
             }
             _gpfFinishLoading();
