@@ -9,12 +9,22 @@
 /*#endif*/
 
 var
-    // Read-only property accessor template
+    /**
+     * Read-only property accessor template
+     *
+     * @returns {*}
+     * @this
+     */
     _gpfGetProperty = function () {
         return this._MEMBER_;
     },
 
-    // Property accessor template
+    /**
+     * Property accessor template
+     *
+     * @returns {*} former value
+     * @this
+     */
     _gpfSetProperty = function (value) {
         var result = this._MEMBER_;
         this._MEMBER_ = value;
