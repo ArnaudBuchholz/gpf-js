@@ -25,7 +25,7 @@
         "max-len":                      [2, 120],
         "max-params":                   [2, 3],
         "max-statements":               [2, 15],
-        "new-cap":                      [2, {"capIsNewExceptions": ["ASSERT"]}],
+        "new-cap":                      2,
         "no-bitwise":                   0,
         "no-caller":                    2,
         "no-empty":                     2,
