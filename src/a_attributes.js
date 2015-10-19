@@ -96,7 +96,7 @@ var
              */
             _check: function (targetAttribute, objPrototype) {
                 _gpfIgnore(targetAttribute, objPrototype);
-                throw gpf.Error.abstract();
+                throw gpf.Error.abstractMethod();
             },
 
             // @inheritdoc gpf.attributes.Attribute#_alterPrototype
