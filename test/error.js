@@ -9,7 +9,7 @@ describe("error", function () {
 
         it("is used as an exception", function () {
             try {
-                throw gpf.Error.abstract();
+                throw gpf.Error.abstractMethod();
             } catch (e) {
                 assert(e instanceof gpf.Error);
                 assert(e.constructor === gpf.Error);
@@ -18,12 +18,12 @@ describe("error", function () {
 
         it("is documented", function () {
             try {
-                throw gpf.Error.abstract();
+                throw gpf.Error.abstractMethod();
             } catch (e) {
-                assert(e.code === gpf.Error.CODE_ABSTRACT);
-                assert(e.code === gpf.Error.abstract.CODE);
-                assert(e.name === "abstract");
-                assert(e.message === "Abstract");
+                assert(e.code === gpf.Error.CODE_ABSTRACTMETHOD);
+                assert(e.code === gpf.Error.abstractMethod.CODE);
+                assert(e.name === "abstractMethod");
+                assert(e.message === "Abstract method");
             }
         });
 
