@@ -233,7 +233,7 @@
          * - {String} label item label
          */
         "describe": function (data) {
-            _output((new Array(data.depth + 1).join("\t")) + data.label);
+            _output(new Array(data.depth + 1).join("\t") + data.label);
         },
 
         /**
@@ -247,7 +247,7 @@
          * - {Object} exception exception details
          */
         "it": function (data) {
-            var line = (new Array(data.depth + 1).join("\t"));
+            var line = new Array(data.depth + 1).join("\t");
             if (data.pending) {
                 line += "-- ";
             } else if (data.result) {
@@ -463,8 +463,7 @@
          * @param {Function} done done callback
          */
         _attachToPromise: function (promise, done) {
-            var catchName = "catch", // Because of cscript compatibility (reserved keyword)
-                _rejectionReason;
+            var _rejectionReason;
             function fulfilled() {
                 done(); // Must have no parameter
             }
@@ -483,7 +482,7 @@
                 }
             }
             promise.then(fulfilled, rejected);
-            var catchMethod = promise[catchName];
+            var catchMethod = promise["catch"];
             if (catchMethod) {
                 catchMethod.apply(promise, [caught]);
             }
@@ -524,7 +523,7 @@
                 depth: this._describes.length,
                 label: label,
                 result: false,
-                timeSpent: (new Date()) - startDate,
+                timeSpent: new Date() - startDate,
                 exception: e
             });
         },
@@ -536,13 +535,14 @@
                 depth: this._describes.length,
                 label: label,
                 result: true,
-                timeSpent: (new Date()) - startDate
+                timeSpent: new Date() - startDate
             });
         },
 
         /**
          * Call (before|after)(Each)? callback
          *
+         * @param {String} type
          * @param {Function} callback
          * @return {Boolean} true if asynchronous
          */
