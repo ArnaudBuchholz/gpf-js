@@ -22,6 +22,7 @@ module.exports = function (grunt) {
 
     jsLintedFiles = [
         "Gruntfile.js",
+        ".eslintrules/*.js",
         "make/*.js",
         "test/host/*.js",
         "test/host/mocha/nodejs.js"
@@ -40,7 +41,8 @@ module.exports = function (grunt) {
         },
         eslint: {
             options: {
-                configFile: ".eslintrc"
+                configFile: ".eslintrc",
+                rulePaths: [".eslintrules"]
             },
             target: jsLintedFiles
         },
