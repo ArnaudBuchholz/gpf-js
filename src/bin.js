@@ -25,12 +25,12 @@ function _gpfToBaseAnyEncodeUsingBitShifting (baseAndValue, pow, length) {
     } else {
         bits = length * pow;
     }
-    mask = (1 << (bits - pow)) - 1;
+    mask = (1 << bits - pow) - 1;
     bits = (1 << pow) - 1;
     while (0 !== value) {
         digit = value & bits;
         result.unshift(base.charAt(digit));
-        value = (value >> pow) & mask;
+        value = value >> pow & mask;
     }
     return result;
 }
@@ -157,7 +157,7 @@ gpf.bin = {
      */
     isPow2: function (value) {
         // http://en.wikipedia.org/wiki/Power_of_two
-        if (0 < value && (0 === (value & (value - 1)))) {
+        if (0 < value && 0 === (value & value - 1)) {
             var result = 0;
             while (1 < value) {
                 ++result;
@@ -252,9 +252,9 @@ gpf.bin = {
      * http://stackoverflow.com/questions/521295/javascript-random-seeds
      */
     random: function () {
-        _gpfBinZ = (36969 * (_gpfBinZ & 65535) + (_gpfBinZ >> 16)) & _gpfMax32;
-        _gpfBinW = (18000 * (_gpfBinW & 65535) + (_gpfBinW >> 16)) & _gpfMax32;
-        return (((_gpfBinZ << 16) + _gpfBinW) & _gpfMax32) + _gpfMax31;
+        _gpfBinZ = 36969 * (_gpfBinZ & 65535) + (_gpfBinZ >> 16) & _gpfMax32;
+        _gpfBinW = 18000 * (_gpfBinW & 65535) + (_gpfBinW >> 16) & _gpfMax32;
+        return ((_gpfBinZ << 16) + _gpfBinW & _gpfMax32) + _gpfMax31;
     }
 
 };
