@@ -90,8 +90,8 @@ function _gpfErrorDeclare (module, list) {
 _gpfErrorDeclare("boot", {
     notImplemented:
         "Not implemented",
-    abstract:
-        "Abstract",
+    abstractMethod:
+        "Abstract method",
     assertionFailed:
         "Assertion failed: {message}",
     invalidParameter:
