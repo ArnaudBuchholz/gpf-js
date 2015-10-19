@@ -40,7 +40,7 @@ var
 function _gpfAlias (objectClass, name) {
     name = "$" + name;
     gpf[name] = (function(){
-        var Proxy = (_gpfFunc("return function " + name + "(args) {this.constructor.apply(this, args);};"))();
+        var Proxy = _gpfFunc("return function " + name + "(args) {this.constructor.apply(this, args);};")();
         Proxy.prototype = objectClass.prototype;
         return function() {
             return new Proxy(arguments);
