@@ -56,7 +56,7 @@ if ("undefined" === typeof setTimeout) {
         }
         var timeoutItem = {
             id: ++_gpfTimeoutID,
-            dt: new Date(new Date() - (-timeout)),
+            dt: new Date(new Date().getTime() + timeout),
             cb: callback
         };
         _gpfTimeoutQueue.push(timeoutItem);
