@@ -204,7 +204,7 @@ _GpfPathMatcher.prototype = {
             if (this._matchName(array[idx], parts[startPos])) {
                 if (++startPos >= partsLen) {
                     // Match if last part of the start and no end
-                    return (idx === len - 1) && !this.end;
+                    return idx === len - 1 && !this.end;
                 }
             } else {
                 return false;
