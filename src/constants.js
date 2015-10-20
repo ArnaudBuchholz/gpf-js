@@ -171,7 +171,7 @@ var
     _gpfTypeofString = "string",
     _gpfTypeofUndefined = "undefined",
     _gpfUndefined = void 0,
-    _gpfTrue = !!1,
+    _gpfTrue = !!1, /*eslint-disable-line no-implicit-coercion*/ // needed for release aliases
     _gpfFalse = !_gpfTrue,
     _gpfNull = null,
 
