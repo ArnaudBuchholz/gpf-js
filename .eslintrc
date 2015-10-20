@@ -38,16 +38,26 @@
         "default-case":                 2,
         "dot-location":                 [2, "property"],
         "dot-notation":                 [2, {"allowKeywords": false}],
-
-        "no-with":                      2,
-
-
-        "comma-style":                  [2, "last"],
-
-        "camelcase":                    2,
-        "comma-style":                  [2, "last"],
         "eqeqeq":                       2,
         "guard-for-in":                 2,
+        "no-alert":                     2,
+        "no-caller":                    2,
+        "no-div-regex":                 2,
+        "no-else-return":               2,
+        "no-empty-label":               2,
+        "no-eq-null":                   2,
+        "no-eval":                      2,
+        "no-extend-native":             0,                             "no-extend-native: GPF-JS provides polyfills": 0,
+        "no-extra-bind":                2,
+        "no-fallthrough":               2,
+        "no-floating-decimal":          2,
+        "no-implicit-coercion":         2,
+
+
+        "no-with":                      2,
+        "comma-style":                  [2, "last"],
+        "camelcase":                    2,
+        "comma-style":                  [2, "last"],
         "indent":                       [2, 4],
         "linebreak-style":              [2, "windows"],
         "max-depth":                    [2, 4],
@@ -56,9 +66,6 @@
         "max-statements":               [2, 15],
         "new-cap":                      2,
         "no-bitwise":                   0,
-        "no-caller":                    2,
-        "no-eq-null":                   0,
-        "no-eval":                      2,
         "no-invalid-this":              2,
         "no-iterator":                  0,
         "no-loop-func":                 2,
@@ -78,7 +85,6 @@
         "semi":                         [2, "always"],
         "strict":                       0,
         "wrap-iife":                    [ 2, "any" ],
-
 
         "Custom rules": 0,
         "no-switch":                    2,
