@@ -115,7 +115,8 @@ describe("i_enumerator", function () {
                 gpfI.IEnumerator.each(getEnum(syncMoveNext),
                     function (element) {
                         assert(expected++ === element);
-                    }, function (event) {
+                    },
+                    function (event) {
                         assert(gpfE.EVENT_END_OF_DATA === event.type);
                         assert(10 === expected);
                         done();
@@ -127,7 +128,8 @@ describe("i_enumerator", function () {
                 gpfI.IEnumerator.each(getEnum(asyncMoveNext),
                     function (element) {
                         assert(expected++ === element);
-                    }, function (event) {
+                    },
+                    function (event) {
                         assert(gpfE.EVENT_END_OF_DATA === event.type);
                         assert(10 === expected);
                         done();
@@ -144,7 +146,8 @@ describe("i_enumerator", function () {
                     function (element, eventsHandler) {
                         assert(expected++ === element);
                         gpfE.fire(gpfE.EVENT_CONTINUE, eventsHandler);
-                    }, function (event) {
+                    },
+                    function (event) {
                         assert(gpfE.EVENT_END_OF_DATA === event.type);
                         assert(10 === expected);
                         done();
@@ -157,7 +160,8 @@ describe("i_enumerator", function () {
                     function (element, eventsHandler) {
                         assert(expected++ === element);
                         gpfE.fire(gpfE.EVENT_CONTINUE, eventsHandler);
-                    }, function (event) {
+                    },
+                    function (event) {
                         assert(gpfE.EVENT_END_OF_DATA === event.type);
                         assert(10 === expected);
                         done();
@@ -174,7 +178,8 @@ describe("i_enumerator", function () {
                         } else {
                             gpfE.fire(gpfE.EVENT_CONTINUE, eventsHandler);
                         }
-                    }, function (event) {
+                    },
+                    function (event) {
                         assert(gpfE.EVENT_STOPPED === event.type);
                         assert(5 === expected);
                         done();
