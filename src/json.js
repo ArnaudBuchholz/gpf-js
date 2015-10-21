@@ -47,9 +47,8 @@ function _gpfObject2Json (object) {
     }
     if (isArray) {
         return "[" + results.join(",") + "]";
-    } else {
-        return "{" + results.join(",") + "}";
     }
+    return "{" + results.join(",") + "}";
     /*jshint +W089*/
 }
 
