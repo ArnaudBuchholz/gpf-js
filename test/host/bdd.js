@@ -1,3 +1,4 @@
+/*eslint strict: [2, "function"]*/ // IIFE form
 (function (context) {
     "use strict";
 
@@ -44,7 +45,7 @@
      * @param {String} label
      * @constructor
      */
-    var BDDAbstract  = _toClass(function BDDAbstract (label, parent) {
+    var BDDAbstract = _toClass(function BDDAbstract (label, parent) {
         if (undefined !== parent) {
             this.parent = parent;
             if (!parent.hasOwnProperty("children")) {
@@ -633,15 +634,14 @@
             ++this._statistics.count;
             if (it.callback) {
                 return !this._processItCallback(it);
-            } else {
-                ++this._statistics.pending;
-                this._callback("it", {
-                    depth: this._describes.length,
-                    label: it.label,
-                    pending: true
-                });
-                return true;
             }
+            ++this._statistics.pending;
+            this._callback("it", {
+                depth: this._describes.length,
+                label: it.label,
+                pending: true
+            });
+            return true;
         },
 
         // STATE_DESCRIBE_CHILDIT_AFTER
@@ -665,12 +665,10 @@
                 // What's in the describe stack
                 this._unstackDescribe();
                 return true;
-
-            } else {
-                this._state = Runner.STATE_FINISHED;
-                this._callback("results", this._statistics);
-                return false;
             }
+            this._state = Runner.STATE_FINISHED;
+            this._callback("results", this._statistics);
+            return false;
         },
 
         _unstackDescribe: function () {
