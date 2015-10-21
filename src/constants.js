@@ -170,8 +170,8 @@ var
     _gpfTypeofObject = "object",
     _gpfTypeofString = "string",
     _gpfTypeofUndefined = "undefined",
-    _gpfUndefined = void 0,
-    _gpfTrue = !!1, /*eslint-disable-line no-implicit-coercion*/ // needed for release aliases
+    _gpfUndefined = void 0, //eslint-disable-line no-void
+    _gpfTrue = !!1, //eslint-disable-line no-implicit-coercion
     _gpfFalse = !_gpfTrue,
     _gpfNull = null,
 
@@ -237,11 +237,10 @@ var
 /*#endif*/
             if (0 === params.length) {
                 return _GpfFunc(source);
-            } else {
-                args = [].concat(params);
-                args.push(source);
-                return _GpfFunc.apply(null, args);
             }
+            args = [].concat(params);
+            args.push(source);
+            return _GpfFunc.apply(null, args);
 /*#ifdef(DEBUG)*/
         } catch (e) {
             console.error("An exception occurred compiling:\r\n" + source);
