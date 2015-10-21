@@ -82,7 +82,7 @@ var
                     });
                 });
                 // OK, call _alterPrototype
-                targetAttribute[originalAlterPrototype].apply(targetAttribute, [objPrototype]);
+                targetAttribute[originalAlterPrototype](objPrototype);
             }
 
         },
