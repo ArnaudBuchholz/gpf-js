@@ -147,7 +147,7 @@ var
  * @class gpf.ClassDefinition
  * @constructor
  */
-function  _GpfClassDefinition (name, Super, definition) {
+function _GpfClassDefinition (name, Super, definition) {
     /*jshint validthis:true*/ // constructor
     this._uid = ++_gpfClassDefUID;
     _gpfClassDefinitions[this._uid] = this;
