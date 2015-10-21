@@ -1,10 +1,11 @@
+"use strict";
 /*jshint rhino:true*/
 /*eslint-env rhino*/
-/*global run*/
+/*global run*/ // From bdd.js
 
 print("Rhino showcase");
 /*exported gpfSourcesPath*/
-var gpfSourcesPath = "src/";
+gpfSourcesPath = "src/";
 load("src/boot.js");
 
 load("test/host/bdd.js");
