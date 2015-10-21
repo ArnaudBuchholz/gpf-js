@@ -15,7 +15,7 @@ describe("bin", function () {
 
         it("gives the powers of 2", function () {
             verifiedPows.forEach(function (value, index) {
-                assert(gpf.bin.pow2(index) ===  value);
+                assert(gpf.bin.pow2(index) === value);
             });
         });
 
@@ -25,7 +25,7 @@ describe("bin", function () {
                 2147483648, 4294967296
             ].forEach(function (value) {
                 var fromVerifiedPos = verifiedPows.indexOf(value);
-                assert(gpf.bin.isPow2(value) ===  fromVerifiedPos);
+                assert(gpf.bin.isPow2(value) === fromVerifiedPos);
             });
         });
 
