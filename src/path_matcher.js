@@ -66,9 +66,8 @@ function _GpfPathMatcher (pattern) {
 function _gpfPathMatchCompilePattern (pattern) {
     if (pattern instanceof _GpfPathMatcher) {
         return pattern;
-    } else {
-        return new _GpfPathMatcher(pattern);
     }
+    return new _GpfPathMatcher(pattern);
 }
 
 /**
@@ -80,9 +79,8 @@ function _gpfPathMatchCompilePattern (pattern) {
 function _gpfPathMatchCompilePatterns (pattern) {
     if (pattern instanceof Array) {
         return pattern.map(_gpfPathMatchCompilePattern);
-    } else {
-        return [_gpfPathMatchCompilePattern(pattern)];
     }
+    return [_gpfPathMatchCompilePattern(pattern)];
 }
 
 /**
