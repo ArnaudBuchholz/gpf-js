@@ -71,8 +71,8 @@
     "maxcomplexity" : 6,
     "maxlen"        : 120,
 
-    "predef"        : [
-        "gpf",
-        "gpfSourcesPath"
-    ]
+    "globals"       : {
+        "gpf":              true,
+        "gpfSourcesPath":   true
+    }
 }
