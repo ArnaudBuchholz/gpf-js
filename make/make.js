@@ -8,7 +8,8 @@ var fs = require("fs"),
     parameters,
     debugParameters,
     sources = {},
-    result;
+    result,
+    cc;
 
 console.log("Generating version '" + version + "'");
 try {
@@ -39,8 +40,9 @@ sources.UMD = fs.readFileSync("UMD.js").toString();
 sources.boot = fs.readFileSync("../src/boot.js").toString();
 
 function mkDir(path) {
+    var parentPath;
     if (!fs.existsSync(path)) {
-        var parentPath = path.split("/").spice(0, -1).join("/");
+        parentPath = path.split("/").spice(0, -1).join("/");
         if (parentPath) {
             mkDir(parentPath);
         }
@@ -62,7 +64,7 @@ mkDir("../build");
 fs.writeFileSync("../build/gpf-" + version + ".js", result);
 
 // Use google closure compiler
-var cc = parameters.cc;
+cc = parameters.cc;
 if (cc) {
     require("closure-compiler").compile(result, {}, function (err, stdout/*, stderr*/) {
         if (err) {
