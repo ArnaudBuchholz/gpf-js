@@ -26,7 +26,7 @@
  * @param {gpf.events.Handler} eventsHandler
  */
 function _gpfFireNodeError (err, eventsHandler) {
-    _gpfEventsFire.apply(null, [_GPF_EVENT_ERROR, {error: err}, eventsHandler]);
+    _gpfEventsFire(_GPF_EVENT_ERROR, {error: err}, eventsHandler);
 }
 
 /**
@@ -43,7 +43,7 @@ function _gpfGenFsCall(methodName) {
             if (err) {
                 _gpfFireNodeError(err, eventsHandler);
             } else {
-                _gpfEventsFire.apply(null, [_GPF_EVENT_READY, {}, eventsHandler]);
+                _gpfEventsFire(_GPF_EVENT_READY, {}, eventsHandler);
             }
         });
     };
@@ -84,25 +84,11 @@ _gpfDefine("gpf.fs.NodeFileStorage", Object, {
                             } else {
                                 result.type = _GPF_FS_TYPE_UNKNOWN;
                             }
-                            _gpfEventsFire.apply(null, [
-                                _GPF_EVENT_READY,
-                                {
-                                    info: result
-                                },
-                                eventsHandler
-                            ]);
+                            _gpfEventsFire(_GPF_EVENT_READY, {info: result}, eventsHandler);
                         }
                     });
                 } else {
-                    _gpfEventsFire.apply(null, [
-                        _GPF_EVENT_READY,
-                        {
-                            info: {
-                                type: _GPF_FS_TYPE_NOT_FOUND
-                            }
-                        },
-                        eventsHandler
-                    ]);
+                    _gpfEventsFire(_GPF_EVENT_READY, {info: {type: _GPF_FS_TYPE_NOT_FOUND}}, eventsHandler);
                 }
             });
         },
@@ -114,13 +100,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", Object, {
             // TODO handle error
             path = _gpfPathNormalize(path);
             var nodeStream = _gpfNodeFs.createReadStream(path);
-            _gpfEventsFire.apply(null, [
-                _GPF_EVENT_READY,
-                {
-                    stream: new gpf.node.ReadableStream(nodeStream)
-                },
-                eventsHandler
-            ]);
+            _gpfEventsFire(_GPF_EVENT_READY, {stream: new gpf.node.ReadableStream(nodeStream)}, eventsHandler);
         },
 
         /**
@@ -130,13 +110,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", Object, {
             // TODO handle error
             path = _gpfPathNormalize(path);
             var nodeStream = _gpfNodeFs.createWriteStream(path);
-            _gpfEventsFire.apply(null, [
-                _GPF_EVENT_READY,
-                {
-                    stream: new gpf.node.WritableStream(nodeStream)
-                },
-                eventsHandler
-            ]);
+            _gpfEventsFire(_GPF_EVENT_READY, {stream: new gpf.node.WritableStream(nodeStream)}, eventsHandler);
         },
 
         /**
@@ -161,13 +135,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", Object, {
                     _gpfFireNodeError(err, eventsHandler);
                     return;
                 }
-                _gpfEventsFire.apply(null, [
-                    _GPF_EVENT_READY,
-                    {
-                        enumerator: _gpfFsExploreEnumerator(me, files)
-                    },
-                    eventsHandler
-                ]);
+                _gpfEventsFire(_GPF_EVENT_READY, {enumerator: _gpfFsExploreEnumerator(me, files)}, eventsHandler);
             });
         },
 
