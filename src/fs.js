@@ -78,7 +78,7 @@ var _gpfFsBuildFindMethod = function (iFileStorage) {
             compiledFilters = gpf.path.compileMatchPattern(filters);
 
         function _fire (event) {
-            _gpfEventsFire.apply(null, [event, {}, eventsHandler]);
+            _gpfEventsFire(event, {}, eventsHandler);
         }
 
         function _done() {
@@ -105,7 +105,7 @@ var _gpfFsBuildFindMethod = function (iFileStorage) {
                 filePath = fileInfo.filePath;
                 relativePath = gpf.path.relative(basePath, filePath);
                 if (match(compiledFilters, relativePath)) {
-                    _gpfEventsFire.apply(null, [_GPF_EVENT_DATA, {path: relativePath}, eventsHandler]);
+                    _gpfEventsFire.apply(_GPF_EVENT_DATA, {path: relativePath}, eventsHandler);
                 }
             } // other cases are ignored
         }
