@@ -1,7 +1,7 @@
+"use strict";
 /*jshint node: true*/
 /*eslint-env node*/
 module.exports = function (grunt) {
-    "use strict";
 
     var CSCRIPT_CMD = "cscript.exe /D /E:JScript test\\host\\cscript.js",
         RHINO_CMD = "java -jar node_modules\\rhino-1_7r5-bin\\rhino1_7R5\\js.jar test\\host\\rhino.js",
@@ -26,7 +26,8 @@ module.exports = function (grunt) {
         "make/*.js",
         "test/host/*.js",
         "test/host/mocha/nodejs.js"
-    ]   .concat(srcFiles)
+    ]
+        .concat(srcFiles)
         .concat(testFiles);
 
     require("load-grunt-tasks")(grunt);
@@ -201,6 +202,7 @@ module.exports = function (grunt) {
     grunt.registerTask("default", ["jshint"]);
     grunt.registerTask("make", [
         "jshint",
+        "eslint",
         "mocha:source",
         "mochaTest:source",
         "exec:testWscript",
