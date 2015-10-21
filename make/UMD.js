@@ -1,6 +1,7 @@
 /*global define, exports*/
 /*jshint -W098*/ // ignore unused gpf
 /*eslint no-unused-vars: 0*/ // ignore unused gpf
+/*eslint strict: [2, "function"]*/ // To be more modular
 /*global __gpf__*/
 /*jshint node: true*/
 /*eslint-env node*/
@@ -28,5 +29,5 @@
 }(this, function (/*gpf:no-reduce*/gpf) {
     "use strict";
     /*jshint -W030*/ // Is used as a placeholder for injecting modules
-    __gpf__;
+    __gpf__; //eslint-disable-line no-unused-expressions
 }));
