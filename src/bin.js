@@ -164,9 +164,8 @@ gpf.bin = {
                 value /= 2;
             }
             return result;
-        } else {
-            return -1;
         }
+        return -1;
     },
 
     /**
