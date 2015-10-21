@@ -165,6 +165,8 @@ if ((function () {
 
 }
 
+/*eslint-disable no-proto*/ // Used for compatibility reasons
+
 if (undefined === Object.create) {
 
     /*jshint -W103*/
@@ -179,7 +181,7 @@ if (undefined === Object.create) {
             }
             return obj;
         };
-    })();
+    }());
 
 }
 
