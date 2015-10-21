@@ -136,12 +136,7 @@ _GpfLikeContext.prototype = {
             if (a instanceof String) {
                 return a.toString();
             }
-            if (a instanceof Number) {
-                return a.valueOf();
-            }
-            if (a instanceof Boolean) {
-                return !!a;
-            }
+            return a.valueOf();
         }
         return a;
     },
