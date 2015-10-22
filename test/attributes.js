@@ -8,21 +8,15 @@ describe("attributes", function () {
     var
         TestAttribute = gpf.define("TestAttribute", "gpf.attributes.Attribute"),
         Test1ValueAttribute = gpf.define("Test1ValueAttribute", TestAttribute),
-        $Test1Value = function () {
-            return new Test1ValueAttribute();
-        },
         Test2ValueAttribute = gpf.define("Test2ValueAttribute", TestAttribute),
-        $Test2Value = function () {
-            return new Test2ValueAttribute();
-        },
 
         A = gpf.define("A", {
             protected: {
 
-                "[_a]": [ $Test1Value() ],
+                "[_a]": [new Test1ValueAttribute()],
                 _a: 0,
 
-                "[_c]": [ $Test1Value() ],
+                "[_c]": [new Test1ValueAttribute()],
                 _c: 0
 
             },
@@ -44,10 +38,10 @@ describe("attributes", function () {
         B = gpf.define("B", A, {
             protected: {
 
-                "[_b]": [$Test2Value()],
+                "[_b]": [new Test2ValueAttribute()],
                 _b: 0,
 
-                "[_c]": [$Test2Value()],
+                "[_c]": [new Test2ValueAttribute()],
                 _c: 0
 
             },
@@ -89,10 +83,9 @@ describe("attributes", function () {
             console.expects("error", "gpf.define: Invalid attribute name '_b'");
             try {
                 gpf.define("C", A, {
-                    "[_b]": [$Test1Value()] // should fail
+                    "[_b]": [new Test1ValueAttribute()] // should fail
                 });
-            }
-            catch (e) {
+            } catch (e) {
                 caught = e;
             }
             assert(null === caught);
