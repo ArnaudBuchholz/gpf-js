@@ -96,10 +96,10 @@ _gpfDefIntrf("IEnumerator", {
         // "[each]": [gpf.$ClassEventHandler()],
         each: function (enumerator, callback, eventsHandler) {
             var iEnumerator = _gpfI.query(enumerator, _gpfI.IEnumerator),
-                end = function (event) {
-                    _gpfEventsFire.apply(enumerator, [event, {}, eventsHandler]);
-                },
                 process;
+            function end (event) {
+                _gpfEventsFire.apply(enumerator, [event, {}, eventsHandler]);
+            }
             if (1 < callback.length) {
                 process = function (event) {
                     if (gpf.events.EVENT_CONTINUE === event.type) {
