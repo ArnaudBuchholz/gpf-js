@@ -30,6 +30,31 @@ _GpfError.prototype = {
 
 };
 
+function _gpfErrorFactory (code, name, message) {
+    return function (context) {
+        var error = new _GpfError(),
+            finalMessage,
+            replacements;
+        /*gpf:constant*/
+        error.code = code;
+        /*gpf:constant*/
+        error.name = name;
+        if (context) {
+            replacements = {};
+            /*gpf:inline(object)*/
+            _gpfObjectForEach(context, function (value, key) {
+                replacements["{" + key + "}"] = value.toString();
+            });
+            finalMessage = _gpfStringReplaceEx(message, replacements);
+        } else {
+            finalMessage = message;
+        }
+        /*gpf:constant*/
+        error.message = finalMessage;
+        return error;
+    };
+}
+
 /**
  * Generates an error function
  *
@@ -38,25 +63,8 @@ _GpfError.prototype = {
  * @return {Function}
  * @closure
  */
-function _gpfGenErrorName (code, name, message) {
-    var result = function (context) {
-        var error = new _GpfError(),
-            finalMessage,
-            replacements;
-        /*gpf:constant*/ error.code = code;
-        /*gpf:constant*/ error.name = name;
-        if (context) {
-            replacements = {};
-            /*gpf:inline(object)*/ _gpfObjectForEach(context, function (value, key) {
-                replacements["{" + key + "}"] = value.toString();
-            });
-            finalMessage = _gpfStringReplaceEx(message, replacements);
-        } else {
-            finalMessage = message;
-        }
-        /*gpf:constant*/ error.message = finalMessage;
-        return error;
-    };
+function _gpfGenenerateErrorFunction (code, name, message) {
+    var result = _gpfErrorFactory(code, name, message);
     /*gpf:constant*/ result.CODE = code;
     /*gpf:constant*/ result.NAME = name;
     /*gpf:constant*/ result.MESSAGE = message;
@@ -82,7 +90,7 @@ function _gpfErrorDeclare (module, list) {
         if (list.hasOwnProperty(name)) {
             code = ++_gpfLastErrorCode;
             gpf.Error["CODE_" + name.toUpperCase()] = code;
-            gpf.Error[name] = _gpfGenErrorName(code, name, list[name]);
+            gpf.Error[name] = _gpfGenenerateErrorFunction(code, name, list[name]);
         }
     }
 }
