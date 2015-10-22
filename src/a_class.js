@@ -10,55 +10,6 @@
 
 var
     /**
-     * Read-only property accessor template
-     *
-     * @returns {*}
-     * @this
-     */
-    _gpfGetProperty = function () {
-        return this._MEMBER_;
-    },
-
-    /**
-     * Property accessor template
-     *
-     * @returns {*} former value
-     * @this
-     */
-    _gpfSetProperty = function (value) {
-        var result = this._MEMBER_;
-        this._MEMBER_ = value;
-        return result;
-    },
-
-    /**
-     * Builds a new property function
-     *
-     * @param {Boolean} template Template to be used
-     * @param {String} member Value of _MEMBER_
-     * @return {Function}
-     */
-    _gpfBuildPropertyFunc = function (template, member) {
-        var src,
-            params,
-            start,
-            end;
-        // Replace all occurrences of _MEMBER_ with the right name
-        src = template.toString().split("_MEMBER_").join(member);
-        // Extract parameters
-        start = src.indexOf("(") + 1;
-        end = src.indexOf(")", start) - 1;
-        params = src.substr(start, end - start + 1).split(",").map(function (name) {
-            return name.trim();
-        });
-        // Extract body
-        start = src.indexOf("{") + 1;
-        end = src.lastIndexOf("}") - 1;
-        src = src.substr(start, end - start + 1);
-        return _gpfFunc(params, src);
-    },
-
-    /**
      * Base class for class-specific attributes
      *
      * @class gpf.attributes._gpfClassAttribute
@@ -72,6 +23,57 @@ var
      * @type {Function}
      */
     _gpfANoSerial;
+
+/**
+ * Read-only property accessor template
+ *
+ * @returns {*}
+ * @this instance
+ */
+function _gpfGetProperty () {
+    /*jshint validthis:true*/
+    return this._MEMBER_;
+}
+
+/**
+ * Property accessor template
+ *
+ * @returns {*} former value
+ * @this instance
+ */
+function _gpfSetProperty (value) {
+    /*jshint validthis:true*/
+    var result = this._MEMBER_;
+    this._MEMBER_ = value;
+    return result;
+}
+
+/**
+ * Builds a new property function
+ *
+ * @param {Boolean} template Template to be used
+ * @param {String} member Value of _MEMBER_
+ * @return {Function}
+ */
+function _gpfBuildPropertyFunc (template, member) {
+    var src,
+        params,
+        start,
+        end;
+    // Replace all occurrences of _MEMBER_ with the right name
+    src = template.toString().split("_MEMBER_").join(member);
+    // Extract parameters
+    start = src.indexOf("(") + 1;
+    end = src.indexOf(")", start) - 1;
+    params = src.substr(start, end - start + 1).split(",").map(function (name) {
+        return name.trim();
+    });
+    // Extract body
+    start = src.indexOf("{") + 1;
+    end = src.lastIndexOf("}") - 1;
+    src = src.substr(start, end - start + 1);
+    return _gpfFunc(params, src);
+}
 
 /**
  * Creates getter (and setter) methods for a private member. The created
