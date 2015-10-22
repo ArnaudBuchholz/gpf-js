@@ -5,25 +5,39 @@
 
 describe("interfaces", function () {
 
-    var
-        gpfIEventDispatcher = gpf.interfaces.IEventDispatcher,
-        SampleEventDispatcherWithAddOnly = function () {},
-        SampleEventDispatcherComplete = function () {},
-        fakeAddEventListener = function (a, b) {
-            assert(a);
-            assert(b);
-            return this; //eslint-disable-line no-invalid-this
-        },
-        fakeRemoveEventListener = function (a, b) {
-            assert(a);
-            assert(b);
-            return this; //eslint-disable-line no-invalid-this
-        },
-        fakeDispatchEvent = function (a, b) {
-            assert(a);
-            assert(b);
-            return null;
-        };
+    var gpfIEventDispatcher = gpf.interfaces.IEventDispatcher;
+
+    function SampleEventDispatcherWithAddOnly () {
+    }
+
+    function SampleEventDispatcherComplete () {
+    }
+
+    /**
+     * @this bound object
+     */
+    function fakeAddEventListener (a, b) {
+        /*jshint validthis:true*/
+        assert(a);
+        assert(b);
+        return this;
+    }
+
+    /**
+     * @this bound object
+     */
+    function fakeRemoveEventListener (a, b) {
+        /*jshint validthis:true*/
+        assert(a);
+        assert(b);
+        return this;
+    }
+
+    function fakeDispatchEvent (a, b) {
+        assert(a);
+        assert(b);
+        return null;
+    }
 
     SampleEventDispatcherWithAddOnly.prototype = {
         addEventListener: fakeAddEventListener
@@ -96,7 +110,8 @@ describe("interfaces", function () {
 
     describe("IUnknown", function () {
 
-        var SampleBuilder = function () {};
+        function SampleBuilder () {
+        }
         SampleBuilder.prototype.queryInterface = function (iDefinition) {
             if (gpfIEventDispatcher === iDefinition) {
                 return new SampleEventDispatcherComplete();
@@ -145,13 +160,13 @@ describe("interfaces", function () {
 
         describe("builder function", function () {
 
-            var _getAswEventDispatcher = function (that) {
-                    assert(null !== that);
-                    return new SampleEventDispatcherComplete();
-                },
-                SampleBuilder = gpf.define("SampleBuilder", {
-                    "[Class]": [gpf.$InterfaceImplement(gpfIEventDispatcher, _getAswEventDispatcher)]
-                });
+            function _getAswEventDispatcher (that) {
+                assert(null !== that);
+                return new SampleEventDispatcherComplete();
+            }
+            var SampleBuilder = gpf.define("SampleBuilder", {
+                "[Class]": [gpf.$InterfaceImplement(gpfIEventDispatcher, _getAswEventDispatcher)]
+            });
 
             it("exposes queryInterface", function () {
                 assert(true === gpf.interfaces.isImplementedBy(SampleBuilder, gpf.interfaces.IUnknown));
