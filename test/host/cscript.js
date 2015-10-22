@@ -17,19 +17,20 @@ var
     gpfSourcesPath,
     testPath,
     fso = new ActiveXObject("Scripting.FileSystemObject"),
-    include = function (path) {
-        /*eslint-disable new-cap*/
-        try {
-            /*jslint evil: true*/
-            eval(fso.OpenTextFile(path, 1/*forReading*/, false, 0).ReadAll()); //eslint-disable-line no-eval
-            /*jslint evil: false*/
-        } catch (e) {
-            WScript.Echo("An error occurred while evaluating: " + path + "\r\n" + e.message);
-        }
-        /*eslint-enable new-cap*/
-    },
     sources,
     src;
+
+function include (path) {
+    /*eslint-disable new-cap*/
+    try {
+        /*jslint evil: true*/
+        eval(fso.OpenTextFile(path, 1/*forReading*/, false, 0).ReadAll()); //eslint-disable-line no-eval
+        /*jslint evil: false*/
+    } catch (e) {
+        WScript.Echo("An error occurred while evaluating: " + path + "\r\n" + e.message);
+    }
+    /*eslint-enable new-cap*/
+}
 
 // Compute gpfSourcesPath relatively to the current script path
 src = scriptPath.split("\\");
