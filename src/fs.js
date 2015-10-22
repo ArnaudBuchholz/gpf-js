@@ -69,7 +69,7 @@ function _gpfFsExploreEnumerator (iFileStorage, listOfPaths) {
  * @param {gpf.interfaces.IFileStorage) iFileStorage
  * @return {Function} same signature than gpf.fs.find
  */
-var _gpfFsBuildFindMethod = function (iFileStorage) {
+function _gpfFsBuildFindMethod (iFileStorage) {
 
     // @inheritdoc gpf.fs#find
     return function (basePath, filters, eventsHandler) {
@@ -119,7 +119,7 @@ var _gpfFsBuildFindMethod = function (iFileStorage) {
         });
     };
 
-};
+}
 
 
 var /**
@@ -127,21 +127,21 @@ var /**
      *
      * Critical section to avoid binding to host on each call
      */
-    _gpfFsFindBoundToHost,
+    _gpfFsFindBoundToHost;
 
-    /**
-     * @inheritdoc gpf.fs#find
-     *
-     * This function (on first execution) updates gpf.fs.find
-     * @this gpf.fs
-     */
-    _gpfFsFind = function (basePath, filters, eventsHandler) {
-        _gpfIgnore(basePath, filters, eventsHandler); // Will be used as arguments
-        if (!_gpfFsFindBoundToHost) {
-            _gpfFsFindBoundToHost = gpf.fs.find = _gpfFsBuildFindMethod(gpf.fs.host());
-        }
-        return _gpfFsFindBoundToHost.apply(this, arguments);
-    };
+/**
+ * @inheritdoc gpf.fs#find
+ *
+ * This function (on first execution) updates gpf.fs.find
+ * @this gpf.fs
+ */
+function _gpfFsFind (basePath, filters, eventsHandler) {
+    _gpfIgnore(basePath, filters, eventsHandler); // Will be used as arguments
+    if (!_gpfFsFindBoundToHost) {
+        _gpfFsFindBoundToHost = gpf.fs.find = _gpfFsBuildFindMethod(gpf.fs.host());
+    }
+    return _gpfFsFindBoundToHost.apply(this, arguments);
+}
 
 gpf.fs = {
 
