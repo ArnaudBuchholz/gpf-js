@@ -118,11 +118,11 @@ if (undefined === Function.prototype.bind) {
 
     // Introduced with JavaScript 1.8.5
     Function.prototype.bind = function (thisArg) {
-        var thisFunction = this,
+        var me = this,
             prependArgs = _gpfArraySlice(arguments, 1);
         return function() {
             var args = _gpfArraySlice(arguments, 0);
-            thisFunction.apply(thisArg, prependArgs.concat(args));
+            me.apply(thisArg, prependArgs.concat(args));
         };
     };
 
