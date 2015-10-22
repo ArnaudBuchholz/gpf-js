@@ -74,7 +74,9 @@ describe("constants", function () {
             } else if (gpf.HOST_NODEJS === gpf.host() || gpf.HOST_PHANTOMJS === gpf.host()) {
                 assert(global === gpf.context());
             } else {
-                var context = function () {return this;}.apply(null); //eslint-disable-line no-invalid-this
+                var context = function () {
+                    return this; //eslint-disable-line no-invalid-this
+                }.apply(null);
                 assert(context === gpf.context());
             }
         });
