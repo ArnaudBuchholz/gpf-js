@@ -168,11 +168,11 @@ _GpfEvent.prototype.fire = function (eventsHandler) {
  */
 gpf.events.fire = function (event, params, eventsHandler) {
     _gpfIgnore(event, params, eventsHandler);
-    var scope = this;
-    if (scope === gpf.events) {
-        // Will be adjusted inside _gpfEventsFire
-        scope = undefined;
-    }
+    var me = this,
+        scope;
+    if (this !== gpf.events) {
+        scope = me;
+    } // Else it will be adjusted inside _gpfEventsFire
     if (undefined === eventsHandler) {
         eventsHandler = params;
         params = {};
