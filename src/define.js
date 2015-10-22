@@ -49,7 +49,7 @@ function _gpfClassConstructorTpl () {
         /**
          * @this created object
          */
-        constructor = function /* name will be injected here */ () {
+        constructor = function /* name will be injected here */ () { //eslint-disable-line func-style
             if (classDef.constructionAllowed()) {
                 classDef._resolvedConstructor.apply(this, arguments);
             }
