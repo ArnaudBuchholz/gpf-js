@@ -212,43 +212,6 @@ var
     // https://github.com/jshint/jshint/issues/525
     _GpfFunc = Function, // avoid JSHint error
 
-    // An empty function returning false
-    _gpfFalseFunc = function () {
-        return false;
-    },
-
-    /**
-     * Create a new function from the source and parameter list.
-     * In DEBUG mode, it catches any error to log the problem.
-     *
-     * @param {String[]} [params=undefined] params Parameter names list
-     * @param {String} source
-     * @return {Function}
-     */
-    _gpfFunc = function (params, source) {
-        var args;
-        if (undefined === source) {
-            source = params;
-            params = [];
-        }
-        _gpfAssert("string" === typeof source && source.length, "Source expected (or use _gpfEmptyFunc)");
-/*#ifdef(DEBUG)*/
-        try {
-/*#endif*/
-            if (0 === params.length) {
-                return _GpfFunc(source);
-            }
-            args = [].concat(params);
-            args.push(source);
-            return _GpfFunc.apply(null, args);
-/*#ifdef(DEBUG)*/
-        } catch (e) {
-            console.error("An exception occurred compiling:\r\n" + source);
-            return null;
-        }
-/*#endif*/
-    },
-
     // Max value on 31 bits
     _gpfMax31 = 0x7FFFFFFF,
 
@@ -275,6 +238,43 @@ var
         + "for,function,if,import,in,instanceof,let,new,return,super,switch,this,throw,try,typeof,var,void,while,with,"
         + "yield").split(",")
     ;
+
+// An empty function returning false
+function _gpfFalseFunc () {
+    return false;
+}
+
+/**
+ * Create a new function from the source and parameter list.
+ * In DEBUG mode, it catches any error to log the problem.
+ *
+ * @param {String[]} [params=undefined] params Parameter names list
+ * @param {String} source
+ * @return {Function}
+ */
+function _gpfFunc (params, source) {
+    var args;
+    if (undefined === source) {
+        source = params;
+        params = [];
+    }
+    _gpfAssert("string" === typeof source && source.length, "Source expected (or use _gpfEmptyFunc)");
+    /*#ifdef(DEBUG)*/
+    try {
+        /*#endif*/
+        if (0 === params.length) {
+            return _GpfFunc(source);
+        }
+        args = [].concat(params);
+        args.push(source);
+        return _GpfFunc.apply(null, args);
+        /*#ifdef(DEBUG)*/
+    } catch (e) {
+        console.error("An exception occurred compiling:\r\n" + source);
+        return null;
+    }
+    /*#endif*/
+}
 
 /**
  * Add constants to the provided object
