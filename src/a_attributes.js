@@ -71,18 +71,18 @@ var
              * @this {gpf.attributes.Attribute} the child class attribute
              */
             _checkAndAlterPrototype: function (objPrototype) {
-                var statics = _gpfA.AttrConstraintAttribute,
+                var me = this,
+                    statics = _gpfA.AttrConstraintAttribute,
                     originalAlterPrototype = statics.originalAlterPrototype,
-                    targetAttribute = this,
-                    attributes = new _gpfA.Map(this);
+                    attributes = new _gpfA.Map(me);
                 // Get constraints set for THIS attribute
                 attributes.filter(_gpfAttrConstraint).forEach(function (constraintAttributes) {
                     constraintAttributes.forEach(function(attribute) {
-                        attribute._check(targetAttribute, objPrototype);
+                        attribute._check(me, objPrototype);
                     });
                 });
                 // OK, call _alterPrototype
-                targetAttribute[originalAlterPrototype](objPrototype);
+                me[originalAlterPrototype](objPrototype);
             }
 
         },
