@@ -11,7 +11,7 @@ describe("json", function () {
             obj: {},
             json: "{}"
 
-        } , {
+        }, {
             label: "simple string property",
             obj: {
                 a: "123"
