@@ -242,10 +242,9 @@ describe("compatibility", function () {
         });
 
         it("should detect undefined parameter", function () {
-            var
-                testFunction = function (expected) {
-                    assert(arguments.length === expected);
-                };
+            function testFunction (expected) {
+                assert(arguments.length === expected);
+            }
             testFunction(1);
             testFunction(2, "abc");
             testFunction(2, undefined);
@@ -256,17 +255,18 @@ describe("compatibility", function () {
             var scope = {
                     member: null
                 },
-                /**
-                 * Will be bound
-                 *
-                 * @param value
-                 * @this
-                 */
-                testFunction = function (value) {
-                    assert(this === scope);
-                    this.member = value;
-                },
                 bound;
+            /**
+             * Will be bound
+             *
+             * @param value
+             * @this bound scope
+             */
+            function testFunction (value) {
+                /*jshint validthis:true*/
+                assert(this === scope);
+                this.member = value;
+            }
             assert("function" === typeof testFunction.bind);
             assert(!testFunction.hasOwnProperty("bind"));
             bound = testFunction.bind(scope);
