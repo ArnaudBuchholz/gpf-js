@@ -102,8 +102,7 @@ _GpfCsvParser.prototype = {
                 value = value.substr(0, pos);
                 inQuotedString = false;
                 break;
-            }
-            else {
+            } else {
                 if (value.charAt(pos + 1) === quote) {
                     // Double quote means escaped one
                     value = value.substr(0, pos) + value.substr(pos + 1);
