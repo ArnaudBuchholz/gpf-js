@@ -24,13 +24,13 @@ describe("i_enumerator", function () {
     var gpfI = gpf.interfaces,
         gpfE = gpf.events,
         ArrayEnumerable = gpf.define("ArrayEnumerable", {
-            private: {
+            "private": {
 
                 "[_items]": [gpf.$Enumerable()],
                 _items: []
 
             },
-            public: {
+            "public": {
 
                 constructor: function (items) {
                     this._items = items;
