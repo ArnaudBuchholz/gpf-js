@@ -100,7 +100,7 @@
          */
         EncoderStream = _gpfDefine("EncoderStream", gpf.stream.BufferedOnRead, {
 
-            public: {
+            "+": {
 
                 /**
                  * @param {Function} encoder
@@ -114,7 +114,7 @@
 
             },
 
-            protected: {
+            "#": {
 
                 /**
                  * @inheritdoc gpf.stream.BufferedOnRead#_addToBuffer
@@ -132,7 +132,7 @@
 
             },
 
-            private: {
+            "-": {
 
                 /**
                  * @type {Function}
@@ -154,7 +154,7 @@
          */
         DecoderStream = _gpfDefine("DecoderStream", gpf.stream.BufferedOnRead, {
 
-            public: {
+            "+": {
 
                 /**
                  * @param {Function} decoder
@@ -168,7 +168,7 @@
 
             },
 
-            protected: {
+            "#": {
 
                 /**
                  * @inheritdoc gpf.stream.BufferedOnRead#_addToBuffer
@@ -201,7 +201,7 @@
 
             },
 
-            private: {
+            "-": {
 
                 /**
                  * @type {Function}
