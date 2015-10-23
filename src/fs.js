@@ -81,7 +81,7 @@ function _gpfFsBuildFindMethod (iFileStorage) {
             _gpfEventsFire(event, {}, eventsHandler);
         }
 
-        function _done() {
+        function _done () {
             if (0 === --pendingCount) {
                 _fire(_GPF_EVENT_END_OF_DATA);
             }
