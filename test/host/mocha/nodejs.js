@@ -9,7 +9,7 @@ loadTests(function (path) {
     mocha.addFile(path);
 });
 // Now, you can run the tests.
-mocha.run(function(failures){
+mocha.run(function (failures) {
     process.on("exit", function () {
         process.exit(failures);
     });
