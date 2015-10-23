@@ -88,7 +88,7 @@ function _gpfBuildPropertyFunc (template, member) {
  */
 _gpfDefAttr("$ClassProperty", _gpfClassAttribute, {
     "[Class]": [gpf.$MemberAttribute(), gpf.$UniqueAttribute(false)],
-    private: {
+    "-": {
 
         // If true, generates a write wrapper
         _writeAllowed: false,
@@ -108,7 +108,7 @@ _gpfDefAttr("$ClassProperty", _gpfClassAttribute, {
         _visibility: undefined
 
     },
-    protected: {
+    "#": {
 
         // @inheritdoc gpf.attributes.Attribute#_alterPrototype
         _alterPrototype: function (objPrototype) {
@@ -132,7 +132,7 @@ _gpfDefAttr("$ClassProperty", _gpfClassAttribute, {
         }
 
     },
-    public: {
+    "+": {
 
         /**
          * @param {Boolean} writeAllowed
@@ -188,7 +188,7 @@ _gpfANoSerial = _gpfDefAttr("$ClassNonSerialized", _gpfClassAttribute, {
  * @alias gpf.$ClassExtension
  */
 _gpfDefAttr("$ClassExtension", _gpfClassAttribute, {
-    private: {
+    "-": {
 
         // Constructor of the class to extend
         _ofClass: _gpfEmptyFunc,
@@ -197,7 +197,7 @@ _gpfDefAttr("$ClassExtension", _gpfClassAttribute, {
         _publicName: ""
 
     },
-    public: {
+    "+": {
 
         /**
          * @param {Function} ofClass Constructor of the class to extend
