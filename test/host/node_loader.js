@@ -20,13 +20,13 @@ if ("undefined" !== typeof process) {
     // nodejs
     args = process.argv;
     path = require("path");
-} else if ("undefined" !== typeof phantom) {
+} else if ("undefined" === typeof phantom) {
+    args = [];
+} else {
     // phantomjs
     args = require("system").args;
     // https://groups.google.com/forum/#!msg/phantomjs/OswbWiKrLYI/ndoXvK13OrIJ
     window.__dirname = phantom.libraryPath;
-} else {
-    args = [];
 }
 if (!path) {
     (function () {
@@ -34,7 +34,7 @@ if (!path) {
         path = {
             resolve: function (base, relative) {
                 if (base.charAt(base.length - 1) !== separator) {
-                    base = base + separator;
+                    base += separator;
                 }
                 return base + relative;
             }
@@ -94,7 +94,7 @@ require(path.resolve(testPath, "host/console.js"));
  *
  * @param {Function} readFile
  */
-module.exports = function loadTests(readFile) {
+module.exports = function loadTests (readFile) {
     var
         sources = gpf.sources(),
         len = sources.length,
