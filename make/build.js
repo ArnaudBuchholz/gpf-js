@@ -11,7 +11,7 @@ function clone (obj) {
     return JSON.parse(JSON.stringify(obj));
 }
 
-function Builder(sources, parameters) {
+function Builder (sources, parameters) {
     this._sources = sources;
     this._parameters = parameters;
 }
@@ -33,7 +33,7 @@ Builder.prototype = {
     // save temporary files
     _save: function (fileName, data) {
         if (this._parameters.saveTemporaryfiles) {
-            fs.writeFileSync(this._parameters.temporaryPath+ "/" + fileName, data);
+            fs.writeFileSync(this._parameters.temporaryPath + "/" + fileName, data);
         }
     },
 
