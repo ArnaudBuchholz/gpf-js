@@ -16,7 +16,7 @@
 
     _gpfDefine("gpf.Parameter", Object, {
 
-        private: {
+        "-": {
 
             /**
              * Name
@@ -99,11 +99,11 @@
             _hidden: false
         },
 
-        public: {
+        "+": {
 
         },
 
-        static: {
+        "~": {
 
             VERBOSE: "verbose",
             HELP: "help",
