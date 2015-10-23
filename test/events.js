@@ -3,6 +3,8 @@
 /*eslint-env mocha*/
 /*global assert*/
 
+/*eslint-disable max-nested-callbacks*/
+
 describe("events", function () {
 
     describe("gpf.events.EVENT_xxx", function () {
@@ -40,7 +42,7 @@ describe("events", function () {
                 event = new gpf.events.Event("test", {
                     string: "Hello world!",
                     number: 123,
-                    boolean: true,
+                    "boolean": true,
                     object: now
                 });
             assert("test" === event.type);
@@ -57,7 +59,7 @@ describe("events", function () {
                 event = new gpf.events.Event("test", {
                     string: "Hello world!",
                     number: 123,
-                    boolean: true,
+                    "boolean": true,
                     object: now
                 }, scope);
             assert("test" === event.type);
@@ -70,7 +72,7 @@ describe("events", function () {
 
     });
 
-    describe ("gpf.events.fire", function () {
+    describe("gpf.events.fire", function () {
 
         it("triggers any Function", function (done) {
             gpf.events.fire("test", function (event) {
