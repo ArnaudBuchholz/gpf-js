@@ -282,7 +282,7 @@ function _gpfFunc (params, source) {
  * @param {Object} obj
  * @param {Object} dictionary
  */
-function _gpfCreateConstants(obj, dictionary) {
+function _gpfCreateConstants (obj, dictionary) {
     var key;
     for (key in dictionary) {
         if (dictionary.hasOwnProperty(key)) {
