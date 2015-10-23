@@ -3,6 +3,8 @@
 /*eslint-env mocha*/
 /*global assert*/
 
+/*eslint-disable max-nested-callbacks*/
+
 describe("dispatch", function () {
 
     var
@@ -37,7 +39,7 @@ describe("dispatch", function () {
 
         describe("after registering a listener", function () {
 
-            function eventHandler(event) {
+            function eventHandler (event) {
                 var done;
                 assert(event.type === "test");
                 assert(event.scope === dispatcher);
@@ -49,7 +51,7 @@ describe("dispatch", function () {
                 done();
             }
 
-            function eventHandler2(event) {
+            function eventHandler2 (event) {
                 var done;
                 assert(event.type === "test2");
                 assert(event.get("expected"));
