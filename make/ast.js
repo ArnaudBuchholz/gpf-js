@@ -201,7 +201,7 @@ ASTreducer.prototype = {
             newName = [];
             while (id >= identifierCharacters.length) {
                 newName.push(identifierCharacters.charAt(id % mod));
-                id = id / mod;
+                id /= mod;
             }
             newName.push(identifierCharacters.charAt(id));
             newName = newName.join("");
