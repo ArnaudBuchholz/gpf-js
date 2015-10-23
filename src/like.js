@@ -18,10 +18,10 @@ function _GpfLikeContext (alike) {
     this._pending = [];
     this._done = [];
     // Override for this instance only
-    if (true !== alike) {
-        this._alike = _gpfFalseFunc;
-    } else {
+    if (true === alike) {
         this._haveDifferentPrototypes = _gpfFalseFunc;
+    } else {
+        this._alike = _gpfFalseFunc;
     }
 }
 
