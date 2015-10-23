@@ -23,7 +23,7 @@ function _gpfCsvComputeSeparator (header) {
     var len = _gpfCsvSeparators.length,
         idx,
         separator;
-    for(idx = 0; idx < len; ++idx) {
+    for (idx = 0; idx < len; ++idx) {
         separator = _gpfCsvSeparators.charAt(idx);
         if (-1 !== header.indexOf(separator)) {
             return separator;
@@ -102,13 +102,11 @@ _GpfCsvParser.prototype = {
                 value = value.substr(0, pos);
                 inQuotedString = false;
                 break;
+            } else if (value.charAt(pos + 1) === quote) {
+                // Double quote means escaped one
+                value = value.substr(0, pos) + value.substr(pos + 1);
             } else {
-                if (value.charAt(pos + 1) === quote) {
-                    // Double quote means escaped one
-                    value = value.substr(0, pos) + value.substr(pos + 1);
-                } else {
-                    throw gpf.Error.csvInvalid();
-                }
+                throw gpf.Error.csvInvalid();
             }
             pos = value.indexOf(quote, pos + 1);
         }
