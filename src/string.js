@@ -25,7 +25,7 @@
 
             "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.ITextStream)],
 
-            public: {
+            "+": {
 
                 /**
                  * @param {String} [string=undefined] string
@@ -91,7 +91,7 @@
 
             },
 
-            private: {
+            "-": {
 
                 /**
                  * @type {String[]}
@@ -335,4 +335,3 @@ StringFromFileScope.prototype["*"] = function (event) {
         }
 
     });
-
