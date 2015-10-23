@@ -39,10 +39,10 @@ var
  */
 function _gpfAlias (objectClass, name) {
     name = "$" + name;
-    gpf[name] = (function(){
+    gpf[name] = (function () {
         var Proxy = _gpfFunc("return function " + name + "(args) {this.constructor.apply(this, args);};")();
         Proxy.prototype = objectClass.prototype;
-        return function() {
+        return function () {
             return new Proxy(arguments);
         };
     }());
@@ -223,14 +223,14 @@ _gpfDefine("gpf.attributes.Array", Object, {
 
 });
 
-function _encodeMember(member) {
+function _encodeMember (member) {
     if ("constructor" === member) {
         return "constructor ";
     }
     return member;
 }
 
-function _decodeMember(member) {
+function _decodeMember (member) {
     if ("constructor " === member) {
         return "constructor";
     }
@@ -319,10 +319,10 @@ _gpfDefine("gpf.attributes.Map", Object, {
                     attributes._copy(this);
                 }
                 Super = classDef._Super;
-                if (Super !== Object) { // Can't go upper
-                    classDef = _gpfGetClassDefinition(Super);
-                } else {
+                if (Super === Object) { // Can't go upper
                     break;
+                } else {
+                    classDef = _gpfGetClassDefinition(Super);
                 }
             }
             return this;
