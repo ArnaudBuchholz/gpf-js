@@ -487,7 +487,7 @@ _GpfClassDefinition.prototype = {
  * @param {Object} definition Class definition
  * @return {Function}
  */
-function _gpfDefine (name, base, definition) {
+function _gpfDefineCore (name, base, definition) {
     _gpfAsserts({
         "name is required (String)": "string" === typeof name,
         "base is required (String|Function)": "string" === typeof base || base instanceof Function,
@@ -517,6 +517,36 @@ function _gpfDefine (name, base, definition) {
     return result;
 }
 
+// Replace the shortcut with the correct property name
+function _gpfCleanDefinition (name, shortcut) {
+    /*jshint validthis:true*/ // Bound to the definition below
+    var shortcutValue = this[shortcut];
+    if (undefined !== shortcutValue) {
+        this[name] = shortcutValue;
+        delete this[shortcut];
+    }
+}
+
+var _gpfCleaningShortcuts = {
+    "-": "private",
+    "#": "protected",
+    "+": "public",
+    "~": "static"
+};
+
+/**
+ * @inheritdoc _gpfDefineCore
+ * Provides shortcuts for visibility:
+ * - "-" for private
+ * - "#" for protected
+ * - "+" for public
+ * - "~" for static
+ */
+function _gpfDefine (name, base, definition) {
+    _gpfObjectForEach(_gpfCleaningShortcuts, _gpfCleanDefinition, definition);
+    return _gpfDefineCore(name, base, definition);
+}
+
 /**
  * Defines a new class by setting a contextual name
  *
@@ -533,7 +563,7 @@ gpf.define = function (name, base, definition) {
     if (undefined === base) {
         base = Object; // Root class
     }
-    return _gpfDefine(name, base, definition || {});
+    return _gpfDefineCore(name, base, definition || {});
 };
 
 /**
