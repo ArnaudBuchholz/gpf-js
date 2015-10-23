@@ -36,7 +36,7 @@ Preprocessor.tags = {
 
 };
 
-function or(previousValue, currentValue) {
+function or (previousValue, currentValue) {
     return previousValue || currentValue;
 }
 
