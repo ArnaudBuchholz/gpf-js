@@ -14,10 +14,10 @@ describe("define", function () {
 
         var
             A = gpf.define("A", {
-                protected: {
+                "protected": {
                     _a: 0
                 },
-                public: {
+                "public": {
                     constructor: function (value) {
                         this._a = value;
                     },
@@ -28,10 +28,10 @@ describe("define", function () {
             }),
 
             B = gpf.define("B", A, {
-                private: {
+                "private": {
                     _b: 0
                 },
-                public: {
+                "public": {
                     constructor: function (value) {
                         this._b = value;
                         this._super(value + 1);
@@ -120,10 +120,10 @@ describe("define", function () {
         describe("advanced inheritance tests", function () {
 
             var D = gpf.define("D", {
-                    protected: {
+                    "protected": {
                         _dMember: 0
                     },
-                    public: {
+                    "public": {
                         constructor: function (value) {
                             this._dMember = value;
                         },
@@ -136,7 +136,7 @@ describe("define", function () {
                     }
                 }),
                 E = gpf.define("E", D, {
-                    public: {
+                    "public": {
                         overriddenMethod: function (value) {
                             return this._super(value) + 1;
                         }
@@ -158,7 +158,7 @@ describe("define", function () {
         describe("static members", function () {
 
             var D = gpf.define("D", {
-                static: {
+                "static": {
                     test: 1
                 }
             });
