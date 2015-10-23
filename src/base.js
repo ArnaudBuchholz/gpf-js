@@ -61,7 +61,7 @@ gpf.isArrayLike = _gpfIsArrayLike;
  * - {Object} array The array currently being processed
  * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback.
  */
-function _gpfArrayForEach(array, callback, thisArg) {
+function _gpfArrayForEach (array, callback, thisArg) {
     var index,
         length = array.length;
     for (index = 0; index < length; ++index) {
@@ -79,7 +79,7 @@ function _gpfArrayForEach(array, callback, thisArg) {
  * - {Object} object The object currently being processed
  * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback.
  */
-function _gpfObjectForEach(object, callback, thisArg) {
+function _gpfObjectForEach (object, callback, thisArg) {
     for (var property in object) {
         if (object.hasOwnProperty(property)) {
             callback.apply(thisArg, [object[property], property, object]);
@@ -156,11 +156,11 @@ var
             "&": "&amp;",
             "<": "&lt;",
             ">": "&gt;",
-            "\u00E9": "&eacute;",
-            "\u00E8": "&egrave;",
-            "\u00EA": "&ecirc;",
-            "\u00E1": "&aacute;",
-            "\u00E0": "&agrave;"
+            \u00E9: "&eacute;",
+            \u00E8: "&egrave;",
+            \u00EA: "&ecirc;",
+            \u00E1: "&aacute;",
+            \u00E0: "&agrave;"
         }
 
     };
@@ -209,10 +209,10 @@ function _gpfAssignOrCall (value, member) {
     var dst = this[0],
         overwriteCallback = this[2];
     // TODO: see if in is faster
-    if (undefined !== dst[member]) {
-        overwriteCallback(dst, member, value);
-    } else {
+    if (undefined === dst[member]) {
         dst[member] = value;
+    } else {
+        overwriteCallback(dst, member, value);
     }
 }
 
@@ -256,7 +256,7 @@ var
      * @type {Object}
      */
     _gpfValues = {
-        boolean: function (value, valueType, defaultValue) {
+        "boolean": function (value, valueType, defaultValue) {
             if ("string" === valueType) {
                 if ("yes" === value || "true" === value) {
                     return true;
