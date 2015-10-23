@@ -3,6 +3,8 @@
 /*eslint-env mocha*/
 /*global assert*/
 
+/*eslint-disable max-nested-callbacks*/
+
 describe("stream_node", function () {
 
     /*jshint -W027*/ // because not relevant
