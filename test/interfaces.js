@@ -140,7 +140,7 @@ describe("interfaces", function () {
 
             var SampleBuilder = gpf.define("SampleBuilder", {
                 "[Class]": [gpf.$InterfaceImplement(gpfIEventDispatcher, "_getAswEventDispatcher")],
-                private: {
+                "private": {
                     _getAswEventDispatcher: function () {
                         return new SampleEventDispatcherComplete();
                     }
