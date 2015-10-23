@@ -15,10 +15,10 @@ var fs = require("fs"),
 console.log("Generating version '" + version + "'");
 try {
     debugParameters = JSON.parse(fs.readFileSync("debug.json").toString());
-    if ("debug" !== version) {
-        parameters = JSON.parse(fs.readFileSync(version + ".json").toString());
-    } else {
+    if ("debug" === version) {
         parameters = debugParameters;
+    } else {
+        parameters = JSON.parse(fs.readFileSync(version + ".json").toString());
     }
     parameters.debugRewriteOptions = debugParameters.rewriteOptions;
 } catch (e) {
@@ -40,7 +40,7 @@ gpf.sources().every(function (name) {
 sources.UMD = fs.readFileSync("UMD.js").toString();
 sources.boot = fs.readFileSync("../src/boot.js").toString();
 
-function mkDir(path) {
+function mkDir (path) {
     var parentPath;
     if (!fs.existsSync(path)) {
         parentPath = path.split("/").spice(0, -1).join("/");
