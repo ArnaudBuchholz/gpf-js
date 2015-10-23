@@ -26,7 +26,7 @@ var
      */
     _GpfXmlBase = _gpfDefAttr("XmlAttribute", {
 
-        protected: {
+        "#": {
 
             /**
              * @inheritdoc gpf.attributes.Attribute#_alterPrototype
@@ -76,7 +76,7 @@ var
      */
     _GpfXmlAttribute = _gpfDefAttr("$XmlAttribute", _GpfXmlBase, {
 
-        private: {
+        "-": {
 
             /**
              * Name of the attribute
@@ -88,7 +88,7 @@ var
 
         },
 
-        public: {
+        "+": {
 
             /**
              * @param {String} name Name of the attribute
@@ -113,7 +113,7 @@ var
      */
     _GpfXmlRawElement = _gpfDefAttr("XmlRawElementAttribute", _GpfXmlBase, {
 
-        private: {
+        "-": {
 
             /**
              * Name of the element
@@ -125,7 +125,7 @@ var
 
         },
 
-        public: {
+        "+": {
 
             /**
              * @param {String} name Name of the element
@@ -153,7 +153,7 @@ var
      */
     _GpfXmlElement = _gpfDefAttr("$XmlElement", _GpfXmlRawElement, {
 
-        private: {
+        "-": {
 
             /**
              * Object constructor
@@ -165,7 +165,7 @@ var
 
         },
 
-        public: {
+        "+": {
 
             /**
              * @param {String} name Name of the element
