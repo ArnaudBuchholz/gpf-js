@@ -8,7 +8,7 @@
 describe("a_class", function () {
 
     var A = gpf.define("A", {
-            private: {
+            "private": {
 
                 "[_a]": [gpf.$ClassProperty(false)],
                 _a: 0,
@@ -17,7 +17,7 @@ describe("a_class", function () {
                 _aLittleBitMoreThanB: 0
 
             },
-            public: {
+            "public": {
 
                 constructor: function () {
                     this._a = 0;
