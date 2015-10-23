@@ -142,7 +142,7 @@ _gpfDefIntrf("IEnumerator", {
  * @param {Object[]} array Base of the enumeration
  * @return {Object} Object implementing the IEnumerable interface
  */
-function _gpfArrayEnumerator(array) {
+function _gpfArrayEnumerator (array) {
     var pos = -1;
     return {
         reset: function () {
@@ -172,7 +172,7 @@ function _gpfArrayEnumerator(array) {
  * @param {Object} object
  * @return {Object} Object implementing the IEnumerable interface
  */
-function _buildEnumeratorOnObjectArray(object) {
+function _buildEnumeratorOnObjectArray (object) {
     var attributes = new _gpfA.Map(object).filter(_gpfA.EnumerableAttribute),
         members = attributes.getMembers();
     return _gpfArrayEnumerator(object[members[0]]);
