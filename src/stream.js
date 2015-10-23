@@ -141,7 +141,7 @@ _gpfDefine("gpf.stream.BufferedOnRead", Object, {
 
     //region Configurable part
 
-    protected: {
+    "#": {
 
         /**
          * Output buffer containing content to be read
@@ -240,7 +240,7 @@ _gpfDefine("gpf.stream.BufferedOnRead", Object, {
 
     //region Implementation
 
-    public: {
+    "+": {
 
         /**
          * @param {gpf.interfaces.IReadableStream} input
@@ -303,7 +303,7 @@ _gpfDefine("gpf.stream.BufferedOnRead", Object, {
         //endregion
     },
 
-    private: {
+    "-": {
 
         /**
          * Input stream
@@ -390,7 +390,7 @@ _gpfDefine("gpf.stream.BitReader", "gpf.stream.BufferedOnRead", {
 
     //region Implementation
 
-    protected: {
+    "#": {
 
         /**
          * @inheritdoc gpf.stream.BufferedOnRead#_addToBuffer
@@ -446,7 +446,7 @@ _gpfDefine("gpf.stream.BitReader", "gpf.stream.BufferedOnRead", {
 
     },
 
-    private: {
+    "-": {
 
         /**
          * Current bit cursor
@@ -472,7 +472,7 @@ var
      */
     AbstractStreamReader = _gpfDefine("AbstractStreamReader", Object, {
 
-        public: {
+        "+": {
 
             constructor: function (scope, eventsHandler) {
                 this._scope = _gpfResolveScope(scope);
@@ -485,7 +485,7 @@ var
 
         },
 
-        protected: {
+        "#": {
 
             _readSize: 0,
 
@@ -499,7 +499,7 @@ var
             }
         },
 
-        private: {
+        "-": {
 
             _scope: null,
             _eventsHandler: null,
@@ -536,7 +536,7 @@ var
 
     StreamReader = _gpfDefine("StreamReader", AbstractStreamReader, {
 
-        public: {
+        "+": {
 
             constructor: function (scope, eventsHandler, concatMethod) {
                 this._super(scope, eventsHandler);
@@ -545,7 +545,7 @@ var
 
         },
 
-        protected: {
+        "#": {
 
             _consolidateBuffer: function () {
                 return this._concatMethod(this._buffer);
@@ -556,7 +556,7 @@ var
             }
         },
 
-        private: {
+        "-": {
 
             _buffer: undefined,
             _concatMethod: null
@@ -567,7 +567,7 @@ var
 
     B64StreamReader = _gpfDefine("B64StreamReader", AbstractStreamReader, {
 
-        public: {
+        "+": {
 
             constructor: function (scope, eventsHandler) {
                 this._super(scope, eventsHandler);
@@ -576,7 +576,7 @@ var
 
         },
 
-        protected: {
+        "#": {
 
             _readSize: 6,
 
@@ -590,7 +590,7 @@ var
 
         },
 
-        private: {
+        "-": {
 
             _buffer: []
 
