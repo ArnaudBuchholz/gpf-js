@@ -3,6 +3,8 @@
 /*eslint-env mocha*/
 /*global assert*/
 
+/*eslint-disable max-nested-callbacks*/
+
 describe("fs", function () {
 
     if (null === gpf.fs.host()) {
@@ -21,7 +23,7 @@ describe("fs", function () {
                 // File does not exist, generates
                 var count = 0,
                     wStream;
-                function loop(event) {
+                function loop (event) {
                     assert(!event || gpf.events.EVENT_READY === event.type);
                     if (256 === count) {
                         fs.close(wStream, function () {});
@@ -58,7 +60,7 @@ describe("fs", function () {
 
         describe("getInfo", function () {
 
-            function checkInfo(info) {
+            function checkInfo (info) {
                 assert(null !== info);
                 assert("object" === typeof info);
                 assert("number" === typeof info.type);
@@ -104,7 +106,7 @@ describe("fs", function () {
 
         });
 
-        function _close(stream) {
+        function _close (stream) {
             iFs.close(stream, function () {}); // ignore
         }
 
