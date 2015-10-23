@@ -48,8 +48,8 @@
         _buildMembers = function (interfaceDef) {
             var
                 result = {
-                    public: {},
-                    static: {
+                    "+": {},
+                    "~": {
                         interface: interfaceDef
                     }
                 },
@@ -79,7 +79,7 @@
 
         MethodCall = _gpfDefine("MethodCall", Object, {
 
-            private: {
+            "-": {
 
                 /**
                  * Call is synchronous
@@ -116,7 +116,7 @@
 
             },
 
-            public: {
+            "+": {
 
                 /**
                  *
@@ -169,7 +169,7 @@
 
         WrapInterface = _gpfDefine("WrapInterface", Object, {
 
-            private: {
+            "-": {
 
                 /**
                  * Interface handler
@@ -268,7 +268,7 @@
 
             },
 
-            public: {
+            "+": {
 
                 /**
                  * @param {Object} instance
