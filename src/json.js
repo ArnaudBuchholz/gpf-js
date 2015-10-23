@@ -62,7 +62,7 @@ if ("undefined" === typeof JSON) {
         undefined: _gpfEmptyFunc,
         "function": _gpfEmptyFunc,
         number: _gpfJsonStringifyObject,
-        boolean: _gpfJsonStringifyObject,
+        "boolean": _gpfJsonStringifyObject,
         string: function (object) {
             return _gpfStringEscapeFor(object, "javascript");
         }
