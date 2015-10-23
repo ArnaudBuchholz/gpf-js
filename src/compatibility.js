@@ -120,7 +120,7 @@ if (undefined === Function.prototype.bind) {
     Function.prototype.bind = function (thisArg) {
         var me = this,
             prependArgs = _gpfArraySlice(arguments, 1);
-        return function() {
+        return function () {
             var args = _gpfArraySlice(arguments, 0);
             me.apply(thisArg, prependArgs.concat(args));
         };
@@ -130,7 +130,7 @@ if (undefined === Function.prototype.bind) {
 
 // Handling function name properly
 if ((function () {
-    function functionName() {}
+    function functionName () {}
     return functionName.name !== "functionName";
 })()) {
 
@@ -170,8 +170,8 @@ if ((function () {
 if (undefined === Object.create) {
 
     /*jshint -W103*/
-    Object.create = (function() {
-        function Temp() {}
+    Object.create = (function () {
+        function Temp () {}
         return function (O) {
             Temp.prototype = O;
             var obj = new Temp();
@@ -187,7 +187,7 @@ if (undefined === Object.create) {
 
 if (undefined === Object.getPrototypeOf) {
 
-    Object.getPrototypeOf = function (object){
+    Object.getPrototypeOf = function (object) {
         // May break if the constructor has been tampered with
         return object.__proto__ || object.constructor.prototype;
     };
@@ -200,7 +200,7 @@ if (undefined === String.prototype.trim) {
     // Introduced with JavaScript 1.8.1
     (function () {
         var rtrim = new RegExp("^[\\s\uFEFF\xA0]+|[\\s\uFEFF\xA0]+$", "g");
-        String.prototype.trim = function() {
+        String.prototype.trim = function () {
             return this.replace(rtrim, "");
         };
     }());
