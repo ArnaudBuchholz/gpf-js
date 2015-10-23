@@ -3,6 +3,8 @@
 /*eslint-env mocha*/
 /*global assert*/
 
+/*eslint-disable max-nested-callbacks*/
+
 describe("fs_node", function () {
 
     if (gpf.HOST_NODEJS !== gpf.host()) {
