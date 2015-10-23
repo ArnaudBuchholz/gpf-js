@@ -17,7 +17,7 @@ _gpfDefine("gpf.stream.Out", Object, {
 
     "[Class]": [gpf.$InterfaceImplement(_gpfI.IWritableStream)],
 
-    public: {
+    "+": {
 
         /**
          * @constructor
@@ -40,7 +40,7 @@ _gpfDefine("gpf.stream.Out", Object, {
 
     },
 
-    private: {
+    "-": {
 
         /**
          * Line buffer
