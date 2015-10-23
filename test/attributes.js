@@ -13,7 +13,7 @@ describe("attributes", function () {
         Test2ValueAttribute = gpf.define("Test2ValueAttribute", TestAttribute),
 
         A = gpf.define("A", {
-            protected: {
+            "protected": {
 
                 "[_a]": [new Test1ValueAttribute()],
                 _a: 0,
@@ -22,7 +22,7 @@ describe("attributes", function () {
                 _c: 0
 
             },
-            public: {
+            "public": {
 
                 constructor: function (value) {
                     this._a = value;
@@ -38,7 +38,7 @@ describe("attributes", function () {
         a = new A(),
 
         B = gpf.define("B", A, {
-            protected: {
+            "protected": {
 
                 "[_b]": [new Test2ValueAttribute()],
                 _b: 0,
@@ -47,7 +47,7 @@ describe("attributes", function () {
                 _c: 0
 
             },
-            public: {
+            "public": {
 
                 constructor: function (value) {
                     this._super(value - 1);
