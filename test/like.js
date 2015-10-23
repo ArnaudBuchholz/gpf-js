@@ -7,6 +7,8 @@
 /*jshint -W053*/
 /*eslint-disable no-new-wrappers*/
 
+/*eslint-disable max-nested-callbacks*/
+
 describe("like", function () {
 
     var
