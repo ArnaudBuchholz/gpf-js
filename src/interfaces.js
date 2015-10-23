@@ -254,7 +254,7 @@ function _wrapQueryInterface (orgQueryInterface) {
  * @alias gpf.$InterfaceImplement
  */
 _gpfDefAttr("$InterfaceImplement", {
-    private: {
+    "-": {
 
         // Interface definition
         "[_interfaceDefinition]": [gpf.$ClassProperty(false)],
@@ -300,7 +300,7 @@ _gpfDefAttr("$InterfaceImplement", {
         }
 
     },
-    protected: {
+    "#": {
 
         // @inheritdoc gpf.attributes.Attribute#_alterPrototype
         _alterPrototype: function (objPrototype) {
@@ -319,7 +319,7 @@ _gpfDefAttr("$InterfaceImplement", {
 
     },
 
-    public: {
+    "+": {
 
         /**
          * @param {Function} interfaceDefinition Interface definition
