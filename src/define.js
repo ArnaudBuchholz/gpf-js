@@ -545,7 +545,7 @@ gpf.define = function (name, base, definition) {
  * @closure
  */
 function _gpfGenDefHandler (ctxRoot, defaultBase) {
-    ctxRoot = ctxRoot + ".";
+    ctxRoot += ".";
     defaultBase = ctxRoot + defaultBase;
     return function (name, base, definition) {
         if (undefined === definition && "object" === typeof base) {
