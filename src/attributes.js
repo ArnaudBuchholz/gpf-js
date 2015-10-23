@@ -89,7 +89,7 @@ function _gpfDefAttr (name, base, definition) {
  * @class gpf.attributes.Attribute
  */
 var _gpfAttribute = _gpfDefine("gpf.attributes.Attribute", Object, {
-    protected: {
+    "#": {
 
         // Name of the member the attribute is associated to
         _member: "",
@@ -105,7 +105,7 @@ var _gpfAttribute = _gpfDefine("gpf.attributes.Attribute", Object, {
         }
 
     },
-    public: {
+    "+": {
 
         getMemberName: function () {
             return this._member;
@@ -151,13 +151,13 @@ if (!_gpfAssertAttributeClassOnly) {
  * @class gpf.attributes.Array
  */
 _gpfDefine("gpf.attributes.Array", Object, {
-    private: {
+    "-": {
 
         // @property {gpf.attributes.Attribute[]}
         _array: []
 
     },
-    public: {
+    "+": {
 
         constructor: function () {
             this._array = []; // Create a new instance of the array
@@ -247,7 +247,7 @@ function _decodeMember (member) {
  * @class gpf.attributes.Map
  */
 _gpfDefine("gpf.attributes.Map", Object, {
-    private: {
+    "-": {
 
         // Dictionary of attributes per member
         _members: {},
@@ -291,7 +291,7 @@ _gpfDefine("gpf.attributes.Map", Object, {
         }
 
     },
-    public: {
+    "+": {
 
         // @param {Object|Function} [object=undefined] object Object or constructor to read attributes from
         constructor: function (object) {
