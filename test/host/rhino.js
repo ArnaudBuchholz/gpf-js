@@ -5,7 +5,7 @@
 
 print("Rhino showcase");
 /*exported gpfSourcesPath*/
-gpfSourcesPath = "src/";
+var gpfSourcesPath = "src/";
 load("src/boot.js");
 
 load("test/host/bdd.js");
