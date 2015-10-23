@@ -24,7 +24,7 @@ _gpfErrorDeclare("interfaces", {
  * @param {gpf.interfaces.Interface} interfaceDefinition reference interface
  * @return {Boolean}
  */
-function _gpfIsImplementedBy(inspectedObject, interfaceDefinition) {
+function _gpfIsImplementedBy (inspectedObject, interfaceDefinition) {
     var member,
         memberReference,
         memberValue,
@@ -282,7 +282,10 @@ _gpfDefAttr("$InterfaceImplement", {
         },
 
         _addQueryInterface: function (objPrototype) {
-            if (undefined !== objPrototype.queryInterface) {
+            if (undefined === objPrototype.queryInterface) {
+                objPrototype.queryInterface = _queryInterface;
+                _gpfAttributesAdd(objPrototype.constructor, "Class", [gpf.$InterfaceImplement(_gpfIUnknown)]);
+            } else if (_queryInterface !== objPrototype.queryInterface) {
                 /*
                  * Two situations here:
                  * - Either the class (or one of its parent) already owns the $InterfaceImplement attribute
@@ -292,12 +295,7 @@ _gpfDefAttr("$InterfaceImplement", {
                  * In both case, we take the assumption that the class already owns
                  * gpf.$InterfaceImplement(gpf.interfaces.IUnknown)
                  */
-                if (_queryInterface !== objPrototype.queryInterface) {
-                    objPrototype.queryInterface = _wrapQueryInterface(objPrototype.queryInterface);
-                }
-            } else {
-                objPrototype.queryInterface = _queryInterface;
-                _gpfAttributesAdd(objPrototype.constructor, "Class", [gpf.$InterfaceImplement(_gpfIUnknown)]);
+                objPrototype.queryInterface = _wrapQueryInterface(objPrototype.queryInterface);
             }
         }
 
@@ -306,7 +304,9 @@ _gpfDefAttr("$InterfaceImplement", {
 
         // @inheritdoc gpf.attributes.Attribute#_alterPrototype
         _alterPrototype: function (objPrototype) {
-            if (!this._builder) {
+            if (this._builder) {
+                this._addQueryInterface(objPrototype);
+            } else {
                 this._addMissingInterfaceMembers(objPrototype);
                 // Get the interface's attributes apply them to the obj
                 new gpf.attributes.Map()
@@ -314,8 +314,6 @@ _gpfDefAttr("$InterfaceImplement", {
                     .forEach(function (attributes, member) {
                         _gpfAttributesAdd(objPrototype.constructor, member, attributes);
                     });
-            } else {
-                this._addQueryInterface(objPrototype);
             }
         }
 
