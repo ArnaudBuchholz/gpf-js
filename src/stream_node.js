@@ -20,7 +20,7 @@ if (_gpfInNode) {
      */
     var _GpfNodeStream = _gpfDefine("gpf.node.Stream", Object, {
 
-        public: {
+        "+": {
 
             /**
              * @param {Object} stream
@@ -44,7 +44,7 @@ if (_gpfInNode) {
 
         },
 
-        protected: {
+        "#": {
 
             /**
              * @type {Object}
@@ -68,7 +68,7 @@ if (_gpfInNode) {
 
         "[Class]": [gpf.$InterfaceImplement(_gpfI.IReadableStream)],
 
-        public: {
+        "+": {
 
             /**
              * @param {stream.Readable} stream
@@ -119,7 +119,7 @@ if (_gpfInNode) {
 
         },
 
-        protected: {
+        "#": {
 
             /**
              * Before doing any read on the stream, we wait for the readable
@@ -221,7 +221,7 @@ if (_gpfInNode) {
 
         "[Class]": [gpf.$InterfaceImplement(_gpfI.IWritableStream)],
 
-        public: {
+        "+": {
 
             /**
              * @param {stream.Writable} stream
