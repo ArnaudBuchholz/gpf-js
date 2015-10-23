@@ -5,7 +5,7 @@
 /*#endif*/
 
 // Retrieve or allocate the _eventDispatcherListeners member
-function _gpfAllocateEventDispatcherListeners(object) {
+function _gpfAllocateEventDispatcherListeners (object) {
     var listeners = object._eventDispatcherListeners;
     if (!listeners) {
         listeners = object._eventDispatcherListeners = {};
@@ -77,7 +77,7 @@ function _gpfTriggerListeners (eventObj, eventListeners) {
  * @param {Object} [params={}] event parameters
  * @return {gpf.events.Event}
  */
-function _gpfDispatchEvent(event, params) {
+function _gpfDispatchEvent (event, params) {
     /*jshint validthis:true*/ // will be invoked as an object method
     var listeners = this._eventDispatcherListeners,
         eventObj,
