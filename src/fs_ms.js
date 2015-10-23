@@ -102,7 +102,7 @@ var
      */
     _gpfWScriptBinStream = _gpfDefine("WScriptBinaryStream", Object, {
 
-        public: {
+        "+": {
 
             /**
              * @param {String} path
@@ -131,7 +131,7 @@ var
 
         },
 
-        protected: {
+        "#": {
 
             /**
              * File path
@@ -172,7 +172,7 @@ var
 
         "[Class]": [gpf.$InterfaceImplement(_gpfI.IWritableStream)],
 
-        public: {
+        "+": {
 
             /**
              * @inheritdoc gpf.interfaces.IWritableStream#write
@@ -261,7 +261,7 @@ var
 
         "[Class]": [gpf.$InterfaceImplement(_gpfI.IReadableStream)],
 
-        public: {
+        "+": {
 
             /**
              * @param {String} path
@@ -315,7 +315,7 @@ var
 
         },
 
-        private: {
+        "-": {
 
             /**
              * Size of the file
@@ -345,7 +345,7 @@ var
 
 _gpfDefine("gpf.fs.WScriptFileStorage", Object, {
 
-    public: {
+    "+": {
 
         constructor: function () {
             if (!_gpfMsFSO) {
