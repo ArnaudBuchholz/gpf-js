@@ -3,6 +3,8 @@
 /*eslint-env mocha*/
 /*global assert*/
 
+/*eslint-disable max-nested-callbacks*/
+
 describe("define", function () {
 
     describe("gpf.define", function () {
@@ -71,7 +73,7 @@ describe("define", function () {
                         };
                         try {
                             gpf.define("D", definition);
-                        } catch(e) {
+                        } catch (e) {
                             failed = true;
                             assert(e.code === gpf.Error.CODE_CLASSINVALIDVISIBILITY);
                         }
