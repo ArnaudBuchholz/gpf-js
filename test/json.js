@@ -3,6 +3,8 @@
 /*eslint-env mocha*/
 /*global assert*/
 
+/*eslint-disable max-nested-callbacks*/
+
 describe("json", function () {
 
     var
@@ -57,7 +59,7 @@ describe("json", function () {
 
     describe("JSON.stringify", function () {
 
-        function makeIt(test) {
+        function makeIt (test) {
             it("works on " + test.label, function () {
                 assert(JSON.stringify(test.obj) === test.json);
             });
@@ -71,7 +73,7 @@ describe("json", function () {
 
     describe("JSON.parse", function () {
 
-        function makeIt(test) {
+        function makeIt (test) {
             it("works on " + test.label, function () {
                 var obj = JSON.parse(test.json);
                 assert(true === gpf.like(obj, test.obj));
