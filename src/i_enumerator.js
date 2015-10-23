@@ -65,7 +65,7 @@ _gpfDefIntrf("IEnumerator", {
         return null;
     },
 
-    static: {
+    "~": {
 
         /**
          * Enumerates all elements of the enumerator and call the callback function.
