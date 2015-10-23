@@ -3,6 +3,8 @@
 /*eslint-env mocha*/
 /*global assert*/
 
+/*eslint-disable max-nested-callbacks*/
+
 describe("mimetype", function () {
 
     describe("hard-coded mime types", function () {
@@ -34,7 +36,7 @@ describe("mimetype", function () {
                     for (idx = 0; idx < len; ++idx) {
                         ext = extensions[idx];
                         assert(gpfW.getMimeType(ext) === mimeType);
-                        if(0 === idx) {
+                        if (0 === idx) {
                             assert(gpfW.getFileExtension(mimeType) === ext);
                         }
                     }
