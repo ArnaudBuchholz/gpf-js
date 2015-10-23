@@ -50,7 +50,7 @@ function _gpfGenFsCall (methodName) {
 }
 
 _gpfDefine("gpf.fs.NodeFileStorage", Object, {
-    public: {
+    "+": {
 
         constructor: function () {
             if (!_gpfNodeFs) {
