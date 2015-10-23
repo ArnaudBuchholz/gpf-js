@@ -41,7 +41,7 @@
      */
     _gpfDefine("gpf.html.MarkdownParser", "gpf.Parser", {
 
-        public: {
+        "+": {
 
             /**
              * @constructor
@@ -109,7 +109,7 @@
      *      : content
      */
 
-        protected: {
+        "#": {
 
             //region Parser configuration
             _ignoreCarriageReturn: true, // \r
@@ -163,7 +163,7 @@
 
         },
 
-        private: {
+        "-": {
 
             /**
              * Stack of opened tags
@@ -587,7 +587,7 @@
 
         "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.ITextStream)],
 
-        public: {
+        "+": {
 
             constructor: function (file) {
                 this._file = file;
@@ -645,7 +645,7 @@
 
         },
 
-        private: {
+        "-": {
 
             /**
              * @type {File}
@@ -743,14 +743,14 @@
          */
         _HtmHandler = gpf._defAttr("$HtmlHandler", _HtmBase, {
 
-            private: {
+            "-": {
 
                 _selector: "",
                 _globalSelector: false
 
             },
 
-            protected: {
+            "#": {
 
                 /**
                  * Apply selection starting from the provided object
@@ -773,7 +773,7 @@
 
             },
 
-            public: {
+            "+": {
 
                 /**
                  * @constructor
@@ -803,13 +803,13 @@
          */
         _HtmEvent = gpf._defAttr("$HtmlEvent", _HtmHandler, {
 
-            private: {
+            "-": {
 
                 _event: ""
 
             },
 
-            public: {
+            "+": {
 
                 /**
                  * @constructor
