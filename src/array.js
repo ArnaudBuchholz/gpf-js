@@ -20,7 +20,7 @@
 
             "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.IStream)],
 
-            public: {
+            "+": {
 
                 /**
                  * @param {Array} [array=undefined] array Cloned
@@ -94,7 +94,7 @@
 
             },
 
-            private: {
+            "-": {
 
                 /**
                  * @type {Array}
