@@ -7,6 +7,8 @@
 /*jshint -W072*/
 /*eslint-disable max-params*/
 
+/*eslint-disable max-nested-callbacks*/
+
 describe("compatibility", function () {
 
     describe("Array", function () {
@@ -91,7 +93,7 @@ describe("compatibility", function () {
                 assert("function" === typeof array.filter);
                 assert(!array.hasOwnProperty("filter"));
                 result = array.filter(function (value) {
-                    return value %2 === 0;
+                    return value % 2 === 0;
                 });
                 assert(result.length === 2);
                 assert(result[0] === 2);
@@ -104,7 +106,7 @@ describe("compatibility", function () {
                     result;
                 result = array.filter(function (value) {
                     assert(this === obj);
-                    return value %2 === 0;
+                    return value % 2 === 0;
                 }, obj);
                 assert(result.length === 2);
                 assert(result[0] === 2);
@@ -228,7 +230,7 @@ describe("compatibility", function () {
         it("allows creating function with parameters", function () {
             /*jshint -W064*/
             /*jshint -W061*/
-            var thisName = Function ("value", "return value;"); //eslint-disable-line no-new-func
+            var thisName = Function("value", "return value;"); //eslint-disable-line no-new-func
             /*jshint +W061*/
             /*jshint +W064*/
             assert("function" === typeof thisName);
@@ -237,7 +239,7 @@ describe("compatibility", function () {
         });
 
         it("exposes a name", function () {
-            function thisName() {}
+            function thisName () {}
             assert(thisName.compatibleName() === "thisName");
         });
 
