@@ -17,8 +17,8 @@
      * @param {String} name
      * @returns {Function}
      */
-    function genMember(name) {
-        function _process(text) {
+    function genMember (name) {
+        function _process (text) {
             var
                 expectedName,
                 expectedText,
