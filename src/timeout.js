@@ -23,7 +23,7 @@ var
  * @return {Number}
  * @private
  */
-function _gpfSortOnDt(a, b) {
+function _gpfSortOnDt (a, b) {
     return a.dt - b.dt;
 }
 
