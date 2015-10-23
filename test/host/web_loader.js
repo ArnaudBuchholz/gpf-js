@@ -120,14 +120,14 @@
      * @param {Function} callback
      */
     window.load = function (additionalDependencies, callback) {
-        if (undefined !== callback) {
+        if (undefined === callback) {
+            dependencies = [];
+            callback = additionalDependencies;
+        } else {
             if (!(additionalDependencies instanceof Array)) {
                 additionalDependencies = [additionalDependencies];
             }
             dependencies = additionalDependencies;
-        } else {
-            dependencies = [];
-            callback = additionalDependencies;
         }
         loadedCallback = callback;
         _loadVersion();
