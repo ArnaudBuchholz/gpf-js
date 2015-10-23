@@ -39,7 +39,7 @@ _gpfDefine("gpf.xml.Writer", Object, {
 
     "[Class]": [gpf.$InterfaceImplement(_gpfI.IXmlContentHandler)],
 
-    private: {
+    "-": {
 
         /**
          * @type {gpf.interfaces.IWritableStream}
@@ -127,7 +127,7 @@ _gpfDefine("gpf.xml.Writer", Object, {
 
     },
 
-    public: {
+    "+": {
 
         /**
          * @param {gpf.interfaces.IWritableStream} stream
