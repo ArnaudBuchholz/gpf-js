@@ -54,7 +54,7 @@
      */
     _gpfDefine("gpf.Promise", Object, {
 
-        private: {
+        "-": {
 
             /**
              * @type {gpf.events.Handler[]}
@@ -69,7 +69,7 @@
             _pos: 0
         },
 
-        public: {
+        "+": {
 
             /**
              * @constructor
@@ -110,7 +110,7 @@
 
         },
 
-        static: {
+        "~": {
             THEN: "then",
             REJECT: "reject"
         }
