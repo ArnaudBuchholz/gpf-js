@@ -81,11 +81,11 @@ module.exports = function (grunt) {
                     quiet: false,
                     clearRequireCache: true,
                     require: [
-                        function (){
+                        function () {
                             global.gpfSourcesPath = "src/";
                         },
                         "./src/boot.js",
-                        function (){
+                        function () {
                             require("./test/host/console.js");
                             global.assert = require("assert");
                         }
@@ -99,7 +99,7 @@ module.exports = function (grunt) {
                     quiet: false,
                     clearRequireCache: true,
                     require: [
-                        function (){
+                        function () {
                             global.gpf = require("./build/gpf-debug.js");
                             require("./test/host/console.js");
                             global.assert = require("assert");
@@ -114,7 +114,7 @@ module.exports = function (grunt) {
                     quiet: false,
                     clearRequireCache: true,
                     require: [
-                        function (){
+                        function () {
                             global.gpf = require("./build/gpf.js");
                             require("./test/host/console.js");
                             global.assert = require("assert");
