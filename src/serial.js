@@ -92,7 +92,7 @@ describe("gpf.json.load and gpf.json.save", function () {
 
     var A = gpf.define("A", {
 
-        private: {
+        "-": {
             "[_member1]": [gpf.$ClassProperty(true)],
             _member1: 34,
 
@@ -104,7 +104,7 @@ describe("gpf.json.load and gpf.json.save", function () {
 
         },
 
-        public: {
+        "+": {
 
             member3: false
 
