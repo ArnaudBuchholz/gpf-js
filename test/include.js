@@ -3,6 +3,8 @@
 /*eslint-env mocha*/
 /*global assert*/
 
+/*eslint-disable max-nested-callbacks*/
+
 describe("include", function () {
 
     describe("gpf.web.include", function () {
