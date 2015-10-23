@@ -91,7 +91,7 @@
          */
         ResponseHandler = _gpfDefine("ResponseHandler", Object, {
 
-            private: {
+            "-": {
 
                 /**
                  * Web server options
@@ -151,7 +151,7 @@
 
             },
 
-            public: {
+            "+": {
 
                 /**
                  * @param {Object} options Web server options
@@ -273,7 +273,7 @@
 
             },
 
-            static: {
+            "~": {
 
                 /**
                  * Generates a PLAIN response to the server
