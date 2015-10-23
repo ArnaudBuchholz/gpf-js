@@ -3,12 +3,14 @@
 /*eslint-env mocha*/
 /*global assert*/
 
+/*eslint-disable max-nested-callbacks*/
+
 describe("constants", function () {
 
     describe("gpf", function () {
 
         it("does not expose any 'private' member", function () {
-            function check(obj, done) {
+            function check (obj, done) {
                 var property,
                     value;
                 for (property in obj) {
