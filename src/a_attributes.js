@@ -77,7 +77,7 @@ var
                     attributes = new _gpfA.Map(me);
                 // Get constraints set for THIS attribute
                 attributes.filter(_gpfAttrConstraint).forEach(function (constraintAttributes) {
-                    constraintAttributes.forEach(function(attribute) {
+                    constraintAttributes.forEach(function (attribute) {
                         attribute._check(me, objPrototype);
                     });
                 });
