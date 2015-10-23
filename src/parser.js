@@ -29,7 +29,7 @@
      */
     _gpfDefine("gpf.Parser", Object, {
 
-        public: {
+        "+": {
 
             constructor: function () {
                 this.reset();
@@ -94,7 +94,7 @@
 
         },
 
-        protected: {
+        "#": {
 
             // Configuration / pre-defined handlers
 
@@ -174,7 +174,7 @@
             }
         },
 
-        private: {
+        "-": {
 
             /**
              * Absolute parser current position
@@ -257,7 +257,7 @@
             }
         },
 
-        static: {
+        "~": {
 
             /**
              * Use to finalize the parser state
@@ -279,7 +279,7 @@
      */
     _gpfDefine("gpf.ParserStream", gpf.stream.BufferedOnRead, {
 
-        public: {
+        "+": {
 
             /**
              * @param {gpf.Parser} parser
@@ -294,7 +294,7 @@
 
         },
 
-        protected: {
+        "#": {
 
             /**
              * @inheritdoc gpf.stream.BufferedOnRead#_addToBuffer
@@ -318,7 +318,7 @@
 
         },
 
-        private: {
+        "-": {
 
             /**
              * Callback used to grab the parser output that is concatenated to
@@ -434,7 +434,7 @@
          */
         PatternItem = _gpfDefine("PatternItem", {
 
-            private: {
+            "-": {
 
                 /**
                  * Min number of item iteration
@@ -457,7 +457,7 @@
 
             },
 
-            public: {
+            "+": {
 
                 //region Parsing time
 
@@ -515,7 +515,7 @@
 
             },
 
-            static: {
+            "~": {
 
                 PARSE_IGNORED: 0,
                 PARSE_PROCESSED: 1,
@@ -543,7 +543,7 @@
          */
         PatternChar = _gpfDefine("PatternChar", PatternItem, {
 
-            private: {
+            "-": {
 
                 /**
                  * The character to match
@@ -555,7 +555,7 @@
 
             },
 
-            public: {
+            "+": {
 
                 /**
                  * @inheritdoc PatternItem#parse
@@ -590,7 +590,7 @@
          */
         PatternRange = _gpfDefine("PatternRange", PatternItem, {
 
-            private: {
+            "-": {
 
                 /**
                  * Included characters
@@ -661,7 +661,7 @@
 
             },
 
-            public: {
+            "+": {
 
                 /**
                  * @inheritdoc PatternItem#parse
@@ -733,7 +733,7 @@
          */
         PatternGroup = _gpfDefine("PatternGroup", PatternItem, {
 
-            private: {
+            "-": {
 
                 /**
                  * Contains either an item list or a list of item list
@@ -985,7 +985,7 @@
 
             },
 
-            public: {
+            "+": {
 
                 /**
                  * @constructor
@@ -1114,7 +1114,7 @@
 //         */
 //        PatternChoice = _gpfDefine("PatternChoice", PatternItem, {
 //
-//            public: {
+//            "+": {
 //
 ////                /**
 ////                 * @inheritdoc PatternItem#next
@@ -1192,7 +1192,7 @@
          */
         PatternParser = _gpfDefine("PatternParser",  gpf.Parser, {
 
-            private: {
+            "-": {
 
                 /**
                  * @type {PatternGroup}
@@ -1203,7 +1203,7 @@
 
             },
 
-            protected: {
+            "#": {
 
                 /**
                  * @inheritdoc gpf.Parser#_initialParserState
@@ -1223,7 +1223,7 @@
 
             },
 
-            public: {
+            "+": {
 
                 constructor: function () {
                     this._super.apply(this, arguments);
@@ -1246,7 +1246,7 @@
 
             "[Class]": [gpf.$InterfaceImplement(_ITokenizer)],
 
-            private: {
+            "-": {
 
                 /**
                  * @type {PatternItem}
@@ -1281,7 +1281,7 @@
                 _state: {}
             },
 
-            public: {
+            "+": {
 
                 /**
                  * @param {PatternItem} patternItem
@@ -1336,7 +1336,7 @@
      */
     _gpfDefine("gpf.Pattern", Object, {
 
-        private: {
+        "-": {
 
             /**
              * @type {PatternItem}
@@ -1346,7 +1346,7 @@
 
         },
 
-        public: {
+        "+": {
 
             /**
              * Constructor, check and compile the pattern
