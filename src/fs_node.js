@@ -36,7 +36,7 @@ function _gpfFireNodeError (err, eventsHandler) {
  * @return {Function]
  * @closure
  */
-function _gpfGenFsCall(methodName) {
+function _gpfGenFsCall (methodName) {
     return function (path, eventsHandler) {
         path = _gpfPathNormalize(path);
         _gpfNodeFs[methodName](path, function (err) {
