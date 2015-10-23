@@ -14,7 +14,7 @@
      */
 
     // Enumeration helper
-    function _objectForEach(dictionary, callback, thisArg) {
+    function _objectForEach (dictionary, callback, thisArg) {
         for (var property in dictionary) {
             if (dictionary.hasOwnProperty(property)) {
                 callback.apply(thisArg, [dictionary[property], property, dictionary]);
@@ -22,14 +22,17 @@
         }
     }
 
+    function _addMember (value, name) {
+        /*jshint validthis:true*/ // Used below and bound to Constructor
+        this[name] = value;
+    }
+
     // Class helper
     function _toClass (Constructor, BaseClass, members) {
         Constructor.prototype = new BaseClass();
         _objectForEach(members, function (memberValue, memberName) {
             if ("statics" === memberName) {
-                _objectForEach(memberValue, function (staticValue, staticName) {
-                    Constructor[staticName] = staticValue;
-                }, Constructor);
+                _objectForEach(memberValue, _addMember, Constructor);
             } else {
                 Constructor.prototype[memberName] = memberValue;
             }
@@ -233,7 +236,7 @@
          * - {Number} depth item depth
          * - {String} label item label
          */
-        "describe": function (data) {
+        describe: function (data) {
             _output(new Array(data.depth + 1).join("\t") + data.label);
         },
 
@@ -247,7 +250,7 @@
          * - {Boolean} result test result
          * - {Object} exception exception details
          */
-        "it": function (data) {
+        it: function (data) {
             var line = new Array(data.depth + 1).join("\t");
             if (data.pending) {
                 line += "-- ";
@@ -276,7 +279,7 @@
          * - {Number} fail failed count
          * - {Number} pending tests with no implementation
          */
-        "results": function (data) {
+        results: function (data) {
             _output("--- Results: ");
             for (var key in data) {
                 if (data.hasOwnProperty(key)) {
@@ -371,7 +374,7 @@
         _monitorCallback: function (callback, callbackCompleted, callbackContext) {
             var monitorContext = {
                     runner: this,
-                    doneExpected: 0 <callback.length,
+                    doneExpected: 0 < callback.length,
                     callbackCompleted: callbackCompleted,
                     callbackContext: callbackContext,
                     error: null,
@@ -465,10 +468,10 @@
          */
         _attachToPromise: function (promise, done) {
             var _rejectionReason;
-            function fulfilled() {
+            function fulfilled () {
                 done(); // Must have no parameter
             }
-            function rejected(reason) {
+            function rejected (reason) {
                 if (!reason) {
                     reason = {
                         message: "Promise rejected with no reason"
@@ -477,7 +480,7 @@
                 _rejectionReason = reason;
                 done(reason);
             }
-            function caught(reason) {
+            function caught (reason) {
                 if (reason !== _rejectionReason) {
                     done(reason);
                 }
@@ -565,7 +568,7 @@
         next: function () {
             // Because of cscript compatibility
             var loop = true;
-            while(loop) {
+            while (loop) {
                 // Check if any pending callback
                 while (this._pendingCallbacks.length) {
                     if (this._processCallback(Runner.CALLBACKS_TYPE[this._state], this._pendingCallbacks.shift())) {
@@ -700,10 +703,10 @@
             DEFAULT_TIMEOUT_DELAY: 2000, // 2s
 
             CALLBACKS_TYPE: {
-                "_onDescribeBefore": "before",
-                "_onItBefore": "beforeEach",
-                "_onItAfter": "afterEach",
-                "_onDescribeAfter": "after"
+                _onDescribeBefore: "before",
+                _onItBefore: "beforeEach",
+                _onItAfter: "afterEach",
+                _onDescribeAfter: "after"
             },
 
             // Test if the provided parameter looks like a promise
