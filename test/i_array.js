@@ -39,13 +39,13 @@ describe("i_array", function () {
 
         var gpfI = gpf.interfaces,
             A = gpf.define("A", {
-                private: {
+                "private": {
 
                     "[_items]": [gpf.$ClassIArray(false)],
                     _items: []
 
                 },
-                public: {
+                "public": {
 
                     constructor: function (items) {
                         this._items = items;
