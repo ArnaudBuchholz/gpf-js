@@ -80,12 +80,12 @@ _gpfDefIntrf("IArray", iROArray, {
  */
 _gpfDefAttr("$ClassIArray", _gpfA.ClassAttribute, {
     "[Class]": [gpf.$UniqueAttribute(), gpf.$MemberAttribute()],
-    private: {
+    "-": {
 
         _writeAllowed: false
 
     },
-    protected: {
+    "#": {
 
         // @inheritdoc gpf.attributes.Attribute#_alterPrototype
         _alterPrototype: function (objPrototype) {
@@ -114,7 +114,7 @@ _gpfDefAttr("$ClassIArray", _gpfA.ClassAttribute, {
         }
 
     },
-    public: {
+    "+": {
 
         constructor: function (writeAllowed) {
             if (writeAllowed) {
