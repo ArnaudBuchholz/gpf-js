@@ -3,6 +3,8 @@
 /*eslint-env mocha*/
 /*global assert*/
 
+/*eslint-disable max-nested-callbacks*/
+
 describe("path", function () {
 
     var path = gpf.path;
@@ -91,7 +93,7 @@ describe("path", function () {
         }];
 
     function buildTestFunc (source) {
-        return new Func ("assert(gpf.path." + source + ");");
+        return new Func("assert(gpf.path." + source + ");");
     }
 
     describe("gpf.path.name", function () {
