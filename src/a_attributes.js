@@ -31,7 +31,7 @@ var
      * @extends gpf.attributes.Attribute
      */
     _GpfAttrOnly = _gpfDefAttr("AttrClassOnlyAttribute", {
-        protected: {
+        "#": {
 
             _alterPrototype: function (objPrototype) {
                 if (!(objPrototype instanceof _gpfAttribute)) {
@@ -56,13 +56,13 @@ var
      * @extends gpf.attributes.AttrClassOnlyAttribute
      */
     _gpfAttrConstraint = _gpfDefAttr("AttrConstraintAttribute", _GpfAttrOnly, {
-        static: {
+        "~": {
 
             // Name used to remember the original _alterPrototype handler
             originalAlterPrototype: "_alterPrototype:checked"
 
         },
-        private: {
+        "-": {
 
             /**
              * Check that all attribute constraints are respected before calling the original _alterPrototype
@@ -86,7 +86,7 @@ var
             }
 
         },
-        protected: {
+        "#": {
 
             /**
              * Throws an exception if target attribute can't be applied to objPrototype
@@ -128,7 +128,7 @@ var
  * @alias gpf.$ClassAttribute
  */
 _gpfDefAttr("$ClassAttribute", _gpfAttrConstraint, {
-    protected: {
+    "#": {
 
         // @inheritdoc gpf.attributes.AttrConstraintAttribute#_check
         _check: function (targetAttribute, objPrototype) {
@@ -153,7 +153,7 @@ _gpfDefAttr("$ClassAttribute", _gpfAttrConstraint, {
  * @alias gpf.$MemberAttribute
  */
 _gpfDefAttr("$MemberAttribute", _gpfAttrConstraint, {
-    protected: {
+    "#": {
 
         // @inheritdoc gpf.attributes.AttrConstraintAttribute#_check
         _check: function (targetAttribute, objPrototype) {
@@ -178,13 +178,13 @@ _gpfDefAttr("$MemberAttribute", _gpfAttrConstraint, {
  * @alias gpf.$UniqueAttribute
  */
 _gpfDefAttr("$UniqueAttribute", _gpfAttrConstraint, {
-    private: {
+    "-": {
 
         // The attribute is unique for the whole class when true or per member when false
         _classScope: true
 
     },
-    protected: {
+    "#": {
 
         // @inheritdoc gpf.attributes.AttrConstraintAttribute#_check
         _check: function (targetAttribute, objPrototype) {
@@ -225,7 +225,7 @@ _gpfDefAttr("$UniqueAttribute", _gpfAttrConstraint, {
         }
 
     },
-    public: {
+    "+": {
 
         /**
          * @param {Boolean} [classScope=true] classScope True to set limit to one instance per class (including
