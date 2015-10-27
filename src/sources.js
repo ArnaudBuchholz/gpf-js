@@ -37,14 +37,10 @@
         "fs",                   // File system (FS)                   gpf.fs
 
         /* new JSHint settings */
+        "",                     // --- temporary end marker ---
 
         "fs_node",              // FS implementation for nodeJS       gpf.fs
-
-        "",                     // --- temporary end marker ---
-
         "fs_ms",                // FS implementation for WScript      gpf.fs
-
-        "",                     // --- temporary end marker ---
 
         "stream",               // IStream helpers                gpf.stream
         "stream_out",           // gpf.stream.Out
