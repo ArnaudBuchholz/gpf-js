@@ -192,12 +192,16 @@ module.exports = function (grunt) {
         //endregion
     });
 
-    grunt.loadNpmTasks("grunt-contrib-jshint");
-    grunt.loadNpmTasks("grunt-contrib-watch");
-    grunt.loadNpmTasks("grunt-eslint");
-    grunt.loadNpmTasks("grunt-exec");
-    grunt.loadNpmTasks("grunt-mocha");
-    grunt.loadNpmTasks("grunt-mocha-test");
+    [
+        "grunt-contrib-jshint",
+        "grunt-contrib-watch",
+        "grunt-eslint",
+        "grunt-exec",
+        "grunt-istanbul",
+        "grunt-istanbul-coverage",
+        "grunt-mocha",
+        "grunt-mocha-test"
+    ].forEach(grunt.loadNpmTasks.bind(grunt));
 
     grunt.registerTask("default", ["jshint", "eslint"]);
     grunt.registerTask("make", [
