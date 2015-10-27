@@ -82,7 +82,9 @@ describe("attributes", function () {
 
         it("signals any use on non-existing member", function () {
             var caught = null;
-            console.expects("error", "gpf.define: Invalid attribute name '_b'");
+            if (console.expects) {
+                console.expects("error", "gpf.define: Invalid attribute name '_b'");
+            }
             try {
                 gpf.define("C", A, {
                     "[_b]": [new Test1ValueAttribute()] // should fail
