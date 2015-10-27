@@ -13,7 +13,7 @@ describe("base", function () {
             /*jshint node: true*/
             /*eslint-env node*/
 
-            it("supports multiple instances", function () {
+            it("supports multiple instances (node)", function () {
                 var path = require("path"),
                     previousGpf = gpf,
                     gpf2;
@@ -27,7 +27,7 @@ describe("base", function () {
             /*jshint browser: true*/
             /*eslint-env browser*/
 
-            it("supports multiple includes", function (done) {
+            it("supports multiple includes (browser)", function (done) {
                 var previousGpf = gpf,
                     basePath;
                 if (window.gpfSourcesPath) {
