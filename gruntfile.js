@@ -1,10 +1,12 @@
 "use strict";
 /*jshint node: true*/
 /*eslint-env node*/
+/*eslint-disable no-sync*/ // OK here
 module.exports = function (grunt) {
 
     var CSCRIPT_CMD = "cscript.exe /D /E:JScript test\\host\\cscript.js",
         RHINO_CMD = "java -jar node_modules\\rhino-1_7r5-bin\\rhino1_7R5\\js.jar test\\host\\rhino.js",
+        PLATO_CMD = "node node_modules\\plato\\bin\\plato",
         srcFiles = [],
         testFiles = [],
         jsLintedFiles;
@@ -46,6 +48,31 @@ module.exports = function (grunt) {
                 rulePaths: [".eslintrules"]
             },
             target: jsLintedFiles
+        },
+        //endregion
+        //region Code coverage
+        instrument: {
+            files: "src/*.js",
+            options: {
+                lazy: true,
+                debug: true,
+                noCompact: true,
+                noAutoWrap: true,
+                basePath: "tmp/coverage/instrument/"
+            }
+        },
+        storeCoverage: {
+            options: {
+                dir: "tmp/coverage/reports"
+            }
+        },
+        makeReport: {
+            src: "tmp/coverage/reports/**/*.json",
+            options: {
+                type: "lcov",
+                dir: "tmp/coverage/reports",
+                print: "detail"
+            }
         },
         //endregion
         //region Mocha test automation inside PhantomJS
@@ -91,7 +118,23 @@ module.exports = function (grunt) {
                         }
                     ]
                 },
-                src: ["test/*.js"]
+                src: testFiles
+            },
+            coverage: {
+                options: {
+                    reporter: "progress",
+                    quiet: false,
+                    require: [
+                        function () {
+                            global.gpfSourcesPath = "tmp/coverage/instrument/src/";
+                        },
+                        "./tmp/coverage/instrument/src/boot.js",
+                        function () {
+                            global.assert = require("assert");
+                        }
+                    ]
+                },
+                src: testFiles
             },
             debug: {
                 options: {
@@ -106,7 +149,7 @@ module.exports = function (grunt) {
                         }
                     ]
                 },
-                src: ["test/*.js"]
+                src: testFiles
             },
             release: {
                 options: {
@@ -121,7 +164,7 @@ module.exports = function (grunt) {
                         }
                     ]
                 },
-                src: ["test/*.js"]
+                src: testFiles
             }
         },
         //endregion
@@ -178,7 +221,7 @@ module.exports = function (grunt) {
                 exitCode: 0
             },
             plato: {
-                command: "plato -l .jshintrc -t GPF-JS -d tmp\\plato src\\*.js",
+                command: PLATO_CMD + " -l .jshintrc -t GPF-JS -d tmp\\plato " + srcFiles.join(" "),
                 stdout: true,
                 stderr: true
             }
@@ -203,20 +246,59 @@ module.exports = function (grunt) {
         "grunt-mocha-test"
     ].forEach(grunt.loadNpmTasks.bind(grunt));
 
-    grunt.registerTask("default", ["jshint", "eslint"]);
-    grunt.registerTask("make", [
-        "jshint",
-        "eslint",
-        "mocha:source",
-        "mochaTest:source",
-        "exec:testWscript",
-        "exec:buildDebug",
-        "exec:buildRelease",
-        "mocha:debug",
-        "mochaTest:debug",
-        "exec:testWscriptDebug",
-        "mocha:release",
-        "mochaTest:release",
-        "exec:testWscriptRelease"
-    ]);
+    (function (tasks) {
+        var taskName;
+        for (taskName in tasks) {
+            if (tasks.hasOwnProperty(taskName)) {
+                grunt.registerTask(taskName, tasks[taskName]);
+            }
+        }
+    }({
+        "default": [
+            "jshint",
+            "eslint"
+        ],
+        "fixInstrument": function () {
+            // Because code generation uses templates that are instrumented, the __cov_XXX variables must be global
+            var fs = require("fs");
+            srcFiles.forEach(function (fileName) {
+                var srcPath = "tmp/coverage/instrument/" + fileName,
+                    instrumentedLines = fs
+                        .readFileSync(srcPath)
+                        .toString()
+                        .split("\n"),
+                    // Assuming the __cov_ variable is on the second line
+                    secondLine = instrumentedLines[1];
+                if (0 === secondLine.indexOf("var ")) {
+                    instrumentedLines[1] = "global." + secondLine.substr(4);
+                    fs.writeFileSync(srcPath, instrumentedLines.join("\n"));
+                    console.log(fileName + " updated");
+                }
+            });
+        },
+        "coverage": [
+            "instrument",
+            "fixInstrument",
+            "mochaTest:coverage",
+            "storeCoverage",
+            "makeReport"
+        ],
+        "plato": ["exec:plato"],
+        "make": [
+            "jshint",
+            "eslint",
+            "mocha:source",
+            "mochaTest:source",
+            "exec:testWscript",
+            "exec:buildDebug",
+            "exec:buildRelease",
+            "mocha:debug",
+            "mochaTest:debug",
+            "exec:testWscriptDebug",
+            "mocha:release",
+            "mochaTest:release",
+            "exec:testWscriptRelease"
+        ]
+    }));
+
 };
