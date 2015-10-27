@@ -136,6 +136,7 @@ var /**
  * @this gpf.fs
  */
 function _gpfFsFind (basePath, filters, eventsHandler) {
+    /*jshint validthis:true*/
     _gpfIgnore(basePath, filters, eventsHandler); // Will be used as arguments
     if (!_gpfFsFindBoundToHost) {
         _gpfFsFindBoundToHost = gpf.fs.find = _gpfFsBuildFindMethod(gpf.fs.host());
