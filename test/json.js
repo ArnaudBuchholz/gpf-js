@@ -45,9 +45,7 @@ describe("json", function () {
             },
             json: "{\"a\":\"123\",\"b\":123,\"c\":true,\"d\":{}}"
 
-        }],
-        len = tests.length,
-        idx;
+        }];
 
     describe("JSON object", function () {
 
@@ -59,31 +57,52 @@ describe("json", function () {
 
     describe("JSON.stringify", function () {
 
-        function makeIt (test) {
+        tests.forEach(function (test) {
             it("works on " + test.label, function () {
                 assert(JSON.stringify(test.obj) === test.json);
             });
-        }
-
-        for (idx = 0; idx < len; ++idx) {
-            makeIt(tests[idx]);
-        }
+        });
 
     });
 
     describe("JSON.parse", function () {
 
-        function makeIt (test) {
+        tests.forEach(function (test) {
             it("works on " + test.label, function () {
                 var obj = JSON.parse(test.json);
                 assert(true === gpf.like(obj, test.obj));
             });
-        }
-
-        for (idx = 0; idx < len; ++idx) {
-            makeIt(tests[idx]);
-        }
+        });
 
     });
+
+    if (gpf.internals) {
+
+        describe("(internal)", function () {
+
+            describe("_gpfJsonStringifyPolyfill", function () {
+
+                tests.forEach(function (test) {
+                    it("works on " + test.label, function () {
+                        assert(gpf.internals._gpfJsonStringifyPolyfill(test.obj) === test.json);
+                    });
+                });
+
+            });
+
+            describe("_gpfJsonParsePolyfill", function () {
+
+                tests.forEach(function (test) {
+                    it("works on " + test.label, function () {
+                        var obj = gpf.internals._gpfJsonParsePolyfill(test.json);
+                        assert(true === gpf.like(obj, test.obj));
+                    });
+                });
+
+            });
+
+        });
+
+    }
 
 });
