@@ -24,7 +24,7 @@ describe("constants", function () {
                     }
                 }
             }
-            check(gpf, [gpf]);
+            check(gpf, [gpf, gpf.internals]); // Skip gpf.internals if they are defined
         });
 
         it("should expose a version", function () {
