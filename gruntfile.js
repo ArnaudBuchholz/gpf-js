@@ -120,6 +120,23 @@ module.exports = function (grunt) {
                 },
                 src: testFiles
             },
+            verbose: {
+                options: {
+                    reporter: "spec",
+                    quiet: false,
+                    clearRequireCache: true,
+                    require: [
+                        function () {
+                            global.gpfSourcesPath = "src/";
+                        },
+                        "./src/boot.js",
+                        function () {
+                            global.assert = require("assert");
+                        }
+                    ]
+                },
+                src: testFiles
+            },
             coverage: {
                 options: {
                     reporter: "progress",
