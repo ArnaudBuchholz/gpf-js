@@ -376,7 +376,9 @@ if ("undefined" !== typeof WScript) {
 
 /*#ifndef(UMD)*/
 
-_gpfMainContext.gpf = {};
+_gpfMainContext.gpf = {
+    internals: {} // To support testable internals
+};
 
 /*#else*/
 
