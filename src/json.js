@@ -56,32 +56,37 @@ function _gpfJsonStringifyObject (object) {
     return object.toString();
 }
 
+var _gpfJsonStringifyMapping = {
+    undefined: _gpfEmptyFunc,
+    "function": _gpfEmptyFunc,
+    number: _gpfJsonStringifyObject,
+    "boolean": _gpfJsonStringifyObject,
+    string: function (object) {
+        return _gpfStringEscapeFor(object, "javascript");
+    }
+};
+
+function _gpfJsonStringifyPolyfill (object) {
+    var mapper = _gpfJsonStringifyMapping[typeof object];
+    if (undefined !== mapper) {
+        return mapper(object);
+    }
+    if (null === object) {
+        return "null";
+    }
+    return _gpfObject2Json(object);
+}
+
+function _gpfJsonParsePolyfill (test) {
+    return _gpfFunc("return " + test)();
+}
+
+// Used only for environments where JSON is not defined
+/* istanbul ignore next */
 if ("undefined" === typeof JSON) {
 
-    var _gpfJsonStringifyMapping = {
-        undefined: _gpfEmptyFunc,
-        "function": _gpfEmptyFunc,
-        number: _gpfJsonStringifyObject,
-        "boolean": _gpfJsonStringifyObject,
-        string: function (object) {
-            return _gpfStringEscapeFor(object, "javascript");
-        }
-    };
-
-    _gpfJsonStringify = function (object) {
-        var mapper = _gpfJsonStringifyMapping[typeof object];
-        if (undefined !== mapper) {
-            return mapper(object);
-        }
-        if (null === object) {
-            return "null";
-        }
-        return _gpfObject2Json(object);
-    };
-
-    _gpfJsonParse = function (test) {
-        return _gpfFunc("return " + test)();
-    };
+    _gpfJsonStringify = _gpfJsonStringifyPolyfill;
+    _gpfJsonParse = _gpfJsonParsePolyfill;
 
     // Creates the JSON global object
     _gpfMainContext.JSON = {
@@ -95,3 +100,10 @@ if ("undefined" === typeof JSON) {
     _gpfJsonParse = JSON.parse;
 
 }
+
+/*#ifndef(UMD)*/
+
+gpf.internals._gpfJsonStringifyPolyfill = _gpfJsonStringifyPolyfill;
+gpf.internals._gpfJsonParsePolyfill = _gpfJsonParsePolyfill;
+
+/*#endif*/
