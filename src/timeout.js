@@ -31,9 +31,6 @@ function _gpfSortOnDt (a, b) {
 }
 
 function _gpSetTimeoutPolyfill (callback, timeout) {
-    if (!timeout) {
-        timeout = 0;
-    }
     var timeoutItem = {
         id: ++_gpfTimeoutID,
         dt: new Date(new Date().getTime() + timeout),
