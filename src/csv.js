@@ -217,7 +217,7 @@ _GpfCsvParser.prototype = {
                 break;
             }
         }
-        if (values.inQuotedString) {
+        if (flags.inQuotedString) {
             throw gpf.Error.csvInvalid();
         }
         return values;
