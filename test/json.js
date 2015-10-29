@@ -45,6 +45,26 @@ describe("json", function () {
             },
             json: "{\"a\":\"123\",\"b\":123,\"c\":true,\"d\":{}}"
 
+        }, {
+            label: "function",
+            obj: {
+                a: 123,
+                b: function () {}
+            },
+            json: "{\"a\":123}",
+            parse: false
+        }, {
+            label: "array",
+            obj: {
+                a: [1, 2, 3]
+            },
+            json: "{\"a\":[1,2,3]}"
+        }, {
+            label: "null",
+            obj: {
+                a: null
+            },
+            json: "{\"a\":null}"
         }];
 
     describe("JSON object", function () {
@@ -68,6 +88,9 @@ describe("json", function () {
     describe("JSON.parse", function () {
 
         tests.forEach(function (test) {
+            if (false === test.parse) {
+                return;
+            }
             it("works on " + test.label, function () {
                 var obj = JSON.parse(test.json);
                 assert(true === gpf.like(obj, test.obj));
@@ -93,6 +116,9 @@ describe("json", function () {
             describe("_gpfJsonParsePolyfill", function () {
 
                 tests.forEach(function (test) {
+                    if (false === test.parse) {
+                        return;
+                    }
                     it("works on " + test.label, function () {
                         var obj = gpf.internals._gpfJsonParsePolyfill(test.json);
                         assert(true === gpf.like(obj, test.obj));
