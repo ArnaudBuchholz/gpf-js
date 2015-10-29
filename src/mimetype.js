@@ -1,7 +1,8 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfGetBootstrapMethod*/ // Create a method that contains a bootstrap (called only once)
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*#endif*/
+// /*#endif*/
 
 var
     /**
@@ -107,21 +108,16 @@ function _gpfGetFileExtension (mimeType) {
  * @param {Array] parameters
  * @private
  */
-function _gpfInitMimeTypes (callback, parameters) {
-    _gpfMimeTypesFromExtension = {};
-    _gpfMimeTypesToExtension = {};
-    _gpfBuildMimeTypeFromMappings("", _gpfHardCodedMimeTypes);
-    gpf.web.getMimeType = _gpfGetMimeType;
-    gpf.web.getFileExtension = _gpfGetFileExtension;
-    return callback.apply(gpf.web, parameters);
+function _gpfInitMimeTypes (name, handler) {
+    if (null === _gpfMimeTypesFromExtension) {
+        _gpfMimeTypesFromExtension = {};
+        _gpfMimeTypesToExtension = {};
+        _gpfBuildMimeTypeFromMappings("", _gpfHardCodedMimeTypes);
+    }
 }
 
 // @inheritdoc _gpfGetMimeType
-gpf.web.getMimeType = function () {
-    return _gpfInitMimeTypes(_gpfGetMimeType, arguments);
-};
+_gpfGetBootstrapMethod("gpf.web.getMimeType", _gpfInitMimeTypes, _gpfGetMimeType);
 
 // @inheritdoc _gpfGetFileExtension
-gpf.web.getFileExtension = function () {
-    return _gpfInitMimeTypes(_gpfGetFileExtension, arguments);
-};
+_gpfGetBootstrapMethod("gpf.web.getFileExtension", _gpfInitMimeTypes, _gpfGetFileExtension);
