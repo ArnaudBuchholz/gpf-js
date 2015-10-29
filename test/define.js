@@ -153,6 +153,25 @@ describe("define", function () {
                 assert(e.overriddenMethod(5) === 7);
             });
 
+            it("prevents overloading a member with a different type", function () {
+                var caught = false;
+                try {
+                    gpf.define("F", E, {
+                        "public": {
+                            overriddenMethod: "forbidden"
+                        }
+                    });
+                } catch (e) {
+                    assert(e instanceof gpf.Error);
+                    assert(e.code === gpf.Error.CODE_CLASSMEMBEROVERLOADWITHTYPECHANGE);
+                    assert(e.code === gpf.Error.classMemberOverloadWithTypeChange.CODE);
+                    assert(e.name === "classMemberOverloadWithTypeChange");
+                    assert(e.message === "You can't overload a member and change its type");
+                    caught = true;
+                }
+                assert(true === caught);
+            });
+
         });
 
         describe("static members", function () {
@@ -168,6 +187,68 @@ describe("define", function () {
             });
 
         });
+
+        if (gpf.internals) {
+
+            describe("(internal)", function () {
+
+                describe("_gpfGetClassDefinition", function () {
+
+                    var classDefOfA;
+
+                    before(function () {
+                        classDefOfA = gpf.internals._gpfGetClassDefinition(A);
+                    });
+
+                    it("provides information on the class defined with gpf.define", function () {
+                        assert(undefined !== classDefOfA);
+                        // Showing some examples (not relevant for coverage)
+                        assert("A" === classDefOfA._name);
+                        assert(Object === classDefOfA._Super);
+                        assert(1 === classDefOfA._Subs.length);
+                    });
+
+                    it("provides information on the instance constructor defined with gpf.define", function () {
+                        var a = new A(),
+                            classDefOfaConstructor = gpf.internals._gpfGetClassDefinition(a.constructor);
+                        assert(undefined !== classDefOfaConstructor);
+                        assert(classDefOfA === classDefOfaConstructor);
+                    });
+
+                    describe("_gpfGetClassDefinition.addMember", function () {
+
+                        it("allows to add a member dynamically", function () {
+                            var a = new A();
+                            classDefOfA.addMember("test", "rulez");
+                            assert("rulez" === a.test);
+                            classDefOfA.addMember("staticTest", "rulez", "static");
+                            assert("rulez" === A.staticTest);
+                        });
+
+                        it("validates member visibility", function () {
+                            var caught = false;
+                            try {
+                                var a = new A(),
+                                    classDefOfA = gpf.internals._gpfGetClassDefinition(a.constructor);
+                                classDefOfA.addMember("test2", "fails", "anything");
+                            } catch (e) {
+                                assert(e instanceof gpf.Error);
+                                assert(e.code === gpf.Error.CODE_CLASSINVALIDVISIBILITY);
+                                assert(e.code === gpf.Error.classInvalidVisibility.CODE);
+                                assert(e.name === "classInvalidVisibility");
+                                assert(e.message === "Invalid visibility keyword");
+                                caught = true;
+                            }
+                            assert(true === caught);
+                        });
+
+                    });
+
+                });
+
+            });
+
+        }
 
     });
 
