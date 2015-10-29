@@ -38,7 +38,7 @@ function _gpfObject2Json (object) {
         if ("function" === typeof object[property]) {
             continue; // ignore
         }
-        value = _gpfJsonStringify(object[property]);
+        value = _gpfJsonStringifyPolyfill(object[property]);
         if (isArray) {
             results.push(value);
         } else {
@@ -66,6 +66,7 @@ var _gpfJsonStringifyMapping = {
     }
 };
 
+/*jshint -W003*/ // Circular reference _gpfJsonStringifyPolyfill <-> _gpfObject2Json
 function _gpfJsonStringifyPolyfill (object) {
     var mapper = _gpfJsonStringifyMapping[typeof object];
     if (undefined !== mapper) {
@@ -76,6 +77,7 @@ function _gpfJsonStringifyPolyfill (object) {
     }
     return _gpfObject2Json(object);
 }
+/*jshint +W003*/
 
 function _gpfJsonParsePolyfill (test) {
     return _gpfFunc("return " + test)();
