@@ -28,6 +28,11 @@
 /*eslint-disable no-unused-vars*/
 /*#endif*/
 
+ /*eslint-disable no-invalid-this, no-useless-call*/ // this is used to grab the global context
+
+// An empty function
+function _gpfEmptyFunc () {}
+
 var
     // GPF version
     _gpfVersion = "0.1",
@@ -63,7 +68,7 @@ var
 
     /*jshint -W040*/ // This is the common way to get the global context
     // Main context object
-    _gpfMainContext = this, //eslint-disable-line no-invalid-this
+    _gpfMainContext = this, //eslint-disable-line consistent-this
     /*jshint +W040*/
 
     /**
@@ -76,9 +81,6 @@ var
      * @type {undefined|Object}
      */
     _gpfConflictingSymbol,
-
-    // An empty function
-    _gpfEmptyFunc = function () {},
 
     /**
      * Helper to ignore unused parameter
@@ -93,18 +95,6 @@ var
      * @param {Number} code
      */
     _gpfExit = _gpfEmptyFunc,
-
-    /**
-     * Translate the parameter into a valid scope
-     *
-     * @param {*} scope
-     */
-    _gpfResolveScope = function (scope) {
-        if (null === scope || "object" !== typeof scope) {
-            return _gpfMainContext;
-        }
-        return scope;
-    },
 
     // The current host is a nodeJS like
     _gpfInNode = false,
@@ -154,6 +144,18 @@ var
      */
     _gpfNodePath;
 
+/**
+ * Translate the parameter into a valid scope
+ *
+ * @param {*} scope
+ */
+function _gpfResolveScope (scope) {
+    if (null === scope || "object" !== typeof scope) {
+        return _gpfMainContext;
+    }
+    return scope;
+}
+
 /*#ifdef(DEBUG)*/
 
 _gpfVersion += "d";
@@ -182,13 +184,14 @@ var
 
 /*#endif*/
 
-function _getObjectProperty(parent, name) {
+function _getObjectProperty (parent, name) {
+    /* istanbul ignore else */
     if (undefined !== parent) {
         return parent[name];
     }
 }
 
-function _getOrCreateObjectProperty(parent, name) {
+function _getOrCreateObjectProperty (parent, name) {
     var result = parent[name];
     if (undefined === result) {
         result = parent[name] = {};
@@ -240,6 +243,7 @@ function _gpfGetBootstrapMethod (path, bootstrap, methodFactory) {
         mustBootstrap = true,
         method;
     namespace[name] = function () {
+        /* istanbul ignore else */ // Because that's the idea (shouldn't be called twice)
         if (mustBootstrap) {
             bootstrap();
             method = methodFactory();
@@ -250,13 +254,18 @@ function _gpfGetBootstrapMethod (path, bootstrap, methodFactory) {
     };
 }
 
+/* Host detection */
+/* istanbul ignore next */
+
 // Microsoft cscript / wscript
 if ("undefined" !== typeof WScript) {
+    /*eslint-disable new-cap*/
+
     _gpfHost = _GPF_HOST_WSCRIPT;
     _gpfDosPath = true;
-    _gpfMainContext = (function () {
-        return this; //eslint-disable-line no-invalid-this
-    }).apply(null, []);
+    _gpfMainContext = function () {
+        return this;
+    }.apply(null, []);
     _gpfExit = function (code) {
         WScript.Quit(code);
     };
@@ -290,20 +299,31 @@ if ("undefined" !== typeof WScript) {
 
 /*#endif*/
 
+    /*eslint-enable new-cap*/
 } else if ("undefined" !== typeof print && "undefined" !== typeof java) {
     _gpfHost = _GPF_HOST_RHINO;
     _gpfDosPath = false;
-    _gpfMainContext = (function () {return this;}).apply(null, []); //eslint-disable-line no-invalid-this
+    _gpfMainContext = function () {
+        return this;
+    }.apply(null, []);
     _gpfExit = function (code) {
         java.lang.System.exit(code);
     };
 
     // Define console APIs
     _gpfMainContext.console = {
-        log: function (t) {print("    " + t);},
-        info: function (t) {print("[?] " + t);},
-        warn: function (t) {print("/!\\ " + t);},
-        error: function (t) {print("(X) " + t);}
+        log: function (t) {
+            print("    " + t);
+        },
+        info: function (t) {
+            print("[?] " + t);
+        },
+        warn: function (t) {
+            print("/!\\ " + t);
+        },
+        error: function (t) {
+            print("(X) " + t);
+        }
     };
 
 /*#ifndef(UMD)*/
@@ -341,6 +361,8 @@ if ("undefined" !== typeof WScript) {
     _gpfExit = process.exit;
 
 /*#ifndef(UMD)*/
+
+    /*eslint-disable no-sync*/ // Simpler this way
 
     _gpfNodeFs =  require("fs");
 
@@ -386,12 +408,12 @@ if ("undefined" !== typeof WScript) {
                 "include":          "gpf.web.include"
             }[source].split(".");
         function wait () {
-            if (undefined !== _gpfContext(test)) {
-                _gpfWebHead.removeChild(script);
-                callback();
-            } else {
+            if (undefined === _gpfContext(test)) {
                 // Use an aggressive setting as it will be used only for the non UMD version
                 setTimeout(wait, 0);
+            } else {
+                _gpfWebHead.removeChild(script);
+                callback();
             }
         }
         wait();
@@ -411,16 +433,17 @@ _gpfMainContext.gpf = {
 
 _gpfConflictingSymbol = _gpfMainContext.gpf;
 
+/* istanbul ignore next */ // web only
 /**
  * Relinquish control of the gpf variable.
  *
  * @return {Object} current GPF instance
  */
 gpf.noConflict = function () {
-    if (undefined !== _gpfConflictingSymbol) {
-        _gpfMainContext.gpf = _gpfConflictingSymbol;
-    } else {
+    if (undefined === _gpfConflictingSymbol) {
         delete _gpfMainContext.gpf;
+    } else {
+        _gpfMainContext.gpf = _gpfConflictingSymbol;
     }
     return gpf;
 };
@@ -428,6 +451,7 @@ gpf.noConflict = function () {
 /*#endif*/
 
 // Install host specifics (if any)
+/* istanbul ignore else */ // Because tested with NodeJS
 if (_gpfInNode) {
     gpf.node = {};
 }
@@ -480,16 +504,18 @@ var
      *
      * @type {Function[]}
      */
-    _gpfLoadCallbacks = [],
+    _gpfLoadCallbacks = [];
 
-    // Callback used once all sources are loaded, invoke the callbacks
-    _gpfFinishLoading = function () {
-        _gpfLoaded = true;
-        while (_gpfLoadCallbacks.length) {
-            _gpfLoadCallbacks.shift()();
-        }
-    };
+// Callback used once all sources are loaded, invoke the callbacks
+function _gpfFinishLoading () {
+    _gpfLoaded = true;
+    while (_gpfLoadCallbacks.length) {
+        /* istanbul ignore next */ // Not used within NodeJS (mostly browser only)
+        _gpfLoadCallbacks.shift()();
+    }
+}
 
+/* istanbul ignore next */ // Not used within NodeJS (mostly browser only)
 /**
  * Test if GPF is loaded
  *
@@ -508,7 +534,8 @@ gpf.loaded = function (callback) {
     return _gpfLoaded;
 };
 
-if(!gpf.loaded) {
+/* istanbul ignore if */ // Because tested in DEBUG
+if (!gpf.loaded) {
 
 /*#else*/
 
@@ -534,6 +561,7 @@ var _gpfAssert,
 
 // DEBUG specifics
 
+/* istanbul ignore next */ // no ASSERT should pop during tests
 /**
  * Assertion helper
  *
@@ -560,12 +588,14 @@ _gpfAssert = function (condition, message) {
  */
 _gpfAsserts = function (messages) {
     for (var message in messages) {
+        /* istanbul ignore else */
         if (messages.hasOwnProperty(message)) {
             _gpfAssert(messages[message], message);
         }
     }
 };
 
+/* istanbul ignore if */ // Because tested in DEBUG
 if (!_gpfAssert) {
 
 /*#else*/
@@ -588,6 +618,8 @@ if (!_gpfAssert) {
  * UMD versions (debug / release) will have everything concatenated.
  */
 
+
+/* istanbul ignore next */ // Handled the right way with NodeJS
 // gpfSourcesPath - if defined - gives the relative path to sources
 if ("undefined" === typeof gpfSourcesPath) {
     _gpfMainContext.gpfSourcesPath = "";
@@ -599,10 +631,11 @@ if ("undefined" === typeof gpfSourcesPath) {
         pathSep = "/";
     }
     if (gpfSourcesPath.charAt(gpfSourcesPath.length - 1) !== pathSep) {
-        gpfSourcesPath = gpfSourcesPath + pathSep;
+        gpfSourcesPath += pathSep;
     }
 }
 
+/* istanbul ignore else */ // Should not happen
 if (_gpfSyncReadForBoot) {
     _gpfAsyncLoadForBoot = function (name, callback) {
         callback(_gpfSyncReadForBoot(name));
@@ -612,6 +645,7 @@ if (_gpfSyncReadForBoot) {
 }
 
 _gpfAsyncLoadForBoot(gpfSourcesPath + "sources.js", function (sourcesContent) {
+    /* istanbul ignore else */ // Only browser loads content immediately
     if (sourcesContent) {
         /*jslint evil: true*/
         eval(sourcesContent); //eslint-disable-line no-eval
@@ -621,20 +655,22 @@ _gpfAsyncLoadForBoot(gpfSourcesPath + "sources.js", function (sourcesContent) {
         allContent = [],
         idx = 0;
 
-    function next(content) {
+    function next (content) {
+        /* istanbul ignore else */ // Only browser loads content immediately
         if (content) {
             allContent.push(content);
         }
         var src = sources[idx++];
-        if (!src) {
+        if (src) {
+            _gpfAsyncLoadForBoot(gpfSourcesPath + src + ".js", next);
+        } else {
+            /* istanbul ignore else */ // Only browser loads content immediately
             if (allContent.length) {
                 /*jslint evil: true*/
                 eval(allContent.join("\r\n")); //eslint-disable-line no-eval
                 /*jslint evil: false*/
             }
             _gpfFinishLoading();
-        } else {
-            _gpfAsyncLoadForBoot(gpfSourcesPath + src + ".js", next);
         }
     }
 
