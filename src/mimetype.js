@@ -108,7 +108,7 @@ function _gpfGetFileExtension (mimeType) {
  * @param {Array] parameters
  * @private
  */
-function _gpfInitMimeTypes (name, handler) {
+function _gpfInitMimeTypes () {
     if (null === _gpfMimeTypesFromExtension) {
         _gpfMimeTypesFromExtension = {};
         _gpfMimeTypesToExtension = {};
@@ -117,7 +117,11 @@ function _gpfInitMimeTypes (name, handler) {
 }
 
 // @inheritdoc _gpfGetMimeType
-_gpfGetBootstrapMethod("gpf.web.getMimeType", _gpfInitMimeTypes, _gpfGetMimeType);
+_gpfGetBootstrapMethod("gpf.web.getMimeType", _gpfInitMimeTypes, function () {
+    return _gpfGetMimeType;
+});
 
 // @inheritdoc _gpfGetFileExtension
-_gpfGetBootstrapMethod("gpf.web.getFileExtension", _gpfInitMimeTypes, _gpfGetFileExtension);
+_gpfGetBootstrapMethod("gpf.web.getFileExtension", _gpfInitMimeTypes, function () {
+    return _gpfGetFileExtension;
+});
