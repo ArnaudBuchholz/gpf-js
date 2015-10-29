@@ -7,7 +7,7 @@ module.exports = function (grunt) {
     var CSCRIPT_CMD = "cscript.exe /D /E:JScript test\\host\\cscript.js",
         RHINO_CMD = "java -jar node_modules\\rhino-1_7r5-bin\\rhino1_7R5\\js.jar test\\host\\rhino.js",
         PLATO_CMD = "node node_modules\\plato\\bin\\plato",
-        srcFiles = [],
+        srcFiles = ["src/boot.js"],
         testFiles = [],
         jsLintedFiles;
 
