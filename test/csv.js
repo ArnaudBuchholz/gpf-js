@@ -9,6 +9,17 @@ describe("csv", function () {
 
     describe("gpf.csv.parse", function () {
 
+        it("reads a one-column CSV file", function () {
+            var records = gpf.csv.parse([
+                "LINE",
+                "0",
+                "1"
+            ].join("\r\n"));
+            assert(2 === records.length);
+            assert("0" === records[0].LINE);
+            assert("1" === records[1].LINE);
+        });
+
         it("reads a CSV file", function () {
             var records = gpf.csv.parse([
                 "LINE;VALUE",
@@ -67,6 +78,43 @@ describe("csv", function () {
             assert("ABC" === records[0].VALUE);
             assert("1" === records[1].LINE);
             assert("DEF" === records[1].VALUE);
+        });
+
+        it("detects unterminated quoted string", function () {
+            var caught = false;
+            try {
+                gpf.csv.parse([
+                    "LINE;VALUE",
+                    "0;\"A",
+                    "BC"
+                ].join("\r\n"));
+            } catch (e) {
+                assert(e instanceof gpf.Error);
+                assert(e.code === gpf.Error.CODE_CSVINVALID);
+                assert(e.code === gpf.Error.csvInvalid.CODE);
+                assert(e.name === "csvInvalid");
+                assert(e.message === "Invalid CSV syntax (bad quote sequence or missing end of file)");
+                caught = true;
+            }
+            assert(true === caught);
+        });
+
+        it("detects invalid quoted string", function () {
+            var caught = false;
+            try {
+                gpf.csv.parse([
+                    "LINE;VALUE",
+                    "0;\"A\"BC\""
+                ].join("\r\n"));
+            } catch (e) {
+                assert(e instanceof gpf.Error);
+                assert(e.code === gpf.Error.CODE_CSVINVALID);
+                assert(e.code === gpf.Error.csvInvalid.CODE);
+                assert(e.name === "csvInvalid");
+                assert(e.message === "Invalid CSV syntax (bad quote sequence or missing end of file)");
+                caught = true;
+            }
+            assert(true === caught);
         });
 
     });
