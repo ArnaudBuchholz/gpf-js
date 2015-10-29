@@ -114,6 +114,7 @@ function _gpfGenSuperMember (superMethod, method) {
             result = method.apply(this, arguments);
         } finally {
             // Remove it after execution
+            /* istanbul ignore else */ // I don't expect to define a member named _super to avoid confusion
             if (undefined === previousSuper) {
                 delete this._super;
             } else {
@@ -235,7 +236,7 @@ _GpfClassDefinition.prototype = {
     addMember: function (member, memberValue, visibility) {
         if (undefined === visibility) {
             visibility = _GPF_VISIBILITY_PUBLIC;
-        } else if ("string" === typeof visibility) {
+        } else {
             visibility = _gpfVisibilityKeywords.indexOf(visibility);
             if (-1 === visibility) {
                 throw gpf.Error.classInvalidVisibility();
@@ -382,6 +383,7 @@ _GpfClassDefinition.prototype = {
         this._defaultVisibility = visibility;
         /*gpf:inline(object)*/ _gpfObjectForEach(definition, this._processDefinitionMember, this);
         this._defaultVisibility = _GPF_VISIBILITY_UNKNOWN;
+        /* istanbul ignore next */ // WSCRIPT specific
         // 2014-05-05 #14
         if (_GPF_HOST_WSCRIPT === _gpfHost && definition.constructor !== Object) {
             this._addConstructor(definition.constructor, this._defaultVisibility);
@@ -590,3 +592,9 @@ function _gpfGenDefHandler (ctxRoot, defaultBase) {
 }
 
 //endregion
+
+/*#ifndef(UMD)*/
+
+gpf.internals._gpfGetClassDefinition = _gpfGetClassDefinition;
+
+/*#endif*/
