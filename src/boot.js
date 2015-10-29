@@ -229,18 +229,20 @@ function _gpfContext (path, createMissingParts) {
  *
  * @param {String} path method path
  * @param {Function} bootstrap
- * @param {Function} method
+ * @param {Function} methodFactory Must return a function
  * @return {function}
  * @closure
  */
-function _gpfGetBootstrapMethod (path, bootstrap, method) {
+function _gpfGetBootstrapMethod (path, bootstrap, methodFactory) {
     path = path.split(".");
     var name = path.pop(),
         namespace = _gpfContext(path, true),
-        mustBootstrap = true;
+        mustBootstrap = true,
+        method;
     namespace[name] = function () {
         if (mustBootstrap) {
             bootstrap();
+            method = methodFactory();
             namespace[name] = method;
             mustBootstrap = false;
         }
