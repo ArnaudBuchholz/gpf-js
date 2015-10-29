@@ -19,7 +19,7 @@
 /*global _gpfDosPath*/ // DOS-like path
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfExit*/ // Exit function
-/*global _gpfFinishLoading*/ // Ends the loading (declared in boot.js)
+/*global _gpfGetBootstrapMethod*/ // Create a method that contains a bootstrap (called only once)
 /*global _gpfHost*/ // Host type
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfInBrowser*/ // The current host is a browser like

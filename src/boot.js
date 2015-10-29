@@ -11,6 +11,7 @@
 /*exported _gpfDosPath*/
 /*exported _gpfEmptyFunc*/
 /*exported _gpfExit*/
+/*exported _gpfGetBootstrapMethod*/
 /*exported _gpfHost*/
 /*exported _gpfIgnore*/
 /*exported _gpfInBrowser*/
@@ -221,6 +222,30 @@ function _gpfContext (path, createMissingParts) {
         rootContext = _gpfMainContext;
     }
     return path.reduce(reducer, rootContext);
+}
+
+/**
+ * Create a method that contains a bootstrap (called only once)
+ *
+ * @param {String} path method path
+ * @param {Function} bootstrap
+ * @param {Function} method
+ * @return {function}
+ * @closure
+ */
+function _gpfGetBootstrapMethod (path, bootstrap, method) {
+    path = path.split(".");
+    var name = path.pop(),
+        namespace = _gpfContext(path, true),
+        mustBootstrap = true;
+    namespace[name] = function () {
+        if (mustBootstrap) {
+            bootstrap();
+            namespace[name] = method;
+            mustBootstrap = false;
+        }
+        return method.apply(this, arguments);
+    };
 }
 
 // Microsoft cscript / wscript
@@ -443,8 +468,6 @@ gpf.context = function (path) {
 };
 
 /*#ifndef(UMD)*/
-
-/*exported _gpfFinishLoading*/ // Will be used by the boot specifics
 
 var
     // Set to true once all sources of GPF are loaded
