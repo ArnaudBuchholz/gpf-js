@@ -87,6 +87,7 @@ function _gpfErrorDeclare (module, list) {
         code;
     _gpfIgnore(module);
     for (name in list) {
+        /* istanbul ignore else */
         if (list.hasOwnProperty(name)) {
             code = ++_gpfLastErrorCode;
             gpf.Error["CODE_" + name.toUpperCase()] = code;
