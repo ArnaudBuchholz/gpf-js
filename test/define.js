@@ -228,8 +228,7 @@ describe("define", function () {
                         it("validates member visibility", function () {
                             var caught = false;
                             try {
-                                var a = new A(),
-                                    classDefOfA = gpf.internals._gpfGetClassDefinition(a.constructor);
+                                var a = new A();
                                 classDefOfA.addMember("test2", "fails", "anything");
                             } catch (e) {
                                 assert(e instanceof gpf.Error);
