@@ -77,7 +77,7 @@ describe("events", function () {
         var receivedEvent,
             receivedScope;
 
-        function clean() {
+        function clean () {
             receivedEvent = null;
             receivedScope = null;
         }
@@ -99,7 +99,7 @@ describe("events", function () {
             it("triggers the handler using the event scope", function (done) {
                 var scope = {};
                 gpf.events.fire.apply(scope, ["test", eventHandler])
-                    .then(function (event){
+                    .then(function (event) {
                         assert(event === receivedEvent);
                         assert("test" === receivedEvent.type);
                         assert(scope === receivedScope);
@@ -130,7 +130,7 @@ describe("events", function () {
 
             generateTestCases(function (event) {
                 receivedEvent = event;
-                receivedScope = this; //eslint-disable-line no-invalid-this
+                receivedScope = this; //eslint-disable-line consistent-this, no-invalid-this
             });
 
         });
@@ -143,7 +143,7 @@ describe("events", function () {
                 },
                 test: function (event) {
                     receivedEvent = event;
-                    receivedScope = this; //eslint-disable-line no-invalid-this
+                    receivedScope = this; //eslint-disable-line consistent-this
                 }
             });
 
@@ -151,7 +151,7 @@ describe("events", function () {
 
         describe("on an function dictionary's default method", function () {
 
-             generateTestCases({
+            generateTestCases({
                 error: function (/*event*/) {
                     assert(false);
                 },
@@ -163,7 +163,7 @@ describe("events", function () {
                 },
                 "*": function (event) {
                     receivedEvent = event;
-                    receivedScope = this; //eslint-disable-line no-invalid-this
+                    receivedScope = this; //eslint-disable-line consistent-this
                 }
             });
 
