@@ -74,127 +74,116 @@ describe("events", function () {
 
     describe("gpf.events.fire", function () {
 
-        it("triggers any Function", function (done) {
-            gpf.events.fire("test", function (event) {
-                assert("test" === event.type);
-                assert(event.scope === gpf.context());
-                done();
+        var receivedEvent,
+            receivedScope;
+
+        function clean() {
+            receivedEvent = null;
+            receivedScope = null;
+        }
+
+        function generateTestCases (eventHandler) {
+
+            it("triggers the handler", function (done) {
+                clean();
+                gpf.events.fire("test", eventHandler)
+                    .then(function (event) {
+                        assert(event === receivedEvent);
+                        assert("test" === receivedEvent.type);
+                        assert(gpf.context() === receivedScope);
+                        assert(gpf.context() === receivedEvent.scope);
+                        done();
+                    });
             });
+
+            it("triggers the handler using the event scope", function (done) {
+                var scope = {};
+                gpf.events.fire.apply(scope, ["test", eventHandler])
+                    .then(function (event){
+                        assert(event === receivedEvent);
+                        assert("test" === receivedEvent.type);
+                        assert(scope === receivedScope);
+                        assert(scope === receivedEvent.scope);
+                        done();
+                    });
+            });
+
+            it("triggers the handler using only the event scope", function (done) {
+                var scope1 = {},
+                    scope2 = {},
+                    eventObj = new gpf.events.Event("test", {}, scope1);
+                assert(scope1 !== scope2);
+                assert(eventObj.scope === scope1);
+                gpf.events.fire.apply(scope2, [eventObj, eventHandler])
+                    .then(function (event) {
+                        assert(event === receivedEvent);
+                        assert("test" === receivedEvent.type);
+                        assert(scope1 === receivedScope);
+                        assert(scope2 === receivedEvent.scope);
+                        done();
+                    });
+            });
+
+        }
+
+        describe("on a function", function () {
+
+            generateTestCases(function (event) {
+                receivedEvent = event;
+                receivedScope = this; //eslint-disable-line no-invalid-this
+            });
+
         });
 
-        it("triggers Function using event scope", function (done) {
-            var scope = {};
-            gpf.events.fire.apply(scope, ["test", function (event) {
-                assert("test" === event.type);
-                assert(event.scope === scope);
-                assert(this === scope); //eslint-disable-line no-invalid-this
-                done();
-            }]);
-        });
+        describe("on an function dictionary", function () {
 
-        it("triggers Function using initial event scope", function (done) {
-            var scope1 = {},
-                scope2 = {},
-                eventObj = new gpf.events.Event("test", {}, scope1);
-            assert(scope1 !== scope2);
-            assert(eventObj.scope === scope1);
-            gpf.events.fire.apply(scope2, [eventObj, function (event) {
-                assert("test" === event.type);
-                assert(event.scope === scope1);
-                assert(this === scope1);  //eslint-disable-line no-invalid-this
-                done();
-            }]);
-        });
-
-        it("triggers Object method", function (done) {
-            var scope = {
-                fail: function (/*event*/) {
+            generateTestCases({
+                error: function (/*event*/) {
                     assert(false);
                 },
                 test: function (event) {
-                    assert("test" === event.type);
-                    assert(event.scope === gpf.context());
-                    assert(this === scope);
+                    receivedEvent = event;
+                    receivedScope = this; //eslint-disable-line no-invalid-this
+                }
+            });
+
+        });
+
+        describe("on an function dictionary's default method", function () {
+
+             generateTestCases({
+                error: function (/*event*/) {
+                    assert(false);
+                },
+                test2: function (/*event*/) {
+                    assert(false);
+                },
+                tes: function (/*event*/) {
+                    assert(false);
+                },
+                "*": function (event) {
+                    receivedEvent = event;
+                    receivedScope = this; //eslint-disable-line no-invalid-this
+                }
+            });
+
+        });
+
+        it("defers recursive calls to limit the stack usage", function (done) {
+            var inCall = false,
+                depth = 0;
+            function handler (/*event*/) {
+                if (inCall) {
                     done();
                 }
-            };
-            gpf.events.fire("test", scope);
+                assert(100 > depth);
+                ++depth;
+                inCall = true;
+                gpf.events.fire("test", handler);
+                inCall = false;
+            }
+            handler();
         });
-
-        it("triggers Object method using object scope", function (done) {
-            var scope1 = {},
-                scope2 = {
-                    fail: function (/*event*/) {
-                        assert(false);
-                    },
-                    test: function (event) {
-                        assert("test" === event.type);
-                        assert(event.scope === scope1);
-                        assert(this === scope2);
-                        done();
-                    }
-                };
-            gpf.events.fire.apply(scope1, ["test", scope2]);
-        });
-
-        it("triggers Object method using scope member", function (done) {
-            var scope1 = {},
-                scope2 = {},
-                scope3 = {
-                    fail: function (/*event*/) {
-                        assert(false);
-                    },
-                    test: function (event) {
-                        assert("test" === event.type);
-                        assert(event.scope === scope1);
-                        assert(this === scope2);
-                        done();
-                    },
-                    scope: scope2
-                };
-            gpf.events.fire.apply(scope1, ["test", scope3]);
-        });
-
-        it("triggers Object default method", function (done) {
-            var scope1 = {},
-                scope2 = {},
-                scope3 = {
-                    fail: function (/*event*/) {
-                        assert(false);
-                    },
-                    "*": function (event) {
-                        assert("test" === event.type);
-                        assert(event.scope === scope1);
-                        assert(this === scope2);
-                        done();
-                    },
-                    scope: scope2
-                };
-            gpf.events.fire.apply(scope1, ["test", scope3]);
-        });
-
-        it("triggers Object method instead of default", function (done) {
-            var scope1 = {},
-                scope2 = {},
-                scope3 = {
-                    fail: function (/*event*/) {
-                        assert(false);
-                    },
-                    "*": function (/*event*/) {
-                        assert(false);
-                    },
-                    test: function (event) {
-                        assert("test" === event.type);
-                        assert(event.scope === scope1);
-                        assert(this === scope2);
-                        done();
-                    },
-                    scope: scope2
-                };
-            gpf.events.fire.apply(scope1, ["test", scope3]);
-        });
-
-        it("defers sequential calls to limit stack usage");
 
     });
 
