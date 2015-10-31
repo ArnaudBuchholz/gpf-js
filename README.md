@@ -65,13 +65,14 @@ documented and explained.
         * grunt exec:testRhino
         * grunt exec:testRhinoVerbose
 
+## Code coverage
+
 ## Credits
 
-* Code rewriting based on [esprima](http://esprima.org/) and
-[escodegen](https://github.com/Constellation/escodegen)
-* Markdown specification inspired from
-[wikipedia](http://en.wikipedia.org/wiki/Markdown)
+* Code rewriting based on [esprima](http://esprima.org/) and [escodegen](https://github.com/Constellation/escodegen)
+* Markdown specification inspired from [wikipedia](http://en.wikipedia.org/wiki/Markdown)
 * UTF-8 encode/decode based on [webtoolkit](http://www.webtoolkit.info/)
-* Part of the test suite based on [mocha](http://mochajs.org/)
+* Promise/A+ implementation based on [promise-polyfill](https://github.com/taylorhakes/promise-polyfill)
+* [mocha](http://mochajs.org/) test suite
+* [istanbul](https://github.com/gotwarlost/istanbul) code coverage tool
 * JavaScript task runner: [Grunt](http://gruntjs.com/)
-
