@@ -9,6 +9,7 @@
     var _sources = [
     //  "boot",                 // Loader
         "compatibility",        // JavaScript compatibility helpers
+        "promise",              // Promise polyfill              gpf.Promise
         "constants",            // Constants
         "events",               // Event management         gpf.events.Event
         "include",              // WEB include               gpf.web.include
@@ -50,7 +51,6 @@
         "array",                // Array functions
         "date",                 // Date functions
 
-        "promise",              // Promise                       gpf.Promise
         "i_wrapper",            // Interface wrapper  gpf.interfaces.Wrapper
 
         "parser",               // Parser helper                  gpf.Parser

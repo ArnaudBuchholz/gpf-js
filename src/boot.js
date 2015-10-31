@@ -403,6 +403,7 @@ if ("undefined" !== typeof WScript) {
             test = {
                 "sources":          "gpf.sources",
                 "compatibility":    "Function.prototype.compatibleName",
+                "promise":          "gpf.Promise",
                 "constants":        "gpf.HOST_UNKNOWN",
                 "events":           "gpf.events",
                 "include":          "gpf.web.include"
