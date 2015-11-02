@@ -1,41 +1,55 @@
-(function () { /* Begin of privacy scope */
-    "use strict";
+"use strict";
+/*jshint mocha: true*/
+/*eslint-env mocha*/
+/*global assert*/
 
-    /*jshint -W027*/ // Done on purpose until gpf.declareTests is removed
-    return;
+/*eslint-disable max-nested-callbacks*/
 
-    gpf.declareTests({
+describe("promise", function () {
 
-        "simple": [
+    describe("simple usage", function () {
 
-            function (test) {
-                test.title("Simple use of promise");
-                test.wait();
-                var
-                    value = 0,
-                    promise = new gpf.Promise();
-                promise
-                    .then(function (event) {
-                        test.equal(++value, 1, "First step");
-                        test.equal(event.type(), "then", "THEN");
-                        event.scope().resolve({
-                            param1: 1,
-                            param2: "2"
-                        });
-                    })
-                    .then(function (event) {
-                        test.equal(++value, 2, "Last step");
-                        test.equal(event.type(), "then", "THEN");
-                        test.equal(event.get("param1"), 1, "First parameter");
-                        test.equal(event.get("param2"), "2",
-                            "Second parameter");
-                        test.done();
-                    });
-                promise.resolve();
-            }
+        it("waits for fulfilment", function (done) {
+            new Promise(function (resolve/*, reject*/) {
+                assert("function" === typeof resolve);
+                setTimeout(function () {
+                    resolve("ok");
+                });
+            }).then(function (value) {
+                assert("ok" === value);
+                done();
+            });
+        });
 
-        ]
+        it("also waits for rejection", function (done) {
+            new Promise(function (resolve, reject) {
+                assert("function" === typeof resolve);
+                assert("function" === typeof reject);
+                setTimeout(function () {
+                    reject("ko");
+                });
+            }).then(function () {
+                assert(false);
+            }, function (reason) {
+                assert("ko" === reason);
+                done();
+            });
+        });
+
+        it("rejects automatically on exception", function (done) {
+            new Promise(function (resolve, reject) {
+                assert("function" === typeof resolve);
+                assert("function" === typeof reject);
+                throw new Error("ko");
+            }).then(function () {
+                assert(false);
+            }, function (reason) {
+                assert(reason instanceof Error);
+                assert("ko" === reason.message);
+                done();
+            });
+        });
 
     });
 
-})(); /* End of privacy scope */
+});
