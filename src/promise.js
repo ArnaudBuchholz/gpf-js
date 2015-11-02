@@ -201,3 +201,9 @@ _GpfPromise.race = function (promises) {
 if (undefined === _gpfMainContext.Promise) {
     _gpfMainContext.Promise = _GpfPromise;
 }
+
+/*#ifndef(UMD)*/
+
+gpf.internals._GpfPromise = _GpfPromise;
+
+/*#endif*/
