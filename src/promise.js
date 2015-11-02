@@ -32,7 +32,7 @@ function finale () {
     /*gpf:inline(array)*/ me._handlers.forEach(function (handler) {
         handler.process(me);
     });
-    me._handlers = null;
+    me._handlers = []; // Reset list
 }
 
 function _gpfPromiseReject (newValue) {
@@ -134,8 +134,12 @@ _GpfPromise.prototype = {
         var me = this;
         return new _GpfPromise(function (resolve, reject) {
             var handler = new _gpfPromiseHandler();
-            handler.onFulfilled = onFulfilled;
-            handler.onRejected = onRejected;
+            if (undefined !== onFulfilled) {
+                handler.onFulfilled = onFulfilled;
+            }
+            if (undefined !== onRejected) {
+                handler.onRejected = onRejected;
+            }
             handler.resolve = resolve;
             handler.reject = reject;
             handler.process(me);
