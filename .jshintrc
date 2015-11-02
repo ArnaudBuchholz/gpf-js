@@ -72,6 +72,8 @@
     "maxlen"        : 120,
 
     "globals"       : {
+        "Promise":          false,
+
         "gpf":              true,
         "gpfSourcesPath":   true
     }
