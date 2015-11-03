@@ -48,6 +48,8 @@ describe("promise", function () {
                         assert(false === fulfilled);
                         assert("ko" === reason);
                         done();
+                    })["catch"](function (/*reason*/) {
+                        assert(false);
                     });
             });
 
@@ -66,6 +68,8 @@ describe("promise", function () {
                         assert(false === fulfilled);
                         assert("ko" === reason);
                         done();
+                    })["catch"](function (/*reason*/) {
+                        assert(false);
                     });
             });
 
@@ -77,8 +81,7 @@ describe("promise", function () {
                 })
                     .then(function () {
                         assert(false);
-                    })
-                    .catch(function (reason) {
+                    })["catch"](function (reason) {
                         assert("ko" === reason);
                         done();
                     });
@@ -94,8 +97,7 @@ describe("promise", function () {
                 })
                     .then(function () {
                         assert(false);
-                    })
-                    .catch(function (reason) {
+                    })["catch"](function (reason) {
                         assert("ko" === reason);
                         done();
                     });
@@ -127,8 +129,7 @@ describe("promise", function () {
                     .then(function (value) {
                         assert("ok" === value);
                         throw new Error("ko");
-                    })
-                    .catch(function (reason) {
+                    })["catch"](function (reason) {
                         assert(reason instanceof Error);
                         assert("ko" === reason.message);
                         done();
@@ -148,8 +149,7 @@ describe("promise", function () {
                     }, function (reason) {
                         assert("ko" === reason);
                         throw new Error("ko");
-                    })
-                    .catch(function (reason) {
+                    })["catch"](function (reason) {
                         assert(reason instanceof Error);
                         assert("ko" === reason.message);
                         done();
@@ -158,11 +158,209 @@ describe("promise", function () {
 
         });
 
+        describe("shortcuts", function () {
+
+            it("offers Promise.resolve", function (done) {
+                PromiseClass.resolve("ok")
+                    .then(function (value) {
+                        assert("ok" === value);
+                        done();
+                    }, function (/*reason*/) {
+                        assert(false);
+                    });
+            });
+
+            it("offers Promise.reject", function (done) {
+                PromiseClass.reject("ko")
+                    .then(function (/*value*/) {
+                        assert(false);
+                    }, function (reason) {
+                        assert("ko" === reason);
+                        done();
+                    });
+            });
+
+        });
+
+        describe("chaining", function () {
+
+            it("chains by passing results from one handler to the other", function (done) {
+                new PromiseClass(function (resolve/*, reject*/) {
+                    resolve("ok 1");
+                })
+                    .then(function (value) {
+                        assert("ok 1" === value);
+                        return "ok 2";
+                    })
+                    .then(function (value) {
+                        assert("ok 2" === value);
+                        return "ok 3";
+                    })
+                    .then(function (value) {
+                        assert("ok 3" === value);
+                        return "ok 4";
+                    })
+                    .then(function (value) {
+                        assert("ok 4" === value);
+                        done();
+                    });
+            });
+
+            it("chains by returning a promise in the fulfilment handler", function (done) {
+                new PromiseClass(function (resolve/*, reject*/) {
+                    resolve("ok 1");
+                })
+                    .then(function (value) {
+                        assert("ok 1" === value);
+                        return PromiseClass.resolve("ok 2");
+                    })
+                    .then(function (value) {
+                        assert("ok 2" === value);
+                        return new PromiseClass(function (resolve/*, reject*/) {
+                            setTimeout(function () {
+                                resolve("ok 3");
+                            });
+                        });
+                    })
+                    .then(function (value) {
+                        assert("ok 3" === value);
+                        done();
+                    });
+            });
+
+            it("stops on first error", function (done) {
+
+                new PromiseClass(function (resolve/*, reject*/) {
+                    resolve("ok 1");
+                })
+                    .then(function (value) {
+                        assert("ok 1" === value);
+                        return "ok 2";
+                    })
+                    .then(function (value) {
+                        assert("ok 2" === value);
+                        throw new Error("ko");
+                    })
+                    .then(function (/*value*/) {
+                        assert(false);
+                    })["catch"](function (reason) {
+                        assert(reason instanceof Error);
+                        assert("ko" === reason.message);
+                        done();
+                    });
+
+            });
+
+        });
+
+        describe("synchronisation", function () {
+
+            describe("Promise.all", function () {
+
+                it("waits for all promises to be resolved", function (done) {
+                    var promises = [],
+                        index;
+                    for (index = 0; index < 10; ++index) {
+                        promises.push(PromiseClass.resolve(index));
+                    }
+                    PromiseClass.all(promises)
+                        .then(function (values) {
+                            assert(45 === values.reduce(function (previousValue, currentValue) {
+                                return previousValue + currentValue;
+                            }));
+                            done();
+                        });
+                });
+
+                it("fails on the first error", function (done) {
+                    var promises = [],
+                        index;
+                    function resolveOrReject(value) {
+                        if (0 === value % 2) {
+                            return PromiseClass.reject(value);
+                        } else {
+                            return PromiseClass.resolve(value);
+                        }
+                    }
+                    for (index = 0; index < 10; ++index) {
+                        promises.push(resolveOrReject(index));
+                    }
+                    PromiseClass.all(promises)
+                        .then(function (/*values*/) {
+                            assert(false);
+                        })["catch"](function (reason) {
+                            assert("number" === typeof reason);
+                            assert(reason < 10);
+                            done();
+                        });
+                });
+
+            });
+
+            describe("Promise.race", function () {
+
+                it("waits for the first promise that is resolved", function (done) {
+                    var promises = [],
+                        index;
+                    function resolveAfter(value) {
+                        return new PromiseClass(function (resolve/*, reject*/) {
+                            setTimeout(function () {
+                                resolve(value);
+                            }, (10-value) * 10); // Last should be the first to be executed
+                        });
+                    }
+                    for (index = 0; index < 10; ++index) {
+                        promises.push(resolveAfter(index));
+                    }
+                    PromiseClass.race(promises)
+                        .then(function (value) {
+                            assert(value === 9);
+                            done();
+                        });
+                });
+
+                it("waits for the first promise that is resolved or rejected", function (done) {
+                    var promises = [],
+                        index;
+                        function resolveOrRejectAfter(value) {
+                            return new PromiseClass(function (resolve, reject) {
+                                if (5 === value) {
+                                    return new PromiseClass(function (resolve, reject) {
+                                        setTimeout(function () {
+                                            reject(value);
+                                        }, 10);
+                                    });
+                                } else {
+                                    return new PromiseClass(function (resolve/*, reject*/) {
+                                        setTimeout(function () {
+                                            resolve(value);
+                                        }, 20);
+                                    });
+                                }
+                            });
+                        }
+                    for (index = 0; index < 10; ++index) {
+                        promises.push(resolveOrRejectAfter(index));
+                    }
+                    PromiseClass.race(promises)
+                        .then(function (/*values*/) {
+                            assert(false);
+                        })["catch"](function (reason) {
+                            assert("number" === typeof reason);
+                            assert(5 === reason);
+                            done();
+                        });
+                });
+
+            });
+
+        });
+
     }
 
     describe("Promise", function () {
 
-        generateTests (Promise);
+        generateTests(Promise);
 
     });
 
