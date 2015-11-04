@@ -119,7 +119,7 @@ describe("events", function () {
                         assert(event === receivedEvent);
                         assert("test" === receivedEvent.type);
                         assert(scope1 === receivedScope);
-                        assert(scope2 === receivedEvent.scope);
+                        assert(scope1 === receivedEvent.scope);
                         done();
                     });
             });

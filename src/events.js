@@ -10,6 +10,8 @@
 /*global _GPF_EVENT_STOPPED*/ // gpf.events.EVENT_STOPPED
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfCreateConstants*/
+/*global _GpfDeferredPromise*/ // Deferred promise
+/*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*exported _gpfEventsFire*/
@@ -80,34 +82,35 @@ _GpfEvent.prototype = {
 
 };
 
-/**
- * Fire the event by triggering the eventsHandler
- *
- * @param {gpf.events.Event} event event object to fire
- * @param {gpf.events.Handler} eventsHandler
- */
-function _gpfEventsTriggerHandler (event, eventsHandler) {
+// Returns the function to call (bound with the correct scope)
+function _getEventHandler (event, eventsHandler) {
     var scope = event.scope,
         eventHandler;
     _gpfAssert(eventsHandler, "Expected eventsHandler");
     if ("function" === typeof eventsHandler.dispatchEvent) {
         // Event dispatcher expected interface
-        eventsHandler.dispatchEvent(event);
+        return eventsHandler.dispatchEvent.bind(eventsHandler);
+    }
+    if ("function" === typeof eventsHandler) {
+        return eventsHandler.bind(scope);
+    }
+    // Composite with a specific event handler
+    eventHandler = eventsHandler[event.type] || eventsHandler["*"] || _gpfEmptyFunc;
+    return eventHandler.bind(eventsHandler.scope || eventsHandler);
+}
 
-    } else if ("function" === typeof eventsHandler.apply) {
-        // Basic Function handler
-        eventsHandler.apply(scope, [event]);
-
-    } else {
-        // Composite with a specific event handler
-        eventHandler = eventsHandler[event.type];
-        if (undefined === eventHandler) {
-            // Try with a default handler
-            eventHandler = eventsHandler["*"];
-        }
-        if (undefined !== eventHandler) {
-            eventHandler.apply(eventsHandler.scope || eventsHandler, [event]);
-        }
+/**
+ * Fire the event by triggering the eventsHandler
+ *
+ * @param {gpf.events.Event} event event object to fire
+ * @param {gpf.events.Handler} eventsHandler
+ * @param {gpf.DeferredPromise} [deferredPromise=undefined] deferredPromise promise to resolve on completion
+ */
+function _gpfEventsTriggerHandler (event, eventsHandler, deferredPromise) {
+    var eventHandler = _getEventHandler(event, eventsHandler);
+    eventHandler(event);
+    if (undefined !== deferredPromise) {
+        deferredPromise.resolve(event);
     }
 }
 
@@ -122,11 +125,12 @@ var
  * @param {Object} params dictionary of parameters for the event object
  * creation, they are ignored if an event object is specified
  * @param {gpf.events.Handler} eventsHandler
- * @return {gpf.events.Event} the event object
+ * @return {Promise<gpf.events.Event>} fulfilled when the event has been fired
  */
 function _gpfEventsFire (event, params, eventsHandler) {
     /*jshint validthis:true*/ // will be invoked with apply
-    var scope = _gpfResolveScope(this);
+    var scope = _gpfResolveScope(this),
+        result;
     if (!(event instanceof _GpfEvent)) {
         event = new gpf.events.Event(event, params, scope);
     }
@@ -135,13 +139,15 @@ function _gpfEventsFire (event, params, eventsHandler) {
      * the efficiency of the algorithm.
      */
     if (++_gpfEventsFiring > 10) {
-        // Too much recursion
-        setTimeout(_gpfEventsTriggerHandler.bind(null, event, eventsHandler), 0);
+        // Too much recursion, use setTimeout to free some space on the stack
+        result = new _GpfDeferredPromise();
+        setTimeout(_gpfEventsTriggerHandler.bind(null, event, eventsHandler, result), 0);
     } else {
         _gpfEventsTriggerHandler(event, eventsHandler);
+        result = Promise.resolve(event);
     }
     --_gpfEventsFiring;
-    return event;
+    return result;
 }
 
 /**
@@ -164,7 +170,7 @@ _GpfEvent.prototype.fire = function (eventsHandler) {
  * @param {Object} [params={}] params parameter of the event (when type is a
  * string)
  * @param {gpf.events.Handler} eventsHandler
- * @return {gpf.events.Event} the event object
+ * @return {Promise<gpf.events.Event>} fulfilled when the event has been fired
  */
 gpf.events.fire = function (event, params, eventsHandler) {
     _gpfIgnore(event, params, eventsHandler);
@@ -177,7 +183,7 @@ gpf.events.fire = function (event, params, eventsHandler) {
         eventsHandler = params;
         params = {};
     }
-    _gpfEventsFire.apply(scope, [event, params, eventsHandler]);
+    return _gpfEventsFire.apply(scope, [event, params, eventsHandler]);
 };
 
 _gpfCreateConstants(gpf.events, {
