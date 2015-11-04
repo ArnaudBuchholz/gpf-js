@@ -221,6 +221,57 @@ describe("events", function () {
 
         });
 
+        describe("on a dispatcher-like object", function () {
+
+            var dictionary = {
+                dispatchEvent: function (event) {
+                    receivedEvent = event;
+                    receivedScope = this; //eslint-disable-line consistent-this
+                }
+            };
+
+            before(function () {
+                expectedScope = dictionary;
+            });
+
+            generateTestCases(dictionary);
+
+            after(function () {
+                expectedScope = undefined;
+            });
+
+        });
+
+        it("triggers nothing on a non matching dictionary", function (done) {
+            var triggered = false;
+            gpf.events.fire("test", {
+                any: function (/*event*/) {
+                    triggered = true;
+                }
+            })
+                .then(function (event) {
+                    assert("test" === event.type);
+                    assert(gpf.context() === event.scope);
+                    assert(false === triggered);
+                    done();
+                })["catch"](function (reason) {
+                    done(reason);
+                });
+        });
+
+        it("supports triggering from the event", function (done) {
+            var event = new gpf.events.Event("test");
+            event.fire({
+                test: function (/*event*/) {
+                    assert("test" === event.type);
+                    assert(gpf.context() === event.scope);
+                    done();
+                }
+            })["catch"](function (reason) {
+                done(reason);
+            });
+        });
+
         it("defers recursive calls to limit the stack usage", function (done) {
             var inCall = false,
                 depth = 0;
