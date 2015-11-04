@@ -275,12 +275,11 @@ describe("promise", function () {
                 it("fails on the first error", function (done) {
                     var promises = [],
                         index;
-                    function resolveOrReject(value) {
+                    function resolveOrReject (value) {
                         if (0 === value % 2) {
                             return PromiseClass.reject(value);
-                        } else {
-                            return PromiseClass.resolve(value);
                         }
+                        return PromiseClass.resolve(value);
                     }
                     for (index = 0; index < 10; ++index) {
                         promises.push(resolveOrReject(index));
@@ -302,11 +301,11 @@ describe("promise", function () {
                 it("waits for the first promise that is resolved", function (done) {
                     var promises = [],
                         index;
-                    function resolveAfter(value) {
+                    function resolveAfter (value) {
                         return new PromiseClass(function (resolve/*, reject*/) {
                             setTimeout(function () {
                                 resolve(value);
-                            }, (10-value) * 10); // Last should be the first to be executed
+                            }, (10 - value) * 10); // Last should be the first to be executed
                         });
                     }
                     for (index = 0; index < 10; ++index) {
@@ -322,23 +321,19 @@ describe("promise", function () {
                 it("waits for the first promise that is resolved or rejected", function (done) {
                     var promises = [],
                         index;
-                        function resolveOrRejectAfter(value) {
-                            return new PromiseClass(function (resolve, reject) {
-                                if (5 === value) {
-                                    return new PromiseClass(function (resolve, reject) {
-                                        setTimeout(function () {
-                                            reject(value);
-                                        }, 10);
-                                    });
-                                } else {
-                                    return new PromiseClass(function (resolve/*, reject*/) {
-                                        setTimeout(function () {
-                                            resolve(value);
-                                        }, 20);
-                                    });
-                                }
-                            });
-                        }
+                    function resolveOrRejectAfter (value) {
+                        return new PromiseClass(function (resolve, reject) {
+                            if (5 === value) {
+                                setTimeout(function () {
+                                    reject(value);
+                                }, 10);
+                            } else {
+                                setTimeout(function () {
+                                    resolve(value);
+                                }, 20);
+                            }
+                        });
+                    }
                     for (index = 0; index < 10; ++index) {
                         promises.push(resolveOrRejectAfter(index));
                     }
