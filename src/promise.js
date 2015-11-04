@@ -3,6 +3,7 @@
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfMainContext*/ // Main context object
+/*exported _GpfDeferredPromise*/
 /*#endif*/
 
 // Ensure the functions are called only once
@@ -205,6 +206,23 @@ _GpfPromise.race = function (promises) {
 if (undefined === _gpfMainContext.Promise) {
     _gpfMainContext.Promise = _GpfPromise;
 }
+
+function _GpfDeferredPromise () {
+    /*jshint validthis:true*/ // constructor
+    var me = this;
+    me.promise = new Promise(function (resolve, reject) {
+        me.resolve = resolve;
+        me.reject = reject;
+    });
+}
+
+_GpfDeferredPromise.prototype = {
+    resolve: null,
+    reject: null,
+    promise: null
+};
+
+gpf.DeferredPromise = _GpfDeferredPromise;
 
 /*#ifndef(UMD)*/
 

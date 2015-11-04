@@ -39,6 +39,9 @@
 //region compatibility
 /*global _gpfArraySlice*/ // Slice an array-like object
 //endregion
+//region promise
+/*global _GpfDeferredPromise*/ // Deferred promise
+//endregion
 //region constants
 /*global _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
 /*global _GPF_EVENT_CONTINUE*/ // gpf.events.EVENT_CONTINUE
