@@ -75,7 +75,8 @@ describe("events", function () {
     describe("gpf.events.fire", function () {
 
         var receivedEvent,
-            receivedScope;
+            receivedScope,
+            expectedScope;
 
         function clean () {
             receivedEvent = null;
@@ -90,9 +91,11 @@ describe("events", function () {
                     .then(function (event) {
                         assert(event === receivedEvent);
                         assert("test" === receivedEvent.type);
-                        assert(gpf.context() === receivedScope);
-                        assert(gpf.context() === receivedEvent.scope);
+                        assert(expectedScope || gpf.context() === receivedScope);
+                        assert(expectedScope || gpf.context() === receivedEvent.scope);
                         done();
+                    })["catch"](function (reason) {
+                        done(reason);
                     });
             });
 
@@ -102,9 +105,11 @@ describe("events", function () {
                     .then(function (event) {
                         assert(event === receivedEvent);
                         assert("test" === receivedEvent.type);
-                        assert(scope === receivedScope);
-                        assert(scope === receivedEvent.scope);
+                        assert(expectedScope || scope === receivedScope);
+                        assert(expectedScope || scope === receivedEvent.scope);
                         done();
+                    })["catch"](function (reason) {
+                        done(reason);
                     });
             });
 
@@ -118,9 +123,11 @@ describe("events", function () {
                     .then(function (event) {
                         assert(event === receivedEvent);
                         assert("test" === receivedEvent.type);
-                        assert(scope1 === receivedScope);
-                        assert(scope1 === receivedEvent.scope);
+                        assert(expectedScope || scope1 === receivedScope);
+                        assert(expectedScope || scope1 === receivedEvent.scope);
                         done();
+                    })["catch"](function (reason) {
+                        done(reason);
                     });
             });
 
@@ -137,7 +144,7 @@ describe("events", function () {
 
         describe("on an function dictionary", function () {
 
-            generateTestCases({
+            var dictionary = {
                 error: function (/*event*/) {
                     assert(false);
                 },
@@ -145,13 +152,48 @@ describe("events", function () {
                     receivedEvent = event;
                     receivedScope = this; //eslint-disable-line consistent-this
                 }
+            };
+
+            before(function () {
+                expectedScope = dictionary;
+            });
+
+            generateTestCases(dictionary);
+
+            after(function () {
+                expectedScope = undefined;
+            });
+
+        });
+
+        describe("on an function dictionary with a specific scope", function () {
+
+            var dictionaryScope = {},
+                dictionary = {
+                    error: function (/*event*/) {
+                        assert(false);
+                    },
+                    test: function (event) {
+                        receivedEvent = event;
+                        receivedScope = this; //eslint-disable-line consistent-this
+                    }
+                };
+
+            before(function () {
+                expectedScope = dictionaryScope;
+            });
+
+            generateTestCases(dictionary);
+
+            after(function () {
+                expectedScope = undefined;
             });
 
         });
 
         describe("on an function dictionary's default method", function () {
 
-            generateTestCases({
+            var dictionary = {
                 error: function (/*event*/) {
                     assert(false);
                 },
@@ -165,6 +207,16 @@ describe("events", function () {
                     receivedEvent = event;
                     receivedScope = this; //eslint-disable-line consistent-this
                 }
+            };
+
+            before(function () {
+                expectedScope = dictionary;
+            });
+
+            generateTestCases(dictionary);
+
+            after(function () {
+                expectedScope = undefined;
             });
 
         });
@@ -173,14 +225,19 @@ describe("events", function () {
             var inCall = false,
                 depth = 0;
             function handler (/*event*/) {
-                if (inCall) {
-                    done();
+                try {
+                    if (inCall) {
+                        done();
+                        return; // enough
+                    }
+                    assert(100 > depth);
+                    ++depth;
+                    inCall = true;
+                    gpf.events.fire("test", handler);
+                    inCall = false;
+                } catch (e) {
+                    done(e);
                 }
-                assert(100 > depth);
-                ++depth;
-                inCall = true;
-                gpf.events.fire("test", handler);
-                inCall = false;
             }
             handler();
         });
