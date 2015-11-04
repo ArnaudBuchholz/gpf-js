@@ -19,6 +19,8 @@ describe("promise", function () {
                     .then(function (value) {
                         assert("ok" === value);
                         done();
+                    })["catch"](function (reason) {
+                        done(reason);
                     });
             });
 
@@ -32,6 +34,8 @@ describe("promise", function () {
                     .then(function (value) {
                         assert("ok" === value);
                         done();
+                    })["catch"](function (reason) {
+                        done(reason);
                     });
             });
 
@@ -48,8 +52,8 @@ describe("promise", function () {
                         assert(false === fulfilled);
                         assert("ko" === reason);
                         done();
-                    })["catch"](function (/*reason*/) {
-                        assert(false);
+                    })["catch"](function (reason) {
+                        done(reason);
                     });
             });
 
@@ -68,8 +72,8 @@ describe("promise", function () {
                         assert(false === fulfilled);
                         assert("ko" === reason);
                         done();
-                    })["catch"](function (/*reason*/) {
-                        assert(false);
+                    })["catch"](function (reason) {
+                        done(reason);
                     });
             });
 
@@ -82,8 +86,12 @@ describe("promise", function () {
                     .then(function () {
                         assert(false);
                     })["catch"](function (reason) {
-                        assert("ko" === reason);
-                        done();
+                        try {
+                            assert("ko" === reason);
+                            done();
+                        } catch (e) {
+                            done(e);
+                        }
                     });
             });
 
@@ -98,8 +106,12 @@ describe("promise", function () {
                     .then(function () {
                         assert(false);
                     })["catch"](function (reason) {
-                        assert("ko" === reason);
-                        done();
+                        try {
+                            assert("ko" === reason);
+                            done();
+                        } catch (e) {
+                            done(e);
+                        }
                     });
             });
 
@@ -115,6 +127,8 @@ describe("promise", function () {
                         assert(reason instanceof Error);
                         assert("ko" === reason.message);
                         done();
+                    })["catch"](function (reason) {
+                        done(reason);
                     });
             });
 
@@ -130,9 +144,13 @@ describe("promise", function () {
                         assert("ok" === value);
                         throw new Error("ko");
                     })["catch"](function (reason) {
-                        assert(reason instanceof Error);
-                        assert("ko" === reason.message);
-                        done();
+                        try{
+                            assert(reason instanceof Error);
+                            assert("ko" === reason.message);
+                            done();
+                        } catch (e) {
+                            done(e);
+                        }
                     });
             });
 
@@ -150,9 +168,13 @@ describe("promise", function () {
                         assert("ko" === reason);
                         throw new Error("ko");
                     })["catch"](function (reason) {
-                        assert(reason instanceof Error);
-                        assert("ko" === reason.message);
-                        done();
+                        try {
+                            assert(reason instanceof Error);
+                            assert("ko" === reason.message);
+                            done();
+                        } catch (e) {
+                            done(e);
+                        }
                     });
             });
 
@@ -167,6 +189,8 @@ describe("promise", function () {
                         done();
                     }, function (/*reason*/) {
                         assert(false);
+                    })["catch"](function (reason) {
+                        done(reason);
                     });
             });
 
@@ -177,6 +201,8 @@ describe("promise", function () {
                     }, function (reason) {
                         assert("ko" === reason);
                         done();
+                    })["catch"](function (reason) {
+                        done(reason);
                     });
             });
 
@@ -192,6 +218,9 @@ describe("promise", function () {
                         assert("ok 1" === value);
                         return "ok 2";
                     })
+                    .then(undefined, function (reason) {
+                        done(reason);
+                    })
                     .then(function (value) {
                         assert("ok 2" === value);
                         return "ok 3";
@@ -203,6 +232,8 @@ describe("promise", function () {
                     .then(function (value) {
                         assert("ok 4" === value);
                         done();
+                    })["catch"](function (reason) {
+                        done(reason);
                     });
             });
 
@@ -225,6 +256,8 @@ describe("promise", function () {
                     .then(function (value) {
                         assert("ok 3" === value);
                         done();
+                    })["catch"](function (reason) {
+                        done(reason);
                     });
             });
 
@@ -244,9 +277,13 @@ describe("promise", function () {
                     .then(function (/*value*/) {
                         assert(false);
                     })["catch"](function (reason) {
-                        assert(reason instanceof Error);
-                        assert("ko" === reason.message);
-                        done();
+                        try {
+                            assert(reason instanceof Error);
+                            assert("ko" === reason.message);
+                            done();
+                        } catch (e) {
+                            done(e);
+                        }
                     });
 
             });
@@ -256,6 +293,27 @@ describe("promise", function () {
         describe("synchronisation", function () {
 
             describe("Promise.all", function () {
+
+                it("succeeds with an empty array", function (done) {
+                    PromiseClass.all([])
+                        .then(function (values) {
+                            assert(0 === values.length);
+                            done();
+                        })["catch"](function (reason) {
+                            done(reason);
+                        });
+                });
+
+                it("works with one promise", function (done) {
+                    PromiseClass.all([PromiseClass.resolve("ok")])
+                        .then(function (values) {
+                            assert(1 === values.length);
+                            assert("ok" === values[0]);
+                            done();
+                        })["catch"](function (reason) {
+                            done(reason);
+                        });
+                });
 
                 it("waits for all promises to be resolved", function (done) {
                     var promises = [],
@@ -269,6 +327,8 @@ describe("promise", function () {
                                 return previousValue + currentValue;
                             }));
                             done();
+                        })["catch"](function (reason) {
+                            done(reason);
                         });
                 });
 
@@ -288,9 +348,13 @@ describe("promise", function () {
                         .then(function (/*values*/) {
                             assert(false);
                         })["catch"](function (reason) {
-                            assert("number" === typeof reason);
-                            assert(reason < 10);
-                            done();
+                            try {
+                                assert("number" === typeof reason);
+                                assert(reason < 10);
+                                done();
+                            } catch (e) {
+                                done(e);
+                            }
                         });
                 });
 
@@ -315,6 +379,8 @@ describe("promise", function () {
                         .then(function (value) {
                             assert(value === 9);
                             done();
+                        })["catch"](function (reason) {
+                            done(reason);
                         });
                 });
 
@@ -341,9 +407,13 @@ describe("promise", function () {
                         .then(function (/*values*/) {
                             assert(false);
                         })["catch"](function (reason) {
-                            assert("number" === typeof reason);
-                            assert(5 === reason);
-                            done();
+                            try {
+                                assert("number" === typeof reason);
+                                assert(5 === reason);
+                                done();
+                            } catch (e) {
+                                done(e);
+                            }
                         });
                 });
 
