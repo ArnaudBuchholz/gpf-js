@@ -86,6 +86,7 @@ _gpfPromiseHandler.prototype = {
         /*jshint validthis:true*/
         var me = this; //eslint-disable-line no-invalid-this
         if (promise._state === null) {
+            /* istanbul ignore else */ // Not sure when it would happen
             if (!promise.hasOwnProperty("_handlers")) {
                 promise._handlers = [];
             }
@@ -168,10 +169,7 @@ _GpfPromise.reject = function (value) {
 
 _GpfPromise.all = function (promises) {
     if (0 === promises.length) {
-        return _GpfPromise.resolve();
-    }
-    if (1 === promises.length) {
-        return promises[0];
+        return _GpfPromise.resolve([]);
     }
     return new _GpfPromise(function (resolve, reject) {
         var remaining = promises.length;
@@ -203,6 +201,7 @@ _GpfPromise.race = function (promises) {
     });
 };
 
+/* istanbul ignore next */ // Promise exists now in NodeJS
 if (undefined === _gpfMainContext.Promise) {
     _gpfMainContext.Promise = _GpfPromise;
 }
