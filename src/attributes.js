@@ -13,7 +13,9 @@
 /*exported _gpfA*/
 /*exported _gpfAttribute*/
 /*exported _gpfAttributesAdd*/
+/*exported _gpfDecodeAttributeMember*/
 /*exported _gpfDefAttr*/
+/*exported _gpfEncodeAttributeMember*/
 /*#endif*/
 
 // @property {gpf.attributes.Map|null} Attributes of this class (null if none)
@@ -132,6 +134,7 @@ _gpfAssertAttributeOnly = function (value) {
     _gpfAssert(value instanceof _gpfAttribute, "Expected an Attribute-like parameter");
 };
 
+/* istanbul ignore if */ // Because tested in DEBUG
 if (!_gpfAssertAttributeClassOnly) {
 
 /*#else*/
@@ -223,14 +226,14 @@ _gpfDefine("gpf.attributes.Array", Object, {
 
 });
 
-function _encodeMember (member) {
+function _gpfEncodeAttributeMember (member) {
     if ("constructor" === member) {
         return "constructor ";
     }
     return member;
 }
 
-function _decodeMember (member) {
+function _gpfDecodeAttributeMember (member) {
     if ("constructor " === member) {
         return "constructor";
     }
@@ -266,7 +269,7 @@ _gpfDefine("gpf.attributes.Map", Object, {
         _copy: function (to, callback, param) {
             if (this._count) {
                 /*gpf:inline(object)*/ _gpfObjectForEach(this._members, function (attributeArray, member) {
-                    member = _decodeMember(member);
+                    member = _gpfDecodeAttributeMember(member);
                     /*gpf:inline(array)*/ attributeArray._array.forEach(function (attribute) {
                         if (!callback || callback(member, attribute, param)) {
                             to.add(member, attribute);
@@ -352,7 +355,7 @@ _gpfDefine("gpf.attributes.Map", Object, {
          */
         add: function (member, attribute) {
             _gpfAssertAttributeOnly(attribute);
-            member = _encodeMember(member);
+            member = _gpfEncodeAttributeMember(member);
             var array = this._members[member];
             if (undefined === array) {
                 array = this._members[member] = new _gpfA.Array();
@@ -380,7 +383,7 @@ _gpfDefine("gpf.attributes.Map", Object, {
          * @return {gpf.attributes.Array}
          */
         getMemberAttributes: function (member) {
-            member = _encodeMember(member);
+            member = _gpfEncodeAttributeMember(member);
             var result = this._members[member];
             if (undefined === result || !(result instanceof _gpfA.Array)) {
                 if (0 === _gpfEmptyMemberArray) {
@@ -400,7 +403,7 @@ _gpfDefine("gpf.attributes.Map", Object, {
             var result = [];
             /*gpf:inline(object)*/ _gpfObjectForEach(this._members, function (attributes, member) {
                 _gpfIgnore(attributes);
-                result.push(_decodeMember(member));
+                result.push(_gpfDecodeAttributeMember(member));
             });
             return result;
         },
@@ -416,7 +419,7 @@ _gpfDefine("gpf.attributes.Map", Object, {
          */
         forEach: function (callback, thisArg) {
             /*gpf:inline(object)*/ _gpfObjectForEach(this._members, function (attributes, member, dictionary) {
-                callback.apply(thisArg, [attributes, _decodeMember(member), dictionary]);
+                callback.apply(thisArg, [attributes, _gpfDecodeAttributeMember(member), dictionary]);
             });
         }
 
