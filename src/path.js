@@ -88,11 +88,8 @@ gpf.path = {
      */
     parent: function (path) {
         path = _gpfPathDecompose(path);
-        if (path.length) {
-            path.pop();
-            return path.join("/");
-        }
-        return "";
+        path.pop();
+        return path.join("/");
     },
 
     /**
