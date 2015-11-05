@@ -13,6 +13,7 @@
  * For write, the stream is allowed to reject the call if it does not receive the expected format.
  */
 
+ /* istanbul ignore next */ // Interface
 /**
  * The Readable stream interface is the abstraction for a source of data that you are reading from.
  * In other words, data comes out of a Readable stream.
@@ -50,6 +51,7 @@ _gpfDefIntrf("IReadableStream", {
 
 });
 
+/* istanbul ignore next */ // Interface
 /**
  * The Writable stream interface is an abstraction for a destination that you are writing data to.
  *
@@ -81,6 +83,7 @@ _gpfDefIntrf("IWritableStream", {
 
 });
 
+/* istanbul ignore next */ // Interface
 /**
  * The stream combines both IReadableStream and IWritableStream
  *
