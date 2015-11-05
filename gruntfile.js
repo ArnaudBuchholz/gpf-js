@@ -74,6 +74,19 @@ module.exports = function (grunt) {
                 print: "detail"
             }
         },
+        coverage: {
+            default: {
+                options: {
+                    thresholds: {
+                        statements: 90,
+                        branches: 90,
+                        lines: 90,
+                        functions: 90
+                    },
+                    dir: "tmp/coverage/reports"
+                }
+            }
+        },
         //endregion
         //region Mocha test automation inside PhantomJS
         mocha: {
@@ -273,7 +286,9 @@ module.exports = function (grunt) {
     }({
         "default": [
             "jshint",
-            "eslint"
+            "eslint",
+            "istanbul",
+            "coverage"
         ],
         "fixInstrument": function () {
             // Because code generation uses templates that are instrumented, the __cov_XXX variables must be global
@@ -293,7 +308,7 @@ module.exports = function (grunt) {
                 }
             });
         },
-        "coverage": [
+        "istanbul": [
             "instrument",
             "fixInstrument",
             "mochaTest:coverage",
@@ -302,8 +317,7 @@ module.exports = function (grunt) {
         ],
         "plato": ["exec:plato"],
         "make": [
-            "jshint",
-            "eslint",
+            "default",
             "mocha:source",
             "mochaTest:source",
             "exec:testWscript",
@@ -314,7 +328,8 @@ module.exports = function (grunt) {
             "exec:testWscriptDebug",
             "mocha:release",
             "mochaTest:release",
-            "exec:testWscriptRelease"
+            "exec:testWscriptRelease",
+            "plato"
         ]
     }));
 
