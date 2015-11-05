@@ -9,6 +9,7 @@
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*#endif*/
 
+/* istanbul ignore next */ // Interface
 /**
  * Read only array interface
  *
@@ -35,6 +36,7 @@ var iROArray = _gpfDefIntrf("IReadOnlyArray", {
 
 });
 
+/* istanbul ignore next */ // Interface
 /**
  * Mutable array interface
  *
@@ -62,8 +64,7 @@ _gpfDefIntrf("IArray", iROArray, {
      * @return {*} the value that was previously set (or undefined)
      */
     setItem: function (idx, value) {
-        _gpfIgnore(idx);
-        _gpfIgnore(value);
+        _gpfIgnore(idx, value);
         return undefined;
     }
 
