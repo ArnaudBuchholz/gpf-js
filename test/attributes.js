@@ -24,6 +24,7 @@ describe("attributes", function () {
             },
             "public": {
 
+                "[constructor]": [new Test1ValueAttribute()],
                 constructor: function (value) {
                     this._a = value;
                 },
@@ -66,15 +67,16 @@ describe("attributes", function () {
 
         it("is available through gpf.attributes.Map", function () {
             var attributes = new gpf.attributes.Map(a);
-            assert(2 === attributes.getCount());
+            assert(3 === attributes.getCount());
             assert(1 === attributes.getMemberAttributes("_a").getItemsCount());
             assert(0 === attributes.getMemberAttributes("_b").getItemsCount());
             assert(1 === attributes.getMemberAttributes("_c").getItemsCount());
+            assert(1 === attributes.getMemberAttributes("constructor").getItemsCount());
         });
 
         it("inherits from base class", function () {
             var attributes = new gpf.attributes.Map(b);
-            assert(4 === attributes.getCount());
+            assert(5 === attributes.getCount());
             assert(1 === attributes.getMemberAttributes("_a").getItemsCount());
             assert(1 === attributes.getMemberAttributes("_b").getItemsCount());
             assert(2 === attributes.getMemberAttributes("_c").getItemsCount());
@@ -156,10 +158,11 @@ describe("attributes", function () {
         it("lists members that have attributes", function () {
             var attributes = new gpf.attributes.Map(a),
                 members = attributes.getMembers();
-            assert(2 === members.length);
+            assert(3 === members.length);
             // Order is not guaranteed
             assert(undefined !== gpf.test(members, "_a"));
             assert(undefined !== gpf.test(members, "_c"));
+            assert(undefined !== gpf.test(members, "constructor"));
         });
 
         it("filters on attribute type", function () {
@@ -179,10 +182,11 @@ describe("attributes", function () {
                     members.push(member);
                 });
             assert(undefined === result);
-            assert(2 === members.length);
+            assert(3 === members.length);
             // Order is not guaranteed
             assert(undefined !== gpf.test(members, "_a"));
             assert(undefined !== gpf.test(members, "_c"));
+            assert(undefined !== gpf.test(members, "constructor"));
         });
 
         it("is modifiable without altering initial list", function () {
@@ -190,11 +194,11 @@ describe("attributes", function () {
                 attributesForA,
                 attributes2;
             attributes.add("_a", new Test2ValueAttribute());
-            assert(3 === attributes.getCount());
+            assert(4 === attributes.getCount());
             attributesForA = attributes.getMemberAttributes("_a");
             assert(2 === attributesForA.getItemsCount());
             attributes2 = new gpf.attributes.Map(a);
-            assert(2 === attributes2.getCount());
+            assert(3 === attributes2.getCount());
             attributesForA = attributes2.getMemberAttributes("_a");
             assert(1 === attributesForA.getItemsCount());
         });
