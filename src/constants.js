@@ -275,7 +275,9 @@ function _gpfFunc (params, source) {
         return _GpfFunc.apply(null, args);
         /*#ifdef(DEBUG)*/
     } catch (e) {
+        /* istanbul ignore next */ // Not supposed to happen (not tested)
         console.error("An exception occurred compiling:\r\n" + source);
+        /* istanbul ignore next */
         return null;
     }
     /*#endif*/
@@ -290,6 +292,7 @@ function _gpfFunc (params, source) {
 function _gpfCreateConstants (obj, dictionary) {
     var key;
     for (key in dictionary) {
+        /* istanbul ignore else */
         if (dictionary.hasOwnProperty(key)) {
             /*gpf:constant*/ obj[key] = dictionary[key];
         }
