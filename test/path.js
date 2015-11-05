@@ -9,135 +9,181 @@ describe("path", function () {
 
     var path = gpf.path;
 
-    describe("gpf.path.join", function () {
+    function generateTests (separator) {
 
-        it("concatenates paths", function () {
-            assert(path.join("abc/def", "ghi/jkl") === "abc/def/ghi/jkl");
+        var escapedSeparator;
+        if (separator === "/") {
+            escapedSeparator = separator;
+        } else {
+            escapedSeparator = "\\\\";
+        }
+
+        describe("gpf.path.join (" + separator + ")", function () {
+
+            var join;
+            if (separator === "/") {
+                join = path.join;
+            } else {
+                join = function () {
+                    var args = [].slice.apply(arguments, [0]).map(function (value) {
+                        return value.split("/").join(separator);
+                    });
+                    return path.join.apply(path, args);
+                };
+            }
+
+            it("concatenates paths", function () {
+                assert(join("abc/def", "ghi/jkl") === "abc/def/ghi/jkl");
+            });
+
+            it("handles trailing separator", function () {
+                assert(join("abc/def/", "ghi/jkl/") === "abc/def/ghi/jkl");
+            });
+
+            it("handles relative paths", function () {
+                assert(join("abc/def", "../ghi") === "abc/ghi");
+            });
+
+            it("handles multiple joins", function () {
+                assert(join("abc", "def", "../ghi", "../jkl") === "abc/jkl");
+            });
+
+            it("resolves on known parent", function () {
+                assert(join("abc", "../ghi") === "ghi");
+            });
+
+            it("goes up with ..", function () {
+                assert(join("abc/def", "..") === "abc");
+            });
+
+            it("does not resolve on unknown parent", function () {
+                assert(join("abc", "../../ghi") === "");
+            });
+
         });
 
-        it("handles trailing separator", function () {
-            assert(path.join("abc/def/", "ghi/jkl/") === "abc/def/ghi/jkl");
+        describe("gpf.path.parent (" + separator + ")", function () {
+
+            it("retrieves the parent path", function () {
+                assert(path.parent("abc" + separator + "def") === "abc");
+            });
+
+            it("returns empty on a root", function () {
+                assert(path.parent(separator + "abc") === "");
+            });
+
+            it("returns empty when no parent", function () {
+                assert(path.parent("abc") === "");
+            });
+
+            it("returns empty when empty", function () {
+                assert(path.parent("") === "");
+            });
+
         });
 
-        it("handles relative paths", function () {
-            assert(path.join("abc/def", "../ghi") === "abc/ghi");
+        var Func = Function, // Workaround for W054
+            tests = [{
+                label: "considers the last name of path",
+                path: "abc" + escapedSeparator + "def.ghi",
+                name: "def.ghi",
+                nameOnly: "def",
+                extension: ".ghi"
+            }, {
+                label: "handles trailing separator",
+                path: "abc" + escapedSeparator + "def.ghi" + escapedSeparator,
+                name: "def.ghi",
+                nameOnly: "def",
+                extension: ".ghi"
+            }, {
+                label: "handles trailing separator (no extension)",
+                path: "abc" + escapedSeparator + "def" + escapedSeparator,
+                name: "def",
+                nameOnly: "def",
+                extension: ""
+            }, {
+                label: "handles name only",
+                path: "abc.defgh",
+                name: "abc.defgh",
+                nameOnly: "abc",
+                extension: ".defgh"
+            }, {
+                label: "handles name only (no extension)",
+                path: "abc",
+                name: "abc",
+                nameOnly: "abc",
+                extension: ""
+            }, {
+                label: "handles root",
+                path: "/",
+                name: "",
+                nameOnly: "",
+                extension: ""
+            }];
+
+        function buildTestFunc (source) {
+            return new Func("assert(gpf.path." + source + ");");
+        }
+
+        describe("gpf.path.name (" + separator + ")", function () {
+
+            tests.forEach(function (item) {
+                it(item.label, buildTestFunc("name(\"" + item.path + "\") === \"" + item.name + "\""));
+            });
+
         });
 
-        it("handles multiple joins", function () {
-            assert(path.join("abc", "def", "../ghi", "../jkl") === "abc/jkl");
+        describe("gpf.path.nameOnly (" + separator + ")", function () {
+
+            tests.forEach(function (item) {
+                it(item.label, buildTestFunc("nameOnly(\"" + item.path + "\") === \"" + item.nameOnly + "\""));
+            });
+
         });
 
-        it("resolves on known parent", function () {
-            assert(path.join("abc", "../ghi") === "ghi");
+        describe("gpf.path.extension (" + separator + ")", function () {
+
+            tests.forEach(function (item) {
+                it(item.label, buildTestFunc("extension(\"" + item.path + "\") === \"" + item.extension + "\""));
+            });
+
         });
 
-        it("does not resolve on unknown parent", function () {
-            assert(path.join("abc", "../../ghi") === "");
+        describe("gpf.path.relative (" + separator + ")", function () {
+
+            var relative;
+            if (separator === "/") {
+                relative = path.relative;
+            } else {
+                relative = function () {
+                    var args = [].slice.apply(arguments, [0]).map(function (value) {
+                        return value.split("/").join(separator);
+                    });
+                    return path.relative.apply(path, args);
+                };
+            }
+
+            it("solves the relative path", function () {
+                assert(relative("abc/def", "abc/ghi") === "../ghi");
+            });
+
+            it("handles trailing separator", function () {
+                assert(relative("abc/def/", "abc/ghi") === "../ghi");
+            });
+
+            it("works on non matching roots", function () {
+                assert(relative("abc/def", "ghi/jkl") === "../../ghi/jkl");
+            });
+
+            it("works on non matching roots (any level)", function () {
+                assert(relative("a/bc/def", "g/h/i/jkl") === "../../../g/h/i/jkl");
+            });
+
         });
 
-    });
-
-    describe("gpf.path.parent", function () {
-
-        it("retrieves the parent path", function () {
-            assert(path.parent("abc/def") === "abc");
-        });
-
-        it("returns empty on a root", function () {
-            assert(path.parent("/abc") === "");
-        });
-
-        it("returns empty when no parent", function () {
-            assert(path.parent("abc") === "");
-        });
-
-    });
-
-    var Func = Function, // Workaround for W054
-        tests = [{
-            label: "considers the last name of path",
-            path: "abc/def.ghi",
-            name: "def.ghi",
-            nameOnly: "def",
-            extension: ".ghi"
-        }, {
-            label: "handles trailing separator",
-            path: "abc/def.ghi/",
-            name: "def.ghi",
-            nameOnly: "def",
-            extension: ".ghi"
-        }, {
-            label: "handles trailing separator (no extension)",
-            path: "abc/def/",
-            name: "def",
-            nameOnly: "def",
-            extension: ""
-        }, {
-            label: "handles name only",
-            path: "abc.defgh",
-            name: "abc.defgh",
-            nameOnly: "abc",
-            extension: ".defgh"
-        }, {
-            label: "handles name only (no extension)",
-            path: "abc",
-            name: "abc",
-            nameOnly: "abc",
-            extension: ""
-        }, {
-            label: "handles root",
-            path: "/",
-            name: "",
-            nameOnly: "",
-            extension: ""
-        }];
-
-    function buildTestFunc (source) {
-        return new Func("assert(gpf.path." + source + ");");
     }
 
-    describe("gpf.path.name", function () {
-
-        tests.forEach(function (item) {
-            it(item.label, buildTestFunc("name(\"" + item.path + "\") === \"" + item.name + "\""));
-        });
-
-    });
-
-    describe("gpf.path.nameOnly", function () {
-
-        tests.forEach(function (item) {
-            it(item.label, buildTestFunc("nameOnly(\"" + item.path + "\") === \"" + item.nameOnly + "\""));
-        });
-
-    });
-
-    describe("gpf.path.extension", function () {
-
-        tests.forEach(function (item) {
-            it(item.label, buildTestFunc("extension(\"" + item.path + "\") === \"" + item.extension + "\""));
-        });
-
-    });
-
-    describe("gpf.path.relative", function () {
-
-        it("solves the relative path", function () {
-            assert(path.relative("abc/def", "abc/ghi") === "../ghi");
-        });
-
-        it("handles trailing separator", function () {
-            assert(path.relative("abc/def/", "abc/ghi") === "../ghi");
-        });
-
-        it("works on non matching roots", function () {
-            assert(path.relative("abc/def", "ghi/jkl") === "../../ghi/jkl");
-        });
-
-        it("works on non matching roots (any level)", function () {
-            assert(path.relative("a/bc/def", "g/h/i/jkl") === "../../../g/h/i/jkl");
-        });
-
-    });
+    generateTests("/");
+    generateTests("\\");
 
 });
