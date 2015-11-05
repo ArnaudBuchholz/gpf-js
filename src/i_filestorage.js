@@ -4,6 +4,7 @@
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*#endif*/
 
+/* istanbul ignore next */ // Interface
 /**
  * File Storage interface, defines base methods to access any kind of file storage
  *
