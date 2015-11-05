@@ -19,6 +19,72 @@ _gpfErrorDeclare("i_enumerator", {
 });
 
 /**
+ * Enumerates all elements of the enumerator and call the callback function.
+ *
+ * NOTE: reset is *not* called.
+ *
+ * @param {gpf.interfaces.IEnumerator} enumerator
+ * @param {Function} callback receive each item of the enumerator, signature is either:
+ * - {*} element
+ * or
+ * - {*} element
+ * - {gpf.events.Handler} eventsHandler
+ *
+ * If the signature supports two parameter, the last one will be used to control the iteration.
+ * The callback function has to trigger
+ * - gpf.events.EVENT_CONTINUE
+ * - gpf.events.EVENT_STOP
+ *
+ * @param {gpf.events.Handler} eventsHandler
+ *
+ * @event gpf.events.EVENT_END_OF_DATA
+ * No more data is available, the each function terminated
+ *
+ * @event gpf.events.EVENT_STOPPED
+ * The processing function requested to stop enumeration
+ */
+// TODO how to put attributes on static members?
+// "[each]": [gpf.$ClassEventHandler()],
+function _gpfEnumeratorEach (enumerator, callback, eventsHandler) {
+    var iEnumerator = _gpfI.query(enumerator, _gpfI.IEnumerator),
+        process;
+    function end (event) {
+        _gpfEventsFire.apply(enumerator, [event, {}, eventsHandler]);
+    }
+    if (1 < callback.length) {
+        process = function (event) {
+            if (gpf.events.EVENT_CONTINUE === event.type) {
+                if (!iEnumerator.moveNext(process)) {
+                    return;
+                }
+            } else if (gpf.events.EVENT_STOP === event.type) {
+                return end(gpf.events.EVENT_STOPPED);
+            } else if (gpf.events.EVENT_DATA !== event.type) {
+                return end(event.type);
+            }
+            callback(iEnumerator.current(), process);
+        };
+        if (iEnumerator.moveNext(process)) {
+            callback(iEnumerator.current(), process);
+        }
+
+    } else {
+        process = function (event) {
+            if (gpf.events.EVENT_DATA !== event.type) {
+                return end(event.type);
+            }
+            do {
+                callback(iEnumerator.current());
+            } while (iEnumerator.moveNext(process));
+        };
+        while (iEnumerator.moveNext(process)) {
+            callback(iEnumerator.current());
+        }
+    }
+}
+
+/* istanbul ignore next */ // Interface
+/**
  * Enumerable interface
  *
  * @class gpf.interfaces.IEnumerator
@@ -67,70 +133,8 @@ _gpfDefIntrf("IEnumerator", {
 
     "~": {
 
-        /**
-         * Enumerates all elements of the enumerator and call the callback function.
-         *
-         * NOTE: reset is *not* called.
-         *
-         * @param {gpf.interfaces.IEnumerator} enumerator
-         * @param {Function} callback receive each item of the enumerator, signature is either:
-         * - {*} element
-         * or
-         * - {*} element
-         * - {gpf.events.Handler} eventsHandler
-         *
-         * If the signature supports two parameter, the last one will be used to control the iteration.
-         * The callback function has to trigger
-         * - gpf.events.EVENT_CONTINUE
-         * - gpf.events.EVENT_STOP
-         *
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @event gpf.events.EVENT_END_OF_DATA
-         * No more data is available, the each function terminated
-         *
-         * @event gpf.events.EVENT_STOPPED
-         * The processing function requested to stop enumeration
-         */
-        // TODO how to put attributes on static members?
-        // "[each]": [gpf.$ClassEventHandler()],
-        each: function (enumerator, callback, eventsHandler) {
-            var iEnumerator = _gpfI.query(enumerator, _gpfI.IEnumerator),
-                process;
-            function end (event) {
-                _gpfEventsFire.apply(enumerator, [event, {}, eventsHandler]);
-            }
-            if (1 < callback.length) {
-                process = function (event) {
-                    if (gpf.events.EVENT_CONTINUE === event.type) {
-                        if (!iEnumerator.moveNext(process)) {
-                            return;
-                        }
-                    } else if (gpf.events.EVENT_STOP === event.type) {
-                        return end(gpf.events.EVENT_STOPPED);
-                    } else if (gpf.events.EVENT_DATA !== event.type) {
-                        return end(event.type);
-                    }
-                    callback(iEnumerator.current(), process);
-                };
-                if (iEnumerator.moveNext(process)) {
-                    callback(iEnumerator.current(), process);
-                }
-
-            } else {
-                process = function (event) {
-                    if (gpf.events.EVENT_DATA !== event.type) {
-                        return end(event.type);
-                    }
-                    do {
-                        callback(iEnumerator.current());
-                    } while (iEnumerator.moveNext(process));
-                };
-                while (iEnumerator.moveNext(process)) {
-                    callback(iEnumerator.current());
-                }
-            }
-        }
+        // @inheritdoc _gpfEnumeratorEach
+        each: _gpfEnumeratorEach
 
     }
 
