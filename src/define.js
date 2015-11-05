@@ -5,7 +5,9 @@
 /*global _gpfAsserts*/ // Multiple assertion method
 /*global _gpfAttributesAdd*/ // Shortcut for gpf.attributes.add
 /*global _gpfContext*/ // Resolve contextual string
+/*global _gpfDecodeAttributeMember*/
 /*global _gpfEmptyFunc*/ // An empty function
+/*global _gpfEncodeAttributeMember*/
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfHost*/ // Host type
@@ -323,7 +325,7 @@ _GpfClassDefinition.prototype = {
         if ("[" !== member.charAt(0) || "]" !== member.charAt(member.length - 1)) {
             return false;
         }
-        member = member.substr(1, member.length - 2); // Extract member name
+        member = _gpfEncodeAttributeMember(member.substr(1, member.length - 2)); // Extract & encode member name
         if (this._definitionAttributes) {
             attributeArray = this._definitionAttributes[member];
         } else {
@@ -405,6 +407,7 @@ _GpfClassDefinition.prototype = {
             Constructor = this._Constructor;
             newPrototype = Constructor.prototype;
             /*gpf:inline(object)*/ _gpfObjectForEach(attributes, function (attributeList, attributeName) {
+                attributeName = _gpfDecodeAttributeMember(attributeName);
                 if (attributeName in newPrototype || attributeName === "Class") {
                     _gpfAttributesAdd(Constructor, attributeName, attributeList);
                 } else {
