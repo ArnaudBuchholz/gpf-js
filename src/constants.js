@@ -126,7 +126,9 @@
 /*global _gpfA*/ // gpf.attributes
 /*global _gpfAttribute*/ // Shortcut for gpf.attributes.Attribute
 /*global _gpfAttributesAdd*/ // Shortcut for gpf.attributes.add
+/*global _gpfDecodeAttributeMember*/
 /*global _gpfDefAttr*/ // gpf.define for attributes
+/*global _gpfEncodeAttributeMember*/
 //endregion
 //region a_attributes
 //endregion
