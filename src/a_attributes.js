@@ -95,8 +95,8 @@ var
              * @param {Object} objPrototype
              */
             _check: function (targetAttribute, objPrototype) {
-                _gpfIgnore(targetAttribute, objPrototype);
-                throw gpf.Error.abstractMethod();
+                /* istanbul ignore next */ // Abstract method
+                throw gpf.Error.abstractMethod(targetAttribute, objPrototype);
             },
 
             // @inheritdoc gpf.attributes.Attribute#_alterPrototype
