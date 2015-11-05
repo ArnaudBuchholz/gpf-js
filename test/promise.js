@@ -144,7 +144,7 @@ describe("promise", function () {
                         assert("ok" === value);
                         throw new Error("ko");
                     })["catch"](function (reason) {
-                        try{
+                        try {
                             assert(reason instanceof Error);
                             assert("ko" === reason.message);
                             done();
