@@ -186,4 +186,33 @@ describe("path", function () {
     generateTests("/");
     generateTests("\\");
 
+    if (gpf.internals) {
+
+        describe("(internal)", function () {
+
+            describe("_gpfPathNormalize", function () {
+
+                var tests = {
+                    "a/": "a",
+                    "/a/": "/a",
+                    "a/b": "a/b",
+                    "a\\b": "a/b",
+                    "a\\": "a",
+                    "\\a\\": "/a"
+                };
+
+                gpf.internals._gpfObjectForEach(tests, function (expected, value) {
+
+                    it("transforms \"" + value + "\" into \"" + expected + "\"", function () {
+                        assert(expected === gpf.internals._gpfPathNormalize(value));
+                    });
+
+                });
+
+            });
+
+        });
+
+    }
+
 });
