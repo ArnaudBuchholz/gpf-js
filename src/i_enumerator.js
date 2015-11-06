@@ -162,9 +162,6 @@ function _gpfArrayEnumerator (array) {
             return result;
         },
         current: function () {
-            if (0 > pos || pos >= array.length) {
-                return undefined;
-            }
             return array[pos];
         }
     };
