@@ -154,3 +154,9 @@ gpf.path = {
     }
 
 };
+
+/*#ifndef(UMD)*/
+
+gpf.internals._gpfPathNormalize = _gpfPathNormalize;
+
+/*#endif*/
