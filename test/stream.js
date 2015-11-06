@@ -72,8 +72,8 @@ describe("stream", function () {
                 out,
                 wout;
             if (console.expects) {
-                console.expects("log", "abcdef");
-                console.expects("log", "hi");
+                console.expects("log", "abcdef", false);
+                console.expects("log", "hi", false);
             }
             out = new gpf.stream.Out();
             wout = new (gpfI.wrap(gpfI.IWritableStream))(out);

@@ -85,7 +85,7 @@ describe("attributes", function () {
         it("signals any use on non-existing member", function () {
             var caught = null;
             if (console.expects) {
-                console.expects("error", "gpf.define: Invalid attribute name '_b'");
+                console.expects("error", "gpf.define: Invalid attribute name '_b'", false);
             }
             try {
                 gpf.define("C", A, {
