@@ -69,7 +69,7 @@ _GpfLikeContext.prototype = {
      * @return {Boolean}
      */
     _haveDifferentPrototypes: function (a, b) {
-        return a.prototype !== b.prototype;
+        return a.constructor !== b.constructor;
     },
 
     /**
@@ -108,15 +108,17 @@ _GpfLikeContext.prototype = {
             member;
         // a members
         for (member in a) {
+            /* istanbul ignore else */
             if (a.hasOwnProperty(member)) {
                 ++membersCount;
-                if (!this.like(a, b)) {
+                if (!this.like(a[member], b[member])) {
                     return true;
                 }
             }
         }
         // b members
         for (member in b) {
+            /* istanbul ignore else */
             if (b.hasOwnProperty(member)) {
                 --membersCount;
             }
