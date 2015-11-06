@@ -7,8 +7,7 @@
 
 describe("dispatch", function () {
 
-    var
-        dispatcher;
+    var dispatcher;
 
     describe("gpf.mixins.EventDispatcher", function () {
 
@@ -31,8 +30,13 @@ describe("dispatch", function () {
 
         describe("without registering the event", function () {
 
-            it("no call is triggered", function () {
+            it("triggers no call", function () {
                 dispatcher.dispatchEvent("test");
+            });
+
+            it("doesn't fail if removing an unknown listener (event matching)", function () {
+                dispatcher.removeEventListener("test", function () {
+                });
             });
 
         });
@@ -74,9 +78,26 @@ describe("dispatch", function () {
                 });
             });
 
+            it("triggers no call on unknown event", function () {
+                dispatcher.dispatchEvent("test2");
+            });
+
+            it("doesn't fail if removing an unknown listener (event not matching)", function () {
+                dispatcher.removeEventListener("test2", function () {
+                });
+            });
+
+            it("doesn't fail if removing an unknown listener (function not matching)", function () {
+                dispatcher.removeEventListener("test", function () {
+                });
+            });
+
             describe("and registering another one", function () {
 
                 beforeEach(function () {
+                    dispatcher.addEventListener("test", function () {
+                        // Nothing
+                    });
                     dispatcher.addEventListener("test2", eventHandler2);
                 });
 
@@ -89,11 +110,12 @@ describe("dispatch", function () {
                     });
                 });
 
-                it("receives the new event", function (done) {
-                    dispatcher.dispatchEvent("test2", {
+                it("receives the new event (gpf.events.Event version)", function (done) {
+                    var test2 = new gpf.events.Event("test2", {
                         expected: true,
                         done: done
-                    });
+                    }, dispatcher);
+                    dispatcher.dispatchEvent(test2);
                 });
 
                 describe("to finally remove it", function () {
