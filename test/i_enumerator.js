@@ -39,6 +39,21 @@ describe("i_enumerator", function () {
             }
         });
 
+    describe("gpf.attributes.EnumerableAttribute", function () {
+
+        it("exposes gpf.interfaces.IEnumerator on class", function () {
+            assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IEnumerator, ArrayEnumerable));
+        });
+
+        it("exposes gpf.interfaces.IEnumerator on instances", function () {
+            var test = new ArrayEnumerable(),
+                iEnumerator = gpf.interfaces.query(test, gpf.interfaces.IEnumerator, false);
+            assert(null !== iEnumerator);
+            assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IEnumerator, iEnumerator));
+        });
+
+    });
+
     describe("Synchronous test", function () {
 
         it("allows sequential access to items", function () {
