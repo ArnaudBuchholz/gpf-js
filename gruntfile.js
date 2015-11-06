@@ -75,7 +75,7 @@ module.exports = function (grunt) {
             }
         },
         coverage: {
-            default: {
+            "default": {
                 options: {
                     thresholds: {
                         statements: 90,
