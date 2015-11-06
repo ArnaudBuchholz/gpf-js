@@ -458,3 +458,9 @@ if (_gpfInNode) {
 }
 
 //endregion
+
+/*#ifndef(UMD)*/
+
+gpf.internals._gpfObjectForEach = _gpfObjectForEach;
+
+/*#endif*/
