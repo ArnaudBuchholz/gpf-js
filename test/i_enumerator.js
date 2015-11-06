@@ -41,10 +41,6 @@ describe("i_enumerator", function () {
 
     describe("gpf.attributes.EnumerableAttribute", function () {
 
-        it("exposes gpf.interfaces.IEnumerator on class", function () {
-            assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IEnumerator, ArrayEnumerable));
-        });
-
         it("exposes gpf.interfaces.IEnumerator on instances", function () {
             var test = new ArrayEnumerable(),
                 iEnumerator = gpf.interfaces.query(test, gpf.interfaces.IEnumerator, false);
@@ -52,11 +48,29 @@ describe("i_enumerator", function () {
             assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IEnumerator, iEnumerator));
         });
 
-    });
+        it("checks that it was used on an array member", function () {
+            var caught = false;
+            try {
+                gpf.define("NotEnumerable", {
+                    "private": {
 
-    describe("Synchronous test", function () {
+                        "[_notAnArray]": [gpf.$Enumerable()],
+                        _notAnArray: null
 
-        it("allows sequential access to items", function () {
+                    }
+                });
+            } catch (e) {
+                assert(e instanceof gpf.Error);
+                assert(e.code === gpf.Error.CODE_ENUMERABLEINVALIDMEMBER);
+                assert(e.code === gpf.Error.enumerableInvalidMember.CODE);
+                assert(e.name === "enumerableInvalidMember");
+                assert(e.message === "$Enumerator can be associated to arrays only");
+                caught = true;
+            }
+            assert(true === caught);
+        });
+
+        it("allows sequential (and synchronous) access to items", function () {
             var instance,
                 enumerator;
             instance = new ArrayEnumerable([1, 2, 3]);
@@ -73,6 +87,31 @@ describe("i_enumerator", function () {
             enumerator.reset();
             assert(true === enumerator.moveNext());
             assert(1 === enumerator.current());
+        });
+
+        it("supports (simulated) asynchronous access to items", function (done) {
+            var instance,
+                enumerator,
+                last = 0;
+            instance = new ArrayEnumerable([1, 2, 3]);
+            enumerator = gpfI.query(instance, gpfI.IEnumerator);
+            assert(null !== enumerator);
+            enumerator.reset();
+            function handler (event) {
+                try {
+                    if (event.type === gpf.events.EVENT_END_OF_DATA) {
+                        done();
+                        return;
+                    }
+                    // Not expected
+                    assert(false);
+                } catch (e) {
+                    done(e);
+                }
+            }
+            while (enumerator.moveNext(handler)) {
+                assert(enumerator.current() === ++last);
+            }
         });
 
     });
