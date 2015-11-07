@@ -177,6 +177,7 @@ _gpfANoSerial = _gpfDefAttr("$ClassNonSerialized", _gpfClassAttribute, {
     "[Class]": [gpf.$MemberAttribute(), gpf.$UniqueAttribute(false)]
 });
 
+/* istanbul ignore next */ // Used internally
 /**
  * Defines a class extension (internal)
  *
