@@ -6,6 +6,8 @@
 /*global _gpfDefIntrf*/ // gpf.define for interfaces
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfI*/ // gpf.interfaces
+/*global _gpfIArrayGetItem*/ // gpf.interfaces.IReadOnlyArray#getItem factory
+/*global _gpfIArrayGetItemsCount*/ // gpf.interfaces.IReadOnlyArray#getItemsCount factory
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*#endif*/
 
@@ -98,8 +100,8 @@ _gpfDefAttr("$ClassIArray", _gpfA.ClassAttribute, {
                 implementedInterface = _gpfI.IReadOnlyArray;
             }
             _gpfAttributesAdd(objPrototype.constructor, "Class", [gpf.$InterfaceImplement(implementedInterface)]);
-            objPrototype.getItemsCount = _gpfFunc("return this." + member + ".length;");
-            objPrototype.getItem = _gpfFunc(["idx"], "return this." + member + "[idx];");
+            objPrototype.getItemsCount = _gpfIArrayGetItemsCount(member);
+            objPrototype.getItem = _gpfIArrayGetItem(member);
             if (this._writeAllowed) {
                 objPrototype.setItemsCount = _gpfFunc(["count"], [
                     "var oldValue = this.", member, ".length;",
@@ -119,9 +121,7 @@ _gpfDefAttr("$ClassIArray", _gpfA.ClassAttribute, {
 
         constructor: function (writeAllowed) {
             if (writeAllowed) {
-                // TODO decide how to implement IArray
-                throw gpf.Error.notImplemented();
-                //this._writeAllowed = true;
+                this._writeAllowed = true;
             }
         }
 
