@@ -123,6 +123,7 @@ _gpfDefine("gpf.interfaces.Interface", Object, {});
 
 //region IEventTarget
 
+/* istanbul ignore next */ // Interface
 _gpfDefIntrf("IEventDispatcher", {
 
     /**
@@ -168,6 +169,7 @@ _gpfDefIntrf("IEventDispatcher", {
 
 //region IUnknown
 
+/* istanbul ignore next */ // Interface
 /**
  * Provide a way for any object to implement an interface using an intermediate object (this avoids overloading the
  * object with temporary / useless members)
