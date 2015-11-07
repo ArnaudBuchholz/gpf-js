@@ -13,15 +13,18 @@ describe("a_class", function () {
                 "[_a]": [gpf.$ClassProperty(false)],
                 _a: 0,
 
-                "[_aLittleBitMoreThanB]": [gpf.$ClassProperty(true, "b")],
-                _aLittleBitMoreThanB: 0
+                "[aLittleBitMoreThanB]": [gpf.$ClassProperty(true, "b", "public")],
+                aLittleBitMoreThanB: 0,
+
+                "[internalProperty]": [gpf.$ClassProperty(true)],
+                internalProperty: 0
 
             },
             "public": {
 
                 constructor: function () {
                     this._a = 0;
-                    this._aLittleBitMoreThanB = 1;
+                    this.aLittleBitMoreThanB = 1;
                 }
 
             }
