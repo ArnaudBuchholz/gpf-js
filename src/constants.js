@@ -129,6 +129,8 @@
 /*global _gpfDecodeAttributeMember*/
 /*global _gpfDefAttr*/ // gpf.define for attributes
 /*global _gpfEncodeAttributeMember*/
+/*global _gpfIArrayGetItem*/ // gpf.interfaces.IReadOnlyArray#getItem factory
+/*global _gpfIArrayGetItemsCount*/ // gpf.interfaces.IReadOnlyArray#getItemsCount factory
 //endregion
 //region a_attributes
 //endregion
