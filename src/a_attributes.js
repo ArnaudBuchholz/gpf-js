@@ -23,6 +23,18 @@ _gpfErrorDeclare("a_attributes", {
         "Attribute {attributeName} already defined on {className}::{memberName}"
 });
 
+/* istanbul ignore next */ // Abstract method
+/**
+ * Throws an exception if target attribute can't be applied to objPrototype
+ *
+ * @param {gpf.attributes.Attribute} targetAttribute
+ * @param {Object} objPrototype
+ */
+function _GpfAttrOnlyCheck (targetAttribute, objPrototype) {
+    _gpfIgnore(targetAttribute, objPrototype);
+    throw gpf.Error.abstractMethod();
+}
+
 var
     /**
      * Restricts the usage of an attribute to an attribute class only
@@ -88,16 +100,8 @@ var
         },
         "#": {
 
-            /**
-             * Throws an exception if target attribute can't be applied to objPrototype
-             *
-             * @param {gpf.attributes.Attribute} targetAttribute
-             * @param {Object} objPrototype
-             */
-            _check: function (targetAttribute, objPrototype) {
-                /* istanbul ignore next */ // Abstract method
-                throw gpf.Error.abstractMethod(targetAttribute, objPrototype);
-            },
+            // @inheritdoc _GpfAttrOnlyCheck
+            _check: _GpfAttrOnlyCheck,
 
             // @inheritdoc gpf.attributes.Attribute#_alterPrototype
             _alterPrototype: function (objPrototype) {
