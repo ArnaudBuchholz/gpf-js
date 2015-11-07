@@ -5,9 +5,7 @@
 /*global _gpfAsserts*/ // Multiple assertion method
 /*global _gpfAttributesAdd*/ // Shortcut for gpf.attributes.add
 /*global _gpfContext*/ // Resolve contextual string
-/*global _gpfDecodeAttributeMember*/
 /*global _gpfEmptyFunc*/ // An empty function
-/*global _gpfEncodeAttributeMember*/
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfHost*/ // Host type
@@ -15,7 +13,9 @@
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _GpfClassDefinition*/
+/*exported _gpfDecodeAttributeMember*/
 /*exported _gpfDefine*/
+/*exported _gpfEncodeAttributeMember*/
 /*exported _gpfGenDefHandler*/
 /*exported _gpfGetClassDefinition*/
 /*#endif*/
@@ -26,6 +26,24 @@ _gpfErrorDeclare("define", {
     "classInvalidVisibility":
         "Invalid visibility keyword"
 });
+
+//region Helpers shared with attributes.js
+
+function _gpfEncodeAttributeMember (member) {
+    if ("constructor" === member) {
+        return "constructor ";
+    }
+    return member;
+}
+
+function _gpfDecodeAttributeMember (member) {
+    if ("constructor " === member) {
+        return "constructor";
+    }
+    return member;
+}
+
+//endregion
 
 //region Class constructor
 
