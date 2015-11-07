@@ -66,9 +66,12 @@ describe("attributes", function () {
     describe("gpf.attributes.Attribute", function () {
 
         it("is available through gpf.attributes.Map", function () {
-            var attributes = new gpf.attributes.Map(a);
+            var attributes = new gpf.attributes.Map(a),
+                attribute;
             assert(3 === attributes.getCount());
             assert(1 === attributes.getMemberAttributes("_a").getItemsCount());
+            attribute = attributes.getMemberAttributes("_a").getItem(0);
+            assert("_a" === attribute.getMemberName());
             assert(0 === attributes.getMemberAttributes("_b").getItemsCount());
             assert(1 === attributes.getMemberAttributes("_c").getItemsCount());
             assert(1 === attributes.getMemberAttributes("constructor").getItemsCount());
