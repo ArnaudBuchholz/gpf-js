@@ -71,9 +71,6 @@ function _gpfToBaseAnyEncode (baseAndValue, length) {
  * @return {String}
  */
 function _gpfToBaseANY (base, value, formattingOptions) {
-    if (undefined === formattingOptions) {
-        formattingOptions = {};
-    }
     var length = formattingOptions.length,
         pad = formattingOptions.pad,
         result = _gpfToBaseAnyEncode({
