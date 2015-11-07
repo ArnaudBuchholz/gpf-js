@@ -62,8 +62,8 @@ describe("interfaces", function () {
 
         it("checks function signatures", function () {
             var test = {
-                addEventListener: function (a, b) {
-                    return a + b;
+                addEventListener: function (a, b, c) {
+                    return a + b + c;
                 },
                 removeEventListener: fakeRemoveEventListener
             };
