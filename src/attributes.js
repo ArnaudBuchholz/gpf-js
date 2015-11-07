@@ -3,8 +3,10 @@
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfAsserts*/ // Multiple assertion method
 /*global _GpfClassDefinition*/ // GPF class definition
+/*global _gpfDecodeAttributeMember*/
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEmptyFunc*/ // An empty function
+/*global _gpfEncodeAttributeMember*/
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
 /*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
@@ -13,9 +15,9 @@
 /*exported _gpfA*/
 /*exported _gpfAttribute*/
 /*exported _gpfAttributesAdd*/
-/*exported _gpfDecodeAttributeMember*/
 /*exported _gpfDefAttr*/
-/*exported _gpfEncodeAttributeMember*/
+/*exported _gpfIArrayGetItem*/
+/*exported _gpfIArrayGetItemsCount*/
 /*#endif*/
 
 // @property {gpf.attributes.Map|null} Attributes of this class (null if none)
@@ -30,7 +32,7 @@ var
      *
      * @type {gpf.attributes.Array}
      */
-    _gpfEmptyMemberArray = 0;
+    _gpfEmptyMemberArray;
 
 /**
  * Generates a factory capable of creating a new instance of a class
@@ -48,6 +50,16 @@ function _gpfAlias (objectClass, name) {
             return new Proxy(arguments);
         };
     }());
+}
+
+// gpf.interfaces.IReadOnlyArray#getItemsCount factory
+function _gpfIArrayGetItemsCount (member) {
+    return _gpfFunc("return this." + member + ".length;");
+}
+
+// gpf.interfaces.IReadOnlyArray#getItem factory
+function _gpfIArrayGetItem (member) {
+    return _gpfFunc(["idx"], "return this." + member + "[idx];");
 }
 
 /**
@@ -166,23 +178,11 @@ _gpfDefine("gpf.attributes.Array", Object, {
             this._array = []; // Create a new instance of the array
         },
 
-        /**
-         * @inheritdoc gpf.interfaces.IReadOnlyArray#getItem
-         *
-         * NOTE: will be replaced with IReadOnlyArray implementation (once i_array.js is loaded)
-         */
-        getItemsCount: function () {
-            return this._array.length;
-        },
+        // @inheritdoc gpf.interfaces.IReadOnlyArray#getItem
+        getItemsCount: _gpfIArrayGetItemsCount("_array"),
 
-        /**
-         * @inheritdoc gpf.interfaces.IReadOnlyArray#getItem
-         *
-         * NOTE: will be replaced with IReadOnlyArray implementation (once i_array.js is loaded)
-         */
-        getItem: function (index) {
-            return this._array[index];
-        },
+        // @inheritdoc gpf.interfaces.IReadOnlyArray#getItem
+        getItem: _gpfIArrayGetItem("_array"),
 
         /**
          * Return the first occurrence of the expected class
@@ -226,19 +226,7 @@ _gpfDefine("gpf.attributes.Array", Object, {
 
 });
 
-function _gpfEncodeAttributeMember (member) {
-    if ("constructor" === member) {
-        return "constructor ";
-    }
-    return member;
-}
-
-function _gpfDecodeAttributeMember (member) {
-    if ("constructor " === member) {
-        return "constructor";
-    }
-    return member;
-}
+_gpfEmptyMemberArray = new _gpfA.Array();
 
 /**
  * Attribute map, generally used to list attributes of a class.
@@ -267,16 +255,14 @@ _gpfDefine("gpf.attributes.Map", Object, {
          * @return {gpf.attributes.Map} to
          */
         _copy: function (to, callback, param) {
-            if (this._count) {
-                /*gpf:inline(object)*/ _gpfObjectForEach(this._members, function (attributeArray, member) {
-                    member = _gpfDecodeAttributeMember(member);
-                    /*gpf:inline(array)*/ attributeArray._array.forEach(function (attribute) {
-                        if (!callback || callback(member, attribute, param)) {
-                            to.add(member, attribute);
-                        }
-                    });
+            /*gpf:inline(object)*/ _gpfObjectForEach(this._members, function (attributeArray, member) {
+                member = _gpfDecodeAttributeMember(member);
+                /*gpf:inline(array)*/ attributeArray._array.forEach(function (attribute) {
+                    if (!callback || callback(member, attribute, param)) {
+                        to.add(member, attribute);
+                    }
                 });
-            }
+            });
             return to;
         },
 
@@ -386,10 +372,7 @@ _gpfDefine("gpf.attributes.Map", Object, {
             member = _gpfEncodeAttributeMember(member);
             var result = this._members[member];
             if (undefined === result || !(result instanceof _gpfA.Array)) {
-                if (0 === _gpfEmptyMemberArray) {
-                    _gpfEmptyMemberArray = new _gpfA.Array();
-                }
-                result = _gpfEmptyMemberArray;
+                return _gpfEmptyMemberArray;
             }
             return result;
         },
@@ -431,13 +414,11 @@ _gpfDefine("gpf.attributes.Map", Object, {
  *
  * @param {Function} objectClass class constructor
  * @param {String} name member name
- * @param {gpf.attributes.Array|gpf.attributes.Attribute|gpf.attributes.Attribute[]} attributes
+ * @param {gpf.attributes.Attribute|gpf.attributes.Attribute[]} attributes
  */
 var _gpfAttributesAdd = _gpfA.add = function (objectClass, name, attributes) {
     // Check attributes parameter
-    if (attributes instanceof _gpfA.Array) {
-        attributes = attributes._array;
-    } else if (!(attributes instanceof Array)) {
+    if (!(attributes instanceof Array)) {
         attributes = [attributes];
     }
     var
