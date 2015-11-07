@@ -1,6 +1,8 @@
+/*eslint-disable no-invalid-this, strict*/
 (function (context) { /* Begin of privacy scope */
     "use strict";
 
+    /* istanbul ignore else */ // Tested with NodeJS
     /*global global*/ // NodeJS global
     if ("object" === typeof global) {
         context = global;
@@ -74,6 +76,7 @@
         "websvr"                // Simple JSP web server (nodeJS specific)
     ];
 
+    /* istanbul ignore if */ // Tested with NodeJS: gpf is defined
     if (!context.gpf) {
         context.gpf = {};
     }
