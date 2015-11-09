@@ -414,11 +414,13 @@ _gpfDefine("gpf.attributes.Map", Object, {
  *
  * @param {Function} objectClass class constructor
  * @param {String} name member name
- * @param {gpf.attributes.Attribute|gpf.attributes.Attribute[]} attributes
+ * @param {gpf.attributes.Array|gpf.attributes.Attribute|gpf.attributes.Attribute[]} attributes
  */
 var _gpfAttributesAdd = _gpfA.add = function (objectClass, name, attributes) {
     // Check attributes parameter
-    if (!(attributes instanceof Array)) {
+    if (attributes instanceof _gpfA.Array) {
+        attributes = attributes._array;
+    } else if (!(attributes instanceof Array)) {
         attributes = [attributes];
     }
     var
