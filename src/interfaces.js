@@ -235,7 +235,8 @@ function _wrapQueryInterface (orgQueryInterface) {
      * @inheritdoc gpf.interfaces.IUnknown#queryInterface
      * @this
      */
-    return function () {
+    return function (interfaceDefinition) {
+        _gpfIgnore(interfaceDefinition);
         var result = _queryInterface.apply(this, arguments);
         if (null === result) {
             result = orgQueryInterface.apply(this, arguments);
