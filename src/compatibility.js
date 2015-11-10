@@ -146,9 +146,9 @@ var _gpfCompatibility = {
         on: String.prototype,
 
         // Introduced with JavaScript 1.8.1
-        trin: (function () {
+        trim: (function () {
             var rtrim = new RegExp("^[\\s\uFEFF\xA0]+|[\\s\uFEFF\xA0]+$", "g");
-            String.prototype.trim = function () {
+            return function () {
                 return this.replace(rtrim, "");
             };
         }())
@@ -163,8 +163,8 @@ var _gpfCompatibility = {
 
     function install (dictionary, methods) {
         for (var name in methods) {
-            /* instanbul ignore else */
-            if (_gpfCompatibility.hasOwnProperty(name)) {
+            /* istanbul ignore else */
+            if (methods.hasOwnProperty(name)) {
                 if (name === "on") {
                     continue;
                 }
@@ -176,12 +176,31 @@ var _gpfCompatibility = {
     }
 
     for (type in _gpfCompatibility) {
-        /* instanbul ignore else */
+        /* istanbul ignore else */
         if (_gpfCompatibility.hasOwnProperty(type)) {
             compatibleMethods = _gpfCompatibility[type];
             install(compatibleMethods.on, compatibleMethods);
         }
     }
+
+}());
+
+// Get the name of a function if bound to the call
+var _gpfGetFunctionName = (function () {
+
+    var comments = new RegExp("//.*$|/\\*.*\\*/", "g");
+
+    return function () {
+        // Use simple parsing as a first step
+        // TODO leverage JS parser to implement this properly
+        var functionSource = Function.prototype.toString.apply(this),
+            functionKeywordPos = functionSource.indexOf("function"),
+            parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
+        return functionSource
+                .substr(functionKeywordPos + 9, parameterListStartPos - functionKeywordPos - 9)
+                .replace(comments, "") // remove comments
+                .trim();
+    };
 
 }());
 
@@ -191,23 +210,7 @@ if ((function () {
     return functionName.name !== "functionName";
 })()) {
 
-    (function () {
-
-        var comments = new RegExp("//.*$|/\\*.*\\*/", "g");
-
-        Function.prototype.compatibleName = function () {
-            // Use simple parsing as a first step
-            // TODO leverage JS parser to implement this properly
-            var functionSource = Function.prototype.toString.apply(this),
-                functionKeywordPos = functionSource.indexOf("function"),
-                parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
-            return functionSource
-                    .substr(functionKeywordPos + 9, parameterListStartPos - functionKeywordPos - 9)
-                    .replace(comments, "") // remove comments
-                    .trim();
-        };
-
-    }());
+    Function.prototype.compatibleName = _gpfGetFunctionName;
 
 } else {
 
@@ -224,7 +227,8 @@ if ((function () {
 
 /*#ifndef(UMD)*/
 
-gpf.internals._gpfArrayPrototypeSlice = _gpfArrayPrototypeSlice;
+gpf.internals._gpfArraySlice = _gpfArraySlice;
 gpf.internals._gpfCompatibility = _gpfCompatibility;
+gpf.internals._gpfGetFunctionName = _gpfGetFunctionName;
 
 /*#endif*/
