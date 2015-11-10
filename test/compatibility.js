@@ -11,6 +11,76 @@
 
 describe("compatibility", function () {
 
+    var tests = {
+
+            Array: {
+                every: {
+                    length: 1,
+                    "should return true when it goes over all items": function (method) {
+                        var array = [1, 2, 3, -6, 10],
+                            sum = 0,
+                            result;
+                        result = method.apply(array, [function (value) { //eslint-disable-line space-before-keywords
+                            sum += value;
+                            return true;
+                        }]);
+                        assert(true === result);
+                        assert(10 === sum);
+                    }
+                }
+            }
+
+        },
+        samples = {
+            Array: []
+        };
+
+    function shouldExpose (object, methodName, arity) {
+        it("should expose " + methodName, function () {
+            assert("function" === typeof object[methodName]);
+            assert(!object.hasOwnProperty(methodName));
+            assert(object[methodName].length === arity);
+        });
+    }
+
+    function addTest (type, methodName, label) {
+        var sample = samples[type],
+            testMethod = tests[type][methodName][label],
+            method = sample[methodName],
+            compatibleMethod;
+        it(label, function () {
+            testMethod(method);
+        });
+        if (gpf.internals) {
+            compatibleMethod = gpf.internals._gpfCompatibility[type][method];
+            if (compatibleMethod !== method) {
+                it(label + " (compatible)", function () {
+                    testMethod(compatibleMethod);
+                });
+            }
+        }
+    }
+
+    function describeMethod (type, methodName, methodTests) {
+        var label;
+        shouldExpose(samples[type], methodName, methodTests.length);
+        for (label in methodTests) {
+            if (methodTests.hasOwnProperty(label)) {
+                addTest(type, methodName, label);
+            }
+        }
+    }
+
+    function declare (type) {
+        var typedTests = tests[type],
+            methodName;
+        for (methodName in typedTests) {
+            if (typedTests.hasOwnProperty(methodName)) {
+                describe(methodName, describeMethod(type, methodName, typedTests[methodName]));
+            }
+        }
+    }
+
     describe("Array", function () {
 
         describe("basic support", function () {
@@ -27,25 +97,9 @@ describe("compatibility", function () {
 
         });
 
+        declare("Array");
+
         describe("every", function () {
-
-            it("should expose every", function () {
-                var array = [];
-                assert("function" === typeof array.every);
-                assert(!array.hasOwnProperty("every"));
-            });
-
-            it("should return true when it goes over all items", function () {
-                var array = [1, 2, 3, -6, 10],
-                    sum = 0,
-                    result;
-                result = array.every(function (value) {
-                    sum += value;
-                    return true;
-                });
-                assert(true === result);
-                assert(10 === sum);
-            });
 
             it("should return false when it stops on a given item", function () {
                 var array = [1, 2, 3, -6, 10],
