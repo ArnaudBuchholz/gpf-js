@@ -3,6 +3,9 @@
 /*exported _gpfArraySlice*/
 /*#endif*/
 
+/*eslint-disable no-proto*/ // Used for compatibility reasons
+/*jshint -W103*/
+
 var _gpfArrayPrototypeSlice = Array.prototype.slice;
 
 /**
@@ -17,116 +20,170 @@ function _gpfArraySlice (array, from, to) {
     return _gpfArrayPrototypeSlice.apply(array, [from || 0, to || array.length + 1]);
 }
 
-if (undefined === Array.prototype.every) {
+var _gpfCompatibility = {
 
-    // Introduced with JavaScript 1.6
-    Array.prototype.every = function (callback, thisArg) {
-        var len = this.length,
-            idx;
-        for (idx = 0; idx < len; ++idx) {
-            if (!callback.apply(thisArg, [this[idx], idx, this])) {
-                return false;
+    Array: {
+        on: Array.prototype,
+
+        // Introduced with JavaScript 1.6
+        every: function (callback) {
+            var thisArg = arguments[1],
+                len = this.length,
+                idx;
+            for (idx = 0; idx < len; ++idx) {
+                if (!callback.apply(thisArg, [this[idx], idx, this])) {
+                    return false;
+                }
+            }
+            return true;
+        },
+
+        // Introduced with JavaScript 1.6
+        filter: function (callback, thisArg) {
+            var result = [],
+                len = this.length,
+                idx,
+                item;
+            for (idx = 0; idx < len; ++idx) {
+                item = this[idx];
+                if (callback.apply(thisArg, [this[idx], idx, this])) {
+                    result.push(item);
+                }
+            }
+            return result;
+        },
+
+        // Introduced with JavaScript 1.6
+        forEach: function (callback, thisArg) {
+            var len = this.length,
+                idx;
+            for (idx = 0; idx < len; ++idx) {
+                callback.apply(thisArg, [this[idx], idx, this]);
+            }
+        },
+
+        // Introduced with JavaScript 1.5
+        indexOf: function (searchElement, fromIndex) {
+            var index = fromIndex || 0,
+                thisLength = this.length;
+            while (index < thisLength) {
+                if (this[index] === searchElement) {
+                    return index;
+                }
+                ++index;
+            }
+            return -1;
+        },
+
+        // Introduced with JavaScript 1.6
+        map: function (callback, thisArg) {
+            var thisLength = this.length,
+                result = new Array(thisLength),
+                index;
+            for (index = 0; index < thisLength; ++index) {
+                result[index] = callback.apply(thisArg, [this[index], index, this]);
+            }
+            return result;
+        },
+
+        // Introduced with JavaScript 1.8
+        reduce: function (callback, initialValue) {
+            var thisLength = this.length,
+                index = 0,
+                value;
+            if (undefined === initialValue) {
+                value = this[index++];
+            } else {
+                value = initialValue;
+            }
+            for (; index < thisLength; ++index) {
+                value = callback(value, this[index], index, this);
+            }
+            return value;
+        }
+
+    },
+
+    Function: {
+        on: Function.prototype,
+
+        // Introduced with JavaScript 1.8.5
+        bind: function (thisArg) {
+            var me = this,
+                prependArgs = _gpfArraySlice(arguments, 1);
+            return function () {
+                var args = _gpfArraySlice(arguments, 0);
+                me.apply(thisArg, prependArgs.concat(args));
+            };
+        }
+
+    },
+
+    Object: {
+        on: Object,
+
+        create: (function () {
+            function Temp () {}
+            return function (O) {
+                Temp.prototype = O;
+                var obj = new Temp();
+                Temp.prototype = null;
+                if (!obj.__proto__) {
+                    obj.__proto__ = O;
+                }
+                return obj;
+            };
+        }()),
+
+        getPrototypeOf: function (object) {
+            // May break if the constructor has been tampered with
+            return object.__proto__ || object.constructor.prototype;
+        }
+
+    },
+
+    String: {
+        on: String.prototype,
+
+        // Introduced with JavaScript 1.8.1
+        trin: (function () {
+            var rtrim = new RegExp("^[\\s\uFEFF\xA0]+|[\\s\uFEFF\xA0]+$", "g");
+            String.prototype.trim = function () {
+                return this.replace(rtrim, "");
+            };
+        }())
+
+    }
+
+};
+
+(function () {
+    var type,
+        compatibleMethods;
+
+    function install (dictionary, methods) {
+        for (var name in methods) {
+            /* instanbul ignore else */
+            if (_gpfCompatibility.hasOwnProperty(name)) {
+                if (name === "on") {
+                    continue;
+                }
+                if (undefined === dictionary[name]) {
+                    dictionary[name] = methods[name];
+                }
             }
         }
-        return true;
-    };
-}
+    }
 
-if (undefined === Array.prototype.filter) {
-
-    // Introduced with JavaScript 1.6
-    Array.prototype.filter = function (callback, thisArg) {
-        var result = [],
-            len = this.length,
-            idx,
-            item;
-        for (idx = 0; idx < len; ++idx) {
-            item = this[idx];
-            if (callback.apply(thisArg, [this[idx], idx, this])) {
-                result.push(item);
-            }
+    for (type in _gpfCompatibility) {
+        /* instanbul ignore else */
+        if (_gpfCompatibility.hasOwnProperty(type)) {
+            compatibleMethods = _gpfCompatibility[type];
+            install(compatibleMethods.on, compatibleMethods);
         }
-        return result;
-    };
-}
+    }
 
-if (undefined === Array.prototype.forEach) {
-
-    // Introduced with JavaScript 1.6
-    Array.prototype.forEach = function (callback, thisArg) {
-        var len = this.length,
-            idx;
-        for (idx = 0; idx < len; ++idx) {
-            callback.apply(thisArg, [this[idx], idx, this]);
-        }
-    };
-}
-
-if (undefined === Array.prototype.indexOf) {
-
-    // Introduced with JavaScript 1.5
-    Array.prototype.indexOf = function (searchElement, fromIndex) {
-        var index = fromIndex || 0,
-            thisLength = this.length;
-        while (index < thisLength) {
-            if (this[index] === searchElement) {
-                return index;
-            }
-            ++index;
-        }
-        return -1;
-    };
-
-}
-
-if (undefined === Array.prototype.map) {
-
-    // Introduced with JavaScript 1.6
-    Array.prototype.map = function (callback, thisArg) {
-        var thisLength = this.length,
-            result = new Array(thisLength),
-            index;
-        for (index = 0; index < thisLength; ++index) {
-            result[index] = callback.apply(thisArg, [this[index], index, this]);
-        }
-        return result;
-    };
-
-}
-
-if (undefined === Array.prototype.reduce) {
-
-    // Introduced with JavaScript 1.8
-    Array.prototype.reduce = function (callback, initialValue) {
-        var thisLength = this.length,
-            index = 0,
-            value;
-        if (undefined === initialValue) {
-            value = this[index++];
-        } else {
-            value = initialValue;
-        }
-        for (; index < thisLength; ++index) {
-            value = callback(value, this[index], index, this);
-        }
-        return value;
-    };
-
-}
-
-if (undefined === Function.prototype.bind) {
-
-    // Introduced with JavaScript 1.8.5
-    Function.prototype.bind = function (thisArg) {
-        var me = this,
-            prependArgs = _gpfArraySlice(arguments, 1);
-        return function () {
-            var args = _gpfArraySlice(arguments, 0);
-            me.apply(thisArg, prependArgs.concat(args));
-        };
-    };
-
-}
+}());
 
 // Handling function name properly
 if ((function () {
@@ -165,44 +222,9 @@ if ((function () {
 
 }
 
-/*eslint-disable no-proto*/ // Used for compatibility reasons
+/*#ifndef(UMD)*/
 
-if (undefined === Object.create) {
+gpf.internals._gpfArrayPrototypeSlice = _gpfArrayPrototypeSlice;
+gpf.internals._gpfCompatibility = _gpfCompatibility;
 
-    /*jshint -W103*/
-    Object.create = (function () {
-        function Temp () {}
-        return function (O) {
-            Temp.prototype = O;
-            var obj = new Temp();
-            Temp.prototype = null;
-            if (!obj.__proto__) {
-                obj.__proto__ = O;
-            }
-            return obj;
-        };
-    }());
-
-}
-
-if (undefined === Object.getPrototypeOf) {
-
-    Object.getPrototypeOf = function (object) {
-        // May break if the constructor has been tampered with
-        return object.__proto__ || object.constructor.prototype;
-    };
-    /*jshint +W103*/
-
-}
-
-if (undefined === String.prototype.trim) {
-
-    // Introduced with JavaScript 1.8.1
-    (function () {
-        var rtrim = new RegExp("^[\\s\uFEFF\xA0]+|[\\s\uFEFF\xA0]+$", "g");
-        String.prototype.trim = function () {
-            return this.replace(rtrim, "");
-        };
-    }());
-
-}
+/*#endif*/
