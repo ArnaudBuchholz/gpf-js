@@ -7,7 +7,7 @@
 /*jshint -W072*/
 /*eslint-disable max-params*/
 
-/*eslint-disable max-nested-callbacks*/
+/*eslint-disable max-nested-callbacks, space-before-keywords*/
 
 describe("compatibility", function () {
 
@@ -20,23 +20,172 @@ describe("compatibility", function () {
                         var array = [1, 2, 3, -6, 10],
                             sum = 0,
                             result;
-                        result = method.apply(array, [function (value) { //eslint-disable-line space-before-keywords
+                        result = method.apply(array, [function (value) {
                             sum += value;
                             return true;
                         }]);
                         assert(true === result);
                         assert(10 === sum);
+                    },
+                    "should return false when it stops on a given item": function (method) {
+                        var array = [1, 2, 3, -6, 10],
+                            sum = 0,
+                            result;
+                        result = method.apply(array, [function (value) {
+                            if (value > 0) {
+                                sum += value;
+                                return true;
+                            }
+                            return false;
+                        }]);
+                        assert(false === result);
+                        assert(6 === sum);
+                    },
+                    "should iterate with a bound context": function (method) {
+                        var array = [1, 2, 3, -6, 10],
+                            scope = {
+                                sum: 0,
+                                index: 0
+                            },
+                            result;
+                        result = method.apply(array, [function (value, idx) {
+                            var me = this; //eslint-disable-line no-invalid-this
+                            assert(me === scope);
+                            me.index = idx;
+                            if (value > 0) {
+                                me.sum += value;
+                                return true;
+                            }
+                            return false;
+                        }, scope]);
+                        assert(false === result);
+                        assert(6 === scope.sum);
+                        assert(3 === scope.index);
+                    }
+                },
+                filter: {
+                    length: 1,
+                    "should filter": function (method) {
+                        var array = [1, 2, 3, 4, 5],
+                            result;
+                        result = method.apply(array, [function (value) {
+                            return value % 2 === 0;
+                        }]);
+                        assert(result.length === 2);
+                        assert(result[0] === 2);
+                        assert(result[1] === 4);
+                    },
+                    "should filter with a bound context": function (method) {
+                        var array = [1, 2, 3, 4, 5],
+                            obj = {},
+                            result;
+                        result = method.apply(array, [function (value) {
+                            assert(this === obj); //eslint-disable-line no-invalid-this
+                            return value % 2 === 0;
+                        }, obj]);
+                        assert(result.length === 2);
+                        assert(result[0] === 2);
+                        assert(result[1] === 4);
+                    }
+                },
+                forEach: {
+                    length: 1,
+                    "should iterate": function (method) {
+                        var array = [1, 2, 3],
+                            sum = 0;
+                        assert("function" === typeof array.forEach);
+                        assert(!array.hasOwnProperty("forEach"));
+                        method.apply(array, [function (value) {
+                            sum += value;
+                        }]);
+                        assert(6 === sum);
+                    },
+                    "should iterate with a bound context": function (method) {
+                        var array = [1, 2, 3],
+                            obj = {
+                                sum: 0
+                            };
+                        method.apply(array, [function (value) {
+                            this.sum += value; //eslint-disable-line no-invalid-this
+                        }, obj]);
+                        assert(6 === obj.sum);
+                    }
+                },
+                indexOf: {
+                    length: 1,
+                    "should expose indexOf()": function (method) {
+                        var obj = {},
+                            array = [1, 2, 3, obj, "abc"];
+                        assert(-1 === method.apply(array, [4]));
+                        assert(0 === method.apply(array, [1]));
+                        assert(3 === method.apply(array, [obj]));
+                        assert(-1 === method.apply(array, [{}]));
+                        assert(4 === method.apply(array, ["abc"]));
+                    }
+                },
+                map: {
+                    length: 1,
+                    "should map with a bound context": function (method) {
+                        var obj = {},
+                            array = [1, 2, 3, obj, "abc"],
+                            result;
+                        assert("function" === typeof array.map);
+                        assert(!array.hasOwnProperty("map"));
+                        result = method.apply(array, [function (value, idx) {
+                            assert(this === obj); //eslint-disable-line no-invalid-this
+                            assert(value === array[idx]);
+                            return idx;
+                        }, obj]);
+                        assert(result.length === array.length);
+                        assert(result[0] === 0);
+                        assert(result[4] === 4);
+                    }
+                },
+                reduce: {
+                    length: 1,
+                    "should reduce with no initial value": function (method) {
+                        var array = [0, 1, 2, 3, 4],
+                            lastIndex = 1;
+                        function reducer (previousValue, currentValue, index, processedArray) {
+                            assert(array === processedArray);
+                            assert(lastIndex === index);
+                            ++lastIndex;
+                            return previousValue + currentValue;
+                        }
+                        assert(10 === method.apply(array, [reducer]));
+                    },
+                    "should reduce with intial value": function (method) {
+                        var array = [0, 1, 2, 3, 4],
+                            lastIndex = 0;
+                        function reducer (previousValue, currentValue, index, processedArray) {
+                            assert(array === processedArray);
+                            assert(lastIndex === index);
+                            ++lastIndex;
+                            return previousValue + currentValue;
+                        }
+                        assert(20 === method.apply(array, [reducer, 10]));
+                    }
+                }
+            },
+
+            String: {
+                trim: {
+                    length: 0,
+                    "should trim left and right": function (method) {
+                        var string = " \t  abc\t \t";
+                        assert("abc" === method.apply(string, []));
                     }
                 }
             }
 
         },
         samples = {
-            Array: []
+            Array: [],
+            String: ""
         };
 
     function shouldExpose (object, methodName, arity) {
-        it("should expose " + methodName, function () {
+        it("should expose a method " + methodName + " through prototype", function () {
             assert("function" === typeof object[methodName]);
             assert(!object.hasOwnProperty(methodName));
             assert(object[methodName].length === arity);
@@ -48,11 +197,14 @@ describe("compatibility", function () {
             testMethod = tests[type][methodName][label],
             method = sample[methodName],
             compatibleMethod;
+        if ("function" !== typeof testMethod) {
+            return;
+        }
         it(label, function () {
             testMethod(method);
         });
         if (gpf.internals) {
-            compatibleMethod = gpf.internals._gpfCompatibility[type][method];
+            compatibleMethod = gpf.internals._gpfCompatibility[type][methodName];
             if (compatibleMethod !== method) {
                 it(label + " (compatible)", function () {
                     testMethod(compatibleMethod);
@@ -62,13 +214,15 @@ describe("compatibility", function () {
     }
 
     function describeMethod (type, methodName, methodTests) {
-        var label;
-        shouldExpose(samples[type], methodName, methodTests.length);
-        for (label in methodTests) {
-            if (methodTests.hasOwnProperty(label)) {
-                addTest(type, methodName, label);
+        return function () {
+            var label;
+            shouldExpose(samples[type], methodName, methodTests.length);
+            for (label in methodTests) {
+                if (methodTests.hasOwnProperty(label)) {
+                    addTest(type, methodName, label);
+                }
             }
-        }
+        };
     }
 
     function declare (type) {
@@ -83,7 +237,7 @@ describe("compatibility", function () {
 
     describe("Array", function () {
 
-        describe("basic support", function () {
+        describe("default support", function () {
 
             it("should allow building an array with a given size", function () {
                 var array = new Array(5),
@@ -95,178 +249,6 @@ describe("compatibility", function () {
                 assert("    " === array.join(" "));
             });
 
-        });
-
-        declare("Array");
-
-        describe("every", function () {
-
-            it("should return false when it stops on a given item", function () {
-                var array = [1, 2, 3, -6, 10],
-                    sum = 0,
-                    result;
-                result = array.every(function (value) {
-                    if (value > 0) {
-                        sum += value;
-                        return true;
-                    }
-                    return false;
-                });
-                assert(false === result);
-                assert(6 === sum);
-            });
-
-            it("should expose every(callback, thisArg)", function () {
-                var array = [1, 2, 3, -6, 10],
-                    scope = {
-                        sum: 0,
-                        index: 0
-                    },
-                    result;
-                result = array.every(function (value, idx) {
-                    assert(this === scope);
-                    this.index = idx;
-                    if (value > 0) {
-                        this.sum += value;
-                        return true;
-                    }
-                    return false;
-                }, scope);
-                assert(false === result);
-                assert(6 === scope.sum);
-                assert(3 === scope.index);
-            });
-
-        });
-
-        describe("filter", function () {
-
-            it("should expose filter(callback)", function () {
-                var array = [1, 2, 3, 4, 5],
-                    result;
-                assert("function" === typeof array.filter);
-                assert(!array.hasOwnProperty("filter"));
-                result = array.filter(function (value) {
-                    return value % 2 === 0;
-                });
-                assert(result.length === 2);
-                assert(result[0] === 2);
-                assert(result[1] === 4);
-            });
-
-            it("should expose filter(callback, thisArg)", function () {
-                var array = [1, 2, 3, 4, 5],
-                    obj = {},
-                    result;
-                result = array.filter(function (value) {
-                    assert(this === obj);
-                    return value % 2 === 0;
-                }, obj);
-                assert(result.length === 2);
-                assert(result[0] === 2);
-                assert(result[1] === 4);
-            });
-
-        });
-
-        describe("forEach", function () {
-
-            it("should expose forEach(callback)", function () {
-                var array = [1, 2, 3],
-                    sum = 0;
-                assert("function" === typeof array.forEach);
-                assert(!array.hasOwnProperty("forEach"));
-                array.forEach(function (value) {
-                    sum += value;
-                });
-                assert(6 === sum);
-            });
-
-            it("should expose forEach(callback, thisArg)", function () {
-                var array = [1, 2, 3],
-                    obj = {
-                        sum: 0
-                    };
-                array.forEach(function (value) {
-                    this.sum += value;
-                }, obj);
-                assert(6 === obj.sum);
-            });
-
-        });
-
-        describe("indexOf", function () {
-
-            it("should expose indexOf()", function () {
-                var obj = {},
-                    array = [1, 2, 3, obj, "abc"];
-                assert("function" === typeof array.indexOf);
-                assert(!array.hasOwnProperty("indexOf"));
-                assert(-1 === array.indexOf(4));
-                assert(0 === array.indexOf(1));
-                assert(3 === array.indexOf(obj));
-                assert(-1 === array.indexOf({}));
-                assert(4 === array.indexOf("abc"));
-            });
-
-        });
-
-        describe("map", function () {
-
-            it("should expose map(callback, thisArg)", function () {
-                var obj = {},
-                    array = [1, 2, 3, obj, "abc"],
-                    result;
-                assert("function" === typeof array.map);
-                assert(!array.hasOwnProperty("map"));
-                result = array.map(function (value, idx) {
-                    assert(this === obj);
-                    assert(value === array[idx]);
-                    return idx;
-                }, obj);
-                assert(result.length === array.length);
-                assert(result[0] === 0);
-                assert(result[4] === 4);
-            });
-
-        });
-
-        describe("reduce", function () {
-
-            it("should expose reduce()", function () {
-                var array = [0, 1, 2, 3, 4];
-                assert("function" === typeof array.reduce);
-                // It appears that it is equal to 1 on some implementations (Chrome, NodeJS)
-                assert(2 === array.reduce.length || 1 === array.reduce.length);
-                assert(!array.hasOwnProperty("reduce"));
-            });
-
-            it("should expose reduce() - with no initial value", function () {
-                var array = [0, 1, 2, 3, 4],
-                    lastIndex = 1;
-                assert(10 === array.reduce(function (previousValue, currentValue, index, processedArray) {
-                    assert(array === processedArray);
-                    assert(lastIndex === index);
-                    ++lastIndex;
-                    return previousValue + currentValue;
-                }));
-            });
-
-            it("should expose reduce() - with value", function () {
-                var array = [0, 1, 2, 3, 4],
-                    lastIndex = 0;
-                assert(20 === array.reduce(function (previousValue, currentValue, index, processedArray) {
-                    assert(array === processedArray);
-                    assert(lastIndex === index);
-                    ++lastIndex;
-                    return previousValue + currentValue;
-                }, 10));
-            });
-
-        });
-
-        describe("slice", function () {
-
             it("provides standard slice", function () {
                 var fruits = ["Banana", "Orange", "Lemon", "Apple", "Mango"],
                     citrus = fruits.slice(1, 3);
@@ -276,6 +258,52 @@ describe("compatibility", function () {
             });
 
         });
+
+        declare("Array");
+
+        if (gpf.internals) {
+
+            describe("(internal) _gpfArraySlice", function () {
+
+                var _gpfArraySlice = gpf.internals._gpfArraySlice;
+
+                it("transforms an arra-like into an array", function () {
+                    var object = {};
+                    function test () {
+                        var array = _gpfArraySlice(arguments);
+                        assert(array instanceof Array);
+                        assert(4 === array.length);
+                        assert(0 === array[0]);
+                        assert("1" === array[1]);
+                        assert(true === array[2]);
+                        assert(object === array[3]);
+                    }
+                    test(0, "1", true, object);
+                });
+
+                it("slices an array", function () {
+                    var result = _gpfArraySlice([0, 1, 2], 1, 2);
+                    assert(1 === result.length);
+                    assert(1 === result[0]);
+                });
+
+                it("supports optional parameters (none)", function () {
+                    var result = _gpfArraySlice([0, 1, 2]);
+                    assert(3 === result.length);
+                    assert(0 === result[0]);
+                    assert(1 === result[1]);
+                    assert(2 === result[2]);
+                });
+
+                it("supports optional parameters (no to)", function () {
+                    var result = _gpfArraySlice([0, 1, 2], 1);
+                    assert(2 === result.length);
+                    assert(1 === result[0]);
+                    assert(2 === result[1]);
+                });
+
+            });
+        }
 
     });
 
@@ -429,16 +457,7 @@ describe("compatibility", function () {
 
     describe("String", function () {
 
-        describe("trim", function () {
-
-            it("should expose trim()", function () {
-                var string = " \t  abc\t \t";
-                assert("function" === typeof string.trim);
-                assert(!string.hasOwnProperty("trim"));
-                assert("abc" === string.trim());
-            });
-
-        });
+        declare("String");
 
     });
 
