@@ -65,13 +65,20 @@ describe("base", function () {
         objectMembersNoNull = "number,string,object,function",
         valuesTesting = [
             /* value parameters,                        expected result, message */
-            [0, 1, undefined, 0,                        "No conversion between numbers"],
-            ["0", 1, undefined, 0,                      "Number from string"],
-            ["0", true, undefined, false,               "Boolean from string (false)"],
-            ["yes", false, undefined, true,             "Boolean from string (true)"],
-            [undefined, "empty", undefined, "empty",    "No conversion"],
-            ["1.2", 1.1, undefined, 1.2,                "String to float"],
-            ["1.2", 1, "number", 1.2,                   "String to float as a number"]
+            [0, 1, undefined, 0,                        "nothing on numbers"],
+            ["0", 1, undefined, 0,                      "number from string"],
+            ["0", true, undefined, false,               "boolean from string (false)"],
+            ["yes", false, undefined, true,             "boolean from string (true)"],
+            [0, true, undefined, false,                 "boolean from number (false)"],
+            [1, false, undefined, true,                 "boolean from number (true)"],
+            [{}, false, undefined, false,               "boolean from anything else"],
+            [undefined, "empty", undefined, "empty",    "nothing and use default value"],
+            ["1.2", 1.1, undefined, 1.2,                "string to float"],
+            ["1.2", 1, "number", 1.2,                   "string to float as a number"],
+            [{}, 1, undefined, 1,                       "number from anything else"],
+            [1, "", undefined, "1",                     "string fron number"],
+            [1, object, undefined, object,              "object (only default)"]
+
         ];
 
     describe("gpf.forEach", function () {
@@ -191,16 +198,13 @@ describe("base", function () {
 
         var date = new Date(2003, 0, 22, 23, 45, 0, 0);
 
-        it("handles most common conversions", function () {
-            var
-                idx,
-                parameters,
-                result;
-            for (idx = 0; idx < valuesTesting.length; ++idx) {
-                parameters = valuesTesting[idx];
-                result = gpf.value.apply(null, parameters);
+        valuesTesting.forEach(function (parameters) {
+
+            it("converts " + parameters[4], function () {
+                var result = gpf.value.apply(null, parameters.slice(0, 3));
                 assert(result === parameters[3]);
-            }
+            });
+
         });
 
         if (gpf.dateToComparableFormat) {
@@ -211,6 +215,18 @@ describe("base", function () {
         } else {
             it("handles date conversions");
         }
+
+    });
+
+    describe("gpf.clone", function () {
+
+        it("creates a shallow clone of an object", function () {
+            var clonedObject = gpf.clone(object);
+            assert(clonedObject.string === object.string);
+            assert(clonedObject.object !== object.object);
+            assert(clonedObject.object.member === object.object.member);
+            assert(undefined === clonedObject["function"]); // Accepted
+        });
 
     });
 
@@ -268,6 +284,21 @@ describe("base", function () {
             assert(result.join("") === "013456789");
         });
 
+        it("does not change the dictionary if not found", function () {
+            var object2 = gpf.clone(object),
+                result = gpf.clear(object2, 11);
+            assert(result === object2);
+            assert(undefined === gpf.test(object2, 11));
+        });
+
+        it("removes the value from the Array when found", function () {
+            var object2 = gpf.clone(object),
+                result = gpf.clear(object2, 1);
+            assert(result === object2);
+            assert(undefined === object2.number);
+            assert(undefined === gpf.test(object2, 1));
+        });
+
     });
 
     describe("gpf.xor", function () {
@@ -280,5 +311,53 @@ describe("base", function () {
         });
 
     });
+
+    if (gpf.internals) {
+
+        describe("(internal)", function () {
+
+            describe("_gpfStringEscapeFor", function () {
+
+                var _gpfStringEscapeFor = gpf.internals._gpfStringEscapeFor;
+
+                it("escape strings for javascript", function () {
+                    assert(_gpfStringEscapeFor("abc", "javascript") === "\"abc\"");
+                    assert(_gpfStringEscapeFor("a\r\nb", "javascript") === "\"a\\r\\nb\"");
+                    assert(_gpfStringEscapeFor("\"", "javascript") === "\"\\\"\"");
+                    assert(_gpfStringEscapeFor("\\", "javascript") === "\"\\\\\"");
+                });
+
+                it("escape strings for xml", function () {
+                    assert(_gpfStringEscapeFor("<abc>&amp;</abc>", "xml") === "&lt;abc&gt;&amp;amp;&lt;/abc&gt;");
+                });
+
+                it("escape strings for html", function () {
+                    var htmlResult = "&lt;abc&gt;&aacute;&amp;&egrave;&lt;/abc&gt;";
+                    assert(_gpfStringEscapeFor("<abc>\u00E1&\u00E8</abc>", "html") === htmlResult);
+                });
+
+            });
+
+            if (gpf.HOST_NODEJS === gpf.host()) {
+
+                describe("_gpfNodeBuffer2JsArray", function () {
+
+                    var _gpfNodeBuffer2JsArray = gpf.internals._gpfNodeBuffer2JsArray;
+
+                    it("converts a NodeJS buffer into an array", function () {
+                        var buffer = new Buffer("abc"),
+                            intArray = _gpfNodeBuffer2JsArray(buffer);
+                        assert(97 === intArray[0]);
+                        assert(98 === intArray[1]);
+                        assert(99 === intArray[2]);
+                    });
+
+                });
+
+            }
+
+        });
+
+    }
 
 });

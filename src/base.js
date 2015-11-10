@@ -5,14 +5,15 @@
 /*global _gpfExit*/ // Exit function
 /*global _gpfHost*/ // Host type
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
-/*global _gpfInNode*/ // The current host is a nodeJS like
 /*global _gpfWebWindow*/ // Browser window object
 /*exported _gpfExtend*/
 /*exported _gpfIsArrayLike*/
+/*exported _gpfNodeBuffer2JsArray*/
 /*exported _gpfObjectForEach*/
 /*exported _gpfStringCapitalize*/
 /*exported _gpfStringEscapeFor*/
 /*exported _gpfStringReplaceEx*/
+/*exported _gpfValues*/
 /*#endif*/
 
 //region _gpfIsArrayLike
@@ -26,6 +27,7 @@ var
      */
     _gpfIsArrayLike;
 
+/* istanbul ignore if */ // Not tested with NodeJS
 if (_GPF_HOST_BROWSER === _gpfHost && (_gpfWebWindow.HTMLCollection || _gpfWebWindow.NodeList)) {
     _gpfIsArrayLike = function (obj) {
         return obj instanceof Array
@@ -81,6 +83,7 @@ function _gpfArrayForEach (array, callback, thisArg) {
  */
 function _gpfObjectForEach (object, callback, thisArg) {
     for (var property in object) {
+        /* istanbul ignore else */
         if (object.hasOwnProperty(property)) {
             callback.apply(thisArg, [object[property], property, object]);
         }
@@ -173,12 +176,9 @@ var
  * @return {String}
  */
 function _gpfStringEscapeFor (that, language) {
-    var replacements = _gpfStringEscapes[language];
-    if (undefined !== replacements) {
-        that = _gpfStringReplaceEx(that, replacements);
-        if ("javascript" === language) {
-            that = "\"" + that + "\"";
-        }
+    that = _gpfStringReplaceEx(that, _gpfStringEscapes[language]);
+    if ("javascript" === language) {
+        that = "\"" + that + "\"";
     }
     return that;
 }
@@ -257,6 +257,7 @@ var
      */
     _gpfValues = {
         "boolean": function (value, valueType, defaultValue) {
+            _gpfIgnore(defaultValue);
             if ("string" === valueType) {
                 if ("yes" === value || "true" === value) {
                     return true;
@@ -266,30 +267,22 @@ var
             if ("number" === valueType) {
                 return 0 !== value;
             }
-            return defaultValue;
         },
 
         number:  function (value, valueType, defaultValue) {
+            _gpfIgnore(defaultValue);
             if ("string" === valueType) {
                 return parseFloat(value);
             }
-            return defaultValue;
         },
 
         string: function (value, valueType, defaultValue) {
-            _gpfIgnore(valueType);
-            _gpfIgnore(defaultValue);
-            if (value instanceof Date) {
-                return gpf.dateToComparableFormat(value);
-            }
+            _gpfIgnore(valueType, defaultValue);
             return value.toString();
         },
 
         object: function (value, valueType, defaultValue) {
-            if (defaultValue instanceof Date && "string" === valueType) {
-                return gpf.dateFromComparableFormat(value);
-            }
-            return defaultValue;
+            _gpfIgnore(value, valueType, defaultValue);
         }
     };
 
@@ -304,17 +297,22 @@ var
  * @return {*}
  */
 function _gpfValue (value, defaultValue, expectedType) {
-    var valueType = typeof value;
+    var valueType = typeof value,
+        result;
     if (!expectedType) {
         expectedType = typeof defaultValue;
     }
     if (expectedType === valueType) {
         return value;
     }
-    if ("undefined" === valueType || !value) {
+    if ("undefined" === valueType) {
         return defaultValue;
     }
-    return _gpfValues[expectedType](value, valueType, defaultValue);
+    result = _gpfValues[expectedType](value, valueType, defaultValue);
+    if (undefined === result) {
+        return defaultValue;
+    }
+    return result;
 }
 
 // @inheritdoc _gpfValue
@@ -332,7 +330,7 @@ _gpfExtend(gpf, {
      */
     clone: function (obj) {
         // http://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-clone-an-object/5344074#5344074
-        return gpf.json.parse(gpf.json.stringify(obj));
+        return JSON.parse(JSON.stringify(obj));
     },
 
     /*
@@ -403,7 +401,7 @@ _gpfExtend(gpf, {
         } else {
             for (idx in dictionary) {
                 if (dictionary.hasOwnProperty(idx) && dictionary[idx] === value) {
-                    break;
+                    delete dictionary[idx];
                 }
             }
         }
@@ -418,43 +416,41 @@ _gpfExtend(gpf, {
      */
     xor: function (a, b) {
         return a && !b || !a && b;
-    },
-
-    /**
-     * Exit function
-     *
-     * @paran {Number} [exitCode=0] exitCode
-     */
-    exit: function (exitCode) {
-        if (undefined === exitCode) {
-            exitCode = 0;
-        }
-        _gpfExit(exitCode);
     }
 
 });
 
+
+/* istanbul ignore next */ // Not testable
+/**
+ * Exit function
+ *
+ * @paran {Number} [exitCode=0] exitCode
+ */
+gpf.exit = function (exitCode) {
+    if (undefined === exitCode) {
+        exitCode = 0;
+    }
+    _gpfExit(exitCode);
+};
+
 //region NodeJS helpers
 
-if (_gpfInNode) {
-
-    /**
-     * Converts a NodeJS buffer into a native array containing unsigned
-     * bytes
-     *
-     * @param {Buffer} buffer
-     * @return {Number[]}
-     */
-    gpf.node.buffer2JsArray = function (buffer) {
-        var result = [],
-            len = buffer.length,
-            idx;
-        for (idx = 0; idx < len; ++idx) {
-            result.push(buffer.readUInt8(idx));
-        }
-        return result;
-    };
-
+/**
+ * Converts a NodeJS buffer into a native array containing unsigned
+ * bytes
+ *
+ * @param {Buffer} buffer
+ * @return {Number[]}
+ */
+function _gpfNodeBuffer2JsArray (buffer) {
+    var result = [],
+        len = buffer.length,
+        idx;
+    for (idx = 0; idx < len; ++idx) {
+        result.push(buffer.readUInt8(idx));
+    }
+    return result;
 }
 
 //endregion
@@ -462,5 +458,7 @@ if (_gpfInNode) {
 /*#ifndef(UMD)*/
 
 gpf.internals._gpfObjectForEach = _gpfObjectForEach;
+gpf.internals._gpfStringEscapeFor = _gpfStringEscapeFor;
+gpf.internals._gpfNodeBuffer2JsArray = _gpfNodeBuffer2JsArray;
 
 /*#endif*/
