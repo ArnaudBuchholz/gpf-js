@@ -2,6 +2,7 @@
 (function () { /* Begin of privacy scope */
 "use strict";
 /*global _gpfExtend*/ // gpf.extend
+/*global _gpfValues*/ // Dictionary of value converters
 /*#endif*/
 
     var
@@ -69,6 +70,22 @@
         }
 
     });
+
+    var _gpfValuesString = _gpfValues.string;
+    _gpfValues.string = function (value, valueType, defaultValue) {
+        if (value instanceof Date) {
+            return gpf.dateToComparableFormat(value);
+        }
+        return _gpfValuesString(value, valueType, defaultValue);
+    };
+
+    var _gpfValuesObject = _gpfValues.object;
+    _gpfValues.object = function (value, valueType, defaultValue) {
+        if (defaultValue instanceof Date && "string" === valueType) {
+            return gpf.dateFromComparableFormat(value);
+        }
+        return _gpfValuesObject(value, valueType, defaultValue);
+    };
 
 /*#ifndef(UMD)*/
 }()); /* End of privacy scope */
