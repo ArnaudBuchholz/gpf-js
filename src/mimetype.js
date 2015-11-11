@@ -117,11 +117,13 @@ function _gpfInitMimeTypes () {
 }
 
 // @inheritdoc _gpfGetMimeType
-_gpfGetBootstrapMethod("gpf.web.getMimeType", _gpfInitMimeTypes, function () {
+_gpfGetBootstrapMethod("gpf.web.getMimeType", function () {
+    _gpfInitMimeTypes();
     return _gpfGetMimeType;
 });
 
 // @inheritdoc _gpfGetFileExtension
-_gpfGetBootstrapMethod("gpf.web.getFileExtension", _gpfInitMimeTypes, function () {
+_gpfGetBootstrapMethod("gpf.web.getFileExtension", function () {
+    _gpfInitMimeTypes();
     return _gpfGetFileExtension;
 });
