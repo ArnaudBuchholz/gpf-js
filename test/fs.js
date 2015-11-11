@@ -7,6 +7,112 @@
 
 describe("fs", function () {
 
+    if (gpf.internals) {
+
+        function notImplemented (path, eventsHandler) {
+            gpf.events.fire(gpf.events.EVENT_ERROR, {
+                error: gpf.error.notImplemented()
+            }, eventsHandler);
+            return path; // so that it is used
+        }
+
+        function getFromPath (path) {
+            var parts = path.split("/"),
+                item = testFolder,
+                filePath,
+                fileName;
+            if (parts.shift() !== "test") {
+                return undefined;
+            }
+            filePath = "test";
+            while (0 < parts.length) {
+                fileName = parts[0];
+                if ("object" === item[fileName]) {
+                    parts.shift();
+                    item = item[fileName];
+                    filePath = filePath + "/" + fileName;
+                    if (undefined === item._fileInfo) {
+                        item._fileInfo = {
+                            fileName: fileName,
+                            filePath = filePath,
+                            createdDateTime: new Date(),
+                            modifiedDateTime: new Date()
+                        };
+                        if (file._size) {
+                            delete file._size;
+                            fileInfo.type = gpf.fs.TYPE_FILE;
+                            fileInfo.size = file._size;
+                        } else {
+                            fileInfo.type = gpf.fs.TYPE_FOLDER;
+                            fileInfo.size = 0;
+                        }
+                    }
+                } else {
+                    return undefined;
+                }
+            }
+            return item;
+        }
+
+        var testFolder = {
+                data: {
+                    "file.bin": {
+                        _size: 256
+                    }
+                }
+            },
+
+            testStorage = {
+
+                getInfo: function (path, eventsHandler) {
+                    var file = getFromPath(path),
+                        fileInfo;
+                    if (undefined === file) {
+                        fileInfo = {
+                            type: gpf.fs.TYPE_NOT_FOUND
+                        };
+                    }  else {
+                        fileInfo = file._fileInfo;
+                    }
+                    gpf.events.fire(gpf.events.EVENT_READY, {fileInfo: fileInfo}, eventsHandler);
+                },
+
+                readAsBinaryStream: notImplemented,
+                writeAsBinaryStream: notImplemented,
+                close: notImplemented,
+
+                explore: function (path, eventsHandler) {
+
+                },
+
+                createFolder: notImplemented,
+                deleteFile: notImplemented,
+                deleteFolder: notImplemented
+
+            };
+
+        describe("(internal)", function () {
+
+            describe("_gpfFsExploreEnumerator", function () {
+
+                var _gpfFsExploreEnumerator = gpf.internals._gpfFsExploreEnumerator;
+
+                it("exists");
+
+            });
+
+            describe("_gpfFsExploreEnumerator", function () {
+
+                var _gpfFsBuildFindMethod = gpf.internals._gpfFsBuildFindMethod;
+
+                it("exists");
+
+            });
+
+        });
+
+    }
+
     if (null === gpf.fs.host()) {
         return; // No host
     }
