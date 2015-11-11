@@ -168,6 +168,106 @@ describe("compatibility", function () {
                 }
             },
 
+            Function: {
+                bind: {
+                    length: 1,
+                    "should bind to a context": function (method) {
+                        var scope = {
+                                member: null
+                            },
+                            bound;
+                        /**
+                         * Will be bound
+                         *
+                         * @param value
+                         * @this bound scope
+                         */
+                        function testFunction (value) {
+                            /*jshint validthis:true*/
+                            assert(this === scope);
+                            this.member = value;
+                        }
+                        bound = method.apply(testFunction, [scope]);
+                        // Check the scope when calling bound
+                        bound(true);
+                        assert(true === scope.member);
+                        // Ignore applied scope when bound
+                        bound.apply({}, [false]);
+                        assert(false === scope.member);
+                    }
+                }
+            },
+
+            Object: {
+                create: {
+                    length: -1, // ignore
+                    "allows creating objects with a given prototype": function (method) {
+                        var object = method.apply(Object, [{
+                            method: function () {
+                                return "myMethod";
+                            }
+                        }]);
+                        assert(!object.hasOwnProperty("method"));
+                        assert("function" === typeof object.method);
+                        assert(object.method() === "myMethod");
+                    },
+                    "is compatible with instanceof": function (method) {
+                        function A () {
+                        }
+                        A.prototype = {
+                            a: function () {
+                                return "a";
+                            }
+                        };
+                        var a = method.apply(Object, [A.prototype]);
+                        assert(a.a() === "a");
+                        assert(a instanceof A);
+                    },
+                    "allows inheritance and use of instanceof": function (method) {
+                        function A () {
+                        }
+                        A.prototype = {
+                            a: function () {
+                                return "a";
+                            }
+                        };
+                        function B () {
+                        }
+                        B.prototype = new A();
+                        var b = method.apply(Object, [B.prototype]);
+                        assert(b.a() === "a");
+                        assert(b instanceof A);
+                        assert(b instanceof B);
+                    }
+                },
+                getPrototypeOf: {
+                    length: 1,
+                    "returns prototype passed to Object.create": function (method) {
+                        var proto,
+                            object;
+                        proto = {
+                            a: function () {
+                                return "a";
+                            }
+                        };
+                        object = Object.create(proto);
+                        assert(method.apply(Object, [object]) === proto);
+                    },
+                    "returns prototype from constructor": function (method) {
+                        function A () {
+                        }
+                        A.prototype = {
+                            constructor: A, // required for cscript
+                            a: function () {
+                                return "a";
+                            }
+                        };
+                        var a = new A();
+                        assert(method.apply(Object, [a]) === A.prototype);
+                    }
+                }
+            },
+
             String: {
                 trim: {
                     length: 0,
@@ -181,15 +281,28 @@ describe("compatibility", function () {
         },
         samples = {
             Array: [],
+            Function: function () {},
+            Object: Object,
             String: ""
         };
 
     function shouldExpose (object, methodName, arity) {
-        it("should expose a method " + methodName + " through prototype", function () {
-            assert("function" === typeof object[methodName]);
-            assert(!object.hasOwnProperty(methodName));
-            assert(object[methodName].length === arity);
-        });
+        if (Object === object) {
+            it("should expose the method " + methodName, function () {
+                assert("function" === typeof object[methodName]);
+                if (-1 !== arity) {
+                    assert(object[methodName].length === arity);
+                }
+            });
+        } else {
+            it("should expose a method " + methodName + " through prototype", function () {
+                assert("function" === typeof object[methodName]);
+                assert(!object.hasOwnProperty(methodName));
+                if (-1 !== arity) {
+                    assert(object[methodName].length === arity);
+                }
+            });
+        }
     }
 
     function addTest (type, methodName, label) {
@@ -309,149 +422,58 @@ describe("compatibility", function () {
 
     describe("Function", function () {
 
-        it("allows creating function with parameters", function () {
-            /*jshint -W064*/
-            /*jshint -W061*/
-            var thisName = Function("value", "return value;"); //eslint-disable-line no-new-func
-            /*jshint +W061*/
-            /*jshint +W064*/
-            assert("function" === typeof thisName);
-            assert(1 === thisName.length);
-            assert(123 === thisName(123));
+        describe("default support", function () {
+
+            it("allows creating function with parameters", function () {
+                /*jshint -W064*/
+                /*jshint -W061*/
+                var thisName = Function("value", "return value;"); //eslint-disable-line no-new-func
+                /*jshint +W061*/
+                /*jshint +W064*/
+                assert("function" === typeof thisName);
+                assert(1 === thisName.length);
+                assert(123 === thisName(123));
+            });
+
+            it("should detect undefined parameter", function () {
+                function testFunction (expected) {
+                    assert(arguments.length === expected);
+                }
+                testFunction(1);
+                testFunction(2, "abc");
+                testFunction(2, undefined);
+                testFunction(3, undefined, undefined);
+            });
+
         });
 
-        it("exposes a name", function () {
-            function thisName () {}
-            assert(thisName.compatibleName() === "thisName");
-        });
+        describe("name support", function () {
 
-        it("should detect undefined parameter", function () {
-            function testFunction (expected) {
-                assert(arguments.length === expected);
+            it("exposes a name", function () {
+                function thisName () {}
+                assert(thisName.compatibleName() === "thisName");
+            });
+
+            if (gpf.internals && Function.prototype.compatibleName !== gpf.internals._gpfGetFunctionName) {
+
+                var _gpfGetFunctionName = gpf.internals._gpfGetFunctionName;
+
+                it("exposes a name (compatible)", function () {
+                    function thisName () {}
+                    assert(_gpfGetFunctionName.apply(thisName, []) === "thisName");
+                });
+
             }
-            testFunction(1);
-            testFunction(2, "abc");
-            testFunction(2, undefined);
-            testFunction(3, undefined, undefined);
+
         });
 
-        it("should expose bind(thisArg)", function () {
-            var scope = {
-                    member: null
-                },
-                bound;
-            /**
-             * Will be bound
-             *
-             * @param value
-             * @this bound scope
-             */
-            function testFunction (value) {
-                /*jshint validthis:true*/
-                assert(this === scope);
-                this.member = value;
-            }
-            assert("function" === typeof testFunction.bind);
-            assert(!testFunction.hasOwnProperty("bind"));
-            bound = testFunction.bind(scope);
-            // Check the scope when calling bound
-            bound(true);
-            assert(true === scope.member);
-            // Ignore applied scope when bound
-            bound.apply({}, [false]);
-            assert(false === scope.member);
-        });
+        declare("Function");
 
     });
 
     describe("Object", function () {
 
-        describe("create", function () {
-
-            it("should expose create()", function () {
-                assert("function" === typeof Object.create);
-                assert(2 === Object.create.length || 1 === Object.create.length);
-            });
-
-            it("allows creating objects with a given prototype", function () {
-                var object = Object.create({
-                    method: function () {
-                        return "myMethod";
-                    }
-                });
-                assert(!object.hasOwnProperty("method"));
-                assert("function" === typeof object.method);
-                assert(object.method() === "myMethod");
-            });
-
-            it("works with instanceof", function () {
-                function A () {
-                }
-                A.prototype = {
-                    a: function () {
-                        return "a";
-                    }
-                };
-                var a = Object.create(A.prototype);
-                assert(a.a() === "a");
-                assert(a instanceof A);
-            });
-
-            it("allows inheritance and use of instanceof", function () {
-                function A () {
-                }
-                A.prototype = {
-                    a: function () {
-                        return "a";
-                    }
-                };
-                function B () {
-                }
-                B.prototype = new A();
-                var b = Object.create(B.prototype);
-                assert(b.a() === "a");
-                assert(b instanceof A);
-                assert(b instanceof B);
-            });
-
-            // Not implemented and don't want to use
-            it("allows to define properties");
-
-        });
-
-        describe("getPrototypeOf", function () {
-
-            it("should expose getPrototypeOf()", function () {
-                assert("function" === typeof Object.getPrototypeOf);
-                assert(1 === Object.getPrototypeOf.length);
-            });
-
-            it("returns prototype passed to Object.create", function () {
-                var proto,
-                    object;
-                proto = {
-                    a: function () {
-                        return "a";
-                    }
-                };
-                object = Object.create(proto);
-                assert(Object.getPrototypeOf(object) === proto);
-            });
-
-            it("returns prototype from constructor", function () {
-                function A () {
-                }
-                A.prototype = {
-                    constructor: A, // required for cscript
-                    a: function () {
-                        return "a";
-                    }
-                };
-                var a = new A();
-                assert(Object.getPrototypeOf(a) === A.prototype);
-            });
-
-        });
+        declare("Object");
 
     });
 
