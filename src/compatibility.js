@@ -168,6 +168,7 @@ var _gpfCompatibility = {
                 if (name === "on") {
                     continue;
                 }
+                /* istanbul ignore if */ // NodeJS environment already contains all methods
                 if (undefined === dictionary[name]) {
                     dictionary[name] = methods[name];
                 }
@@ -193,7 +194,7 @@ var _gpfGetFunctionName = (function () {
     return function () {
         // Use simple parsing as a first step
         // TODO leverage JS parser to implement this properly
-        var functionSource = Function.prototype.toString.apply(this),
+        var functionSource = Function.prototype.toString.apply(this), //eslint-disable-line no-invalid-this
             functionKeywordPos = functionSource.indexOf("function"),
             parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
         return functionSource
@@ -205,7 +206,9 @@ var _gpfGetFunctionName = (function () {
 }());
 
 // Handling function name properly
+/* istanbul ignore if */ // NodeJS exposes Function.prototype.name
 if ((function () {
+    /* istanbul ignore next */ // Will never be evaluated
     function functionName () {}
     return functionName.name !== "functionName";
 })()) {
