@@ -8,8 +8,10 @@
 /*global _GPF_FS_TYPE_NOT_FOUND*/ // _GPF_FS_TYPE_NOT_FOUND
 /*global _GPF_FS_TYPE_UNKNOWN*/ // _GPF_FS_TYPE_UNKNOWN
 /*global _gpfCreateConstants*/
+/*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*global _gpfGetBootstrapMethod*/ // Create a method that contains a bootstrap (called only once)
 /*global _gpfI*/ // gpf.interfaces
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*exported _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
@@ -121,29 +123,6 @@ function _gpfFsBuildFindMethod (iFileStorage) {
 
 }
 
-
-var /**
-     * @inheritdoc gpf.fs#find
-     *
-     * Critical section to avoid binding to host on each call
-     */
-    _gpfFsFindBoundToHost;
-
-/**
- * @inheritdoc gpf.fs#find
- *
- * This function (on first execution) updates gpf.fs.find
- * @this gpf.fs
- */
-function _gpfFsFind (basePath, filters, eventsHandler) {
-    /*jshint validthis:true*/
-    _gpfIgnore(basePath, filters, eventsHandler); // Will be used as arguments
-    if (!_gpfFsFindBoundToHost) {
-        _gpfFsFindBoundToHost = gpf.fs.find = _gpfFsBuildFindMethod(gpf.fs.host());
-    }
-    return _gpfFsFindBoundToHost.apply(this, arguments);
-}
-
 gpf.fs = {
 
     /**
@@ -168,9 +147,13 @@ gpf.fs = {
      *
      * @event gpf.events.EVENT_END_OF_DATA
      */
-    find: _gpfFsFind
+    find: _gpfEmptyFunc
 
 };
+
+_gpfGetBootstrapMethod("gpf.fs.find", function () {
+    return _gpfFsBuildFindMethod(gpf.fs.host());
+})
 
 _gpfCreateConstants(gpf.fs, {
     TYPE_NOT_FOUND: _GPF_FS_TYPE_NOT_FOUND,
@@ -178,3 +161,10 @@ _gpfCreateConstants(gpf.fs, {
     TYPE_DIRECTORY: _GPF_FS_TYPE_DIRECTORY,
     TYPE_UNKNOWN: _GPF_FS_TYPE_UNKNOWN
 });
+
+/*#ifndef(UMD)*/
+
+gpf.internals._gpfFsExploreEnumerator = _gpfFsExploreEnumerator;
+gpf.internals._gpfFsBuildFindMethod = _gpfFsBuildFindMethod;
+
+/*#endif*/
