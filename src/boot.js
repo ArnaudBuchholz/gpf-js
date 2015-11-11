@@ -231,22 +231,21 @@ function _gpfContext (path, createMissingParts) {
  * Create a method that contains a bootstrap (called only once)
  *
  * @param {String} path method path
- * @param {Function} bootstrap
- * @param {Function} methodFactory Must return a function
+ * @param {Function} methodFactory Must return a function (it receives the path as parameter)
  * @return {function}
  * @closure
  */
-function _gpfGetBootstrapMethod (path, bootstrap, methodFactory) {
+function _gpfGetBootstrapMethod (path, methodFactory) {
     path = path.split(".");
     var name = path.pop(),
         namespace = _gpfContext(path, true),
         mustBootstrap = true,
         method;
+    // The initial method is protected as the caller may keep its reference
     namespace[name] = function () {
         /* istanbul ignore else */ // Because that's the idea (shouldn't be called twice)
         if (mustBootstrap) {
-            bootstrap();
-            method = methodFactory();
+            method = methodFactory(path);
             namespace[name] = method;
             mustBootstrap = false;
         }
