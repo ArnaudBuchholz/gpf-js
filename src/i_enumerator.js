@@ -44,6 +44,7 @@ _gpfErrorDeclare("i_enumerator", {
  * The processing function requested to stop enumeration
  */
 // TODO how to put attributes on static members?
+// TODO secure callback to throw an ERROR event if any exception occur
 // "[each]": [gpf.$ClassEventHandler()],
 function _gpfEnumeratorEach (enumerator, callback, eventsHandler) {
     var iEnumerator = _gpfI.query(enumerator, _gpfI.IEnumerator),
@@ -81,6 +82,33 @@ function _gpfEnumeratorEach (enumerator, callback, eventsHandler) {
             callback(iEnumerator.current());
         }
     }
+}
+
+/**
+ * Builds an enumerable interface based on an array
+ *
+ * @param {Object[]} array Base of the enumeration
+ * @return {Object} Object implementing the IEnumerable interface
+ */
+function _gpfArrayEnumerator (array) {
+    var pos = -1;
+    return {
+        reset: function () {
+            pos = -1;
+        },
+        moveNext: function (eventsHandler) {
+            var result;
+            ++pos;
+            result = pos < array.length;
+            if (!result && eventsHandler) {
+                _gpfEventsFire.apply(this, [_GPF_EVENT_END_OF_DATA, {}, eventsHandler]);
+            }
+            return result;
+        },
+        current: function () {
+            return array[pos];
+        }
+    };
 }
 
 /* istanbul ignore next */ // Interface
@@ -134,38 +162,14 @@ _gpfDefIntrf("IEnumerator", {
     "~": {
 
         // @inheritdoc _gpfEnumeratorEach
-        each: _gpfEnumeratorEach
+        each: _gpfEnumeratorEach,
+
+        // @inheritdoc _gpfArrayEnumerator
+        fromArray: _gpfArrayEnumerator
 
     }
 
 });
-
-/**
- * Builds an enumerable interface based on an array
- *
- * @param {Object[]} array Base of the enumeration
- * @return {Object} Object implementing the IEnumerable interface
- */
-function _gpfArrayEnumerator (array) {
-    var pos = -1;
-    return {
-        reset: function () {
-            pos = -1;
-        },
-        moveNext: function (eventsHandler) {
-            var result;
-            ++pos;
-            result = pos < array.length;
-            if (!result && eventsHandler) {
-                _gpfEventsFire.apply(this, [_GPF_EVENT_END_OF_DATA, {}, eventsHandler]);
-            }
-            return result;
-        },
-        current: function () {
-            return array[pos];
-        }
-    };
-}
 
 /**
  * Interface builder that connects to the EnumerableAttribute attribute
