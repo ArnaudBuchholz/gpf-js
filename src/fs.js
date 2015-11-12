@@ -13,7 +13,6 @@
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfGetBootstrapMethod*/ // Create a method that contains a bootstrap (called only once)
 /*global _gpfI*/ // gpf.interfaces
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*exported _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
 /*#endif*/
 
@@ -30,7 +29,7 @@ _gpfErrorDeclare("fs", {
  * @return {gpf.interfaces.IEnumerator}
  */
 function _gpfFsExploreEnumerator (iFileStorage, listOfPaths) {
-    var pos = 0,
+    var pos = -1,
         info;
     // Secure the array by creating a copy
     listOfPaths = [].concat(listOfPaths);
@@ -153,7 +152,7 @@ gpf.fs = {
 
 _gpfGetBootstrapMethod("gpf.fs.find", function () {
     return _gpfFsBuildFindMethod(gpf.fs.host());
-})
+});
 
 _gpfCreateConstants(gpf.fs, {
     TYPE_NOT_FOUND: _GPF_FS_TYPE_NOT_FOUND,
