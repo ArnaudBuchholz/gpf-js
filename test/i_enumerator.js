@@ -246,4 +246,24 @@ describe("i_enumerator", function () {
 
     });
 
+    describe("IEnumerator.fromArray", function () {
+
+        it("encapsulates an array into an IEnumerator interface", function () {
+            var enumerator = gpfI.IEnumerator.fromArray([1, 2, 3]);
+            assert(null !== enumerator);
+            enumerator.reset();
+            assert(true === enumerator.moveNext());
+            assert(1 === enumerator.current());
+            assert(true === enumerator.moveNext());
+            assert(2 === enumerator.current());
+            assert(true === enumerator.moveNext());
+            assert(3 === enumerator.current());
+            assert(false === enumerator.moveNext());
+            enumerator.reset();
+            assert(true === enumerator.moveNext());
+            assert(1 === enumerator.current());
+        });
+
+    });
+
 });
