@@ -7,103 +7,177 @@
 
 describe("fs", function () {
 
-    if (gpf.internals) {
-
-        function notImplemented (path, eventsHandler) {
-            gpf.events.fire(gpf.events.EVENT_ERROR, {
-                error: gpf.error.notImplemented()
-            }, eventsHandler);
-            return path; // so that it is used
+    var testFolder = {
+        data: {
+            "file.bin": {
+                _size: 256
+            }
         }
+    };
 
-        function getFromPath (path) {
-            var parts = path.split("/"),
-                item = testFolder,
-                filePath,
-                fileName;
-            if (parts.shift() !== "test") {
+    function notImplemented (path, eventsHandler) {
+        gpf.events.fire(gpf.events.EVENT_ERROR, {
+            error: gpf.error.notImplemented()
+        }, eventsHandler);
+        return path; // so that it is used
+    }
+
+    function checkFileInfo (item, filePath) {
+        var fileName = filePath.split("/").pop(),
+            fileInfo;
+        if (undefined === item._fileInfo) {
+            fileInfo = item._fileInfo = {
+                fileName: fileName,
+                filePath: filePath,
+                createdDateTime: new Date(),
+                modifiedDateTime: new Date()
+            };
+            if (item._size) {
+                fileInfo.type = gpf.fs.TYPE_FILE;
+                fileInfo.size = item._size;
+                delete item._size;
+            } else {
+                fileInfo.type = gpf.fs.TYPE_FOLDER;
+                fileInfo.size = 0;
+            }
+        }
+    }
+
+    function getFromPath (path) {
+        var parts = path.split("/"),
+            item = testFolder,
+            filePath,
+            fileName;
+        if (parts.shift() !== "test") {
+            return undefined;
+        }
+        filePath = "test";
+        while (0 < parts.length) {
+            fileName = parts[0];
+            if ("object" === typeof item[fileName]) {
+                parts.shift();
+                item = item[fileName];
+                filePath = filePath + "/" + fileName;
+                checkFileInfo(item, filePath);
+            } else {
                 return undefined;
             }
-            filePath = "test";
-            while (0 < parts.length) {
-                fileName = parts[0];
-                if ("object" === item[fileName]) {
-                    parts.shift();
-                    item = item[fileName];
-                    filePath = filePath + "/" + fileName;
-                    if (undefined === item._fileInfo) {
-                        item._fileInfo = {
-                            fileName: fileName,
-                            filePath = filePath,
-                            createdDateTime: new Date(),
-                            modifiedDateTime: new Date()
-                        };
-                        if (file._size) {
-                            delete file._size;
-                            fileInfo.type = gpf.fs.TYPE_FILE;
-                            fileInfo.size = file._size;
-                        } else {
-                            fileInfo.type = gpf.fs.TYPE_FOLDER;
-                            fileInfo.size = 0;
-                        }
-                    }
-                } else {
-                    return undefined;
+        }
+        return item;
+    }
+
+    function getChildrenList (filePath) {
+        var item = getFromPath(filePath),
+            fileName,
+            result = [];
+        if (undefined !== item) {
+            for (fileName in item) {
+                if (item.hasOwnProperty(fileName) && "_fileInfo" !== fileName) {
+                    checkFileInfo(item[fileName], filePath + "/" + fileName);
+                    result.push(filePath + "/" + fileName);
                 }
             }
-            return item;
         }
+        return result;
+    }
 
-        var testFolder = {
-                data: {
-                    "file.bin": {
-                        _size: 256
-                    }
-                }
-            },
+    var testStorage = {
 
-            testStorage = {
+        getInfo: function (path, eventsHandler) {
+            var file = getFromPath(path),
+                fileInfo;
+            if (undefined === file) {
+                fileInfo = {
+                    type: gpf.fs.TYPE_NOT_FOUND
+                };
+            }  else {
+                fileInfo = file._fileInfo;
+            }
+            gpf.events.fire(gpf.events.EVENT_READY, {info: fileInfo}, eventsHandler);
+        },
 
-                getInfo: function (path, eventsHandler) {
-                    var file = getFromPath(path),
-                        fileInfo;
-                    if (undefined === file) {
-                        fileInfo = {
-                            type: gpf.fs.TYPE_NOT_FOUND
-                        };
-                    }  else {
-                        fileInfo = file._fileInfo;
-                    }
-                    gpf.events.fire(gpf.events.EVENT_READY, {fileInfo: fileInfo}, eventsHandler);
-                },
+        readAsBinaryStream: notImplemented,
+        writeAsBinaryStream: notImplemented,
+        close: notImplemented,
 
-                readAsBinaryStream: notImplemented,
-                writeAsBinaryStream: notImplemented,
-                close: notImplemented,
+        explore: function (path, eventsHandler) {
+            // Force error to check error handlin
+            gpf.events.fire(gpf.events.EVENT_READY, {
+                enumerator: gpf.internals._gpfFsExploreEnumerator(this, getChildrenList(path))
+            }, eventsHandler);
+        },
 
-                explore: function (path, eventsHandler) {
+        createFolder: notImplemented,
+        deleteFile: notImplemented,
+        deleteFolder: notImplemented
 
-                },
+    };
 
-                createFolder: notImplemented,
-                deleteFile: notImplemented,
-                deleteFolder: notImplemented
-
-            };
+    if (gpf.internals) {
 
         describe("(internal)", function () {
 
             describe("_gpfFsExploreEnumerator", function () {
 
-                var _gpfFsExploreEnumerator = gpf.internals._gpfFsExploreEnumerator;
+                it("helps building explore functions", function (done) {
+                    testStorage.explore("test/data", function (event) {
+                        try {
+                            assert(gpf.events.EVENT_READY === event.type);
+                            var enumerator = event.get("enumerator");
+                            assert(true === gpf.interfaces.isImplementedBy(enumerator, gpf.interfaces.IEnumerator));
+                            done();
+                        } catch (e) {
+                            done(e);
+                        }
+                    });
+                });
 
-                it("exists");
+                it("supports reset");
+
+                it("forwards errors");
+
+                it("automates calling getInfo from file path", function (done) {
+                    var results = [];
+                    function endEnumCallback (event) {
+                        try {
+                            assert(gpf.events.EVENT_END_OF_DATA === event.type);
+                            assert(1 === results.length);
+                            done();
+                        } catch (e) {
+                            done(e);
+                        }
+                    }
+                    testStorage.explore("test/data", function (event) {
+                        try {
+                            assert(gpf.events.EVENT_READY === event.type);
+                            var enumerator = event.get("enumerator");
+                            gpf.interfaces.IEnumerator.each(enumerator, function (fileInfo) {
+                                try {
+                                    assert("number" === typeof fileInfo.type);
+                                    assert("string" === typeof fileInfo.fileName);
+                                    assert("string" === typeof fileInfo.filePath);
+                                    assert("number" === typeof fileInfo.size);
+                                    assert(null === fileInfo.createdDateTime
+                                           || fileInfo.createdDateTime instanceof Date);
+                                    assert(null === fileInfo.modifiedDateTime
+                                           || fileInfo.modifiedDateTime instanceof Date);
+                                    results.push(fileInfo);
+                                } catch (e) {
+                                    done(e);
+                                }
+
+                            }, endEnumCallback);
+                        } catch (e) {
+                            done(e);
+                        }
+                    });
+                });
 
             });
 
-            describe("_gpfFsExploreEnumerator", function () {
+            describe("_gpfFsBuildFindMethod", function () {
 
-                var _gpfFsBuildFindMethod = gpf.internals._gpfFsBuildFindMethod;
+                // var _gpfFsBuildFindMethod = gpf.internals._gpfFsBuildFindMethod;
 
                 it("exists");
 
