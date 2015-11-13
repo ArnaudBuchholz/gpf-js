@@ -100,12 +100,12 @@ describe("fs", function () {
         writeAsBinaryStream: notImplemented,
         close: notImplemented,
 
-        explore: function (path, eventsHandler) {
+        explore: gpf.events.wrap(function (path, eventsHandler) {
             // Force error to check error handlin
             gpf.events.fire(gpf.events.EVENT_READY, {
                 enumerator: gpf.internals._gpfFsExploreEnumerator(this, getChildrenList(path))
             }, eventsHandler);
-        },
+        }),
 
         createFolder: notImplemented,
         deleteFile: notImplemented,
@@ -132,7 +132,20 @@ describe("fs", function () {
                     });
                 });
 
-                it("supports reset");
+                it("supports reset"/*, function (done) {
+                    testStorage.explore("test/data", function (event) {
+                        try {
+                            assert(gpf.events.EVENT_READY === event.type);
+                            var enumerator = event.get("enumerator");
+
+                            assert(true === gpf.interfaces.isImplementedBy(enumerator, gpf.interfaces.IEnumerator));
+                            done();
+                        } catch (e) {
+                            done(e);
+                        }
+                    });
+
+                }*/);
 
                 it("forwards errors");
 
