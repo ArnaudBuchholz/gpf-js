@@ -101,9 +101,11 @@ describe("fs", function () {
         close: notImplemented,
 
         explore: gpf.events.wrap(function (path, eventsHandler) {
-            // Force error to check error handlin
+            // Force error to check error handling
+            var list = getChildrenList(path),
+                enumerator = gpf.internals._gpfFsExploreEnumerator(this, list); //eslint-disable-line no-invalid-this
             gpf.events.fire(gpf.events.EVENT_READY, {
-                enumerator: gpf.internals._gpfFsExploreEnumerator(this, getChildrenList(path))
+                enumerator: enumerator
             }, eventsHandler);
         }),
 
