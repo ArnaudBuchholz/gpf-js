@@ -199,7 +199,7 @@ function _gpfStringEscapeFor (that, language) {
  * @param {Object|Function} dictionary
  * @return {String}
  */
-function _gpfGetTemplateBody (template, dictionary, signature) {
+function _gpfGetTemplateBody (template, dictionary) {
     var replacements,
         src,
         start,
