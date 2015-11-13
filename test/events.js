@@ -295,4 +295,10 @@ describe("events", function () {
 
     });
 
+    describe("gpf.events.asPromise", function () {
+
+        it("converts an event handler function into a promise");
+
+    });
+
 });
