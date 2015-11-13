@@ -8,10 +8,14 @@
 /*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
 /*global _GPF_EVENT_STOP*/ // gpf.events.EVENT_STOP
 /*global _GPF_EVENT_STOPPED*/ // gpf.events.EVENT_STOPPED
+/*global _gpfArraySlice*/ // Slice an array-like object
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfCreateConstants*/
 /*global _GpfDeferredPromise*/ // Deferred promise
+/*global _GpfDeferredPromise*/ // Deferred promise
 /*global _gpfEmptyFunc*/ // An empty function
+/*global _gpfFunc*/ // Create a new function using the source
+/*global _gpfGetTemplateBody*/ // Function templating helper
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*exported _gpfEventsFire*/
@@ -185,6 +189,46 @@ gpf.events.fire = function (event, params, eventsHandler) {
     }
     return _gpfEventsFire.apply(scope, [event, params, eventsHandler]);
 };
+
+/*global __LAST_PARAM_INDEX__*/
+function _gpfEventsPromiseWrapper () {
+    /*jshint validthis: true*/
+    var method = arguments[0];
+    return function __NAME__ (__PARAM_LIST__) {
+        _gpfIgnore(__PARAM_LIST__);
+        var args = _gpfArraySlice(arguments),
+            deferred;
+        if (undefined === args[__LAST_PARAM_INDEX__]) {
+            deferred = new _GpfDeferredPromise();
+            args[__LAST_PARAM_INDEX__] = function (event) {
+                if (_GPF_EVENT_ERROR === event.type) {
+                    deferred.reject(event);
+                } else {
+                    deferred.resolve(event);
+                }
+            };
+        }
+        method.apply(this, args);
+        if (deferred) {
+            return deferred.promise;
+        }
+    };
+}
+
+/**
+ * Wraps a function that signals events so that it can be used with promises (by letting the eventHandler parameter
+ * undefined).
+ *
+ * @param {Function} eventHandlingMethod last parameter of this function must be an eventHandler
+ * @return {Function} with the same name and signature
+ */
+function _gpfEventsWrap (eventHandlingMethod) {
+    // To ensure interfaces compatibility, we need to create a method that mimics the wrapped one properties
+    return _gpfFunc(_gpfGetTemplateBody(_gpfEventsPromiseWrapper, eventHandlingMethod))(eventHandlingMethod);
+}
+
+// @inheritdoc _gpfEventsWrap
+gpf.events.wrap = _gpfEventsWrap;
 
 _gpfCreateConstants(gpf.events, {
     EVENT_ANY: _GPF_EVENT_ANY,
