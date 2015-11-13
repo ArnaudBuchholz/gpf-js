@@ -100,14 +100,20 @@ describe("fs", function () {
         writeAsBinaryStream: notImplemented,
         close: notImplemented,
 
-        explore: gpf.events.wrap(function (path, eventsHandler) {
+        explore: function (path, eventsHandler) {
+            if ("string" !== typeof path) {
+                gpf.events.fire(gpf.events.EVENT_ERROR, {
+                    error: gpf.Error.invalidParameter()
+                }, eventsHandler);
+                return;
+            }
             // Force error to check error handling
             var list = getChildrenList(path),
                 enumerator = gpf.internals._gpfFsExploreEnumerator(this, list); //eslint-disable-line no-invalid-this
             gpf.events.fire(gpf.events.EVENT_READY, {
                 enumerator: enumerator
             }, eventsHandler);
-        }),
+        },
 
         createFolder: notImplemented,
         deleteFile: notImplemented,
@@ -122,34 +128,78 @@ describe("fs", function () {
             describe("_gpfFsExploreEnumerator", function () {
 
                 it("helps building explore functions", function (done) {
-                    testStorage.explore("test/data", function (event) {
-                        try {
+                    gpf.events.asPromise(function (eventHandler) {
+                        testStorage.explore("test/data", eventHandler);
+                    })
+                        .then(function (event) {
                             assert(gpf.events.EVENT_READY === event.type);
                             var enumerator = event.get("enumerator");
                             assert(true === gpf.interfaces.isImplementedBy(enumerator, gpf.interfaces.IEnumerator));
                             done();
-                        } catch (e) {
-                            done(e);
-                        }
-                    });
+
+                        })["catch"](function (reason) {
+                            done(reason);
+                        });
                 });
 
-                it("supports reset"/*, function (done) {
-                    testStorage.explore("test/data", function (event) {
-                        try {
+                it("supports reset", function (done) {
+                    var enumerator,
+                        firstFileInfo;
+                    gpf.events.asPromise(function (eventHandler) {
+                        testStorage.explore("test/data", eventHandler);
+                    })
+                        .then(function (event) {
                             assert(gpf.events.EVENT_READY === event.type);
-                            var enumerator = event.get("enumerator");
-
-                            assert(true === gpf.interfaces.isImplementedBy(enumerator, gpf.interfaces.IEnumerator));
+                            enumerator = event.get("enumerator");
+                            // Move to first item in the enumeration
+                            enumerator.reset();
+                            return gpf.events.asPromise(function (eventHandler) {
+                                if (enumerator.moveNext(eventHandler)) {
+                                    gpf.fire.event(gpf.events.EVENT_DATA, eventHandler);
+                                }
+                            });
+                        })
+                        .then(function (event) {
+                            assert(gpf.events.EVENT_DATA === event.type);
+                            // First file info obtained
+                            firstFileInfo = enumerator.current();
+                            assert(null !== firstFileInfo);
+                            // Back to first item in the enumeration
+                            enumerator.reset();
+                            return gpf.events.asPromise(function (eventHandler) {
+                                if (enumerator.moveNext(eventHandler)) {
+                                    gpf.fire.event(gpf.events.EVENT_DATA, eventHandler);
+                                }
+                            });
+                        })
+                        .then(function (event) {
+                            assert(gpf.events.EVENT_DATA === event.type);
+                            // Check that it is the same
+                            assert(firstFileInfo === enumerator.current());
                             done();
-                        } catch (e) {
-                            done(e);
-                        }
-                    });
 
-                }*/);
+                        })["catch"](function (reason) {
+                            done(reason);
+                        });
+                });
 
-                it("forwards errors");
+                it("forwards errors", function (done) {
+                    gpf.events.asPromise(function (eventHandler) {
+                        testStorage.explore(null, eventHandler);
+                    })
+                        .then(function (event) {
+                            assert(gpf.events.EVENT_ERROR !== event.type);
+
+                        })["catch"](function (reason) {
+                            try {
+                                assert(gpf.events.EVENT_ERROR === reason.type);
+                                done();
+
+                            } catch (e) {
+                                done(e);
+                            }
+                        });
+                });
 
                 it("automates calling getInfo from file path", function (done) {
                     var results = [];
