@@ -421,6 +421,46 @@ describe("promise", function () {
 
         });
 
+        describe("branching", function () {
+
+            it("supports different branches", function (done) {
+                var deferred = {};
+                deferred.promise = new PromiseClass(function (resolve, reject) {
+                    deferred.resolve = resolve;
+                    deferred.reject = reject;
+                });
+                // branch 1
+                var branch1 = deferred.promise
+                    .then(function (value) {
+                        return value + 1;
+                    })
+                    .then(function (value) {
+                        return value + 2;
+                    })
+                    .then(function (value) {
+                        return value + 3;
+                    });
+                // branch 2
+                var branch2 = deferred.promise
+                    .then(function (value) {
+                        return 2 * value;
+                    })
+                    .then(function (value) {
+                        return 3 * value;
+                    });
+                PromiseClass.all([branch1, branch2])
+                    .then(function (values) {
+                        assert(7 === values[0]);
+                        assert(6 === values[1]);
+                        done();
+                    })["catch"](function (e) {
+                        done(e);
+                    });
+                deferred.resolve(1);
+            });
+
+        });
+
     }
 
     describe("Promise", function () {
