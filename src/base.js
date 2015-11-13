@@ -7,6 +7,7 @@
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfWebWindow*/ // Browser window object
 /*exported _gpfExtend*/
+/*exported _gpfGetTemplateBody*/
 /*exported _gpfIsArrayLike*/
 /*exported _gpfNodeBuffer2JsArray*/
 /*exported _gpfObjectForEach*/
@@ -181,6 +182,42 @@ function _gpfStringEscapeFor (that, language) {
         that = "\"" + that + "\"";
     }
     return that;
+}
+
+//endregion
+
+//region Function templating helper
+
+/**
+ * Extract the body of the template function and apply specified replacements.
+ * If dictionary is a function the following replacements are extracted:
+ * __NAME__ function name
+ * __PARAM_LIST__ a fake list of parameters (a, b, c...) matching function length
+ * __LAST_PARAM_INDEX__ last parameter index of the function
+ *
+ * @param {Function} template
+ * @param {Object|Function} dictionary
+ * @return {String}
+ */
+function _gpfGetTemplateBody (template, dictionary, signature) {
+    var replacements,
+        src,
+        start,
+        end;
+    if ("function" === typeof dictionary) {
+        replacements = {};
+        replacements.__NAME__ = dictionary.compatibleName();
+        replacements.__PARAM_LIST__ = "abc".substr(0, dictionary.length).split("").join(",");
+        replacements.__LAST_PARAM_INDEX__ = dictionary.length - 1;
+    } else {
+        replacements = dictionary;
+    }
+    src = template.toString();
+    // Extract body
+    start = src.indexOf("{") + 1;
+    end = src.lastIndexOf("}") - 1;
+    src = src.substr(start, end - start + 1);
+    return _gpfStringReplaceEx(src, replacements);
 }
 
 //endregion

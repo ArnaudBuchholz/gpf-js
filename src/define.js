@@ -8,6 +8,7 @@
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunc*/ // Create a new function using the source
+/*global _gpfGetTemplateBody*/ // Function templating helper
 /*global _gpfHost*/ // Host type
 /*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
@@ -18,7 +19,7 @@
 /*exported _gpfEncodeAttributeMember*/
 /*exported _gpfGenDefHandler*/
 /*exported _gpfGetClassDefinition*/
-/*#endif*/
+// /*#endif*/
 
 _gpfErrorDeclare("define", {
     "classMemberOverloadWithTypeChange":
@@ -69,7 +70,7 @@ function _gpfClassConstructorTpl () {
         /**
          * @this created object
          */
-        constructor = function /* name will be injected here */ () { //eslint-disable-line func-style
+        constructor = function __NAME__ () { //eslint-disable-line func-style
             if (classDef.constructionAllowed()) {
                 classDef._resolvedConstructor.apply(this, arguments);
             }
@@ -84,16 +85,9 @@ function _gpfClassConstructorTpl () {
  * @return {String}
  */
 function _gpfNewClassConstructorSrc (name) {
-    var
-        src = _gpfClassConstructorTpl.toString(),
-        start,
-        end;
-    // Extract body
-    start = src.indexOf("{") + 1;
-    end = src.lastIndexOf("}") - 1;
-    src = src.substr(start, end - start + 1);
-    // Inject name of the function
-    return src.replace("function", "function " + name);
+    return _gpfGetTemplateBody(_gpfClassConstructorTpl, {
+        __NAME__: name
+    });
 }
 
 //endregion
