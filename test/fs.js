@@ -13,8 +13,22 @@ describe("fs", function () {
                 _size: 256
             }
         },
+        unknown: {
+            sub: {
+                unknownType: {
+                    _fileInfo: {
+                        type: gpf.fs.TYPE_UNKNOWN,
+                        size: 0,
+                        fileName: "unknownType",
+                        filePath: "test/error/unknownType",
+                        createdDateTime: new Date(),
+                        modifiedDateTime: new Date()
+                    }
+                }
+            }
+        },
         error: {
-            "noFileInfo": {
+            noFileInfo: {
                 _fileInfo: null
             }
         }
@@ -42,7 +56,7 @@ describe("fs", function () {
                 fileInfo.size = item._size;
                 delete item._size;
             } else {
-                fileInfo.type = gpf.fs.TYPE_FOLDER;
+                fileInfo.type = gpf.fs.TYPE_DIRECTORY;
                 fileInfo.size = 0;
             }
         }
@@ -57,6 +71,7 @@ describe("fs", function () {
             return undefined;
         }
         filePath = "test";
+        checkFileInfo(item, filePath);
         while (0 < parts.length) {
             fileName = parts[0];
             if ("object" === typeof item[fileName]) {
@@ -237,6 +252,20 @@ describe("fs", function () {
                         });
                 });
 
+                it("provides an asynchronous enumerator", function (done) {
+                    gpf.events.getPromiseHandler(function (eventHandler) {
+                        testStorage.explore("test/error", eventHandler);
+                    })
+                        .then(function (event) {
+                            assert(gpf.events.EVENT_READY === event.type);
+                            var enumerator = event.get("enumerator");
+                            assert(false === enumerator.moveNext());
+                            done();
+                        })["catch"](function (reason) {
+                            done(reason);
+                        });
+                });
+
                 it("automates calling getInfo from file path", function (done) {
                     var results = [];
                     function endEnumCallback (event) {
@@ -278,9 +307,49 @@ describe("fs", function () {
 
             describe("_gpfFsBuildFindMethod", function () {
 
-                // var _gpfFsBuildFindMethod = gpf.internals._gpfFsBuildFindMethod;
+                var _gpfFsBuildFindMethod = gpf.internals._gpfFsBuildFindMethod,
+                    find;
 
-                it("exists");
+                beforeEach(function () {
+                    find = _gpfFsBuildFindMethod(testStorage);
+                });
+
+                it("builds a find method", function () {
+                    assert("function" === typeof find);
+                    assert(3 === find.length);
+                });
+
+                it("finds files using path matchers", function (done) {
+                    gpf.events.getPromiseHandler(function (eventHandler) {
+                        find("test/data", "*.bin", eventHandler);
+                    })
+                        .then(function (event) {
+                            assert(gpf.events.EVENT_DATA === event.type);
+                            assert("file.bin" === event.get("path"));
+                            done();
+
+                        })["catch"](function (reason) {
+                            done(reason);
+                        });
+                });
+
+                it("forwards errors", function (done) {
+                    gpf.events.getPromiseHandler(function (eventHandler) {
+                        find("test", "*.dat", eventHandler);
+                    })
+                        .then(function (event) {
+                            assert(gpf.events.EVENT_ERROR !== event.type);
+
+                        })["catch"](function (reason) {
+                            try {
+                                assert(gpf.events.EVENT_ERROR === reason.type);
+                                done();
+
+                            } catch (e) {
+                                done(e);
+                            }
+                        });
+                });
 
             });
 
