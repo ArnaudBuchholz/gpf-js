@@ -20,7 +20,7 @@ describe("fs", function () {
                         type: gpf.fs.TYPE_UNKNOWN,
                         size: 0,
                         fileName: "unknownType",
-                        filePath: "test/error/unknownType",
+                        filePath: "test/unknown/sub/unknownType",
                         createdDateTime: new Date(),
                         modifiedDateTime: new Date()
                     }
@@ -333,12 +333,12 @@ describe("fs", function () {
                         });
                 });
 
-                it("forwards errors", function (done) {
+                it("forwards errors (initial getInfo)", function (done) {
                     gpf.events.getPromiseHandler(function (eventHandler) {
-                        find("test", "*.dat", eventHandler);
+                        find("test/error/noFileInfo", "*.bin", eventHandler);
                     })
-                        .then(function (event) {
-                            assert(gpf.events.EVENT_ERROR !== event.type);
+                        .then(function (/*event*/) {
+                            assert(false);
 
                         })["catch"](function (reason) {
                             try {
@@ -349,6 +349,27 @@ describe("fs", function () {
                                 done(e);
                             }
                         });
+                });
+
+                it("forwards errors (during enumeration)", function (done) {
+                    var errorRaised = false;
+                    find("test", "*.dat", function (event) {
+                        if (gpf.events.EVENT_ERROR === event.type) {
+                            if (errorRaised) {
+                                done(event);
+                            } else {
+                                errorRaised = true;
+                            }
+
+                        } else if (gpf.events.EVENT_END_OF_DATA === event.type) {
+                            if (errorRaised) {
+                                done();
+                            } else {
+                                done("Error was not raised");
+                            }
+
+                        }
+                    });
                 });
 
             });
