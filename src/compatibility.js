@@ -39,8 +39,9 @@ var _gpfCompatibility = {
         },
 
         // Introduced with JavaScript 1.6
-        filter: function (callback, thisArg) {
-            var result = [],
+        filter: function (callback) {
+            var thisArg = arguments[1],
+                result = [],
                 len = this.length,
                 idx,
                 item;
@@ -54,8 +55,9 @@ var _gpfCompatibility = {
         },
 
         // Introduced with JavaScript 1.6
-        forEach: function (callback, thisArg) {
-            var len = this.length,
+        forEach: function (callback) {
+            var thisArg = arguments[1],
+                len = this.length,
                 idx;
             for (idx = 0; idx < len; ++idx) {
                 callback.apply(thisArg, [this[idx], idx, this]);
@@ -63,8 +65,9 @@ var _gpfCompatibility = {
         },
 
         // Introduced with JavaScript 1.5
-        indexOf: function (searchElement, fromIndex) {
-            var index = fromIndex || 0,
+        indexOf: function (searchElement) {
+            var fromIndex = arguments[1],
+                index = fromIndex || 0,
                 thisLength = this.length;
             while (index < thisLength) {
                 if (this[index] === searchElement) {
@@ -76,8 +79,9 @@ var _gpfCompatibility = {
         },
 
         // Introduced with JavaScript 1.6
-        map: function (callback, thisArg) {
-            var thisLength = this.length,
+        map: function (callback) {
+            var thisArg = arguments[1],
+                thisLength = this.length,
                 result = new Array(thisLength),
                 index;
             for (index = 0; index < thisLength; ++index) {
@@ -87,8 +91,9 @@ var _gpfCompatibility = {
         },
 
         // Introduced with JavaScript 1.8
-        reduce: function (callback, initialValue) {
-            var thisLength = this.length,
+        reduce: function (callback) {
+            var initialValue = arguments[1],
+                thisLength = this.length,
                 index = 0,
                 value;
             if (undefined === initialValue) {
