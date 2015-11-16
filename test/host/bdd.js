@@ -720,7 +720,7 @@
      * Main entry point to run all tests
      *
      * @param {Function} callback see callback examples above
-     * @param {Number} timeoutDelay asynchronous test limit in time
+     * @param {Number} timeoutDelay asynchronous test limit in time (ms)
      */
     context.run = function (callback, timeoutDelay) {
         var runner = new Runner(callback, timeoutDelay);
