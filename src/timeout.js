@@ -2,6 +2,7 @@
 "use strict";
 /*global _GPF_HOST_RHINO*/ // gpf.HOST_RHINO
 /*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfHost*/ // Host type
 /*global _gpfMainContext*/ // Main context object
@@ -31,6 +32,7 @@ function _gpfSortOnDt (a, b) {
 }
 
 function _gpSetTimeoutPolyfill (callback, timeout) {
+    _gpfAssert("number" === typeof timeout, "Timeout is required");
     var timeoutItem = {
         id: ++_gpfTimeoutID,
         dt: new Date(new Date().getTime() + timeout),
