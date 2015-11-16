@@ -54,7 +54,7 @@ describe("timeout", function () {
                 triggered = false;
                 var id = handlers.setTimeout(function () {
                     callback(id);
-                }, 10);
+                }, 20);
                 timeoutId = id;
                 synchronousFlag = true;
             });
@@ -130,7 +130,7 @@ describe("timeout", function () {
                 beforeEach(function () {
                     var id = handlers.setTimeout(function () {
                         fasterCallback(id);
-                    }, 0);
+                    }, 10);
                     fasterTimeoutId = id;
                 });
 
