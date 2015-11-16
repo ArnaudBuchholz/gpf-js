@@ -22,6 +22,7 @@ _gpfErrorDeclare("i_enumerator", {
  * Enumerates all elements of the enumerator and call the callback function.
  *
  * NOTE: reset is *not* called.
+ * NOTE: if an error occurs during the enumeration, the process stops
  *
  * @param {gpf.interfaces.IEnumerator} enumerator
  * @param {Function} callback receive each item of the enumerator, signature is either:
@@ -72,7 +73,7 @@ function _gpfEnumeratorEach (enumerator, callback, eventsHandler) {
     } else {
         process = function (event) {
             if (gpf.events.EVENT_DATA !== event.type) {
-                return end(event.type);
+                return end(event);
             }
             do {
                 callback(iEnumerator.current());
