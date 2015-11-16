@@ -82,7 +82,10 @@ function _gpfFsBuildFindMethod (iFileStorage) {
             _gpfEventsFire(event, params || {}, eventsHandler);
         }
 
-        function _done () {
+        function _done (event) {
+            if (_GPF_EVENT_ERROR === event.type) {
+                _fire(event); // Forward the error
+            }
             if (0 === --pendingCount) {
                 _fire(_GPF_EVENT_END_OF_DATA);
             }
@@ -135,7 +138,9 @@ gpf.fs = {
 
     /**
      * Find and identify files matching the pattern, trigger a file event when a file is found.
-     * The search is recursive and dig through the file hierarchy
+     * The search is recursive and dig through the file hierarchy.
+     *
+     * NOTE: errors might be thrown during the scanning of the folders. wait for END_OF_DATA that signals the real end.
      *
      * @param {String} basePath
      * @param {String[]} filters Patterns (see gpf.path.match) of files to detect
