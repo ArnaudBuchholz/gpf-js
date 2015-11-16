@@ -14,7 +14,7 @@
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
-/*exported _gpfEventsAsPromise*/
+/*exported _gpfEventPromiseHandler*/
 /*exported _gpfEventsFire*/
 /*exported _GpfEvent*/
 /*#endif*/
@@ -195,7 +195,7 @@ gpf.events.fire = function (event, params, eventsHandler) {
  * that must be passed as an event handler.
  * @return {Promise<gpf.events.Event>}
  */
-function _gpfEventsAsPromise (eventHandlingMethod) {
+function _gpfEventPromiseHandler (eventHandlingMethod) {
     var deferred = new _GpfDeferredPromise();
     eventHandlingMethod(function (event) {
         if (_GPF_EVENT_ERROR === event.type) {
@@ -207,8 +207,8 @@ function _gpfEventsAsPromise (eventHandlingMethod) {
     return deferred.promise;
 }
 
-// @inheritdoc _gpfEventsAsPromise
-gpf.events.asPromise = _gpfEventsAsPromise;
+// @inheritdoc _gpfEventPromiseHandler
+gpf.events.PromiseHandler = _gpfEventPromiseHandler;
 
 _gpfCreateConstants(gpf.events, {
     EVENT_ANY: _GPF_EVENT_ANY,

@@ -128,7 +128,7 @@ describe("fs", function () {
             describe("_gpfFsExploreEnumerator", function () {
 
                 it("helps building explore functions", function (done) {
-                    gpf.events.asPromise(function (eventHandler) {
+                    gpf.events.PromiseHandler(function (eventHandler) {
                         testStorage.explore("test/data", eventHandler);
                     })
                         .then(function (event) {
@@ -145,7 +145,7 @@ describe("fs", function () {
                 it("supports reset", function (done) {
                     var enumerator,
                         firstFileInfo;
-                    gpf.events.asPromise(function (eventHandler) {
+                    gpf.events.PromiseHandler(function (eventHandler) {
                         testStorage.explore("test/data", eventHandler);
                     })
                         .then(function (event) {
@@ -153,7 +153,7 @@ describe("fs", function () {
                             enumerator = event.get("enumerator");
                             // Move to first item in the enumeration
                             enumerator.reset();
-                            return gpf.events.asPromise(function (eventHandler) {
+                            return gpf.events.PromiseHandler(function (eventHandler) {
                                 if (enumerator.moveNext(eventHandler)) {
                                     gpf.fire.event(gpf.events.EVENT_DATA, eventHandler);
                                 }
@@ -166,7 +166,7 @@ describe("fs", function () {
                             assert(null !== firstFileInfo);
                             // Back to first item in the enumeration
                             enumerator.reset();
-                            return gpf.events.asPromise(function (eventHandler) {
+                            return gpf.events.PromiseHandler(function (eventHandler) {
                                 if (enumerator.moveNext(eventHandler)) {
                                     gpf.fire.event(gpf.events.EVENT_DATA, eventHandler);
                                 }
@@ -184,7 +184,7 @@ describe("fs", function () {
                 });
 
                 it("forwards errors", function (done) {
-                    gpf.events.asPromise(function (eventHandler) {
+                    gpf.events.PromiseHandler(function (eventHandler) {
                         testStorage.explore(null, eventHandler);
                     })
                         .then(function (event) {
