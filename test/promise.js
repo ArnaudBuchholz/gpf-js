@@ -29,7 +29,7 @@ describe("promise", function () {
                     assert("function" === typeof resolve);
                     setTimeout(function () {
                         resolve("ok");
-                    });
+                    }, 0);
                 })
                     .then(function (value) {
                         assert("ok" === value);
@@ -64,7 +64,7 @@ describe("promise", function () {
                     assert("function" === typeof reject);
                     setTimeout(function () {
                         reject("ko");
-                    });
+                    }, 0);
                 })
                     .then(function () {
                         fulfilled = true;
@@ -101,7 +101,7 @@ describe("promise", function () {
                     assert("function" === typeof reject);
                     setTimeout(function () {
                         reject("ko");
-                    });
+                    }, 0);
                 })
                     .then(function () {
                         assert(false);
@@ -138,7 +138,7 @@ describe("promise", function () {
                     assert("function" === typeof reject);
                     setTimeout(function () {
                         resolve("ok");
-                    });
+                    }, 0);
                 })
                     .then(function (value) {
                         assert("ok" === value);
@@ -160,7 +160,7 @@ describe("promise", function () {
                     assert("function" === typeof reject);
                     setTimeout(function () {
                         reject("ko");
-                    });
+                    }, 0);
                 })
                     .then(function () {
                         assert(false);
@@ -250,7 +250,7 @@ describe("promise", function () {
                         return new PromiseClass(function (resolve/*, reject*/) {
                             setTimeout(function () {
                                 resolve("ok 3");
-                            });
+                            }, 0);
                         });
                     })
                     .then(function (value) {
