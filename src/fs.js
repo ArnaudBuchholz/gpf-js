@@ -106,7 +106,7 @@ function _gpfFsBuildFindMethod (iFileStorage) {
                 filePath = fileInfo.filePath;
                 relativePath = gpf.path.relative(basePath, filePath);
                 if (match(compiledFilters, relativePath)) {
-                    _gpfEventsFire.apply(_GPF_EVENT_DATA, {path: relativePath}, eventsHandler);
+                    _gpfEventsFire(_GPF_EVENT_DATA, {path: relativePath}, eventsHandler);
                 }
             } // other cases are ignored
         }
@@ -134,7 +134,8 @@ gpf.fs = {
     },
 
     /**
-     * Find and identify files matching the pattern, trigger a file event when a file is found
+     * Find and identify files matching the pattern, trigger a file event when a file is found.
+     * The search is recursive and dig through the file hierarchy
      *
      * @param {String} basePath
      * @param {String[]} filters Patterns (see gpf.path.match) of files to detect
@@ -142,7 +143,7 @@ gpf.fs = {
      *
      * @event gpf.events.EVENT_DATA
      * a matching file has been identified
-     * @eventParam {String} path
+     * @eventParam {String} path the path is relative to the basePath
      *
      * @event gpf.events.EVENT_END_OF_DATA
      */
