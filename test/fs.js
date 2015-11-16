@@ -12,6 +12,11 @@ describe("fs", function () {
             "file.bin": {
                 _size: 256
             }
+        },
+        error: {
+            "noFileInfo": {
+                _fileInfo: null
+            }
         }
     };
 
@@ -93,7 +98,11 @@ describe("fs", function () {
             }  else {
                 fileInfo = file._fileInfo;
             }
-            gpf.events.fire(gpf.events.EVENT_READY, {info: fileInfo}, eventsHandler);
+            if (fileInfo) {
+                gpf.events.fire(gpf.events.EVENT_READY, {info: fileInfo}, eventsHandler);
+            } else {
+                gpf.events.fire(gpf.events.EVENT_ERROR, {error: "no file info"}, eventsHandler);
+            }
         },
 
         readAsBinaryStream: notImplemented,
@@ -183,10 +192,37 @@ describe("fs", function () {
                         });
                 });
 
-                it("forwards errors", function (done) {
+                it("forwards errors (from explore)", function (done) {
                     gpf.events.getPromiseHandler(function (eventHandler) {
                         testStorage.explore(null, eventHandler);
                     })
+                        .then(function (event) {
+                            assert(gpf.events.EVENT_ERROR !== event.type);
+
+                        })["catch"](function (reason) {
+                            try {
+                                assert(gpf.events.EVENT_ERROR === reason.type);
+                                done();
+
+                            } catch (e) {
+                                done(e);
+                            }
+                        });
+                });
+
+                it("forwards errors (from getInfo)", function (done) {
+                    gpf.events.getPromiseHandler(function (eventHandler) {
+                        testStorage.explore("test/error", eventHandler);
+                    })
+                        .then(function (event) {
+                            assert(gpf.events.EVENT_READY === event.type);
+                            var enumerator = event.get("enumerator");
+                            return gpf.events.getPromiseHandler(function (eventHandler) {
+                                if (enumerator.moveNext(eventHandler)) {
+                                    gpf.fire.event(gpf.events.EVENT_DATA, eventHandler);
+                                }
+                            });
+                        })
                         .then(function (event) {
                             assert(gpf.events.EVENT_ERROR !== event.type);
 
