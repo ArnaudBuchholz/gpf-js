@@ -9,10 +9,6 @@ A multi-purpose JavaScript library created and maintained by
 
 [Plato analysis](http://arnaudbuchholz.github.io/plato/gpf-js/index.html)
 
-## Huge refactoring in progress
-
-![Work in progress](http://arnaudbuchholz.github.io/blog/wip.png)
-
 ## Features
 
 * Compatible with several hosts
@@ -29,6 +25,21 @@ A multi-purpose JavaScript library created and maintained by
 This library is developed in conjunction with a
 [blog](http://gpf-js.blogspot.com/) where the concepts and algorithms are
 documented and explained.
+
+## Metrics
+
+*this part is automatically updated during the build process*
+
+Metric name | value | comment
+-|-|-
+Code coverage| - | *The code coverage is based on NodeJS tests*
+* Statements | xx% | *xx/xx, xx ignored (xx%)*
+* Branches | xx% | *xx/xx, xx ignored (xx%)*
+* Functions | xx% | *xx/xx, xx ignored (xx%)*
+Average Maintainability|xx.xx| *computed with [plato](http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx)*
+Number of tests|xx|
+Number of modules|xx|
+Lines of Code|xx| *Average per module: xx*
 
 ## Setup
 
@@ -53,9 +64,9 @@ documented and explained.
         * grunt mocha:debug
         * grunt mocha:release
     * testing with NodeJS: grunt mochaTest
-        * grunt mocha:source
-        * grunt mocha:debug
-        * grunt mocha:release
+        * grunt mochaTest:source
+        * grunt mochaTest:debug
+        * grunt mochaTest:release
     * testing with cscript:
         * grunt exec:testWScript
         * grunt exec:testWScriptVerbose
@@ -64,8 +75,6 @@ documented and explained.
     * testing with rhino:
         * grunt exec:testRhino
         * grunt exec:testRhinoVerbose
-
-## Code coverage
 
 ## Credits
 
