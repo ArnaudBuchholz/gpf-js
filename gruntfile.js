@@ -24,6 +24,7 @@ module.exports = function (grunt) {
 
     jsLintedFiles = [
         "Gruntfile.js",
+        "statistics.js",
         ".eslintrules/*.js",
         "make/*.js",
         "test/host/*.js",
@@ -71,7 +72,7 @@ module.exports = function (grunt) {
             options: {
                 type: "lcov",
                 dir: "tmp/coverage/reports",
-                print: "detail"
+                print: ""
             }
         },
         coverage: {
@@ -152,8 +153,9 @@ module.exports = function (grunt) {
             },
             coverage: {
                 options: {
-                    reporter: "progress",
-                    quiet: false,
+                    reporter: "json",
+                    captureFile: "./tmp/coverage/mochaTest.json",
+                    quiet: true,
                     require: [
                         function () {
                             global.gpfSourcesPath = "tmp/coverage/instrument/src/";
@@ -255,6 +257,12 @@ module.exports = function (grunt) {
                 command: PLATO_CMD + " -l .jshintrc -t GPF-JS -d tmp\\plato " + srcFiles.join(" "),
                 stdout: true,
                 stderr: true
+            },
+            metrics: {
+                command: "node metrics.js",
+                stdout: false,
+                stderr: false,
+                exitCode: 0
             }
         },
         //endregion
@@ -289,7 +297,9 @@ module.exports = function (grunt) {
             "jshint",
             "eslint",
             "istanbul",
-            "coverage"
+            "coverage",
+            "plato",
+            "exec:metrics"
         ],
         "fixInstrument": function () {
             // Because code generation uses templates that are instrumented, the __cov_XXX variables must be global
@@ -329,8 +339,7 @@ module.exports = function (grunt) {
             "exec:testWscriptDebug",
             "mocha:release",
             "mochaTest:release",
-            "exec:testWscriptRelease",
-            "plato"
+            "exec:testWscriptRelease"
         ]
     }));
 
