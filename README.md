@@ -28,18 +28,21 @@ documented and explained.
 
 ## Metrics
 
-*this part is automatically updated during the build process*
+This part is automatically updated upon a successful build:
+* Code coverage is based on NodeJS execution, ignored parts are mostly relevant of other hosts
+* The maintainability is based on [plato evaluation](http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/
+maintainability-index-range-and-meaning.aspx)
+
 
 Metric name | value | comment
 -|-|-
-Code coverage| - | *The code coverage is based on NodeJS tests*
-* Statements | xx% | *xx/xx, xx ignored (xx%)*
-* Branches | xx% | *xx/xx, xx ignored (xx%)*
-* Functions | xx% | *xx/xx, xx ignored (xx%)*
-Average Maintainability|xx.xx| *computed with [plato](http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx)*
-Number of tests|xx|
-Number of modules|xx|
-Lines of Code|xx| *Average per module: xx*
+Statements coverage|99%|*10% ignored*
+Branches coverage|98%|*11% ignored*
+Functions coverage|99%|*16% ignored*
+Average maintainability|72.97|
+Number of tests|467|*pending: 2, duration: 391ms*
+Number of modules|27|
+Lines of Code|6798|*Average per module: 234*
 
 ## Setup
 
