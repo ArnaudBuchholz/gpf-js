@@ -149,7 +149,8 @@ var numberOfModules = gpf.sources().join().split(",,")[0].split(",").length;
 
 // console.log("Number of modules: " + numberOfModules);
 
-var readme = fs.readFileSync("README.md").toString(),
+var SEPARATOR = "----- | ----- | -----",
+    readme = fs.readFileSync("README.md").toString(),
     readmeSections = readme.split("##"),
     metricsSectionIndex;
 readmeSections.every(function (section, index) {
@@ -159,7 +160,7 @@ readmeSections.every(function (section, index) {
     }
     return true;
 });
-var metricsSectionHeader = readmeSections[metricsSectionIndex].split("-|-|-")[0],
+var metricsSectionHeader = readmeSections[metricsSectionIndex].split(SEPARATOR)[0],
     metrics = [
         "\r\nStatements coverage|", statementsCoverage, "%|*", statementsIgnored, "% ignored*",
         "\r\nBranches coverage|", branchesCoverage, "%|*", branchesIgnored, "% ignored*",
@@ -170,5 +171,5 @@ var metricsSectionHeader = readmeSections[metricsSectionIndex].split("-|-|-")[0]
         "\r\nLines of Code|", linesOfCode, "|*Average per module: ", averageLinesOfCode, "*",
         "\r\n\r\n"
     ];
-readmeSections[metricsSectionIndex] = metricsSectionHeader + "-|-|-" + metrics.join("");
+readmeSections[metricsSectionIndex] = metricsSectionHeader + SEPARATOR + metrics.join("");
 fs.writeFileSync("README.md", readmeSections.join("##"));
