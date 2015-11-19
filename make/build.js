@@ -45,7 +45,7 @@ Builder.prototype = {
         this._save(name + ".js", source);
         astObject = this._transform(source, name);
         this._save(name + ".ast.json", JSON.stringify(astObject));
-        if (this.parameters.reduce) {
+        if (this._parameters.reduce) {
             astObject = this._reduce(astObject);
             this._save(name + ".ast.reduced.json", JSON.stringify(astObject));
             this._save(name + ".ast.reduced.js", ast.rewrite(astObject, this._parameters.debugRewriteOptions));
@@ -108,7 +108,7 @@ Builder.prototype = {
         // Generate all ASTs and aggregate to the final result
         this._addAst("boot");
         for (name in this._sources) {
-            if (this._sources.hasOwnProperty(name)) {
+            if (this._sources.hasOwnProperty(name) && undefined === this._asts[name]) {
                 this._addAst(name);
             }
         }
