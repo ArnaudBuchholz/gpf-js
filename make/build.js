@@ -47,7 +47,7 @@ Builder.prototype = {
         this._debug("\tConverting " + name + " to AST...");
         var source = this._sources[name],
             astObject;
-        this._preProcess(source, name);
+        source = this._preProcess(source, name);
         this._save(name + ".js", source);
         astObject = this._transform(source, name);
         this._save(name + ".ast.json", JSON.stringify(astObject));
@@ -96,7 +96,9 @@ Builder.prototype = {
             astBody = clone(astObject.body),
             placeholder = this._placeholder;
         if (astBody instanceof Array) {
-            astBody.forEach(placeholder.push, placeholder);
+            astBody.forEach(function (astItem) {
+                placeholder.push(astItem);
+            });
         } else {
             placeholder.push(astBody);
         }
@@ -119,6 +121,9 @@ Builder.prototype = {
                 this._addAst(name);
             }
         }
+        // Saving the result
+        this._debug("\tSaving concatenated AST...")
+        this._save("result.ast.json", JSON.stringify(resultAst));
         // Generate the final result
         return ast.rewrite(resultAst, this._parameters.rewriteOptions);
     }
