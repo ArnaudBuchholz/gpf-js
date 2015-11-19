@@ -5,14 +5,29 @@
 
 var fs = require("fs"),
     build = require("./build.js"),
-    version = process.argv[2] || "debug",
+    version = "debug",
+    debug,
     parameters,
     debugParameters,
     sources = {},
     result,
     cc;
 
+debug = function () {};
+
+// Cheap parameter parsing
+process.argv.slice(2).forEach(function (value) {
+    if ("-verbose" === value) {
+        debug = function () {
+            console.log.apply(console, arguments);
+        };
+    } else {
+        version = value;
+    }
+});
+
 console.log("Generating version '" + version + "'");
+debug("\tReading parameters...");
 try {
     debugParameters = JSON.parse(fs.readFileSync("debug.json").toString());
     if ("debug" === version) {
@@ -27,6 +42,7 @@ try {
 }
 
 // Get the list of sources
+debug("\tGetting the list of sources...");
 require("../src/sources.js");
 
 // Read sources
@@ -35,9 +51,13 @@ gpf.sources().every(function (name) {
         // end marker
         return false;
     }
+    debug("\tReading " + name + "...");
     sources[name] = fs.readFileSync("../src/" + name + ".js").toString();
+    return true;
 });
+debug("\tReading UMD...");
 sources.UMD = fs.readFileSync("UMD.js").toString();
+debug("\tReading boot...");
 sources.boot = fs.readFileSync("../src/boot.js").toString();
 
 function mkDir (path) {
@@ -53,6 +73,7 @@ function mkDir (path) {
     }
 }
 
+debug("\tCreating working folder...");
 parameters.temporaryPath = "../tmp/build/" + version;
 mkDir(parameters.temporaryPath);
 
@@ -63,6 +84,7 @@ try {
     process.exit();
 }
 
+debug("\tCreating output folder...");
 mkDir("../build");
 fs.writeFileSync("../build/gpf-" + version + ".js", result);
 
