@@ -330,8 +330,9 @@ module.exports = function (grunt) {
         "make": [
             "default",
             "mocha:source",
-            "mochaTest:source",
+            // "mochaTest:source", done for coverage
             "exec:testWscript",
+            "exec:testRhino",
             "exec:buildDebug",
             "exec:buildRelease",
             "mocha:debug",
