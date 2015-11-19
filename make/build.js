@@ -11,9 +11,10 @@ function clone (obj) {
     return JSON.parse(JSON.stringify(obj));
 }
 
-function Builder (sources, parameters) {
+function Builder (sources, parameters, debug) {
     this._sources = sources;
     this._parameters = parameters;
+    this._debug = debug;
 }
 
 Builder.prototype = {
@@ -23,6 +24,10 @@ Builder.prototype = {
 
     // Parameters of the build
     _parameters: {},
+
+    // Debug function
+    _debug: function () {
+    },
 
     // AST objects (name => Object)
     _asts: {},
@@ -39,6 +44,7 @@ Builder.prototype = {
 
     // preprocess source file, convert to AST and reduce it if necessary
     _toAst: function (name) {
+        this._debug("\tConverting " + name + " to AST...");
         var source = this._sources[name],
             astObject;
         this._preProcess(source, name);
@@ -97,6 +103,7 @@ Builder.prototype = {
     },
 
     build: function () {
+        this._debug("Building library");
         var ARGUMENTS = "arguments",
             resultAst,
             name;
@@ -126,7 +133,7 @@ Builder.prototype = {
  * @param {Object} temporary Dictionary of intermediate results
  * @returns {String}
  */
-module.exports = function (sources, parameters) {
-    var builder = new Builder(sources, parameters);
+module.exports = function (sources, parameters, debug) {
+    var builder = new Builder(sources, parameters, debug);
     return builder.build();
 };
