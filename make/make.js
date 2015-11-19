@@ -78,7 +78,7 @@ parameters.temporaryPath = "../tmp/build/" + version;
 mkDir(parameters.temporaryPath);
 
 try {
-    result = build(sources, parameters);
+    result = build(sources, parameters, debug);
 } catch (e) {
     console.error(e.message);
     process.exit();
