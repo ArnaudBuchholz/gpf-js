@@ -22,7 +22,7 @@ try {
     }
     parameters.debugRewriteOptions = debugParameters.rewriteOptions;
 } catch (e) {
-    console.error("Unknown or invalid version");
+    console.error("Unknown or invalid version", e);
     process.exit();
 }
 
@@ -43,7 +43,9 @@ sources.boot = fs.readFileSync("../src/boot.js").toString();
 function mkDir (path) {
     var parentPath;
     if (!fs.existsSync(path)) {
-        parentPath = path.split("/").spice(0, -1).join("/");
+        parentPath = path.split("/");
+        parentPath.pop();
+        parentPath = parentPath.join("/");
         if (parentPath) {
             mkDir(parentPath);
         }
