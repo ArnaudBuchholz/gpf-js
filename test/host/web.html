@@ -36,10 +36,11 @@ div.log { color: gray; white-space: pre; }
 
 
         </style>
-        <script>
-            var
-                    gpfSourcesPath = "../../src/",
-                    gpfTestsPath = "../";
+        <script language="javascript">
+
+var gpfSourcesPath = "../../src/",
+    gpfTestsPath = "../";
+
         </script>
         <script src="web_loader.js"></script>
         <script language="javascript">
@@ -125,31 +126,33 @@ function addLine(data) {
             <tbody id="results">
             </tbody>
         </table>
-    <script language="javascript">
-        load("bdd.js", function () {
-            var dtStart = new Date(),
-                line,
-                results;
-            run(function (type, data) {
-                if ("results" !== type) {
-                    addLine(data);
-                } else {
-                    // Insert summary line
-                    addLine({
-                        timeSpent: (new Date()) - dtStart,
-                        result: 0 === data.fail,
-                        label: "passes: " + data.success + " / " + data.count
-                            + " (pending: " + data.pending + ")"
-                            + " failure: " + data.fail,
-                        depth: 0
-                    });
-                    line = lines.pop();
-                    insertLines(); // flush
-                    results = document.getElementById("results");
-                    results.innerHTML = line + results.innerHTML;
-                }
+        <script language="javascript">
+
+load("bdd.js", function () {
+    var dtStart = new Date(),
+        line,
+        results;
+    run(function (type, data) {
+        if ("results" !== type) {
+            addLine(data);
+        } else {
+            // Insert summary line
+            addLine({
+                timeSpent: (new Date()) - dtStart,
+                result: 0 === data.fail,
+                label: "passes: " + data.success + " / " + data.count
+                    + " (pending: " + data.pending + ")"
+                    + " failure: " + data.fail,
+                depth: 0
             });
-        });
-    </script>
+            line = lines.pop();
+            insertLines(); // flush
+            results = document.getElementById("results");
+            results.innerHTML = line + results.innerHTML;
+        }
+    });
+});
+
+        </script>
     </body>
 </html>
