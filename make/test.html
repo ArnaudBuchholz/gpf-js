@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	    <title>Make Tester</title>
+        <link rel="stylesheet" type="text/css" href="../res/console.css"></link>
+	    <script language="javascript" src="../res/console.js"></script>
+        <script src="../test/host/bdd.js"></script>
+        <script language="javascript">
+
+var module = {};
+
+        </script>
+        <script language="javascript" src="preprocess.js"></script>
+        <script language="javascript">
+
+var preprocess = module.exports;
+
+        </script>
+        <script language="javascript">
+
+describe("preprocessor", function () {
+
+    var sampleCode = "alert(\"Hello World\");",
+        variableCode = "alert(\"TEST\");";
+
+    it("does nothing if no defines is used", function () {
+        var processed = preprocess(sampleCode, {});
+        assert(sampleCode === processed);
+    });
+
+    it("removes parts that are not allowed", function () {
+        var processed = preprocess([
+                "/*#ifdef(TEST)*/",
+                variableCode,
+                "/*#endif*/",
+                sampleCode
+            ].join("\n"), {
+                TEST: false
+            });
+        assert(processed === sampleCode);
+    });
+
+    it("keeps parts that are allowed", function () {
+        var processed = preprocess([
+                "/*#ifdef(TEST)*/",
+                variableCode,
+                "/*#endif*/",
+                sampleCode
+            ].join("\n"), {
+                TEST: true
+            });
+        assert(processed === variableCode + "\n" + sampleCode);
+    });
+
+});
+
+        </script>
+    </head>
+	<body onload="run()"></body>
+</html>
