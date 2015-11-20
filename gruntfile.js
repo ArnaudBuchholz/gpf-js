@@ -28,7 +28,8 @@ module.exports = function (grunt) {
         ".eslintrules/*.js",
         "make/*.js",
         "test/host/*.js",
-        "test/host/mocha/nodejs.js"
+        "test/host/mocha/nodejs.js",
+        "res/*.js"
     ]
         .concat(srcFiles)
         .concat(testFiles);
