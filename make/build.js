@@ -122,7 +122,7 @@ Builder.prototype = {
             }
         }
         // Saving the result
-        this._debug("\tSaving concatenated AST...")
+        this._debug("\tSaving concatenated AST...");
         this._save("result.ast.json", JSON.stringify(resultAst));
         // Generate the final result
         return ast.rewrite(resultAst, this._parameters.rewriteOptions);
