@@ -12,7 +12,7 @@ Preprocessor.tags = {
 
     "/*#if": function (line) {
         /*jshint validthis:true*/ // Called with the context of Preprocessor
-        var invert = -1 === line.indexOf("/*#ifndef("),
+        var invert = -1 < line.indexOf("/*#ifndef("),
             define = line.split("(")[1].split(")")[0],
             ignore;
         ignore = !this._defines[define];
