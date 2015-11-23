@@ -52,7 +52,7 @@ Builder.prototype = {
         astObject = this._transform(source, name);
         this._save(name + ".ast.json", JSON.stringify(astObject));
         if (this._parameters.reduce) {
-            astObject = this._reduce(astObject);
+            astObject = this._reduce(astObject, name);
             this._save(name + ".ast.reduced.json", JSON.stringify(astObject));
             this._save(name + ".ast.reduced.js", ast.rewrite(astObject, this._parameters.debugRewriteOptions));
         }
@@ -62,7 +62,7 @@ Builder.prototype = {
 
     _preProcess: function (source, name) {
         try {
-            preprocess(source, this._parameters.define);
+            return preprocess(source, this._parameters.define);
         } catch (e) {
             e.sourceName = name;
             e.step = "preprocess";
