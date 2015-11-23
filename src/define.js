@@ -104,7 +104,7 @@ function _gpfNewClassConstructorSrc (name) {
  */
 function _gpfUsesSuper (method) {
     var parts = method.toString().split("._super");
-    /*gpf:inline(array)*/ return !parts.every(function (part) {
+    return !parts.every(function (part) { /*gpf:inline(array)*/
         return -1 !== _gpfIdentifierOtherChars.indexOf(part.charAt(0));
     });
 }
@@ -395,7 +395,7 @@ _GpfClassDefinition.prototype = {
      */
     _processDefinition: function (definition, visibility) {
         this._defaultVisibility = visibility;
-        /*gpf:inline(object)*/ _gpfObjectForEach(definition, this._processDefinitionMember, this);
+        _gpfObjectForEach(definition, this._processDefinitionMember, this); /*gpf:inline(object)*/
         this._defaultVisibility = _GPF_VISIBILITY_UNKNOWN;
         /* istanbul ignore next */ // WSCRIPT specific
         // 2014-05-05 #14
@@ -418,7 +418,7 @@ _GpfClassDefinition.prototype = {
             _gpfAssert("function" === typeof _gpfAttributesAdd, "Attributes can't be defined before they exist");
             Constructor = this._Constructor;
             newPrototype = Constructor.prototype;
-            /*gpf:inline(object)*/ _gpfObjectForEach(attributes, function (attributeList, attributeName) {
+            _gpfObjectForEach(attributes, function (attributeList, attributeName) { /*gpf:inline(object)*/ 
                 attributeName = _gpfDecodeAttributeMember(attributeName);
                 if (attributeName in newPrototype || attributeName === "Class") {
                     _gpfAttributesAdd(Constructor, attributeName, attributeList);
