@@ -10,7 +10,7 @@
             "indent": {
                 "style": "    ",
                 "base": 0,
-                "adjustMultilineComment": false
+                "adjustMultilineComment": true
             },
             "newline": "\n",
             "space": " ",
