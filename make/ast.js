@@ -2,9 +2,13 @@
 /*jshint node: true*/
 /*eslint-env node*/
 
-var esprima = require("esprima"),
+/*eslint-disable no-sync*/
+
+var fs = require("fs"),
+    esprima = require("esprima"),
     escodegen = require("escodegen"),
-    identifierCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    identifierCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    jsKeywords = fs.readFileSync("../res/javascript.keywords.txt").toString().split("\n");
 
 /**
  * AST Reducer
@@ -205,7 +209,7 @@ ASTreducer.prototype = {
             }
             newName.push(identifierCharacters.charAt(id));
             newName = newName.join("");
-        } while (undefined !== gpf.test(gpf.js.keywords(), newName));
+        } while (-1 < jsKeywords.indexOf(newName));
         return newName;
     }
 
