@@ -41,8 +41,7 @@ function _gpfErrorFactory (code, name, message) {
         error.name = name;
         if (context) {
             replacements = {};
-            /*gpf:inline(object)*/
-            _gpfObjectForEach(context, function (value, key) {
+            _gpfObjectForEach(context, function (value, key) { /*gpf:inline(object)*/
                 replacements["{" + key + "}"] = value.toString();
             });
             finalMessage = _gpfStringReplaceEx(message, replacements);
