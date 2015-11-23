@@ -81,6 +81,12 @@ try {
     result = build(sources, parameters, debug);
 } catch (e) {
     console.error(e.message);
+    if (e.step) {
+        console.error("Step: " + e.step);
+    }
+    if (e.sourceName) {
+        console.error("Source name: " + e.sourceName);
+    }
     process.exit();
 }
 
