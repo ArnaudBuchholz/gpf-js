@@ -106,7 +106,7 @@ gpf.forEach = function (structure, callback, thisArg) {
         _gpfArrayForEach(structure, callback, thisArg);
         return;
     }
-    /*gpf:inline(object)*/ _gpfObjectForEach(structure, callback, thisArg);
+    _gpfObjectForEach(structure, callback, thisArg); /*gpf:inline(object)*/ 
 };
 
 //endregion
@@ -132,7 +132,7 @@ function _gpfStringCapitalize (that) {
  */
 function _gpfStringReplaceEx (that, replacements) {
     var result = that;
-    /*gpf:inline(object)*/ _gpfObjectForEach(replacements, function (replacement, key) {
+    _gpfObjectForEach(replacements, function (replacement, key) { /*gpf:inline(object)*/
         result = result.split(key).join(replacement);
     });
     return result;
@@ -271,7 +271,7 @@ function _gpfExtend (dst, src, overwriteCallback) {
         _gpfAssert("function" === typeof overwriteCallback, "Expected function");
         callbackToUse = _gpfAssignOrCall;
     }
-    /*gpf:inline(object)*/ _gpfObjectForEach(src, callbackToUse, arguments);
+    _gpfObjectForEach(src, callbackToUse, arguments); /*gpf:inline(object)*/
     return dst;
 }
 
