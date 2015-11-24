@@ -401,7 +401,7 @@ _gpfDefine("gpf.attributes.Map", Object, {
          * @param {Object} [thisArg=undefined] thisArg value to use as this when executing callback
          */
         forEach: function (callback, thisArg) {
-            _gpfObjectForEach(this._members, function (attributes, member, dictionary) { /*gpf:inline(object)*/ 
+            _gpfObjectForEach(this._members, function (attributes, member, dictionary) { /*gpf:inline(object)*/
                 callback.apply(thisArg, [attributes, _gpfDecodeAttributeMember(member), dictionary]);
             });
         }

@@ -231,7 +231,7 @@ _GpfCsvParser.prototype = {
     read: function () {
         var values = this._readValues(),
             record = {};
-        this._columns.forEach(function (name, idx) { /*gpf:inline(array)*/ 
+        this._columns.forEach(function (name, idx) { /*gpf:inline(array)*/
             record[name] = values[idx];
         });
         return record;

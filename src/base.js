@@ -106,7 +106,7 @@ gpf.forEach = function (structure, callback, thisArg) {
         _gpfArrayForEach(structure, callback, thisArg);
         return;
     }
-    _gpfObjectForEach(structure, callback, thisArg); /*gpf:inline(object)*/ 
+    _gpfObjectForEach(structure, callback, thisArg); /*gpf:inline(object)*/
 };
 
 //endregion
