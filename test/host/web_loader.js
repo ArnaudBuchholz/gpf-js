@@ -11,7 +11,7 @@
         window.gpfTestsPath = "../";
     }
 
-    var
+    var MAX_WAIT = 50,
         loadedCallback,
         dependencyIdx = -1,
         dependencies,
@@ -61,8 +61,12 @@
     function _waitForLoad () {
         // Check if the GPF library is loaded
         if ("undefined" === typeof gpf || !gpf.loaded()) {
-            console.log("GPF not loaded yet...");
-            window.setTimeout(_waitForLoad, 100);
+            if (--MAX_WAIT) {
+                console.log("GPF not loaded yet...");
+                window.setTimeout(_waitForLoad, 100);
+            } else {
+                console.error("Unable to load GPF");
+            }
             return;
         }
         // Check if sources are loaded
