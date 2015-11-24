@@ -554,10 +554,10 @@ if (!gpf.loaded) {
 
 /*#endif*/
 
-/*#ifdef(DEBUG)*/
-
 var _gpfAssert,
     _gpfAsserts;
+
+/*#ifdef(DEBUG)*/
 
 // DEBUG specifics
 
