@@ -132,7 +132,7 @@ function _gpfStringCapitalize (that) {
  */
 function _gpfStringReplaceEx (that, replacements) {
     var result = that;
-    _gpfObjectForEach(replacements, function (replacement, key) { /*gpf:inline(object)*/
+    _gpfObjectForEach(replacements, function (replacement, key) {/*gpf:inline(object)*/
         result = result.split(key).join(replacement);
     });
     return result;

@@ -1,5 +1,5 @@
 /*eslint-disable no-invalid-this, strict*/
-(function (context) { /* Begin of privacy scope */
+(function (context) {/* Begin of privacy scope */
     "use strict";
 
     /* istanbul ignore else */ // Tested with NodeJS

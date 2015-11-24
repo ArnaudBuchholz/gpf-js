@@ -194,7 +194,7 @@ _gpfDefine("gpf.attributes.Array", Object, {
          */
         has: function (expectedClass) {
             _gpfAssertAttributeClassOnly(expectedClass);
-            return !this._array.every(function (attribute) { /*gpf:inline(array)*/
+            return !this._array.every(function (attribute) {/*gpf:inline(array)*/
                 return !(attribute instanceof expectedClass);
             });
         },
@@ -208,7 +208,7 @@ _gpfDefine("gpf.attributes.Array", Object, {
         filter: function (expectedClass) {
             _gpfAssertAttributeClassOnly(expectedClass);
             var result = new _gpfA.Array();
-            result._array = this._array.filter(function (attribute) { /*gpf:inline(array)*/
+            result._array = this._array.filter(function (attribute) {/*gpf:inline(array)*/
                 return attribute instanceof expectedClass;
             });
             return result;
@@ -257,9 +257,9 @@ _gpfDefine("gpf.attributes.Map", Object, {
          * @return {gpf.attributes.Map} to
          */
         _copy: function (to, callback, param) {
-            _gpfObjectForEach(this._members, function (attributeArray, member) { /*gpf:inline(object)*/
+            _gpfObjectForEach(this._members, function (attributeArray, member) {/*gpf:inline(object)*/
                 member = _gpfDecodeAttributeMember(member);
-                attributeArray._array.forEach(function (attribute) { /*gpf:inline(array)*/
+                attributeArray._array.forEach(function (attribute) {/*gpf:inline(array)*/
                     if (!callback || callback(member, attribute, param)) {
                         to.add(member, attribute);
                     }
@@ -386,7 +386,7 @@ _gpfDefine("gpf.attributes.Map", Object, {
          */
         getMembers: function () {
             var result = [];
-            _gpfObjectForEach(this._members, function (attributes, member) { /*gpf:inline(object)*/
+            _gpfObjectForEach(this._members, function (attributes, member) {/*gpf:inline(object)*/
                 _gpfIgnore(attributes);
                 result.push(_gpfDecodeAttributeMember(member));
             });
@@ -403,7 +403,7 @@ _gpfDefine("gpf.attributes.Map", Object, {
          * @param {Object} [thisArg=undefined] thisArg value to use as this when executing callback
          */
         forEach: function (callback, thisArg) {
-            _gpfObjectForEach(this._members, function (attributes, member, dictionary) { /*gpf:inline(object)*/
+            _gpfObjectForEach(this._members, function (attributes, member, dictionary) {/*gpf:inline(object)*/
                 callback.apply(thisArg, [attributes, _gpfDecodeAttributeMember(member), dictionary]);
             });
         }

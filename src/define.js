@@ -104,7 +104,7 @@ function _gpfNewClassConstructorSrc (name) {
  */
 function _gpfUsesSuper (method) {
     var parts = method.toString().split("._super");
-    return !parts.every(function (part) { /*gpf:inline(array)*/
+    return !parts.every(function (part) {/*gpf:inline(array)*/
         return -1 !== _gpfIdentifierOtherChars.indexOf(part.charAt(0));
     });
 }
@@ -418,7 +418,7 @@ _GpfClassDefinition.prototype = {
             _gpfAssert("function" === typeof _gpfAttributesAdd, "Attributes can't be defined before they exist");
             Constructor = this._Constructor;
             newPrototype = Constructor.prototype;
-            _gpfObjectForEach(attributes, function (attributeList, attributeName) { /*gpf:inline(object)*/
+            _gpfObjectForEach(attributes, function (attributeList, attributeName) {/*gpf:inline(object)*/
                 attributeName = _gpfDecodeAttributeMember(attributeName);
                 if (attributeName in newPrototype || attributeName === "Class") {
                     _gpfAttributesAdd(Constructor, attributeName, attributeList);
