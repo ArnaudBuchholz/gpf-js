@@ -128,10 +128,10 @@ var _gpfAttribute = _gpfDefine("gpf.attributes.Attribute", Object, {
     }
 });
 
-/*#ifdef(DEBUG)*/
-
 var _gpfAssertAttributeClassOnly,
     _gpfAssertAttributeOnly;
+
+/*#ifdef(DEBUG)*/
 
 // DEBUG specifics
 
@@ -159,6 +159,8 @@ if (!_gpfAssertAttributeClassOnly) {
 /*#ifdef(DEBUG)*/
 
 }
+
+/*#endif*/
 
 /**
  * Attribute array, generally used to list attributes on a class member
