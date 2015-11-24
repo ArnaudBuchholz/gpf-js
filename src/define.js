@@ -71,7 +71,7 @@ function _gpfClassConstructorTpl () {
          * @this created object
          */
         constructor = function __NAME__ () { //eslint-disable-line func-style
-            if (classDef.constructionAllowed()) {
+            if (classDef.isConstructionAllowed()) {
                 classDef._resolvedConstructor.apply(this, arguments);
             }
         };
@@ -236,7 +236,7 @@ _GpfClassDefinition.prototype = {
     _definition: null,
 
     // Prevent construction when doing inheritance
-    constructionAllowed: function () {
+    isConstructionAllowed: function () {
         return _gpfClassConstructorAllowed;
     },
 
