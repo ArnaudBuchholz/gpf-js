@@ -7,8 +7,7 @@
 /*global _gpfContext*/ // Resolve contextual string
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfFunc*/ // Create a new function using the source
-/*global _gpfGetTemplateBody*/ // Function templating helper
+/*global _GpfFunctionBuilder*/ // Function builder
 /*global _gpfHost*/ // Host type
 /*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
@@ -55,39 +54,18 @@ var
 /**
  * Template for new class constructor
  * - Uses closure to keep track of the class definition
- * - Class name will be injected at the right place by _gpfNewClassConstructorSrc
- *
- * NOTE: As this is used inside a new function (src), we loose parameter.
- * Also, google closure compiler will try to replace any use of arguments[idx] by a named parameter and it can't work,
- * so the arguments are copied in a variable and used to call _gpfClassInit
+ * - Class name will be injected at the right place
  *
  * @param {_GpfClassDefinition} classDef
  * @return {Function}
  * @closure
  */
-function _gpfClassConstructorTpl () {
-    var classDef = arguments[0],
-        /**
-         * @this created object
-         */
-        constructor = function __NAME__ () { //eslint-disable-line func-style
-            if (classDef.isConstructionAllowed()) {
-                classDef._resolvedConstructor.apply(this, arguments);
-            }
-        };
-    return constructor;
-}
-
-/**
- * Returns the source of _gpfClassConstructorTpl with the appropriate function name
- *
- * @param {String} name
- * @return {String}
- */
-function _gpfNewClassConstructorSrc (name) {
-    return _gpfGetTemplateBody(_gpfClassConstructorTpl, {
-        __NAME__: name
-    });
+function _gpfNewClassConstructorTpl (classDef) {
+    return function __NAME__ () {
+        if (classDef.isConstructionAllowed()) {
+            classDef._resolvedConstructor.apply(this, arguments);
+        }
+    };
 }
 
 //endregion
@@ -430,6 +408,15 @@ _GpfClassDefinition.prototype = {
         }
     },
 
+    // Build a new constructor
+    _getNewClassConstructor: function (name) {
+        var builder = new _GpfFunctionBuilder(_gpfNewClassConstructorTpl);
+        builder.replaceInBody({
+            __NAME__: name
+        });
+        return builder.generate()(this);
+    },
+
     // Wraps super constructor within critical section to prevents class initialization (and unexpected side effects)
     _safeNewSuper: function () {
         var result;
@@ -451,7 +438,7 @@ _GpfClassDefinition.prototype = {
         constructorName = this._name.split(".").pop();
 
         // The new class constructor
-        newClass = _gpfFunc(_gpfNewClassConstructorSrc(constructorName))(this);
+        newClass = this._getNewClassConstructor(constructorName);
         /*gpf:constant*/ this._Constructor = newClass;
         /*gpf:constant*/ newClass[_GPF_CLASSDEF_MARKER] = this._uid;
 
