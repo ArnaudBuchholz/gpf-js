@@ -16,6 +16,7 @@
         "events",               // Event management         gpf.events.Event
         "include",              // WEB include               gpf.web.include
         "base",                 // General helpers
+        "function",             // Function builder
         "like",                 // Comparison helper                gpf.like
         "error",                // Error base class                gpf.Error
         "dispatch",             //                gpf.mixins.EventDispatcher
@@ -42,23 +43,29 @@
         /* new JSHint settings */
         "",                     // --- temporary end marker ---
 
-        "fs_node",              // FS implementation for nodeJS       gpf.fs
-        "fs_ms",                // FS implementation for WScript      gpf.fs
+// https://github.com/ArnaudBuchholz/gpf-js/milestones/Release%200.1.5:%20The%20next%20gen
 
-        "stream",               // IStream helpers                gpf.stream
-        "stream_out",           // gpf.stream.Out
-        "stream_node",          // IStream helpers for nodeJS     gpf.stream
-
-        "string",               // String functions
-        "array",                // Array functions
-        "date",                 // Date functions
-
-        "i_wrapper",            // Interface wrapper  gpf.interfaces.Wrapper
-
+        // https://github.com/ArnaudBuchholz/gpf-js/issues/67
         "parser",               // Parser helper                  gpf.Parser
         "tokenizer",            // Javascript parser                  gpf.js
 
+        // https://github.com/ArnaudBuchholz/gpf-js/issues/66
+        "fs_node",              // FS implementation for nodeJS       gpf.fs
+        "fs_ms",                // FS implementation for WScript      gpf.fs
+
+        // https://github.com/ArnaudBuchholz/gpf-js/issues/68
+        "stream",               // IStream helpers                gpf.stream
+        "stream_out",           // gpf.stream.Out
+        "stream_node",          // IStream helpers for nodeJS     gpf.stream
+        "string",               // String functions
+        "array",                // Array functions
         "encoding",             // Encoding                     gpf.encoding
+
+        // https://github.com/ArnaudBuchholz/gpf-js/issues/69
+        "date",                 // Date functions
+
+// https://github.com/ArnaudBuchholz/gpf-js/milestones/Release%200.2.1:%20XML
+        "i_wrapper",            // Interface wrapper  gpf.interfaces.Wrapper
 
         "i_xml",                // IXmlSerializable & IXmlContentHandler
         "a_xml",                // Xml attributes
