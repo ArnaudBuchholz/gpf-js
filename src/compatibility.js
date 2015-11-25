@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*exported _gpfArraySlice*/
+/*exported _gpfJsCommentsRegExp*/
 /*#endif*/
 
 /*eslint-disable no-proto*/ // Used for compatibility reasons
@@ -192,23 +193,18 @@ var _gpfCompatibility = {
 }());
 
 // Get the name of a function if bound to the call
-var _gpfGetFunctionName = (function () {
-
-    var comments = new RegExp("//.*$|/\\*.*\\*/", "g");
-
-    return function () {
-        // Use simple parsing as a first step
-        // TODO leverage JS parser to implement this properly
-        var functionSource = Function.prototype.toString.apply(this), //eslint-disable-line no-invalid-this
-            functionKeywordPos = functionSource.indexOf("function"),
-            parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
-        return functionSource
-                .substr(functionKeywordPos + 9, parameterListStartPos - functionKeywordPos - 9)
-                .replace(comments, "") // remove comments
-                .trim();
-    };
-
-}());
+var _gpfJsCommentsRegExp =  new RegExp("//.*$|/\\*.*\\*/", "g");
+function _gpfGetFunctionName () {
+    // Use simple parsing
+    /*jshint validthis:true*/
+    var functionSource = Function.prototype.toString.apply(this), //eslint-disable-line no-invalid-this
+        functionKeywordPos = functionSource.indexOf("function"),
+        parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
+    return functionSource
+            .substr(functionKeywordPos + 9, parameterListStartPos - functionKeywordPos - 9)
+            .replace(_gpfJsCommentsRegExp, "") // remove comments
+            .trim();
+}
 
 // Handling function name properly
 /* istanbul ignore if */ // NodeJS exposes Function.prototype.name
