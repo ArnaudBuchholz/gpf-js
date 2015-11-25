@@ -38,6 +38,7 @@
 //endregion
 //region compatibility
 /*global _gpfArraySlice*/ // Slice an array-like object
+/*global _gpfJsCommentsRegExp*/ // Find all JavaScript comments
 //endregion
 //region promise
 /*global _GpfDeferredPromise*/ // Deferred promise
@@ -78,14 +79,16 @@
 /*global _gpfArrayForEach*/ //  Similar to [].forEach but for array-like
 /*global _gpfDictionaryEachWithResult*/ //gpf.each implementation on dictionary
 /*global _gpfExtend*/ // gpf.extend
-/*global _gpfGetTemplateBody*/ // Function templating helper
-/*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
 /*global _gpfNodeBuffer2JsArray*/ // Converts a NodeJS buffer into an int array
+/*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*global _gpfStringCapitalize*/ // Capitalize the string
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
 /*global _gpfValues*/ // Dictionary of value converters
+//endregion
+//region function
+/*global _GpfFunctionBuilder*/ // Function builder
 //endregion
 //region like
 //endregion
