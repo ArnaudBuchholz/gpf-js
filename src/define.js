@@ -61,9 +61,9 @@ var
  * @closure
  */
 function _gpfNewClassConstructorTpl (classDef) {
-    return function __NAME__ () {
+    return function () {
         if (classDef.isConstructionAllowed()) {
-            classDef._resolvedConstructor.apply(this, arguments);
+            classDef._resolvedConstructor.apply(this, arguments); //eslint-disable-line no-invalid-this
         }
     };
 }
@@ -412,7 +412,7 @@ _GpfClassDefinition.prototype = {
     _getNewClassConstructor: function (name) {
         var builder = new _GpfFunctionBuilder(_gpfNewClassConstructorTpl);
         builder.replaceInBody({
-            __NAME__: name
+            "function": "function " + name
         });
         return builder.generate()(this);
     },
