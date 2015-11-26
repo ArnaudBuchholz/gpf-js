@@ -27,6 +27,7 @@ describe("base", function () {
             /*jshint browser: true*/
             /*eslint-env browser*/
 
+            //TODO when run directly in phantomJs (not loaded through a page), this fails
             it("supports multiple includes (browser)", function (done) {
                 var previousGpf = gpf,
                     basePath;
