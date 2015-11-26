@@ -193,7 +193,7 @@ var _gpfCompatibility = {
 }());
 
 // Get the name of a function if bound to the call
-var _gpfJsCommentsRegExp =  new RegExp("//.*$|/\\*.*\\*/", "g");
+var _gpfJsCommentsRegExp =  new RegExp("//.*$|/\\*(?:[^\\*]*|\\*[^/]*)\\*/", "gm");
 function _gpfGetFunctionName () {
     // Use simple parsing
     /*jshint validthis:true*/
