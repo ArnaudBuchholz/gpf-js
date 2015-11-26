@@ -264,6 +264,12 @@ module.exports = function (grunt) {
                 stdout: false,
                 stderr: false,
                 exitCode: 0
+            },
+            version: {
+                command: "node make\\version.js",
+                stdout: false,
+                stderr: false,
+                exitCode: 0
             }
         },
         //endregion
@@ -284,7 +290,7 @@ module.exports = function (grunt) {
         "grunt-istanbul-coverage",
         "grunt-mocha",
         "grunt-mocha-test"
-    ].forEach(grunt.loadNpmTasks.bind(grunt));
+    ].forEach(grunt.loadNpmTasks, grunt);
 
     (function (tasks) {
         var taskName;
@@ -329,6 +335,7 @@ module.exports = function (grunt) {
         ],
         "plato": ["exec:plato"],
         "make": [
+            "exec:version",
             "default",
             "mocha:source",
             // "mochaTest:source", done for coverage
