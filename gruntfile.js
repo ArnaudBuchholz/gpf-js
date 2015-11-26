@@ -223,7 +223,7 @@ module.exports = function (grunt) {
                 exitCode: 0
             },
             testWscriptVerbose: {
-                command: CSCRIPT_CMD,
+                command: CSCRIPT_CMD + " -debugger",
                 stdout: true,
                 stderr: true,
                 exitCode: 0

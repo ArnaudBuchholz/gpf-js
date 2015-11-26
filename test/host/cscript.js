@@ -3,11 +3,15 @@
 /*eslint-env wsh*/
 /*global run*/
 
+/*eslint-disable new-cap, no-debugger*/
+/*jshint -W087*/
+
 var
     options = {
         release: false,
         debug: false,
-        verbose: false
+        verbose: false,
+        "debugger": false
     },
     len,
     idx,
@@ -21,7 +25,6 @@ var
     src;
 
 function include (path) {
-    /*eslint-disable new-cap*/
     try {
         /*jslint evil: true*/
         eval(fso.OpenTextFile(path, 1/*forReading*/, false, 0).ReadAll()); //eslint-disable-line no-eval
@@ -29,7 +32,6 @@ function include (path) {
     } catch (e) {
         WScript.Echo("An error occurred while evaluating: " + path + "\r\n" + e.message);
     }
-    /*eslint-enable new-cap*/
 }
 
 // Compute gpfSourcesPath relatively to the current script path
@@ -43,7 +45,7 @@ gpfSourcesPath = src.concat("src").join("\\") + "\\";
 // Simple parameter parsing
 len = WScript.Arguments.length;
 for (idx = 0; idx < len; ++idx) {
-    param = WScript.Arguments(idx); //eslint-disable-line new-cap
+    param = WScript.Arguments(idx);
     if (param.charAt(0) === "-") {
         param = param.substr(1);
         if (param in options) {
@@ -57,7 +59,7 @@ for (idx = 0; idx < len; ++idx) {
 // Define a debug function that outputs when verbose is set
 if (options.verbose) {
     verbose = function (text) {
-        WScript.Echo(text); //eslint-disable-line new-cap
+        WScript.Echo(text);
     };
 } else {
     verbose = function () {};
@@ -72,6 +74,21 @@ if (options.release) {
 } else {
     verbose("Using source version");
     include(gpfSourcesPath + "boot.js");
+}
+
+/*exported assert*/
+function assert (condition) {
+    if (!condition) {
+        if (options["debugger"]) {
+            debugger;
+        }
+        throw new Error("ASSERTION failed");
+    }
+}
+
+if ("undefined" === typeof gpf) {
+    WScript.Echo("GPF was not loaded");
+    WScript.Quit(-1);
 }
 
 if (!gpf.sources) {
