@@ -34,7 +34,7 @@
     }
     var
         // GPF version
-        _gpfVersion = "0.1",
+        _gpfVersion = "0.1.5-alpha",
         // Host type constants
         _GPF_HOST_BROWSER = "browser",
         /*jshint browser: true*/
@@ -135,7 +135,7 @@
         }
         return scope;
     }
-    _gpfVersion += "d";
+    _gpfVersion += "-debug";
     function _getObjectProperty(parent, name) {
         /* istanbul ignore else */
         if (undefined !== parent) {
