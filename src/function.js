@@ -53,6 +53,7 @@ _GpfFunctionBuilder.prototype = {
      * @param {Function} functionObject
      */
     _extract: function (functionObject) {
+        this.name = functionObject.compatibleName();
         var source = Function.prototype.toString.call(functionObject).replace(_gpfJsCommentsRegExp, ""),
             start,
             end;
