@@ -454,13 +454,23 @@ describe("compatibility", function () {
                 assert(thisName.compatibleName() === "thisName");
             });
 
+            it("supports empty name", function () {
+                var thisName = function () {}; //eslint-disable-line func-style
+                assert(thisName.compatibleName() === "");
+            });
+
             if (gpf.internals && Function.prototype.compatibleName !== gpf.internals._gpfGetFunctionName) {
 
                 var _gpfGetFunctionName = gpf.internals._gpfGetFunctionName;
 
                 it("exposes a name (compatible)", function () {
                     function thisName () {}
-                    assert(_gpfGetFunctionName.apply(thisName, []) === "thisName");
+                    assert(_gpfGetFunctionName.call(thisName) === "thisName");
+                });
+
+                it("supports empty name", function () {
+                    var thisName = function () {}; //eslint-disable-line func-style
+                    assert(_gpfGetFunctionName.call(thisName) === "");
                 });
 
             }
