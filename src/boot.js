@@ -35,7 +35,7 @@ function _gpfEmptyFunc () {}
 
 var
     // GPF version
-    _gpfVersion = "0.1",
+    _gpfVersion = "0.1.5-alpha",
 
     // Host type constants
     _GPF_HOST_BROWSER               = "browser",
@@ -158,7 +158,7 @@ function _gpfResolveScope (scope) {
 
 /*#ifdef(DEBUG)*/
 
-_gpfVersion += "d";
+_gpfVersion += "-debug";
 
 /*#endif*/
 
