@@ -77,17 +77,20 @@ _GpfFunctionBuilder.prototype = {
      * Build a new function using name, parameters and body
      */
     generate: function () {
-        if (this.name) {
-            return _gpfFunc("return " + this._toSource())();
-        }
-        return _gpfFunc(this.parameters, this.body);
+        return _gpfFunc("return " + this._toSource())();
     },
 
     // build the source of the function
     _toSource: function () {
+        var name;
+        if (this.name) {
+            name = " " + this.name;
+        } else {
+            name = "";
+        }
         return [
-            "function ",
-            this.name,
+            "function",
+            name,
             " ("
         ].concat(this.parameters).concat([
             ") {\n",
