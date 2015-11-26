@@ -67,10 +67,10 @@ if (options.verbose) {
 
 if (options.release) {
     verbose("Using release version");
-    include("..\\..\\build\\gpf.js");
+    include("build\\gpf.js");
 } else if (options.debug) {
     verbose("Using debug version");
-    include("..\\..\\build\\gpf-debug.js");
+    include("build\\gpf-debug.js");
 } else {
     verbose("Using source version");
     include(gpfSourcesPath + "boot.js");
