@@ -275,7 +275,7 @@ describe("events", function () {
         it("defers recursive calls to limit the stack usage", function (done) {
             var inCall = false,
                 depth = 0;
-            function handler (/*event*/) {
+            function handler (event) {
                 try {
                     if (inCall) {
                         done();
@@ -289,8 +289,68 @@ describe("events", function () {
                 } catch (e) {
                     done(e);
                 }
+                return event;
             }
             handler();
+        });
+
+    });
+
+    describe("gpf.events.isValidHandler", function () {
+
+        [{
+            label: "allows function with one parameter",
+            param: function (event) {
+                return event;
+            },
+            result: true
+        }, {
+            label: "rejects functions with no parameter",
+            param: function () {
+            },
+            result: false
+        }, {
+            label: "rejects functions with more than one parameter",
+            param: function (a, b) {
+                return a + b;
+            },
+            result: false
+        }, {
+            label: "allows object with a valid dispatchEvent method",
+            param: {
+                dispatchEvent: function (event) {
+                    return event;
+                }
+            },
+            result: true
+        }, {
+            label: "rejects object with an invalid dispatchEvent method",
+            param: {
+                dispatchEvent: function () {
+                }
+            },
+            result: false
+        }, {
+            label: "allows object mapping any event (even none)",
+            param: {
+            },
+            result: true
+        }, {
+            label: "rejects unexpected types (bool)",
+            param: false,
+            result: false
+        }, {
+            label: "rejects unexpected types (number)",
+            param: 1,
+            result: false
+        }, {
+            label: "rejects unexpected types (string)",
+            param: "hello world!",
+            result: false
+        }].forEach(function (test) {
+            it(test.label, function () {
+                assert(test.result === gpf.events.isValidHandler(test.param));
+            });
         });
 
     });
