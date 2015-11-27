@@ -72,6 +72,7 @@
 /*global _GpfEvent*/ // gpf.Events.Event
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfEventGetPromiseHandler*/ // Event handler wrapper for Promises
+/*global _GpfEventsIsValidHandler*/ // Check event handler validity
 //endregion
 //region include
 //endregion
