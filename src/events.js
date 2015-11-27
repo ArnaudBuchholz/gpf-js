@@ -16,8 +16,33 @@
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*exported _gpfEventGetPromiseHandler*/
 /*exported _gpfEventsFire*/
+/*exported _GpfEventsIsValidHandler*/
 /*exported _GpfEvent*/
 /*#endif*/
+
+/**
+ * Check if the provided parameter is a valid Handler
+ *
+ * @param {*} eventHandler
+ * @return {Boolean}
+ */
+function _GpfEventsIsValidHandler (eventHandler) {
+    var type = typeof eventHandler,
+        dispatchEvent;
+    if ("function" === type) {
+        return 1 === eventHandler.length;
+    }
+    if ("object" !== type) {
+        return false;
+    }
+    dispatchEvent = eventHandler.dispatchEvent;
+    if ("function" === typeof dispatchEvent) {
+        return 1 === dispatchEvent.length;
+    }
+    // Assuming there will be an handler for the event (we can't know in advance)
+    // TODO does it make sense to ignore an event? I may need to check that at least one event handler is available
+    return true;
+}
 
 gpf.events = {
 
@@ -30,6 +55,8 @@ gpf.events = {
      * @alias {gpf.events.Handler}
      */
 
+    // @inheritdoc _GpfEventsIsValidHandler
+    isValidHandler: _GpfEventsIsValidHandler
 };
 
 /**
@@ -87,7 +114,6 @@ _GpfEvent.prototype = {
 function _getEventHandler (event, eventsHandler) {
     var scope = event.scope,
         eventHandler;
-    _gpfAssert(eventsHandler, "Expected eventsHandler");
     if ("function" === typeof eventsHandler.dispatchEvent) {
         // Event dispatcher expected interface
         return eventsHandler.dispatchEvent.bind(eventsHandler);
@@ -132,6 +158,7 @@ function _gpfEventsFire (event, params, eventsHandler) {
     /*jshint validthis:true*/ // will be invoked with apply
     var scope = _gpfResolveScope(this),
         result;
+    _gpfAssert(_GpfEventsIsValidHandler(eventsHandler), "Expected a valid event handler");
     if (!(event instanceof _GpfEvent)) {
         event = new gpf.events.Event(event, params, scope);
     }
