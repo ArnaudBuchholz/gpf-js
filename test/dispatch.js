@@ -95,8 +95,8 @@ describe("dispatch", function () {
             describe("and registering another one", function () {
 
                 beforeEach(function () {
-                    dispatcher.addEventListener("test", function () {
-                        // Nothing
+                    dispatcher.addEventListener("test", function (event) {
+                        return event;
                     });
                     dispatcher.addEventListener("test2", eventHandler2);
                 });
