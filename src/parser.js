@@ -1,186 +1,155 @@
 /*#ifndef(UMD)*/
-(function () { /* Begin of privacy scope */
-    "use strict";
-    /*global _gpfAssert*/ // Assertion method
-    /*global _gpfDefine*/ // Shortcut for gpf.define
-    /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+"use strict";
+/*global _gpfAssert*/ // Assertion method
+/*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*global _GpfEventsIsValidHandler*/ // Check event handler validity
 /*#endif*/
 
-    _gpfErrorDeclare("parser", {
-        "patternUnexpected":
-            "Invalid syntax (unexpected)",
-        "patternEmpty":
-            "Empty pattern",
-        "patternInvalidSyntax":
-            "Invalid syntax",
-        "patternEmptyGroup":
-            "Syntax error (empty group)"
-    });
+_gpfErrorDeclare("parser", {
+    "patternUnexpected":
+        "Invalid syntax (unexpected)",
+    "patternEmpty":
+        "Empty pattern",
+    "patternInvalidSyntax":
+        "Invalid syntax",
+    "patternEmptyGroup":
+        "Syntax error (empty group)"
+});
 
-    //region Parser
+//region Parser
 
-    /**
-     * This parser base class maintain the current stream position
-     * And also offers some basic features to ease parsing and improve speed
-     *
-     * The output has to be transmitted through the protected _output function.
-     *
-     * @class gpf.Parser
-     */
-    _gpfDefine("gpf.Parser", Object, {
+/**
+ * A parser base class to maintain the parsed stream position
+ * It also offers some basic features to ease parsing and improve speed
+ *
+ * The output has to be transmitted through the protected _output function.
+ *
+ * @class gpf.Parser
+ */
+_gpfDefine("gpf.Parser", Object, {
+    "+": {
 
-        "+": {
-
-            constructor: function () {
-                this.reset();
-            },
-
-            /**
-             * Resets the parser position & state
-             *
-             * @param {Function} [state=null] state
-             */
-            reset: function (state) {
-                this._pos = 0;
-                this._line = 0;
-                this._column = 0;
-                this._setParserState(state);
-            },
-
-            /**
-             * Get current position
-             *
-             * @return {{pos: number, line: number, column: number}}
-             */
-            currentPos: function () {
-                return {
-                    pos: this._pos,
-                    line: this._line,
-                    column: this._column
-                };
-            },
-
-            /**
-             * Parser entry point
-             *
-             * @param {...String|null} var_args
-             */
-            parse : function () {
-                var
-                    len = arguments.length,
-                    idx,
-                    arg;
-                for (idx = 0; idx < len; ++idx) {
-                    arg = arguments[idx];
-                    if (null === arg) {
-                        this._finalizeParserState();
-                    } else {
-                        _gpfAssert("string" === typeof arg, "string expected");
-                        this._parse(arg);
-                    }
-                }
-            },
-
-            /**
-             * Defines an handler for the parser output
-             *
-             * @param {Array|Function) handler
-             * @private
-             */
-            setOutputHandler: function (handler) {
-                _gpfAssert(handler instanceof Array || handler.apply, "Invalid output handler");
-                this._outputHandler = handler;
-            }
-
+        constructor: function () {
+            this.reset();
         },
 
-        "#": {
+        /**
+         * Resets the parser position & state
+         *
+         * @param {Function} [state=undefined] state
+         */
+        reset: function (state) {
+            this._pos = 0;
+            this._line = 0;
+            this._column = 0;
+            this._setParserState(state);
+        },
 
-            // Configuration / pre-defined handlers
+        /**
+         * Get current position
+         *
+         * @return {{pos: number, line: number, column: number}}
+         */
+        currentPos: function () {
+            return {
+                pos: this._pos,
+                line: this._line,
+                column: this._column
+            };
+        },
 
-            /**
-             * Initial parser state (set with reset)
-             *
-             * @type {Function|null}
-             * @protected
-             */
-            _initialParserState: null,
-
-            /**
-             * Ignore \r  (i.e. no parsing function called)
-             *
-             * @type {Boolean}
-             * @protected
-             */
-            _ignoreCarriageReturn: false,
-
-            /**
-             * Ignore \n (i.e. no parsing function called)
-             *
-             * @type {Boolean}
-             * @protected
-             */
-            _ignoreLineFeed: false,
-
-//            /**
-//             * Sometimes, common handling of new line can be achieved by a
-//             * single function called automatically
-//             *
-//             * @protected
-//             */
-//            _parsedEndOfLine: function () {}
-
-            /**
-             * No more character will be entered, parser must end
-             * Default implementation consists in calling current state with 0
-             * as parameter. Can be overridden.
-             *
-             * @protected
-             */
-            _finalizeParserState: function () {
-                this._pState(0);
-            },
-
-            /**
-             * Change parser state
-             *
-             * @param {Function} [state=null] state
-             * @protected
-             */
-            _setParserState: function (state) {
-                if (!state) {
-                    state = this._initialParserState;
-                }
-                if (state !== this._pState) {
-                    // TODO trigger state transition
-                    this._pState = state;
-                }
-            },
-
-            /**
-             * The parser generates an output
-             *
-             * @param {*} item
-             * @protected
-             */
-            _output: function (item) {
-                var handler = this._outputHandler;
-                if (handler instanceof Array) {
-                    handler.push(item);
-                } else if (null !== handler) {
-                    // Assuming a Function
-                    handler.apply(this, [item]);
+        /**
+         * Parser entry point
+         *
+         * @param {...String|null} var_args
+         */
+        parse: function () {
+            var len = arguments.length,
+                idx,
+                arg;
+            for (idx = 0; idx < len; ++idx) {
+                arg = arguments[idx];
+                if (null === arg) {
+                    this._finalizeParserState();
+                } else {
+                    _gpfAssert("string" === typeof arg, "string expected");
+                    this._parse(arg);
                 }
             }
         },
 
+        /**
+         * Defines an handler for the parser output
+         *
+         * @param {Array|gpf.events.EventHandler) handler
+         */
+        setOutputHandler: function (handler) {
+            _gpfAssert(handler instanceof Array || _GpfEventsIsValidHandler(handler),
+                "Expected a valid output handler");
+            this._outputHandler = handler;
+        }
+
+    },
+    "#": {
+
+        // Configuration / pre-defined handlers
+
+         // @property {Function|null} Initial parser state (set with reset)
+        _initialParserState: null,
+
+        // @property {Boolean} Ignore \r  (i.e. no parsing function called)
+        _ignoreCarriageReturn: false,
+
+        // @property {Boolean} Ignore \n (i.e. no parsing function called)
+        _ignoreLineFeed: false,
+
+        /**
+         * No more character will be entered, parser must end
+         * Default implementation consists in calling current state with 0 as parameter.
+         * Can be overridden.
+         */
+        _finalizeParserState: function () {
+            this._pState(0);
+        },
+
+        /**
+         * Change parser state
+         *
+         * @param {Function} [state=null] state
+         */
+        _setParserState: function (state) {
+            if (!state) {
+                state = this._initialParserState;
+            }
+            _gpfAssert("function" === typeof state, "State must be a function");
+            if (state !== this._pState) {
+                this._pState = state;
+            }
+        },
+
+        /**
+         * The parser generates an output
+         *
+         * @param {*} item
+         */
+        _output: function (item) {
+            var handler = this._outputHandler;
+            if (handler instanceof Array) {
+                handler.push(item);
+            } else if (null !== handler) {
+                // Assuming a Function
+                handler.apply(this, [item]);
+            }
+        }
+    },
         "-": {
 
             /**
              * Absolute parser current position
              *
              * @type {Number}
-             * @private
              */
             _pos: 0,
 
@@ -188,7 +157,6 @@
              * Parser current line
              *
              * @type {Number}
-             * @private
              */
             _line: 0,
 
@@ -1374,7 +1342,3 @@
     });
 
     //endregion
-
-/*#ifndef(UMD)*/
-}()); /* End of privacy scope */
-/*#endif*/
