@@ -47,6 +47,7 @@
 
         // https://github.com/ArnaudBuchholz/gpf-js/issues/67
         "parser",               // Parser helper                  gpf.Parser
+        "pattern",              // Patterns                       gpf.Parser
         "tokenizer",            // Javascript parser                  gpf.js
 
         // https://github.com/ArnaudBuchholz/gpf-js/issues/66
