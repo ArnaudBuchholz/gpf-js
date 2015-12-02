@@ -16,6 +16,8 @@ module.exports = function (grunt) {
         "exec:testWscriptDebug",
         "mocha:release",
         "mochaTest:release",
-        "exec:testWscriptRelease"
+        "exec:testWscriptRelease",
+        "copy:setVersionPlato",
+        "copy:publishVersion"
     ]);
 };
