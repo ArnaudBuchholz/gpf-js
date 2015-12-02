@@ -3,15 +3,23 @@
 /*eslint-env node*/
 /*global configuration*/
 
+function clearRequireCache () {
+    for (var key in require.cache) {
+        if (require.cache.hasOwnProperty(key)) {
+            delete require.cache[key];
+        }
+    }
+}
+
 // Test automation inside NodeJS
 module.exports = {
     source: {
         options: {
             reporter: "dot",
             quiet: false,
-            clearRequireCache: true,
             require: [
                 function () {
+                    clearRequireCache();
                     global.gpfSourcesPath = "src/";
                 },
                 "./src/boot.js",
@@ -27,9 +35,9 @@ module.exports = {
         options: {
             reporter: "spec",
             quiet: false,
-            clearRequireCache: true,
             require: [
                 function () {
+                    clearRequireCache();
                     global.gpfSourcesPath = "src/";
                 },
                 "./src/boot.js",
@@ -47,6 +55,7 @@ module.exports = {
             quiet: true,
             require: [
                 function () {
+                    clearRequireCache();
                     global.gpfSourcesPath = "tmp/coverage/instrument/src/";
                 },
                 "./tmp/coverage/instrument/src/boot.js",
@@ -62,9 +71,9 @@ module.exports = {
         options: {
             reporter: "dot",
             quiet: false,
-            clearRequireCache: true,
             require: [
                 function () {
+                    clearRequireCache();
                     global.gpf = require("../build/gpf-debug.js");
                     require("../test/host/console.js");
                     global.assert = require("assert");
@@ -77,9 +86,9 @@ module.exports = {
         options: {
             reporter: "dot",
             quiet: false,
-            clearRequireCache: true,
             require: [
                 function () {
+                    clearRequireCache();
                     global.gpf = require("../build/gpf.js");
                     require("../test/host/console.js");
                     global.assert = require("assert");
