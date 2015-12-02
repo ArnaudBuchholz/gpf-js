@@ -8,6 +8,7 @@ module.exports = function (grunt) {
         "eslint",
         "istanbul",
         "coverage",
+        "copy:getPlatoHistory",
         "plato",
         "exec:metrics"
     ]);
