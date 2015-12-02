@@ -21,6 +21,7 @@ module.exports = function (grunt) {
 
     // Since the tasks are split using load-grunt-config, I need a global object containing the configuration
     global.configuration = {
+        pkg: grunt.file.readJSON("./package.json"),
         srcFiles: srcFiles,
         testFiles: testFiles,
         jsLintedFiles: [
