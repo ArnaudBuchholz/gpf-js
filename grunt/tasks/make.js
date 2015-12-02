@@ -3,7 +3,7 @@
 /*eslint-env node*/
 
 module.exports = function (grunt) {
-    grunt.registerTask("plato", [
+    grunt.registerTask("make", [
         "exec:version",
         "default",
         "mocha:source",
