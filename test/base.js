@@ -23,18 +23,15 @@ describe("base", function () {
                 assert(previousGpf === gpf);
             });
 
-        } else if (gpf.HOST_BROWSER === gpf.host() || gpf.HOST_PHANTOMJS === gpf.host()) {
+        } else if ((gpf.HOST_BROWSER === gpf.host() || gpf.HOST_PHANTOMJS === gpf.host())
+                   && window.gpfSourcesPath) {
             /*jshint browser: true*/
             /*eslint-env browser*/
 
             //TODO when run directly in phantomJs (not loaded through a page), this fails
             it("supports multiple includes (browser)", function (done) {
-                var previousGpf = gpf,
-                    basePath;
-                if (window.gpfSourcesPath) {
-                    basePath = window.gpfSourcesPath;
-                }
-                gpf.web.include(basePath + "../build/gpf-debug.js", {
+                var previousGpf = gpf;
+                gpf.web.include(gpfSourcesPath + "../build/gpf-debug.js", {
                     "ready": function () {
                         var gpf2 = gpf.noConflict();
                         assert("object" === typeof gpf2);
