@@ -450,8 +450,9 @@ describe("compatibility", function () {
         describe("name support", function () {
 
             it("exposes a name", function () {
-                function thisName () {}
-                assert(thisName.compatibleName() === "thisName");
+                var Func = Function, // prevent linter error
+                    testableFunc = new Func("return function funcName () {}")(); // prevent minification
+                assert(testableFunc.compatibleName() === "funcName");
             });
 
             it("supports empty name", function () {
