@@ -129,10 +129,10 @@ function addLine(data) {
         <script language="javascript">
 
 load("bdd.js", function () {
-    var dtStart = new Date(),
-        line,
-        results;
+    var dtStart = new Date();
     run(function (type, data) {
+        var line,
+            results;
         if ("results" !== type) {
             addLine(data);
         } else {
