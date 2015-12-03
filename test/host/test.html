@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <style type="text/css">
+
+body {
+    font-size: 8pt;
+    font-family: Verdana, Courrier, Sans Serif;
+    background-color: white;
+    color: black;
+}
+
+.ok { background-color: lightgreen; }
+.ko { background-color: orange; }
+
+        </style>
+        <script language="javascript">
+"use strict";
+
+// Supported syntax: release[=version] or debug[=version]
+var urlSearch = window.location.search.split("="),
+    flavor = "",
+    base;
+if (urlSearch[0] === "?debug") {
+    flavor = "-debug";
+}
+base = urlSearch[1] || "";
+if (base) {
+    base += "/";
+}
+
+document.write("<script src=\"" + base + "gpf" + flavor + ".js\"></" + "script>");
+document.write("<script src=\"" + base + "tests.js\"></" + "script>");
+
+        </script>
+        <script language="javascript">
+"use strict";
+
+document.title = gpf.version();
+
+function log (text) {
+    var line = document.body.appendChild(document.createElement("div"));
+    line.appendChild(document.createTextNode(text));
+    return line;
+}
+
+function runTests () {
+    var dtStart = new Date(),
+        describes = [];
+    run(function (type, data) {
+        if ("describe" === type) {
+            describes.length = data.depth;
+            describes.push(data.label);
+        } else if ("it" === type && false === data.result) {
+            log(describes.join("/") + "/" + data.label);
+        } else if ("results" === type) {
+            log("time spent: : " + (new Date() - dtStart) + "ms");
+            log("passes: " + data.success + " / " + data.count);
+            log("pending: " + data.pending);
+            if (data.fail) {
+                log("failure: " + data.fail);
+                document.body.className = "ko";
+            } else {
+                document.body.className = "ok";
+            }
+
+        }
+    });
+}
+
+        </script>
+    </head>
+    <body onload="runTests()"></body>
+</html>
