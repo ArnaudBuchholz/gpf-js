@@ -9,8 +9,9 @@ var IO_PATH = "../ArnaudBuchholz.github.io/",
     fs = require("fs"),
     copy = {
         getPlatoHistory: {},
-        setVersionPlato: {},
-        publishVersion: {}
+        publishVersionPlato: {},
+        publishVersion: {},
+        publishTest: {}
     };
 
 if (fs.existsSync(IO_PATH)) {
@@ -20,7 +21,7 @@ if (fs.existsSync(IO_PATH)) {
         src: IO_PATH + "plato/gpf-js/report.history.*",
         dest: "./tmp/plato/"
     };
-    copy.setVersionPlato = {
+    copy.publishVersionPlato = {
         expand: true,
         cwd: "./tmp/plato/",
         src: "**/*.*",
@@ -29,8 +30,14 @@ if (fs.existsSync(IO_PATH)) {
     copy.publishVersion = {
         expand: true,
         cwd: "./build/",
-        src: ["gpf.js", "gpf-debug.js"],
+        src: ["gpf.js", "gpf-debug.js", "tests.js"],
         dest: IO_PATH + "gpf/" + configuration.pkg.version + "/"
+    };
+    copy.publishTest = {
+        expand: true,
+        cwd: "./test/host/",
+        src: ["test.html"],
+        dest: IO_PATH + "gpf/"
     };
 }
 
