@@ -7,8 +7,8 @@
      * Simulate console object to generate exceptions when the output is not expected.
      */
 
-    var consoleMethods = {},
-        member,
+    var memberList = ["log", "warn", "error"],
+        consoleMethods = {},
         expected = [];
 
     /**
@@ -48,11 +48,11 @@
         };
     }
 
-    for (member in console) {
-        if (console.hasOwnProperty(member) || "function" === typeof console[member]) {
+    if (undefined === consoleMethods.log) {
+        memberList.forEach(function (member) {
             consoleMethods[member] = console[member];
             console[member] = genMember(member);
-        }
+        });
     }
 
     /**
@@ -64,6 +64,18 @@
      */
     console.expects = function (method, text, outputs) {
         expected.push(method, text, outputs === true);
+    };
+
+    /**
+     * Restore console methods
+     */
+    console.restore = function () {
+        if (undefined !== consoleMethods.log) {
+            memberList.forEach(function (member) {
+                console[member] = consoleMethods[member];
+            });
+            consoleMethods = {};
+        }
     };
 
 }());
