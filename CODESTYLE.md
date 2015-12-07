@@ -44,7 +44,7 @@ where the region provides the source name.
 
 The project comes with an [.editorconfig file](http://editorconfig.org/).
 
-All files are using UTF-8 encoding with DOS-like carriage return.
+All files are using UTF-8 encoding with UNIX-like carriage return (linefeed only).
 
 The maximum line length has recently been changed from 80 to 120.
 When breaking a line, the following principles are applied:
