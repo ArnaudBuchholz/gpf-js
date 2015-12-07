@@ -131,7 +131,7 @@
         "indent":                       [2, 4],
         "jsx-quotes":                   0,
         "key-spacing":                  [2, {"beforeColon": false, "afterColon": true, "mode": "minimum"}],
-        "linebreak-style":              [2, "unix"],
+        "linebreak-style":              [1, "unix"],
         "lines-around-comment":         0,
         "max-nested-callbacks":         [2, 2],
         "new-cap":                      2,
