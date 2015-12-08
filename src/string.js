@@ -1,70 +1,110 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfAssert*/ // Assertion method
-/*global _gpfStringReplaceEx*/ // String replacement using dictionary map
-/*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
-/*global _gpfStringCapitalize*/ // Capitalize the string
-/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
 /*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
-/*global _gpfExtend*/ // gpf.extend
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*global _gpfExtend*/ // gpf.extend
+/*global _gpfI*/ // gpf.interfaces
+/*global _gpfStringCapitalize*/ // Capitalize the string
+/*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
+/*global _gpfStringReplaceEx*/ // String replacement using dictionary map
+/*exported _gpfExtractFromStringArray*/
 /*#endif*/
 
+/**
+ * Extract the first characters of a string array
+ *
+ * @param {Strings[]} strings This array is modified after extraction
+ * @param {Number} [size=0] size Number of characters to get, all if 0
+ * @return {String}
+ */
+function _gpfExtractFromStringArray (strings, size) {
+    var stringsCount = strings.length,
+        result,
+        count,
+        string,
+        len;
+    if (size) {
+        // Check how many strings can be included in the result
+        count = 0;
+        do {
+            string = strings[count];
+            len = string.length;
+            if (len <= size) {
+                ++count;
+                size -= len;
+            } else {
+                break;
+            }
+        } while (0 < size && count < stringsCount);
+        if (0 === size) {
+            // Simple case (no need to cut the last item)
+            return strings.splice(0, count).join("");
+        }
+        if (count < stringsCount) {
+            // Last item has to be cut
+            result = [];
+            if (0 < count) {
+                result.push(strings.splice(0, count - 1).join(""));
+            }
+            // Remove first item
+            string = strings.shift();
+            // Add the missing characters
+            result.push(string.substr(0, size));
+            // Put back the remaining characters
+            strings.unshift(string.substr(size));
+            // Consolidate the string
+            return result.join("");
+        }
+    }
+    // Take the whole content & clear the array
+    return strings.splice(0, stringsCount).join("");
+}
+
 var
-    gpfI = gpf.interfaces,
-
-        /**
-         * Implements ITextStream on top of a string (FIFO read / write)
-         *
-         * @class StringStream
-         * @extends gpf.events.Target
-         * @implements gpf.interfaces.ITextStream
-         * @private
-         */
+    /**
+     * Implements ITextStream on top of a string (FIFO read / write)
+     *
+     * @class StringStream
+     * @extends gpf.events.Target
+     * @implements gpf.interfaces.ITextStream
+     * @private
+     */
     StringStream = _gpfDefine("StringStream", Object, {
-
-        "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.ITextStream)],
-
+        "[Class]": [gpf.$InterfaceImplement(_gpfI.IStream)],
         "+": {
+            /**
+             * @param {String} [string=undefined] string
+             */
+            constructor: function (string) {
+                if (undefined !== string && string.length) {
+                    this._buffer = [string];
+                } else {
+                    this._buffer = [];
+                }
+            },
 
-                /**
-                 * @param {String} [string=undefined] string
-                 * @constructor
-                 */
-                constructor: function (string) {
-                    if (undefined !== string && string.length) {
-                        this._buffer = [string];
-                    } else {
-                        this._buffer = [];
-                    }
-                },
+            //region gpf.interfaces.IStream
 
-                //region gpf.interfaces.ITextStream
-
-                /**
-                 * @implements gpf.interfaces.ITextStream:read
-                 */
-                read: function (count, eventsHandler) {
-                    var
-                        result;
-                    if (0 === this._buffer.length) {
-                        _gpfEventsFire.apply(this, [
-                            gpfI.IReadableStream.EVENT_END_OF_STREAM,
-                            {},
-                            eventsHandler
-                        ]);
-                    } else {
-                        result = gpf.stringExtractFromStringArray(this._buffer,
-                            count);
-                        _gpfEventsFire.apply(this, [
-                            gpfI.IReadableStream.EVENT_DATA,
-                            {
-                                buffer: result
-                            },
-                            eventsHandler
-                        ]);
-                    }
-                },
+            // @implements gpf.interfaces.ITextStream:read
+            read: function (count, eventsHandler) {
+                var result;
+                if (0 === this._buffer.length) {
+                    _gpfEventsFire.apply(this, [_GPF_EVENT_END_OF_DATA, {}, eventsHandler]);
+                } else {
+                    result = gpf.stringExtractFromStringArray(this._buffer,
+                        count);
+                    _gpfEventsFire.apply(this, [
+                        gpfI.IReadableStream.EVENT_DATA,
+                        {
+                            buffer: result
+                        },
+                        eventsHandler
+                    ]);
+                }
+            },
 
                 /**
                  * @implements gpf.interfaces.ITextStream:write
@@ -115,68 +155,6 @@ function _stringStreamConcat (previous, buffer) {
         return previous.join("");
     }
 }
-
-//endregion
-
-//region stringFromFile helpers
-
-/**
- * Creates a custom EventsHandler to sequence the calls to be made
- *
- * @param {*} path
- * @param {String} encoding
- * @param {gpf.events.Handler} eventsHandler
- * @constructor
- */
-function StringFromFileScope (path, encoding, eventsHandler) {
-    this._path = path;
-    this._encoding = encoding;
-    this._eventsHandler = eventsHandler;
-    this.scope = this;
-}
-
-StringFromFileScope.prototype = {
-    _path: null,            // File path
-    _encoding: "",          // Encoding
-    _eventsHandler: null,   // Original events handler
-    _step: 0,               // 0: getInfo, 1: readAsBinaryStream
-    scope: null             // This eventsHandler scope
-};
-
-/**
- * ready event handler
- *
- * @param {gpf.Event} event
- */
-StringFromFileScope.prototype.ready = function (event) {
-    if (0 === this._step) {
-        var info = event.get("info");
-        if (info.type === gpf.fs.TYPE_NOT_FOUND) {
-            _gpfEventsFire.apply(this, [
-                _GPF_EVENT_ERROR, {
-                    error: gpf.Error.FileNotFound()
-                }, this._eventsHandler
-            ]);
-            return;
-        }
-        this._step = 1;
-        gpf.fs.readAsBinaryStream(this._path, this);
-    } else {
-        var stream = event.get("stream");
-        var decoder = gpf.encoding.createDecoder(stream, this._encoding);
-        gpf.stringFromStream(decoder, this);
-    }
-};
-
-/**
- * Any other event handler
- *
- * @param {gpf.Event} event
- */
-StringFromFileScope.prototype["*"] = function (event) {
-    // Forward to original handler (error or data)
-    _gpfEventsFire.apply(this, [event, {}, this._eventsHandler]);
-};
 
 //endregion
 
@@ -313,25 +291,6 @@ _gpfExtend(gpf, {
             } else {
                 gpf.stream.readAll(stream, _stringStreamConcat, eventsHandler);
             }
-    },
-
-    "[stringFromFile]": [gpf.$ClassExtension(String, "fromFile")],
-
-        /**
-         * Completely reads a file
-         *
-         * @param {*} path
-         * @param {String} encoding
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @event gpf.events.EVENT_DATA
-         * finished reading the file, the buffer is provided
-         *
-         * @eventParam {String} buffer
-         */
-    stringFromFile: function (path, encoding, eventsHandler) {
-        gpf.fs.getInfo(path,
-                new StringFromFileScope(path, encoding, eventsHandler));
     }
 
 });
