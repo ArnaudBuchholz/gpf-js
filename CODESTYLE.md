@@ -191,6 +191,7 @@ gpf.ASSERTS = function (messages) {/*...*/}
 
 Ideally, there should be only one assertion per function (to reduce the number of necessary instructions), this is the
 reason why gpf.ASSERTS was introduced.
+The message of the assertion **must** be the evaluated condition.
 
 For instance:
 
