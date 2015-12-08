@@ -1,4 +1,4 @@
-(function () { /* Begin of privacy scope */
+(function () {/* Begin of privacy scope */
     "use strict";
 
     /*jshint -W027*/ // Done on purpose until gpf.declareTests is removed
@@ -41,7 +41,7 @@
                 test.title("Convert an object with arrays into IXMLConstNode");
                 var
                     root = new gpf.xml.ConstNode({
-                        array1: [ "Hello", "World!" ],
+                        array1: ["Hello", "World!"],
                         array2: [{
                             att1: "Hello",
                             att2: "World!"
@@ -117,7 +117,7 @@
                 test.title("Convert an object with arrays into IXMLConstNode");
                 var
                     root = new gpf.xml.ConstNode({
-                        array1: [ "Hello", "World!" ],
+                        array1: ["Hello", "World!"],
                         array2: [{
                             att1: "Hello",
                             att2: "World!"

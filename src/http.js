@@ -38,7 +38,7 @@ var
                  || this.readyState === "complete")) {
             _detachInclude(context);
             // IE10: the event is triggered *before* the source is evaluated
-            setTimeout(function() {
+            setTimeout(function () {
                 context.done = true;
                 gpf.events.fire("load", {url: context.src},
                     context.eventsHandler);

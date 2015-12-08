@@ -1,6 +1,6 @@
 /*#ifndef(UMD)*/
-(function () { /* Begin of privacy scope */
-"use strict";
+(function () {/* Begin of privacy scope */
+    "use strict";
 /*global _gpfExtend*/ // gpf.extend
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
@@ -400,7 +400,7 @@
      * @param {gpf.interfaces.IXmlConstNode} node Node to serialize
      * @param {gpf.interfaces.wrap(IXmlContentHandler)} wrapped XML Content
      */
-    function _nodeToXml(node, wrapped) {
+    function _nodeToXml (node, wrapped) {
         var
             name = node.localName(),
             attributes = node.attributes(),

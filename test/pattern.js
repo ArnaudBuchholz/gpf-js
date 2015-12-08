@@ -18,12 +18,12 @@ describe("pattern", function () {
             }
         };
 
-    function write(context, chars) {
+    function write (context, chars) {
         var
             idx,
             len = chars.length,
             res;
-        for(idx = 0; idx < len; ++idx) {
+        for (idx = 0; idx < len; ++idx) {
             res = context.write(chars.charAt(idx));
         }
         return res;
@@ -71,7 +71,7 @@ describe("pattern", function () {
                 pattern = new gpf.Pattern("abc?");
                 test.log("abc?");
                 test.equal(write(pattern.allocate(), "abc"), 3, "\tabc");
-                test.equal(write(pattern.allocate(), "ab"), 2,"\tab");
+                test.equal(write(pattern.allocate(), "ab"), 2, "\tab");
                 test.equal(write(pattern.allocate(), "abd"), 2, "\tabd");
                 test.equal(write(pattern.allocate(), "abcc"), 3, "\tabcc");
                 pattern = new gpf.Pattern("abc*");

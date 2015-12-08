@@ -10,8 +10,8 @@
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
-    var
-        gpfI = gpf.interfaces,
+var
+    gpfI = gpf.interfaces,
 
         /**
          * Implements ITextStream on top of a string (FIFO read / write)
@@ -21,7 +21,7 @@
          * @implements gpf.interfaces.ITextStream
          * @private
          */
-        StringStream = _gpfDefine("StringStream", Object, {
+    StringStream = _gpfDefine("StringStream", Object, {
 
             "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.ITextStream)],
 
@@ -31,7 +31,7 @@
                  * @param {String} [string=undefined] string
                  * @constructor
                  */
-                constructor: function(string){
+                constructor: function (string) {
                     if (undefined !== string && string.length) {
                         this._buffer = [string];
                     } else {
@@ -44,7 +44,7 @@
                 /**
                  * @implements gpf.interfaces.ITextStream:read
                  */
-                read: function(count, eventsHandler) {
+                read: function (count, eventsHandler) {
                     var
                         result;
                     if (0 === this._buffer.length) {
@@ -85,7 +85,7 @@
                  * Consolidate the result string
                  * @return {String}
                  */
-                consolidateString: function() {
+                consolidateString: function () {
                     return this._buffer.join("");
                 }
 
@@ -105,7 +105,7 @@
 
 //region stringFromStream helpers
 
-function _stringStreamConcat(previous, buffer) {
+function _stringStreamConcat (previous, buffer) {
     if (undefined === previous) {
         return [buffer];
     } else if (undefined !== buffer) {
@@ -180,9 +180,9 @@ StringFromFileScope.prototype["*"] = function (event) {
 
 //endregion
 
-    _gpfExtend(gpf, {
+_gpfExtend(gpf, {
 
-        "[capitalize]": [gpf.$ClassExtension(String)],
+    "[capitalize]": [gpf.$ClassExtension(String)],
 
         /**
          * Capitalize the string
@@ -190,10 +190,10 @@ StringFromFileScope.prototype["*"] = function (event) {
          * @param {String} that
          * @return {String}
          */
-        capitalize: _gpfStringCapitalize,
+    capitalize: _gpfStringCapitalize,
 
 
-        "[replaceEx]": [gpf.$ClassExtension(String)],
+    "[replaceEx]": [gpf.$ClassExtension(String)],
 
         /**
          * Substitutes all occurrences of the keys found in the replacements
@@ -203,9 +203,9 @@ StringFromFileScope.prototype["*"] = function (event) {
          * @param {Object} replacements map of strings to search and replace
          * @return {String}
          */
-        replaceEx: _gpfStringReplaceEx,
+    replaceEx: _gpfStringReplaceEx,
 
-        "[escapeFor]": [gpf.$ClassExtension(String)],
+    "[escapeFor]": [gpf.$ClassExtension(String)],
 
         /**
          * Adapt the string content to be compatible with the provided language
@@ -214,10 +214,10 @@ StringFromFileScope.prototype["*"] = function (event) {
          * @param {String} language
          * @return {String}
          */
-        escapeFor: _gpfStringEscapeFor,
+    escapeFor: _gpfStringEscapeFor,
 
         // TODO Should be a static extension as 'that' is not used
-        "[stringExtractFromStringArray]": [gpf.$ClassExtension(String,
+    "[stringExtractFromStringArray]": [gpf.$ClassExtension(String,
             "fromStringArray")],
 
         /**
@@ -227,7 +227,7 @@ StringFromFileScope.prototype["*"] = function (event) {
          * @param {Number} [size=0] size Number of characters to get, all if 0
          * @return {String}
          */
-        stringExtractFromStringArray: function (strings, size) {
+    stringExtractFromStringArray: function (strings, size) {
             var
                 stringsCount = strings.length,
                 result,
@@ -275,7 +275,7 @@ StringFromFileScope.prototype["*"] = function (event) {
             return result;
         },
 
-        "[stringToStream]": [gpf.$ClassExtension(String, "toStream")],
+    "[stringToStream]": [gpf.$ClassExtension(String, "toStream")],
 
         /**
          * Converts the string into a stream
@@ -283,12 +283,12 @@ StringFromFileScope.prototype["*"] = function (event) {
          * @param {String} that
          * @return {Object} Implementing gpf.interfaces.ITextStream
          */
-        stringToStream: function (that) {
+    stringToStream: function (that) {
             return new StringStream(that);
         },
 
         // TODO Should be a static extension as 'that' is not used
-        "[stringFromStream]": [gpf.$ClassExtension(String, "fromStream")],
+    "[stringFromStream]": [gpf.$ClassExtension(String, "fromStream")],
 
         /**
          * Converts the stream into a string
@@ -301,7 +301,7 @@ StringFromFileScope.prototype["*"] = function (event) {
          *
          * @eventParam {String} buffer
          */
-        stringFromStream: function (stream, eventsHandler) {
+    stringFromStream: function (stream, eventsHandler) {
             if (stream instanceof StringStream) {
                 _gpfEventsFire.apply(this, [
                     gpfI.IReadableStream.EVENT_DATA,
@@ -315,7 +315,7 @@ StringFromFileScope.prototype["*"] = function (event) {
             }
         },
 
-        "[stringFromFile]": [gpf.$ClassExtension(String, "fromFile")],
+    "[stringFromFile]": [gpf.$ClassExtension(String, "fromFile")],
 
         /**
          * Completely reads a file
@@ -329,9 +329,9 @@ StringFromFileScope.prototype["*"] = function (event) {
          *
          * @eventParam {String} buffer
          */
-        stringFromFile: function (path, encoding, eventsHandler) {
+    stringFromFile: function (path, encoding, eventsHandler) {
             gpf.fs.getInfo(path,
                 new StringFromFileScope(path, encoding, eventsHandler));
         }
 
-    });
+});

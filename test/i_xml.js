@@ -26,7 +26,7 @@ describe("i_xml", function () {
                 endElement: function (eventsHandler) {},
                 endPrefixMapping: function (prefix) {},
                 ignorableWhitespace: function (buffer, eventsHandler) {},
-                processingInstruction: function (target, data, eventsHandler){
+                processingInstruction: function (target, data, eventsHandler) {
                 },
                 setDocumentLocator: function (locator) {},
                 skippedEntity: function (name) {},

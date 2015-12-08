@@ -76,7 +76,7 @@ _gpfDefine("gpf.xml.Writer", Object, {
          *
          * @private
          */
-        _closeLeafForContent: function() {
+        _closeLeafForContent: function () {
             var leaf;
             if (this._branch.length) {
                 leaf = this._branch[this._branch.length - 1];
@@ -133,7 +133,7 @@ _gpfDefine("gpf.xml.Writer", Object, {
          * @param {gpf.interfaces.IWritableStream} stream
          * @constructor
          */
-        constructor: function(stream) {
+        constructor: function (stream) {
             this._stream = _gpfI.query(stream, _gpfI.IWritableStream, true);
             this._branch = [];
             this._pendingPrefixMappings = [];

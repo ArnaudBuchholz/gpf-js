@@ -125,7 +125,7 @@ var
      */
     _tokenStateMapping = (function () {
         var result = {};
-        result[_TOKEN_STATE_NONE] =_TOKEN_UNKNOWN;
+        result[_TOKEN_STATE_NONE] = _TOKEN_UNKNOWN;
         result[_TOKEN_STATE_SYMBOL] = _TOKEN_SYMBOL;
         result[_TOKEN_STATE_LCOMMENT] = _TOKEN_COMMENT;
         result[_TOKEN_STATE_COMMENT] = _TOKEN_COMMENT;

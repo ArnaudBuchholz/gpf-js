@@ -1,5 +1,5 @@
 /*#ifndef(UMD)*/
-(function () { /* Begin of privacy scope */
+(function () {/* Begin of privacy scope */
     "use strict";
     /*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
@@ -64,7 +64,7 @@
      * @param {gpf.xml.IXmlConstNode[]} resultSet
      * @private
      */
-    function _each(nodes, func, param, resultSet) {
+    function _each (nodes, func, param, resultSet) {
         var
             idx,
             node;
@@ -82,7 +82,7 @@
      * @param {gpf.xml.IXmlConstNode[]} resultSet
      * @private
      */
-    function _testELEMENT(node, expr, resultSet) {
+    function _testELEMENT (node, expr, resultSet) {
         var
             children = node.children(),
             child,
@@ -113,7 +113,7 @@
      * @param {gpf.xml.IXmlConstNode[]} resultSet
      * @private
      */
-    function _testATTRIBUTE(node, expr, resultSet) {
+    function _testATTRIBUTE (node, expr, resultSet) {
         var
             attributes,
             name,
@@ -147,10 +147,10 @@
      * @param {gpf.xml.IXmlConstNode[]} resultSet
      * @private
      */
-    function _test(nodeSet, expr, resultSet) {
+    function _test (nodeSet, expr, resultSet) {
         if (gpf.xml.NODE_ELEMENT === expr.type) {
             _each(nodeSet, _testELEMENT, expr, resultSet);
-        } else if(gpf.xml.NODE_ATTRIBUTE === expr.type) {
+        } else if (gpf.xml.NODE_ATTRIBUTE === expr.type) {
             _each(nodeSet, _testATTRIBUTE, expr, resultSet);
         }
     }
@@ -163,7 +163,7 @@
      * @param {gpf.xml.IXmlConstNode[]} resultSet
      * @private
      */
-    function _filter(node, expr, resultSet) {
+    function _filter (node, expr, resultSet) {
         var
             selectedNodes,
             conditions,
@@ -205,7 +205,7 @@
      * @param {Object} expr
      * @private
      */
-    function _select(node, expr) {
+    function _select (node, expr) {
         var
             resultSet,
             nodeSet = [node];

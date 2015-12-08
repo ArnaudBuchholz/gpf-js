@@ -1,6 +1,6 @@
 /*#ifndef(UMD)*/
-(function () { /* Begin of privacy scope */
-"use strict";
+(function () {/* Begin of privacy scope */
+    "use strict";
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfExtend*/ // gpf.extend
 /*#endif*/
@@ -26,7 +26,7 @@
                  * @param {Array} [array=undefined] array Cloned
                  * @constructor
                  */
-                constructor: function(array){
+                constructor: function (array) {
                     if (undefined !== array && array.length) {
                         this._buffer = [].concat(array);
                     } else {
@@ -39,7 +39,7 @@
                 /**
                  * @implements gpf.interfaces.IStream:read
                  */
-                read: function(count, eventsHandler) {
+                read: function (count, eventsHandler) {
                     var
                         result;
                     if (0 === this._buffer.length) {
@@ -88,7 +88,7 @@
                  * Consolidate the result array
                  * @return {Array}
                  */
-                consolidateArray: function() {
+                consolidateArray: function () {
                     return [].concat(this._buffer);
                 }
 
@@ -149,7 +149,7 @@
 
     });
 
-    function _arrayStreamConcat(previous, buffer) {
+    function _arrayStreamConcat (previous, buffer) {
         if (undefined === previous) {
             return buffer;
         } else if (undefined !== buffer) {

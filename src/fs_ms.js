@@ -448,13 +448,13 @@ _gpfDefine("gpf.fs.WScriptFileStorage", Object, {
                 folder = _gpfMsFSO.GetFolder(path);
                 // files
                 fsoEnum = new Enumerator(folder.Files);
-                for(; fsoEnum.atEnd(); fsoEnum.moveNext()) {
+                for (; fsoEnum.atEnd(); fsoEnum.moveNext()) {
                     result.push(_gpfFsoObjToInfo(fsoEnum.item(),
                         _GPF_FS_TYPE_FILE));
                 }
                 // folders
                 fsoEnum = new Enumerator(folder.SubFolders);
-                for(; fsoEnum.atEnd(); fsoEnum.moveNext()) {
+                for (; fsoEnum.atEnd(); fsoEnum.moveNext()) {
                     result.push(_gpfFsoObjToInfo(fsoEnum.item(),
                         _GPF_FS_TYPE_DIRECTORY));
                 }

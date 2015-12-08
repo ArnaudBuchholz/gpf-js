@@ -1,4 +1,4 @@
-(function () { /* Begin of privacy scope */
+(function () {/* Begin of privacy scope */
     "use strict";
     /*global _gpfDefine*/ // Shortcut for gpf.define
     /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
@@ -24,7 +24,7 @@
                 charCode = input.charCodeAt(idx);
                 if (charCode < 128) {
                     result.push(charCode);
-                } else if(charCode > 127 && charCode < 2048) {
+                } else if (charCode > 127 && charCode < 2048) {
                     result.push((charCode >> 6) | 192);
                     result.push((charCode & 63) | 128);
                 } else {
@@ -48,7 +48,7 @@
                 byte = input[idx];
                 if (byte < 128) {
                     result.push(String.fromCharCode(byte));
-                } else if(byte > 191 && byte < 224) {
+                } else if (byte > 191 && byte < 224) {
                     if (idx + 1 === len) {
                         break;
                     }

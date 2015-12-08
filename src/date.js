@@ -1,6 +1,6 @@
 /*#ifndef(UMD)*/
-(function () { /* Begin of privacy scope */
-"use strict";
+(function () {/* Begin of privacy scope */
+    "use strict";
 /*global _gpfExtend*/ // gpf.extend
 /*global _gpfValues*/ // Dictionary of value converters
 /*#endif*/

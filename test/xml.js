@@ -1,4 +1,4 @@
-(function () { /* Begin of privacy scope */
+(function () {/* Begin of privacy scope */
     "use strict";
 
     /*jshint -W027*/ // Done on purpose until gpf.declareTests is removed
@@ -29,8 +29,8 @@
              * (here script-writers)
              * Each object in the array is saved as an element
              */
-            "[_scriptwriters]": [ gpf.$XmlList("script-writers"),
-                gpf.$XmlElement("name") ],
+            "[_scriptwriters]": [gpf.$XmlList("script-writers"),
+                gpf.$XmlElement("name")],
             _scriptwriters: [],
 
             // Functions are ignored
@@ -45,7 +45,7 @@
             _releaseDate: new Date(1997, 6, 11),
             _rating: 6.9,
             _imdbTitle: "tt0120201",
-            _scriptwriters: [ "Edward Neumeier", "Robert A. Heinlein" ]
+            _scriptwriters: ["Edward Neumeier", "Robert A. Heinlein"]
         }),
 
         starshipTroopersXML = "<movie imdb-title=\"tt0120201\" "
@@ -81,7 +81,7 @@
                 .endDocument()
                 .$finally(callback);
         }
-    ;
+            ;
 
     gpf.declareTests({
 
@@ -134,7 +134,7 @@
                     stream = gpf.stringToStream(),
                     contentHandler = new gpf.xml.Writer(stream);
                 test.wait();
-                _createStarshipTroopersXML(contentHandler, function() {
+                _createStarshipTroopersXML(contentHandler, function () {
                     gpf.stringFromStream(stream, function (event) {
                         test.equal(event.get("buffer"),
                             starshipTroopersXML, "XML is well formed");
@@ -175,7 +175,7 @@
                 contentHandler = gpf.interfaces.query(movie,
                     gpf.interfaces.IXmlContentHandler);
                 test.wait();
-                _createStarshipTroopersXML(contentHandler, function() {
+                _createStarshipTroopersXML(contentHandler, function () {
                     test.like(movie, starshipTroopers);
                     test.done();
                 });

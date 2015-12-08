@@ -1,4 +1,4 @@
-(function () { /* Begin of privacy scope */
+(function () {/* Begin of privacy scope */
     "use strict";
 
     // Nothing to test right now

@@ -1,5 +1,5 @@
 /*#ifndef(UMD)*/
-(function () { /* Begin of privacy scope */
+(function () {/* Begin of privacy scope */
     "use strict";
     /*global _gpfDefine*/ // Shortcut for gpf.define
     /*global _gpfErrorDeclare*/ // Declare new gpf.Error names

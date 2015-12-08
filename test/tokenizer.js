@@ -1,4 +1,4 @@
-(function () { /* Begin of privacy scope */
+(function () {/* Begin of privacy scope */
     "use strict";
 
     /*jshint -W027*/ // Done on purpose until gpf.declareTests is removed
@@ -49,7 +49,7 @@
         },
 
         check = function (test, expected) {
-                var
+            var
                     expectedCount = expected[0],
                     expectedType = expected[1],
                     expectedToken = expected[2],
@@ -64,8 +64,8 @@
                              && expectedPos === test.pos
                              && expectedLine === test.line
                              && expectedColumn === test.column;
-                test.assert(result, test, message);
-            }
+            test.assert(result, test, message);
+        }
         ;
 
     gpf.declareTests({
@@ -111,7 +111,7 @@
             function (test) {
                 test.title("Error forcing");
                 test.stopAt = 1;
-                gpf.js.tokenize.apply(test, [ "return this", callback ]);
+                gpf.js.tokenize.apply(test, ["return this", callback]);
                 check(test, [2, "error", undefined, 0, 0, 0,
                     "Error generated"]);
             }

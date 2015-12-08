@@ -1,4 +1,4 @@
-(function () { /* Begin of privacy scope */
+(function () {/* Begin of privacy scope */
     "use strict";
 
     /*jshint -W027*/ // Done on purpose until gpf.declareTests is removed
@@ -39,7 +39,7 @@
                     + "70616E64756520646570756973206465732064C3A963656E6E696573"
                     + "2E",
 
-        _utf8Buffer = (function() {
+        _utf8Buffer = (function () {
             var
                 len = _utf8Code.length,
                 idx,

@@ -1,4 +1,4 @@
-(function () { /* Begin of privacy scope */
+(function () {/* Begin of privacy scope */
     "use strict";
 
     /*jshint -W027*/ // Done on purpose until gpf.declareTests is removed
@@ -295,23 +295,23 @@
                                                                         "name":
                                                                          "root",
                                                                         "range":
-                                                                        [
-                                                                            370,
-                                                                            374
-                                                                        ]
+                                                                            [
+                                                                                370,
+                                                                                374
+                                                                            ]
                                                                     },
                                                                     "property":
-                                                                    {
-                                                                        "type":
+                                                                        {
+                                                                            "type":
                                                                    "Identifier",
-                                                                        "name":
+                                                                            "name":
                                                                           "gpf",
-                                                                        "range":
-                                                                        [
-                                                                            375,
-                                                                            378
-                                                                        ]
-                                                                    },
+                                                                            "range":
+                                                                            [
+                                                                                375,
+                                                                                378
+                                                                            ]
+                                                                        },
                                                                     "range": [
                                                                         370,
                                                                         378
@@ -505,7 +505,7 @@
                             type: gpf.xml.NODE_ELEMENT,
                             name: "item",
                             filter: {
-                                and: [ {
+                                and: [{
                                     type: gpf.xml.NODE_ATTRIBUTE,
                                     name: "type",
                                     text: "ExpressionStatement"

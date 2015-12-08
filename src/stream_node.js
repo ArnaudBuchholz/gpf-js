@@ -167,7 +167,7 @@ if (_gpfInNode) {
              *
              * @private
              */
-            _onReadable: function() {
+            _onReadable: function () {
                 this._readable = true;
                 this._onData(this._stream.read(this._size));
             },
@@ -178,7 +178,7 @@ if (_gpfInNode) {
              * @param {Buffer} chunk
              * @private
              */
-            _onData: function(chunk) {
+            _onData: function (chunk) {
                 _gpfEventsFire.apply(this, [
                     _GPF_EVENT_DATA,
                     {

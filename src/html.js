@@ -1,6 +1,6 @@
 /*#ifndef(UMD)*/
-(function () { /* Begin of privacy scope */
-"use strict";
+(function () {/* Begin of privacy scope */
+    "use strict";
 /*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
 /*global _GPF_HOST_PHANTOMJS*/ // gpf.HOST_PHANTOMJS
 /*global _gpfAssert*/ // Assertion method
@@ -615,7 +615,7 @@
              * @implements gpf.interfaces.ITextStream:read
              * @closure
              */
-            read: function(count, eventsHandler) {
+            read: function (count, eventsHandler) {
                 var
                     that = this,
                     reader = this._reader,
@@ -818,7 +818,7 @@
                  * @param {Boolean} [global=false] global
                  */
                 constructor: function (event, selector, global) {
-                    _HtmHandler.apply(this,[selector, global]);
+                    _HtmHandler.apply(this, [selector, global]);
                     this._event = event;
                 }
 
@@ -830,7 +830,7 @@
 
     //region HTML event handlers mappers through attributes
 
-    function _getHandlerAttribute(member, handlerAttributeArray) {
+    function _getHandlerAttribute (member, handlerAttributeArray) {
         var attribute;
         if (1 !== handlerAttributeArray.length()) {
             throw gpf.Error.htmlHandlerMultiplicityError({
@@ -844,7 +844,7 @@
         return null;
     }
 
-    function _findDefaultHandler(member, handlerAttributeArray) {
+    function _findDefaultHandler (member, handlerAttributeArray) {
         var
             attribute = _getHandlerAttribute(member, handlerAttributeArray);
         if (attribute && !attribute._selector) {
@@ -902,7 +902,7 @@
         return domSelection;
     };
 
-    function _handleHandlers(member, handlerAttributeArray, domObject) {
+    function _handleHandlers (member, handlerAttributeArray, domObject) {
         /*jshint -W040*/ // Used as a callback, this is the object instance
         var
             attribute = _getHandlerAttribute(member, handlerAttributeArray);
@@ -923,7 +923,7 @@
      * @param {Object} domObject
      * @private
      */
-    function _handleEvents(member, attributesArray, domObject) {
+    function _handleEvents (member, attributesArray, domObject) {
         /*jshint -W040*/ // Used as a callback, this is the object instance
         attributesArray.each(_handleEvent, this, [member, domObject]);
         /*jshint +W040*/
@@ -935,7 +935,7 @@
      * @param {Object} domObject
      * @private
      */
-    function _handleEvent(eventAttribute, member, domObject) {
+    function _handleEvent (eventAttribute, member, domObject) {
         /*jshint -W040*/ // Used as a callback, this is the object instance
         var
             event = eventAttribute._event,
@@ -1122,7 +1122,7 @@
          */
         _orientation = "";
 
-    function _updateDynamicCss() {
+    function _updateDynamicCss () {
         var content = [];
         if (_monitorTop) {
             content.push(".gpf-top { top: ", _scrollY, "px; }\n");
@@ -1135,7 +1135,7 @@
      *
      * @private
      */
-    function _onResize() {
+    function _onResize () {
         _width = window.innerWidth;
         _height = window.innerHeight;
         var
@@ -1171,7 +1171,7 @@
      *
      * @private
      */
-    function _onScroll() {
+    function _onScroll () {
         _scrollY = window.scrollY;
         if (_monitorTop && _dynamicCss) {
             _updateDynamicCss();
@@ -1186,7 +1186,7 @@
      *
      * @private
      */
-    function _init() {
+    function _init () {
         _onResize();
         _onScroll();
     }
@@ -1290,12 +1290,12 @@
         }
     }
 
-    function _loadGpfIncludeFailed(event) {
+    function _loadGpfIncludeFailed (event) {
         console.error("gpf-loaded: failed to include '" + event.get("url")
             + "'");
     }
 
-    function _loadGpfIncludes() {
+    function _loadGpfIncludes () {
         if (!_gpfIncludes.length) {
             return;
         }
