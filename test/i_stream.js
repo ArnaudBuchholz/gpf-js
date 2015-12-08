@@ -31,17 +31,4 @@ describe("i_stream", function () {
         });
     });
 
-    describe("IStream", function () {
-        it("is a known and static interface", function () {
-            /*jshint unused:false*/
-            /*eslint-disable no-unused-vars*/
-            assert(gpf.interfaces.isImplementedBy({
-                read: function (size, eventsHandler) {},
-                write: function (buffer, eventsHandler) {}
-            }, gpf.interfaces.IStream));
-            /*jshint unused:true*/
-            /*eslint-enable no-unused-vars*/
-        });
-    });
-
 });
