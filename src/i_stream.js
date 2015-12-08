@@ -82,26 +82,3 @@ _gpfDefIntrf("IWritableStream", {
     }
 
 });
-
-/* istanbul ignore next */ // Interface
-/**
- * The stream combines both IReadableStream and IWritableStream
- *
- * @class gpf.interfaces.IStream
- * @extends gpf.interfaces.Interface
- */
-_gpfDefIntrf("IStream", {
-
-    // @inheritdoc gpf.interfaces.IReadableStream#read
-    "[read]": [gpf.$ClassEventHandler()],
-    read: function (size, eventsHandler) {
-        _gpfIgnore(size, eventsHandler);
-    },
-
-    // @inheritdoc gpf.interfaces.IWritableStream#write
-    "[write]": [gpf.$ClassEventHandler()],
-    write: function (buffer, eventsHandler) {
-        _gpfIgnore(buffer, eventsHandler);
-    }
-
-});
