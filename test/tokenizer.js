@@ -50,14 +50,14 @@
 
         check = function (test, expected) {
             var
-                    expectedCount = expected[0],
-                    expectedType = expected[1],
-                    expectedToken = expected[2],
-                    expectedPos = expected[3],
-                    expectedLine = expected[4],
-                    expectedColumn = expected[5],
-                    message = expected[6],
-                    result = expectedCount === test.count
+                expectedCount = expected[0],
+                expectedType = expected[1],
+                expectedToken = expected[2],
+                expectedPos = expected[3],
+                expectedLine = expected[4],
+                expectedColumn = expected[5],
+                message = expected[6],
+                result = expectedCount === test.count
                              && expectedType === test.type
                              && ( undefined === expectedToken
                                  || expectedToken === test.token )
