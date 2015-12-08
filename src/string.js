@@ -23,9 +23,9 @@ var
          */
     StringStream = _gpfDefine("StringStream", Object, {
 
-            "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.ITextStream)],
+        "[Class]": [gpf.$InterfaceImplement(gpf.interfaces.ITextStream)],
 
-            "+": {
+        "+": {
 
                 /**
                  * @param {String} [string=undefined] string
@@ -91,7 +91,7 @@ var
 
             },
 
-            "-": {
+        "-": {
 
                 /**
                  * @type {String[]}
@@ -101,7 +101,7 @@ var
 
             }
 
-        });
+    });
 
 //region stringFromStream helpers
 
@@ -228,13 +228,13 @@ _gpfExtend(gpf, {
          * @return {String}
          */
     stringExtractFromStringArray: function (strings, size) {
-            var
+        var
                 stringsCount = strings.length,
                 result,
                 count,
                 string,
                 len;
-            if (!size) {
+        if (!size) {
                 // Take the whole content & clear the array
                 result = strings.splice(0, stringsCount).join("");
             } else {
@@ -272,8 +272,8 @@ _gpfExtend(gpf, {
                     result = strings.splice(0, stringsCount).join("");
                 }
             }
-            return result;
-        },
+        return result;
+    },
 
     "[stringToStream]": [gpf.$ClassExtension(String, "toStream")],
 
@@ -284,8 +284,8 @@ _gpfExtend(gpf, {
          * @return {Object} Implementing gpf.interfaces.ITextStream
          */
     stringToStream: function (that) {
-            return new StringStream(that);
-        },
+        return new StringStream(that);
+    },
 
         // TODO Should be a static extension as 'that' is not used
     "[stringFromStream]": [gpf.$ClassExtension(String, "fromStream")],
@@ -302,7 +302,7 @@ _gpfExtend(gpf, {
          * @eventParam {String} buffer
          */
     stringFromStream: function (stream, eventsHandler) {
-            if (stream instanceof StringStream) {
+        if (stream instanceof StringStream) {
                 _gpfEventsFire.apply(this, [
                     gpfI.IReadableStream.EVENT_DATA,
                     {
@@ -313,7 +313,7 @@ _gpfExtend(gpf, {
             } else {
                 gpf.stream.readAll(stream, _stringStreamConcat, eventsHandler);
             }
-        },
+    },
 
     "[stringFromFile]": [gpf.$ClassExtension(String, "fromFile")],
 
@@ -330,8 +330,8 @@ _gpfExtend(gpf, {
          * @eventParam {String} buffer
          */
     stringFromFile: function (path, encoding, eventsHandler) {
-            gpf.fs.getInfo(path,
+        gpf.fs.getInfo(path,
                 new StringFromFileScope(path, encoding, eventsHandler));
-        }
+    }
 
 });
