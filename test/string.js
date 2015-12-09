@@ -23,6 +23,17 @@ describe("string", function () {
 
     });
 
+    if (gpf.internals) {
+
+        describe("Strings array", function () {
+
+            var _gpfStringArrayCountToFit = gpf.internals._gpfStringArrayCountToFit;
+            var _gpfStringArraySplice = gpf.internals._gpfStringArraySplice;
+            var _gpfStringArrayExtract = gpf.internals._gpfStringArrayExtract;
+
+        });
+    }
+
 });
 
 /*
