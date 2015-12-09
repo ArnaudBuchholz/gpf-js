@@ -211,53 +211,7 @@ _gpfExtend(gpf, {
      * @param {Number} [size=0] size Number of characters to get, all if 0
      * @return {String}
      */
-    stringExtractFromStringArray: function (strings, size) {
-        var
-                stringsCount = strings.length,
-                result,
-                count,
-                string,
-                len;
-        if (!size) {
-                // Take the whole content & clear the array
-                result = strings.splice(0, stringsCount).join("");
-            } else {
-                // Check how many string can be included in the result
-                count = 0;
-                do {
-                    string = strings[count];
-                    len = string.length;
-                    if (len <= size) {
-                        ++count;
-                        size -= len;
-                    } else {
-                        break;
-                    }
-                } while (0 < size && count < stringsCount);
-                if (0 === size) {
-                    // Simple case (no need to cut the last item)
-                    result = strings.splice(0, count).join("");
-                } else if (count < stringsCount) {
-                    // Last item has to be cut
-                    result = [];
-                    if (0 < count) {
-                        result.push(strings.splice(0, count - 1).join(""));
-                    }
-                    // Remove first item
-                    string = strings.shift();
-                    // Add the missing characters
-                    result.push(string.substr(0, size));
-                    // Put back the remaining characters
-                    strings.unshift(string.substr(size));
-                    // Consolidate the string
-                    result = result.join("");
-                } else {
-                    // No last item to cut, the whole array fit
-                    result = strings.splice(0, stringsCount).join("");
-                }
-            }
-        return result;
-    },
+    stringExtractFromStringArray: _gpfStringArrayExtract,
 
     "[stringToStream]": [gpf.$ClassExtension(String, "toStream")],
 
@@ -271,7 +225,7 @@ _gpfExtend(gpf, {
         return new StringStream(that);
     },
 
-        // TODO Should be a static extension as 'that' is not used
+    // TODO Should be a static extension as 'that' is not used
     "[stringFromStream]": [gpf.$ClassExtension(String, "fromStream")],
 
         /**
@@ -287,16 +241,16 @@ _gpfExtend(gpf, {
          */
     stringFromStream: function (stream, eventsHandler) {
         if (stream instanceof StringStream) {
-                _gpfEventsFire.apply(this, [
-                    gpfI.IReadableStream.EVENT_DATA,
-                    {
-                        buffer: stream.consolidateString()
-                    },
-                    eventsHandler
-                ]);
-            } else {
-                gpf.stream.readAll(stream, _stringStreamConcat, eventsHandler);
-            }
+            _gpfEventsFire.apply(this, [
+                gpfI.IReadableStream.EVENT_DATA,
+                {
+                    buffer: stream.consolidateString()
+                },
+                eventsHandler
+            ]);
+        } else {
+            gpf.stream.readAll(stream, _stringStreamConcat, eventsHandler);
+        }
     }
 
 });
@@ -306,17 +260,15 @@ _gpfExtend(gpf, {
 function _stringStreamConcat (previous, buffer) {
     if (undefined === previous) {
         return [buffer];
-    } else if (undefined !== buffer) {
+    }
+    if (undefined !== buffer) {
         previous.push(buffer);
         return previous;
-    } else {
-        return previous.join("");
     }
+    return previous.join("");
 }
 
 //endregion
-
-
 
 /*#ifndef(UMD)*/
 
