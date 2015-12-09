@@ -1,12 +1,10 @@
-############
-## Windows
-############
-
-# Windows image file caches
+# Windows specifics
 Thumbs.db
-
-# Folder config file
 Desktop.ini
+
+# Git override
+
+.gitconfig
 
 # NPM
 node_modules/
@@ -14,16 +12,9 @@ node_modules/
 # Temporary folder
 
 tmp/*
-
-#############
-## WebStorm
-#############
-
-.idea
-
-#############
-## Make
-#############
-
 make/tmp/*
 make/build/*
+
+# Editors
+
+.idea
