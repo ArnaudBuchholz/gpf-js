@@ -107,8 +107,6 @@
 
     _gpfExtend(gpf, {
 
-        "[arrayToStream]": [gpf.$ClassExtension(Array, "toStream")],
-
         /**
          * Converts the string into a stream
          *
@@ -118,9 +116,6 @@
         arrayToStream: function (that) {
             return new ArrayStream(that);
         },
-
-        // TODO Should be a static extension as 'that' is not used
-        "[arrayFromStream]": [gpf.$ClassExtension(Array, "fromStream")],
 
         /**
          * Converts the stream into an array

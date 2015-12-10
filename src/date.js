@@ -17,10 +17,6 @@
 
     _gpfExtend(gpf, {
 
-        "[dateToComparableFormat]": [
-            gpf.$ClassExtension(Date, "toComparableFormat")
-        ],
-
         /**
          * Converts the date into a string that can be compared with another
          * date
@@ -45,7 +41,6 @@
             return result.join("");
         },
 
-        "[dateFromComparableFormat]": [gpf.$ClassExtension(String)],
         /**
          * Converts a string into a Date using the format used inside the
          * function dateToComparableFormat
