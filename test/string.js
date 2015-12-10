@@ -26,7 +26,7 @@ describe("string", function () {
     describe("gpf.replaceEx", function () {
 
         it("replaces strings recursively", function () {
-            assert("abc" === gpf.replaceEx("abc", {
+            assert("add" === gpf.replaceEx("abc", {
                 "a": "abc",
                 "b": "dc",
                 "c": ""

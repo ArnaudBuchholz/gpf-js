@@ -2,7 +2,6 @@
 "use strict";
 /*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
 /*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
-/*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
 /*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfDefine*/ // Shortcut for gpf.define
@@ -32,7 +31,7 @@ function _gpfStringArrayCountToFit (strings, size) {
         count = 0,
         string,
         length;
-    do {
+    while (0 < size && count < stringsLength) {
         string = strings[count];
         length = string.length;
         if (length <= size) {
@@ -41,7 +40,7 @@ function _gpfStringArrayCountToFit (strings, size) {
         } else {
             break;
         }
-    } while (0 < size && count < stringsLength);
+    }
     return {
         count: count,
         remaining: size
@@ -167,8 +166,6 @@ var
 
 _gpfExtend(gpf, {
 
-    "[capitalize]": [gpf.$ClassExtension(String)],
-
     /**
      * Capitalize the string
      *
@@ -176,9 +173,6 @@ _gpfExtend(gpf, {
      * @return {String}
      */
     capitalize: _gpfStringCapitalize,
-
-
-    "[replaceEx]": [gpf.$ClassExtension(String)],
 
     /**
      * Substitutes all occurrences of the keys found in the replacements object with their values
@@ -189,8 +183,6 @@ _gpfExtend(gpf, {
      */
     replaceEx: _gpfStringReplaceEx,
 
-    "[escapeFor]": [gpf.$ClassExtension(String)],
-
     /**
      * Adapt the string content to be compatible with the provided language
      *
@@ -199,10 +191,6 @@ _gpfExtend(gpf, {
      * @return {String}
      */
     escapeFor: _gpfStringEscapeFor,
-
-        // TODO Should be a static extension as 'that' is not used
-    "[stringExtractFromStringArray]": [gpf.$ClassExtension(String,
-            "fromStringArray")],
 
     /**
      * Extract the first characters of a string array
@@ -213,50 +201,44 @@ _gpfExtend(gpf, {
      */
     stringExtractFromStringArray: _gpfStringArrayExtract,
 
-    "[stringToStream]": [gpf.$ClassExtension(String, "toStream")],
-
-        /**
-         * Converts the string into a stream
-         *
-         * @param {String} that
-         * @return {Object} Implementing gpf.interfaces.ITextStream
-         */
+    /**
+     * Converts the string into a stream
+     *
+     * @param {String} that
+     * @return {Object} Implementing gpf.interfaces.ITextStream
+     */
     stringToStream: function (that) {
         return new StringStream(that);
-    },
+    }
 
+    /*
     // TODO Should be a static extension as 'that' is not used
     "[stringFromStream]": [gpf.$ClassExtension(String, "fromStream")],
 
-        /**
-         * Converts the stream into a string
-         *
-         * @param {gpf.interfaces.ITextStream} stream
-         * @param {gpf.events.Handler} eventsHandler
-         *
-         * @event gpf.events.EVENT_DATA
-         * finished reading the stream, the buffer is provided
-         *
-         * @eventParam {String} buffer
-         */
+    /**
+     * Converts the stream into a string
+     *
+     * @param {gpf.interfaces.ITextStream} stream
+     * @param {gpf.events.Handler} eventsHandler
+     *
+     * @event gpf.events.EVENT_READY
+     * finished reading the stream, the buffer is provided
+     *
+     * @eventParam {String} buffer
     stringFromStream: function (stream, eventsHandler) {
         if (stream instanceof StringStream) {
-            _gpfEventsFire.apply(this, [
-                gpfI.IReadableStream.EVENT_DATA,
-                {
-                    buffer: stream.consolidateString()
-                },
-                eventsHandler
-            ]);
+            _gpfEventsFire.apply(this, [_GPF_EVENT_READY, {buffer: stream.consolidateString()}, eventsHandler]);
         } else {
             gpf.stream.readAll(stream, _stringStreamConcat, eventsHandler);
         }
     }
 
+    */
+
 });
 
 //region stringFromStream helpers
-
+/*
 function _stringStreamConcat (previous, buffer) {
     if (undefined === previous) {
         return [buffer];
@@ -267,7 +249,7 @@ function _stringStreamConcat (previous, buffer) {
     }
     return previous.join("");
 }
-
+*/
 //endregion
 
 /*#ifndef(UMD)*/
