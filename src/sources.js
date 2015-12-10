@@ -40,6 +40,8 @@
         "i_filestorage",        // IFileStorage
         "fs",                   // File system (FS)                   gpf.fs
 
+        "string",               // String functions
+
         /* new JSHint settings */
         "",                     // --- temporary end marker ---
 
@@ -58,7 +60,6 @@
         "stream",               // IStream helpers                gpf.stream
         "stream_out",           // gpf.stream.Out
         "stream_node",          // IStream helpers for nodeJS     gpf.stream
-        "string",               // String functions
         "array",                // Array functions
         "encoding",             // Encoding                     gpf.encoding
 
