@@ -31,18 +31,21 @@
         "define",               // Class management               gpf.define
         "attributes",           // Attributes                 gpf.attributes
                                 // (=> i_array)
+        // TODO create "attributes" subfolder
         "a_attributes",         // AttributeClassOnly attributes
         "a_class",              // Class attributes
+
         "interfaces",           // Interfaces                 gpf.interfaces
+        // TODO create "interfaces" subfolder
         "i_enumerator",         // IEnumerator
         "i_array",              // IArray
         "i_stream",             // IStream
         "i_filestorage",        // IFileStorage
         "fs",                   // File system (FS)                   gpf.fs
 
+        "stream",               // IStream helpers                gpf.stream
         "string",               // String functions
 
-        /* new JSHint settings */
         "",                     // --- temporary end marker ---
 
 // https://github.com/ArnaudBuchholz/gpf-js/milestones/Release%200.1.5:%20The%20next%20gen
@@ -57,7 +60,6 @@
         "fs_ms",                // FS implementation for WScript      gpf.fs
 
         // https://github.com/ArnaudBuchholz/gpf-js/issues/68
-        "stream",               // IStream helpers                gpf.stream
         "stream_out",           // gpf.stream.Out
         "stream_node",          // IStream helpers for nodeJS     gpf.stream
         "array",                // Array functions
