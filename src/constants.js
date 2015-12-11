@@ -166,6 +166,13 @@
 //region fs_ms
 //endregion
 
+//region encoding
+/*global _gpfEncodings*/ // Encodings dictionary
+//endregion
+//region encoding/utf-8
+/*global _GPF_ENCODING_UTF_8*/
+//endregion
+
 /*global _GpfNodeStream*/ // gpf.stream.Node
 /*global _gpfFromXml*/ // XML deserializer
 /*global _gpfToXml*/ // XML serializer
