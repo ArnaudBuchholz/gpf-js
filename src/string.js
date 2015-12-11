@@ -60,17 +60,13 @@ function _gpfStringArraySplice (strings, itemsCount, characterCount) {
     var result,
         string;
     _gpfAssert(itemsCount <= strings.length, "itemsCount within strings range");
-    if (!characterCount) {
-        return strings.splice(0, itemsCount).join("");
-    }
-    // Last item has to be cut
     if (0 < itemsCount) {
-        result = strings.splice(0, itemsCount - 1);
+        result = strings.splice(0, itemsCount);
     } else {
         result = [];
     }
-    if (strings.length) {
-        // Remove first item
+    if (strings.length && characterCount) {
+        // Last item has to be cut, remove first item
         string = strings.shift();
         // Add the missing characters
         result.push(string.substr(0, characterCount));
@@ -151,7 +147,7 @@ var
              * Consolidate the result string
              * @return {String}
              */
-            consolidateString: function () {
+            toString: function () {
                 return this._buffer.join("");
             }
 

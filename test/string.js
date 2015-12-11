@@ -50,98 +50,180 @@ describe("string", function () {
         });
     });
 
-    if (gpf.internals) {
+    describe("gpf.stringToStream", function () {
 
-    describe("Strings array", function () {
-
-        var testCases = [{
-            label: "too much",
-            strings: ["a", "b", "c"],
-            size: 2,
-            count: 2,
-            remaining: 0,
-            expectedResult: "ab",
-            expectedStrings: ["c"]
-        }, {
-            label: "matching",
-            strings: ["a", "b", "c"],
-            size: 3,
-            count: 3,
-            remaining: 0,
-            expectedResult: "abc",
-            expectedStrings: []
-        }, {
-            label: "not enough",
-            strings: ["a", "b", "c"],
-            size: 4,
-            count: 3,
-            remaining: 1,
-            expectedResult: "abc",
-            expectedStrings: []
-        }, {
-            label: "empty strings",
-            strings: [],
-            size: 3,
-            count: 0,
-            remaining: 3,
-            expectedResult: "",
-            expectedStrings: []
-        }, {
-            label: "split required",
-            strings: ["abc", "def", "ghi"],
-            size: 4,
-            count: 1,
-            remaining: 1,
-            expectedResult: "abcd",
-            expectedStrings: ["ef", "ghi"]
-
-        }];
-
-        describe("_gpfStringArrayCountToFit", function () {
-            var _gpfStringArrayCountToFit = gpf.internals._gpfStringArrayCountToFit;
-
-            testCases.forEach(function (testCase) {
-                var label = "counts the number of parts needed to fit requested size (" + testCase.label + ")";
-                it(label, function () {
-                    var result = _gpfStringArrayCountToFit(testCase.strings, testCase.size);
-                    assert(testCase.count === result.count);
-                    assert(testCase.remaining === result.remaining);
-
+        it("supports writing", function (done) {
+            var stream = gpf.stringToStream(""),
+                iWritableStream = gpf.interfaces.query(stream, gpf.interfaces.IWritableStream);
+            assert(null !== iWritableStream);
+            gpf.events.getPromiseHandler(function (eventHandler) {
+                iWritableStream.write("abc", eventHandler);
+            })
+                .then(function () {
+                    return gpf.events.getPromiseHandler(function (eventHandler) {
+                        iWritableStream.write("def", eventHandler);
+                    });
+                })
+                .then(function () {
+                    assert("abcdef" === stream.toString());
+                    done();
                 });
-            });
-
         });
 
-        describe("_gpfStringArraySplice", function () {
-            var _gpfStringArraySplice = gpf.internals._gpfStringArraySplice;
-
-            testCases.forEach(function (testCase) {
-                var label = "splices the string array and return the concatenated result (" + testCase.label + ")";
-                it(label, function () {
-                    var clonedStrings = [].concat(testCase.strings),
-                        result = _gpfStringArraySplice(clonedStrings, testCase.count, testCase.remaining);
-                    assert(testCase.expectedResult === result);
-                    assert(true === gpf.like(testCase.expectedStrings, clonedStrings));
+        it("supports reading", function (done) {
+            var stream = gpf.stringToStream("abcdef"),
+                iReadableStream = gpf.interfaces.query(stream, gpf.interfaces.IReadableStream);
+            assert(null !== iReadableStream);
+            gpf.events.getPromiseHandler(function (eventHandler) {
+                iReadableStream.read(3, eventHandler);
+            })
+                .then(function (event) {
+                    var buffer = event.get("buffer");
+                    assert("string" === typeof buffer);
+                    assert(3 === buffer.length);
+                    assert("abc" === buffer);
+                    return gpf.events.getPromiseHandler(function (eventHandler) {
+                        iReadableStream.read(2, eventHandler);
+                    });
+                })
+                .then(function (event) {
+                    var buffer = event.get("buffer");
+                    assert("string" === typeof buffer);
+                    assert(2 === buffer.length);
+                    assert("de" === buffer);
+                    done();
                 });
-            });
-
         });
 
-        describe("_gpfStringArrayExtract", function () {
-            var _gpfStringArrayExtract = gpf.internals._gpfStringArrayExtract;
-
-            testCases.forEach(function (testCase) {
-                var label = "extracts a string from a string array (" + testCase.label + ")";
-                it(label, function () {
-                    var clonedStrings = [].concat(testCase.strings),
-                        result = _gpfStringArrayExtract(clonedStrings, testCase.size);
-                    assert(testCase.expectedResult === result);
-                    assert(true === gpf.like(testCase.expectedStrings, clonedStrings));
+        it("supports reading and writing", function (done) {
+            var stream = gpf.stringToStream("abcdef"),
+                iWritableStream = gpf.interfaces.query(stream, gpf.interfaces.IWritableStream),
+                iReadableStream = gpf.interfaces.query(stream, gpf.interfaces.IReadableStream);
+            gpf.events.getPromiseHandler(function (eventHandler) {
+                iWritableStream.write("ghi", eventHandler);
+            })
+                .then(function () {
+                    return gpf.events.getPromiseHandler(function (eventHandler) {
+                        iReadableStream.read(7, eventHandler);
+                    });
+                })
+                .then(function (event) {
+                    var buffer = event.get("buffer");
+                    assert("string" === typeof buffer);
+                    assert(7 === buffer.length);
+                    assert("abcdefg" === buffer);
+                    return gpf.events.getPromiseHandler(function (eventHandler) {
+                        iWritableStream.write("k", eventHandler);
+                    });
+                })
+                .then(function () {
+                    return gpf.events.getPromiseHandler(function (eventHandler) {
+                        iReadableStream.read(3, eventHandler);
+                    });
+                })
+                .then(function (event) {
+                    var buffer = event.get("buffer");
+                    assert("string" === typeof buffer);
+                    assert(3 === buffer.length);
+                    assert("hik" === buffer);
+                    done();
                 });
-            });
         });
 
     });
-}
+
+    if (gpf.internals) {
+
+        describe("Strings array", function () {
+
+            var testCases = [{
+                label: "too much",
+                strings: ["a", "b", "c"],
+                size: 2,
+                count: 2,
+                remaining: 0,
+                expectedResult: "ab",
+                expectedStrings: ["c"]
+            }, {
+                label: "matching",
+                strings: ["a", "b", "c"],
+                size: 3,
+                count: 3,
+                remaining: 0,
+                expectedResult: "abc",
+                expectedStrings: []
+            }, {
+                label: "not enough",
+                strings: ["a", "b", "c"],
+                size: 4,
+                count: 3,
+                remaining: 1,
+                expectedResult: "abc",
+                expectedStrings: []
+            }, {
+                label: "empty strings",
+                strings: [],
+                size: 3,
+                count: 0,
+                remaining: 3,
+                expectedResult: "",
+                expectedStrings: []
+            }, {
+                label: "split required",
+                strings: ["abc", "def", "ghi"],
+                size: 4,
+                count: 1,
+                remaining: 1,
+                expectedResult: "abcd",
+                expectedStrings: ["ef", "ghi"]
+
+            }];
+
+            describe("_gpfStringArrayCountToFit", function () {
+                var _gpfStringArrayCountToFit = gpf.internals._gpfStringArrayCountToFit;
+
+                testCases.forEach(function (testCase) {
+                    var label = "counts the number of parts needed to fit requested size (" + testCase.label + ")";
+                    it(label, function () {
+                        var result = _gpfStringArrayCountToFit(testCase.strings, testCase.size);
+                        assert(testCase.count === result.count);
+                        assert(testCase.remaining === result.remaining);
+
+                    });
+                });
+
+            });
+
+            describe("_gpfStringArraySplice", function () {
+                var _gpfStringArraySplice = gpf.internals._gpfStringArraySplice;
+
+                testCases.forEach(function (testCase) {
+                    var label = "splices the string array and return the concatenated result (" + testCase.label + ")";
+                    it(label, function () {
+                        var clonedStrings = [].concat(testCase.strings),
+                            result = _gpfStringArraySplice(clonedStrings, testCase.count, testCase.remaining);
+                        assert(testCase.expectedResult === result);
+                        assert(true === gpf.like(testCase.expectedStrings, clonedStrings));
+                    });
+                });
+
+            });
+
+            describe("_gpfStringArrayExtract", function () {
+                var _gpfStringArrayExtract = gpf.internals._gpfStringArrayExtract;
+
+                testCases.forEach(function (testCase) {
+                    var label = "extracts a string from a string array (" + testCase.label + ")";
+                    it(label, function () {
+                        var clonedStrings = [].concat(testCase.strings),
+                            result = _gpfStringArrayExtract(clonedStrings, testCase.size);
+                        assert(testCase.expectedResult === result);
+                        assert(true === gpf.like(testCase.expectedStrings, clonedStrings));
+                    });
+                });
+            });
+
+        });
+    }
 
 });
