@@ -165,6 +165,10 @@
 //endregion
 //region fs_ms
 //endregion
+//region stream
+/*global _gpfStreamPipe*/ // gpf.stream.pipe implementation
+//endregion
+
 
 //region encoding
 /*global _gpfEncodings*/ // Encodings dictionary

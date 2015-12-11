@@ -11,6 +11,7 @@
 /*global _gpfI*/ // gpf.interfaces
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
+/*exported _gpfStreamPipe*/
 /*#endif*/
 
 _gpfErrorDeclare("stream", {
@@ -21,73 +22,54 @@ _gpfErrorDeclare("stream", {
 });
 
 var
-    _GPF_BUFREADSTREAM_READ_SIZE        = 256,
+    _GPF_BUFREADSTREAM_READ_SIZE          = 4096,
     _GPF_BUFREADSTREAM_ISTATE_INIT        = 0,
     _GPF_BUFREADSTREAM_ISTATE_INPROGRESS  = 1,
     _GPF_BUFREADSTREAM_ISTATE_WAITING     = 2,
     _GPF_BUFREADSTREAM_ISTATE_EOS         = 3;
 
-//region gpf.stream.pipe implementation
+//region gpf.stream.pipe
 
 /**
- * Creates a custom EventsHandler to sequence the calls to be made
- *
- * @param {gpf.interfaces.IReadableStream} readable
- * @param {gpf.interfaces.IWritableStream} writable
- * @param {Object} [options=undefined] options
- * @param {gpf.events.Handler} eventsHandler
+ * @inheritdoc _gpfStreamPipe
  * @constructor
  */
-function StreamPipeScope (readable, writable, options, eventsHandler) {
-    this._readable = _gpfI.queryInterface(readable, _gpfI.IReadableStream,
-        true);
-    this._writable = _gpfI.queryInterface(writable, _gpfI.IWritableStream,
-        true);
-    if (undefined === eventsHandler) {
-        this._options = {};
-        this._eventsHandler = options;
-    } else {
-        this._options = options;
-        this._eventsHandler = eventsHandler;
+function _GpfStreamPipe (configuration, eventsHandler) {
+    this._readable = _gpfI.queryInterface(configuration.readable, _gpfI.IReadableStream, true);
+    this._writable = _gpfI.queryInterface(configuration.writable, _gpfI.IWritableStream, true);
+    if (undefined !== configuration.chunkSize) {
+        this.__chunkSize = configuration.chunkSize;
     }
-    this.scope = this;
+    this._eventHandler = eventsHandler;
 }
 
-StreamPipeScope.prototype = {
+_GpfStreamPipe.prototype = {
+    // @property {gpf.interfaces.IReadableStream} Read stream
     _readable: null,        // Readable stream
+    // @property {gpf.interfaces.IWritableStream} Write stream
     _writable: null,        // Writable stream
-    _options: null,         // Options
-    _eventsHandler: null,   // Original events handler
-    scope: null            // This eventsHandler scope
+    // @property {Number} Buffer size to read data
+    _chunkSize: _GPF_BUFREADSTREAM_READ_SIZE,
+    // @property {gpf.events.EventHandler} events handler
+    _eventsHandler: null,   // Original
+    // @property {_GpfStreamPipe} itself
+    scope: null
 };
 
-/**
- * gpf.events.EVENT_READY event handler
- *
- * @param {gpf.Event} event
- */
-StreamPipeScope.prototype[_GPF_EVENT_READY] = function (event) {
+// gpf.events.EVENT_READY event handler
+_GpfStreamPipe.prototype[_GPF_EVENT_READY] = function (event) {
     _gpfIgnore(event);
-    var chunkSize = this._options.chunkSize || 4096;
-    this._readable.read(chunkSize, this);
+    this._readable.read(this._chunkSize, this);
 };
 
-/**
- * gpf.events.EVENT_END_OF_DATA event handler
- *
- * @param {gpf.Event} event
- */
-StreamPipeScope.prototype[_GPF_EVENT_END_OF_DATA] = function (event) {
+// gpf.events.EVENT_END_OF_DATA event handler
+_GpfStreamPipe.prototype[_GPF_EVENT_END_OF_DATA] = function (event) {
     _gpfIgnore(event);
-    _gpfEventsFire.apply(this, ["done", {}, this._eventsHandler]);
+    _gpfEventsFire.apply(this, [_GPF_EVENT_READY, {}, this._eventsHandler]);
 };
 
-/**
- * gpf.events.EVENT_DATA event handler
- *
- * @param {gpf.Event} event
- */
-StreamPipeScope.prototype[_GPF_EVENT_DATA] = function (event) {
+// gpf.events.EVENT_DATA event handler
+_GpfStreamPipe.prototype[_GPF_EVENT_DATA] = function (event) {
     var buffer = event.get("buffer");
     this._writable.write(buffer, this);
 };
@@ -97,30 +79,33 @@ StreamPipeScope.prototype[_GPF_EVENT_DATA] = function (event) {
  *
  * @param {gpf.Event} event
  */
-StreamPipeScope.prototype[_GPF_EVENT_ANY] = function (event) {
+_GpfStreamPipe.prototype[_GPF_EVENT_ANY] = function (event) {
     // Forward to original handler (error or data)
     _gpfEventsFire.apply(this, [event, {}, this._eventsHandler]);
 };
+
+/**
+ * Creates a pipe that transfer data from the readable stream to writable one
+ *
+ * @param {Object} configuration
+ * - {gpf.interfaces.IReadableStream} readable The stream to read from
+ * - {gpf.interfaces.IWritableStream} writable The stream to write to
+ * - {Number} [chunkSize=_GPF_BUFREADSTREAM_READ_SIZE] chunkSize Chunk size
+ * @param {gpf.events.Handler} eventsHandler
+ *
+ * @event ready
+ * The readable stream was written in the writable one
+ */
+function _gpfStreamPipe (configuration, eventsHandler) {
+    var scope = new _GpfStreamPipe(configuration, eventsHandler);
+    scope.ready();
+}
 
 //endregion
 
 gpf.stream = {
 
-    /**
-     * Pipe a readable stream into a writable one
-     *
-     * @param {gpf.interfaces.IReadableStream} readable
-     * @param {gpf.interfaces.IWritableStream} writable
-     * @param {Object} [options=undefined] options
-     * @param {gpf.events.Handler} eventsHandler
-     *
-     * @event done The readable stream was written in the writable one
-     */
-    pipe: function (readable, writable, options, eventsHandler) {
-        var scope = new StreamPipeScope(readable, writable, options,
-                eventsHandler);
-        scope.ready();
-    }
+    pipe: _gpfStreamPipe
 
 };
 
