@@ -8,6 +8,7 @@
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfExtend*/ // gpf.extend
 /*global _gpfI*/ // gpf.interfaces
+/*global _gpfStreamPipe*/ // gpf.stream.pipe implementation
 /*global _gpfStringCapitalize*/ // Capitalize the string
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
@@ -99,12 +100,12 @@ var
     /**
      * Implements IReadableStream & IWritableStream on top of a string (FIFO read / write)
      *
-     * @class StringStream
+     * @class _GpfStringStream
      * @extends Object
      * @implements gpf.interfaces.IReadableStream, gpf.interfaces.IWritableStream
      * @private
      */
-    StringStream = _gpfDefine("StringStream", Object, {
+    _GpfStringStream = _gpfDefine("StringStream", Object, {
         "[Class]": [gpf.$InterfaceImplement(_gpfI.IReadableStream), gpf.$InterfaceImplement(_gpfI.IWritableStream)],
         "+": {
 
@@ -204,12 +205,8 @@ _gpfExtend(gpf, {
      * @return {Object} Implementing gpf.interfaces.ITextStream
      */
     stringToStream: function (that) {
-        return new StringStream(that);
-    }
-
-    /*
-    // TODO Should be a static extension as 'that' is not used
-    "[stringFromStream]": [gpf.$ClassExtension(String, "fromStream")],
+        return new _GpfStringStream(that);
+    },
 
     /**
      * Converts the stream into a string
@@ -221,32 +218,26 @@ _gpfExtend(gpf, {
      * finished reading the stream, the buffer is provided
      *
      * @eventParam {String} buffer
+     */
     stringFromStream: function (stream, eventsHandler) {
-        if (stream instanceof StringStream) {
-            _gpfEventsFire.apply(this, [_GPF_EVENT_READY, {buffer: stream.consolidateString()}, eventsHandler]);
+        if (stream instanceof _GpfStringStream) {
+            _gpfEventsFire(_GPF_EVENT_READY, {buffer: stream.toString()}, eventsHandler);
         } else {
-            gpf.stream.readAll(stream, _stringStreamConcat, eventsHandler);
+            var stringStream = new _GpfStringStream();
+            _gpfStreamPipe({
+                readable: stream,
+                writable: stringStream
+            }, function (event) {
+                if (_GPF_EVENT_READY === event.type) {
+                    _gpfEventsFire(_GPF_EVENT_READY, {buffer: stream.toString()}, eventsHandler);
+                } else {
+                    _gpfEventsFire(event, {}, eventsHandler);
+                }
+            });
         }
     }
 
-    */
-
 });
-
-//region stringFromStream helpers
-/*
-function _stringStreamConcat (previous, buffer) {
-    if (undefined === previous) {
-        return [buffer];
-    }
-    if (undefined !== buffer) {
-        previous.push(buffer);
-        return previous;
-    }
-    return previous.join("");
-}
-*/
-//endregion
 
 /*#ifndef(UMD)*/
 
