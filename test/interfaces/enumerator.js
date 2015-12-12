@@ -5,7 +5,7 @@
 
 /*eslint-disable max-nested-callbacks*/
 
-describe("i_enumerator", function () {
+describe("interfaces/enumerator", function () {
 
     describe("IEnumerator", function () {
         it("is a known and static interface", function () {

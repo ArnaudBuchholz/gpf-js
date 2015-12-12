@@ -5,7 +5,7 @@
 
 /*eslint-disable max-nested-callbacks*/
 
-describe("i_stream", function () {
+describe("interfaces/stream", function () {
 
     describe("IReadableStream", function () {
         it("is a known and static interface", function () {

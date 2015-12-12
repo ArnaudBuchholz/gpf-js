@@ -5,7 +5,7 @@
 
 /*eslint-disable max-nested-callbacks*/
 
-describe("i_filestorage", function () {
+describe("interfaces/filestorage", function () {
 
     describe("IFileStorage", function () {
         it("is a known and static interface", function () {

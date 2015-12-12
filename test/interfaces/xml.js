@@ -5,7 +5,7 @@
 
 /*eslint-disable max-nested-callbacks*/
 
-describe("i_xml", function () {
+describe("interfaces/xml", function () {
 
     describe("IXmlSerializable", function () {
         it("is a known and static interface", function () {

@@ -5,7 +5,7 @@
 
 /*eslint-disable max-nested-callbacks*/
 
-describe("i_array", function () {
+describe("interfaces/array", function () {
 
     describe("IReadOnlyArray", function () {
         it("is a known and static interface", function () {
