@@ -21,7 +21,7 @@ var
      *
      * @type {Object}
      */
-    _gpfEncodings = {};
+    _gpfEncodings = {},
 
     //region Encoder / Decoder stream implementation
 
@@ -35,158 +35,131 @@ var
     EncoderStream = _gpfDefine("EncoderStream", gpf.stream.BufferedOnRead, {
         "+": {
 
-                /**
-                 * @param {Function} encoder
-                 * @param {gpf.interfaces.IReadableStream} input
-                 * @constructor
-                 */
-                constructor: function (encoder, input) {
-                    this._super(input);
-                    this._encoder = encoder;
-                }
-
-            },
-
-            "#": {
-
-                /**
-                 * @inheritdoc gpf.stream.BufferedOnRead#_addToBuffer
-                 */
-                _addToBuffer: function (buffer) {
-                    this._buffer = this._buffer.concat(this._encoder(buffer));
-                    this._bufferLength = this._buffer.length;
-                },
-
-                /**
-                 * @inheritdoc gpf.stream.BufferedOnRead#_readFromBuffer
-                 */
-                _readFromBuffer:
-                    gpf.stream.BufferedOnRead.prototype._readFromByteBuffer
-
-            },
-
-            "-": {
-
-                /**
-                 * @type {Function}
-                 * @private
-                 */
-                _encoder: null
-
+            /**
+             * @param {Function} encoder
+             * @param {gpf.interfaces.IReadableStream} input
+             */
+            constructor: function (encoder, input) {
+                this._super(input);
+                this._encoder = encoder;
             }
 
-        }),
+        },
+        "#": {
 
-        /**
-         * Decoder stream
-         *
-         * @class gpf.encoding.DecoderStream
-         * @extends gpf.stream.BufferedOnRead
-         * @implements gpf.interfaces.IReadableStream
-         * @private
-         */
-        DecoderStream = _gpfDefine("DecoderStream", gpf.stream.BufferedOnRead, {
-
-            "+": {
-
-                /**
-                 * @param {Function} decoder
-                 * @param {gpf.interfaces.IReadableStream} input
-                 * @constructor
-                 */
-                constructor: function (decoder, input) {
-                    this._super(input);
-                    this._decoder = decoder;
-                }
-
+            // @inheritdoc gpf.stream.BufferedOnRead#_addToBuffer
+            _addToBuffer: function (buffer) {
+                this._buffer = this._buffer.concat(this._encoder(buffer));
+                this._bufferLength = this._buffer.length;
             },
 
-            "#": {
+            // @inheritdoc gpf.stream.BufferedOnRead#_readFromBuffer
+            _readFromBuffer: gpf.stream.BufferedOnRead.prototype._readFromByteBuffer
 
-                /**
-                 * @inheritdoc gpf.stream.BufferedOnRead#_addToBuffer
-                 */
-                _addToBuffer: function (buffer) {
-                    var string;
-                    if (this._unprocessed.length) {
-                        buffer = this._unprocessed.concat(buffer);
-                    }
-                    this._unprocessed = [];
-                    string = this._decoder(buffer, this._unprocessed);
-                    this._buffer.push(string);
-                    this._bufferLength += string.length;
-                },
+        },
+        "-": {
 
-                /**
-                 * @inheritdoc gpf.stream.BufferedOnRead#_endOfInputStream
-                 */
-                _endOfInputStream: function () {
-                    if (this._unprocessed.length) {
-                        throw gpf.Error.encodingEOFWithUnprocessedBytes();
-                    }
-                },
+            // @property {Function}
+            _encoder: null
 
-                /**
-                 * @inheritdoc gpf.stream.BufferedOnRead#_readFromBuffer
-                 */
-                _readFromBuffer:
-                    gpf.stream.BufferedOnRead.prototype._readFromStringBuffer
+        }
+    }),
 
-            },
+    /**
+     * Decoder stream
+     *
+     * @class gpf.encoding.DecoderStream
+     * @extends gpf.stream.BufferedOnRead
+     * @implements gpf.interfaces.IReadableStream
+     */
+    DecoderStream = _gpfDefine("DecoderStream", gpf.stream.BufferedOnRead, {
+        "+": {
 
-            "-": {
-
-                /**
-                 * @type {Function}
-                 * @private
-                 */
-                _decoder: null,
-
-                /**
-                 * @type {Number[]}
-                 * @private
-                 */
-                _unprocessed: []
-
+            /**
+             * @param {Function} decoder
+             * @param {gpf.interfaces.IReadableStream} input
+             */
+            constructor: function (decoder, input) {
+                this._super(input);
+                this._decoder = decoder;
             }
 
-        });
+        },
+        "#": {
+
+            // @inheritdoc gpf.stream.BufferedOnRead#_addToBuffer
+            _addToBuffer: function (buffer) {
+                var string;
+                if (this._unprocessed.length) {
+                    buffer = this._unprocessed.concat(buffer);
+                }
+                this._unprocessed = [];
+                string = this._decoder(buffer, this._unprocessed);
+                this._buffer.push(string);
+                this._bufferLength += string.length;
+            },
+
+            // @inheritdoc gpf.stream.BufferedOnRead#_endOfInputStream
+            _endOfInputStream: function () {
+                if (this._unprocessed.length) {
+                    throw gpf.Error.encodingEOFWithUnprocessedBytes();
+                }
+            },
+
+            // @inheritdoc gpf.stream.BufferedOnRead#_readFromBuffer
+            _readFromBuffer: gpf.stream.BufferedOnRead.prototype._readFromStringBuffer
+
+        },
+        "-": {
+
+            /**
+             * @type {Function}
+             * @private
+             */
+            _decoder: null,
+
+            /**
+             * @type {Number[]}
+             * @private
+             */
+            _unprocessed: []
+
+        }
+    });
 
     //endregion
 
-    gpf.encoding = {
+gpf.encoding = {
 
-        /**
-         * Create a encoder to convert an input text stream into an output
-         * binary buffer.
-         *
-         * @param {gpf.interfaces.IReadableStream} input
-         * @param {String} encoding
-         * @return {gpf.interfaces.IReadableStream}
-         */
-        createEncoder: function (input, encoding) {
-            var module = _encodings[encoding];
-            if (undefined === module) {
-                throw gpf.Error.encodingNotSupported();
-            }
-            return new EncoderStream(module[0], input);
-        },
-
-        /**
-         * Create a decoder to convert an input binary stream into an output
-         * string.
-         *
-         * @param {gpf.interfaces.IReadableStream} input
-         * @param {String} encoding
-         * @return {gpf.interfaces.IReadableStream}
-         */
-        createDecoder: function (input, encoding) {
-            var module = _encodings[encoding];
-            if (undefined === module) {
-                throw gpf.Error.encodingNotSupported();
-            }
-            return new DecoderStream(module[1], input);
+    /**
+     * Create a encoder to convert an input text stream into an output
+     * binary buffer.
+     *
+     * @param {gpf.interfaces.IReadableStream} input
+     * @param {String} encoding
+     * @return {gpf.interfaces.IReadableStream}
+     */
+    createEncoder: function (input, encoding) {
+        var module = _gpfEncodings[encoding];
+        if (undefined === module) {
+            throw gpf.Error.encodingNotSupported();
         }
-    };
+        return new EncoderStream(module[0], input);
+    },
 
-}()); /* End of privacy scope */
+    /**
+     * Create a decoder to convert an input binary stream into an output
+     * string.
+     *
+     * @param {gpf.interfaces.IReadableStream} input
+     * @param {String} encoding
+     * @return {gpf.interfaces.IReadableStream}
+     */
+    createDecoder: function (input, encoding) {
+        var module = _gpfEncodings[encoding];
+        if (undefined === module) {
+            throw gpf.Error.encodingNotSupported();
+        }
+        return new DecoderStream(module[1], input);
+    }
+};
