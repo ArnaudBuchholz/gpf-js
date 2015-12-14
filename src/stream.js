@@ -35,6 +35,7 @@ var
  * @constructor
  */
 function _GpfStreamPipe (configuration, eventsHandler) {
+    /*jshint validthis:true*/ // constructor
     this._readable = _gpfI.queryInterface(configuration.readable, _gpfI.IReadableStream, true);
     this._writable = _gpfI.queryInterface(configuration.writable, _gpfI.IWritableStream, true);
     if (undefined !== configuration.chunkSize) {
@@ -74,11 +75,7 @@ _GpfStreamPipe.prototype[_GPF_EVENT_DATA] = function (event) {
     this._writable.write(buffer, this);
 };
 
-/**
- * gpf.events.EVENT_ANY event handler
- *
- * @param {gpf.Event} event
- */
+// gpf.events.EVENT_ANY event handler
 _GpfStreamPipe.prototype[_GPF_EVENT_ANY] = function (event) {
     // Forward to original handler (error or data)
     _gpfEventsFire.apply(this, [event, {}, this._eventsHandler]);
