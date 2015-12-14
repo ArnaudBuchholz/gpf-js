@@ -169,6 +169,10 @@
 /*global _gpfStreamPipe*/ // gpf.stream.pipe implementation
 //endregion
 
+//region string
+/*global _gpfStringArrayExtract*/ // Extract the first characters of a string array
+//endregion
+
 
 //region encoding
 /*global _gpfEncodings*/ // Encodings dictionary
