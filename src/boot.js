@@ -1,30 +1,32 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global gpfSourcesPath:true*/ // Global source path
-/*exported _GPF_HOST_BROWSER*/
-/*exported _GPF_HOST_NODEJS*/
-/*exported _GPF_HOST_PHANTOMJS*/
-/*exported _GPF_HOST_RHINO*/
-/*exported _GPF_HOST_UNKNOWN*/
-/*exported _GPF_HOST_WSCRIPT*/
-/*exported _gpfContext*/
-/*exported _gpfDosPath*/
-/*exported _gpfEmptyFunc*/
-/*exported _gpfExit*/
-/*exported _gpfGetBootstrapMethod*/
-/*exported _gpfHost*/
-/*exported _gpfIgnore*/
-/*exported _gpfInBrowser*/
-/*exported _gpfInNode*/
-/*exported _gpfMainContext*/
-/*exported _gpfMsFSO*/
-/*exported _gpfNodeFs*/
-/*exported _gpfNodePath*/
-/*exported _gpfResolveScope*/
-/*exported _gpfVersion*/
-/*exported _gpfWebDocument*/
-/*exported _gpfWebHead*/
-/*exported _gpfWebWindow*/
+/*exported _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
+/*exported _GPF_HOST_NODEJS*/ // gpf.HOST_NODEJS
+/*exported _GPF_HOST_PHANTOMJS*/ // gpf.HOST_PHANTOMJS
+/*exported _GPF_HOST_RHINO*/ // gpf.HOST_RHINO
+/*exported _GPF_HOST_UNKNOWN*/ // gpf.HOST_UNKNOWN
+/*exported _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
+/*exported _gpfAssert*/ // Assertion method
+/*exported _gpfAsserts*/ // Multiple assertion method
+/*exported _gpfContext*/ // Resolve contextual string
+/*exported _gpfDosPath*/ // DOS-like path
+/*exported _gpfEmptyFunc*/ // An empty function
+/*exported _gpfExit*/ // Exit function
+/*exported _gpfGetBootstrapMethod*/ // Create a method that contains a bootstrap (called only once)
+/*exported _gpfHost*/ // Host type
+/*exported _gpfIgnore*/ // Helper to remove unused parameter warning
+/*exported _gpfInBrowser*/ // The current host is a browser like
+/*exported _gpfInNode*/ // The current host is a nodeJS like
+/*exported _gpfMainContext*/ // Main context object
+/*exported _gpfMsFSO*/ // Scripting.FileSystemObject activeX
+/*exported _gpfNodeFs*/ // Node require("fs")
+/*exported _gpfNodePath*/ // Node require("path")
+/*exported _gpfResolveScope*/ // Translate the parameter into a valid scope
+/*exported _gpfVersion*/ // GPF version
+/*exported _gpfWebDocument*/ // Browser document object
+/*exported _gpfWebHead*/ // Browser head tag
+/*exported _gpfWebWindow*/ // Browser window object
 /*eslint-disable no-unused-vars*/
 /*#endif*/
 
