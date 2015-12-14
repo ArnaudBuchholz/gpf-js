@@ -32,7 +32,6 @@
 /*global _gpfVersion*/ // GPF version
 /*global _gpfWebDocument*/ // Browser document object
 /*global _gpfWebHead*/ // Browser head tag
-/*global _gpfWebRawInclude*/ // Raw web include
 /*global _gpfWebWindow*/ // Browser window object
 /*global gpfSourcesPath*/ // Global source path
 //endregion
