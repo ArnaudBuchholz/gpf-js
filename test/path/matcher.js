@@ -5,7 +5,7 @@
 
 /*eslint-disable max-nested-callbacks*/
 
-describe("path_matcher", function () {
+describe("path/matcher", function () {
 
     describe("gpf.path.match", function () {
 
