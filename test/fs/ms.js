@@ -5,7 +5,7 @@
 
 /*eslint-disable max-nested-callbacks*/
 
-describe("fs_ms", function () {
+describe("fs/ms", function () {
 
     if (gpf.HOST_WSCRIPT !== gpf.host()) {
         return; // Skip
