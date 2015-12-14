@@ -1,7 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*exported _gpfArraySlice*/
-/*exported _gpfJsCommentsRegExp*/
+/*exported _gpfArraySlice*/ // Slice an array-like object
+/*exported _gpfJsCommentsRegExp*/ // Find all JavaScript comments
 /*#endif*/
 
 /*eslint-disable no-proto*/ // Used for compatibility reasons
