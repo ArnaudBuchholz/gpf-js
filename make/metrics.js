@@ -6,8 +6,8 @@
 var fs = require("fs");
 
 // Use gpf library (source version)
-global.gpfSourcesPath = "src/";
-require("./src/boot.js");
+global.gpfSourcesPath = "./src/";
+require("../src/boot.js");
 
 //region Istanbul coverage
 
