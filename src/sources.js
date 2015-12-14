@@ -25,16 +25,13 @@
         "bin",                                              // Binary tools                      gpf.bin
         "json",                                             // JSON compatibility layer             JSON
         "path",                                             // Path helper                      gpf.path
-        "path_matcher",                                     // Path matcher                     gpf.path
+        "path/matcher",                                     // Path matcher                     gpf.path
         "javascript",                                       // JavaScript language tools          gpf.js
         "csv",                                              // CSV helper                        gpf.csv
         "define",                                           // Class management               gpf.define
         "attributes",                                       // Attributes                 gpf.attributes
-                                                            // (=> i_array)
-        // TODO create "attributes" subfolder
-        "a_attributes",                                     // AttributeClassOnly attributes
-        "a_class",                                          // Class attributes
-
+        "attributes/attributes",                            // AttributeClassOnly attributes
+        "attributes/class",                                 // Class attributes
         "interfaces",                                       // Interfaces                 gpf.interfaces
         "interfaces/enumerator",                            // IEnumerator
         "interfaces/array",                                 // IArray
@@ -56,8 +53,8 @@
         "tokenizer",                                        // Javascript parser                  gpf.js
 
         // https://github.com/ArnaudBuchholz/gpf-js/issues/66
-        "fs_node",                                          // FS implementation for nodeJS       gpf.fs
-        "fs_ms",                                            // FS implementation for WScript      gpf.fs
+        "fs/node",                                          // FS implementation for nodeJS       gpf.fs
+        "fs/ms",                                            // FS implementation for WScript      gpf.fs
 
         // https://github.com/ArnaudBuchholz/gpf-js/issues/68
         "stream_out",                                       // gpf.stream.Out
