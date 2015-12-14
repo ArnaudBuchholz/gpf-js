@@ -3,7 +3,7 @@
 /*eslint-env node*/
 
 module.exports = {
-    files: "src/*.js",
+    files: "src/**/*.js",
     options: {
         lazy: true,
         debug: true,
