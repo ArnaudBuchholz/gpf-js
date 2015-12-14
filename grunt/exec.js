@@ -65,7 +65,13 @@ module.exports = {
         stderr: true
     },
     metrics: {
-        command: "node metrics.js",
+        command: "node make\\metrics.js",
+        stdout: false,
+        stderr: false,
+        exitCode: 0
+    },
+    globals: {
+        command: "node make\\globals.js",
         stdout: false,
         stderr: false,
         exitCode: 0
