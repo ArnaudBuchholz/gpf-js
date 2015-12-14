@@ -5,7 +5,7 @@
 
 /*eslint-disable max-nested-callbacks*/
 
-describe("a_attributes", function () {
+describe("attributes/attributes", function () {
 
     var
         AttributeClass = gpf.attributes.Attribute;

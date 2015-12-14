@@ -1,10 +1,10 @@
 "use strict";
 /*jshint mocha: true*/
 /*eslint-env mocha*/
-/*global assert*/
+//*global assert*/
 
 /*eslint-disable max-nested-callbacks*/
 
-describe("a_xml", function () {
+describe("attributes/xml", function () {
 
 });

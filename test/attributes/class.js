@@ -5,7 +5,7 @@
 
 /*eslint-disable max-nested-callbacks*/
 
-describe("a_class", function () {
+describe("attributes/class", function () {
 
     var A = gpf.define("A", {
             "private": {
