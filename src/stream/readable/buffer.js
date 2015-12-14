@@ -75,19 +75,15 @@ _gpfDefine("gpf.stream.ReadableBuffer", Object, {
 
         //region gpf.interfaces.IReadableStream
 
-        /**
-         * @implements gpf.interfaces.IReadableStream:read
-         */
+        // @implements gpf.interfaces.IReadableStream#read
         read: function (size, eventsHandler) {
-            var
-                iState = this._iState,
+            var iState = this._iState,
                 length = this._bufferLength;
             if (_GPF_BUFREADSTREAM_ISTATE_INPROGRESS === iState) {
                 // A read call is already in progress
-                throw _gpfI.IReadableStream.EXCEPTION_READ_IN_PROGRESS;
+                throw gpf.Error.readInProgress();
 
-            } else if (size < length
-                || length && _GPF_BUFREADSTREAM_ISTATE_EOS === iState) {
+            } else if (size < length || length && _GPF_BUFREADSTREAM_ISTATE_EOS === iState) {
                 // Enough chars in the output buffer to do the read
                 // OR there won't be any more chars. Can output something.
                 if (0 === size || size > length) {

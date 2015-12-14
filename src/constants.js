@@ -166,6 +166,11 @@
 //region fs_ms
 //endregion
 //region stream
+/*global _GPF_BUFREADSTREAM_READ_SIZE*/
+/*global _GPF_BUFREADSTREAM_ISTATE_INIT*/
+/*global _GPF_BUFREADSTREAM_ISTATE_INPROGRESS*/
+/*global _GPF_BUFREADSTREAM_ISTATE_WAITING*/
+/*global _GPF_BUFREADSTREAM_ISTATE_EOS*/
 /*global _gpfStreamPipe*/ // gpf.stream.pipe implementation
 //endregion
 
