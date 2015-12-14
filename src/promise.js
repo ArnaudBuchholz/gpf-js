@@ -3,7 +3,7 @@
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfMainContext*/ // Main context object
-/*exported _GpfDeferredPromise*/
+/*exported _GpfDeferredPromise*/ // Deferred promise
 /*#endif*/
 
 // Ensure the functions are called only once
