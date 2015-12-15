@@ -1,10 +1,34 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*exported _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
+/*exported _GPF_EVENT_CONTINUE*/ // gpf.events.EVENT_CONTINUE
+/*exported _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
+/*exported _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
+/*exported _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
+/*exported _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
+/*exported _GPF_EVENT_STOP*/ // gpf.events.EVENT_STOP
+/*exported _GPF_EVENT_STOPPED*/ // gpf.events.EVENT_STOPPED
+/*exported _GPF_FS_TYPE_DIRECTORY*/ // gpf.fs.TYPE_DIRECTORY
+/*exported _GPF_FS_TYPE_FILE*/ // gpf.fs.TYPE_FILE
+/*exported _GPF_FS_TYPE_NOT_FOUND*/ // gpf.fs.TYPE_NOT_FOUND
+/*exported _GPF_FS_TYPE_UNKNOWN*/ // gpf.fs.TYPE_UNKNOWN
+/*exported _gpfAlpha*/ // Letters (lowercase)
+/*exported _gpfALPHA*/ // Letters (uppercase)
+/*exported _gpfCreateConstants*/ // Automate constants creation
+/*exported _gpfDigit*/ // Digits
+/*exported _gpfFalseFunc*/ // An empty function returning false
+/*exported _gpfFunc*/ // Create a new function using the source
+/*exported _gpfIdentifierFirstChar*/ // allowed first char in an identifier
+/*exported _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
+/*exported _gpfJsKeywords*/ //  List of JavaScript keywords
+/*exported _gpfMax31*/ // Max value on 31 bits
+/*exported _gpfMax32*/ // Max value on 32 bits
 /*jshint -W098*/ // This is a constant list, they won't be used in here
+/*#endif*/
+
 /*eslint-disable no-unused-vars*/
 /*eslint-disable no-undef*/
 /*jshint -W079*/ // Globals are also copied here
-/*#endif*/
 
 //region boot
 /*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
