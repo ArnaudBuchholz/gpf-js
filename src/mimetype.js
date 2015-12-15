@@ -2,7 +2,7 @@
 "use strict";
 /*global _gpfGetBootstrapMethod*/ // Create a method that contains a bootstrap (called only once)
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-// /*#endif*/
+/*#endif*/
 
 var
     /**

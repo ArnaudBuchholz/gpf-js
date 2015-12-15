@@ -18,7 +18,7 @@
 /*exported _gpfEncodeAttributeMember*/
 /*exported _gpfGenDefHandler*/
 /*exported _gpfGetClassDefinition*/
-// /*#endif*/
+/*#endif*/
 
 _gpfErrorDeclare("define", {
     "classMemberOverloadWithTypeChange":
