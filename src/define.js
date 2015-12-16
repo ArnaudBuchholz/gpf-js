@@ -12,12 +12,12 @@
 /*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*exported _GpfClassDefinition*/
-/*exported _gpfDecodeAttributeMember*/
-/*exported _gpfDefine*/
-/*exported _gpfEncodeAttributeMember*/
-/*exported _gpfGenDefHandler*/
-/*exported _gpfGetClassDefinition*/
+/*exported _GpfClassDefinition*/ // GPF class definition
+/*exported _gpfDefine*/ // Shortcut for gpf.define
+/*exported _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
+/*exported _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
+/*exported _gpfDecodeAttributeMember*/ // Normalized way to decode an attribute member name
+/*exported _gpfEncodeAttributeMember*/ // Normalized way to encode an attribute member name
 /*#endif*/
 
 _gpfErrorDeclare("define", {
