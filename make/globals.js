@@ -22,6 +22,9 @@ function Module (name) {
 }
 
 Module.prototype = {
+    // @property {String} Module name
+    name: "",
+
     // @property {String[]} Content lines
     lines: [],
 
@@ -117,18 +120,31 @@ Module.prototype = {
     // returns true if modified
     rebuild: function () {
         var before = this.lines.join("\n"),
-            lines = this.lines.map(function (line, lineIndex) {
+            lines = this.lines.filter(function (line, lineIndex) {
                 return -1 === this.filteredLines.indexOf(lineIndex);
             }, this),
-            headerLines = [];
+            spliceArgs = [2, 0],
+            after;
         this.imports.sort().forEach(function (name) {
-            var global = "/*global " + name + "*/ // " + Module.byExport[name].exports[name];
-            headerLines.push(global);
-        });
+            var module = Module.byExport[name];
+            if (undefined === module) {
+                this.error("No export for '" + name + "'");
+                return;
+            }
+            var global = "/*global " + name + "*/ // " + module.exports[name];
+            spliceArgs.push(global);
+        }, this);
         Object.keys(this.exports).sort().forEach(function (name) {
             var exported = "/*exported " + name + "*/ // " + this.exports[name];
-            headerLines.push(exported);
+            spliceArgs.push(exported);
         }, this);
+        [].splice.apply(lines, spliceArgs);
+        after = lines.join("\n");
+        if (before !== after) {
+            fs.writeFileSync("./src/" + this.name + ".js", after);
+            return true;
+        }
+        return false;
     }
 
 };
@@ -136,6 +152,7 @@ Module.prototype = {
 Module.byName = {};
 Module.byExport = {};
 
+// Collect information
 sources.every(function (source) {
     if (source === "") {
         return false;
@@ -144,6 +161,20 @@ sources.every(function (source) {
     module.analyze();
     return true;
 });
+
+// Rebuild - if necessary
+sources.every(function (source) {
+    if (source === "") {
+        return false;
+    }
+    var module = Module.byName[source];
+    if (module.rebuild()) {
+        console.log(source);
+    }
+    return true;
+});
+
+process.exit(rc);
 
 // Build former constants.js part
 sources.every(function (source) {
