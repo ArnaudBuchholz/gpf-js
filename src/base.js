@@ -6,14 +6,14 @@
 /*global _gpfHost*/ // Host type
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfWebWindow*/ // Browser window object
-/*exported _gpfExtend*/
-/*exported _gpfIsArrayLike*/
-/*exported _gpfNodeBuffer2JsArray*/
-/*exported _gpfObjectForEach*/
-/*exported _gpfStringCapitalize*/
-/*exported _gpfStringEscapeFor*/
-/*exported _gpfStringReplaceEx*/
-/*exported _gpfValues*/
+/*exported _gpfExtend*/ // gpf.extend
+/*exported _gpfNodeBuffer2JsArray*/ // Converts a NodeJS buffer into an int array
+/*exported _gpfIsArrayLike*/ // Return true if the parameter looks like an array
+/*exported _gpfObjectForEach*/ // Similar to [].forEach but for objects
+/*exported _gpfStringCapitalize*/ // Capitalize the string
+/*exported _gpfStringEscapeFor*/ // Make the string content compatible with lang
+/*exported _gpfStringReplaceEx*/ // String replacement using dictionary map
+/*exported _gpfValues*/ // Dictionary of value converters
 /*#endif*/
 
 //region _gpfIsArrayLike
