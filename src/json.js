@@ -4,8 +4,8 @@
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfMainContext*/ // Main context object
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
-/*exported _gpfJsonParse*/
-/*exported _gpfJsonStringify*/
+/*exported _gpfJsonParse*/ // JSON.parse
+/*exported _gpfJsonStringify*/ // JSON.stringify
 /*#endif*/
 
 var
