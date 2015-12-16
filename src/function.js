@@ -3,7 +3,7 @@
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfJsCommentsRegExp*/ // Find all JavaScript comments
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
-/*exported _GpfFunctionBuilder*/
+/*exported _GpfFunctionBuilder*/ // Function builder
 /*#endif*/
 
 function _gpfStringTrim (string) {
