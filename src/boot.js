@@ -1,6 +1,5 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global gpfSourcesPath:true*/ // Global source path
 /*exported _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
 /*exported _GPF_HOST_NODEJS*/ // gpf.HOST_NODEJS
 /*exported _GPF_HOST_PHANTOMJS*/ // gpf.HOST_PHANTOMJS
