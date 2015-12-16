@@ -1,7 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*exported _gpfPathDecompose*/
-/*exported _gpfPathNormalize*/
+/*exported _gpfPathDecompose*/ // Normalize path and returns an array of parts
+/*exported _gpfPathNormalize*/ // Normalize path
 /*#endif*/
 
 /**
