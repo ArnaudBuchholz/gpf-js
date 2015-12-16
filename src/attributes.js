@@ -12,12 +12,12 @@
 /*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*exported _gpfA*/
-/*exported _gpfAttribute*/
-/*exported _gpfAttributesAdd*/
-/*exported _gpfDefAttr*/
-/*exported _gpfIArrayGetItem*/
-/*exported _gpfIArrayGetItemsCount*/
+/*exported _gpfA*/ // gpf.attributes
+/*exported _gpfAttribute*/ // Shortcut for gpf.attributes.Attribute
+/*exported _gpfAttributesAdd*/ // Shortcut for gpf.attributes.add
+/*exported _gpfDefAttr*/ // gpf.define for attributes
+/*exported _gpfIArrayGetItem*/ // gpf.interfaces.IReadOnlyArray#getItem factory
+/*exported _gpfIArrayGetItemsCount*/ // gpf.interfaces.IReadOnlyArray#getItemsCount factory
 /*#endif*/
 
 // @property {gpf.attributes.Map|null} Attributes of this class (null if none)
