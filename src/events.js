@@ -14,10 +14,10 @@
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
-/*exported _gpfEventGetPromiseHandler*/
-/*exported _gpfEventsFire*/
-/*exported _GpfEventsIsValidHandler*/
-/*exported _GpfEvent*/
+/*exported _GpfEvent*/ // gpf.Events.Event
+/*exported _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
+/*exported _gpfEventGetPromiseHandler*/ // Event handler wrapper for Promises
+/*exported _GpfEventsIsValidHandler*/ // Check event handler validity
 /*#endif*/
 
 /**
