@@ -3,7 +3,7 @@
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
-/*exported _gpfErrorDeclare*/
+/*exported _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*#endif*/
 
 /**
