@@ -128,7 +128,7 @@ Module.prototype = {
         Object.keys(this.exports).sort().forEach(function (name) {
             var exported = "/*exported " + name + "*/ // " + this.exports[name];
             headerLines.push(exported);
-        });
+        }, this);
     }
 
 };
