@@ -100,8 +100,6 @@
 //region include
 //endregion
 //region base
-/*global _gpfArrayForEach*/ //  Similar to [].forEach but for array-like
-/*global _gpfDictionaryEachWithResult*/ //gpf.each implementation on dictionary
 /*global _gpfExtend*/ // gpf.extend
 /*global _gpfNodeBuffer2JsArray*/ // Converts a NodeJS buffer into an int array
 /*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
