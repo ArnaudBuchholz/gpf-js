@@ -10,7 +10,7 @@
 /*global _gpfI*/ // gpf.interfaces
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
-/*exported _gpfArrayEnumerator*/
+/*exported _gpfArrayEnumerator*/ // Create an IEnumerator from an array
 /*#endif*/
 
 _gpfErrorDeclare("i_enumerator", {
