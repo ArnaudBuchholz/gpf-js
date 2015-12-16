@@ -4,7 +4,7 @@
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
 /*global _gpfStringCapitalize*/ // Capitalize the string
-/*exported _gpfANoSerial*/
+/*exported _gpfANoSerial*/ // gpf.attributes.ClassNonSerializedAttribute
 /*#endif*/
 
 var
