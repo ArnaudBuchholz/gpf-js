@@ -1,12 +1,12 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*jshint browser: true*/
 /*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
 /*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfInBrowser*/ // The current host is a browser like
 /*global _gpfWebDocument*/ // Browser document object
 /*global _gpfWebHead*/ // Browser head tag
+/*jshint browser: true*/
 /*#endif*/
 
 /* istanbul ignore next */ // Not testable with NodeJS

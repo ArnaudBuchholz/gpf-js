@@ -1,23 +1,23 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
+/*global _GpfFunctionBuilder*/ // Function builder
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfAsserts*/ // Multiple assertion method
 /*global _gpfAttributesAdd*/ // Shortcut for gpf.attributes.add
 /*global _gpfContext*/ // Resolve contextual string
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _GpfFunctionBuilder*/ // Function builder
 /*global _gpfHost*/ // Host type
 /*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _GpfClassDefinition*/ // GPF class definition
+/*exported _gpfDecodeAttributeMember*/ // Normalized way to decode an attribute member name
 /*exported _gpfDefine*/ // Shortcut for gpf.define
+/*exported _gpfEncodeAttributeMember*/ // Normalized way to encode an attribute member name
 /*exported _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
 /*exported _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
-/*exported _gpfDecodeAttributeMember*/ // Normalized way to decode an attribute member name
-/*exported _gpfEncodeAttributeMember*/ // Normalized way to encode an attribute member name
 /*#endif*/
 
 _gpfErrorDeclare("define", {

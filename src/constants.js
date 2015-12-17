@@ -12,8 +12,8 @@
 /*exported _GPF_FS_TYPE_FILE*/ // gpf.fs.TYPE_FILE
 /*exported _GPF_FS_TYPE_NOT_FOUND*/ // gpf.fs.TYPE_NOT_FOUND
 /*exported _GPF_FS_TYPE_UNKNOWN*/ // gpf.fs.TYPE_UNKNOWN
-/*exported _gpfAlpha*/ // Letters (lowercase)
 /*exported _gpfALPHA*/ // Letters (uppercase)
+/*exported _gpfAlpha*/ // Letters (lowercase)
 /*exported _gpfCreateConstants*/ // Automate constants creation
 /*exported _gpfDigit*/ // Digits
 /*exported _gpfFalseFunc*/ // An empty function returning false

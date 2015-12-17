@@ -8,16 +8,16 @@
 /*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
 /*global _GPF_EVENT_STOP*/ // gpf.events.EVENT_STOP
 /*global _GPF_EVENT_STOPPED*/ // gpf.events.EVENT_STOPPED
-/*global _gpfAssert*/ // Assertion method
-/*global _gpfCreateConstants*/
 /*global _GpfDeferredPromise*/ // Deferred promise
+/*global _gpfAssert*/ // Assertion method
+/*global _gpfCreateConstants*/ // Automate constants creation
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*exported _GpfEvent*/ // gpf.Events.Event
-/*exported _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
-/*exported _gpfEventGetPromiseHandler*/ // Event handler wrapper for Promises
 /*exported _GpfEventsIsValidHandler*/ // Check event handler validity
+/*exported _gpfEventGetPromiseHandler*/ // Event handler wrapper for Promises
+/*exported _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*#endif*/
 
 /**

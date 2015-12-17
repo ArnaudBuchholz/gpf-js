@@ -1,12 +1,12 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GpfClassDefinition*/ // GPF class definition
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfAsserts*/ // Multiple assertion method
-/*global _GpfClassDefinition*/ // GPF class definition
-/*global _gpfDecodeAttributeMember*/
+/*global _gpfDecodeAttributeMember*/ // Normalized way to decode an attribute member name
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEmptyFunc*/ // An empty function
-/*global _gpfEncodeAttributeMember*/
+/*global _gpfEncodeAttributeMember*/ // Normalized way to encode an attribute member name
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
 /*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor

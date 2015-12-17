@@ -3,11 +3,11 @@
 /*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
 /*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
 /*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
-/*global _GPF_FS_TYPE_DIRECTORY*/ // _GPF_FS_TYPE_DIRECTORY
-/*global _GPF_FS_TYPE_FILE*/ // _GPF_FS_TYPE_FILE
-/*global _GPF_FS_TYPE_NOT_FOUND*/ // _GPF_FS_TYPE_NOT_FOUND
-/*global _GPF_FS_TYPE_UNKNOWN*/ // _GPF_FS_TYPE_UNKNOWN
-/*global _gpfCreateConstants*/
+/*global _GPF_FS_TYPE_DIRECTORY*/ // gpf.fs.TYPE_DIRECTORY
+/*global _GPF_FS_TYPE_FILE*/ // gpf.fs.TYPE_FILE
+/*global _GPF_FS_TYPE_NOT_FOUND*/ // gpf.fs.TYPE_NOT_FOUND
+/*global _GPF_FS_TYPE_UNKNOWN*/ // gpf.fs.TYPE_UNKNOWN
+/*global _gpfCreateConstants*/ // Automate constants creation
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)

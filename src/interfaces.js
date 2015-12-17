@@ -8,8 +8,8 @@
 /*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
 /*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
-/*exported _gpfI*/ // gpf.interfaces
 /*exported _gpfDefIntrf*/ // gpf.define for interfaces
+/*exported _gpfI*/ // gpf.interfaces
 /*#endif*/
 
 _gpfErrorDeclare("interfaces", {
