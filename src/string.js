@@ -12,6 +12,10 @@
 /*global _gpfStringCapitalize*/ // Capitalize the string
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
+/*global _gpfStreamBufferBase*/
+/*global _gpfStreamBufferRead*/ // Stream read method on gpf.stream.BufferBase instance
+/*global _gpfStreamBufferWrite*/ // Stream write method on gpf.stream.BufferBase instance
+
 /*exported _gpfExtractFromStringArray*/
 /*#endif*/
 
@@ -101,48 +105,18 @@ var
      * Implements IReadableStream & IWritableStream on top of a string (FIFO read / write)
      *
      * @class _GpfStringStream
-     * @extends Object
+     * @extends gpf.stream.BufferBase
      * @implements gpf.interfaces.IReadableStream, gpf.interfaces.IWritableStream
-     * @private
      */
-    _GpfStringStream = _gpfDefine("StringStream", Object, {
+    _GpfStringStream = _gpfDefine("StringStream", _gpfStreamBufferBase, {
         "[Class]": [gpf.$InterfaceImplement(_gpfI.IReadableStream), gpf.$InterfaceImplement(_gpfI.IWritableStream)],
         "+": {
 
-            // @param {String} [string=undefined] string
-            constructor: function (string) {
-                if ("string" === typeof string) {
-                    this._buffer = [string];
-                } else {
-                    this._buffer = [];
-                }
-            },
-
-            //region gpf.interfaces.IReadableStream
-
             // @inheritdoc gpf.interfaces.IReadableStream#read
-            read: function (count, eventsHandler) {
-                var result;
-                if (0 === this._buffer.length) {
-                    _gpfEventsFire.apply(this, [_GPF_EVENT_END_OF_DATA, {}, eventsHandler]);
-                } else {
-                    result = _gpfStringArrayExtract(this._buffer, count);
-                    _gpfEventsFire.apply(this, [_GPF_EVENT_DATA, {buffer: result}, eventsHandler]);
-                }
-            },
-
-            //endregion
-
-            //region gpf.interfaces.IReadableStream
+            read: _gpfStreamBufferRead,
 
             // @inheritdoc gpf.interfaces.IWritableStream#read
-            write: function (buffer, eventsHandler) {
-                _gpfAssert(buffer && buffer.length, "Buffer must contain data");
-                this._buffer.push(buffer);
-                _gpfEventsFire.apply(this, [_GPF_EVENT_READY, {}, eventsHandler]);
-            },
-
-            //endregion
+            write: _gpfStreamBufferWrite,
 
             /**
              * Consolidate the result string
@@ -151,12 +125,6 @@ var
             toString: function () {
                 return this._buffer.join("");
             }
-
-        },
-        "-": {
-
-            // @property {String[]} buffer
-            _buffer: []
 
         }
     });
