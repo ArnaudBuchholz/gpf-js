@@ -42,7 +42,8 @@
         "",                                                 // --- temporary end marker ---
 
         "stream",                                           // IStream helpers                gpf.stream
-        "stream/readable/buffer",
+        "stream/buffer",
+        "stream/cache",
         "string",                                           // String functions
 
 
