@@ -30,6 +30,7 @@
 /*exported _gpfJsKeywords*/ //  List of JavaScript keywords
 /*exported _gpfMax31*/ // Max value on 31 bits
 /*exported _gpfMax32*/ // Max value on 32 bits
+/*exported _gpfIsUnsignedByte*/ // Check if the parameter is an unsigned byte
 /*jshint -W098*/ // This is a constant list, they won't be used in here
 /*eslint-disable no-unused-vars*/
 /*eslint-disable no-undef*/
@@ -152,6 +153,11 @@ function _gpfFunc (params, source) {
         return null;
     }
     /*#endif*/
+}
+
+// Returns true if the value is an unsigned byte
+function _gpfIsUnsignedByte (value) {
+    return "number" === typeof value && 0 <= value && value <= 256;
 }
 
 /**
