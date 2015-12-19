@@ -201,7 +201,7 @@ _gpfExtend(gpf, {
      * Converts the string into a stream
      *
      * @param {String} that
-     * @return {Object} Implementing gpf.interfaces.ITextStream
+     * @return {Object} Implementing gpf.interfaces.IReadableStream & gpf.interfaces.IWritableStream
      */
     stringToStream: function (that) {
         return new _GpfStringStream(that);
@@ -210,7 +210,7 @@ _gpfExtend(gpf, {
     /**
      * Converts the stream into a string
      *
-     * @param {gpf.interfaces.ITextStream} stream
+     * @param {gpf.interfaces.IReadableStream} stream
      * @param {gpf.events.Handler} eventsHandler
      *
      * @event gpf.events.EVENT_READY
