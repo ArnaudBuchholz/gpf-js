@@ -12,7 +12,7 @@
 /*global _gpfStringCapitalize*/ // Capitalize the string
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
-/*exported _gpfStringStream*/ //
+/*exported _gpfStringStream*/ // IReadableStream & IWritableStream for string
 /*#endif*/
 
 //region String Array helpers
