@@ -27,10 +27,10 @@
 /*exported _gpfFunc*/ // Create a new function using the source
 /*exported _gpfIdentifierFirstChar*/ // allowed first char in an identifier
 /*exported _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
+/*exported _gpfIsUnsignedByte*/ // Check if the parameter is an unsigned byte
 /*exported _gpfJsKeywords*/ //  List of JavaScript keywords
 /*exported _gpfMax31*/ // Max value on 31 bits
 /*exported _gpfMax32*/ // Max value on 32 bits
-/*exported _gpfIsUnsignedByte*/ // Check if the parameter is an unsigned byte
 /*jshint -W098*/ // This is a constant list, they won't be used in here
 /*eslint-disable no-unused-vars*/
 /*eslint-disable no-undef*/
