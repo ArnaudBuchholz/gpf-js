@@ -41,10 +41,13 @@
 
         "",                                                 // --- temporary end marker ---
 
-        "stream",                                           // IStream helpers                gpf.stream
-        "stream/buffer",
-        "stream/cache",
+        "stream",                                           // Stream helpers                 gpf.stream
+        "stream/pipe",                                      //                           gpf.stream.pipe
         "string",                                           // String functions
+        "array",                                            // Array functions
+
+        "stream/node",
+        "stream/cache",
 
 
 // https://github.com/ArnaudBuchholz/gpf-js/milestones/Release%200.1.5:%20The%20next%20gen
@@ -61,7 +64,6 @@
         // https://github.com/ArnaudBuchholz/gpf-js/issues/68
         "stream_out",                                       // gpf.stream.Out
         "stream_node",                                      // IStream helpers for nodeJS     gpf.stream
-        "array",                                            // Array functions
         "encoding",                                         // Encoding                     gpf.encoding
 
         // https://github.com/ArnaudBuchholz/gpf-js/issues/69
