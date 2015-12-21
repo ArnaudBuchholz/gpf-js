@@ -8,7 +8,7 @@
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfExtend*/ // gpf.extend
 /*global _gpfI*/ // gpf.interfaces
-/*global _gpfStreamPipe*/ // gpf.stream.pipe implementation
+/*global _gpfStreamPipe*/ // gpf.stream.pipe
 /*exported _gpfArrayStream*/ // IReadableStream & IWritableStream for array
 /*#endif*/
 

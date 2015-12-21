@@ -8,7 +8,7 @@
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfExtend*/ // gpf.extend
 /*global _gpfI*/ // gpf.interfaces
-/*global _gpfStreamPipe*/ // gpf.stream.pipe implementation
+/*global _gpfStreamPipe*/ // gpf.stream.pipe
 /*global _gpfStringCapitalize*/ // Capitalize the string
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
