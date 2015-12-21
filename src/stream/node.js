@@ -98,6 +98,8 @@ if (_gpfInNode) {
                 _gpfEventsFire.apply(this, [_GPF_EVENT_READY, {}, eventsHandler]);
             },
 
+            //region gpf.interfaces.IReadableStream
+
             // @inheritdoc gpf.interfaces.IReadableStream#read
             read: function (size, eventsHandler) {
                 var chunk;
@@ -116,6 +118,8 @@ if (_gpfInNode) {
                 this._size = size;
                 this._stream.once("readable", this._boundOnReadable);
             }
+
+            //endregion
 
         },
         "#": {
@@ -189,11 +193,15 @@ if (_gpfInNode) {
                 });
             },
 
+            //region gpf.interfaces.IWritableStream
+
             // @inheritdoc gpf.interfaces.IWritableStream#write
             write: function (buffer, eventsHandler) {
                 this._setEventsHandler(eventsHandler, gpf.Error.writeInProgress);
                 this._stream.write(buffer, this._boundOnWritten);
             }
+
+            //endregion
 
         },
         "#": {
