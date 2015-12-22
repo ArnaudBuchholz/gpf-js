@@ -5,7 +5,7 @@
 
 /*eslint-disable max-nested-callbacks*/
 
-describe("stream_out", function () {
+describe("stream/node", function () {
 
     /*jshint -W027*/ // because not relevant
     return;
