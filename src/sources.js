@@ -39,12 +39,12 @@
         "interfaces/filestorage",                           // IFileStorage
         "fs",                                               // File system (FS)                   gpf.fs
 
-        "",                                                 // --- temporary end marker ---
-
         "stream",                                           // Stream helpers                 gpf.stream
         "stream/pipe",                                      //                           gpf.stream.pipe
         "string",                                           // String functions
         "array",                                            // Array functions
+
+        "",                                                 // --- temporary end marker ---
 
         "stream/node",
         "stream/cache",
