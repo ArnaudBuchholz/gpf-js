@@ -101,7 +101,7 @@ _gpfExtend(gpf, {
      * @event gpf.events.EVENT_READY
      * finished reading the stream, the buffer is provided
      *
-     * @eventParam {String} buffer
+     * @eventParam {Array} result
      */
     arrayFromStream: function (stream, eventsHandler) {
         if (stream instanceof _GpfArrayStream) {
@@ -113,7 +113,7 @@ _gpfExtend(gpf, {
                 writable: arrayStream
             }, function (event) {
                 if (_GPF_EVENT_READY === event.type) {
-                    _gpfEventsFire(_GPF_EVENT_READY, {buffer: arrayStream.toArray()}, eventsHandler);
+                    _gpfEventsFire(_GPF_EVENT_READY, {result: arrayStream.toArray()}, eventsHandler);
                 } else {
                     _gpfEventsFire(event, {}, eventsHandler);
                 }
