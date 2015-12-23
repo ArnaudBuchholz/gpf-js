@@ -8,6 +8,7 @@
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfI*/ // gpf.interfaces
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfQueryInterface*/ // gpf.interfaces.query
 /*exported _gpfStreamPipe*/ // gpf.stream.pipe
 /*#endif*/
 
@@ -17,12 +18,12 @@
  */
 function _GpfStreamPipe (configuration, eventsHandler) {
     /*jshint validthis:true*/ // constructor
-    this._readable = _gpfI.queryInterface(configuration.readable, _gpfI.IReadableStream, true);
-    this._writable = _gpfI.queryInterface(configuration.writable, _gpfI.IWritableStream, true);
+    this._readable = _gpfQueryInterface(configuration.readable, _gpfI.IReadableStream, true);
+    this._writable = _gpfQueryInterface(configuration.writable, _gpfI.IWritableStream, true);
     if (undefined !== configuration.chunkSize) {
         this.__chunkSize = configuration.chunkSize;
     }
-    this._eventHandler = eventsHandler;
+    this._eventsHandler = eventsHandler;
 }
 
 _GpfStreamPipe.prototype = {
