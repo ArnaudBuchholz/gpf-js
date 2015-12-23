@@ -10,6 +10,7 @@
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*exported _gpfDefIntrf*/ // gpf.define for interfaces
 /*exported _gpfI*/ // gpf.interfaces
+/*exported _gpfQueryInterface*/ // gpf.interfaces.query
 /*#endif*/
 
 _gpfErrorDeclare("interfaces", {
@@ -51,6 +52,33 @@ function _gpfIsImplementedBy (inspectedObject, interfaceDefinition) {
     return true;
 }
 
+/**
+ * Retrieve an object implementing the expected interface from an object.
+ * This is done in two tests:
+ * - Either the object implements the interface, it is returned
+ * - Or the object implements IUnknown, then queryInterface is used
+ *
+ * @param {Object} objectInstance object to inspect
+ * @param {gpf.interfaces.Interface} interfaceDefinition reference interface
+ * @param {Boolean} [throwError=true] throwError Throws an error if the interface is not found (otherwise, null
+ * is returned)
+ * @return {Object|null}
+ */
+function _gpfQueryInterface (objectInstance, interfaceDefinition, throwError) {
+    var result = null;
+    if (_gpfIsImplementedBy(objectInstance, interfaceDefinition)) {
+        return objectInstance;
+    } else if (_gpfIsImplementedBy(objectInstance, gpf.interfaces.IUnknown)) {
+        result = objectInstance.queryInterface(interfaceDefinition);
+    }
+    if (null === result && (undefined === throwError || throwError)) {
+        throw gpf.Error.interfaceExpected({
+            name: _gpfGetClassDefinition(interfaceDefinition)._name
+        });
+    }
+    return result;
+}
+
 var
     /**
      * gpf.attributes shortcut
@@ -74,32 +102,8 @@ var
             return _gpfIsImplementedBy(inspectedObject, interfaceDefinition);
         },
 
-        /**
-         * Retrieve an object implementing the expected interface from an object.
-         * This is done in two tests:
-         * - Either the object implements the interface, it is returned
-         * - Or the object implements IUnknown, then queryInterface is used
-         *
-         * @param {Object} objectInstance object to inspect
-         * @param {gpf.interfaces.Interface} interfaceDefinition reference interface
-         * @param {Boolean} [throwError=true] throwError Throws an error if the interface is not found (otherwise, null
-         * is returned)
-         * @return {Object|null}
-         */
-        query: function (objectInstance, interfaceDefinition, throwError) {
-            var result = null;
-            if (_gpfIsImplementedBy(objectInstance, interfaceDefinition)) {
-                return objectInstance;
-            } else if (_gpfIsImplementedBy(objectInstance, gpf.interfaces.IUnknown)) {
-                result = objectInstance.queryInterface(interfaceDefinition);
-            }
-            if (null === result && (undefined === throwError || throwError)) {
-                throw gpf.Error.interfaceExpected({
-                    name: _gpfGetClassDefinition(interfaceDefinition)._name
-                });
-            }
-            return result;
-        }
+        // @inheritdoc _gpfQueryInterface
+        query: _gpfQueryInterface
 
     };
 
