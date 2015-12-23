@@ -134,6 +134,37 @@ describe("string", function () {
 
     });
 
+    describe("gpf.stringFromStream", function () {
+
+        it("fills a string by reading a stream", function (done) {
+            var string = "abcdef",
+                stream = {
+                    pos: 0,
+                    read: function (count, eventsHandler) {
+                        var result;
+                        if (this.pos === string.length) {
+                            gpf.events.fire.apply(this, [gpf.events.EVENT_END_OF_DATA, {}, eventsHandler]);
+                        } else {
+                            result = string.charAt(this.pos++);
+                            gpf.events.fire.apply(this, [gpf.events.EVENT_DATA, {buffer: result}, eventsHandler]);
+                        }
+                    }
+                };
+            gpf.events.getPromiseHandler(function (eventHandler) {
+                gpf.stringFromStream(stream, eventHandler);
+            })
+            .then(function (event) {
+                assert(gpf.events.EVENT_READY === event.type);
+                assert(string === event.get("buffer"));
+                done();
+
+            })["catch"](function (reason) {
+                done(reason);
+            });
+        });
+
+    });
+
     if (gpf.internals) {
 
         describe("Strings array", function () {

@@ -228,7 +228,7 @@ _gpfExtend(gpf, {
                 writable: stringStream
             }, function (event) {
                 if (_GPF_EVENT_READY === event.type) {
-                    _gpfEventsFire(_GPF_EVENT_READY, {buffer: stream.toString()}, eventsHandler);
+                    _gpfEventsFire(_GPF_EVENT_READY, {buffer: stringStream.toString()}, eventsHandler);
                 } else {
                     _gpfEventsFire(event, {}, eventsHandler);
                 }
