@@ -61,14 +61,19 @@ describe("string", function () {
             gpf.events.getPromiseHandler(function (eventHandler) {
                 iWritableStream.write("abc", eventHandler);
             })
-                .then(function () {
+                .then(function (event) {
+                    assert(gpf.events.EVENT_READY === event.type);
                     return gpf.events.getPromiseHandler(function (eventHandler) {
                         iWritableStream.write("def", eventHandler);
                     });
                 })
-                .then(function () {
+                .then(function (event) {
+                    assert(gpf.events.EVENT_READY === event.type);
                     assert("abcdef" === stream.toString());
                     done();
+
+                })["catch"](function (reason) {
+                    done(reason);
                 });
         });
 
@@ -80,6 +85,7 @@ describe("string", function () {
                 iReadableStream.read(3, eventHandler);
             })
                 .then(function (event) {
+                    assert(gpf.events.EVENT_DATA === event.type);
                     var buffer = event.get("buffer");
                     assert("string" === typeof buffer);
                     assert(3 === buffer.length);
@@ -89,11 +95,31 @@ describe("string", function () {
                     });
                 })
                 .then(function (event) {
+                    assert(gpf.events.EVENT_DATA === event.type);
                     var buffer = event.get("buffer");
                     assert("string" === typeof buffer);
                     assert(2 === buffer.length);
                     assert("de" === buffer);
+                    return gpf.events.getPromiseHandler(function (eventHandler) {
+                        iReadableStream.read(100, eventHandler);
+                    });
+                })
+                .then(function (event) {
+                    assert(gpf.events.EVENT_DATA === event.type);
+                    var buffer = event.get("buffer");
+                    assert("string" === typeof buffer);
+                    assert(1 === buffer.length);
+                    assert("f" === buffer);
+                    return gpf.events.getPromiseHandler(function (eventHandler) {
+                        iReadableStream.read(100, eventHandler);
+                    });
+                })
+                .then(function (event) {
+                    assert(gpf.events.EVENT_END_OF_DATA === event.type);
                     done();
+
+                })["catch"](function (reason) {
+                    done(reason);
                 });
         });
 
@@ -129,12 +155,31 @@ describe("string", function () {
                     assert(3 === buffer.length);
                     assert("hik" === buffer);
                     done();
+
+                })["catch"](function (reason) {
+                    done(reason);
                 });
         });
 
     });
 
     describe("gpf.stringFromStream", function () {
+
+        it("converts immediately a StringStream to string", function (done) {
+            var string = "abcdef",
+                stream = gpf.stringToStream(string);
+            gpf.events.getPromiseHandler(function (eventHandler) {
+                gpf.stringFromStream(stream, eventHandler);
+            })
+                .then(function (event) {
+                    assert(gpf.events.EVENT_READY === event.type);
+                    assert(string === event.get("buffer"));
+                    done();
+
+                })["catch"](function (reason) {
+                    done(reason);
+                });
+        });
 
         it("fills a string by reading a stream", function (done) {
             var string = "abcdef",
@@ -161,6 +206,30 @@ describe("string", function () {
             })["catch"](function (reason) {
                 done(reason);
             });
+        });
+
+        it("forwards errors", function (done) {
+            var stream = {
+                pos: 0,
+                read: function (count, eventsHandler) {
+                    if (0 === this.pos) {
+                        ++this.pos;
+                        gpf.events.fire.apply(this, [gpf.events.EVENT_DATA, {buffer: "abc"}, eventsHandler]);
+                    } else {
+                        gpf.events.fire.apply(this, [gpf.events.EVENT_ERROR, {error: "KO"}, eventsHandler]);
+                    }
+                }
+            };
+            gpf.events.getPromiseHandler(function (eventHandler) {
+                gpf.stringFromStream(stream, eventHandler);
+            })
+                .then(function (/*event*/) {
+                    done("Not supposed to work");
+
+                })["catch"](function (reason) {
+                    assert("KO" === reason);
+                    done();
+                });
         });
 
     });
