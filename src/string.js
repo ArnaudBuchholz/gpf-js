@@ -81,17 +81,12 @@ function _gpfStringArraySplice (strings, itemsCount, characterCount) {
  * Extract the first characters of a string array
  *
  * @param {Strings[]} strings This array is modified after extraction
- * @param {Number} [size=0] size Number of characters to get, all if 0
+ * @param {Number} size Number of characters to get
  * @return {String}
  */
 function _gpfStringArrayExtract (strings, size) {
-    var stringsLength = strings.length,
-        parts;
-    if (size) {
-        parts = _gpfStringArrayCountToFit(strings, size);
-        return _gpfStringArraySplice(strings, parts.count, parts.remaining);
-    }
-    return _gpfStringArraySplice(strings, stringsLength);
+    var parts = _gpfStringArrayCountToFit(strings, size);
+    return _gpfStringArraySplice(strings, parts.count, parts.remaining);
 }
 
 //endregion
