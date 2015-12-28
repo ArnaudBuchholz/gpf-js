@@ -3,6 +3,7 @@
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfMainContext*/ // Main context object
+/*global _gpfEmptyFunc*/
 /*exported _GpfDeferredPromise*/ // Deferred promise
 /*#endif*/
 
@@ -216,8 +217,8 @@ function _GpfDeferredPromise () {
 }
 
 _GpfDeferredPromise.prototype = {
-    resolve: null,
-    reject: null,
+    resolve: _gpfEmptyFunc,
+    reject: _gpfEmptyFunc,
     promise: null
 };
 
