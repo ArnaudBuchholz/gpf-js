@@ -223,15 +223,15 @@ gpf.events.fire = function (event, params, eventsHandler) {
  * @return {Promise<gpf.events.Event>}
  */
 function _gpfEventGetPromiseHandler (eventHandlingMethod) {
-    var deferred = new _GpfDeferredPromise();
-    eventHandlingMethod(function (event) {
-        if (_GPF_EVENT_ERROR === event.type) {
-            deferred.reject(event);
-        } else {
-            deferred.resolve(event);
-        }
+    return new Promise(function (resolve, reject) {
+        eventHandlingMethod(function (event) {
+            if (_GPF_EVENT_ERROR === event.type) {
+                reject(event);
+            } else {
+                resolve(event);
+            }
+        });
     });
-    return deferred.promise;
 }
 
 // @inheritdoc _gpfEventGetPromiseHandler
