@@ -8,7 +8,6 @@
 /*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
 /*global _GPF_EVENT_STOP*/ // gpf.events.EVENT_STOP
 /*global _GPF_EVENT_STOPPED*/ // gpf.events.EVENT_STOPPED
-/*global _GpfDeferredPromise*/ // Deferred promise
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfCreateConstants*/ // Automate constants creation
 /*global _gpfEmptyFunc*/ // An empty function
@@ -161,7 +160,7 @@ function _gpfEventsFire (event, params, eventsHandler) {
     if (!(event instanceof _GpfEvent)) {
         event = new gpf.events.Event(event, params, scope);
     }
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve/*, reject*/) {
         // This is used both to limit the number of recursion and increase the efficiency of the algorithm.
         if (++_gpfEventsFiring > 10) {
             // Too much recursion, use setTimeout to free some space on the stack
