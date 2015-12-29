@@ -21,7 +21,7 @@ function _GpfStreamPipe (configuration, eventsHandler) {
     this._readable = _gpfQueryInterface(configuration.readable, _gpfI.IReadableStream, true);
     this._writable = _gpfQueryInterface(configuration.writable, _gpfI.IWritableStream, true);
     if (undefined !== configuration.chunkSize) {
-        this.__chunkSize = configuration.chunkSize;
+        this._chunkSize = configuration.chunkSize;
     }
     this._eventsHandler = eventsHandler;
 }
