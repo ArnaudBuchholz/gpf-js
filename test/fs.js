@@ -216,7 +216,7 @@ describe("fs", function () {
 
                         })["catch"](function (reason) {
                             try {
-                                assert(gpf.events.EVENT_ERROR === reason.type);
+                                assert(gpf.Error.invalidParameter.CODE === reason.code);
                                 done();
 
                             } catch (e) {
@@ -243,7 +243,7 @@ describe("fs", function () {
 
                         })["catch"](function (reason) {
                             try {
-                                assert(gpf.events.EVENT_ERROR === reason.type);
+                                assert("no file info" === reason);
                                 done();
 
                             } catch (e) {
@@ -342,7 +342,7 @@ describe("fs", function () {
 
                         })["catch"](function (reason) {
                             try {
-                                assert(gpf.events.EVENT_ERROR === reason.type);
+                                assert("no file info" === reason);
                                 done();
 
                             } catch (e) {
