@@ -234,6 +234,30 @@ describe("string", function () {
 
     });
 
+    describe("gpf.stream.pipe", function () {
+
+        it("accepts a chunk size", function (done) {
+            var readable = gpf.stringToStream("abcdef"),
+                writable = gpf.stringToStream();
+            gpf.events.getPromiseHandler(function (eventHandler) {
+                gpf.stream.pipe({
+                    readable: readable,
+                    writable: writable,
+                    chunkSize: 1
+                }, eventHandler);
+            })
+                .then(function (event) {
+                    assert(gpf.events.EVENT_READY === event.type);
+                    assert("abcdef" === writable.toString());
+                    done();
+
+                })["catch"](function (reason) {
+                    done(reason);
+                });
+        });
+
+    });
+
     if (gpf.internals) {
 
         describe("Strings array", function () {
