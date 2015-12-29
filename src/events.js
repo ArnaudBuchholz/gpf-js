@@ -131,13 +131,13 @@ function _getEventHandler (event, eventsHandler) {
  *
  * @param {gpf.events.Event} event event object to fire
  * @param {gpf.events.Handler} eventsHandler
- * @param {gpf.DeferredPromise} [deferredPromise=undefined] deferredPromise promise to resolve on completion
+ * @param {Function} [resolvePromise=undefined] resolvePromise Promise resolver
  */
-function _gpfEventsTriggerHandler (event, eventsHandler, deferredPromise) {
+function _gpfEventsTriggerHandler (event, eventsHandler, resolvePromise) {
     var eventHandler = _getEventHandler(event, eventsHandler);
     eventHandler(event);
-    if (undefined !== deferredPromise) {
-        deferredPromise.resolve(event);
+    if (undefined !== resolvePromise) {
+        resolvePromise(event);
     }
 }
 
@@ -156,26 +156,22 @@ var
  */
 function _gpfEventsFire (event, params, eventsHandler) {
     /*jshint validthis:true*/ // will be invoked with apply
-    var scope = _gpfResolveScope(this),
-        result;
+    var scope = _gpfResolveScope(this);
     _gpfAssert(_GpfEventsIsValidHandler(eventsHandler), "Expected a valid event handler");
     if (!(event instanceof _GpfEvent)) {
         event = new gpf.events.Event(event, params, scope);
     }
-    /**
-     * This is used both to limit the number of recursion and increase
-     * the efficiency of the algorithm.
-     */
-    if (++_gpfEventsFiring > 10) {
-        // Too much recursion, use setTimeout to free some space on the stack
-        result = new _GpfDeferredPromise();
-        setTimeout(_gpfEventsTriggerHandler.bind(null, event, eventsHandler, result), 0);
-    } else {
-        _gpfEventsTriggerHandler(event, eventsHandler);
-        result = Promise.resolve(event);
-    }
-    --_gpfEventsFiring;
-    return result;
+    return new Promise(function (resolve, reject) {
+        // This is used both to limit the number of recursion and increase the efficiency of the algorithm.
+        if (++_gpfEventsFiring > 10) {
+            // Too much recursion, use setTimeout to free some space on the stack
+            setTimeout(_gpfEventsTriggerHandler.bind(null, event, eventsHandler, resolve), 0);
+        } else {
+            _gpfEventsTriggerHandler(event, eventsHandler);
+            resolve(event);
+        }
+        --_gpfEventsFiring;
+    });
 }
 
 /**

@@ -207,23 +207,6 @@ if (undefined === _gpfMainContext.Promise) {
     _gpfMainContext.Promise = _GpfPromise;
 }
 
-function _GpfDeferredPromise () {
-    /*jshint validthis:true*/ // constructor
-    var me = this;
-    me.promise = new Promise(function (resolve, reject) {
-        me.resolve = resolve;
-        me.reject = reject;
-    });
-}
-
-_GpfDeferredPromise.prototype = {
-    resolve: _gpfEmptyFunc,
-    reject: _gpfEmptyFunc,
-    promise: null
-};
-
-gpf.DeferredPromise = _GpfDeferredPromise;
-
 /*#ifndef(UMD)*/
 
 gpf.internals._GpfPromise = _GpfPromise;

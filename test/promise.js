@@ -479,42 +479,4 @@ describe("promise", function () {
 
     }
 
-    describe("gpf.DeferredPromise", function () {
-
-        it("allocates a promise object with a completion callbacks", function () {
-            var deferred = new gpf.DeferredPromise();
-            assert(null !== deferred);
-            assert("function" === typeof deferred.resolve);
-            assert("function" === typeof deferred.reject);
-        });
-
-        it("allows deferring the use of resolve", function (done) {
-            var deferred = new gpf.DeferredPromise();
-            deferred.promise.then(function (value) {
-                assert("OK" === value);
-                done();
-            });
-            deferred.promise["catch"](function (reason) {
-                done(reason);
-            });
-            deferred.resolve("OK");
-        });
-
-        it("allows deferring the use of reject", function (done) {
-            var deferred = new gpf.DeferredPromise();
-            deferred.promise.then(function (value) {
-                done(value || "Not expected");
-            }, function (reason) {
-                assert("KO" === reason);
-                done();
-                return Promise.resolve(); // Prevent the catch
-            });
-            deferred.promise["catch"](function (reason) {
-                done(reason);
-            });
-            deferred.reject("KO");
-        });
-
-    });
-
 });
