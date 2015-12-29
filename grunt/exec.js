@@ -67,7 +67,7 @@ module.exports = {
     metrics: {
         command: "node make\\metrics.js",
         stdout: false,
-        stderr: false,
+        stderr: true,
         exitCode: 0
     },
     globals: {
