@@ -85,4 +85,34 @@ describe("constants", function () {
 
     });
 
+    if (gpf.internals) {
+
+        describe("(internal) _gpfIsUnsignedByte", function () {
+
+            var _gpfIsUnsignedByte = gpf.internals._gpfIsUnsignedByte;
+
+            gpf.forEach({
+                "0": true,
+                "-25": false,
+                "128": true,
+                "256": false,
+                "255": true
+
+            }, function (expectedResult, stringValue) {
+                var value = parseInt(stringValue, 10);
+                if (expectedResult) {
+                    it("accepts" + stringValue, function () {
+                        assert(true === _gpfIsUnsignedByte(value));
+                    });
+                } else {
+                    it("rejects " + stringValue, function () {
+                        assert(false === _gpfIsUnsignedByte(value));
+                    });
+                }
+            });
+
+        });
+
+    }
+
 });
