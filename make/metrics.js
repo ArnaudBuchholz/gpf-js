@@ -84,9 +84,20 @@ function sumPartCoverage (globalPartCoverage, filePartCoverage) {
     globalPartCoverage.ignored += filePartCoverage.ignored;
 }
 
-var globalCoverage;
-gpf.forEach(coverageData, function (fileCoverageData/*, fileName*/) {
-    var fileCoverage = computeCoverage(fileCoverageData);
+function computeCoverageRatio (coverageItem, part) {
+    var count = coverageItem[part].count;
+    if (0 === count) {
+        return 100;
+    }
+    return Math.floor(100 * (coverageItem[part].tested + coverageItem[part].ignored) / count);
+}
+
+var globalCoverage,
+    hasCoverageError = false;
+gpf.forEach(coverageData, function (fileCoverageData, fileName) {
+    var fileCoverage = computeCoverage(fileCoverageData),
+        fileTrace = [fileName, "                                        ".substr(fileName.length)],
+        fileIsKO = false;
     if (globalCoverage) {
         // Sum everything
         gpf.forEach(coverageParts, function (coveragePart, partName) {
@@ -95,10 +106,33 @@ gpf.forEach(coverageData, function (fileCoverageData/*, fileName*/) {
     } else {
         globalCoverage = fileCoverage;
     }
+    // Check individual coverage
+    gpf.forEach(coverageParts, function (coveragePart, partName) {
+        var ratio = computeCoverageRatio(fileCoverage, partName);
+        if (ratio === 100) {
+            ratio = "   ";
+        } else if (ratio < 90) {
+            ratio = "KO ";
+            fileIsKO = true;
+        } else {
+            ratio += "%";
+        }
+        fileTrace.push(partName, ": ", ratio, " ");
+    });
+    if (fileIsKO) {
+        console.error(fileTrace.join(""));
+        hasCoverageError = true;
+    } else {
+        console.log(fileTrace.join(""));
+    }
 });
 
+if (hasCoverageError) {
+    process.exit(-1); // Coverage error
+}
+
 function getGlobalCoverage (part) {
-    return Math.floor(100 * (globalCoverage[part].tested + globalCoverage[part].ignored) / globalCoverage[part].count);
+    return computeCoverageRatio(globalCoverage, part);
 }
 
 function getGlobalIgnore (part) {
@@ -112,9 +146,9 @@ var statementsCoverage = getGlobalCoverage("statements"),
     branchesCoverage = getGlobalCoverage("branches"),
     branchesIgnored = getGlobalIgnore("branches");
 
-// gpf.forEach(coverageParts, function (coveragePart, partName) {
-//     console.log(partName + ": " + getGlobalCoverage(partName) + "% (ignored " + getGlobalIgnore(partName) + "%)");
-// });
+//gpf.forEach(coverageParts, function (coveragePart, partName) {
+//    console.log(partName + ": " + getGlobalCoverage(partName) + "% (ignored " + getGlobalIgnore(partName) + "%)");
+//});
 
 //endregion
 
@@ -173,3 +207,5 @@ var metricsSectionHeader = readmeSections[metricsSectionIndex].split(SEPARATOR)[
     ];
 readmeSections[metricsSectionIndex] = metricsSectionHeader + SEPARATOR + metrics.join("");
 fs.writeFileSync("README.md", readmeSections.join("##"));
+
+process.exit(0); // OK
