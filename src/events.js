@@ -226,7 +226,7 @@ function _gpfEventGetPromiseHandler (eventHandlingMethod) {
     return new Promise(function (resolve, reject) {
         eventHandlingMethod(function (event) {
             if (_GPF_EVENT_ERROR === event.type) {
-                reject(event);
+                reject(event.get("error"));
             } else {
                 resolve(event);
             }
