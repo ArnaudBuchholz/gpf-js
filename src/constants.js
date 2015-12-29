@@ -157,7 +157,7 @@ function _gpfFunc (params, source) {
 
 // Returns true if the value is an unsigned byte
 function _gpfIsUnsignedByte (value) {
-    return "number" === typeof value && 0 <= value && value <= 256;
+    return "number" === typeof value && 0 <= value && value < 256;
 }
 
 /**
@@ -184,3 +184,9 @@ _gpfCreateConstants(gpf, {
     HOST_UNKNOWN: _GPF_HOST_UNKNOWN,
     HOST_WSCRIPT: _GPF_HOST_WSCRIPT
 });
+
+/*#ifndef(UMD)*/
+
+gpf.internals._gpfIsUnsignedByte = _gpfIsUnsignedByte;
+
+/*#endif*/
