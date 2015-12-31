@@ -77,6 +77,22 @@ debug("\tCreating working folder...");
 parameters.temporaryPath = "../tmp/build/" + version;
 mkDir(parameters.temporaryPath);
 
+//Go over sources to create other temporary folders
+gpf.sources().every(function (name) {
+    if (!name) {
+        // end marker
+        return false;
+    }
+    if (name.indexOf("/")) {
+        // remove file name
+        name = name.split("/");
+        name.pop();
+        mkDir(parameters.temporaryPath + "/" + name.join("/"));
+    }
+    return true;
+});
+
+
 try {
     result = build(sources, parameters, debug);
 } catch (e) {
