@@ -7,13 +7,13 @@
 All source file must be using UTF-8 encoding and DOS-like carriage return.
 They end with an empty line.
 
-All sources start with:
+Most sources start with:
 
 ```javascript
 /*#ifndef(UMD)*/
 "use strict";
-/*global 'IMPORTED' VARIABLE OR FUNCTIONS*/
-/*exported 'EXPORTED' VARIABLE OR FUNCTIONS*/
+/*global 'IMPORTED' VARIABLE OR FUNCTIONS*/ // Brief description of the import
+/*exported 'EXPORTED' VARIABLE OR FUNCTIONS*/ // Bried description of the export
 /*#endif*/
 ```
 
@@ -22,21 +22,12 @@ everywhere.
 
 Globals and exported are written to make sure that JSHint can relate to:
 
-* Variables or functions that are declared in a different source
-* Variables or functions that are being declared without being used in this source
+* Variables or functions that are declared in a different source (documentation will be imported from the corresponding
+exported comment)
+* Variables or functions that are being declared without being used in this source (exported comment must have be
+commented)
 
-They are sorted alphabetically.
-
- A list of available *global* variables is consolidated in the **constants** source, it is organized like the following:
-
-```javascript
-//region compatibility
-/*global _gpfArraySlice*/ // Shortcut on Array.prototype.slice
-/*global _gpfSetReadOnlyProperty*/ // gpf.setReadOnlyProperty
-//endregion
-```
-
-where the region provides the source name.
+They are sorted alphabetically automatically by the build process.
 
 ## Coding style
 
@@ -179,14 +170,14 @@ Two functions are provided for assertions:
  * @param {Boolean} condition May be a truthy value
  * @param {String} message Assertion message (to explain the violation if it fails)
  */
-gpf.ASSERT = function (condition, message) {/*...*/}
+_gpfAssert = function (condition, message) {
 
 /**
  * Batch assertion helper
  *
  * @param {Object} messages Dictionary of messages (value being the condition)
  */
-gpf.ASSERTS = function (messages) {/*...*/}
+_gpfAsserts = function (messages) {/*...*/}
 ```
 
 Ideally, there should be only one assertion per function (to reduce the number of necessary instructions), this is the
@@ -195,7 +186,9 @@ The message of the assertion **must** be the evaluated condition.
 
 For instance:
 
-
+```javascript
+_gpfAssert(value instanceof _gpfAttribute, "Expected an Attribute-like parameter");
+```
 
 ### Comments
 
@@ -264,7 +257,6 @@ The following tags are inserted to prepare future optimizations / improvement:
 
 ### Variables declaration
 
-To simplify minification, functions are always using function declaration.
 Variables are grouped as much as possible: for instance, if the variable is used in one function only, its declaration
 will remain close to the function where it is used.
 
@@ -283,6 +275,8 @@ var
 ```
 
 ### Functions
+
+Prefer the named function syntax over the variable one.
 
 Function variables are all declared at the beginning of the function.
 If a function create closures, the @closure tag is added.
@@ -386,7 +380,7 @@ maxcomplexity | 6 | limits cyclomatic complexity
 
 ### Turning off JSHint warnings
 
-Turning off a warning is allowed provided a comment explains why this is turned off
+Turning off a warning or an error is allowed provided a comment explains why
 
 The following syntax is used on internal constructors as the function name starts with _Gpf (and it is not detected
 as a valid constructor function).
@@ -404,4 +398,19 @@ Or it may be temporarily turned of using -W040 / +W040 as the following:
     /*jshint +W040*/
 ```
 
-## Code testing
+## Code coverage
+
+Turning off istanbul is allowed provided a comment explains why the code is skipped.
+
+The only excpetion is the following (use of hasOwnProperty):
+
+```javascript
+_gpfAsserts = function (messages) {
+    for (var message in messages) {
+        /* istanbul ignore else */
+        if (messages.hasOwnProperty(message)) {
+            _gpfAssert(messages[message], message);
+        }
+    }
+};
+```
