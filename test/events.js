@@ -355,9 +355,37 @@ describe("events", function () {
 
     });
 
-    describe("gpf.events.asPromise", function () {
+    describe("gpf.events.getPromiseHandler", function () {
 
-        it("converts an event handler function into a promise");
+        it("converts an event handler function into a promise", function (done) {
+            gpf.events.getPromiseHandler(function (eventHandler) {
+                gpf.events.fire("test", eventHandler);
+            })
+                .then(function (event) {
+                    assert("test" === event.type);
+                    assert(gpf.context() === event.scope);
+                    done();
+                })["catch"](function (reason) {
+                    done(reason);
+                });
+        });
+
+        it("rejects error events and provides the reason", function (done) {
+            gpf.events.getPromiseHandler(function (eventHandler) {
+                gpf.events.fire("error", {error: "KO!"}, eventHandler);
+            })
+                .then(function (event) {
+                    done("Not expected");
+
+                })["catch"](function (reason) {
+                    try {
+                        assert("KO!" === reason);
+                        done();
+                    } catch (e) {
+                        done (e);
+                    }
+                });
+        });
 
     });
 
