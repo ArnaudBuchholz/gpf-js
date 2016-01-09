@@ -41,7 +41,7 @@ Statements coverage|99%|*9% ignored*
 Branches coverage|98%|*10% ignored*
 Functions coverage|99%|*14% ignored*
 Average maintainability|73.06|
-Number of tests|525|*pending: 2, duration: 409ms*
+Number of tests|526|*pending: 1, duration: 1454ms*
 Number of modules|32|
 Lines of Code|7144|*Average per module: 210*
 
