@@ -374,7 +374,7 @@ describe("events", function () {
             gpf.events.getPromiseHandler(function (eventHandler) {
                 gpf.events.fire("error", {error: "KO!"}, eventHandler);
             })
-                .then(function (event) {
+                .then(function (/*event*/) {
                     done("Not expected");
 
                 })["catch"](function (reason) {
@@ -382,7 +382,7 @@ describe("events", function () {
                         assert("KO!" === reason);
                         done();
                     } catch (e) {
-                        done (e);
+                        done(e);
                     }
                 });
         });
