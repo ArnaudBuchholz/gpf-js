@@ -42,7 +42,6 @@
     "load-grunt-tasks": "^3.3.0",
     "mocha": "^2.2.5",
     "plato": "^1.4.0",
-    "q": "^1.4.1",
     "rhino-1_7r5-bin": "^1.0.1",
     "time-grunt": "^1.2.2"
   }
