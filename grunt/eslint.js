@@ -5,7 +5,6 @@
 
 module.exports = {
     options: {
-        configFile: ".eslintrc",
         rulePaths: [".eslintrules"]
     },
     target: configuration.jsLintedFiles
