@@ -1,0 +1,7 @@
+{
+    "extends": "../.jshintrc",
+    "node": true,
+    "globals": {
+        "configuration": false
+    }
+}

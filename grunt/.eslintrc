@@ -1,0 +1,11 @@
+{
+    "rules": {
+        "no-sync": 0
+    },
+    "globals": {
+        "configuration": false
+    },
+    "env": {
+        "node": true
+    }
+}
