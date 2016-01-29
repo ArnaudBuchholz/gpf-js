@@ -1,0 +1,8 @@
+{
+    "rules": {
+        "no-sync": 0
+    },
+    "env": {
+        "node": true
+    }
+}
