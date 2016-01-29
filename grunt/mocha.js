@@ -1,6 +1,4 @@
 "use strict";
-/*jshint node: true*/
-/*eslint-env node*/
 
 // Test automation inside PhantomJS
 module.exports = {

@@ -1,9 +1,4 @@
 "use strict";
-/*jshint node: true*/
-/*eslint-env node*/
-/*global configuration*/
-
-/*eslint-disable no-sync*/
 
 var IO_PATH = "../ArnaudBuchholz.github.io/",
     fs = require("fs"),

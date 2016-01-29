@@ -1,7 +1,4 @@
 "use strict";
-/*jshint node: true*/
-/*eslint-env node*/
-/*global configuration*/
 
 function clearRequireCache () {
     for (var key in require.cache) {

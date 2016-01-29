@@ -1,9 +1,4 @@
 "use strict";
-/*jshint node: true*/
-/*eslint-env node*/
-/*global configuration*/
-
-/*eslint-disable no-sync*/
 
 module.exports = function (grunt) {
     grunt.registerTask("fixInstrument", function () {
