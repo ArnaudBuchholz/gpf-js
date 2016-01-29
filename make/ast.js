@@ -1,8 +1,4 @@
 "use strict";
-/*jshint node: true*/
-/*eslint-env node*/
-
-/*eslint-disable no-sync*/
 
 var fs = require("fs"),
     esprima = require("esprima"),

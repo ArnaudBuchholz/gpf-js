@@ -3,8 +3,6 @@
 /*eslint no-unused-vars: 0*/ // ignore unused gpf
 /*eslint strict: [2, "function"]*/ // To be more modular
 /*global __gpf__*/
-/*jshint node: true*/
-/*eslint-env node*/
 (function (root, factory) {
     "use strict";
 

@@ -1,6 +1,4 @@
 "use strict";
-/*jshint node: true*/
-/*eslint-env node*/
 
 function Preprocessor (src, defines) {
     this._lines = src.split("\n");

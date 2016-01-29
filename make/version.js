@@ -1,6 +1,3 @@
-/*jshint node: true*/
-/*eslint-env node*/
-/*eslint-disable no-sync*/
 "use strict";
 
 var fs = require("fs");
