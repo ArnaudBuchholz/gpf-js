@@ -1,6 +1,4 @@
 "use strict";
-/*jshint node: true*/
-/*eslint-env node*/
 global.assert = require("assert");
 var Mocha = require("mocha"),
     mocha = new Mocha({ui: "bdd"}),

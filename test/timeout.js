@@ -1,9 +1,4 @@
 "use strict";
-/*jshint mocha: true*/
-/*eslint-env node, mocha*/
-/*global assert*/
-
-/*eslint-disable max-nested-callbacks*/
 
 describe("timeout", function () {
 

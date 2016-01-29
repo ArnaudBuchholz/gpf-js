@@ -1,7 +1,6 @@
 "use strict";
-/*jshint node: true*/
 /*jshint phantom: true*/
-/*eslint-env node, phantomjs*/
+/*eslint-env phantomjs*/
 /*global window*/ // missing from phantomjs
 
 var

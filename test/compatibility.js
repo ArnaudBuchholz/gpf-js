@@ -1,13 +1,9 @@
 "use strict";
-/*jshint mocha: true*/
-/*eslint-env mocha*/
-/*global assert*/
 
 // Because some of this functions have more than 3 parameters
 /*jshint -W072*/
 /*eslint-disable max-params*/
-
-/*eslint-disable max-nested-callbacks, space-before-keywords*/
+/*eslint-disable space-before-keywords*/
 
 describe("compatibility", function () {
 

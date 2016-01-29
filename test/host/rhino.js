@@ -5,7 +5,7 @@
 
 print("Rhino showcase");
 /*exported gpfSourcesPath*/
-var gpfSourcesPath = "src/";
+var gpfSourcesPath = "src/"; //eslint-disable-line no-unused-vars
 load("src/boot.js");
 
 load("test/host/bdd.js");

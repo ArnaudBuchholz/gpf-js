@@ -1,7 +1,7 @@
 "use strict";
 /*jshint wsh: true*/
 /*eslint-env wsh*/
-/*global run*/
+/*global run*/ // From bdd.js
 
 /*eslint-disable new-cap, no-debugger*/
 /*jshint -W087*/
@@ -77,7 +77,7 @@ if (options.release) {
 }
 
 /*exported assert*/
-function assert (condition) {
+function assert (condition) { //eslint-disable-line no-unused-vars
     if (!condition) {
         if (options["debugger"]) {
             debugger;

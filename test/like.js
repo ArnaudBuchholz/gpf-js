@@ -1,13 +1,8 @@
 "use strict";
-/*jshint mocha: true*/
-/*eslint-env mocha*/
-/*global assert*/
 
 // Because it is part of the test
 /*jshint -W053*/
 /*eslint-disable no-new-wrappers*/
-
-/*eslint-disable max-nested-callbacks*/
 
 describe("like", function () {
 
