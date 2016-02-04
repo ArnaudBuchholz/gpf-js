@@ -102,7 +102,6 @@ verbose("Loading console override");
 include(testPath + "host\\console.js");
 
 verbose("Loading test cases");
-
 sources = gpf.sources();
 len = sources.length;
 for (idx = 0; idx < len; ++idx) {
@@ -115,5 +114,6 @@ for (idx = 0; idx < len; ++idx) {
 }
 
 verbose("Running BDD");
+exit = gpf.exit; // used by BDD.js
 run();
 gpf.handleTimeout();

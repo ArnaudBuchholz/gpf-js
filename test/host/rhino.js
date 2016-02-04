@@ -23,5 +23,6 @@ for (idx = 0; idx < len; ++idx) {
     load("test/" + src + ".js");
 }
 
+exit = gpf.exit; // used by BDD.js
 run();
 gpf.handleTimeout();
