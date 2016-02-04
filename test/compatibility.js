@@ -272,6 +272,16 @@ describe("compatibility", function () {
                         assert("abc" === method.apply(string, []));
                     }
                 }
+            },
+
+            Date: {
+                toISOString: {
+                    length: 0,
+                    "converts to UTC string": function (method) {
+                        var date = new Date("2003-01-22T22:45:00");
+                        assert("2003-01-22T22:45:00.000Z" === method.apply(date, []));
+                    }
+                }
             }
 
         },
@@ -279,7 +289,8 @@ describe("compatibility", function () {
             Array: [],
             Function: function () {},
             Object: Object,
-            String: ""
+            String: "",
+            Date: new Date()
         };
 
     function shouldExpose (object, methodName, arity) {
@@ -312,9 +323,9 @@ describe("compatibility", function () {
         it(label, function () {
             testMethod(method);
         });
-        if (gpf.internals) {
+        if (gpf.internals && gpf.internals._gpfCompatibility[type]) {
             compatibleMethod = gpf.internals._gpfCompatibility[type][methodName];
-            if (compatibleMethod !== method) {
+            if (compatibleMethod && compatibleMethod !== method) {
                 it(label + " (compatible)", function () {
                     testMethod(compatibleMethod);
                 });
@@ -487,6 +498,36 @@ describe("compatibility", function () {
     describe("String", function () {
 
         declare("String");
+
+    });
+
+    describe("Date", function () {
+
+        describe("constructor", function () {
+
+            it("accepts UTC string", function () {
+                var date = new Date("2003-01-22T22:45:00.000Z");
+                assert(2003 === date.getUTCFullYear());
+                assert(0 === date.getUTCMonth());
+                assert(22 === date.getUTCDate());
+                assert(22 === date.getUTCHours());
+                assert(45 === date.getUTCMinutes());
+                assert(0 === date.getUTCSeconds());
+            });
+
+            it("accepts a date only", function () {
+                var date = new Date("2003-01-22");
+                assert(2003 === date.getUTCFullYear());
+                assert(0 === date.getUTCMonth());
+                assert(22 === date.getUTCDate());
+                assert(0 === date.getUTCHours());
+                assert(0 === date.getUTCMinutes());
+                assert(0 === date.getUTCSeconds());
+            });
+
+        });
+
+        declare("Date");
 
     });
 
