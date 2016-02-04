@@ -1,13 +1,8 @@
 {
     "rules": {
-        "max-nested-callbacks": [2, 10],
         "no-sync": 0
     },
     "globals": {
-        "assert": false
-    },
-    "env": {
-        "node": true,
-        "mocha": true
+        "exit": true
     }
 }
