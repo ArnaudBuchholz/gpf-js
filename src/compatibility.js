@@ -21,6 +21,13 @@ function _gpfArraySlice (array, from, to) {
     return _gpfArrayPrototypeSlice.apply(array, [from || 0, to || array.length + 1]);
 }
 
+function _pad (number) {
+    if (10 > number) {
+        return "0" + number;
+    }
+    return number;
+}
+
 var _gpfCompatibility = {
 
     Array: {
@@ -158,6 +165,31 @@ var _gpfCompatibility = {
                 return this.replace(rtrim, "");
             };
         }())
+
+    },
+
+    Date: {
+        on: Date.prototype,
+
+        // Introduced with JavaScript 1.8
+        toISOString: function () {
+            return [
+                this.getUTCFullYear(),
+                "-",
+                _pad(this.getUTCMonth() + 1),
+                "-",
+                _pad(this.getUTCDate()),
+                "T",
+                _pad(this.getUTCHours()),
+                ":",
+                _pad(this.getUTCMinutes()),
+                ":",
+                _pad(this.getUTCSeconds()),
+                ".",
+                (this.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5),
+                "Z"
+            ].join("");
+        }
 
     }
 
