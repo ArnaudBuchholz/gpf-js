@@ -278,7 +278,7 @@ describe("compatibility", function () {
                 toISOString: {
                     length: 0,
                     "converts to UTC string": function (method) {
-                        var date = new Date("2003-01-22T22:45:00");
+                        var date = new Date("2003-01-22T22:45:00.000Z");
                         assert("2003-01-22T22:45:00.000Z" === method.apply(date, []));
                     }
                 }
