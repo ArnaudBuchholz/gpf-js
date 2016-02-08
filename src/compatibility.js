@@ -1,7 +1,10 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfGenericFactory*/ // Create any class by passing the right number of parameters
+/*global _gpfMainContext*/ // Main context object
 /*exported _gpfArraySlice*/ // Slice an array-like object
 /*exported _gpfJsCommentsRegExp*/ // Find all JavaScript comments
+/*exported _gpfIsISO8601String*/ // Check if the string is an ISO 8601 representation of a date
 /*#endif*/
 
 /*eslint-disable no-proto*/ // Used for compatibility reasons
@@ -27,6 +30,8 @@ function _pad (number) {
     }
     return number;
 }
+
+//region Polyfills for missing 'standard' methods
 
 var _gpfCompatibility = {
 
@@ -224,6 +229,10 @@ var _gpfCompatibility = {
 
 }());
 
+//endregion
+
+//region Function name
+
 // Get the name of a function if bound to the call
 var _gpfJsCommentsRegExp =  new RegExp("//.*$|/\\*(?:[^\\*]*|\\*[^/]*)\\*/", "gm");
 function _gpfGetFunctionName () {
@@ -261,10 +270,119 @@ if ((function () {
 
 }
 
+//endregion
+
+//region Date override
+
+var _gpfISO8601RegExp = new RegExp([
+    "([0-9][0-9][0-9][0-9])",
+    "\\-",
+    "([0-9][0-9])",
+    "\\-",
+    "([0-9][0-9])",
+    "T",
+    "([0-9][0-9])",
+    "\\:",
+    "([0-9][0-9])",
+    "\\:",
+    "([0-9][0-9])",
+    "\\.",
+    "([0-9][0-9][0-9])",
+    "Z"
+].join(""));
+
+// If true, returns the regular expression execution result
+function _gpfIsISO8601String (value) {
+    if ("string" === typeof value && value.length === 24) {
+        _gpfISO8601RegExp.lastIndex = 0;
+        return _gpfISO8601RegExp.exec(value);
+    }
+}
+
+var _gpfDateOnlyRegExp = new RegExp([
+    "([0-9][0-9][0-9][0-9])",
+    "\\-",
+    "([0-9][0-9])",
+    "\\-",
+    "([0-9][0-9])"
+].join(""));
+
+// If true, returns the regular expression execution result
+function _gpfIsShortDateString (value) {
+    if ("string" === typeof value && value.length === 10) {
+        _gpfDateOnlyRegExp.lastIndex = 0;
+        return _gpfDateOnlyRegExp.exec(value);
+    }
+}
+
+// Backup original Date constructor
+var _GpfGenuineDate = _gpfMainContext.Date;
+
+/**
+ * Date constructor supporting ISO 8601 format
+ *
+ * @returns {Date}
+ */
+function _GpfDate () {
+    var firstArgument = arguments[0],
+        values = _gpfIsISO8601String(firstArgument) || _gpfIsShortDateString(firstArgument),
+        len,
+        idx,
+        args;
+    if (values) {
+        args = [];
+        len = values.length - 1;
+        for (idx = 0; idx < len; ++idx) {
+            args.push(parseInt(values[idx + 1], 10));
+        }
+        // Month must be corrected (0-based)
+        --args[1];
+        return new _GpfGenuineDate(_GpfGenuineDate.UTC.apply(_GpfGenuineDate.UTC, args));
+    }
+
+    return _gpfGenericFactory.apply(_GpfGenuineDate, arguments);
+}
+
+// Copy members
+[
+    "prototype", // Ensure instanceof
+    "UTC",
+    "parse",
+    "now"
+].forEach(function (member) {
+    _GpfDate[member] = _GpfGenuineDate[member];
+});
+
+(function () {
+    var supported = false;
+    // Test if ISO 8601 format supported
+    try {
+        var date = new Date("2003-01-22T22:45:34.075Z");
+        supported = 2003 === date.getUTCFullYear()
+            && 0 === date.getUTCMonth()
+            && 0 === date.getUTCMonth()
+            && 22 === date.getUTCDate()
+            && 22 === date.getUTCHours()
+            && 45 === date.getUTCMinutes()
+            && 34 === date.getUTCSeconds()
+            && 75 === date.getUTCMilliseconds();
+    } catch (e) {} //eslint-disable-line no-empty
+    /* istanbul ignore if */ // NodeJS environment supports ISO 8601 format
+    if (!supported) {
+        // Replace constructor with new one
+        _gpfMainContext.Date = _GpfDate;
+    }
+
+}());
+
+//endregion
+
 /*#ifndef(UMD)*/
 
 gpf.internals._gpfArraySlice = _gpfArraySlice;
 gpf.internals._gpfCompatibility = _gpfCompatibility;
 gpf.internals._gpfGetFunctionName = _gpfGetFunctionName;
+gpf.internals._gpfIsISO8601String = _gpfIsISO8601String;
+gpf.internals._GpfDate = _GpfDate;
 
 /*#endif*/
