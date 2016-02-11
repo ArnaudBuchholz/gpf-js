@@ -40,7 +40,7 @@
     "jquery": "^2.1.4",
     "load-grunt-config": "^0.19.1",
     "load-grunt-tasks": "^3.3.0",
-    "mocha": "^2.2.5",
+    "mocha": "2.2.5",
     "plato": "^1.4.0",
     "rhino-1_7r5-bin": "^1.0.1",
     "time-grunt": "^1.2.2"
