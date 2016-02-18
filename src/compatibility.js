@@ -3,8 +3,8 @@
 /*global _gpfGenericFactory*/ // Create any class by passing the right number of parameters
 /*global _gpfMainContext*/ // Main context object
 /*exported _gpfArraySlice*/ // Slice an array-like object
-/*exported _gpfJsCommentsRegExp*/ // Find all JavaScript comments
 /*exported _gpfIsISO8601String*/ // Check if the string is an ISO 8601 representation of a date
+/*exported _gpfJsCommentsRegExp*/ // Find all JavaScript comments
 /*#endif*/
 
 /*eslint-disable no-proto*/ // Used for compatibility reasons
@@ -146,6 +146,7 @@ var _gpfCompatibility = {
                 Temp.prototype = O;
                 var obj = new Temp();
                 Temp.prototype = null;
+                /* istanbul ignore if */ // NodeJS does not use __proto__
                 if (!obj.__proto__) {
                     obj.__proto__ = O;
                 }
@@ -275,43 +276,59 @@ if ((function () {
 //region Date override
 
 var _gpfISO8601RegExp = new RegExp([
-    "([0-9][0-9][0-9][0-9])",
+    "^([0-9][0-9][0-9][0-9])",
     "\\-",
     "([0-9][0-9])",
     "\\-",
     "([0-9][0-9])",
-    "T",
+    "(?:T",
     "([0-9][0-9])",
     "\\:",
     "([0-9][0-9])",
     "\\:",
     "([0-9][0-9])",
-    "\\.",
+    "(?:\\.",
     "([0-9][0-9][0-9])",
-    "Z"
+    "Z)?)?$"
 ].join(""));
 
-// If true, returns the regular expression execution result
+/**
+ * Check if the string is an ISO 8601 representation of a date
+ * Supports long and short syntax.
+ *
+ * @param {String} value
+ * @returns {Number[]} 7 numbers composing the date (Month is 0-based)
+ */
 function _gpfIsISO8601String (value) {
+    var matchResult,
+        result,
+        len,
+        idx;
     if ("string" === typeof value && value.length === 24) {
         _gpfISO8601RegExp.lastIndex = 0;
-        return _gpfISO8601RegExp.exec(value);
-    }
-}
-
-var _gpfDateOnlyRegExp = new RegExp([
-    "([0-9][0-9][0-9][0-9])",
-    "\\-",
-    "([0-9][0-9])",
-    "\\-",
-    "([0-9][0-9])"
-].join(""));
-
-// If true, returns the regular expression execution result
-function _gpfIsShortDateString (value) {
-    if ("string" === typeof value && value.length === 10) {
-        _gpfDateOnlyRegExp.lastIndex = 0;
-        return _gpfDateOnlyRegExp.exec(value);
+        matchResult = _gpfISO8601RegExp.exec(value);
+        if (matchResult) {
+            result = [];
+            len = matchResult.length - 1; // 0 is the recognized string
+            for (idx = 0; idx < len; ++idx) {
+                result.push(parseInt(matchResult[idx + 1], 10));
+            }
+            // Add missing numbers
+            while (len < 7) {
+                result.push(0);
+                ++len;
+            }
+            // Month must be corrected (0-based)
+            --result[1];
+            // Some validation
+            if (result[1] < 12
+                && result[2] < 32
+                && result[3] < 24
+                && result[4] < 60
+                && result[5] < 60) {
+                return result;
+            }
+        }
     }
 }
 
@@ -325,21 +342,10 @@ var _GpfGenuineDate = _gpfMainContext.Date;
  */
 function _GpfDate () {
     var firstArgument = arguments[0],
-        values = _gpfIsISO8601String(firstArgument) || _gpfIsShortDateString(firstArgument),
-        len,
-        idx,
-        args;
+        values = _gpfIsISO8601String(firstArgument);
     if (values) {
-        args = [];
-        len = values.length - 1;
-        for (idx = 0; idx < len; ++idx) {
-            args.push(parseInt(values[idx + 1], 10));
-        }
-        // Month must be corrected (0-based)
-        --args[1];
-        return new _GpfGenuineDate(_GpfGenuineDate.UTC.apply(_GpfGenuineDate.UTC, args));
+        return new _GpfGenuineDate(_GpfGenuineDate.UTC.apply(_GpfGenuineDate.UTC, values));
     }
-
     return _gpfGenericFactory.apply(_GpfGenuineDate, arguments);
 }
 
