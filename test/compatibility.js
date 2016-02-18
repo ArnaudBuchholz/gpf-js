@@ -529,6 +529,54 @@ describe("compatibility", function () {
 
         declare("Date");
 
+        if (gpf.internals) {
+
+            describe("(internal) _gpfIsISO8601String", function () {
+                var _gpfIsISO8601String = gpf.internals._gpfIsISO8601String,
+                    _tests = {
+                        "2016-02-17T23:13:00.000Z": [2016, 1, 17, 23, 13, 0, 0],
+                        "2003-01-22T22:45:34.075Z": [2003, 0, 22, 22, 45, 34, 75],
+                        "2003-13-22T22:45:34.075Z": null,
+                        "2003-01-32T22:45:34.075Z": null,
+                        "2003-01-22T25:45:34.075Z": null,
+                        "2003-01-22T22:60:34.075Z": null,
+                        "2003-01-22T22:45:60.075Z": null,
+                        "2003-01-22T22:45:34": null,
+                        "2003-01-22 22:45:34": null,
+                        "2003-01-22T22:45:34.075": null
+                    };
+
+                function _genTest (string, expected) {
+                    var label;
+                    if (expected) {
+                        label = "accepts";
+                    } else {
+                        label = "rejects";
+                    }
+                    label += " \"" + string + "\"";
+                    it(label, function () {
+                        var result = _gpfIsISO8601String(string);
+                        if (expected) {
+                            assert(result.length === expected.length);
+                            expected.forEach(function (dateTimeDivision, index) {
+                                assert(result[index] === dateTimeDivision);
+                            });
+                        } else {
+                            assert(!result);
+                        }
+                    });
+                }
+
+                for (var dateString in _tests) {
+                    if (_tests.hasOwnProperty(dateString)) {
+                        _genTest(dateString, _tests[dateString]);
+                    }
+                }
+
+            });
+
+        }
+
     });
 
 });
