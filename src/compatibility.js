@@ -301,22 +301,23 @@ var _gpfISO8601RegExp = new RegExp([
  */
 function _gpfIsISO8601String (value) {
     var matchResult,
+        matchedDigits,
         result,
         len,
         idx;
-    if ("string" === typeof value && value.length === 24) {
+    if ("string" === typeof value) {
         _gpfISO8601RegExp.lastIndex = 0;
         matchResult = _gpfISO8601RegExp.exec(value);
         if (matchResult) {
             result = [];
             len = matchResult.length - 1; // 0 is the recognized string
             for (idx = 0; idx < len; ++idx) {
-                result.push(parseInt(matchResult[idx + 1], 10));
-            }
-            // Add missing numbers
-            while (len < 7) {
-                result.push(0);
-                ++len;
+                matchedDigits = matchResult[idx + 1];
+                if (undefined === matchedDigits) {
+                    result.push(0);
+                } else {
+                    result.push(parseInt(matchResult[idx + 1], 10));
+                }
             }
             // Month must be corrected (0-based)
             --result[1];
