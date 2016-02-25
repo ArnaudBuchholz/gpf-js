@@ -537,13 +537,18 @@ describe("compatibility", function () {
                         "2016-02-17T23:13:00.000Z": [2016, 1, 17, 23, 13, 0, 0],
                         "2003-01-22T22:45:34.075Z": [2003, 0, 22, 22, 45, 34, 75],
                         "2003-13-22T22:45:34.075Z": null,
+                        "2003-1-22T22:45:34.075Z": null,
                         "2003-01-32T22:45:34.075Z": null,
+                        "2003-01-2T22:45:34.075Z": null,
                         "2003-01-22T25:45:34.075Z": null,
                         "2003-01-22T22:60:34.075Z": null,
                         "2003-01-22T22:45:60.075Z": null,
-                        "2003-01-22T22:45:34": null,
+                        "2003-01-22T22:45:34": [2003, 0, 22, 22, 45, 34, 0],
                         "2003-01-22 22:45:34": null,
-                        "2003-01-22T22:45:34.075": null
+                        "2003-01-22T22:45:34.075": null,
+                        "2016-02-17": [2016, 1, 17, 0, 0, 0, 0],
+                        "2003-13-22": null,
+                        "2003-01-32": null
                     };
 
                 function _genTest (string, expected) {
@@ -557,6 +562,7 @@ describe("compatibility", function () {
                     it(label, function () {
                         var result = _gpfIsISO8601String(string);
                         if (expected) {
+                            assert(result);
                             assert(result.length === expected.length);
                             expected.forEach(function (dateTimeDivision, index) {
                                 assert(result[index] === dateTimeDivision);
@@ -572,6 +578,46 @@ describe("compatibility", function () {
                         _genTest(dateString, _tests[dateString]);
                     }
                 }
+
+                [
+                    true,
+                    false,
+                    0,
+                    1,
+                    {},
+                    new Date()
+                ].forEach(function (value) {
+                    it("rejects other formats - " + typeof value + " (" + value.toString() + ")", function () {
+                        assert(undefined === _gpfIsISO8601String(value));
+                    });
+                });
+
+            });
+
+            describe("(internal) _GpfDate()", function () {
+
+                /*jshint -W055*/
+
+                var _GpfDate = gpf.internals._GpfDate;
+
+                it("allocates a Date object", function () {
+                    var now = new _GpfDate();
+                    assert(now instanceof Date);
+                });
+
+                it("detects and leverage ISO 8601 format", function () {
+                    var date = new _GpfDate("2003-01-22T22:45:34.075Z");
+                    assert(2003 === date.getUTCFullYear());
+                    assert(0 === date.getUTCMonth());
+                    assert(0 === date.getUTCMonth());
+                    assert(22 === date.getUTCDate());
+                    assert(22 === date.getUTCHours());
+                    assert(45 === date.getUTCMinutes());
+                    assert(34 === date.getUTCSeconds());
+                    assert(75 === date.getUTCMilliseconds());
+                });
+
+                /*jshint +W055*/
 
             });
 
