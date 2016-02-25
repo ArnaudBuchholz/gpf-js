@@ -40,10 +40,10 @@ Metric name | value | comment
 Statements coverage|99%|*9% ignored*
 Branches coverage|98%|*10% ignored*
 Functions coverage|99%|*14% ignored*
-Average maintainability|73.06|
-Number of tests|526|*pending: 1, duration: 1454ms*
+Average maintainability|72.97|
+Number of tests|554|*pending: 1, duration: 425ms*
 Number of modules|32|
-Lines of Code|7144|*Average per module: 210*
+Lines of Code|7328|*Average per module: 215*
 
 ## Setup
 
