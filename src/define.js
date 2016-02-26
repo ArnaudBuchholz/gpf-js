@@ -372,12 +372,16 @@ _GpfClassDefinition.prototype = {
      * @param {Number} visibility
      */
     _processDefinition: function (definition, visibility) {
+        var isWScript = _GPF_HOST_WSCRIPT === _gpfHost;
         this._defaultVisibility = visibility;
         _gpfObjectForEach(definition, this._processDefinitionMember, this); /*gpf:inline(object)*/
+        /* istanbul ignore next */ // WSCRIPT specific #78
+        if (isWScript && definition.hasOwnProperty("toString")) {
+            this._processDefinitionMember(definition.toString, "toString");
+        }
         this._defaultVisibility = _GPF_VISIBILITY_UNKNOWN;
-        /* istanbul ignore next */ // WSCRIPT specific
-        // 2014-05-05 #14
-        if (_GPF_HOST_WSCRIPT === _gpfHost && definition.constructor !== Object) {
+        /* istanbul ignore next */ // WSCRIPT specific #14
+        if (isWScript && definition.hasOwnProperty("constructor")) {
             this._addConstructor(definition.constructor, this._defaultVisibility);
         }
     },
