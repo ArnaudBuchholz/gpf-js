@@ -313,10 +313,10 @@ function _gpfIsISO8601String (value) {
             len = matchResult.length - 1; // 0 is the recognized string
             for (idx = 0; idx < len; ++idx) {
                 matchedDigits = matchResult[idx + 1];
-                if (undefined === matchedDigits) {
-                    result.push(0);
-                } else {
+                if (matchedDigits) {
                     result.push(parseInt(matchResult[idx + 1], 10));
+                } else {
+                    result.push(0);
                 }
             }
             // Month must be corrected (0-based)
