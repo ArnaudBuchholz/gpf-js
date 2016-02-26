@@ -22,7 +22,8 @@ var
     testPath,
     fso = new ActiveXObject("Scripting.FileSystemObject"),
     sources,
-    src;
+    src,
+    selectedTestFile;
 
 function include (path) {
     try {
@@ -53,6 +54,8 @@ for (idx = 0; idx < len; ++idx) {
                 options[param] = !options[param]; // Simple switch
             }
         }
+    } else {
+        selectedTestFile = param;
     }
 }
 
@@ -102,15 +105,19 @@ verbose("Loading console override");
 include(testPath + "host\\console.js");
 
 verbose("Loading test cases");
-sources = gpf.sources();
-len = sources.length;
-for (idx = 0; idx < len; ++idx) {
-    src = sources[idx];
-    if (!src) {
-        break;
+if (selectedTestFile) {
+    include(testPath + selectedTestFile + ".js");
+} else {
+    sources = gpf.sources();
+    len = sources.length;
+    for (idx = 0; idx < len; ++idx) {
+        src = sources[idx];
+        if (!src) {
+            break;
+        }
+        verbose("\t" + src);
+        include(testPath + src + ".js");
     }
-    verbose("\t" + src);
-    include(testPath + src + ".js");
 }
 
 verbose("Running BDD");
