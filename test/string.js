@@ -15,7 +15,7 @@ describe("string", function () {
         });
 
         it("also handles accents", function () {
-            assert(gpf.capitalize("éric") === "Éric");
+            assert(gpf.capitalize("\u00E9ric") === "\u00C9ric");
         });
 
     });
@@ -43,7 +43,8 @@ describe("string", function () {
         });
 
         it("escapes for html", function () {
-            assert("&lt;a&amp;b:&eacute;&egrave;&ecirc;&aacute;&agrave;&gt;" === gpf.escapeFor("<a&b:éèêáà>", "html"));
+            assert("&lt;a&amp;b:&eacute;&egrave;&ecirc;&aacute;&agrave;&gt;"
+                === gpf.escapeFor("<a&b:\u00E9\u00E8\u00EA\u00E1\u00E0>", "html"));
         });
     });
 
