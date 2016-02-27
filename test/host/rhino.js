@@ -1,28 +1,28 @@
 "use strict";
 /*jshint rhino:true*/
 /*eslint-env rhino*/
-/*global run*/ // From bdd.js
+/*global environment*/
 
-print("Rhino showcase");
-/*exported gpfSourcesPath*/
-var gpfSourcesPath = "src/"; //eslint-disable-line no-unused-vars
-load("src/boot.js");
+/*jshint -W079*/
 
-load("test/host/bdd.js");
-load("test/host/console.js");
+var gpfPath = environment["user.dir"],
+    global = (function () {
+        return this; //eslint-disable-line no-invalid-this
+    }());
 
-var sources = gpf.sources(),
-    len = sources.length,
-    idx,
-    src;
-for (idx = 0; idx < len; ++idx) {
-    src = sources[idx];
-    if (!src) {
-        break;
-    }
-    load("test/" + src + ".js");
-}
+load(gpfPath + "\\test\\host\\loader.js"); /*global loadGpfAndTests*/
 
-exit = gpf.exit; // used by BDD.js
-run();
-gpf.handleTimeout();
+loadGpfAndTests({
+    global: global,
+    parameters: global["arguments"], //eslint-disable-line dot-notation
+    gpfPath: gpfPath,
+    pathSeparator: environment["file.separator"],
+    log: function (text) {
+        print(text);
+    },
+    exit: function (code) {
+        java.lang.System.exit(code);
+    },
+    require: load,
+    load: load
+});
