@@ -1,13 +1,20 @@
 /*eslint strict: [2, "function"]*/ // IIFE form
-(function (context) {
+(function () {
     "use strict";
 
     /*global console, setTimeout, clearTimeout*/
 
-    /*global global*/ // NodeJS global
-    if ("object" === typeof global) {
-        context = global;
-    }
+    var context = (function () {
+        /*global global*/ // NodeJS global
+        if ("object" === typeof global) {
+            return global;
+        }
+        /*global window*/ // Browser global
+        if ("undefined" !== typeof window) {
+            return window;
+        }
+        return this; //eslint-disable-line no-invalid-this
+    }());
 
     /**
      * Simple BDD implementation
@@ -729,4 +736,4 @@
 
     //endregion
 
-}(this));
+}());
