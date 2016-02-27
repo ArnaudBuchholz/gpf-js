@@ -609,12 +609,22 @@ describe("compatibility", function () {
                     var date = new _GpfDate("2003-01-22T22:45:34.075Z");
                     assert(2003 === date.getUTCFullYear());
                     assert(0 === date.getUTCMonth());
-                    assert(0 === date.getUTCMonth());
                     assert(22 === date.getUTCDate());
                     assert(22 === date.getUTCHours());
                     assert(45 === date.getUTCMinutes());
                     assert(34 === date.getUTCSeconds());
                     assert(75 === date.getUTCMilliseconds());
+                });
+
+                it("detects and leverage ISO 8601 short format", function () {
+                    var date = new _GpfDate("2003-01-22");
+                    assert(2003 === date.getUTCFullYear());
+                    assert(0 === date.getUTCMonth());
+                    assert(22 === date.getUTCDate());
+                    assert(0 === date.getUTCHours());
+                    assert(0 === date.getUTCMinutes());
+                    assert(0 === date.getUTCSeconds());
+                    assert(0 === date.getUTCMilliseconds());
                 });
 
                 /*jshint +W055*/
