@@ -1,8 +1,18 @@
 "use strict";
-var fs = require("fs"),
-    loadTests = require("./node_loader.js");
-require("./bdd.js"); /*global run*/
-loadTests(function (path) {
-    return fs.readFileSync(path).toString();
+
+var path = require("path"),
+    fs = require("fs");
+require("./loader.js"); /*global loadGpfAndTests*/
+
+loadGpfAndTests({
+    global: global,
+    parameters: process.argv.slice(2),
+    gpfPath: path.resolve(__dirname, "../.."),
+    pathSeparator: path.sep,
+    log: console.log.bind(console),
+    exit: process.exit,
+    require: require,
+    read: function (filePath) {
+        return fs.readFileSync(filePath).toString();
+    }
 });
-run();
