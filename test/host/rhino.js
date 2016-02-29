@@ -23,6 +23,5 @@ loadGpfAndTests({
     exit: function (code) {
         java.lang.System.exit(code);
     },
-    require: load,
     load: load
 });
