@@ -1,13 +1,20 @@
 /*eslint strict: [2, "function"]*/ // IIFE form
-(function (context) {
+(function () {
     "use strict";
 
     /*global run*/ // From bdd.js
 
-    /*global global*/ // NodeJS global
-    if ("object" === typeof global) {
-        context = global;
-    }
+    var context = (function () {
+        /*global global*/ // NodeJS global
+        if ("object" === typeof global) {
+            return global;
+        }
+        /*global window*/ // Browser global
+        if ("undefined" !== typeof window) {
+            return window;
+        }
+        return this; //eslint-disable-line no-invalid-this
+    }());
 
     function _resolvePath (configuration, relativePath) {
         return configuration.gpfPath
@@ -46,7 +53,7 @@
 
     function _requireGpf (configuration, path) {
         if (configuration.require) {
-            configuration.global.gpf = configuration.require(path);
+            context.gpf = configuration.require(path);
         } else {
             _load(configuration, path);
             if ("undefined" === typeof gpf) {
@@ -68,7 +75,7 @@
         } else {
             verbose("Using source version");
             // Set the source path
-            configuration.global.gpfSourcesPath = _resolvePath(configuration, "src/");
+            context.gpfSourcesPath = _resolvePath(configuration, "src/");
             _load(configuration, _resolvePath(configuration, "src/boot.js"));
         }
         if (undefined === gpf.sources) {
@@ -102,7 +109,6 @@
 
     /**
      * @param {Object} configuration
-     * - {Object} global global context
      * - {String[]} parameters command line parameters
      * - {String} gpfPath GPF base path
      * - {String} pathSeparator
@@ -136,4 +142,4 @@
         gpf.handleTimeout();
     };
 
-}(this));
+}());
