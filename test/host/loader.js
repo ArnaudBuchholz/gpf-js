@@ -33,23 +33,46 @@
         }
     }
 
+    function _load (configuration, path) {
+        if (configuration.load) {
+            configuration.load(path);
+        } else {
+            var content = configuration.read(path);
+            /*jslint evil: true*/
+            eval(content); //eslint-disable-line no-eval
+            /*jslint evil: false*/
+        }
+    }
+
+    function _requireGpf (configuration, path) {
+        if (configuration.require) {
+            configuration.global.gpf = configuration.require(path);
+        } else {
+            _load(configuration, path);
+            if ("undefined" === typeof gpf) {
+                configuration.log("GPF was not loaded");
+                configuration.exit(-1);
+            }
+        }
+    }
+
     function _loadGpf (configuration, options, verbose) {
         if (options.release) {
             verbose("Using release version");
-            configuration.require(_resolvePath(configuration, "build/gpf.js"));
+            _requireGpf(configuration, _resolvePath(configuration, "build/gpf.js"));
 
         } else if (options.debug) {
             verbose("Using debug version");
-            configuration.require(_resolvePath(configuration, "build/gpf-debug.js"));
+            _requireGpf(configuration, _resolvePath(configuration, "build/gpf-debug.js"));
 
         } else {
             verbose("Using source version");
             // Set the source path
             configuration.global.gpfSourcesPath = _resolvePath(configuration, "src/");
-            configuration.load(_resolvePath(configuration, "src/boot.js"));
+            _load(configuration, _resolvePath(configuration, "src/boot.js"));
         }
         if (undefined === gpf.sources) {
-            configuration.load(_resolvePath(configuration, "src/sources.js"));
+            _load(configuration, _resolvePath(configuration, "src/sources.js"));
         }
     }
 
@@ -59,9 +82,9 @@
             sourceIdx,
             source;
         verbose("Loading BDD");
-        configuration.load(_resolvePath(configuration, "test/host/bdd.js"));
+        _load(configuration, _resolvePath(configuration, "test/host/bdd.js"));
         verbose("Loading console");
-        configuration.load(_resolvePath(configuration, "test/host/console.js"));
+        _load(configuration, _resolvePath(configuration, "test/host/console.js"));
         if (options.tests.length) {
             sources = options.tests;
         } else {
@@ -73,7 +96,7 @@
             if (!source) {
                 break;
             }
-            configuration.load(_resolvePath(configuration, "test/" + source + ".js"));
+            _load(configuration, _resolvePath(configuration, "test/" + source + ".js"));
         }
     }
 
@@ -86,7 +109,8 @@
      * - {Function} log
      * - {Function} exit
      * - (Function) require
-     * - (Function) load
+     * - (Function) load optional if read specified
+     * - (Function) read optional if load specified
      * @private
      */
     context.loadGpfAndTests = function (configuration) {
@@ -105,10 +129,6 @@
             verbose = function () {};
         }
         _loadGpf(configuration, options, verbose);
-        if ("undefined" === typeof gpf) {
-            configuration.log("GPF was not loaded");
-            configuration.exit(-1);
-        }
         _loadTests(configuration, options, verbose);
         verbose("Running BDD");
         exit = configuration.exit; // used by BDD.js
