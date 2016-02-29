@@ -5,7 +5,6 @@ var path = require("path"),
 require("./loader.js"); /*global loadGpfAndTests*/
 
 loadGpfAndTests({
-    global: global,
     parameters: process.argv.slice(2),
     gpfPath: path.resolve(__dirname, "../.."),
     pathSeparator: path.sep,

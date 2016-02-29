@@ -26,9 +26,6 @@ function load (path) {
 load(gpfPath + "\\test\\host\\loader.js"); /*global loadGpfAndTests*/
 
 loadGpfAndTests({
-    global: (function () {
-        return this; //eslint-disable-line no-invalid-this
-    }()),
     parameters: parameters,
     gpfPath: gpfPath,
     pathSeparator: "\\",
