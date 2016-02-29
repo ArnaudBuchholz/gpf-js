@@ -38,6 +38,5 @@ loadGpfAndTests({
     exit: function (code) {
         WScript.Quit(code);
     },
-    require: load,
     load: load
 });
