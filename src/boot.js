@@ -292,7 +292,7 @@ if ("undefined" !== typeof WScript) {
     _gpfDosPath = true;
     _gpfMainContext = function () {
         return this;
-    }.apply(null, []);
+    }.call(null);
     _gpfExit = function (code) {
         WScript.Quit(code);
     };
@@ -332,7 +332,7 @@ if ("undefined" !== typeof WScript) {
     _gpfDosPath = false;
     _gpfMainContext = function () {
         return this;
-    }.apply(null, []);
+    }.call(null);
     _gpfExit = function (code) {
         java.lang.System.exit(code);
     };
