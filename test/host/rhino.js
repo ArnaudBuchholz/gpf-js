@@ -3,18 +3,14 @@
 /*eslint-env rhino*/
 /*global environment*/
 
-/*jshint -W079*/
-
-var gpfPath = environment["user.dir"],
-    global = (function () {
-        return this; //eslint-disable-line no-invalid-this
-    }());
+var gpfPath = environment["user.dir"];
 
 load(gpfPath + "\\test\\host\\loader.js"); /*global loadGpfAndTests*/
 
 loadGpfAndTests({
-    global: global,
-    parameters: global["arguments"], //eslint-disable-line dot-notation
+    parameters: (function () {
+        return this["arguments"]; //eslint-disable-line dot-notation, no-invalid-this
+    }()),
     gpfPath: gpfPath,
     pathSeparator: environment["file.separator"],
     log: function (text) {
@@ -23,5 +19,5 @@ loadGpfAndTests({
     exit: function (code) {
         java.lang.System.exit(code);
     },
-    load: load
+    load: load.bind(null) // To force the use of global context
 });
