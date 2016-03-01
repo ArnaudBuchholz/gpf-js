@@ -362,17 +362,20 @@ function _GpfDate () {
 
 (function () {
     var supported = false;
-    // Test if ISO 8601 format supported
+    // Test if ISO 8601 format variations are supported
     try {
-        var date = new Date("2003-01-22T22:45:34.075Z");
-        supported = 2003 === date.getUTCFullYear()
-            && 0 === date.getUTCMonth()
-            && 0 === date.getUTCMonth()
-            && 22 === date.getUTCDate()
-            && 22 === date.getUTCHours()
-            && 45 === date.getUTCMinutes()
-            && 34 === date.getUTCSeconds()
-            && 75 === date.getUTCMilliseconds();
+        var longDate = new Date("2003-01-22T22:45:34.075Z"),
+            shortDate = new Date("2003-01-22");
+        supported = 2003 === longDate.getUTCFullYear()
+            && 0 === longDate.getUTCMonth()
+            && 22 === longDate.getUTCDate()
+            && 22 === longDate.getUTCHours()
+            && 45 === longDate.getUTCMinutes()
+            && 34 === longDate.getUTCSeconds()
+            && 75 === longDate.getUTCMilliseconds()
+            && 2003 === shortDate.getUTCFullYear()
+            && 0 === shortDate.getUTCMonth()
+            && 22 === shortDate.getUTCDate();
     } catch (e) {} //eslint-disable-line no-empty
     /* istanbul ignore if */ // NodeJS environment supports ISO 8601 format
     if (!supported) {
