@@ -322,6 +322,7 @@
         this._nextChildIndexes = [];
         this._beforeEach = [];
         this._afterEach = [];
+        this._runAt = new Date();
         this._statistics = {
             count: 0,
             success: 0,
@@ -361,6 +362,9 @@
 
         // @property {Function[]} stacked afterEach callbacks
         _afterEach: [],
+
+        // @property {Date} date when the run was started
+        _runAt: null,
 
         // @property {Object} Test statistics
         _statistics: {},
@@ -677,6 +681,7 @@
                 return true;
             }
             this._state = Runner.STATE_FINISHED;
+            this._statistics.timeSpent = new Date() - this._runAt;
             this._callback("results", this._statistics);
             return false;
         },
