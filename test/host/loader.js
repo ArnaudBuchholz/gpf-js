@@ -83,15 +83,26 @@
         }
     }
 
-    function _loadTests (configuration, options, verbose) {
+    function _loadBDD (configuration, verbose) {
+        if (false !== configuration.useBDD) {
+            verbose("Loading BDD");
+            _load(configuration, _resolvePath(configuration, "test/host/bdd.js"));
+        }
+    }
+
+    function _loadTest (configuration, path) {
+        if (configuration.loadTest) {
+            configuration.loadTest(path);
+        } else {
+            _load(configuration, path);
+        }
+    }
+
+    function _loadTests (configuration, options) {
         var sources,
             len,
             sourceIdx,
             source;
-        verbose("Loading BDD");
-        _load(configuration, _resolvePath(configuration, "test/host/bdd.js"));
-        verbose("Loading console");
-        _load(configuration, _resolvePath(configuration, "test/host/console.js"));
         if (options.tests.length) {
             sources = options.tests;
         } else {
@@ -103,7 +114,15 @@
             if (!source) {
                 break;
             }
-            _load(configuration, _resolvePath(configuration, "test/" + source + ".js"));
+            _loadTest(configuration, _resolvePath(configuration, "test/" + source + ".js"));
+        }
+    }
+
+    function _runBDD (configuration, verbose) {
+        if (false !== configuration.useBDD) {
+            verbose("Running BDD");
+            exit = configuration.exit; // used by BDD.js
+            run();
         }
     }
 
@@ -112,11 +131,13 @@
      * - {String[]} parameters command line parameters
      * - {String} gpfPath GPF base path
      * - {String} pathSeparator
+     * - {Boolean} useBDD
      * - {Function} log
      * - {Function} exit
      * - (Function) require
-     * - (Function) load optional if read specified
-     * - (Function) read optional if load specified
+     * - (Function) load optional if read specified, receives (filePath)
+     * - (Function) read optional if load specified, receives (filePath)
+     * - {Function} done
      * @private
      */
     context.loadGpfAndTests = function (configuration) {
@@ -135,10 +156,14 @@
             verbose = function () {};
         }
         _loadGpf(configuration, options, verbose);
+        _loadBDD(configuration, verbose);
+        verbose("Loading console");
+        _load(configuration, _resolvePath(configuration, "test/host/console.js"));
         _loadTests(configuration, options, verbose);
-        verbose("Running BDD");
-        exit = configuration.exit; // used by BDD.js
-        run();
+        _runBDD(configuration, verbose);
+        if (configuration.done) {
+            configuration.done();
+        }
         gpf.handleTimeout();
     };
 
