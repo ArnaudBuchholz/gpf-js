@@ -34,7 +34,6 @@ div.warning { color: yellow; white-space: pre; }
 div.info { color: blue; white-space: pre; }
 div.log { color: gray; white-space: pre; }
 
-
         </style>
         <script language="javascript">
 
@@ -129,7 +128,6 @@ function addLine(data) {
         <script language="javascript">
 
 load("bdd.js", function () {
-    var dtStart = new Date();
     run(function (type, data) {
         var line,
             results;
@@ -138,7 +136,7 @@ load("bdd.js", function () {
         } else {
             // Insert summary line
             addLine({
-                timeSpent: (new Date()) - dtStart,
+                timeSpent: data.timeSpent,
                 result: 0 === data.fail,
                 label: "passes: " + data.success + " / " + data.count
                     + " (pending: " + data.pending + ")"
