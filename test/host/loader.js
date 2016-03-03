@@ -42,7 +42,7 @@
 
     function _load (configuration, path) {
         if (configuration.load) {
-            configuration.load(path);
+            configuration.load.call(null, path); // To force the use of global context
         } else {
             var content = configuration.read(path);
             /*jslint evil: true*/
