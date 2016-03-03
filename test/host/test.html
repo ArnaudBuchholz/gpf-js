@@ -46,8 +46,7 @@ function log (text) {
 }
 
 function runTests () {
-    var dtStart = new Date(),
-        describes = [];
+    var describes = [];
     run(function (type, data) {
         if ("describe" === type) {
             describes.length = data.depth;
@@ -55,7 +54,7 @@ function runTests () {
         } else if ("it" === type && false === data.result) {
             log(describes.join("/") + "/" + data.label);
         } else if ("results" === type) {
-            log("time spent: : " + (new Date() - dtStart) + "ms");
+            log("time spent: : " + data.timeSpent + "ms");
             log("passes: " + data.success + " / " + data.count);
             log("pending: " + data.pending);
             if (data.fail) {
