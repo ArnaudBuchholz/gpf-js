@@ -7,8 +7,7 @@ var fs = require("fs"),
     parameters,
     debugParameters,
     sources = {},
-    result,
-    cc;
+    result;
 
 debug = function () {};
 
@@ -106,15 +105,3 @@ try {
 debug("\tCreating output folder...");
 mkDir("../build");
 fs.writeFileSync("../build/gpf-" + version + ".js", result);
-
-// Use google closure compiler
-cc = parameters.cc;
-if (cc) {
-    require("closure-compiler").compile(result, {}, function (err, stdout/*, stderr*/) {
-        if (err) {
-            console.error(err);
-        } else {
-            fs.writeFileSync("../build/" + cc + ".js", stdout);
-        }
-    });
-}
