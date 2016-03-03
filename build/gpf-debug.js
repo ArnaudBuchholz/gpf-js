@@ -6,8 +6,6 @@
 /*eslint strict: [2, "function"]*/
 // To be more modular
 /*global __gpf__*/
-/*jshint node: true*/
-/*eslint-env node*/
 (function (root, factory) {
     "use strict";
     /**
@@ -198,6 +196,28 @@
             return method.apply(this, arguments);
         };
     }
+    /**
+     * Create any class by passing the right number of parameters
+     *
+     * @this {Function} constructor to invoke
+     */
+    var _gpfGenericFactory = function () {
+        // Generate the constructor call forwarder function
+        var src = [
+                "var C = this,",
+                "    p = arguments,",
+                "    l = p.length;"
+            ], args = [], idx, Func = Function;
+        for (idx = 0; idx < 10; ++idx) {
+            args.push("p[" + idx + "]");
+        }
+        for (idx = 0; idx < 10; ++idx) {
+            src.push("    if (" + idx + " === l) {");
+            src.push("        return new C(" + args.slice(0, idx).join(", ") + ");");
+            src.push("    }");
+        }
+        return new Func(src.join("\r\n"));
+    }();
     /* Host detection */
     /* istanbul ignore next */
     // Microsoft cscript / wscript
@@ -207,7 +227,7 @@
         _gpfDosPath = true;
         _gpfMainContext = function () {
             return this;
-        }.apply(null, []);
+        }.call(null);
         _gpfExit = function (code) {
             WScript.Quit(code);
         };
@@ -231,7 +251,7 @@
         _gpfDosPath = false;
         _gpfMainContext = function () {
             return this;
-        }.apply(null, []);
+        }.call(null);
         _gpfExit = function (code) {
             java.lang.System.exit(code);
         };
@@ -387,6 +407,13 @@
             to || array.length + 1
         ]);
     }
+    function _pad(number) {
+        if (10 > number) {
+            return "0" + number;
+        }
+        return number;
+    }
+    //region Polyfills for missing 'standard' methods
     var _gpfCompatibility = {
         Array: {
             on: Array.prototype,
@@ -487,6 +514,8 @@
                     Temp.prototype = O;
                     var obj = new Temp();
                     Temp.prototype = null;
+                    /* istanbul ignore if */
+                    // NodeJS does not use __proto__
                     if (!obj.__proto__) {
                         obj.__proto__ = O;
                     }
@@ -507,6 +536,28 @@
                     return this.replace(rtrim, "");
                 };
             }()
+        },
+        Date: {
+            on: Date.prototype,
+            // Introduced with JavaScript 1.8
+            toISOString: function () {
+                return [
+                    this.getUTCFullYear(),
+                    "-",
+                    _pad(this.getUTCMonth() + 1),
+                    "-",
+                    _pad(this.getUTCDate()),
+                    "T",
+                    _pad(this.getUTCHours()),
+                    ":",
+                    _pad(this.getUTCMinutes()),
+                    ":",
+                    _pad(this.getUTCSeconds()),
+                    ".",
+                    (this.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5),
+                    "Z"
+                ].join("");
+            }
         }
     };
     (function () {
@@ -534,6 +585,8 @@
             }
         }
     }());
+    //endregion
+    //region Function name
     // Get the name of a function if bound to the call
     var _gpfJsCommentsRegExp = new RegExp("//.*$|/\\*(?:[^\\*]*|\\*[^/]*)\\*/", "gm");
     function _gpfGetFunctionName() {
@@ -566,6 +619,97 @@
             return this.name;
         };
     }
+    //endregion
+    //region Date override
+    var _gpfISO8601RegExp = new RegExp([
+        "^([0-9][0-9][0-9][0-9])",
+        "\\-",
+        "([0-9][0-9])",
+        "\\-",
+        "([0-9][0-9])",
+        "(?:T",
+        "([0-9][0-9])",
+        "\\:",
+        "([0-9][0-9])",
+        "\\:",
+        "([0-9][0-9])",
+        "(?:\\.",
+        "([0-9][0-9][0-9])",
+        "Z)?)?$"
+    ].join(""));
+    /**
+     * Check if the string is an ISO 8601 representation of a date
+     * Supports long and short syntax.
+     *
+     * @param {String} value
+     * @returns {Number[]} 7 numbers composing the date (Month is 0-based)
+     */
+    function _gpfIsISO8601String(value) {
+        var matchResult, matchedDigits, result, len, idx;
+        if ("string" === typeof value) {
+            _gpfISO8601RegExp.lastIndex = 0;
+            matchResult = _gpfISO8601RegExp.exec(value);
+            if (matchResult) {
+                result = [];
+                len = matchResult.length - 1;
+                // 0 is the recognized string
+                for (idx = 0; idx < len; ++idx) {
+                    matchedDigits = matchResult[idx + 1];
+                    if (matchedDigits) {
+                        result.push(parseInt(matchResult[idx + 1], 10));
+                    } else {
+                        result.push(0);
+                    }
+                }
+                // Month must be corrected (0-based)
+                --result[1];
+                // Some validation
+                if (result[1] < 12 && result[2] < 32 && result[3] < 24 && result[4] < 60 && result[5] < 60) {
+                    return result;
+                }
+            }
+        }
+    }
+    // Backup original Date constructor
+    var _GpfGenuineDate = _gpfMainContext.Date;
+    /**
+     * Date constructor supporting ISO 8601 format
+     *
+     * @returns {Date}
+     */
+    function _GpfDate() {
+        var firstArgument = arguments[0], values = _gpfIsISO8601String(firstArgument);
+        if (values) {
+            return new _GpfGenuineDate(_GpfGenuineDate.UTC.apply(_GpfGenuineDate.UTC, values));
+        }
+        return _gpfGenericFactory.apply(_GpfGenuineDate, arguments);
+    }
+    // Copy members
+    [
+        "prototype",
+        // Ensure instanceof
+        "UTC",
+        "parse",
+        "now"
+    ].forEach(function (member) {
+        _GpfDate[member] = _GpfGenuineDate[member];
+    });
+    (function () {
+        var supported = false;
+        // Test if ISO 8601 format variations are supported
+        try {
+            var longDate = new Date("2003-01-22T22:45:34.075Z"), shortDate = new Date("2003-01-22");
+            supported = 2003 === longDate.getUTCFullYear() && 0 === longDate.getUTCMonth() && 22 === longDate.getUTCDate() && 22 === longDate.getUTCHours() && 45 === longDate.getUTCMinutes() && 34 === longDate.getUTCSeconds() && 75 === longDate.getUTCMilliseconds() && 2003 === shortDate.getUTCFullYear() && 0 === shortDate.getUTCMonth() && 22 === shortDate.getUTCDate();
+        } catch (e) {
+        }
+        //eslint-disable-line no-empty
+        /* istanbul ignore if */
+        // NodeJS environment supports ISO 8601 format
+        if (!supported) {
+            // Replace constructor with new one
+            _gpfMainContext.Date = _GpfDate;
+        }
+    }());    //endregion
     function safeResolve(fn, onFulfilled, onRejected) {
         var safe = true;
         function makeSafe(callback) {
@@ -1315,18 +1459,26 @@
             "&": "&amp;",
             "<": "&lt;",
             ">": "&gt;"
-        },
-        html: {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            é: "&eacute;",
-            è: "&egrave;",
-            ê: "&ecirc;",
-            á: "&aacute;",
-            à: "&agrave;"
         }
     };
+    (function () {
+        var escapes = _gpfStringEscapes, html = {};
+        // Copy XML
+        _gpfObjectForEach(escapes.xml, function (escape, key) {
+            html[key] = escape;
+        });
+        // Adds accents escape
+        _gpfObjectForEach({
+            224: "&agrave;",
+            225: "&aacute;",
+            232: "&egrave;",
+            233: "&eacute;",
+            234: "&ecirc;"
+        }, function (escape, key) {
+            html[String.fromCharCode(key)] = escape;
+        });
+        escapes.html = html;
+    }());
     /**
      * Make the string content compatible with lang
      *
@@ -3434,14 +3586,19 @@
          * @param {Number} visibility
          */
         _processDefinition: function (definition, visibility) {
+            var isWScript = _GPF_HOST_WSCRIPT === _gpfHost;
             this._defaultVisibility = visibility;
             _gpfObjectForEach(definition, this._processDefinitionMember, this);
             /*gpf:inline(object)*/
+            /* istanbul ignore next */
+            // WSCRIPT specific #78
+            if (isWScript && definition.hasOwnProperty("toString")) {
+                this._processDefinitionMember(definition.toString, "toString");
+            }
             this._defaultVisibility = _GPF_VISIBILITY_UNKNOWN;
             /* istanbul ignore next */
-            // WSCRIPT specific
-            // 2014-05-05 #14
-            if (_GPF_HOST_WSCRIPT === _gpfHost && definition.constructor !== Object) {
+            // WSCRIPT specific #14
+            if (isWScript && definition.hasOwnProperty("constructor")) {
                 this._addConstructor(definition.constructor, this._defaultVisibility);
             }
         },
