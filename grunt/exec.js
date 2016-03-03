@@ -18,6 +18,18 @@ module.exports = {
         stderr: true,
         exitCode: 0
     },
+    testRhinoDebug: {
+        command: RHINO_CMD + " -debug",
+        stdout: false,
+        stderr: false,
+        exitCode: 0
+    },
+    testRhinoRelease: {
+        command: RHINO_CMD + " -release",
+        stdout: false,
+        stderr: false,
+        exitCode: 0
+    },
     testWscript: {
         command: CSCRIPT_CMD,
         stdout: false,
