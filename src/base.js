@@ -153,20 +153,29 @@ var
             "&": "&amp;",
             "<": "&lt;",
             ">": "&gt;"
-        },
-
-        html: {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            \u00E9: "&eacute;",
-            \u00E8: "&egrave;",
-            \u00EA: "&ecirc;",
-            \u00E1: "&aacute;",
-            \u00E0: "&agrave;"
         }
 
     };
+
+(function () {
+    var escapes = _gpfStringEscapes,
+        html = {};
+    // Copy XML
+    _gpfObjectForEach(escapes.xml, function (escape, key) {
+        html[key] = escape;
+    });
+    // Adds accents escape
+    _gpfObjectForEach({
+        224: "&agrave;",
+        225: "&aacute;",
+        232: "&egrave;",
+        233: "&eacute;",
+        234: "&ecirc;"
+    }, function (escape, key) {
+        html[String.fromCharCode(key)] = escape;
+    });
+    escapes.html = html;
+}());
 
 /**
  * Make the string content compatible with lang
