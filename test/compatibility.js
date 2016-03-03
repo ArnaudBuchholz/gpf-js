@@ -294,20 +294,20 @@ describe("compatibility", function () {
         };
 
     function shouldExpose (object, methodName, arity) {
+        var baseLabel = "should expose the method " + methodName;
         if (Object === object) {
-            it("should expose the method " + methodName, function () {
+            it(baseLabel, function () {
                 assert("function" === typeof object[methodName]);
-                if (-1 !== arity) {
-                    assert(object[methodName].length === arity);
-                }
             });
         } else {
-            it("should expose a method " + methodName + " through prototype", function () {
+            it(baseLabel + " through prototype", function () {
                 assert("function" === typeof object[methodName]);
                 assert(!object.hasOwnProperty(methodName));
-                if (-1 !== arity) {
-                    assert(object[methodName].length === arity);
-                }
+            });
+        }
+        if (-1 !== arity) {
+            it(baseLabel + " with an expected arity of " + arity, function () {
+                assert(object[methodName].length === arity);
             });
         }
     }
