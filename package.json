@@ -20,7 +20,6 @@
   },
   "homepage": "http://gpf-js.blogspot.com/",
   "devDependencies": {
-    "closure-compiler": "^0.2.6",
     "escodegen": "^1.7.0",
     "eslint": "^1.6.0",
     "esprima": "^2.2.0",
