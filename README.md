@@ -7,7 +7,6 @@ A multi-purpose JavaScript library created and maintained by
 [![NPM](https://nodei.co/npm/gpf-js.png?downloads=true&&downloadRank=true&stars=true)](https://nodei.co/npm/gpf-js/)
 [![NPM](https://nodei.co/npm-dl/gpf-js.png?months=3&height=3)](https://nodei.co/npm/gpf-js/)
 
-
 [Plato analysis](http://arnaudbuchholz.github.io/plato/gpf-js/index.html)
 
 ## Features
@@ -32,8 +31,8 @@ documented and explained.
 This part is automatically updated upon a successful build:
 * Code coverage is based on NodeJS execution, ignored parts are mostly relevant of other hosts
 * The maintainability is based on [plato evaluation](http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/
-maintainability-index-range-and-meaning.aspx)
-
+maintainability-index-range-and-meaning.aspx):
+  * [0.1.5-alpha](https://arnaudbuchholz.github.io/gpf/0.1.5-alpha/plato/index.html)
 
 Metric name | value | comment
 ----- | ----- | -----
@@ -41,7 +40,7 @@ Statements coverage|99%|*9% ignored*
 Branches coverage|98%|*10% ignored*
 Functions coverage|99%|*14% ignored*
 Average maintainability|72.96|
-Number of tests|565|*pending: 1, duration: 423ms*
+Number of tests|565|*pending: 1, duration: 1365ms*
 Number of modules|32|
 Lines of Code|7344|*Average per module: 216*
 
@@ -53,32 +52,36 @@ Lines of Code|7344|*Average per module: 216*
 
 ## Testing
 
-* With mocha (relative to gpf-host folder):
+* With mocha (relative to gpf-js root folder):
     * file:///./test/host/mocha/web.html
-    * node ./host/mocha/nodejs.js
-* Without mocha (relative to gpf-host folder):
+    * node test/host/mocha/nodejs.js
+* Without mocha (relative to gpf-js root folder):
     * file:///./test/host/web.html
-    * node ./test/host/nodejs.js
-    * phantomjs ./host/phantomjs.js
-    * cscript /E:jscript cscript.js
+    * node test/host/nodejs.js
+    * phantomjs test/host/phantomjs.js
+    * cscript /E:jscript test\host\cscript.js
     * java -jar node_modules\rhino-1_7r5-bin\rhino1_7R5\js.jar test\host\rhino.js
 * With grunt:
-    * testing with PhantomJS (as a browser): grunt mocha
+    * testing with PhantomJS (as a browser):
+        * grunt mocha
         * grunt mocha:source
         * grunt mocha:debug
         * grunt mocha:release
-    * testing with NodeJS: grunt mochaTest
+    * testing with NodeJS:
+        * grunt mochaTest
         * grunt mochaTest:source
         * grunt mochaTest:debug
         * grunt mochaTest:release
     * testing with cscript:
-        * grunt exec:testWScript
-        * grunt exec:testWScriptVerbose
-        * grunt exec:testWScriptDebug
-        * grunt exec:testWScriptRelease
+        * grunt exec:testWscript
+        * grunt exec:testWscriptVerbose
+        * grunt exec:testWscriptDebug
+        * grunt exec:testWscriptRelease
     * testing with rhino:
         * grunt exec:testRhino
         * grunt exec:testRhinoVerbose
+        * grunt exec:testRhinoDebug
+        * grunt exec:testRhinoRelease
 
 ## Credits
 
