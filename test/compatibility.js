@@ -277,17 +277,19 @@ describe("compatibility", function () {
                         var obj = {0: "a", 1: "b", 2: "c"},
                             keys = method.apply(Object, [obj]);
                         assert(keys.length === 3);
-                        assert(keys[0] === "0");
-                        assert(keys[1] === "1");
-                        assert(keys[2] === "2");
+                        // Order is not guaranteed
+                        assert(-1 < keys.indexOf("0"));
+                        assert(-1 < keys.indexOf("1"));
+                        assert(-1 < keys.indexOf("2"));
                     },
                     "returns list of indexes of an array like object with random key ordering": function (method) {
                         var obj = {100: "a", 2: "b", 7: "c"},
                             keys = method.apply(Object, [obj]);
                         assert(keys.length === 3);
-                        assert(keys[0] === "2");
-                        assert(keys[1] === "7");
-                        assert(keys[2] === "100");
+                        // Order is not guaranteed
+                        assert(-1 < keys.indexOf("2"));
+                        assert(-1 < keys.indexOf("7"));
+                        assert(-1 < keys.indexOf("100"));
                     },
                     "returns list of own keys of an object": function (method) {
                         function MyObject () {}
@@ -310,24 +312,27 @@ describe("compatibility", function () {
                         var obj = {foo: "bar", baz: 42},
                             values = method.apply(Object, [obj]);
                         assert(values.length === 2);
-                        assert(values[0] === "bar");
-                        assert(values[1] === 42);
+                        // Order is not guaranteed
+                        assert(-1 < values.indexOf("bar"));
+                        assert(-1 < values.indexOf(42));
                     },
                     "returns list of values of an array-like object": function (method) {
                         var obj = {0: "a", 1: "b", 2: "c"},
                             values = method.apply(Object, [obj]);
                         assert(values.length === 3);
-                        assert(values[0] === "a");
-                        assert(values[1] === "b");
-                        assert(values[2] === "c");
+                        // Order is not guaranteed
+                        assert(-1 < values.indexOf("a"));
+                        assert(-1 < values.indexOf("b"));
+                        assert(-1 < values.indexOf("c"));
                     },
                     "returns list of values of an array like object with random key ordering": function (method) {
                         var obj = {100: "a", 2: "b", 7: "c"},
                             values = method.apply(Object, [obj]);
                         assert(values.length === 3);
-                        assert(values[0] === "b");
-                        assert(values[1] === "c");
-                        assert(values[2] === "a");
+                        // Order is not guaranteed
+                        assert(-1 < values.indexOf("a"));
+                        assert(-1 < values.indexOf("b"));
+                        assert(-1 < values.indexOf("c"));
                     },
                     "returns list of own values of an object": function (method) {
                         function MyObject () {}
