@@ -66,9 +66,6 @@
         "stream_node",                                      // IStream helpers for nodeJS     gpf.stream
         "encoding",                                         // Encoding                     gpf.encoding
 
-        // https://github.com/ArnaudBuchholz/gpf-js/issues/69
-        "date",                                             // Date functions
-
 // https://github.com/ArnaudBuchholz/gpf-js/milestones/Release%200.2.1:%20XML
         "i_wrapper",                                        // Interface wrapper  gpf.interfaces.Wrapper
 
