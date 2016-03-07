@@ -261,6 +261,87 @@ describe("compatibility", function () {
                         var a = new A();
                         assert(method.apply(Object, [a]) === A.prototype);
                     }
+                },
+                keys: {
+                    length: 1,
+                    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+                    "returns list of indexes of an array": function (method) {
+                        var arr = ["a", "b", "c"],
+                            keys = method.apply(Object, [arr]);
+                        assert(keys.length === 3);
+                        assert(keys[0] === "0");
+                        assert(keys[1] === "1");
+                        assert(keys[2] === "2");
+                    },
+                    "returns list of indexes of an array-like object": function (method) {
+                        var obj = {0: "a", 1: "b", 2: "c"},
+                            keys = method.apply(Object, [obj]);
+                        assert(keys.length === 3);
+                        assert(keys[0] === "0");
+                        assert(keys[1] === "1");
+                        assert(keys[2] === "2");
+                    },
+                    "returns list of indexes of an array like object with random key ordering": function (method) {
+                        var obj = {100: "a", 2: "b", 7: "c"},
+                            keys = method.apply(Object, [obj]);
+                        assert(keys.length === 3);
+                        assert(keys[0] === "2");
+                        assert(keys[1] === "7");
+                        assert(keys[2] === "100");
+                    },
+                    "returns list of own keys of an object": function (method) {
+                        function MyObject () {}
+                        MyObject.prototype = {
+                            a: 0,
+                            b: 1
+                        };
+                        var obj = new MyObject(),
+                            keys;
+                        obj.c = 2;
+                        keys = method.apply(Object, [obj]);
+                        assert(keys.length === 1);
+                        assert(keys[0] === "c");
+                    }
+                },
+                values: {
+                    length: 1,
+                    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/values
+                    "returns list of values of an object": function (method) {
+                        var obj = {foo: "bar", baz: 42},
+                            values = method.apply(Object, [obj]);
+                        assert(values.length === 2);
+                        assert(values[0] === "bar");
+                        assert(values[1] === 42);
+                    },
+                    "returns list of values of an array-like object": function (method) {
+                        var obj = {0: "a", 1: "b", 2: "c"},
+                            values = method.apply(Object, [obj]);
+                        assert(values.length === 3);
+                        assert(values[0] === "a");
+                        assert(values[1] === "b");
+                        assert(values[2] === "c");
+                    },
+                    "returns list of values of an array like object with random key ordering": function (method) {
+                        var obj = {100: "a", 2: "b", 7: "c"},
+                            values = method.apply(Object, [obj]);
+                        assert(values.length === 3);
+                        assert(values[0] === "b");
+                        assert(values[1] === "c");
+                        assert(values[2] === "a");
+                    },
+                    "returns list of own values of an object": function (method) {
+                        function MyObject () {}
+                        MyObject.prototype = {
+                            a: 0,
+                            b: 1
+                        };
+                        var obj = new MyObject(),
+                            values;
+                        obj.c = 2;
+                        values = method.apply(Object, [obj]);
+                        assert(values.length === 1);
+                        assert(values[0] === 2);
+                    }
                 }
             },
 
