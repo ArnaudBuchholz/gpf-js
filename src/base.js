@@ -5,8 +5,8 @@
 /*global _gpfExit*/ // Exit function
 /*global _gpfHost*/ // Host type
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
-/*global _gpfWebWindow*/ // Browser window object
 /*global _gpfIsISO8601String*/ // Check if the string is an ISO 8601 representation of a date
+/*global _gpfWebWindow*/ // Browser window object
 /*exported _gpfExtend*/ // gpf.extend
 /*exported _gpfIsArrayLike*/ // Return true if the parameter looks like an array
 /*exported _gpfNodeBuffer2JsArray*/ // Converts a NodeJS buffer into an int array
