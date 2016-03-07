@@ -157,6 +157,30 @@ var _gpfCompatibility = {
         getPrototypeOf: function (object) {
             // May break if the constructor has been tampered with
             return object.__proto__ || object.constructor.prototype;
+        },
+
+        // Introduced with JavaScript 1.8.5
+        keys: function (object) {
+            var result = [],
+                key;
+            for (key in object) {
+                if (object.hasOwnProperty(key)) {
+                    result.push(key);
+                }
+            }
+            return result;
+        },
+
+        // Introduced with JavaScript 1.8.5
+        values: function (object) {
+            var result = [],
+                key;
+            for (key in object) {
+                if (object.hasOwnProperty(key)) {
+                    result.push(object[key]);
+                }
+            }
+            return result;
         }
 
     },
