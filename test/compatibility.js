@@ -196,6 +196,7 @@ describe("compatibility", function () {
 
             Object: {
                 create: {
+                    isStatic: true,
                     length: -1, // ignore
                     "allows creating objects with a given prototype": function (method) {
                         var object = method.apply(Object, [{
@@ -237,6 +238,7 @@ describe("compatibility", function () {
                     }
                 },
                 getPrototypeOf: {
+                    isStatic: true,
                     length: 1,
                     "returns prototype passed to Object.create": function (method) {
                         var proto,
@@ -263,6 +265,7 @@ describe("compatibility", function () {
                     }
                 },
                 keys: {
+                    isStatic: true,
                     length: 1,
                     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
                     "returns list of indexes of an array": function (method) {
@@ -306,6 +309,7 @@ describe("compatibility", function () {
                     }
                 },
                 values: {
+                    isStatic: true,
                     length: 1,
                     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/values
                     "returns list of values of an object": function (method) {
@@ -371,46 +375,55 @@ describe("compatibility", function () {
             }
 
         },
-        samples = {
-            Array: [],
-            Function: function () {},
+        constructors = {
+            Array: Array,
+            Function: Function,
             Object: Object,
-            String: "",
-            Date: new Date()
+            String: String,
+            Date: Date
         };
 
-    function shouldExpose (object, methodName, arity) {
+    function shouldExpose (sample, methodName, arity) {
         var baseLabel = "should expose the method " + methodName;
-        if (Object === object) {
+        if (sample instanceof Function) {
             it(baseLabel, function () {
-                assert("function" === typeof object[methodName]);
+                assert("function" === typeof sample[methodName]);
             });
         } else {
             it(baseLabel + " through prototype", function () {
-                assert("function" === typeof object[methodName]);
-                assert(!object.hasOwnProperty(methodName));
+                assert("function" === typeof sample[methodName]);
+                assert(!sample.hasOwnProperty(methodName));
             });
         }
         if (-1 !== arity) {
             it(baseLabel + " with an expected arity of " + arity, function () {
-                assert(object[methodName].length === arity);
+                assert(sample[methodName].length === arity);
             });
         }
     }
 
-    function addTest (type, methodName, label) {
-        var sample = samples[type],
-            testMethod = tests[type][methodName][label],
+    function addTest (description) {
+        var sample = description.sample,
+            testMethod = description.testMethod,
+            label = description.label,
+            methodName = description.methodName,
             method = sample[methodName],
+            compatibleType,
+            compatibleMethods,
             compatibleMethod;
-        if ("function" !== typeof testMethod) {
-            return;
-        }
         it(label, function () {
             testMethod(method);
         });
-        if (gpf.internals && gpf.internals._gpfCompatibility[type]) {
-            compatibleMethod = gpf.internals._gpfCompatibility[type][methodName];
+        if (gpf.internals) {
+            compatibleType = gpf.internals._gpfCompatibility[description.type];
+            if (description.isStatic) {
+                compatibleMethods = compatibleType.statics;
+            } else {
+                compatibleMethods = compatibleType.methods;
+            }
+            if (compatibleMethods) {
+                compatibleMethod = compatibleMethods[methodName];
+            }
             if (compatibleMethod && compatibleMethod !== method) {
                 it(label + " (compatible)", function () {
                     testMethod(compatibleMethod);
@@ -421,11 +434,25 @@ describe("compatibility", function () {
 
     function describeMethod (type, methodName, methodTests) {
         return function () {
-            var label;
-            shouldExpose(samples[type], methodName, methodTests.length);
+            var Constructor = constructors[type],
+                sample,
+                label;
+            if (true === methodTests.isStatic) {
+                sample = Constructor;
+            } else {
+                sample = new Constructor();
+            }
+            shouldExpose(sample, methodName, methodTests.length);
             for (label in methodTests) {
-                if (methodTests.hasOwnProperty(label)) {
-                    addTest(type, methodName, label);
+                if (methodTests.hasOwnProperty(label) && "function" === typeof methodTests[label]) {
+                    addTest({
+                        type: type,
+                        sample: sample,
+                        methodName: methodName,
+                        isStatic: methodTests.isStatic,
+                        label: label,
+                        testMethod: methodTests[label]
+                    });
                 }
             }
         };
