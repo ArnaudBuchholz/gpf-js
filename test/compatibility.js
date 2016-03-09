@@ -537,50 +537,6 @@ describe("compatibility", function () {
 
         declare("Array");
 
-        if (gpf.internals) {
-
-            describe("(internal) _gpfArraySlice", function () {
-
-                var _gpfArraySlice = gpf.internals._gpfArraySlice;
-
-                it("transforms an arra-like into an array", function () {
-                    var object = {};
-                    function test () {
-                        var array = _gpfArraySlice(arguments);
-                        assert(array instanceof Array);
-                        assert(4 === array.length);
-                        assert(0 === array[0]);
-                        assert("1" === array[1]);
-                        assert(true === array[2]);
-                        assert(object === array[3]);
-                    }
-                    test(0, "1", true, object);
-                });
-
-                it("slices an array", function () {
-                    var result = _gpfArraySlice([0, 1, 2], 1, 2);
-                    assert(1 === result.length);
-                    assert(1 === result[0]);
-                });
-
-                it("supports optional parameters (none)", function () {
-                    var result = _gpfArraySlice([0, 1, 2]);
-                    assert(3 === result.length);
-                    assert(0 === result[0]);
-                    assert(1 === result[1]);
-                    assert(2 === result[2]);
-                });
-
-                it("supports optional parameters (no to)", function () {
-                    var result = _gpfArraySlice([0, 1, 2], 1);
-                    assert(2 === result.length);
-                    assert(1 === result[0]);
-                    assert(2 === result[1]);
-                });
-
-            });
-        }
-
     });
 
     describe("Function", function () {
