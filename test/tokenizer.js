@@ -4,6 +4,8 @@
     /*jshint -W027*/ // Done on purpose until gpf.declareTests is removed
     return;
 
+    // TODO replace .apply with .call where appropriate
+
     var
         _TOKEN_ALLOWED_SYMBOLS = (
             "* *="

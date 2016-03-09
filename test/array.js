@@ -79,10 +79,10 @@ describe("array", function () {
                     read: function (count, eventsHandler) {
                         var result;
                         if (this.pos === array.length) {
-                            gpf.events.fire.apply(this, [gpf.events.EVENT_END_OF_DATA, {}, eventsHandler]);
+                            gpf.events.fire.call(this, gpf.events.EVENT_END_OF_DATA, {}, eventsHandler);
                         } else {
                             result = array.slice(this.pos++, this.pos);
-                            gpf.events.fire.apply(this, [gpf.events.EVENT_DATA, {buffer: result}, eventsHandler]);
+                            gpf.events.fire.call(this, gpf.events.EVENT_DATA, {buffer: result}, eventsHandler);
                         }
                     }
                 };
@@ -105,9 +105,9 @@ describe("array", function () {
                 read: function (count, eventsHandler) {
                     if (0 === this.pos) {
                         ++this.pos;
-                        gpf.events.fire.apply(this, [gpf.events.EVENT_DATA, {buffer: [0, 1, 2]}, eventsHandler]);
+                        gpf.events.fire.call(this, gpf.events.EVENT_DATA, {buffer: [0, 1, 2]}, eventsHandler);
                     } else {
-                        gpf.events.fire.apply(this, [gpf.events.EVENT_ERROR, {error: "KO"}, eventsHandler]);
+                        gpf.events.fire.call(this, gpf.events.EVENT_ERROR, {error: "KO"}, eventsHandler);
                     }
                 }
             };

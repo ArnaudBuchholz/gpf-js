@@ -96,7 +96,7 @@ describe("events", function () {
 
             it("triggers the handler using the event scope", function (done) {
                 var scope = {};
-                gpf.events.fire.apply(scope, ["test", eventHandler])
+                gpf.events.fire.call(scope, "test", eventHandler)
                     .then(function (event) {
                         assert(event === receivedEvent);
                         assert("test" === receivedEvent.type);
@@ -114,7 +114,7 @@ describe("events", function () {
                     eventObj = new gpf.events.Event("test", {}, scope1);
                 assert(scope1 !== scope2);
                 assert(eventObj.scope === scope1);
-                gpf.events.fire.apply(scope2, [eventObj, eventHandler])
+                gpf.events.fire.call(scope2, eventObj, eventHandler)
                     .then(function (event) {
                         assert(event === receivedEvent);
                         assert("test" === receivedEvent.type);

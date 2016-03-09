@@ -184,10 +184,10 @@ describe("string", function () {
                     read: function (count, eventsHandler) {
                         var result;
                         if (this.pos === string.length) {
-                            gpf.events.fire.apply(this, [gpf.events.EVENT_END_OF_DATA, {}, eventsHandler]);
+                            gpf.events.fire.call(this, gpf.events.EVENT_END_OF_DATA, {}, eventsHandler);
                         } else {
                             result = string.charAt(this.pos++);
-                            gpf.events.fire.apply(this, [gpf.events.EVENT_DATA, {buffer: result}, eventsHandler]);
+                            gpf.events.fire.call(this, gpf.events.EVENT_DATA, {buffer: result}, eventsHandler);
                         }
                     }
                 };
@@ -210,9 +210,9 @@ describe("string", function () {
                 read: function (count, eventsHandler) {
                     if (0 === this.pos) {
                         ++this.pos;
-                        gpf.events.fire.apply(this, [gpf.events.EVENT_DATA, {buffer: "abc"}, eventsHandler]);
+                        gpf.events.fire.call(this, gpf.events.EVENT_DATA, {buffer: "abc"}, eventsHandler);
                     } else {
-                        gpf.events.fire.apply(this, [gpf.events.EVENT_ERROR, {error: "KO"}, eventsHandler]);
+                        gpf.events.fire.call(this, gpf.events.EVENT_ERROR, {error: "KO"}, eventsHandler);
                     }
                 }
             };

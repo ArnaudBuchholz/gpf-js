@@ -20,7 +20,7 @@ describe("path", function () {
                 join = path.join;
             } else {
                 join = function () {
-                    var args = [].slice.apply(arguments, [0]).map(function (value) {
+                    var args = Array.from(arguments, function (value) {
                         return value.split("/").join(separator);
                     });
                     return path.join.apply(path, args);
@@ -151,7 +151,7 @@ describe("path", function () {
                 relative = path.relative;
             } else {
                 relative = function () {
-                    var args = [].slice.apply(arguments, [0]).map(function (value) {
+                    var args = Array.from(arguments, function (value) {
                         return value.split("/").join(separator);
                     });
                     return path.relative.apply(path, args);
