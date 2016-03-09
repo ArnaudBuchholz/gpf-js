@@ -54,7 +54,7 @@ Preprocessor.prototype = {
         for (match in Preprocessor.tags) {
             if (Preprocessor.tags.hasOwnProperty(match)) {
                 if (-1 < line.indexOf(match)) {
-                    Preprocessor.tags[match].apply(this, [line]);
+                    Preprocessor.tags[match].call(this, line);
                     return true;
                 }
             }
