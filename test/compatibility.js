@@ -161,6 +161,49 @@ describe("compatibility", function () {
                         }
                         assert(20 === method.apply(array, [reducer, 10]));
                     }
+                },
+                from: {
+                    isStatic: true,
+                    length: 1,
+                    "works on arguments": function (method) {
+                        function f () {
+                            return method.call(Array, arguments);
+                        }
+                        var result = f(1, 2, 3);
+                        assert(result instanceof Array);
+                        assert(3 === result.length);
+                        assert(1 === result[0]);
+                        assert(2 === result[1]);
+                        assert(3 === result[2]);
+                    },
+                    "works on strings": function (method) {
+                        var result = method.call(Array, "foo");
+                        assert(result instanceof Array);
+                        assert(3 === result.length);
+                        assert("f" === result[0]);
+                        assert("o" === result[1]);
+                        assert("o" === result[2]);
+                    },
+                    "supports callback mapping": function (method) {
+                        var result = method.call(Array, [1, 2, 3], function (value) {
+                            return value + value;
+                        });
+                        assert(result instanceof Array);
+                        assert(3 === result.length);
+                        assert(2 === result[0]);
+                        assert(4 === result[1]);
+                        assert(6 === result[2]);
+                    },
+                    "generates a sequence of numbers": function (method) {
+                        var result = method.call(Array, {length: 3}, function (x, index) {
+                            return index;
+                        });
+                        assert(result instanceof Array);
+                        assert(3 === result.length);
+                        assert(0 === result[0]);
+                        assert(1 === result[1]);
+                        assert(2 === result[2]);
+                    }
                 }
             },
 
