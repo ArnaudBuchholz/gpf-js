@@ -131,7 +131,7 @@ _gpfDefine("gpf.Parser", Object, {
             if (handler instanceof Array) {
                 handler.push(item);
             } else if (null !== handler) {
-                _gpfEventsFire.apply(this, [_GPF_EVENT_DATA, {item: item}, handler]);
+                _gpfEventsFire.call(this, _GPF_EVENT_DATA, {item: item}, handler);
             }
         }
     },

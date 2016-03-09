@@ -21,7 +21,7 @@ var _gpfArrayPrototypeSlice = Array.prototype.slice;
  * @return {Array}
  */
 function _gpfArraySlice (array, from, to) {
-    return _gpfArrayPrototypeSlice.apply(array, [from || 0, to || array.length + 1]);
+    return _gpfArrayPrototypeSlice.call(array, from || 0, to || array.length + 1);
 }
 
 function _pad (number) {
@@ -46,7 +46,7 @@ var _gpfCompatibility = {
                     len = this.length,
                     idx;
                 for (idx = 0; idx < len; ++idx) {
-                    if (!callback.apply(thisArg, [this[idx], idx, this])) {
+                    if (!callback.call(thisArg, this[idx], idx, this)) {
                         return false;
                     }
                 }
@@ -62,7 +62,7 @@ var _gpfCompatibility = {
                     item;
                 for (idx = 0; idx < len; ++idx) {
                     item = this[idx];
-                    if (callback.apply(thisArg, [this[idx], idx, this])) {
+                    if (callback.call(thisArg, this[idx], idx, this)) {
                         result.push(item);
                     }
                 }
@@ -75,7 +75,7 @@ var _gpfCompatibility = {
                     len = this.length,
                     idx;
                 for (idx = 0; idx < len; ++idx) {
-                    callback.apply(thisArg, [this[idx], idx, this]);
+                    callback.call(thisArg, this[idx], idx, this);
                 }
             },
 
@@ -100,7 +100,7 @@ var _gpfCompatibility = {
                     result = new Array(thisLength),
                     index;
                 for (index = 0; index < thisLength; ++index) {
-                    result[index] = callback.apply(thisArg, [this[index], index, this]);
+                    result[index] = callback.call(thisArg, this[index], index, this);
                 }
                 return result;
             },
@@ -314,7 +314,7 @@ var _gpfJsCommentsRegExp =  new RegExp("//.*$|/\\*(?:[^\\*]*|\\*[^/]*)\\*/", "gm
 function _gpfGetFunctionName () {
     // Use simple parsing
     /*jshint validthis:true*/
-    var functionSource = Function.prototype.toString.apply(this), //eslint-disable-line no-invalid-this
+    var functionSource = Function.prototype.toString.call(this), //eslint-disable-line no-invalid-this
         functionKeywordPos = functionSource.indexOf("function"),
         parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
     return functionSource

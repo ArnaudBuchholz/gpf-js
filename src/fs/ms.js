@@ -180,8 +180,7 @@ var
             write: function (buffer, eventsHandler) {
                 var buffer437 = buffer.map(_gpfByteTo437);
                 this._adoStream.WriteText(buffer437.join(""));
-                _gpfEventsFire.apply(this, [_GPF_EVENT_READY, {},
-                    eventsHandler]);
+                _gpfEventsFire.call(this, _GPF_EVENT_READY, {}, eventsHandler);
             },
 
             /**
@@ -285,8 +284,7 @@ var
                     size = this._size - this._pos;
                 }
                 if (0 === size) {
-                    _gpfEventsFire.apply(this, [_GPF_EVENT_END_OF_DATA, {},
-                        eventsHandler]);
+                    _gpfEventsFire.call(this, _GPF_EVENT_END_OF_DATA, {}, eventsHandler);
                     return;
                 }
                 var textBuffer = this._stream.read(size),
@@ -297,13 +295,7 @@ var
                 for (idx = 0; idx < len; ++idx) {
                     buffer.push(_gpfTextBytes[textBuffer.charCodeAt(idx)]);
                 }
-                _gpfEventsFire.apply(this, [
-                    _GPF_EVENT_DATA,
-                    {
-                        buffer: buffer
-                    },
-                    eventsHandler
-                ]);
+                _gpfEventsFire.call(this, _GPF_EVENT_DATA, {buffer: buffer}, eventsHandler);
             },
 
             /**
@@ -362,34 +354,16 @@ _gpfDefine("gpf.fs.WScriptFileStorage", Object, {
             path = _gpfPathDecompose(path).join("\\");
             if (_gpfMsFSO.FileExists(path)) {
                 var file = _gpfMsFSO.GetFile(path);
-                _gpfEventsFire.apply(null, [
-                    _GPF_EVENT_READY,
-                    {
-                        info: _gpfFsoObjToInfo(file, _GPF_FS_TYPE_FILE)
-                    },
-                    eventsHandler
-                ]);
+                _gpfEventsFire.call(null, _GPF_EVENT_READY, {info: _gpfFsoObjToInfo(file, _GPF_FS_TYPE_FILE)},
+                    eventsHandler);
 
             } else if (_gpfMsFSO.FolderExists(path)) {
                 var folder = _gpfMsFSO.GetFolder(path);
-                _gpfEventsFire.apply(null, [
-                    _GPF_EVENT_READY,
-                    {
-                        info: _gpfFsoObjToInfo(folder, _GPF_FS_TYPE_DIRECTORY)
-                    },
-                    eventsHandler
-                ]);
+                _gpfEventsFire.call(null, _GPF_EVENT_READY, {info: _gpfFsoObjToInfo(folder, _GPF_FS_TYPE_DIRECTORY)},
+                    eventsHandler);
 
             } else {
-                _gpfEventsFire.apply(null, [
-                    _GPF_EVENT_READY,
-                    {
-                        info: {
-                            type: _GPF_FS_TYPE_NOT_FOUND
-                        }
-                    },
-                    eventsHandler
-                ]);
+                _gpfEventsFire.call(null, _GPF_EVENT_READY, {info: {type: _GPF_FS_TYPE_NOT_FOUND}}, eventsHandler);
             }
         },
 
@@ -397,26 +371,14 @@ _gpfDefine("gpf.fs.WScriptFileStorage", Object, {
          * @inheritdoc IFileStorage#readAsBinaryStream
          */
         readAsBinaryStream: function (path, eventsHandler) {
-            _gpfEventsFire.apply(null, [
-                _GPF_EVENT_READY,
-                {
-                    stream: new _gpfWScriptBinReadStream(path)
-                },
-                eventsHandler
-            ]);
+            _gpfEventsFire.call(null, _GPF_EVENT_READY, {stream: new _gpfWScriptBinReadStream(path)}, eventsHandler);
         },
 
         /**
          * @inheritdoc IFileStorage#writeAsBinaryStream
          */
         writeAsBinaryStream: function (path, eventsHandler) {
-            _gpfEventsFire.apply(null, [
-                _GPF_EVENT_READY,
-                {
-                    stream: new _gpfWScriptBinWriteStream(path)
-                },
-                eventsHandler
-            ]);
+            _gpfEventsFire.call(null, _GPF_EVENT_READY, {stream: new _gpfWScriptBinWriteStream(path)}, eventsHandler);
         },
 
         /**
@@ -426,11 +388,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", Object, {
             if (stream instanceof _gpfWScriptBinStream
                 || stream instanceof _gpfWScriptBinReadStream) {
                 stream.close();
-                _gpfEventsFire.apply(stream, [
-                    _GPF_EVENT_READY,
-                    {},
-                    eventsHandler
-                ]);
+                _gpfEventsFire.call(stream, _GPF_EVENT_READY, {}, eventsHandler);
             } else {
                 throw gpf.Error.invalidParameter();
             }
@@ -459,13 +417,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", Object, {
                         _GPF_FS_TYPE_DIRECTORY));
                 }
             }
-            _gpfEventsFire.apply(null, [
-                _GPF_EVENT_READY,
-                {
-                    enumerator: _gpfArrayEnumerator(result)
-                },
-                eventsHandler
-            ]);
+            _gpfEventsFire.call(null, _GPF_EVENT_READY, {enumerator: _gpfArrayEnumerator(result)}, eventsHandler);
         },
 
         /**
@@ -474,7 +426,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", Object, {
         createFolder: function (path, eventsHandler) {
             path = _gpfPathDecompose(path).join("\\");
             _gpfMsFSO.CreateFolder(path);
-            _gpfEventsFire.apply(null, [_GPF_EVENT_READY, {}, eventsHandler]);
+            _gpfEventsFire.call(null, _GPF_EVENT_READY, {}, eventsHandler);
         },
 
         /**
@@ -483,7 +435,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", Object, {
         deleteFile: function (path, eventsHandler) {
             path = _gpfPathDecompose(path).join("\\");
             _gpfMsFSO.DeleteFile(path, true);
-            _gpfEventsFire.apply(null, [_GPF_EVENT_READY, {}, eventsHandler]);
+            _gpfEventsFire.call(null, _GPF_EVENT_READY, {}, eventsHandler);
         },
 
         /**
@@ -492,7 +444,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", Object, {
         deleteFolder: function (path, eventsHandler) {
             path = _gpfPathDecompose(path).join("\\");
             _gpfMsFSO.DeleteFolder(path, true);
-            _gpfEventsFire.apply(null, [_GPF_EVENT_READY, {}, eventsHandler]);
+            _gpfEventsFire.call(null, _GPF_EVENT_READY, {}, eventsHandler);
         }
 
         //endregion

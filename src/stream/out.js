@@ -80,11 +80,7 @@ _gpfDefine("gpf.stream.Out", Object, {
                     console.log(this._trimFinalR(lines[idx]));
                 }
             }
-            _gpfEventsFire.apply(this, [
-                _GPF_EVENT_READY,
-                {},
-                eventsHandler
-            ]);
+            _gpfEventsFire.call(this, _GPF_EVENT_READY, {}, eventsHandler);
         },
 
         /**

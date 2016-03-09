@@ -457,14 +457,14 @@ var
                     forward.buffer.push(buffer);
                 }
             }
-            _gpfEventsFire.apply(this, ["ready", {}, eventsHandler]);
+            _gpfEventsFire.call(this, "ready", {}, eventsHandler);
         },
 
         /**
          * @implements gpf.interfaces.IXmlContentHandler:endDocument
          */
         endDocument: function (eventsHandler) {
-            _gpfEventsFire.apply(this, ["ready", {}, eventsHandler]);
+            _gpfEventsFire.call(this, "ready", {}, eventsHandler);
         },
 
         /**
@@ -495,7 +495,7 @@ var
                     this._forward.shift();
                 }
             }
-            _gpfEventsFire.apply(this, ["ready", {}, eventsHandler]);
+            _gpfEventsFire.call(this, "ready", {}, eventsHandler);
         },
 
         /**
@@ -512,7 +512,7 @@ var
         ignorableWhitespace: function (buffer, eventsHandler) {
             // Nothing to do
             _gpfIgnore(buffer);
-            _gpfEventsFire.apply(this, ["ready", {}, eventsHandler]);
+            _gpfEventsFire.call(this, "ready", {}, eventsHandler);
         },
 
         /**
@@ -522,7 +522,7 @@ var
         processingInstruction: function (target, data, eventsHandler) {
             // Not relevant
             _gpfIgnore(target, data);
-            _gpfEventsFire.apply(this, ["ready", {}, eventsHandler]);
+            _gpfEventsFire.call(this, "ready", {}, eventsHandler);
         },
 
         /**
@@ -546,7 +546,7 @@ var
          */
         startDocument: function (eventsHandler) {
             // Nothing to do
-            _gpfEventsFire.apply(this, ["ready", {}, eventsHandler]);
+            _gpfEventsFire.call(this, "ready", {}, eventsHandler);
         },
 
         /**
@@ -562,8 +562,7 @@ var
             if (undefined !== forward) {
                 if (0 === forward.type) {
                     ++forward.depth;
-                    forward.iXCH.startElement.apply(forward.iXCH,
-                        arguments);
+                    forward.iXCH.startElement.apply(forward.iXCH, arguments);
                 } else {
                     this._fillFromElement.apply(this, arguments);
                 }
@@ -580,7 +579,7 @@ var
                  */
                 this._fillFromElement.apply(this, arguments);
             }
-            _gpfEventsFire.apply(this, ["ready", {}, eventsHandler]);
+            _gpfEventsFire.call(this, "ready", {}, eventsHandler);
         },
 
         /**

@@ -231,9 +231,7 @@
                         calls;
                     if (event && event.type() === "error") {
                         if (this._catch) {
-                            gpfFireEvent.apply(iHandler, [
-                                event, this._catch
-                            ]);
+                            gpfFireEvent.call(iHandler, event, this._catch);
                         }
                         return;
                     }
@@ -241,9 +239,7 @@
                     if (calls.length) {
                         calls.shift().apply(iHandler, this._callback);
                     } else if (this._finally) {
-                        gpfFireEvent.apply(iHandler, [
-                            this._finalEventType, this._finally
-                        ]);
+                        gpfFireEvent.call(iHandler, this._finalEventType, this._finally);
                     }
                 },
 

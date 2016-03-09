@@ -145,20 +145,12 @@ _gpfDefine("gpf.stream.BufferedOnRead", Object, {
                 if (0 === size || size > length) {
                     size = length;
                 }
-                _gpfEventsFire.apply(this, [
-                    _gpfI.IReadableStream.EVENT_DATA,
-                    {
-                        buffer: this._readFromBuffer(size)
-                    },
-                    eventsHandler
-                ]);
+                _gpfEventsFire.call(this, _gpfI.IReadableStream.EVENT_DATA, {buffer: this._readFromBuffer(size)},
+                    eventsHandler);
 
             } else if (_GPF_BUFREADSTREAM_ISTATE_EOS === iState) {
                 // No more input and output buffer is empty
-                _gpfEventsFire.apply(this, [
-                    _gpfI.IReadableStream.EVENT_END_OF_STREAM,
-                    eventsHandler
-                ]);
+                _gpfEventsFire.call(this, _gpfI.IReadableStream.EVENT_END_OF_STREAM, eventsHandler);
 
             } else {
                 // Read input
@@ -226,10 +218,7 @@ _gpfDefine("gpf.stream.BufferedOnRead", Object, {
 
             } else if (type === _gpfI.IReadableStream.EVENT_ERROR) {
                 // Forward the event
-                _gpfEventsFire.apply(this, [
-                    event,
-                    this._eventsHandler
-                ]);
+                _gpfEventsFire.call(this, event, this._eventsHandler);
 
             } else {
                 this._iState = _GPF_BUFREADSTREAM_ISTATE_WAITING;

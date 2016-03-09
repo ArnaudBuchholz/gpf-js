@@ -68,7 +68,7 @@ function _gpfArrayForEach (array, callback, thisArg) {
     var index,
         length = array.length;
     for (index = 0; index < length; ++index) {
-        callback.apply(thisArg, [array[index], index, array]);
+        callback.call(thisArg, array[index], index, array);
     }
 }
 
@@ -86,7 +86,7 @@ function _gpfObjectForEach (object, callback, thisArg) {
     for (var property in object) {
         /* istanbul ignore else */
         if (object.hasOwnProperty(property)) {
-            callback.apply(thisArg, [object[property], property, object]);
+            callback.call(thisArg, object[property], property, object);
         }
     }
 }

@@ -95,7 +95,7 @@ if (_gpfInNode) {
 
             // @inheritdoc gpf.node.Stream#close
             close: function (eventsHandler) {
-                _gpfEventsFire.apply(this, [_GPF_EVENT_READY, {}, eventsHandler]);
+                _gpfEventsFire.call(this, _GPF_EVENT_READY, {}, eventsHandler);
             },
 
             //region gpf.interfaces.IReadableStream
@@ -148,21 +148,16 @@ if (_gpfInNode) {
              * @param {Buffer} chunk
              */
             _onData: function (chunk) {
-                _gpfEventsFire.apply(this, [
-                    _GPF_EVENT_DATA,
-                    {
-                        buffer: gpf.node.buffer2JsArray(chunk)
-                    },
-                    this._getEventsHandler()
-                ]);
+                _gpfEventsFire.call(this, _GPF_EVENT_DATA, {buffer: gpf.node.buffer2JsArray(chunk)},
+                    this._getEventsHandler());
             },
 
             _onEnd: function () {
-                _gpfEventsFire.apply(this, [_GPF_EVENT_END_OF_DATA, {}, this._getEventsHandler()]);
+                _gpfEventsFire.call(this, _GPF_EVENT_END_OF_DATA, {}, this._getEventsHandler());
             },
 
             _onError: function (error) {
-                _gpfEventsFire.apply(this, [_GPF_EVENT_ERROR, {error: error}, this._getEventsHandler()]);
+                _gpfEventsFire.call(this, _GPF_EVENT_ERROR, {error: error}, this._getEventsHandler());
             }
 
         }
@@ -189,7 +184,7 @@ if (_gpfInNode) {
             close: function (eventsHandler) {
                 var me = this;
                 this._stream.end(function () {
-                    _gpfEventsFire.apply(me, [_GPF_EVENT_READY, {}, eventsHandler]);
+                    _gpfEventsFire.call(me, _GPF_EVENT_READY, {}, eventsHandler);
                 });
             },
 
@@ -215,9 +210,9 @@ if (_gpfInNode) {
              */
             _onWritten: function (error) {
                 if (error) {
-                    _gpfEventsFire.apply(this, [_GPF_EVENT_ERROR, {error: error}, this._getEventsHandler()]);
+                    _gpfEventsFire.call(this, _GPF_EVENT_ERROR, {error: error}, this._getEventsHandler());
                 } else {
-                    _gpfEventsFire.apply(this, [_GPF_EVENT_READY, {}, this._getEventsHandler()]);
+                    _gpfEventsFire.call(this, _GPF_EVENT_READY, {}, this._getEventsHandler());
                 }
             },
 

@@ -43,10 +43,10 @@ var
             read: function (count, eventsHandler) {
                 var result;
                 if (0 === this._buffer.length) {
-                    _gpfEventsFire.apply(this, [_GPF_EVENT_END_OF_DATA, {}, eventsHandler]);
+                    _gpfEventsFire.call(this, _GPF_EVENT_END_OF_DATA, {}, eventsHandler);
                 } else {
                     result = this._buffer.splice(0, count);
-                    _gpfEventsFire.apply(this, [_GPF_EVENT_DATA, {buffer: result}, eventsHandler]);
+                    _gpfEventsFire.call(this, _GPF_EVENT_DATA, {buffer: result}, eventsHandler);
                 }
             },
 
@@ -58,7 +58,7 @@ var
             write: function (buffer, eventsHandler) {
                 _gpfAssert(buffer instanceof Array, "Array expected");
                 this._buffer = this._buffer.concat(buffer);
-                _gpfEventsFire.apply(this, [_GPF_EVENT_READY, {}, eventsHandler]);
+                _gpfEventsFire.call(this, _GPF_EVENT_READY, {}, eventsHandler);
             },
 
             //endregion

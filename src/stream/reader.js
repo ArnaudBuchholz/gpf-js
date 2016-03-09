@@ -45,20 +45,16 @@ var
                     type = event.type(),
                     stream = event.scope();
                 if (type === _gpfI.IReadableStream.EVENT_END_OF_STREAM) {
-                    _gpfEventsFire.apply(this._scope, [
-                        _gpfI.IReadableStream.EVENT_DATA,
+                    _gpfEventsFire.call(this._scope, _gpfI.IReadableStream.EVENT_DATA,
                         {
                             buffer: this._consolidateBuffer()
                         },
                         this._eventsHandler
-                    ]);
+                    );
 
                 } else if (type === _gpfI.IReadableStream.EVENT_ERROR) {
                     // Forward the event
-                    _gpfEventsFire.apply(this._scope, [
-                        event,
-                        this._eventsHandler
-                    ]);
+                    _gpfEventsFire.call(this._scope, event, this._eventsHandler);
 
                 } else {
                     this._addBuffer(event.get("buffer"));

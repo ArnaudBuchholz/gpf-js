@@ -178,8 +178,7 @@ var
             }
             eventParams.token = token;
         }
-        event = gpf.events.fire.apply(context.that, [type, eventParams,
-            context.eventsHandler]);
+        event = gpf.events.fire.call(context.that, type, eventParams, context.eventsHandler);
         if (event.defaultPrevented()) {
             _tokenizerCallback(context, _TOKEN_ERROR_ABORT);
         } else if (undefined !== errorCode) {

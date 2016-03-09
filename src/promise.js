@@ -60,7 +60,7 @@ function _gpfPromiseResolve (newValue) {
         me._value = newValue;
         finale.call(me);
     } catch (e) {
-        _gpfPromiseReject.apply(me, [e]);
+        _gpfPromiseReject.call(me, e);
     }
 }
 

@@ -66,7 +66,7 @@ function _gpfTriggerListeners (eventObj, eventListeners) {
     var index,
         length = eventListeners.length;
     for (index = 0; index < length; ++index) {
-        _gpfEventsFire.apply(eventObj.scope, [eventObj, {}, eventListeners[index]]);
+        _gpfEventsFire.call(eventObj.scope, eventObj, {}, eventListeners[index]);
     }
 }
 

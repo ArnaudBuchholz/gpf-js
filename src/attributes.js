@@ -404,7 +404,7 @@ _gpfDefine("gpf.attributes.Map", Object, {
          */
         forEach: function (callback, thisArg) {
             _gpfObjectForEach(this._members, function (attributes, member, dictionary) {/*gpf:inline(object)*/
-                callback.apply(thisArg, [attributes, _gpfDecodeAttributeMember(member), dictionary]);
+                callback.call(thisArg, attributes, _gpfDecodeAttributeMember(member), dictionary);
             });
         }
 

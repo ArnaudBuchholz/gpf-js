@@ -180,7 +180,7 @@ function _gpfEventsFire (event, params, eventsHandler) {
  * @return {gpf.events.Event} this
  */
 _GpfEvent.prototype.fire = function (eventsHandler) {
-    return _gpfEventsFire.apply(this, [this, {}, eventsHandler]);
+    return _gpfEventsFire.call(this, this, {}, eventsHandler);
 };
 
 /**
@@ -206,7 +206,7 @@ gpf.events.fire = function (event, params, eventsHandler) {
         eventsHandler = params;
         params = {};
     }
-    return _gpfEventsFire.apply(scope, [event, params, eventsHandler]);
+    return _gpfEventsFire.call(scope, event, params, eventsHandler);
 };
 
 /**

@@ -48,7 +48,7 @@ _GpfStreamPipe.prototype[_GPF_EVENT_READY] = function (event) {
 // gpf.events.EVENT_END_OF_DATA event handler
 _GpfStreamPipe.prototype[_GPF_EVENT_END_OF_DATA] = function (event) {
     _gpfIgnore(event);
-    _gpfEventsFire.apply(this, [_GPF_EVENT_READY, {}, this._eventsHandler]);
+    _gpfEventsFire.call(this, _GPF_EVENT_READY, {}, this._eventsHandler);
 };
 
 // gpf.events.EVENT_DATA event handler
@@ -60,7 +60,7 @@ _GpfStreamPipe.prototype[_GPF_EVENT_DATA] = function (event) {
 // gpf.events.EVENT_ANY event handler
 _GpfStreamPipe.prototype[_GPF_EVENT_ANY] = function (event) {
     // Forward to original handler (error or data)
-    _gpfEventsFire.apply(this, [event, {}, this._eventsHandler]);
+    _gpfEventsFire.call(this, event, {}, this._eventsHandler);
 };
 
 /**

@@ -622,10 +622,7 @@
                     left = this._file.size - this._pos,
                     blob;
                 if (0 === left) {
-                    gpfFireEvent.apply(this, [
-                        gpfI.IReadableStream.EVENT_END_OF_STREAM,
-                        eventsHandler
-                    ]);
+                    gpfFireEvent.call(this, gpfI.IReadableStream.EVENT_END_OF_STREAM, eventsHandler);
                     return;
                 }
                 this._eventsHandler = eventsHandler;
@@ -686,7 +683,7 @@
                     idx;
                 _gpfAssert(reader === this._reader, "Unexpected change of reader");
                 if (reader.error) {
-                    gpfFireEvent.apply(this, [
+                    gpfFireEvent.call(this,
                         gpfI.IReadableStream.ERROR,
                         {
                             // According to W3C
@@ -697,7 +694,7 @@
                             }
                         },
                         this._eventsHandler
-                    ]);
+                    );
                 } else if (reader.readyState === FileReader.DONE) {
                     buffer = new Int8Array(reader.result);
                     len = buffer.length;
@@ -705,13 +702,7 @@
                     for (idx = 0; idx < len; ++idx) {
                         result.push(buffer[idx]);
                     }
-                    gpfFireEvent.apply(this, [
-                        gpfI.IReadableStream.EVENT_DATA,
-                        {
-                            buffer: result
-                        },
-                        this._eventsHandler
-                    ]);
+                    gpfFireEvent.call(this, gpfI.IReadableStream.EVENT_DATA, {buffer: result}, this._eventsHandler);
                 }
             }
         }
@@ -818,7 +809,7 @@
                  * @param {Boolean} [global=false] global
                  */
                 constructor: function (event, selector, global) {
-                    _HtmHandler.apply(this, [selector, global]);
+                    _HtmHandler.call(this, selector, global);
                     this._event = event;
                 }
 

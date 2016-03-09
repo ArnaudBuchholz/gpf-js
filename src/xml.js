@@ -109,17 +109,11 @@ _gpfDefine("gpf.xml.Writer", Object, {
                 eventsHandler;
             if (event
                 && event.type() === _gpfI.IWritableStream.EVENT_ERROR) {
-                gpfFireEvent.apply(this, [
-                    event,
-                    this._eventsHandler
-                ]);
+                gpfFireEvent.call(this, event, this._eventsHandler);
             } else if (0 === this._buffer.length) {
                 eventsHandler = this._eventsHandler;
                 this._eventsHandler = null;
-                gpfFireEvent.apply(this, [
-                    _gpfI.IWritableStream.EVENT_READY,
-                    eventsHandler
-                ]);
+                gpfFireEvent.call(this, _gpfI.IWritableStream.EVENT_READY, eventsHandler);
             } else {
                 this._stream.write(this._buffer.shift(), this._flushed.bind(this));
             }

@@ -118,10 +118,10 @@ var
             read: function (count, eventsHandler) {
                 var result;
                 if (0 === this._buffer.length) {
-                    _gpfEventsFire.apply(this, [_GPF_EVENT_END_OF_DATA, {}, eventsHandler]);
+                    _gpfEventsFire.call(this, _GPF_EVENT_END_OF_DATA, {}, eventsHandler);
                 } else {
                     result = _gpfStringArrayExtract(this._buffer, count);
-                    _gpfEventsFire.apply(this, [_GPF_EVENT_DATA, {buffer: result}, eventsHandler]);
+                    _gpfEventsFire.call(this, _GPF_EVENT_DATA, {buffer: result}, eventsHandler);
                 }
             },
 
@@ -133,7 +133,7 @@ var
             write: function (buffer, eventsHandler) {
                 _gpfAssert("string" === typeof buffer && buffer.length, "String buffer must contain data");
                 this._buffer.push(buffer);
-                _gpfEventsFire.apply(this, [_GPF_EVENT_READY, {}, eventsHandler]);
+                _gpfEventsFire.call(this, _GPF_EVENT_READY, {}, eventsHandler);
             },
 
             //endregion

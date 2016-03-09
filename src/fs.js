@@ -46,14 +46,14 @@ function _gpfFsExploreEnumerator (iFileStorage, listOfPaths) {
                     iFileStorage.getInfo(listOfPaths[pos], function (event) {
                         if (_GPF_EVENT_ERROR === event.type) {
                             // forward the event
-                            _gpfEventsFire.apply(me, [event, {}, eventsHandler]);
+                            _gpfEventsFire.call(me, event, {}, eventsHandler);
                             return;
                         }
                         info = event.get("info");
-                        _gpfEventsFire.apply(me, [_GPF_EVENT_DATA, {}, eventsHandler]);
+                        _gpfEventsFire.call(me, _GPF_EVENT_DATA, {}, eventsHandler);
                     });
                 } else {
-                    _gpfEventsFire.apply(me, [_GPF_EVENT_END_OF_DATA, {}, eventsHandler]);
+                    _gpfEventsFire.call(me, _GPF_EVENT_END_OF_DATA, {}, eventsHandler);
                 }
             }
             return false;

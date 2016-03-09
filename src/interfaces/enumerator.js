@@ -51,7 +51,7 @@ function _gpfEnumeratorEach (enumerator, callback, eventsHandler) {
     var iEnumerator = _gpfI.query(enumerator, _gpfI.IEnumerator),
         process;
     function end (event) {
-        _gpfEventsFire.apply(enumerator, [event, {}, eventsHandler]);
+        _gpfEventsFire.call(enumerator, event, {}, eventsHandler);
     }
     if (1 < callback.length) {
         process = function (event) {
@@ -102,7 +102,7 @@ function _gpfArrayEnumerator (array) {
             ++pos;
             result = pos < array.length;
             if (!result && eventsHandler) {
-                _gpfEventsFire.apply(this, [_GPF_EVENT_END_OF_DATA, {}, eventsHandler]);
+                _gpfEventsFire.call(this, _GPF_EVENT_END_OF_DATA, {}, eventsHandler);
             }
             return result;
         },
