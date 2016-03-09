@@ -122,6 +122,34 @@ var _gpfCompatibility = {
                 return value;
             }
 
+        },
+
+        statics: {
+
+            // Introduced with ECMAScript 2015
+            from: function (arrayLike) {
+                var length = arrayLike.length,
+                    array = [],
+                    index,
+                    callback = arguments[1],
+                    thisArg = arguments[2];
+                if ("string" === typeof arrayLike) {
+                    // Required for cscript
+                    for (index = 0; index < length; ++index) {
+                        array.push(arrayLike.charAt(index));
+                    }
+
+                } else {
+                    for (index = 0; index < length; ++index) {
+                        array.push(arrayLike[index]);
+                    }
+                }
+                if ("function" === typeof callback) {
+                    array = array.map(callback, thisArg);
+                }
+                return array;
+            }
+
         }
 
     },
