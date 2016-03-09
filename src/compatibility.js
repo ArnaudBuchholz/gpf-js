@@ -162,9 +162,9 @@ var _gpfCompatibility = {
             // Introduced with JavaScript 1.8.5
             bind: function (thisArg) {
                 var me = this,
-                    prependArgs = _gpfArraySlice(arguments, 1);
+                    prependArgs = _gpfArrayPrototypeSlice.call(arguments, 1);
                 return function () {
-                    var args = _gpfArraySlice(arguments, 0);
+                    var args = _gpfArrayPrototypeSlice.call(arguments, 0);
                     me.apply(thisArg, prependArgs.concat(args));
                 };
             }
@@ -464,7 +464,6 @@ function _GpfDate () {
 
 /*#ifndef(UMD)*/
 
-gpf.internals._gpfArraySlice = _gpfArraySlice;
 gpf.internals._gpfCompatibility = _gpfCompatibility;
 gpf.internals._gpfGetFunctionName = _gpfGetFunctionName;
 gpf.internals._gpfIsISO8601String = _gpfIsISO8601String;
