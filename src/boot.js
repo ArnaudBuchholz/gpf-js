@@ -8,6 +8,7 @@
 /*exported _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
 /*exported _gpfAssert*/ // Assertion method
 /*exported _gpfAsserts*/ // Multiple assertion method
+/*exported _gpfCompatibility*/ // Polyfills for missing 'standard' methods
 /*exported _gpfContext*/ // Resolve contextual string
 /*exported _gpfDosPath*/ // DOS-like path
 /*exported _gpfEmptyFunc*/ // An empty function
@@ -144,7 +145,14 @@ var
      *
      * @type {Object}
      */
-    _gpfNodePath;
+    _gpfNodePath,
+
+    /**
+     * Polyfills for missing 'standard' methods
+     *
+     * @type {Object}
+     */
+    _gpfCompatibility = {};
 
 /**
  * Translate the parameter into a valid scope
@@ -429,8 +437,13 @@ if ("undefined" !== typeof WScript) {
         var source = srcFileName.split("/").pop().split(".")[0],
             test = {
                 "sources":          "gpf.sources",
-                "compatibility":    "Function.prototype.compatibleName",
+                "array":            "_gpfCompatibility.Array",
+                "date":             "_gpfCompatibility.Date",
+                "function":         "_gpfCompatibility.Function",
+                "object":           "_gpfCompatibility.Object",
+                "string":           "_gpfCompatibility.String",
                 "promise":          "gpf.Promise",
+                "compatibility":    "Function.prototype.compatibleName",
                 "constants":        "gpf.HOST_UNKNOWN",
                 "events":           "gpf.events",
                 "include":          "gpf.web.include"
