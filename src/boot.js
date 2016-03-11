@@ -434,7 +434,6 @@ if ("undefined" !== typeof WScript) {
         script.language = "javascript";
         script.src = srcFileName;
         script = _gpfWebHead.insertBefore(script, _gpfWebHead.firstChild);
-        console.log(srcFileName);
         var source = srcFileName.split("/").pop().split(".")[0],
             test = {
                 "sources":          "gpf.sources",
