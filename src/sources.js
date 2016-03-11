@@ -9,9 +9,15 @@
     }
 
     var _sources = [
-    //  "boot",                                             // Loader
-        "compatibility",                                    // JavaScript compatibility helpers
-        "promise",                                          // Promise polyfill              gpf.Promise
+    //  "boot",                                             // Boot (host detection)
+    //  "loader",                                           // Loader for source version
+        "compatibility/array",                              // Array methods polyfill
+        "compatibility/date",                               // Date methods polyfill
+        "compatibility/function",                           // Function methods polyfill
+        "compatibility/object",                             // Object methods polyfill
+        "compatibility/string",                             // String methods polyfill
+        "compatibility/promise",                            // Promise polyfill              gpf.Promise
+        "compatibility",                                    // Polyfills installer
         "constants",                                        // Constants
         "events",                                           // Event management         gpf.events.Event
         "include",                                          // WEB include               gpf.web.include
