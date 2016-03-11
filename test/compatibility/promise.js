@@ -1,6 +1,6 @@
 "use strict";
 
-describe("promise", function () {
+describe("compatibility/promise", function () {
 
     function generateTests (PromiseClass) {
 
