@@ -434,6 +434,7 @@ if ("undefined" !== typeof WScript) {
         script.language = "javascript";
         script.src = srcFileName;
         script = _gpfWebHead.insertBefore(script, _gpfWebHead.firstChild);
+        console.log(srcFileName);
         var source = srcFileName.split("/").pop().split(".")[0],
             test = {
                 "sources":          "gpf.sources",
@@ -443,7 +444,7 @@ if ("undefined" !== typeof WScript) {
                 "object":           "_gpfCompatibility.Object",
                 "string":           "_gpfCompatibility.String",
                 "promise":          "gpf.Promise",
-                "compatibility":    "Function.prototype.compatibleName",
+                "compatibility":    "gpf.internals._gpfCompatibility",
                 "constants":        "gpf.HOST_UNKNOWN",
                 "events":           "gpf.events",
                 "include":          "gpf.web.include"
