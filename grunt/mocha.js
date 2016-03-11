@@ -9,6 +9,13 @@ module.exports = {
         },
         src: ["test/host/mocha/web.html"]
     },
+    verbose: {
+        options: {
+            log: true,
+            run: false
+        },
+        src: ["test/host/mocha/web.html"]
+    },
     debug: {
         options: {
             log: false,
