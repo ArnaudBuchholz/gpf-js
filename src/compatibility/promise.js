@@ -6,7 +6,7 @@
 /*#endif*/
 
 // Ensure the functions are called only once
-function safeResolve (fn, onFulfilled, onRejected) {
+function _gpfPromiseSafeResolve (fn, onFulfilled, onRejected) {
     var safe = true;
     function makeSafe (callback) {
         return function (value) {
@@ -26,7 +26,7 @@ function safeResolve (fn, onFulfilled, onRejected) {
     }
 }
 
-function finale () {
+function _gpfPromiseFinale () {
     /*jshint validthis:true*/
     var me = this; //eslint-disable-line no-invalid-this
     /*gpf:inline(array)*/ me._handlers.forEach(function (handler) {
@@ -40,7 +40,7 @@ function _gpfPromiseReject (newValue) {
     var me = this; //eslint-disable-line no-invalid-this
     me._state = false;
     me._value = newValue;
-    finale.call(me);
+    _gpfPromiseFinale.call(me);
 }
 
 //Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
@@ -52,20 +52,20 @@ function _gpfPromiseResolve (newValue) {
         if (newValue && (typeof newValue === "object" || typeof newValue === "function")) {
             var then = newValue.then;
             if ("function" === typeof then) {
-                safeResolve(then.bind(newValue), _gpfPromiseResolve.bind(me), _gpfPromiseReject.bind(me));
+                _gpfPromiseSafeResolve(then.bind(newValue), _gpfPromiseResolve.bind(me), _gpfPromiseReject.bind(me));
                 return;
             }
         }
         me._state = true;
         me._value = newValue;
-        finale.call(me);
+        _gpfPromiseFinale.call(me);
     } catch (e) {
         _gpfPromiseReject.call(me, e);
     }
 }
 
 var _GpfPromise = gpf.Promise = function (fn) {
-    safeResolve(fn, _gpfPromiseResolve.bind(this), _gpfPromiseReject.bind(this));
+    _gpfPromiseSafeResolve(fn, _gpfPromiseResolve.bind(this), _gpfPromiseReject.bind(this));
 };
 
 function _gpfPromiseHandler () {
