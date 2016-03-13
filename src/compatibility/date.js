@@ -119,19 +119,24 @@ function _GpfDate () {
     return _gpfGenericFactory.apply(_GpfGenuineDate, arguments);
 }
 
-// Copy members
-[
-    "prototype", // Ensure instanceof
-    "UTC",
-    "parse",
-    "now"
-].forEach(function (member) {
-    _GpfDate[member] = _GpfGenuineDate[member];
-});
-
 (function () {
-    var supported = false;
+    // Copy members
+    var members = [
+            "prototype", // Ensure instanceof
+            "UTC",
+            "parse",
+            "now"
+        ],
+        len = members.length,
+        idx,
+        member;
+    for (idx = 0; idx < len; ++idx) {
+        member = members[idx];
+        _GpfDate[member] = _GpfGenuineDate[member];
+    }
+
     // Test if ISO 8601 format variations are supported
+    var supported = false;
     try {
         var longDate = new Date("2003-01-22T22:45:34.075Z"),
             shortDate = new Date("2003-01-22");
