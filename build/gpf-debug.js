@@ -121,7 +121,13 @@
          *
          * @type {Object}
          */
-        _gpfNodePath;
+        _gpfNodePath,
+        /**
+         * Polyfills for missing 'standard' methods
+         *
+         * @type {Object}
+         */
+        _gpfCompatibility = {};
     /**
      * Translate the parameter into a valid scope
      *
@@ -392,40 +398,14 @@
     // Because tested in DEBUG
     if (!_gpfAssert) {
     }
-    var _gpfArrayPrototypeSlice = Array.prototype.slice;
-    /**
-     * Slice an array-like object
-     *
-     * @param {Object} array array-like parameter (arguments, Array)
-     * @param {Number} from
-     * @param {Number} [to=undefined] to
-     * @return {Array}
-     */
-    function _gpfArraySlice(array, from, to) {
-        return _gpfArrayPrototypeSlice.apply(array, [
-            from || 0,
-            to || array.length + 1
-        ]);
-    }
-    function _pad(number) {
-        if (10 > number) {
-            return "0" + number;
-        }
-        return number;
-    }
-    //region Polyfills for missing 'standard' methods
-    var _gpfCompatibility = {
-        Array: {
-            on: Array.prototype,
+    _gpfCompatibility.Array = {
+        on: Array,
+        methods: {
             // Introduced with JavaScript 1.6
             every: function (callback) {
                 var thisArg = arguments[1], len = this.length, idx;
                 for (idx = 0; idx < len; ++idx) {
-                    if (!callback.apply(thisArg, [
-                            this[idx],
-                            idx,
-                            this
-                        ])) {
+                    if (!callback.call(thisArg, this[idx], idx, this)) {
                         return false;
                     }
                 }
@@ -436,11 +416,7 @@
                 var thisArg = arguments[1], result = [], len = this.length, idx, item;
                 for (idx = 0; idx < len; ++idx) {
                     item = this[idx];
-                    if (callback.apply(thisArg, [
-                            this[idx],
-                            idx,
-                            this
-                        ])) {
+                    if (callback.call(thisArg, this[idx], idx, this)) {
                         result.push(item);
                     }
                 }
@@ -450,11 +426,7 @@
             forEach: function (callback) {
                 var thisArg = arguments[1], len = this.length, idx;
                 for (idx = 0; idx < len; ++idx) {
-                    callback.apply(thisArg, [
-                        this[idx],
-                        idx,
-                        this
-                    ]);
+                    callback.call(thisArg, this[idx], idx, this);
                 }
             },
             // Introduced with JavaScript 1.5
@@ -472,11 +444,7 @@
             map: function (callback) {
                 var thisArg = arguments[1], thisLength = this.length, result = new Array(thisLength), index;
                 for (index = 0; index < thisLength; ++index) {
-                    result[index] = callback.apply(thisArg, [
-                        this[index],
-                        index,
-                        this
-                    ]);
+                    result[index] = callback.call(thisArg, this[index], index, this);
                 }
                 return result;
             },
@@ -494,71 +462,36 @@
                 return value;
             }
         },
-        Function: {
-            on: Function.prototype,
-            // Introduced with JavaScript 1.8.5
-            bind: function (thisArg) {
-                var me = this, prependArgs = _gpfArraySlice(arguments, 1);
-                return function () {
-                    var args = _gpfArraySlice(arguments, 0);
-                    me.apply(thisArg, prependArgs.concat(args));
-                };
+        statics: {
+            // Introduced with ECMAScript 2015
+            from: function (arrayLike) {
+                var length = arrayLike.length, array = [], index, callback = arguments[1], thisArg = arguments[2];
+                if ("string" === typeof arrayLike) {
+                    // Required for cscript
+                    for (index = 0; index < length; ++index) {
+                        array.push(arrayLike.charAt(index));
+                    }
+                } else {
+                    for (index = 0; index < length; ++index) {
+                        array.push(arrayLike[index]);
+                    }
+                }
+                if ("function" === typeof callback) {
+                    array = array.map(callback, thisArg);
+                }
+                return array;
             }
-        },
-        Object: {
-            on: Object,
-            create: function () {
-                function Temp() {
-                }
-                return function (O) {
-                    Temp.prototype = O;
-                    var obj = new Temp();
-                    Temp.prototype = null;
-                    /* istanbul ignore if */
-                    // NodeJS does not use __proto__
-                    if (!obj.__proto__) {
-                        obj.__proto__ = O;
-                    }
-                    return obj;
-                };
-            }(),
-            getPrototypeOf: function (object) {
-                // May break if the constructor has been tampered with
-                return object.__proto__ || object.constructor.prototype;
-            },
-            // Introduced with JavaScript 1.8.5
-            keys: function (object) {
-                var result = [], key;
-                for (key in object) {
-                    if (object.hasOwnProperty(key)) {
-                        result.push(key);
-                    }
-                }
-                return result;
-            },
-            // Introduced with JavaScript 1.8.5
-            values: function (object) {
-                var result = [], key;
-                for (key in object) {
-                    if (object.hasOwnProperty(key)) {
-                        result.push(object[key]);
-                    }
-                }
-                return result;
-            }
-        },
-        String: {
-            on: String.prototype,
-            // Introduced with JavaScript 1.8.1
-            trim: function () {
-                var rtrim = new RegExp("^[\\s\uFEFF\xA0]+|[\\s\uFEFF\xA0]+$", "g");
-                return function () {
-                    return this.replace(rtrim, "");
-                };
-            }()
-        },
-        Date: {
-            on: Date.prototype,
+        }
+    };
+    function _pad(number) {
+        if (10 > number) {
+            return "0" + number;
+        }
+        return number;
+    }
+    _gpfCompatibility.Date = {
+        on: Date,
+        methods: {
             // Introduced with JavaScript 1.8
             toISOString: function () {
                 return [
@@ -580,66 +513,6 @@
             }
         }
     };
-    (function () {
-        var type, compatibleMethods;
-        function install(dictionary, methods) {
-            for (var name in methods) {
-                /* istanbul ignore else */
-                if (methods.hasOwnProperty(name)) {
-                    if (name === "on") {
-                        continue;
-                    }
-                    /* istanbul ignore if */
-                    // NodeJS environment already contains all methods
-                    if (undefined === dictionary[name]) {
-                        dictionary[name] = methods[name];
-                    }
-                }
-            }
-        }
-        for (type in _gpfCompatibility) {
-            /* istanbul ignore else */
-            if (_gpfCompatibility.hasOwnProperty(type)) {
-                compatibleMethods = _gpfCompatibility[type];
-                install(compatibleMethods.on, compatibleMethods);
-            }
-        }
-    }());
-    //endregion
-    //region Function name
-    // Get the name of a function if bound to the call
-    var _gpfJsCommentsRegExp = new RegExp("//.*$|/\\*(?:[^\\*]*|\\*[^/]*)\\*/", "gm");
-    function _gpfGetFunctionName() {
-        // Use simple parsing
-        /*jshint validthis:true*/
-        var functionSource = Function.prototype.toString.apply(this),
-            //eslint-disable-line no-invalid-this
-            functionKeywordPos = functionSource.indexOf("function"), parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
-        return functionSource.substr(functionKeywordPos + 9, parameterListStartPos - functionKeywordPos - 9).replace(_gpfJsCommentsRegExp, "")    // remove comments
-.trim();
-    }
-    // Handling function name properly
-    /* istanbul ignore if */
-    // NodeJS exposes Function.prototype.name
-    if (function () {
-            /* istanbul ignore next */
-            // Will never be evaluated
-            function functionName() {
-            }
-            return functionName.name !== "functionName";
-        }()) {
-        Function.prototype.compatibleName = _gpfGetFunctionName;
-    } else {
-        /**
-         * Return function name
-         *
-         * @return {String}
-         */
-        Function.prototype.compatibleName = function () {
-            return this.name;
-        };
-    }
-    //endregion
     //region Date override
     var _gpfISO8601RegExp = new RegExp([
         "^([0-9][0-9][0-9][0-9])",
@@ -704,19 +577,21 @@
         }
         return _gpfGenericFactory.apply(_GpfGenuineDate, arguments);
     }
-    // Copy members
-    [
-        "prototype",
-        // Ensure instanceof
-        "UTC",
-        "parse",
-        "now"
-    ].forEach(function (member) {
-        _GpfDate[member] = _GpfGenuineDate[member];
-    });
     (function () {
-        var supported = false;
+        // Copy members
+        var members = [
+                "prototype",
+                // Ensure instanceof
+                "UTC",
+                "parse",
+                "now"
+            ], len = members.length, idx, member;
+        for (idx = 0; idx < len; ++idx) {
+            member = members[idx];
+            _GpfDate[member] = _GpfGenuineDate[member];
+        }
         // Test if ISO 8601 format variations are supported
+        var supported = false;
         try {
             var longDate = new Date("2003-01-22T22:45:34.075Z"), shortDate = new Date("2003-01-22");
             supported = 2003 === longDate.getUTCFullYear() && 0 === longDate.getUTCMonth() && 22 === longDate.getUTCDate() && 22 === longDate.getUTCHours() && 45 === longDate.getUTCMinutes() && 34 === longDate.getUTCSeconds() && 75 === longDate.getUTCMilliseconds() && 2003 === shortDate.getUTCFullYear() && 0 === shortDate.getUTCMonth() && 22 === shortDate.getUTCDate();
@@ -730,7 +605,119 @@
             _gpfMainContext.Date = _GpfDate;
         }
     }());    //endregion
-    function safeResolve(fn, onFulfilled, onRejected) {
+    var _gpfArrayPrototypeSlice = Array.prototype.slice;
+    _gpfCompatibility.Function = {
+        on: Function,
+        methods: {
+            // Introduced with JavaScript 1.8.5
+            bind: function (thisArg) {
+                var me = this, prependArgs = _gpfArrayPrototypeSlice.call(arguments, 1);
+                return function () {
+                    var args = _gpfArrayPrototypeSlice.call(arguments, 0);
+                    me.apply(thisArg, prependArgs.concat(args));
+                };
+            }
+        }
+    };
+    //region Function name
+    // Get the name of a function if bound to the call
+    var _gpfJsCommentsRegExp = new RegExp("//.*$|/\\*(?:[^\\*]*|\\*[^/]*)\\*/", "gm");
+    function _gpfGetFunctionName() {
+        // Use simple parsing
+        /*jshint validthis:true*/
+        var functionSource = Function.prototype.toString.call(this),
+            //eslint-disable-line no-invalid-this
+            functionKeywordPos = functionSource.indexOf("function"), parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
+        return functionSource.substr(functionKeywordPos + 9, parameterListStartPos - functionKeywordPos - 9).replace(_gpfJsCommentsRegExp, "")    // remove comments
+.trim();
+    }
+    // Handling function name properly
+    /* istanbul ignore if */
+    // NodeJS exposes Function.prototype.name
+    if (function () {
+            /* istanbul ignore next */
+            // Will never be evaluated
+            function functionName() {
+            }
+            return functionName.name !== "functionName";
+        }()) {
+        Function.prototype.compatibleName = _gpfGetFunctionName;
+    } else {
+        /**
+         * Return function name
+         *
+         * @return {String}
+         */
+        Function.prototype.compatibleName = function () {
+            return this.name;
+        };
+    }    //endregion
+    _gpfCompatibility.Object = {
+        on: Object,
+        statics: {
+            // Introduced with JavaScript 1.8.5
+            create: function () {
+                function Temp() {
+                }
+                return function (O) {
+                    Temp.prototype = O;
+                    var obj = new Temp();
+                    Temp.prototype = null;
+                    /* istanbul ignore if */
+                    // NodeJS implements __proto__
+                    if (!obj.__proto__) {
+                        obj.__proto__ = O;
+                    }
+                    return obj;
+                };
+            }(),
+            // Introduced with JavaScript 1.8.5
+            getPrototypeOf: function (object) {
+                /* istanbul ignore else */
+                // NodeJS implements __proto__
+                if (object.__proto__) {
+                    return object.__proto__;
+                }
+                /* istanbul ignore next */
+                // NodeJS implements __proto__
+                // May break if the constructor has been tampered with
+                return object.constructor.prototype;
+            },
+            // Introduced with JavaScript 1.8.5
+            keys: function (object) {
+                var result = [], key;
+                for (key in object) {
+                    if (object.hasOwnProperty(key)) {
+                        result.push(key);
+                    }
+                }
+                return result;
+            },
+            // Introduced with JavaScript 1.8.5
+            values: function (object) {
+                var result = [], key;
+                for (key in object) {
+                    if (object.hasOwnProperty(key)) {
+                        result.push(object[key]);
+                    }
+                }
+                return result;
+            }
+        }
+    };
+    _gpfCompatibility.String = {
+        on: String,
+        methods: {
+            // Introduced with JavaScript 1.8.1
+            trim: function () {
+                var rtrim = new RegExp("^[\\s\uFEFF\xA0]+|[\\s\uFEFF\xA0]+$", "g");
+                return function () {
+                    return this.replace(rtrim, "");
+                };
+            }()
+        }
+    };
+    function _gpfPromiseSafeResolve(fn, onFulfilled, onRejected) {
         var safe = true;
         function makeSafe(callback) {
             return function (value) {
@@ -749,7 +736,7 @@
             }
         }
     }
-    function finale() {
+    function _gpfPromiseFinale() {
         /*jshint validthis:true*/
         var me = this;
         //eslint-disable-line no-invalid-this
@@ -765,7 +752,7 @@
         //eslint-disable-line no-invalid-this
         me._state = false;
         me._value = newValue;
-        finale.call(me);
+        _gpfPromiseFinale.call(me);
     }
     //Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
     function _gpfPromiseResolve(newValue) {
@@ -777,19 +764,19 @@
             if (newValue && (typeof newValue === "object" || typeof newValue === "function")) {
                 var then = newValue.then;
                 if ("function" === typeof then) {
-                    safeResolve(then.bind(newValue), _gpfPromiseResolve.bind(me), _gpfPromiseReject.bind(me));
+                    _gpfPromiseSafeResolve(then.bind(newValue), _gpfPromiseResolve.bind(me), _gpfPromiseReject.bind(me));
                     return;
                 }
             }
             me._state = true;
             me._value = newValue;
-            finale.call(me);
+            _gpfPromiseFinale.call(me);
         } catch (e) {
-            _gpfPromiseReject.apply(me, [e]);
+            _gpfPromiseReject.call(me, e);
         }
     }
     var _GpfPromise = gpf.Promise = function (fn) {
-        safeResolve(fn, _gpfPromiseResolve.bind(this), _gpfPromiseReject.bind(this));
+        _gpfPromiseSafeResolve(fn, _gpfPromiseResolve.bind(this), _gpfPromiseReject.bind(this));
     };
     function _gpfPromiseHandler() {
     }
@@ -912,6 +899,34 @@
     if (undefined === _gpfMainContext.Promise) {
         _gpfMainContext.Promise = _GpfPromise;
     }
+    (function () {
+        var type, overrides;
+        function install(dictionary, methods) {
+            for (var name in methods) {
+                /* istanbul ignore else */
+                if (methods.hasOwnProperty(name)) {
+                    /* istanbul ignore if */
+                    // NodeJS environment already contains all methods
+                    if (undefined === dictionary[name]) {
+                        dictionary[name] = methods[name];
+                    }
+                }
+            }
+        }
+        for (type in _gpfCompatibility) {
+            /* istanbul ignore else */
+            if (_gpfCompatibility.hasOwnProperty(type)) {
+                overrides = _gpfCompatibility[type];
+                var on = overrides.on;
+                if (overrides.methods) {
+                    install(on.prototype, overrides.methods);
+                }
+                if (overrides.statics) {
+                    install(on, overrides.statics);
+                }
+            }
+        }
+    }());
     var
         //region Events
         _GPF_EVENT_ANY = "*", _GPF_EVENT_ERROR = "error", _GPF_EVENT_READY = "ready", _GPF_EVENT_DATA = "data", _GPF_EVENT_END_OF_DATA = "endOfData", _GPF_EVENT_CONTINUE = "continue", _GPF_EVENT_STOP = "stop", _GPF_EVENT_STOPPED = "stopped",
@@ -1143,11 +1158,7 @@
      * @return {gpf.events.Event} this
      */
     _GpfEvent.prototype.fire = function (eventsHandler) {
-        return _gpfEventsFire.apply(this, [
-            this,
-            {},
-            eventsHandler
-        ]);
+        return _gpfEventsFire.call(this, this, {}, eventsHandler);
     };
     /**
      * Use the provided events handler to fire an event
@@ -1172,11 +1183,7 @@
             eventsHandler = params;
             params = {};
         }
-        return _gpfEventsFire.apply(scope, [
-            event,
-            params,
-            eventsHandler
-        ]);
+        return _gpfEventsFire.call(scope, event, params, eventsHandler);
     };
     /**
      * Wraps a function that signals events so that it can be used with promises (by letting the eventHandler parameter
@@ -1393,11 +1400,7 @@
     function _gpfArrayForEach(array, callback, thisArg) {
         var index, length = array.length;
         for (index = 0; index < length; ++index) {
-            callback.apply(thisArg, [
-                array[index],
-                index,
-                array
-            ]);
+            callback.call(thisArg, array[index], index, array);
         }
     }
     /**
@@ -1414,11 +1417,7 @@
         for (var property in object) {
             /* istanbul ignore else */
             if (object.hasOwnProperty(property)) {
-                callback.apply(thisArg, [
-                    object[property],
-                    property,
-                    object
-                ]);
+                callback.call(thisArg, object[property], property, object);
             }
         }
     }
@@ -2147,11 +2146,7 @@
     function _gpfTriggerListeners(eventObj, eventListeners) {
         var index, length = eventListeners.length;
         for (index = 0; index < length; ++index) {
-            _gpfEventsFire.apply(eventObj.scope, [
-                eventObj,
-                {},
-                eventListeners[index]
-            ]);
+            _gpfEventsFire.call(eventObj.scope, eventObj, {}, eventListeners[index]);
         }
     }
     /**
@@ -4133,11 +4128,7 @@
             forEach: function (callback, thisArg) {
                 _gpfObjectForEach(this._members, function (attributes, member, dictionary) {
                     /*gpf:inline(object)*/
-                    callback.apply(thisArg, [
-                        attributes,
-                        _gpfDecodeAttributeMember(member),
-                        dictionary
-                    ]);
+                    callback.call(thisArg, attributes, _gpfDecodeAttributeMember(member), dictionary);
                 });
             }
         }
@@ -4823,11 +4814,7 @@
     function _gpfEnumeratorEach(enumerator, callback, eventsHandler) {
         var iEnumerator = _gpfI.query(enumerator, _gpfI.IEnumerator), process;
         function end(event) {
-            _gpfEventsFire.apply(enumerator, [
-                event,
-                {},
-                eventsHandler
-            ]);
+            _gpfEventsFire.call(enumerator, event, {}, eventsHandler);
         }
         if (1 < callback.length) {
             process = function (event) {
@@ -4876,11 +4863,7 @@
                 ++pos;
                 result = pos < array.length;
                 if (!result && eventsHandler) {
-                    _gpfEventsFire.apply(this, [
-                        _GPF_EVENT_END_OF_DATA,
-                        {},
-                        eventsHandler
-                    ]);
+                    _gpfEventsFire.call(this, _GPF_EVENT_END_OF_DATA, {}, eventsHandler);
                 }
                 return result;
             },
@@ -5270,26 +5253,14 @@
                         iFileStorage.getInfo(listOfPaths[pos], function (event) {
                             if (_GPF_EVENT_ERROR === event.type) {
                                 // forward the event
-                                _gpfEventsFire.apply(me, [
-                                    event,
-                                    {},
-                                    eventsHandler
-                                ]);
+                                _gpfEventsFire.call(me, event, {}, eventsHandler);
                                 return;
                             }
                             info = event.get("info");
-                            _gpfEventsFire.apply(me, [
-                                _GPF_EVENT_DATA,
-                                {},
-                                eventsHandler
-                            ]);
+                            _gpfEventsFire.call(me, _GPF_EVENT_DATA, {}, eventsHandler);
                         });
                     } else {
-                        _gpfEventsFire.apply(me, [
-                            _GPF_EVENT_END_OF_DATA,
-                            {},
-                            eventsHandler
-                        ]);
+                        _gpfEventsFire.call(me, _GPF_EVENT_END_OF_DATA, {}, eventsHandler);
                     }
                 }
                 return false;
@@ -5423,11 +5394,7 @@
     // gpf.events.EVENT_END_OF_DATA event handler
     _GpfStreamPipe.prototype[_GPF_EVENT_END_OF_DATA] = function (event) {
         _gpfIgnore(event);
-        _gpfEventsFire.apply(this, [
-            _GPF_EVENT_READY,
-            {},
-            this._eventsHandler
-        ]);
+        _gpfEventsFire.call(this, _GPF_EVENT_READY, {}, this._eventsHandler);
     };
     // gpf.events.EVENT_DATA event handler
     _GpfStreamPipe.prototype[_GPF_EVENT_DATA] = function (event) {
@@ -5437,11 +5404,7 @@
     // gpf.events.EVENT_ANY event handler
     _GpfStreamPipe.prototype[_GPF_EVENT_ANY] = function (event) {
         // Forward to original handler (error or data)
-        _gpfEventsFire.apply(this, [
-            event,
-            {},
-            this._eventsHandler
-        ]);
+        _gpfEventsFire.call(this, event, {}, this._eventsHandler);
     };
     /**
      * Creates a pipe that transfer data from the readable stream to writable one
@@ -5543,18 +5506,10 @@
             read: function (count, eventsHandler) {
                 var result;
                 if (0 === this._buffer.length) {
-                    _gpfEventsFire.apply(this, [
-                        _GPF_EVENT_END_OF_DATA,
-                        {},
-                        eventsHandler
-                    ]);
+                    _gpfEventsFire.call(this, _GPF_EVENT_END_OF_DATA, {}, eventsHandler);
                 } else {
                     result = _gpfStringArrayExtract(this._buffer, count);
-                    _gpfEventsFire.apply(this, [
-                        _GPF_EVENT_DATA,
-                        { buffer: result },
-                        eventsHandler
-                    ]);
+                    _gpfEventsFire.call(this, _GPF_EVENT_DATA, { buffer: result }, eventsHandler);
                 }
             },
             //endregion
@@ -5563,11 +5518,7 @@
             write: function (buffer, eventsHandler) {
                 _gpfAssert("string" === typeof buffer && buffer.length, "String buffer must contain data");
                 this._buffer.push(buffer);
-                _gpfEventsFire.apply(this, [
-                    _GPF_EVENT_READY,
-                    {},
-                    eventsHandler
-                ]);
+                _gpfEventsFire.call(this, _GPF_EVENT_READY, {}, eventsHandler);
             },
             //endregion
             /**
@@ -5684,18 +5635,10 @@
             read: function (count, eventsHandler) {
                 var result;
                 if (0 === this._buffer.length) {
-                    _gpfEventsFire.apply(this, [
-                        _GPF_EVENT_END_OF_DATA,
-                        {},
-                        eventsHandler
-                    ]);
+                    _gpfEventsFire.call(this, _GPF_EVENT_END_OF_DATA, {}, eventsHandler);
                 } else {
                     result = this._buffer.splice(0, count);
-                    _gpfEventsFire.apply(this, [
-                        _GPF_EVENT_DATA,
-                        { buffer: result },
-                        eventsHandler
-                    ]);
+                    _gpfEventsFire.call(this, _GPF_EVENT_DATA, { buffer: result }, eventsHandler);
                 }
             },
             //endregion
@@ -5704,11 +5647,7 @@
             write: function (buffer, eventsHandler) {
                 _gpfAssert(buffer instanceof Array, "Array expected");
                 this._buffer = this._buffer.concat(buffer);
-                _gpfEventsFire.apply(this, [
-                    _GPF_EVENT_READY,
-                    {},
-                    eventsHandler
-                ]);
+                _gpfEventsFire.call(this, _GPF_EVENT_READY, {}, eventsHandler);
             },
             //endregion
             /**
