@@ -1,17 +1,27 @@
 "use strict";
 
 var path = require("path"),
-    gpfPath = path.resolve(__dirname, "../..");
-
-var webdriver = require("selenium-webdriver"),
+    gpfPath = path.resolve(__dirname, "../.."),
+    args = process.argv.slice(2),
+    browser = args[0],
+    version,
+    errorCount,
+    webDriver = require("selenium-webdriver"),
     By = require("selenium-webdriver").By,
-    until = require("selenium-webdriver").until;
+    until = require("selenium-webdriver").until,
+    driver = new webDriver.Builder()
+        .forBrowser(browser)
+        .build();
 
-var driver = new webdriver.Builder()
-    .forBrowser("chrome") // or firefox
-    .build();
+if ("-release" === args[1]) {
+    version = "?release";
+} else if ("-debug" === args[1]) {
+    version = "?debug";
+} else {
+    version = "";
+}
 
-driver.get("file://" + gpfPath + "/test/host/web.html");
+driver.get("file://" + gpfPath + "/test/host/web.html" + version);
 driver.wait(until.titleIs("GPF Tests - done"), 5000);
 driver.findElements(By.id("status"))
     .then(function (elements) {
@@ -19,5 +29,14 @@ driver.findElements(By.id("status"))
     })
     .then(function (text) {
         console.log(text);
-        driver.quit();
+        if (0 === text.indexOf("OK")) {
+            errorCount = 0;
+        } else {
+            // Search for failure: <number> <timespent>
+            errorCount = parseInt(text.split("failure: ")[1].split(" ")[0], 10);
+        }
+        return driver.quit();
+    })
+    .then(function () {
+        process.exit(errorCount);
     });
