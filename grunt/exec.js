@@ -2,58 +2,11 @@
 
 var CSCRIPT_CMD = "cscript.exe /D /E:JScript test\\host\\cscript.js",
     RHINO_CMD = "java -jar node_modules\\rhino-1_7r5-bin\\rhino1_7R5\\js.jar test\\host\\rhino.js",
-    PLATO_CMD = "node node_modules\\plato\\bin\\plato";
+    PLATO_CMD = "node node_modules\\plato\\bin\\plato",
+    SELENIUM_CMD = "node test\\host\\selenium.js";
 
 // Custom command lines
 module.exports = {
-    testRhino: {
-        command: RHINO_CMD,
-        stdout: false,
-        stderr: false,
-        exitCode: 0
-    },
-    testRhinoVerbose: {
-        command: RHINO_CMD,
-        stdout: true,
-        stderr: true,
-        exitCode: 0
-    },
-    testRhinoDebug: {
-        command: RHINO_CMD + " -debug",
-        stdout: false,
-        stderr: false,
-        exitCode: 0
-    },
-    testRhinoRelease: {
-        command: RHINO_CMD + " -release",
-        stdout: false,
-        stderr: false,
-        exitCode: 0
-    },
-    testWscript: {
-        command: CSCRIPT_CMD,
-        stdout: false,
-        stderr: false,
-        exitCode: 0
-    },
-    testWscriptVerbose: {
-        command: CSCRIPT_CMD + " -debugger",
-        stdout: true,
-        stderr: true,
-        exitCode: 0
-    },
-    testWscriptDebug: {
-        command: CSCRIPT_CMD + " -debug",
-        stdout: false,
-        stderr: false,
-        exitCode: 0
-    },
-    testWscriptRelease: {
-        command: CSCRIPT_CMD + " -release",
-        stdout: false,
-        stderr: false,
-        exitCode: 0
-    },
     buildDebug: {
         command: "node make.js debug",
         cwd: "make",
@@ -92,3 +45,35 @@ module.exports = {
         exitCode: 0
     }
 };
+
+function _buildTestConfig(name, command) {
+    module.exports["test" + name] = {
+        command: command,
+        stdout: false,
+        stderr: false,
+        exitCode: 0
+    };
+    module.exports["test" + name + "Verbose"] = {
+        command: command + " -debugger",
+        stdout: true,
+        stderr: true,
+        exitCode: 0
+    };
+    module.exports["test" + name + "Debug"] = {
+        command: command + " -debug",
+        stdout: false,
+        stderr: false,
+        exitCode: 0
+    };
+    module.exports["test" + name + "Release"] = {
+        command: command + " -release",
+        stdout: false,
+        stderr: false,
+        exitCode: 0
+    };
+}
+
+_buildTestConfig("Wscript", CSCRIPT_CMD);
+_buildTestConfig("Rhino", RHINO_CMD);
+_buildTestConfig("Chrome", SELENIUM_CMD + " chrome");
+_buildTestConfig("Firefox", SELENIUM_CMD + " firefox");
