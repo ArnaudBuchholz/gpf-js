@@ -146,7 +146,10 @@ load("bdd.js", function () {
             line = lines.pop();
             insertLines(); // flush
             results = document.getElementById("results");
+            // Tweak the line so that it can be retreived
+            line = line.replace("<tr class", "<tr id=\"status\" class");
             results.innerHTML = line + results.innerHTML;
+            document.title = "GPF Tests - done";
         }
     });
 });
