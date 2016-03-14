@@ -42,6 +42,7 @@
     "mocha": "2.2.5",
     "plato": "^1.4.0",
     "rhino-1_7r5-bin": "^1.0.1",
+    "selenium-webdriver": "^2.52.0",
     "time-grunt": "^1.2.2"
   }
 }
