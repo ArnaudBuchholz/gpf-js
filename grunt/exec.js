@@ -46,7 +46,7 @@ module.exports = {
     }
 };
 
-function _buildTestConfig(name, command) {
+function _buildTestConfig (name, command) {
     module.exports["test" + name] = {
         command: command,
         stdout: false,
