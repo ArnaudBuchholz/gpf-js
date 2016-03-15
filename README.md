@@ -83,7 +83,7 @@ Lines of Code|7455|*Average per module: 191*
         * `grunt exec:testRhinoVerbose` *(alias: `grunt rhino`)*
         * `grunt exec:testRhinoDebug`
         * `grunt exec:testRhinoRelease`
-    * testing with browsers using [Selenium](http://www.seleniumhq.org/)(http://www.seleniumhq.org/):
+    * testing with browsers using [Selenium](http://www.seleniumhq.org/):
         * you must first run `node detectSelenium` to check drivers installation
         * `grunt firefox`
         * `grunt chrome`
