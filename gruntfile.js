@@ -19,9 +19,45 @@ module.exports = function (grunt) {
         return false;
     });
 
+    function _isSeleniumDriverInstalled (name) {
+        if (!_isSeleniumDriverInstalled.list) {
+            try {
+                _isSeleniumDriverInstalled.list = grunt.file.readJSON("tmp/selenium.json");
+            } catch (e) {
+                _isSeleniumDriverInstalled.list = 0;
+            }
+        }
+        if (!_isSeleniumDriverInstalled.list) {
+            var list = _isSeleniumDriverInstalled.list = [];
+            console.log("Building tmp/selenium.json");
+            grunt.file.mkdir("tmp");
+            _isSeleniumDriverInstalled.list = [];
+            var webDriver = require("selenium-webdriver");
+            [
+                "chrome",
+                "firefox",
+                "ie"
+            ].forEach(function (browser) {
+                try {
+                    var driver = new webDriver.Builder()
+                        .forBrowser(browser)
+                        .build();
+                    console.log("Adding " + browser);
+                    list.push(browser);
+                    driver.quit();
+                } catch (e) {
+                    console.log(browser + " not detected");
+                }
+            });
+            grunt.file.write("tmp/selenium.json", JSON.stringify(list));
+        }
+        return -1 < _isSeleniumDriverInstalled.list.indexOf(name);
+    }
+
     // Since the tasks are split using load-grunt-config, I need a global object containing the configuration
     global.configuration = {
         pkg: grunt.file.readJSON("./package.json"),
+        isSeleniumDriverInstalled: _isSeleniumDriverInstalled,
         srcFiles: srcFiles,
         testFiles: testFiles,
         jsLintedFiles: [
