@@ -84,7 +84,7 @@ Lines of Code|7455|*Average per module: 191*
         * `grunt exec:testRhinoDebug`
         * `grunt exec:testRhinoRelease`
 
-* With [Selenium](http://www.seleniumhq.org/)(http://www.seleniumhq.org/):
+* With [Selenium](http://www.seleniumhq.org/)(http://www.seleniumhq.org/) :
 you must first run `node detectSelenium` to check drivers installation
         * `grunt firefox`
         * `grunt chrome`
