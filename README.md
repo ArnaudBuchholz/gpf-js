@@ -77,12 +77,12 @@ Lines of Code|7455|*Average per module: 191*
         * `grunt mochaTest:release`
     * testing with cscript:
         * `grunt exec:testWscript`
-        * `grunt exec:testWscriptVerbose *(alias: grunt wscript)*`
+        * `grunt exec:testWscriptVerbose` *(alias: `grunt wscript`)*
         * `grunt exec:testWscriptDebug`
         * `grunt exec:testWscriptRelease`
     * testing with rhino:
         * `grunt exec:testRhino`
-        * `grunt exec:testRhinoVerbose  *(alias: grunt rhino)*`
+        * `grunt exec:testRhinoVerbose` *(alias: `grunt rhino`)*
         * `grunt exec:testRhinoDebug`
         * `grunt exec:testRhinoRelease`
 * With [Selenium](http://www.seleniumhq.org/)(http://www.seleniumhq.org/): you must first run `node detectSelenium` to check drivers installation
