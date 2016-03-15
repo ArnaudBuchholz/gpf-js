@@ -66,30 +66,30 @@ Lines of Code|7455|*Average per module: 191*
     * `java -jar node_modules\rhino-1_7r5-bin\rhino1_7R5\js.jar test\host\rhino.js`
 * With [grunt](http://gruntjs.com/):
     * testing with PhantomJS (as a browser):
-        `* grunt mocha`
-        `* grunt mocha:source`
-        `* grunt mocha:debug`
-        `* grunt mocha:release`
+        * `grunt mocha`
+        * `grunt mocha:source`
+        * `grunt mocha:debug`
+        * `grunt mocha:release`
     * testing with NodeJS:
-        `* grunt mochaTest`
-        `* grunt mochaTest:source`
-        `* grunt mochaTest:debug`
-        `* grunt mochaTest:release`
+        * `grunt mochaTest`
+        * `grunt mochaTest:source`
+        * `grunt mochaTest:debug`
+        * `grunt mochaTest:release`
     * testing with cscript:
-        `* grunt exec:testWscript`
-        `* grunt exec:testWscriptVerbose *(alias: grunt wscript)*`
-        `* grunt exec:testWscriptDebug`
-        `* grunt exec:testWscriptRelease`
+        * `grunt exec:testWscript`
+        * `grunt exec:testWscriptVerbose *(alias: grunt wscript)*`
+        * `grunt exec:testWscriptDebug`
+        * `grunt exec:testWscriptRelease`
     * testing with rhino:
-        `* grunt exec:testRhino`
-        `* grunt exec:testRhinoVerbose  *(alias: grunt rhino)*`
-        `* grunt exec:testRhinoDebug`
-        `* grunt exec:testRhinoRelease`
+        * `grunt exec:testRhino`
+        * `grunt exec:testRhinoVerbose  *(alias: grunt rhino)*`
+        * `grunt exec:testRhinoDebug`
+        * `grunt exec:testRhinoRelease`
 * With [Selenium](http://www.seleniumhq.org/)(http://www.seleniumhq.org/): you must first run `node detectSelenium` to check drivers installation
-        `* grunt firefox`
-        `* grunt chrome`
-        `* grunt ie`
-        `* grunt safari`
+        * `grunt firefox`
+        * `grunt chrome`
+        * `grunt ie`
+        * `grunt safari`
 
 ## Credits
 
