@@ -47,10 +47,8 @@ Lines of Code|7455|*Average per module: 191*
 ## Setup
 
 * Clone repository
-* at the root of the cloned repository
-`npm install`
-* if you plan to use [Selenium](http://www.seleniumhq.org/)
-`node detectSelenium`
+* at the root of the cloned repository: `npm install`
+* if you plan to use [Selenium](http://www.seleniumhq.org/): `node detectSelenium`
 * ... enjoy!
 
 ## Testing
@@ -85,7 +83,9 @@ Lines of Code|7455|*Average per module: 191*
         * `grunt exec:testRhinoVerbose` *(alias: `grunt rhino`)*
         * `grunt exec:testRhinoDebug`
         * `grunt exec:testRhinoRelease`
-* With [Selenium](http://www.seleniumhq.org/)(http://www.seleniumhq.org/): you must first run `node detectSelenium` to check drivers installation
+
+* With [Selenium](http://www.seleniumhq.org/)(http://www.seleniumhq.org/):
+you must first run `node detectSelenium` to check drivers installation
         * `grunt firefox`
         * `grunt chrome`
         * `grunt ie`
