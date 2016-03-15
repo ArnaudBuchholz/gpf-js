@@ -40,48 +40,56 @@ Statements coverage|99%|*9% ignored*
 Branches coverage|98%|*10% ignored*
 Functions coverage|99%|*13% ignored*
 Average maintainability|72.99|
-Number of tests|589|*pending: 1, duration: 372ms*
+Number of tests|589|*pending: 1, duration: 1348ms*
 Number of modules|37|
 Lines of Code|7455|*Average per module: 191*
 
 ## Setup
 
 * Clone repository
-* npm install at the root of the cloned repository
+* at the root of the cloned repository
+`npm install`
+* if you plan to use [Selenium](http://www.seleniumhq.org/)
+`node detectSelenium`
 * ... enjoy!
 
 ## Testing
 
-* With mocha (relative to gpf-js root folder):
-    * file:///./test/host/mocha/web.html
-    * node test/host/mocha/nodejs.js
+* With [mocha](https://mochajs.org/) (relative to gpf-js root folder):
+    * `file:///./test/host/mocha/web.html`
+    * `node test/host/mocha/nodejs.js`
 * Without mocha (relative to gpf-js root folder):
-    * file:///./test/host/web.html
-    * node test/host/nodejs.js
-    * phantomjs test/host/phantomjs.js
-    * cscript /E:jscript test\host\cscript.js
-    * java -jar node_modules\rhino-1_7r5-bin\rhino1_7R5\js.jar test\host\rhino.js
-* With grunt:
+    * `file:///./test/host/web.html`
+    * `node test/host/nodejs.js`
+    * `phantomjs test/host/phantomjs.js`
+    * `cscript /E:jscript test\host\cscript.js`
+    * `java -jar node_modules\rhino-1_7r5-bin\rhino1_7R5\js.jar test\host\rhino.js`
+* With [grunt](http://gruntjs.com/):
     * testing with PhantomJS (as a browser):
-        * grunt mocha
-        * grunt mocha:source
-        * grunt mocha:debug
-        * grunt mocha:release
+        `* grunt mocha`
+        `* grunt mocha:source`
+        `* grunt mocha:debug`
+        `* grunt mocha:release`
     * testing with NodeJS:
-        * grunt mochaTest
-        * grunt mochaTest:source
-        * grunt mochaTest:debug
-        * grunt mochaTest:release
+        `* grunt mochaTest`
+        `* grunt mochaTest:source`
+        `* grunt mochaTest:debug`
+        `* grunt mochaTest:release`
     * testing with cscript:
-        * grunt exec:testWscript
-        * grunt exec:testWscriptVerbose
-        * grunt exec:testWscriptDebug
-        * grunt exec:testWscriptRelease
+        `* grunt exec:testWscript`
+        `* grunt exec:testWscriptVerbose *(alias: grunt wscript)*`
+        `* grunt exec:testWscriptDebug`
+        `* grunt exec:testWscriptRelease`
     * testing with rhino:
-        * grunt exec:testRhino
-        * grunt exec:testRhinoVerbose
-        * grunt exec:testRhinoDebug
-        * grunt exec:testRhinoRelease
+        `* grunt exec:testRhino`
+        `* grunt exec:testRhinoVerbose  *(alias: grunt rhino)*`
+        `* grunt exec:testRhinoDebug`
+        `* grunt exec:testRhinoRelease`
+* With [Selenium](http://www.seleniumhq.org/)(http://www.seleniumhq.org/): you must first run `node detectSelenium` to check drivers installation
+        `* grunt firefox`
+        `* grunt chrome`
+        `* grunt ie`
+        `* grunt safari`
 
 ## Credits
 
