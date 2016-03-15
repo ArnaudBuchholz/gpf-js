@@ -77,9 +77,6 @@ function _buildTestConfig (name, command) {
 
 _buildTestConfig("Wscript", CSCRIPT_CMD);
 _buildTestConfig("Rhino", RHINO_CMD);
-if (configuration.isSeleniumDriverInstalled("chrome")) {
-    _buildTestConfig("Chrome", SELENIUM_CMD + " chrome");
-}
-if (configuration.isSeleniumDriverInstalled("firefox")) {
-    _buildTestConfig("Firefox", SELENIUM_CMD + " firefox");
-}
+configuration.selenium.forEach(function (browser) {
+    _buildTestConfig(browser.charAt(0).toUpperCase() + browser.substr(1), SELENIUM_CMD + " " + browser);
+});
