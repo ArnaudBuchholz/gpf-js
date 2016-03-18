@@ -34,12 +34,11 @@ module.exports = function (grunt) {
         testFiles: testFiles,
         jsLintedFiles: [
             "Gruntfile.js",
-            "grunt/*.js",
+            "grunt/**/*.js",
             "statistics.js",
             ".eslintrules/*.js",
             "make/*.js",
-            "test/host/*.js",
-            "test/host/mocha/nodejs.js",
+            "test/host/**/*.js",
             "res/*.js"
         ]
             .concat(srcFiles)
