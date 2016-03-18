@@ -5,8 +5,8 @@ module.exports = function (grunt) {
         "instrument",
         "fixInstrument",
         "mochaTest:coverage",
-        "restoreConsole",
         "storeCoverage",
-        "makeReport"
+        "makeReport",
+        "coverage"
     ]);
 };
