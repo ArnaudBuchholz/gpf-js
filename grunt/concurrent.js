@@ -9,11 +9,37 @@ configuration.selenium.forEach(function (browser) {
 });
 
 module.exports = {
-    source: ["mocha:source"].concat(testTasks),
-    debug: ["mocha:debug", "mochaTest:debug"].concat(testTasks.map(function (name) {
+
+    // Linters
+    linters: [
+        "jshint",
+        "eslint"
+    ],
+
+    // Code quality tools
+    quality: [
+        "istanbul",
+        "plato"
+    ],
+
+    // Tests on sources
+    source: [
+        "mocha:source"
+    ].concat(testTasks),
+
+    // Tests on debug version
+    debug: [
+        "mocha:debug",
+        "mochaTest:debug"
+    ].concat(testTasks.map(function (name) {
         return name + "Debug";
     })),
-    release: ["mocha:release", "mochaTest:release"].concat(testTasks.map(function (name) {
+
+    // Tests on release version
+    release: [
+        "mocha:release",
+        "mochaTest:release"
+    ].concat(testTasks.map(function (name) {
         return name + "Release";
     }))
 };
