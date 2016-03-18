@@ -3,12 +3,8 @@
 module.exports = function (grunt) {
     grunt.registerTask("default", [
         "exec:globals",
-        "jshint",
-        "eslint",
-        "istanbul",
-        "coverage",
-        "copy:getPlatoHistory",
-        "plato",
+        "concurrent:linters",
+        "concurrent:quality",
         "exec:metrics"
     ]);
 };
