@@ -9,8 +9,14 @@
     }
 
     var _sources = [
-    //  "boot",                                             // Boot (host detection)
-    //  "loader",                                           // Loader for source version
+    //  "boot",                                             // Boot (host detection + non-UMD loader)
+//      "assert",                                           // Assertion helpers
+//      "boot/browser",                                     // Browser host adapter
+//      "boot/nodejs",                                      // NodeJS host adapter
+//      "boot/phantomjs",                                   // PhantomJS host adapter
+//      "boot/rhino",                                       // Rhino host adapter
+//      "boot/wscript",                                     // MS Script host adapter
+//      "boot/core",                                        // Core variables & functions
         "compatibility/array",                              // Array methods polyfill
         "compatibility/date",                               // Date methods polyfill
         "compatibility/function",                           // Function methods polyfill
