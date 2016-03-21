@@ -6,8 +6,6 @@
 /*exported _GPF_HOST_RHINO*/ // gpf.HOST_RHINO
 /*exported _GPF_HOST_UNKNOWN*/ // gpf.HOST_UNKNOWN
 /*exported _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
-/*exported _gpfAssert*/ // Assertion method
-/*exported _gpfAsserts*/ // Multiple assertion method
 /*exported _gpfCompatibility*/ // Polyfills for missing 'standard' methods
 /*exported _gpfContext*/ // Resolve contextual string
 /*exported _gpfDosPath*/ // DOS-like path
@@ -437,6 +435,7 @@ if ("undefined" !== typeof WScript) {
         var source = srcFileName.split("/").pop().split(".")[0],
             test = {
                 "sources":          "gpf.sources",
+                "assert":           "gpf.assert",
                 "array":            "_gpfCompatibility.Array",
                 "date":             "_gpfCompatibility.Date",
                 "function":         "_gpfCompatibility.Function",
@@ -595,63 +594,6 @@ if (!gpf.loaded) {
 
 /*#endif*/
 
-var _gpfAssert,
-    _gpfAsserts;
-
-/*#ifdef(DEBUG)*/
-
-// DEBUG specifics
-
-/* istanbul ignore next */ // no ASSERT should pop during tests
-/**
- * Assertion helper
- *
- * @param {Boolean} condition May be a truthy value
- * @param {String} message Assertion message (to explain the violation if it fails)
- */
-_gpfAssert = function (condition, message) {
-    if (undefined === message) {
-        message = "_gpfAssert with no message";
-        condition = false;
-    }
-    if (!condition) {
-        console.warn("ASSERTION FAILED: " + message);
-        throw gpf.Error.assertionFailed({
-            message: message
-        });
-    }
-};
-
-/**
- * Batch assertion helper
- *
- * @param {Object} messages Dictionary of messages (value being the condition)
- */
-_gpfAsserts = function (messages) {
-    for (var message in messages) {
-        /* istanbul ignore else */
-        if (messages.hasOwnProperty(message)) {
-            _gpfAssert(messages[message], message);
-        }
-    }
-};
-
-/* istanbul ignore if */ // Because tested in DEBUG
-if (!_gpfAssert) {
-
-/*#else*/
-
-    /*gpf:nop*/ _gpfAssert = _gpfEmptyFunc;
-    /*gpf:nop*/ _gpfAsserts = _gpfEmptyFunc;
-
-/*#endif*/
-
-/*#ifdef(DEBUG)*/
-
-}
-
-/*#endif*/
-
 /*#ifndef(UMD)*/
 
 /**
@@ -681,8 +623,8 @@ if (_gpfSyncReadForBoot) {
     _gpfAsyncLoadForBoot = function (name, callback) {
         callback(_gpfSyncReadForBoot(name));
     };
-} else {
-    _gpfAssert(undefined !== _gpfAsyncLoadForBoot, "A method must be defined to load sources");
+} else if (undefined === _gpfAsyncLoadForBoot) {
+    throw new Error("A method must be defined to load sources");
 }
 
 _gpfAsyncLoadForBoot(gpfSourcesPath + "sources.js", function (sourcesContent) {
