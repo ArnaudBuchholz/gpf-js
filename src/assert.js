@@ -8,18 +8,13 @@
 var _gpfAssert,
     _gpfAsserts;
 
-/*#ifdef(DEBUG)*/
-
-// DEBUG specifics
-
-/* istanbul ignore next */ // no ASSERT should pop during tests
 /**
  * Assertion helper
  *
  * @param {Boolean} condition May be a truthy value
  * @param {String} message Assertion message (to explain the violation if it fails)
  */
-_gpfAssert = function (condition, message) {
+function _gpfAssertImpl (condition, message) {
     if (undefined === message) {
         message = "Assertion with no message";
         condition = false;
@@ -30,33 +25,46 @@ _gpfAssert = function (condition, message) {
             message: message
         });
     }
-};
+}
 
 /**
  * Batch assertion helper
  *
  * @param {Object} messages Dictionary of messages (value being the condition)
  */
-_gpfAsserts = function (messages) {
+function _gpfAssertsImpl (messages) {
     for (var message in messages) {
         /* istanbul ignore else */
         if (messages.hasOwnProperty(message)) {
             _gpfAssert(messages[message], message);
         }
     }
-};
+}
+
+// @inheritdoc _gpfAssertImpl
+gpf.assert = _gpfAssertImpl;
+
+// @inheritdoc _gpfAssertsImpl
+gpf.asserts = _gpfAssertsImpl;
+
+/*#ifdef(DEBUG)*/
+
+// DEBUG specifics
+
+_gpfAssert = _gpfAssertImpl;
+_gpfAsserts = _gpfAssertsImpl;
 
 /* istanbul ignore if */ // Because tested in DEBUG
 if (!_gpfAssert) {
 
-    /*#else*/
+/*#else*/
 
     /*gpf:nop*/ _gpfAssert = _gpfEmptyFunc;
     /*gpf:nop*/ _gpfAsserts = _gpfEmptyFunc;
 
-    /*#endif*/
+/*#endif*/
 
-    /*#ifdef(DEBUG)*/
+/*#ifdef(DEBUG)*/
 
 }
 
