@@ -36,7 +36,7 @@ function _gpfAssertsImpl (messages) {
     for (var message in messages) {
         /* istanbul ignore else */
         if (messages.hasOwnProperty(message)) {
-            _gpfAssert(messages[message], message);
+            _gpfAssertImpl(messages[message], message);
         }
     }
 }
