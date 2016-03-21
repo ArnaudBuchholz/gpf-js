@@ -2,19 +2,19 @@
 "use strict";
 /*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
 /*global _gpfHost*/ // Host type
-/*global _gpfMainContext*/ // Main context object
+/*global _gpfExit:true*/ // Exit function
+/*global _gpfMainContext:true*/ // Main context object
 /*#endif*/
 
+/*jshint wsh: true*/
+/*eslint-env wsh*/
+/*eslint-disable new-cap*/
+
 if (_GPF_HOST_WSCRIPT === _gpfHost) {
-    /*eslint-disable new-cap*/
 
-    _gpfMainContext = function () {
-        return this;
-    }.call(null);
-
-    _gpfExit = function (code) {
-        WScript.Quit(code);
-    };
+    _gpfMainContext = (function () {
+        return this; //eslint-disable-line no-invalid-this
+    }());
 
     // Define console APIs
     _gpfMainContext.console = {
@@ -32,5 +32,8 @@ if (_GPF_HOST_WSCRIPT === _gpfHost) {
         }
     };
 
-    /*eslint-enable new-cap*/
+    _gpfExit = function (code) {
+        WScript.Quit(code);
+    };
+
 }
