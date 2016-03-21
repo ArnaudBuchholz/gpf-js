@@ -22,14 +22,20 @@
             var
                 expectedName,
                 expectedText,
-                expectedOutput;
-
+                expectedOutput,
+                matchingText;
             if (0 !== expected.length) {
                 expectedName = expected.shift();
                 expectedText = expected.shift();
                 expectedOutput = expected.shift();
             }
-            if (expectedName !== name || expectedText !== text) {
+            if (expectedText instanceof RegExp) {
+                expectedText.lastIndex = 0;
+                matchingText = null !== expectedText.exec(text);
+            } else {
+                matchingText = expectedText === text;
+            }
+            if (expectedName !== name || !matchingText) {
                 var error = new Error("Unexpected use of console." + name);
                 error.text = text;
                 throw error;
