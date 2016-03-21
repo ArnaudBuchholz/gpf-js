@@ -4,6 +4,19 @@ describe("assert", function () {
 
     describe("gpf.assert", function () {
 
+        it("does not accept no message", function () {
+            var exceptionCaught;
+            try {
+                if (console.expects) {
+                    console.expects("warn", /.*/);
+                }
+                gpf.assert(true);
+            } catch (e) {
+                exceptionCaught = e;
+            }
+            assert(undefined !== exceptionCaught);
+        });
+
         [
             true,
             42,
@@ -33,6 +46,9 @@ describe("assert", function () {
             it("throws an exception on a falsy condition - " + typeof value + " (" + stringValue + ")", function () {
                 var exceptionCaught;
                 try {
+                    if (console.expects) {
+                        console.expects("warn", /.*/);
+                    }
                     gpf.assert(value, "It fails");
                 } catch (e) {
                     exceptionCaught = e;
