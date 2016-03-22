@@ -73,17 +73,6 @@ var
     /*jshint +W040*/
 
     /**
-     * To implement gpf.noConflict(), we need to keep the previous content of gpf.
-     * Makes sense only for the following hosts:
-     * - phantomjs
-     * - browser
-     * - unknown
-     *
-     * @type {undefined|Object}
-     */
-    _gpfConflictingSymbol,
-
-    /**
      * Helper to ignore unused parameter
      *
      * @param {*} param
@@ -436,6 +425,7 @@ if ("undefined" !== typeof WScript) {
             test = {
                 "sources":          "gpf.sources",
                 "assert":           "gpf.assert",
+                "noconflict":       "gpf.noConflict",
                 "array":            "_gpfCompatibility.Array",
                 "date":             "_gpfCompatibility.Date",
                 "function":         "_gpfCompatibility.Function",
@@ -467,25 +457,6 @@ if ("undefined" !== typeof WScript) {
 
 _gpfMainContext.gpf = {
     internals: {} // To support testable internals
-};
-
-/*#else*/
-
-_gpfConflictingSymbol = _gpfMainContext.gpf;
-
-/* istanbul ignore next */ // web only
-/**
- * Relinquish control of the gpf variable.
- *
- * @return {Object} current GPF instance
- */
-gpf.noConflict = function () {
-    if (undefined === _gpfConflictingSymbol) {
-        delete _gpfMainContext.gpf;
-    } else {
-        _gpfMainContext.gpf = _gpfConflictingSymbol;
-    }
-    return gpf;
 };
 
 /*#endif*/
