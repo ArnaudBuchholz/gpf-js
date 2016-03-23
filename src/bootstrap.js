@@ -13,19 +13,20 @@
  * @closure
  */
 function _gpfGetBootstrapMethod (path, methodFactory) {
-    path = path.split(".");
-    var name = path.pop(),
-        namespace = _gpfContext(path, true),
-        mustBootstrap = true,
+    var pathList = path.split("."),
+        name = pathList.pop(),
+        namespace = _gpfContext(pathList, true),
         method;
     // The initial method is protected as the caller may keep its reference
     namespace[name] = function () {
-        /* istanbul ignore else */ // Because that's the idea (shouldn't be called twice)
-        if (mustBootstrap) {
-            method = methodFactory(path);
-            namespace[name] = method;
-            mustBootstrap = false;
-        }
+        method = methodFactory(path);
+        namespace[name] = method;
         return method.apply(this, arguments);
     };
 }
+
+/*#ifndef(UMD)*/
+
+gpf.internals._gpfGetBootstrapMethod = _gpfGetBootstrapMethod;
+
+/*#endif*/
