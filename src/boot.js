@@ -12,7 +12,6 @@
 /*exported _gpfEmptyFunc*/ // An empty function
 /*exported _gpfExit*/ // Exit function
 /*exported _gpfGenericFactory*/ // Create any class by passing the right number of parameters
-/*exported _gpfGetBootstrapMethod*/ // Create a method that contains a bootstrap (called only once)
 /*exported _gpfHost*/ // Host type
 /*exported _gpfIgnore*/ // Helper to remove unused parameter warning
 /*exported _gpfInBrowser*/ // The current host is a browser like
@@ -222,32 +221,6 @@ function _gpfContext (path, createMissingParts) {
         rootContext = _gpfMainContext;
     }
     return path.reduce(reducer, rootContext);
-}
-
-/**
- * Create a method that contains a bootstrap (called only once)
- *
- * @param {String} path method path
- * @param {Function} methodFactory Must return a function (it receives the path as parameter)
- * @return {function}
- * @closure
- */
-function _gpfGetBootstrapMethod (path, methodFactory) {
-    path = path.split(".");
-    var name = path.pop(),
-        namespace = _gpfContext(path, true),
-        mustBootstrap = true,
-        method;
-    // The initial method is protected as the caller may keep its reference
-    namespace[name] = function () {
-        /* istanbul ignore else */ // Because that's the idea (shouldn't be called twice)
-        if (mustBootstrap) {
-            method = methodFactory(path);
-            namespace[name] = method;
-            mustBootstrap = false;
-        }
-        return method.apply(this, arguments);
-    };
 }
 
 /**
