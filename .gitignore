@@ -18,3 +18,7 @@ make/build/*
 # Editors
 
 .idea
+
+# Temporary files
+
+debug.log
