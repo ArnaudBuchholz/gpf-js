@@ -27,6 +27,7 @@
         "constants",                                        // Constants
         "events",                                           // Event management         gpf.events.Event
         "include",                                          // WEB include               gpf.web.include
+        "bootstrap",                                        // Helper to bootstrap methods
         "base",                                             // General helpers
         "function",                                         // Function builder
         "like",                                             // Comparison helper                gpf.like
