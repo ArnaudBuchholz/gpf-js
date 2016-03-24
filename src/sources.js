@@ -11,7 +11,7 @@
     var _sources = [
     //  "boot",                                             // Boot (host detection + non-UMD loader)
         "assert",                                           // Assertion helpers
-        "noconflict",                                       //                            gpf.noConflict
+        "noconflict",                                       //                          gpf.noConflict()
 //      "host/browser",                                     // Browser host adapter
 //      "host/nodejs",                                      // NodeJS host adapter
 //      "host/phantomjs",                                   // PhantomJS host adapter
@@ -24,6 +24,7 @@
         "compatibility/string",                             // String methods polyfill
         "compatibility/promise",                            // Promise polyfill              gpf.Promise
         "compatibility",                                    // Polyfills installer
+        "context",                                          //                             gpf.context()
         "constants",                                        // Constants
         "events",                                           // Event management         gpf.events.Event
         "include",                                          // WEB include               gpf.web.include
