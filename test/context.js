@@ -33,6 +33,10 @@ describe("context", function () {
             assert(undefined === gpf.context("gpf.not-existing"));
         });
 
+        it("returns undefined if not existing (deep dive)", function () {
+            assert(undefined === gpf.context("gpf.not-existing.really-not"));
+        });
+
     });
 
 });
