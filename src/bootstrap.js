@@ -17,7 +17,7 @@ function _gpfGetBootstrapMethod (path, methodFactory) {
         name = pathList.pop(),
         namespace = _gpfContext(pathList, true),
         method;
-    // The initial method is protected as the caller may keep its reference
+    // If someone stores the initial member, the factory will be called every time (simpler)
     namespace[name] = function () {
         method = methodFactory(path);
         namespace[name] = method;
