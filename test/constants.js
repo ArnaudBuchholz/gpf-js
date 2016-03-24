@@ -60,24 +60,6 @@ describe("constants", function () {
             });
         });
 
-        /*global window, global*/
-        it("should provide a context resolver", function () {
-            assert("function" === typeof gpf.context);
-            assert(null !== gpf.context());
-            assert(gpf === gpf.context("gpf"));
-            // Known and testable contexts
-            if (gpf.HOST_BROWSER === gpf.host()) {
-                assert(window === gpf.context());
-            } else if (gpf.HOST_NODEJS === gpf.host() || gpf.HOST_PHANTOMJS === gpf.host()) {
-                assert(global === gpf.context());
-            } else {
-                var context = (function () {
-                    return this; //eslint-disable-line no-invalid-this
-                }());
-                assert(context === gpf.context());
-            }
-        });
-
     });
 
     if (gpf.internals) {
