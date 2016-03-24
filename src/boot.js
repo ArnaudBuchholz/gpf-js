@@ -7,7 +7,6 @@
 /*exported _GPF_HOST_UNKNOWN*/ // gpf.HOST_UNKNOWN
 /*exported _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
 /*exported _gpfCompatibility*/ // Polyfills for missing 'standard' methods
-/*exported _gpfContext*/ // Resolve contextual string
 /*exported _gpfDosPath*/ // DOS-like path
 /*exported _gpfEmptyFunc*/ // An empty function
 /*exported _gpfExit*/ // Exit function
@@ -180,48 +179,6 @@ var
 
 /*#endif*/
 
-function _getObjectProperty (parent, name) {
-    /* istanbul ignore else */
-    if (undefined !== parent) {
-        return parent[name];
-    }
-}
-
-function _getOrCreateObjectProperty (parent, name) {
-    var result = parent[name];
-    if (undefined === result) {
-        result = parent[name] = {};
-    }
-    return result;
-}
-
-/**
- * Resolve the provided contextual path and returns the result
- *
- * @param {String[]} path array of identifiers
- * @param {Boolean} [createMissingParts=false] createMissingParts if the path leads to undefined parts and
- * createMissingParts is true, it allocates a default empty object
- *
- * @return {*|undefined}
- * - when path is undefined, it returns the current host higher object
- * - when path is "gpf" it returns the GPF object
- */
-function _gpfContext (path, createMissingParts) {
-    var reducer,
-        rootContext;
-    if (createMissingParts) {
-        reducer = _getOrCreateObjectProperty;
-    } else {
-        reducer = _getObjectProperty;
-    }
-    if (path[0] === "gpf") {
-        rootContext = gpf;
-        path = path.slice(1);
-    } else {
-        rootContext = _gpfMainContext;
-    }
-    return path.reduce(reducer, rootContext);
-}
 
 /**
  * Create any class by passing the right number of parameters
@@ -394,8 +351,17 @@ if ("undefined" !== typeof WScript) {
         script.language = "javascript";
         script.src = srcFileName;
         script = _gpfWebHead.insertBefore(script, _gpfWebHead.firstChild);
+        function testSymbol (symbol) {
+            try {
+                /*jshint -W054*/
+                return new Function("return " + symbol)(); //eslint-disable-line no-new-func
+                /*jshint +W054*/
+            } catch (e) {
+                return undefined;
+            }
+        }
         var source = srcFileName.split("/").pop().split(".")[0],
-            test = {
+            symbol = {
                 "sources":          "gpf.sources",
                 "assert":           "gpf.assert",
                 "noconflict":       "gpf.noConflict",
@@ -406,12 +372,16 @@ if ("undefined" !== typeof WScript) {
                 "string":           "_gpfCompatibility.String",
                 "promise":          "gpf.Promise",
                 "compatibility":    "gpf.internals._gpfCompatibility",
+                "context":          "gpf.context",
                 "constants":        "gpf.HOST_UNKNOWN",
                 "events":           "gpf.events",
                 "include":          "gpf.web.include"
-            }[source].split(".");
+            }[source];
+        if (undefined === symbol) {
+            console.error("No symbol to test for: " + source);
+        }
         function wait () {
-            if (undefined === _gpfContext(test)) {
+            if (undefined === testSymbol(symbol)) {
                 // Use an aggressive setting as it will be used only for the non UMD version
                 setTimeout(wait, 0);
             } else {
@@ -459,22 +429,6 @@ gpf.version = function () {
  */
 gpf.host = function () {
     return _gpfHost;
-};
-
-/**
- * Resolve the provided contextual path and returns the result
- *
- * @param {String} path Dot separated list of identifiers
- *
- * @return {*|undefined}
- * - when path is undefined, it returns the current host higher object
- * - when path is "gpf" it returns the GPF object
- */
-gpf.context = function (path) {
-    if (undefined === path) {
-        return _gpfMainContext;
-    }
-    return _gpfContext(path.split("."));
 };
 
 /*#ifndef(UMD)*/
