@@ -3,31 +3,37 @@
 /*exported _gpfGenericFactory*/ // Create any class by passing the right number of parameters
 /*#endif*/
 
+function _gpfGetGenericFactoryArguments (count) {
+    var args = [],
+        idx;
+    for (idx = 0; idx < count; ++idx) {
+        args.push("p[" + idx + "]");
+    }
+    return args;
+}
+
+function _gpfGenerateGenericFactorySource (maxParameters) {
+    var src = ["var C = this, p = arguments, l = p.length;"],
+        args = _gpfGetGenericFactoryArguments(maxParameters),
+        idx;
+    for (idx = 0; idx < maxParameters; ++idx) {
+        src.push("if (" + idx + " === l) { return new C(" + args.slice(0, idx).join(", ") + ");}");
+    }
+    return src.join("\r\n");
+}
+
+function _gpfGenerateGenericFactory (maxParameters) {
+    /*jshint -W054*/
+    return new Function(_gpfGenerateGenericFactorySource(maxParameters)); //eslint-disable-line no-new-func
+    /*jshint +W054*/
+}
+
 /**
  * Create any class by passing the right number of parameters
  *
  * @this {Function} constructor to invoke
  */
-var _gpfGenericFactory = (function () {
-    // Generate the constructor call forwarder function
-    var src = [
-            "var C = this,",
-            "    p = arguments,",
-            "    l = p.length;"
-        ],
-        args = [],
-        idx,
-        Func = Function;
-    for (idx = 0; idx < 10; ++idx) {
-        args.push("p[" + idx + "]");
-    }
-    for (idx = 0; idx < 10; ++idx) {
-        src.push("    if (" + idx + " === l) {");
-        src.push("        return new C(" + args.slice(0, idx).join(", ") + ");");
-        src.push("    }");
-    }
-    return new Func(src.join("\r\n"));
-}());
+var _gpfGenericFactory = _gpfGenerateGenericFactory(10);
 
 /*#ifndef(UMD)*/
 
