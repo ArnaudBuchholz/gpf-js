@@ -12,6 +12,7 @@
     //  "boot",                                             // Boot (host detection + non-UMD loader)
         "assert",                                           // Assertion helpers
         "noconflict",                                       //                          gpf.noConflict()
+        "factory",                                          //                      _gpfGenericFactory()
 //      "host/browser",                                     // Browser host adapter
 //      "host/nodejs",                                      // NodeJS host adapter
 //      "host/phantomjs",                                   // PhantomJS host adapter
