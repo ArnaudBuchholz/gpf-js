@@ -10,7 +10,6 @@
 /*exported _gpfDosPath*/ // DOS-like path
 /*exported _gpfEmptyFunc*/ // An empty function
 /*exported _gpfExit*/ // Exit function
-/*exported _gpfGenericFactory*/ // Create any class by passing the right number of parameters
 /*exported _gpfHost*/ // Host type
 /*exported _gpfIgnore*/ // Helper to remove unused parameter warning
 /*exported _gpfInBrowser*/ // The current host is a browser like
@@ -179,33 +178,6 @@ var
 
 /*#endif*/
 
-
-/**
- * Create any class by passing the right number of parameters
- *
- * @this {Function} constructor to invoke
- */
-var _gpfGenericFactory = (function () {
-    // Generate the constructor call forwarder function
-    var src = [
-            "var C = this,",
-            "    p = arguments,",
-            "    l = p.length;"
-        ],
-        args = [],
-        idx,
-        Func = Function;
-    for (idx = 0; idx < 10; ++idx) {
-        args.push("p[" + idx + "]");
-    }
-    for (idx = 0; idx < 10; ++idx) {
-        src.push("    if (" + idx + " === l) {");
-        src.push("        return new C(" + args.slice(0, idx).join(", ") + ");");
-        src.push("    }");
-    }
-    return new Func(src.join("\r\n"));
-}());
-
 /* Host detection */
 /* istanbul ignore next */
 
@@ -365,6 +337,7 @@ if ("undefined" !== typeof WScript) {
                 "sources":          "gpf.sources",
                 "assert":           "gpf.assert",
                 "noconflict":       "gpf.noConflict",
+                "factory":          "gpf.internals._gpfGenericFactory",
                 "array":            "_gpfCompatibility.Array",
                 "date":             "_gpfCompatibility.Date",
                 "function":         "_gpfCompatibility.Function",
