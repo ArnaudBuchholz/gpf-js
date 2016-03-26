@@ -5,20 +5,19 @@
 
 function _gpfGetGenericFactoryArguments (count) {
     var args = [],
-        idx;
-    for (idx = 0; idx < count; ++idx) {
-        args.push("p[" + idx + "]");
+        idx = count;
+    while (idx--) {
+        args.unshift("p[" + idx + "]");
     }
     return args;
 }
 
 function _gpfGenerateGenericFactorySource (maxParameters) {
     var src = ["var C = this, p = arguments, l = p.length;"],
-        args = _gpfGetGenericFactoryArguments(maxParameters),
-        idx;
-    for (idx = 0; idx < maxParameters; ++idx) {
+        args = _gpfGetGenericFactoryArguments(maxParameters);
+    args.forEach(function (value, idx) {
         src.push("if (" + idx + " === l) { return new C(" + args.slice(0, idx).join(", ") + ");}");
-    }
+    });
     return src.join("\r\n");
 }
 
