@@ -1,39 +1,43 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfCompatibility*/ // Polyfills for missing 'standard' methods
+/*global _gpfEmptyFunc*/ // An empty function
+/*global _gpfExtend*/ // gpf.extend
+/*exported _gpfInstallCompatibility*/ // Define and install compatible methods
 /*#endif*/
 
-(function () {
-    var type,
-        overrides;
+/*#ifndef(UMD)*/
 
-    function install (dictionary, methods) {
-        for (var name in methods) {
-            /* istanbul ignore else */
-            if (methods.hasOwnProperty(name)) {
-                /* istanbul ignore if */ // NodeJS environment already contains all methods
-                if (undefined === dictionary[name]) {
-                    dictionary[name] = methods[name];
-                }
-            }
-        }
+/**
+ * Polyfills for missing 'standard' methods
+ *
+ * @type {Object}
+ */
+var _gpfCompatibility = {};
+
+/*#endif*/
+
+/**
+ * Define and install compatible methods
+ *
+ * @param {String} typeName
+ * @param {Object} overrides Dictionary containing:
+ * - {Function} on constructor to consider
+ * - {Object} [methods=undefined] methods Dictionary of name to methods
+ * - {Object} [statics=undefined] statics Dictionary of name to static functions
+ * @private
+ */
+function _gpfInstallCompatibility (typeName, overrides) {
+    var on = overrides.on;
+/*#ifndef(UMD)*/
+    _gpfCompatibility[typeName] = overrides;
+/*#endif*/
+    if (overrides.methods) {
+        _gpfExtend(on.prototype, overrides.methods, _gpfEmptyFunc);
     }
-
-    for (type in _gpfCompatibility) {
-        /* istanbul ignore else */
-        if (_gpfCompatibility.hasOwnProperty(type)) {
-            overrides = _gpfCompatibility[type];
-            var on = overrides.on;
-            if (overrides.methods) {
-                install(on.prototype, overrides.methods);
-            }
-            if (overrides.statics) {
-                install(on, overrides.statics);
-            }
-        }
+    if (overrides.statics) {
+        _gpfExtend(on, overrides.statics, _gpfEmptyFunc);
     }
-
-}());
+}
 
 /*#ifndef(UMD)*/
 
