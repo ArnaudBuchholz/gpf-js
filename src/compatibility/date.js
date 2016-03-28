@@ -1,7 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfCompatibility*/ // Polyfills for missing 'standard' methods
 /*global _gpfGenericFactory*/ // Create any class by passing the right number of parameters
+/*global _gpfInstallCompatibility*/ // Define and install compatible methods
 /*global _gpfMainContext*/ // Main context object
 /*exported _gpfIsISO8601String*/ // Check if the string is an ISO 8601 representation of a date
 /*#endif*/
@@ -13,7 +13,7 @@ function _pad (number) {
     return number;
 }
 
-_gpfCompatibility.Date = {
+_gpfInstallCompatibility("Date", {
     on: Date,
 
     methods: {
@@ -40,7 +40,7 @@ _gpfCompatibility.Date = {
 
     }
 
-};
+});
 
 //region Date override
 
