@@ -1,12 +1,12 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfCompatibility*/ // Polyfills for missing 'standard' methods
+/*global _gpfInstallCompatibility*/ // Define and install compatible methods
 /*exported _gpfJsCommentsRegExp*/ // Find all JavaScript comments
 /*#endif*/
 
 var _gpfArrayPrototypeSlice = Array.prototype.slice;
 
-_gpfCompatibility.Function = {
+_gpfInstallCompatibility("Function", {
     on: Function,
 
     methods: {
@@ -23,7 +23,7 @@ _gpfCompatibility.Function = {
 
     }
 
-};
+});
 
 //region Function name
 
