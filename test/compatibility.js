@@ -204,6 +204,16 @@ describe("compatibility", function () {
                         assert(1 === result[1]);
                         assert(2 === result[2]);
                     }
+                },
+                isArray: {
+                    isStatic: true,
+                    length: 1,
+                    "detects an array": function (method) {
+                        assert(true === method.call(Array, []));
+                    },
+                    "rejects other objects": function (method) {
+                        assert(false === method.call(Array, {length: 0}));
+                    }
                 }
             },
 
