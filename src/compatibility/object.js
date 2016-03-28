@@ -1,12 +1,12 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfCompatibility*/ // Polyfills for missing 'standard' methods
+/*global _gpfInstallCompatibility*/ // Define and install compatible methods
 /*#endif*/
 
 /*eslint-disable no-proto*/ // Used for compatibility reasons
 /*jshint -W103*/
 
-_gpfCompatibility.Object = {
+_gpfInstallCompatibility("Object", {
     on: Object,
 
     statics: {
@@ -65,4 +65,4 @@ _gpfCompatibility.Object = {
 
     }
 
-};
+});
