@@ -6,7 +6,6 @@
 /*exported _GPF_HOST_RHINO*/ // gpf.HOST_RHINO
 /*exported _GPF_HOST_UNKNOWN*/ // gpf.HOST_UNKNOWN
 /*exported _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
-/*exported _gpfCompatibility*/ // Polyfills for missing 'standard' methods
 /*exported _gpfDosPath*/ // DOS-like path
 /*exported _gpfEmptyFunc*/ // An empty function
 /*exported _gpfExit*/ // Exit function
@@ -129,14 +128,7 @@ var
      *
      * @type {Object}
      */
-    _gpfNodePath,
-
-    /**
-     * Polyfills for missing 'standard' methods
-     *
-     * @type {Object}
-     */
-    _gpfCompatibility = {};
+    _gpfNodePath;
 
 /**
  * Translate the parameter into a valid scope
@@ -337,6 +329,9 @@ if ("undefined" !== typeof WScript) {
                 "sources":          "gpf.sources",
                 "assert":           "gpf.assert",
                 "noconflict":       "gpf.noConflict",
+                "arraylike":        "gpf.isArrayLike",
+                "foreach":          "gpf.forEach",
+                "extend":           "gpf.extend",
                 "factory":          "gpf.internals._gpfGenericFactory",
                 "array":            "_gpfCompatibility.Array",
                 "date":             "_gpfCompatibility.Date",
