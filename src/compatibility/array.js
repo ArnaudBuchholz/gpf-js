@@ -1,9 +1,9 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfCompatibility*/ // Polyfills for missing 'standard' methods
+/*global _gpfInstallCompatibility*/ // Define and install compatible methods
 /*#endif*/
 
-_gpfCompatibility.Array = {
+_gpfInstallCompatibility("Array", {
     on: Array,
 
     methods: {
@@ -116,8 +116,13 @@ _gpfCompatibility.Array = {
                 array = array.map(callback, thisArg);
             }
             return array;
+        },
+
+        // Introduced with JavaScript 1.8.5
+        isArray: function (arrayLike) {
+            return "[object Array]" === Object.prototype.toString.call(arrayLike);
         }
 
     }
 
-};
+});
