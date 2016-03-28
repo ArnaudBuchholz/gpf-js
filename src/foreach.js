@@ -1,5 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
 /*exported _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*#endif*/
 
