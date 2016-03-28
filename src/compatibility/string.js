@@ -1,9 +1,9 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfCompatibility*/ // Polyfills for missing 'standard' methods
+/*global _gpfInstallCompatibility*/ // Define and install compatible methods
 /*#endif*/
 
-_gpfCompatibility.String = {
+_gpfInstallCompatibility("String", {
     on: String,
 
     methods: {
@@ -18,4 +18,4 @@ _gpfCompatibility.String = {
 
     }
 
-};
+});
