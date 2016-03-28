@@ -12,18 +12,16 @@
  * @param {Object} obj
  * @return {Boolean} True if array-like
  */
-var _gpfIsArrayLike;
+var _gpfIsArrayLike  = function (obj) { //eslint-disable-line func-style
+    return Array.isArray(obj);
+};
 
-/* istanbul ignore if */ // Not tested with NodeJS
+/* istanbul ignore next */ // Not tested with NodeJS
 if (_GPF_HOST_BROWSER === _gpfHost && (_gpfWebWindow.HTMLCollection || _gpfWebWindow.NodeList)) {
     _gpfIsArrayLike = function (obj) {
-        return obj instanceof Array
+        return Array.isArray(obj)
             || obj instanceof _gpfWebWindow.HTMLCollection
             || obj instanceof _gpfWebWindow.NodeList;
-    };
-} else {
-    _gpfIsArrayLike = function (obj) {
-        return obj instanceof Array;
     };
 }
 
