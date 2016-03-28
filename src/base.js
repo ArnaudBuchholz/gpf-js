@@ -1,115 +1,17 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfExit*/ // Exit function
-/*global _gpfHost*/ // Host type
+/*global _gpfExtend*/ // gpf.extend
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfIsISO8601String*/ // Check if the string is an ISO 8601 representation of a date
-/*global _gpfWebWindow*/ // Browser window object
-/*exported _gpfExtend*/ // gpf.extend
-/*exported _gpfIsArrayLike*/ // Return true if the parameter looks like an array
+/*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _gpfNodeBuffer2JsArray*/ // Converts a NodeJS buffer into an int array
-/*exported _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _gpfStringCapitalize*/ // Capitalize the string
 /*exported _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*exported _gpfStringReplaceEx*/ // String replacement using dictionary map
 /*exported _gpfValues*/ // Dictionary of value converters
 /*#endif*/
-
-//region _gpfIsArrayLike
-
-var
-    /**
-     * Return true if the parameter looks like an array
-     *
-     * @param {Object} obj
-     * @return {Boolean} True if array-like
-     */
-    _gpfIsArrayLike;
-
-/* istanbul ignore if */ // Not tested with NodeJS
-if (_GPF_HOST_BROWSER === _gpfHost && (_gpfWebWindow.HTMLCollection || _gpfWebWindow.NodeList)) {
-    _gpfIsArrayLike = function (obj) {
-        return obj instanceof Array
-            || obj instanceof _gpfWebWindow.HTMLCollection
-            || obj instanceof _gpfWebWindow.NodeList;
-    };
-} else {
-    _gpfIsArrayLike = function (obj) {
-        return obj instanceof Array;
-    };
-}
-
-/**
- * Return true if the provided parameter looks like an array (i.e. it has a property length and each item can be
- * accessed with [])
- *
- * @param {Object} obj
- * @return {Boolean} True if array-like
- */
-gpf.isArrayLike = _gpfIsArrayLike;
-
-//endregion
-
-//region gpf.forEach
-
-/**
- * Similar to [].forEach but works on array-like
- *
- * @param {Array} array
- * @param {Function} callback Function to execute for each own property, taking three arguments:
- * - {*} currentValue The current element being processed
- * - {String} property The current index being processed
- * - {Object} array The array currently being processed
- * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback.
- */
-function _gpfArrayForEach (array, callback, thisArg) {
-    var index,
-        length = array.length;
-    for (index = 0; index < length; ++index) {
-        callback.call(thisArg, array[index], index, array);
-    }
-}
-
-/**
- * Similar to [].forEach but for objects
- *
- * @param {Object} object
- * @param {Function} callback Function to execute for each own property, taking three arguments:
- * - {*} currentValue The current element being processed
- * - {String} property The name of the current property being processed
- * - {Object} object The object currently being processed
- * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback.
- */
-function _gpfObjectForEach (object, callback, thisArg) {
-    for (var property in object) {
-        /* istanbul ignore else */
-        if (object.hasOwnProperty(property)) {
-            callback.call(thisArg, object[property], property, object);
-        }
-    }
-}
-
-/**
- * Executes a provided function once per structure element.
- *
- * @param {Array|Object} structure
- * @param {Function} callback Function to execute for each element, taking three arguments:
- * - {*} currentValue The current element being processed
- * - {String} property The name of the current property or the index being processed
- * - {Array|Object} structure The structure currently being processed
- * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback.
- */
-gpf.forEach = function (structure, callback, thisArg) {
-    if (_gpfIsArrayLike(structure)) {
-        _gpfArrayForEach(structure, callback, thisArg);
-        return;
-    }
-    _gpfObjectForEach(structure, callback, thisArg); /*gpf:inline(object)*/
-};
-
-//endregion
 
 //region String helpers (will be reused in string module)
 
@@ -192,64 +94,6 @@ function _gpfStringEscapeFor (that, language) {
     }
     return that;
 }
-
-//endregion
-
-//region gpf.extend
-
-/**
- * gpf.extend implementation of assign with no callback
- *
- * @param {*} value
- * @param {String} member
- */
-function _gpfAssign (value, member) {
-    /*jshint validthis:true*/ // gpf.extend's arguments: this[0] is dst
-    this[0][member] = value;
-}
-
-/**
- * gpf.extend implementation of assign with a callback
- *
- * @param {*} value
- * @param {String} member
- */
-function _gpfAssignOrCall (value, member) {
-    /*jshint validthis:true*/ // gpf.extend's arguments
-    var dst = this[0],
-        overwriteCallback = this[2];
-    // TODO: see if in is faster
-    if (undefined === dst[member]) {
-        dst[member] = value;
-    } else {
-        overwriteCallback(dst, member, value);
-    }
-}
-
-/**
- * Extends the destination object dst by copying own enumerable properties from the src object(s) to dst.
- * If a conflict has to be handled (i.e. member exists on both objects), the overwriteCallback has to handle it.
- *
- * @param {Object} dst
- * @param {Object} src
- * @param {Function} [overwriteCallback=undefined] overwriteCallback
- * @return {Object} the modified dst
- * @chainable
- */
-function _gpfExtend (dst, src, overwriteCallback) {
-    var callbackToUse;
-    if (undefined === overwriteCallback) {
-        callbackToUse = _gpfAssign;
-    } else {
-        _gpfAssert("function" === typeof overwriteCallback, "Expected function");
-        callbackToUse = _gpfAssignOrCall;
-    }
-    _gpfObjectForEach(src, callbackToUse, arguments); /*gpf:inline(object)*/
-    return dst;
-}
-
-// @inheritdoc _gpfExtend
-gpf.extend = _gpfExtend;
 
 //endregion
 
@@ -472,7 +316,6 @@ function _gpfNodeBuffer2JsArray (buffer) {
 
 /*#ifndef(UMD)*/
 
-gpf.internals._gpfObjectForEach = _gpfObjectForEach;
 gpf.internals._gpfStringEscapeFor = _gpfStringEscapeFor;
 gpf.internals._gpfNodeBuffer2JsArray = _gpfNodeBuffer2JsArray;
 
