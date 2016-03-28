@@ -60,16 +60,6 @@
         //eslint-disable-line consistent-this
         /*jshint +W040*/
         /**
-         * To implement gpf.noConflict(), we need to keep the previous content of gpf.
-         * Makes sense only for the following hosts:
-         * - phantomjs
-         * - browser
-         * - unknown
-         *
-         * @type {undefined|Object}
-         */
-        _gpfConflictingSymbol,
-        /**
          * Helper to ignore unused parameter
          *
          * @param {*} param
@@ -121,13 +111,7 @@
          *
          * @type {Object}
          */
-        _gpfNodePath,
-        /**
-         * Polyfills for missing 'standard' methods
-         *
-         * @type {Object}
-         */
-        _gpfCompatibility = {};
+        _gpfNodePath;
     /**
      * Translate the parameter into a valid scope
      *
@@ -140,90 +124,6 @@
         return scope;
     }
     _gpfVersion += "-debug";
-    function _getObjectProperty(parent, name) {
-        /* istanbul ignore else */
-        if (undefined !== parent) {
-            return parent[name];
-        }
-    }
-    function _getOrCreateObjectProperty(parent, name) {
-        var result = parent[name];
-        if (undefined === result) {
-            result = parent[name] = {};
-        }
-        return result;
-    }
-    /**
-     * Resolve the provided contextual path and returns the result
-     *
-     * @param {String[]} path array of identifiers
-     * @param {Boolean} [createMissingParts=false] createMissingParts if the path leads to undefined parts and
-     * createMissingParts is true, it allocates a default empty object
-     *
-     * @return {*|undefined}
-     * - when path is undefined, it returns the current host higher object
-     * - when path is "gpf" it returns the GPF object
-     */
-    function _gpfContext(path, createMissingParts) {
-        var reducer, rootContext;
-        if (createMissingParts) {
-            reducer = _getOrCreateObjectProperty;
-        } else {
-            reducer = _getObjectProperty;
-        }
-        if (path[0] === "gpf") {
-            rootContext = gpf;
-            path = path.slice(1);
-        } else {
-            rootContext = _gpfMainContext;
-        }
-        return path.reduce(reducer, rootContext);
-    }
-    /**
-     * Create a method that contains a bootstrap (called only once)
-     *
-     * @param {String} path method path
-     * @param {Function} methodFactory Must return a function (it receives the path as parameter)
-     * @return {function}
-     * @closure
-     */
-    function _gpfGetBootstrapMethod(path, methodFactory) {
-        path = path.split(".");
-        var name = path.pop(), namespace = _gpfContext(path, true), mustBootstrap = true, method;
-        // The initial method is protected as the caller may keep its reference
-        namespace[name] = function () {
-            /* istanbul ignore else */
-            // Because that's the idea (shouldn't be called twice)
-            if (mustBootstrap) {
-                method = methodFactory(path);
-                namespace[name] = method;
-                mustBootstrap = false;
-            }
-            return method.apply(this, arguments);
-        };
-    }
-    /**
-     * Create any class by passing the right number of parameters
-     *
-     * @this {Function} constructor to invoke
-     */
-    var _gpfGenericFactory = function () {
-        // Generate the constructor call forwarder function
-        var src = [
-                "var C = this,",
-                "    p = arguments,",
-                "    l = p.length;"
-            ], args = [], idx, Func = Function;
-        for (idx = 0; idx < 10; ++idx) {
-            args.push("p[" + idx + "]");
-        }
-        for (idx = 0; idx < 10; ++idx) {
-            src.push("    if (" + idx + " === l) {");
-            src.push("        return new C(" + args.slice(0, idx).join(", ") + ");");
-            src.push("    }");
-        }
-        return new Func(src.join("\r\n"));
-    }();
     /* Host detection */
     /* istanbul ignore next */
     // Microsoft cscript / wscript
@@ -299,22 +199,6 @@
         _gpfWebDocument = document;
         _gpfWebHead = _gpfWebDocument.getElementsByTagName("head")[0] || _gpfWebDocument.documentElement;
     }
-    _gpfConflictingSymbol = _gpfMainContext.gpf;
-    /* istanbul ignore next */
-    // web only
-    /**
-     * Relinquish control of the gpf variable.
-     *
-     * @return {Object} current GPF instance
-     */
-    gpf.noConflict = function () {
-        if (undefined === _gpfConflictingSymbol) {
-            delete _gpfMainContext.gpf;
-        } else {
-            _gpfMainContext.gpf = _gpfConflictingSymbol;
-        }
-        return gpf;
-    };
     // Install host specifics (if any)
     /* istanbul ignore else */
     // Because tested with NodeJS
@@ -340,21 +224,6 @@
     gpf.host = function () {
         return _gpfHost;
     };
-    /**
-     * Resolve the provided contextual path and returns the result
-     *
-     * @param {String} path Dot separated list of identifiers
-     *
-     * @return {*|undefined}
-     * - when path is undefined, it returns the current host higher object
-     * - when path is "gpf" it returns the GPF object
-     */
-    gpf.context = function (path) {
-        if (undefined === path) {
-            return _gpfMainContext;
-        }
-        return _gpfContext(path.split("."));
-    };
     gpf.loaded = function (callback) {
         if (callback) {
             callback();
@@ -362,43 +231,189 @@
         return true;
     };
     var _gpfAssert, _gpfAsserts;
-    // DEBUG specifics
-    /* istanbul ignore next */
-    // no ASSERT should pop during tests
     /**
      * Assertion helper
      *
      * @param {Boolean} condition May be a truthy value
      * @param {String} message Assertion message (to explain the violation if it fails)
      */
-    _gpfAssert = function (condition, message) {
+    function _gpfAssertImpl(condition, message) {
         if (undefined === message) {
-            message = "_gpfAssert with no message";
+            message = "Assertion with no message";
             condition = false;
         }
         if (!condition) {
             console.warn("ASSERTION FAILED: " + message);
             throw gpf.Error.assertionFailed({ message: message });
         }
-    };
+    }
     /**
      * Batch assertion helper
      *
      * @param {Object} messages Dictionary of messages (value being the condition)
      */
-    _gpfAsserts = function (messages) {
+    function _gpfAssertsImpl(messages) {
         for (var message in messages) {
             /* istanbul ignore else */
             if (messages.hasOwnProperty(message)) {
-                _gpfAssert(messages[message], message);
+                _gpfAssertImpl(messages[message], message);
             }
         }
-    };
+    }
+    // @inheritdoc _gpfAssertImpl
+    gpf.assert = _gpfAssertImpl;
+    // @inheritdoc _gpfAssertsImpl
+    gpf.asserts = _gpfAssertsImpl;
+    // DEBUG specifics
+    _gpfAssert = _gpfAssertImpl;
+    _gpfAsserts = _gpfAssertsImpl;
     /* istanbul ignore if */
     // Because tested in DEBUG
     if (!_gpfAssert) {
     }
-    _gpfCompatibility.Array = {
+    var
+    /**
+     * To implement gpf.noConflict(), we need to keep the previous content of gpf.
+     * Makes sense only for the following hosts:
+     * - phantomjs
+     * - browser
+     * - unknown
+     *
+     * @type {undefined|Object}
+     */
+    _gpfConflictingSymbol;
+    _gpfConflictingSymbol = _gpfMainContext.gpf;
+    /* istanbul ignore next */
+    // web only
+    /**
+     * Relinquish control of the gpf variable.
+     *
+     * @return {Object} current GPF instance
+     */
+    gpf.noConflict = function () {
+        if (undefined === _gpfConflictingSymbol) {
+            delete _gpfMainContext.gpf;
+        } else {
+            _gpfMainContext.gpf = _gpfConflictingSymbol;
+        }
+        return gpf;
+    };
+    var _gpfIsArrayLike = function (obj) {
+        //eslint-disable-line func-style
+        return Array.isArray(obj);
+    };
+    /* istanbul ignore next */
+    // Not tested with NodeJS
+    if (_GPF_HOST_BROWSER === _gpfHost && (_gpfWebWindow.HTMLCollection || _gpfWebWindow.NodeList)) {
+        _gpfIsArrayLike = function (obj) {
+            return Array.isArray(obj) || obj instanceof _gpfWebWindow.HTMLCollection || obj instanceof _gpfWebWindow.NodeList;
+        };
+    }
+    /**
+     * Return true if the provided parameter looks like an array (i.e. it has a property length and each item can be
+     * accessed with [])
+     *
+     * @param {Object} obj
+     * @return {Boolean} True if array-like
+     */
+    gpf.isArrayLike = _gpfIsArrayLike;
+    function _gpfArrayForEach(array, callback, thisArg) {
+        var index, length = array.length;
+        for (index = 0; index < length; ++index) {
+            callback.call(thisArg, array[index], index, array);
+        }
+    }
+    /**
+     * Similar to [].forEach but for objects
+     *
+     * @param {Object} object
+     * @param {Function} callback Function to execute for each own property, taking three arguments:
+     * - {*} currentValue The current element being processed
+     * - {String} property The name of the current property being processed
+     * - {Object} object The object currently being processed
+     * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback.
+     */
+    function _gpfObjectForEach(object, callback, thisArg) {
+        for (var property in object) {
+            /* istanbul ignore else */
+            if (object.hasOwnProperty(property)) {
+                callback.call(thisArg, object[property], property, object);
+            }
+        }
+    }
+    /**
+     * Executes a provided function once per structure element.
+     *
+     * @param {Array|Object} structure
+     * @param {Function} callback Function to execute for each element, taking three arguments:
+     * - {*} currentValue The current element being processed
+     * - {String} property The name of the current property or the index being processed
+     * - {Array|Object} structure The structure currently being processed
+     * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback.
+     */
+    gpf.forEach = function (structure, callback, thisArg) {
+        if (_gpfIsArrayLike(structure)) {
+            _gpfArrayForEach(structure, callback, thisArg);
+            return;
+        }
+        _gpfObjectForEach(structure, callback, thisArg);    /*gpf:inline(object)*/
+    };
+    function _gpfAssign(value, member) {
+        /*jshint validthis:true*/
+        // gpf.extend's arguments: this[0] is dst
+        this[0][member] = value;
+    }
+    /**
+     * gpf.extend implementation of assign with a callback
+     *
+     * @param {*} value
+     * @param {String} member
+     */
+    function _gpfAssignOrCall(value, member) {
+        /*jshint validthis:true*/
+        // gpf.extend's arguments
+        var dst = this[0], overwriteCallback = this[2];
+        // TODO: see if in is faster
+        if (undefined === dst[member]) {
+            dst[member] = value;
+        } else {
+            overwriteCallback(dst, member, value);
+        }
+    }
+    /**
+     * Extends the destination object dst by copying own enumerable properties from the src object(s) to dst.
+     * If a conflict has to be handled (i.e. member exists on both objects), the overwriteCallback has to handle it.
+     *
+     * @param {Object} dst
+     * @param {Object} src
+     * @param {Function} [overwriteCallback=undefined] overwriteCallback
+     * @return {Object} the modified dst
+     * @chainable
+     */
+    function _gpfExtend(dst, src, overwriteCallback) {
+        var callbackToUse;
+        if (undefined === overwriteCallback) {
+            callbackToUse = _gpfAssign;
+        } else {
+            _gpfAssert("function" === typeof overwriteCallback, "Expected function");
+            callbackToUse = _gpfAssignOrCall;
+        }
+        _gpfObjectForEach(src, callbackToUse, arguments);
+        /*gpf:inline(object)*/
+        return dst;
+    }
+    // @inheritdoc _gpfExtend
+    gpf.extend = _gpfExtend;
+    function _gpfInstallCompatibility(typeName, overrides) {
+        var on = overrides.on;
+        if (overrides.methods) {
+            _gpfExtend(on.prototype, overrides.methods, _gpfEmptyFunc);
+        }
+        if (overrides.statics) {
+            _gpfExtend(on, overrides.statics, _gpfEmptyFunc);
+        }
+    }
+    _gpfInstallCompatibility("Array", {
         on: Array,
         methods: {
             // Introduced with JavaScript 1.6
@@ -480,16 +495,45 @@
                     array = array.map(callback, thisArg);
                 }
                 return array;
+            },
+            // Introduced with JavaScript 1.8.5
+            isArray: function (arrayLike) {
+                return "[object Array]" === Object.prototype.toString.call(arrayLike);
             }
         }
-    };
+    });
+    function _gpfGetGenericFactoryArguments(count) {
+        var args = [], idx = count;
+        while (idx--) {
+            args.unshift("p[" + idx + "]");
+        }
+        return args;
+    }
+    function _gpfGenerateGenericFactorySource(maxParameters) {
+        var src = ["var C = this, p = arguments, l = p.length;"], args = _gpfGetGenericFactoryArguments(maxParameters);
+        args.forEach(function (value, idx) {
+            src.push("if (" + idx + " === l) { return new C(" + args.slice(0, idx).join(", ") + ");}");
+        });
+        return src.join("\r\n");
+    }
+    function _gpfGenerateGenericFactory(maxParameters) {
+        /*jshint -W054*/
+        return new Function(_gpfGenerateGenericFactorySource(maxParameters));    //eslint-disable-line no-new-func
+                                                                                 /*jshint +W054*/
+    }
+    /**
+     * Create any class by passing the right number of parameters
+     *
+     * @this {Function} constructor to invoke
+     */
+    var _gpfGenericFactory = _gpfGenerateGenericFactory(10);
     function _pad(number) {
         if (10 > number) {
             return "0" + number;
         }
         return number;
     }
-    _gpfCompatibility.Date = {
+    _gpfInstallCompatibility("Date", {
         on: Date,
         methods: {
             // Introduced with JavaScript 1.8
@@ -512,7 +556,7 @@
                 ].join("");
             }
         }
-    };
+    });
     //region Date override
     var _gpfISO8601RegExp = new RegExp([
         "^([0-9][0-9][0-9][0-9])",
@@ -606,7 +650,7 @@
         }
     }());    //endregion
     var _gpfArrayPrototypeSlice = Array.prototype.slice;
-    _gpfCompatibility.Function = {
+    _gpfInstallCompatibility("Function", {
         on: Function,
         methods: {
             // Introduced with JavaScript 1.8.5
@@ -618,7 +662,7 @@
                 };
             }
         }
-    };
+    });
     //region Function name
     // Get the name of a function if bound to the call
     var _gpfJsCommentsRegExp = new RegExp("//.*$|/\\*(?:[^\\*]*|\\*[^/]*)\\*/", "gm");
@@ -652,7 +696,7 @@
             return this.name;
         };
     }    //endregion
-    _gpfCompatibility.Object = {
+    _gpfInstallCompatibility("Object", {
         on: Object,
         statics: {
             // Introduced with JavaScript 1.8.5
@@ -704,8 +748,8 @@
                 return result;
             }
         }
-    };
-    _gpfCompatibility.String = {
+    });
+    _gpfInstallCompatibility("String", {
         on: String,
         methods: {
             // Introduced with JavaScript 1.8.1
@@ -716,7 +760,7 @@
                 };
             }()
         }
-    };
+    });
     function _gpfPromiseSafeResolve(fn, onFulfilled, onRejected) {
         var safe = true;
         function makeSafe(callback) {
@@ -899,34 +943,64 @@
     if (undefined === _gpfMainContext.Promise) {
         _gpfMainContext.Promise = _GpfPromise;
     }
-    (function () {
-        var type, overrides;
-        function install(dictionary, methods) {
-            for (var name in methods) {
-                /* istanbul ignore else */
-                if (methods.hasOwnProperty(name)) {
-                    /* istanbul ignore if */
-                    // NodeJS environment already contains all methods
-                    if (undefined === dictionary[name]) {
-                        dictionary[name] = methods[name];
-                    }
-                }
-            }
+    function _gpfGetObjectProperty(parent, name) {
+        if (undefined !== parent) {
+            return parent[name];
         }
-        for (type in _gpfCompatibility) {
-            /* istanbul ignore else */
-            if (_gpfCompatibility.hasOwnProperty(type)) {
-                overrides = _gpfCompatibility[type];
-                var on = overrides.on;
-                if (overrides.methods) {
-                    install(on.prototype, overrides.methods);
-                }
-                if (overrides.statics) {
-                    install(on, overrides.statics);
-                }
-            }
+    }
+    function _gpfGetOrCreateObjectProperty(parent, name) {
+        var result = parent[name];
+        if (undefined === result) {
+            result = parent[name] = {};
         }
-    }());
+        return result;
+    }
+    // Apply reducer on path
+    function _gpfReduceContext(path, reducer) {
+        var rootContext;
+        if (path[0] === "gpf") {
+            rootContext = gpf;
+            path = path.slice(1);
+        } else {
+            rootContext = _gpfMainContext;
+        }
+        return path.reduce(reducer, rootContext);
+    }
+    /**
+     * Resolve the provided contextual path and returns the result
+     *
+     * @param {String[]} path array of identifiers
+     * @param {Boolean} [createMissingParts=false] createMissingParts if the path leads to undefined parts and
+     * createMissingParts is true, it allocates a default empty object
+     *
+     * @return {*|undefined}
+     * - when path is undefined, it returns the current host higher object
+     * - when path is "gpf" it returns the GPF object
+     */
+    function _gpfContext(path, createMissingParts) {
+        var reducer;
+        if (createMissingParts) {
+            reducer = _gpfGetOrCreateObjectProperty;
+        } else {
+            reducer = _gpfGetObjectProperty;
+        }
+        return _gpfReduceContext(path, reducer);
+    }
+    /**
+     * Resolve the provided contextual path and returns the result
+     *
+     * @param {String} path Dot separated list of identifiers
+     *
+     * @return {*|undefined}
+     * - when path is undefined, it returns the current host higher object
+     * - when path is "gpf" it returns the GPF object
+     */
+    gpf.context = function (path) {
+        if (undefined === path) {
+            return _gpfMainContext;
+        }
+        return _gpfContext(path.split("."));
+    };
     var
         //region Events
         _GPF_EVENT_ANY = "*", _GPF_EVENT_ERROR = "error", _GPF_EVENT_READY = "ready", _GPF_EVENT_DATA = "data", _GPF_EVENT_END_OF_DATA = "endOfData", _GPF_EVENT_CONTINUE = "continue", _GPF_EVENT_STOP = "stop", _GPF_EVENT_STOPPED = "stopped",
@@ -1358,94 +1432,15 @@
             };
         }();
     }
-    var
-    /**
-     * Return true if the parameter looks like an array
-     *
-     * @param {Object} obj
-     * @return {Boolean} True if array-like
-     */
-    _gpfIsArrayLike;
-    /* istanbul ignore if */
-    // Not tested with NodeJS
-    if (_GPF_HOST_BROWSER === _gpfHost && (_gpfWebWindow.HTMLCollection || _gpfWebWindow.NodeList)) {
-        _gpfIsArrayLike = function (obj) {
-            return obj instanceof Array || obj instanceof _gpfWebWindow.HTMLCollection || obj instanceof _gpfWebWindow.NodeList;
-        };
-    } else {
-        _gpfIsArrayLike = function (obj) {
-            return obj instanceof Array;
+    function _gpfGetBootstrapMethod(path, methodFactory) {
+        var pathList = path.split("."), name = pathList.pop(), namespace = _gpfContext(pathList, true), method;
+        // If someone stores the initial member, the factory will be called every time (simpler)
+        namespace[name] = function () {
+            method = methodFactory(path);
+            namespace[name] = method;
+            return method.apply(this, arguments);
         };
     }
-    /**
-     * Return true if the provided parameter looks like an array (i.e. it has a property length and each item can be
-     * accessed with [])
-     *
-     * @param {Object} obj
-     * @return {Boolean} True if array-like
-     */
-    gpf.isArrayLike = _gpfIsArrayLike;
-    //endregion
-    //region gpf.forEach
-    /**
-     * Similar to [].forEach but works on array-like
-     *
-     * @param {Array} array
-     * @param {Function} callback Function to execute for each own property, taking three arguments:
-     * - {*} currentValue The current element being processed
-     * - {String} property The current index being processed
-     * - {Object} array The array currently being processed
-     * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback.
-     */
-    function _gpfArrayForEach(array, callback, thisArg) {
-        var index, length = array.length;
-        for (index = 0; index < length; ++index) {
-            callback.call(thisArg, array[index], index, array);
-        }
-    }
-    /**
-     * Similar to [].forEach but for objects
-     *
-     * @param {Object} object
-     * @param {Function} callback Function to execute for each own property, taking three arguments:
-     * - {*} currentValue The current element being processed
-     * - {String} property The name of the current property being processed
-     * - {Object} object The object currently being processed
-     * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback.
-     */
-    function _gpfObjectForEach(object, callback, thisArg) {
-        for (var property in object) {
-            /* istanbul ignore else */
-            if (object.hasOwnProperty(property)) {
-                callback.call(thisArg, object[property], property, object);
-            }
-        }
-    }
-    /**
-     * Executes a provided function once per structure element.
-     *
-     * @param {Array|Object} structure
-     * @param {Function} callback Function to execute for each element, taking three arguments:
-     * - {*} currentValue The current element being processed
-     * - {String} property The name of the current property or the index being processed
-     * - {Array|Object} structure The structure currently being processed
-     * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback.
-     */
-    gpf.forEach = function (structure, callback, thisArg) {
-        if (_gpfIsArrayLike(structure)) {
-            _gpfArrayForEach(structure, callback, thisArg);
-            return;
-        }
-        _gpfObjectForEach(structure, callback, thisArg);    /*gpf:inline(object)*/
-    };
-    //endregion
-    //region String helpers (will be reused in string module)
-    /**
-     * Capitalize the string
-     *
-     * @param {String} that
-     * @return {String}
-     */
     function _gpfStringCapitalize(that) {
         return that.charAt(0).toUpperCase() + that.substr(1);
     }
@@ -1512,60 +1507,6 @@
         }
         return that;
     }
-    //endregion
-    //region gpf.extend
-    /**
-     * gpf.extend implementation of assign with no callback
-     *
-     * @param {*} value
-     * @param {String} member
-     */
-    function _gpfAssign(value, member) {
-        /*jshint validthis:true*/
-        // gpf.extend's arguments: this[0] is dst
-        this[0][member] = value;
-    }
-    /**
-     * gpf.extend implementation of assign with a callback
-     *
-     * @param {*} value
-     * @param {String} member
-     */
-    function _gpfAssignOrCall(value, member) {
-        /*jshint validthis:true*/
-        // gpf.extend's arguments
-        var dst = this[0], overwriteCallback = this[2];
-        // TODO: see if in is faster
-        if (undefined === dst[member]) {
-            dst[member] = value;
-        } else {
-            overwriteCallback(dst, member, value);
-        }
-    }
-    /**
-     * Extends the destination object dst by copying own enumerable properties from the src object(s) to dst.
-     * If a conflict has to be handled (i.e. member exists on both objects), the overwriteCallback has to handle it.
-     *
-     * @param {Object} dst
-     * @param {Object} src
-     * @param {Function} [overwriteCallback=undefined] overwriteCallback
-     * @return {Object} the modified dst
-     * @chainable
-     */
-    function _gpfExtend(dst, src, overwriteCallback) {
-        var callbackToUse;
-        if (undefined === overwriteCallback) {
-            callbackToUse = _gpfAssign;
-        } else {
-            _gpfAssert("function" === typeof overwriteCallback, "Expected function");
-            callbackToUse = _gpfAssignOrCall;
-        }
-        _gpfObjectForEach(src, callbackToUse, arguments);
-        /*gpf:inline(object)*/
-        return dst;
-    }
-    // @inheritdoc _gpfExtend
-    gpf.extend = _gpfExtend;
     //endregion
     //region gpf.value
     var
