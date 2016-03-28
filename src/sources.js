@@ -12,19 +12,22 @@
     //  "boot",                                             // Boot (host detection + non-UMD loader)
         "assert",                                           // Assertion helpers
         "noconflict",                                       //                          gpf.noConflict()
-        "factory",                                          //                      _gpfGenericFactory()
+        "arraylike",                                        //                         gpf.isArrayLike()
+        "foreach",                                          //                             gpf.forEach()
+        "extend",                                           //                              gpf.extend()
 //      "host/browser",                                     // Browser host adapter
 //      "host/nodejs",                                      // NodeJS host adapter
 //      "host/phantomjs",                                   // PhantomJS host adapter
 //      "host/rhino",                                       // Rhino host adapter
 //      "host/wscript",                                     // MS Script host adapter
+        "compatibility",                                    // Polyfills installer
         "compatibility/array",                              // Array methods polyfill
+        "factory",                                          //                      _gpfGenericFactory()
         "compatibility/date",                               // Date methods polyfill
         "compatibility/function",                           // Function methods polyfill
         "compatibility/object",                             // Object methods polyfill
         "compatibility/string",                             // String methods polyfill
         "compatibility/promise",                            // Promise polyfill              gpf.Promise
-        "compatibility",                                    // Polyfills installer
         "context",                                          //                             gpf.context()
         "constants",                                        // Constants
         "events",                                           // Event management         gpf.events.Event
