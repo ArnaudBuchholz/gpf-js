@@ -38,11 +38,11 @@ Metric name | value | comment
 ----- | ----- | -----
 Statements coverage|99%|*9% ignored*
 Branches coverage|98%|*10% ignored*
-Functions coverage|99%|*13% ignored*
-Average maintainability|72.99|
-Number of tests|589|*pending: 1, duration: 377ms*
-Number of modules|37|
-Lines of Code|7455|*Average per module: 191*
+Functions coverage|99%|*14% ignored*
+Average maintainability|73.59|
+Number of tests|617|*pending: 1, duration: 1389ms*
+Number of modules|45|
+Lines of Code|7518|*Average per module: 159*
 
 ## Setup
 
