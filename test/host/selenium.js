@@ -2,6 +2,7 @@
 
 var path = require("path"),
     gpfPath = path.resolve(__dirname, "../.."),
+    useFileAccess = false,
     args = process.argv.slice(2),
     browser = args[0],
     version,
@@ -21,7 +22,16 @@ if ("-release" === args[1]) {
     version = "";
 }
 
-driver.get("file://" + gpfPath + "/test/host/web.html" + version);
+if ("-file" === args[2]) {
+    useFileAccess = true;
+}
+
+if (useFileAccess) {
+    driver.get("file://" + gpfPath + "/test/host/web.html" + version);
+} else {
+    driver.get("http://localhost:8000/test/host/web.html" + version);
+}
+
 driver.wait(until.titleIs("GPF Tests - done"), 5000);
 driver.findElements(By.id("status"))
     .then(function (elements) {
