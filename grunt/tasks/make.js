@@ -4,6 +4,7 @@ module.exports = function (grunt) {
     grunt.registerTask("make", [].concat([
         "exec:version",
         "default",
+        "connect:server",
         "concurrent:source",
         "exec:buildDebug",
         "exec:buildRelease",
