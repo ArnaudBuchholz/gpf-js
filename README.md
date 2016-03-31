@@ -36,13 +36,13 @@ maintainability-index-range-and-meaning.aspx):
 
 Metric name | value | comment
 ----- | ----- | -----
-Statements coverage|99%|*9% ignored*
-Branches coverage|98%|*10% ignored*
-Functions coverage|99%|*14% ignored*
-Average maintainability|73.59|
-Number of tests|617|*pending: 1, duration: 1389ms*
+Statements coverage|99%|*8% ignored*
+Branches coverage|98%|*9% ignored*
+Functions coverage|99%|*13% ignored*
+Average maintainability|73.80|
+Number of tests|617|*pending: 1, duration: 380ms*
 Number of modules|45|
-Lines of Code|7518|*Average per module: 159*
+Lines of Code|7433|*Average per module: 158*
 
 ## Setup
 
@@ -53,11 +53,13 @@ Lines of Code|7518|*Average per module: 159*
 
 ## Testing
 
+For HTTP testing, you must first run `grunt serve`
+
 * With [mocha](https://mochajs.org/) (relative to gpf-js root folder):
-    * `file:///./test/host/mocha/web.html`
+    * `http://localhost:8000/test/host/mocha/web.html`
     * `node test/host/mocha/nodejs.js`
 * Without mocha (relative to gpf-js root folder):
-    * `file:///./test/host/web.html`
+    * `http://localhost:8000/test/host/web.html`
     * `node test/host/nodejs.js`
     * `phantomjs test/host/phantomjs.js`
     * `cscript /E:jscript test\host\cscript.js`
