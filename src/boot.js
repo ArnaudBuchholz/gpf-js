@@ -150,23 +150,13 @@ _gpfVersion += "-debug";
 
 /*#ifndef(UMD)*/
 
-var
-    /**
-     * Asynchronous load function
-     *
-     * @param {String} srcFileName
-     * @param {Function} callback
-     * - {String} [content=undefined] content if provided, the content is concatenated to be evaluated in the end.
-     * If not provided, it is assumed that the source was evaluated in the global context
-     */
-    _gpfAsyncLoadForBoot,
-    /**
-     * Synchronous read function
-     *
-     * @param {String} srcFileName
-     * @return {String} content of the srcFileName
-     */
-    _gpfSyncReadForBoot;
+/**
+ * Synchronous read function
+ *
+ * @param {String} srcFileName
+ * @return {String} content of the srcFileName
+ */
+var _gpfSyncReadForBoot;
 
 /*#endif*/
 
@@ -300,65 +290,13 @@ if ("undefined" !== typeof WScript) {
 
 /*#ifndef(UMD)*/
 
-    _gpfAsyncLoadForBoot = function (srcFileName, callback) {
-        if (gpf.web.include) {
-            gpf.web.include(srcFileName, function (event) {
-                if (gpf.events.EVENT_ERROR === event.type) {
-                    console.error(event.get("error").message);
-                } else {
-                    callback();
-                }
-            });
-            return;
-        }
-        var script = _gpfWebDocument.createElement("script");
-        script.language = "javascript";
-        script.src = srcFileName;
-        script = _gpfWebHead.insertBefore(script, _gpfWebHead.firstChild);
-        function testSymbol (symbol) {
-            try {
-                /*jshint -W054*/
-                return new Function("return " + symbol)(); //eslint-disable-line no-new-func
-                /*jshint +W054*/
-            } catch (e) {
-                return undefined;
-            }
-        }
-        var source = srcFileName.split("/").pop().split(".")[0],
-            symbol = {
-                "sources":          "gpf.sources",
-                "assert":           "gpf.assert",
-                "noconflict":       "gpf.noConflict",
-                "arraylike":        "gpf.isArrayLike",
-                "foreach":          "gpf.forEach",
-                "extend":           "gpf.extend",
-                "factory":          "gpf.internals._gpfGenericFactory",
-                "array":            "_gpfCompatibility.Array",
-                "date":             "_gpfCompatibility.Date",
-                "function":         "_gpfCompatibility.Function",
-                "object":           "_gpfCompatibility.Object",
-                "string":           "_gpfCompatibility.String",
-                "promise":          "gpf.Promise",
-                "compatibility":    "gpf.internals._gpfCompatibility",
-                "context":          "gpf.context",
-                "constants":        "gpf.HOST_UNKNOWN",
-                "events":           "gpf.events",
-                "include":          "gpf.web.include"
-            }[source];
-        if (undefined === symbol) {
-            console.error("No symbol to test for: " + source);
-        }
-        function wait () {
-            if (undefined === testSymbol(symbol)) {
-                // Use an aggressive setting as it will be used only for the non UMD version
-                setTimeout(wait, 0);
-            } else {
-                _gpfWebHead.removeChild(script);
-                callback();
-            }
-        }
-        wait();
+    _gpfSyncReadForBoot = function (srcFileName) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", srcFileName, false);
+        xhr.send();
+        return xhr.responseText;
     };
+
 
 /*#endif*/
 
@@ -467,7 +405,6 @@ if (!gpf.loaded) {
  * UMD versions (debug / release) will have everything concatenated.
  */
 
-
 /* istanbul ignore next */ // Handled the right way with NodeJS
 // gpfSourcesPath - if defined - gives the relative path to sources
 if ("undefined" === typeof gpfSourcesPath) {
@@ -484,46 +421,24 @@ if ("undefined" === typeof gpfSourcesPath) {
     }
 }
 
-/* istanbul ignore else */ // Should not happen
-if (_gpfSyncReadForBoot) {
-    _gpfAsyncLoadForBoot = function (name, callback) {
-        callback(_gpfSyncReadForBoot(name));
-    };
-} else if (undefined === _gpfAsyncLoadForBoot) {
-    throw new Error("A method must be defined to load sources");
+var _gpfSourcesContent = _gpfSyncReadForBoot(gpfSourcesPath + "sources.js");
+/*jslint evil: true*/
+eval(_gpfSourcesContent); //eslint-disable-line no-eval
+/*jslint evil: false*/
+var _gpfSources = gpf.sources(),
+    _gpfAllContent = [],
+    _gpfSourceIdx = 0,
+    _gpfSourceModule;
+for (_gpfSourceIdx = 0; _gpfSourceIdx < _gpfSources.length; ++_gpfSourceIdx) {
+    _gpfSourceModule = _gpfSources[_gpfSourceIdx];
+    if (!_gpfSourceModule) {
+        break;
+    }
+    _gpfAllContent.push(_gpfSyncReadForBoot(gpfSourcesPath + _gpfSourceModule + ".js"));
 }
-
-_gpfAsyncLoadForBoot(gpfSourcesPath + "sources.js", function (sourcesContent) {
-    /* istanbul ignore else */ // Only browser loads content immediately
-    if (sourcesContent) {
-        /*jslint evil: true*/
-        eval(sourcesContent); //eslint-disable-line no-eval
-        /*jslint evil: false*/
-    }
-    var sources = gpf.sources(),
-        allContent = [],
-        idx = 0;
-
-    function next (content) {
-        /* istanbul ignore else */ // Only browser loads content immediately
-        if (content) {
-            allContent.push(content);
-        }
-        var src = sources[idx++];
-        if (src) {
-            _gpfAsyncLoadForBoot(gpfSourcesPath + src + ".js", next);
-        } else {
-            /* istanbul ignore else */ // Only browser loads content immediately
-            if (allContent.length) {
-                /*jslint evil: true*/
-                eval(allContent.join("\r\n")); //eslint-disable-line no-eval
-                /*jslint evil: false*/
-            }
-            _gpfFinishLoading();
-        }
-    }
-
-    next();
-});
+/*jslint evil: true*/
+eval(_gpfAllContent.join("\r\n")); //eslint-disable-line no-eval
+/*jslint evil: false*/
+_gpfFinishLoading();
 
 /*#endif*/
