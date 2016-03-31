@@ -339,67 +339,6 @@ gpf.host = function () {
 
 /*#ifndef(UMD)*/
 
-var
-    // Set to true once all sources of GPF are loaded
-    _gpfLoaded = false,
-
-    /**
-     * List of functions to call on load
-     *
-     * @type {Function[]}
-     */
-    _gpfLoadCallbacks = [];
-
-// Callback used once all sources are loaded, invoke the callbacks
-function _gpfFinishLoading () {
-    _gpfLoaded = true;
-    while (_gpfLoadCallbacks.length) {
-        /* istanbul ignore next */ // Not used within NodeJS (mostly browser only)
-        _gpfLoadCallbacks.shift()();
-    }
-}
-
-/* istanbul ignore next */ // Not used within NodeJS (mostly browser only)
-/**
- * Test if GPF is loaded
- *
- * @param {Function} [callback=undefined] callback This callback is invoked when GPF is loaded (may be immediately if
- * already loaded)
- * @return {Boolean} True if GPF is fully loaded, false otherwise
- */
-gpf.loaded = function (callback) {
-    if (callback) {
-        if (_gpfLoaded) {
-            callback();
-        } else {
-            _gpfLoadCallbacks.push(callback);
-        }
-    }
-    return _gpfLoaded;
-};
-
-/* istanbul ignore if */ // Because tested in DEBUG
-if (!gpf.loaded) {
-
-/*#else*/
-
-    gpf.loaded = function (callback) {
-        if (callback) {
-            callback();
-        }
-        return true;
-    };
-
-/*#endif*/
-
-/*#ifndef(UMD)*/
-
-}
-
-/*#endif*/
-
-/*#ifndef(UMD)*/
-
 /**
  * Loading sources occurs here for the non UMD version.
  * UMD versions (debug / release) will have everything concatenated.
@@ -439,6 +378,5 @@ for (_gpfSourceIdx = 0; _gpfSourceIdx < _gpfSources.length; ++_gpfSourceIdx) {
 /*jslint evil: true*/
 eval(_gpfAllContent.join("\r\n")); //eslint-disable-line no-eval
 /*jslint evil: false*/
-_gpfFinishLoading();
 
 /*#endif*/
