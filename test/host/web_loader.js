@@ -60,7 +60,7 @@
      */
     function _waitForLoad () {
         // Check if the GPF library is loaded
-        if ("undefined" === typeof gpf || !gpf.loaded()) {
+        if ("undefined" === typeof gpf) {
             if (--MAX_WAIT) {
                 console.log("GPF not loaded yet...");
                 window.setTimeout(_waitForLoad, 100);
