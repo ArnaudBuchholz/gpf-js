@@ -17,7 +17,6 @@
 /*exported _gpfMsFSO*/ // Scripting.FileSystemObject activeX
 /*exported _gpfNodeFs*/ // Node require("fs")
 /*exported _gpfNodePath*/ // Node require("path")
-/*exported _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*exported _gpfVersion*/ // GPF version
 /*exported _gpfWebDocument*/ // Browser document object
 /*exported _gpfWebHead*/ // Browser head tag
@@ -129,18 +128,6 @@ var
      * @type {Object}
      */
     _gpfNodePath;
-
-/**
- * Translate the parameter into a valid scope
- *
- * @param {*} scope
- */
-function _gpfResolveScope (scope) {
-    if (null === scope || "object" !== typeof scope) {
-        return _gpfMainContext;
-    }
-    return scope;
-}
 
 /*#ifdef(DEBUG)*/
 
