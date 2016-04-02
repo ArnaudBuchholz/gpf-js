@@ -7,6 +7,7 @@
 /*global _GPF_HOST_UNKNOWN*/ // gpf.HOST_UNKNOWN
 /*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
 /*global _gpfAssert*/ // Assertion method
+/*global _gpfInNode*/ // The current host is a nodeJS like
 /*exported _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
 /*exported _GPF_EVENT_CONTINUE*/ // gpf.events.EVENT_CONTINUE
 /*exported _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
@@ -184,6 +185,14 @@ _gpfCreateConstants(gpf, {
     HOST_UNKNOWN: _GPF_HOST_UNKNOWN,
     HOST_WSCRIPT: _GPF_HOST_WSCRIPT
 });
+
+/* istanbul ignore else */ // Because tested with NodeJS
+if (_gpfInNode) {
+    gpf.node = {};
+}
+
+// Some web-related tools will be configured even if not in a browser, declare the namespace now
+gpf.web = {};
 
 /*#ifndef(UMD)*/
 
