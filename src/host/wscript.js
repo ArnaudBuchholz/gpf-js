@@ -3,7 +3,7 @@
 /*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
 /*global _gpfHost*/ // Host type
 /*global _gpfExit:true*/ // Exit function
-/*global _gpfMainContext:true*/ // Main context object
+/*global _gpfMainContext*/ // Main context object
 /*#endif*/
 
 /*jshint wsh: true*/
@@ -11,10 +11,6 @@
 /*eslint-disable new-cap*/
 
 if (_GPF_HOST_WSCRIPT === _gpfHost) {
-
-    _gpfMainContext = (function () {
-        return this; //eslint-disable-line no-invalid-this
-    }());
 
     // Define console APIs
     _gpfMainContext.console = {
