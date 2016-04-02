@@ -30,6 +30,7 @@
         "compatibility/promise",                            // Promise polyfill              gpf.Promise
         "context",                                          //                             gpf.context()
         "constants",                                        // Constants
+        "scope",                                            //                        _gpfResolveScope()
         "events",                                           // Event management         gpf.events.Event
         "include",                                          // WEB include               gpf.web.include
         "bootstrap",                                        // Helper to bootstrap methods
