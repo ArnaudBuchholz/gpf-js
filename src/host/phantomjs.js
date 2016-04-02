@@ -3,7 +3,6 @@
 /*global _GPF_HOST_PHANTOMJS*/ // gpf.HOST_PHANTOMJS
 /*global _gpfHost*/ // Host type
 /*global _gpfExit:true*/ // Exit function
-/*global _gpfMainContext:true*/ // Main context object
 /*global _gpfInNode:true*/ // The current host is a nodeJS like
 /*global _gpfInBrowser:true*/ // The current host is a browser like
 /*#endif*/
@@ -14,7 +13,6 @@
 
 if (_GPF_HOST_PHANTOMJS === _gpfHost) {
 
-    _gpfMainContext = window;
     _gpfInNode = true;
     _gpfInBrowser = true;
     _gpfExit = phantom.exit;
