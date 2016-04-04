@@ -6,17 +6,18 @@ module.exports = function (grunt) {
 
     require("time-grunt")(grunt);
 
-    // Build the list of valid source and test files based on sources.js
-    var srcFiles = ["src/boot.js", "src/sources.js"],
+    // Build the list of valid source and test files based on sources.json
+    var modules = grunt.file.readJSON("src/sources.json"),
+        srcFiles = ["src/boot.js"],
         testFiles = [];
-    require("./src/sources.js");
-    gpf.sources().every(function (name) {
-        if (name) {
+    modules.forEach(function (module) {
+        var name = module.name;
+        if (module.load !== false) {
             srcFiles.push("src/" + name + ".js");
-            testFiles.push("test/" + name + ".js");
-            return true;
+            if (module.test !== false) {
+                testFiles.push("test/" + name + ".js");
+            }
         }
-        return false;
     });
 
     // Since the tasks are split using load-grunt-config, I need a global object containing the configuration
