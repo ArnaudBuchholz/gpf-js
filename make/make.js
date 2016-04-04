@@ -6,7 +6,8 @@ var fs = require("fs"),
     debug,
     parameters,
     debugParameters,
-    sources = {},
+    sources,
+    sourcesDict = {},
     result;
 
 debug = function () {};
@@ -39,22 +40,23 @@ try {
 
 // Get the list of sources
 debug("\tGetting the list of sources...");
-require("../src/sources.js");
+sources = JSON.parse(fs.readFileSync("../src/sources.json"))
+    .filter(function (source) {
+        return source.load !== false;
+    })
+    .map(function (source) {
+        return source.name;
+    });
 
 // Read sources
-gpf.sources().every(function (name) {
-    if (!name) {
-        // end marker
-        return false;
-    }
+sources.forEach(function (name) {
     debug("\tReading " + name + "...");
-    sources[name] = fs.readFileSync("../src/" + name + ".js").toString();
-    return true;
+    sourcesDict[name] = fs.readFileSync("../src/" + name + ".js").toString();
 });
 debug("\tReading UMD...");
-sources.UMD = fs.readFileSync("UMD.js").toString();
+sourcesDict.UMD = fs.readFileSync("UMD.js").toString();
 debug("\tReading boot...");
-sources.boot = fs.readFileSync("../src/boot.js").toString();
+sourcesDict.boot = fs.readFileSync("../src/boot.js").toString();
 
 function mkDir (path) {
     var parentPath;
@@ -74,23 +76,17 @@ parameters.temporaryPath = "../tmp/build/" + version;
 mkDir(parameters.temporaryPath);
 
 //Go over sources to create other temporary folders
-gpf.sources().every(function (name) {
-    if (!name) {
-        // end marker
-        return false;
-    }
+sources.forEach(function (name) {
     if (name.indexOf("/")) {
         // remove file name
         name = name.split("/");
         name.pop();
         mkDir(parameters.temporaryPath + "/" + name.join("/"));
     }
-    return true;
 });
 
-
 try {
-    result = build(sources, parameters, debug);
+    result = build(sourcesDict, parameters, debug);
 } catch (e) {
     console.error(e.message);
     if (e.step) {
