@@ -42,6 +42,8 @@ var gpfSourcesPath = "../../src/",
 
         </script>
         <script src="web_loader.js"></script>
+        <script src="bdd.js"></script>
+        <script src="console.js"></script>
         <script language="javascript">
 
 var lines = [];
@@ -127,7 +129,7 @@ function addLine(data) {
         </table>
         <script language="javascript">
 
-load("bdd.js", function () {
+load(function () {
     run(function (type, data) {
         var line,
             results;
