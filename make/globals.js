@@ -2,9 +2,13 @@
 
 var fs = require("fs");
 
-// Get gpf library source
-require("../src/sources.js");
-var sources = gpf.sources();
+var sources = JSON.parse(fs.readFileSync("./src/sources.json"))
+    .filter(function (source) {
+        return source.load !== false;
+    })
+    .map(function (source) {
+        return source.name;
+    });
 sources.unshift("boot"); // Also include boot
 
 var rc = 0;
