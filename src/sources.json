@@ -1,0 +1,133 @@
+[{
+    "module": "boot",
+    "description": "Boot (host detection + non-UMD loader)",
+    "load": false
+}, {
+    "module": "host/browser",
+    "description": "Browser host adapter",
+    "test": false
+}, {
+    "module": "host/nodejs",
+    "description": "NodeJS host adapter",
+    "test": false
+}, {
+    "module": "host/phantomjs",
+    "description": "PhantomJS host adapter",
+    "test": false
+}, {
+    "module": "host/rhino",
+    "description": "Rhino host adapter",
+    "test": false
+}, {
+    "module": "host/wscript",
+    "description": "MS Script host adapter",
+    "test": false
+}, {
+    "module": "assert",
+    "description": "Assertion helpers"
+}, {
+    "module": "noconflict",
+    "description": "gpf.noConflict()"
+}, {
+    "module": "arraylike",
+    "description": "gpf.isArrayLike()"
+}, {
+    "module": "foreach",
+    "description": "gpf.forEach()"
+}, {
+    "module": "extend",
+    "description": "gpf.extend()"
+}, {
+    "module": "compatibility",
+    "description": "Polyfills installer"
+}, {
+    "module": "compatibility/array",
+    "description": "Array methods polyfill"
+}, {
+    "module": "factory",
+    "description": "_gpfGenericFactory()"
+}, {
+    "module": "compatibility/date",
+    "description": "Date methods polyfill"
+}, {
+    "module": "compatibility/function",
+    "description": "Function methods polyfill"
+}]
+    "compatibility/object",                             // Object methods polyfill
+    "compatibility/string",                             // String methods polyfill
+    "compatibility/promise",                            // Promise polyfill              gpf.Promise
+    "context",                                          //                             gpf.context()
+    "constants",                                        // Constants
+    "scope",                                            //                        _gpfResolveScope()
+    "events",                                           // Event management         gpf.events.Event
+    "include",                                          // WEB include               gpf.web.include
+    "bootstrap",                                        // Helper to bootstrap methods
+    "base",                                             // General helpers
+    "function",                                         // Function builder
+    "like",                                             // Comparison helper                gpf.like
+    "error",                                            // Error base class                gpf.Error
+    "dispatch",                                         //                gpf.mixins.EventDispatcher
+    "mimetype",                                         // Mime types handling   gpf.web.getMimeType
+    "timeout",                                          //                                setTimeout
+    "bin",                                              // Binary tools                      gpf.bin
+    "json",                                             // JSON compatibility layer             JSON
+    "path",                                             // Path helper                      gpf.path
+    "path/matcher",                                     // Path matcher                     gpf.path
+    "javascript",                                       // JavaScript language tools          gpf.js
+    "csv",                                              // CSV helper                        gpf.csv
+    "define",                                           // Class management               gpf.define
+    "attributes",                                       // Attributes                 gpf.attributes
+    "attributes/attributes",                            // AttributeClassOnly attributes
+    "attributes/class",                                 // Class attributes
+    "interfaces",                                       // Interfaces                 gpf.interfaces
+    "interfaces/enumerator",                            // IEnumerator
+    "interfaces/array",                                 // IArray
+    "interfaces/stream",                                // IStream
+    "interfaces/filestorage",                           // IFileStorage
+    "fs",                                               // File system (FS)                   gpf.fs
+
+    "stream",                                           // Stream helpers                 gpf.stream
+    "stream/pipe",                                      //                           gpf.stream.pipe
+    "string",                                           // String functions
+    "array",                                            // Array functions
+
+    "",                                                 // --- temporary end marker ---
+
+    "stream/node",
+    "stream/cache",
+
+
+    // https://github.com/ArnaudBuchholz/gpf-js/milestones/Release%200.1.5:%20The%20next%20gen
+
+    // https://github.com/ArnaudBuchholz/gpf-js/issues/67
+    "parser",                                           // Parser helper                  gpf.Parser
+    "pattern",                                          // Patterns                       gpf.Parser
+    "tokenizer",                                        // Javascript parser                  gpf.js
+
+    // https://github.com/ArnaudBuchholz/gpf-js/issues/66
+    "fs/node",                                          // FS implementation for nodeJS       gpf.fs
+    "fs/ms",                                            // FS implementation for WScript      gpf.fs
+
+    // https://github.com/ArnaudBuchholz/gpf-js/issues/68
+    "stream_out",                                       // gpf.stream.Out
+    "stream_node",                                      // IStream helpers for nodeJS     gpf.stream
+    "encoding",                                         // Encoding                     gpf.encoding
+
+    // https://github.com/ArnaudBuchholz/gpf-js/milestones/Release%200.2.1:%20XML
+    "i_wrapper",                                        // Interface wrapper  gpf.interfaces.Wrapper
+
+    "i_xml",                                            // IXmlSerializable & IXmlContentHandler
+    "a_xml",                                            // Xml attributes
+    "xml",                                              // Xml helpers                       gpf.xml
+    "xserial",                                          // Xml serialization
+    "xnode",                                            // Xml 'DOM' structure               gpf.xml
+    "xpath",                                            // Xml 'XPATH' parser/evaluator      gpf.xml
+
+    "params",                                           // Parameters parsing             gpf.Params
+
+    "serial",                                           // Object serialization           gpf.serial
+
+    // The following ones must be at the end
+    "html",                                             // HTML specific functions          gpf.html
+    "websvr"                                            // Simple JSP web server (nodeJS specific)
+]
