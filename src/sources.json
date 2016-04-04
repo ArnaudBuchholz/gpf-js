@@ -5,23 +5,23 @@
 }, {
     "module": "host/browser",
     "description": "Browser host adapter",
-    "test": false
+    "load": false
 }, {
     "module": "host/nodejs",
     "description": "NodeJS host adapter",
-    "test": false
+    "load": false
 }, {
     "module": "host/phantomjs",
     "description": "PhantomJS host adapter",
-    "test": false
+    "load": false
 }, {
     "module": "host/rhino",
     "description": "Rhino host adapter",
-    "test": false
+    "load": false
 }, {
     "module": "host/wscript",
     "description": "MS Script host adapter",
-    "test": false
+    "load": false
 }, {
     "module": "assert",
     "description": "Assertion helpers"
@@ -52,82 +52,196 @@
 }, {
     "module": "compatibility/function",
     "description": "Function methods polyfill"
+}, {
+    "module": "compatibility/object",
+    "description": "Object methods polyfill"
+}, {
+    "module": "compatibility/string",
+    "description": "String methods polyfill"
+}, {
+    "module": "compatibility/promise",
+    "description": "Promise polyfill (gpf.Promise)"
+}, {
+    "module": "context",
+    "description": "gpf.context()"
+}, {
+    "module": "constants",
+    "description": "Constants"
+}, {
+    "module": "scope",
+    "description": "_gpfResolveScope()"
+}, {
+    "module": "events",
+    "description": "Event management (gpf.events.Event)"
+}, {
+    "module": "include",
+    "description": "WEB include (gpf.web.include)"
+}, {
+    "module": "bootstrap",
+    "description": "Helper to bootstrap methods"
+}, {
+    "module": "base",
+    "description": "General helpers"
+}, {
+    "module": "function",
+    "description": "Function builder"
+}, {
+    "module": "like",
+    "description": "Comparison helper                gpf.like"
+}, {
+    "module": "error",
+    "description": "Error base class                gpf.Error"
+}, {
+    "module": "dispatch",
+    "description": "               gpf.mixins.EventDispatcher"
+}, {
+    "module": "mimetype",
+    "description": "Mime types handling   gpf.web.getMimeType"
+}, {
+    "module": "timeout",
+    "description": "                               setTimeout"
+}, {
+    "module": "bin",
+    "description": "Binary tools                      gpf.bin"
+}, {
+    "module": "json",
+    "description": "JSON compatibility layer             JSON"
+}, {
+    "module": "path",
+    "description": "Path helper                      gpf.path"
+}, {
+    "module": "path/matcher",
+    "description": "Path matcher                     gpf.path"
+}, {
+    "module": "javascript",
+    "description": "JavaScript language tools          gpf.js"
+}, {
+    "module": "csv",
+    "description": "CSV helper                        gpf.csv"
+}, {
+    "module": "define",
+    "description": "Class management               gpf.define"
+}, {
+    "module": "attributes",
+    "description": "Attributes                 gpf.attributes"
+}, {
+    "module": "attributes/attributes",
+    "description": "AttributeClassOnly attributes"
+}, {
+    "module": "attributes/class",
+    "description": "Class attributes"
+}, {
+    "module": "interfaces",
+    "description": "Interfaces                 gpf.interfaces"
+}, {
+    "module": "interfaces/enumerator",
+    "description": "IEnumerator"
+}, {
+    "module": "interfaces/array",
+    "description": "IArray"
+}, {
+    "module": "interfaces/stream",
+    "description": "IStream"
+}, {
+    "module": "interfaces/filestorage",
+    "description": "IFileStorage"
+}, {
+    "module": "fs",
+    "description": "File system (FS)                   gpf.fs"
+}, {
+    "module": "stream",
+    "description": "Stream helpers                 gpf.stream"
+}, {
+    "module": "stream/pipe",
+    "description": "                          gpf.stream.pipe"
+}, {
+    "module": "string",
+    "description": "String functions"
+}, {
+    "module": "array",
+    "description": "Array functions"
+}, {
+    "module": "stream/node",
+    "description": "NodeJS specific stream implementation",
+    "load": false
+}, {
+    "module": "stream/cache",
+    "description": "Buffer stream",
+    "load": false
+}, {
+    "module": "parser",
+    "description": "Parser helper                  gpf.Parser",
+    "load": false
+}, {
+    "module": "pattern",
+    "description": "Patterns                       gpf.Parser",
+    "load": false
+}, {
+    "module": "tokenizer",
+    "description": "Javascript parser                  gpf.js",
+    "load": false
+}, {
+    "module": "fs/node",
+    "description": "FS implementation for nodeJS       gpf.fs",
+    "load": false
+}, {
+    "module": "fs/ms",
+    "description": "FS implementation for WScript      gpf.fs",
+    "load": false
+}, {
+    "module": "stream_out",
+    "description": "gpf.stream.Out",
+    "load": false
+}, {
+    "module": "stream_node",
+    "description": "IStream helpers for nodeJS     gpf.stream",
+    "load": false
+}, {
+    "module": "encoding",
+    "description": "Encoding                     gpf.encoding",
+    "load": false
+}, {
+    "module": "i_wrapper",
+    "description": "Interface wrapper  gpf.interfaces.Wrapper",
+    "load": false
+}, {
+    "module": "i_xml",
+    "description": "IXmlSerializable & IXmlContentHandler",
+    "load": false
+}, {
+    "module": "a_xml",
+    "description": "Xml attributes",
+    "load": false
+}, {
+    "module": "xml",
+    "description": "Xml helpers                       gpf.xml",
+    "load": false
+}, {
+    "module": "xserial",
+    "description": "Xml serialization",
+    "load": false
+}, {
+    "module": "xnode",
+    "description": "Xml 'DOM' structure               gpf.xml",
+    "load": false
+}, {
+    "module": "xpath",
+    "description": "Xml 'XPATH' parser/evaluator      gpf.xml",
+    "load": false
+}, {
+    "module": "params",
+    "description": "Parameters parsing             gpf.Params",
+    "load": false
+}, {
+    "module": "serial",
+    "description": "Object serialization           gpf.serial",
+    "load": false
+}, {
+    "module": "html",
+    "description": "HTML specific functions          gpf.html",
+    "load": false
+}, {
+    "module": "websvr",
+    "description": "Simple JSP web server (nodeJS specific)",
+    "load": false
 }]
-    "compatibility/object",                             // Object methods polyfill
-    "compatibility/string",                             // String methods polyfill
-    "compatibility/promise",                            // Promise polyfill              gpf.Promise
-    "context",                                          //                             gpf.context()
-    "constants",                                        // Constants
-    "scope",                                            //                        _gpfResolveScope()
-    "events",                                           // Event management         gpf.events.Event
-    "include",                                          // WEB include               gpf.web.include
-    "bootstrap",                                        // Helper to bootstrap methods
-    "base",                                             // General helpers
-    "function",                                         // Function builder
-    "like",                                             // Comparison helper                gpf.like
-    "error",                                            // Error base class                gpf.Error
-    "dispatch",                                         //                gpf.mixins.EventDispatcher
-    "mimetype",                                         // Mime types handling   gpf.web.getMimeType
-    "timeout",                                          //                                setTimeout
-    "bin",                                              // Binary tools                      gpf.bin
-    "json",                                             // JSON compatibility layer             JSON
-    "path",                                             // Path helper                      gpf.path
-    "path/matcher",                                     // Path matcher                     gpf.path
-    "javascript",                                       // JavaScript language tools          gpf.js
-    "csv",                                              // CSV helper                        gpf.csv
-    "define",                                           // Class management               gpf.define
-    "attributes",                                       // Attributes                 gpf.attributes
-    "attributes/attributes",                            // AttributeClassOnly attributes
-    "attributes/class",                                 // Class attributes
-    "interfaces",                                       // Interfaces                 gpf.interfaces
-    "interfaces/enumerator",                            // IEnumerator
-    "interfaces/array",                                 // IArray
-    "interfaces/stream",                                // IStream
-    "interfaces/filestorage",                           // IFileStorage
-    "fs",                                               // File system (FS)                   gpf.fs
-
-    "stream",                                           // Stream helpers                 gpf.stream
-    "stream/pipe",                                      //                           gpf.stream.pipe
-    "string",                                           // String functions
-    "array",                                            // Array functions
-
-    "",                                                 // --- temporary end marker ---
-
-    "stream/node",
-    "stream/cache",
-
-
-    // https://github.com/ArnaudBuchholz/gpf-js/milestones/Release%200.1.5:%20The%20next%20gen
-
-    // https://github.com/ArnaudBuchholz/gpf-js/issues/67
-    "parser",                                           // Parser helper                  gpf.Parser
-    "pattern",                                          // Patterns                       gpf.Parser
-    "tokenizer",                                        // Javascript parser                  gpf.js
-
-    // https://github.com/ArnaudBuchholz/gpf-js/issues/66
-    "fs/node",                                          // FS implementation for nodeJS       gpf.fs
-    "fs/ms",                                            // FS implementation for WScript      gpf.fs
-
-    // https://github.com/ArnaudBuchholz/gpf-js/issues/68
-    "stream_out",                                       // gpf.stream.Out
-    "stream_node",                                      // IStream helpers for nodeJS     gpf.stream
-    "encoding",                                         // Encoding                     gpf.encoding
-
-    // https://github.com/ArnaudBuchholz/gpf-js/milestones/Release%200.2.1:%20XML
-    "i_wrapper",                                        // Interface wrapper  gpf.interfaces.Wrapper
-
-    "i_xml",                                            // IXmlSerializable & IXmlContentHandler
-    "a_xml",                                            // Xml attributes
-    "xml",                                              // Xml helpers                       gpf.xml
-    "xserial",                                          // Xml serialization
-    "xnode",                                            // Xml 'DOM' structure               gpf.xml
-    "xpath",                                            // Xml 'XPATH' parser/evaluator      gpf.xml
-
-    "params",                                           // Parameters parsing             gpf.Params
-
-    "serial",                                           // Object serialization           gpf.serial
-
-    // The following ones must be at the end
-    "html",                                             // HTML specific functions          gpf.html
-    "websvr"                                            // Simple JSP web server (nodeJS specific)
-]
