@@ -13,10 +13,14 @@ for (idx = 0; idx < len; ++idx) {
     parameters.push(WScript.Arguments(idx));
 }
 
+function read (path) {
+    return fso.OpenTextFile(path, 1/*forReading*/, false, 0).ReadAll();
+}
+
 function load (path) {
     try {
         /*jslint evil: true*/
-        eval(fso.OpenTextFile(path, 1/*forReading*/, false, 0).ReadAll()); //eslint-disable-line no-eval
+        eval(read(path)); //eslint-disable-line no-eval
         /*jslint evil: false*/
     } catch (e) {
         WScript.Echo("An error occurred while evaluating: " + path + "\r\n" + e.message);
@@ -35,5 +39,5 @@ loadGpfAndTests({
     exit: function (code) {
         WScript.Quit(code);
     },
-    load: load
+    read: read
 });
