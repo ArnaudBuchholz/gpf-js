@@ -4,6 +4,9 @@
 
     /*global run*/ // From bdd.js
 
+    var Func = Function,
+        sources;
+
     var context = (function () {
         /*global global*/ // NodeJS global
         if ("object" === typeof global) {
@@ -41,14 +44,10 @@
     }
 
     function _load (configuration, path) {
-        if (configuration.load) {
-            configuration.load.call(null, path); // To force the use of global context
-        } else {
-            var content = configuration.read(path);
-            /*jslint evil: true*/
-            eval(content); //eslint-disable-line no-eval
-            /*jslint evil: false*/
-        }
+        var content = configuration.read(path);
+        /*jslint evil: true*/
+        eval(content); //eslint-disable-line no-eval
+        /*jslint evil: false*/
     }
 
     function _requireGpf (configuration, path) {
@@ -78,9 +77,9 @@
             context.gpfSourcesPath = _resolvePath(configuration, "src/");
             _load(configuration, _resolvePath(configuration, "src/boot.js"));
         }
-        if (undefined === gpf.sources) {
-            _load(configuration, _resolvePath(configuration, "src/sources.js"));
-        }
+        // Load the list of modules
+        var sourcesJson = configuration.read("src/sources.json");
+        sources = new Func("return " + sourcesJson + ";")();
     }
 
     function _loadBDD (configuration, verbose) {
@@ -98,23 +97,33 @@
         }
     }
 
-    function _loadTests (configuration, options) {
-        var sources,
-            len,
+    function loadTestsFromNames (configuration, names) {
+        var len = names.length,
             sourceIdx,
             source;
-        if (options.tests.length) {
-            sources = options.tests;
-        } else {
-            sources = gpf.sources();
+        for (sourceIdx = 0; sourceIdx < len; ++sourceIdx) {
+            source = names[sourceIdx];
+            _loadTest(configuration, _resolvePath(configuration, "test/" + source + ".js"));
         }
-        len = sources.length;
+    }
+
+    function loadTestsFromModules (configuration) {
+        var len = sources.length,
+            sourceIdx,
+            source;
         for (sourceIdx = 0; sourceIdx < len; ++sourceIdx) {
             source = sources[sourceIdx];
-            if (!source) {
-                break;
+            if (source.load !== false && source.test !== false) {
+                _loadTest(configuration, _resolvePath(configuration, "test/" + source.name + ".js"));
             }
-            _loadTest(configuration, _resolvePath(configuration, "test/" + source + ".js"));
+        }
+    }
+
+    function _loadTests (configuration, options) {
+        if (options.tests.length) {
+            loadTestsFromNames(configuration, options.tests);
+        } else {
+            loadTestsFromModules(configuration);
         }
     }
 
@@ -135,8 +144,8 @@
      * - {Function} log
      * - {Function} exit
      * - (Function) require
-     * - (Function) load optional if read specified, receives (filePath)
-     * - (Function) read optional if load specified, receives (filePath)
+     * - (Function) read  function (filePath) {} reads a file
+     * - (Function) [loadTest=undefined] loadTest function (filePath) {} reads a test file
      * - {Function} done
      * @private
      */
