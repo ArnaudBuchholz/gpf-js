@@ -7,14 +7,14 @@ module.exports = function (grunt) {
     require("time-grunt")(grunt);
 
     // Build the list of valid source and test files based on sources.json
-    var modules = grunt.file.readJSON("src/sources.json"),
+    var sources = grunt.file.readJSON("src/sources.json"),
         srcFiles = ["src/boot.js"],
         testFiles = [];
-    modules.forEach(function (module) {
-        var name = module.name;
-        if (module.load !== false) {
+    sources.forEach(function (source) {
+        var name = source.name;
+        if (source.load !== false) {
             srcFiles.push("src/" + name + ".js");
-            if (module.test !== false) {
+            if (source.test !== false) {
                 testFiles.push("test/" + name + ".js");
             }
         }
