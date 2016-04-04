@@ -11,48 +11,34 @@
         window.gpfTestsPath = "../";
     }
 
+    function error (msg) {
+        if (console.expects) {
+            console.expects("error", /.*/, true);
+        }
+        console.error(msg);
+    }
+
     var MAX_WAIT = 50,
         loadedCallback,
-        dependencyIdx = -1,
-        dependencies,
-        sourceIdx = -1,
-        sources,
+        moduleIdx = 0,
+        modules,
         includeReady = {};
 
-    function _waitForTestCases () {
-        // Load test cases that are named like sources
-        if (-1 === sourceIdx) {
-            sources = gpf.sources();
-            sourceIdx = 0;
+    function _waitForTestCases (event) {
+        if (event && "error" === event.type) {
+            error(event.get("error").message);
+            return;
         }
-        if (sourceIdx < sources.length) {
-            var source = sources[sourceIdx];
-            if (source) {
-                gpf.web.include(window.gpfTestsPath + source + ".js", includeReady);
-                ++sourceIdx;
+        while (moduleIdx < modules.length) {
+            var module = modules[moduleIdx];
+            ++moduleIdx;
+            if (module.load !== false && module.test !== false) {
+                gpf.web.include(window.gpfTestsPath + module.name + ".js", _waitForTestCases);
                 return;
             }
         }
         // Everything is loaded
         loadedCallback();
-    }
-
-    function _waitForDependencies () {
-        // Check if any dependencies
-        if (-1 === dependencyIdx) {
-            dependencyIdx = 0;
-        }
-        if (dependencyIdx < dependencies.length) {
-            gpf.web.include(dependencies[dependencyIdx], includeReady);
-            ++dependencyIdx;
-            return;
-        }
-        // Check if console override is defined
-        if (undefined === console.expects) {
-            gpf.web.include(window.gpfTestsPath + "host/console.js", includeReady);
-            return;
-        }
-        _waitForTestCases();
     }
 
     /**
@@ -62,22 +48,22 @@
         // Check if the GPF library is loaded
         if ("undefined" === typeof gpf) {
             if (--MAX_WAIT) {
-                console.log("GPF not loaded yet...");
                 window.setTimeout(_waitForLoad, 100);
             } else {
-                console.error("Unable to load GPF");
+                error("Unable to load GPF");
             }
             return;
         }
-        // Check if sources are loaded
-        if (!gpf.sources) {
-            console.log("Missing sources");
-            gpf.web.include(gpfSourcesPath + "sources.js", {
-                ready: _waitForLoad
-            });
-            return;
-        }
-        _waitForDependencies();
+        // Load sources
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", gpfSourcesPath + "sources.json");
+        xhr.onreadystatechange = function () {
+            if (4 === xhr.readyState) {
+                modules = JSON.parse(xhr.responseText);
+                _waitForTestCases();
+            }
+        };
+        xhr.send();
     }
 
     includeReady.ready = _waitForLoad;
@@ -86,7 +72,8 @@
         var locationSearch,
             release,
             debug,
-            version;
+            version,
+            msg;
         if (window.gpfVersion) {
             locationSearch = window.gpfVersion;
         } else {
@@ -104,7 +91,11 @@
             version = "sources";
             script.src = gpfSourcesPath + "boot.js";
         }
-        console.log("Using " + version + " version");
+        msg = "Using " + version + " version";
+        if (console.expects) {
+            console.expects("log", msg, true);
+        }
+        console.log(msg);
     }
 
     function _loadVersion () {
@@ -120,19 +111,9 @@
      * Load the GPF framework and test cases.
      * When done, execute the callback.
      *
-     * @param {String[]|String} [additionalDependencies=undefined]
      * @param {Function} callback
      */
-    window.load = function (additionalDependencies, callback) {
-        if (undefined === callback) {
-            dependencies = [];
-            callback = additionalDependencies;
-        } else {
-            if (!(additionalDependencies instanceof Array)) {
-                additionalDependencies = [additionalDependencies];
-            }
-            dependencies = additionalDependencies;
-        }
+    window.load = function (callback) {
         loadedCallback = callback;
         _loadVersion();
     };
