@@ -5,6 +5,14 @@ var fs = require("fs");
 // Use gpf library (source version)
 global.gpfSourcesPath = "./src/";
 require("../src/boot.js");
+var sources = JSON.parse(fs.readFileSync("./src/sources.json"))
+    .filter(function (source) {
+        return source.load !== false;
+    })
+    .map(function (source) {
+        return source.name;
+    });
+sources.unshift("boot"); // Also include boot
 
 //region Istanbul coverage
 
@@ -176,9 +184,9 @@ var mochaTestData = JSON.parse(fs.readFileSync("tmp/coverage/mochaTest.json")),
 
 //endregion
 
-var numberOfModules = gpf.sources().join().split(",,")[0].split(",").length;
+var numberOfSources = sources.length;
 
-// console.log("Number of modules: " + numberOfModules);
+// console.log("Number of modules: " + numberOfSources);
 
 var SEPARATOR = "----- | ----- | -----",
     readme = fs.readFileSync("README.md").toString(),
@@ -198,8 +206,8 @@ var metricsSectionHeader = readmeSections[metricsSectionIndex].split(SEPARATOR)[
         "\r\nFunctions coverage|", functionsCoverage, "%|*", functionsIgnored, "% ignored*",
         "\r\nAverage maintainability|", averageMaintainability, "|",
         "\r\nNumber of tests|", numberOfTests, "|*pending: ", pendingTests, ", duration: ", testDuration, "ms*",
-        "\r\nNumber of modules|", numberOfModules, "|",
-        "\r\nLines of Code|", linesOfCode, "|*Average per module: ", averageLinesOfCode, "*",
+        "\r\nNumber of sources|", numberOfSources, "|",
+        "\r\nLines of Code|", linesOfCode, "|*Average per source: ", averageLinesOfCode, "*",
         "\r\n\r\n"
     ];
 readmeSections[metricsSectionIndex] = metricsSectionHeader + SEPARATOR + metrics.join("");
