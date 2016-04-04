@@ -11,17 +11,24 @@
         window.gpfTestsPath = "../";
     }
 
+    function log (msg) {
+        if (console.expects) {
+            console.expects("log", msg, true);
+        }
+        console.log(msg);
+    }
+
     function error (msg) {
         if (console.expects) {
-            console.expects("error", /.*/, true);
+            console.expects("error", msg, true);
         }
         console.error(msg);
     }
 
     var MAX_WAIT = 50,
         loadedCallback,
-        moduleIdx = 0,
-        modules,
+        sourceIdx = 0,
+        sources,
         includeReady = {};
 
     function _waitForTestCases (event) {
@@ -29,11 +36,11 @@
             error(event.get("error").message);
             return;
         }
-        while (moduleIdx < modules.length) {
-            var module = modules[moduleIdx];
-            ++moduleIdx;
-            if (module.load !== false && module.test !== false) {
-                gpf.web.include(window.gpfTestsPath + module.name + ".js", _waitForTestCases);
+        while (sourceIdx < sources.length) {
+            var source = sources[sourceIdx];
+            ++sourceIdx;
+            if (source.load !== false && source.test !== false) {
+                gpf.web.include(window.gpfTestsPath + source.name + ".js", _waitForTestCases);
                 return;
             }
         }
@@ -59,7 +66,7 @@
         xhr.open("GET", gpfSourcesPath + "sources.json");
         xhr.onreadystatechange = function () {
             if (4 === xhr.readyState) {
-                modules = JSON.parse(xhr.responseText);
+                sources = JSON.parse(xhr.responseText);
                 _waitForTestCases();
             }
         };
@@ -72,8 +79,7 @@
         var locationSearch,
             release,
             debug,
-            version,
-            msg;
+            version;
         if (window.gpfVersion) {
             locationSearch = window.gpfVersion;
         } else {
@@ -91,11 +97,7 @@
             version = "sources";
             script.src = gpfSourcesPath + "boot.js";
         }
-        msg = "Using " + version + " version";
-        if (console.expects) {
-            console.expects("log", msg, true);
-        }
-        console.log(msg);
+        log("Using " + version + " version");
     }
 
     function _loadVersion () {
