@@ -19,5 +19,5 @@ loadGpfAndTests({
     exit: function (code) {
         java.lang.System.exit(code);
     },
-    load: load
+    read: readFile
 });
