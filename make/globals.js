@@ -18,6 +18,7 @@ function Module (name) {
     Module.byName[name] = this;
     this.lines = fs.readFileSync("./src/" + name + ".js").toString().split("\n");
     this.imports = [];
+    this.writableImport = {};
     this.exports = {};
     this.filteredLines = [];
 }
@@ -31,6 +32,9 @@ Module.prototype = {
 
     // @property {String[]} Imported symbols
     imports: [],
+
+    // @property {Object} Imported symbols is read-only (false/undefined) or modifiable (true)
+    writableImport: {},
 
     // @property {Object} Dictionary of exported symbols mapping to their description
     exports: {},
@@ -99,7 +103,14 @@ Module.prototype = {
 
     // global found
     _processImport: function (line, lineIndex) {
-        var name = line.split("*/")[0].substr(9).trim();
+        var name = line.split("*/")[0].substr(9).trim(),
+            modifiable;
+        if (name.indexOf(":")) {
+            name = name.split(":");
+            modifiable = name[1] === "true";
+            name = name[0];
+            this.writableImport[name] = modifiable;
+        }
         this.imports.push(name);
         this.filteredLines.push(lineIndex);
         return true;
@@ -132,7 +143,11 @@ Module.prototype = {
                 this.error("No export for '" + name + "'");
                 return;
             }
-            var global = "/*global " + name + "*/ // " + module.exports[name];
+            var global = "/*global " + name;
+            if (this.writableImport[name]) {
+                global += ":true";
+            }
+            global += "*/ // " + module.exports[name];
             spliceArgs.push(global);
         }, this);
         Object.keys(this.exports).sort().forEach(function (name) {
