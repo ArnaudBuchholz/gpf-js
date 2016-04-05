@@ -13,6 +13,10 @@
 if (_GPF_HOST_NODEJS === _gpfHost) {
 
     _gpfInNode = true;
-    _gpfExit = process.exit;
+
+    /* istanbul ignore next */ // Not testable
+    _gpfExit = function (code) {
+        process.exit(code);
+    };
 
 }
