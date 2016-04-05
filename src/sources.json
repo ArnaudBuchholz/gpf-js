@@ -5,23 +5,23 @@
 }, {
     "name": "host/browser",
     "description": "Browser host adapter",
-    "load": false
+    "test": false
 }, {
     "name": "host/nodejs",
     "description": "NodeJS host adapter",
-    "load": false
+    "test": false
 }, {
     "name": "host/phantomjs",
     "description": "PhantomJS host adapter",
-    "load": false
+    "test": false
 }, {
     "name": "host/rhino",
     "description": "Rhino host adapter",
-    "load": false
+    "test": false
 }, {
     "name": "host/wscript",
     "description": "MS Script host adapter",
-    "load": false
+    "test": false
 }, {
     "name": "assert",
     "description": "Assertion helpers"
