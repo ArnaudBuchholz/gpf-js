@@ -16,6 +16,8 @@ if (_GPF_HOST_PHANTOMJS === _gpfHost) {
 
     _gpfInNode = true;
     _gpfInBrowser = true;
-    _gpfExit = phantom.exit;
+    _gpfExit = function (code) {
+        phantom.exit(code);
+    };
 
 }
