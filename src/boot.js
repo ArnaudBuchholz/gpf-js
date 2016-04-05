@@ -24,8 +24,6 @@
 /*eslint-disable no-unused-vars*/
 /*#endif*/
 
- /*eslint-disable no-invalid-this, no-useless-call*/ // this is used to grab the global context
-
 // An empty function
 function _gpfEmptyFunc () {}
 
@@ -64,7 +62,7 @@ var
 
     /*jshint -W040*/ // This is the common way to get the global context
     // Main context object
-    _gpfMainContext = this, //eslint-disable-line consistent-this
+    _gpfMainContext = this, //eslint-disable-line no-invalid-this, consistent-this
     /*jshint +W040*/
 
     /**
@@ -137,6 +135,8 @@ _gpfVersion += "-debug";
 
 /*#ifndef(UMD)*/
 
+_gpfVersion += "-source";
+
 /**
  * Synchronous read function
  *
@@ -152,34 +152,11 @@ var _gpfSyncReadForBoot;
 
 // Microsoft cscript / wscript
 if ("undefined" !== typeof WScript) {
-    /*eslint-disable new-cap*/
-
     _gpfHost = _GPF_HOST_WSCRIPT;
     _gpfDosPath = true;
-    _gpfMainContext = function () {
-        return this;
-    }.call(null);
-    _gpfExit = function (code) {
-        WScript.Quit(code);
-    };
-
-    // Define console APIs
-    _gpfMainContext.console = {
-        log: function (t) {
-            WScript.Echo("    " + t);
-        },
-        info: function (t) {
-            WScript.Echo("[?] " + t);
-        },
-        warn: function (t) {
-            WScript.Echo("/!\\ " + t);
-        },
-        error: function (t) {
-            WScript.Echo("(X) " + t);
-        }
-    };
 
 /*#ifndef(UMD)*/
+    /*eslint-disable new-cap*/
 
     _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
 
@@ -190,34 +167,12 @@ if ("undefined" !== typeof WScript) {
         return srcContent;
     };
 
+    /*eslint-enable new-cap*/
 /*#endif*/
 
-    /*eslint-enable new-cap*/
 } else if ("undefined" !== typeof print && "undefined" !== typeof java) {
     _gpfHost = _GPF_HOST_RHINO;
     _gpfDosPath = false;
-    _gpfMainContext = function () {
-        return this;
-    }.call(null);
-    _gpfExit = function (code) {
-        java.lang.System.exit(code);
-    };
-
-    // Define console APIs
-    _gpfMainContext.console = {
-        log: function (t) {
-            print("    " + t);
-        },
-        info: function (t) {
-            print("[?] " + t);
-        },
-        warn: function (t) {
-            print("/!\\ " + t);
-        },
-        error: function (t) {
-            print("(X) " + t);
-        }
-    };
 
 /*#ifndef(UMD)*/
 
@@ -229,10 +184,6 @@ if ("undefined" !== typeof WScript) {
 } else if ("undefined" !== typeof phantom && phantom.version) {
     _gpfHost = _GPF_HOST_PHANTOMJS;
     _gpfDosPath = require("fs").separator === "\\";
-    _gpfMainContext = window;
-    _gpfInNode = true;
-    _gpfInBrowser = true;
-    _gpfExit = phantom.exit;
 
 /*#ifndef(UMD)*/
 
@@ -250,11 +201,8 @@ if ("undefined" !== typeof WScript) {
     _gpfNodePath = require("path");
     _gpfDosPath = _gpfNodePath.sep === "\\";
     _gpfMainContext = global;
-    _gpfInNode = true;
-    _gpfExit = process.exit;
 
 /*#ifndef(UMD)*/
-
     /*eslint-disable no-sync*/ // Simpler this way
 
     _gpfNodeFs =  require("fs");
@@ -269,11 +217,6 @@ if ("undefined" !== typeof WScript) {
 } else if ("undefined" !== typeof window) {
     _gpfHost = _GPF_HOST_BROWSER;
     _gpfMainContext = window;
-    _gpfInBrowser = true;
-    _gpfExit = _gpfEmptyFunc;
-    _gpfWebWindow = window;
-    _gpfWebDocument = document;
-    _gpfWebHead = _gpfWebDocument.getElementsByTagName("head")[0] || _gpfWebDocument.documentElement;
 
 /*#ifndef(UMD)*/
 
@@ -284,31 +227,65 @@ if ("undefined" !== typeof WScript) {
         return xhr.responseText;
     };
 
-
 /*#endif*/
 
 }
 
 /*#ifndef(UMD)*/
 
+/**
+ * Loading sources occurs here for the non UMD version.
+ * UMD versions (debug / release) will have everything concatenated.
+ */
+
+// Need to create the gpf name 'manually'
 _gpfMainContext.gpf = {
     internals: {} // To support testable internals
 };
 
-/*#endif*/
-
-// Install host specifics (if any)
-/* istanbul ignore else */ // Because tested with NodeJS
-if (_gpfInNode) {
-    gpf.node = {};
+// gpfSourcesPath - if defined - gives the relative path to sources
+function _gpfGetSourcesPath () {
+    var result = gpfSourcesPath,
+        pathSep;
+    /* istanbul ignore next */ // Handled the right way with NodeJS
+    if ("undefined" === typeof result) {
+        result = "";
+    } else {
+        if (_gpfDosPath) {
+            pathSep = "\\";
+        } else {
+            pathSep = "/";
+        }
+        if (result.charAt(result.length - 1) !== pathSep) {
+            result += pathSep;
+        }
+    }
+    return result;
 }
-// Some web-related tools will be configured even if not in a browser, declare the namespace now
-gpf.web = {};
 
-// Returns the current version
-gpf.version = function () {
-    return _gpfVersion;
-};
+function _gpfLoadSources () { //jshint ignore:line
+    /*jslint evil: true*/
+    var sourcePath = _gpfGetSourcesPath(),
+        sourceListContent = _gpfSyncReadForBoot(sourcePath + "sources.json"),
+        _gpfSources,
+        allContent = [],
+        idx = 0,
+        source;
+    eval("_gpfSources = " + sourceListContent + ";"); //eslint-disable-line no-eval
+    for (; idx < _gpfSources.length; ++idx) {
+        source = _gpfSources[idx];
+        if (source.load !== false) {
+            allContent.push(_gpfSyncReadForBoot(sourcePath + source.name + ".js"));
+        }
+    }
+    return allContent.join("\r\n");
+}
+
+/*jshint ignore:start*/ // Best way I found
+eval(_gpfLoadSources()); //eslint-disable-line no-eval
+/*jshint ignore:end*/
+
+/*#endif*/
 
 /**
  * Returns a string identifying the detected host
@@ -324,46 +301,7 @@ gpf.host = function () {
     return _gpfHost;
 };
 
-/*#ifndef(UMD)*/
-
-/**
- * Loading sources occurs here for the non UMD version.
- * UMD versions (debug / release) will have everything concatenated.
- */
-
-/* istanbul ignore next */ // Handled the right way with NodeJS
-// gpfSourcesPath - if defined - gives the relative path to sources
-if ("undefined" === typeof gpfSourcesPath) {
-    _gpfMainContext.gpfSourcesPath = "";
-} else {
-    var pathSep;
-    if (_gpfDosPath) {
-        pathSep = "\\";
-    } else {
-        pathSep = "/";
-    }
-    if (gpfSourcesPath.charAt(gpfSourcesPath.length - 1) !== pathSep) {
-        gpfSourcesPath += pathSep;
-    }
-}
-
-var _gpfSourcesContent = _gpfSyncReadForBoot(gpfSourcesPath + "sources.js");
-/*jslint evil: true*/
-eval(_gpfSourcesContent); //eslint-disable-line no-eval
-/*jslint evil: false*/
-var _gpfSources = gpf.sources(),
-    _gpfAllContent = [],
-    _gpfSourceIdx = 0,
-    _gpfSourceModule;
-for (_gpfSourceIdx = 0; _gpfSourceIdx < _gpfSources.length; ++_gpfSourceIdx) {
-    _gpfSourceModule = _gpfSources[_gpfSourceIdx];
-    if (!_gpfSourceModule) {
-        break;
-    }
-    _gpfAllContent.push(_gpfSyncReadForBoot(gpfSourcesPath + _gpfSourceModule + ".js"));
-}
-/*jslint evil: true*/
-eval(_gpfAllContent.join("\r\n")); //eslint-disable-line no-eval
-/*jslint evil: false*/
-
-/*#endif*/
+// Returns the current version
+gpf.version = function () {
+    return _gpfVersion;
+};
