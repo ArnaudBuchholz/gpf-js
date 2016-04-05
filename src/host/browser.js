@@ -1,8 +1,8 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
-/*global _gpfHost*/ // Host type
 /*global _gpfExit:true*/ // Exit function
+/*global _gpfHost*/ // Host type
 /*global _gpfInBrowser:true*/ // The current host is a browser like
 /*global _gpfWebDocument:true*/ // Browser document object
 /*global _gpfWebHead:true*/ // Browser head tag
@@ -12,6 +12,7 @@
 /*jshint browser: true*/
 /*eslint-env browser*/
 
+/* istanbul ignore next */ // Tested with NodeJS
 if (_GPF_HOST_BROWSER === _gpfHost) {
 
     _gpfInBrowser = true;
