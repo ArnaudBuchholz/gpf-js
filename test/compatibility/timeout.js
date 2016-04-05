@@ -1,6 +1,6 @@
 "use strict";
 
-describe("timeout", function () {
+describe("compatibility/timeout", function () {
 
     /**
      * Generate timeout scenario

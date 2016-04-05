@@ -62,7 +62,7 @@
     "name": "compatibility/promise",
     "description": "Promise polyfill"
 }, {
-    "name": "timeout",
+    "name": "compatibility/timeout",
     "description": "setTimeout polyfill"
 }, {
     "name": "context",
