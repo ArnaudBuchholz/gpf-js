@@ -6,7 +6,13 @@ var IO_PATH = "../ArnaudBuchholz.github.io/",
         getPlatoHistory: {},
         publishVersionPlato: {},
         publishVersion: {},
-        publishTest: {}
+        publishTest: {},
+        sourcesJson: {
+            expand: true,
+            cwd: "./src/",
+            src: "sources.json",
+            dest: "./tmp/coverage/instrument/src/"
+        }
     };
 
 if (fs.existsSync(IO_PATH)) {
