@@ -57,7 +57,7 @@
         // This is the common way to get the global context
         // Main context object
         _gpfMainContext = this,
-        //eslint-disable-line consistent-this
+        //eslint-disable-line no-invalid-this, consistent-this
         /*jshint +W040*/
         /**
          * Helper to ignore unused parameter
@@ -112,55 +112,64 @@
          * @type {Object}
          */
         _gpfNodePath;
-    /**
-     * Translate the parameter into a valid scope
-     *
-     * @param {*} scope
-     */
-    function _gpfResolveScope(scope) {
-        if (null === scope || "object" !== typeof scope) {
-            return _gpfMainContext;
-        }
-        return scope;
-    }
     _gpfVersion += "-debug";
     /* Host detection */
     /* istanbul ignore next */
     // Microsoft cscript / wscript
     if ("undefined" !== typeof WScript) {
-        /*eslint-disable new-cap*/
         _gpfHost = _GPF_HOST_WSCRIPT;
         _gpfDosPath = true;
-        _gpfMainContext = function () {
-            return this;
-        }.call(null);
-        _gpfExit = function (code) {
-            WScript.Quit(code);
-        };
-        // Define console APIs
-        _gpfMainContext.console = {
-            log: function (t) {
-                WScript.Echo("    " + t);
-            },
-            info: function (t) {
-                WScript.Echo("[?] " + t);
-            },
-            warn: function (t) {
-                WScript.Echo("/!\\ " + t);
-            },
-            error: function (t) {
-                WScript.Echo("(X) " + t);
-            }
-        };    /*eslint-enable new-cap*/
     } else if ("undefined" !== typeof print && "undefined" !== typeof java) {
         _gpfHost = _GPF_HOST_RHINO;
-        _gpfDosPath = false;
-        _gpfMainContext = function () {
-            return this;
-        }.call(null);
+        _gpfDosPath = false;    // PhantomJS
+    } else if ("undefined" !== typeof phantom && phantom.version) {
+        _gpfHost = _GPF_HOST_PHANTOMJS;
+        _gpfDosPath = require("fs").separator === "\\";    // Nodejs
+    } else if ("undefined" !== typeof module && module.exports) {
+        _gpfHost = _GPF_HOST_NODEJS;
+        _gpfNodePath = require("path");
+        _gpfDosPath = _gpfNodePath.sep === "\\";
+        _gpfMainContext = global;    // Browser
+    } else if ("undefined" !== typeof window) {
+        _gpfHost = _GPF_HOST_BROWSER;
+        _gpfMainContext = window;
+    }
+    /**
+     * Returns a string identifying the detected host
+     *
+     * @return {String}
+     * - gpf.HOST_WSCRIPT for cscript and wscript
+     * - gpf.HOST_NODEJS for nodejs
+     * - gpf.HOST_PHANTOMJS for phantomjs
+     * - gpf.HOST_BROWSER for any browser
+     * - gpf.HOST_UNKNOWN if not detected
+     */
+    gpf.host = function () {
+        return _gpfHost;
+    };
+    // Returns the current version
+    gpf.version = function () {
+        return _gpfVersion;
+    };
+    if (_GPF_HOST_BROWSER === _gpfHost) {
+        _gpfInBrowser = true;
         _gpfExit = function (code) {
-            java.lang.System.exit(code);
+            window.location = "https://arnaudbuchholz.github.io/gpf/exit.html?" + (code || 0);
         };
+        _gpfWebWindow = window;
+        _gpfWebDocument = document;
+        _gpfWebHead = _gpfWebDocument.getElementsByTagName("head")[0] || _gpfWebDocument.documentElement;
+    }
+    if (_GPF_HOST_NODEJS === _gpfHost) {
+        _gpfInNode = true;
+        _gpfExit = process.exit;
+    }
+    if (_GPF_HOST_PHANTOMJS === _gpfHost) {
+        _gpfInNode = true;
+        _gpfInBrowser = true;
+        _gpfExit = phantom.exit;
+    }
+    if (_GPF_HOST_RHINO === _gpfHost) {
         // Define console APIs
         _gpfMainContext.console = {
             log: function (t) {
@@ -175,61 +184,31 @@
             error: function (t) {
                 print("(X) " + t);
             }
-        };    // PhantomJS
-    } else if ("undefined" !== typeof phantom && phantom.version) {
-        _gpfHost = _GPF_HOST_PHANTOMJS;
-        _gpfDosPath = require("fs").separator === "\\";
-        _gpfMainContext = window;
-        _gpfInNode = true;
-        _gpfInBrowser = true;
-        _gpfExit = phantom.exit;    // Nodejs
-    } else if ("undefined" !== typeof module && module.exports) {
-        _gpfHost = _GPF_HOST_NODEJS;
-        _gpfNodePath = require("path");
-        _gpfDosPath = _gpfNodePath.sep === "\\";
-        _gpfMainContext = global;
-        _gpfInNode = true;
-        _gpfExit = process.exit;    // Browser
-    } else if ("undefined" !== typeof window) {
-        _gpfHost = _GPF_HOST_BROWSER;
-        _gpfMainContext = window;
-        _gpfInBrowser = true;
-        _gpfExit = _gpfEmptyFunc;
-        _gpfWebWindow = window;
-        _gpfWebDocument = document;
-        _gpfWebHead = _gpfWebDocument.getElementsByTagName("head")[0] || _gpfWebDocument.documentElement;
+        };
+        _gpfExit = function (code) {
+            java.lang.System.exit(code);
+        };
     }
-    // Install host specifics (if any)
-    /* istanbul ignore else */
-    // Because tested with NodeJS
-    if (_gpfInNode) {
-        gpf.node = {};
+    if (_GPF_HOST_WSCRIPT === _gpfHost) {
+        // Define console APIs
+        _gpfMainContext.console = {
+            log: function (t) {
+                WScript.Echo("    " + t);
+            },
+            info: function (t) {
+                WScript.Echo("[?] " + t);
+            },
+            warn: function (t) {
+                WScript.Echo("/!\\ " + t);
+            },
+            error: function (t) {
+                WScript.Echo("(X) " + t);
+            }
+        };
+        _gpfExit = function (code) {
+            WScript.Quit(code);
+        };
     }
-    // Some web-related tools will be configured even if not in a browser, declare the namespace now
-    gpf.web = {};
-    // Returns the current version
-    gpf.version = function () {
-        return _gpfVersion;
-    };
-    /**
-     * Returns a string identifying the detected host
-     *
-     * @return {String}
-     * - gpf.HOST_WSCRIPT for cscript and wscript
-     * - gpf.HOST_NODEJS for nodejs
-     * - gpf.HOST_PHANTOMJS for phantomjs
-     * - gpf.HOST_BROWSER for any browser
-     * - gpf.HOST_UNKNOWN if not detected
-     */
-    gpf.host = function () {
-        return _gpfHost;
-    };
-    gpf.loaded = function (callback) {
-        if (callback) {
-            callback();
-        }
-        return true;
-    };
     var _gpfAssert, _gpfAsserts;
     /**
      * Assertion helper
@@ -943,6 +922,81 @@
     if (undefined === _gpfMainContext.Promise) {
         _gpfMainContext.Promise = _GpfPromise;
     }
+    var
+        // List of pending callbacks (sorted by execution time)
+        _gpfTimeoutQueue = [],
+        // Last allocated timeoutID
+        _gpfTimeoutID = 0,
+        // Sleep function
+        _gpfSleep = _gpfEmptyFunc;
+    // Handle timeouts (mandatory for some environments)
+    gpf.handleTimeout = _gpfEmptyFunc;
+    /**
+     * Sorting function used to reorder the async queue
+     *
+     * @param {Object} a
+     * @param {Object} b
+     * @return {Number}
+     * @private
+     */
+    function _gpfSortOnDt(a, b) {
+        return a.dt - b.dt;
+    }
+    function _gpSetTimeoutPolyfill(callback, timeout) {
+        _gpfAssert("number" === typeof timeout, "Timeout is required");
+        var timeoutItem = {
+            id: ++_gpfTimeoutID,
+            dt: new Date(new Date().getTime() + timeout),
+            cb: callback
+        };
+        _gpfTimeoutQueue.push(timeoutItem);
+        _gpfTimeoutQueue.sort(_gpfSortOnDt);
+        return _gpfTimeoutID;
+    }
+    function _gpfClearTimeoutPolyfill(timeoutId) {
+        var pos;
+        /*gpf:inline(array)*/
+        if (!_gpfTimeoutQueue.every(function (timeoutItem, index) {
+                if (timeoutItem.id === timeoutId) {
+                    pos = index;
+                    return false;
+                }
+                return true;
+            })) {
+            _gpfTimeoutQueue.splice(pos, 1);
+        }
+    }
+    function _gpfHandleTimeout() {
+        var queue = _gpfTimeoutQueue, timeoutItem, now;
+        while (queue.length) {
+            timeoutItem = queue.shift();
+            now = new Date();
+            if (timeoutItem.dt > now) {
+                _gpfSleep(timeoutItem.dt - now);
+            }
+            timeoutItem.cb();
+        }
+    }
+    // Used only for WSCRIPT & RHINO environments
+    /* istanbul ignore next */
+    if ("undefined" === typeof setTimeout) {
+        /*jshint wsh: true*/
+        /*eslint-env wsh*/
+        /*jshint rhino: true*/
+        /*eslint-env rhino*/
+        if (_GPF_HOST_WSCRIPT === _gpfHost) {
+            _gpfSleep = function (t) {
+                WScript.Sleep(t);    //eslint-disable-line new-cap
+            };
+        } else if (_GPF_HOST_RHINO === _gpfHost) {
+            _gpfSleep = java.lang.Thread.sleep;
+        } else {
+            console.warn("No implementation for setTimeout");
+        }
+        _gpfMainContext.setTimeout = _gpSetTimeoutPolyfill;
+        _gpfMainContext.clearTimeout = _gpfClearTimeoutPolyfill;
+        gpf.handleTimeout = _gpfHandleTimeout;
+    }
     function _gpfGetObjectProperty(parent, name) {
         if (undefined !== parent) {
             return parent[name];
@@ -1091,6 +1145,19 @@
         HOST_UNKNOWN: _GPF_HOST_UNKNOWN,
         HOST_WSCRIPT: _GPF_HOST_WSCRIPT
     });
+    /* istanbul ignore else */
+    // Because tested with NodeJS
+    if (_gpfInNode) {
+        gpf.node = {};
+    }
+    // Some web-related tools will be configured even if not in a browser, declare the namespace now
+    gpf.web = {};
+    function _gpfResolveScope(scope) {
+        if (null === scope || "object" !== typeof scope) {
+            return _gpfMainContext;
+        }
+        return scope;
+    }
     function _GpfEventsIsValidHandler(eventHandler) {
         var type = typeof eventHandler, dispatchEvent;
         if ("function" === type) {
@@ -2247,81 +2314,6 @@
         _gpfInitMimeTypes();
         return _gpfGetFileExtension;
     });
-    var
-        // List of pending callbacks (sorted by execution time)
-        _gpfTimeoutQueue = [],
-        // Last allocated timeoutID
-        _gpfTimeoutID = 0,
-        // Sleep function
-        _gpfSleep = _gpfEmptyFunc;
-    // Handle timeouts (mandatory for some environments)
-    gpf.handleTimeout = _gpfEmptyFunc;
-    /**
-     * Sorting function used to reorder the async queue
-     *
-     * @param {Object} a
-     * @param {Object} b
-     * @return {Number}
-     * @private
-     */
-    function _gpfSortOnDt(a, b) {
-        return a.dt - b.dt;
-    }
-    function _gpSetTimeoutPolyfill(callback, timeout) {
-        _gpfAssert("number" === typeof timeout, "Timeout is required");
-        var timeoutItem = {
-            id: ++_gpfTimeoutID,
-            dt: new Date(new Date().getTime() + timeout),
-            cb: callback
-        };
-        _gpfTimeoutQueue.push(timeoutItem);
-        _gpfTimeoutQueue.sort(_gpfSortOnDt);
-        return _gpfTimeoutID;
-    }
-    function _gpfClearTimeoutPolyfill(timeoutId) {
-        var pos;
-        /*gpf:inline(array)*/
-        if (!_gpfTimeoutQueue.every(function (timeoutItem, index) {
-                if (timeoutItem.id === timeoutId) {
-                    pos = index;
-                    return false;
-                }
-                return true;
-            })) {
-            _gpfTimeoutQueue.splice(pos, 1);
-        }
-    }
-    function _gpfHandleTimeout() {
-        var queue = _gpfTimeoutQueue, timeoutItem, now;
-        while (queue.length) {
-            timeoutItem = queue.shift();
-            now = new Date();
-            if (timeoutItem.dt > now) {
-                _gpfSleep(timeoutItem.dt - now);
-            }
-            timeoutItem.cb();
-        }
-    }
-    // Used only for WSCRIPT & RHINO environments
-    /* istanbul ignore next */
-    if ("undefined" === typeof setTimeout) {
-        /*jshint wsh: true*/
-        /*eslint-env wsh*/
-        /*jshint rhino: true*/
-        /*eslint-env rhino*/
-        if (_GPF_HOST_WSCRIPT === _gpfHost) {
-            _gpfSleep = function (t) {
-                WScript.Sleep(t);    //eslint-disable-line new-cap
-            };
-        } else if (_GPF_HOST_RHINO === _gpfHost) {
-            _gpfSleep = java.lang.Thread.sleep;
-        } else {
-            console.warn("No implementation for setTimeout");
-        }
-        _gpfMainContext.setTimeout = _gpSetTimeoutPolyfill;
-        _gpfMainContext.clearTimeout = _gpfClearTimeoutPolyfill;
-        gpf.handleTimeout = _gpfHandleTimeout;
-    }
     var _gpfB64 = _gpfALPHA + _gpfAlpha + _gpfDigit + "+/", _gpfB16 = "0123456789ABCDEF", _gpfBinZ = 987654321, _gpfBinW = new Date().getTime() & _gpfMax32;
     function _gpfToBaseAnyEncodeUsingBitShifting(baseAndValue, pow, length) {
         var base = baseAndValue.base, value = baseAndValue.value, result = [], bits, mask, digit;
