@@ -38,11 +38,11 @@ Metric name | value | comment
 ----- | ----- | -----
 Statements coverage|99%|*7% ignored*
 Branches coverage|98%|*8% ignored*
-Functions coverage|99%|*12% ignored*
-Average maintainability|74.89|
-Number of tests|623|*pending: 1, duration: 376ms*
+Functions coverage|99%|*13% ignored*
+Average maintainability|75.57|
+Number of tests|623|*pending: 1, duration: 1375ms*
 Number of sources|52|
-Lines of Code|7346|*Average per source: 141*
+Lines of Code|7352|*Average per source: 141*
 
 ## Setup
 
