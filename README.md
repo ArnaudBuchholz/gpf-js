@@ -36,13 +36,13 @@ maintainability-index-range-and-meaning.aspx):
 
 Metric name | value | comment
 ----- | ----- | -----
-Statements coverage|99%|*8% ignored*
+Statements coverage|99%|*7% ignored*
 Branches coverage|98%|*8% ignored*
-Functions coverage|99%|*13% ignored*
-Average maintainability|73.85|
-Number of tests|617|*pending: 1, duration: 366ms*
-Number of modules|45|
-Lines of Code|7370|*Average per module: 156*
+Functions coverage|99%|*12% ignored*
+Average maintainability|74.89|
+Number of tests|623|*pending: 1, duration: 376ms*
+Number of sources|52|
+Lines of Code|7346|*Average per source: 141*
 
 ## Setup
 
