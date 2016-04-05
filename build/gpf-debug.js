@@ -162,12 +162,18 @@
     }
     if (_GPF_HOST_NODEJS === _gpfHost) {
         _gpfInNode = true;
-        _gpfExit = process.exit;
+        /* istanbul ignore next */
+        // Not testable
+        _gpfExit = function (code) {
+            process.exit(code);
+        };
     }
     if (_GPF_HOST_PHANTOMJS === _gpfHost) {
         _gpfInNode = true;
         _gpfInBrowser = true;
-        _gpfExit = phantom.exit;
+        _gpfExit = function (code) {
+            phantom.exit(code);
+        };
     }
     if (_GPF_HOST_RHINO === _gpfHost) {
         // Define console APIs
