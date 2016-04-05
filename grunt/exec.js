@@ -1,12 +1,5 @@
 "use strict";
 
-/*global configuration*/
-
-var CSCRIPT_CMD = "cscript.exe /D /E:JScript test\\host\\cscript.js",
-    RHINO_CMD = "java -jar node_modules\\rhino-1_7r5-bin\\rhino1_7R5\\js.jar test\\host\\rhino.js",
-    PLATO_CMD = "node node_modules\\plato\\bin\\plato",
-    SELENIUM_CMD = "node test\\host\\selenium.js";
-
 // Custom command lines
 module.exports = {
     buildDebug: {
@@ -24,7 +17,8 @@ module.exports = {
         exitCode: 0
     },
     plato: {
-        command: PLATO_CMD + " -l .jshintrc -t GPF-JS -d tmp\\plato " + configuration.srcFiles.join(" "),
+        command: "node node_modules\\plato\\bin\\plato -l .jshintrc -t GPF-JS -d tmp\\plato "
+                 + configuration.srcFiles.join(" "),
         stdout: true,
         stderr: true
     },
@@ -75,8 +69,11 @@ function _buildTestConfig (name, command) {
     };
 }
 
-_buildTestConfig("Wscript", CSCRIPT_CMD);
-_buildTestConfig("Rhino", RHINO_CMD);
+_buildTestConfig("Node", "node test\\host\\nodejs.js");
+_buildTestConfig("Phantom", "node_modules\\grunt-mocha\\node_modules\\grunt-lib-phantomjs\\node_modules\\phantomjs\\"
+                            + "lib\\phantom\\phantomjs test\\host\\phantomjs.js");
+_buildTestConfig("Wscript", "cscript.exe /D /E:JScript test\\host\\cscript.js");
+_buildTestConfig("Rhino", "java -jar node_modules\\rhino-1_7r5-bin\\rhino1_7R5\\js.jar test\\host\\rhino.js");
 configuration.selenium.forEach(function (browser) {
-    _buildTestConfig(browser.charAt(0).toUpperCase() + browser.substr(1), SELENIUM_CMD + " " + browser);
+    _buildTestConfig(browser.charAt(0).toUpperCase() + browser.substr(1), "node test\\host\\selenium.js " + browser);
 });
