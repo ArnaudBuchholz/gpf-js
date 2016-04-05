@@ -1,14 +1,15 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST_RHINO*/ // gpf.HOST_RHINO
-/*global _gpfHost*/ // Host type
 /*global _gpfExit:true*/ // Exit function
+/*global _gpfHost*/ // Host type
 /*global _gpfMainContext*/ // Main context object
 /*#endif*/
 
 /*jshint rhino: true*/
 /*eslint-env rhino*/
 
+/* istanbul ignore next */ // Tested with NodeJS
 if (_GPF_HOST_RHINO === _gpfHost) {
 
     // Define console APIs
