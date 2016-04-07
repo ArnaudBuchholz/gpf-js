@@ -43,26 +43,37 @@ module.exports = {
 };
 
 function _buildTestConfig (name, command) {
+    function buildCommand (suffix) {
+        return function (source) {
+            var parameter;
+            if (undefined === source) {
+                parameter = "";
+            } else {
+                parameter = " " + source;
+            }
+            return command + parameter + suffix;
+        };
+    }
     module.exports["test" + name] = {
-        command: command,
+        command: buildCommand(""),
         stdout: false,
         stderr: false,
         exitCode: 0
     };
     module.exports["test" + name + "Verbose"] = {
-        command: command + " -debugger",
+        command: buildCommand(" -debugger"),
         stdout: true,
         stderr: true,
         exitCode: 0
     };
     module.exports["test" + name + "Debug"] = {
-        command: command + " -debug",
+        command: buildCommand(" -debug"),
         stdout: false,
         stderr: false,
         exitCode: 0
     };
     module.exports["test" + name + "Release"] = {
-        command: command + " -release",
+        command: buildCommand(" -release"),
         stdout: false,
         stderr: false,
         exitCode: 0
