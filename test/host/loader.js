@@ -154,6 +154,7 @@
                 release: false,
                 debug: false,
                 verbose: false,
+                ignoreConsole: false,
                 tests: []
             },
             verbose;
@@ -166,8 +167,10 @@
         }
         _loadGpf(configuration, options, verbose);
         _loadBDD(configuration, verbose);
-        verbose("Loading console");
-        _load(configuration, _resolvePath(configuration, "test/host/console.js"));
+        if (!options.ignoreConsole) {
+            verbose("Loading console");
+            _load(configuration, _resolvePath(configuration, "test/host/console.js"));
+        }
         _loadTests(configuration, options, verbose);
         _runBDD(configuration, verbose);
         if (configuration.done) {
