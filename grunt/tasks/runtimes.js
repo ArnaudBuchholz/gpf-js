@@ -8,12 +8,12 @@ module.exports = function (grunt) {
         "wscript"
     ].forEach(function (runtime) {
         var taskName = "exec:test" + runtime.charAt(0).toUpperCase() + runtime.substr(1) + "Verbose";
-        grunt.registerTask(runtime, function (source) {
+        grunt.registerTask(runtime, function () {
             var parameter;
-            if (undefined === source) {
+            if (0 === arguments.length) {
                 parameter = "";
             } else {
-                parameter = ":" + source;
+                parameter = ":" + [].slice.call(arguments, 0).join(":");
             }
             grunt.task.run(taskName + parameter);
         });
