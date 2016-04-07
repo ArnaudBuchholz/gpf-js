@@ -32,7 +32,7 @@ if (useFileAccess) {
     driver.get("http://localhost:8000/test/host/web.html" + version);
 }
 
-driver.wait(until.titleIs("GPF Tests - done"), 5000);
+driver.wait(until.titleIs("GPF Tests - done"), 10000);
 driver.findElements(By.id("status"))
     .then(function (elements) {
         return elements[0].getText();
