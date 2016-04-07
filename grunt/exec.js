@@ -44,12 +44,12 @@ module.exports = {
 
 function _buildTestConfig (name, command) {
     function buildCommand (suffix) {
-        return function (source) {
+        return function () {
             var parameter;
-            if (undefined === source) {
+            if (0 === arguments.length) {
                 parameter = "";
             } else {
-                parameter = " " + source;
+                parameter = " " + [].slice.call(arguments, 0).join(" ");
             }
             return command + parameter + suffix;
         };
