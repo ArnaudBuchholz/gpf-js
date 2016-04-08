@@ -5,6 +5,9 @@
 /*global _gpfHost*/ // Host type
 /*global _gpfInBrowser:true*/ // The current host is a browser like
 /*global _gpfInNode:true*/ // The current host is a nodeJS like
+/*global _gpfWebDocument:true*/ // Browser document object
+/*global _gpfWebHead:true*/ // Browser head tag
+/*global _gpfWebWindow:true*/ // Browser window object
 /*#endif*/
 
 /*jshint phantom: true*/
@@ -19,5 +22,9 @@ if (_GPF_HOST_PHANTOMJS === _gpfHost) {
     _gpfExit = function (code) {
         phantom.exit(code);
     };
+
+    _gpfWebWindow = window;
+    _gpfWebDocument = document;
+    _gpfWebHead = _gpfWebDocument.getElementsByTagName("head")[0] || _gpfWebDocument.documentElement;
 
 }
