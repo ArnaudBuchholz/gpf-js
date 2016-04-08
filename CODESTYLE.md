@@ -421,3 +421,8 @@ _gpfAsserts = function (messages) {
     }
 };
 ```
+
+## Code quality
+
+[Plato](https://github.com/es-analysis/plato) is used to evaluate the code quality.
+The target maintainability for each source is to be at least 70.
