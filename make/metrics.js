@@ -101,7 +101,8 @@ var globalCoverage,
     hasCoverageError = false;
 gpf.forEach(coverageData, function (fileCoverageData, fileName) {
     var fileCoverage = computeCoverage(fileCoverageData),
-        fileTrace = [fileName, "                                        ".substr(fileName.length)],
+        sourceName = fileName.substr(4, fileName.length - 7),
+        fileTrace = [sourceName, "                                  ".substr(sourceName.length)],
         fileIsKO = false;
     if (globalCoverage) {
         // Sum everything
@@ -116,11 +117,10 @@ gpf.forEach(coverageData, function (fileCoverageData, fileName) {
         var ratio = computeCoverageRatio(fileCoverage, partName);
         if (ratio === 100) {
             ratio = "   ";
-        } else if (ratio < 90) {
-            ratio = "KO ";
+        }
+        ratio += "%";
+        if (ratio < 90) {
             fileIsKO = true;
-        } else {
-            ratio += "%";
         }
         fileTrace.push(partName, ": ", ratio, " ");
     });
@@ -132,9 +132,6 @@ gpf.forEach(coverageData, function (fileCoverageData, fileName) {
     }
 });
 
-if (hasCoverageError) {
-    process.exit(-1); // Coverage error
-}
 
 function getGlobalCoverage (part) {
     return computeCoverageRatio(globalCoverage, part);
@@ -151,9 +148,10 @@ var statementsCoverage = getGlobalCoverage("statements"),
     branchesCoverage = getGlobalCoverage("branches"),
     branchesIgnored = getGlobalIgnore("branches");
 
-//gpf.forEach(coverageParts, function (coveragePart, partName) {
-//    console.log(partName + ": " + getGlobalCoverage(partName) + "% (ignored " + getGlobalIgnore(partName) + "%)");
-//});
+gpf.forEach(coverageParts, function (coveragePart, partName) {
+    console.log(partName + ":" + "                          ".substr(partName.length)
+        + getGlobalCoverage(partName) + "% (ignored " + getGlobalIgnore(partName) + "%)");
+});
 
 //endregion
 
@@ -163,11 +161,34 @@ var platoData = JSON.parse(fs.readFileSync("tmp/plato/report.json")),
     platoSummary = platoData.summary,
     averageMaintainability = platoSummary.average.maintainability,
     linesOfCode = platoSummary.total.sloc,
-    averageLinesOfCode = platoSummary.average.sloc;
+    averageLinesOfCode = platoSummary.average.sloc,
+    hasMaintainabilityError = false;
 
-// console.log("Average maintainability: " + averageMaintainability);
-// console.log("Lines of code: " + linesOfCode);
-// console.log("Average per module: " + averageLinesOfCode);
+platoData.reports.forEach(function (reportData) {
+    var fileName = reportData.info.file,
+        sourceName = fileName.substr(4, fileName.length - 7),
+        fileTrace = [sourceName, "                                  ".substr(sourceName.length)],
+        maintainability = reportData.complexity.maintainability,
+        fileIsKO = false;
+    fileTrace.push("maintainability: ", Math.floor(100 * maintainability) / 100);
+    if (maintainability < 70) {
+        fileIsKO = true;
+    }
+    if (fileIsKO) {
+        console.error(fileTrace.join(""));
+        hasMaintainabilityError = true;
+    } else {
+        console.log(fileTrace.join(""));
+    }
+});
+
+console.log("Average maintainability:   " + averageMaintainability);
+console.log("Lines of code:             " + linesOfCode);
+console.log("Average per module:        " + averageLinesOfCode);
+
+if (hasCoverageError || hasMaintainabilityError) {
+    process.exit(-1); // Coverage error
+}
 
 //endregion
 
@@ -178,15 +199,15 @@ var mochaTestData = JSON.parse(fs.readFileSync("tmp/coverage/mochaTest.json")),
     pendingTests = mochaTestData.stats.pending,
     testDuration = mochaTestData.stats.duration;
 
-// console.log("Number of tests: " + numberOfTests);
-// console.log("Number of pending tests: " + pendingTests);
-// console.log("Time to execute the tests: " + testDuration + "ms");
+console.log("Number of tests:           " + numberOfTests);
+console.log("Number of pending tests:   " + pendingTests);
+console.log("Time to execute the tests: " + testDuration + "ms");
 
 //endregion
 
 var numberOfSources = sources.length;
 
-// console.log("Number of modules: " + numberOfSources);
+console.log("Number of modules:         " + numberOfSources);
 
 var SEPARATOR = "----- | ----- | -----",
     readme = fs.readFileSync("README.md").toString(),
