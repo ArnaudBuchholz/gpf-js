@@ -184,6 +184,7 @@ if ("undefined" !== typeof WScript) {
 } else if ("undefined" !== typeof phantom && phantom.version) {
     _gpfHost = _GPF_HOST_PHANTOMJS;
     _gpfDosPath = require("fs").separator === "\\";
+    _gpfMainContext = window;
 
 /*#ifndef(UMD)*/
 
