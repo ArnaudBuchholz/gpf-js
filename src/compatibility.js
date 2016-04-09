@@ -16,6 +16,14 @@ var _gpfCompatibility = {};
 
 /*#endif*/
 
+function _gpfInstallCompatibleMethods (on, methods) {
+    _gpfExtend(on.prototype, methods || {}, _gpfEmptyFunc);
+}
+
+function _gpfInstallCompatibleStatics (on, statics) {
+    _gpfExtend(on, statics || {}, _gpfEmptyFunc);
+}
+
 /**
  * Define and install compatible methods
  *
@@ -31,12 +39,8 @@ function _gpfInstallCompatibility (typeName, overrides) {
 /*#ifndef(UMD)*/
     _gpfCompatibility[typeName] = overrides;
 /*#endif*/
-    if (overrides.methods) {
-        _gpfExtend(on.prototype, overrides.methods, _gpfEmptyFunc);
-    }
-    if (overrides.statics) {
-        _gpfExtend(on, overrides.statics, _gpfEmptyFunc);
-    }
+    _gpfInstallCompatibleMethods(on, overrides.methods);
+    _gpfInstallCompatibleStatics(on, overrides.statics);
 }
 
 /*#ifndef(UMD)*/
