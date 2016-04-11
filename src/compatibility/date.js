@@ -61,6 +61,46 @@ var _gpfISO8601RegExp = new RegExp([
     "Z)?)?$"
 ].join(""));
 
+function _gpfCheckDateArray (dateArray) {
+    if (dateArray[1] < 12
+        && dateArray[2] < 32
+        && dateArray[3] < 24
+        && dateArray[4] < 60
+        && dateArray[5] < 60) {
+        return dateArray;
+    }
+}
+
+function _gpfAddDatePartToArray (dateArray, datePart) {
+    if (datePart) {
+        dateArray.push(parseInt(datePart, 10));
+    } else {
+        dateArray.push(0);
+    }
+}
+
+function _gpfToDateArray (matchResult) {
+    var dateArray = [],
+        len = matchResult.length, // 0 is the recognized string
+        idx;
+    for (idx = 1; idx < len; ++idx) {
+        _gpfAddDatePartToArray(dateArray, matchResult[idx]);
+    }
+    return dateArray;
+}
+
+function _gpfProcessISO8601MatchResult (matchResult) {
+    var dateArray;
+    if (matchResult) {
+        dateArray = _gpfToDateArray(matchResult);
+        // Month must be corrected (0-based)
+        --dateArray[1];
+        // Some validation
+        return _gpfCheckDateArray(dateArray);
+    }
+
+}
+
 /**
  * Check if the string is an ISO 8601 representation of a date
  * Supports long and short syntax.
@@ -69,36 +109,9 @@ var _gpfISO8601RegExp = new RegExp([
  * @returns {Number[]} 7 numbers composing the date (Month is 0-based)
  */
 function _gpfIsISO8601String (value) {
-    var matchResult,
-        matchedDigits,
-        result,
-        len,
-        idx;
     if ("string" === typeof value) {
         _gpfISO8601RegExp.lastIndex = 0;
-        matchResult = _gpfISO8601RegExp.exec(value);
-        if (matchResult) {
-            result = [];
-            len = matchResult.length - 1; // 0 is the recognized string
-            for (idx = 0; idx < len; ++idx) {
-                matchedDigits = matchResult[idx + 1];
-                if (matchedDigits) {
-                    result.push(parseInt(matchResult[idx + 1], 10));
-                } else {
-                    result.push(0);
-                }
-            }
-            // Month must be corrected (0-based)
-            --result[1];
-            // Some validation
-            if (result[1] < 12
-                && result[2] < 32
-                && result[3] < 24
-                && result[4] < 60
-                && result[5] < 60) {
-                return result;
-            }
-        }
+        return _gpfProcessISO8601MatchResult(_gpfISO8601RegExp.exec(value));
     }
 }
 
@@ -119,8 +132,7 @@ function _GpfDate () {
     return _gpfGenericFactory.apply(_GpfGenuineDate, arguments);
 }
 
-(function () {
-    // Copy members
+function _gpfCopyDateStatics () {
     var members = [
             "prototype", // Ensure instanceof
             "UTC",
@@ -134,7 +146,10 @@ function _GpfDate () {
         member = members[idx];
         _GpfDate[member] = _GpfGenuineDate[member];
     }
+}
 
+function _gpfInstallCompatibleDate () {
+    _gpfCopyDateStatics();
     // Test if ISO 8601 format variations are supported
     var supported = false;
     try {
@@ -156,8 +171,9 @@ function _GpfDate () {
         // Replace constructor with new one
         _gpfMainContext.Date = _GpfDate;
     }
+}
 
-}());
+_gpfInstallCompatibleDate();
 
 //endregion
 
