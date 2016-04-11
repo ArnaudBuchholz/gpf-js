@@ -9,10 +9,15 @@ describe("compatibility", function () {
 
     function arrayMethodShouldIgnoreUndefined (method) {
         var array = new Array(5);
+        array[2] = undefined;
         array[3] = 3;
         method.apply(array, [function (value, idx) {
-            assert(3 === idx);
-            assert(3 === value);
+            assert(2 === idx || 3 === idx);
+            if (2 === idx) {
+                assert(undefined === value);
+            } else {
+                assert(3 === value);
+            }
         }]);
     }
 
