@@ -33,6 +33,36 @@ _GpfLikeContext.prototype = {
     // Array of objects already compared (filled by pairs)
     _done: [],
 
+    // Get associated pair
+    _getPair: function (array, index) {
+        if (index % 2) {
+            return array[index - 1];
+        }
+        return array[index + 1];
+    },
+
+    /**
+     * Check in the stack of done if parameters were never compared
+     *
+     * @param {Object} a
+     * @param {Object} b
+     * @return {Boolean}
+     */
+    _neverCompared: function (a, b) {
+        var done = this._done,
+            indexOfA,
+            comparedWith;
+        indexOfA = done.indexOf(a);
+        while (-1 < indexOfA) {
+            comparedWith = this._getPair(done, indexOfA);
+            if (comparedWith === b) {
+                return false; // Already compared
+            }
+            indexOfA = done.indexOf(a, indexOfA + 1);
+        }
+        return true;
+    },
+
     /**
      * If a was never compared with b, adds the pair to the pending list.
      *
@@ -40,25 +70,12 @@ _GpfLikeContext.prototype = {
      * @param {Object} b
      */
     _stack: function (a, b) {
-        var array = this._done,
-            indexOfA,
-            comparedWith;
-        indexOfA = array.indexOf(a);
-        while (-1 < indexOfA) {
-            if (indexOfA % 2) {
-                comparedWith = array[indexOfA - 1];
-            } else {
-                comparedWith = array[indexOfA + 1];
-            }
-            if (comparedWith === b) {
-                return; // Already compared
-            }
-            indexOfA = array.indexOf(a, indexOfA + 1);
+        var pending;
+        if (this._neverCompared(a, b)) {
+            pending = this._pending;
+            pending.push(a);
+            pending.push(b);
         }
-        // Adds to the pending list
-        array = this._pending;
-        array.push(a);
-        array.push(b);
     },
 
     /**
@@ -70,6 +87,11 @@ _GpfLikeContext.prototype = {
      */
     _haveDifferentPrototypes: function (a, b) {
         return a.constructor !== b.constructor;
+    },
+
+    // compare the two objects
+    _areDifferent: function (a, b) {
+        return this._haveDifferentPrototypes(a, b) || this._checkMembersDifferences(a, b);
     },
 
     /**
@@ -86,10 +108,7 @@ _GpfLikeContext.prototype = {
             b = pending.pop();
             a = pending.pop();
             done.push(a, b);
-            if (this._haveDifferentPrototypes(a, b)) {
-                return false;
-            }
-            if (this._checkMembersDifferences(a, b)) {
+            if (this._areDifferent(a, b)) {
                 return false;
             }
         }
@@ -104,27 +123,16 @@ _GpfLikeContext.prototype = {
      * @returns {Number}
      */
     _checkMembersDifferences: function (a, b) {
-        var membersCount = 0,
-            member;
-        // a members
-        for (member in a) {
-            /* istanbul ignore else */
-            if (a.hasOwnProperty(member)) {
-                ++membersCount;
-                if (!this.like(a[member], b[member])) {
-                    return true;
-                }
-            }
-        }
-        // b members
-        for (member in b) {
-            /* istanbul ignore else */
-            if (b.hasOwnProperty(member)) {
-                --membersCount;
-            }
+        var me = this,
+            membersOfA = Object.keys(a);
+        // a members comparison with b
+        if (!membersOfA.every(function (member) {
+            return me.like(a[member], b[member]);
+        })) {
+            return true;
         }
         // Difference on members count?
-        return 0 !== membersCount;
+        return membersOfA.length  !== Object.keys(b).length;
     },
 
     /**
@@ -156,6 +164,21 @@ _GpfLikeContext.prototype = {
     },
 
     /**
+     * Check if objects are the same
+     *
+     * @param {Object} a
+     * @param {Object} b
+     * @returns {boolean}
+     */
+    _objectLike: function (a, b) {
+        if (null === a || null === b || "object" !== typeof a) {
+            return false; // Because we know that a !== b
+        }
+        this._stack(a, b);
+        return true;
+    },
+
+    /**
      * Internal version of gpf.like
      *
      * @param {*} a
@@ -169,11 +192,7 @@ _GpfLikeContext.prototype = {
         if (typeof a !== typeof b) {
             return this._alike(a, b);
         }
-        if (null === a || null === b || "object" !== typeof a) {
-            return false; // Because we know that a !== b
-        }
-        this._stack(a, b);
-        return true;
+        return this._objectLike(a, b);
     }
 
 };
