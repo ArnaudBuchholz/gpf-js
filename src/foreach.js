@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
+/*exported _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*exported _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*#endif*/
 
@@ -43,6 +44,7 @@ function _gpfObjectForEach (object, callback, thisArg) {
 
 /**
  * Executes a provided function once per structure element.
+ * NOTE: unlike [].forEach, non own properties are also enumerated
  *
  * @param {Array|Object} structure
  * @param {Function} callback Function to execute for each element, taking three arguments:
