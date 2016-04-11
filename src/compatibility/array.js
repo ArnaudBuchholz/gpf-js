@@ -1,5 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfInstallCompatibility*/ // Define and install compatible methods
 /*#endif*/
 
@@ -12,18 +13,20 @@ function _gpfArrayBind (callback, thisArg) {
     return callback;
 }
 
-function _gpfArrayForEachFrom (array, callback, idx) {
+function _gpfArrayForEachOwn (array, callback, idx) {
     var len = array.length;
     while (idx < len) {
-        callback(array[idx], idx, array);
+        if (array.hasOwnProperty(idx)) {
+            callback(array[idx], idx, array);
+        }
         ++idx;
     }
 }
 
-function _gpfArrayEveryFrom (array, callback, idx) {
+function _gpfArrayEveryOwn (array, callback, idx) {
     var len = array.length;
     while (idx < len) {
-        if (true !== callback(array[idx], idx, array)) {
+        if (array.hasOwnProperty(idx) && true !== callback(array[idx], idx, array)) {
             return false;
         }
         ++idx;
@@ -49,7 +52,7 @@ function _gpfArrayConvertFrom (arrayLike) {
         // Required for cscript
         _gpfArrayFromString(array, arrayLike);
     } else {
-        _gpfArrayForEachFrom(arrayLike, function (value) {
+        _gpfArrayForEach(arrayLike, function (value) {
             array.push(value);
         }, 0);
     }
@@ -74,14 +77,14 @@ _gpfInstallCompatibility("Array", {
 
         // Introduced with JavaScript 1.6
         every: function (callback) {
-            return _gpfArrayEveryFrom(this, _gpfArrayBind(callback, arguments[1]), 0);
+            return _gpfArrayEveryOwn(this, _gpfArrayBind(callback, arguments[1]), 0);
         },
 
         // Introduced with JavaScript 1.6
         filter: function (callback) {
             var result = [];
             callback = _gpfArrayBind(callback, arguments[1]);
-            _gpfArrayForEachFrom(this, function (item, idx, array) {
+            _gpfArrayForEachOwn(this, function (item, idx, array) {
                 if (callback(item, idx, array)) {
                     result.push(item);
                 }
@@ -91,13 +94,13 @@ _gpfInstallCompatibility("Array", {
 
         // Introduced with JavaScript 1.6
         forEach: function (callback) {
-            _gpfArrayForEachFrom(this, _gpfArrayBind(callback, arguments[1]), 0);
+            _gpfArrayForEachOwn(this, _gpfArrayBind(callback, arguments[1]), 0);
         },
 
         // Introduced with JavaScript 1.5
         indexOf: function (searchElement) {
             var result = -1;
-            _gpfArrayEveryFrom(this, function (value, index) {
+            _gpfArrayEveryOwn(this, function (value, index) {
                 if (value === searchElement) {
                     result = index;
                     return false;
@@ -111,7 +114,7 @@ _gpfInstallCompatibility("Array", {
         map: function (callback) {
             var result = new Array(this.length);
             callback = _gpfArrayBind(callback, arguments[1]);
-            _gpfArrayForEachFrom(this, function (item, index, array) {
+            _gpfArrayForEachOwn(this, function (item, index, array) {
                 result[index] = callback(item, index, array);
             }, 0);
             return result;
