@@ -8,6 +8,7 @@
 /*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfInNode*/ // The current host is a nodeJS like
+/*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
 /*exported _GPF_EVENT_CONTINUE*/ // gpf.events.EVENT_CONTINUE
 /*exported _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
@@ -121,6 +122,18 @@ function _gpfFalseFunc () {
     return false;
 }
 
+// Unsafe version of _gpfFunc
+function _gpfFuncUnsafe (params, source) {
+    var args;
+    if (0 === params.length) {
+        return _GpfFunc(source);
+    }
+    args = [].concat(params);
+    args.push(source);
+    // TODO depending on the environment the result function name is anonymous !
+    return _GpfFunc.apply(null, args);
+}
+
 /**
  * Create a new function from the source and parameter list.
  * In DEBUG mode, it catches any error to log the problem.
@@ -130,30 +143,23 @@ function _gpfFalseFunc () {
  * @return {Function}
  */
 function _gpfFunc (params, source) {
-    var args;
     if (undefined === source) {
         source = params;
         params = [];
     }
     _gpfAssert("string" === typeof source && source.length, "Source expected (or use _gpfEmptyFunc)");
-    /*#ifdef(DEBUG)*/
+/*#ifdef(DEBUG)*/
     try {
-        /*#endif*/
-        if (0 === params.length) {
-            return _GpfFunc(source);
-        }
-        args = [].concat(params);
-        args.push(source);
-        // TODO depending on the environment the result function name is anonymous !
-        return _GpfFunc.apply(null, args);
-        /*#ifdef(DEBUG)*/
+/*#endif*/
+        return _gpfFuncUnsafe(params, source);
+/*#ifdef(DEBUG)*/
     } catch (e) {
         /* istanbul ignore next */ // Not supposed to happen (not tested)
         console.error("An exception occurred compiling:\r\n" + source);
         /* istanbul ignore next */
         return null;
     }
-    /*#endif*/
+/*#endif*/
 }
 
 // Returns true if the value is an unsigned byte
@@ -168,13 +174,9 @@ function _gpfIsUnsignedByte (value) {
  * @param {Object} dictionary
  */
 function _gpfCreateConstants (obj, dictionary) {
-    var key;
-    for (key in dictionary) {
-        /* istanbul ignore else */
-        if (dictionary.hasOwnProperty(key)) {
-            /*gpf:constant*/ obj[key] = dictionary[key];
-        }
-    }
+    _gpfObjectForEach(dictionary, function (value, key) {
+        /*gpf:constant*/ obj[key] = value;
+    });
 }
 
 _gpfCreateConstants(gpf, {
