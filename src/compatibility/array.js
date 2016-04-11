@@ -3,6 +3,70 @@
 /*global _gpfInstallCompatibility*/ // Define and install compatible methods
 /*#endif*/
 
+//region Array helpers
+
+function _gpfArrayBind (callback, thisArg) {
+    if (undefined !== thisArg) {
+        return callback.bind(thisArg);
+    }
+    return callback;
+}
+
+function _gpfArrayForEachFrom (array, callback, idx) {
+    var len = array.length;
+    while (idx < len) {
+        callback(array[idx], idx, array);
+        ++idx;
+    }
+}
+
+function _gpfArrayEveryFrom (array, callback, idx) {
+    var len = array.length;
+    while (idx < len) {
+        if (true !== callback(array[idx], idx, array)) {
+            return false;
+        }
+        ++idx;
+    }
+    return true;
+}
+
+//endregion
+
+//region Array.from
+
+function _gpfArrayFromString (array, string) {
+    var length = string.length,
+        index;
+    for (index = 0; index < length; ++index) {
+        array.push(string.charAt(index));
+    }
+}
+
+function _gpfArrayConvertFrom (arrayLike) {
+    var array = [];
+    if ("string" === typeof arrayLike) {
+        // Required for cscript
+        _gpfArrayFromString(array, arrayLike);
+    } else {
+        _gpfArrayForEachFrom(arrayLike, function (value) {
+            array.push(value);
+        }, 0);
+    }
+    return array;
+}
+
+function _gpfArrayFrom (arrayLike) {
+    var array = _gpfArrayConvertFrom(arrayLike),
+        callback = arguments[1];
+    if ("function" === typeof callback) {
+        array = array.map(callback, arguments[2]);
+    }
+    return array;
+}
+
+//endregion
+
 _gpfInstallCompatibility("Array", {
     on: Array,
 
@@ -10,66 +74,46 @@ _gpfInstallCompatibility("Array", {
 
         // Introduced with JavaScript 1.6
         every: function (callback) {
-            var thisArg = arguments[1],
-                len = this.length,
-                idx;
-            for (idx = 0; idx < len; ++idx) {
-                if (!callback.call(thisArg, this[idx], idx, this)) {
-                    return false;
-                }
-            }
-            return true;
+            return _gpfArrayEveryFrom(this, _gpfArrayBind(callback, arguments[1]), 0);
         },
 
         // Introduced with JavaScript 1.6
         filter: function (callback) {
-            var thisArg = arguments[1],
-                result = [],
-                len = this.length,
-                idx,
-                item;
-            for (idx = 0; idx < len; ++idx) {
-                item = this[idx];
-                if (callback.call(thisArg, this[idx], idx, this)) {
+            var result = [];
+            callback = _gpfArrayBind(callback, arguments[1]);
+            _gpfArrayForEachFrom(this, function (item, idx, array) {
+                if (callback(item, idx, array)) {
                     result.push(item);
                 }
-            }
+            }, 0);
             return result;
         },
 
         // Introduced with JavaScript 1.6
         forEach: function (callback) {
-            var thisArg = arguments[1],
-                len = this.length,
-                idx;
-            for (idx = 0; idx < len; ++idx) {
-                callback.call(thisArg, this[idx], idx, this);
-            }
+            _gpfArrayForEachFrom(this, _gpfArrayBind(callback, arguments[1]), 0);
         },
 
         // Introduced with JavaScript 1.5
         indexOf: function (searchElement) {
-            var fromIndex = arguments[1],
-                index = fromIndex || 0,
-                thisLength = this.length;
-            while (index < thisLength) {
-                if (this[index] === searchElement) {
-                    return index;
+            var result = -1;
+            _gpfArrayEveryFrom(this, function (value, index) {
+                if (value === searchElement) {
+                    result = index;
+                    return false;
                 }
-                ++index;
-            }
-            return -1;
+                return true;
+            }, arguments[1] || 0);
+            return result;
         },
 
         // Introduced with JavaScript 1.6
         map: function (callback) {
-            var thisArg = arguments[1],
-                thisLength = this.length,
-                result = new Array(thisLength),
-                index;
-            for (index = 0; index < thisLength; ++index) {
-                result[index] = callback.call(thisArg, this[index], index, this);
-            }
+            var result = new Array(this.length);
+            callback = _gpfArrayBind(callback, arguments[1]);
+            _gpfArrayForEachFrom(this, function (item, index, array) {
+                result[index] = callback(item, index, array);
+            }, 0);
             return result;
         },
 
@@ -95,28 +139,7 @@ _gpfInstallCompatibility("Array", {
     statics: {
 
         // Introduced with ECMAScript 2015
-        from: function (arrayLike) {
-            var length = arrayLike.length,
-                array = [],
-                index,
-                callback = arguments[1],
-                thisArg = arguments[2];
-            if ("string" === typeof arrayLike) {
-                // Required for cscript
-                for (index = 0; index < length; ++index) {
-                    array.push(arrayLike.charAt(index));
-                }
-
-            } else {
-                for (index = 0; index < length; ++index) {
-                    array.push(arrayLike[index]);
-                }
-            }
-            if ("function" === typeof callback) {
-                array = array.map(callback, thisArg);
-            }
-            return array;
-        },
+        from: _gpfArrayFrom,
 
         // Introduced with JavaScript 1.8.5
         isArray: function (arrayLike) {
