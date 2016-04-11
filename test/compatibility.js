@@ -7,6 +7,15 @@
 
 describe("compatibility", function () {
 
+    function arrayMethodShouldIgnoreUndefined (method) {
+        var array = new Array(5);
+        array[3] = 3;
+        method.apply(array, [function (value, idx) {
+            assert(3 === idx);
+            assert(3 === value);
+        }]);
+    }
+
     var tests = {
 
             Array: {
@@ -16,10 +25,10 @@ describe("compatibility", function () {
                         var array = [1, 2, 3, -6, 10],
                             sum = 0,
                             result;
-                        result = method.apply(array, [function (value) {
+                        result = method.call(array, function (value) {
                             sum += value;
                             return true;
-                        }]);
+                        });
                         assert(true === result);
                         assert(10 === sum);
                     },
@@ -57,7 +66,8 @@ describe("compatibility", function () {
                         assert(false === result);
                         assert(6 === scope.sum);
                         assert(3 === scope.index);
-                    }
+                    },
+                    "should ignore undefined members": arrayMethodShouldIgnoreUndefined
                 },
                 filter: {
                     length: 1,
@@ -82,7 +92,8 @@ describe("compatibility", function () {
                         assert(result.length === 2);
                         assert(result[0] === 2);
                         assert(result[1] === 4);
-                    }
+                    },
+                    "should ignore undefined members": arrayMethodShouldIgnoreUndefined
                 },
                 forEach: {
                     length: 1,
@@ -105,7 +116,8 @@ describe("compatibility", function () {
                             this.sum += value; //eslint-disable-line no-invalid-this
                         }, obj]);
                         assert(6 === obj.sum);
-                    }
+                    },
+                    "should ignore undefined members": arrayMethodShouldIgnoreUndefined
                 },
                 indexOf: {
                     length: 1,
@@ -135,7 +147,8 @@ describe("compatibility", function () {
                         assert(result.length === array.length);
                         assert(result[0] === 0);
                         assert(result[4] === 4);
-                    }
+                    },
+                    "should ignore undefined members": arrayMethodShouldIgnoreUndefined
                 },
                 reduce: {
                     length: 1,
