@@ -98,10 +98,6 @@
     "description": "Error base class",
     "class": "gpf.Error"
 }, {
-    "name": "dispatch",
-    "description": "Event dispatcher",
-    "mixin": "EventDispatcher"
-}, {
     "name": "mimetype",
     "description": "Mime types handling"
 }, {
@@ -268,4 +264,10 @@
     "name": "websvr",
     "description": "Simple JSP web server (nodeJS specific)",
     "load": false
+}, {
+    "name": "dispatch",
+    "description": "Event dispatcher",
+    "mixin": "EventDispatcher",
+    "load": false
+
 }]
