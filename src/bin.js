@@ -103,7 +103,7 @@ function _gpfToBaseANY (base, value, formattingOptions) {
 // Skip initial padding characters
 function _gpfSkipPad (text, pad) {
     var idx = 0;
-    while (idx < text.length && -1 === pad.indexOf(text.charAt(idx))) {
+    while (idx < text.length && -1 !== pad.indexOf(text.charAt(idx))) {
         ++idx;
     }
     return idx;
