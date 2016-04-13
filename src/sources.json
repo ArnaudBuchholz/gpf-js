@@ -38,6 +38,34 @@
     "name": "extend",
     "description": "Object merger"
 }, {
+    "name": "string/capitalize",
+    "method": "_gpfStringCapitalize",
+    "load": false,                                                                                     "to remove": true
+}, {
+    "name": "string/replaceex",
+    "method": "_gpfStringReplaceEx",
+    "load": false,                                                                                     "to remove": true
+}, {
+    "name": "string/escapefor",
+    "method": "_gpfStringEscapeFor",
+    "test": false,
+    "load": false,                                                                                     "to remove": true
+}, {
+    "name": "string/escape/javascript",
+    "description": "Javascript string escaping definition",
+    "test": false,
+    "load": false,                                                                                     "to remove": true
+}, {
+    "name": "string/escape/xml",
+    "description": "Xml string escaping definition",
+    "test": false,
+    "load": false,                                                                                     "to remove": true
+}, {
+    "name": "string/escape/html",
+    "description": "Html string escaping definition",
+    "test": false,
+    "load": false,                                                                                     "to remove": true
+}, {
     "name": "compatibility",
     "description": "Polyfills installer"
 }, {
