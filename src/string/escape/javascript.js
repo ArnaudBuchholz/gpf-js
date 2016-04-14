@@ -1,6 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfStringEscapes*/ // String replacement using dictionary map
+/*global _gpfStringEscapes*/ // Dictionary of language to escapes
 /*#endif*/
 
 _gpfStringEscapes.javascript = {
