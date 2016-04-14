@@ -31,7 +31,7 @@ module.exports = {
     globals: {
         command: "node make\\globals.js",
         stdout: false,
-        stderr: false,
+        stderr: true,
         exitCode: 0
     },
     version: {
