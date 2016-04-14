@@ -5,97 +5,9 @@
 /*global _gpfExtend*/ // gpf.extend
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfIsISO8601String*/ // Check if the string is an ISO 8601 representation of a date
-/*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _gpfNodeBuffer2JsArray*/ // Converts a NodeJS buffer into an int array
-/*exported _gpfStringCapitalize*/ // Capitalize the string
-/*exported _gpfStringEscapeFor*/ // Make the string content compatible with lang
-/*exported _gpfStringReplaceEx*/ // String replacement using dictionary map
 /*exported _gpfValues*/ // Dictionary of value converters
 /*#endif*/
-
-//region String helpers (will be reused in string module)
-
-/**
- * Capitalize the string
- *
- * @param {String} that
- * @return {String}
- */
-function _gpfStringCapitalize (that) {
-    return that.charAt(0).toUpperCase() + that.substr(1);
-}
-
-/**
- * String replacement using dictionary map
- *
- * @param {String} that
- * @param {Object} replacements map of strings to search and replace
- * @return {String}
- */
-function _gpfStringReplaceEx (that, replacements) {
-    var result = that;
-    _gpfObjectForEach(replacements, function (replacement, key) {/*gpf:inline(object)*/
-        result = result.split(key).join(replacement);
-    });
-    return result;
-}
-
-var
-// Dictionary of language to escapes
-    _gpfStringEscapes = {
-
-        javascript: {
-            "\\": "\\\\",
-            "\"": "\\\"",
-            "\n": "\\n",
-            "\r": "\\r",
-            "\t": "\\t"
-        },
-
-        xml: {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;"
-        }
-
-    };
-
-(function () {
-    var escapes = _gpfStringEscapes,
-        html = {};
-    // Copy XML
-    _gpfObjectForEach(escapes.xml, function (escape, key) {
-        html[key] = escape;
-    });
-    // Adds accents escape
-    _gpfObjectForEach({
-        224: "&agrave;",
-        225: "&aacute;",
-        232: "&egrave;",
-        233: "&eacute;",
-        234: "&ecirc;"
-    }, function (escape, key) {
-        html[String.fromCharCode(key)] = escape;
-    });
-    escapes.html = html;
-}());
-
-/**
- * Make the string content compatible with lang
- *
- * @param {String} that
- * @param {String} language
- * @return {String}
- */
-function _gpfStringEscapeFor (that, language) {
-    that = _gpfStringReplaceEx(that, _gpfStringEscapes[language]);
-    if ("javascript" === language) {
-        that = "\"" + that + "\"";
-    }
-    return that;
-}
-
-//endregion
 
 //region gpf.value
 
@@ -316,7 +228,6 @@ function _gpfNodeBuffer2JsArray (buffer) {
 
 /*#ifndef(UMD)*/
 
-gpf.internals._gpfStringEscapeFor = _gpfStringEscapeFor;
 gpf.internals._gpfNodeBuffer2JsArray = _gpfNodeBuffer2JsArray;
 
 /*#endif*/
