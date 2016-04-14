@@ -1,6 +1,6 @@
 "use strict";
 
-describe("json", function () {
+describe("compatibility/json", function () {
 
     var
         tests = [{
