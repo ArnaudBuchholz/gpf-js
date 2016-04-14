@@ -1,7 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfStringEscapes*/ // String replacement using dictionary map
 /*global _gpfExtend*/ // gpf.extend
+/*global _gpfStringEscapes*/ // Dictionary of language to escapes
 /*#endif*/
 
 _gpfStringEscapes.html = _gpfExtend(_gpfStringEscapes.xml, {
