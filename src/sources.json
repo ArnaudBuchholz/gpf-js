@@ -109,6 +109,10 @@
     "name": "bootstrap",
     "description": "Helper to bootstrap methods"
 }, {
+    "name": "value",
+    "description": "Value converter",
+    "method": "gpf.value"
+}, {
     "name": "base",
     "description": "General helpers"
 }, {
