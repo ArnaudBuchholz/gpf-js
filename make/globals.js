@@ -11,7 +11,8 @@ var sources = JSON.parse(fs.readFileSync("./src/sources.json"))
     });
 sources.unshift("boot"); // Also include boot
 
-var rc = 0;
+var rc = 0,
+    rewrites = {};
 
 function Module (name) {
     this.name = name;
@@ -157,7 +158,7 @@ Module.prototype = {
         [].splice.apply(lines, spliceArgs);
         after = lines.join("\n");
         if (before !== after) {
-            fs.writeFileSync("./src/" + this.name + ".js", after);
+            rewrites[this.name] = after;
             return true;
         }
         return false;
@@ -190,32 +191,17 @@ sources.every(function (source) {
     return true;
 });
 
-process.exit(rc);
-
-// Build former constants.js part
-sources.every(function (source) {
-    if (source === "") {
-        return false;
-    }
-    var module = Module.byName[source],
-        regionLines = [
-            "//region " + source
-        ],
-        moduleExports = module.exports,
-        names = Object.keys(moduleExports).sort(),
-        description,
-        global;
-    names.forEach(function (name) {
-        global = "/*global " + name + "*/";
-        description = module.exports[name];
-        if (description) {
-            global += " // " + description;
+function rewriteAll () {
+    var name;
+    for (name in rewrites) {
+        if (rewrites.hasOwnProperty(name)) {
+            fs.writeFileSync("./src/" + name + ".js", rewrites[name]);
         }
-        regionLines.push(global);
-    });
-    if (1 < regionLines.length) {
-        regionLines.push("//endregion " + source);
-        console.log(regionLines.join("\n"));
     }
-    return true;
-});
+}
+
+if (0 === rc) {
+    rewriteAll();
+}
+
+process.exit(rc);
