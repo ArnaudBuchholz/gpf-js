@@ -39,32 +39,25 @@
     "description": "Object merger"
 }, {
     "name": "string/capitalize",
-    "method": "_gpfStringCapitalize",
-    "load": false,                                                                                     "to remove": true
+    "method": "_gpfStringCapitalize"
 }, {
     "name": "string/replaceex",
-    "method": "_gpfStringReplaceEx",
-    "load": false,                                                                                     "to remove": true
+    "method": "_gpfStringReplaceEx"
 }, {
     "name": "string/escapefor",
-    "method": "_gpfStringEscapeFor",
-    "test": false,
-    "load": false,                                                                                     "to remove": true
+    "method": "_gpfStringEscapeFor"
 }, {
     "name": "string/escape/javascript",
     "description": "Javascript string escaping definition",
-    "test": false,
-    "load": false,                                                                                     "to remove": true
+    "test": false
 }, {
     "name": "string/escape/xml",
     "description": "Xml string escaping definition",
-    "test": false,
-    "load": false,                                                                                     "to remove": true
+    "test": false
 }, {
     "name": "string/escape/html",
     "description": "Html string escaping definition",
-    "test": false,
-    "load": false,                                                                                     "to remove": true
+    "test": false
 }, {
     "name": "compatibility",
     "description": "Polyfills installer"
