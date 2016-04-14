@@ -16,56 +16,6 @@ describe("base", function () {
             }
         };
 
-    describe("gpf.value", function () {
-
-        var date = new Date(2003, 0, 22, 23, 45, 0, 0);
-
-        [
-            /* value parameters,                        expected result, message */
-            [0, 1, undefined, 0,                        "nothing on numbers"],
-            ["0", 1, undefined, 0,                      "number from string"],
-            ["0", true, undefined, false,               "boolean from string (false)"],
-            ["yes", false, undefined, true,             "boolean from string (true)"],
-            [0, true, undefined, false,                 "boolean from number (false)"],
-            [1, false, undefined, true,                 "boolean from number (true)"],
-            [{}, false, undefined, false,               "boolean from anything else"],
-            [undefined, "empty", undefined, "empty",    "nothing and use default value"],
-            ["1.2", 1.1, undefined, 1.2,                "string to float"],
-            ["1.2", 1, "number", 1.2,                   "string to float as a number"],
-            [{}, 1, undefined, 1,                       "number from anything else"],
-            [1, "", undefined, "1",                     "string fron number"],
-            [1, object, undefined, object,              "object (only default)"],
-            [new Date("2013-01-22"), "", undefined, "2013-01-22T00:00:00.000Z",
-                                                        "string from date"],
-            ["2013-01-22T00:00:00.000Z", new Date(), undefined, new Date("2013-01-22"),
-                                                        "date from string"]
-
-        ].forEach(function (parameters) {
-
-            it("converts " + parameters[4], function () {
-                var result = gpf.value.apply(null, parameters.slice(0, 3)),
-                    expected = parameters[3];
-                if ("object" === typeof result && "object" === typeof expected) {
-                    // Compare string versions
-                    assert(result.toString() === parameters[3].toString());
-                } else {
-                    assert(result === parameters[3]);
-                }
-            });
-
-        });
-
-        if (gpf.dateToComparableFormat) {
-            it("handles date conversions", function () {
-                assert(gpf.like(gpf.value("2003-01-22 23:45:00", date), date));
-                assert(gpf.value(date, "") === "2003-01-22 23:45:00");
-            });
-        } else {
-            it("handles date conversions");
-        }
-
-    });
-
     describe("gpf.clone", function () {
 
         it("creates a shallow clone of an object", function () {
@@ -163,28 +113,6 @@ describe("base", function () {
     if (gpf.internals) {
 
         describe("(internal)", function () {
-
-            describe("_gpfStringEscapeFor", function () {
-
-                var _gpfStringEscapeFor = gpf.internals._gpfStringEscapeFor;
-
-                it("escape strings for javascript", function () {
-                    assert(_gpfStringEscapeFor("abc", "javascript") === "\"abc\"");
-                    assert(_gpfStringEscapeFor("a\r\nb", "javascript") === "\"a\\r\\nb\"");
-                    assert(_gpfStringEscapeFor("\"", "javascript") === "\"\\\"\"");
-                    assert(_gpfStringEscapeFor("\\", "javascript") === "\"\\\\\"");
-                });
-
-                it("escape strings for xml", function () {
-                    assert(_gpfStringEscapeFor("<abc>&amp;</abc>", "xml") === "&lt;abc&gt;&amp;amp;&lt;/abc&gt;");
-                });
-
-                it("escape strings for html", function () {
-                    var htmlResult = "&lt;abc&gt;&aacute;&amp;&egrave;&lt;/abc&gt;";
-                    assert(_gpfStringEscapeFor("<abc>\u00E1&\u00E8</abc>", "html") === htmlResult);
-                });
-
-            });
 
             if (gpf.HOST_NODEJS === gpf.host()) {
 
