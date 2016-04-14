@@ -86,6 +86,9 @@
     "name": "compatibility/timeout",
     "description": "setTimeout polyfill"
 }, {
+    "name": "compatibility/json",
+    "description": "JSON polyfill"
+}, {
     "name": "context",
     "description": "Context management"
 }, {
@@ -125,9 +128,6 @@
     "name": "bin",
     "description": "Binary tools",
     "namespace": "gpf.bin"
-}, {
-    "name": "json",
-    "description": "JSON polyfill"
 }, {
     "name": "path",
     "description": "Path helper",
