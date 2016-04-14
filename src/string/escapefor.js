@@ -2,7 +2,7 @@
 "use strict";
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
 /*exported _gpfStringEscapeFor*/ // Make the string content compatible with lang
-/*exported _gpfStringEscapes*/ //Dictionary of language to escapes
+/*exported _gpfStringEscapes*/ // Dictionary of language to escapes
 /*#endif*/
 
 // Dictionary of language to escapes
