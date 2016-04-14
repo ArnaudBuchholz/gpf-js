@@ -1,8 +1,10 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfMainContext*/ // Main context object
+/*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*exported _gpfJsonParse*/ // JSON.parse
 /*exported _gpfJsonStringify*/ // JSON.stringify
@@ -25,31 +27,31 @@ var
      */
     _gpfJsonParse;
 
+// Filter functions and escape values
+function _gpfPreprocessValueForJson (callback) {
+    return function (value, index) {
+        if ("function" === typeof value) {
+            return; // ignore
+        }
+        callback(_gpfJsonStringifyPolyfill(value), index);
+    };
+}
+
 function _gpfObject2Json (object) {
-    var
-        isArray,
-        results,
-        property,
-        value;
+    var isArray,
+        results;
     isArray = object instanceof Array;
     results = [];
-    /*jshint -W089*/ // Actually, I want all properties
-    for (property in object) {
-        if ("function" === typeof object[property]) {
-            continue; // ignore
-        }
-        value = _gpfJsonStringifyPolyfill(object[property]);
-        if (isArray) {
-            results.push(value);
-        } else {
-            results.push(_gpfStringEscapeFor(property, "javascript") + ":" + value);
-        }
-    }
     if (isArray) {
+        _gpfArrayForEach(object, _gpfPreprocessValueForJson(function (value) {
+            results.push(value);
+        }));
         return "[" + results.join(",") + "]";
     }
+    _gpfObjectForEach(object, _gpfPreprocessValueForJson(function (value, property) {
+        results.push(_gpfStringEscapeFor(property, "javascript") + ":" + value);
+    }));
     return "{" + results.join(",") + "}";
-    /*jshint +W089*/
 }
 
 function _gpfJsonStringifyObject (object) {
@@ -63,19 +65,18 @@ var _gpfJsonStringifyMapping = {
     "boolean": _gpfJsonStringifyObject,
     string: function (object) {
         return _gpfStringEscapeFor(object, "javascript");
+    },
+    object: function (object) {
+        if (null === object) {
+            return "null";
+        }
+        return _gpfObject2Json(object);
     }
 };
 
 /*jshint -W003*/ // Circular reference _gpfJsonStringifyPolyfill <-> _gpfObject2Json
 function _gpfJsonStringifyPolyfill (object) {
-    var mapper = _gpfJsonStringifyMapping[typeof object];
-    if (undefined !== mapper) {
-        return mapper(object);
-    }
-    if (null === object) {
-        return "null";
-    }
-    return _gpfObject2Json(object);
+    return _gpfJsonStringifyMapping[typeof object](object);
 }
 /*jshint +W003*/
 
