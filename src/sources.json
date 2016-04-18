@@ -113,6 +113,9 @@
     "description": "Value converter",
     "method": "gpf.value"
 }, {
+    "name": "set",
+    "description": "Sets helpers"
+}, {
     "name": "base",
     "description": "General helpers"
 }, {
