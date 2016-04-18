@@ -4,6 +4,23 @@
 /*exported _gpfPathNormalize*/ // Normalize path
 /*#endif*/
 
+//region _gpfPathDecompose
+
+function _gpfPathSplit (path) {
+    if (-1 < path.indexOf("\\")) {
+        // DOS path is case insensitive, hence lowercase it
+        return path.toLowerCase().split("\\");
+    }
+    // Assuming a Unix-like path
+    return path.split("/");
+}
+
+function _gpfPathRemoveTrailingBlank (splitPath) {
+    if (splitPath.length && !splitPath[splitPath.length - 1]) {
+        splitPath.pop();
+    }
+}
+
 /**
  * Normalize paths and returns an array of parts.
  * If a DOS-like path is detected (use of \), it is lower-cased
@@ -12,22 +29,12 @@
  * @return {String[]}
  */
 function _gpfPathDecompose (path) {
-    // Split on separator
-    if (-1 < path.indexOf("/")) {
-        path = path.split("/");
-    } else if (-1 < path.indexOf("\\")) {
-        // DOS path is case insensitive, hence lowercase it
-        path = path.toLowerCase().split("\\");
-    } else {
-        // TODO what about _gpfDosPath?
-        return [path];
-    }
-    // Remove trailing /
-    if (path.length && !path[path.length - 1]) {
-        path.pop();
-    }
-    return path;
+    var splitPath = _gpfPathSplit(path);
+    _gpfPathRemoveTrailingBlank(splitPath);
+    return splitPath;
 }
+
+//endregion
 
 /**
  * Normalize path
@@ -50,35 +57,57 @@ function _gpfPathName (path) {
     return path[path.length - 1];
 }
 
-gpf.path = {
-
-    /**
-     * Join all arguments together and normalize the resulting path
-     *
-     * @param {String} path
-     * @param {String*} var_args
-     */
-    join: function (path) {
-        path = _gpfPathDecompose(path);
-        var idx,
-            len = arguments.length,
-            relativePath;
-        for (idx = 1; idx < len; ++idx) {
-            relativePath = _gpfPathDecompose(arguments[idx]);
-            while (relativePath[0] === "..") {
-                relativePath.shift();
-                if (path.length) {
-                    path.pop();
-                } else {
-                    return "";
-                }
-            }
-            if (relativePath.length) {
-                path = path.concat(relativePath);
+/**
+ * Join all arguments together and normalize the resulting path
+ *
+ * @param {String} path
+ * @param {String*} var_args
+ */
+function _gpfPathJoin (path) {
+    var splitPath = _gpfPathDecompose(path);
+    [].slice.call(arguments, 1).forEach(function (relativePath) {
+        var relativeSplitPath = _gpfPathDecompose(relativePath);
+        while (".." === relativeSplitPath[0]) {
+            relativeSplitPath.shift();
+            if (undefined === splitPath.pop()) {
+                return; // does not resolve on unknown parent
             }
         }
-        return path.join("/");
-    },
+        [].push.apply(splitPath, relativeSplitPath);
+    });
+    return splitPath.join("/");
+}
+
+function _gpfPathShiftIdenticalBeginning (splitFromPath, splitToPath) {
+    while (splitFromPath.length && splitToPath.length && splitFromPath[0] === splitToPath[0]) {
+        splitFromPath.shift();
+        splitToPath.shift();
+    }
+}
+
+/**
+ * Solve the relative path from from to to
+ *
+ * @param {String} from
+ * @param {String} to
+ */
+function _gpfPathRelative (from, to) {
+    var length,
+        splitFrom = _gpfPathDecompose(from),
+        splitTo = _gpfPathDecompose(to);
+    _gpfPathShiftIdenticalBeginning(splitFrom, splitTo);
+    // For each remaining part in from, unshift .. in to
+    length = splitFrom.length + 1;
+    while (--length) {
+        splitTo.unshift("..");
+    }
+    return splitTo.join("/");
+}
+
+gpf.path = {
+
+    // @inheritdoc _gpfPathJoin
+    join: _gpfPathJoin,
 
     /**
      * Get the parent of a path
@@ -130,28 +159,8 @@ gpf.path = {
         return name.substr(pos);
     },
 
-    /**
-     * Solve the relative path from from to to
-     *
-     * @param {String} from
-     * @param {String} to
-     */
-    relative: function (from, to) {
-        from = _gpfPathDecompose(from);
-        to = _gpfPathDecompose(to);
-        var length;
-        // First remove identical part
-        while (from.length && to.length && from[0] === to[0]) {
-            from.shift();
-            to.shift();
-        }
-        // For each remaining part in from, unshift .. in to
-        length = from.length + 1;
-        while (--length) {
-            to.unshift("..");
-        }
-        return to.join("/");
-    }
+    // @inheritdoc @_gpfPathRelative
+    relative: _gpfPathRelative
 
 };
 
