@@ -1,6 +1,5 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfAssert*/ // Assertion method
 /*global _gpfExit*/ // Exit function
 /*global _gpfExtend*/ // gpf.extend
 /*exported _gpfNodeBuffer2JsArray*/ // Converts a NodeJS buffer into an int array
