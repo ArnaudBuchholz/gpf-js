@@ -5,10 +5,51 @@
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*#endif*/
 
+//region Pattern parsing
+
 // Split the part to be processed in _GpfPathMatcher#_matchName
 function _gpfPatternPartSplit (part) {
     return part.split("*");
 }
+
+// Split the pattern on /, process each part individually
+function _gpfPatternSplit (pattern) {
+    return pattern
+        .split("/")
+        .map(_gpfPatternPartSplit);
+}
+
+function _gpfPatternBuildStart (matcher, pattern, pos) {
+    if (0 < pos) {
+        _gpfAssert(pattern.charAt(pos - 1) === "/", "** must be preceded by /");
+        matcher.start = _gpfPatternSplit(pattern.substr(0, pos - 1)); // skip /
+    }
+}
+
+function _gpfPatternBuildEnd (matcher, pattern, pos) {
+    if (pos < pattern.length - 2) {
+        _gpfAssert(pattern.charAt(pos + 2) === "/", "** must be followed by /");
+        matcher.end = _gpfPatternSplit(pattern.substr(pos + 3)).reverse(); // skip /
+    }
+}
+
+function _gpfCheckPathMatcherGeneric (matcher, pattern) {
+    /**
+     * if any use of "**", split the pattern in two:
+     * - the before part: start
+     * - the after part: end
+     * (otherwise, it is only the before part)
+     */
+    var pos = pattern.indexOf("**");
+    if (-1 === pos) {
+        matcher.start = _gpfPatternSplit(pattern);
+    } else {
+        _gpfPatternBuildStart(matcher, pattern, pos);
+        _gpfPatternBuildEnd(matcher, pattern, pos);
+    }
+}
+
+//endregion
 
 /**
  * @param {String} pattern
@@ -27,34 +68,7 @@ function _GpfPathMatcher (pattern) {
         pattern = pattern.substr(1);
     }
 
-    /**
-     * if any use of "**", split the pattern in two:
-     * - the before part: start
-     * - the after part: end
-     * (otherwise, it is only the before part)
-     */
-    var pos = pattern.indexOf("**");
-    if (-1 === pos) {
-        this.start = pattern
-            .split("/")
-            .map(_gpfPatternPartSplit);
-    } else {
-        if (0 < pos) {
-            _gpfAssert(pattern.charAt(pos - 1) === "/", "** must be preceded by /");
-            this.start = pattern
-                .substr(0, pos - 1) // skip /
-                .split("/")
-                .map(_gpfPatternPartSplit);
-        }
-        if (pos < pattern.length - 2) {
-            _gpfAssert(pattern.charAt(pos + 2) === "/", "** must be followed by /");
-            this.end = pattern
-                .substr(pos + 3) // skip /
-                .split("/")
-                .map(_gpfPatternPartSplit)
-                .reverse();
-        }
-    }
+    _gpfCheckPathMatcherGeneric(this, pattern);
 }
 
 /**
