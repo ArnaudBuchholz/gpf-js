@@ -65,10 +65,14 @@ describe("path/matcher", function () {
 
         describe("multiple patterns", function () {
 
-            var compiledPattern = gpf.path.compileMatchPattern([
-                "*.js",
-                "*.txt"
-            ]);
+            var compiledPattern;
+
+            beforeEach(function () {
+                compiledPattern = gpf.path.compileMatchPattern([
+                    "*.js",
+                    "*.txt"
+                ]);
+            });
 
             it("recognizes all js files", function () {
                 assert(true === match(compiledPattern, "test.js"));
@@ -86,10 +90,14 @@ describe("path/matcher", function () {
 
         describe("patterns with folders", function () {
 
-            var compiledPattern = compile([
-                "src/*.js",
-                "test/*.js"
-            ]);
+            var compiledPattern;
+
+            beforeEach(function () {
+                compiledPattern = compile([
+                    "src/*.js",
+                    "test/*.js"
+                ]);
+            });
 
             it("ignores if folders are not matching", function () {
                 assert(false === match(compiledPattern, "test.js"));
@@ -103,7 +111,7 @@ describe("path/matcher", function () {
                 assert(true === match(compiledPattern, "src/test.js"));
             });
 
-            it("ignores if the folders depth does not match", function () {
+            it("ignores if the folders' depth does not match", function () {
                 assert(false === match(compiledPattern, "src/test/test.js"));
             });
 
@@ -113,18 +121,40 @@ describe("path/matcher", function () {
 
             describe("in the middle of the pattern", function () {
 
-                var compiledPattern = compile([
-                    "src/**/*.js",
-                    "src/data/**/*.json"
-                ]);
+                var compiledPattern;
 
-                it("matches patterns that includes **", function () {
+                beforeEach(function () {
+                    compiledPattern = compile([
+                        "src/**/*.js",
+                        "src/data/**/*.json"
+                    ]);
+                });
+
+                it("ignores if the left part does not match", function () {
                     assert(false === match(compiledPattern, "test.js"));
+                });
+
+                it("recognizes optional levels", function () {
                     assert(true === match(compiledPattern, "src/test.js"));
-                    assert(true === match(compiledPattern, "src/test/test.js"));
+                });
+
+                it("recognizes any folder name", function () {
                     assert(true === match(compiledPattern, "src/data/test.js"));
+                });
+
+                it("does not conflict with file name", function () {
+                    assert(true === match(compiledPattern, "src/test/test.js"));
+                });
+
+                it("recognizes any folder name (multiple patterns)", function () {
                     assert(true === match(compiledPattern, "src/data/test.json"));
+                });
+
+                it("does not conflict with file name (multiple patterns)", function () {
                     assert(false === match(compiledPattern, "src/test/test.json"));
+                });
+
+                it("recognizes any number of sub folders", function () {
                     assert(true === match(compiledPattern, "src/test/mocha/test.js"));
                 });
 
@@ -132,17 +162,32 @@ describe("path/matcher", function () {
 
             describe("at the beginning of the pattern", function () {
 
-                var compiledPattern = compile([
-                    "**/*.js",
-                    "**/data/*.json"
-                ]);
+                var compiledPattern;
 
-                it("matches patterns that starts with **", function () {
+                beforeEach(function () {
+                    compiledPattern = compile([
+                        "**/*.js",
+                        "**/data/*.json"
+                    ]);
+                });
+
+                it("recognizes optional levels", function () {
                     assert(true === match(compiledPattern, "test.js"));
-                    assert(true === match(compiledPattern, "src/test.js"));
+                });
+
+                it("recognizes any folder name", function () {
                     assert(true === match(compiledPattern, "src/test/test.js"));
+                });
+
+                it("ignores non matching filenames", function () {
                     assert(false === match(compiledPattern, "test.json"));
+                });
+
+                it("ignores non matching folders and filenames", function () {
                     assert(false === match(compiledPattern, "src/test.json"));
+                });
+
+                it("recognizes any number of sub folders (multiple patterns)", function () {
                     assert(true === match(compiledPattern, "src/data/test.json"));
                 });
 
@@ -150,16 +195,32 @@ describe("path/matcher", function () {
 
             describe("at the end of the pattern", function () {
 
-                var compiledPattern = compile([
-                    "src/**",
-                    "lib/data/**"
-                ]);
+                var compiledPattern;
 
-                it("matches patterns that ends with **", function () {
+                beforeEach(function () {
+                    compiledPattern = compile([
+                        "src/**",
+                        "lib/data/**"
+                    ]);
+                });
+
+                it("ignores if it does not start with the expected pattern", function () {
                     assert(false === match(compiledPattern, "test.js"));
+                });
+
+                it("recognizes any filename", function () {
                     assert(true === match(compiledPattern, "src/test.js"));
+                });
+
+                it("recognizes any number of sub folders", function () {
                     assert(true === match(compiledPattern, "src/test/test.js"));
+                });
+
+                it("ignores non matching patterns (multiple patterns)", function () {
                     assert(false === match(compiledPattern, "lib/test.json"));
+                });
+
+                it("recognizes any filename (multiple patterns)", function () {
                     assert(true === match(compiledPattern, "lib/data/test.json"));
                 });
 
@@ -169,8 +230,11 @@ describe("path/matcher", function () {
 
         describe("absolute patterns", function () {
 
-            it("handles absolute patterns", function () {
+            it("ignores if not starting exactly the same way", function () {
                 assert(false === match("/test/rules/*.js", "test.js"));
+            });
+
+            it("recognizes if starting exactly the same way", function () {
                 assert(true === match("/test/rules/*.js", "/test/rules/any.js"));
             });
 
