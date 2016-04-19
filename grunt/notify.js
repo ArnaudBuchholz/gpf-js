@@ -1,10 +1,9 @@
 "use strict";
 
 module.exports = {
-    jshint: {
+    coverage: {
         options: {
-            title: "JSHint complete",
-            message: "GPF validated with JSHint."
+            title: "Code coverage"
         }
     }
 };
