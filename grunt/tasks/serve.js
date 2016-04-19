@@ -1,5 +1,8 @@
 "use strict";
 
 module.exports = function (grunt) {
-    grunt.registerTask("serve", ["connect:server:keepalive"]);
+    grunt.registerTask("serve", [
+        "connect:server",
+        "watch"
+    ]);
 };
