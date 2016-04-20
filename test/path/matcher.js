@@ -49,6 +49,14 @@ describe("path/matcher", function () {
                 assert(false === match("m*.js", "path.js"));
             });
 
+            it("recognizes the file names using generic *", function () {
+                assert(true === match("m*r.js", "matcher.js"));
+            });
+
+            it("distinguishes what is before and after the generic part", function () {
+                assert(false === match("mat*tcher.js", "matcher.js"));
+            });
+
         });
 
         describe("negative pattern", function () {
