@@ -177,32 +177,31 @@ _GpfPathMatcher.prototype = {
      * @param {String} part
      */
     _matchName: function (fixedPatterns, part) {
-        var
-            len = fixedPatterns.length,
-            idx,
-            fixedPattern,
-            pos = 0; // end
-        for (idx = 0; idx < len; ++idx) {
-            fixedPattern = fixedPatterns[idx];
-            // an empty pattern correspond to a star position
-            if (fixedPattern) {
-                pos = part.indexOf(fixedPattern, pos);
+        var lastPattern = "",
+            pos = 0;
+        if (fixedPatterns.every(function (fixedPattern, index) {
+            var lastPatternLength = lastPattern.length;
+            lastPattern = fixedPattern || "";
+            if (lastPattern) {
+                pos = part.indexOf(fixedPattern, pos + lastPatternLength);
                 // part not found means not matching
                 if (-1 === pos) {
                     return false;
                 }
                 // the first part must match the beginning
-                if (0 === idx && 0 < pos) {
+                if (0 === index && 0 < pos) {
                     return false;
                 }
             }
+            return true;
+        })) {
+            /**
+             * If empty, we match (because we don't care about the end)
+             * Otherwise, it should leads us to the end of the part.
+             */
+            return !lastPattern || pos + lastPattern.length === part.length;
         }
-        /**
-         * fixedPattern represents the last pattern used (and matching)
-         * If empty, we match (because we don't care about the end)
-         * Otherwise, it should leads us to the end of the part.
-         */
-        return !fixedPattern || pos + fixedPattern.length === part.length;
+        return false;
     },
 
     _matchStart: function (context) {
