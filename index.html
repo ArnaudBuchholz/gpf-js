@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>GPF-JS</title>
+        <style type="text/css">
+
+body {
+    font-size: 8pt;
+    font-family: Verdana, Courrier, Sans Serif;
+    color: black;
+}
+
+ul.tiles li {
+    background-color: beige;
+    display: inline-block;
+    margin: 16px;
+    padding: 4px;
+    width: 128px;
+    height: 128px;
+    border: solid 1px gray;
+    text-align: center;
+}
+
+li[link] {
+    cursor: pointer;
+}
+
+        </style>
+        <script language="JavaScript">
+
+function onLoad () {
+    document.addEventListener("click", function (event) {
+        var target = event.target,
+            link = target.getAttribute("link");
+        if (link) {
+            window.open(link);
+        }
+    });
+}
+
+        </script>
+    </head>
+    <body onload="onLoad()">
+        <ul class="tiles">
+            <li link="test/host/mocha/web.html">Mocha (sources)</li>
+            <li link="test/host/mocha/web_release.html">Mocha (release)</li>
+            <li link="test/host/mocha/web_debug.html">Mocha (debug)</li>
+            <li link="test/host/web.html">Tests (sources)</li>
+            <li link="test/host/web.html?release">Mocha (release)</li>
+            <li link="test/host/web_debug.html">Mocha (debug)</li>
+            <li link="tmp/plato/index.html">Plato report</li>
+            <li link="tmp/coverage/reports/lcov-report/index.html">Code coverage report</li>
+        </ul>
+    </body>
+</html>
