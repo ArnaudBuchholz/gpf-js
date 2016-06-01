@@ -5,7 +5,7 @@
 /*eslint-disable no-sync*/
 
 var fs = require("fs"),
-    webDriver = require("selenium-webdriver"),
+    buildWebDriverFor = require("./seleniumDriverFactory.js"),
     browsers = JSON.parse(fs.readFileSync("selenium.json").toString()),
     promises = [];
 
@@ -27,6 +27,7 @@ function report (browser, status) {
 
 function detect (browser) {
     return new Promise(function (resolve /*, reject*/) {
+
         function fail (reason) {
             report(browser, false);
             if (reason && reason.message) {
@@ -34,8 +35,9 @@ function detect (browser) {
             }
             resolve(false);
         }
+
         try {
-            var driver = new webDriver.Builder().forBrowser(browser).build();
+            var driver = buildWebDriverFor(browser);
             driver.quit().then(function () {
                 report(browser, true);
                 resolve(true);
@@ -57,13 +59,13 @@ if (browser) {
 } else {
     console.log("Testing drivers declared in ./selenium.json");
 
-    browsers.forEach(function (browser) {
-        promises.push(detect(browser));
+    browsers.forEach(function (browserToDetect) {
+        promises.push(detect(browserToDetect));
     });
 
     Promise.all(promises).then(function (detectedDrivers) {
         console.log("Saving tmp/selenium.json");
-        var list = browsers.filter(function (browser, index) {
+        var list = browsers.filter(function (browserToDetect, index) {
             return detectedDrivers[index];
         });
         fs.writeFileSync("./tmp/selenium.json", JSON.stringify(list));
