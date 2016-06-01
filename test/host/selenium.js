@@ -7,12 +7,10 @@ var path = require("path"),
     browser = args[0],
     version,
     errorCount,
-    webDriver = require("selenium-webdriver"),
+    buildWebDriverFor = require("../../seleniumDriverFactory.js"),
     By = require("selenium-webdriver").By,
     until = require("selenium-webdriver").until,
-    driver = new webDriver.Builder()
-        .forBrowser(browser)
-        .build();
+    driver = buildWebDriverFor(browser);
 
 if ("-release" === args[1]) {
     version = "?release";
