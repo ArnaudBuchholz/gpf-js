@@ -48,6 +48,13 @@ function _gpfStringArrayCountToFit (strings, size) {
     };
 }
 
+function _gpfStringsSafeSplice (strings, itemsCount) {
+    if (0 < itemsCount) {
+        return strings.splice(0, itemsCount);
+    }
+    return [];
+}
+
 /**
  * Splice the string array on the number of items and, if specified, takes characters on the next item.
  * Returns the concatenated string
@@ -61,11 +68,7 @@ function _gpfStringArraySplice (strings, itemsCount, characterCount) {
     var result,
         string;
     _gpfAssert(itemsCount <= strings.length, "itemsCount within strings range");
-    if (0 < itemsCount) {
-        result = strings.splice(0, itemsCount);
-    } else {
-        result = [];
-    }
+    result = _gpfStringsSafeSplice(strings, itemsCount);
     if (strings.length && characterCount) {
         // Last item has to be cut, remove first item
         string = strings.shift();
