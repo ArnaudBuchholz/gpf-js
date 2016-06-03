@@ -5,6 +5,10 @@
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*#endif*/
 
+var _GPF_PATHMATCH_UNKNOWN = 0,
+    _GPF_PATHMATCH_OK = 1,
+    _GPF_PATHMATCH_KO = 2;
+
 //region Pattern parsing
 
 // Split the part to be processed in _GpfPathMatcher#_matchName
@@ -97,6 +101,16 @@ function _gpfPathMatchCompilePatterns (pattern) {
     return [_gpfPathMatchCompilePattern(pattern)];
 }
 
+// After matching a path item
+function _gpfPathMatchAfterApplyNonMatching (pathMatcher) {
+    /*jshint validthis:true*/
+    if (pathMatcher.negative) {
+        this.result = true;
+        return false; // Stop the main loop
+    }
+    return true; // continue
+}
+
 /**
  * Match a path item
  *
@@ -107,16 +121,11 @@ function _gpfPathMatchCompilePatterns (pattern) {
  */
 function _gpfPathMatchApply (pathMatcher) {
     /*jshint validthis:true*/
-    var negative = pathMatcher.negative;
     if (pathMatcher.match(this.parts)) {
-        this.result = !negative;
+        this.result = !pathMatcher.negative;
         return false; // Stop the main loop
     }
-    if (negative) {
-        this.result = true;
-        return false; // Stop the main loop
-    }
-    return true; // continue
+    return _gpfPathMatchAfterApplyNonMatching.call(this, pathMatcher);
 }
 
 /**
@@ -204,7 +213,16 @@ _GpfPathMatcher.prototype = {
         return false;
     },
 
+    // Match using this.start (if any)
     _matchStart: function (context) {
+        if (this.start) {
+            return this._matchStartUnsafe(context);
+        }
+        return _GPF_PATHMATCH_UNKNOWN;
+    },
+
+    // Match using this.start
+    _matchStartUnsafe: function (context) {
         var parts = context.parts,
             partsLen = parts.length,
             startPos = context.startPos,
@@ -215,17 +233,29 @@ _GpfPathMatcher.prototype = {
             if (this._matchName(array[idx], parts[startPos])) {
                 if (++startPos >= partsLen) {
                     // Match if last part of the start and no end
-                    return idx === len - 1 && !this.end;
+                    if (idx === len - 1 && !this.end) {
+                        return _GPF_PATHMATCH_OK;
+                    }
+                    return _GPF_PATHMATCH_KO;
                 }
             } else {
-                return false;
+                return _GPF_PATHMATCH_KO;
             }
         }
         context.startPos = startPos;
-        return undefined;
+        return _GPF_PATHMATCH_UNKNOWN;
     },
 
+    // Match using this.end (if any)
     _matchEnd: function (context) {
+        if (this.end) {
+            return this._matchEndUnsafe(context);
+        }
+        return _GPF_PATHMATCH_UNKNOWN;
+    },
+
+    // Match using this.end
+    _matchEndUnsafe: function (context) {
         var parts = context.parts,
             startPos = context.startPos,
             endPos = parts.length - 1,
@@ -235,13 +265,13 @@ _GpfPathMatcher.prototype = {
         for (idx = 0; idx < len; ++idx) {
             if (-1 < endPos && this._matchName(array[idx], parts[endPos])) {
                 if (endPos-- < startPos) {
-                    return false;
+                    return _GPF_PATHMATCH_KO;
                 }
             } else {
-                return false;
+                return _GPF_PATHMATCH_KO;
             }
         }
-        return undefined;
+        return _GPF_PATHMATCH_UNKNOWN;
     },
 
     /**
@@ -256,19 +286,8 @@ _GpfPathMatcher.prototype = {
                 parts: parts,
                 startPos: 0
             };
-        if (this.start) {
-            result = this._matchStart(context);
-            if (undefined !== result) {
-                return result;
-            }
-        }
-        if (this.end) {
-            result = this._matchEnd(context);
-            if (undefined !== result) {
-                return result;
-            }
-        }
-        return true;
+        result = this._matchStart(context) || this._matchEnd(context);
+        return result !== _GPF_PATHMATCH_KO;
     }
 
 };
