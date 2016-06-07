@@ -21,27 +21,23 @@
  * Count how many strings must be concatenated to fit the requested size.
  * If the last string has too many characters, it is ignored and remaining will tell how many characters are left.
  *
- * @param {String[] strings String array
+ * @param {String[]} strings String array
  * @param {Number} size Number of characters to compute
  * @returns {Object} containing
  * - {Number} count Number of parts to get to fit the size
  * - {Number} remaining Number of characters not fitting
  */
 function _gpfStringArrayCountToFit (strings, size) {
-    var stringsLength = strings.length,
-        count = 0,
-        string,
-        length;
-    while (0 < size && count < stringsLength) {
-        string = strings[count];
-        length = string.length;
+    var count = 0;
+    strings.every(function (string) {
+        var length = string.length;
         if (length <= size) {
             ++count;
             size -= length;
-        } else {
-            break;
+            return true;
         }
-    }
+        return false;
+    });
     return {
         count: count,
         remaining: size
