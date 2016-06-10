@@ -61,7 +61,7 @@ function _gpfPathName (path) {
  * Join all arguments together and normalize the resulting path
  *
  * @param {String} path
- * @param {String*} var_args
+ * @param {...String} relativePath
  */
 function _gpfPathJoin (path) {
     var splitPath = _gpfPathDecompose(path);
