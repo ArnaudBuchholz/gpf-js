@@ -37,7 +37,13 @@
 /*eslint-disable no-unused-vars*/
 /*eslint-disable no-undef*/
 /*jshint -W079*/ // Globals are also copied here
+/*eslint valid-jsdoc: 2*/
 /*#endif*/
+
+/**
+ * @namespace gpf
+ * @description Root namespace for GPF exports
+ */
 
 var
 /*#ifdef(RELEASE)*/
@@ -138,9 +144,10 @@ function _gpfFuncUnsafe (params, source) {
  * Create a new function from the source and parameter list.
  * In DEBUG mode, it catches any error to log the problem.
  *
- * @param {String[]} [params=undefined] params Parameter names list
- * @param {String} source
- * @return {Function}
+ * @param {String[]} [params] params Parameter names list
+ * @param {String} source Body of the function
+ * @return {Function} New function
+ * @private
  */
 function _gpfFunc (params, source) {
     if (undefined === source) {
@@ -170,8 +177,10 @@ function _gpfIsUnsignedByte (value) {
 /**
  * Add constants to the provided object
  *
- * @param {Object} obj
- * @param {Object} dictionary
+ * @param {Object} obj Object receiving the constants
+ * @param {Object} dictionary Dictionary names to value
+ * @returns {undefined} nothing
+ * @private
  */
 function _gpfCreateConstants (obj, dictionary) {
     _gpfObjectForEach(dictionary, function (value, key) {
