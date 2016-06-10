@@ -65,6 +65,9 @@ all internal variables of the library are prefixed by:
 
 ### Documentation
 
+*Until jsdoc tags are updated everywhere, the [valid-jsdoc](http://eslint.org/docs/rules/valid-jsdoc) rule will be
+enabled case by case*
+
 There are two levels of documentation:
 
 - Functions, classes, constants that are exposed by the library (there should not be any variable).
@@ -78,7 +81,9 @@ Any other function / class / variable that are internal to sources might not be 
 enough). Within a class declaration (leveraging gpf.define), members visibility is based on public / private / protected
 modifiers.
 
-Documentation is based on [jsduck](https://github.com/senchalabs/jsduck) tags.
+*The following part will be reviewed*
+
+Documentation is based on [jsdoc](https://github.com/senchalabs/jsduck) tags.
 
 In particular:
 
