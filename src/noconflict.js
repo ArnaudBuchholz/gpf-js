@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfMainContext*/ // Main context object
+/*eslint valid-jsdoc: 2*/
 /*#endif*/
 
 var /**
@@ -11,6 +12,7 @@ var /**
      * - unknown
      *
      * @type {undefined|Object}
+     * @private
      */
     _gpfConflictingSymbol;
 
