@@ -9,6 +9,7 @@ module.exports = function (grunt) {
     // Build the list of valid source and test files based on sources.json
     var sources = grunt.file.readJSON("src/sources.json"),
         srcFiles = ["src/boot.js"],
+        docFiles = [],
         testFiles = [];
     sources.forEach(function (source) {
         var name = source.name;
@@ -16,6 +17,9 @@ module.exports = function (grunt) {
             srcFiles.push("src/" + name + ".js");
             if (source.test !== false) {
                 testFiles.push("test/" + name + ".js");
+            }
+            if (source.doc === true) {
+                docFiles.push("src/" + name + ".js");
             }
         }
     });
@@ -33,6 +37,7 @@ module.exports = function (grunt) {
         }()),
         srcFiles: srcFiles,
         testFiles: testFiles,
+        docFiles: docFiles,
         jsLintedFiles: [
             "Gruntfile.js",
             "grunt/**/*.js",
