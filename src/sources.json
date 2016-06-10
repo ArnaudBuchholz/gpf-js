@@ -27,7 +27,8 @@
     "description": "Assertion helpers"
 }, {
     "name": "noconflict",
-    "description": "Relinquish control of the gpf variable"
+    "description": "Relinquish control of the gpf variable",
+    "doc": true
 }, {
     "name": "arraylike",
     "description": "Array detection"
@@ -93,7 +94,8 @@
     "description": "Context management"
 }, {
     "name": "constants",
-    "description": "Constants"
+    "description": "Constants",
+    "doc": true
 }, {
     "name": "scope",
     "description": "Scope management()"
