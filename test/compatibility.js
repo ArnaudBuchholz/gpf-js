@@ -603,8 +603,7 @@ describe("compatibility", function () {
             });
 
             it("supports empty name", function () {
-                var thisName = function () {}; //eslint-disable-line func-style
-                assert(thisName.compatibleName() === "");
+                assert(function () {}.compatibleName() === "");
             });
 
             if (gpf.internals && Function.prototype.compatibleName !== gpf.internals._gpfGetFunctionName) {
