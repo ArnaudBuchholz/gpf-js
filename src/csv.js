@@ -62,16 +62,19 @@ function _GpfCsvParser (content, options) {
     /*jshint validthis:true*/ // constructor
     options = options || {}; // to have at least an empty object
     this._lines = content.split("\n").map(_gpfTrimFinalR);
-    var header = options.header || this._lines.shift();
-    this._separator = options.separator || _gpfCsvComputeSeparator(header);
-    this._quote = options.quote || "\"";
-    this._columns = header.split(this._separator);
+    this._getHeader(options);
+    this._getSeparator(options);
+    this._getQuote(options);
+    this._columns = this._header.split(this._separator);
 }
 
 _GpfCsvParser.prototype = {
 
     // @property {String[]} Array of lines
     _lines: [],
+
+    // @property {String} Header line
+    _header: "",
 
     // Column separator
     _separator: "",
@@ -81,6 +84,45 @@ _GpfCsvParser.prototype = {
 
     // @property {String[]} Columns' name
     _columns: [],
+
+    /**
+     * Get header line from the options or the first line of the file
+     *
+     * @param {Object} options
+     */
+    _getHeader: function (options) {
+        if (options.header) {
+            this._header = options.header;
+        } else {
+            this._header = this._lines.shift();
+        }
+    },
+
+    /**
+     * Get separator character from the options or the header
+     *
+     * @param {Object} options
+     */
+    _getSeparator: function (options) {
+        if (options.separator) {
+            this._separator = options.separator;
+        } else {
+            this._separator = _gpfCsvComputeSeparator(this._header);
+        }
+    },
+
+    /**
+     * Get quote character from the options or use default
+     *
+     * @param {Object} options
+     */
+    _getQuote: function (options) {
+        if (options.quote) {
+            this._quote = options.quote;
+        } else {
+            this._quote = "\"";
+        }
+    },
 
     /**
      * Process quoted value to unescape it properly.
