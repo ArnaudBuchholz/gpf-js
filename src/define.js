@@ -302,6 +302,28 @@ _GpfClassDefinition.prototype = {
         prototype[member] = memberValue;
     },
 
+    // Check if the member represents an attribute and extracts the name
+    _extractAttributeName: function (member) {
+        if ("[" !== member.charAt(0) || "]" !== member.charAt(member.length - 1)) {
+            return "";
+        }
+        return _gpfEncodeAttributeMember(member.substr(1, member.length - 2)); // Extract & encode member name
+    },
+
+    // store the attribute for later usage
+    _addToDefinitionAttributes: function (attributeName, attributeValue) {
+        var attributeArray;
+        if (this._definitionAttributes) {
+            attributeArray = this._definitionAttributes[attributeName];
+        } else {
+            this._definitionAttributes = {};
+        }
+        if (undefined === attributeArray) {
+            attributeArray = [];
+        }
+        this._definitionAttributes[attributeName] = attributeArray.concat(attributeValue);
+    },
+
     /**
      * Check if the current member is an attribute declaration.
      * If so, stores it into a temporary map that will be processed as the last step.
@@ -311,20 +333,11 @@ _GpfClassDefinition.prototype = {
      * @returns {Boolean} True when an attribute is detected
      */
     _filterAttribute: function (member, memberValue) {
-        var attributeArray;
-        if ("[" !== member.charAt(0) || "]" !== member.charAt(member.length - 1)) {
+        var attributeName = this._extractAttributeName(member);
+        if (!attributeName) {
             return false;
         }
-        member = _gpfEncodeAttributeMember(member.substr(1, member.length - 2)); // Extract & encode member name
-        if (this._definitionAttributes) {
-            attributeArray = this._definitionAttributes[member];
-        } else {
-            this._definitionAttributes = {};
-        }
-        if (undefined === attributeArray) {
-            attributeArray = [];
-        }
-        this._definitionAttributes[member] = attributeArray.concat(memberValue);
+        this._addToDefinitionAttributes(attributeName, memberValue);
         return true;
     },
 
@@ -487,6 +500,17 @@ _GpfClassDefinition.prototype = {
 
 //region define
 
+// If the name also contains a namespace, set the contexts to the value
+function _gpfSetContextualName (name, value) {
+    var path,
+        leafName;
+    if (-1 < name.indexOf(".")) {
+        path = name.split(".");
+        leafName = path.pop();
+        _gpfContext(path, true)[leafName] = value;
+    }
+}
+
 /**
  * Defines a new class by setting a contextual name
  *
@@ -501,17 +525,8 @@ function _gpfDefineCore (name, base, definition) {
         "base is required (String|Function)": "string" === typeof base || base instanceof Function,
         "definition is required (Object)": "object" === typeof definition
     });
-    var
-        result,
-        path,
-        ns,
-        leafName,
+    var result,
         classDef;
-    if (-1 < name.indexOf(".")) {
-        path = name.split(".");
-        leafName = path.pop();
-        ns = _gpfContext(path, true);
-    }
     if ("string" === typeof base) {
         // Convert base into the function
         base = _gpfContext(base.split("."));
@@ -519,9 +534,7 @@ function _gpfDefineCore (name, base, definition) {
     }
     classDef = new _GpfClassDefinition(name, base, definition);
     result = classDef._Constructor;
-    if (undefined !== ns) {
-        ns[leafName] = result;
-    }
+    _gpfSetContextualName(name, result);
     return result;
 }
 
