@@ -11,7 +11,7 @@ _gpfErrorDeclare("csv", {
 
 var
     // Usual CSV separators
-    _gpfCsvSeparators = ";,\t ";
+    _gpfCsvSeparators = ";,\t ".split("");
 
 /**
  * Deduce CSV separator from line (usually, the header)
@@ -20,17 +20,17 @@ var
  * @return {String}
  */
 function _gpfCsvComputeSeparator (header) {
-    var len = _gpfCsvSeparators.length,
-        idx,
-        separator;
-    for (idx = 0; idx < len; ++idx) {
-        separator = _gpfCsvSeparators.charAt(idx);
+    var result;
+    if (_gpfCsvSeparators.every(function (separator) {
         if (-1 !== header.indexOf(separator)) {
-            return separator;
+            result = separator;
+            return false;
         }
+        return true;
+    })) {
+        return _gpfCsvSeparators[0];
     }
-    // Default
-    return _gpfCsvSeparators.charAt(0);
+    return result;
 }
 
 /**
