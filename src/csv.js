@@ -124,35 +124,48 @@ _GpfCsvParser.prototype = {
         }
     },
 
+    // @property {Boolean} Result of last submission to _unquote
+    _unquotedValue: "",
+
+    /**
+     * Quote character was found at given pos, process
+     *
+     * @param {Number} pos
+     * @returns {Boolean} Quoted string continues
+     */
+    _quoteFound: function (pos) {
+        var value = this._unquotedValue;
+        if (pos === value.length - 1) {
+            // Last character of the string
+            this._unquotedValue = value.substr(0, pos);
+            return false;
+        }
+        if (value.charAt(pos + 1) === this._quote) {
+            // Double quote means escaped one
+            this._unquotedValue = value.substr(0, pos) + value.substr(pos + 1);
+            return true;
+        }
+        throw gpf.Error.csvInvalid();
+    },
+
     /**
      * Process quoted value to unescape it properly.
      * Either the quote appears in the middle of the value: it must be followed by another quote.
      * And/Or it appears at the end of the value: it means this ends the quoted value
      *
      * @param {String} value
-     * @return {Array}
-     * - {String} 0 The result value
-     * - {Boolean} 1 Indicates if the quote escaping is still active
+     * @returns {Boolean} Quoted string continues
      */
     _unquote: function (value) {
         var quote = this._quote,
             pos = value.indexOf(quote),
             inQuotedString = true;
-        while (-1 < pos) {
-            if (pos === value.length - 1) {
-                // Last character of the string
-                value = value.substr(0, pos);
-                inQuotedString = false;
-                break;
-            } else if (value.charAt(pos + 1) === quote) {
-                // Double quote means escaped one
-                value = value.substr(0, pos) + value.substr(pos + 1);
-            } else {
-                throw gpf.Error.csvInvalid();
-            }
-            pos = value.indexOf(quote, pos + 1);
+        this._unquotedValue = value;
+        while (-1 < pos && inQuotedString) {
+            inQuotedString = this._quoteFound(pos);
+            pos = this._unquotedValue.indexOf(quote, pos + 1);
         }
-        return [value, inQuotedString];
+        return inQuotedString;
     },
 
     /**
@@ -166,8 +179,7 @@ _GpfCsvParser.prototype = {
      * @returns {Number} Next value index
      */
     _processQuotedLineValue: function (line, idx, flags) {
-        var value = line[idx],
-            unQuoted;
+        var value = line[idx];
         // Concatenate with 'previous' item
         var previousValue = [line[idx - 1]];
         if (flags.includeCarriageReturn) {
@@ -176,9 +188,8 @@ _GpfCsvParser.prototype = {
             // part of the escaped string
             previousValue.push(this._separator);
         }
-        unQuoted = this._unquote(value);
-        previousValue.push(unQuoted[0]);
-        flags.inQuotedString = unQuoted[1];
+        flags.inQuotedString = this._unquote(value);
+        previousValue.push(this._unquotedValue);
         line[idx - 1] = previousValue.join("");
         flags.includeCarriageReturn = false;
         line.splice(idx, 1);
@@ -196,13 +207,10 @@ _GpfCsvParser.prototype = {
      * @returns {Number} Next value index
      */
     _processLineValue: function (line, idx, flags) {
-        var value = line[idx],
-            unQuoted;
+        var value = line[idx];
         if (0 === value.indexOf(this._quote)) {
-            flags.inQuotedString = true;
-            unQuoted = this._unquote(value.substr(1));
-            line[idx] = unQuoted[0];
-            flags.inQuotedString = unQuoted[1];
+            flags.inQuotedString = this._unquote(value.substr(1));
+            line[idx] = this._unquotedValue;
         }
         return idx + 1;
     },
