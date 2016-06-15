@@ -127,6 +127,17 @@ _GpfCsvParser.prototype = {
     // @property {Boolean} Result of last submission to _unquote
     _unquotedValue: "",
 
+    // When the quote is not ending the value
+    _quoteFoundWithinValue: function (pos) {
+        var value = this._unquotedValue;
+        if (value.charAt(pos + 1) === this._quote) {
+            // Double quote means escaped one
+            this._unquotedValue = value.substr(0, pos) + value.substr(pos + 1);
+            return true;
+        }
+        throw gpf.Error.csvInvalid();
+    },
+
     /**
      * Quote character was found at given pos, process
      *
@@ -140,12 +151,7 @@ _GpfCsvParser.prototype = {
             this._unquotedValue = value.substr(0, pos);
             return false;
         }
-        if (value.charAt(pos + 1) === this._quote) {
-            // Double quote means escaped one
-            this._unquotedValue = value.substr(0, pos) + value.substr(pos + 1);
-            return true;
-        }
-        throw gpf.Error.csvInvalid();
+        return this._quoteFoundWithinValue(pos);
     },
 
     /**
@@ -251,20 +257,9 @@ _GpfCsvParser.prototype = {
         return !flags.inQuotedString;
     },
 
-    /**
-     * Read one 'line' of values.
-     * Quote escaping is handled meaning that a line might be on several lines
-     *
-     * @returns {String[]}
-     */
-    _readValues: function () {
+    _convertLinesIntoValues: function (values, flags) {
         var lines = this._lines,
             separator = this._separator,
-            values = [],
-            flags = {
-                inQuotedString: false,
-                includeCarriageReturn: false
-            },
             line;
         while (lines.length) {
             line = lines.shift().split(separator);
@@ -272,6 +267,21 @@ _GpfCsvParser.prototype = {
                 break;
             }
         }
+    },
+
+    /**
+     * Read one 'line' of values.
+     * Quote escaping is handled meaning that a line might be on several lines
+     *
+     * @returns {String[]}
+     */
+    _readValues: function () {
+        var values = [],
+            flags = {
+                inQuotedString: false,
+                includeCarriageReturn: false
+            };
+        this._convertLinesIntoValues(values, flags);
         if (flags.inQuotedString) {
             throw gpf.Error.csvInvalid();
         }
