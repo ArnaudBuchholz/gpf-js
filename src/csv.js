@@ -215,6 +215,17 @@ _GpfCsvParser.prototype = {
         return idx + 1;
     },
 
+    // Convert the line into values starting at idx
+    _convertLineIntoValuesFrom: function (line, idx, flags) {
+        while (idx < line.length) {
+            if (flags.inQuotedString) {
+                idx = this._processQuotedLineValue(line, idx, flags);
+            } else {
+                idx = this._processLineValue(line, idx, flags);
+            }
+        }
+    },
+
     /**
      * Convert the line into values
      *
@@ -225,7 +236,7 @@ _GpfCsvParser.prototype = {
      * - {Boolean} includeCarriageReturn
      * @returns {Boolean}
      */
-    _processLineValues: function (line, values, flags) {
+    _convertLineIntoValues: function (line, values, flags) {
         var idx;
         if (flags.inQuotedString) {
             flags.includeCarriageReturn = true;
@@ -235,14 +246,8 @@ _GpfCsvParser.prototype = {
             idx = 0;
             flags.includeCarriageReturn = false;
         }
-        while (idx < line.length) {
-            if (flags.inQuotedString) {
-                idx = this._processQuotedLineValue(line, idx, flags);
-            } else {
-                idx = this._processLineValue(line, idx, flags);
-            }
-        }
-        [].splice.apply(values, [values.length, 0].concat(line));
+        this._convertLineIntoValuesFrom(line, idx, flags);
+        [].push.apply(values, line);
         return !flags.inQuotedString;
     },
 
@@ -263,7 +268,7 @@ _GpfCsvParser.prototype = {
             line;
         while (lines.length) {
             line = lines.shift().split(separator);
-            if (this._processLineValues(line, values, flags)) {
+            if (this._convertLineIntoValues(line, values, flags)) {
                 break;
             }
         }
