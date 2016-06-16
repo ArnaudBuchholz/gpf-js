@@ -16,7 +16,6 @@
 /*exported _gpfDecodeAttributeMember*/ // Normalized way to decode an attribute member name
 /*exported _gpfDefine*/ // Shortcut for gpf.define
 /*exported _gpfEncodeAttributeMember*/ // Normalized way to encode an attribute member name
-/*exported _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
 /*exported _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
 /*#endif*/
 
@@ -586,29 +585,6 @@ gpf.define = function (name, base, definition) {
     }
     return _gpfDefineCore(name, base, definition || {});
 };
-
-/**
- * Allocate a new class handler that is specific to a class type (used for interfaces & attributes)
- *
- * @param {String} ctxRoot Default context root (for intance: gpf.interfaces)
- * @param {String} defaultBase Default contextual root class (for instance: Interface)
- * @return {Function}
- * @closure
- */
-function _gpfGenDefHandler (ctxRoot, defaultBase) {
-    ctxRoot += ".";
-    defaultBase = ctxRoot + defaultBase;
-    return function (name, base, definition) {
-        if (undefined === definition && "object" === typeof base) {
-            definition = base;
-            base = defaultBase;
-        }
-        if (-1 === name.indexOf(".")) {
-            name = ctxRoot + name;
-        }
-        return _gpfDefine(name, base || defaultBase, definition || {});
-    };
-}
 
 //endregion
 
