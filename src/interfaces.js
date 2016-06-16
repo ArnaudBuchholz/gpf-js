@@ -5,7 +5,7 @@
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfGenDefHandler*/ // Class handler for class types (interfaces...)
+/*global _gpfGenerateCustomDefineHandler*/ // Class handler for class types (interfaces...)
 /*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*exported _gpfDefIntrf*/ // gpf.define for interfaces
@@ -116,7 +116,7 @@ var
  * @param {Object} [definition=undefined] definition Interface definition
  * @return {Function}
  */
-var _gpfDefIntrf = _gpfGenDefHandler("gpf.interfaces", "Interface");
+var _gpfDefIntrf = _gpfGenerateCustomDefineHandler("gpf.interfaces", "Interface");
 
 /**
  * Base class for any interface
