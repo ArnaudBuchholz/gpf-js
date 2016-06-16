@@ -158,6 +158,11 @@
     "description": "Class management",
     "method": "gpf.define"
 }, {
+    "name": "define/custom",
+    "description": "Custom class handler",
+    "method": "_gpfGenerateCustomDefineHandler",
+    "test": false
+}, {
     "name": "attributes",
     "description": "Attributes",
     "namespace": "gpf.attributes"
