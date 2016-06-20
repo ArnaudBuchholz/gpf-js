@@ -46,10 +46,6 @@ function _gpfDecodeAttributeMember (member) {
 
 //region Class constructor
 
-var
-    // Critical section to prevent constructor call when creating inheritance relationship
-    _gpfClassConstructorAllowed = true;
-
 /**
  * Template for new class constructor
  * - Uses closure to keep track of the class definition
@@ -61,9 +57,7 @@ var
  */
 function _gpfNewClassConstructorTpl (classDef) {
     return function () {
-        if (classDef.isConstructionAllowed()) {
-            classDef._resolvedConstructor.apply(this, arguments); //eslint-disable-line no-invalid-this
-        }
+        classDef._resolvedConstructor.apply(this, arguments); //eslint-disable-line no-invalid-this
     };
 }
 
@@ -433,15 +427,6 @@ _GpfClassDefinition.prototype = {
         return builder.generate()(this);
     },
 
-    // Wraps super constructor within critical section to prevents class initialization (and unexpected side effects)
-    _safeNewSuper: function () {
-        var result;
-        _gpfClassConstructorAllowed = false;
-        result = new this._Super();
-        _gpfClassConstructorAllowed = true;
-        return result;
-    },
-
     // Create the new Class constructor
     _build: function () {
         var
@@ -459,7 +444,7 @@ _GpfClassDefinition.prototype = {
         /*gpf:constant*/ newClass[_GPF_CLASSDEF_MARKER] = this._uid;
 
         // Basic JavaScript inheritance mechanism: Defines the newClass prototype as an instance of the super class
-        newPrototype = this._safeNewSuper();
+        newPrototype = Object.create(this._Super.prototype);
 
         // Populate our constructed prototype object
         newClass.prototype = newPrototype;
