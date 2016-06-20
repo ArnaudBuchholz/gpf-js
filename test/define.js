@@ -48,6 +48,18 @@ describe("define", function () {
                 assert("B" === B.compatibleName());
             });
 
+            it("prevents constructor functions to be used as simple functions", function () {
+                var exceptionCaught;
+                try {
+                    A(); // eslint-disable-line new-cap
+                } catch (e) {
+                    exceptionCaught = e;
+                }
+                assert(exceptionCaught instanceof gpf.Error);
+                assert(exceptionCaught.code === gpf.Error.CODE_CONSTRUCTORFUNCTION);
+                assert(exceptionCaught.name === "constructorFunction");
+            });
+
             it("extends namespaces", function () {
                 assert(test.define.C instanceof Function);
                 assert("C" === test.define.C.compatibleName());
