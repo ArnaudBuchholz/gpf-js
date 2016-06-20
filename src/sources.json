@@ -159,6 +159,11 @@
     "method": "_getNewClassConstructor",
     "test": false
 }, {
+    "name": "define/classdef",
+    "description": "Class definition",
+    "class": "_GpfClassDefinition",
+    "test": false
+}, {
     "name": "define",
     "description": "Class management",
     "method": "gpf.define"
