@@ -26,12 +26,14 @@ function _gpfProcessCustomDefineHandlerParamName (ctxRoot, args) {
     }
 }
 
+// Set base to default if undefined
 function _gpfProcessCustomDefineHandlerParamDefaultBase (defaultBase, args) {
     if (!args[_GPF_CUSTOMDEFINEHANDLER_PARAM_BASE]) {
         args[_GPF_CUSTOMDEFINEHANDLER_PARAM_BASE] = defaultBase;
     }
 }
 
+// Set definition to empty if undefined
 function _gpfProcessCustomDefineHandlerParamDefaultDefinition (args) {
     if (!args[_GPF_CUSTOMDEFINEHANDLER_PARAM_DEFINITION]) {
         args[_GPF_CUSTOMDEFINEHANDLER_PARAM_DEFINITION] = {};
