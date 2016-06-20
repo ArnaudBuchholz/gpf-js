@@ -1,7 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _GpfFunctionBuilder*/ // Function builder
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*exported _getNewClassConstructor*/ // Allocate a named class constructor
 /*#endif*/
 

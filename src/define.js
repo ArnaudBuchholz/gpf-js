@@ -1,6 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
+/*global _getNewClassConstructor*/ // Allocate a named class constructor
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfAsserts*/ // Multiple assertion method
 /*global _gpfAttributesAdd*/ // Shortcut for gpf.attributes.add
@@ -11,7 +12,6 @@
 /*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*global _getNewClassConstructor*/ // Allocate a named class constructor
 /*exported _GpfClassDefinition*/ // GPF class definition
 /*exported _gpfDecodeAttributeMember*/ // Normalized way to decode an attribute member name
 /*exported _gpfDefine*/ // Shortcut for gpf.define
