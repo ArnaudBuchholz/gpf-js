@@ -154,6 +154,11 @@
     "description": "CSV helper",
     "namespace": "gpf.csv"
 }, {
+    "name": "define/constructor",
+    "description": "Class constructor",
+    "method": "_getNewClassConstructor",
+    "test": false
+}, {
     "name": "define",
     "description": "Class management",
     "method": "gpf.define"
