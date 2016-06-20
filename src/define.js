@@ -1,7 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
-/*global _GpfFunctionBuilder*/ // Function builder
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfAsserts*/ // Multiple assertion method
 /*global _gpfAttributesAdd*/ // Shortcut for gpf.attributes.add
@@ -12,6 +11,7 @@
 /*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
+/*global _getNewClassConstructor*/ // Allocate a named class constructor
 /*exported _GpfClassDefinition*/ // GPF class definition
 /*exported _gpfDecodeAttributeMember*/ // Normalized way to decode an attribute member name
 /*exported _gpfDefine*/ // Shortcut for gpf.define
@@ -40,25 +40,6 @@ function _gpfDecodeAttributeMember (member) {
         return "constructor";
     }
     return member;
-}
-
-//endregion
-
-//region Class constructor
-
-/**
- * Template for new class constructor
- * - Uses closure to keep track of the class definition
- * - Class name will be injected at the right place
- *
- * @param {_GpfClassDefinition} classDef
- * @return {Function}
- * @closure
- */
-function _gpfNewClassConstructorTpl (classDef) {
-    return function () {
-        classDef._resolvedConstructor.apply(this, arguments); //eslint-disable-line no-invalid-this
-    };
 }
 
 //endregion
@@ -185,6 +166,10 @@ _GpfClassDefinition.prototype = {
     // Full class name
     _name: "",
 
+    getName: function () {
+        return this._name;
+    },
+
     // Super class
     _Super: Object,
 
@@ -205,11 +190,6 @@ _GpfClassDefinition.prototype = {
 
     // @property {Object} Class definition (as provided to define)
     _definition: null,
-
-    // Prevent construction when doing inheritance
-    isConstructionAllowed: function () {
-        return _gpfClassConstructorAllowed;
-    },
 
     /**
      * Adds a member to the class definition.
@@ -418,28 +398,15 @@ _GpfClassDefinition.prototype = {
         }
     },
 
-    // Build a new constructor
-    _getNewClassConstructor: function (name) {
-        var builder = new _GpfFunctionBuilder(_gpfNewClassConstructorTpl);
-        builder.replaceInBody({
-            "function": "function " + name
-        });
-        return builder.generate()(this);
-    },
-
     // Create the new Class constructor
     _build: function () {
         var
             newClass,
             newPrototype,
-            baseClassDef,
-            constructorName;
-
-        // Build the function name for the constructor
-        constructorName = this._name.split(".").pop();
+            baseClassDef;
 
         // The new class constructor
-        newClass = this._getNewClassConstructor(constructorName);
+        newClass = _getNewClassConstructor(this);
         /*gpf:constant*/ this._Constructor = newClass;
         /*gpf:constant*/ newClass[_GPF_CLASSDEF_MARKER] = this._uid;
 
