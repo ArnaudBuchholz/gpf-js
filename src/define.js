@@ -4,7 +4,9 @@
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfAsserts*/ // Multiple assertion method
 /*global _gpfContext*/ // Resolve contextual string
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
+/*global _gpfProcessDefineParams*/ // Apply the default transformations on the define params
 /*exported _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
@@ -28,11 +30,6 @@ function _gpfSetContextualName (name, value) {
  * @return {Function}
  */
 function _gpfDefineCore (name, base, definition) {
-    _gpfAsserts({
-        "name is required (String)": "string" === typeof name,
-        "base is required (String|Function)": "string" === typeof base || base instanceof Function,
-        "definition is required (Object)": "object" === typeof definition
-    });
     var result,
         classDef;
     if ("string" === typeof base) {
@@ -72,6 +69,11 @@ var _gpfCleaningShortcuts = {
  * - "~" for static
  */
 function _gpfDefine (name, base, definition) {
+    _gpfAsserts({
+        "name is required (String)": "string" === typeof name,
+        "base is required (String|Function)": "string" === typeof base || base instanceof Function,
+        "definition is required (Object)": "object" === typeof definition
+    });
     _gpfObjectForEach(_gpfCleaningShortcuts, _gpfCleanDefinition, definition);
     return _gpfDefineCore(name, base, definition);
 }
@@ -85,12 +87,8 @@ function _gpfDefine (name, base, definition) {
  * @return {Function}
  */
 gpf.define = function (name, base, definition) {
-    if ("object" === typeof base) {
-        definition = base;
-        base = undefined;
-    }
-    if (undefined === base) {
-        base = Object; // Root class
-    }
-    return _gpfDefineCore(name, base, definition || {});
+    _gpfIgnore(name, base, definition);
+    var params = [].slice.call(arguments);
+    _gpfProcessDefineParams("", Object, params);
+    return _gpfDefineCore.apply(null, params);
 };
