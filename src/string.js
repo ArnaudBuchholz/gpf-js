@@ -98,7 +98,7 @@ var
      * @extends Object
      * @implements gpf.interfaces.IReadableStream, gpf.interfaces.IWritableStream
      */
-    _GpfStringStream = _gpfDefine("StringStream", Object, {
+    _GpfStringStream = _gpfDefine("StringStream", {
         "[Class]": [gpf.$InterfaceImplement(_gpfI.IReadableStream), gpf.$InterfaceImplement(_gpfI.IWritableStream)],
         "+": {
 
