@@ -35,7 +35,7 @@ gpf.xml = {};
  * @class gpf.xml.Writer
  * @implements gpf.interfaces.IXmlContentHandler
  */
-_gpfDefine("gpf.xml.Writer", Object, {
+_gpfDefine("gpf.xml.Writer", {
 
     "[Class]": [gpf.$InterfaceImplement(_gpfI.IXmlContentHandler)],
 
