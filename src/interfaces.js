@@ -123,7 +123,7 @@ var _gpfDefIntrf = _gpfGenerateCustomDefineHandler("gpf.interfaces", "Interface"
  *
  * @class gpf.interfaces.Interface
  */
-_gpfDefine("gpf.interfaces.Interface", Object, {});
+_gpfDefine("gpf.interfaces.Interface");
 
 //region IEventTarget
 
