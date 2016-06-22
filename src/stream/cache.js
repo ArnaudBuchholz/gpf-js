@@ -9,7 +9,7 @@
  * @abstract
  * @implements gpf.interfaces.IReadableStream
  */
-_gpfDefine("gpf.stream.BufferedOnRead", Object, {
+_gpfDefine("gpf.stream.BufferedOnRead", {
 
     "[Class]": [gpf.$InterfaceImplement(_gpfI.IReadableStream)],
 
