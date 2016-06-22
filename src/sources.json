@@ -169,6 +169,11 @@
     "method": "_gpfProcessDefineParams",
     "test": false
 }, {
+    "name": "define/internal",
+    "description": "processing of internal definitions",
+    "method": "_gpfProcessInternalDefinition",
+    "test": false
+}, {
     "name": "define",
     "description": "Class management",
     "method": "gpf.define"
