@@ -132,7 +132,7 @@ A counter example (where both private & public version exist):
 
 ```javascript
 /**
- * @inheritdoc gpf:extend
+ * @inheritdoc gpf#extend
  * Implementation of gpf.extend
  */
 _gpfExtend = function (dictionary, properties, overwriteCallback) {
