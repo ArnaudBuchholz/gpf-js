@@ -89,7 +89,7 @@
          * @class ResponseHandler
          * @private
          */
-        ResponseHandler = _gpfDefine("ResponseHandler", Object, {
+        ResponseHandler = _gpfDefine("ResponseHandler", {
 
             "-": {
 
