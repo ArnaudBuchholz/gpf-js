@@ -61,7 +61,7 @@ var
      * @extends gpf.attributes.XmlAttribute
      * @alias gpf.$XmlIgnore
      */
-    _GpfXmlIgnore = _gpfDefAttr("$XmlIgnore", _GpfXmlBase, {}),
+    _GpfXmlIgnore = _gpfDefAttr("$XmlIgnore", _GpfXmlBase),
     // TODO replace with $ClassNonSerialized ?
 
     /**
@@ -191,4 +191,4 @@ var
      * @extends gpf.attributes.XmlRawElementAttribute
      * @alias gpf.$XmlList
      */
-    _GpfXmlList = _gpfDefAttr("$XmlList", _GpfXmlRawElement, {});
+    _GpfXmlList = _gpfDefAttr("$XmlList", _GpfXmlRawElement);
