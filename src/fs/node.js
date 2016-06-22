@@ -49,7 +49,7 @@ function _gpfGenFsCall (methodName) {
     };
 }
 
-_gpfDefine("gpf.fs.NodeFileStorage", Object, {
+_gpfDefine("gpf.fs.NodeFileStorage", {
     "+": {
 
         constructor: function () {
