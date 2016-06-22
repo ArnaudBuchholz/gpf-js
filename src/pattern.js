@@ -922,7 +922,7 @@ var
      * @implements gpf.interfaces.ITokenizer
      * @private
      */
-    PatternTokenizer = _gpfDefine("PatternTokenizer", Object, {
+    PatternTokenizer = _gpfDefine("PatternTokenizer", {
 
         "[Class]": [gpf.$InterfaceImplement(_ITokenizer)],
 
@@ -1014,7 +1014,7 @@ var
  *
  * @class gpf.Pattern
  */
-_gpfDefine("gpf.Pattern", Object, {
+_gpfDefine("gpf.Pattern", {
 
     "-": {
 
