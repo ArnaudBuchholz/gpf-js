@@ -16,7 +16,7 @@
 if (_gpfInNode) {
 
     var // Base class of GPF NodeJS streams
-        _GpfNodeStream = _gpfDefine("gpf.node.Stream", Object, {
+        _GpfNodeStream = _gpfDefine("gpf.node.Stream", {
             "+": {
 
                 // @param {Object} stream
