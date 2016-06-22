@@ -100,7 +100,7 @@ var
      * @class {WScriptBinaryStream}
      * @private
      */
-    _gpfWScriptBinStream = _gpfDefine("WScriptBinaryStream", Object, {
+    _gpfWScriptBinStream = _gpfDefine("WScriptBinaryStream", {
 
         "+": {
 
@@ -256,7 +256,7 @@ var
      * @implements {gpf.interfaces.IWritableStream}
      * @private
      */
-    _gpfWScriptBinReadStream = _gpfDefine("WScriptBinaryReadStream", Object, {
+    _gpfWScriptBinReadStream = _gpfDefine("WScriptBinaryReadStream", {
 
         "[Class]": [gpf.$InterfaceImplement(_gpfI.IReadableStream)],
 
@@ -335,7 +335,7 @@ var
 
     //endregion
 
-_gpfDefine("gpf.fs.WScriptFileStorage", Object, {
+_gpfDefine("gpf.fs.WScriptFileStorage", {
 
     "+": {
 
