@@ -1,12 +1,10 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfClassDefinition*/ // GPF class definition
-/*global _gpfAssert*/ // Assertion method
-/*global _gpfAsserts*/ // Multiple assertion method
 /*global _gpfContext*/ // Resolve contextual string
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
-/*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*global _gpfProcessDefineParams*/ // Apply the default transformations on the define params
+/*global _gpfProcessInternalDefinition*/ // Process internal definition
 /*exported _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
@@ -14,8 +12,8 @@
 function _gpfSetContextualName (name, value) {
     var path,
         leafName;
-    if (-1 < name.indexOf(".")) {
-        path = name.split(".");
+    path = name.split(".");
+    if (1 < path.length) {
         leafName = path.pop();
         _gpfContext(path, true)[leafName] = value;
     }
@@ -25,57 +23,25 @@ function _gpfSetContextualName (name, value) {
  * Defines a new class by setting a contextual name
  *
  * @param {String} name New class contextual name
- * @param {String} base Base class contextual name
+ * @param {Function} Base Base class
  * @param {Object} definition Class definition
  * @return {Function}
  */
-function _gpfDefineCore (name, base, definition) {
+function _gpfDefineCore (name, Base, definition) {
     var result,
         classDef;
-    if ("string" === typeof base) {
-        // Convert base into the function
-        base = _gpfContext(base.split("."));
-        _gpfAssert(base instanceof Function, "base must resolve to a function");
-    }
-    classDef = new _GpfClassDefinition(name, base, definition);
+    classDef = new _GpfClassDefinition(name, Base, definition);
     result = classDef._Constructor;
     _gpfSetContextualName(name, result);
     return result;
 }
 
-// Replace the shortcut with the correct property name
-function _gpfCleanDefinition (name, shortcut) {
-    /*jshint validthis:true*/ // Bound to the definition below
-    var shortcutValue = this[shortcut];
-    if (undefined !== shortcutValue) {
-        this[name] = shortcutValue;
-        delete this[shortcut];
-    }
-}
-
-var _gpfCleaningShortcuts = {
-    "-": "private",
-    "#": "protected",
-    "+": "public",
-    "~": "static"
-};
-
-/**
- * @inheritdoc _gpfDefineCore
- * Provides shortcuts for visibility:
- * - "-" for private
- * - "#" for protected
- * - "+" for public
- * - "~" for static
- */
 function _gpfDefine (name, base, definition) {
-    _gpfAsserts({
-        "name is required (String)": "string" === typeof name,
-        "base is required (String|Function)": "string" === typeof base || base instanceof Function,
-        "definition is required (Object)": "object" === typeof definition
-    });
-    _gpfObjectForEach(_gpfCleaningShortcuts, _gpfCleanDefinition, definition);
-    return _gpfDefineCore(name, base, definition);
+    _gpfIgnore(name, base, definition);
+    var params = [].slice.call(arguments);
+    _gpfProcessDefineParams("", Object, params);
+    _gpfProcessInternalDefinition(params[2]);
+    return _gpfDefineCore.apply(null, params);
 }
 
 /**
