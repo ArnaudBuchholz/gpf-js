@@ -102,7 +102,7 @@ function _gpfDefAttr (name, base, definition) {
  *
  * @class gpf.attributes.Attribute
  */
-var _gpfAttribute = _gpfDefine("gpf.attributes.Attribute", Object, {
+var _gpfAttribute = _gpfDefine("gpf.attributes.Attribute", {
     "#": {
 
         // Name of the member the attribute is associated to
@@ -167,7 +167,7 @@ if (!_gpfAssertAttributeClassOnly) {
  *
  * @class gpf.attributes.Array
  */
-_gpfDefine("gpf.attributes.Array", Object, {
+_gpfDefine("gpf.attributes.Array", {
     "-": {
 
         // @property {gpf.attributes.Attribute[]}
@@ -239,7 +239,7 @@ _gpfEmptyMemberArray = new _gpfA.Array();
  *
  * @class gpf.attributes.Map
  */
-_gpfDefine("gpf.attributes.Map", Object, {
+_gpfDefine("gpf.attributes.Map", {
     "-": {
 
         // Dictionary of attributes per member
