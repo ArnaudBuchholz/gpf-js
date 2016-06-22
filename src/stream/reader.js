@@ -6,7 +6,7 @@ var
      * @abstract
      * @private
      */
-    AbstractStreamReader = _gpfDefine("AbstractStreamReader", Object, {
+    AbstractStreamReader = _gpfDefine("AbstractStreamReader", {
 
         "+": {
 
