@@ -4,7 +4,7 @@
 /*global _gpfContext*/ // Resolve contextual string
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfProcessDefineParams*/ // Apply the default transformations on the define params
-/*global _gpfProcessInternalDefinition*/ // Process internal definition
+/*global _gpfProcessInternalDefineParams*/ // Apply the default transformations on the internal define params
 /*exported _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
@@ -25,7 +25,7 @@ function _gpfSetContextualName (name, value) {
  * @param {String} name New class contextual name
  * @param {Function} Base Base class
  * @param {Object} definition Class definition
- * @return {Function}
+ * @return {Function} New class constructor
  */
 function _gpfDefineCore (name, Base, definition) {
     var result,
@@ -36,12 +36,19 @@ function _gpfDefineCore (name, Base, definition) {
     return result;
 }
 
+// Apply the processing function and call _gpfDefineCore
+function _gpfDefineProcessParamsAndCallCore (params, processFunction) {
+    processFunction("", Object, params);
+    return _gpfDefineCore.apply(null, params);
+}
+
+/**
+ * @inheritdoc gpf#define
+ * Internal version
+ */
 function _gpfDefine (name, base, definition) {
     _gpfIgnore(name, base, definition);
-    var params = [].slice.call(arguments);
-    _gpfProcessDefineParams("", Object, params);
-    _gpfProcessInternalDefinition(params[2]);
-    return _gpfDefineCore.apply(null, params);
+    return _gpfDefineProcessParamsAndCallCore([].slice.call(arguments), _gpfProcessInternalDefineParams);
 }
 
 /**
@@ -50,11 +57,15 @@ function _gpfDefine (name, base, definition) {
  * @param {String} name New class contextual name
  * @param {String} [base=undefined] base Base class contextual name
  * @param {Object} [definition=undefined] definition Class definition
+ *
+ * @also
+ *
+ * @param {String} name New class contextual name
+ * @param {Object} definition Class definition
+ *
  * @return {Function}
  */
 gpf.define = function (name, base, definition) {
     _gpfIgnore(name, base, definition);
-    var params = [].slice.call(arguments);
-    _gpfProcessDefineParams("", Object, params);
-    return _gpfDefineCore.apply(null, params);
+    return _gpfDefineProcessParamsAndCallCore([].slice.call(arguments), _gpfProcessDefineParams);
 };
