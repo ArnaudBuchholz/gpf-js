@@ -19,7 +19,7 @@ var _GPF_PARSER_FINALIZE = {},
  *
  * @class gpf.Parser
  */
-_gpfDefine("gpf.Parser", Object, {
+_gpfDefine("gpf.Parser", {
     "+": {
 
         constructor: function () {
