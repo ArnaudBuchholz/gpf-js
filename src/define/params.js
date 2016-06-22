@@ -2,7 +2,9 @@
 "use strict";
 /*global _gpfAsserts*/ // Multiple assertion method
 /*global _gpfContext*/ // Resolve contextual string
+/*global _gpfProcessInternalDefinition*/ // Process internal definition
 /*exported _gpfProcessDefineParams*/ // Apply the default transformations on the define params
+/*exported _gpfProcessInternalDefineParams*/ // Apply the default transformations on the internal define params
 /*#endif*/
 
 var _GPF_DEFINE_PARAM_NAME = 0,
@@ -74,4 +76,13 @@ function _gpfProcessDefineParams (rootNamespace, defaultBase, params) {
     _gpfProcessDefineParamDefaultDefinition(params);
     _gpfProcessDefineParamResolveBase(params);
     _gpfProcessDefineParamsCheck(params);
+}
+
+/**
+ * @inheritdoc _gpfProcessDefineParams
+ * Adds behavior specific to the internal version
+ */
+function _gpfProcessInternalDefineParams (rootNamespace, defaultBase, params) {
+    _gpfProcessDefineParams(rootNamespace, defaultBase, params);
+    _gpfProcessInternalDefinition(params[_GPF_DEFINE_PARAM_DEFINITION]);
 }
