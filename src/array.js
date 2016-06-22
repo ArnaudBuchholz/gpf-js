@@ -21,7 +21,7 @@ var
      * @extends Object
      * @implements gpf.interfaces.IReadableStream, gpf.interfaces.IWritableStream
      */
-    _GpfArrayStream = _gpfDefine("ArrayStream", Object, {
+    _GpfArrayStream = _gpfDefine("ArrayStream", {
         "[Class]": [gpf.$InterfaceImplement(_gpfI.IReadableStream), gpf.$InterfaceImplement(_gpfI.IWritableStream)],
         "+": {
 
