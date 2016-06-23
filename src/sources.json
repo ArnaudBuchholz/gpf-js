@@ -164,6 +164,11 @@
     "class": "_GpfClassDefinition",
     "test": false
 }, {
+    "name": "define/factory",
+    "description": "Class factory",
+    "method": "_gpfDefineFactory",
+    "test": false
+}, {
     "name": "define/params",
     "description": "gpf.define parameters processing",
     "method": "_gpfProcessDefineParams",
