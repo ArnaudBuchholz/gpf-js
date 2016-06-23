@@ -1,7 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GpfClassDefinition*/ // GPF class definition
 /*global _gpfContext*/ // Resolve contextual string
+/*global _gpfDefineFactory*/ // gpf.define factory
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfProcessDefineParams*/ // Apply the default transformations on the define params
 /*global _gpfProcessInternalDefineParams*/ // Apply the default transformations on the internal define params
@@ -28,12 +28,9 @@ function _gpfSetContextualName (name, value) {
  * @return {Function} New class constructor
  */
 function _gpfDefineCore (name, Base, definition) {
-    var result,
-        classDef;
-    classDef = new _GpfClassDefinition(name, Base, definition);
-    result = classDef._Constructor;
-    _gpfSetContextualName(name, result);
-    return result;
+    var NewClass = _gpfDefineFactory(name, Base, definition);
+    _gpfSetContextualName(name, NewClass);
+    return NewClass;
 }
 
 // Apply the processing function and call _gpfDefineCore
