@@ -8,14 +8,14 @@
 /*#endif*/
 
 var _GPF_DEFINE_PARAM_NAME = 0,
-    _GPF_DEFINE_PARAM_BASE = 1,
+    _GPF_DEFINE_PARAM_SUPER = 1,
     _GPF_DEFINE_PARAM_DEFINITION = 2;
 
 // Check if base looks like a definition (and no definition was passed), if so invert
-function _gpfProcessDefineParamNoBaseUsed (defaultBase, params) {
-    if (undefined === params[_GPF_DEFINE_PARAM_DEFINITION] && "object" === typeof params[_GPF_DEFINE_PARAM_BASE]) {
-        params[_GPF_DEFINE_PARAM_DEFINITION] = params[_GPF_DEFINE_PARAM_BASE];
-        params[_GPF_DEFINE_PARAM_BASE] = defaultBase;
+function _gpfProcessDefineParamNoSuperUsed (defaultSuper, params) {
+    if (undefined === params[_GPF_DEFINE_PARAM_DEFINITION] && "object" === typeof params[_GPF_DEFINE_PARAM_SUPER]) {
+        params[_GPF_DEFINE_PARAM_DEFINITION] = params[_GPF_DEFINE_PARAM_SUPER];
+        params[_GPF_DEFINE_PARAM_SUPER] = defaultSuper;
     }
 }
 
@@ -28,9 +28,9 @@ function _gpfProcessDefineParamCheckIfRelativeName (rootNamespace, params) {
 }
 
 // Set base to defaultBase if undefined
-function _gpfProcessDefineParamDefaultBase (defaultBase, params) {
-    if (!params[_GPF_DEFINE_PARAM_BASE]) {
-        params[_GPF_DEFINE_PARAM_BASE] = defaultBase;
+function _gpfProcessDefineParamDefaultSuper (DefaultSuper, params) {
+    if (!params[_GPF_DEFINE_PARAM_SUPER]) {
+        params[_GPF_DEFINE_PARAM_SUPER] = DefaultSuper;
     }
 }
 
@@ -43,18 +43,17 @@ function _gpfProcessDefineParamDefaultDefinition (params) {
 
 // Convert base parameter from string to contextual object
 function _gpfProcessDefineParamResolveBase (params) {
-    var base = params[_GPF_DEFINE_PARAM_BASE];
-    if (!(base instanceof Function)) {
-        params[_GPF_DEFINE_PARAM_BASE] = _gpfContext(base.toString().split("."));
+    var Super = params[_GPF_DEFINE_PARAM_SUPER];
+    if (!(Super instanceof Function)) {
+        params[_GPF_DEFINE_PARAM_SUPER] = _gpfContext(Super.toString().split("."));
     }
 }
 
 // Check that the parameters are correct
 function _gpfProcessDefineParamsCheck (params) {
-    var base = params[_GPF_DEFINE_PARAM_BASE];
     _gpfAsserts({
         "name is required (String)": "string" === typeof params[_GPF_DEFINE_PARAM_NAME],
-        "base is required and must resolve to a Constructor": base instanceof Function,
+        "Super is required and must resolve to a Constructor": params[_GPF_DEFINE_PARAM_SUPER] instanceof Function,
         "definition is required (Object)": "object" === typeof params[_GPF_DEFINE_PARAM_DEFINITION]
     });
 }
@@ -63,16 +62,16 @@ function _gpfProcessDefineParamsCheck (params) {
  * Process define parameters to inject default values when needed
  *
  * @param {String} rootNamespace
- * @param {Function|undefined|String} defaultBase
+ * @param {Function|undefined|String} defaultSuper
  * @param {Array} params gpf.define parameters:
  * - {String} name New class contextual name
  * - {String} [base=undefined] base Base class contextual name
  * - {Object} [definition=undefined] definition Class definition
  */
-function _gpfProcessDefineParams (rootNamespace, defaultBase, params) {
-    _gpfProcessDefineParamNoBaseUsed(defaultBase, params);
+function _gpfProcessDefineParams (rootNamespace, defaultSuper, params) {
+    _gpfProcessDefineParamNoSuperUsed(defaultSuper, params);
     _gpfProcessDefineParamCheckIfRelativeName(rootNamespace, params);
-    _gpfProcessDefineParamDefaultBase(defaultBase, params);
+    _gpfProcessDefineParamDefaultSuper(defaultSuper, params);
     _gpfProcessDefineParamDefaultDefinition(params);
     _gpfProcessDefineParamResolveBase(params);
     _gpfProcessDefineParamsCheck(params);
@@ -82,7 +81,7 @@ function _gpfProcessDefineParams (rootNamespace, defaultBase, params) {
  * @inheritdoc _gpfProcessDefineParams
  * Adds behavior specific to the internal version
  */
-function _gpfProcessInternalDefineParams (rootNamespace, defaultBase, params) {
-    _gpfProcessDefineParams(rootNamespace, defaultBase, params);
+function _gpfProcessInternalDefineParams (rootNamespace, defaultSuper, params) {
+    _gpfProcessDefineParams(rootNamespace, defaultSuper, params);
     _gpfProcessInternalDefinition(params[_GPF_DEFINE_PARAM_DEFINITION]);
 }
