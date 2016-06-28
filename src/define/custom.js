@@ -10,18 +10,18 @@
  * Allocate a new class handler that is specific to a class type (used for interfaces & attributes)
  *
  * @param {String} rootNamespace Root namespace (for instance: gpf.interfaces)
- * @param {String} defaultBase Default contextual root class (for instance: Interface)
+ * @param {String} defaultSuperName Default super class (relative to rootNamespace, for instance: Interface)
  * @return {Function} With the same signature than {@link gpf.define} but namespace and base are defaulted
  * @closure
  */
-function _gpfGenerateCustomDefineHandler (rootNamespace, defaultBase) {
+function _gpfGenerateCustomDefineHandler (rootNamespace, defaultSuperName) {
     rootNamespace += ".";
-    defaultBase = rootNamespace + defaultBase;
+    defaultSuperName = rootNamespace + defaultSuperName;
 
     return function (name, base, definition) {
         _gpfIgnore(name, base, definition);
         var params = [].slice.call(arguments);
-        _gpfProcessDefineParams(rootNamespace, defaultBase, params);
+        _gpfProcessDefineParams(rootNamespace, defaultSuperName, params);
         return _gpfDefine.apply(null, params);
     };
 }
