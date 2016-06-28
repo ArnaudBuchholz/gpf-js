@@ -23,12 +23,12 @@ function _gpfSetContextualName (name, value) {
  * Defines a new class by setting a contextual name
  *
  * @param {String} name New class contextual name
- * @param {Function} Base Base class
+ * @param {Function} Super Super class
  * @param {Object} definition Class definition
  * @return {Function} New class constructor
  */
-function _gpfDefineCore (name, Base, definition) {
-    var NewClass = _gpfDefineFactory(name, Base, definition);
+function _gpfDefineCore (name, Super, definition) {
+    var NewClass = _gpfDefineFactory(name, Super, definition);
     _gpfSetContextualName(name, NewClass);
     return NewClass;
 }
@@ -43,8 +43,8 @@ function _gpfDefineProcessParamsAndCallCore (params, processFunction) {
  * @inheritdoc gpf#define
  * Internal version
  */
-function _gpfDefine (name, base, definition) {
-    _gpfIgnore(name, base, definition);
+function _gpfDefine (name, Super, definition) {
+    _gpfIgnore(name, Super, definition);
     return _gpfDefineProcessParamsAndCallCore([].slice.call(arguments), _gpfProcessInternalDefineParams);
 }
 
@@ -52,7 +52,7 @@ function _gpfDefine (name, base, definition) {
  * Defines a new class by setting a contextual name
  *
  * @param {String} name New class contextual name
- * @param {String} [base=undefined] base Base class contextual name
+ * @param {String|Function} [Super=undefined] Super Super class contextual name or constructor
  * @param {Object} [definition=undefined] definition Class definition
  *
  * @also
@@ -62,7 +62,7 @@ function _gpfDefine (name, base, definition) {
  *
  * @return {Function}
  */
-gpf.define = function (name, base, definition) {
-    _gpfIgnore(name, base, definition);
+gpf.define = function (name, Super, definition) {
+    _gpfIgnore(name, Super, definition);
     return _gpfDefineProcessParamsAndCallCore([].slice.call(arguments), _gpfProcessDefineParams);
 };
