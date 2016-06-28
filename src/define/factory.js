@@ -8,11 +8,11 @@
  * Builds a new class
  *
  * @param {String} name New class contextual name
- * @param {Function} Base Base class
+ * @param {Function} Super Super class
  * @param {Object} definition Class definition
  * @return {Function} New class constructor
  */
-function _gpfDefineFactory (name, Base, definition) {
-    var classDef = new _GpfClassDefinition(name, Base, definition);
+function _gpfDefineFactory (name, Super, definition) {
+    var classDef = new _GpfClassDefinition(name, Super, definition);
     return classDef._Constructor;
 }
