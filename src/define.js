@@ -9,7 +9,7 @@
 /*#endif*/
 
 // If the name also contains a namespace, set the contexts to the value
-function _gpfSetContextualName (name, value) {
+function _gpfDefineUpdateContext (name, value) {
     var path,
         leafName;
     path = name.split(".");
@@ -29,7 +29,7 @@ function _gpfSetContextualName (name, value) {
  */
 function _gpfDefineCore (name, Super, definition) {
     var NewClass = _gpfDefineFactory(name, Super, definition);
-    _gpfSetContextualName(name, NewClass);
+    _gpfDefineUpdateContext(name, NewClass);
     return NewClass;
 }
 
