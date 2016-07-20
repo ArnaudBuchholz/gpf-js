@@ -22,8 +22,11 @@ _GpfExtensionHandler.prototype = {
 
 
     add: function (name, defaultValue) {
-        this._extensibleObject["_" + name] = defaultValue;
-        this._extensibleObject["get" + _gpfStringCapitalize(name)] = function () {};
+        var memberName = "_" + name;
+        this._extensibleObject[memberName] = defaultValue;
+        this._extensibleObject["get" + _gpfStringCapitalize(name)] = function () {
+            return this[memberName];
+        };
     }
 
 };
