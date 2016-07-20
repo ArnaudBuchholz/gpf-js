@@ -1,0 +1,15 @@
+body {
+    font-size: 8pt;
+    font-family: Verdana, Courrier, Sans Serif;
+    color: black;
+}
+
+body:after {
+    content: "GPF-JS";
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    font-size: 172pt;
+    color: antiquewhite;
+    z-index: -1;
+}
