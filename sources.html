@@ -14,15 +14,37 @@
 
 function onLoad () {
 
+    function getRowTemplate () {
+        var tplRow = document.getElementById("tpl-row"),
+            parent = tplRow.parentNode,
+            html = tplRow.innerHTML;
+        return function (sourceItem, itemIndex) {
+            var clone = document.importNode(tplRow.content, true);
+            parent.appendChild(clone);
+        }
+    }
+
     xhrGet("src/sources.json").then(function (responseText) {
-        JSON.parse(responseText).forEach(function (source) {
-            console.log(source.name);
-        });
+        JSON.parse(responseText).forEach(getRowTemplate());
     });
 }
 
         </script>
     </head>
     <body onload="onLoad()">
+        <table>
+            <thead>
+                <th>Name</th>
+                <th>Description</th>
+            </thead>
+            <body>
+                <template id="tpl-row">
+                    <tr>
+                        <td>{name}</td>
+                        <td>{description}</td>
+                    </tr>
+                </template>
+            </body>
+        </table>
     </body>
 </html>
