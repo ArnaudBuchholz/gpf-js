@@ -1,6 +1,3 @@
-/*eslint strict: [2, "function"]*/ // IIFE form
-/*jshint browser: true*/
-/*eslint-env browser*/
 (function () {
     "use strict";
 
