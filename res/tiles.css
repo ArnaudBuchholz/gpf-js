@@ -1,0 +1,14 @@
+ul.tiles li {
+    background-color: beige;
+    display: inline-block;
+    margin: 16px;
+    padding: 4px;
+    width: 128px;
+    height: 128px;
+    border: solid 1px gray;
+    text-align: center;
+}
+
+li[link] {
+    cursor: pointer;
+}
