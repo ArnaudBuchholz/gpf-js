@@ -4,13 +4,7 @@
         <meta charset="UTF-8">
         <title>GPF-JS</title>
         <link rel="stylesheet" type="text/css" href="res/html.css">
-        <style type="text/css">
-
-th {
-    text-align: left;
-}
-
-        </style>
+        <link rel="stylesheet" type="text/css" href="res/table.css">
         <script language="JavaScript" src="build/gpf.js"></script>
         <script language="JavaScript" src="res/xhr.js"></script>
         <script language="JavaScript" src="res/console.js"></script>
@@ -19,20 +13,33 @@ th {
 function onLoad () {
 
     function getRowTemplate () {
-        var tplRow = document.getElementById("tpl-row"),
+        var tplRow = document.getElementById("tpl_row"),
             tplHtml = tplRow.innerHTML,
             parent = tplRow.parentNode,
-            re = /{([a-zA-Z_][a-zA-Z_0-9]*)}/;
-        return function (sourceItem, itemIndex) {
-            var html = tplHtml,
-                reResult;
-            re.lastIndex = 0;
-            reResult =  re.exec(html);
-            while (reResult) {
-                html = html.replace(reResult[0], sourceItem[reResult[1]]);
-                re.lastIndex = 0;
-                reResult =  re.exec(html);
+            reMember = /{([a-zA-Z_][a-zA-Z_0-9]*)}/,
+            reExpression = /{% ([^%]*) %}/;
+
+        function process (html, regexp, getValue) {
+            var result = html,
+                match;
+            regexp.lastIndex = 0;
+            match = regexp.exec(result);
+            while (match) {
+                result = result.replace(match[0], getValue(match) || "&nbsp;");
+                regexp.lastIndex = 0;
+                match =  regexp.exec(result);
             }
+            return result;
+        }
+
+        return function (sourceItem, itemIndex) {
+            var html;
+            html = process(tplHtml, reMember, function (match) {
+                return sourceItem[match[1]];
+            });
+            html = process(html, reExpression, function (match) {
+                return new Function (match[1]).call(sourceItem).toString();
+            });
             tplRow.innerHTML = html;
             parent.appendChild(document.importNode(tplRow.content, true));
         }
@@ -50,12 +57,16 @@ function onLoad () {
             <thead>
                 <th>Name</th>
                 <th>Description</th>
+                <th>Load</th>
+                <th>Test</th>
             </thead>
             <body>
-                <template id="tpl-row">
+                <template id="tpl_row">
                     <tr>
                         <td>{name}</td>
                         <td>{description}</td>
+                        <td><input type="checkbox" checked="{% if (undefined === this.load) { return true; } else return this.load %}"></td>
+                        <td><input type="checkbox" checked="{% if (undefined === this.test) { return true; } else return this.test %}"></td>
                     </tr>
                 </template>
             </body>
