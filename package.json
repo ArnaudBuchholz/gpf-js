@@ -33,6 +33,7 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-eslint": "^17.2.0",
     "grunt-exec": "^0.4.6",
+    "grunt-htmllint": "^0.2.7",
     "grunt-istanbul": "^0.6.1",
     "grunt-istanbul-coverage": "^0.1.1",
     "grunt-jsdoc": "^2.1.0",
