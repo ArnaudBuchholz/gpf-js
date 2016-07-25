@@ -17,7 +17,8 @@ function onLoad () {
             tplHtml = tplRow.innerHTML,
             parent = tplRow.parentNode,
             reMember = /{([a-zA-Z_][a-zA-Z_0-9]*)}/,
-            reExpression = /{% ([^%]*) %}/;
+            reExpression = /@="([^"]+)"/,
+            reAmp = /&amp;/g;
 
         function process (html, regexp, getValue) {
             var result = html,
@@ -32,13 +33,24 @@ function onLoad () {
             return result;
         }
 
+        function wrap (item) {
+            var result = Object.create(item);
+            if (undefined === result.load) {
+                result.load = true;
+            }
+            if (undefined === result.test && result.load) {
+                result.test = true;
+            }
+            return result;
+        }
+
         return function (sourceItem, itemIndex) {
             var html;
             html = process(tplHtml, reMember, function (match) {
                 return sourceItem[match[1]];
             });
             html = process(html, reExpression, function (match) {
-                return new Function (match[1]).call(sourceItem).toString();
+                return new Function (match[1].replace(reAmp, "&")).call(wrap(sourceItem)).toString();
             });
             tplRow.innerHTML = html;
             parent.appendChild(document.importNode(tplRow.content, true));
@@ -65,8 +77,8 @@ function onLoad () {
                     <tr>
                         <td>{name}</td>
                         <td>{description}</td>
-                        <td><input type="checkbox" checked="{% if (undefined === this.load) { return true; } else return this.load %}"></td>
-                        <td><input type="checkbox" checked="{% if (undefined === this.test) { return true; } else return this.test %}"></td>
+                        <td><input type="checkbox" @="if (this.load) { return 'checked=\'true\''; } else return '';"></td>
+                        <td><input type="checkbox" @="if (this.load && this.test) { return 'checked=\'true\''; } else return '';"></td>
                     </tr>
                 </template>
             </body>
