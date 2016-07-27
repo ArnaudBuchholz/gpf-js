@@ -48,12 +48,64 @@
 
                 describe("Static template", function () {
 
-                    it("delivers static content", function () {
+                    it("delivers static text content", function () {
                         var tpl = document.getElementById("sample1"),
                             factory = tpl.getFactory(),
                             result = factory();
+                        assert(result.childNodes.length === 1)
                         assert(result.firstChild.nodeType === 3);
                         assert(result.firstChild.textContent === "This is a static one");
+                    });
+
+                    it("delivers static nodes content", function () {
+                        var result = document.getElementById("sample2").getFactory()(),
+                            secondChild;
+                        assert(result.childNodes.length === 2)
+                        assert(result.firstChild.nodeType === 1);
+                        assert(result.firstChild.tagName.toLowerCase() === "span");
+                        secondChild = result.firstChild.nextSibling;
+                        assert(secondChild.nodeType === 1);
+                        assert(secondChild.tagName.toLowerCase() === "div");
+                    });
+
+                });
+
+                describe("Simple replacement ({member})", function () {
+
+                    it("delivers static text content", function () {
+                        var result = document.getElementById("sample3").getFactory()({
+                                one: "two"
+                            });
+                        assert(result.childNodes.length === 1)
+                        assert(result.firstChild.nodeType === 3);
+                        assert(result.firstChild.textContent === "This is a static two");
+                    });
+
+                    it("supports HTML insertion", function () {
+                        var result = document.getElementById("sample4").getFactory()({
+                                title: "Sample",
+                                content: "<p>Hello World!</p>"
+                            }),
+                            secondChild;
+                        assert(result.childNodes.length === 2)
+                        assert(result.firstChild.nodeType === 1);
+                        assert(result.firstChild.tagName.toLowerCase() === "h1");
+                        assert(result.firstChild.textContent === "Sample");
+                        secondChild = result.firstChild.nextSibling;
+                        assert(secondChild.nodeType === 1);
+                        assert(secondChild.tagName.toLowerCase() === "p");
+                        assert(secondChild.textContent === "Hello World!");
+                    });
+
+                    it("supports attribute value insertion", function () {
+                        var result = document.getElementById("sample5").getFactory()({
+                                color: "red"
+                            }),
+                            secondChild;
+                        assert(result.childNodes.length === 1)
+                        assert(result.firstChild.nodeType === 1);
+                        assert(result.firstChild.tagName.toLowerCase() === "span");
+                        assert(result.firstChild.getAttribute("color") === "red");
                     });
 
                 });
@@ -62,5 +114,9 @@
             mocha.run();
         </script>
         <template id="sample1">This is a static one</template>
+        <template id="sample2"><span></span><div></div></template>
+        <template id="sample3">This is a static {one}</template>
+        <template id="sample4"><h1>{title}</h1>{content}</template>
+        <template id="sample5"><span color="{color}">Test</span></template>
     </body>
 </html>
