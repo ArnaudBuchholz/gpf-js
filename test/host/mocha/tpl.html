@@ -109,6 +109,35 @@
                     });
 
                 });
+
+                describe("Advanced replacement ({}=\"\")", function () {
+
+                    it("delivers static content based on a function", function () {
+                        var result = document.getElementById("sample6").getFactory()();
+                        assert(result.childNodes.length === 1)
+                        assert(result.firstChild.nodeType === 3);
+                        assert(result.firstChild.textContent === "This is a static content");
+                    });
+
+                    it("allows attributes modification (true)", function () {
+                        var result = document.getElementById("sample7").getFactory()({
+                            check: true
+                        });
+                        assert(result.childNodes.length === 1)
+                        assert(result.firstChild.nodeType === 1);
+                        assert(result.firstChild.checked);
+                    });
+
+                    it("ignores undefined results", function () {
+                        var result = document.getElementById("sample7").getFactory()({
+                            check: false
+                        });
+                        assert(result.childNodes.length === 1)
+                        assert(result.firstChild.nodeType === 1);
+                        assert(!result.firstChild.checked);
+                    });
+
+                });
             })
             mocha.checkLeaks();
             mocha.run();
@@ -118,5 +147,7 @@
         <template id="sample3">This is a static {one}</template>
         <template id="sample4"><h1>{title}</h1>{content}</template>
         <template id="sample5"><span color="{color}">Test</span></template>
+        <template id="sample6">This is a static {}="return 'content';"</template>
+        <template id="sample7"><input type="checkbox" {}="if (this.check) return 'checked=&quot;true&quot;';"></template>
     </body>
 </html>
