@@ -1,0 +1,66 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>GPF Tests</title>
+        <link rel="stylesheet" type="text/css" href="../../../res/html.css">
+        <link rel="stylesheet" href="../../../node_modules/mocha/mocha.css" />
+    </head>
+    <body>
+        <div id="mocha"></div>
+        <script src="../../../node_modules/jquery/dist/jquery.js"></script>
+        <script src="../../../node_modules/mocha/mocha.js"></script>
+        <script src="../../../res/tpl.js"></script>
+        <script>
+            mocha.setup("bdd");
+            function assert(condition) {
+                if (!condition) {
+                    throw "ASSERTION failed";
+                }
+            }
+        </script>
+        <script>
+            "use strict";
+
+            describe("tpl", function () {
+
+                describe("api", function () {
+
+                    it("relies on HTMLTemplateElement class", function () {
+                        assert("function" === typeof HTMLTemplateElement);
+                    });
+
+                    it("exposes a getFactory function", function () {
+                        var tpl = document.getElementById("sample1");
+                        assert(tpl);
+                        assert("function" === typeof tpl.getFactory);
+                    });
+
+                    it("returns a factory function", function () {
+                        var tpl = document.getElementById("sample1"),
+                            factory;
+                        assert(tpl);
+                        assert("function" === typeof tpl.getFactory);
+                        factory = tpl.getFactory();
+                        assert("function" === typeof factory);
+                    });
+
+                });
+
+                describe("Static template", function () {
+
+                    it("delivers static content", function () {
+                        var tpl = document.getElementById("sample1"),
+                            factory = tpl.getFactory(),
+                            result = factory();
+                        assert(result.firstChild.nodeType === 3);
+                        assert(result.firstChild.textContent === "This is a static one");
+                    });
+
+                });
+            })
+            mocha.checkLeaks();
+            mocha.run();
+        </script>
+        <template id="sample1">This is a static one</template>
+    </body>
+</html>
