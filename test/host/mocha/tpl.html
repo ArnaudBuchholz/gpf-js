@@ -29,18 +29,18 @@
                         assert("function" === typeof HTMLTemplateElement);
                     });
 
-                    it("exposes a getFactory function", function () {
+                    it("exposes a buildFactory function", function () {
                         var tpl = document.getElementById("sample1");
                         assert(tpl);
-                        assert("function" === typeof tpl.getFactory);
+                        assert("function" === typeof tpl.buildFactory);
                     });
 
                     it("returns a factory function", function () {
                         var tpl = document.getElementById("sample1"),
                             factory;
                         assert(tpl);
-                        assert("function" === typeof tpl.getFactory);
-                        factory = tpl.getFactory();
+                        assert("function" === typeof tpl.buildFactory);
+                        factory = tpl.buildFactory();
                         assert("function" === typeof factory);
                     });
 
@@ -50,7 +50,7 @@
 
                     it("delivers static text content", function () {
                         var tpl = document.getElementById("sample1"),
-                            factory = tpl.getFactory(),
+                            factory = tpl.buildFactory(),
                             result = factory();
                         assert(result.childNodes.length === 1)
                         assert(result.firstChild.nodeType === 3);
@@ -58,7 +58,7 @@
                     });
 
                     it("delivers static nodes content", function () {
-                        var result = document.getElementById("sample2").getFactory()(),
+                        var result = document.getElementById("sample2").buildFactory()(),
                             secondChild;
                         assert(result.childNodes.length === 2)
                         assert(result.firstChild.nodeType === 1);
@@ -73,16 +73,16 @@
                 describe("Simple replacement ({member})", function () {
 
                     it("delivers static text content", function () {
-                        var result = document.getElementById("sample3").getFactory()({
-                                one: "two"
-                            });
+                        var result = document.getElementById("sample3").buildFactory()({
+                            one: "two"
+                        });
                         assert(result.childNodes.length === 1)
                         assert(result.firstChild.nodeType === 3);
                         assert(result.firstChild.textContent === "This is a static two");
                     });
 
                     it("supports HTML insertion", function () {
-                        var result = document.getElementById("sample4").getFactory()({
+                        var result = document.getElementById("sample4").buildFactory()({
                                 title: "Sample",
                                 content: "<p>Hello World!</p>"
                             }),
@@ -98,7 +98,7 @@
                     });
 
                     it("supports attribute value insertion", function () {
-                        var result = document.getElementById("sample5").getFactory()({
+                        var result = document.getElementById("sample5").buildFactory()({
                                 color: "red"
                             }),
                             secondChild;
@@ -113,14 +113,14 @@
                 describe("Advanced replacement ({}=\"\")", function () {
 
                     it("delivers static content based on a function", function () {
-                        var result = document.getElementById("sample6").getFactory()();
+                        var result = document.getElementById("sample6").buildFactory()();
                         assert(result.childNodes.length === 1)
                         assert(result.firstChild.nodeType === 3);
                         assert(result.firstChild.textContent === "This is a static content");
                     });
 
-                    it("allows attributes modification (true)", function () {
-                        var result = document.getElementById("sample7").getFactory()({
+                    it("allows attributes modification", function () {
+                        var result = document.getElementById("sample7").buildFactory()({
                             check: true
                         });
                         assert(result.childNodes.length === 1)
@@ -129,7 +129,7 @@
                     });
 
                     it("ignores undefined results", function () {
-                        var result = document.getElementById("sample7").getFactory()({
+                        var result = document.getElementById("sample7").buildFactory()({
                             check: false
                         });
                         assert(result.childNodes.length === 1)
@@ -138,7 +138,31 @@
                     });
 
                 });
-            })
+
+                describe("Code injection ({% %})", function () {
+
+                    it("mixes HTML and JavaScript code", function () {
+                        var result = document.getElementById("sample8").buildFactory()({
+                            condition: false
+                        });
+                        assert(result.childNodes.length === 1)
+                        assert(result.firstChild.nodeType === 1);
+                        assert(result.firstChild.tagName.toLowerCase() === "div");
+                    });
+
+                    it("offers $write to output HTML", function () {
+                        var result = document.getElementById("sample8").buildFactory()({
+                            condition: true
+                        });
+                        assert(result.childNodes.length === 1)
+                        assert(result.firstChild.nodeType === 1);
+                        assert(result.firstChild.tagName.toLowerCase() === "span");
+                        assert(result.firstChild.textContent === "Hello");
+                    });
+
+                });
+
+            });
             mocha.checkLeaks();
             mocha.run();
         </script>
@@ -148,6 +172,7 @@
         <template id="sample4"><h1>{title}</h1>{content}</template>
         <template id="sample5"><span color="{color}">Test</span></template>
         <template id="sample6">This is a static {}="return 'content';"</template>
-        <template id="sample7"><input type="checkbox" {}="if (this.check) return 'checked=&quot;true&quot;';"></template>
+        <template id="sample7"><input type="checkbox" {}="if ($item.check) return 'checked=&quot;true&quot;';"></template>
+        <template id="sample8">{% if ($item.condition) { %}<span>{% $write("Hello"); %}</span>{% } else { %}<div></div>{% } %}</template>
     </body>
 </html>
