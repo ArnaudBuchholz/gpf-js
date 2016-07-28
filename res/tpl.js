@@ -42,6 +42,7 @@
                 _nameOfIndex, "=__a[1],",
                 "__r=[],__d=document,",
                 "__t=__d.createElement(\"template\");",
+                "function __s(v){if(undefined===v)return \"\";return v.toString();}",
                 "function ", _nameOfWrite, "(t){__r.push(t.toString());}"
             ];
         _reExpressions.lastIndex = 0;
@@ -59,7 +60,7 @@
                 code.push(_decodeHtml(token[3]));
             } else {
                 // {name}
-                code.push("__r.push(", _nameOfItem, ".", token[1], ".toString());");
+                code.push("__r.push(__s(", _nameOfItem, ".", token[1], "));");
             }
         }
         code.push("__t.innerHTML=__r.join(\"\");return __d.importNode(__t.content,true);");
