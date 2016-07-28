@@ -50,7 +50,7 @@ function onLoad () {
                         <td>{name}</td>
                         <td>{description}</td>
                         <td><input type="checkbox" {}="if ($item.load) { return 'checked=\'true\''; } else return '';"></td>
-                        <td><input type="checkbox" {}="if ($item.load && $item.test) { return 'checked=\'true\''; } else return '';"></td>
+                        <td><input type="checkbox" {}="if ($item.load &amp;&amp; $item.test) { return 'checked=\'true\''; } else return '';"></td>
                         <td><input type="checkbox" {}="if ($item.doc) { return 'checked=\'true\''; } else return '';"></td>
                     </tr>
                 </template>
