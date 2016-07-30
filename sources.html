@@ -8,7 +8,6 @@
         <script language="JavaScript" src="build/gpf.js"></script>
         <script language="JavaScript" src="res/xhr.js"></script>
         <script language="JavaScript" src="res/tpl.js"></script>
-        <script language="JavaScript" src="res/console.js"></script>
         <script language="JavaScript">
 
 function wrap (item) {
@@ -28,7 +27,7 @@ function onLoad () {
             tplFunc = tplRow.buildFactory(),
             parent = tplRow.parentNode;
         JSON.parse(responseText).forEach(function (item, index) {
-            parent.appendChild(tplFunc.call(null, wrap(item), index));
+            parent.appendChild(tplFunc(wrap(item), index));
         });
     });
 }
