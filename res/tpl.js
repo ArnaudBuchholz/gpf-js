@@ -13,7 +13,7 @@
 (function () {
     "use strict";
 
-    var _reExpressions = /\{([a-zA-Z_][a-zA-Z_0-9]+)\}|\{%%\}="([^"]+)"|\{%((?:[^%]|%[^\}])*)%\}|([^\{]+)/g,
+    var _reExpressions = /\{\{([a-zA-Z_][a-zA-Z_0-9]+)\}\}|\{%%\}="([^"]+)"|\{%((?:[^%]|%[^\}])*)%\}|([^\{]+)/g,
         _reQuote = /\"/g,
         _reCarriageReturn = /\n/g,
         _Func = Function,
@@ -60,7 +60,7 @@
                 // {% %}
                 code.push(_decodeHtml(token[3]));
             } else {
-                // {name}
+                // {{name}}
                 code.push("__r.push(__s(", _nameOfItem, ".", token[1], "));");
             }
         }
