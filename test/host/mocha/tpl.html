@@ -168,9 +168,9 @@
         </script>
         <template id="sample1">This is a static one</template>
         <template id="sample2"><span></span><div></div></template>
-        <template id="sample3">This is a static {one}</template>
-        <template id="sample4"><h1>{title}</h1>{content}</template>
-        <template id="sample5"><span color="{color}">Test</span></template>
+        <template id="sample3">This is a static {{one}}</template>
+        <template id="sample4"><h1>{{title}}</h1>{{content}}</template>
+        <template id="sample5"><span color="{{color}}">Test</span></template>
         <template id="sample6">This is a static {%%}="$write('content');"</template>
         <template id="sample7"><input type="checkbox" {%%}="if ($item.check) $write('checked=\'true\'');"></template>
         <template id="sample8">{% if ($item.condition) { %}<span>{% $write("Hello"); %}</span>{% } else { %}<div></div>{% } %}</template>
