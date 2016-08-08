@@ -18,7 +18,7 @@
         _reCarriageReturn = /\n/g,
         _Func = Function,
         _parser = new DOMParser(),
-        _nameOfItem = "$item",
+        _nameOfObject = "$object",
         _nameOfIndex = "$index",
         _nameOfWrite = "$write";
 
@@ -40,7 +40,7 @@
             matchedValue,
             code = [
                 "var __a=arguments,",
-                _nameOfItem, "=__a[0],",
+                _nameOfObject, "=__a[0],",
                 _nameOfIndex, "=__a[1],",
                 "__r=[],__d=document,",
                 "__t=__d.createElement(\"template\");",
@@ -61,7 +61,7 @@
                 code.push(_decodeHtml(token[3]));
             } else {
                 // {{name}}
-                code.push("__r.push(__s(", _nameOfItem, ".", token[1], "));");
+                code.push("__r.push(__s(", _nameOfObject, ".", token[1], "));");
             }
         }
         code.push("__t.innerHTML=__r.join(\"\");return __d.importNode(__t.content,true);");
