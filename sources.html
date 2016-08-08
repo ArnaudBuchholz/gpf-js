@@ -48,9 +48,9 @@ function onLoad () {
                     <tr>
                         <td>{{name}}</td>
                         <td>{{description}}</td>
-                        <td><input type="checkbox" {%%}="if ($item.load) $write('checked');"></td>
-                        <td><input type="checkbox" {%%}="if ($item.load &amp;&amp; $item.test) $write('checked');"></td>
-                        <td><input type="checkbox" {%%}="if ($item.doc) $write('checked');"></td>
+                        <td><input type="checkbox" {%%}="if ($object.load) $write('checked');"></td>
+                        <td><input type="checkbox" {%%}="if ($object.load &amp;&amp; $object.test) $write('checked');"></td>
+                        <td><input type="checkbox" {%%}="if ($object.doc) $write('checked');"></td>
                     </tr>
                 </template>
             </body>
