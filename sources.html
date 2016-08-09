@@ -45,15 +45,22 @@ function onLoad () {
             </thead>
             <body>
                 <template id="tpl_row">
+{%
+    function check(a, b) {
+        if ($object[a] && (b === undefined || $object[b])) {
+            $write("checked");
+        }
+    }
+%}
                     <tr>
                         <td>{{name}}</td>
                         <td>{{description}}</td>
-                        <td><input type="checkbox" {%%}="if ($object.load) $write('checked');"></td>
-                        <td><input type="checkbox" {%%}="if ($object.load &amp;&amp; $object.test) $write('checked');"></td>
-                        <td><input type="checkbox" {%%}="if ($object.doc) $write('checked');"></td>
+                        <td><input type="checkbox" {%%}="check('load');"></td>
+                        <td><input type="checkbox" {%%}="check('load', 'test');"></td>
+                        <td><input type="checkbox" {%%}="check('doc');"></td>
                     </tr>
                 </template>
             </body>
-        </table>
+</table>
     </body>
 </html>
