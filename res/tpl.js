@@ -13,7 +13,7 @@
 (function () {
     "use strict";
 
-    var _reExpressions = /\{\{([a-zA-Z_][a-zA-Z_0-9]+)\}\}|\{%%\}="([^"]+)"|\{%((?:[^%]|%[^\}])*)%\}|([^\{]+)/g,
+    var _reExpressions = /\{\{([a-zA-Z_][a-zA-Z_0-9]+)\}\}|\{%%\}="([^"]+)"|\{%((?:[^%]|%[^\}])+)%\}|([^\{]+)/g,
         _reQuote = /\"/g,
         _reCarriageReturn = /\n/g,
         _Func = Function,
