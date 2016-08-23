@@ -22,17 +22,59 @@ function wrap (item) {
     return result;
 }
 
-var sources;
+var tplFunc,
+    parentNode,
+    sources;
+
+function getSourceByName (name) {
+    var result;
+    sources.every(function (source, index) {
+        if (source.name === name) {
+            result = {
+                object: source,
+                index: index
+            };
+            return false;
+        }
+        return true;
+    });
+    return result;
+}
+
+function refresh (target, source) {
+    var parentTr = target.parentNode,
+        refreshedTr = tplFunc(wrap(source.object), source.index);
+    while (parentTr.tagName.toLowerCase() !== "tr") {
+        parentTr = parentTr.parentNode;
+    }
+    parentNode.replaceChild(refreshedTr, parentTr);
+}
+
+function onClick (event) {
+    var target = event.target,
+        parts,
+        source;
+    if ("checkbox" === target.getAttribute("type")) {
+        parts = target.id.split(":"); // property:name
+        source = getSourceByName(parts[1]);
+        source.object[parts[0]] = target.checked;
+        refresh(target, source);
+        document.getElementById("save").removeAttribute("disabled");
+    } else if ("description" === target.className) {
+        alert(target.innerHTML); // TODO propose an text field to edit the description
+    }
+}
 
 function onLoad () {
     xhrGet("src/sources.json").then(function (responseText) {
-        var tplRow = document.getElementById("tpl_row"),
-            tplFunc = tplRow.buildFactory(),
-            parent = tplRow.parentNode;
+        var tplRow = document.getElementById("tpl_row");
+        tplFunc = tplRow.buildFactory();
+        parentNode = tplRow.parentNode;
         sources = JSON.parse(responseText);
         sources.forEach(function (item, index) {
-            parent.appendChild(tplFunc(wrap(item), index));
+            parentNode.appendChild(tplFunc(wrap(item), index));
         });
+        document.addEventListener("click", onClick);
     });
 }
 
@@ -52,6 +94,9 @@ function onLoad () {
                 <template id="tpl_row">
 {%
     function check(a, b) {
+        if ($object.name === "boot") {
+            $write("disabled=\"true\" ");
+        }
         if ($object[a] && (b === undefined || $object[b])) {
             $write("checked");
         }
@@ -59,10 +104,10 @@ function onLoad () {
 %}
                     <tr>
                         <td>{{name}}</td>
-                        <td><input type="checkbox" {%%}="check('load');"></td>
-                        <td><input type="checkbox" {%%}="check('load', 'test');"></td>
-                        <td><input type="checkbox" {%%}="check('doc');"></td>
-                        <td>{{description}}</td>
+                        <td><input id="load:{{name}}" type="checkbox" {%%}="check('load');"></td>
+                        <td><input id="test:{{name}}" type="checkbox" {%%}="check('load', 'test');"></td>
+                        <td><input id="doc:{{name}}" type="checkbox" {%%}="check('load', 'doc');"></td>
+                        <td class="description">{{description}}</td>
                         <td>{%
 var type, name;
 if ($object.method) {
@@ -87,5 +132,6 @@ if (name) {
                 </template>
               </tbody>
         </table>
+        <button disabled="true" id="save">Save</button>
     </body>
 </html>
