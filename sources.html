@@ -5,6 +5,7 @@
         <title>GPF-JS</title>
         <link rel="stylesheet" type="text/css" href="res/html.css">
         <link rel="stylesheet" type="text/css" href="res/table.css">
+        <link rel="stylesheet" type="text/css" href="res/sources.css">
         <script language="JavaScript" src="build/gpf.js"></script>
         <script language="JavaScript" src="res/xhr.js"></script>
         <script language="JavaScript" src="res/tpl.js"></script>
@@ -21,12 +22,15 @@ function wrap (item) {
     return result;
 }
 
+var sources;
+
 function onLoad () {
     xhrGet("src/sources.json").then(function (responseText) {
         var tplRow = document.getElementById("tpl_row"),
             tplFunc = tplRow.buildFactory(),
             parent = tplRow.parentNode;
-        JSON.parse(responseText).forEach(function (item, index) {
+        sources = JSON.parse(responseText);
+        sources.forEach(function (item, index) {
             parent.appendChild(tplFunc(wrap(item), index));
         });
     });
@@ -38,12 +42,13 @@ function onLoad () {
         <table>
             <thead>
                 <th>Name</th>
-                <th>Description</th>
                 <th>Load</th>
                 <th>Test</th>
                 <th>Doc</th>
+                <th>Description</th>
+                <th>Implements</th>
             </thead>
-            <body>
+            <tbody>
                 <template id="tpl_row">
 {%
     function check(a, b) {
@@ -54,13 +59,33 @@ function onLoad () {
 %}
                     <tr>
                         <td>{{name}}</td>
-                        <td>{{description}}</td>
                         <td><input type="checkbox" {%%}="check('load');"></td>
                         <td><input type="checkbox" {%%}="check('load', 'test');"></td>
                         <td><input type="checkbox" {%%}="check('doc');"></td>
+                        <td>{{description}}</td>
+                        <td>{%
+var type, name;
+if ($object.method) {
+    type = "method";
+    name = $object.method;
+} else if ($object.class) {
+    type = "class";
+    name = $object.class;
+}
+
+if (name) {
+    if (name.charAt(0) === "_") {
+        %}<span class="internal">internal</span>{%
+    }
+    %}<span class="implements">{% $write(type); %}</span>{%
+    $write(name);
+} else {
+    $write("&nbsp;");
+}
+                        %}</td>
                     </tr>
                 </template>
-            </body>
-</table>
+              </tbody>
+        </table>
     </body>
 </html>
