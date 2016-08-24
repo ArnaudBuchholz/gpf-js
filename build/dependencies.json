@@ -1,0 +1,226 @@
+{
+    "foreach": [
+        "arraylike"
+    ],
+    "extend": [
+        "assert",
+        "foreach"
+    ],
+    "string/replaceex": [
+        "foreach"
+    ],
+    "string/escapefor": [
+        "string/replaceex"
+    ],
+    "string/escape/javascript": [
+        "string/escapefor"
+    ],
+    "string/escape/xml": [
+        "string/escapefor"
+    ],
+    "string/escape/html": [
+        "extend",
+        "string/escapefor"
+    ],
+    "compatibility": [
+        "extend"
+    ],
+    "compatibility/array": [
+        "foreach",
+        "compatibility"
+    ],
+    "compatibility/date": [
+        "factory",
+        "compatibility"
+    ],
+    "compatibility/function": [
+        "compatibility"
+    ],
+    "compatibility/object": [
+        "compatibility"
+    ],
+    "compatibility/string": [
+        "compatibility"
+    ],
+    "compatibility/promise": [
+        "assert"
+    ],
+    "compatibility/timeout": [
+        "assert"
+    ],
+    "compatibility/json": [
+        "foreach",
+        "constants",
+        "string/escapefor"
+    ],
+    "constants": [
+        "assert",
+        "foreach"
+    ],
+    "events": [
+        "constants",
+        "assert",
+        "scope"
+    ],
+    "include": [
+        "constants",
+        "events"
+    ],
+    "bootstrap": [
+        "context"
+    ],
+    "value": [
+        "compatibility/date"
+    ],
+    "set": [
+        "assert",
+        "extend"
+    ],
+    "base": [
+        "extend"
+    ],
+    "function": [
+        "constants",
+        "compatibility/function",
+        "string/replaceex"
+    ],
+    "like": [
+        "constants"
+    ],
+    "error": [
+        "foreach",
+        "string/replaceex"
+    ],
+    "mimetype": [
+        "bootstrap",
+        "foreach"
+    ],
+    "bin": [
+        "constants"
+    ],
+    "path/matcher": [
+        "assert",
+        "extend",
+        "path"
+    ],
+    "javascript": [
+        "constants"
+    ],
+    "csv": [
+        "error"
+    ],
+    "define/constructor": [
+        "function",
+        "error"
+    ],
+    "define/classdef": [
+        "define/constructor",
+        "assert",
+        "attributes",
+        "error",
+        "constants",
+        "foreach"
+    ],
+    "define/factory": [
+        "define/classdef"
+    ],
+    "define/params": [
+        "assert",
+        "context",
+        "define/internal"
+    ],
+    "define/internal": [
+        "foreach"
+    ],
+    "define": [
+        "context",
+        "define/factory",
+        "define/params"
+    ],
+    "define/custom": [
+        "define",
+        "define/params"
+    ],
+    "attributes": [
+        "define/classdef",
+        "assert",
+        "define",
+        "constants",
+        "define/custom",
+        "foreach"
+    ],
+    "attributes/attributes": [
+        "attributes",
+        "error",
+        "define/classdef"
+    ],
+    "attributes/class": [
+        "attributes",
+        "constants",
+        "define/classdef",
+        "string/capitalize"
+    ],
+    "interfaces": [
+        "attributes",
+        "define",
+        "error",
+        "define/custom",
+        "define/classdef"
+    ],
+    "interfaces/enumerator": [
+        "constants",
+        "attributes",
+        "interfaces",
+        "error",
+        "events",
+        "arraylike"
+    ],
+    "interfaces/array": [
+        "attributes",
+        "interfaces",
+        "constants"
+    ],
+    "interfaces/stream": [
+        "interfaces"
+    ],
+    "interfaces/filestorage": [
+        "interfaces"
+    ],
+    "fs": [
+        "constants",
+        "error",
+        "events",
+        "bootstrap",
+        "interfaces"
+    ],
+    "stream": [
+        "error"
+    ],
+    "stream/pipe": [
+        "constants",
+        "stream",
+        "events",
+        "interfaces"
+    ],
+    "string": [
+        "constants",
+        "assert",
+        "define",
+        "events",
+        "extend",
+        "interfaces",
+        "stream/pipe",
+        "string/capitalize",
+        "string/escapefor",
+        "string/replaceex"
+    ],
+    "array": [
+        "constants",
+        "assert",
+        "define",
+        "events",
+        "extend",
+        "interfaces",
+        "stream/pipe"
+    ]
+}
