@@ -11,6 +11,11 @@
         <script language="JavaScript" src="res/tpl.js"></script>
         <script language="JavaScript">
 
+var tplFunc,
+    parentNode,
+    sources,
+    dependencies;
+
 function wrap (item) {
     var result = Object.create(item);
     if (undefined === result.load) {
@@ -19,12 +24,9 @@ function wrap (item) {
     if (undefined === result.test && result.load) {
         result.test = true;
     }
+    result.dependencies = dependencies[item.name] || [];
     return result;
 }
-
-var tplFunc,
-    parentNode,
-    sources;
 
 function getSourceByName (name) {
     var result;
@@ -66,16 +68,20 @@ function onClick (event) {
 }
 
 function onLoad () {
-    xhrGet("src/sources.json").then(function (responseText) {
-        var tplRow = document.getElementById("tpl_row");
-        tplFunc = tplRow.buildFactory();
-        parentNode = tplRow.parentNode;
-        sources = JSON.parse(responseText);
-        sources.forEach(function (item, index) {
-            parentNode.appendChild(tplFunc(wrap(item), index));
+    Promise.all([xhrGet("src/sources.json"), xhrGet("build/dependencies.json")])
+        .then(function (responseTexts) {
+            var tplRow = document.getElementById("tpl_row");
+            tplFunc = tplRow.buildFactory();
+            parentNode = tplRow.parentNode;
+            sources = JSON.parse(responseTexts[0]);
+            dependencies = JSON.parse(responseTexts[1]);
+            sources.forEach(function (item, index) {
+                parentNode.appendChild(tplFunc(wrap(item), index));
+            });
+            document.addEventListener("click", onClick);
+        }, function (reason) {
+            alert("A problem occurred while loading src/sources.json and build/dependencies.json: " + reason);
         });
-        document.addEventListener("click", onClick);
-    });
 }
 
         </script>
@@ -89,6 +95,7 @@ function onLoad () {
                 <th>Doc</th>
                 <th>Description</th>
                 <th>Implements</th>
+                <th>Dependencies</th>
             </thead>
             <tbody>
                 <template id="tpl_row">
@@ -124,6 +131,14 @@ if (name) {
     }
     %}<span class="implements">{% $write(type); %}</span>{%
     $write(name);
+} else {
+    $write("&nbsp;");
+}
+                        %}</td>
+                        <td>{%
+
+if ($object.dependencies.length) {
+    %}<span class="dependencies">{% $write($object.dependencies.length); %}</span>{%
 } else {
     $write("&nbsp;");
 }
