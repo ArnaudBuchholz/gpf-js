@@ -204,4 +204,28 @@ if (0 === rc) {
     rewriteAll();
 }
 
+// Generates dependency graph
+var dependencies = {};
+sources.every(function (source) {
+    if (source === "") {
+        return false;
+    }
+    var module = Module.byName[source],
+        dependsOn;
+    if (module.imports.length) {
+        dependsOn = [];
+        module.imports.forEach(function (name) {
+            var depOnModuleName = Module.byExport[name].name;
+            if ("boot" !== depOnModuleName && dependsOn.indexOf(depOnModuleName) === -1) {
+                dependsOn.push(depOnModuleName);
+            }
+        });
+        if (dependsOn.length > 0) {
+            dependencies[source] = dependsOn;
+        } 
+    }
+    return true;
+});
+fs.writeFileSync("./build/dependencies.json", JSON.stringify(dependencies, null, 4));
+
 process.exit(rc);
