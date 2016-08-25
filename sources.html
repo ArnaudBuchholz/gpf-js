@@ -9,6 +9,7 @@
         <script language="JavaScript" src="build/gpf.js"></script>
         <script language="JavaScript" src="res/xhr.js"></script>
         <script language="JavaScript" src="res/tpl.js"></script>
+        <!--<script language="JavaScript" src="sources.js"></script>-->
         <script language="JavaScript">
 
 var tplFunc,
@@ -55,11 +56,19 @@ function refresh (target, source) {
 function onClick (event) {
     var target = event.target,
         parts,
+        property,
+        name,
         source;
     if ("checkbox" === target.getAttribute("type")) {
         parts = target.id.split(":"); // property:name
-        source = getSourceByName(parts[1]);
-        source.object[parts[0]] = target.checked;
+        property = parts[0];
+        name = parts[1];
+        source = getSourceByName(name);
+        if (property === "load" && !target.checked) {
+            // Check if any dependency is still loaded
+
+        }
+        source.object[property] = target.checked;
         refresh(target, source);
         document.getElementById("save").removeAttribute("disabled");
     } else if ("description" === target.className) {
@@ -90,12 +99,12 @@ function onLoad () {
         <table>
             <thead>
                 <th>Name</th>
+                <th>Dep.</th>
                 <th>Load</th>
                 <th>Test</th>
-                <th>Doc</th>
+                <th>Doc.</th>
                 <th>Description</th>
                 <th>Implements</th>
-                <th>Dependencies</th>
             </thead>
             <tbody>
                 <template id="tpl_row">
@@ -111,6 +120,15 @@ function onLoad () {
 %}
                     <tr>
                         <td>{{name}}</td>
+                        <td>{%
+
+if ($object.dependencies.length) {
+    %}<span class="dependencies" {%%}="$write('title=\'' + $object.dependencies.join('\n') + '\'');">{% $write($object.dependencies.length); %}</span>{%
+} else {
+    $write("&nbsp;");
+}
+
+                        %}</td>
                         <td><input id="load:{{name}}" type="checkbox" {%%}="check('load');"></td>
                         <td><input id="test:{{name}}" type="checkbox" {%%}="check('load', 'test');"></td>
                         <td><input id="doc:{{name}}" type="checkbox" {%%}="check('load', 'doc');"></td>
@@ -131,14 +149,6 @@ if (name) {
     }
     %}<span class="implements">{% $write(type); %}</span>{%
     $write(name);
-} else {
-    $write("&nbsp;");
-}
-                        %}</td>
-                        <td>{%
-
-if ($object.dependencies.length) {
-    %}<span class="dependencies">{% $write($object.dependencies.length); %}</span>{%
 } else {
     $write("&nbsp;");
 }
