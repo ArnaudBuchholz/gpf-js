@@ -1,26 +1,26 @@
 /**
  * Simple template mechanism based on html template tag.
  * Once the template DOM element is retrieved, call buildFactory to obtain a function which signature is
- * function (item, index) and that returns a DOM content.
+ * function (object, index) and that returns a DOM node.
  *
  * Inside the template, supported expressions are:
- * - {memberName} will be replace with member value of item
- * - {%%}="code" will be evaluated with $item=item, $index=index and $write(value)
- * - (% code %} will be injected in the function with $item=item and $index=index
- *
- * Code evaluation
+ * - {{memberName}} will be replaced with member value of object
+ * - {{$index}} will be replaced with value of index
+ * - {%%}="code" will be evaluated with $object=object, $index=index and $write(value)
+ * - (% code %} will be injected in the function with $object=object and $index=index
  */
 (function () {
     "use strict";
 
-    var _reExpressions = /\{\{([a-zA-Z_][a-zA-Z_0-9]*)\}\}|\{%%\}="([^"]+)"|\{%((?:[^%]|%[^\}])+)%\}|([^\{]+)/g,
-        _reQuote = /\"/g,
+    var _reQuote = /\"/g,
         _reCarriageReturn = /\n/g,
         _Func = Function,
         _parser = new DOMParser(),
         _nameOfObject = "$object",
         _nameOfIndex = "$index",
-        _nameOfWrite = "$write";
+        _nameOfWrite = "$write",
+        _reExpressions = new RegExp("\\{\\{([a-zA-Z_][a-zA-Z_0-9]*|\\" + _nameOfIndex
+            + ")\\}\\}|\\{%%\\}=\"([^\"]+)\"|\\{%((?:[^%]|%[^\\}])+)%\\}|([^\\{]+)", "g");
 
     function _toJsString (value) {
         return value
@@ -59,6 +59,9 @@
             } else if (matchedValue.charAt(1) === "%") {
                 // {% %}
                 code.push(_decodeHtml(token[3]));
+            } else if (token[1] === _nameOfIndex) {
+                // {{$index}}
+                code.push("__r.push(", _nameOfIndex, ");");
             } else {
                 // {{name}}
                 code.push("__r.push(__s(", _nameOfObject, ".", token[1], "));");
