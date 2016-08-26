@@ -6,47 +6,19 @@
         <link rel="stylesheet" type="text/css" href="res/html.css">
         <link rel="stylesheet" type="text/css" href="res/table.css">
         <link rel="stylesheet" type="text/css" href="res/sources.css">
-        <script language="JavaScript" src="build/gpf.js"></script>
+        <script language="JavaScript" src="build/gpf-debug.js"></script>
         <script language="JavaScript" src="res/xhr.js"></script>
         <script language="JavaScript" src="res/tpl.js"></script>
-        <!--<script language="JavaScript" src="sources.js"></script>-->
+        <script language="JavaScript" src="sources.js"></script>
         <script language="JavaScript">
 
 var tplFunc,
     parentNode,
-    sources,
-    dependencies;
-
-function wrap (item) {
-    var result = Object.create(item);
-    if (undefined === result.load) {
-        result.load = true;
-    }
-    if (undefined === result.test && result.load) {
-        result.test = true;
-    }
-    result.dependencies = dependencies[item.name] || [];
-    return result;
-}
-
-function getSourceByName (name) {
-    var result;
-    sources.every(function (source, index) {
-        if (source.name === name) {
-            result = {
-                object: source,
-                index: index
-            };
-            return false;
-        }
-        return true;
-    });
-    return result;
-}
+    sources;
 
 function refresh (target, source) {
     var parentTr = target.parentNode,
-        refreshedTr = tplFunc(wrap(source.object), source.index);
+        refreshedTr = tplFunc(source, source.getIndex());
     while (parentTr.tagName.toLowerCase() !== "tr") {
         parentTr = parentTr.parentNode;
     }
@@ -57,18 +29,18 @@ function onClick (event) {
     var target = event.target,
         parts,
         property,
-        name,
+        index,
         source;
     if ("checkbox" === target.getAttribute("type")) {
-        parts = target.id.split(":"); // property:name
+        parts = target.id.split("_"); // property_sourceIndex
         property = parts[0];
-        name = parts[1];
-        source = getSourceByName(name);
+        index = parseInt(parts[1], 10);
+        source = sources.byIndex(index);
         if (property === "load" && !target.checked) {
             // Check if any dependency is still loaded
 
         }
-        source.object[property] = target.checked;
+        source.setProperty(property, target.checked);
         refresh(target, source);
         document.getElementById("save").removeAttribute("disabled");
     } else if ("description" === target.className) {
@@ -82,10 +54,9 @@ function onLoad () {
             var tplRow = document.getElementById("tpl_row");
             tplFunc = tplRow.buildFactory();
             parentNode = tplRow.parentNode;
-            sources = JSON.parse(responseTexts[0]);
-            dependencies = JSON.parse(responseTexts[1]);
+            sources = new SourceArray(responseTexts[0], responseTexts[1]);
             sources.forEach(function (item, index) {
-                parentNode.appendChild(tplFunc(wrap(item), index));
+                parentNode.appendChild(tplFunc(item, index));
             });
             document.addEventListener("click", onClick);
         }, function (reason) {
@@ -109,30 +80,30 @@ function onLoad () {
             <tbody>
                 <template id="tpl_row">
 {%
-    function check(a, b) {
-        if ($object.name === "boot") {
+    function check(propertyName) {
+        if ($object.isReadOnly()) {
             $write("disabled=\"true\" ");
         }
-        if ($object[a] && (b === undefined || $object[b])) {
+        if ($object.testProperty(propertyName)) {
             $write("checked");
         }
     }
 %}
                     <tr>
-                        <td>{{name}}</td>
+                        <td>{% $write($object.getName()); %}</td>
                         <td>{%
 
-if ($object.dependencies.length) {
-    %}<span class="dependencies" {%%}="$write('title=\'' + $object.dependencies.join('\n') + '\'');">{% $write($object.dependencies.length); %}</span>{%
+if ($object.hasDependencies()) {
+    %}<span class="dependencies" {%%}="$write('title=\'' + $object.getDependencies().join('\n') + '\'');">{% $write($object.getDependencies().length); %}</span>{%
 } else {
     $write("&nbsp;");
 }
 
                         %}</td>
-                        <td><input id="load:{{name}}" type="checkbox" {%%}="check('load');"></td>
-                        <td><input id="test:{{name}}" type="checkbox" {%%}="check('load', 'test');"></td>
-                        <td><input id="doc:{{name}}" type="checkbox" {%%}="check('load', 'doc');"></td>
-                        <td class="description">{{description}}</td>
+                        <td><input id="load_{{$index}}" type="checkbox" {%%}="check('load');"></td>
+                        <td><input id="test_{{$index}}" type="checkbox" {%%}="check('test');"></td>
+                        <td><input id="doc_{{$index}}" type="checkbox" {%%}="check('doc');"></td>
+                        <td class="description">{% $write($object.getDescription()); %}</td>
                         <td>{%
 var type, name;
 if ($object.method) {
