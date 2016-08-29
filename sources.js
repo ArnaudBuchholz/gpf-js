@@ -5,6 +5,9 @@ var Source = gpf.define("Source", {
 
     "private": {
 
+        //@property {SourceArray} Source array
+        _array: null,
+
         //@property {String} Source name
         "[_name]": [gpf.$ClassProperty()],
         _name: "",
@@ -18,15 +21,15 @@ var Source = gpf.define("Source", {
         _index: -1,
 
         //@property {Boolean} Source is loaded
-        "[_load]": [gpf.$ClassProperty(true)],
+        "[_load]": [gpf.$ClassProperty()],
         _load: false,
 
         //@property {Boolean} Source has a test counterpart
-        "[_test]": [gpf.$ClassProperty(true)],
+        "[_test]": [gpf.$ClassProperty()],
         _test: false,
 
         //@property {Boolean} Documentation should be extracted from this source
-        "[_doc]": [gpf.$ClassProperty(true)],
+        "[_doc]": [gpf.$ClassProperty()],
         _doc: false,
 
         //@property {String[]} List of dependencies (boot is excluded)
@@ -68,23 +71,65 @@ var Source = gpf.define("Source", {
             if (source.method) {
                 item.type = Source.IMPLEMENTS_TYPE_METHOD;
                 item.name = source.method;
-            } else if (source.class) {
+            } else if (source["class"]) {
                 item.type = Source.IMPLEMENTS_TYPE_CLASS;
-                item.name = source.class;
+                item.name = source["class"];
             }
             if (item.type) {
                 item.internal = item.name.charAt(0) === "_";
                 this._items = [item];
             }
+        },
+
+        /**
+         * Change the load setting
+         *
+         * @param {Boolean} value
+         * @return {Boolean} Update done
+         */
+        _setLoad: function (value) {
+            if (!value) {
+                // Allow only if all dependencies are not loaded
+                if (this._dependencyOf.some(function (name) {
+                    return this._array.byName(name).getLoad();
+                }, this)) {
+                    return false;
+                }
+            }
+            this._load = value;
+            return true;
+        },
+
+        /**
+         * Change the load setting
+         *
+         * @param {Boolean} value
+         * @return {Boolean} Update done
+         */
+        _setTest: function (value) {
+            this._test = value;
+            return true;
+        },
+
+        /**
+         * Change the doc setting
+         *
+         * @param {Boolean} value
+         * @return {Boolean} Update done
+         */
+        _setDoc: function (value) {
+            this._doc = value;
+            return true;
         }
     },
 
     "public": {
 
-        constructor: function (source, index, dependencies) {
+        constructor: function (array, source, dependencies) {
+            this._array = array;
             this._name = source.name;
             this._description = source.description;
-            this._index = index;
+            this._index = array.getLength();
             if (source.load !== false) {
                 this._load = true;
             }
@@ -116,11 +161,13 @@ var Source = gpf.define("Source", {
 
         setProperty: function (propertyName, value) {
             if ("load" === propertyName) {
-                this._load = value;
-            } else if ("test" === propertyName) {
-                this._test = value;
-            } else if ("doc" === propertyName) {
-                this._doc = value;
+                return this._setLoad(value);
+            }
+            if ("test" === propertyName) {
+                return this._setTest(value);
+            }
+            if ("doc" === propertyName) {
+                this._setDoc(value);
             }
         },
 
@@ -150,9 +197,18 @@ var SourceArray = gpf.define("SourceArray", {
 
         constructor: function (sourcesJSON, dependenciesJSON) {
             var dependencies = JSON.parse(dependenciesJSON);
-            JSON.parse(sourcesJSON).forEach(function (source, index) {
-                this._sources.push(new Source(source, index, dependencies));
+            JSON.parse(sourcesJSON).forEach(function (source) {
+                this._sources.push(new Source(this, source, dependencies));
             }, this);
+        },
+
+        /**
+         * Get the number of sources
+         *
+         * @return {Number}
+         */
+        getLength: function () {
+            return this._sources.length;
         },
 
         /**
