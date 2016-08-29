@@ -52,6 +52,30 @@ var Source = gpf.define("Source", {
                     this._dependencyOf.push(name);
                 }
             }, this);
+        },
+
+        //@property {Object[]} List of implemented items
+        "[_items]": [gpf.$ClassProperty()],
+        _items: [],
+
+        /**
+         * Extract implementation details
+         *
+         * @param {Object} source contains raw implementation
+         */
+        _processImplementation: function (source) {
+            var item = {};
+            if (source.method) {
+                item.type = Source.IMPLEMENTS_TYPE_METHOD;
+                item.name = source.method;
+            } else if (source.class) {
+                item.type = Source.IMPLEMENTS_TYPE_CLASS;
+                item.name = source.class;
+            }
+            if (item.type) {
+                item.internal = item.name.charAt(0) === "_";
+                this._items = [item];
+            }
         }
     },
 
@@ -70,6 +94,7 @@ var Source = gpf.define("Source", {
             if (source.doc === true) {
                 this._doc = true;
             }
+            this._processImplementation(source);
             this._processDependencies(dependencies);
         },
 
@@ -103,6 +128,11 @@ var Source = gpf.define("Source", {
             return this._dependsOn.length > 0;
         }
 
+    },
+
+    "static": {
+        IMPLEMENTS_TYPE_METHOD: "method",
+        IMPLEMENTS_TYPE_CLASS: "class"
     }
 
 });
