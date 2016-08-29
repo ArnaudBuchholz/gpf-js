@@ -10,7 +10,11 @@
     border-radius: 4px;
 }
 
-ul.implements span {
+ul.items {
+    margin: 0;
+}
+
+ul.items span {
     font-weight: bold;
     margin-right: 4px;
 }
