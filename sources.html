@@ -16,7 +16,7 @@ var tplFunc,
     parentNode,
     sources;
 
-function refresh (target, source) {
+function refresh(target, source) {
     var parentTr = target.parentNode,
         refreshedTr = tplFunc(source, source.getIndex());
     while (parentTr.tagName.toLowerCase() !== "tr") {
@@ -25,39 +25,51 @@ function refresh (target, source) {
     parentNode.replaceChild(refreshedTr, parentTr);
 }
 
-function onClick (event) {
+function reload() {
+    sources.forEach(function (item, index) {
+        parentNode.appendChild(tplFunc(item, index));
+    });
+}
+
+function onClick(event) {
     var target = event.target,
         parts,
-        property,
-        index,
         source;
     if ("checkbox" === target.getAttribute("type")) {
         parts = target.id.split("_"); // property_sourceIndex
-        property = parts[0];
-        index = parseInt(parts[1], 10);
-        source = sources.byIndex(index);
-        if (property === "load" && !target.checked) {
-            // Check if any dependency is still loaded
-
+        source = sources.byIndex(parseInt(parts[1], 10));
+        if (source.setProperty(parts[0], target.checked)) {
+            refresh(target, source);
+            document.getElementById("save").removeAttribute("disabled");
+        } else {
+            target.checked = !target.checked; // Restore value
         }
-        source.setProperty(property, target.checked);
-        refresh(target, source);
-        document.getElementById("save").removeAttribute("disabled");
     } else if ("description" === target.className) {
         alert(target.innerHTML); // TODO propose an text field to edit the description
     }
 }
 
-function onLoad () {
+function onDrag(event) {
+    var source = sources.byIndex(parseInt(event.target.id, 10));
+    if (source.isReadOnly()) {
+        event.preventDefault();
+    } else {
+        event.dataTransfer.setData("text", source.getName());
+    }
+}
+
+function onDragOver(event) {
+
+}
+
+function onLoad() {
     Promise.all([xhrGet("src/sources.json"), xhrGet("build/dependencies.json")])
         .then(function (responseTexts) {
             var tplRow = document.getElementById("tpl_row");
             tplFunc = tplRow.buildFactory();
             parentNode = tplRow.parentNode;
             sources = new SourceArray(responseTexts[0], responseTexts[1]);
-            sources.forEach(function (item, index) {
-                parentNode.appendChild(tplFunc(item, index));
-            });
+            reload();
             document.addEventListener("click", onClick);
         }, function (reason) {
             alert("A problem occurred while loading src/sources.json and build/dependencies.json: " + reason);
@@ -80,6 +92,13 @@ function onLoad () {
             <tbody>
                 <template id="tpl_row">
 {%
+    function row() {
+        $write("id=\"" + $object.getName() + "\" ");
+        if (!$object.isReadOnly()) {
+            $write("draggable=\"true\" ");
+        }
+    }
+
     function check(propertyName) {
         if ($object.isReadOnly()) {
             $write("disabled=\"true\" ");
@@ -89,7 +108,7 @@ function onLoad () {
         }
     }
 %}
-                    <tr>
+                    <tr {%%}="row();" ondrag="onDrag(event)" ondragover="onDragOver(event)">
                         <td>{% $write($object.getName()); %}</td>
                         <td>{%
 
@@ -104,14 +123,14 @@ if ($object.hasDependencies()) {
                         <td><input id="test_{{$index}}" type="checkbox" {%%}="check('test');"></td>
                         <td><input id="doc_{{$index}}" type="checkbox" {%%}="check('doc');"></td>
                         <td class="description">{% $write($object.getDescription()); %}</td>
-                        <td><ul class="implements">{%
+                        <td><ul class="items">{%
 
 $object.getItems().forEach(function (item) {
     %}<li>{%
     if (item.internal) {
         %}<span class="internal">internal</span>{%
     }
-    %}<span class="implements">{% $write(item.type); %}</span>{%
+    %}<span class="items">{% $write(item.type); %}</span>{%
     $write(item.name);
     %}</li>{%
 });
