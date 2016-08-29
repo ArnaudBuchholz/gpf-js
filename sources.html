@@ -104,26 +104,19 @@ if ($object.hasDependencies()) {
                         <td><input id="test_{{$index}}" type="checkbox" {%%}="check('test');"></td>
                         <td><input id="doc_{{$index}}" type="checkbox" {%%}="check('doc');"></td>
                         <td class="description">{% $write($object.getDescription()); %}</td>
-                        <td>{%
-var type, name;
-if ($object.method) {
-    type = "method";
-    name = $object.method;
-} else if ($object.class) {
-    type = "class";
-    name = $object.class;
-}
+                        <td><ul class="implements">{%
 
-if (name) {
-    if (name.charAt(0) === "_") {
+$object.getItems().forEach(function (item) {
+    %}<li>{%
+    if (item.internal) {
         %}<span class="internal">internal</span>{%
     }
-    %}<span class="implements">{% $write(type); %}</span>{%
-    $write(name);
-} else {
-    $write("&nbsp;");
-}
-                        %}</td>
+    %}<span class="implements">{% $write(item.type); %}</span>{%
+    $write(item.name);
+    %}</li>{%
+});
+
+                        %}</ul></td>
                     </tr>
                 </template>
               </tbody>
