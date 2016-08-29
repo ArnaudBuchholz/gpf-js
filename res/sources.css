@@ -10,7 +10,7 @@
     border-radius: 4px;
 }
 
-.implements {
+ul.implements span {
     font-weight: bold;
     margin-right: 4px;
 }
