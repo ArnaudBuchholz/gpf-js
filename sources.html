@@ -16,13 +16,18 @@ var tplFunc,
     parentNode,
     sources;
 
-function refresh(target, source) {
-    var parentTr = target.parentNode,
-        refreshedTr = tplFunc(source, source.getIndex());
-    while (parentTr.tagName.toLowerCase() !== "tr") {
-        parentTr = parentTr.parentNode;
+function upToRow(target) {
+    var current = target;
+    while (current && current.tagName.toLowerCase() !== "tr") {
+        current = current.parentNode;
     }
-    parentNode.replaceChild(refreshedTr, parentTr);
+    return current;
+}
+
+function refresh(target, source) {
+    var row = upToRow(target),
+        newRow = tplFunc(source, source.getIndex());
+    parentNode.replaceChild(newRow, row);
 }
 
 function reload() {
@@ -50,16 +55,44 @@ function onClick(event) {
 }
 
 function onDrag(event) {
-    var source = sources.byIndex(parseInt(event.target.id, 10));
-    if (source.isReadOnly()) {
-        event.preventDefault();
-    } else {
-        event.dataTransfer.setData("text", source.getName());
-    }
+    event.target.className = "dragged";
+    console.log("onDrag", event.target.id, event.currentTarget.id);
+    event.preventDefault();
+//    var source = sources.byName(event.target.id);
+//    if (!source || source.isReadOnly()) {
+//        event.preventDefault();
+//    } else {
+//        event.dataTransfer.setData("text", source.getName());
+//    }
+}
+
+function onDragEnd(event) {
+    event.target.className = "";
 }
 
 function onDragOver(event) {
+    event.preventDefault();
+}
 
+function onDragEnter(event) {
+    event.preventDefault();
+    var row = upToRow(event.target);
+    if (row) {
+        console.log(row.id);
+        row.className = "dragallowed";
+    }
+}
+
+function onDragLeave(event) {
+    var row = upToRow(event.target);
+    if (row) {
+        row.className = "";
+    }
+}
+
+function onDrop(event) {
+    event.preventDefault();
+    onDragLeave(event);
 }
 
 function onLoad() {
@@ -108,7 +141,14 @@ function onLoad() {
         }
     }
 %}
-                    <tr {%%}="row();" ondrag="onDrag(event)" ondragover="onDragOver(event)">
+                    <tr {%%}="row();"
+                        ondrag="onDrag(event)"
+                        ondragend="onDragEnd(event)"
+                        ondragover="onDragOver(event)"
+                        ondragenter="onDragEnter(event)"
+                        ondragleave="onDragLeave(event)"
+                        ondrop="onDrop(event)"
+                    >
                         <td>{% $write($object.getName()); %}</td>
                         <td>{%
 
