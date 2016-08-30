@@ -32,3 +32,16 @@ ul.items span {
     height: 12px;
     cursor: pointer;
 }
+
+tr:hover {
+    background-color: silver;
+}
+
+tr.dragged {
+    background-color: orange;
+    opacity: .5;
+}
+
+tr.dragallowed {
+    background-color: yellowgreen;
+}
