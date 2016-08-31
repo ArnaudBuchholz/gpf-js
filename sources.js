@@ -247,6 +247,36 @@ var SourceArray = gpf.define("SourceArray", {
          */
         byIndex: function (index) {
             return this._sources[index];
+        },
+
+        /**
+         * Get all module names
+         *
+         * @return {String[]}
+         */
+        getNames: function () {
+            return this._sources.map(function (source) {
+                return source.getName();
+            });
+        },
+
+        /**
+         * Based on its dependencies, compute the minimum index of the module.
+         *
+         * @param {String} name
+         * @return {Number}
+         */
+        getMinIndexFor: function (name) {
+            var dependencies = this.byName(name).getDependencies(),
+                names = this.getNames(),
+                minIndex = 1; // 0 being boot
+            dependencies.forEach(function (dependencyName) {
+                var index = names.indexOf(dependencyName) + 1;
+                if (index > minIndex) {
+                    minIndex = index;
+                }
+            });
+            return minIndex;
         }
 
     }
