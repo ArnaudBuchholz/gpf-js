@@ -71,6 +71,16 @@
          */
         post: function (data) {
             return _xhrSend(this, "POST", data);
+        },
+
+        /**
+         * PUT
+         *
+         * @param {*} request data
+         * @return {Promise} resolved with response text
+         */
+        put: function (data) {
+            return _xhrSend(this, "PUT", data);
         }
 
     };
