@@ -38,10 +38,18 @@ tr:hover {
 }
 
 tr.dragged {
-    background-color: orange;
+    background-color: aquamarine;
     opacity: .5;
 }
 
-tr.dragallowed {
+tr.drag-ok {
     background-color: yellowgreen;
+}
+
+tr.no-drag {
+    background-color: orange;
+}
+
+tr.drag-ok.over {
+    background-color: darkgreen;
 }
