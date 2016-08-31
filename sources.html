@@ -54,9 +54,11 @@ function onClick(event) {
     }
 }
 
+var draggedSourceName;
+
 function onDrag(event) {
-    console.log("onDrag", upToRow(event.target).id);
     if (!event.target.className) {
+        draggedSourceName = event.target.id;
         var minIndex = sources.getMinIndexFor(event.target.id);
         [].slice.call(sourceRows.children).forEach(function (sourceRow, index) {
             if (sourceRow === event.target) {
@@ -71,7 +73,9 @@ function onDrag(event) {
 }
 
 function onDragEnd(event) {
-    event.target.className = "";
+    [].slice.call(sourceRows.children).forEach(function (sourceRow) {
+        sourceRow.className = "";
+    });
 }
 
 function onDragOver(event) {
@@ -95,9 +99,8 @@ function onDragLeave(event) {
 }
 
 function onDrop(event) {
-    [].slice.call(sourceRows.children).forEach(function (sourceRow) {
-        sourceRow.className = "";
-    });
+    var targetSource = upToRow(event.target).id;
+    console.log(draggedSourceName + " -> " + targetSource);
     event.preventDefault();
 }
 
