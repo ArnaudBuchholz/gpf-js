@@ -13,7 +13,15 @@ module.exports = function (request, response, next) {
     var filePath = path.join(request.url.substr(BASE_URL.length));
 
     if (request.method === "GET") {
+        // Read
         return response.end(fs.readFileSync(filePath));
+
+    } else if (request.method === "PUT") {
+        // Update
+        request.on("data", function (data) {
+            fs.writeFileSync(filePath, data);
+            response.end();
+        });
     }
 
 };
