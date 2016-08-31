@@ -105,7 +105,7 @@ function onDrop(event) {
 }
 
 function onLoad() {
-    Promise.all([xhrGet("src/sources.json"), xhrGet("build/dependencies.json")])
+    Promise.all([xhr("src/sources.json").get(), xhr("build/dependencies.json").get()])
         .then(function (responseTexts) {
             var tplRow = document.getElementById("tpl_row");
             tplFunc = tplRow.buildFactory();
