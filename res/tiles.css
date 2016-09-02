@@ -22,9 +22,16 @@ ul#tiles li div.title {
     color: black;
 }
 
-ul#tiles li div.number {
+ul#tiles li div.percentage {
     top: 16px;
-    font-size: 48pt;
+    font-size: 32pt;
+}
+
+ul#tiles li div.ok {
+    color: green;
+}
+
+ul#tiles li div.ko {
     color: red;
 }
 
