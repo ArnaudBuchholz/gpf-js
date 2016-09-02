@@ -48,8 +48,11 @@ function onLoad () {
     });
 
     document.addEventListener("click", function (event) {
-        var target = event.target,
-            link = target.getAttribute("link");
+        var li = event.target;
+        while (li && li.tagName.toLowerCase() !== "li") {
+            li = li.parentNode;
+        }
+        link = li.getAttribute("link");
         if (link) {
             window.open(link);
         }
