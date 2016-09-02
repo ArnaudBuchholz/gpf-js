@@ -33,6 +33,20 @@ function onLoad () {
     tile("coverage", "tmp/coverage/reports/lcov-report/index.html", "Code coverage");
     tile("tpl", "test/host/mocha/tpl.html", "Simple template library");
 
+    xhr("tmp/plato/report.json").get().then(function (reportText) {
+        var reportData = JSON.parse(reportText),
+            maintainability = reportData.summary.average.maintainability,
+            div = document.createElement("div");
+        div.className = "percentage";
+        if (maintainability < 70) {
+            div.className += " ko";
+        } else {
+            div.className += " ok";
+        }
+        div.innerHTML = maintainability;
+        document.getElementById("plato").appendChild(div);
+    });
+
     document.addEventListener("click", function (event) {
         var target = event.target,
             link = target.getAttribute("link");
