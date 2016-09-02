@@ -1,4 +1,5 @@
-ul.tiles li {
+ul#tiles li {
+    position: relative;
     background-color: beige;
     display: inline-block;
     margin: 16px;
@@ -7,6 +8,24 @@ ul.tiles li {
     height: 128px;
     border: solid 1px gray;
     text-align: center;
+}
+
+ul#tiles li div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+ul#tiles li div.title {
+    font-size: 8pt;
+    color: black;
+}
+
+ul#tiles li div.number {
+    top: 16px;
+    font-size: 48pt;
+    color: red;
 }
 
 li[link] {
