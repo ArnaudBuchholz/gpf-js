@@ -1,4 +1,4 @@
-ul#tiles li {
+ul#tiles > li {
     position: relative;
     background-color: beige;
     display: inline-block;
@@ -10,31 +10,45 @@ ul#tiles li {
     text-align: center;
 }
 
-ul#tiles li div {
+ul#tiles > li div {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
 }
 
-ul#tiles li div.title {
+ul#tiles > li div.title {
     font-size: 8pt;
     color: black;
+    border-bottom: solid 1px gray;
 }
 
-ul#tiles li div.percentage {
+ul#tiles > li div.percentage {
     top: 16px;
     font-size: 32pt;
 }
 
-ul#tiles li div.ok {
+ul#tiles > li div.ok {
     color: green;
 }
 
-ul#tiles li div.ko {
+ul#tiles > li div.ko {
     color: red;
 }
 
 li[link] {
     cursor: pointer;
+}
+
+ul#tiles > li > ul {
+    position: absolute;
+    padding-left: 4px;
+    top: 16px;
+    left: 0;
+    text-align: left;
+}
+
+ul#tiles > li > ul > li {
+    display: block;
+    font-size: 11pt;
 }
