@@ -47,12 +47,23 @@ function onLoad () {
         document.getElementById("plato").appendChild(div);
     });
 
+    xhr("src/sources.json").get().then(function (sourcesText) {
+        var sources = JSON.parse(sourcesText),
+            loaded = sources.filter(function (source) {
+                    return source.load !== false;
+                }).length,
+            div = document.createElement("div");
+        div.className = "percentage";
+        div.innerHTML = "" + loaded + "/" + sources.length;
+        document.getElementById("sources").appendChild(div);
+    });
+
     document.addEventListener("click", function (event) {
         var li = event.target;
-        while (li && li.tagName.toLowerCase() !== "li") {
+        while (li && li.tagName && li.tagName.toLowerCase() !== "li") {
             li = li.parentNode;
         }
-        link = li.getAttribute("link");
+        link = li && li.getAttribute && li.getAttribute("link");
         if (link) {
             window.open(link);
         }
