@@ -13,22 +13,37 @@ function onLoad () {
     var tplFactory = document.getElementById("tile").buildFactory(),
         tiles = document.getElementById("tiles");
 
-    function tile () {
+    function tile (id) {
         var args = arguments,
             object = {};
         ["id", "link", "title"].forEach(function (name, index) {
             object[name] = args[index];
-        })
+        });
         tiles.appendChild(tplFactory(object));
+        return document.getElementById(id);
+    }
+
+    function testTile () {
+        var node = tile.apply(this, arguments);
+        var ul = node.appendChild(document.createElement("ul"));
+        function version (link, label) {
+            var versionNode = ul.appendChild(document.createElement("li"));
+            versionNode.setAttribute("link", link);
+            versionNode.appendChild(document.createTextNode(label));
+        }
+        version(arguments[1], "sources");
+        version(arguments[3], "debug");
+        version(arguments[4], "release");
+        return node;
     }
 
     tile("sources", "sources.html", "Sources");
-    tile("mocha_src", "test/host/mocha/web.html", "Mocha (sources)");
-    tile("mocha_rel", "test/host/mocha/web_release.html", "Mocha (release)");
-    tile("mocha_dbg", "test/host/mocha/web_debug.html", "Mocha (debug)");
-    tile("tests_src", "test/host/web.html", "Tests (sources)");
-    tile("tests_rel", "test/host/web.html?release", "Tests (release)");
-    tile("tests_dbg", "test/host/web.html?debug", "Tests (debug)");
+    testTile("mocha", "test/host/mocha/web.html", "Mocha",
+        "test/host/mocha/web_debug.html",
+        "test/host/mocha/web_release.html");
+    testTile("tests", "test/host/web.html", "Tests",
+        "test/host/web.html?debug",
+        "test/host/web.html?release");
     tile("plato", "tmp/plato/index.html", "Plato report");
     tile("coverage", "tmp/coverage/reports/lcov-report/index.html", "Code coverage");
     tile("tpl", "test/host/mocha/tpl.html", "Simple template library");
