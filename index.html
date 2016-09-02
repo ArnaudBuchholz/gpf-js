@@ -5,9 +5,34 @@
         <title>GPF-JS</title>
         <link rel="stylesheet" type="text/css" href="res/html.css">
         <link rel="stylesheet" type="text/css" href="res/tiles.css">
+        <script language="JavaScript" src="res/xhr.js"></script>
+        <script language="JavaScript" src="res/tpl.js"></script>
         <script language="JavaScript">
 
 function onLoad () {
+    var tplFactory = document.getElementById("tile").buildFactory(),
+        tiles = document.getElementById("tiles");
+
+    function tile () {
+        var args = arguments,
+            object = {};
+        ["id", "link", "title"].forEach(function (name, index) {
+            object[name] = args[index];
+        })
+        tiles.appendChild(tplFactory(object));
+    }
+
+    tile("sources", "sources.html", "Sources");
+    tile("mocha_src", "test/host/mocha/web.html", "Mocha (sources)");
+    tile("mocha_rel", "test/host/mocha/web_release.html", "Mocha (release)");
+    tile("mocha_dbg", "test/host/mocha/web_debug.html", "Mocha (debug)");
+    tile("tests_src", "test/host/web.html", "Tests (sources)");
+    tile("tests_rel", "test/host/web.html?release", "Tests (release)");
+    tile("tests_dbg", "test/host/web.html?debug", "Tests (debug)");
+    tile("plato", "tmp/plato/index.html", "Plato report");
+    tile("coverage", "tmp/coverage/reports/lcov-report/index.html", "Code coverage");
+    tile("tpl", "test/host/mocha/tpl.html", "Simple template library");
+
     document.addEventListener("click", function (event) {
         var target = event.target,
             link = target.getAttribute("link");
@@ -20,17 +45,12 @@ function onLoad () {
         </script>
     </head>
     <body onload="onLoad()">
-        <ul class="tiles">
-            <li link="sources.html">Sources</li>
-            <li link="test/host/mocha/web.html">Mocha (sources)</li>
-            <li link="test/host/mocha/web_release.html">Mocha (release)</li>
-            <li link="test/host/mocha/web_debug.html">Mocha (debug)</li>
-            <li link="test/host/web.html">Tests (sources)</li>
-            <li link="test/host/web.html?release">Mocha (release)</li>
-            <li link="test/host/web_debug.html">Mocha (debug)</li>
-            <li link="tmp/plato/index.html">Plato report</li>
-            <li link="tmp/coverage/reports/lcov-report/index.html">Code coverage report</li>
-            <li link="test/host/mocha/tpl.html">Simple template library</li>
+        <ul id="tiles">
         </ul>
+        <template id="tile">
+            <li id="{{id}}" link="{{link}}">
+                <div class="title">{{title}}</div>
+            </li>
+        </template>
     </body>
 </html>
