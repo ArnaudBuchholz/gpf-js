@@ -101,3 +101,4 @@ For HTTP testing, you must first run `grunt serve`
 * [mocha](http://mochajs.org/) test suite
 * [istanbul](https://github.com/gotwarlost/istanbul) code coverage tool
 * JavaScript task runner: [Grunt](http://gruntjs.com/)
+* Icons from [Hawcons](https://www.iconfinder.com/iconsets/hawcons)
