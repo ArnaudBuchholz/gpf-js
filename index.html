@@ -38,15 +38,15 @@ function onLoad () {
     }
 
     tile("sources", "sources.html", "Sources");
+    tile("plato", "tmp/plato/index.html", "Plato report");
     testTile("mocha", "test/host/mocha/web.html", "Mocha",
         "test/host/mocha/web_debug.html",
         "test/host/mocha/web_release.html");
     testTile("tests", "test/host/web.html", "Tests",
         "test/host/web.html?debug",
         "test/host/web.html?release");
-    tile("plato", "tmp/plato/index.html", "Plato report");
     tile("coverage", "tmp/coverage/reports/lcov-report/index.html", "Code coverage");
-    tile("tpl", "test/host/mocha/tpl.html", "Simple template library");
+    tile("tpl", "test/host/mocha/tpl.html", "Template tests");
 
     xhr("tmp/plato/report.json").get().then(function (reportText) {
         var reportData = JSON.parse(reportText),
