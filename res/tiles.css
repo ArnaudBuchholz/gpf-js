@@ -8,6 +8,8 @@ ul#tiles > li {
     height: 128px;
     border: solid 1px gray;
     text-align: center;
+    border-radius: 8px;
+    box-shadow: 4px 4px lightgray;
 }
 
 ul#tiles > li div {
@@ -19,7 +21,11 @@ ul#tiles > li div {
 
 ul#tiles > li div.title {
     font-size: 8pt;
-    color: black;
+    font-weight: bold;
+    color: white;
+    background-color: black;
+    border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
     border-bottom: solid 1px gray;
 }
 
@@ -51,4 +57,28 @@ ul#tiles > li > ul {
 ul#tiles > li > ul > li {
     display: block;
     font-size: 11pt;
+}
+
+ul#tiles > li#sources {
+    background: url(hawcons/documents.png) right bottom no-repeat beige;
+}
+
+ul#tiles > li#plato {
+    background: url(hawcons/document-scan.png) right bottom no-repeat beige;
+}
+
+ul#tiles > li#tests {
+    background: url(hawcons/thumb-up.png) right bottom no-repeat beige;
+}
+
+ul#tiles > li#mocha {
+    background: url(hawcons/thumb-up.png) right bottom no-repeat beige;
+}
+
+ul#tiles > li#coverage {
+    background: url(hawcons/search.png) right bottom no-repeat beige;
+}
+
+ul#tiles > li#tpl {
+    background: url(hawcons/package.png) right bottom no-repeat beige;
 }
