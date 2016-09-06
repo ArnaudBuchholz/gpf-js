@@ -38,7 +38,11 @@ function onLoad () {
     }
 
     tile("sources", "sources.html", "Sources");
-    tile("plato", "tmp/plato/index.html", "Plato report");
+    var execPlato = tile("plato", "tmp/plato/index.html", "Plato report")
+        .appendChild(document.createElement("div"));
+    execPlato.setAttribute("link", "grunt/plato");
+    execPlato.className = "exec";
+
     testTile("mocha", "test/host/mocha/web.html", "Mocha",
         "test/host/mocha/web_debug.html",
         "test/host/mocha/web_release.html");
@@ -75,10 +79,9 @@ function onLoad () {
 
     document.addEventListener("click", function (event) {
         var li = event.target;
-        while (li && li.tagName && li.tagName.toLowerCase() !== "li") {
+        while (!(link = li && li.getAttribute && li.getAttribute("link"))) {
             li = li.parentNode;
         }
-        link = li && li.getAttribute && li.getAttribute("link");
         if (link) {
             window.open(link);
         }
