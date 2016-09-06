@@ -1,6 +1,6 @@
 "use strict";
 
-var BASE_URL = "/file://",
+var BASE_URL = "/file/",
     fs = require("fs"),
     path = require("path");
 
