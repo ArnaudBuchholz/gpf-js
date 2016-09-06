@@ -2,10 +2,26 @@
 
 var childProcess = require("child_process"),
     BASE_URL = "/grunt/",
-    fs = require("fs"),
-    path = require("path"),
     // https://en.wikipedia.org/wiki/ANSI_escape_code
     colors = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"];
+
+function _toHtml (content) {
+    // Assuming content is generated properly...
+    content = content
+            .split("&").join("&amp;")
+            .split("<").join("&lt;")
+            .split(">").join("&gt;")
+            .split("\x1B[1m").join("<b>").split("\x1B[22m").join("</b>")
+            .split("\x1B[4m").join("<u>").split("\x1B[24m").join("</u>")
+            .split("\x1B[39m").join("</span>")
+            .split("\x1B[0m").join("</span>");
+    colors.forEach(function (name, index) {
+        content = content
+            .split("\x1B[3" + index + "m").join("<span class=\"" + name + "\">")
+            .split("\x1B[9" + index + "m").join("<span class=\"" + name + " bright\">");
+    });
+    return content;
+}
 
 module.exports = function (request, response, next) {
 
@@ -23,25 +39,10 @@ module.exports = function (request, response, next) {
 
     process.stdout.on("data", function (text) {
         console.log(text);
-        text.toString().split("\n").forEach(function (line) {
-            line = line
-                .split("&").join("&amp;")
-                .split("<").join("&lt;")
-                .split(">").join("&gt;")
-                .split("\x1B[1m").join("<b>").split("\x1B[22m").join("</b>")
-                .split("\x1B[4m").join("<u>").split("\x1B[24m").join("</u>")
-                .split("\x1B[39m").join("</span>");
-            colors.forEach(function (name, index) {
-                line = line
-                    .split("\x1B[3" + index + "m").join("<span class=\"" + name + "\">")
-                    .split("\x1B[9" + index + "m").join("<span class=\"" + name + " bright\">")
-            });
-            response.write(line);
-            response.write("\n");
-        });
+        response.write(_toHtml(text));
     });
 
-    process.on("close", function (code) {
+    process.on("close", function () {
         response.end("\n</pre></body></html>");
     });
 
