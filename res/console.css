@@ -24,3 +24,35 @@ body {
     background-repeat: no-repeat;
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACIklEQVR4XnWTMWhTURiFz733JS/vmdhasAhO0cW2BqWTBa0iiJuOFlpbhERNnRJFFAyKLi5VunQVJOKgi7OTqXMp6KCDFgShak2TNkai5v3eA164ix9cfv5zzn8IPKLg0Th6cFqboB4P74aIAOBTUEqh+/Ubkv6fmcnXb5+4PDPaO55SytTHLhQxWrxsXxmjpXlO7qBOnzl4aHcMrZ+OlS5CrX/Cxt0Kmvev23eDkzt10GfOL9GNY4VpZcXCpTICG0q+fEY8cRLKGOgw5OROnT6YY553IK+OHJD2s0fSWbwj65N5cTSr52X9xH5OcdBnjnneWaATSUB6L1/ARDEcuxYeIxw5zAmHiXYwB5KIgGhAIe7/ho4imOxONE+NwDG49BwO6iabs7kY0dYmoBSIhtbW3YBOZWDStiTOYbsyAx/u1OnrdAayzQINotkkre+2IIRWCunxCeQe1uHDnTp9HaSh2m3vF1BsbcKkAigRRLcX4eicLsBBnb5JpaA7XoHSGl3bGIQZmDCE4+e54zB79nLCQT+wr9vegtL/ClZaP2qr7z6g1wdS2QH8Kp1Fr3gGZmgYJjfIyZ06feaw+n4NvHPFQwuF/M3G5CHpXpkSuTYnif32/eqs9K/OcnKnTl+YY553IgL4JcvW7FXmRGplkVveszv1Ze/Y/ZkUHFZ8UNg3Pz4Q30vYLJ6jwC+AlXa3Vn3zcQlA0y/wYXMe/2fNHbuCv3XfGk62o/idAAAAAElFTkSuQmCC);
 }
+
+.black {
+    color: black;
+}
+
+.red {
+    color: red;
+}
+
+.green {
+    color: green;
+}
+
+.yellow {
+    color: yellow;
+}
+
+.blue {
+    color: blue;
+}
+
+.magenta {
+    color: magenta;
+}
+
+.cyan {
+    color: cyan;
+}
+
+.white {
+    color: white;
+}
