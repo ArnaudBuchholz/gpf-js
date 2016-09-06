@@ -222,7 +222,7 @@ sources.every(function (source) {
         });
         if (dependsOn.length > 0) {
             dependencies[source] = dependsOn;
-        } 
+        }
     }
     return true;
 });
