@@ -60,25 +60,25 @@ ul#tiles > li > ul > li {
 }
 
 ul#tiles > li#sources {
-    background: url(hawcons/documents.png) right bottom no-repeat beige;
+    background: url(hawcons/documents.png) 80px 80px no-repeat beige;
 }
 
 ul#tiles > li#plato {
-    background: url(hawcons/document-scan.png) right bottom no-repeat beige;
+    background: url(hawcons/document-scan.png) 80px 80px no-repeat beige;
 }
 
 ul#tiles > li#tests {
-    background: url(hawcons/thumb-up.png) right bottom no-repeat beige;
+    background: url(hawcons/thumb-up.png) 80px 80px no-repeat beige;
 }
 
 ul#tiles > li#mocha {
-    background: url(hawcons/thumb-up.png) right bottom no-repeat beige;
+    background: url(hawcons/thumb-up.png) 80px 80px no-repeat beige;
 }
 
 ul#tiles > li#coverage {
-    background: url(hawcons/search.png) right bottom no-repeat beige;
+    background: url(hawcons/search.png) 80px 80px no-repeat beige;
 }
 
 ul#tiles > li#tpl {
-    background: url(hawcons/package.png) right bottom no-repeat beige;
+    background: url(hawcons/package.png) 80px 80px no-repeat beige;
 }
