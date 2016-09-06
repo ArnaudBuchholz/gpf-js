@@ -1,7 +1,7 @@
 "use strict";
 
 var childProcess = require("child_process"),
-    BASE_URL = "/grunt://",
+    BASE_URL = "/grunt/",
     fs = require("fs"),
     path = require("path"),
     // https://en.wikipedia.org/wiki/ANSI_escape_code
