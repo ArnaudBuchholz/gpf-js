@@ -10,6 +10,8 @@
         <script language="JavaScript">
 
 function onLoad () {
+    "use strict";
+
     var tplFactory = document.getElementById("tile").buildFactory(),
         tiles = document.getElementById("tiles");
 
@@ -52,9 +54,8 @@ function onLoad () {
     tile("coverage", "tmp/coverage/reports/lcov-report/index.html", "Code coverage");
     tile("tpl", "test/host/mocha/tpl.html", "Template tests");
 
-    xhr("tmp/plato/report.json").get().then(function (reportText) {
-        var reportData = JSON.parse(reportText),
-            maintainability = reportData.summary.average.maintainability,
+    xhr("tmp/plato/report.json").get().asJson().then(function (reportData) {
+        var maintainability = reportData.summary.average.maintainability,
             div = document.createElement("div");
         div.className = "percentage";
         if (maintainability < 70) {
@@ -66,15 +67,17 @@ function onLoad () {
         document.getElementById("plato").appendChild(div);
     });
 
-    xhr("src/sources.json").get().then(function (sourcesText) {
-        var sources = JSON.parse(sourcesText),
-            loaded = sources.filter(function (source) {
+    xhr("src/sources.json").get().asJson().then(function (sources) {
+        var loaded = sources.filter(function (source) {
                     return source.load !== false;
                 }).length,
             div = document.createElement("div");
         div.className = "percentage";
         div.innerHTML = "" + loaded + "/" + sources.length;
         document.getElementById("sources").appendChild(div);
+    });
+
+    xhr("tmp/coverage/reports/coverage.json").get().asJson().then(function (coverageData) {
     });
 
     document.addEventListener("click", function (event) {
