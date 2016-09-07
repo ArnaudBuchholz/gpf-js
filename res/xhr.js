@@ -5,7 +5,7 @@
     "use strict";
 
     function _xhrSend (request, method, data) {
-        return new Promise(function (resolve, reject) {
+        var result = new Promise(function (resolve, reject) {
             var xhr = new XMLHttpRequest();
             xhr.open(method, request._url);
             Object.keys(request._headers).forEach(function (headerName) {
@@ -22,6 +22,12 @@
             };
             xhr.send(data);
         });
+        result.asJson = function () {
+            return result.then(function (responseText) {
+                return JSON.parse(responseText);
+            });
+        };
+        return result;
     }
 
     /**
