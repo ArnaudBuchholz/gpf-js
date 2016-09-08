@@ -30,7 +30,7 @@ module.exports = function (request, response, next) {
     }
 
     var parameters = request.url.substr(BASE_URL.length),
-        process = childProcess.exec("grunt", parameters.split(" "));
+        process = childProcess.exec("grunt " + parameters);
 
     response.setHeader("Content-Type", "text/html; charset=utf-8");
     response.write("<html><head><title>grunt ");
