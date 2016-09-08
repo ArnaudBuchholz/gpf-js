@@ -59,15 +59,11 @@ ul#tiles > li > ul > li {
     font-size: 11pt;
 }
 
-ul#tiles > li#sources {
-    background: url(hawcons/documents.png) 80px 80px no-repeat beige;
+ul#tiles > li span[link]:hover {
+    text-decoration: underline;
 }
 
-ul#tiles > li#plato {
-    background: url(hawcons/document-scan.png) 80px 80px no-repeat beige;
-}
-
-ul#tiles > li#plato div.exec {
+ul#tiles > li div.exec {
     position: absolute;
     top: 80px;
     left: 4px;
@@ -76,8 +72,26 @@ ul#tiles > li#plato div.exec {
     background: url(hawcons/lightning.png) 0 0 no-repeat;
 }
 
+ul#tiles > li#sources {
+    background: url(hawcons/documents.png) 80px 80px no-repeat beige;
+}
+
+ul#tiles > li#plato {
+    background: url(hawcons/document-scan.png) 80px 80px no-repeat beige;
+}
+
 ul#tiles > li#tests {
     background: url(hawcons/thumb-up.png) 80px 80px no-repeat beige;
+}
+
+ul#tiles > li#tests span.version {
+    display: inline-block;
+    width: 55%;
+}
+
+ul#tiles > li#tests span.mocha {
+    font-size: smaller;
+    font-style: italic;
 }
 
 ul#tiles > li#mocha {
@@ -90,4 +104,8 @@ ul#tiles > li#coverage {
 
 ul#tiles > li#tpl {
     background: url(hawcons/package.png) 80px 80px no-repeat beige;
+}
+
+ul#tiles > li#doc {
+    background: url(hawcons/book.png) 80px 80px no-repeat beige;
 }
