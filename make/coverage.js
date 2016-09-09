@@ -31,7 +31,83 @@
         tested: 0,
 
         // @property {Number} number of ignored instances
-        ignored: 0
+        ignored: 0,
+
+        /**
+         * Increase tested or ignored count accordingly to what happened
+         *
+         * @param {Number} numberOfCall
+         * @param {Object} partDefinition
+         * Only skip (Boolean) is tested
+         */
+        _testedOrIgnored: function (numberOfCall, partDefinition) {
+            if (0 < numberOfCall) {
+                ++this.tested;
+            } else if (partDefinition.skip) {
+                ++this.ignored;
+            }
+        },
+
+        /**
+         * Common coverage processing
+         *
+         * @param {Number} numberOfCall
+         * @param {Object} partDefinition
+         */
+        processCoverage: function (numberOfCall, partDefinition) {
+            ++this.count;
+            this._testedOrIgnored(numberOfCall, partDefinition);
+        }
+
+    };
+
+    /**
+     * Statement statistics
+     *
+     * @constructor
+     * @class CoverageReport.StatementStatistics
+     */
+    CoverageReport.StatementStatistics = function () {
+        CoverageReport.PartStatistics.apply(this, arguments);
+    };
+
+    CoverageReport.StatementStatistics.prototype = new CoverageReport.PartStatistics();
+
+    /**
+     * Function statistics
+     *
+     * @constructor
+     * @class CoverageReport.FunctionStatistics
+     */
+    CoverageReport.FunctionStatistics = function () {
+        CoverageReport.PartStatistics.apply(this, arguments);
+    };
+
+    CoverageReport.FunctionStatistics.prototype = new CoverageReport.PartStatistics();
+
+    /**
+     * Branch statistics
+     *
+     * @constructor
+     * @class CoverageReport.BranchStatistics
+     */
+    CoverageReport.BranchStatistics = function () {
+        CoverageReport.PartStatistics.apply(this, arguments);
+    };
+
+    CoverageReport.BranchStatistics.prototype = new CoverageReport.PartStatistics();
+
+    /**
+     * Branch-specific coverage processing
+     *
+     * @param {Number[]} numberOfCalls
+     * @param {Object} branchDefinition
+     * locations array will used to fetch skip property of each branch
+     */
+    CoverageReport.BranchStatistics.prototype.processCoverage = function (numberOfCalls, branchDefinition) {
+        this.count += 2;
+        this._testedOrIgnored(numberOfCall[0], branchDefinition.locations[0]);
+        this._testedOrIgnored(numberOfCall[1], branchDefinition.locations[1]);
     };
 
     //endregion
@@ -46,9 +122,9 @@
      */
     CoverageReport.File = function (name) {
         this.name = name;
-        this.statements = new CoverageReport.Statistics();
-        this.functions = new CoverageReport.Statistics();
-        this.branches = new CoverageReport.Statistics();
+        this.statements = new CoverageReport.StatementStatistics();
+        this.functions = new CoverageReport.FunctionStatistics();
+        this.branches = new CoverageReport.BranchStatistics();
     };
 
     CoverageReport.File.prototype = {
@@ -56,86 +132,31 @@
         // @property {String} file name
         name: "",
 
-        // @property {CoverageReport.PartStatistics} statements statistics
+        // @property {CoverageReport.StatementStatistics} statements statistics
         statements: null,
 
-        // @property {CoverageReport.PartStatistics} functions statistics
+        // @property {CoverageReport.FunctionStatistics} functions statistics
         functions: null,
 
-        // @property {CoverageReport.PartStatistics} branches statistics
+        // @property {CoverageReport.BranchStatistics} branches statistics
         branches: null
     };
 
     //endregion
 
-    /**
-     * Statement or functions coverage processing
-     *
-     * @param {Number} numberOfCall
-     * @param {Object} info
-     * @this {Object} consolidated statistics
-     * - {Number} count
-     * - {Number} tested
-     * - {Number} ignored
-     * - {Object} map dictionary translating id to statement or function info
-     */
-    CoverageReport._handleStatementOrFunctionCoverage = function (numberOfCall, info) {
-        var me = this,
-             = me.map[itemId];
-        ++me.count;
-        if (0 < itemData) {
-            ++me.tested;
-        } else if (info.skip) {
-            ++me.ignored;
-        }
-    };
-
-    /**
-     * Statement or functions coverage processing
-     *
-     * @param {Number[]} numberOfCalls
-     * - numberOfCalls[0] number of calls for then part
-     * - numberOfCalls[1] number of calls for else part
-     * @param {String} id
-     * @this {Object} consolidated statistics
-     * - {Number} count
-     * - {Number} tested
-     * - {Number} ignored
-     * - {Object} map dictionary translating id to statement or function info
-     */
-    CoverageReport._handleBranchCoverage = function (numberOfCalls, id) {
-        var me = this,
-            info = me.map[itemId];
-        me.count += 2;
-        if (0 < numberOfCalls[0]) {
-            ++me.tested;
-        } else if (info.locations[0].skip) {
-            ++me.ignored;
-        }
-        if (0 < numberOfCalls[1]) {
-            ++me.tested;
-        } else if (info.locations[1].skip) {
-            ++me.ignored;
-        }
-    };
-
-    CoverageReport._parts = {
-        statements: {
-            data: "s",
-            map: "statementMap",
-            handler: CoverageReport._handleStatementOrFunctionCoverage
-        },
-        functions: {
-            data: "f",
-            map: "fnMap",
-            handler: CoverageReport._handleStatementOrFunctionCoverage
-        },
-        branches: {
-            data: "b",
-            map: "branchMap",
-            handler: CoverageReport._handleBranchCoverage
-        }
-    };
+    CoverageReport._parts = [{
+        type: "statements",
+        data: "s",
+        map: "statementMap"
+    }, {
+        type: "functions",
+        data: "f",
+        map: "fnMap"
+    }, {
+        type: "branches",
+        data: "b",
+        map: "branchMap"
+    }];
 
     CoverageReport.prototype = {
 
@@ -154,7 +175,17 @@
 
 }());
 
-    function computeCoverage (data) {
+    function computeFileCoverage (fileData, fileName) {
+        var result = new CoverageReport.File(fileName)
+
+        CoverageReport._parts.forEach(function (part) {
+            var map = fileData[part.map],
+                data = fileData[part.data];
+
+        });
+
+        Object.keys()
+
         var result = {};
         gpf.forEach(coverageParts, function (coveragePart, partName) {
             var statistics = {
@@ -190,7 +221,7 @@
     var globalCoverage,
         hasCoverageError = false;
     gpf.forEach(coverageData, function (fileCoverageData, fileName) {
-        var fileCoverage = computeCoverage(fileCoverageData),
+        var fileCoverage = computeFileCoverage(fileCoverageData),
             sourceName = fileName.substr(4, fileName.length - 7),
             fileTrace = [sourceName, "                                  ".substr(sourceName.length)],
             fileIsKO = false;
