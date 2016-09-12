@@ -8,7 +8,9 @@
      * @constructor
      * @class CoverageReport
      */
-    function CoverageReport (converageData) {
+    function CoverageReport (coverageData) {
+        this._data = coverageData;
+        this._compute();
     }
 
     //region Part (Statement, Function, Branch) Statistics structure
@@ -57,6 +59,41 @@
         processCoverage: function (numberOfCall, partDefinition) {
             ++this.count;
             this._testedOrIgnored(numberOfCall, partDefinition);
+        },
+
+        /**
+         * Adds information from another part statistics
+         *
+         * @param {CoverageReport.PartStatistics} partStatistics
+         */
+        add: function (partStatistics) {
+            this.count += partStatistics.count;
+            this.tested += partStatistics.tested;
+            this.ignored += partStatistics.ignored;
+        },
+
+        /**
+         * Returns coverage ratio in percent
+         *
+         * @return {number}
+         */
+        getCoverageRatio: function () {
+            if (0 === this.count) {
+                return 100;
+            }
+            return Math.floor(100 * (this.tested + this.ignored) / this.count);
+        },
+
+        /**
+         * Returns ignored ratio in percent
+         *
+         * @return {number}
+         */
+        getIgnoredRatio: function () {
+            if (0 === this.count) {
+                return 0;
+            }
+            return Math.floor(100 * this.ignored / this.count);
         }
 
     };
@@ -160,8 +197,53 @@
 
     CoverageReport.prototype = {
 
+        // @property {Object} coverage data
+        _data: null,
 
+        // @property {Object} dictionary of coverage per file
+        _files: null,
 
+        // @property {CoverageReport.File} global coverage
+        _global: null,
+
+        /**
+         * Compute coverage for one file
+         *
+         * @param {String} fileName file name
+         * @return {CoverageReport.File}
+         */
+        _computeFileCoverage: function (fileName) {
+            var result = new CoverageReport.File(fileName),
+                fileData = this._data[fileName];
+            CoverageReport._parts.forEach(function (part) {
+                var map = fileData[part.map],
+                    data = fileData[part.data],
+                    statistics = result[part.type];
+                data.forEach(function (numberOfCall, partId) {
+                    statistics.processCoverage(numberOfCall, map[partId]);
+                });
+            });
+            return result;
+        },
+
+        /**
+         * Compute all coverages
+         */
+        _compute: function () {
+            this._files = {};
+            this._global = new CoverageReport.File();
+            Object.keys(this._data).forEach(function (fileName) {
+                var fileCoverage = this._computeFileCoverage(fileName);
+                this._files[fileName] = fileCoverage;
+                this._global .statements.add(fileCoverage.statements);
+                this._global .functions.add(fileCoverage.functions);
+                this._global .branches.add(fileCoverage.branches);
+            }, this);
+        },
+
+        getGlobal: function () {
+            return this._global;
+        }
     };
 
     if ("undefined" !== typeof window) {
@@ -174,100 +256,3 @@
     }
 
 }());
-
-    function computeFileCoverage (fileData, fileName) {
-        var result = new CoverageReport.File(fileName)
-
-        CoverageReport._parts.forEach(function (part) {
-            var map = fileData[part.map],
-                data = fileData[part.data];
-
-        });
-
-        Object.keys()
-
-        var result = {};
-        gpf.forEach(coverageParts, function (coveragePart, partName) {
-            var statistics = {
-                count: 0,
-                tested: 0,
-                ignored: 0,
-                map: data[coveragePart.map]
-            };
-            gpf.forEach(data[coveragePart.data], coveragePart.handler, statistics);
-            result[partName] = {
-                count: statistics.count,
-                tested: statistics.tested,
-                ignored: statistics.ignored
-            };
-        });
-        return result;
-    }
-
-    function sumPartCoverage (globalPartCoverage, filePartCoverage) {
-        globalPartCoverage.count += filePartCoverage.count;
-        globalPartCoverage.tested +=  filePartCoverage.tested;
-        globalPartCoverage.ignored += filePartCoverage.ignored;
-    }
-
-    function computeCoverageRatio (coverageItem, part) {
-        var count = coverageItem[part].count;
-        if (0 === count) {
-            return 100;
-        }
-        return Math.floor(100 * (coverageItem[part].tested + coverageItem[part].ignored) / count);
-    }
-
-    var globalCoverage,
-        hasCoverageError = false;
-    gpf.forEach(coverageData, function (fileCoverageData, fileName) {
-        var fileCoverage = computeFileCoverage(fileCoverageData),
-            sourceName = fileName.substr(4, fileName.length - 7),
-            fileTrace = [sourceName, "                                  ".substr(sourceName.length)],
-            fileIsKO = false;
-        if (globalCoverage) {
-            // Sum everything
-            gpf.forEach(coverageParts, function (coveragePart, partName) {
-                sumPartCoverage(globalCoverage[partName], fileCoverage[partName]);
-            });
-        } else {
-            globalCoverage = fileCoverage;
-        }
-        // Check individual coverage
-        gpf.forEach(coverageParts, function (coveragePart, partName) {
-            var ratio = computeCoverageRatio(fileCoverage, partName);
-            if (ratio === 100) {
-                ratio = "   ";
-            }
-            ratio += "%";
-            fileTrace.push(partName, ": ", ratio, " ");
-        });
-        if (fileIsKO) {
-            console.error(fileTrace.join(""));
-            hasCoverageError = true;
-        } else {
-            console.log(fileTrace.join(""));
-        }
-    });
-
-    function getGlobalCoverage (part) {
-        return computeCoverageRatio(globalCoverage, part);
-    }
-
-    function getGlobalIgnore (part) {
-        return Math.floor(100 * globalCoverage[part].ignored / globalCoverage[part].count);
-    }
-
-    var statementsCoverage = getGlobalCoverage("statements"),
-        statementsIgnored = getGlobalIgnore("statements"),
-        functionsCoverage = getGlobalCoverage("functions"),
-        functionsIgnored = getGlobalIgnore("functions"),
-        branchesCoverage = getGlobalCoverage("branches"),
-        branchesIgnored = getGlobalIgnore("branches");
-
-    gpf.forEach(coverageParts, function (coveragePart, partName) {
-        console.log(partName + ":" + "                          ".substr(partName.length)
-            + getGlobalCoverage(partName) + "% (ignored " + getGlobalIgnore(partName) + "%)");
-    });
-
-};
