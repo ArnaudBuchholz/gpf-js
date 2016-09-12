@@ -34,9 +34,41 @@ ul#tiles > li div.percentage {
     font-size: 32pt;
 }
 
-ul#tiles > li div.percentage.statements {
-    top: 16px;
-    font-size: 24pt;
+ul#tiles > li div.coverage {
+    font-size: 16pt;
+}
+
+ul#tiles > li div.coverage:after {
+    position: relative;
+    top: -18px;
+    left: -84px;
+    color: black;
+    font-size: 8pt;
+    font-weight: bold;
+}
+
+ul#tiles > li div.coverage.statements {
+    top: 24px;
+}
+
+ul#tiles > li div.coverage.statements:after {
+    content: "statements";
+}
+
+ul#tiles > li div.coverage.functions {
+    top: 88px;
+}
+
+ul#tiles > li div.coverage.functions:after {
+    content: "functions";
+}
+
+ul#tiles > li div.coverage.branches {
+    top: 56px;
+}
+
+ul#tiles > li div.coverage.branches:after {
+    content: "branches";
 }
 
 ul#tiles > li div.ok {
