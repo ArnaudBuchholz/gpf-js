@@ -31,20 +31,22 @@ function detect (browser) {
         function fail (reason) {
             report(browser, false);
             if (reason && reason.message) {
-                console.warn(reason.message);
+                console.error(reason.message);
             }
             resolve(false);
         }
 
         try {
             var driver = buildWebDriverFor(browser);
+            if (null === driver) {
+                throw new Error("Driver missing for '" + browser + "'");
+            }
             driver.quit().then(function () {
                 report(browser, true);
                 resolve(true);
             }, fail);
         } catch (e) {
-            console.log(e);
-            fail();
+            fail(e);
         }
     });
 }
