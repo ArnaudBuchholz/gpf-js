@@ -72,6 +72,10 @@
             this.ignored += partStatistics.ignored;
         },
 
+        _toPercent: function (count, total) {
+            return Math.floor(10000 * count / total) / 100;
+        },
+
         /**
          * Returns coverage ratio in percent
          *
@@ -81,7 +85,7 @@
             if (0 === this.count) {
                 return 100;
             }
-            return Math.floor(100 * (this.tested + this.ignored) / this.count);
+            return this._toPercent(this.tested + this.ignored, this.count);
         },
 
         /**
@@ -93,7 +97,7 @@
             if (0 === this.count) {
                 return 0;
             }
-            return Math.floor(100 * this.ignored / this.count);
+            return this._toPercent(this.ignored, this.count);
         }
 
     };
@@ -143,8 +147,8 @@
      */
     CoverageReport.BranchStatistics.prototype.processCoverage = function (numberOfCalls, branchDefinition) {
         this.count += 2;
-        this._testedOrIgnored(numberOfCall[0], branchDefinition.locations[0]);
-        this._testedOrIgnored(numberOfCall[1], branchDefinition.locations[1]);
+        this._testedOrIgnored(numberOfCalls[0], branchDefinition.locations[0]);
+        this._testedOrIgnored(numberOfCalls[1], branchDefinition.locations[1]);
     };
 
     //endregion
@@ -218,10 +222,12 @@
             CoverageReport._parts.forEach(function (part) {
                 var map = fileData[part.map],
                     data = fileData[part.data],
-                    statistics = result[part.type];
-                data.forEach(function (numberOfCall, partId) {
-                    statistics.processCoverage(numberOfCall, map[partId]);
-                });
+                    statistics = result[part.type],
+                    index = 1;
+                while (undefined !== data[index]) {
+                    statistics.processCoverage(data[index], map[index]);
+                    ++index;
+                }
             });
             return result;
         },
