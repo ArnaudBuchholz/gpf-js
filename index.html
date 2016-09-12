@@ -7,6 +7,7 @@
         <link rel="stylesheet" type="text/css" href="res/tiles.css">
         <script language="JavaScript" src="res/xhr.js"></script>
         <script language="JavaScript" src="res/tpl.js"></script>
+        <script language="JavaScript" src="make/coverage.js"></script>
         <script language="JavaScript">
 
 function onLoad () {
@@ -54,6 +55,18 @@ function onLoad () {
 
     tile("coverage", "tmp/coverage/reports/lcov-report/index.html", "Code coverage");
     xhr("tmp/coverage/reports/coverage.json").get().asJson().then(function (coverageData) {
+        var report = new CoverageReport(coverageData),
+            global = report.getGlobal(),
+            statementsCoverage = global.statements.getCoverageRatio(),
+            div = document.createElement("div");
+        div.className = "percentage statements";
+        if (statementsCoverage < 90) {
+            div.className += " ko";
+        } else {
+            div.className += " ok";
+        }
+        div.innerHTML = statementsCoverage + "%";
+        document.getElementById("coverage").appendChild(div);
     });
 
     var testsTile = tile("tests", "test/host/web.html", "Tests")
