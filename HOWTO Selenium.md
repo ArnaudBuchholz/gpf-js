@@ -1,3 +1,7 @@
+## Google Chrome
+
+https://sites.google.com/a/chromium.org/chromedriver/downloads
+
 ## Opera
 
 The following option must be set
