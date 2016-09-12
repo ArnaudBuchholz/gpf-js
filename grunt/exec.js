@@ -39,6 +39,12 @@ module.exports = {
         stdout: false,
         stderr: false,
         exitCode: 0
+    },
+    detectSelenium: {
+        command: "node detectSelenium.js",
+        stdout: true,
+        stderr: true,
+        exitCode: 0
     }
 };
 
