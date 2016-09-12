@@ -56,17 +56,24 @@ function onLoad () {
     tile("coverage", "tmp/coverage/reports/lcov-report/index.html", "Code coverage");
     xhr("tmp/coverage/reports/coverage.json").get().asJson().then(function (coverageData) {
         var report = new CoverageReport(coverageData),
-            global = report.getGlobal(),
-            statementsCoverage = global.statements.getCoverageRatio(),
-            div = document.createElement("div");
-        div.className = "percentage statements";
-        if (statementsCoverage < 90) {
-            div.className += " ko";
-        } else {
-            div.className += " ok";
+            global = report.getGlobal();
+
+        function addCoverage (type) {
+            var ratio = global[type].getCoverageRatio(),
+                div = document.createElement("div");
+            div.className = "coverage " + type;
+            if (ratio < 90) {
+                div.className += " ko";
+            } else {
+                div.className += " ok";
+            }
+            div.innerHTML = ratio + "%";
+            document.getElementById("coverage").appendChild(div);
         }
-        div.innerHTML = statementsCoverage + "%";
-        document.getElementById("coverage").appendChild(div);
+
+        addCoverage("statements");
+        addCoverage("functions");
+        addCoverage("branches");
     });
 
     var testsTile = tile("tests", "test/host/web.html", "Tests")
