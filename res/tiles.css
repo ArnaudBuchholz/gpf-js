@@ -34,6 +34,11 @@ ul#tiles > li div.percentage {
     font-size: 32pt;
 }
 
+ul#tiles > li div.percentage.statements {
+    top: 16px;
+    font-size: 24pt;
+}
+
 ul#tiles > li div.ok {
     color: green;
 }
