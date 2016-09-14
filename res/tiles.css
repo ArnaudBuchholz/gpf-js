@@ -87,6 +87,10 @@ ul#tiles > li div.ko {
     cursor: pointer;
 }
 
+[link]:hover {
+    text-decoration: underline;
+}
+
 ul#tiles > li > ul {
     position: absolute;
     padding-left: 4px;
@@ -98,10 +102,6 @@ ul#tiles > li > ul {
 ul#tiles > li > ul > li {
     display: block;
     font-size: 11pt;
-}
-
-ul#tiles > li span[link]:hover {
-    text-decoration: underline;
 }
 
 ul#tiles > li div.exec {
@@ -135,6 +135,10 @@ ul#tiles > li#tests span.mocha {
     font-style: italic;
 }
 
+ul#tiles > li#env {
+    background: url(hawcons/thumb-up.png) 80px 80px no-repeat beige;
+}
+
 ul#tiles > li#env select {
     background: unset;
     border: unset;
@@ -150,8 +154,12 @@ ul#tiles > li#env ul#envNames > li {
     display: inline-block;
 }
 
-ul#tiles > li#mocha {
-    background: url(hawcons/thumb-up.png) 80px 80px no-repeat beige;
+ul#tiles > li#env ul#envNames > li:hover {
+    font-size: larger;
+}
+
+ul#tiles > li#env div.envDetect {
+    top: 100px;
 }
 
 ul#tiles > li#coverage {
