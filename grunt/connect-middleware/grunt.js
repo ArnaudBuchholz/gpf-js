@@ -1,6 +1,7 @@
 "use strict";
 
 var childProcess = require("child_process"),
+    url = require("url"),
     BASE_URL = "/grunt/",
     // https://en.wikipedia.org/wiki/ANSI_escape_code
     colors = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"];
@@ -29,13 +30,17 @@ module.exports = function (request, response, next) {
         return next();
     }
 
-    var parameters = request.url.substr(BASE_URL.length),
+    var parameters = url.parse(request.url).pathname.substr(BASE_URL.length),
         process = childProcess.exec("grunt " + parameters);
 
     response.setHeader("Content-Type", "text/html; charset=utf-8");
     response.write("<html><head><title>grunt ");
     response.write(parameters);
-    response.write("</title><link rel=\"stylesheet\" type=\"text/css\" href=\"/res/console.css\"></head><body><pre>\n");
+    response.write("</title>");
+    response.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"/res/console.css\">");
+    response.write("</head>");
+    response.write("<body onload=\"var w=window,t=w.opener||w.parent;if(t){t.location.hash=new Date().getTime()}\">");
+    response.write("<pre>\n");
 
     process.stdout.on("data", function (text) {
         console.log(text);
