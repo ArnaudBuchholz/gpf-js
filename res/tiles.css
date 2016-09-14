@@ -20,6 +20,7 @@ ul#tiles > li div {
 }
 
 ul#tiles > li div.title {
+    top: 0px;
     font-size: 8pt;
     font-weight: bold;
     color: white;
@@ -29,8 +30,11 @@ ul#tiles > li div.title {
     border-bottom: solid 1px gray;
 }
 
-ul#tiles > li div.percentage {
+ul#tiles > li div {
     top: 16px;
+}
+
+ul#tiles > li div.percentage {
     font-size: 32pt;
 }
 
@@ -129,6 +133,21 @@ ul#tiles > li#tests span.version {
 ul#tiles > li#tests span.mocha {
     font-size: smaller;
     font-style: italic;
+}
+
+ul#tiles > li#env select {
+    background: unset;
+    border: unset;
+}
+
+ul#tiles > li#env ul#envNames {
+    padding: 0;
+    padding-top: 8px;
+    margin: 0;
+}
+
+ul#tiles > li#env ul#envNames > li {
+    display: inline-block;
 }
 
 ul#tiles > li#mocha {
