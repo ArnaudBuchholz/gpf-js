@@ -76,8 +76,26 @@ function onLoad () {
         addCoverage("branches");
     });
 
-    var testsTile = tile("tests", "test/host/web.html", "Tests")
+    tile("tests", "test/host/web.html", "Tests")
         .appendChild(document.getElementById("tests-details").buildFactory()());
+
+    tile("env", "", "Environments")
+        .appendChild(document.getElementById("env-details").buildFactory()());
+    xhr("selenium.json").get().asJson().then(function (browserList) {
+        var envNames = document.getElementById("envNames"),
+            envItemFactory = document.getElementById("env-item").buildFactory();
+        browserList.concat([
+            "node",
+            "phantom",
+            "wscript",
+            "rhino"
+        ]).forEach(function (name) {
+            envNames.appendChild(envItemFactory({
+                name: name
+            }));
+        })
+    });
+
 
     tile("tpl", "test/host/mocha/tpl.html", "Template tests");
 
@@ -124,6 +142,20 @@ function onLoad () {
                     <span class="mocha" link="test/host/mocha/web_release.html">mocha</span>
                 </li>
             </ul>
+        </template>
+        <template id="env-details">
+            <div>
+                <select id="envVersion">
+                    <option label="source"></option>
+                    <option label="debug"></option>
+                    <option label="release"></option>
+                </select>
+                <ul id="envNames">
+                </ul>
+            </div>
+        </template>
+        <template id="env-item">
+            <li>{{name}}</li>
         </template>
     </body>
 </html>
