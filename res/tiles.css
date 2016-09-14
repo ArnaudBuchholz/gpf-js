@@ -83,7 +83,7 @@ ul#tiles > li div.ko {
     color: red;
 }
 
-li[link] {
+[link] {
     cursor: pointer;
 }
 
