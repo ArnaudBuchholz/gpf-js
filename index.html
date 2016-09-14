@@ -32,75 +32,108 @@ function onLoad () {
         return node;
     }
 
+    function refresh () {
+        [].slice.call(document.querySelectorAll("ul#tiles > li"))
+            .forEach(function (tile) {
+                var method = tile.id;
+                if (refresh[method]) {
+                    refresh[method](tile);
+                }
+            });
+    }
+
+    function remove (nodes) {
+        if (nodes) {
+            [].slice.call(nodes).forEach(function (node) {
+                node.parentNode.removeChild(node);
+            });
+        }
+    }
+
     tile("sources", "sources.html", "Sources");
-    xhr("src/sources.json").get().asJson().then(function (sources) {
-        var loaded = sources.filter(function (source) {
-                return source.load !== false;
-            }).length,
-            div = document.createElement("div");
-        div.className = "percentage";
-        div.innerHTML = "" + loaded + "/" + sources.length;
-        document.getElementById("sources").appendChild(div);
-    });
+    refresh.sources = function (tile) {
+        remove(tile.querySelectorAll("div.percentage"));
+        xhr("src/sources.json").get().asJson().then(function (sources) {
+            var loaded = sources.filter(function (source) {
+                    return source.load !== false;
+                }).length,
+                div = document.createElement("div");
+            div.className = "percentage";
+            div.innerHTML = "" + loaded + "/" + sources.length;
+            tile.appendChild(div);
+        });
+    };
 
     tile("plato", "tmp/plato/index.html", "Plato report")
-        .appendChild(execFactory({grunt: "plato"}));
-    xhr("tmp/plato/report.json").get().asJson().then(function (reportData) {
-        var maintainability = reportData.summary.average.maintainability,
-            div = document.createElement("div");
-        div.className = "percentage";
-        if (maintainability < 70) {
-            div.className += " ko";
-        } else {
-            div.className += " ok";
-        }
-        div.innerHTML = maintainability;
-        document.getElementById("plato").appendChild(div);
-    });
-
-    tile("coverage", "tmp/coverage/reports/lcov-report/index.html", "Code coverage");
-    xhr("tmp/coverage/reports/coverage.json").get().asJson().then(function (coverageData) {
-        var report = new CoverageReport(coverageData),
-            global = report.getGlobal();
-
-        function addCoverage (type) {
-            var ratio = global[type].getCoverageRatio(),
+        .appendChild(execFactory({grunt: "plato", title: "Execute plato"}));
+    refresh.plato = function (tile) {
+        remove(tile.querySelectorAll("div.percentage"));
+        xhr("tmp/plato/report.json").get().asJson().then(function (reportData) {
+            var maintainability = reportData.summary.average.maintainability,
                 div = document.createElement("div");
-            div.className = "coverage " + type;
-            if (ratio < 90) {
+            div.className = "percentage";
+            if (maintainability < 70) {
                 div.className += " ko";
             } else {
                 div.className += " ok";
             }
-            div.innerHTML = ratio + "%";
-            document.getElementById("coverage").appendChild(div);
-        }
+            div.innerHTML = maintainability;
+            tile.appendChild(div);
+        });
+    };
 
-        addCoverage("statements");
-        addCoverage("functions");
-        addCoverage("branches");
-    });
+    tile("coverage", "tmp/coverage/reports/lcov-report/index.html", "Code coverage");
+    refresh.coverage = function (tile) {
+        remove(tile.querySelectorAll("div.coverage"));
+        xhr("tmp/coverage/reports/coverage.json").get().asJson().then(function (coverageData) {
+            var report = new CoverageReport(coverageData),
+                global = report.getGlobal();
+
+            function addCoverage (type) {
+                var ratio = global[type].getCoverageRatio(),
+                    div = document.createElement("div");
+                div.className = "coverage " + type;
+                if (ratio < 90) {
+                    div.className += " ko";
+                } else {
+                    div.className += " ok";
+                }
+                div.innerHTML = ratio + "%";
+                document.getElementById("coverage").appendChild(div);
+            }
+
+            addCoverage("statements");
+            addCoverage("functions");
+            addCoverage("branches");
+        });
+    };
 
     tile("tests", "", "Tests")
         .appendChild(document.getElementById("tests-details").buildFactory()());
 
     tile("env", "", "Environments")
         .appendChild(document.getElementById("env-details").buildFactory()());
-    xhr("selenium.json").get().asJson().then(function (browserList) {
-        var envNames = document.getElementById("envNames"),
-            envItemFactory = document.getElementById("env-item").buildFactory();
-        browserList.concat([
-            "node",
-            "phantom",
-            "wscript",
-            "rhino"
-        ]).forEach(function (name) {
-            envNames.appendChild(envItemFactory({
-                name: name
-            }));
-        })
-    });
-
+    refresh.env = function (tile) {
+        remove(tile.querySelector("li[link]"));
+        xhr("tmp/selenium.json").get().asJson()
+            .then(undefined, function () {
+                return [];
+            })
+            .then(function (browserList) {
+                var envNames = document.getElementById("envNames"),
+                    envItemFactory = document.getElementById("env-item").buildFactory();
+                browserList.concat([
+                    "node",
+                    "phantom",
+                    "wscript",
+                    "rhino"
+                ]).forEach(function (name) {
+                    envNames.appendChild(envItemFactory({
+                        name: name
+                    }));
+                })
+            });
+    };
 
     tile("tpl", "test/host/mocha/tpl.html", "Template tests");
 
@@ -117,12 +150,13 @@ function onLoad () {
             var versionSelect = document.getElementById("envVersion"),
                 version = versionSelect.options[versionSelect.selectedIndex].value,
                 envName = target.innerHTML;
-            alert(envName + "/" + version);
-
-        } else if (link) {
+            link = "grunt/exec:test" + envName.charAt(0).toUpperCase() + envName.substr(1) + version;
+        }
+        if (link) {
             window.open(link);
         }
     });
+    refresh();
 }
 
         </script>
@@ -136,7 +170,7 @@ function onLoad () {
             </li>
         </template>
         <template id="exec">
-            <div class="exec" link="grunt/{{grunt}}"></div>
+            <div class="exec" link="grunt/{{grunt}}" title="{{title}}"></div>
         </template>
         <template id="tests-details">
             <ul>
@@ -158,13 +192,14 @@ function onLoad () {
             <div>
                 <label for="envVersion">Version: </label>
                 <select id="envVersion">
-                    <option value="source">source</option>
-                    <option value="debug">debug</option>
-                    <option value="release">release</option>
+                    <option value="Verbose">source</option>
+                    <option value="Debug">debug</option>
+                    <option value="Release">release</option>
                 </select>
                 <ul id="envNames">
                 </ul>
             </div>
+            <div class="exec" link="grunt/exec:detectSelenium" title="Detect selenium"></div>
         </template>
         <template id="env-item">
             <li id="env-{{name}}" link="env">{{name}}</li>
