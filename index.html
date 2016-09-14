@@ -19,12 +19,17 @@ function onLoad () {
 
     function tile (id) {
         var args = arguments,
-            object = {};
+            object = {},
+            node;
         ["id", "link", "title"].forEach(function (name, index) {
             object[name] = args[index];
         });
         tiles.appendChild(tileFactory(object));
-        return document.getElementById(id);
+        node = document.getElementById(id);
+        if (!object.link) {
+            node.removeAttribute("link");
+        }
+        return node;
     }
 
     tile("sources", "sources.html", "Sources");
@@ -76,7 +81,7 @@ function onLoad () {
         addCoverage("branches");
     });
 
-    tile("tests", "test/host/web.html", "Tests")
+    tile("tests", "", "Tests")
         .appendChild(document.getElementById("tests-details").buildFactory()());
 
     tile("env", "", "Environments")
@@ -156,7 +161,7 @@ function onLoad () {
             </div>
         </template>
         <template id="env-item">
-            <li>{{name}}</li>
+            <li id="env-{{name}}">{{name}}</li>
         </template>
     </body>
 </html>
