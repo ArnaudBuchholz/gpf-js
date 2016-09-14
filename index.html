@@ -108,12 +108,18 @@ function onLoad () {
         .appendChild(execFactory({grunt: "jsdoc"}));
 
     document.addEventListener("click", function (event) {
-        var li = event.target,
+        var target = event.target,
             link;
-        while (li && !(link = li.getAttribute && li.getAttribute("link"))) {
-            li = li.parentNode;
+        while (target && !(link = target.getAttribute && target.getAttribute("link"))) {
+            target = target.parentNode;
         }
-        if (link) {
+        if ("env" === link) {
+            var versionSelect = document.getElementById("envVersion"),
+                version = versionSelect.options[versionSelect.selectedIndex].value,
+                envName = target.innerHTML;
+            alert(envName + "/" + version);
+
+        } else if (link) {
             window.open(link);
         }
     });
@@ -161,7 +167,7 @@ function onLoad () {
             </div>
         </template>
         <template id="env-item">
-            <li id="env-{{name}}">{{name}}</li>
+            <li id="env-{{name}}" link="env">{{name}}</li>
         </template>
     </body>
 </html>
