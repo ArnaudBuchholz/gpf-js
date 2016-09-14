@@ -145,10 +145,11 @@ function onLoad () {
         </template>
         <template id="env-details">
             <div>
+                <label for="envVersion">Version: </label>
                 <select id="envVersion">
-                    <option label="source"></option>
-                    <option label="debug"></option>
-                    <option label="release"></option>
+                    <option value="source">source</option>
+                    <option value="debug">debug</option>
+                    <option value="release">release</option>
                 </select>
                 <ul id="envNames">
                 </ul>
