@@ -17,21 +17,16 @@ function onLoad () {
         execFactory = document.getElementById("exec").buildFactory(),
         tiles = document.getElementById("tiles");
 
-    function tile (id) {
-        var args = arguments,
-            object = {},
-            node;
-        ["id", "link", "title"].forEach(function (name, index) {
-            object[name] = args[index];
-        });
-        tiles.appendChild(tileFactory(object));
-        node = document.getElementById(id);
-        if (!object.link) {
-            node.removeAttribute("link");
-        }
-        return node;
+    // Generate a tile
+    function tile (id, title) {
+        tiles.appendChild(tileFactory({
+            id: id,
+            title: title
+        }));
+        return document.getElementById(id);
     }
 
+    // Refresh tiles, each tile requiring refresh must adds a method to this function corresponding to the tile id
     function refresh () {
         [].slice.call(document.querySelectorAll("ul#tiles > li"))
             .forEach(function (tile) {
@@ -42,6 +37,7 @@ function onLoad () {
             });
     }
 
+    // Remove the provided list of nodes
     function remove (nodes) {
         if (nodes) {
             [].slice.call(nodes).forEach(function (node) {
@@ -50,39 +46,43 @@ function onLoad () {
         }
     }
 
-    tile("sources", "sources.html", "Sources");
+    // Generate a div tag with content, classes and a link
+    function div (content, className, link) {
+        var div = document.createElement("div");
+        div.innerHTML = content;
+        div.className = className;
+        div.setAttribute("link", link);
+        return div;
+    }
+
+    tile("sources", "Sources");
     refresh.sources = function (tile) {
         remove(tile.querySelectorAll("div.percentage"));
         xhr("src/sources.json").get().asJson().then(function (sources) {
             var loaded = sources.filter(function (source) {
                     return source.load !== false;
-                }).length,
-                div = document.createElement("div");
-            div.className = "percentage";
-            div.innerHTML = "" + loaded + "/" + sources.length;
-            tile.appendChild(div);
+                }).length;
+            tile.appendChild(div("" + loaded + "/" + sources.length, "percentage", "sources.html"));
         });
     };
 
-    tile("plato", "tmp/plato/index.html", "Plato report")
+    tile("plato", "Plato report")
         .appendChild(execFactory({grunt: "plato", title: "Execute plato"}));
     refresh.plato = function (tile) {
         remove(tile.querySelectorAll("div.percentage"));
         xhr("tmp/plato/report.json").get().asJson().then(function (reportData) {
             var maintainability = reportData.summary.average.maintainability,
-                div = document.createElement("div");
-            div.className = "percentage";
+                statusClassName;
             if (maintainability < 70) {
-                div.className += " ko";
+                statusClassName = "ko";
             } else {
-                div.className += " ok";
+                statusClassName = "ok";
             }
-            div.innerHTML = maintainability;
-            tile.appendChild(div);
+            tile.appendChild(div(maintainability, "percentage " + statusClassName, "tmp/plato/index.html"));
         });
     };
 
-    tile("coverage", "tmp/coverage/reports/lcov-report/index.html", "Code coverage");
+    tile("coverage", "Code coverage");
     refresh.coverage = function (tile) {
         remove(tile.querySelectorAll("div.coverage"));
         xhr("tmp/coverage/reports/coverage.json").get().asJson().then(function (coverageData) {
@@ -91,15 +91,14 @@ function onLoad () {
 
             function addCoverage (type) {
                 var ratio = global[type].getCoverageRatio(),
-                    div = document.createElement("div");
-                div.className = "coverage " + type;
+                    statusClassName;
                 if (ratio < 90) {
-                    div.className += " ko";
+                    statusClassName = "ko";
                 } else {
-                    div.className += " ok";
+                    statusClassName = "ok";
                 }
-                div.innerHTML = ratio + "%";
-                document.getElementById("coverage").appendChild(div);
+                tile.appendChild(div(ratio + "%", "coverage " + type + " " + statusClassName,
+                    "tmp/coverage/reports/lcov-report/index.html"));
             }
 
             addCoverage("statements");
@@ -108,10 +107,10 @@ function onLoad () {
         });
     };
 
-    tile("tests", "", "Tests")
+    tile("tests", "Tests")
         .appendChild(document.getElementById("tests-details").buildFactory()());
 
-    tile("env", "", "Environments")
+    tile("env", "Environments")
         .appendChild(document.getElementById("env-details").buildFactory()());
     refresh.env = function (tile) {
         remove(tile.querySelectorAll("li[link]"));
@@ -135,10 +134,18 @@ function onLoad () {
             });
     };
 
-    tile("tpl", "test/host/mocha/tpl.html", "Template tests");
+    tile("doc", "Documentation")
+        .appendChild(execFactory({grunt: "jsdoc", title: "Generate documentation"}));
+    refresh.doc = function (tile) {
+        remove(tile.querySelectorAll("div.version"));
+        xhr("/package.json").get().asJson()
+            .then(function (packageJson) {
+                tile.appendChild(div(packageJson.version, "version", "tmp/docs/index.html"));
+            });
+    };
 
-    tile("doc", "tmp/docs/index.html", "Documentation")
-        .appendChild(execFactory({grunt: "jsdoc"}));
+    tile("misc", "Miscellaneous")
+        .appendChild(document.getElementById("other-items").buildFactory()());
 
     document.addEventListener("click", function (event) {
         var target = event.target,
@@ -158,9 +165,7 @@ function onLoad () {
     });
     refresh();
 
-    window.onpopstate = function (e) {
-        refresh();
-    }
+    window.onpopstate = refresh;
 
 }
 
@@ -170,7 +175,7 @@ function onLoad () {
         <ul id="tiles">
         </ul>
         <template id="tile">
-            <li id="{{id}}" link="{{link}}">
+            <li id="{{id}}">
                 <div class="title">{{title}}</div>
             </li>
         </template>
@@ -208,6 +213,11 @@ function onLoad () {
         </template>
         <template id="env-item">
             <li id="env-{{name}}" link="env">{{name}}</li>
+        </template>
+        <template id="other-items">
+            <ul>
+                <li link="test/host/mocha/tpl.html">Template tests</li>
+            </ul>
         </template>
     </body>
 </html>
