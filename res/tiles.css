@@ -1,3 +1,4 @@
+/*region Tiles generic formatting */
 ul#tiles > li {
     position: relative;
     background-color: beige;
@@ -12,13 +13,6 @@ ul#tiles > li {
     box-shadow: 4px 4px lightgray;
 }
 
-ul#tiles > li div {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-}
-
 ul#tiles > li div.title {
     top: 0px;
     font-size: 8pt;
@@ -31,15 +25,91 @@ ul#tiles > li div.title {
 }
 
 ul#tiles > li div {
+    position: absolute;
     top: 16px;
+    left: 0;
+    width: 100%;
+}
+
+[link] {
+    cursor: pointer;
+}
+
+[link]:hover {
+    text-decoration: underline;
 }
 
 ul#tiles > li div.percentage {
     font-size: 32pt;
 }
 
+ul#tiles > li div.percentage:hover {
+    text-decoration: unset;
+}
+
+ul#tiles > li div.ok {
+    color: green;
+}
+
+ul#tiles > li div.ko {
+    color: red;
+}
+
+ul#tiles > li > ul {
+    position: absolute;
+    padding-left: 4px;
+    top: 16px;
+    left: 0;
+    text-align: left;
+}
+
+ul#tiles > li > ul > li {
+    display: block;
+    font-size: 11pt;
+}
+
+ul#tiles > li div.exec {
+    position: absolute;
+    top: 88px;
+    left: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    border: white 1px solid;
+    box-shadow: 2px 2px gray;
+    background: url(hawcons/lightning.png) -8px -8px no-repeat;
+}
+
+/*endregion*/
+
+/*region Source tile */
+
+ul#tiles > li#sources {
+    background: url(hawcons/documents.png) 80px 80px no-repeat beige;
+}
+
+/*endregion*/
+
+/*region Plato tile */
+
+ul#tiles > li#plato {
+    background: url(hawcons/document-scan.png) 80px 80px no-repeat beige;
+}
+
+/*endregion*/
+
+/*region Coverage tile */
+
+ul#tiles > li#coverage {
+    background: url(hawcons/search.png) 80px 80px no-repeat beige;
+}
+
 ul#tiles > li div.coverage {
     font-size: 16pt;
+}
+
+ul#tiles > li div.coverage:hover {
+    text-decoration: unset;
 }
 
 ul#tiles > li div.coverage:after {
@@ -75,51 +145,9 @@ ul#tiles > li div.coverage.branches:after {
     content: "branches";
 }
 
-ul#tiles > li div.ok {
-    color: green;
-}
+/*endregion*/
 
-ul#tiles > li div.ko {
-    color: red;
-}
-
-[link] {
-    cursor: pointer;
-}
-
-[link]:hover {
-    text-decoration: underline;
-}
-
-ul#tiles > li > ul {
-    position: absolute;
-    padding-left: 4px;
-    top: 16px;
-    left: 0;
-    text-align: left;
-}
-
-ul#tiles > li > ul > li {
-    display: block;
-    font-size: 11pt;
-}
-
-ul#tiles > li div.exec {
-    position: absolute;
-    top: 80px;
-    left: 4px;
-    width: 48px;
-    height: 48px;
-    background: url(hawcons/lightning.png) 0 0 no-repeat;
-}
-
-ul#tiles > li#sources {
-    background: url(hawcons/documents.png) 80px 80px no-repeat beige;
-}
-
-ul#tiles > li#plato {
-    background: url(hawcons/document-scan.png) 80px 80px no-repeat beige;
-}
+/*region Tests tile */
 
 ul#tiles > li#tests {
     background: url(hawcons/thumb-up.png) 80px 80px no-repeat beige;
@@ -134,6 +162,10 @@ ul#tiles > li#tests span.mocha {
     font-size: smaller;
     font-style: italic;
 }
+
+/*endregion*/
+
+/*region Environments tile */
 
 ul#tiles > li#env {
     background: url(hawcons/thumb-up.png) 80px 80px no-repeat beige;
@@ -162,14 +194,20 @@ ul#tiles > li#env div.envDetect {
     top: 100px;
 }
 
-ul#tiles > li#coverage {
-    background: url(hawcons/search.png) 80px 80px no-repeat beige;
-}
+/*endregion*/
 
-ul#tiles > li#tpl {
-    background: url(hawcons/package.png) 80px 80px no-repeat beige;
-}
+/*region Documentation tile */
 
 ul#tiles > li#doc {
     background: url(hawcons/book.png) 80px 80px no-repeat beige;
 }
+
+/*endregion*/
+
+/*region Miscellaneous tile */
+
+ul#tiles > li#misc {
+    background: url(hawcons/package.png) 80px 80px no-repeat beige;
+}
+
+/*endregion*/
