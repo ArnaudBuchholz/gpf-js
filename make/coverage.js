@@ -1,19 +1,34 @@
+/*eslint strict: [2, "function"]*/
+/*jshint browser: true*/
+/*eslint-disable no-invalid-this*/ // Because of the 'simple' class generation relying on lamda functions
+/*eslint-env browser*/
 (function () {
     "use strict";
 
-    /**
-     * Process the coverage data and generate a consolidated report
-     *
-     * @param {Object} coverageData Data produced by istanbul
-     * @constructor
-     * @class CoverageReport
-     */
-    function CoverageReport (coverageData) {
-        this._data = coverageData;
-        this._compute();
+    // Simple class helper
+    function _class (Constructor, members, Base) {
+        var ResultConstructor;
+        if (!Constructor) {
+            Constructor = function () {};
+        }
+        if (Base) {
+            ResultConstructor = function () {
+                Base.apply(this, arguments);
+                Constructor.apply(this, arguments);
+            };
+            ResultConstructor.prototype = new Base();
+        } else {
+            ResultConstructor = function () {
+                Constructor.apply(this, arguments);
+            };
+        }
+        if (members) {
+            Object.keys(members).forEach(function (memberName) {
+                ResultConstructor.prototype[memberName] = members[memberName];
+            });
+        }
+        return ResultConstructor;
     }
-
-    //region Part (Statement, Function, Branch) Statistics structure
 
     /**
      * Part (Statement, Function, Branch) statistics
@@ -21,10 +36,7 @@
      * @constructor
      * @class CoverageReport.PartStatistics
      */
-    CoverageReport.PartStatistics = function () {
-    };
-
-    CoverageReport.PartStatistics.prototype = {
+    var _PartStatistics = _class(null, {
 
         // @property {Number} number of instances for this part
         count: 0,
@@ -100,7 +112,7 @@
             return this._toPercent(this.ignored, this.count);
         }
 
-    };
+    });
 
     /**
      * Statement statistics
@@ -108,11 +120,7 @@
      * @constructor
      * @class CoverageReport.StatementStatistics
      */
-    CoverageReport.StatementStatistics = function () {
-        CoverageReport.PartStatistics.apply(this, arguments);
-    };
-
-    CoverageReport.StatementStatistics.prototype = new CoverageReport.PartStatistics();
+    var _StatementStatistics = _class(null, null, _PartStatistics);
 
     /**
      * Function statistics
@@ -120,11 +128,7 @@
      * @constructor
      * @class CoverageReport.FunctionStatistics
      */
-    CoverageReport.FunctionStatistics = function () {
-        CoverageReport.PartStatistics.apply(this, arguments);
-    };
-
-    CoverageReport.FunctionStatistics.prototype = new CoverageReport.PartStatistics();
+    var _FunctionStatistics = _class(null, null, _PartStatistics);
 
     /**
      * Branch statistics
@@ -132,26 +136,22 @@
      * @constructor
      * @class CoverageReport.BranchStatistics
      */
-    CoverageReport.BranchStatistics = function () {
-        CoverageReport.PartStatistics.apply(this, arguments);
-    };
+    var _BranchStatistics = _class(null, {
 
-    CoverageReport.BranchStatistics.prototype = new CoverageReport.PartStatistics();
+        /**
+         * Branch-specific coverage processing
+         *
+         * @param {Number[]} numberOfCalls
+         * @param {Object} branchDefinition
+         * locations array will used to fetch skip property of each branch
+         */
+        processCoverage: function (numberOfCalls, branchDefinition) {
+            this.count += 2;
+            this._testedOrIgnored(numberOfCalls[0], branchDefinition.locations[0]);
+            this._testedOrIgnored(numberOfCalls[1], branchDefinition.locations[1]);
+        }
 
-    /**
-     * Branch-specific coverage processing
-     *
-     * @param {Number[]} numberOfCalls
-     * @param {Object} branchDefinition
-     * locations array will used to fetch skip property of each branch
-     */
-    CoverageReport.BranchStatistics.prototype.processCoverage = function (numberOfCalls, branchDefinition) {
-        this.count += 2;
-        this._testedOrIgnored(numberOfCalls[0], branchDefinition.locations[0]);
-        this._testedOrIgnored(numberOfCalls[1], branchDefinition.locations[1]);
-    };
-
-    //endregion
+    }, _PartStatistics);
 
     //region Region File statistics structure
 
@@ -161,14 +161,12 @@
      * @param {String} name
      * @constructor
      */
-    CoverageReport.File = function (name) {
+    var _File = _class(function (name) {
         this.name = name;
-        this.statements = new CoverageReport.StatementStatistics();
-        this.functions = new CoverageReport.FunctionStatistics();
-        this.branches = new CoverageReport.BranchStatistics();
-    };
-
-    CoverageReport.File.prototype = {
+        this.statements = new _StatementStatistics();
+        this.functions = new _FunctionStatistics();
+        this.branches = new _BranchStatistics();
+    }, {
 
         // @property {String} file name
         name: "",
@@ -181,25 +179,20 @@
 
         // @property {CoverageReport.BranchStatistics} branches statistics
         branches: null
-    };
 
-    //endregion
+    });
 
-    CoverageReport._parts = [{
-        type: "statements",
-        data: "s",
-        map: "statementMap"
+    /**
+     * Process the coverage data and generate a consolidated report
+     *
+     * @param {Object} coverageData Data produced by istanbul
+     * @constructor
+     * @class CoverageReport
+     */
+    var CoverageReport = _class(function (coverageData) {
+        this._data = coverageData;
+        this._compute();
     }, {
-        type: "functions",
-        data: "f",
-        map: "fnMap"
-    }, {
-        type: "branches",
-        data: "b",
-        map: "branchMap"
-    }];
-
-    CoverageReport.prototype = {
 
         // @property {Object} coverage data
         _data: null,
@@ -217,9 +210,21 @@
          * @return {CoverageReport.File}
          */
         _computeFileCoverage: function (fileName) {
-            var result = new CoverageReport.File(fileName),
+            var result = new _File(fileName),
                 fileData = this._data[fileName];
-            CoverageReport._parts.forEach(function (part) {
+            [{
+                type: "statements",
+                data: "s",
+                map: "statementMap"
+            }, {
+                type: "functions",
+                data: "f",
+                map: "fnMap"
+            }, {
+                type: "branches",
+                data: "b",
+                map: "branchMap"
+            }].forEach(function (part) {
                 var map = fileData[part.map],
                     data = fileData[part.data],
                     statistics = result[part.type],
@@ -237,7 +242,7 @@
          */
         _compute: function () {
             this._files = {};
-            this._global = new CoverageReport.File();
+            this._global = new _File();
             Object.keys(this._data).forEach(function (fileName) {
                 var fileCoverage = this._computeFileCoverage(fileName);
                 this._files[fileName] = fileCoverage;
@@ -250,13 +255,14 @@
         getGlobal: function () {
             return this._global;
         }
-    };
+
+    });
 
     if ("undefined" !== typeof window) {
         // Browser export
         window.CoverageReport = CoverageReport;
-    }
-    else if ("undefined" !== typeof module) {
+
+    } else if ("undefined" !== typeof module) {
         // NodeJS export
         module.exports = CoverageReport;
     }
