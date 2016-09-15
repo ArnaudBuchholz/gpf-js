@@ -55,7 +55,8 @@ function onLoad () {
         return div;
     }
 
-    tile("sources", "Sources");
+    tile("sources", "Sources")
+        .appendChild(execFactory({grunt: "default", title: "Build"}));
     refresh.sources = function (tile) {
         remove(tile.querySelectorAll("div.percentage"));
         xhr("src/sources.json").get().asJson().then(function (sources) {
