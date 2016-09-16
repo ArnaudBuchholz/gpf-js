@@ -106,6 +106,7 @@ ul#tiles > li#coverage {
 
 ul#tiles > li div.coverage {
     font-size: 16pt;
+    left: 4px;
 }
 
 ul#tiles > li div.coverage:hover {
