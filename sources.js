@@ -121,6 +121,7 @@ var Source = gpf.define("Source", {
             this._doc = value;
             return true;
         }
+
     },
 
     "public": {
@@ -141,6 +142,29 @@ var Source = gpf.define("Source", {
             }
             this._processImplementation(source);
             this._processDependencies(dependencies);
+        },
+
+        /**
+         * Create the exported version of the source
+         */
+        export: function () {
+            var result = {
+                name: this._name
+            };
+            if (this._description) {
+                result.description = this._description;
+            }
+            if (this._load) {
+                if (!this._test) {
+                    result.test = false;
+                }
+                if (this._doc) {
+                    result.doc = true;
+                }
+            } else {
+                result.load = false;
+            }
+            return result;
         },
 
         isReadOnly: function () {
@@ -281,6 +305,17 @@ var SourceArray = gpf.define("SourceArray", {
                 }
             });
             return minIndex;
+        },
+
+        /**
+         * Return the JSON string representing the list of sources
+         *
+         * @return {String}
+         */
+        toString: function () {
+            return JSON.stringify(this._sources.map(function (source) {
+                return source.export();
+            }));
         }
 
     }
