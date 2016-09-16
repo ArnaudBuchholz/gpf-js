@@ -118,6 +118,10 @@ function onLoad() {
         });
 }
 
+function onSave() {
+    alert(sources.toString());
+}
+
         </script>
     </head>
     <body onload="onLoad()">
@@ -134,7 +138,7 @@ function onLoad() {
             </thead>
             <tbody id="rows" />
         </table>
-        <button disabled="true" id="save">Save</button>
+        <button disabled="true" id="save" onclick="onSave()">Save</button>
 
         <template id="tpl_row">
 {%
