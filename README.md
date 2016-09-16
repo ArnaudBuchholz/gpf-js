@@ -53,44 +53,7 @@ Lines of Code|7352|*Average per source: 141*
 
 ## Testing
 
-For HTTP testing, you must first run `grunt serve`
-
-* With [mocha](https://mochajs.org/) (relative to gpf-js root folder):
-    * `http://localhost:8000/test/host/mocha/web.html`
-    * `node test/host/mocha/nodejs.js`
-* Without mocha (relative to gpf-js root folder):
-    * `http://localhost:8000/test/host/web.html`
-    * `node test/host/nodejs.js`
-    * `phantomjs test/host/phantomjs.js`
-    * `cscript /E:jscript test\host\cscript.js`
-    * `java -jar node_modules\rhino-1_7r5-bin\rhino1_7R5\js.jar test\host\rhino.js`
-* With [grunt](http://gruntjs.com/):
-    * testing with PhantomJS (as a browser):
-        * `grunt mocha`
-        * `grunt mocha:source`
-        * `grunt mocha:debug`
-        * `grunt mocha:release`
-    * testing with NodeJS:
-        * `grunt mochaTest`
-        * `grunt mochaTest:source`
-        * `grunt mochaTest:debug`
-        * `grunt mochaTest:release`
-    * testing with cscript:
-        * `grunt exec:testWscript`
-        * `grunt exec:testWscriptVerbose` *(alias: `grunt wscript`)*
-        * `grunt exec:testWscriptDebug`
-        * `grunt exec:testWscriptRelease`
-    * testing with rhino:
-        * `grunt exec:testRhino`
-        * `grunt exec:testRhinoVerbose` *(alias: `grunt rhino`)*
-        * `grunt exec:testRhinoDebug`
-        * `grunt exec:testRhinoRelease`
-    * testing with browsers using [Selenium](http://www.seleniumhq.org/):
-        * you must first run `node detectSelenium` to check drivers installation
-        * `grunt firefox`
-        * `grunt chrome`
-        * `grunt ie`
-        * `grunt safari`
+See [TESTME](https://github.com/ArnaudBuchholz/gpf-js/blob/master/README.md)
 
 ## Credits
 
