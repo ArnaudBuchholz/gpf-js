@@ -173,6 +173,10 @@ var Source = gpf.define("Source", {
 
         hasDependencies: function () {
             return this._dependsOn.length > 0;
+        },
+
+        isReferenced: function () {
+            return this._dependencyOf.length > 0;
         }
 
     },
