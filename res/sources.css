@@ -33,6 +33,20 @@ ul.items span {
     cursor: pointer;
 }
 
+.references {
+    display: inline-block;
+    background-color: darkgreen;
+    font-weight: bold;
+    font-size: 6px;
+    color: white;
+    padding-top: 4px;
+    text-align: center;
+    border-radius: 8px;
+    width: 16px;
+    height: 12px;
+    cursor: pointer;
+}
+
 tr:hover {
     background-color: silver;
 }
