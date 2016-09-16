@@ -52,18 +52,17 @@ tr:hover {
 }
 
 tr.dragged {
-    background-color: aquamarine;
     opacity: .5;
 }
 
 tr.drag-ok {
-    background-color: yellowgreen;
 }
 
 tr.no-drag {
     background-color: orange;
+    opacity: .2;
 }
 
 tr.drag-ok.over {
-    background-color: darkgreen;
+    background-color: yellowgreen;
 }
