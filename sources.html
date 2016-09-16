@@ -125,6 +125,7 @@ function onLoad() {
             <thead>
                 <th>Name</th>
                 <th>Dep.</th>
+                <th>Ref.</th>
                 <th>Load</th>
                 <th>Test</th>
                 <th>Doc.</th>
@@ -166,6 +167,15 @@ function onLoad() {
 
 if ($object.hasDependencies()) {
     %}<span class="dependencies" {%%}="$write('title=\'' + $object.getDependencies().join('\n') + '\'');">{% $write($object.getDependencies().length); %}</span>{%
+} else {
+    $write("&nbsp;");
+}
+
+                %}</td>
+                <td>{%
+
+if ($object.isReferenced()) {
+    %}<span class="references" {%%}="$write('title=\'' + $object.getDependencyOf().join('\n') + '\'');">{% $write($object.getDependencyOf().length); %}</span>{%
 } else {
     $write("&nbsp;");
 }
