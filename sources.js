@@ -32,6 +32,10 @@ var Source = gpf.define("Source", {
         "[_doc]": [gpf.$ClassProperty()],
         _doc: false,
 
+        //@property {String} Namespace
+        "[_namespace]": [gpf.$ClassProperty()],
+        _namespace: "",
+
         //@property {String[]} List of dependencies (boot is excluded)
         "[_dependsOn]": [gpf.$ClassProperty(false, "dependencies")],
         _dependsOn: [],
@@ -62,22 +66,36 @@ var Source = gpf.define("Source", {
         _items: [],
 
         /**
+         * Adds an implementation item
+         *
+         * @param {String} type
+         * @param {String} name
+         */
+        _addImplementationItem: function (type, name) {
+            if (!this.hasOwnProperty("_items")) {
+                this._items = [];
+            }
+            this._items.push({
+                type: type,
+                name: name,
+                internal: name.charAt(0) === "_"
+            });
+        },
+
+        /**
          * Extract implementation details
          *
          * @param {Object} source contains raw implementation
          */
         _processImplementation: function (source) {
-            var item = {};
             if (source.method) {
-                item.type = Source.IMPLEMENTS_TYPE_METHOD;
-                item.name = source.method;
-            } else if (source["class"]) {
-                item.type = Source.IMPLEMENTS_TYPE_CLASS;
-                item.name = source["class"];
+                this._addImplementationItem(Source.IMPLEMENTS_TYPE_METHOD, source.method);
             }
-            if (item.type) {
-                item.internal = item.name.charAt(0) === "_";
-                this._items = [item];
+            if (source["class"]) {
+                this._addImplementationItem(Source.IMPLEMENTS_TYPE_CLASS, source["class"]);
+            }
+            if (source.namespace) {
+                this._addImplementationItem(Source.IMPLEMENTS_TYPE_NAMESPACE, source.namespace);
             }
         },
 
@@ -164,6 +182,15 @@ var Source = gpf.define("Source", {
             } else {
                 result.load = false;
             }
+            this._items.forEach(function (item) {
+                if (Source.IMPLEMENTS_TYPE_METHOD === item.type) {
+                    result.method = item.name;
+                } else if (Source.IMPLEMENTS_TYPE_CLASS === item.type) {
+                    result["class"] = item.name;
+                } else if (Source.IMPLEMENTS_TYPE_NAMESPACE === item.type) {
+                    result.namespace = item.name;
+                }
+            });
             return result;
         },
 
@@ -206,6 +233,7 @@ var Source = gpf.define("Source", {
     },
 
     "static": {
+        IMPLEMENTS_TYPE_NAMESPACE: "namespace",
         IMPLEMENTS_TYPE_METHOD: "method",
         IMPLEMENTS_TYPE_CLASS: "class"
     }
