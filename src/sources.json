@@ -1,333 +1,420 @@
-[{
-    "name": "boot",
-    "description": "Host detection, non-UMD loader",
-    "load": false
-}, {
-    "name": "host/browser",
-    "description": "Browser host adapter",
-    "test": false
-}, {
-    "name": "host/nodejs",
-    "description": "NodeJS host adapter",
-    "test": false
-}, {
-    "name": "host/phantomjs",
-    "description": "PhantomJS host adapter",
-    "test": false
-}, {
-    "name": "host/rhino",
-    "description": "Rhino host adapter",
-    "test": false
-}, {
-    "name": "host/wscript",
-    "description": "MS Script host adapter",
-    "test": false
-}, {
-    "name": "assert",
-    "description": "Assertion helpers"
-}, {
-    "name": "noconflict",
-    "description": "Relinquish control of the gpf variable",
-    "doc": true
-}, {
-    "name": "arraylike",
-    "description": "Array detection"
-}, {
-    "name": "foreach",
-    "description": "Object enumerator"
-}, {
-    "name": "extend",
-    "description": "Object merger"
-}, {
-    "name": "string/capitalize",
-    "method": "_gpfStringCapitalize"
-}, {
-    "name": "string/replaceex",
-    "method": "_gpfStringReplaceEx"
-}, {
-    "name": "string/escapefor",
-    "method": "_gpfStringEscapeFor"
-}, {
-    "name": "string/escape/javascript",
-    "description": "Javascript string escaping definition",
-    "test": false
-}, {
-    "name": "string/escape/xml",
-    "description": "Xml string escaping definition",
-    "test": false
-}, {
-    "name": "string/escape/html",
-    "description": "Html string escaping definition",
-    "test": false
-}, {
-    "name": "compatibility",
-    "description": "Polyfills installer"
-}, {
-    "name": "compatibility/array",
-    "description": "Array methods polyfill"
-}, {
-    "name": "factory",
-    "description": "Generic factory"
-}, {
-    "name": "compatibility/date",
-    "description": "Date methods polyfill"
-}, {
-    "name": "compatibility/function",
-    "description": "Function methods polyfill"
-}, {
-    "name": "compatibility/object",
-    "description": "Object methods polyfill"
-}, {
-    "name": "compatibility/string",
-    "description": "String methods polyfill"
-}, {
-    "name": "compatibility/promise",
-    "description": "Promise polyfill"
-}, {
-    "name": "compatibility/timeout",
-    "description": "setTimeout polyfill"
-}, {
-    "name": "compatibility/json",
-    "description": "JSON polyfill"
-}, {
-    "name": "context",
-    "description": "Context management"
-}, {
-    "name": "constants",
-    "description": "Constants",
-    "doc": true
-}, {
-    "name": "scope",
-    "description": "Scope management()"
-}, {
-    "name": "events",
-    "description": "Event management",
-    "namespace": "gpf.events",
-    "class": "gpf.events.Event"
-}, {
-    "name": "include",
-    "description": "Web include helper"
-}, {
-    "name": "bootstrap",
-    "description": "Helper to bootstrap methods"
-}, {
-    "name": "value",
-    "description": "Value converter",
-    "method": "gpf.value"
-}, {
-    "name": "set",
-    "description": "Sets helpers"
-}, {
-    "name": "base",
-    "description": "General helpers"
-}, {
-    "name": "function",
-    "description": "Function builder"
-}, {
-    "name": "like",
-    "description": "Comparison helper"
-}, {
-    "name": "error",
-    "description": "Error base class",
-    "class": "gpf.Error"
-}, {
-    "name": "mimetype",
-    "description": "Mime types handling"
-}, {
-    "name": "bin",
-    "description": "Binary tools",
-    "namespace": "gpf.bin"
-}, {
-    "name": "path",
-    "description": "Path helper",
-    "namespace": "gpf.path"
-}, {
-    "name": "path/matcher",
-    "description": "Path matcher",
-    "namespace": "gpf.path"
-}, {
-    "name": "javascript",
-    "description": "JavaScript language tools",
-    "namesapce": "gpf.js"
-}, {
-    "name": "csv",
-    "description": "CSV helper",
-    "namespace": "gpf.csv"
-}, {
-    "name": "define/constructor",
-    "description": "Class constructor",
-    "method": "_getNewClassConstructor",
-    "test": false
-}, {
-    "name": "define/classdef",
-    "description": "Class definition",
-    "class": "_GpfClassDefinition",
-    "test": false
-}, {
-    "name": "define/factory",
-    "description": "Class factory",
-    "method": "_gpfDefineFactory",
-    "test": false
-}, {
-    "name": "define/params",
-    "description": "gpf.define parameters processing",
-    "method": "_gpfProcessDefineParams",
-    "test": false
-}, {
-    "name": "define/internal",
-    "description": "processing of internal definitions",
-    "method": "_gpfProcessInternalDefinition",
-    "test": false
-}, {
-    "name": "define",
-    "description": "Class management",
-    "method": "gpf.define"
-}, {
-    "name": "define/custom",
-    "description": "Custom class handler",
-    "method": "_gpfGenerateCustomDefineHandler",
-    "test": false
-}, {
-    "name": "attributes",
-    "description": "Attributes",
-    "namespace": "gpf.attributes"
-}, {
-    "name": "attributes/attributes",
-    "description": "AttributeClassOnly attributes"
-}, {
-    "name": "attributes/class",
-    "description": "Class attributes"
-}, {
-    "name": "interfaces",
-    "description": "Interfaces",
-    "namespace": "gpf.interfaces"
-}, {
-    "name": "interfaces/enumerator",
-    "interface": "IEnumerator"
-}, {
-    "name": "interfaces/array",
-    "interface": "IArray"
-}, {
-    "name": "interfaces/stream",
-    "interface": "IStream"
-}, {
-    "name": "interfaces/filestorage",
-    "interface": "IFileStorage"
-}, {
-    "name": "fs",
-    "description": "File system",
-    "namespace": "gpf.fs"
-}, {
-    "name": "stream",
-    "description": "Stream helpers",
-    "namespace": "gpf.stream"
-}, {
-    "name": "stream/pipe",
-    "description": "Pipe helper for streams",
-    "method": "gpf.stream.pipe"
-}, {
-    "name": "string",
-    "description": "String functions"
-}, {
-    "name": "array",
-    "description": "Array functions"
-}, {
-    "name": "stream/node",
-    "description": "NodeJS specific stream implementation",
-    "load": false
-}, {
-    "name": "stream/cache",
-    "description": "Buffer stream",
-    "load": false
-}, {
-    "name": "parser",
-    "description": "Parser helper",
-    "load": false
-}, {
-    "name": "pattern",
-    "description": "Patterns",
-    "load": false
-}, {
-    "name": "tokenizer",
-    "description": "Javascript parser",
-    "load": false
-}, {
-    "name": "fs/node",
-    "description": "FS implementation for nodeJS",
-    "load": false
-}, {
-    "name": "fs/ms",
-    "description": "FS implementation for WScript",
-    "load": false
-}, {
-    "name": "stream_out",
-    "description": "gpf.stream.Out",
-    "load": false
-}, {
-    "name": "stream_node",
-    "description": "IStream helpers for nodeJS",
-    "namespace": "gpf.stream",
-    "load": false
-}, {
-    "name": "encoding",
-    "description": "Encoding",
-    "namespace": "gpf.encoding",
-    "load": false
-}, {
-    "name": "i_wrapper",
-    "description": "Interface wrapper",
-    "class": "gpf.interfaces.Wrapper",
-    "load": false
-}, {
-    "name": "i_xml",
-    "description": "IXmlSerializable & IXmlContentHandler",
-    "load": false
-}, {
-    "name": "a_xml",
-    "description": "Xml attributes",
-    "load": false
-}, {
-    "name": "xml",
-    "description": "Xml helpers",
-    "namespace": "gpf.xml",
-    "load": false
-}, {
-    "name": "xserial",
-    "description": "Xml serialization",
-    "load": false
-}, {
-    "name": "xnode",
-    "description": "Xml 'DOM' structure",
-    "namespace": "gpf.xml",
-    "load": false
-}, {
-    "name": "xpath",
-    "description": "Xml 'XPATH' parser/evaluator",
-    "namespace": "gpf.xml",
-    "load": false
-}, {
-    "name": "params",
-    "description": "Parameters parsing",
-    "class": "gpf.Params",
-    "load": false
-}, {
-    "name": "serial",
-    "description": "Object serialization",
-    "namespace": "gpf.serial",
-    "load": false
-}, {
-    "name": "html",
-    "description": "HTML specific functions",
-    "namespace": "gpf.html",
-    "load": false
-}, {
-    "name": "websvr",
-    "description": "Simple JSP web server (nodeJS specific)",
-    "load": false
-}, {
-    "name": "dispatch",
-    "description": "Event dispatcher",
-    "mixin": "EventDispatcher",
-    "load": false
-
-}]
+[
+    {
+        "name": "boot",
+        "description": "Host detection, non-UMD loader",
+        "load": false
+    },
+    {
+        "name": "host/browser",
+        "description": "Browser host adapter",
+        "test": false
+    },
+    {
+        "name": "host/nodejs",
+        "description": "NodeJS host adapter",
+        "test": false
+    },
+    {
+        "name": "host/phantomjs",
+        "description": "PhantomJS host adapter",
+        "test": false
+    },
+    {
+        "name": "host/rhino",
+        "description": "Rhino host adapter",
+        "test": false
+    },
+    {
+        "name": "host/wscript",
+        "description": "MS Script host adapter",
+        "test": false
+    },
+    {
+        "name": "assert",
+        "description": "Assertion helpers"
+    },
+    {
+        "name": "noconflict",
+        "description": "Relinquish control of the gpf variable",
+        "doc": true
+    },
+    {
+        "name": "arraylike",
+        "description": "Array detection"
+    },
+    {
+        "name": "foreach",
+        "description": "Object enumerator"
+    },
+    {
+        "name": "extend",
+        "description": "Object merger"
+    },
+    {
+        "name": "string/capitalize",
+        "method": "_gpfStringCapitalize"
+    },
+    {
+        "name": "string/replaceex",
+        "method": "_gpfStringReplaceEx"
+    },
+    {
+        "name": "string/escapefor",
+        "method": "_gpfStringEscapeFor"
+    },
+    {
+        "name": "string/escape/javascript",
+        "description": "Javascript string escaping definition",
+        "test": false
+    },
+    {
+        "name": "string/escape/xml",
+        "description": "Xml string escaping definition",
+        "test": false
+    },
+    {
+        "name": "string/escape/html",
+        "description": "Html string escaping definition",
+        "test": false
+    },
+    {
+        "name": "compatibility",
+        "description": "Polyfills installer"
+    },
+    {
+        "name": "compatibility/array",
+        "description": "Array methods polyfill"
+    },
+    {
+        "name": "factory",
+        "description": "Generic factory"
+    },
+    {
+        "name": "compatibility/date",
+        "description": "Date methods polyfill"
+    },
+    {
+        "name": "compatibility/function",
+        "description": "Function methods polyfill"
+    },
+    {
+        "name": "compatibility/object",
+        "description": "Object methods polyfill"
+    },
+    {
+        "name": "compatibility/string",
+        "description": "String methods polyfill"
+    },
+    {
+        "name": "compatibility/promise",
+        "description": "Promise polyfill"
+    },
+    {
+        "name": "compatibility/timeout",
+        "description": "setTimeout polyfill"
+    },
+    {
+        "name": "compatibility/json",
+        "description": "JSON polyfill"
+    },
+    {
+        "name": "context",
+        "description": "Context management"
+    },
+    {
+        "name": "constants",
+        "description": "Constants",
+        "doc": true
+    },
+    {
+        "name": "scope",
+        "description": "Scope management()"
+    },
+    {
+        "name": "events",
+        "description": "Event management",
+        "namespace": "gpf.events",
+        "class": "gpf.events.Event"
+    },
+    {
+        "name": "include",
+        "description": "Web include helper"
+    },
+    {
+        "name": "bootstrap",
+        "description": "Helper to bootstrap methods"
+    },
+    {
+        "name": "value",
+        "description": "Value converter",
+        "method": "gpf.value"
+    },
+    {
+        "name": "set",
+        "description": "Sets helpers"
+    },
+    {
+        "name": "base",
+        "description": "General helpers"
+    },
+    {
+        "name": "function",
+        "description": "Function builder"
+    },
+    {
+        "name": "like",
+        "description": "Comparison helper"
+    },
+    {
+        "name": "error",
+        "description": "Error base class",
+        "class": "gpf.Error"
+    },
+    {
+        "name": "mimetype",
+        "description": "Mime types handling"
+    },
+    {
+        "name": "bin",
+        "description": "Binary tools",
+        "namespace": "gpf.bin"
+    },
+    {
+        "name": "path",
+        "description": "Path helper",
+        "namespace": "gpf.path"
+    },
+    {
+        "name": "path/matcher",
+        "description": "Path matcher",
+        "namespace": "gpf.path"
+    },
+    {
+        "name": "javascript",
+        "description": "JavaScript language tools",
+        "namespace": "gpf.js"
+    },
+    {
+        "name": "csv",
+        "description": "CSV helper",
+        "namespace": "gpf.csv"
+    },
+    {
+        "name": "define/constructor",
+        "description": "Class constructor",
+        "method": "_getNewClassConstructor",
+        "test": false
+    },
+    {
+        "name": "define/classdef",
+        "description": "Class definition",
+        "class": "_GpfClassDefinition",
+        "test": false
+    },
+    {
+        "name": "define/factory",
+        "description": "Class factory",
+        "method": "_gpfDefineFactory",
+        "test": false
+    },
+    {
+        "name": "define/params",
+        "description": "gpf.define parameters processing",
+        "method": "_gpfProcessDefineParams",
+        "test": false
+    },
+    {
+        "name": "define/internal",
+        "description": "processing of internal definitions",
+        "method": "_gpfProcessInternalDefinition",
+        "test": false
+    },
+    {
+        "name": "define",
+        "description": "Class management",
+        "method": "gpf.define"
+    },
+    {
+        "name": "define/custom",
+        "description": "Custom class handler",
+        "method": "_gpfGenerateCustomDefineHandler",
+        "test": false
+    },
+    {
+        "name": "attributes",
+        "description": "Attributes",
+        "namespace": "gpf.attributes"
+    },
+    {
+        "name": "attributes/attributes",
+        "description": "AttributeClassOnly attributes"
+    },
+    {
+        "name": "attributes/class",
+        "description": "Class attributes"
+    },
+    {
+        "name": "interfaces",
+        "description": "Interfaces",
+        "namespace": "gpf.interfaces"
+    },
+    {
+        "name": "interfaces/enumerator",
+        "interface": "IEnumerator"
+    },
+    {
+        "name": "interfaces/array",
+        "interface": "IArray"
+    },
+    {
+        "name": "interfaces/stream",
+        "interface": "IStream"
+    },
+    {
+        "name": "interfaces/filestorage",
+        "interface": "IFileStorage"
+    },
+    {
+        "name": "fs",
+        "description": "File system",
+        "namespace": "gpf.fs"
+    },
+    {
+        "name": "stream",
+        "description": "Stream helpers",
+        "namespace": "gpf.stream"
+    },
+    {
+        "name": "stream/pipe",
+        "description": "Pipe helper for streams",
+        "method": "gpf.stream.pipe"
+    },
+    {
+        "name": "string",
+        "description": "String functions"
+    },
+    {
+        "name": "array",
+        "description": "Array functions"
+    },
+    {
+        "name": "stream/node",
+        "description": "NodeJS specific stream implementation",
+        "load": false
+    },
+    {
+        "name": "stream/cache",
+        "description": "Buffer stream",
+        "load": false
+    },
+    {
+        "name": "parser",
+        "description": "Parser helper",
+        "load": false
+    },
+    {
+        "name": "pattern",
+        "description": "Patterns",
+        "load": false
+    },
+    {
+        "name": "tokenizer",
+        "description": "Javascript parser",
+        "load": false
+    },
+    {
+        "name": "fs/node",
+        "description": "FS implementation for nodeJS",
+        "load": false
+    },
+    {
+        "name": "fs/ms",
+        "description": "FS implementation for WScript",
+        "load": false
+    },
+    {
+        "name": "stream_out",
+        "description": "gpf.stream.Out",
+        "load": false
+    },
+    {
+        "name": "stream_node",
+        "description": "IStream helpers for nodeJS",
+        "namespace": "gpf.stream",
+        "load": false
+    },
+    {
+        "name": "encoding",
+        "description": "Encoding",
+        "namespace": "gpf.encoding",
+        "load": false
+    },
+    {
+        "name": "i_wrapper",
+        "description": "Interface wrapper",
+        "class": "gpf.interfaces.Wrapper",
+        "load": false
+    },
+    {
+        "name": "i_xml",
+        "description": "IXmlSerializable & IXmlContentHandler",
+        "load": false
+    },
+    {
+        "name": "a_xml",
+        "description": "Xml attributes",
+        "load": false
+    },
+    {
+        "name": "xml",
+        "description": "Xml helpers",
+        "namespace": "gpf.xml",
+        "load": false
+    },
+    {
+        "name": "xserial",
+        "description": "Xml serialization",
+        "load": false
+    },
+    {
+        "name": "xnode",
+        "description": "Xml 'DOM' structure",
+        "namespace": "gpf.xml",
+        "load": false
+    },
+    {
+        "name": "xpath",
+        "description": "Xml 'XPATH' parser/evaluator",
+        "namespace": "gpf.xml",
+        "load": false
+    },
+    {
+        "name": "params",
+        "description": "Parameters parsing",
+        "class": "gpf.Params",
+        "load": false
+    },
+    {
+        "name": "serial",
+        "description": "Object serialization",
+        "namespace": "gpf.serial",
+        "load": false
+    },
+    {
+        "name": "html",
+        "description": "HTML specific functions",
+        "namespace": "gpf.html",
+        "load": false
+    },
+    {
+        "name": "websvr",
+        "description": "Simple JSP web server (nodeJS specific)",
+        "load": false
+    },
+    {
+        "name": "dispatch",
+        "description": "Event dispatcher",
+        "mixin": "EventDispatcher",
+        "load": false
+    }
+]
