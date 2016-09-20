@@ -315,7 +315,7 @@ var SourceArray = gpf.define("SourceArray", {
         toString: function () {
             return JSON.stringify(this._sources.map(function (source) {
                 return source.export();
-            }));
+            }), null, 2);
         }
 
     }
