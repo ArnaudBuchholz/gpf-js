@@ -1,5 +1,8 @@
 "use strict";
-/*exported Source, SourceArray*/
+/*global xhr*/
+/*exported onDrag, onDragEnd, onDragOver, onDragEnter, onDragLeave, onDrop, onLoad, onSave*/
+
+//region Source and SourceArray definitions
 
 var Source = gpf.define("Source", {
 
@@ -88,15 +91,11 @@ var Source = gpf.define("Source", {
          * @param {Object} source contains raw implementation
          */
         _processImplementation: function (source) {
-            if (source.method) {
-                this._addImplementationItem(Source.IMPLEMENTS_TYPE_METHOD, source.method);
-            }
-            if (source["class"]) {
-                this._addImplementationItem(Source.IMPLEMENTS_TYPE_CLASS, source["class"]);
-            }
-            if (source.namespace) {
-                this._addImplementationItem(Source.IMPLEMENTS_TYPE_NAMESPACE, source.namespace);
-            }
+            gpf.forEach(Source.IMPLEMENTS_MAPPING, function (type, memberName) {
+                if (source[memberName]) {
+                    this._addImplementationItem(type, source[memberName]);
+                }
+            }, this);
         },
 
         /**
@@ -183,13 +182,11 @@ var Source = gpf.define("Source", {
                 result.load = false;
             }
             this._items.forEach(function (item) {
-                if (Source.IMPLEMENTS_TYPE_METHOD === item.type) {
-                    result.method = item.name;
-                } else if (Source.IMPLEMENTS_TYPE_CLASS === item.type) {
-                    result["class"] = item.name;
-                } else if (Source.IMPLEMENTS_TYPE_NAMESPACE === item.type) {
-                    result.namespace = item.name;
-                }
+                gpf.forEach(Source.IMPLEMENTS_MAPPING, function (type, memberName) {
+                    if (type === item.type) {
+                        result[memberName] = item.name;
+                    }
+                });
             });
             return result;
         },
@@ -235,9 +232,21 @@ var Source = gpf.define("Source", {
     "static": {
         IMPLEMENTS_TYPE_NAMESPACE: "namespace",
         IMPLEMENTS_TYPE_METHOD: "method",
-        IMPLEMENTS_TYPE_CLASS: "class"
+        IMPLEMENTS_TYPE_CLASS: "class",
+        IMPLEMENTS_TYPE_INTERFACE: "interface",
+        IMPLEMENTS_TYPE_MIXIN: "mixin",
+
+        IMPLEMENTS_MAPPING: {}
     }
 
+});
+
+gpf.extend(Source.IMPLEMENTS_MAPPING, {
+    "namespace": Source.IMPLEMENTS_TYPE_NAMESPACE,
+    "method": Source.IMPLEMENTS_TYPE_METHOD,
+    "class": Source.IMPLEMENTS_TYPE_CLASS,
+    "interface": Source.IMPLEMENTS_TYPE_INTERFACE,
+    "mixin": Source.IMPLEMENTS_TYPE_MIXIN
 });
 
 var SourceArray = gpf.define("SourceArray", {
@@ -343,9 +352,136 @@ var SourceArray = gpf.define("SourceArray", {
         toString: function () {
             return JSON.stringify(this._sources.map(function (source) {
                 return source.export();
-            }), null, 2);
+            }), null, 4);
         }
 
     }
 
 });
+
+//endregion
+
+//region HTML page logic
+
+var // @global {Function} Row factory
+    rowFactory,
+    // @global {Object} Base node receiving rows
+    sourceRows,
+    // @global {SourceArray} List of sources
+    sources;
+
+// Whatever the target node, get the parent TR corresponding to the source row
+function upToSourceRow(target) {
+    var current = target;
+    while (current && current.tagName.toLowerCase() !== "tr") {
+        current = current.parentNode;
+    }
+    return current;
+}
+
+// Regenerate the source row
+function refreshSourceRow(target, source) {
+    var row = upToSourceRow(target),
+        newRow = rowFactory(source, source.getIndex());
+    sourceRows.replaceChild(newRow, row);
+}
+
+// Regenerate all source rows
+function reload() {
+    sources.forEach(function (item, index) {
+        sourceRows.appendChild(rowFactory(item, index));
+    });
+}
+
+function onClick(event) {
+    var target = event.target,
+        parts,
+        source;
+    if ("checkbox" === target.getAttribute("type")) {
+        parts = target.id.split("_"); // property_sourceIndex
+        source = sources.byIndex(parseInt(parts[1], 10));
+        if (source.setProperty(parts[0], target.checked)) {
+            refreshSourceRow(target, source);
+            document.getElementById("save").removeAttribute("disabled");
+        } else {
+            target.checked = !target.checked; // Restore value
+        }
+    } else if ("description" === target.className) {
+        alert(target.innerHTML); // TODO propose an text field to edit the description
+    }
+}
+
+var draggedSourceName;
+
+function onDrag(event) {
+    if (!event.target.className) {
+        draggedSourceName = event.target.id;
+        var minIndex = sources.getMinIndexFor(event.target.id);
+        [].slice.call(sourceRows.children).forEach(function (sourceRow, index) {
+            if (sourceRow === event.target) {
+                sourceRow.className = "dragged";
+            } else if (index < minIndex) {
+                sourceRow.className = "no-drag";
+            } else {
+                sourceRow.className = "drag-ok";
+            }
+        });
+    }
+}
+
+function onDragEnd(/*event*/) {
+    [].slice.call(sourceRows.children).forEach(function (sourceRow) {
+        sourceRow.className = "";
+    });
+}
+
+function onDragOver(event) {
+    if (-1 < upToSourceRow(event.target).className.indexOf("drag-ok")) {
+        event.preventDefault(); // allowed
+    }
+}
+
+function onDragEnter(event) {
+    var row = upToSourceRow(event.target);
+    if (-1 === row.className.indexOf(" over")) {
+        row.className += " over";
+    }
+}
+
+function onDragLeave(event) {
+    var row = upToSourceRow(event.target);
+    if (-1 !== row.className.indexOf(" over")) {
+        row.className = row.className.split(" ")[0];
+    }
+}
+
+function onDrop(event) {
+    var targetSource = upToSourceRow(event.target).id;
+    console.log(draggedSourceName + " -> " + targetSource);
+    event.preventDefault();
+}
+
+function onLoad() {
+    Promise.all([xhr("src/sources.json").get(), xhr("build/dependencies.json").get()])
+        .then(function (responseTexts) {
+            var tplRow = document.getElementById("tpl_row");
+            rowFactory = tplRow.buildFactory();
+            sourceRows = document.getElementById("rows");
+            sources = new SourceArray(responseTexts[0], responseTexts[1]);
+            reload();
+            document.addEventListener("click", onClick);
+        }, function (reason) {
+            alert("A problem occurred while loading src/sources.json and build/dependencies.json: " + reason);
+        });
+}
+
+function onSave() {
+    xhr("/file/src/sources.json").put(sources.toString())
+        .then(function () {
+            document.getElementById("save").setAttribute("disabled", true);
+        }, function (reason) {
+            alert(reason);
+        });
+}
+
+//endregion
