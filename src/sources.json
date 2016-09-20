@@ -202,32 +202,32 @@
     {
         "name": "define/constructor",
         "description": "Class constructor",
-        "method": "_getNewClassConstructor",
-        "test": false
+        "test": false,
+        "method": "_getNewClassConstructor"
     },
     {
         "name": "define/classdef",
         "description": "Class definition",
-        "class": "_GpfClassDefinition",
-        "test": false
+        "test": false,
+        "class": "_GpfClassDefinition"
     },
     {
         "name": "define/factory",
         "description": "Class factory",
-        "method": "_gpfDefineFactory",
-        "test": false
+        "test": false,
+        "method": "_gpfDefineFactory"
     },
     {
         "name": "define/params",
         "description": "gpf.define parameters processing",
-        "method": "_gpfProcessDefineParams",
-        "test": false
+        "test": false,
+        "method": "_gpfProcessDefineParams"
     },
     {
         "name": "define/internal",
         "description": "processing of internal definitions",
-        "method": "_gpfProcessInternalDefinition",
-        "test": false
+        "test": false,
+        "method": "_gpfProcessInternalDefinition"
     },
     {
         "name": "define",
@@ -237,8 +237,8 @@
     {
         "name": "define/custom",
         "description": "Custom class handler",
-        "method": "_gpfGenerateCustomDefineHandler",
-        "test": false
+        "test": false,
+        "method": "_gpfGenerateCustomDefineHandler"
     },
     {
         "name": "attributes",
@@ -340,20 +340,20 @@
     {
         "name": "stream_node",
         "description": "IStream helpers for nodeJS",
-        "namespace": "gpf.stream",
-        "load": false
+        "load": false,
+        "namespace": "gpf.stream"
     },
     {
         "name": "encoding",
         "description": "Encoding",
-        "namespace": "gpf.encoding",
-        "load": false
+        "load": false,
+        "namespace": "gpf.encoding"
     },
     {
         "name": "i_wrapper",
         "description": "Interface wrapper",
-        "class": "gpf.interfaces.Wrapper",
-        "load": false
+        "load": false,
+        "class": "gpf.interfaces.Wrapper"
     },
     {
         "name": "i_xml",
@@ -368,8 +368,8 @@
     {
         "name": "xml",
         "description": "Xml helpers",
-        "namespace": "gpf.xml",
-        "load": false
+        "load": false,
+        "namespace": "gpf.xml"
     },
     {
         "name": "xserial",
@@ -379,32 +379,32 @@
     {
         "name": "xnode",
         "description": "Xml 'DOM' structure",
-        "namespace": "gpf.xml",
-        "load": false
+        "load": false,
+        "namespace": "gpf.xml"
     },
     {
         "name": "xpath",
         "description": "Xml 'XPATH' parser/evaluator",
-        "namespace": "gpf.xml",
-        "load": false
+        "load": false,
+        "namespace": "gpf.xml"
     },
     {
         "name": "params",
         "description": "Parameters parsing",
-        "class": "gpf.Params",
-        "load": false
+        "load": false,
+        "class": "gpf.Params"
     },
     {
         "name": "serial",
         "description": "Object serialization",
-        "namespace": "gpf.serial",
-        "load": false
+        "load": false,
+        "namespace": "gpf.serial"
     },
     {
         "name": "html",
         "description": "HTML specific functions",
-        "namespace": "gpf.html",
-        "load": false
+        "load": false,
+        "namespace": "gpf.html"
     },
     {
         "name": "websvr",
@@ -414,7 +414,7 @@
     {
         "name": "dispatch",
         "description": "Event dispatcher",
-        "mixin": "EventDispatcher",
-        "load": false
+        "load": false,
+        "mixin": "EventDispatcher"
     }
 ]
