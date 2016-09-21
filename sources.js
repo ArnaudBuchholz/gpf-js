@@ -365,6 +365,8 @@ var SourceArray = gpf.define("SourceArray", {
 
 var // @global {Function} Row factory
     rowFactory,
+    // @global {Function} Edit description factory
+    editDescriptionFactory,
     // @global {Object} Base node receiving rows
     sourceRows,
     // @global {SourceArray} List of sources
@@ -395,11 +397,15 @@ function reload() {
 
 function onClick(event) {
     var target = event.target,
+        sourceRow = upToSourceRow(target),
         parts,
         source;
+    if (!sourceRow) {
+        return;
+    }
+    source = sources.byName(sourceRow.id);
     if ("checkbox" === target.getAttribute("type")) {
         parts = target.id.split("_"); // property_sourceIndex
-        source = sources.byIndex(parseInt(parts[1], 10));
         if (source.setProperty(parts[0], target.checked)) {
             refreshSourceRow(target, source);
             document.getElementById("save").removeAttribute("disabled");
@@ -407,9 +413,20 @@ function onClick(event) {
             target.checked = !target.checked; // Restore value
         }
     } else if ("description" === target.className) {
-        alert(target.innerHTML); // TODO propose an text field to edit the description
+        target.className = ""; // Avoid conflicting clicks
+        target.innerHTML = ""; // Clear
+        target.appendChild(editDescriptionFactory());
+        var edit = target.querySelector("input");
+        edit.value = source.getDescription();
+        edit.addEventListener("blur", function () {
+            alert(this.value);
+            refreshSourceRow(target, source);
+        });
+        edit.focus();
     }
 }
+
+//region Drag & Drop
 
 var draggedSourceName;
 
@@ -430,6 +447,7 @@ function onDrag(event) {
 }
 
 function onDragEnd(/*event*/) {
+    // clean-up classes
     [].slice.call(sourceRows.children).forEach(function (sourceRow) {
         sourceRow.className = "";
     });
@@ -461,11 +479,14 @@ function onDrop(event) {
     event.preventDefault();
 }
 
+//endregion
+
 function onLoad() {
     Promise.all([xhr("src/sources.json").get(), xhr("build/dependencies.json").get()])
         .then(function (responseTexts) {
             var tplRow = document.getElementById("tpl_row");
             rowFactory = tplRow.buildFactory();
+            editDescriptionFactory = document.getElementById("edit_description").buildFactory();
             sourceRows = document.getElementById("rows");
             sources = new SourceArray(responseTexts[0], responseTexts[1]);
             reload();
