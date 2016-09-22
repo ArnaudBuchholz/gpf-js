@@ -403,7 +403,7 @@ var // @global {Function} Row factory
     sources;
 
 // Whatever the target node, get the parent TR corresponding to the source row
-function upToSourceRow(target) {
+function upToSourceRow (target) {
     var current = target;
     while (current && (!current.tagName || current.tagName.toLowerCase() !== "tr")) {
         current = current.parentNode;
@@ -411,22 +411,37 @@ function upToSourceRow(target) {
     return current;
 }
 
+function hideTestCheckboxIfNoFile (index) {
+    var name = sources.byIndex(index).getName();
+    function hide () {
+        document.getElementById("test_" + index).setAttribute("style", "display: none;");
+    }
+    if (0 === name.indexOf("host/")) {
+        // No host specific test file
+        hide();
+    } else {
+        xhr("/file/test/" + sources.byIndex(index).getName() + ".js").options().then(undefined, hide);
+    }
+}
+
 // Regenerate the source row
-function refreshSourceRow(target, source) {
+function refreshSourceRow (target, source) {
     var row = upToSourceRow(target),
         newRow = rowFactory(source, source.getIndex());
     sourceRows.replaceChild(newRow, row);
+    hideTestCheckboxIfNoFile(source.getIndex());
 }
 
 // Regenerate all source rows
-function reload() {
+function reload () {
     sourceRows.innerHTML = ""; // Clear content
     sources.forEach(function (item, index) {
         sourceRows.appendChild(rowFactory(item, index));
+        hideTestCheckboxIfNoFile(index);
     });
 }
 
-function onCheckboxClick(checkbox, source) {
+function onCheckboxClick (checkbox, source) {
     var property = checkbox.id.split("_")[0];
     if (source.setProperty(property, checkbox.checked)) {
         refreshSourceRow(checkbox, source);
@@ -435,14 +450,14 @@ function onCheckboxClick(checkbox, source) {
     }
 }
 
-function onDescriptionClick(description, source) {
+function onDescriptionClick (description, source) {
     description.className = ""; // Avoid conflicting clicks
     description.innerHTML = ""; // Clear
     description.appendChild(editDescriptionFactory());
     var edit = description.querySelector("input");
     edit.value = source.getDescription();
 
-    function done() {
+    function done () {
         if (edit) {
             source.setDescription(edit.value);
             edit = null;
@@ -459,7 +474,7 @@ function onDescriptionClick(description, source) {
     edit.focus();
 }
 
-function onClick(event) {
+function onClick (event) {
     var target = event.target,
         sourceRow = upToSourceRow(target),
         source;
