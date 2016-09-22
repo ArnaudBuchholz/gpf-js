@@ -26,16 +26,25 @@ module.exports = function (request, response, next) {
         return next();
     }
 
-    var filePath = path.join(__dirname, "../..", request.url.substr(BASE_URL.length));
+    var filePath = path.join(__dirname, "../..", request.url.substr(BASE_URL.length)),
+        isOptionsMethod = "OPTIONS" === request.method;
 
     fs.stat(filePath, function (err, stats) {
-        if ((err || !stats.isFile()) && ("GET" === request.method || "PUT" === request.method)) {
+        if ((err || !stats.isFile()) && (-1 !== ["GET", "PUT", "OPTIONS"].indexOf(request.method))) {
             response.statusCode = 404;
-            response.end("File not found");
+            if (isOptionsMethod) {
+                response.end();
+            } else {
+                response.end("File not found");
+            }
             return;
         }
-        if ("GET" === request.method) {
+        if (isOptionsMethod) {
+            response.end();
+
+        } else if ("GET" === request.method) {
             response.end(fs.readFileSync(filePath));
+
         } else {
             _dump(request, response, filePath);
         }
