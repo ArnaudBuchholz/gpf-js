@@ -1,6 +1,5 @@
 "use strict";
 /*global xhr*/
-/*exported onDrag, onDragEnd, onDragOver, onDragEnter, onDragLeave, onDrop, onLoad, onSave*/
 
 //region Source and SourceArray definitions
 
@@ -375,7 +374,7 @@ var // @global {Function} Row factory
 // Whatever the target node, get the parent TR corresponding to the source row
 function upToSourceRow(target) {
     var current = target;
-    while (current && current.tagName.toLowerCase() !== "tr") {
+    while (current && (!current.tagName || current.tagName.toLowerCase() !== "tr")) {
         current = current.parentNode;
     }
     return current;
@@ -430,10 +429,14 @@ function onClick(event) {
 
 var draggedSourceName;
 
-function onDrag(event) {
-    if (!event.target.className) {
-        draggedSourceName = event.target.id;
-        var minIndex = sources.getMinIndexFor(event.target.id);
+gpf.forEach({
+
+    drag: function(event, targetRow) {
+        if (draggedSourceName) {
+            return;
+        }
+        draggedSourceName = targetRow.id;
+        var minIndex = sources.getMinIndexFor(draggedSourceName);
         [].slice.call(sourceRows.children).forEach(function (sourceRow, index) {
             if (sourceRow === event.target) {
                 sourceRow.className = "dragged";
@@ -443,45 +446,51 @@ function onDrag(event) {
                 sourceRow.className = "drag-ok";
             }
         });
-    }
-}
+    },
 
-function onDragEnd(/*event*/) {
-    // clean-up classes
-    [].slice.call(sourceRows.children).forEach(function (sourceRow) {
-        sourceRow.className = "";
+    dragend: function(/*event*/) {
+        // clean-up classes
+        [].slice.call(sourceRows.children).forEach(function (sourceRow) {
+            sourceRow.className = "";
+        });
+        draggedSourceName = undefined;
+    },
+
+    dragover: function(event, targetRow) {
+        if (-1 < targetRow.className.indexOf("drag-ok")) {
+            event.preventDefault(); // allowed
+        }
+    },
+
+    dragenter: function(event, targetRow) {
+        if (-1 === targetRow.className.indexOf(" over")) {
+            targetRow.className += " over";
+        }
+    },
+
+    dragleave: function(event, targetRow) {
+        if (-1 !== targetRow.className.indexOf(" over")) {
+            targetRow.className = targetRow.className.split(" ")[0];
+        }
+    },
+
+    drop: function(event, targetRow) {
+        console.log(draggedSourceName + " -> " + targetRow.id);
+        event.preventDefault();
+    }
+
+}, function (handler, eventName) {
+    window.addEventListener(eventName, function (event) {
+        var targetRow = upToSourceRow(event.target);
+        if (targetRow) {
+            handler(event, targetRow);
+        }
     });
-}
-
-function onDragOver(event) {
-    if (-1 < upToSourceRow(event.target).className.indexOf("drag-ok")) {
-        event.preventDefault(); // allowed
-    }
-}
-
-function onDragEnter(event) {
-    var row = upToSourceRow(event.target);
-    if (-1 === row.className.indexOf(" over")) {
-        row.className += " over";
-    }
-}
-
-function onDragLeave(event) {
-    var row = upToSourceRow(event.target);
-    if (-1 !== row.className.indexOf(" over")) {
-        row.className = row.className.split(" ")[0];
-    }
-}
-
-function onDrop(event) {
-    var targetSource = upToSourceRow(event.target).id;
-    console.log(draggedSourceName + " -> " + targetSource);
-    event.preventDefault();
-}
+});
 
 //endregion
 
-function onLoad() {
+window.addEventListener("load", function () {
     Promise.all([xhr("src/sources.json").get(), xhr("build/dependencies.json").get()])
         .then(function (responseTexts) {
             var tplRow = document.getElementById("tpl_row");
@@ -494,15 +503,15 @@ function onLoad() {
         }, function (reason) {
             alert("A problem occurred while loading src/sources.json and build/dependencies.json: " + reason);
         });
-}
 
-function onSave() {
-    xhr("/file/src/sources.json").put(sources.toString())
-        .then(function () {
-            document.getElementById("save").setAttribute("disabled", true);
-        }, function (reason) {
-            alert(reason);
-        });
-}
+    document.getElementById("save").addEventListener("click", function () {
+        xhr("/file/src/sources.json").put(sources.toString())
+            .then(function () {
+                document.getElementById("save").setAttribute("disabled", true);
+            }, function (reason) {
+                alert(reason);
+            });
+    });
+});
 
 //endregion
