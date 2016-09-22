@@ -10,6 +10,7 @@
         "foreach"
     ],
     "string/escapefor": [
+        "assert",
         "string/replaceex"
     ],
     "string/escape/javascript": [
