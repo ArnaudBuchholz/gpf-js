@@ -58,38 +58,30 @@
         headers: function (headerDictionary) {
             this._headers = headerDictionary;
             return this;
-        },
-
-        /**
-         * GET
-         *
-         * @return {Promise} resolved with response text
-         */
-        get: function () {
-            return _xhrSend(this, "GET");
-        },
-
-        /**
-         * POST
-         *
-         * @param {*} request data
-         * @return {Promise} resolved with response text
-         */
-        post: function (data) {
-            return _xhrSend(this, "POST", data);
-        },
-
-        /**
-         * PUT
-         *
-         * @param {*} request data
-         * @return {Promise} resolved with response text
-         */
-        put: function (data) {
-            return _xhrSend(this, "PUT", data);
         }
 
     };
+
+    var _methods = {
+        get: false,
+        options: false,
+        post: true,
+        put: true
+    };
+
+    Object.keys(_methods).forEach(function (methodName) {
+        var isDataExpected = _methods[methodName],
+            httpVerb = methodName.toUpperCase();
+        if (isDataExpected) {
+            _XhrRequest.prototype[methodName] = function (data) {
+                return _xhrSend(this, httpVerb, data);
+            };
+        } else {
+            _XhrRequest.prototype[methodName] = function () {
+                return _xhrSend(this, httpVerb);
+            };
+        }
+    });
 
     window.xhr = function (url) {
         return new _XhrRequest(url);
