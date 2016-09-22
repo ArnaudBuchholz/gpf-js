@@ -145,7 +145,7 @@ var Source = gpf.define("Source", {
         constructor: function (array, source, dependencies) {
             this._array = array;
             this._name = source.name;
-            this._description = source.description;
+            this._description = source.description || "";
             this._index = array.getLength();
             if (source.load !== false) {
                 this._load = true;
@@ -352,6 +352,37 @@ var SourceArray = gpf.define("SourceArray", {
             return JSON.stringify(this._sources.map(function (source) {
                 return source.export();
             }), null, 4);
+        },
+
+        /**
+         * Moves source after the referenced one
+         *
+         * @param {String} sourceName Name of the source to move
+         * @param {String} referenceSourceName Name of the source to be used as a position reference
+         */
+        insertAfter: function (sourceName, referenceSourceName) {
+            var sourceToMove,
+                sourcePos,
+                referenceSourcePos;
+            if (!this._sources.every(function (source, index) {
+                var name = source.getName();
+                if (name === sourceName) {
+                    sourceToMove = source;
+                    sourcePos = index;
+                } else if (name === referenceSourceName) {
+                    referenceSourcePos = index;
+                }
+                return sourcePos === undefined || referenceSourcePos === undefined;
+            })) {
+                this._sources.splice(sourcePos, 1);
+                if (sourcePos > referenceSourcePos) {
+                    ++referenceSourcePos;
+                }
+                this._sources.splice(referenceSourcePos, 0, sourceToMove);
+                this._sources.forEach(function (source, index) {
+                    source.setIndex(index);
+                });
+            }
         }
 
     }
@@ -389,39 +420,59 @@ function refreshSourceRow(target, source) {
 
 // Regenerate all source rows
 function reload() {
+    sourceRows.innerHTML = ""; // Clear content
     sources.forEach(function (item, index) {
         sourceRows.appendChild(rowFactory(item, index));
     });
 }
 
+function onCheckboxClick(checkbox, source) {
+    var property = checkbox.id.split("_")[0];
+    if (source.setProperty(property, checkbox.checked)) {
+        refreshSourceRow(checkbox, source);
+    } else {
+        checkbox.checked = !checkbox.checked; // Restore value
+    }
+}
+
+function onDescriptionClick(description, source) {
+    description.className = ""; // Avoid conflicting clicks
+    description.innerHTML = ""; // Clear
+    description.appendChild(editDescriptionFactory());
+    var edit = description.querySelector("input");
+    edit.value = source.getDescription();
+
+    function done() {
+        if (edit) {
+            source.setDescription(edit.value);
+            edit = null;
+            refreshSourceRow(description, source);
+        }
+    }
+
+    edit.addEventListener("blur", done);
+    edit.addEventListener("keypress", function (event) {
+        if (event.keyCode === 13) {
+            done();
+        }
+    });
+    edit.focus();
+}
+
 function onClick(event) {
     var target = event.target,
         sourceRow = upToSourceRow(target),
-        parts,
         source;
     if (!sourceRow) {
         return;
     }
     source = sources.byName(sourceRow.id);
     if ("checkbox" === target.getAttribute("type")) {
-        parts = target.id.split("_"); // property_sourceIndex
-        if (source.setProperty(parts[0], target.checked)) {
-            refreshSourceRow(target, source);
-            document.getElementById("save").removeAttribute("disabled");
-        } else {
-            target.checked = !target.checked; // Restore value
-        }
+        onCheckboxClick(target, source);
+
     } else if ("description" === target.className) {
-        target.className = ""; // Avoid conflicting clicks
-        target.innerHTML = ""; // Clear
-        target.appendChild(editDescriptionFactory());
-        var edit = target.querySelector("input");
-        edit.value = source.getDescription();
-        edit.addEventListener("blur", function () {
-            alert(this.value);
-            refreshSourceRow(target, source);
-        });
-        edit.focus();
+        onDescriptionClick(target, source);
+
     }
 }
 
@@ -432,7 +483,7 @@ var draggedSourceName;
 gpf.forEach({
 
     drag: function(event, targetRow) {
-        if (draggedSourceName) {
+        if (draggedSourceName === targetRow.id) {
             return;
         }
         draggedSourceName = targetRow.id;
@@ -453,7 +504,6 @@ gpf.forEach({
         [].slice.call(sourceRows.children).forEach(function (sourceRow) {
             sourceRow.className = "";
         });
-        draggedSourceName = undefined;
     },
 
     dragover: function(event, targetRow) {
@@ -475,7 +525,9 @@ gpf.forEach({
     },
 
     drop: function(event, targetRow) {
-        console.log(draggedSourceName + " -> " + targetRow.id);
+        sources.insertAfter(draggedSourceName, targetRow.id);
+        reload();
+        draggedSourceName = undefined;
         event.preventDefault();
     }
 
@@ -506,9 +558,7 @@ window.addEventListener("load", function () {
 
     document.getElementById("save").addEventListener("click", function () {
         xhr("/file/src/sources.json").put(sources.toString())
-            .then(function () {
-                document.getElementById("save").setAttribute("disabled", true);
-            }, function (reason) {
+            .then(undefined, function (reason) {
                 alert(reason);
             });
     });
