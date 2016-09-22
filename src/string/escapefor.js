@@ -1,5 +1,6 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
 /*exported _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*exported _gpfStringEscapes*/ // Dictionary of language to escapes
@@ -16,6 +17,7 @@ var _gpfStringEscapes = {};
  * @return {String}
  */
 function _gpfStringEscapeFor (that, language) {
+    _gpfAssert(undefined !== _gpfStringEscapes[language], "Unknown language");
     that = _gpfStringReplaceEx(that, _gpfStringEscapes[language]);
     if ("javascript" === language) {
         that = "\"" + that + "\"";
