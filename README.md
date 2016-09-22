@@ -53,7 +53,7 @@ Lines of Code|7352|*Average per source: 141*
 
 ## Testing
 
-See [TESTME](https://github.com/ArnaudBuchholz/gpf-js/blob/master/README.md)
+See [TESTME.md](https://github.com/ArnaudBuchholz/gpf-js/blob/master/TESTME.md)
 
 ## Credits
 
