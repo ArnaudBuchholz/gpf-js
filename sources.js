@@ -482,7 +482,7 @@ var draggedSourceName;
 
 gpf.forEach({
 
-    drag: function(event, targetRow) {
+    drag: function (event, targetRow) {
         if (draggedSourceName === targetRow.id) {
             return;
         }
@@ -499,32 +499,32 @@ gpf.forEach({
         });
     },
 
-    dragend: function(/*event*/) {
+    dragend: function (/*event*/) {
         // clean-up classes
         [].slice.call(sourceRows.children).forEach(function (sourceRow) {
             sourceRow.className = "";
         });
     },
 
-    dragover: function(event, targetRow) {
+    dragover: function (event, targetRow) {
         if (-1 < targetRow.className.indexOf("drag-ok")) {
             event.preventDefault(); // allowed
         }
     },
 
-    dragenter: function(event, targetRow) {
+    dragenter: function (event, targetRow) {
         if (-1 === targetRow.className.indexOf(" over")) {
             targetRow.className += " over";
         }
     },
 
-    dragleave: function(event, targetRow) {
+    dragleave: function (event, targetRow) {
         if (-1 !== targetRow.className.indexOf(" over")) {
             targetRow.className = targetRow.className.split(" ")[0];
         }
     },
 
-    drop: function(event, targetRow) {
+    drop: function (event, targetRow) {
         sources.insertAfter(draggedSourceName, targetRow.id);
         reload();
         draggedSourceName = undefined;
