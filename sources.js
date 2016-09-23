@@ -14,10 +14,6 @@ var Source = gpf.define("Source", {
         "[_name]": [gpf.$ClassProperty()],
         _name: "",
 
-        //@property {String} Source description
-        "[_description]": [gpf.$ClassProperty(true)],
-        _description: "",
-
         //@property {Number} Source index
         "[_index]": [gpf.$ClassProperty(true)],
         _index: -1,
@@ -34,10 +30,6 @@ var Source = gpf.define("Source", {
         "[_doc]": [gpf.$ClassProperty()],
         _doc: false,
 
-        //@property {String} Namespace
-        "[_namespace]": [gpf.$ClassProperty()],
-        _namespace: "",
-
         //@property {String[]} List of dependencies (boot is excluded)
         "[_dependsOn]": [gpf.$ClassProperty(false, "dependencies")],
         _dependsOn: [],
@@ -52,47 +44,12 @@ var Source = gpf.define("Source", {
          * @param {Object} dependencies dictionary
          */
         _processDependencies: function (dependencies) {
-            var myDependencies = dependencies[this._name] || [];
-            this._dependsOn = myDependencies;
+            this._dependsOn = dependencies[this._name] || [];
             this._dependencyOf = [];
             Object.keys(dependencies).forEach(function (name) {
                 var nameDependencies = dependencies[name];
                 if (nameDependencies.indexOf(this._name) > -1) {
                     this._dependencyOf.push(name);
-                }
-            }, this);
-        },
-
-        //@property {Object[]} List of implemented items
-        "[_items]": [gpf.$ClassProperty()],
-        _items: [],
-
-        /**
-         * Adds an implementation item
-         *
-         * @param {String} type
-         * @param {String} name
-         */
-        _addImplementationItem: function (type, name) {
-            if (!this.hasOwnProperty("_items")) {
-                this._items = [];
-            }
-            this._items.push({
-                type: type,
-                name: name,
-                internal: name.charAt(0) === "_"
-            });
-        },
-
-        /**
-         * Extract implementation details
-         *
-         * @param {Object} source contains raw implementation
-         */
-        _processImplementation: function (source) {
-            gpf.forEach(Source.IMPLEMENTS_MAPPING, function (type, memberName) {
-                if (source[memberName]) {
-                    this._addImplementationItem(type, source[memberName]);
                 }
             }, this);
         },
@@ -145,7 +102,6 @@ var Source = gpf.define("Source", {
         constructor: function (array, source, dependencies) {
             this._array = array;
             this._name = source.name;
-            this._description = source.description || "";
             this._index = array.getLength();
             if (source.load !== false) {
                 this._load = true;
@@ -153,10 +109,9 @@ var Source = gpf.define("Source", {
             if (source.test !== false) {
                 this._test = true;
             }
-            if (source.doc === true) {
+            if (source.doc) {
                 this._doc = true;
             }
-            this._processImplementation(source);
             this._processDependencies(dependencies);
         },
 
@@ -167,9 +122,6 @@ var Source = gpf.define("Source", {
             var result = {
                 name: this._name
             };
-            if (this._description) {
-                result.description = this._description;
-            }
             if (this._load) {
                 if (!this._test) {
                     result.test = false;
@@ -180,13 +132,6 @@ var Source = gpf.define("Source", {
             } else {
                 result.load = false;
             }
-            this._items.forEach(function (item) {
-                gpf.forEach(Source.IMPLEMENTS_MAPPING, function (type, memberName) {
-                    if (type === item.type) {
-                        result[memberName] = item.name;
-                    }
-                });
-            });
             return result;
         },
 
@@ -226,26 +171,8 @@ var Source = gpf.define("Source", {
             return this._dependencyOf.length > 0;
         }
 
-    },
-
-    "static": {
-        IMPLEMENTS_TYPE_NAMESPACE: "namespace",
-        IMPLEMENTS_TYPE_METHOD: "method",
-        IMPLEMENTS_TYPE_CLASS: "class",
-        IMPLEMENTS_TYPE_INTERFACE: "interface",
-        IMPLEMENTS_TYPE_MIXIN: "mixin",
-
-        IMPLEMENTS_MAPPING: {}
     }
 
-});
-
-gpf.extend(Source.IMPLEMENTS_MAPPING, {
-    "namespace": Source.IMPLEMENTS_TYPE_NAMESPACE,
-    "method": Source.IMPLEMENTS_TYPE_METHOD,
-    "class": Source.IMPLEMENTS_TYPE_CLASS,
-    "interface": Source.IMPLEMENTS_TYPE_INTERFACE,
-    "mixin": Source.IMPLEMENTS_TYPE_MIXIN
 });
 
 var SourceArray = gpf.define("SourceArray", {
@@ -395,8 +322,6 @@ var SourceArray = gpf.define("SourceArray", {
 
 var // @global {Function} Row factory
     rowFactory,
-    // @global {Function} Edit description factory
-    editDescriptionFactory,
     // @global {Object} Base node receiving rows
     sourceRows,
     // @global {SourceArray} List of sources
@@ -411,16 +336,18 @@ function upToSourceRow (target) {
     return current;
 }
 
-function hideTestCheckboxIfNoFile (index) {
-    var name = sources.byIndex(index).getName();
-    function hide () {
+function updateSourceRow (source) {
+    var index = source.getIndex(),
+        name = sources.byIndex(index).getName();
+
+    function hideTest () {
         document.getElementById("test_" + index).setAttribute("style", "display: none;");
     }
     if (0 === name.indexOf("host/")) {
         // No host specific test file
-        hide();
+        hideTest();
     } else {
-        xhr("/fs/test/" + sources.byIndex(index).getName() + ".js").options().then(undefined, hide);
+        xhr("/fs/test/" + sources.byIndex(index).getName() + ".js").options().then(undefined, hideTest);
     }
 }
 
@@ -429,15 +356,15 @@ function refreshSourceRow (target, source) {
     var row = upToSourceRow(target),
         newRow = rowFactory(source, source.getIndex());
     sourceRows.replaceChild(newRow, row);
-    hideTestCheckboxIfNoFile(source.getIndex());
+    updateSourceRow(source);
 }
 
 // Regenerate all source rows
 function reload () {
     sourceRows.innerHTML = ""; // Clear content
-    sources.forEach(function (item, index) {
-        sourceRows.appendChild(rowFactory(item, index));
-        hideTestCheckboxIfNoFile(index);
+    sources.forEach(function (source, index) {
+        sourceRows.appendChild(rowFactory(source, index));
+        updateSourceRow(source);
     });
 }
 
@@ -450,30 +377,6 @@ function onCheckboxClick (checkbox, source) {
     }
 }
 
-function onDescriptionClick (description, source) {
-    description.className = ""; // Avoid conflicting clicks
-    description.innerHTML = ""; // Clear
-    description.appendChild(editDescriptionFactory());
-    var edit = description.querySelector("input");
-    edit.value = source.getDescription();
-
-    function done () {
-        if (edit) {
-            source.setDescription(edit.value);
-            edit = null;
-            refreshSourceRow(description, source);
-        }
-    }
-
-    edit.addEventListener("blur", done);
-    edit.addEventListener("keypress", function (event) {
-        if (event.keyCode === 13) {
-            done();
-        }
-    });
-    edit.focus();
-}
-
 function onClick (event) {
     var target = event.target,
         sourceRow = upToSourceRow(target),
@@ -484,9 +387,6 @@ function onClick (event) {
     source = sources.byName(sourceRow.id);
     if ("checkbox" === target.getAttribute("type")) {
         onCheckboxClick(target, source);
-
-    } else if ("description" === target.className) {
-        onDescriptionClick(target, source);
 
     }
 }
@@ -562,7 +462,6 @@ window.addEventListener("load", function () {
         .then(function (responseTexts) {
             var tplRow = document.getElementById("tpl_row");
             rowFactory = tplRow.buildFactory();
-            editDescriptionFactory = document.getElementById("edit_description").buildFactory();
             sourceRows = document.getElementById("rows");
             sources = new SourceArray(responseTexts[0], responseTexts[1]);
             reload();
