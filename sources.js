@@ -420,7 +420,7 @@ function hideTestCheckboxIfNoFile (index) {
         // No host specific test file
         hide();
     } else {
-        xhr("/file/test/" + sources.byIndex(index).getName() + ".js").options().then(undefined, hide);
+        xhr("/fs/test/" + sources.byIndex(index).getName() + ".js").options().then(undefined, hide);
     }
 }
 
@@ -572,7 +572,7 @@ window.addEventListener("load", function () {
         });
 
     document.getElementById("save").addEventListener("click", function () {
-        xhr("/file/src/sources.json").put(sources.toString())
+        xhr("/fs/src/sources.json").put(sources.toString())
             .then(undefined, function (reason) {
                 alert(reason);
             });
