@@ -1,3 +1,6 @@
+/**
+ * @file Assertion helpers
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfEmptyFunc*/ // An empty function
