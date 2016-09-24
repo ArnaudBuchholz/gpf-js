@@ -1,3 +1,6 @@
+/**
+ * @file Array detection
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
