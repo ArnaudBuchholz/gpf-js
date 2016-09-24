@@ -1,3 +1,6 @@
+/**
+ * @file Promise polyfill
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfAssert*/ // Assertion method
