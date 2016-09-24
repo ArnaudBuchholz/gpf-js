@@ -68,7 +68,9 @@ all internal variables of the library are prefixed by:
 *Until jsdoc tags are updated everywhere, the [valid-jsdoc](http://eslint.org/docs/rules/valid-jsdoc) rule will be
 enabled case by case*
 
-There are two levels of documentation:
+There are three levels of documentation:
+
+- Sources must have a [@file](http://usejsdoc.org/tags-file.html) tag to provide summary of module content.
 
 - Functions, classes, constants that are exposed by the library (there should not be any variable).
   They are easily distinguished as they all belong to the gpf namespace.
