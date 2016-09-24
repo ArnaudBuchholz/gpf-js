@@ -1,3 +1,6 @@
+/**
+ * @file Helper to replace strings content
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
