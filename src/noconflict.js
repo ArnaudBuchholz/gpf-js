@@ -1,3 +1,6 @@
+/**
+ * @file Control of the gpf variable
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfMainContext*/ // Main context object
