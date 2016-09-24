@@ -1,3 +1,6 @@
+/**
+ * @file Array methods polyfill
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
