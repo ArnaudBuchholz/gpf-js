@@ -1,3 +1,6 @@
+/**
+ * @file Object enumerator
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
