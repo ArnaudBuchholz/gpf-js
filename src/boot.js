@@ -1,3 +1,6 @@
+/**
+ * @file Host detection, non-UMD loader
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*exported _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
