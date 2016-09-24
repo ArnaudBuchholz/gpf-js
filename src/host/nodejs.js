@@ -1,3 +1,6 @@
+/**
+ * @file NodeJS host adapter
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST_NODEJS*/ // gpf.HOST_NODEJS
