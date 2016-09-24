@@ -347,8 +347,15 @@ function updateSourceRow (source) {
         // No host specific test file
         hideTest();
     } else {
-        xhr("/fs/test/" + sources.byIndex(index).getName() + ".js").options().then(undefined, hideTest);
+        xhr("/fs/test/" + name + ".js").options().then(undefined, hideTest);
     }
+
+    xhr("/src/" + name + ".js").get().then(function (content) {
+        var description = /@file (.*)/.exec(content);
+        if (description) {
+            document.getElementById("description_" + index).innerHTML = description[1];
+        }
+    });
 }
 
 // Regenerate the source row
