@@ -1,3 +1,6 @@
+/**
+ * @file Helper to escape strings
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfAssert*/ // Assertion method
