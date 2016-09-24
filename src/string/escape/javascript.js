@@ -1,3 +1,6 @@
+/**
+ * @file Definition of JavaScript escapes
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfStringEscapes*/ // Dictionary of language to escapes
