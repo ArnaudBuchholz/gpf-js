@@ -1,3 +1,6 @@
+/**
+ * @file Definition of HTML escapes
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfExtend*/ // gpf.extend
