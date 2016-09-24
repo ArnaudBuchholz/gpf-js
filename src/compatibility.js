@@ -1,3 +1,6 @@
+/**
+ * @file Polyfills installer
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfEmptyFunc*/ // An empty function
