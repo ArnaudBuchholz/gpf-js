@@ -1,3 +1,6 @@
+/**
+ * @file setTimeout polyfill
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST_RHINO*/ // gpf.HOST_RHINO
