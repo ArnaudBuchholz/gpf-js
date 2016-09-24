@@ -1,3 +1,6 @@
+/**
+ * @file Generic factory
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*exported _gpfGenericFactory*/ // Create any class by passing the right number of parameters
