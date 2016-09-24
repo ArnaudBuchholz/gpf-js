@@ -1,3 +1,6 @@
+/**
+ * @file Helper to capitalize strings
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*exported _gpfStringCapitalize*/ // Capitalize the string
