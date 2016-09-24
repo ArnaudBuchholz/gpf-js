@@ -1,3 +1,6 @@
+/**
+ * @file PhantomJS host adapter
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST_PHANTOMJS*/ // gpf.HOST_PHANTOMJS
