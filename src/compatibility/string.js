@@ -1,3 +1,6 @@
+/**
+ * @file String methods polyfill
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfInstallCompatibility*/ // Define and install compatible methods
