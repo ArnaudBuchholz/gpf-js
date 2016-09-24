@@ -1,3 +1,6 @@
+/**
+ * @file Object merger
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfAssert*/ // Assertion method
