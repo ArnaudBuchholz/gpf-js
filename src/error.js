@@ -1,3 +1,6 @@
+/**
+ * @file Error base class
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
