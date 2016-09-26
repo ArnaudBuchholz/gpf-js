@@ -1,3 +1,6 @@
+/**
+ * @file HTML helpers
+ */
 /*#ifndef(UMD)*/
 (function () {/* Begin of privacy scope */
     "use strict";
