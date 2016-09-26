@@ -1,3 +1,6 @@
+/**
+ * @file Event management
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
