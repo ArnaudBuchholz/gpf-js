@@ -1,3 +1,6 @@
+/**
+ * @file Pipes for streams
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
