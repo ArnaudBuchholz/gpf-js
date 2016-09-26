@@ -1,3 +1,6 @@
+/**
+ * @file XML serialization mechanism
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfA*/ // gpf.attributes
