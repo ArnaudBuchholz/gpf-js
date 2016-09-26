@@ -1,3 +1,6 @@
+/**
+ * @file Scope management
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfMainContext*/ // Main context object
