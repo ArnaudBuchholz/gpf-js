@@ -1,3 +1,6 @@
+/**
+ * @file Streams helpers
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
