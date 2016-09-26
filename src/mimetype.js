@@ -1,3 +1,6 @@
+/**
+ * @file Mime types handling
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfGetBootstrapMethod*/ // Create a method that contains a bootstrap (called only once)
