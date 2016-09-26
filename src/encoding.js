@@ -1,3 +1,6 @@
+/**
+ * @file Encoding helpers
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfDefine*/ // Shortcut for gpf.define
