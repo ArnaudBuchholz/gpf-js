@@ -1,3 +1,6 @@
+/**
+ * @file Custom class handler
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfDefine*/ // Shortcut for gpf.define
