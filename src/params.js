@@ -1,3 +1,6 @@
+/**
+ * @file Parameters parsing
+ */
 /*#ifndef(UMD)*/
 (function () {/* Begin of privacy scope */
     "use strict";
