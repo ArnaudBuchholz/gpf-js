@@ -1,3 +1,6 @@
+/**
+ * @file Stream implementation of console output
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfI*/ // gpf.interfaces
