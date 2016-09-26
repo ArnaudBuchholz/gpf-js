@@ -1,3 +1,6 @@
+/**
+ * @file Serialization mechanism
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfA*/ // _gpfA
