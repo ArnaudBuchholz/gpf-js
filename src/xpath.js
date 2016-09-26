@@ -1,3 +1,6 @@
+/**
+ * @file XPATH implementation
+ */
 /*#ifndef(UMD)*/
 (function () {/* Begin of privacy scope */
     "use strict";
