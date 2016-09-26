@@ -1,3 +1,6 @@
+/**
+ * @file Interfaces
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfAttributesAdd*/ // Shortcut for gpf.attributes.add
