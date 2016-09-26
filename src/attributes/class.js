@@ -1,3 +1,6 @@
+/**
+ * @file Class attributes
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfDefAttr*/ // gpf.define for attributes
