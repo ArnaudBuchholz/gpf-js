@@ -1,3 +1,6 @@
+/**
+ * @file Value converter
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
