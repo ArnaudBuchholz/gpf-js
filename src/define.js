@@ -1,3 +1,6 @@
+/**
+ * @file Class management
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfContext*/ // Resolve contextual string
