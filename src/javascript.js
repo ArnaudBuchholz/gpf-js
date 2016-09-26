@@ -1,3 +1,6 @@
+/**
+ * @file JavaScript language tools
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfJsKeywords*/ //  List of JavaScript keywords
