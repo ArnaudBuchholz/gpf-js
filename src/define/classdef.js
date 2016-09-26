@@ -1,3 +1,6 @@
+/**
+ * @file Class definition
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
