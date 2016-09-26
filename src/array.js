@@ -1,3 +1,6 @@
+/**
+ * @file Array helpers
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
