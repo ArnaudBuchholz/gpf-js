@@ -1,3 +1,6 @@
+/**
+ * @file Binary tools
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfALPHA*/ // Letters (uppercase)
