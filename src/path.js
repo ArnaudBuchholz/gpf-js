@@ -1,3 +1,6 @@
+/**
+ * @file Path helper
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*exported _gpfPathDecompose*/ // Normalize path and returns an array of parts
