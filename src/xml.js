@@ -1,3 +1,6 @@
+/**
+ * @file XML helpers
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfAlpha*/ // Letters (lowercase)
