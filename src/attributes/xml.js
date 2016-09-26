@@ -1,3 +1,6 @@
+/**
+ * @file Xml Attributes
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfAssert*/ // Assertion method
