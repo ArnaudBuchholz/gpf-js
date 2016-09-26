@@ -1,3 +1,6 @@
+/**
+ * @file General helpers
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfExit*/ // Exit function
