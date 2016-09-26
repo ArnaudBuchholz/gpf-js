@@ -1,3 +1,6 @@
+/**
+ * @file Javascript parser
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfAlpha*/ // Letters (lowercase)
