@@ -1,3 +1,6 @@
+/**
+ * @file Helper to bootstrap methods
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfContext*/ // Resolve contextual string
