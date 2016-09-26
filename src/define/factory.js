@@ -1,3 +1,6 @@
+/**
+ * @file Class factory
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfClassDefinition*/ // GPF class definition
