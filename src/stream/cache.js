@@ -1,4 +1,7 @@
 /**
+ * @file Buffer stream
+ */
+/**
  * Handles a buffered stream that depends on a read stream.
  * The way the underlying buffer is read and converted can be overridden
  * through the following protected APIs:
