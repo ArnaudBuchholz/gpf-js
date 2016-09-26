@@ -1,3 +1,6 @@
+/**
+ * @file Function builder
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfFunc*/ // Create a new function using the source
