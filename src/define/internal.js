@@ -1,3 +1,6 @@
+/**
+ * @file Processing of internal gpf.define structures
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
