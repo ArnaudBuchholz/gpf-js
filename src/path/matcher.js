@@ -1,3 +1,6 @@
+/**
+ * @file Path matcher
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfAssert*/ // Assertion method
