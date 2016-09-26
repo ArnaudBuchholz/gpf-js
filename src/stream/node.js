@@ -1,3 +1,6 @@
+/**
+ * @file NodeJS specific stream implementation
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
