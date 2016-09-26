@@ -1,3 +1,6 @@
+/**
+ * @file IXmlSerializable, IXmlContentHandler
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfDefIntrf*/ // gpf.define for interfaces
