@@ -1,7 +1,9 @@
+/**
+ * @file Parser helper
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
-/*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
@@ -75,7 +77,7 @@ _gpfDefine("gpf.Parser", {
         /**
          * Defines an handler for the parser output
          *
-         * @param {Array|gpf.events.EventHandler) handler
+         * @param {Array|gpf.events.EventHandler} handler
          */
         setOutputHandler: function (handler) {
             _gpfAssert(handler instanceof Array || _GpfEventsIsValidHandler(handler),
@@ -168,7 +170,7 @@ _gpfDefine("gpf.Parser", {
         /**
          * Parse character
          *
-         * @param {String} buffer
+         * @param {String} char
          */
         _parseChar: function (char) {
             var state,
