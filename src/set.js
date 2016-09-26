@@ -1,3 +1,6 @@
+/**
+ * @file Sets helpers
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfAssert*/ // Assertion method
