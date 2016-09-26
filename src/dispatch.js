@@ -1,3 +1,6 @@
+/**
+ * @file Event dispatcher mixin
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfEvent*/ // gpf.Events.Event
