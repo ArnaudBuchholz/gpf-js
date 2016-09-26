@@ -1,3 +1,6 @@
+/**
+ * @file Comparison helper
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfFalseFunc*/ // An empty function returning false
