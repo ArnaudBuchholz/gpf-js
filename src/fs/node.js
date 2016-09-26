@@ -1,3 +1,6 @@
+/**
+ * @file NodeJS specific File System implementation
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
