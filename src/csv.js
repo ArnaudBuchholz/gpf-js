@@ -1,3 +1,6 @@
+/**
+ * @file CSV helper
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
