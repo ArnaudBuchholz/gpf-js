@@ -1,3 +1,6 @@
+/**
+ * @file gpf.define parameters processing
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfAsserts*/ // Multiple assertion method
