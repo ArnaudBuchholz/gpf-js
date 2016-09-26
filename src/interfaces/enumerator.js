@@ -1,3 +1,6 @@
+/**
+ * @file IEnumerator
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
@@ -13,7 +16,7 @@
 /*exported _gpfArrayEnumerator*/ // Create an IEnumerator from an array
 /*#endif*/
 
-_gpfErrorDeclare("i_enumerator", {
+_gpfErrorDeclare("interfaces/enumerator", {
     enumerableInvalidMember:
         "$Enumerator can be associated to arrays only"
 });
