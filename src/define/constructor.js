@@ -1,3 +1,6 @@
+/**
+ * @file Class constructor
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfFunctionBuilder*/ // Function builder
