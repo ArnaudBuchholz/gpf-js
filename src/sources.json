@@ -333,15 +333,9 @@
         "load": false
     },
     {
-        "name": "stream_out",
+        "name": "stream/out",
         "description": "gpf.stream.Out",
         "load": false
-    },
-    {
-        "name": "stream_node",
-        "description": "IStream helpers for nodeJS",
-        "load": false,
-        "namespace": "gpf.stream"
     },
     {
         "name": "encoding",
@@ -350,18 +344,18 @@
         "namespace": "gpf.encoding"
     },
     {
-        "name": "i_wrapper",
+        "name": "interfaces/wrapper",
         "description": "Interface wrapper",
         "load": false,
         "class": "gpf.interfaces.Wrapper"
     },
     {
-        "name": "i_xml",
+        "name": "interfaces/xml",
         "description": "IXmlSerializable & IXmlContentHandler",
         "load": false
     },
     {
-        "name": "a_xml",
+        "name": "attributes/xml",
         "description": "Xml attributes",
         "load": false
     },
