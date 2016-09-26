@@ -1,3 +1,6 @@
+/**
+ * @file XML nodes builders
+ */
 /*#ifndef(UMD)*/
 (function () {/* Begin of privacy scope */
     "use strict";
