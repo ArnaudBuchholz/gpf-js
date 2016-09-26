@@ -1,10 +1,10 @@
+/**
+ * @file Pattern
+ */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfAssert*/ // Assertion method
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
-/*global _GpfEventsIsValidHandler*/ // Check event handler validity
 /*#endif*/
 
 _gpfErrorDeclare("pattern", {
