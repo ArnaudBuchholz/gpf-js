@@ -1,3 +1,7 @@
+.hide {
+    display: none;
+}
+
 .internal {
     display: inline-block;
     background-color: orange;
@@ -45,6 +49,17 @@ ul.items span {
     width: 16px;
     height: 12px;
     cursor: pointer;
+}
+
+tr[exists] {
+}
+
+tr[obsolete] {
+    background-color: #FFDDDD;;
+}
+
+tr[new] {
+    background-color: #DDFFDD;
 }
 
 tr:hover {
