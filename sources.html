@@ -34,6 +34,16 @@
         if (!$object.isReadOnly()) {
             $write("draggable=\"true\" ");
         }
+        if ($object.getCheckedState) {
+            var state = $object.getCheckedState();
+            if (true === state) {
+                $write("exists ");
+            } else if (false === state) {
+                $write("obsolete ");
+            } else {
+                $write("new ");
+            }
+        }
     }
 
     function check(propertyName) {
@@ -66,7 +76,7 @@ if ($object.isReferenced()) {
 
                 %}</td>
                 <td><input id="load_{{$index}}" type="checkbox" {%%}="check('load');"></td>
-                <td><input id="test_{{$index}}" type="checkbox" {%%}="check('test');"></td>
+                <td><input id="test_{{$index}}" type="checkbox" {%%}="check('test');" class="hide"></td>
                 <td><input id="doc_{{$index}}" type="checkbox" {%%}="check('doc');"></td>
                 <td  id="description_{{$index}}" class="description">&nbsp;</td>
             </tr>
