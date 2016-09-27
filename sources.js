@@ -464,6 +464,59 @@ gpf.forEach({
 
 //endregion
 
+//region Compare sources.json with repository
+
+function compare (checkDictionary, path, pathContent) {
+    var subPromises = [];
+    pathContent.forEach(function (name) {
+        var contentFullName = path + name,
+            contentFullNameLength = contentFullName.length;
+        if (contentFullNameLength > 3 && contentFullName.indexOf(".js") === contentFullNameLength - 3) {
+            contentFullName = contentFullName.substr(0, contentFullNameLength - 3);
+            if (false === checkDictionary[contentFullName]) {
+                checkDictionary[contentFullName] = true;
+            } else {
+                checkDictionary[contentFullName] = undefined; // missing
+            }
+        } else if (-1 === name.indexOf(".")) {
+            subPromises.push(xhr("/fs/src/" + contentFullName).get().asJson()
+                .then(function (subPathContent) {
+                    return compare(checkDictionary, contentFullName + "/", subPathContent);
+                }));
+        }
+    });
+    if (0 === subPromises.length) {
+        return Promise.resolve();
+    } else {
+        return Promise.all(subPromises);
+    }
+}
+
+function check () {
+    var checkDictionary = {};
+    sources.forEach(function (source) {
+        checkDictionary[source.getName()] = false;
+    });
+    xhr("/fs/src").get().asJson()
+        .then(function (pathContent) {
+            return compare(checkDictionary, "", pathContent);
+        })
+        .then(function () {
+            var obsoleteSources = [],
+                newSources = [];
+            gpf.forEach(checkDictionary, function (status, name) {
+                if (false === status) {
+                    obsoleteSources.push(name);
+                } else if (undefined === status) {
+                    newSources.push(name);
+                }
+            });
+            alert("Obsolete:\n\t" + obsoleteSources.join("\n\t") + "\nNew:\n\t" + newSources.join("\n\t"));
+        });
+}
+
+//endregion
+
 window.addEventListener("load", function () {
     Promise.all([xhr("src/sources.json").get(), xhr("build/dependencies.json").get()])
         .then(function (responseTexts) {
@@ -483,6 +536,9 @@ window.addEventListener("load", function () {
                 alert(reason);
             });
     });
+
+    document.getElementById("check").addEventListener("click", check);
+
 });
 
 //endregion
