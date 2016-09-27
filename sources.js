@@ -112,7 +112,9 @@ var Source = gpf.define("Source", {
             if (source.doc) {
                 this._doc = true;
             }
-            this._processDependencies(dependencies);
+            if (dependencies) {
+                this._processDependencies(dependencies);
+            }
         },
 
         /**
@@ -180,7 +182,24 @@ var SourceArray = gpf.define("SourceArray", {
     "private": {
 
         // @property {Object} dictionary of sources indexed by name
-        _sources: []
+        _sources: [],
+
+        // @property {Object} Result of check function
+        _checkDictionary: null,
+
+        // Adds extra properties to the source
+        _extend: function (source) {
+            var me = this,
+                result;
+            if (me._checkDictionary) {
+                result = Object.create(source);
+                result.getCheckedState = function () {
+                    return me._checkDictionary[source.getName()];
+                };
+                return result;
+            }
+            return source;
+        }
 
     },
 
@@ -209,7 +228,10 @@ var SourceArray = gpf.define("SourceArray", {
          * @param {*} thisArg
          */
         forEach: function (callback, thisArg) {
-            this._sources.forEach(callback, thisArg);
+            var that = this;
+            this._sources.forEach(function (source, index) {
+                callback(that._extend(source), index);
+            }, thisArg);
         },
 
         /**
@@ -222,11 +244,11 @@ var SourceArray = gpf.define("SourceArray", {
             var result;
             this._sources.every(function (source) {
                 if (source.getName() === name) {
-                    result = source;
+                    result = this._extend(source);
                     return false;
                 }
                 return true;
-            });
+            }, this);
             return result;
         },
 
@@ -237,7 +259,7 @@ var SourceArray = gpf.define("SourceArray", {
          * @return {Source}
          */
         byIndex: function (index) {
-            return this._sources[index];
+            return this._extend(this._sources[index]);
         },
 
         /**
@@ -310,6 +332,24 @@ var SourceArray = gpf.define("SourceArray", {
                     source.setIndex(index);
                 });
             }
+        },
+
+        /**
+         * Provide information about sources
+         *
+         * @param {Object} checkDictionary
+         */
+        setCheckDictionary: function (checkDictionary) {
+            this._checkDictionary = checkDictionary;
+            // Add missing sources
+            Object.keys(checkDictionary).forEach(function (name) {
+                if (undefined === checkDictionary[name]) {
+                    this._sources.push(new Source(this, {
+                        name: name,
+                        load: false
+                    }, null));
+                }
+            }, this);
         }
 
     }
@@ -340,14 +380,11 @@ function updateSourceRow (source) {
     var index = source.getIndex(),
         name = sources.byIndex(index).getName();
 
-    function hideTest () {
-        document.getElementById("test_" + index).setAttribute("style", "display: none;");
-    }
-    if (0 === name.indexOf("host/")) {
-        // No host specific test file
-        hideTest();
-    } else {
-        xhr("/fs/test/" + name + ".js").options().then(undefined, hideTest);
+    if (0 !== name.indexOf("host/")) {
+        xhr("/fs/test/" + name + ".js").options()
+            .then(function () {
+                document.getElementById("test_" + index).className = "";
+            });
     }
 
     xhr("/src/" + name + ".js").get().then(function (content) {
@@ -511,7 +548,8 @@ function check () {
                     newSources.push(name);
                 }
             });
-            alert("Obsolete:\n\t" + obsoleteSources.join("\n\t") + "\nNew:\n\t" + newSources.join("\n\t"));
+            sources.setCheckDictionary(checkDictionary);
+            reload();
         });
 }
 
