@@ -52,14 +52,20 @@ Module.prototype = {
     // Analyze the file content
     analyze: function () {
         this.lines.every(this._dispatchLine, this);
+        if (-1 === this._umdLineIndex) {
+            module.error("missing /*#ifndef(UMD)*/");
+        }
     },
+
+    // @property {Number} Line number where the #ifndef(UMD) is found
+    _umdLineIndex: -1,
 
     // Select method for the given line
     _dispatchLine: function (line, lineIndex) {
-        if (0 === lineIndex) {
-            return this._checkLine0(line);
+        if (-1 === this._umdLineIndex) {
+            return this._checkLine0(line, lineIndex);
         }
-        if (1 === lineIndex) {
+        if (lineIndex === this._umdLineIndex + 1) {
             return this._checkLine1(line);
         }
         if (line === "/*#endif*/") {
@@ -69,10 +75,9 @@ Module.prototype = {
     },
 
     // First line *must* be /*#ifndef(UMD)*/
-    _checkLine0: function (line) {
-        if (line !== "/*#ifndef(UMD)*/") {
-            module.error("missing /*#ifndef(UMD)*/");
-            return false;
+    _checkLine0: function (line, lineIndex) {
+        if (line === "/*#ifndef(UMD)*/") {
+            this._umdLineIndex = lineIndex;
         }
         return true;
     },
@@ -136,7 +141,7 @@ Module.prototype = {
             lines = this.lines.filter(function (line, lineIndex) {
                 return -1 === this.filteredLines.indexOf(lineIndex);
             }, this),
-            spliceArgs = [2, 0],
+            spliceArgs = [this._umdLineIndex + 2, 0],
             after;
         this.imports.sort().forEach(function (name) {
             var module = Module.byExport[name];
