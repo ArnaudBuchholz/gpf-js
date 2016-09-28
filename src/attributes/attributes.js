@@ -11,7 +11,7 @@
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*#endif*/
 
-_gpfErrorDeclare("a_attributes", {
+_gpfErrorDeclare("attributes/attributes", {
     onlyForAttributeClass:
         "The attribute {attributeName} can be used only on an Attribute class",
     onlyOnClassForAttributeClass:
@@ -46,19 +46,40 @@ var
      * @extends gpf.attributes.Attribute
      */
     _GpfAttrOnly = _gpfDefAttr("AttrClassOnlyAttribute", {
+        "-": {
+
+            /**
+             * Return current attribute name
+             *
+             * @return {String}
+             */
+            _getAttributeName: function () {
+                return _gpfGetClassDefinition(this.constructor)._name;
+            },
+
+            _checkTargetClassIsAttribute: function (objPrototype) {
+                if (!(objPrototype instanceof _gpfAttribute)) {
+                    throw gpf.Error.onlyForAttributeClass({
+                        attributeName: this._getAttributeName()
+                    });
+                }
+            },
+
+            _checkMemberIsClass: function () {
+                if (this._member !== "Class") {
+                    throw gpf.Error.onlyOnClassForAttributeClass({
+                        attributeName: this._getAttributeName()
+                    });
+                }
+            }
+
+        },
+
         "#": {
 
             _alterPrototype: function (objPrototype) {
-                if (!(objPrototype instanceof _gpfAttribute)) {
-                    throw gpf.Error.onlyForAttributeClass({
-                        attributeName: _gpfGetClassDefinition(this.constructor)._name
-                    });
-                }
-                if (this._member !== "Class") {
-                    throw gpf.Error.onlyOnClassForAttributeClass({
-                        attributeName: _gpfGetClassDefinition(this.constructor)._name
-                    });
-                }
+                this._checkTargetClassIsAttribute(objPrototype);
+                this._checkMemberIsClass();
             }
 
         }
