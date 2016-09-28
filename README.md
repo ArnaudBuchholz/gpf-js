@@ -14,7 +14,7 @@ A multi-purpose JavaScript library created and maintained by
 * Compatible with several hosts
 ([cscript/wscript](http://technet.microsoft.com/en-us/library/bb490887.aspx),
 [NodeJS](http://nodejs.org/), [Rhino](https://developer.mozilla.org/en-US/docs/Mozilla/Projects/Rhino),
-[PhantomJS](http://phantomjs.org/), most browsers)
+[PhantomJS](http://phantomjs.org/), most *recent* browsers)
 * Namespace and class system
 * Java-like annotation tool (attributes)
 * Interface based
@@ -47,9 +47,8 @@ Lines of Code|7352|*Average per source: 141*
 ## Setup
 
 * Clone repository
-* at the root of the cloned repository: `npm install`
-* if you plan to use [Selenium](http://www.seleniumhq.org/): `node detectSelenium`
-* ... enjoy!
+* install [grunt](http://gruntjs.com/)
+* at the root of the cloned repository: `npm install`, then `grunt`
 
 ## Testing
 
