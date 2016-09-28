@@ -107,7 +107,29 @@ _gpfDefAttr("$ClassProperty", _gpfClassAttribute, {
          *
          * @type {String|undefined}
          */
-        _visibility: undefined
+        _visibility: undefined,
+
+        /**
+         * Computes a default name for the member
+         *
+         * @return {String} Member name after removing starting _
+         */
+        _getDefaultName: function () {
+            var member = this._member;
+            if ("_" === member.charAt(0)) {
+                return member.substr(1); // starts with _
+            }
+            return member;
+        },
+
+        /**
+         * Compute getter/setter radix
+         *
+         * @return {String} Capitalized member name
+         */
+        _getAccessorRadix: function () {
+            return _gpfStringCapitalize(this._publicName || this._getDefaultName());
+        }
 
     },
     "#": {
@@ -116,17 +138,9 @@ _gpfDefAttr("$ClassProperty", _gpfClassAttribute, {
         _alterPrototype: function (objPrototype) {
             var
                 member = this._member,
-                name = this._publicName,
+                name = this._getAccessorRadix(),
                 visibility = this._visibility,
                 classDef = _gpfGetClassDefinition(objPrototype.constructor);
-            if (!name) {
-                if ("_" === member.charAt(0)) {
-                    name = member.substr(1); // starts with _
-                } else {
-                    name = member;
-                }
-            }
-            name = _gpfStringCapitalize(name);
             if (this._writeAllowed) {
                 classDef.addMember("set" + name, _gpfBuildPropertyFunc(_gpfSetProperty, member), visibility);
             }
@@ -137,21 +151,23 @@ _gpfDefAttr("$ClassProperty", _gpfClassAttribute, {
     "+": {
 
         /**
-         * @param {Boolean} writeAllowed
+         * @param {Boolean} writeAllowed Setter is defined when true
          * @param {String} [publicName=undefined] publicName When not specified, the member name (without _) is applied
          * @param {String} [visibility=undefined] visibility When not specified, public is used
          * @constructor
          */
         constructor: function (writeAllowed, publicName, visibility) {
+            var me = this;
             if (writeAllowed) {
-                this._writeAllowed = true;
+                me._writeAllowed = true;
             }
-            if ("string" === typeof publicName) {
-                this._publicName = publicName;
+            function setIfString (member, value) {
+                if (value && "string" === typeof value) {
+                    me[member] = value;
+                }
             }
-            if ("string" === typeof visibility) {
-                this._visibility = visibility;
-            }
+            setIfString("_publicName", publicName);
+            setIfString("_visibility", visibility);
         }
 
     }
