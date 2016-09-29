@@ -117,7 +117,7 @@ var numberOfSources = sources.length;
 
 console.log("Number of modules:         " + numberOfSources);
 
-var SEPARATOR = "----- | ----- | -----",
+var SEPARATOR = "------ | ----- | ----- | ----- | -----",
     readme = fs.readFileSync("README.md").toString(),
     readmeSections = readme.split("##"),
     metricsSectionIndex;
@@ -130,13 +130,16 @@ readmeSections.every(function (section, index) {
 });
 var metricsSectionHeader = readmeSections[metricsSectionIndex].split(SEPARATOR)[0],
     metricsSection = [
-        "\r\nStatements coverage|", statementsCoverage, "%|*", statementsIgnored, "% ignored*",
-        "\r\nBranches coverage|", branchesCoverage, "%|*", branchesIgnored, "% ignored*",
-        "\r\nFunctions coverage|", functionsCoverage, "%|*", functionsIgnored, "% ignored*",
-        "\r\nAverage maintainability|", averageMaintainability, "|",
-        "\r\nNumber of tests|", numberOfTests, "|*pending: ", pendingTests, ", duration: ", testDuration, "ms*",
-        "\r\nNumber of sources|", numberOfSources, "|",
-        "\r\nLines of Code|", linesOfCode, "|*Average per source: ", averageLinesOfCode, "*",
+        "\r\nStatements coverage|", statementsCoverage, "%||", metrics.coverage.statements, "%|*",
+        statementsIgnored, "% ignored*",
+        "\r\nBranches coverage|", branchesCoverage, "%||", metrics.coverage.branches, "%|*",
+        branchesIgnored, "% ignored*",
+        "\r\nFunctions coverage|", functionsCoverage, "%||", metrics.coverage.functions, "%|*",
+        functionsIgnored, "% ignored*",
+        "\r\nMaintainability|", averageMaintainability, "||", metrics.maintainability, "|",
+        "\r\nNumber of tests||", numberOfTests, "||*pending: ", pendingTests, ", duration: ", testDuration, "ms*",
+        "\r\nNumber of sources||", numberOfSources, "||",
+        "\r\nLines of code|", averageLinesOfCode, "|", linesOfCode, "||",
         "\r\n\r\n"
     ];
 readmeSections[metricsSectionIndex] = metricsSectionHeader + SEPARATOR + metricsSection.join("");
