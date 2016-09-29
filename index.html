@@ -15,7 +15,8 @@ function onLoad () {
 
     var tileFactory = document.getElementById("tile").buildFactory(),
         execFactory = document.getElementById("exec").buildFactory(),
-        tiles = document.getElementById("tiles");
+        tiles = document.getElementById("tiles"),
+        metrics;
 
     // Generate a tile
     function tile (id, title) {
@@ -74,7 +75,7 @@ function onLoad () {
         xhr("tmp/plato/report.json").get().asJson().then(function (reportData) {
             var maintainability = reportData.summary.average.maintainability,
                 statusClassName;
-            if (maintainability < 70) {
+            if (maintainability < metrics.maintainability) {
                 statusClassName = "ko";
             } else {
                 statusClassName = "ok";
@@ -93,7 +94,7 @@ function onLoad () {
             function addCoverage (type) {
                 var ratio = global[type].getCoverageRatio(),
                     statusClassName;
-                if (ratio < 90) {
+                if (ratio < metrics.coverage[type]) {
                     statusClassName = "ko";
                 } else {
                     statusClassName = "ok";
@@ -164,7 +165,11 @@ function onLoad () {
             window.open(link);
         }
     });
-    refresh();
+
+    xhr("make/metrics.json").get().asJson().then(function (metricsData) {
+        metrics = metricsData;
+        refresh();
+    });
 
     window.onpopstate = refresh;
 
