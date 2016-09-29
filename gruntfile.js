@@ -27,6 +27,7 @@ module.exports = function (grunt) {
     // Since the tasks are split using load-grunt-config, I need a global object containing the configuration
     global.configuration = {
         pkg: grunt.file.readJSON("./package.json"),
+        metrics: grunt.file.readJSON("./make/metrics.json"),
         selenium: (function () {
             try {
                 return grunt.file.readJSON("./tmp/selenium.json");
