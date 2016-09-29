@@ -79,7 +79,7 @@ platoData.reports.forEach(function (reportData) {
         maintainability = reportData.complexity.maintainability,
         fileIsKO = false;
     fileTrace.push("maintainability: ", Math.floor(100 * maintainability) / 100);
-    if (maintainability < 70) {
+    if (maintainability < metrics.maintainability) {
         fileIsKO = true;
     }
     if (fileIsKO) {
