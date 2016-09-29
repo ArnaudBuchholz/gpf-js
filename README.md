@@ -34,15 +34,17 @@ This part is automatically updated upon a successful build:
 maintainability-index-range-and-meaning.aspx):
   * [0.1.5-alpha](https://arnaudbuchholz.github.io/gpf/0.1.5-alpha/plato/index.html)
 
-Metric name | value | comment
------ | ----- | -----
-Statements coverage|99%|*7% ignored*
-Branches coverage|98%|*8% ignored*
-Functions coverage|99%|*13% ignored*
-Average maintainability|75.57|
-Number of tests|623|*pending: 1, duration: 1375ms*
-Number of sources|52|
-Lines of Code|7352|*Average per source: 141*
+**SME** stands for **s**ource **m**inimal **e**xpectation.
+
+Metric name | average | total | SME | comment
+------ | ----- | ----- | ----- | -----
+Statements coverage|99.54%||90%|*7.86% ignored*
+Branches coverage|98.58%||90%|*9.18% ignored*
+Functions coverage|99.78%||90%|*11.22% ignored*
+Maintainability|77.57||65|
+Number of tests||653||*pending: 0, duration: 391ms*
+Number of sources||65||
+Lines of code|122|7972||
 
 ## Setup
 
