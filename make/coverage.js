@@ -167,7 +167,12 @@
      * @constructor
      */
     var _File = _class(function (name) {
-        this.name = name;
+        if (name) {
+            if (-1 !== name.indexOf("\\")) {
+                name = name.replace(/\\/g, "/");
+            }
+            this.name = name.split("src/")[1].split(".js")[0];
+        }
         this.statements = new _StatementStatistics();
         this.functions = new _FunctionStatistics();
         this.branches = new _BranchStatistics();
@@ -250,7 +255,7 @@
             this._global = new _File();
             Object.keys(this._data).forEach(function (fileName) {
                 var fileCoverage = this._computeFileCoverage(fileName);
-                this._files[fileName] = fileCoverage;
+                this._files[fileCoverage.name] = fileCoverage;
                 this._global.statements.add(fileCoverage.statements);
                 this._global.functions.add(fileCoverage.functions);
                 this._global.branches.add(fileCoverage.branches);
