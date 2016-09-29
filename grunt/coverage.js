@@ -4,10 +4,10 @@ module.exports = {
     "default": {
         options: {
             thresholds: {
-                statements: 90,
-                branches: 90,
-                lines: 90,
-                functions: 90
+                statements: configuration.metrics.coverage.statements,
+                branches: configuration.metrics.coverage.branches,
+                lines: configuration.metrics.coverage.lines,
+                functions: configuration.metrics.coverage.functions
             },
             dir: "tmp/coverage/reports"
         }
