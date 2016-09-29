@@ -84,32 +84,37 @@
             this.ignored += partStatistics.ignored;
         },
 
-        _toPercent: function (count, total) {
+        _toPercent: function (count, total, rounded) {
+            if (rounded) {
+                return Math.floor(100 * count / total);
+            }
             return Math.floor(10000 * count / total) / 100;
         },
 
         /**
          * Returns coverage ratio in percent
          *
-         * @return {number}
+         * @param {Boolean} rounded Truncate decimals when true
+         * @return {Number}
          */
-        getCoverageRatio: function () {
+        getCoverageRatio: function (rounded) {
             if (0 === this.count) {
                 return 100;
             }
-            return this._toPercent(this.tested + this.ignored, this.count);
+            return this._toPercent(this.tested + this.ignored, this.count, rounded);
         },
 
         /**
          * Returns ignored ratio in percent
          *
-         * @return {number}
+         * @param {Boolean} rounded Truncate decimals when true
+         * @return {Number}
          */
-        getIgnoredRatio: function () {
+        getIgnoredRatio: function (rounded) {
             if (0 === this.count) {
                 return 0;
             }
-            return this._toPercent(this.ignored, this.count);
+            return this._toPercent(this.ignored, this.count, rounded);
         }
 
     });
@@ -246,12 +251,27 @@
             Object.keys(this._data).forEach(function (fileName) {
                 var fileCoverage = this._computeFileCoverage(fileName);
                 this._files[fileName] = fileCoverage;
-                this._global .statements.add(fileCoverage.statements);
-                this._global .functions.add(fileCoverage.functions);
-                this._global .branches.add(fileCoverage.branches);
+                this._global.statements.add(fileCoverage.statements);
+                this._global.functions.add(fileCoverage.functions);
+                this._global.branches.add(fileCoverage.branches);
             }, this);
         },
 
+        /**
+         * Get file coverage information
+         *
+         * @param {String} fileName Name of the file to obtain
+         * @return {_File|undefined} Coverage information
+         */
+        get: function (fileName) {
+            return this._files[fileName];
+        },
+
+        /**
+         * Get consolidated coverage information
+         *
+         * @return {_File} Coverage information
+         */
         getGlobal: function () {
             return this._global;
         }
