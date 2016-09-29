@@ -1,6 +1,7 @@
 "use strict";
 
-var fs = require("fs");
+var fs = require("fs"),
+    CoverageReport = require("./coverage");
 
 // Use gpf library (source version)
 global.gpfSourcesPath = "./src/";
@@ -14,115 +15,30 @@ var sources = JSON.parse(fs.readFileSync("./src/sources.json"))
     });
 sources.unshift("boot"); // Also include boot
 
+var metrics = JSON.parse(fs.readFileSync("./make/metrics.json"));
+
 //region Istanbul coverage
 
-function computeItemCoverage (itemData, itemId) {
-    /*jshint validthis:true*/ // See below
-    var me = this, //eslint-disable-line no-invalid-this
-        itemMap = me.map[itemId];
-    ++me.count;
-    if (0 < itemData) {
-        ++me.tested;
-    } else if (itemMap.skip) {
-        ++me.ignored;
-    }
-}
+var coverageReport = new CoverageReport(JSON.parse(fs.readFileSync("tmp/coverage/reports/coverage.json"))),
+    globalCoverage = coverageReport.getGlobal(),
+    hasCoverageError = false,
+    coverageParts = ["statements", "functions", "branches"];
 
-function computeBranchCoverage (itemData, itemId) {
-    /*jshint validthis:true*/ // See below
-    var me = this, //eslint-disable-line no-invalid-this
-        itemMap = me.map[itemId];
-    me.count += 2;
-    if (0 < itemData[0]) {
-        ++me.tested;
-    } else if (itemMap.locations[0].skip) {
-        ++me.ignored;
-    }
-    if (0 < itemData[1]) {
-        ++me.tested;
-    } else if (itemMap.locations[1].skip) {
-        ++me.ignored;
-    }
-}
-
-var coverageData = JSON.parse(fs.readFileSync("tmp/coverage/reports/coverage.json")),
-    coverageParts = {
-        statements: {
-            data: "s",
-            map: "statementMap",
-            handler: computeItemCoverage
-        },
-        functions: {
-            data: "f",
-            map: "fnMap",
-            handler: computeItemCoverage
-        },
-        branches: {
-            data: "b",
-            map: "branchMap",
-            handler: computeBranchCoverage
-        }
-    };
-
-function computeCoverage (data)     {
-    var result = {};
-    gpf.forEach(coverageParts, function (coveragePart, partName) {
-        var statistics = {
-            count: 0,
-            tested: 0,
-            ignored: 0,
-            map: data[coveragePart.map]
-        };
-        gpf.forEach(data[coveragePart.data], coveragePart.handler, statistics);
-        result[partName] = {
-            count: statistics.count,
-            tested: statistics.tested,
-            ignored: statistics.ignored
-        };
-    });
-    return result;
-}
-
-function sumPartCoverage (globalPartCoverage, filePartCoverage) {
-    globalPartCoverage.count += filePartCoverage.count;
-    globalPartCoverage.tested +=  filePartCoverage.tested;
-    globalPartCoverage.ignored += filePartCoverage.ignored;
-}
-
-function computeCoverageRatio (coverageItem, part) {
-    var count = coverageItem[part].count;
-    if (0 === count) {
-        return 100;
-    }
-    return Math.floor(100 * (coverageItem[part].tested + coverageItem[part].ignored) / count);
-}
-
-var globalCoverage,
-    hasCoverageError = false;
-gpf.forEach(coverageData, function (fileCoverageData, fileName) {
-    var fileCoverage = computeCoverage(fileCoverageData),
-        sourceName = fileName.substr(4, fileName.length - 7),
+sources.forEach(function (sourceName) {
+    var fileCoverage = coverageReport.get(sourceName),
         fileTrace = [sourceName, "                                  ".substr(sourceName.length)],
         fileIsKO = false;
-    if (globalCoverage) {
-        // Sum everything
-        gpf.forEach(coverageParts, function (coveragePart, partName) {
-            sumPartCoverage(globalCoverage[partName], fileCoverage[partName]);
-        });
-    } else {
-        globalCoverage = fileCoverage;
-    }
-    // Check individual coverage
-    gpf.forEach(coverageParts, function (coveragePart, partName) {
-        var ratio = computeCoverageRatio(fileCoverage, partName);
-        if (ratio === 100) {
-            ratio = "   ";
-        }
-        ratio += "%";
-        if (ratio < 90) {
+    coverageParts.forEach(function (coveragePart) {
+        var ratio = fileCoverage[coveragePart].getCoverageRatio(true);
+        if (ratio < metrics.coverage[coveragePart]) {
             fileIsKO = true;
         }
-        fileTrace.push(partName, ": ", ratio, " ");
+        if (ratio === 100) {
+            ratio = "   ";
+        } else {
+            ratio += "%";
+        }
+        fileTrace.push(coveragePart, ": ", ratio, " ");
     });
     if (fileIsKO) {
         console.error(fileTrace.join(""));
@@ -132,25 +48,17 @@ gpf.forEach(coverageData, function (fileCoverageData, fileName) {
     }
 });
 
+var statementsCoverage = globalCoverage.statements.getCoverageRatio(),
+    statementsIgnored = globalCoverage.statements.getIgnoredRatio(),
+    functionsCoverage = globalCoverage.functions.getCoverageRatio(),
+    functionsIgnored = globalCoverage.functions.getIgnoredRatio(),
+    branchesCoverage = globalCoverage.branches.getCoverageRatio(),
+    branchesIgnored = globalCoverage.branches.getIgnoredRatio();
 
-function getGlobalCoverage (part) {
-    return computeCoverageRatio(globalCoverage, part);
-}
-
-function getGlobalIgnore (part) {
-    return Math.floor(100 * globalCoverage[part].ignored / globalCoverage[part].count);
-}
-
-var statementsCoverage = getGlobalCoverage("statements"),
-    statementsIgnored = getGlobalIgnore("statements"),
-    functionsCoverage = getGlobalCoverage("functions"),
-    functionsIgnored = getGlobalIgnore("functions"),
-    branchesCoverage = getGlobalCoverage("branches"),
-    branchesIgnored = getGlobalIgnore("branches");
-
-gpf.forEach(coverageParts, function (coveragePart, partName) {
-    console.log(partName + ":" + "                          ".substr(partName.length)
-        + getGlobalCoverage(partName) + "% (ignored " + getGlobalIgnore(partName) + "%)");
+coverageParts.forEach(function (coveragePart) {
+    console.log(coveragePart + ":" + "                          ".substr(coveragePart.length)
+        + globalCoverage[coveragePart].getCoverageRatio(true) + "% (ignored "
+        + globalCoverage[coveragePart].getIgnoredRatio(true) + "%)");
 });
 
 //endregion
@@ -221,7 +129,7 @@ readmeSections.every(function (section, index) {
     return true;
 });
 var metricsSectionHeader = readmeSections[metricsSectionIndex].split(SEPARATOR)[0],
-    metrics = [
+    metricsSection = [
         "\r\nStatements coverage|", statementsCoverage, "%|*", statementsIgnored, "% ignored*",
         "\r\nBranches coverage|", branchesCoverage, "%|*", branchesIgnored, "% ignored*",
         "\r\nFunctions coverage|", functionsCoverage, "%|*", functionsIgnored, "% ignored*",
@@ -231,7 +139,7 @@ var metricsSectionHeader = readmeSections[metricsSectionIndex].split(SEPARATOR)[
         "\r\nLines of Code|", linesOfCode, "|*Average per source: ", averageLinesOfCode, "*",
         "\r\n\r\n"
     ];
-readmeSections[metricsSectionIndex] = metricsSectionHeader + SEPARATOR + metrics.join("");
+readmeSections[metricsSectionIndex] = metricsSectionHeader + SEPARATOR + metricsSection.join("");
 fs.writeFileSync("README.md", readmeSections.join("##"));
 
 process.exit(0); // OK
