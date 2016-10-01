@@ -8,9 +8,7 @@
 
 _gpfErrorDeclare("define/definition/class", {
     "classMemberAlreadyExist":
-        "You can't add a member twice",
-    "classInvalidVisibility":
-        "Invalid visibility keyword"
+        "You can't add a member twice"
 });
 
 /**
@@ -34,7 +32,7 @@ function _GpfClassDefinition (qName, superClassDef) {
     this._members = Object.create(superMembers);
 }
 
-_GpfClassDefMember.prototype = {
+_GpfClassDefinition.prototype = {
 
     // @property {String} Fully qualified class name
     _qName: null,
@@ -55,13 +53,24 @@ _GpfClassDefMember.prototype = {
         return this._members[name];
     },
 
+    /**
+     * Add a member
+     *
+     * @param {_GpfClassDefMember} member Member to add
+     * @return {_GpfClassDefinition} Chainable
+     */
     addMember: function (member) {
         _gpfAssert(member instanceof _GpfClassDefMember, "Expected a _GpfClassDefMember");
-        var name = member.getName();
+        var name = member.getName(),
+            existing = this._members[name];
         if (this._members.hasOwnProperty(name)) {
             throw gpf.Error.classMemberAlreadyExist();
         }
+        if (existing) {
+            existing.checkOverloadedWith(member);
+        }
         this._members[name] = member;
+        return this;
     }
 
 };
