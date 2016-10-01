@@ -30,7 +30,17 @@ _GpfClassDefMember.prototype = {
     _name: "",
 
     // @property {String} Member type
-    _type: "undefined"
+    _type: "undefined",
+
+
+    /**
+     * Check if the current member supports overloading with the given one
+     *
+     * @param {_GpfClassDefMember} member
+     * @exception
+     */
+    checkOverloadedWith: function (member) {
+    }
 
 };
 
