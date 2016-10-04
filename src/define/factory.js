@@ -3,7 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GpfClassDefinition*/ // GPF class definition
+/*global _GpfOldClassDefinition*/ // (OLD) GPF class definition
 /*exported _gpfDefineFactory*/ // gpf.define factory
 /*#endif*/
 
@@ -16,6 +16,6 @@
  * @return {Function} New class constructor
  */
 function _gpfDefineFactory (name, Super, definition) {
-    var classDef = new _GpfClassDefinition(name, Super, definition);
+    var classDef = new _GpfOldClassDefinition(name, Super, definition);
     return classDef._Constructor;
 }
