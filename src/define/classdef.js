@@ -14,7 +14,7 @@
 /*global _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*exported _GpfClassDefinition*/ // GPF class definition
+/*exported _GpfOldClassDefinition*/ // (OLD) GPF class definition
 /*exported _gpfDecodeAttributeMember*/ // Normalized way to decode an attribute member name
 /*exported _gpfEncodeAttributeMember*/ // Normalized way to encode an attribute member name
 /*exported _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
@@ -115,7 +115,7 @@ var
  * @class gpf.ClassDefinition
  * @constructor
  */
-function _GpfClassDefinition (name, Super, definition) {
+function _GpfOldClassDefinition (name, Super, definition) {
     /*jshint validthis:true*/ // constructor
     this._uid = ++_gpfClassDefUID;
     _gpfClassDefinitions[this._uid] = this;
@@ -142,7 +142,7 @@ function _gpfGetClassDefinition (constructor) {
     var classDef,
         uid = constructor[_GPF_CLASSDEF_MARKER];
     if (undefined === uid) {
-        classDef = new _GpfClassDefinition(constructor);
+        classDef = new _GpfOldClassDefinition(constructor);
         /*gpf:constant*/ constructor[_GPF_CLASSDEF_MARKER] = classDef._uid;
     } else {
         classDef = _gpfClassDefinitions[uid];
@@ -157,9 +157,9 @@ var _gpfVisibilityKeywords      = "public|protected|private|static".split("|"),
 //  _GPF_VISIBILITY_PRIVATE     = 2,
     _GPF_VISIBILITY_STATIC      = 3;
 
-_GpfClassDefinition.prototype = {
+_GpfOldClassDefinition.prototype = {
 
-    constructor: _GpfClassDefinition,
+    constructor: _GpfOldClassDefinition,
 
     // Unique identifier
     _uid: 0,
