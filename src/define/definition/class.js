@@ -1,8 +1,8 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfAssert*/ // Assertion method
-/*global _GpfExtensibleObject*/ // Extensible
 /*global _GpfClassDefMember*/ // GPF class member definition
+/*global _gpfAssert*/ // Assertion method
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*exported _GpfClassDefinition*/ // GPF class definition
 /*#endif*/
 
@@ -36,6 +36,36 @@ _GpfClassDefinition.prototype = {
 
     // @property {String} Fully qualified class name
     _qName: null,
+
+    /**
+     * @return {String} Class name
+     */
+    getName: function () {
+        if (-1 !== this._qName.indexOf(".")) {
+            return this._qName.split(".").pop();
+        }
+        return this._qName;
+    },
+
+    /**
+     * @return {String} Class namespace
+     */
+    getNamespace: function () {
+        if (-1 !== this._qName.indexOf(".")) {
+            var nameArray = this._qName.split(".");
+            nameArray.pop();
+            return nameArray.join(".");
+        }
+        return "";
+    },
+
+    /**
+     * @return {String} Class qualified name (namespace.name)
+     */
+    getQualifiedName: function () {
+        return this._qName;
+    },
+
 
     // @property {_GpfClassDefinition} Super class definition
     _super: null,
@@ -75,4 +105,8 @@ _GpfClassDefinition.prototype = {
 
 };
 
-_GpfClassDefinition.extension = new _GpfExtensibleObject(_GpfClassDefinition.prototype);
+/*#ifndef(UMD)*/
+
+gpf.internals._GpfClassDefinition = _GpfClassDefinition;
+
+/*#endif*/
