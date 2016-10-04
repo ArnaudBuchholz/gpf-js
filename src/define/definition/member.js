@@ -1,16 +1,21 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GpfExtensibleObject*/ // Extensible
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*exported _GpfClassDefMember*/ // GPF class member definition
 /*#endif*/
+
+_gpfErrorDeclare("define/definition/member", {
+    "classMemberOverloadWithTypeChange":
+        "Overloading with a different type is forbidden"
+});
 
 /**
  * Extensible information about a class member
  *
- * @class {_GpfClassDefMember}
  * @param {_GpfClassDefinition} classDef Owning class definition
  * @param {String} name Member name
  * @param {String} type Member type
+ * @class {_GpfClassDefMember}
  */
 function _GpfClassDefMember (classDef, name, type) {
     /*jshint validthis:true*/ // constructor
@@ -40,8 +45,15 @@ _GpfClassDefMember.prototype = {
      * @exception
      */
     checkOverloadedWith: function (member) {
+        if (member._type !== this._type) {
+            throw gpf.Error.classMemberOverloadWithTypeChange();
+        }
     }
 
 };
 
-_GpfClassDefMember.extension = new _GpfExtensibleObject(_GpfClassDefMember.prototype);
+/*#ifndef(UMD)*/
+
+gpf.internals._GpfClassDefMember = _GpfClassDefMember;
+
+/*#endif*/
