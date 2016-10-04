@@ -59,7 +59,6 @@ describe("interfaces/enumerator", function () {
                 assert(e.code === gpf.Error.CODE_ENUMERABLEINVALIDMEMBER);
                 assert(e.code === gpf.Error.enumerableInvalidMember.CODE);
                 assert(e.name === "enumerableInvalidMember");
-                assert(e.message === "$Enumerator can be associated to arrays only");
                 caught = true;
             }
             assert(true === caught);
