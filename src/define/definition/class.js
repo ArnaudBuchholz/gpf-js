@@ -13,6 +13,22 @@ _gpfErrorDeclare("define/definition/class", {
 });
 
 /**
+ * Link the class definition to its super one, return member dictionary
+ *
+ * @param {_GpfClassDefinition} classDef Class definition receiving the link
+ * @param {_GpfClassDefinition} superClassDef Class definition to link to
+ * @returns {Object} Relevant member dictionary
+ * @private
+ */
+function _linkToSuperClassDef (classDef, superClassDef) {
+    if (superClassDef) {
+        classDef._super = superClassDef;
+        return superClassDef._members;
+    }
+    return {};
+}
+
+/**
  * Extensible information about a class
  *
  * @class {_GpfClassDefinition}
@@ -22,15 +38,8 @@ _gpfErrorDeclare("define/definition/class", {
 function _GpfClassDefinition (qName, superClassDef) {
     _gpfAssert(!superClassDef || superClassDef instanceof _GpfClassDefinition, "Expected a _GpfClassDefinition");
     /*jshint validthis:true*/ // constructor
-    var superMembers;
     this._qName = qName;
-    if (superClassDef) {
-        this._super = superClassDef;
-        superMembers = superClassDef._members;
-    } else {
-        superMembers = {};
-    }
-    this._members = Object.create(superMembers);
+    this._members = Object.create(_linkToSuperClassDef(this, superClassDef));
 }
 
 _GpfClassDefinition.prototype = {
@@ -84,6 +93,22 @@ _GpfClassDefinition.prototype = {
         return this._members[name];
     },
 
+    _checkMemberDoesntExist: function (name) {
+        if (this._members.hasOwnProperty(name)) {
+            throw gpf.Error.classMemberAlreadyExist();
+        }
+    },
+
+    _checkMemberBeforeAdd: function (member) {
+        var name = member.getName(),
+            existing;
+        this._checkMemberDoesntExist(name);
+        existing = this._members[name];
+        if (existing) {
+            existing.checkOverloadedWith(member);
+        }
+    },
+
     /**
      * Add a member
      *
@@ -95,15 +120,8 @@ _GpfClassDefinition.prototype = {
             "Expected a _GpfClassDefMember": member instanceof _GpfClassDefMember,
             "Member is already assigned to a class": null === member._classDef
         });
-        var name = member.getName(),
-            existing = this._members[name];
-        if (existing) {
-            if (this._members.hasOwnProperty(name)) {
-                throw gpf.Error.classMemberAlreadyExist();
-            }
-            existing.checkOverloadedWith(member);
-        }
-        this._members[name] = member;
+        this._checkMemberBeforeAdd(member);
+        this._members[member.getName()] = member;
         member._classDef = this;
         return this;
     }
