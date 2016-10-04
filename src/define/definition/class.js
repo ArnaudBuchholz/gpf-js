@@ -93,7 +93,7 @@ _GpfClassDefinition.prototype = {
         return this._members[name];
     },
 
-    _checkMemberDoesntExist: function (name) {
+    _checkOwnMemberDoesntExist: function (name) {
         if (this._members.hasOwnProperty(name)) {
             throw gpf.Error.classMemberAlreadyExist();
         }
@@ -102,7 +102,7 @@ _GpfClassDefinition.prototype = {
     _checkMemberBeforeAdd: function (member) {
         var name = member.getName(),
             existing;
-        this._checkMemberDoesntExist(name);
+        this._checkOwnMemberDoesntExist(name);
         existing = this._members[name];
         if (existing) {
             existing.checkOverloadedWith(member);
