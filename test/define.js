@@ -173,7 +173,6 @@ describe("define", function () {
                     assert(e.code === gpf.Error.CODE_CLASSMEMBEROVERLOADWITHTYPECHANGE);
                     assert(e.code === gpf.Error.classMemberOverloadWithTypeChange.CODE);
                     assert(e.name === "classMemberOverloadWithTypeChange");
-                    assert(e.message === "You can't overload a member and change its type");
                     caught = true;
                 }
                 assert(true === caught);
@@ -241,7 +240,6 @@ describe("define", function () {
                                 assert(e.code === gpf.Error.CODE_CLASSINVALIDVISIBILITY);
                                 assert(e.code === gpf.Error.classInvalidVisibility.CODE);
                                 assert(e.name === "classInvalidVisibility");
-                                assert(e.message === "Invalid visibility keyword");
                                 caught = true;
                             }
                             assert(true === caught);
