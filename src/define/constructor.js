@@ -19,7 +19,7 @@ _gpfErrorDeclare("define/constructor", {
  * - Uses closure to keep track of the class definition
  * - Class name will be injected at the right place
  *
- * @param {_GpfClassDefinition} classDef
+ * @param {_GpfOldClassDefinition} classDef
  * @return {Function}
  * @closure
  */
@@ -36,7 +36,7 @@ function _gpfNewClassConstructorTpl (classDef) {
 /**
  * Allocate a named class constructor for a class definition
  *
- * @param {_GpfClassDefinition} classDef Class definition
+ * @param {_GpfOldClassDefinition} classDef Class definition
  * @returns {Function} Constructor
  */
 // Build a new constructor
