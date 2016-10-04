@@ -2,6 +2,7 @@
 "use strict";
 /*global _GpfClassDefMember*/ // GPF class member definition
 /*global _gpfAssert*/ // Assertion method
+/*global _gpfAsserts*/ // Multiple assertion method
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*exported _GpfClassDefinition*/ // GPF class definition
 /*#endif*/
@@ -25,7 +26,7 @@ function _GpfClassDefinition (qName, superClassDef) {
     this._qName = qName;
     if (superClassDef) {
         this._super = superClassDef;
-        superMembers = superClassDef._member;
+        superMembers = superClassDef._members;
     } else {
         superMembers = {};
     }
@@ -90,16 +91,20 @@ _GpfClassDefinition.prototype = {
      * @return {_GpfClassDefinition} Chainable
      */
     addMember: function (member) {
-        _gpfAssert(member instanceof _GpfClassDefMember, "Expected a _GpfClassDefMember");
+        _gpfAsserts({
+            "Expected a _GpfClassDefMember": member instanceof _GpfClassDefMember,
+            "Member is already assigned to a class": null === member._classDef
+        });
         var name = member.getName(),
             existing = this._members[name];
-        if (this._members.hasOwnProperty(name)) {
-            throw gpf.Error.classMemberAlreadyExist();
-        }
         if (existing) {
+            if (this._members.hasOwnProperty(name)) {
+                throw gpf.Error.classMemberAlreadyExist();
+            }
             existing.checkOverloadedWith(member);
         }
         this._members[name] = member;
+        member._classDef = this;
         return this;
     }
 
