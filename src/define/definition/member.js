@@ -12,18 +12,16 @@ _gpfErrorDeclare("define/definition/member", {
 /**
  * Extensible information about a class member
  *
- * @param {_GpfClassDefinition} classDef Owning class definition
  * @param {String} name Member name
- * @param {String} type Member type
+ * @param {*} defaultValue Member default / initial value
+ * @param {String} [type=typeof defaultValue] type Member type
  * @class {_GpfClassDefMember}
  */
-function _GpfClassDefMember (classDef, name, type) {
+function _GpfClassDefMember (name, defaultValue, type) {
     /*jshint validthis:true*/ // constructor
-    this._classDef = classDef;
     this._name = name;
-    if (type) {
-        this._type = type;
-    }
+    this._setDefaultValue(defaultValue);
+    this._setType(type || "undefined");
 }
 
 _GpfClassDefMember.prototype = {
@@ -31,12 +29,42 @@ _GpfClassDefMember.prototype = {
     // @property {_GpfClassDefinition} Owning class definition
     _classDef: null,
 
+    /**
+     * @return {_GpfClassDefinition} Class definition where the member was initially added
+     */
+    getClassDefinition: function () {
+        return this._classDef;
+    },
+
     // @property {String} Member name
     _name: "",
+
+    /**
+     * @return {String} Member name
+     */
+    getName: function () {
+        return this._name;
+    },
+
+    // @property {*} Default value
+    _defaultValue: undefined,
+
+    _setDefaultValue: function (defaultValue) {
+        if (undefined !== defaultValue) {
+            this._defaultValue = defaultValue;
+        }
+    },
 
     // @property {String} Member type
     _type: "undefined",
 
+    _setType: function (type) {
+        if ("undefined" === type) {
+            this._setType(typeof this._defaultValue);
+        } else {
+            this._type = typeof type;
+        }
+    },
 
     /**
      * Check if the current member supports overloading with the given one
