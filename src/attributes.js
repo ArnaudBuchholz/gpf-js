@@ -3,7 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GpfClassDefinition*/ // GPF class definition
+/*global _GpfOldClassDefinition*/ // (OLD) GPF class definition
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfAsserts*/ // Multiple assertion method
 /*global _gpfDecodeAttributeMember*/ // Normalized way to decode an attribute member name
@@ -24,7 +24,7 @@
 /*#endif*/
 
 // @property {gpf.attributes.Map|null} Attributes of this class (null if none)
-_GpfClassDefinition.prototype._attributes = null;
+_GpfOldClassDefinition.prototype._attributes = null;
 
 var
     // gpf.attributes shortcut
