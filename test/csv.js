@@ -88,7 +88,6 @@ describe("csv", function () {
                 assert(e.code === gpf.Error.CODE_CSVINVALID);
                 assert(e.code === gpf.Error.csvInvalid.CODE);
                 assert(e.name === "csvInvalid");
-                assert(e.message === "Invalid CSV syntax (bad quote sequence or missing end of file)");
                 caught = true;
             }
             assert(true === caught);
@@ -106,7 +105,6 @@ describe("csv", function () {
                 assert(e.code === gpf.Error.CODE_CSVINVALID);
                 assert(e.code === gpf.Error.csvInvalid.CODE);
                 assert(e.name === "csvInvalid");
-                assert(e.message === "Invalid CSV syntax (bad quote sequence or missing end of file)");
                 caught = true;
             }
             assert(true === caught);
