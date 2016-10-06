@@ -173,10 +173,16 @@
         "test": false
     },
     {
-        "name": "define/definition/class"
+        "name": "define/definition/class",
+        "doc": true
     },
     {
-        "name": "define/definition/member"
+        "name": "define/definition/visibility",
+        "doc": true
+    },
+    {
+        "name": "define/definition/member",
+        "doc": true
     },
     {
         "name": "define/builder/default",
