@@ -26,24 +26,9 @@ describe("define/definition/member", function () {
                 assert(member.getType() === "undefined");
             });
 
-            it("validates provided type (correct)", function () {
-                var member = new _GpfClassDefMember("member1", 12, "number");
-                assert(member);
-            });
-
-            it("validates provided type (incorrect)", function () {
-                var caught = false;
-                try {
-                    var member = new _GpfClassDefMember("member1", 12, "invalid");
-                    assert(member);
-                } catch (e) {
-                    assert(e instanceof gpf.Error);
-                    assert(e.code === gpf.Error.CODE_INVALIDCLASSMEMBERTYPE);
-                    assert(e.code === gpf.Error.invalidClassMemberType.CODE);
-                    assert(e.name === "invalidClassMemberType");
-                    caught = true;
-                }
-                assert(true === caught);
+            it("accepts any member type", function () {
+                var member = new _GpfClassDefMember("member1", 12, "real");
+                assert(member.getType() === "real");
             });
 
             it("deduces type from default value", function () {
