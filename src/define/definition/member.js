@@ -62,8 +62,15 @@ _GpfClassDefMember.prototype = {
         if ("undefined" === type) {
             this._setType(typeof this._defaultValue);
         } else {
-            this._type = typeof type;
+            this._type = type;
         }
+    },
+
+    /**
+     * @return {String} Member type
+     */
+    getType: function () {
+        return this._type;
     },
 
     /**
