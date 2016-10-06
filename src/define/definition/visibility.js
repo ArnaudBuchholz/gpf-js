@@ -1,3 +1,6 @@
+/**
+ * @file Class visibility definition
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*exported _GPF_VISIBILITY*/ // Member visibility enum
