@@ -7,34 +7,34 @@ var Source = gpf.define("Source", {
 
     "private": {
 
-        //@property {SourceArray} Source array
+        /** @property {SourceArray} Source array */
         _array: null,
 
-        //@property {String} Source name
+        /** @property {String} Source name */
         "[_name]": [gpf.$ClassProperty()],
         _name: "",
 
-        //@property {Number} Source index
+        /** @property {Number} Source index */
         "[_index]": [gpf.$ClassProperty(true)],
         _index: -1,
 
-        //@property {Boolean} Source is loaded
+        /** @property {Boolean} Source is loaded */
         "[_load]": [gpf.$ClassProperty()],
         _load: false,
 
-        //@property {Boolean} Source has a test counterpart
+        /** @property {Boolean} Source has a test counterpart */
         "[_test]": [gpf.$ClassProperty()],
         _test: false,
 
-        //@property {Boolean} Documentation should be extracted from this source
+        /** @property {Boolean} Documentation should be extracted from this source */
         "[_doc]": [gpf.$ClassProperty()],
         _doc: false,
 
-        //@property {String[]} List of dependencies (boot is excluded)
+        /** @property {String[]} List of dependencies (boot is excluded) */
         "[_dependsOn]": [gpf.$ClassProperty(false, "dependencies")],
         _dependsOn: [],
 
-        //@property {String[]} List of module dependencies
+        /** @property {String[]} List of module dependencies */
         "[_dependencyOf]": [gpf.$ClassProperty()],
         _dependencyOf: [],
 
@@ -93,8 +93,10 @@ var Source = gpf.define("Source", {
         _setDoc: function (value) {
             this._doc = value;
             return true;
-        }
+        },
 
+        /** @property {String} Checked state (exists, obsolete, new) */
+        _checkedState: ""
     },
 
     "public": {
@@ -161,7 +163,7 @@ var Source = gpf.define("Source", {
                 return this._setTest(value);
             }
             if ("doc" === propertyName) {
-                this._setDoc(value);
+                return this._setDoc(value);
             }
         },
 
@@ -171,6 +173,14 @@ var Source = gpf.define("Source", {
 
         isReferenced: function () {
             return this._dependencyOf.length > 0;
+        },
+
+        setCheckedState: function (checkedState) {
+            this._checkedState = checkedState;
+        },
+
+        getCheckedState: function () {
+            return this._checkedState;
         }
 
     }
@@ -181,22 +191,17 @@ var SourceArray = gpf.define("SourceArray", {
 
     "private": {
 
-        // @property {Object} dictionary of sources indexed by name
+        /** @property {Object} dictionary of sources indexed by name */
         _sources: [],
 
-        // @property {Object} Result of check function
+        /** @property {Object} Result of check function */
         _checkDictionary: null,
 
-        // Adds extra properties to the source
-        _extend: function (source) {
-            var me = this,
-                result;
+        // Update source with external properties
+        _update: function (source) {
+            var me = this;
             if (me._checkDictionary) {
-                result = Object.create(source);
-                result.getCheckedState = function () {
-                    return me._checkDictionary[source.getName()];
-                };
-                return result;
+                source.setCheckedState(me._checkDictionary[source.getName()]);
             }
             return source;
         }
@@ -230,7 +235,7 @@ var SourceArray = gpf.define("SourceArray", {
         forEach: function (callback, thisArg) {
             var that = this;
             this._sources.forEach(function (source, index) {
-                callback(that._extend(source), index);
+                callback(that._update(source), index);
             }, thisArg);
         },
 
@@ -244,7 +249,7 @@ var SourceArray = gpf.define("SourceArray", {
             var result;
             this._sources.every(function (source) {
                 if (source.getName() === name) {
-                    result = this._extend(source);
+                    result = this._update(source);
                     return false;
                 }
                 return true;
@@ -259,7 +264,7 @@ var SourceArray = gpf.define("SourceArray", {
          * @return {Source}
          */
         byIndex: function (index) {
-            return this._extend(this._sources[index]);
+            return this._update(this._sources[index]);
         },
 
         /**
@@ -343,7 +348,7 @@ var SourceArray = gpf.define("SourceArray", {
             this._checkDictionary = checkDictionary;
             // Add missing sources
             Object.keys(checkDictionary).forEach(function (name) {
-                if (undefined === checkDictionary[name]) {
+                if ("new" === checkDictionary[name]) {
                     this._sources.push(new Source(this, {
                         name: name,
                         load: false
@@ -384,6 +389,9 @@ function updateSourceRow (source) {
         xhr("/fs/test/" + name + ".js").options()
             .then(function () {
                 document.getElementById("test_" + index).className = "";
+            }, function () {
+                // TODO find a better way
+                source._test = false;
             });
     }
 
@@ -510,10 +518,10 @@ function compare (checkDictionary, path, pathContent) {
             contentFullNameLength = contentFullName.length;
         if (contentFullNameLength > 3 && contentFullName.indexOf(".js") === contentFullNameLength - 3) {
             contentFullName = contentFullName.substr(0, contentFullNameLength - 3);
-            if (false === checkDictionary[contentFullName]) {
-                checkDictionary[contentFullName] = true;
+            if ("obsolete" === checkDictionary[contentFullName]) {
+                checkDictionary[contentFullName] = "exists";
             } else {
-                checkDictionary[contentFullName] = undefined; // missing
+                checkDictionary[contentFullName] = "new";
             }
         } else if (-1 === name.indexOf(".")) {
             subPromises.push(xhr("/fs/src/" + contentFullName).get().asJson()
@@ -532,22 +540,13 @@ function compare (checkDictionary, path, pathContent) {
 function check () {
     var checkDictionary = {};
     sources.forEach(function (source) {
-        checkDictionary[source.getName()] = false;
+        checkDictionary[source.getName()] = "obsolete";
     });
     xhr("/fs/src").get().asJson()
         .then(function (pathContent) {
             return compare(checkDictionary, "", pathContent);
         })
         .then(function () {
-            var obsoleteSources = [],
-                newSources = [];
-            gpf.forEach(checkDictionary, function (status, name) {
-                if (false === status) {
-                    obsoleteSources.push(name);
-                } else if (undefined === status) {
-                    newSources.push(name);
-                }
-            });
             sources.setCheckDictionary(checkDictionary);
             reload();
         });
