@@ -80,6 +80,9 @@ _GpfClassDefMember.prototype = {
         return this._type;
     },
 
+    /** @property {_GPF_VISIBILITY} */
+    _visibility: _GPF_VISIBILITY_PUBLIC,
+
     /**
      * Check if the current member supports overloading with the given one
      *
@@ -87,7 +90,11 @@ _GpfClassDefMember.prototype = {
      * @exception
      */
     checkOverloadedWith: function (member) {
-        if (member._type !== this._type) {
+        this._checkMemberType(member);
+    },
+
+    _checkMemberType: function (member) {
+        if ("undefined" !== this._type && member._type !== this._type) {
             throw gpf.Error.classMemberOverloadWithTypeChange();
         }
     }
