@@ -38,6 +38,30 @@ describe("define/definition/member", function () {
 
         });
 
+        describe("overload checks", function () {
+
+            it("prevents type change when set", function () {
+                var caught = false;
+                try {
+                    var member = new _GpfClassDefMember("member1", 12, "number");
+                    member.checkOverloadedWith(new _GpfClassDefMember("member1", "test"));
+                } catch (e) {
+                    assert(e instanceof gpf.Error);
+                    assert(e.code === gpf.Error.CODE_CLASSMEMBEROVERLOADWITHTYPECHANGE);
+                    assert(e.code === gpf.Error.classMemberOverloadWithTypeChange.CODE);
+                    assert(e.name === "classMemberOverloadWithTypeChange");
+                    caught = true;
+                }
+                assert(true === caught);
+            });
+
+            it("allows type change when undefined", function () {
+                var member = new _GpfClassDefMember("member1");
+                member.checkOverloadedWith(new _GpfClassDefMember("member1", "test"));
+            });
+
+        });
+
     }
 
 });
