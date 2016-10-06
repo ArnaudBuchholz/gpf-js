@@ -1,6 +1,10 @@
+/**
+ * @file Class member definition
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _GPF_VISIBILITY*/
 /*exported _GpfClassDefMember*/ // GPF class member definition
 /*#endif*/
 
@@ -15,7 +19,7 @@ _gpfErrorDeclare("define/definition/member", {
  * @param {String} name Member name
  * @param {*} defaultValue Member default / initial value
  * @param {String} [type=typeof defaultValue] type Member type
- * @class {_GpfClassDefMember}
+ * @class {internals._GpfClassDefMember}
  */
 function _GpfClassDefMember (name, defaultValue, type) {
     /*jshint validthis:true*/ // constructor
@@ -81,13 +85,13 @@ _GpfClassDefMember.prototype = {
     },
 
     /** @property {_GPF_VISIBILITY} */
-    _visibility: _GPF_VISIBILITY_PUBLIC,
+    _visibility: _GPF_VISIBILITY.PUBLIC,
 
     /**
      * Check if the current member supports overloading with the given one
      *
      * @param {_GpfClassDefMember} member
-     * @exception
+     * @exception {gpf.Error.classMemberOverloadWithTypeChange}
      */
     checkOverloadedWith: function (member) {
         this._checkMemberType(member);
