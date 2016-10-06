@@ -60,8 +60,15 @@ _GpfClassDefMember.prototype = {
 
     _setType: function (type) {
         if ("undefined" === type) {
-            this._setType(typeof this._defaultValue);
+            this._setTypeFromDefaultValue();
         } else {
+            this._type = type;
+        }
+    },
+
+    _setTypeFromDefaultValue: function () {
+        var type = typeof this._defaultValue;
+        if ("undefined" !== type) {
             this._type = type;
         }
     },
