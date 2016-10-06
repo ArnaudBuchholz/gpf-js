@@ -1,3 +1,6 @@
+/**
+ * @file Class definition
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfClassDefMember*/ // GPF class member definition
@@ -18,9 +21,8 @@ _gpfErrorDeclare("define/definition/class", {
  * @param {_GpfClassDefinition} classDef Class definition receiving the link
  * @param {_GpfClassDefinition} superClassDef Class definition to link to
  * @returns {Object} Relevant member dictionary
- * @private
  */
-function _linkToSuperClassDef (classDef, superClassDef) {
+function _gpfLinkToSuperClassDef (classDef, superClassDef) {
     if (superClassDef) {
         classDef._super = superClassDef;
         return superClassDef._members;
@@ -31,7 +33,7 @@ function _linkToSuperClassDef (classDef, superClassDef) {
 /**
  * Extensible information about a class
  *
- * @class {_GpfClassDefinition}
+ * @class {internals._GpfClassDefinition}
  * @param {String} qName Fully qualified class name
  * @param {_GpfClassDefinition} [superClassDef=null] superClassDef Super class definition
  */
@@ -39,17 +41,15 @@ function _GpfClassDefinition (qName, superClassDef) {
     _gpfAssert(!superClassDef || superClassDef instanceof _GpfClassDefinition, "Expected a _GpfClassDefinition");
     /*jshint validthis:true*/ // constructor
     this._qName = qName;
-    this._members = Object.create(_linkToSuperClassDef(this, superClassDef));
+    this._members = Object.create(_gpfLinkToSuperClassDef(this, superClassDef));
 }
 
 _GpfClassDefinition.prototype = {
 
-    // @property {String} Fully qualified class name
+    /** @property {String} Fully qualified class name */
     _qName: null,
 
-    /**
-     * @return {String} Class name
-     */
+    /** @return {String} Class name */
     getName: function () {
         if (-1 !== this._qName.indexOf(".")) {
             return this._qName.split(".").pop();
@@ -57,9 +57,7 @@ _GpfClassDefinition.prototype = {
         return this._qName;
     },
 
-    /**
-     * @return {String} Class namespace
-     */
+    /** @return {String} Class namespace */
     getNamespace: function () {
         if (-1 !== this._qName.indexOf(".")) {
             var nameArray = this._qName.split(".");
@@ -77,10 +75,10 @@ _GpfClassDefinition.prototype = {
     },
 
 
-    // @property {_GpfClassDefinition} Super class definition
+    /** @property {_GpfClassDefinition} Super class definition */
     _super: null,
 
-    // @property {Object} Dictionary of members
+    /** @property {Object} Dictionary of members */
     _members: {},
 
     /**
