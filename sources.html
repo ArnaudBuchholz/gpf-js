@@ -34,15 +34,13 @@
         if (!$object.isReadOnly()) {
             $write("draggable=\"true\" ");
         }
-        if ($object.getCheckedState) {
-            var state = $object.getCheckedState();
-            if (true === state) {
-                $write("exists ");
-            } else if (false === state) {
-                $write("obsolete ");
-            } else {
-                $write("new ");
-            }
+        var state = $object.getCheckedState();
+        if ("exists" === state) {
+            $write("exists ");
+        } else if ("obsolete" === state) {
+            $write("obsolete ");
+        } else if ("new" === state) {
+            $write("new ");
         }
     }
 
