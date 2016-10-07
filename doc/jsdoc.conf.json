@@ -1,0 +1,8 @@
+{
+    "opts": {
+        "recurse": true
+    },
+    "plugins": [
+        "gpf"
+    ]
+}
