@@ -16,7 +16,13 @@ module.exports = {
             }
             title.push(": ", doclet.longname, " (", doclet.kind, ")");
             console.log(title.join(""));
-            if (doclet.kind === "member") {
+if(doclet.meta.lineno === 50) {
+    console.log(doclet);
+}
+            if (doclet.kind === "member" || doclet.kind === "function") {
+                if (doclet.undocumented && -1 === doclet.longname.indexOf("~")) {
+                    // Generate documentation on the fly for easy cases
+                }
                 if (!doclet.access) {
                     if (doclet.name.charAt(0) === "_") {
                         doclet.access = "protected";

@@ -15,10 +15,15 @@ var _gpfVisibilityKeywords      = "public|protected|private|static".split("|"),
      * @enum {Number}
      */
     _GPF_VISIBILITY = {
+        /** Not set or keyword not recognized */
         UNKNOWN   : -1,
+        /** Public */
         PUBLIC    : 0,
+        /** Protected */
         PROTECTED : 1,
+        /** Private */
         PRIVATE   : 2,
+        /** Static */
         STATIC    : 3
     };
 

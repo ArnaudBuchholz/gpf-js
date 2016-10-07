@@ -31,11 +31,11 @@ function _gpfLinkToSuperClassDef (classDef, superClassDef) {
 }
 
 /**
- * Extensible information about a class
+ * Class definition
  *
- * @class {internals._GpfClassDefinition}
  * @param {String} qName Fully qualified class name
- * @param {_GpfClassDefinition} [superClassDef=null] superClassDef Super class definition
+ * @param {_GpfClassDefinition} [superClassDef=null] Super class definition
+ * @class
  */
 function _GpfClassDefinition (qName, superClassDef) {
     _gpfAssert(!superClassDef || superClassDef instanceof _GpfClassDefinition, "Expected a _GpfClassDefinition");
@@ -46,8 +46,8 @@ function _GpfClassDefinition (qName, superClassDef) {
 
 _GpfClassDefinition.prototype = {
 
-    /** @property {String} Fully qualified class name */
-    _qName: null,
+    // Fully qualified class name
+    _qName: "",
 
     /** @return {String} Class name */
     getName: function () {
@@ -91,6 +91,12 @@ _GpfClassDefinition.prototype = {
         return this._members[name];
     },
 
+    /**
+     * Before adding a member, check that it does not already exist for this class definition
+     *
+     * @param {String} name Member name
+     * @throws {gpf.Error.classMemberAlreadyExist}
+     */
     _checkOwnMemberDoesntExist: function (name) {
         if (this._members.hasOwnProperty(name)) {
             throw gpf.Error.classMemberAlreadyExist();

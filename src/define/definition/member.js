@@ -19,7 +19,8 @@ _gpfErrorDeclare("define/definition/member", {
  * @param {String} name Member name
  * @param {*} defaultValue Member default / initial value
  * @param {String} [type=typeof defaultValue] type Member type
- * @class {internals._GpfClassDefMember}
+ * @class {_GpfClassDefMember}
+ * @constructor
  */
 function _GpfClassDefMember (name, defaultValue, type) {
     /*jshint validthis:true*/ // constructor
@@ -30,27 +31,23 @@ function _GpfClassDefMember (name, defaultValue, type) {
 
 _GpfClassDefMember.prototype = {
 
-    // @property {_GpfClassDefinition} Owning class definition
+    /** @property {_GpfClassDefinition} Owning class definition */
     _classDef: null,
 
-    /**
-     * @return {_GpfClassDefinition} Class definition where the member was initially added
-     */
+    /** @return {_GpfClassDefinition} Class definition where the member was initially added */
     getClassDefinition: function () {
         return this._classDef;
     },
 
-    // @property {String} Member name
+    /** @property {String} Member name */
     _name: "",
 
-    /**
-     * @return {String} Member name
-     */
+    /** @return {String} Member name */
     getName: function () {
         return this._name;
     },
 
-    // @property {*} Default value
+    /** @property {*} Default value */
     _defaultValue: undefined,
 
     _setDefaultValue: function (defaultValue) {
@@ -59,7 +56,7 @@ _GpfClassDefMember.prototype = {
         }
     },
 
-    // @property {String} Member type
+    /** @property {String} Member type */
     _type: "undefined",
 
     _setType: function (type) {
@@ -77,9 +74,7 @@ _GpfClassDefMember.prototype = {
         }
     },
 
-    /**
-     * @return {String} Member type
-     */
+    /** @return {String} Member type */
     getType: function () {
         return this._type;
     },
@@ -92,6 +87,8 @@ _GpfClassDefMember.prototype = {
      *
      * @param {_GpfClassDefMember} member
      * @exception {gpf.Error.classMemberOverloadWithTypeChange}
+     *
+     * @public
      */
     checkOverloadedWith: function (member) {
         this._checkMemberType(member);
