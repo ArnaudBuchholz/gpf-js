@@ -6,8 +6,8 @@ module.exports = {
             "README.md"
         ]),
         options: {
-            destination: "tmp/docs",
-            recurse: true
+            configure: "doc/jsdoc.conf.json",
+            destination: "tmp/docs"
         }
     }
 };
