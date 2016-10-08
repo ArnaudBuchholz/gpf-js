@@ -3,45 +3,54 @@
 // Custom command lines
 module.exports = {
     buildDebug: {
-        command: "node make.js debug",
+        cmd: "node make.js debug",
         cwd: "make",
         stdout: false,
         stderr: false,
         exitCode: 0
     },
     buildRelease: {
-        command: "node make.js release",
+        cmd: "node make.js release",
         cwd: "make",
         stdout: false,
         stderr: false,
         exitCode: 0
     },
     plato: {
-        command: "node node_modules\\plato\\bin\\plato -l .jshintrc -t GPF-JS -d tmp\\plato "
+        cmd: "node node_modules\\plato\\bin\\plato -l .jshintrc -t GPF-JS -d tmp\\plato "
                  + configuration.srcFiles.join(" "),
         stdout: true,
         stderr: true
     },
     metrics: {
-        command: "node make\\metrics.js",
+        cmd: "node make\\metrics.js",
         stdout: false,
         stderr: true,
         exitCode: 0
     },
     globals: {
-        command: "node make\\globals.js",
+        cmd: "node make\\globals.js",
         stdout: false,
         stderr: true,
         exitCode: 0
     },
     version: {
-        command: "node make\\version.js",
+        cmd: "node make\\version.js",
         stdout: false,
         stderr: false,
         exitCode: 0
     },
     detectSelenium: {
-        command: "node detectSelenium.js",
+        cmd: "node detectSelenium.js",
+        stdout: true,
+        stderr: true,
+        exitCode: 0
+    },
+    jsdoc: {
+        cmd: function (src) {
+            return "node node_modules\\grunt-jsdoc\\node_modules\\jsdoc\\jsdoc -d tmp\\jsdoc --verbose "
+                + "-c doc\\jsdoc.conf.json " + src;
+        },
         stdout: true,
         stderr: true,
         exitCode: 0
@@ -61,25 +70,25 @@ function _buildTestConfig (name, command) {
         };
     }
     module.exports["test" + name] = {
-        command: buildCommand(""),
+        cmd: buildCommand(""),
         stdout: false,
         stderr: false,
         exitCode: 0
     };
     module.exports["test" + name + "Verbose"] = {
-        command: buildCommand(" -debugger"),
+        cmd: buildCommand(" -debugger"),
         stdout: true,
         stderr: true,
         exitCode: 0
     };
     module.exports["test" + name + "Debug"] = {
-        command: buildCommand(" -debug"),
+        cmd: buildCommand(" -debug"),
         stdout: false,
         stderr: false,
         exitCode: 0
     };
     module.exports["test" + name + "Release"] = {
-        command: buildCommand(" -release"),
+        cmd: buildCommand(" -release"),
         stdout: false,
         stderr: false,
         exitCode: 0
