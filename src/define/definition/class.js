@@ -20,7 +20,7 @@ _gpfErrorDeclare("define/definition/class", {
  *
  * @param {_GpfClassDefinition} classDef Class definition receiving the link
  * @param {_GpfClassDefinition} [superClassDef=undefined] Class definition to link to
- * @returns {Object} Member dictionary if superclass provided or an empty object
+ * @returns {Object} Superclass member dictionary if provided or an empty object
  */
 function _gpfLinkToSuperClassDef (classDef, superClassDef) {
     if (superClassDef) {
@@ -32,9 +32,9 @@ function _gpfLinkToSuperClassDef (classDef, superClassDef) {
 
 /**
  * Class definition
- * - Holds a flat dictionary of members (using prototype inheritance)
+ * - Maintain a flat dictionary of members (using prototype inheritance)
  *
- * @param {String} qName Fully qualified class name
+ * @param {String} qName Fully qualified class name (namespace.name)
  * @param {_GpfClassDefinition} [superClassDef=undefined] Super class definition
  * @class
  */
@@ -87,24 +87,26 @@ _GpfClassDefinition.prototype = {
      * Get a member by its name
      *
      * @param {String} name Member name
-     * @return {_GpfClassDefMember|undefined} Member
+     * @return {_GpfClassDefMember|undefined} Member or undefined if not found
      */
     getMember: function (name) {
         return this._members[name];
     },
 
-    /**
-     * Before adding a member, check that it does not already exist for this class definition
-     *
-     * @param {String} name Member name
-     * @throws {gpf.Error.classMemberAlreadyExist}
-     */
     _checkOwnMemberDoesntExist: function (name) {
         if (this._members.hasOwnProperty(name)) {
             throw gpf.Error.classMemberAlreadyExist();
         }
     },
 
+    /**
+     * Before adding a member:
+     * - Check that it does not already exist for this class definition
+     * - If overloading an inherited member, check that it is compatible
+     *
+     * @param {String} name Member name
+     * @throws {gpf.Error.classMemberAlreadyExist}
+     */
     _checkMemberBeforeAdd: function (member) {
         var name = member.getName(),
             existing;
@@ -119,7 +121,7 @@ _GpfClassDefinition.prototype = {
      * Add a member
      *
      * @param {_GpfClassDefMember} member Member to add
-     * @return {_GpfClassDefinition} Chainable
+     * @chainable
      */
     addMember: function (member) {
         _gpfAsserts({
