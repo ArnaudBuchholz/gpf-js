@@ -16,11 +16,11 @@ _gpfErrorDeclare("define/definition/class", {
 });
 
 /**
- * Link the class definition to its super one, return member dictionary
+ * Link the class definition to the super one
  *
  * @param {_GpfClassDefinition} classDef Class definition receiving the link
- * @param {_GpfClassDefinition} superClassDef Class definition to link to
- * @returns {Object} Relevant member dictionary
+ * @param {_GpfClassDefinition} [superClassDef=undefined] Class definition to link to
+ * @returns {Object} Member dictionary if superclass provided or an empty object
  */
 function _gpfLinkToSuperClassDef (classDef, superClassDef) {
     if (superClassDef) {
@@ -32,9 +32,10 @@ function _gpfLinkToSuperClassDef (classDef, superClassDef) {
 
 /**
  * Class definition
+ * - Holds a flat dictionary of members (using prototype inheritance)
  *
  * @param {String} qName Fully qualified class name
- * @param {_GpfClassDefinition} [superClassDef=null] Super class definition
+ * @param {_GpfClassDefinition} [superClassDef=undefined] Super class definition
  * @class
  */
 function _GpfClassDefinition (qName, superClassDef) {
