@@ -1,5 +1,48 @@
 "use strict";
 
+function _logDoclet (doclet) {
+    var title = [
+            "@",
+            doclet.meta.lineno
+        ];
+    if (doclet.undocumented) {
+        title.push("(u)");
+    }
+    title.push(": ", doclet.longname, " (", doclet.kind, ")");
+    console.log(title.join(""));
+}
+
+function _addMemberType (doclet) {
+    if (!doclet.type) {
+        // type: { names: [ 'String' ] }
+        var codeType = doclet.meta.code.type,
+            type;
+        if (codeType === "Literal") {
+            type = typeof doclet.meta.code.value;
+            type = type.charAt(0).toUpperCase() + type.substr(1);
+        } else if (codeType === "ArrayExpression") {
+            type = "Array";
+        } else if (codeType === "ObjectExpression") {
+            type = "Object";
+        }
+        doclet.type = {
+            names: [
+                type
+            ]
+        }
+    }
+}
+
+function _checkAccess (doclet) {
+    if (!doclet.access) {
+        if (doclet.name.charAt(0) === "_") {
+            doclet.access = "protected";
+        } else {
+            doclet.access = "public";
+        }
+    }
+}
+
 // http://usejsdoc.org/about-plugins.html
 module.exports = {
 
@@ -7,30 +50,17 @@ module.exports = {
 
         newDoclet: function (event) {
             var doclet = event.doclet,
-                title = [
-                    "@",
-                    doclet.meta.lineno
-                ];
-            if (doclet.undocumented) {
-                title.push("(u)");
+                kind = doclet.kind;
+            _logDoclet(doclet);
+            if (kind === "member") {
+                _addMemberType(doclet);
+                _checkAccess(doclet);
+            } else if (kind === "function") {
+                _checkAccess(doclet);
             }
-            title.push(": ", doclet.longname, " (", doclet.kind, ")");
-            console.log(title.join(""));
-if(doclet.meta.lineno === 50) {
-    console.log(doclet);
-}
-            if (doclet.kind === "member" || doclet.kind === "function") {
-                if (doclet.undocumented && -1 === doclet.longname.indexOf("~")) {
-                    // Generate documentation on the fly for easy cases
-                }
-                if (!doclet.access) {
-                    if (doclet.name.charAt(0) === "_") {
-                        doclet.access = "protected";
-                    } else {
-                        doclet.access = "public";
-                    }
-                }
-            }
+            // if(doclet.meta.lineno === 54 || doclet.meta.lineno === 82) {
+            //     console.log(doclet);
+            // }
         }
 
     }
