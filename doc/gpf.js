@@ -20,7 +20,7 @@ var _customTags = {
             type: {
                 names: [doclet.memberof]
             },
-            description: "Chainable"
+            description: "*Self reference to allow chaining*"
         }];
     }
 
