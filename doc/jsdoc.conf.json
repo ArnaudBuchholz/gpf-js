@@ -3,6 +3,7 @@
         "recurse": true
     },
     "plugins": [
-        "gpf"
+        "gpf",
+        "plugins/markdown"
     ]
 }
