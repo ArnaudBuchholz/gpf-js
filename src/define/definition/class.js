@@ -46,7 +46,7 @@ function _GpfClassDefinition (qName, superClassDef) {
 
 _GpfClassDefinition.prototype = {
 
-    // Fully qualified class name
+    /** Fully qualified class name */
     _qName: "",
 
     /** @return {String} Class name */
@@ -67,18 +67,19 @@ _GpfClassDefinition.prototype = {
         return "";
     },
 
-    /**
-     * @return {String} Class qualified name (namespace.name)
-     */
+    /** @return {String} Class qualified name (namespace.name) */
     getQualifiedName: function () {
         return this._qName;
     },
 
-
-    /** @property {_GpfClassDefinition} Super class definition */
+    /**
+     * Super class definition
+     *
+     * @type {_GpfClassDefinition}
+     */
     _super: null,
 
-    /** @property {Object} Dictionary of members */
+    /** Dictionary of members */
     _members: {},
 
     /**
