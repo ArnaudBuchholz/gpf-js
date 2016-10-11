@@ -15,7 +15,7 @@ function _logDoclet (doclet) {
 var _customTags = {
 
     // Returns the same type with a generic comment
-    chainable: function (doclet, tag) {
+    chainable: function (doclet/*, tag*/) {
         doclet.returns = [{
             type: {
                 names: [doclet.memberof]
