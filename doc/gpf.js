@@ -12,6 +12,31 @@ function _logDoclet (doclet) {
     console.log(title.join(""));
 }
 
+var _customTags = {
+
+    // Returns the same type with a generic comment
+    chainable: function (doclet, tag) {
+        doclet.returns = [{
+            type: {
+                names: [doclet.memberof]
+            },
+            description: "Chainable"
+        }];
+    }
+
+};
+
+function _handleCustomTags (doclet) {
+    if (doclet.tags) {
+        doclet.tags.forEach(function (tag) {
+           var handler = _customTags[tag.title];
+            if (undefined !== handler) {
+                handler(doclet, tag);
+            }
+        });
+    }
+}
+
 function _addMemberType (doclet) {
     if (!doclet.type) {
         // type: { names: [ 'String' ] }
@@ -29,7 +54,7 @@ function _addMemberType (doclet) {
             names: [
                 type
             ]
-        }
+        };
     }
 }
 
@@ -52,13 +77,14 @@ module.exports = {
             var doclet = event.doclet,
                 kind = doclet.kind;
             _logDoclet(doclet);
+            _handleCustomTags(doclet);
             if (kind === "member") {
                 _addMemberType(doclet);
                 _checkAccess(doclet);
             } else if (kind === "function") {
                 _checkAccess(doclet);
             }
-            // if(doclet.meta.lineno === 54 || doclet.meta.lineno === 82) {
+            // if(doclet.meta.lineno === 126 || doclet.meta.lineno === 92) {
             //     console.log(doclet);
             // }
         }
