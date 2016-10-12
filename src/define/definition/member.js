@@ -4,7 +4,6 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _GPF_VISIBILITY*/
 /*exported _GpfClassDefMember*/ // GPF class member definition
 /*#endif*/
 
@@ -14,13 +13,14 @@ _gpfErrorDeclare("define/definition/member", {
 });
 
 /**
- * Extensible information about a class member
+ * Class member definition
+ * - Contains a reference to the class definition where the member is defined
+ * - Owns the name, the default value and a reference type
  *
  * @param {String} name Member name
  * @param {*} defaultValue Member default / initial value
  * @param {String} [type=typeof defaultValue] type Member type
- * @class {_GpfClassDefMember}
- * @constructor
+ * @class
  */
 function _GpfClassDefMember (name, defaultValue, type) {
     /*jshint validthis:true*/ // constructor
@@ -31,15 +31,19 @@ function _GpfClassDefMember (name, defaultValue, type) {
 
 _GpfClassDefMember.prototype = {
 
-    /** @property {_GpfClassDefinition} Owning class definition */
+    /**
+     * Owning class definition
+     *
+     * @type {_GpfClassDefinition}
+     */
     _classDef: null,
 
-    /** @return {_GpfClassDefinition} Class definition where the member was initially added */
+    /** @return {_GpfClassDefinition} Owning class definition */
     getClassDefinition: function () {
         return this._classDef;
     },
 
-    /** @property {String} Member name */
+    /** Member name */
     _name: "",
 
     /** @return {String} Member name */
@@ -47,7 +51,7 @@ _GpfClassDefMember.prototype = {
         return this._name;
     },
 
-    /** @property {*} Default value */
+    /** Default value */
     _defaultValue: undefined,
 
     _setDefaultValue: function (defaultValue) {
@@ -56,7 +60,7 @@ _GpfClassDefMember.prototype = {
         }
     },
 
-    /** @property {String} Member type */
+    /** Member type */
     _type: "undefined",
 
     _setType: function (type) {
@@ -79,16 +83,11 @@ _GpfClassDefMember.prototype = {
         return this._type;
     },
 
-    /** @property {_GPF_VISIBILITY} */
-    _visibility: _GPF_VISIBILITY.PUBLIC,
-
     /**
      * Check if the current member supports overloading with the given one
      *
      * @param {_GpfClassDefMember} member
      * @exception {gpf.Error.classMemberOverloadWithTypeChange}
-     *
-     * @public
      */
     checkOverloadedWith: function (member) {
         this._checkMemberType(member);
