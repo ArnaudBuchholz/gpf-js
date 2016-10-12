@@ -185,6 +185,11 @@
         "doc": true
     },
     {
+        "name": "define/definition/attribute",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "define/builder/default",
         "load": false
     },
