@@ -3,6 +3,8 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfExtend*/ // gpf.extend
+/*global _GpfClassDefMember*/ // GPF class member definition
 /*exported _GPF_VISIBILITY*/ // Member visibility enum
 /*exported _gpfVisibilityFromKeyword*/ // Convert visibility keyword into enum
 /*#endif*/
@@ -36,6 +38,30 @@ var _gpfVisibilityKeywords      = "public|protected|private|static".split("|"),
 function _gpfVisibilityFromKeyword (keyword) {
     return _gpfVisibilityKeywords.indexOf(keyword);
 }
+
+//region Extension of _GpfClassDefMember
+
+_gpfExtend(_GpfClassDefMember.prototype, /** @lends _GpfClassDefMember.prototype */ {
+
+    /**
+     * Member visibility
+     *
+     * @type {_GPF_VISIBILITY}
+     */
+    _visibility: _GPF_VISIBILITY.PUBLIC,
+
+    _setVisibility: function (visibility) {
+        this._visibility = visibility;
+    },
+
+    /** @return {_GPF_VISIBILITY} Member visibility */
+    getVisibility: function () {
+        return this._visibility;
+    }
+
+});
+
+//endregion Extension of _GpfClassDefMember
 
 /*#ifndef(UMD)*/
 
