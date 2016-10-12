@@ -47,9 +47,9 @@ module.exports = {
         exitCode: 0
     },
     jsdoc: {
-        cmd: function (src) {
+        cmd: function () {
             return "node node_modules\\grunt-jsdoc\\node_modules\\jsdoc\\jsdoc -d tmp\\jsdoc --verbose "
-                + "-c doc\\jsdoc.conf.json " + src;
+                + "-c doc\\jsdoc.conf.json " + [].slice.call(arguments).join(" ");
         },
         stdout: true,
         stderr: true,
