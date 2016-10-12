@@ -93,6 +93,18 @@ _GpfClassDefinition.prototype = {
         return this._members[name];
     },
 
+    /**
+     * Get a member by its name only if it is defined for this class definition
+     *
+     * @param {String} name Member name
+     * @return {_GpfClassDefMember|undefined} Member or undefined if not found
+     */
+    _getOwnMember: function (name) {
+        if (this._members.hasOwnProperty(name)) {
+            return this._members[name];
+        }
+    },
+
     _checkOwnMemberDoesntExist: function (name) {
         if (this._members.hasOwnProperty(name)) {
             throw gpf.Error.classMemberAlreadyExist();
