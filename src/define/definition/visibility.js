@@ -1,15 +1,16 @@
 /**
- * @file Class visibility definition
+ * @file Member visibility definition
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfExtend*/ // gpf.extend
 /*global _GpfClassDefMember*/ // GPF class member definition
 /*exported _GPF_VISIBILITY*/ // Member visibility enum
+/*exported _gpfVisibilityKeywords*/ // List of visibility keywords
 /*exported _gpfVisibilityFromKeyword*/ // Convert visibility keyword into enum
 /*#endif*/
 
-var _gpfVisibilityKeywords      = "public|protected|private|static".split("|"),
+var _gpfVisibilityKeywords = "public|protected|private|static".split("|"),
 
     /**
      * Enumeration of visibility values
