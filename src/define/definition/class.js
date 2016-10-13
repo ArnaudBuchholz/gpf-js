@@ -99,7 +99,7 @@ _GpfClassDefinition.prototype = {
      * @param {String} name Member name
      * @return {_GpfClassDefMember|undefined} Member or undefined if not found
      */
-    _getOwnMember: function (name) {
+    getOwnMember: function (name) {
         if (this._members.hasOwnProperty(name)) {
             return this._members[name];
         }
