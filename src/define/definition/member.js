@@ -1,5 +1,5 @@
 /**
- * @file Class member definition
+ * @file Member definition
  */
 /*#ifndef(UMD)*/
 "use strict";
