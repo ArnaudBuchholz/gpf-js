@@ -1,5 +1,5 @@
 /**
- * @file Class / Member attribute placeholder definitions
+ * @file Class / Member attributes placeholder definitions
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -71,7 +71,7 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototy
      * @return {gpf.attributes.Attribute[]} Array of attributes
      */
     getMemberAttributes: function (name) {
-        var member = this._getOwnMember(name),
+        var member = this.getOwnMember(name),
             superMemberAttributes = this._getSuperClassMemberAttributes(name);
         if (member) {
             return superMemberAttributes.concat(member.getAttributes());
@@ -94,7 +94,7 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototy
      * @chainable
      */
     addAttributes: function (name, attributes) {
-        var member = this._getOwnMember(name);
+        var member = this.getOwnMember(name);
         _gpfAssert(member, "Own member must exist");
         member.addAttributes(attributes);
         return this;
