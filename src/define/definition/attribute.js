@@ -9,6 +9,17 @@
 /*global _GpfClassDefMember*/ // GPF class member definition
 /*#endif*/
 
+/**
+ * @param {gpf.attributes.Attribute|gpf.attributes.Attribute[]} attributes Attributes
+ * @returns {gpf.attributes.Attribute[]} Attribute array
+ */
+function _gpfToAttributeArray (attributes) {
+    if (attributes instanceof Array) {
+        return attributes;
+    }
+    return [attributes];
+}
+
 //region Extension of _GpfClassDefinition
 
 _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */ {
@@ -21,9 +32,9 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototy
     _attributes: [],
 
     /**
-     * Collect class attributes
+     * Consolidate class attributes
      *
-     * @return {gpf.attributes.Attribute[]}
+     * @return {gpf.attributes.Attribute[]} Array of attributes
      */
     getClassAttributes: function () {
         return this._getSuperClassAttributes().concat(this._attributes);
@@ -37,27 +48,27 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototy
     },
 
     /**
-     * Add a class attribute
+     * Add class attributes
      *
-     * @param {gpf.attributes.Attribute} attribute Class attribute to add
+     * @param {gpf.attributes.Attribute|gpf.attributes.Attribute[]} attributes Class attributes to add
      * @chainable
      */
-    addClassAttribute: function (attribute) {
+    addClassAttributes: function (attributes) {
         this._attributes = [];
-        this.addClassAttribute = this._addClassAttribute;
-        return this._addClassAttribute(attribute);
+        this.addClassAttributes = this._addClassAttributes;
+        return this._addClassAttributse(attributes);
     },
 
-    _addClassAttribute: function (attribute) {
-        this._attributes.push(attribute);
+    _addClassAttributes: function (attributes) {
+        this._attributes = this._attributes.concat(_gpfToAttributeArray(attributes));
         return this;
     },
 
     /**
-     * Collect member attributes
+     * Consolidate member attributes
      *
      * @param {String} name Member name
-     * @return {gpf.attributes.Attribute[]}
+     * @return {gpf.attributes.Attribute[]} Array of attributes
      */
     getMemberAttributes: function (name) {
         var member = this._getOwnMember(name),
@@ -76,16 +87,16 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototy
     },
 
     /**
-     * Add a class member attribute
+     * Add member attributes
      *
      * @param {String} name Member name
-     * @param {gpf.attributes.Attribute} attribute Class attribute to add
+     * @param {gpf.attributes.Attribute|gpf.attributes.Attribute[]} attributes Attributes to add
      * @chainable
      */
-    addAttribute: function (name, attribute) {
+    addAttributes: function (name, attributes) {
         var member = this._getOwnMember(name);
         _gpfAssert(member, "Own member must exist");
-        member.addAttribute(attribute);
+        member.addAttributes(attributes);
         return this;
     }
 
@@ -106,12 +117,29 @@ _gpfExtend(_GpfClassDefMember.prototype, /** @lends _GpfClassDefMember.prototype
 
     /**
      * Get member attributes
-     * Only the ones defined for the owning class are retreived
+     * Only the ones defined for the owning class are retrieved
      *
-     * @return {gpf.attributes.Attribute[]}
+     * @return {gpf.attributes.Attribute[]} Array of attributes
      */
-    getClassAttributes: function () {
+    getAttributes: function () {
         return this._attributes;
+    },
+
+    /**
+     * Add attributes
+     *
+     * @param {gpf.attributes.Attribute|gpf.attributes.Attribute[]} attributes Attributes to add
+     * @chainable
+     */
+    addAttributes: function (attributes) {
+        this._attributes = [];
+        this.addAttributes = this._addAttributes;
+        return this._addClassAttribute(attributes);
+    },
+
+    _addAttributes: function (attributes) {
+        this._attributes = this._attributes.concat(_gpfToAttributeArray(attributes));
+        return this;
     }
 
 });
