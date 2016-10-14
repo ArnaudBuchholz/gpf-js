@@ -333,11 +333,11 @@
         "load": false
     },
     {
-        "name": "define/processors/attribute",
+        "name": "define/processor/attribute",
         "load": false
     },
     {
-        "name": "define/processors/visibility",
+        "name": "define/processor/visibility",
         "load": false
     },
     {
