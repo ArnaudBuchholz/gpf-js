@@ -112,6 +112,15 @@ _GpfClassDefinition.prototype = {
     },
 
     /**
+     * Get the list of member names that were defined / overridden for this class
+     *
+     * @return {String[]} List of member names
+     */
+    getOwnMembers: function () {
+        return Object.keys(this._members);
+    },
+
+    /**
      * Before adding a member:
      * - Check that it does not already exist for this class definition
      * - If overloading an inherited member, check that it is compatible
