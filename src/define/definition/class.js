@@ -153,6 +153,32 @@ _GpfClassDefinition.prototype = {
         this._members[member.getName()] = member;
         member._classDef = this;
         return this;
+    },
+
+    /**
+     * Class constructor method
+     *
+     * @type {Function}
+     */
+    _constructorMethod: null,
+
+    /**
+     * Set the class constructor
+     *
+     * @param {Function} constructor
+     */
+    setConstructor: function (constructor) {
+        _gpfAssert(typeof constructor === "function", "Function expected");
+        this._constructorMethod = constructor;
+    },
+
+    /**
+     * Get the class constructor
+     *
+     * @returns {Function|null} Class constructor if existing
+     */
+    getConstructor: function () {
+        return this._constructorMethod;
     }
 
 };
