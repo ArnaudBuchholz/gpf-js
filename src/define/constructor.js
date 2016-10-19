@@ -9,7 +9,7 @@
 /*#endif*/
 
 _gpfErrorDeclare("define/constructor", {
-    "constructorFunction":
+    "constructorFunctionOLD":
         "This is a constructor function, use with new"
 });
 
@@ -27,7 +27,7 @@ function _gpfNewClassConstructorTpl (classDef) {
     return function () {
         var me = this; //eslint-disable-line no-invalid-this
         if (!(me instanceof classDef._Constructor)) {
-            throw gpf.Error.constructorFunction();
+            throw gpf.Error.constructorFunctionOLD();
         }
         classDef._resolvedConstructor.apply(me, arguments);
     };
