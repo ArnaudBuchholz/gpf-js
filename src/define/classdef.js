@@ -1,10 +1,10 @@
 /**
- * @file Class definition
+ * @file Class definition (OLD VERSION)
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
-/*global _getNewClassConstructor*/ // Allocate a named class constructor
+/*global _getOldNewClassConstructor*/ // Allocate a named class constructor
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfAsserts*/ // Multiple assertion method
 /*global _gpfAttributesAdd*/ // Shortcut for gpf.attributes.add
@@ -407,7 +407,7 @@ _GpfOldClassDefinition.prototype = {
             baseClassDef;
 
         // The new class constructor
-        newClass = _getNewClassConstructor(this);
+        newClass = _getOldNewClassConstructor(this);
         /*gpf:constant*/ this._Constructor = newClass;
         /*gpf:constant*/ newClass[_GPF_CLASSDEF_MARKER] = this._uid;
 
