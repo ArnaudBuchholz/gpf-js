@@ -1,11 +1,11 @@
 /**
- * @file Class constructor
+ * @file Class constructor (OLD VERSION)
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfFunctionBuilder*/ // Function builder
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*exported _getNewClassConstructor*/ // Allocate a named class constructor
+/*exported _getOldNewClassConstructor*/ // Allocate a named class constructor
 /*#endif*/
 
 _gpfErrorDeclare("define/constructor", {
@@ -40,7 +40,7 @@ function _gpfNewClassConstructorTpl (classDef) {
  * @returns {Function} Constructor
  */
 // Build a new constructor
-function _getNewClassConstructor (classDef) {
+function _getOldNewClassConstructor (classDef) {
     var builder = new _GpfFunctionBuilder(_gpfNewClassConstructorTpl),
         constructorName = classDef.getName().split(".").pop();
     builder.replaceInBody({
