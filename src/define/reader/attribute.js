@@ -5,7 +5,7 @@
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*#endif*/
 
-_gpfErrorDeclare("define/converter/attribute", {
+_gpfErrorDeclare("define/reader/attribute", {
     "attributeOnNonExistingMember":
         "Attribute {attributeName} must pair with a class member"
 });
