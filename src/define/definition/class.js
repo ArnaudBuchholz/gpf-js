@@ -114,10 +114,13 @@ _GpfClassDefinition.prototype = {
     /**
      * Get the list of member names that were defined / overridden for this class
      *
-     * @return {String[]} List of member names
+     * @return {_GpfClassDefMember[]} List of member names
      */
     getOwnMembers: function () {
-        return Object.keys(this._members);
+        var members = this._members;
+        return Object.keys(members).map(function (memberName) {
+            return members[memberName];
+        }, this);
     },
 
     /**
