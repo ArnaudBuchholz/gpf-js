@@ -60,7 +60,7 @@ Because there are many way to load the sources and, in particular, one evaluates
 all internal variables of the library are prefixed by:
 
 * **_gpf** for variables and functions
-* **_Gpf** for classes
+* **_Gpf** for classes or object type definition
 * **_GPF** for constants
 
 ### Documentation
