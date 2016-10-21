@@ -22,6 +22,16 @@ var _customTags = {
             },
             description: "*Self reference to allow chaining*"
         }];
+    },
+
+    // Read accessor on a property
+    read: function (doclet/*, tag*/) {
+
+    },
+
+    // Write accessor on a property
+    write: function (doclet/*, tag*/) {
+
     }
 
 };
@@ -84,7 +94,7 @@ module.exports = {
             } else if (kind === "function") {
                 _checkAccess(doclet);
             }
-            // if(doclet.meta.lineno === 126 || doclet.meta.lineno === 92) {
+            // if(doclet.meta.lineno === 54) {
             //     console.log(doclet);
             // }
         }
