@@ -1,17 +1,19 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GpfClassDefinition*/ // GPF class definition
+/*global _GpfClassDefinitionReader*/ // Class definition reader
 /*global _GpfClassDefMember*/ // GPF class member definition
 /*#endif*/
 
-var memberProcessor = {
+_GpfClassDefinitionReader.defaultMemberProcessors.push({
 
     matcher: /^\w+$/,
 
-    process: function (match, defaultValue, classDefinition) {
+    exec: function (match, defaultValue, reader) {
         var memberName = match[0],
             member = new _GpfClassDefMember(memberName, defaultValue);
-        classDefinition.addMember(member);
+        reader.getClassDefinition().addMember(member);
+        return member;
     }
 
-};
+});
+
