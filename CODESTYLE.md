@@ -92,8 +92,6 @@ In particular:
 * [@param](https://github.com/senchalabs/jsduck/wiki/%40param)
   Must be specified with type (and optional specification)
 * [@return](https://github.com/senchalabs/jsduck/wiki/%40return)
-* [@property](https://github.com/senchalabs/jsduck/wiki/%40property)
-  Can be detected if a member is not a function (type might be based on prototype value)
 * [@readonly](https://github.com/senchalabs/jsduck/wiki/%40readonly)
 * [@chainable](https://github.com/senchalabs/jsduck/wiki/%40chainable)
   Can be detected if all function paths returns this
@@ -115,17 +113,22 @@ _gpfDefAttr("$UniqueAttribute", _gpfAttrConstraint, {
 
     private: {
 
-         // The attribute is unique for the whole class when true or per member when false.
+         /** The attribute is unique for the whole class when true or per member when false */
         _classScope: true
 
     },
 ```
 
+Will generate the properties @private and @type {Boolean}
+
 Some 'extensions' are defined
 * @this: if the scope of the function has to be clarified it provides the type and explanations
-* @forwardThis: the scope of the function is fowarded to the callback function
+* @forwardThis: the scope of the function is forwarded to the callback function
 * @closure: if the function *directly* creates a closure
 * @mixin: a mixin definition
+* @chainable: indicates that the result of the method is the object itself, allowing method chaining
+* @read {memberName}: indicates a read accessor on a given member
+* @write {memberName}: indicates a write accessor on a given member
 
 It happens sometimes that a variable might be assigned different function versions (to manage host compatibilities).
 The placeholder selected to insert documentation must make the variable path clear. For instance:
