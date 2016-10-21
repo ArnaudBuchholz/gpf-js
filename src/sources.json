@@ -190,7 +190,27 @@
         "doc": true
     },
     {
+        "name": "define/reader/reader",
+        "test": false
+    },
+    {
+        "name": "define/reader/member",
+        "test": false
+    },
+    {
+        "name": "define/reader/attribute",
+        "load": false
+    },
+    {
+        "name": "define/reader/visibility",
+        "load": false
+    },
+    {
         "name": "define/builder/default",
+        "load": false
+    },
+    {
+        "name": "define/builder/constructor",
         "load": false
     },
     {
@@ -330,14 +350,6 @@
     },
     {
         "name": "engine",
-        "load": false
-    },
-    {
-        "name": "define/processor/attribute",
-        "load": false
-    },
-    {
-        "name": "define/processor/visibility",
         "load": false
     },
     {
