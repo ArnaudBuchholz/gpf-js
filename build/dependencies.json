@@ -147,8 +147,27 @@
         "assert",
         "error"
     ],
+    "define/definition/visibility": [
+        "define/definition/member",
+        "extend"
+    ],
     "define/definition/member": [
         "error"
+    ],
+    "define/definition/attribute": [
+        "define/definition/member",
+        "define/definition/class",
+        "assert",
+        "extend"
+    ],
+    "define/reader/reader": [
+        "define/definition/class",
+        "assert",
+        "foreach"
+    ],
+    "define/reader/member": [
+        "define/definition/member",
+        "define/reader/reader"
     ],
     "attributes": [
         "define/classdef",
