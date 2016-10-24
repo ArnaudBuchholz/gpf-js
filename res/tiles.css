@@ -43,6 +43,10 @@ ul#tiles > li div.percentage {
     font-size: 32pt;
 }
 
+ul#tiles > li#sources div.percentage {
+    font-size: 24pt;
+}
+
 ul#tiles > li div.percentage:hover {
     text-decoration: unset;
 }
