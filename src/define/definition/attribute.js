@@ -3,10 +3,10 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GpfClassDefMember*/ // GPF class member definition
+/*global _GpfClassDefinition*/ // GPF class definition
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfExtend*/ // gpf.extend
-/*global _GpfClassDefinition*/ // GPF class definition
-/*global _GpfClassDefMember*/ // GPF class member definition
 /*#endif*/
 
 /**
