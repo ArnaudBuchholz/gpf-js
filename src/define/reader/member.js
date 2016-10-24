@@ -1,7 +1,7 @@
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GpfClassDefinitionReader*/ // Class definition reader
 /*global _GpfClassDefMember*/ // GPF class member definition
+/*global _GpfClassDefinitionReader*/ // Class definition reader
 /*#endif*/
 
 _GpfClassDefinitionReader.defaultMemberProcessors.push({
