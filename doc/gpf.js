@@ -1,47 +1,93 @@
 "use strict";
 
 function _logDoclet (doclet) {
-    var title = [
-            "@",
-            doclet.meta.lineno
-        ];
-    if (doclet.undocumented) {
-        title.push("(u)");
+    var title = [];
+    if (doclet.meta && doclet.meta.lineno) {
+        title.push("@", doclet.meta.lineno, ": ");
     }
-    title.push(": ", doclet.longname, " (", doclet.kind, ")");
+    if (doclet.undocumented) {
+        title.push("(u) ");
+    }
+    title.push(doclet.longname, " (", doclet.kind, ")");
     console.log(title.join(""));
+
+    // try {
+    //     if (doclet.meta.lineno === 25 || doclet.meta.lineno === 54 || doclet.meta.lineno === 51) {
+    //         console.log(doclet);
+    //     }
+    // }
+    // catch (e) {
+    //     // ignore
+    // }
+}
+
+function _findDoclet (doclets, longname) {
+    var resultDoclet;
+    doclets.every(function (doclet) {
+        if (doclet.longname === longname && !doclet.undocumented) {
+            resultDoclet = doclet;
+            return false;
+        }
+        return true;
+    });
+    return resultDoclet;
+}
+
+function _findRefDoclet (doclets, doclet, reference) {
+    var refLongname = reference;
+    if (-1 === refLongname.indexOf("#")) {
+        refLongname = doclet.longname.split("#")[0] + "#" + refLongname;
+    }
+    return _findDoclet(doclets, refLongname);
 }
 
 var _customTags = {
 
     // Returns the same type with a generic comment
-    chainable: function (doclet/*, tag*/) {
+    chainable: function (doclet/*, tag, doclets*/) {
         doclet.returns = [{
             type: {
                 names: [doclet.memberof]
             },
-            description: "*Self reference to allow chaining*"
+            description: "<i>Self reference to allow chaining</i>"
         }];
     },
 
     // Read accessor on a property
-    read: function (doclet/*, tag*/) {
-
+    read: function (doclet, tag, doclets) {
+        var refDoclet = _findRefDoclet(doclets, doclet, tag.value);
+        if (!refDoclet) {
+            throw new Error("invalid reference for @read");
+        }
+        doclet.returns = [{
+            type: refDoclet.type,
+            description: refDoclet.description
+        }];
+        doclet.description = "<i>GET accessor for</i> " + refDoclet.description;
     },
 
     // Write accessor on a property
-    write: function (doclet/*, tag*/) {
+    write: function (doclet, tag, doclets) {
+        var refDoclet = _findRefDoclet(doclets, doclet, tag.value);
+        if (!refDoclet) {
+            throw new Error(doclet, "invalid reference for @write");
+        }
 
     }
 
 };
 
-function _handleCustomTags (doclet) {
+function _handleCustomTags (doclet, doclets) {
     if (doclet.tags) {
         doclet.tags.forEach(function (tag) {
            var handler = _customTags[tag.title];
             if (undefined !== handler) {
-                handler(doclet, tag);
+                try {
+                    handler(doclet, tag, doclets);
+                } catch (e) {
+                    console.error(doclet.meta.path + ".js@" + doclet.meta.lineno + ": " + e.message);
+                    throw e;
+                }
             }
         });
     }
@@ -78,25 +124,25 @@ function _checkAccess (doclet) {
     }
 }
 
+function _postProcessDoclet (doclet, index, doclets) {
+    var kind = doclet.kind;
+    _logDoclet(doclet);
+    _handleCustomTags(doclet, doclets);
+    if (kind === "member") {
+        _addMemberType(doclet);
+        _checkAccess(doclet);
+    } else if (kind === "function") {
+        _checkAccess(doclet);
+    }
+}
+
 // http://usejsdoc.org/about-plugins.html
 module.exports = {
 
     handlers: {
 
-        newDoclet: function (event) {
-            var doclet = event.doclet,
-                kind = doclet.kind;
-            _logDoclet(doclet);
-            _handleCustomTags(doclet);
-            if (kind === "member") {
-                _addMemberType(doclet);
-                _checkAccess(doclet);
-            } else if (kind === "function") {
-                _checkAccess(doclet);
-            }
-            // if(doclet.meta.lineno === 54) {
-            //     console.log(doclet);
-            // }
+        processingComplete: function (event) {
+            event.doclets.forEach(_postProcessDoclet);
         }
 
     }
