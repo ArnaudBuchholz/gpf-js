@@ -14,7 +14,7 @@ ul#tiles > li {
 }
 
 ul#tiles > li div.title {
-    top: 0px;
+    top: 0;
     font-size: 8pt;
     font-weight: bold;
     color: white;
@@ -182,8 +182,7 @@ ul#tiles > li#env select {
 }
 
 ul#tiles > li#env ul#envNames {
-    padding: 0;
-    padding-top: 8px;
+    padding: 8px 0 0 0;
     margin: 0;
 }
 
