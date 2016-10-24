@@ -3,11 +3,11 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfExtend*/ // gpf.extend
 /*global _GpfClassDefMember*/ // GPF class member definition
+/*global _gpfExtend*/ // gpf.extend
 /*exported _GPF_VISIBILITY*/ // Member visibility enum
-/*exported _gpfVisibilityKeywords*/ // List of visibility keywords
 /*exported _gpfVisibilityFromKeyword*/ // Convert visibility keyword into enum
+/*exported _gpfVisibilityKeywords*/ // List of visibility keywords
 /*#endif*/
 
 var _gpfVisibilityKeywords = "public|protected|private|static".split("|"),
