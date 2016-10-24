@@ -6,10 +6,7 @@
     display: inline-block;
     background-color: orange;
     color: white;
-    padding-left: 4px;
-    padding-right: 4px;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding: 2px 4px 2px 4px;
     margin-right: 4px;
     border-radius: 4px;
 }
