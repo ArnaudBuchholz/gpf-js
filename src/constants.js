@@ -40,7 +40,6 @@
 /*eslint-disable no-unused-vars*/
 /*eslint-disable no-undef*/
 /*jshint -W079*/ // Globals are also copied here
-/*eslint valid-jsdoc: 2*/
 /*#endif*/
 
 /**
