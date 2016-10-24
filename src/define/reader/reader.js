@@ -1,8 +1,8 @@
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GpfClassDefinition*/ // GPF class definition
 /*global _gpfAsserts*/ // Multiple assertion method
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*global _GpfClassDefinition*/ // GPF class definition
 /*exported _GpfClassDefinitionReader*/ // Class definition reader
 /*#endif*/
 
