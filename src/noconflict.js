@@ -4,7 +4,6 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfMainContext*/ // Main context object
-/*eslint valid-jsdoc: 2*/
 /*#endif*/
 
 var /**
@@ -15,7 +14,6 @@ var /**
      * - unknown
      *
      * @type {undefined|Object}
-     * @private
      */
     _gpfConflictingSymbol;
 
@@ -26,6 +24,10 @@ _gpfConflictingSymbol = _gpfMainContext.gpf;
 /* istanbul ignore next */ // web only
 /**
  * Relinquish control of the gpf variable.
+ *
+ * If for some reason two versions of the GPF library are loaded (which is **not** recommended),
+ * calling gpf.noConflict() from the second version will return the globally scoped gpf variable to those of the first
+ * version
  *
  * @return {Object} current GPF instance
  */
