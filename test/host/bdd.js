@@ -16,7 +16,7 @@
         return this; //eslint-disable-line no-invalid-this
     }());
 
-    /**
+    /*
      * Simple BDD implementation
      */
 
@@ -24,7 +24,7 @@
     function _objectForEach (dictionary, callback, thisArg) {
         for (var property in dictionary) {
             if (dictionary.hasOwnProperty(property)) {
-                callback.apply(thisArg, [dictionary[property], property, dictionary]);
+                callback.call(thisArg, dictionary[property], property, dictionary);
             }
         }
     }
@@ -52,7 +52,8 @@
     /**
      * Abstract item
      *
-     * @param {String} label
+     * @param {String} label Label describing the item
+     * @param {BDDAbstract} [parent] Parent item
      * @constructor
      */
     var BDDAbstract = _toClass(function BDDAbstract (label, parent) {
@@ -67,13 +68,21 @@
         this.label = label;
     }, Object, {
 
-        // @property {BDDAbstract} Parent item
+        /**
+         * Parent item
+         *
+         * @type {BDDAbstract}
+         */
         parent: null,
 
-        // @prototype {BDDDescribe[]} Children of the description
+        /**
+         * Children of the description
+         *
+         * @type {BDDDescribe[]}
+         */
         children: [],
 
-        // Label of the item
+        /** Label of the item */
         label: ""
 
     });
@@ -82,39 +91,66 @@
      * Test description
      *
      * @constructor
-     * @param {String} label
+     * @param {String} label Label describing the item
+     * @param {BDDDescribe} [parent] Parent item
      * @class BDDDescribe
      * @extends BDDAbstract
      */
-    var BDDDescribe = _toClass(function BDDDescribe (/*label, parent*/) {
-        BDDAbstract.apply(this, arguments);
+    var BDDDescribe = _toClass(function BDDDescribe (label, parent) {
+        BDDAbstract.call(this, label, parent);
     }, BDDAbstract, {
 
-        // @property {Function[]} List of before callbacks
+        /**
+         * List of before callbacks
+         *
+         * @type {Function[]}
+         */
         before: [],
 
-        // @property {Function[]} List of beforeEach callbacks
+        /**
+         * List of beforeEach callbacks
+         *
+         * @type {Function[]}
+         */
         beforeEach: [],
 
-        // @property {Function[]} List of afterEach callbacks
+        /**
+         * List of afterEach callbacks
+         *
+         * @type {Function[]}
+         */
         afterEach: [],
 
-        // @property {Function[]} List of after callbacks
+        /**
+         * List of after callbacks
+         *
+         * @type {Function[]}
+         */
         after: [],
 
         statics: {
 
-            // @property {BDDDescribe} Root test folder
+            /**
+             * Root test folder
+             *
+             * @type {BDDDescribe}
+             * @static
+             */
             root: null,
 
-            // @property {BDDDescribe} Current test folder
+            /**
+             * Current test folder
+             *
+             * @type {BDDDescribe}
+             * @static
+             */
             current: null,
 
             /**
-             * Added the callback to the list which member name is provided
+             * Adds the callback to the list which member name is provided
              *
              * @param {String} listName List member name
-             * @param {Function} callback
+             * @param {Function} callback Callback
              */
             addCallback: function (listName, callback) {
                 var current = BDDDescribe.current;
@@ -138,7 +174,7 @@
      * @extends BDDAbstract
      */
     var BDDIt = _toClass(function BDDIt (label, callback, parent) {
-        BDDAbstract.apply(this, [label, parent]);
+        BDDAbstract.call(this, label, parent);
         this.callback = callback;
     }, BDDAbstract, {
 
@@ -202,7 +238,7 @@
         /**
          * Fails by throwing an exception if the value is falsy
          *
-         * @param {*} condition
+         * @param {*} condition If the condition is falsy, the assertion fails
          */
         assert: function (condition) {
             if (!condition) {
@@ -214,7 +250,7 @@
         /**
          * Simulates a way to terminate the process with a result code
          *
-         * @param {Number} code
+         * @param {Number} code Exit code
          */
         exit: function (code) {
             if (0 === code) {
@@ -306,7 +342,7 @@
 
     function _defaultCallback (type, data) {
         /*jshint validthis:true*/
-        _handlers[type].apply(this, [data]);
+        _handlers[type].call(this, data);
     }
 
     //endregion
@@ -372,7 +408,7 @@
         /**
          * Executes the callback and monitor its result
          *
-         * @param {Function} callback
+         * @param {Function} callback Function to execute
          * @param {Function} [callbackCompleted=undefined] callbackCompleted Function called when the callback completed
          * (will be bound to the Runner), expected parameters are
          * - {Object} context
@@ -394,9 +430,8 @@
                     timeoutId: null,
                     complete: this._complete
                 },
-                done;
-            try {
                 done = this._done.bind(monitorContext);
+            try {
                 return this._secureCall(callback, monitorContext, done);
             } catch (e) {
                 monitorContext.error = e;
@@ -432,7 +467,7 @@
 
         // complete wrapper, is bound to a monitorContext
         _complete: function (error) {
-            this.callbackCompleted.apply(this.runner, [this.callbackContext, this.startDate, error]);
+            this.callbackCompleted.call(this.runner, this.callbackContext, this.startDate, error);
         },
 
         // provide done parameter only if requested
@@ -474,8 +509,8 @@
         },
 
         /**
-         * @param {Promise} promise
-         * @param {Function} done done callback
+         * @param {Promise} promise Promise to attach to
+         * @param {Function} done Callback to trigger when the promise is completed
          */
         _attachToPromise: function (promise, done) {
             var _rejectionReason;
@@ -499,14 +534,14 @@
             promise.then(fulfilled, rejected);
             var catchMethod = promise["catch"];
             if (catchMethod) {
-                catchMethod.apply(promise, [caught]);
+                catchMethod.call(promise, caught);
             }
         },
 
         /**
          * Call the it test callback
          *
-         * @param {BDDIt} it
+         * @param {BDDIt} it Test case
          * @return {Boolean} true if asynchronous
          */
         _processItCallback: function (it) {
@@ -557,8 +592,8 @@
         /**
          * Call (before|after)(Each)? callback
          *
-         * @param {String} type
-         * @param {Function} callback
+         * @param {String} type "before", "beforeEach", "after" or "afterEach"
+         * @param {Function} callback Function to call
          * @return {Boolean} true if asynchronous
          */
         _processCallback: function (type, callback) {
