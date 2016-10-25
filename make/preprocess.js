@@ -80,13 +80,7 @@ Preprocessor.prototype = {
     }
 };
 
-/**
- * Preprocess the JavaScript source and resolve the #ifdef macros
- *
- * @param {String} src
- * @param {Object} defines Dictionary of defines
- * @return {String}
- */
+// Preprocess the JavaScript source and resolve the #ifdef macros
 module.exports = function (src, defines) {
     var preprocessor = new Preprocessor(src, defines);
     return preprocessor.getOutput();
