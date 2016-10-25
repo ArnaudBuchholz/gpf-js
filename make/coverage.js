@@ -5,7 +5,15 @@
 (function () {
     "use strict";
 
-    // Simple class helper
+    /**
+     * Simple class helper
+     *
+     * @param {Function} Constructor Constructor function
+     * @param {Object} members Members dictionary
+     * @param {Function} [Base] Base class
+     * @return {Function} New class constructor
+     * @private
+     */
     function _class (Constructor, members, Base) {
         var ResultConstructor;
         if (!Constructor) {
@@ -38,21 +46,22 @@
      */
     var _PartStatistics = _class(null, {
 
-        // @property {Number} number of instances for this part
+        /** number of instances for this part */
         count: 0,
 
-        // @property {Number} number of tested instances
+        /** number of tested instances */
         tested: 0,
 
-        // @property {Number} number of ignored instances
+        /** number of ignored instances */
         ignored: 0,
 
         /**
          * Increase tested or ignored count accordingly to what happened
          *
-         * @param {Number} numberOfCall
-         * @param {Object} partDefinition
+         * @param {Number} numberOfCall Number of calls extracted from the coverage report
+         * @param {Object} partDefinition Part definition
          * Only skip (Boolean) is tested
+         * @return {undefined}
          */
         _testedOrIgnored: function (numberOfCall, partDefinition) {
             if (0 < numberOfCall) {
@@ -65,8 +74,9 @@
         /**
          * Common coverage processing
          *
-         * @param {Number} numberOfCall
-         * @param {Object} partDefinition
+         * @param {Number} numberOfCall Number of calls extracted from the coverage report
+         * @param {Object} partDefinition Part definition
+         * @return {undefined}
          */
         processCoverage: function (numberOfCall, partDefinition) {
             ++this.count;
@@ -76,7 +86,8 @@
         /**
          * Adds information from another part statistics
          *
-         * @param {CoverageReport.PartStatistics} partStatistics
+         * @param {CoverageReport.PartStatistics} partStatistics Statistics to add
+         * @return {undefined}
          */
         add: function (partStatistics) {
             this.count += partStatistics.count;
@@ -84,6 +95,7 @@
             this.ignored += partStatistics.ignored;
         },
 
+        // Generates percent value
         _toPercent: function (count, total, rounded) {
             if (rounded) {
                 return Math.floor(100 * count / total);
@@ -92,10 +104,8 @@
         },
 
         /**
-         * Returns coverage ratio in percent
-         *
          * @param {Boolean} rounded Truncate decimals when true
-         * @return {Number}
+         * @return {Number} Coverage ratio in percent
          */
         getCoverageRatio: function (rounded) {
             if (0 === this.count) {
@@ -105,10 +115,8 @@
         },
 
         /**
-         * Returns ignored ratio in percent
-         *
          * @param {Boolean} rounded Truncate decimals when true
-         * @return {Number}
+         * @return {Number} Ignored ratio in percent
          */
         getIgnoredRatio: function (rounded) {
             if (0 === this.count) {
@@ -146,9 +154,10 @@
         /**
          * Branch-specific coverage processing
          *
-         * @param {Number[]} numberOfCalls
-         * @param {Object} branchDefinition
+         * @param {Number[]} numberOfCalls Number of calls extracted from the coverage report (one per branch)
+         * @param {Object} branchDefinition Branch definition
          * locations array will used to fetch skip property of each branch
+         * @return {undefined}
          */
         processCoverage: function (numberOfCalls, branchDefinition) {
             this.count += 2;
@@ -178,16 +187,28 @@
         this.branches = new _BranchStatistics();
     }, {
 
-        // @property {String} file name
+        /** file name */
         name: "",
 
-        // @property {CoverageReport.StatementStatistics} statements statistics
+        /**
+         * Statements statistics
+         *
+         * @type {CoverageReport.StatementStatistics}
+         */
         statements: null,
 
-        // @property {CoverageReport.FunctionStatistics} functions statistics
+        /**
+         * Functions statistics
+         *
+         * @type {CoverageReport.FunctionStatistics}
+         */
         functions: null,
 
-        // @property {CoverageReport.BranchStatistics} branches statistics
+        /**
+         * Branches statistics
+         *
+         * @type {CoverageReport.BranchStatistics}
+         */
         branches: null
 
     });
@@ -204,20 +225,24 @@
         this._compute();
     }, {
 
-        // @property {Object} coverage data
+        /** coverage data */
         _data: null,
 
-        // @property {Object} dictionary of coverage per file
+        /** dictionary of coverage per file */
         _files: null,
 
-        // @property {CoverageReport.File} global coverage
+        /**
+         * Global coverage
+         *
+         * @type {CoverageReport.File}
+         */
         _global: null,
 
         /**
          * Compute coverage for one file
          *
-         * @param {String} fileName file name
-         * @return {CoverageReport.File}
+         * @param {String} fileName File name
+         * @return {CoverageReport.File} Coverage for one file
          */
         _computeFileCoverage: function (fileName) {
             var result = new _File(fileName),
@@ -249,6 +274,8 @@
 
         /**
          * Compute all coverages
+         *
+         * @return {undefined}
          */
         _compute: function () {
             this._files = {};
