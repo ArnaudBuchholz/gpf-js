@@ -6,11 +6,6 @@ var fs = require("fs"),
     identifierCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
     jsKeywords = fs.readFileSync("../res/javascript.keywords.txt").toString().split("\n");
 
-/**
- * AST Reducer
- *
- * @class ASTreducer
- */
 function ASTreducer () {
     this._identifiers = {};
     this._identifiersStack = [];
@@ -23,12 +18,7 @@ ASTreducer.prototype = {
         this._walk(ast);
     },
 
-    /**
-     * Create new variable names for the provided name list.
-     *
-     * @param {String[]} names
-     * @param {Boolean} forVariables
-     */
+    // Create new variable names for the provided name list (forVariables is used to distinguish function names)
     beginIdentifierMapping: function (names, forVariables) {
         var
             len = names.length,
@@ -76,12 +66,7 @@ ASTreducer.prototype = {
         } while (names.isVariables);
     },
 
-    /**
-     * Return the nmapped identifier (if any)
-     *
-     * @param {String} name
-     * @returns {String|undefined}
-     */
+    // Return the mapped identifier (if any)
     isIdentifierMapped: function (name) {
         name = " " + name;
         if (this._identifiers.hasOwnProperty(name)) {
@@ -90,7 +75,7 @@ ASTreducer.prototype = {
         return undefined;
     },
 
-    // @property {String[][]} Stack of name arrays (corresponding to the cumulated calls to beginIdentifierMapping)
+    // Stack of name arrays (corresponding to the cumulated calls to beginIdentifierMapping)
     _identifiersStack: [],
 
     // Number of identifiers mapped
@@ -99,11 +84,7 @@ ASTreducer.prototype = {
     // Dictionary of name to mapped identifiers (Array)
     _identifiers: {}, // NOTE key is escaped to avoid collision with existing members
 
-    /**
-     * Explore the AST array and apply the necessary transformations
-     *
-     * @param {Array} astArray
-     */
+    // Explore the AST array and apply the necessary transformations
     _walkArray: function (astArray) {
         var
             idx,
@@ -128,11 +109,7 @@ ASTreducer.prototype = {
         }
     },
 
-    /**
-     * Explore the AST members and apply the necessary transformations
-     *
-     * @param {Object} ast
-     */
+    // Explore the AST members and apply the necessary transformations
     _walkItem: function (ast) {
         var member,
             subItem;
@@ -146,11 +123,7 @@ ASTreducer.prototype = {
         }
     },
 
-    /**
-     * Apply AST reducer to reduce it
-     *
-     * @param {Object} ast
-     */
+    // Apply AST reducer to reduce it
     _reduce: function (ast) {
         var
             myStatics = this.constructor,
@@ -168,15 +141,12 @@ ASTreducer.prototype = {
         }
     },
 
-    /**
-     * Explore the AST structure and apply the necessary transformations.
+    /* Explore the AST structure and apply the necessary transformations.
      * The transformations are based on processors declared as static members of this class.
      * Each processor is matched using the AST type and it may contain:
      * - pre: function to apply before exploring the AST
      * - post: function to apply after exploring the AST
      * - walk: override the AST exploring
-     *
-     * @param {Object} ast
      */
     _walk: function (ast) {
         if (ast instanceof Array) {
@@ -186,11 +156,7 @@ ASTreducer.prototype = {
         }
     },
 
-    /**
-     * New name allocator (based on number of identifiers)
-     *
-     * @returns {String}
-     */
+    // New name allocator (based on number of identifiers)
     _newName: function () {
         var
             id,
@@ -211,13 +177,7 @@ ASTreducer.prototype = {
 
 };
 
-/**
- * Test if the AST item has the request gpf: tag
- *
- * @param {Object} ast
- * @param {String} tag
- * @returns {boolean}
- */
+// Test if the AST item has the request gpf: tag
 ASTreducer.isTaggedWith = function (ast, tag) {
     var array,
         len,
@@ -347,12 +307,7 @@ ASTreducer.ObjectExpression = {
 
 module.exports = {
 
-    /**
-     * Transform the source into an AST representation
-     *
-     * @param {String} src
-     * @return {Object} AST representation
-     */
+    // Transform the source into an AST representation
     transform: function (src) {
         // https://github.com/Constellation/escodegen/issues/85
         var
@@ -367,25 +322,14 @@ module.exports = {
         return ast;
     },
 
-    /**
-     * Apply the reduction algorithm
-     *
-     * @param {Object} ast
-     * @return {Object}
-     */
+    // Apply the reduction algorithm
     reduce: function (ast) {
         var reducer = new ASTreducer();
         reducer.reduce(ast);
         return ast;
     },
 
-    /**
-     * Generate source code from the AST
-     *
-     * @param {Object} ast
-     * @param {Object} options
-     * @return {String}
-     */
+    // Generate source code from the AST
     rewrite: function (ast, options) {
         return escodegen.generate(ast, options);
     }
