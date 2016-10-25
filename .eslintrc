@@ -26,7 +26,21 @@
         "no-unexpected-multiline":      2,
         "no-unreachable":               2,
         "use-isnan":                    2,
-        "valid-jsdoc":                  2,
+        "valid-jsdoc":                  [2, {"prefer": {
+                                                 "returns": "return"
+                                             },
+                                             "preferType": {
+                                                 "object": "Object",
+                                                 "boolean": "Boolean",
+                                                 "number": "Number",
+                                                 "string": "String",
+                                                 "function": "Function"
+                                             },
+                                             "requireReturn": false,
+                                             "requireReturnType": true,
+                                             "requireParamDescription": true,
+                                             "requireReturnDescription": true
+                                            }],
         "valid-typeof":                 2,
 
         "http://eslint.org/docs/rules/#best-practices": 0,
@@ -44,7 +58,6 @@
         "no-caller":                    2,
         "no-div-regex":                 2,
         "no-else-return":               2,
-        "no-empty-label":               2,
         "no-eq-null":                   2,
         "no-eval":                      2,
         "no-extend-native":             0,                             "no-extend-native: GPF-JS provides polyfills": 0,
@@ -163,13 +176,11 @@
         "semi-spacing":                 [2, {"before": false, "after": true}],
         "semi":                         [2, "always"],
         "sort-vars":                    0,
-        "space-after-keywords":         2,
         "space-before-blocks":          [2, {"functions": "always", "keywords": "always"}],
         "space-before-function-paren":  [2, "always"],
-        "space-before-keywords":        2,
+        "keyword-spacing":              [2, {"before": true, "after": true}],
         "space-in-parens":              [2, "never"],
         "space-infix-ops":              [2, {"int32Hint": false}],
-        "space-return-throw-case":      2,
         "space-unary-ops":              2,
         "spaced-comment":               0,
         "wrap-regex":                   2,
