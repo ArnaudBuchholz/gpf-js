@@ -61,7 +61,6 @@
          * @param {Number} numberOfCall Number of calls extracted from the coverage report
          * @param {Object} partDefinition Part definition
          * Only skip (Boolean) is tested
-         * @return {undefined}
          */
         _testedOrIgnored: function (numberOfCall, partDefinition) {
             if (0 < numberOfCall) {
@@ -76,7 +75,6 @@
          *
          * @param {Number} numberOfCall Number of calls extracted from the coverage report
          * @param {Object} partDefinition Part definition
-         * @return {undefined}
          */
         processCoverage: function (numberOfCall, partDefinition) {
             ++this.count;
@@ -87,7 +85,6 @@
          * Adds information from another part statistics
          *
          * @param {CoverageReport.PartStatistics} partStatistics Statistics to add
-         * @return {undefined}
          */
         add: function (partStatistics) {
             this.count += partStatistics.count;
@@ -157,7 +154,6 @@
          * @param {Number[]} numberOfCalls Number of calls extracted from the coverage report (one per branch)
          * @param {Object} branchDefinition Branch definition
          * locations array will used to fetch skip property of each branch
-         * @return {undefined}
          */
         processCoverage: function (numberOfCalls, branchDefinition) {
             this.count += 2;
@@ -272,11 +268,7 @@
             return result;
         },
 
-        /**
-         * Compute all coverages
-         *
-         * @return {undefined}
-         */
+        /** Compute all coverages */
         _compute: function () {
             this._files = {};
             this._global = new _File();
