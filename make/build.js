@@ -127,14 +127,7 @@ Builder.prototype = {
 
 };
 
-/**
- * Build the requested version
- *
- * @param {Object} sources Dictionary of sources
- * @param {Object} parameters Version parameters
- * @param {Object} temporary Dictionary of intermediate results
- * @returns {String}
- */
+// Build the requested version
 module.exports = function (sources, parameters, debug) {
     var builder = new Builder(sources, parameters, debug);
     return builder.build();
