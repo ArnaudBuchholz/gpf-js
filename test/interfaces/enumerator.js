@@ -125,37 +125,27 @@ describe("interfaces/enumerator", function () {
             };
         }
 
-        /**
-         * Belongs to the enumeration object
-         *
-         * @param eventsHandler
-         * @returns {boolean}
-         * @this
-         */
         function syncMoveNext (eventsHandler) {
             /*jshint validthis:true*/ // Will be part of enumeration object
+            /*eslint-disable no-invalid-this*/
             if (++this._current < 10) {
                 return true;
             }
             gpfE.fire(gpfE.EVENT_END_OF_DATA, eventsHandler);
             return false;
+            /*eslint-enable no-invalid-this*/
         }
 
-        /**
-         * Belongs to the enumeration object
-         *
-         * @param eventsHandler
-         * @returns {boolean}
-         * @this
-         */
         function asyncMoveNext (eventsHandler) {
             /*jshint validthis:true*/ // Will be part of enumeration object
+            /*eslint-disable no-invalid-this*/
             if (++this._current < 10) {
                 gpfE.fire(gpfE.EVENT_DATA, eventsHandler);
             } else {
                 gpfE.fire(gpfE.EVENT_END_OF_DATA, eventsHandler);
             }
             return false;
+            /*eslint-enable no-invalid-this*/
         }
 
         describe("synchronous callback", function () {
