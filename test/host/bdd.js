@@ -31,7 +31,7 @@
 
     function _addMember (value, name) {
         /*jshint validthis:true*/ // Used below and bound to Constructor
-        this[name] = value;
+        this[name] = value; //eslint-disable-line no-invalid-this
     }
 
     // Class helper
@@ -90,10 +90,9 @@
     /**
      * Test description
      *
-     * @constructor
      * @param {String} label Label describing the item
      * @param {BDDDescribe} [parent] Parent item
-     * @class BDDDescribe
+     * @constructor
      * @extends BDDAbstract
      */
     var BDDDescribe = _toClass(function BDDDescribe (label, parent) {
@@ -167,10 +166,10 @@
     /**
      * Test case
      *
+     * @param {String} label Label describing the item
+     * @param {Function} callback Implementation of the test
+     * @param {BDDDescribe} [parent] Parent item
      * @constructor
-     * @param {String} label
-     * @param {Function} callback
-     * @class BDDIt
      * @extends BDDAbstract
      */
     var BDDIt = _toClass(function BDDIt (label, callback, parent) {
@@ -178,10 +177,14 @@
         this.callback = callback;
     }, BDDAbstract, {
 
-        // @property {Function} Test case callback (null if pending)
+        /**
+         * Test case callback (null if pending)
+         *
+         * @type {Function}
+         */
         callback: null,
 
-        // Allows to make a success from a failure (and test error cases)
+        /** Allows to make a success from a failure (and test error cases) */
         failureExpected: false
 
     });
@@ -342,7 +345,7 @@
 
     function _defaultCallback (type, data) {
         /*jshint validthis:true*/
-        _handlers[type].call(this, data);
+        _handlers[type].call(this, data); //eslint-disable-line no-invalid-this
     }
 
     //endregion
@@ -369,40 +372,72 @@
         this.next = this.next.bind(this);
     }, Object, {
 
-        // The current state
+        /** Current state */
         _state: 0,
 
-        // @property {Function} Callback used to notify the caller of the progress
+        /**
+         * Callback used to notify the caller of the progress
+         *
+         * @type {Function}
+         */
         _callback: null,
 
-        // @property asynchronous test limit in time
+        /** Asynchronous test limit in time */
         _timeoutDelay: 0,
 
-        // @property {BDDDescribe[]} Stack of describe items being processed
+        /**
+         * Stack of describe items being processed
+         *
+         * @type {BDDDescribe[]}
+         */
         _describes: [],
 
-        // @property {BDDDescribe} Current describe
+        /**
+         * Current describe
+         *
+         * @type {BDDDescribe}
+         */
         _describe: null,
 
-        // @property {Number[]} Stack of nextChildIndex (pointing to each describe child)
+        /**
+         * Stack of nextChildIndex (pointing to each describe child)
+         *
+         * @type {Number[]}
+         */
         _nextChildIndexes: [],
 
-        // Next child index of current describe
+        /** Next child index of current describe */
         _nextChildIndex: 0,
 
-        // @property {function[]} List of callbacks to process (before, beforeEach, ...)
+        /**
+         * List of callbacks to process (before, beforeEach, ...)
+         *
+         * @type {Function[]}
+         */
         _pendingCallbacks: [],
 
-        // @property {Function[]} stacked beforeEach callbacks
+        /**
+         * Stacked beforeEach callbacks
+         *
+         * @type {Function[]}
+         */
         _beforeEach: [],
 
-        // @property {Function[]} stacked afterEach callbacks
+        /**
+         * Stacked afterEach callbacks
+         *
+         * @type {Function[]}
+         */
         _afterEach: [],
 
-        // @property {Date} date when the run was started
+        /**
+         * Date when the run was started
+         *
+         * @type {Date}
+         */
         _runAt: null,
 
-        // @property {Object} Test statistics
+        /** Test statistics */
         _statistics: {},
 
         /**
