@@ -2,17 +2,7 @@
 
 describe("compatibility/timeout", function () {
 
-    /**
-     * Generate timeout scenario
-     *
-     * @param {Object} handlers
-     * - {Function} clearQueue
-     * - {Function} testQueueLength(size)
-     * - {Function} setTimeout
-     * - {Function} clearTimeout
-     * - {Function} handleTimeout
-     */
-    function generateScenario (handlers) {
+    function generateScenario (methods) {
 
         return function () {
 
@@ -39,15 +29,15 @@ describe("compatibility/timeout", function () {
                 if (-1 === deniedIds.indexOf(id) && -1 === allowedIds.indexOf(id)) {
                     // Not processed, cleaning
                     deniedIds.push(id);
-                    handlers.clearTimeout(id);
+                    methods.clearTimeout(id);
                     // no waiting, assuming this part works
                 }
             }
 
             beforeEach(function () {
-                handlers.clearQueue();
+                methods.clearQueue();
                 triggered = false;
-                var id = handlers.setTimeout(function () {
+                var id = methods.setTimeout(function () {
                     callback(id);
                 }, 20);
                 timeoutId = id;
@@ -59,7 +49,7 @@ describe("compatibility/timeout", function () {
             });
 
             it("allows queueing a callback", function () {
-                handlers.testQueueLength(1);
+                methods.testQueueLength(1);
             });
 
             afterEach(function () {
@@ -70,21 +60,21 @@ describe("compatibility/timeout", function () {
 
                 beforeEach(function () {
                     deniedIds.push(timeoutId);
-                    handlers.clearTimeout(timeoutId);
+                    methods.clearTimeout(timeoutId);
                 });
 
                 it("removes the callback from the queue", function () {
-                    handlers.testQueueLength(0);
+                    methods.testQueueLength(0);
                 });
 
                 describe("again", function () {
 
                     beforeEach(function () {
-                        handlers.clearTimeout(timeoutId);
+                        methods.clearTimeout(timeoutId);
                     });
 
                     it("does not fail", function () {
-                        handlers.testQueueLength(0);
+                        methods.testQueueLength(0);
                     });
 
                 });
@@ -96,7 +86,7 @@ describe("compatibility/timeout", function () {
                 beforeEach(function (done) {
                     allowedIds.push(timeoutId);
                     callbackDone = done;
-                    handlers.handleTimeout();
+                    methods.handleTimeout();
                 });
 
                 it("executes the callback from the queue", function () {
@@ -104,7 +94,7 @@ describe("compatibility/timeout", function () {
                 });
 
                 it("removes the callback from the queue", function () {
-                    handlers.testQueueLength(0);
+                    methods.testQueueLength(0);
                 });
 
             });
@@ -123,7 +113,7 @@ describe("compatibility/timeout", function () {
                 }
 
                 beforeEach(function () {
-                    var id = handlers.setTimeout(function () {
+                    var id = methods.setTimeout(function () {
                         fasterCallback(id);
                     }, 10);
                     fasterTimeoutId = id;
@@ -135,7 +125,7 @@ describe("compatibility/timeout", function () {
                 });
 
                 it("allows queueing a different callback", function () {
-                    handlers.testQueueLength(2);
+                    methods.testQueueLength(2);
                 });
 
                 afterEach(function () {
@@ -146,7 +136,7 @@ describe("compatibility/timeout", function () {
 
                     beforeEach(function () {
                         deniedIds.push(fasterTimeoutId);
-                        handlers.clearTimeout(fasterTimeoutId);
+                        methods.clearTimeout(fasterTimeoutId);
                     });
 
                     describe("triggering", function () {
@@ -154,7 +144,7 @@ describe("compatibility/timeout", function () {
                         beforeEach(function (done) {
                             allowedIds.push(timeoutId);
                             callbackDone = done;
-                            handlers.handleTimeout();
+                            methods.handleTimeout();
                         });
 
                         it("executes the remaining callback from the queue", function () {
@@ -162,7 +152,7 @@ describe("compatibility/timeout", function () {
                         });
 
                         it("removes all callbacks from the queue", function () {
-                            handlers.testQueueLength(0);
+                            methods.testQueueLength(0);
                         });
 
                     });
@@ -170,11 +160,11 @@ describe("compatibility/timeout", function () {
                     describe("again", function () {
 
                         beforeEach(function () {
-                            handlers.clearTimeout(fasterTimeoutId);
+                            methods.clearTimeout(fasterTimeoutId);
                         });
 
                         it("does not fail", function () {
-                            handlers.testQueueLength(1);
+                            methods.testQueueLength(1);
                         });
 
                     });
@@ -192,7 +182,7 @@ describe("compatibility/timeout", function () {
                                 done();
                             }
                         };
-                        handlers.handleTimeout();
+                        methods.handleTimeout();
                     });
 
                     it("executes the callbacks from the queue", function () {
@@ -200,7 +190,7 @@ describe("compatibility/timeout", function () {
                     });
 
                     it("removed all callbacks from the queue", function () {
-                        handlers.testQueueLength(0);
+                        methods.testQueueLength(0);
                     });
 
                 });
