@@ -109,11 +109,9 @@
         _waitForLoad();
     }
 
-    /**
+    /*
      * Load the GPF framework and test cases.
      * When done, execute the callback.
-     *
-     * @param {Function} callback
      */
     window.load = function (callback) {
         loadedCallback = callback;
