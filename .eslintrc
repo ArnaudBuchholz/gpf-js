@@ -218,6 +218,7 @@
         "gpfSourcesPath":               true,
         "console":                      true,
         "setTimeout":                   true,
+        "Promise":                      true,
 
         "WScript":                      false,
         "ActiveXObject":                false,
