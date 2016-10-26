@@ -243,16 +243,12 @@ describe("compatibility", function () {
                                 member: null
                             },
                             bound;
-                        /**
-                         * Will be bound
-                         *
-                         * @param value
-                         * @this bound scope
-                         */
                         function testFunction (value) {
                             /*jshint validthis:true*/
+                            /*eslint-disable no-invalid-this*/
                             assert(this === scope);
                             this.member = value;
+                            /*eslint-enable no-invalid-this*/
                         }
                         bound = method.apply(testFunction, [scope]);
                         // Check the scope when calling bound
