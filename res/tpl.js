@@ -35,7 +35,7 @@
 
     function _buildFactory () {
         /*jshint validthis:true*/
-        var baseHtml = this.innerHTML,
+        var baseHtml = this.innerHTML, //eslint-disable-line no-invalid-this
             token,
             matchedValue,
             code = [
