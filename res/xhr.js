@@ -4,7 +4,7 @@
 (function () {
     "use strict";
 
-    function _xhrSend (request, method, data) {
+    function xhrSend (request, method, data) {
         var result = new Promise(function (resolve, reject) {
             var xhr = new XMLHttpRequest();
             xhr.open(method, request._url);
@@ -33,15 +33,15 @@
     /**
      * XHR request parameters handler
      *
-     * @param {String} url
+     * @param {String} url URL to request
+     * @constructor
      * @private
      */
-    function _XhrRequest (url) {
-        /*jshint validthis:true*/
+    function XhrRequest (url) {
         this._url = url;
     }
 
-    _XhrRequest.prototype = {
+    XhrRequest.prototype = {
 
         // @property {String} URL of the request
         _url: "",
@@ -52,8 +52,9 @@
         /**
          * Set request headers
          *
-         * @param {Object} headerDictionary
-         * @return {_XhrRequest} allows chaining
+         * @param {Object} headerDictionary Dictionary of header properties
+         * @return {XhrRequest} self
+         * @chainable
          */
         headers: function (headerDictionary) {
             this._headers = headerDictionary;
@@ -73,18 +74,18 @@
         var isDataExpected = _methods[methodName],
             httpVerb = methodName.toUpperCase();
         if (isDataExpected) {
-            _XhrRequest.prototype[methodName] = function (data) {
-                return _xhrSend(this, httpVerb, data);
+            XhrRequest.prototype[methodName] = function (data) {
+                return xhrSend(this, httpVerb, data);
             };
         } else {
-            _XhrRequest.prototype[methodName] = function () {
-                return _xhrSend(this, httpVerb);
+            XhrRequest.prototype[methodName] = function () {
+                return xhrSend(this, httpVerb);
             };
         }
     });
 
     window.xhr = function (url) {
-        return new _XhrRequest(url);
+        return new XhrRequest(url);
     };
 
 }());
