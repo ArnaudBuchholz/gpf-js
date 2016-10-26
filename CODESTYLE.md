@@ -85,25 +85,23 @@ modifiers.
 
 *The following part will be reviewed*
 
-Documentation is based on [jsdoc](https://github.com/senchalabs/jsduck) tags.
+Documentation is based on [jsdoc](http://usejsdoc.org/) tags.
 
 In particular:
 
-* [@param](https://github.com/senchalabs/jsduck/wiki/%40param)
-  Must be specified with type (and optional specification)
-* [@return](https://github.com/senchalabs/jsduck/wiki/%40return)
-* [@readonly](https://github.com/senchalabs/jsduck/wiki/%40readonly)
-* [@chainable](https://github.com/senchalabs/jsduck/wiki/%40chainable)
-  Can be detected if all function paths returns this
-* [@inheritdoc](https://github.com/senchalabs/jsduck/wiki/%40inheritdoc) (<namespace/class>#<method>)
+* [@param](http://usejsdoc.org/tags-param.html)
+  Must be specified with type and description (and optional specification)
+* [@return](http://usejsdoc.org/tags-returns.html)
+  If the function does not return anything, do not use @return {undefined} or @return {void}
+* [@readonly](http://usejsdoc.org/tags-readonly.html)
+* [@inheritdoc](http://usejsdoc.org/tags-inheritdoc.html) (<namespace/class>#<method>)
   Can be detected if inheritance is clear and function names are the same
-* [@class](https://github.com/senchalabs/jsduck/wiki/%40class)
+* [@constructor](http://usejsdoc.org/tags-class.html)
   Can be detected when the class is defined by gpf.define
-* [@extends](https://github.com/senchalabs/jsduck/wiki/%40extends)
+* [@extends](http://usejsdoc.org/tags-augments.html)
   Can be detected when the class is defined by gpf.define or recognizing the syntax A.prototype = new B
-* [@alias](https://github.com/senchalabs/jsduck/wiki/%40alias)
-* [@constructor](https://github.com/senchalabs/jsduck/wiki/%40constructor)
-  Can be detected on the function name (must be constructor in gpf.define)
+* [@alias](http://usejsdoc.org/tags-alias.html)
+* [@this](http://usejsdoc.org/tags-this.html)
 
 However, and as much as possible, documentation generation should rely on simple patterns to detect properties.
 For instance, the following situation is easily recognizable:
@@ -119,10 +117,9 @@ _gpfDefAttr("$UniqueAttribute", _gpfAttrConstraint, {
     },
 ```
 
-Will generate the properties @private and @type {Boolean}
+Should generate the properties @private and @type {Boolean}
 
 Some 'extensions' are defined
-* @this: if the scope of the function has to be clarified it provides the type and explanations
 * @forwardThis: the scope of the function is forwarded to the callback function
 * @closure: if the function *directly* creates a closure
 * @mixin: a mixin definition
