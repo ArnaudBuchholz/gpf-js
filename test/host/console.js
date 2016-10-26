@@ -14,8 +14,8 @@
     /**
      * Generates the log, warn & error methods substituted on console
      *
-     * @param {String} name
-     * @returns {Function}
+     * @param {String} name "log", "warn" and "error"
+     * @return {Function} Wrapper securing console method
      */
     function genMember (name) {
         function _process (text) {
