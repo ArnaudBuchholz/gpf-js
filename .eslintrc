@@ -27,7 +27,8 @@
         "no-unreachable":               2,
         "use-isnan":                    2,
         "valid-jsdoc":                  [2, {"prefer": {
-                                                 "returns": "return"
+                                                 "returns": "return",
+                                                 "class": "constructor"
                                              },
                                              "preferType": {
                                                  "object": "Object",
