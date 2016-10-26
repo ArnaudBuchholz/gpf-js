@@ -24,9 +24,9 @@ _gpfErrorDeclare("interfaces", {
 /**
  * Verify that the object implements the current interface
  *
- * @param {Object} inspectedObject object (or class) to inspect
- * @param {gpf.interfaces.Interface} interfaceDefinition reference interface
- * @return {Boolean}
+ * @param {Object} inspectedObject Object (or class) to inspect
+ * @param {gpf.interfaces.Interface} interfaceDefinition Reference interface
+ * @return {Boolean} True if implemented
  */
 function _gpfIsImplementedBy (inspectedObject, interfaceDefinition) {
     var member,
@@ -65,7 +65,7 @@ function _gpfIsImplementedBy (inspectedObject, interfaceDefinition) {
  * @param {gpf.interfaces.Interface} interfaceDefinition reference interface
  * @param {Boolean} [throwError=true] throwError Throws an error if the interface is not found (otherwise, null
  * is returned)
- * @return {Object|null}
+ * @return {Object|null} Object implementing the interface or null
  */
 function _gpfQueryInterface (objectInstance, interfaceDefinition, throwError) {
     var result = null;
@@ -96,7 +96,7 @@ var
          *
          * @param {Object|Function} inspectedObject object (or class) to inspect
          * @param {gpf.interfaces.Interface} interfaceDefinition reference interface
-         * @return {Boolean}
+         * @return {Boolean} True if implemented
          */
         isImplementedBy: function (inspectedObject, interfaceDefinition) {
             if (inspectedObject instanceof Function) {
@@ -136,9 +136,9 @@ _gpfDefIntrf("IEventDispatcher", {
     /**
      * Add an event listener to the dispatcher
      *
-     * @param {String} event name
-     * @param {gpf.events.Handler} eventsHandler
-     * @return {gpf.interfaces.IEventDispatcher}
+     * @param {String} event Event name
+     * @param {gpf.events.Handler} eventsHandler Event handler
+     * @return {gpf.interfaces.IEventDispatcher} Self
      * @chainable
      */
     addEventListener: function (event, eventsHandler) {
@@ -149,9 +149,9 @@ _gpfDefIntrf("IEventDispatcher", {
     /**
      * Remove an event listener from the dispatcher
      *
-     * @param {String} event name
-     * @param {gpf.events.Handler} eventsHandler
-     * @return {gpf.interfaces.IEventDispatcher}
+     * @param {String} event Event name
+     * @param {gpf.events.Handler} eventsHandler Event handler
+     * @return {gpf.interfaces.IEventDispatcher} Self
      * @chainable
      */
     removeEventListener: function (event, eventsHandler) {
@@ -162,12 +162,12 @@ _gpfDefIntrf("IEventDispatcher", {
     /**
      * Broadcast the event
      *
-     * @param {String|gpf.events.Event} event name or object
-     * @param {Object} [params={}] event parameters
-     * @return {gpf.events.Event}
+     * @param {String|gpf.events.Event} event Event name or object
+     * @param {Object} [params={}] Event parameters
+     * @return {gpf.events.Event} Event object
      */
     dispatchEvent: function (event, params) {
-        _gpfIgnore(event, params);
+        return _gpfIgnore(event, params);
     }
 
 });
@@ -208,6 +208,7 @@ var _gpfIUnknown = _gpfDefIntrf("IUnknown", {
  *
  * @param {gpf.interfaces.Interface} interfaceDefinition The expected interface
  * @return {Object|null} The object supporting the interface (or null)
+ * @this Object
  */
 function _queryInterface (interfaceDefinition) {
     /*jshint validthis:true*/ // Called with apply
@@ -234,21 +235,20 @@ function _queryInterface (interfaceDefinition) {
  * Creates a wrapper calling _queryInterface and, if no result is built, the original one defined in the object
  * prototype
  *
- * @param {Function} orgQueryInterface
+ * @param {Function} orgQueryInterface Interface to retreive
+ * @return {Function} Default queryInterface implementation
  * @closure
  */
 function _wrapQueryInterface (orgQueryInterface) {
-    /**
-     * @inheritdoc gpf.interfaces.IUnknown#queryInterface
-     * @this
-     */
     return function (interfaceDefinition) {
+        /*eslint-disable no-invalid-this*/
         _gpfIgnore(interfaceDefinition);
         var result = _queryInterface.apply(this, arguments);
         if (null === result) {
             result = orgQueryInterface.apply(this, arguments);
         }
         return result;
+        /*eslint-enable no-invalid-this*/
     };
 }
 
