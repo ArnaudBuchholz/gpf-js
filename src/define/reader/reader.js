@@ -20,7 +20,7 @@
  *
  * @param {_GpfClassDefinition} classDef Class definition
  * @param {Object} definition Definition dictionary
- * @class
+ * @constructor
  */
 function _GpfClassDefinitionReader (classDef, definition) {
     _gpfAsserts({
@@ -28,10 +28,12 @@ function _GpfClassDefinitionReader (classDef, definition) {
         "Expected a definition dictionary": definition && typeof definition === "object"
     });
     /*jshint validthis:true*/ // constructor
+    /*eslint-disable no-invalid-this */
     this._classDef = classDef;
     this._definition = definition;
     this._processedMembers = [];
     this._memberProcessors = [].concat(_GpfClassDefinitionReader.defaultMemberProcessors);
+    /*eslint-enable no-invalid-this */
 }
 
 /**
