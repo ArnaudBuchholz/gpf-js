@@ -20,7 +20,7 @@ _gpfErrorDeclare("define/definition/class", {
  *
  * @param {_GpfClassDefinition} classDef Class definition receiving the link
  * @param {_GpfClassDefinition} [superClassDef=undefined] Class definition to link to
- * @returns {Object} Superclass member dictionary if provided or an empty object
+ * @return {Object} Superclass member dictionary if provided or an empty object
  */
 function _gpfLinkToSuperClassDef (classDef, superClassDef) {
     if (superClassDef) {
@@ -36,13 +36,15 @@ function _gpfLinkToSuperClassDef (classDef, superClassDef) {
  *
  * @param {String} qName Fully qualified class name (namespace.name)
  * @param {_GpfClassDefinition} [superClassDef=undefined] Super class definition
- * @class
+ * @constructor
  */
 function _GpfClassDefinition (qName, superClassDef) {
     _gpfAssert(!superClassDef || superClassDef instanceof _GpfClassDefinition, "Expected a _GpfClassDefinition");
     /*jshint validthis:true*/ // constructor
+    /*eslint-disable no-invalid-this*/
     this._qName = qName;
     this._members = Object.create(_gpfLinkToSuperClassDef(this, superClassDef));
+    /*eslint-enable no-invalid-this*/
 }
 
 _GpfClassDefinition.prototype = {
@@ -128,7 +130,7 @@ _GpfClassDefinition.prototype = {
      * - Check that it does not already exist for this class definition
      * - If overloading an inherited member, check that it is compatible
      *
-     * @param {String} name Member name
+     * @param {_GpfClassDefMember} member Member to check
      * @throws {gpf.Error.classMemberAlreadyExist}
      */
     _checkMemberBeforeAdd: function (member) {
@@ -168,7 +170,7 @@ _GpfClassDefinition.prototype = {
     /**
      * Set the class constructor
      *
-     * @param {Function} constructor
+     * @param {Function} constructor Constructor function
      */
     setConstructor: function (constructor) {
         _gpfAssert(typeof constructor === "function", "Function expected");
@@ -178,7 +180,7 @@ _GpfClassDefinition.prototype = {
     /**
      * Get the class constructor
      *
-     * @returns {Function|null} Class constructor if existing
+     * @return {Function|null} Class constructor if existing
      */
     getConstructor: function () {
         return this._constructorMethod;
