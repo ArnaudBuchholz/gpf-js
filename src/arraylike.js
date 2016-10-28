@@ -11,7 +11,7 @@
 
 /**
  * Return true if the parameter looks like an array, meaning a property length is available and members can be
- * accessed through the [] operator.
+ * accessed through the [] operator. The length property does not have to be writable.
  *
  * **NOTE**: when running in a browser, this includes
  * [HTMLCollection](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCollection)
@@ -33,5 +33,5 @@ if (_GPF_HOST_BROWSER === _gpfHost && (_gpfWebWindow.HTMLCollection || _gpfWebWi
     };
 }
 
-/** @reveal _gpfIsArrayLike */
+/** @sameas _gpfIsArrayLike */
 gpf.isArrayLike = _gpfIsArrayLike;
