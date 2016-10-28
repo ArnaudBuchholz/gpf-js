@@ -126,7 +126,7 @@ Some 'extensions' are defined
 * @chainable: indicates that the result of the method is the object itself, allowing method chaining
 * @read <memberName>: indicates a read accessor on a given member
 * @write <memberName>: indicates a write accessor on a given member
-* @reveal <referenceName>: copy the documentation of referenceName (used in case of [revealing pattern](https://addyosmani.com/resources/essentialjsdesignpatterns/book/#revealingmodulepatternjavascript))
+* @sameas <referenceName>: copy the documentation of referenceName
 
 It happens sometimes that a variable might be assigned different function versions (to manage host compatibilities).
 The placeholder selected to insert documentation must make the variable path clear. For instance:
