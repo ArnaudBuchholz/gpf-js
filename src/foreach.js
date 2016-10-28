@@ -9,14 +9,22 @@
 /*#endif*/
 
 /**
- * Similar to [].forEach but works on array-like
+ * Callback function executed on each array / dictionary item
  *
- * @param {Array} array
- * @param {Function} callback Function to execute for each own property, taking three arguments:
- * - {*} currentValue The current element being processed
- * - {String} property The current index being processed
- * - {Object} array The array currently being processed
- * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback.
+ * @callback gpfCallbackForEach
+ *
+ * @param {*} value The current item
+ * @param {String} index The index of the current item
+ * @param {Object} container The container currently being enumerated (array or dictionary)
+ * @return {undefined} No return expected
+ */
+
+/**
+ * Similar to [].forEach but for array-like
+ *
+ * @param {Array} array Array-like object
+ * @param {gpfForEachCallback} callback Callback function executed on each array item
+ * @param {*} [thisArg] thisArg Value to use as this when executing callback
  */
 function _gpfArrayForEach (array, callback, thisArg) {
     var index,
@@ -29,12 +37,9 @@ function _gpfArrayForEach (array, callback, thisArg) {
 /**
  * Similar to [].forEach but for objects
  *
- * @param {Object} object
- * @param {Function} callback Function to execute for each own property, taking three arguments:
- * - {*} currentValue The current element being processed
- * - {String} property The name of the current property being processed
- * - {Object} object The object currently being processed
- * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback.
+ * @param {Object} object Object
+ * @param {gpfForEachCallback} callback Callback function executed on each own property
+ * @param {*} [thisArg] thisArg Value to use as this when executing callback
  */
 function _gpfObjectForEach (object, callback, thisArg) {
     for (var property in object) {
@@ -49,19 +54,16 @@ function _gpfObjectForEach (object, callback, thisArg) {
  * Executes a provided function once per structure element.
  * NOTE: unlike [].forEach, non own properties are also enumerated
  *
- * @param {Array|Object} structure
- * @param {Function} callback Function to execute for each element, taking three arguments:
- * - {*} currentValue The current element being processed
- * - {String} property The name of the current property or the index being processed
- * - {Array|Object} structure The structure currently being processed
- * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback.
+ * @param {Array|Object} container Container to enumerate
+ * @param {gpfForEachCallback} callback Callback function executed on each item or own property
+ * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback
  */
-gpf.forEach = function (structure, callback, thisArg) {
-    if (_gpfIsArrayLike(structure)) {
-        _gpfArrayForEach(structure, callback, thisArg);
+gpf.forEach = function (container, callback, thisArg) {
+    if (_gpfIsArrayLike(container)) {
+        _gpfArrayForEach(container, callback, thisArg);
         return;
     }
-    _gpfObjectForEach(structure, callback, thisArg); /*gpf:inline(object)*/
+    _gpfObjectForEach(container, callback, thisArg); /*gpf:inline(object)*/
 };
 
 /*#ifndef(UMD)*/
