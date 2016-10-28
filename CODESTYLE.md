@@ -65,9 +65,6 @@ all internal variables of the library are prefixed by:
 
 ### Documentation
 
-*Until jsdoc tags are updated everywhere, the [valid-jsdoc](http://eslint.org/docs/rules/valid-jsdoc) rule will be
-enabled case by case*
-
 There are three levels of documentation:
 
 - Sources must have a [@file](http://usejsdoc.org/tags-file.html) tag to provide summary of module content.
@@ -82,8 +79,6 @@ There are three levels of documentation:
 Any other function / class / variable that are internal to sources might not be documented (hoping they are clear
 enough). Within a class declaration (leveraging gpf.define), members visibility is based on public / private / protected
 modifiers.
-
-*The following part will be reviewed*
 
 Documentation is based on [jsdoc](http://usejsdoc.org/) tags.
 
