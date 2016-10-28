@@ -71,8 +71,8 @@ var _customTags = {
         // var refDoclet = _findRefDoclet(doclets, doclet, tag);
     },
 
-    // Reveal module pattern
-    reveal: function (doclet, tag, doclets) {
+    // Same as another doclet
+    sameas: function (doclet, tag, doclets) {
         var refDoclet = _findRefDoclet(doclets, doclet, tag);
         [
             "description",
