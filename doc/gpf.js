@@ -1,5 +1,7 @@
 "use strict";
 
+var path = require("path");
+
 function _logDoclet (doclet) {
     var title = [];
     if (doclet.meta && doclet.meta.lineno) {
@@ -10,18 +12,16 @@ function _logDoclet (doclet) {
     }
     title.push(doclet.longname, " (", doclet.kind, ")");
     console.log(title.join(""));
-
     // try {
-    //     if (doclet.meta.lineno === 25 || doclet.meta.lineno === 54 || doclet.meta.lineno === 51) {
+    //     if (doclet.longname === "gpf.isArrayLike") {
     //         console.log(doclet);
     //     }
-    // }
-    // catch (e) {
+    // } catch (e) {
     //     // ignore
     // }
 }
 
-function _findDoclet (doclets, longname) {
+function _findDoclet (doclets, longname, tag) {
     var resultDoclet;
     doclets.every(function (doclet) {
         if (doclet.longname === longname && !doclet.undocumented) {
@@ -30,15 +30,18 @@ function _findDoclet (doclets, longname) {
         }
         return true;
     });
+    if (!resultDoclet) {
+        throw new Error("invalid reference for @" + tag.title);
+    }
     return resultDoclet;
 }
 
-function _findRefDoclet (doclets, doclet, reference) {
-    var refLongname = reference;
-    if (-1 === refLongname.indexOf("#")) {
+function _findRefDoclet (doclets, doclet, tag) {
+    var refLongname = tag.value;
+    if (-1 === refLongname.indexOf("#") && -1 !== doclet.longname.indexOf("#")) {
         refLongname = doclet.longname.split("#")[0] + "#" + refLongname;
     }
-    return _findDoclet(doclets, refLongname);
+    return _findDoclet(doclets, refLongname, tag);
 }
 
 var _customTags = {
@@ -55,10 +58,7 @@ var _customTags = {
 
     // Read accessor on a property
     read: function (doclet, tag, doclets) {
-        var refDoclet = _findRefDoclet(doclets, doclet, tag.value);
-        if (!refDoclet) {
-            throw new Error("invalid reference for @read");
-        }
+        var refDoclet = _findRefDoclet(doclets, doclet, tag);
         doclet.returns = [{
             type: refDoclet.type,
             description: refDoclet.description
@@ -67,12 +67,21 @@ var _customTags = {
     },
 
     // Write accessor on a property
-    write: function (doclet, tag, doclets) {
-        var refDoclet = _findRefDoclet(doclets, doclet, tag.value);
-        if (!refDoclet) {
-            throw new Error(doclet, "invalid reference for @write");
-        }
+    write: function (/*doclet, tag, doclets*/) {
+        // var refDoclet = _findRefDoclet(doclets, doclet, tag);
+    },
 
+    // Reveal module pattern
+    reveal: function (doclet, tag, doclets) {
+        var refDoclet = _findRefDoclet(doclets, doclet, tag);
+        [
+            "description",
+            "params",
+            "returns",
+            "kind"
+        ].forEach(function (propertyName) {
+            doclet[propertyName] = refDoclet[propertyName];
+        });
     }
 
 };
@@ -80,12 +89,14 @@ var _customTags = {
 function _handleCustomTags (doclet, doclets) {
     if (doclet.tags) {
         doclet.tags.forEach(function (tag) {
-           var handler = _customTags[tag.title];
+            var handler = _customTags[tag.title];
             if (undefined !== handler) {
                 try {
                     handler(doclet, tag, doclets);
                 } catch (e) {
-                    console.error(doclet.meta.path + ".js@" + doclet.meta.lineno + ": " + e.message);
+                    console.error(doclet.meta.path + path.sep + doclet.meta.filename + "@" + doclet.meta.lineno + ": "
+                        + e.message);
+                    console.error(doclet);
                     throw e;
                 }
             }
