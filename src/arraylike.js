@@ -10,9 +10,14 @@
 /*#endif*/
 
 /**
- * Return true if the parameter looks like an array
+ * Return true if the parameter looks like an array, meaning a property length is available and members can be
+ * accessed through the [] operator.
  *
- * @param {Object} obj
+ * **NOTE**: when running in a browser, this includes
+ * [HTMLCollection](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCollection)
+ * and [NodeList](https://developer.mozilla.org/en-US/docs/Web/API/NodeList) types
+ *
+ * @param {Object} obj Object to test
  * @return {Boolean} True if array-like
  */
 var _gpfIsArrayLike  = function (obj) { //eslint-disable-line func-style
@@ -28,11 +33,5 @@ if (_GPF_HOST_BROWSER === _gpfHost && (_gpfWebWindow.HTMLCollection || _gpfWebWi
     };
 }
 
-/**
- * Return true if the provided parameter looks like an array (i.e. it has a property length and each item can be
- * accessed with [])
- *
- * @param {Object} obj
- * @return {Boolean} True if array-like
- */
+/** @reveal _gpfIsArrayLike */
 gpf.isArrayLike = _gpfIsArrayLike;
