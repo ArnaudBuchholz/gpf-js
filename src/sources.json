@@ -31,7 +31,8 @@
         "doc": true
     },
     {
-        "name": "arraylike"
+        "name": "arraylike",
+        "doc": true
     },
     {
         "name": "foreach"
