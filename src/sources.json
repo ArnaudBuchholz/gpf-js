@@ -35,7 +35,8 @@
         "doc": true
     },
     {
-        "name": "foreach"
+        "name": "foreach",
+        "doc": true
     },
     {
         "name": "extend"
