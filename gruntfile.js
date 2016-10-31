@@ -43,7 +43,6 @@ module.exports = function (grunt) {
             "Gruntfile.js",
             "grunt/**/*.js",
             "statistics.js",
-            ".eslintrules/*.js",
             "make/*.js",
             "test/host/**/*.js",
             "res/*.js"
