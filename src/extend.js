@@ -9,45 +9,55 @@
 /*#endif*/
 
 /**
+ * Callback function executed when a member must be overwritten.
+ *
+ * @callback gpfCallbackOverwriteMember
+ *
+ * @param {Object} object Destination object
+ * @param {String} member Member name
+ * @param {*} value Value to assign to member
+ */
+
+/**
  * gpf.extend implementation of assign with no callback
  *
- * @param {*} value
- * @param {String} member
+ * @param {*} value Value to assign to member
+ * @param {String} member Member name
+ * @this Object
  */
 function _gpfAssign (value, member) {
-    /*jshint validthis:true*/ // gpf.extend's arguments: this[0] is dst
+    /*jshint validthis:true*/
     this[0][member] = value;
 }
 
 /**
  * gpf.extend implementation of assign with a callback
  *
- * @param {*} value
- * @param {String} member
+ * @param {*} value Value to assign to member
+ * @param {String} member Member name
+ * @this Object
  */
 function _gpfAssignOrCall (value, member) {
-    /*jshint validthis:true*/ // gpf.extend's arguments
+    /*jshint validthis:true*/
     var dst = this[0],
         overwriteCallback = this[2];
-    // TODO: see if in is faster
-    if (undefined === dst[member]) {
-        dst[member] = value;
-    } else {
+    if (dst.hasOwnProperty(member)) {
         overwriteCallback(dst, member, value);
+    } else {
+        dst[member] = value;
     }
 }
 
 /**
- * Extends the destination object dst by copying own enumerable properties from the src object(s) to dst.
+ * Extends the destination object by copying own enumerable properties from the source object.
  * If a conflict has to be handled (i.e. member exists on both objects), the overwriteCallback has to handle it.
  *
- * @param {Object} dst
- * @param {Object} src
- * @param {Function} [overwriteCallback=undefined] overwriteCallback
- * @return {Object} the modified dst
- * @chainable
+ * @param {Object} destination Destination object
+ * @param {Object} source Source object
+ * @param {gpfCallbackOverwriteMember} [overwriteCallback] Overwrite callback
+ * @return {Object} Destination object
  */
-function _gpfExtend (dst, src, overwriteCallback) {
+function _gpfExtend (destination, source, overwriteCallback) {
     var callbackToUse;
     if (undefined === overwriteCallback) {
         callbackToUse = _gpfAssign;
@@ -55,9 +65,9 @@ function _gpfExtend (dst, src, overwriteCallback) {
         _gpfAssert("function" === typeof overwriteCallback, "Expected function");
         callbackToUse = _gpfAssignOrCall;
     }
-    _gpfObjectForEach(src, callbackToUse, arguments); /*gpf:inline(object)*/
-    return dst;
+    _gpfObjectForEach(source, callbackToUse, arguments);
+    return destination;
 }
 
-// @inheritdoc _gpfExtend
+/** @sameas _gpfExtend */
 gpf.extend = _gpfExtend;

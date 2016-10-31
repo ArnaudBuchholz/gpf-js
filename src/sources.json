@@ -24,7 +24,8 @@
         "test": false
     },
     {
-        "name": "assert"
+        "name": "assert",
+        "doc": true
     },
     {
         "name": "noconflict",
@@ -39,7 +40,8 @@
         "doc": true
     },
     {
-        "name": "extend"
+        "name": "extend",
+        "doc": true
     },
     {
         "name": "string/capitalize"
