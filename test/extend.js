@@ -2,55 +2,53 @@
 
 describe("extend", function () {
 
-    // Global declarations
     var
-        string = "Hello World!",
-        object = {
+        referenceString = "Hello World!",
+        referenceObject = {
             "number": 1,
-            "string": string,
+            "string": referenceString,
             "null": null,
-            "object": {member: "value"},
+            "referenceObject": {member: "value"},
             "function": function () {
-                return string;
+                return referenceString;
             }
         },
-        objectMembers = "number,string,null,object,function",
-        objectMembersNoNull = "number,string,object,function";
+        referenceObjectMembers = "number,string,null,referenceObject,function",
+        referenceObjectNoNull = "number,string,referenceObject,function";
 
     describe("gpf.extend", function () {
 
         it("extends objects members", function () {
             var result = {
                     "number": 0,
-                    "string": 0,
-                    "object": 0,
                     "function": 0
                 },
                 members = [],
-                newResult = gpf.extend(result, object);
-            assert(result === newResult); // Same object returned
-            gpf.forEach(object, function (value, name) {
+                newResult = gpf.extend(result, referenceObject);
+            assert(result === newResult); // Same object reference is returned
+            gpf.forEach(referenceObject, function (value, name) {
                 if (value === result[name]) {
                     members.push(name);
                 }
             });
             members = members.join(",");
-            assert(members === objectMembers);
+            assert(members === referenceObjectMembers);
         });
 
         it("submits overwrite to a function", function () {
             var result = {
                     "number": 0,
                     "string": 0,
-                    "object": 0,
+                    "referenceObject": 0,
                     "function": 0
                 },
                 members = [];
-            gpf.extend(result, object, function (/*obj, member*/) {
-                members.push(arguments[1]);
+            gpf.extend(result, referenceObject, function (obj, member/*, value*/) {
+                members.push(member);
+                // No result
             });
             members = members.join(",");
-            assert(members === objectMembersNoNull);
+            assert(members === referenceObjectNoNull);
         });
 
         it("provides to the overwrite function all values", function () {
@@ -58,18 +56,18 @@ describe("extend", function () {
                     "number": 0,
                     "string": 0,
                     "null": 5,
-                    "object": 0,
+                    "referenceObject": 0,
                     "function": 0
                 },
                 members = [];
-            gpf.extend(result, object, function (obj, member, newValue) {
+            gpf.extend(result, referenceObject, function (obj, member/*, value*/) {
                 if (0 === obj[member]) {
-                    obj[member] = newValue;
                     members.push(member);
+                    return true;
                 }
             });
             members = members.join(",");
-            assert(members === objectMembersNoNull);
+            assert(members === referenceObjectNoNull);
         });
 
     });
