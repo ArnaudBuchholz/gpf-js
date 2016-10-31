@@ -128,7 +128,7 @@ function _addMemberType (doclet) {
 function _checkAccess (doclet) {
     if (!doclet.access) {
         if (doclet.name.charAt(0) === "_") {
-            doclet.access = "protected";
+            doclet.access = "private";
         } else {
             doclet.access = "public";
         }
