@@ -14,8 +14,9 @@ var _gpfAssert,
 /**
  * Assertion helper
  *
- * @param {Boolean} condition May be a truthy value
- * @param {String} message Assertion message (to explain the violation if it fails)
+ * @param {Boolean} condition Truthy / [Falsy](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) value
+ * @param {String} message Assertion message explaining the violation when the condition is false
+ * @throws {gpf.Error.assertionFailed} Assertion failed error
  */
 function _gpfAssertImpl (condition, message) {
     if (undefined === message) {
@@ -33,21 +34,22 @@ function _gpfAssertImpl (condition, message) {
 /**
  * Batch assertion helper
  *
- * @param {Object} messages Dictionary of messages (value being the condition)
+ * @param {Object} assertions Dictionary of messages associated to condition values
+ * @throws {gpf.Error.assertionFailed} Assertion failed error
  */
-function _gpfAssertsImpl (messages) {
-    for (var message in messages) {
+function _gpfAssertsImpl (assertions) {
+    for (var message in assertions) {
         /* istanbul ignore else */
-        if (messages.hasOwnProperty(message)) {
-            _gpfAssertImpl(messages[message], message);
+        if (assertions.hasOwnProperty(message)) {
+            _gpfAssertImpl(assertions[message], message);
         }
     }
 }
 
-// @inheritdoc _gpfAssertImpl
+/** @sameas _gpfAssertImpl */
 gpf.assert = _gpfAssertImpl;
 
-// @inheritdoc _gpfAssertsImpl
+/** @sameas _gpfAssertsImpl */
 gpf.asserts = _gpfAssertsImpl;
 
 /*#ifdef(DEBUG)*/
