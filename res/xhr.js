@@ -43,17 +43,16 @@
 
     XhrRequest.prototype = {
 
-        // @property {String} URL of the request
+        /** URL of the request */
         _url: "",
 
-        // @property {Object} Request headers
+        /** Request headers */
         _headers: {},
 
         /**
          * Set request headers
          *
          * @param {Object} headerDictionary Dictionary of header properties
-         * @return {XhrRequest} self
          * @chainable
          */
         headers: function (headerDictionary) {
