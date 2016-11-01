@@ -65,7 +65,8 @@
         "test": false
     },
     {
-        "name": "compatibility"
+        "name": "compatibility",
+        "doc": true
     },
     {
         "name": "compatibility/array"
