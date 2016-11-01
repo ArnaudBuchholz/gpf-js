@@ -2,72 +2,51 @@
 
 describe("extend", function () {
 
-    var
-        referenceString = "Hello World!",
-        referenceObject = {
-            "number": 1,
-            "string": referenceString,
-            "null": null,
-            "referenceObject": {member: "value"},
-            "function": function () {
-                return referenceString;
-            }
-        },
-        referenceObjectMembers = "number,string,null,referenceObject,function",
-        referenceObjectNoNull = "number,string,referenceObject,function";
-
     describe("gpf.extend", function () {
 
         it("extends objects members", function () {
-            var result = {
-                    "number": 0,
-                    "function": 0
+            var destination = {
+                    "member1": "member1",
+                    "member2": 2
                 },
-                members = [],
-                newResult = gpf.extend(result, referenceObject);
-            assert(result === newResult); // Same object reference is returned
-            gpf.forEach(referenceObject, function (value, name) {
-                if (value === result[name]) {
-                    members.push(name);
-                }
-            });
-            members = members.join(",");
-            assert(members === referenceObjectMembers);
+                source = {
+                    "newMember": true
+                },
+                result = gpf.extend(destination, source);
+            assert(result === destination); // Same object reference is returned
+            assert(result.member1 === "member1"); // Existing members are preserved
+            assert(result.member2 === 2); // Existing members are preserved
+            assert(result.newMember === true); // New member added
+            assert(source.newMember === true); // Source is not altered
         });
 
-        it("submits overwrite to a function", function () {
-            var result = {
-                    "number": 0,
-                    "string": 0,
-                    "referenceObject": 0,
-                    "function": 0
+        it("overwrites existing members", function () {
+            var destination = {
+                    "member1": "member1"
                 },
-                members = [];
-            gpf.extend(result, referenceObject, function (obj, member/*, value*/) {
-                members.push(member);
-                // No result
-            });
-            members = members.join(",");
-            assert(members === referenceObjectNoNull);
+                source = {
+                    "member1": false
+                },
+                result = gpf.extend(destination, source);
+            assert(result.member1 === false); // Overwritten
         });
 
-        it("provides to the overwrite function all values", function () {
-            var result = {
-                    "number": 0,
-                    "string": 0,
-                    "null": 5,
-                    "referenceObject": 0,
-                    "function": 0
+        it("supports more than one source parameter", function () {
+            var destination = {
+                    "member1": "member1",
+                    "member2": 2
                 },
-                members = [];
-            gpf.extend(result, referenceObject, function (obj, member/*, value*/) {
-                if (0 === obj[member]) {
-                    members.push(member);
-                    return true;
-                }
-            });
-            members = members.join(",");
-            assert(members === referenceObjectNoNull);
+                result = gpf.extend(destination, {
+                    "source1": 1,
+                    "member1": "member1.1"
+                }, {
+                    "source2": 2,
+                    "member1": "member1.2"
+                });
+            assert(result.member1 === "member1.2"); // Last one wins
+            assert(result.member2 === 2); // Existing members are preserved
+            assert(result.source1 === 1); // Processed first source
+            assert(result.source2 === 2); // Processed second source
         });
 
     });
