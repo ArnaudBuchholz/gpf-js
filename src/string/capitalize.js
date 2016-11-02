@@ -7,10 +7,10 @@
 /*#endif*/
 
 /**
- * Capitalize the string
+ * Capitalize the string by applying toUpperCase on its first character
  *
- * @param {String} that
- * @return {String}
+ * @param {String} that String to capitalize
+ * @return {String} Capitalized string
  */
 function _gpfStringCapitalize (that) {
     return that.charAt(0).toUpperCase() + that.substr(1);
