@@ -45,6 +45,10 @@
         "doc": true
     },
     {
+        "name": "constants",
+        "doc": true
+    },
+    {
         "name": "extend",
         "doc": true
     },
@@ -115,10 +119,6 @@
     },
     {
         "name": "context"
-    },
-    {
-        "name": "constants",
-        "doc": true
     },
     {
         "name": "scope"
