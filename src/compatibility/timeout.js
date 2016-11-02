@@ -22,14 +22,7 @@ var
 // Handle timeouts (mandatory for some environments)
 gpf.handleTimeout = _gpfEmptyFunc;
 
-/**
- * Sorting function used to reorder the async queue
- *
- * @param {Object} a
- * @param {Object} b
- * @return {Number}
- * @private
- */
+// Sorting function used to reorder the async queue
 function _gpfSortOnDt (a, b) {
     return a.dt - b.dt;
 }
