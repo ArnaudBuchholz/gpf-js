@@ -13,11 +13,15 @@
 var _gpfStringEscapes = {};
 
 /**
+ *
  * Make the string content compatible with a given language
  *
- * @param {String} that
- * @param {String} language
- * @return {String}
+ * @param {String} that String to escape
+ * @param {String} language Language to escape the string for. Supported values are:
+ * - **"javascript"**: escape \ and formatting characters then adds double quotes around the string
+ * - **"xml"**: escape &, < and >
+ * - **"html"**: xml + some accentuated characters
+ * @return {String} Escaped string
  */
 function _gpfStringEscapeFor (that, language) {
     _gpfAssert(undefined !== _gpfStringEscapes[language], "Unknown language");
