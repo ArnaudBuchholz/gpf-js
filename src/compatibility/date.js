@@ -105,11 +105,13 @@ function _gpfProcessISO8601MatchResult (matchResult) {
 }
 
 /**
- * Check if the string is an ISO 8601 representation of a date
- * Supports long and short syntax.
+ * Check if the value is a string respecting the ISO 8601 representation of a date. If so, the string is parsed and the
+ * date details is returned.
  *
- * @param {String} value
- * @returns {Number[]} 7 numbers composing the date (Month is 0-based)
+ * The function supports supports long and short syntax.
+ *
+ * @param {*} value Value to test
+ * @return {Number[]|undefined} 7 numbers composing the date (Month is 0-based). undefined if not matching.
  */
 function _gpfIsISO8601String (value) {
     if ("string" === typeof value) {
@@ -124,7 +126,7 @@ var _GpfGenuineDate = _gpfMainContext.Date;
 /**
  * Date constructor supporting ISO 8601 format
  *
- * @returns {Date}
+ * @constructor
  */
 function _GpfDate () {
     var firstArgument = arguments[0],
