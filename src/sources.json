@@ -81,22 +81,27 @@
         "doc": true
     },
     {
-        "name": "compatibility/array"
+        "name": "compatibility/array",
+        "doc": true
     },
     {
         "name": "factory"
     },
     {
-        "name": "compatibility/date"
+        "name": "compatibility/date",
+        "doc": true
     },
     {
-        "name": "compatibility/function"
+        "name": "compatibility/function",
+        "doc": true
     },
     {
-        "name": "compatibility/object"
+        "name": "compatibility/object",
+        "doc": true
     },
     {
-        "name": "compatibility/string"
+        "name": "compatibility/string",
+        "doc": true
     },
     {
         "name": "compatibility/promise"
@@ -105,7 +110,8 @@
         "name": "compatibility/timeout"
     },
     {
-        "name": "compatibility/json"
+        "name": "compatibility/json",
+        "doc": true
     },
     {
         "name": "context"
