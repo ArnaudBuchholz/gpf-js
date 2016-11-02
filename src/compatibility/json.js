@@ -18,7 +18,7 @@ var
      * The JSON.stringify() method converts a JavaScript value to a JSON string
      *
      * @param {*} value the value to convert to a JSON string
-     * @return {String}
+     * @return {String} JSON representation of the value
      */
     _gpfJsonStringify,
 
@@ -26,7 +26,7 @@ var
      * The JSON.parse() method parses a string as JSON
      *
      * @param {*} text The string to parse as JSON
-     * @return {Object}
+     * @return {Object} Parsed value
      */
     _gpfJsonParse;
 
