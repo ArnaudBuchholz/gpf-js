@@ -3,31 +3,31 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*exported _gpfGenericFactory*/ // Create any class by passing the right number of parameters
+/*global _gpfFunc*/ // Create a new function using the source
+/*exported _gpfNewApply */ // Apply new operator with an array of parameters
 /*#endif*/
 
-function _gpfGetGenericFactoryArguments (count) {
-    var args = [],
-        idx = count;
-    while (idx--) {
-        args.unshift("p[" + idx + "]");
-    }
-    return args;
+function _gpfBuildFactoryParameterList (maxParameters) {
+    return new Array(maxParameters).join(" ").split(" ").map(function (value, index) {
+        return "p" + index;
+    });
 }
 
-function _gpfGenerateGenericFactorySource (maxParameters) {
-    var src = ["var C = this, p = arguments, l = p.length;"],
-        args = _gpfGetGenericFactoryArguments(maxParameters);
-    args.forEach(function (value, idx) {
-        src.push("if (" + idx + " === l) { return new C(" + args.slice(0, idx).join(", ") + ");}");
+function _gpfGenerateGenericFactorySource (parameters) {
+    var src = [
+        "var C = this, l = arguments.length;",
+        "if (0 === l) { return new C();}"
+    ];
+    parameters.forEach(function (value, index) {
+        var count = index + 1;
+        src.push("if (" + count + " === l) { return new C(" + parameters.slice(0, count).join(", ") + ");}");
     });
     return src.join("\r\n");
 }
 
 function _gpfGenerateGenericFactory (maxParameters) {
-    /*jshint -W054*/
-    return new Function(_gpfGenerateGenericFactorySource(maxParameters)); //eslint-disable-line no-new-func
-    /*jshint +W054*/
+    var parameters = _gpfBuildFactoryParameterList(maxParameters);
+    return _gpfFunc(parameters, _gpfGenerateGenericFactorySource(parameters));
 }
 
 /**
@@ -37,8 +37,28 @@ function _gpfGenerateGenericFactory (maxParameters) {
  */
 var _gpfGenericFactory = _gpfGenerateGenericFactory(10);
 
+/**
+ * Call a constructor with an array of parameters.
+ *
+ * It is impossible to mix [new](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/new)
+ * and [apply](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply)
+ * in the same call.
+ *
+ * This helper workarounds this problem.
+ *
+ * @param {Function} Constructor Class constructor
+ * @param {Array} parameters Parameters to pass to the constructor
+ * @return {Object} New object
+ */
+function _gpfNewApply (Constructor, parameters) {
+    if (parameters.length > _gpfGenericFactory.length) {
+        _gpfGenericFactory = _gpfGenerateGenericFactory(parameters.length);
+    }
+    return _gpfGenericFactory.apply(Constructor, parameters);
+}
+
 /*#ifndef(UMD)*/
 
-gpf.internals._gpfGenericFactory = _gpfGenericFactory;
+gpf.internals._gpfNewApply = _gpfNewApply;
 
 /*#endif*/
