@@ -14,6 +14,7 @@
 /*global _gpfGenerateCustomDefineHandler*/ // Class handler for class types (interfaces...)
 /*global _gpfGetClassDefinition*/ // Get GPF class definition for a constructor
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfNewApply*/ // Apply new operator with an array of parameters
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _gpfA*/ // gpf.attributes
 /*exported _gpfAttribute*/ // Shortcut for gpf.attributes.Attribute
@@ -40,19 +41,14 @@ var
 /**
  * Generates a factory capable of creating a new instance of a class
  *
- * @param {Function} objectClass Object constructor
+ * @param {Function} Constructor Object constructor
  * @param {String} name Alias name (will be prefixed by $)
  * @closure
  */
-function _gpfAlias (objectClass, name) {
-    name = "$" + name;
-    gpf[name] = (function () {
-        var Proxy = _gpfFunc("return function " + name + "(args) {this.constructor.apply(this, args);};")();
-        Proxy.prototype = objectClass.prototype;
-        return function () {
-            return new Proxy(arguments);
-        };
-    }());
+function _gpfAlias (Constructor, name) {
+    gpf["$" + name] = function () {
+        return _gpfNewApply(Constructor, arguments);
+    };
 }
 
 // gpf.interfaces.IReadOnlyArray#getItemsCount factory
