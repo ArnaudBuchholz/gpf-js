@@ -52,6 +52,9 @@ function _gpfClearTimeoutPolyfill (timeoutId) {
     }
 }
 
+/**
+ * For WSCRIPT and RHINO environments, this function must be used to process the timeout queue
+ */
 function _gpfHandleTimeout () {
     var queue = _gpfTimeoutQueue,
         timeoutItem,
@@ -87,6 +90,8 @@ if ("undefined" === typeof setTimeout) {
 
     _gpfMainContext.setTimeout = _gpSetTimeoutPolyfill;
     _gpfMainContext.clearTimeout = _gpfClearTimeoutPolyfill;
+
+    /** @sameas _gpfHandleTimeout */
     gpf.handleTimeout = _gpfHandleTimeout;
 
 }
