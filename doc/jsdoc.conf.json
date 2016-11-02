@@ -1,7 +1,8 @@
 {
     "opts": {
         "recurse": true,
-        "access": "all"
+        "access": "all",
+        "tutorials": "doc/tutorials"
     },
     "plugins": [
         "gpf",
