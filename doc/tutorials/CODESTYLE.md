@@ -20,12 +20,11 @@ Most sources start with:
 Consequently, [strict mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode) is applied
 everywhere.
 
-Globals and exported are written to make sure that JSHint can relate to:
+Globals and exported are written to make sure that the linter can relate to:
 
-* Variables or functions that are declared in a different source (documentation will be imported from the corresponding
-exported comment)
-* Variables or functions that are being declared without being used in this source (exported comment must have be
-commented)
+* Variables or functions that are declared in a different source *(documentation will be imported from the corresponding
+exported comment by the build process)*
+* Variables or functions that are being declared without being used in this source *(exported comment must be used)*
 
 They are sorted alphabetically automatically by the build process.
 
@@ -37,7 +36,7 @@ The project comes with an [.editorconfig file](http://editorconfig.org/).
 
 All files are using UTF-8 encoding with UNIX-like carriage return (linefeed only).
 
-The maximum line length has recently been changed from 80 to 120.
+The maximum line length is set to 120.
 
 When breaking a line, the following principles are applied:
 
@@ -47,8 +46,8 @@ When breaking a line, the following principles are applied:
 Example:
 
 ```javascript
-            _gpfAssert(handler instanceof Array || _GpfEventsIsValidHandler(handler),
-                "Expected a valid output handler");
+_gpfAssert(handler instanceof Array || _GpfEventsIsValidHandler(handler),
+    "Expected a valid output handler");
 ```
 
 ### Naming conventions
@@ -73,7 +72,7 @@ There are three levels of documentation:
   They are easily distinguished as they all belong to the gpf namespace.
 
 - Functions, classes and variables (including constants) that are exposed by any source and might be reused in a
-  different source. They do not belong to the gpf namespace (but they must start with _gpf as explained in the naming
+  different source. They do not belong to the gpf namespace (but they must start with **_gpf** as explained in the naming
   convention).
 
 Any other function / class / variable that are internal to sources might not be documented (hoping they are clear
@@ -119,42 +118,38 @@ Some 'extensions' are defined
 * @closure: if the function *directly* creates a closure
 * @mixin: a mixin definition
 * @chainable: indicates that the result of the method is the object itself, allowing method chaining
-* @read <memberName>: indicates a read accessor on a given member
-* @write <memberName>: indicates a write accessor on a given member
-* @sameas <referenceName>: copy the documentation of referenceName
+* @read *memberName*: indicates a read accessor on a given member
+* @write *memberName*: indicates a write accessor on a given member
+* @sameas *referenceName*: copy the documentation of referenceName
 
 It happens sometimes that a variable might be assigned different function versions (to manage host compatibilities).
 The placeholder selected to insert documentation must make the variable path clear. For instance:
 
-A counter example (where both private & public version exist):
+A counter example (where both private and public version exist):
 
 ```javascript
 /**
- * @inheritdoc gpf#extend
- * Implementation of gpf.extend
+ * Extends the destination object by copying own enumerable properties from the source object.
+ * If the member already exists, it is overwritten.
+ *
+ * @param {Object} destination Destination object
+ * @param {...Object} source Source objects
+ * @return {Object} Destination object
  */
-_gpfExtend = function (dictionary, properties, overwriteCallback) {
-    /* ... */
+function _gpfExtend (destination, source) {
+    _gpfIgnore(source);
+    [].slice.call(arguments, 1).forEach(function (nthSource) {
+        _gpfObjectForEach(nthSource, _gpfAssign, destination);
+    });
+    return destination;
 }
 
-_gpfExtend(gpf, {
-
-    /*
-     * Appends members of properties to the dictionary object.
-     * If a conflict has to be handled (i.e. member exists on both objects),
-     * the overwriteCallback has to handle it.
-     *
-     * @param {Object} dictionary
-     * @param {Object} properties
-     * @param {Function} overwriteCallback
-     * @return {Object} the modified dictionary
-     * @chainable
-     */
-    extend: _gpfExtend,
+/** @sameas _gpfExtend */
+gpf.extend = _gpfExtend;
 ```
 
 If a parameter documentation needs several lines, text should start at the beginning of each line.
-'Simple' formatting helpers can be used (based on [markdown](http://en.wikipedia.org/wiki/Markdown)):
+[Markdown](http://en.wikipedia.org/wiki/Markdown) formatting helpers can be used:
 
 ```javascript
     /**
@@ -177,21 +172,23 @@ Two functions are provided for assertions:
 /**
  * Assertion helper
  *
- * @param {Boolean} condition May be a truthy value
- * @param {String} message Assertion message (to explain the violation if it fails)
+ * @param {Boolean} condition Truthy / [Falsy](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) value
+ * @param {String} message Assertion message explaining the violation when the condition is false
+ * @throws {gpf.Error.assertionFailed} Assertion failed error
  */
-_gpfAssert = function (condition, message) {
+_gpfAssert = function (condition, message) {/*...*/}
 
 /**
  * Batch assertion helper
  *
- * @param {Object} messages Dictionary of messages (value being the condition)
+ * @param {Object} assertions Dictionary of messages associated to condition values
+ * @throws {gpf.Error.assertionFailed} Assertion failed error
  */
-_gpfAsserts = function (messages) {/*...*/}
+_gpfAsserts = function (assertions) {/*...*/}
 ```
 
 Ideally, there should be only one assertion per function (to reduce the number of necessary instructions), this is the
-reason why gpf.ASSERTS was introduced.
+reason why `_gpfAsserts` was introduced.
 The message of the assertion **must** be the evaluated condition.
 
 For instance:
@@ -238,6 +235,8 @@ Some preprocessing instructions are defined inside comments:
 /*#else*/
 /*#endif*/
 ```
+
+*THE FOLLOWING SECTION WILL BE REFWRITTEN*
 
 The following tags are inserted to prepare future optimizations / improvement:
 
@@ -292,7 +291,7 @@ Function variables are all declared at the beginning of the function.
 If a function create closures, the @closure tag is added.
 
 Functions signatures are checked by some APIs, hence it is important to declare all parameters. If they are not used,
-and to avoid JSHint warning, the _gpfIgnore function might be used: you may pass all unused parameters.
+and to avoid linter warning, the _gpfIgnore function might be used: you may pass all unused parameters.
 
 ### Classes
 
@@ -305,7 +304,7 @@ instance.getName() // Read the name property
 instance.setName("newValue") // Write the name property
 ```
 
-*THIS MIGHT BE REVIEWED TO INCREASE CODE CLARITY
+*THIS MIGHT BE REVIEWED TO INCREASE CODE CLARITY*
 
 Classes definition allows defining the visibility of members through the public, protected, private and static keywords.
 To increase the readability of the class declaration, the following structure is proposed:
@@ -346,8 +345,13 @@ The use of the [conditional ternary operator]
 
 The following keywords are prohibited:
 
-* with
-* switch
+* [with](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/with)
+* [switch](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/switch)
+
+as well as the
+[ternary operator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Conditional_Operator)
+
+*EXPLANATIONS WILL BE GIVEN LATER*
 
 ### Particular syntaxes
 
@@ -408,11 +412,17 @@ Or it may be temporarily turned of using -W040 / +W040 as the following:
     /*jshint +W040*/
 ```
 
+## ESLint validations
+
+The project comes with an [.eslsintrc file](http://eslint.org/docs/user-guide/configuring).
+
+It overlaps JSHint validation and has more checks.
+
 ## Code coverage
 
 Turning off istanbul is allowed provided a comment explains why the code is skipped.
 
-The only excpetion is the following (use of hasOwnProperty):
+The only exception is the following (use of hasOwnProperty):
 
 ```javascript
 _gpfAsserts = function (messages) {
@@ -428,4 +438,4 @@ _gpfAsserts = function (messages) {
 ## Code quality
 
 [Plato](https://github.com/es-analysis/plato) is used to evaluate the code quality.
-The target maintainability for each source is to be at least 70.
+The target maintainability for each source is to be at least 70 (*configurable*).
