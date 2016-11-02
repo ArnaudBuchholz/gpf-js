@@ -53,7 +53,8 @@ function _gpfClearTimeoutPolyfill (timeoutId) {
 }
 
 /**
- * For WSCRIPT and RHINO environments, this function must be used to process the timeout queue
+ * For WSCRIPT and RHINO environments, this function must be used to process the timeout queue when using
+ * [setTimeout](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setTimeout)
  */
 function _gpfHandleTimeout () {
     var queue = _gpfTimeoutQueue,
