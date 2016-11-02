@@ -89,7 +89,8 @@
         "doc": true
     },
     {
-        "name": "factory"
+        "name": "factory",
+        "doc": true
     },
     {
         "name": "compatibility/date",
