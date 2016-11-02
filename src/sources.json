@@ -109,17 +109,20 @@
         "doc": true
     },
     {
-        "name": "compatibility/promise"
+        "name": "compatibility/promise",
+        "doc": true
     },
     {
-        "name": "compatibility/timeout"
+        "name": "compatibility/timeout",
+        "doc": true
     },
     {
         "name": "compatibility/json",
         "doc": true
     },
     {
-        "name": "context"
+        "name": "context",
+        "doc": true
     },
     {
         "name": "scope"
