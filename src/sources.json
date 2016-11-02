@@ -5,23 +5,28 @@
     },
     {
         "name": "host/browser",
-        "test": false
+        "test": false,
+        "doc": true
     },
     {
         "name": "host/nodejs",
-        "test": false
+        "test": false,
+        "doc": true
     },
     {
         "name": "host/phantomjs",
-        "test": false
+        "test": false,
+        "doc": true
     },
     {
         "name": "host/rhino",
-        "test": false
+        "test": false,
+        "doc": true
     },
     {
         "name": "host/wscript",
-        "test": false
+        "test": false,
+        "doc": true
     },
     {
         "name": "assert",
@@ -44,25 +49,32 @@
         "doc": true
     },
     {
-        "name": "string/capitalize"
+        "name": "string/capitalize",
+        "doc": true
     },
     {
-        "name": "string/replaceex"
+        "name": "string/replaceex",
+        "doc": true
     },
     {
-        "name": "string/escapefor"
+        "name": "string/escapefor",
+        "test": false,
+        "doc": true
     },
     {
         "name": "string/escape/javascript",
-        "test": false
+        "test": false,
+        "doc": true
     },
     {
         "name": "string/escape/xml",
-        "test": false
+        "test": false,
+        "doc": true
     },
     {
         "name": "string/escape/html",
-        "test": false
+        "test": false,
+        "doc": true
     },
     {
         "name": "compatibility",
