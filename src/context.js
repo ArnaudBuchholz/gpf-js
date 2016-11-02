@@ -34,15 +34,22 @@ function _gpfReduceContext (path, reducer) {
 }
 
 /**
+ * Result of {@link gpf.context} call, depends on the specified path
+ * - when not specified, it returns the current host main context object
+ * - when `"gpf"`, it **always** returns the GPF object
+ * - when it leads to nothing, `undefined` is returned
+
+ * @typedef {*} gpfTypeContextResult
+ */
+
+/**
  * Resolve the provided contextual path and returns the result
  *
- * @param {String[]} path array of identifiers
- * @param {Boolean} [createMissingParts=false] createMissingParts if the path leads to undefined parts and
- * createMissingParts is true, it allocates a default empty object
+ * @param {String[]} path Array of identifiers
+ * @param {Boolean} [createMissingParts=false] If the path includes undefined parts and createMissingParts is true,
+ * it allocates a default empty object. This allows building namespaces on the fly.
  *
- * @return {*|undefined}
- * - when path is undefined, it returns the current host higher object
- * - when path is "gpf" it returns the GPF object
+ * @return {gpfTypeContextResult} Resolved path
  */
 function _gpfContext (path, createMissingParts) {
     var reducer;
@@ -55,13 +62,11 @@ function _gpfContext (path, createMissingParts) {
 }
 
 /**
- * Resolve the provided contextual path and returns the result
+ * Resolve the provided contextual path and returns the result.
  *
  * @param {String} path Dot separated list of identifiers
  *
- * @return {*|undefined}
- * - when path is undefined, it returns the current host higher object
- * - when path is "gpf" it returns the GPF object
+ * @return {gpfTypeContextResult} Resolved path
  */
 gpf.context = function (path) {
     if (undefined === path) {
