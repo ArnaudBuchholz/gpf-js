@@ -10,13 +10,13 @@
 /**
  * String replacement using dictionary map
  *
- * @param {String} that
- * @param {Object} replacements map of strings to search and replace
- * @return {String}
+ * @param {String} that String to replace
+ * @param {Object} replacements Dictionary of strings where each key is searched to be replaced by the associated value
+ * @return {String} Replaced string
  */
 function _gpfStringReplaceEx (that, replacements) {
     var result = that;
-    _gpfObjectForEach(replacements, function (replacement, key) {/*gpf:inline(object)*/
+    _gpfObjectForEach(replacements, function (replacement, key) {
         result = result.split(key).join(replacement);
     });
     return result;
