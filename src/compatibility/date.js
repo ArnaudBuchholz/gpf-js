@@ -3,9 +3,9 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfGenericFactory*/ // Create any class by passing the right number of parameters
 /*global _gpfInstallCompatibility*/ // Define and install compatible methods
 /*global _gpfMainContext*/ // Main context object
+/*global _gpfNewApply*/ // Apply new operator with an array of parameters
 /*exported _gpfIsISO8601String*/ // Check if the string is an ISO 8601 representation of a date
 /*#endif*/
 
@@ -134,7 +134,7 @@ function _GpfDate () {
     if (values) {
         return new _GpfGenuineDate(_GpfGenuineDate.UTC.apply(_GpfGenuineDate.UTC, values));
     }
-    return _gpfGenericFactory.apply(_GpfGenuineDate, arguments);
+    return _gpfNewApply(_GpfGenuineDate, arguments);
 }
 
 function _gpfCopyDateStatics () {
