@@ -59,7 +59,7 @@ if ((function () {
     /**
      * Return function name
      *
-     * @return {String}
+     * @return {String} Function name
      */
     Function.prototype.compatibleName = function () {
         return this.name;
