@@ -159,30 +159,13 @@ var
 
 _gpfExtend(gpf, {
 
-    /**
-     * Capitalize the string
-     *
-     * @param {String} that
-     * @return {String}
-     */
+    /** sameas _gpfStringCapitalize */
     capitalize: _gpfStringCapitalize,
 
-    /**
-     * Substitutes all occurrences of the keys found in the replacements object with their values
-     *
-     * @param {String} that
-     * @param {Object} replacements map of strings to search and replace
-     * @return {String}
-     */
+    /** sameas _gpfStringReplaceEx */
     replaceEx: _gpfStringReplaceEx,
 
-    /**
-     * Adapt the string content to be compatible with the provided language
-     *
-     * @param {String} that
-     * @param {String} language
-     * @return {String}
-     */
+    /** sameas _gpfStringEscapeFor */
     escapeFor: _gpfStringEscapeFor,
 
     /**
@@ -197,7 +180,7 @@ _gpfExtend(gpf, {
     /**
      * Converts the string into a stream
      *
-     * @param {String} that
+     * @param {String} that String to convert
      * @return {Object} Implementing gpf.interfaces.IReadableStream & gpf.interfaces.IWritableStream
      */
     stringToStream: function (that) {
