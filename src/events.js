@@ -15,49 +15,71 @@
 /*global _gpfCreateConstants*/ // Automate constants creation
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
-/*global _gpfResolveScope*/ // Translate the parameter into a valid scope
 /*exported _GpfEvent*/ // gpf.Events.Event
-/*exported _GpfEventsIsValidHandler*/ // Check event handler validity
+/*exported _gpfEventsIsValidHandler*/ // Check event handler validity
 /*exported _gpfEventGetPromiseHandler*/ // Event handler wrapper for Promises
 /*exported _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*#endif*/
 
 /**
- * Check if the provided parameter is a valid Handler
+ * GPF Event Handler
  *
- * @param {*} eventHandler
- * @return {Boolean}
+ * Basically, the event is handled by calling a function with the event as the only parameter.
+ * Two formats are supported as event handlers:
+ * - Function: will be executed with the event as the only parameter
+ * - Object: used as dictionary associating event type to function
+ *
+ * **NOTE** Function signature is validated
+ *
+ * @typedef {Function|Object} gpf.events.Handler
  */
-function _GpfEventsIsValidHandler (eventHandler) {
-    var type = typeof eventHandler,
-        dispatchEvent;
-    if ("function" === type) {
-        return 1 === eventHandler.length;
+
+function _gpfEventsIsValidFunctionHandler (eventHandler) {
+    return eventHandler.length === 1;
+}
+
+var _gpfEventsHandlerValidators = {
+
+    "function": _gpfEventsIsValidFunctionHandler,
+
+    "object": function (eventHandler) {
+        /*
+         * Assuming there will be an handler for the event (we can't know in advance)
+         * At least, we verify that there is only function mappings
+         */
+        var keys = Object.keys(eventHandler);
+        return keys.length && keys.every(function (key) {
+            var keyedHandler = eventHandler[key];
+            return "function" === typeof keyedHandler &&  _gpfEventsIsValidFunctionHandler(keyedHandler);
+        });
     }
-    if ("object" !== type) {
+
+};
+
+/**
+ * Check if the provided parameter is a valid Event Handler
+ *
+ * @param {*} eventHandler Object to test
+ * @return {Boolean} True if the parameter is valid eventHandler
+ */
+function _gpfEventsIsValidHandler (eventHandler) {
+    var type = typeof eventHandler,
+        validator = _gpfEventsHandlerValidators[type];
+    if (validator === undefined) {
         return false;
     }
-    dispatchEvent = eventHandler.dispatchEvent;
-    if ("function" === typeof dispatchEvent) {
-        return 1 === dispatchEvent.length;
-    }
-    // Assuming there will be an handler for the event (we can't know in advance)
-    // TODO does it make sense to ignore an event? I may need to check that at least one event handler is available
-    return true;
+    return validator(eventHandler);
 }
+
+/**
+ * @namespace gpf.events
+ * @description The GPF library uses events for notification purposes.
+ * this namespace consolidates definition and tools related to events.
+ */
 
 gpf.events = {
 
-    /**
-     * Event Handler
-     * - Function: apply(scope, [event])
-     * - Object with a dispatchEvent method
-     * - Object used as dictionary associating type to callback functions
-     * @type {Function|Object}
-     * @alias {gpf.events.Handler}
-     */
-
-    // @inheritdoc _GpfEventsIsValidHandler
+    /** @sameas _gpfEventsIsValidHandler */
     isValidHandler: _GpfEventsIsValidHandler
 };
 
@@ -67,14 +89,13 @@ gpf.events = {
  *
  * @param {String} type
  * @param {Object} [params={}] params
- * @param {Boolean} [cancelable=false] cancelable
  * @param {Object} [scope=undefined] scope
  * @constructor
  */
 var _GpfEvent = gpf.events.Event = function (type, params, scope) {
     /*jshint validthis:true*/ // constructor
     /*gpf:constant*/ this.type = type;
-    /*gpf:constant*/ this.scope = _gpfResolveScope(scope);
+    /*gpf:constant*/ this.scope = scope;
     if (undefined !== params) {
         this._params = params;
     }
@@ -158,10 +179,9 @@ var
  */
 function _gpfEventsFire (event, params, eventsHandler) {
     /*jshint validthis:true*/ // will be invoked with apply
-    var scope = _gpfResolveScope(this);
     _gpfAssert(_GpfEventsIsValidHandler(eventsHandler), "Expected a valid event handler");
     if (!(event instanceof _GpfEvent)) {
-        event = new gpf.events.Event(event, params, scope);
+        event = new gpf.events.Event(event, params, this);
     }
     return new Promise(function (resolve/*, reject*/) {
         // This is used both to limit the number of recursion and increase the efficiency of the algorithm.
