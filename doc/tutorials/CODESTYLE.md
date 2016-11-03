@@ -46,7 +46,7 @@ When breaking a line, the following principles are applied:
 Example:
 
 ```javascript
-_gpfAssert(handler instanceof Array || _GpfEventsIsValidHandler(handler),
+_gpfAssert(handler instanceof Array || _gpfEventsIsValidHandler(handler),
     "Expected a valid output handler");
 ```
 
