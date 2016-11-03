@@ -7,7 +7,7 @@
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
-/*global _GpfEventsIsValidHandler*/ // Check event handler validity
+/*global _gpfEventsIsValidHandler*/ // Check event handler validity
 /*#endif*/
 
 var _GPF_PARSER_FINALIZE = {},
@@ -80,7 +80,7 @@ _gpfDefine("gpf.Parser", {
          * @param {Array|gpf.events.EventHandler} handler
          */
         setOutputHandler: function (handler) {
-            _gpfAssert(handler instanceof Array || _GpfEventsIsValidHandler(handler),
+            _gpfAssert(handler instanceof Array || _gpfEventsIsValidHandler(handler),
                 "Expected a valid output handler");
             this._outputHandler = handler;
         }
