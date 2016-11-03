@@ -12,7 +12,6 @@ The library offers a common compatibility layer whatever the environment it runs
 * [indexOf](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf)
 * [map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)
 * [reduce](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce)
-
 * [Array.from](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from)
 * [Array.isArray](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray)
 
@@ -20,13 +19,12 @@ The library offers a common compatibility layer whatever the environment it runs
 
 The Date constructor supports [ISO 8601 format](http://gpf-js.blogspot.ca/2016/02/date-override.html)
 and instances offers
-[toIsoString](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString) method. 
+[toIsoString](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString) method.
 
 ### Function
 
 * [bind](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind)
-
-* compatibleName: introduced to provide a convenient way to read function names. Indeed,
+* compatibleName(): introduced to provide a convenient way to read function names. Indeed,
 [name](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/name) property is not
 supported on all hosts.
 
@@ -43,7 +41,7 @@ supported on all hosts.
 
 ## Promise
 
-The library offers (when necessary) a Promise/A+ implementation based on
+The library offers (when necessary) a [Promise/A+](https://promisesaplus.com/) implementation based on
 [promise-polyfill](https://github.com/taylorhakes/promise-polyfill)
 
 ## Timeout
@@ -53,4 +51,4 @@ The library offers (when necessary) a Promise/A+ implementation based on
 
 setInterval / clearInterval are not managed but can be easily simulated by chaining timeouts.
 
-On some hosts, gpf.handleTimeout must be used to activate timeouts.
+On some hosts, {@link gpf.handleTimeout}() must be used to activate timeouts.
