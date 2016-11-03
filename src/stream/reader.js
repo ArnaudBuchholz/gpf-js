@@ -11,7 +11,7 @@ var
         "+": {
 
             constructor: function (scope, eventsHandler) {
-                this._scope = _gpfResolveScope(scope);
+                this._scope = scope;
                 this._eventsHandler = eventsHandler;
             },
 
