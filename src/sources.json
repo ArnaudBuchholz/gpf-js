@@ -125,10 +125,8 @@
         "doc": true
     },
     {
-        "name": "scope"
-    },
-    {
-        "name": "events"
+        "name": "events",
+        "doc": true
     },
     {
         "name": "include"
