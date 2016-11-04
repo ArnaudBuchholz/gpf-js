@@ -80,7 +80,7 @@ function _gpfEventsIsValidHandler (eventHandler) {
 gpf.events = {
 
     /** @sameas _gpfEventsIsValidHandler */
-    isValidHandler: _GpfEventsIsValidHandler
+    isValidHandler: _gpfEventsIsValidHandler
 };
 
 /**
@@ -179,7 +179,7 @@ var
  */
 function _gpfEventsFire (event, params, eventsHandler) {
     /*jshint validthis:true*/ // will be invoked with apply
-    _gpfAssert(_GpfEventsIsValidHandler(eventsHandler), "Expected a valid event handler");
+    _gpfAssert(_gpfEventsIsValidHandler(eventsHandler), "Expected a valid event handler");
     if (!(event instanceof _GpfEvent)) {
         event = new gpf.events.Event(event, params, this);
     }
