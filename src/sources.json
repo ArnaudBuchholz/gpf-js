@@ -125,8 +125,7 @@
         "doc": true
     },
     {
-        "name": "events",
-        "doc": true
+        "name": "events"
     },
     {
         "name": "include"
