@@ -125,101 +125,115 @@
         "doc": true
     },
     {
-        "name": "events"
-    },
-    {
-        "name": "include"
-    },
-    {
-        "name": "bootstrap"
-    },
-    {
-        "name": "value"
-    },
-    {
-        "name": "set"
-    },
-    {
-        "name": "base"
-    },
-    {
-        "name": "function"
-    },
-    {
-        "name": "like"
-    },
-    {
         "name": "error"
     },
     {
-        "name": "mimetype"
+        "name": "events",
+        "load": false
     },
     {
-        "name": "bin"
+        "name": "include",
+        "load": false
     },
     {
-        "name": "path"
+        "name": "bootstrap",
+        "load": false
     },
     {
-        "name": "path/matcher"
+        "name": "value",
+        "load": false
     },
     {
-        "name": "javascript"
+        "name": "set",
+        "load": false
     },
     {
-        "name": "csv"
+        "name": "base",
+        "load": false
+    },
+    {
+        "name": "function",
+        "load": false
+    },
+    {
+        "name": "like",
+        "load": false
+    },
+    {
+        "name": "mimetype",
+        "load": false
+    },
+    {
+        "name": "bin",
+        "load": false
+    },
+    {
+        "name": "path",
+        "load": false
+    },
+    {
+        "name": "path/matcher",
+        "load": false
+    },
+    {
+        "name": "javascript",
+        "load": false
+    },
+    {
+        "name": "csv",
+        "load": false
     },
     {
         "name": "define/constructor",
-        "test": false
+        "load": false
     },
     {
         "name": "define/classdef",
-        "test": false
+        "load": false
     },
     {
         "name": "define/factory",
-        "test": false
+        "load": false
     },
     {
         "name": "define/params",
-        "test": false
+        "load": false
     },
     {
         "name": "define/internal",
-        "test": false
+        "load": false
     },
     {
-        "name": "define"
+        "name": "define",
+        "load": false
     },
     {
         "name": "define/custom",
-        "test": false
+        "load": false
     },
     {
         "name": "define/definition/class",
-        "doc": true
+        "load": false
     },
     {
         "name": "define/definition/visibility",
-        "doc": true
+        "load": false
     },
     {
         "name": "define/definition/member",
-        "doc": true
+        "load": false
     },
     {
         "name": "define/definition/attribute",
-        "test": false,
-        "doc": true
+        "load": false
     },
     {
         "name": "define/reader/reader",
-        "test": false
+        "load": false
     },
     {
         "name": "define/reader/member",
-        "test": false
+        "load": false
     },
     {
         "name": "define/reader/attribute",
@@ -238,43 +252,56 @@
         "load": false
     },
     {
-        "name": "attributes"
+        "name": "attributes",
+        "load": false
     },
     {
-        "name": "attributes/attributes"
+        "name": "attributes/attributes",
+        "load": false
     },
     {
-        "name": "attributes/class"
+        "name": "attributes/class",
+        "load": false
     },
     {
-        "name": "interfaces"
+        "name": "interfaces",
+        "load": false
     },
     {
-        "name": "interfaces/enumerator"
+        "name": "interfaces/enumerator",
+        "load": false
     },
     {
-        "name": "interfaces/array"
+        "name": "interfaces/array",
+        "load": false
     },
     {
-        "name": "interfaces/stream"
+        "name": "interfaces/stream",
+        "load": false
     },
     {
-        "name": "interfaces/filestorage"
+        "name": "interfaces/filestorage",
+        "load": false
     },
     {
-        "name": "fs"
+        "name": "fs",
+        "load": false
     },
     {
-        "name": "stream"
+        "name": "stream",
+        "load": false
     },
     {
-        "name": "stream/pipe"
+        "name": "stream/pipe",
+        "load": false
     },
     {
-        "name": "string"
+        "name": "string",
+        "load": false
     },
     {
-        "name": "array"
+        "name": "array",
+        "load": false
     },
     {
         "name": "stream/node",
