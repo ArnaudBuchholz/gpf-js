@@ -12,14 +12,6 @@
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfInNode*/ // The current host is a nodeJS like
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*exported _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
-/*exported _GPF_EVENT_CONTINUE*/ // gpf.events.EVENT_CONTINUE
-/*exported _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
-/*exported _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
-/*exported _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
-/*exported _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
-/*exported _GPF_EVENT_STOP*/ // gpf.events.EVENT_STOP
-/*exported _GPF_EVENT_STOPPED*/ // gpf.events.EVENT_STOPPED
 /*exported _GPF_FS_TYPE_DIRECTORY*/ // gpf.fs.TYPE_DIRECTORY
 /*exported _GPF_FS_TYPE_FILE*/ // gpf.fs.TYPE_FILE
 /*exported _GPF_FS_TYPE_NOT_FOUND*/ // gpf.fs.TYPE_NOT_FOUND
@@ -48,42 +40,6 @@
  */
 
 var
-/*#ifdef(RELEASE)*/
-    _gpfTypeofBoolean = "boolean",
-    _gpfTypeofFunction = "function",
-    _gpfTypeofNumber = "number",
-    _gpfTypeofObject = "object",
-    _gpfTypeofString = "string",
-    _gpfTypeofUndefined = "undefined",
-    _gpfUndefined = void 0, //eslint-disable-line no-void
-    _gpfTrue = !!1, //eslint-disable-line no-implicit-coercion
-    _gpfFalse = !_gpfTrue,
-    _gpfNull = null,
-
-    /*#define "boolean" _gpfTypeofBoolean*/
-    /*#define "function" _gpfTypeofFunction*/
-    /*#define "number" _gpfTypeofNumber*/
-    /*#define "object" _gpfTypeofObject*/
-    /*#define "string" _gpfTypeofString*/
-    /*#define "undefined" _gpfTypeofUndefined*/
-    /*#define undefined _gpfUndefined*/
-    /*#define true _gpfTrue*/
-    /*#define false _gpfFalse*/
-    /*#define null _gpfNull*/
-/*#endif*/
-
-    //region Events
-
-    _GPF_EVENT_ANY                  = "*",
-    _GPF_EVENT_ERROR                = "error",
-    _GPF_EVENT_READY                = "ready",
-    _GPF_EVENT_DATA                 = "data",
-    _GPF_EVENT_END_OF_DATA          = "endOfData",
-    _GPF_EVENT_CONTINUE             = "continue",
-    _GPF_EVENT_STOP                 = "stop",
-    _GPF_EVENT_STOPPED              = "stopped",
-
-    //endregion
 
     //region File system constants
 
@@ -181,7 +137,6 @@ function _gpfIsUnsignedByte (value) {
  *
  * @param {Object} obj Object receiving the constants
  * @param {Object} dictionary Dictionary names to value
- * @returns {undefined} nothing
  * @private
  */
 function _gpfCreateConstants (obj, dictionary) {
@@ -201,10 +156,18 @@ _gpfCreateConstants(gpf, {
 
 /* istanbul ignore else */ // Because tested with NodeJS
 if (_gpfInNode) {
+
+    /**
+     * @namespace gpf.node
+     * @description Root namespace for NodeJS specifics
+     */
     gpf.node = {};
 }
 
-// Some web-related tools will be configured even if not in a browser, declare the namespace now
+/**
+ * @namespace gpf.web
+ * @description Root namespace for web-related tools (even if not in a browser)
+ */
 gpf.web = {};
 
 /*#ifndef(UMD)*/
