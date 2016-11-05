@@ -33,15 +33,18 @@
         includeReady = {};
 
     function _waitForTestCases () {
+        function _testCaseLoaded (testCaseSource) {
+            /*jshint -W061*/
+            eval(testCaseSource); //eslint-disable-line no-eval
+            /*jshint +W061*/
+            _waitForTestCases();
+        }
         while (sourceIdx < sources.length) {
             var source = sources[sourceIdx];
             ++sourceIdx;
             if (source.load !== false && source.test !== false) {
                 xhr(window.gpfTestsPath + source.name + ".js").get()
-                    .then(function (testCaseSource) {
-                        eval(testCaseSource); //eslint-disable-line no-eval
-                        _waitForTestCases();
-                    }, error);
+                    .then(_testCaseLoaded, error);
                 return;
             }
         }
