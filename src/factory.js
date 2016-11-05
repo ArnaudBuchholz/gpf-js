@@ -4,7 +4,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfFunc*/ // Create a new function using the source
-/*exported _gpfNewApply */ // Apply new operator with an array of parameters
+/*exported _gpfNewApply*/ // Apply new operator with an array of parameters
 /*#endif*/
 
 function _gpfBuildFactoryParameterList (maxParameters) {
