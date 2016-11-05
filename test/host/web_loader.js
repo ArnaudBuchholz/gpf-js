@@ -1,4 +1,5 @@
 /*eslint strict: [2, "function"]*/ // IIFE form
+/*global xhr*/
 (function () {
     "use strict";
     /*jshint browser: true*/
@@ -31,16 +32,16 @@
         sources,
         includeReady = {};
 
-    function _waitForTestCases (event) {
-        if (event && "error" === event.type) {
-            error(event.get("error").message);
-            return;
-        }
+    function _waitForTestCases () {
         while (sourceIdx < sources.length) {
             var source = sources[sourceIdx];
             ++sourceIdx;
             if (source.load !== false && source.test !== false) {
-                gpf.web.include(window.gpfTestsPath + source.name + ".js", _waitForTestCases);
+                xhr(window.gpfTestsPath + source.name + ".js").get()
+                    .then(function (testCaseSource) {
+                        eval(testCaseSource); //eslint-disable-line no-eval
+                        _waitForTestCases();
+                    }, error);
                 return;
             }
         }
