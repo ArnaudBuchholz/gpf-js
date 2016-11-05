@@ -3,23 +3,33 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
-/*global _GPF_EVENT_CONTINUE*/ // gpf.events.EVENT_CONTINUE
-/*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
-/*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
-/*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
-/*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
-/*global _GPF_EVENT_STOP*/ // gpf.events.EVENT_STOP
-/*global _GPF_EVENT_STOPPED*/ // gpf.events.EVENT_STOPPED
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfCreateConstants*/ // Automate constants creation
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*exported _GPF_EVENT_ANY*/ // gpf.events.EVENT_ANY
+/*exported _GPF_EVENT_CONTINUE*/ // gpf.events.EVENT_CONTINUE
+/*exported _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
+/*exported _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
+/*exported _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
+/*exported _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
+/*exported _GPF_EVENT_STOP*/ // gpf.events.EVENT_STOP
+/*exported _GPF_EVENT_STOPPED*/ // gpf.events.EVENT_STOPPED
 /*exported _GpfEvent*/ // gpf.Events.Event
 /*exported _gpfEventsIsValidHandler*/ // Check event handler validity
 /*exported _gpfEventGetPromiseHandler*/ // Event handler wrapper for Promises
 /*exported _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*#endif*/
+
+// TODO convert and expose as an enum
+var _GPF_EVENT_ANY                  = "*",
+    _GPF_EVENT_ERROR                = "error",
+    _GPF_EVENT_READY                = "ready",
+    _GPF_EVENT_DATA                 = "data",
+    _GPF_EVENT_END_OF_DATA          = "endOfData",
+    _GPF_EVENT_CONTINUE             = "continue",
+    _GPF_EVENT_STOP                 = "stop",
+    _GPF_EVENT_STOPPED              = "stopped";
 
 /**
  * GPF Event Handler
