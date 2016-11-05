@@ -78,7 +78,7 @@ describe("constants", function () {
             }, function (expectedResult, stringValue) {
                 var value = parseInt(stringValue, 10);
                 if (expectedResult) {
-                    it("accepts" + stringValue, function () {
+                    it("accepts " + stringValue, function () {
                         assert(true === _gpfIsUnsignedByte(value));
                     });
                 } else {
