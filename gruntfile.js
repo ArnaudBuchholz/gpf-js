@@ -9,7 +9,7 @@ module.exports = function (grunt) {
     // Build the list of valid source and test files based on sources.json
     var sources = grunt.file.readJSON("src/sources.json"),
         srcFiles = ["src/boot.js"],
-        docFiles = [],
+        docFiles = ["src/boot.js"],
         testFiles = [];
     sources.forEach(function (source) {
         var name = source.name;
