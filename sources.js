@@ -1,5 +1,7 @@
 "use strict";
 /*global xhr*/
+/*jshint browser: true*/
+/*eslint-env browser*/
 
 //region Source and SourceArray definitions
 
@@ -7,34 +9,46 @@ var Source = gpf.define("Source", {
 
     "private": {
 
-        /** @property {SourceArray} Source array */
+        /**
+         * Source array
+         *
+         * @type {SourceArray}
+         */
         _array: null,
 
-        /** @property {String} Source name */
+        /** Source name */
         "[_name]": [gpf.$ClassProperty()],
         _name: "",
 
-        /** @property {Number} Source index */
+        /** Source index */
         "[_index]": [gpf.$ClassProperty(true)],
         _index: -1,
 
-        /** @property {Boolean} Source is loaded */
+        /** Source is loaded */
         "[_load]": [gpf.$ClassProperty()],
         _load: false,
 
-        /** @property {Boolean} Source has a test counterpart */
+        /** Source has a test counterpart */
         "[_test]": [gpf.$ClassProperty()],
         _test: false,
 
-        /** @property {Boolean} Documentation should be extracted from this source */
+        /** Documentation should be extracted from this source */
         "[_doc]": [gpf.$ClassProperty()],
         _doc: false,
 
-        /** @property {String[]} List of dependencies (boot is excluded) */
+        /**
+         * List of dependencies (boot is excluded)
+         *
+         * @type {String[]}
+         */
         "[_dependsOn]": [gpf.$ClassProperty(false, "dependencies")],
         _dependsOn: [],
 
-        /** @property {String[]} List of module dependencies */
+        /**
+         * List of module dependencies
+         *
+         * @type {String[]}
+         */
         "[_dependencyOf]": [gpf.$ClassProperty()],
         _dependencyOf: [],
 
@@ -57,7 +71,7 @@ var Source = gpf.define("Source", {
         /**
          * Change the load setting
          *
-         * @param {Boolean} value
+         * @param {Boolean} value New value for the setting
          * @return {Boolean} Update done
          */
         _setLoad: function (value) {
@@ -76,7 +90,7 @@ var Source = gpf.define("Source", {
         /**
          * Change the load setting
          *
-         * @param {Boolean} value
+         * @param {Boolean} value New value for test
          * @return {Boolean} Update done
          */
         _setTest: function (value) {
@@ -87,7 +101,7 @@ var Source = gpf.define("Source", {
         /**
          * Change the doc setting
          *
-         * @param {Boolean} value
+         * @param {Boolean} value New value for doc
          * @return {Boolean} Update done
          */
         _setDoc: function (value) {
@@ -95,7 +109,7 @@ var Source = gpf.define("Source", {
             return true;
         },
 
-        /** @property {String} Checked state (exists, obsolete, new) */
+        /** Checked state (exists, obsolete, new) */
         _checkedState: ""
     },
 
@@ -121,8 +135,10 @@ var Source = gpf.define("Source", {
 
         /**
          * Create the exported version of the source
+         *
+         * @return {Object} Object to be converted to JSON and saved
          */
-        export: function () {
+        "export": function () {
             var result = {
                 name: this._name
             };
@@ -220,7 +236,7 @@ var SourceArray = gpf.define("SourceArray", {
         /**
          * Get the number of sources
          *
-         * @return {Number}
+         * @return {Number} Number of sources
          */
         getLength: function () {
             return this._sources.length;
@@ -229,21 +245,21 @@ var SourceArray = gpf.define("SourceArray", {
         /**
          * Enumerate all sources
          *
-         * @param {Function} callback
-         * @param {*} thisArg
+         * @param {Function} callback Called on each source
+         * @param {*} thisArg This context
          */
         forEach: function (callback, thisArg) {
-            var that = this;
+            var me = this;
             this._sources.forEach(function (source, index) {
-                callback(that._update(source), index);
+                callback(me._update(source), index);
             }, thisArg);
         },
 
         /**
          * Get the source by name
          *
-         * @param {String} name
-         * @return {Source}
+         * @param {String} name Name of the source name to retreive
+         * @return {Source} Source which name matches the parameter
          */
         byName: function (name) {
             var result;
@@ -260,8 +276,8 @@ var SourceArray = gpf.define("SourceArray", {
         /**
          * Get the source by index
          *
-         * @param {Number} index
-         * @return {Source}
+         * @param {Number} index Index of the source inside the array
+         * @return {Source} Source which index matches the parameter
          */
         byIndex: function (index) {
             return this._update(this._sources[index]);
@@ -270,7 +286,7 @@ var SourceArray = gpf.define("SourceArray", {
         /**
          * Get all module names
          *
-         * @return {String[]}
+         * @return {String[]} Get all source names
          */
         getNames: function () {
             return this._sources.map(function (source) {
@@ -281,8 +297,8 @@ var SourceArray = gpf.define("SourceArray", {
         /**
          * Based on its dependencies, compute the minimum index of the module.
          *
-         * @param {String} name
-         * @return {Number}
+         * @param {String} name Source Name
+         * @return {Number} Source index before which the source can't be moved
          */
         getMinIndexFor: function (name) {
             var dependencies = this.byName(name).getDependencies(),
@@ -300,11 +316,11 @@ var SourceArray = gpf.define("SourceArray", {
         /**
          * Return the JSON string representing the list of sources
          *
-         * @return {String}
+         * @return {String} JSON export of the sources array
          */
         toString: function () {
             return JSON.stringify(this._sources.map(function (source) {
-                return source.export();
+                return source["export"]();
             }), null, 4);
         },
 
@@ -342,7 +358,7 @@ var SourceArray = gpf.define("SourceArray", {
         /**
          * Provide information about sources
          *
-         * @param {Object} checkDictionary
+         * @param {Object} checkDictionary Result of the check mechanism
          */
         setCheckDictionary: function (checkDictionary) {
             this._checkDictionary = checkDictionary;
@@ -396,7 +412,7 @@ function updateSourceRow (source) {
     }
 
     xhr("/src/" + name + ".js").get().then(function (content) {
-        var description = /@file (.*)/.exec(content);
+        var description = (/@file (.*)/).exec(content);
         if (description) {
             document.getElementById("description_" + index).innerHTML = description[1];
         }
@@ -532,9 +548,8 @@ function compare (checkDictionary, path, pathContent) {
     });
     if (0 === subPromises.length) {
         return Promise.resolve();
-    } else {
-        return Promise.all(subPromises);
     }
+    return Promise.all(subPromises);
 }
 
 function check () {
@@ -554,6 +569,10 @@ function check () {
 
 //endregion
 
+function showError (message) {
+    alert(message); //eslint-disable-line no-alert
+}
+
 window.addEventListener("load", function () {
     Promise.all([xhr("src/sources.json").get(), xhr("build/dependencies.json").get()])
         .then(function (responseTexts) {
@@ -564,14 +583,12 @@ window.addEventListener("load", function () {
             reload();
             document.addEventListener("click", onClick);
         }, function (reason) {
-            alert("A problem occurred while loading src/sources.json and build/dependencies.json: " + reason);
+            showError("A problem occurred while loading src/sources.json and build/dependencies.json: " + reason);
         });
 
     document.getElementById("save").addEventListener("click", function () {
         xhr("/fs/src/sources.json").put(sources.toString())
-            .then(undefined, function (reason) {
-                alert(reason);
-            });
+            .then(undefined, showError);
     });
 
     document.getElementById("check").addEventListener("click", check);
