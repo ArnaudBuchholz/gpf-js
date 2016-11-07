@@ -3,7 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HOST_NODEJS*/ // gpf.HOST_NODEJS
+/*global _GPF_HOST*/
 /*global _gpfExit:true*/ // Exit function
 /*global _gpfHost*/ // Host type
 /*global _gpfInNode:true*/ // The current host is a nodeJS like
@@ -13,7 +13,7 @@
 /*eslint-env node*/
 
 /* istanbul ignore else */ // Tested with NodeJS
-if (_GPF_HOST_NODEJS === _gpfHost) {
+if (_GPF_HOST.NODEJS === _gpfHost) {
 
     _gpfInNode = true;
 
