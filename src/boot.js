@@ -3,19 +3,12 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*exported _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
-/*exported _GPF_HOST_NODEJS*/ // gpf.HOST_NODEJS
-/*exported _GPF_HOST_PHANTOMJS*/ // gpf.HOST_PHANTOMJS
-/*exported _GPF_HOST_RHINO*/ // gpf.HOST_RHINO
-/*exported _GPF_HOST_UNKNOWN*/ // gpf.HOST_UNKNOWN
-/*exported _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
+/*exported _GPF_HOST*/ // Host types
 /*exported _gpfDosPath*/ // DOS-like path
 /*exported _gpfEmptyFunc*/ // An empty function
 /*exported _gpfExit*/ // Exit function
 /*exported _gpfHost*/ // Host type
 /*exported _gpfIgnore*/ // Helper to remove unused parameter warning
-/*exported _gpfInBrowser*/ // The current host is a browser like
-/*exported _gpfInNode*/ // The current host is a nodeJS like
 /*exported _gpfMainContext*/ // Main context object
 /*exported _gpfMsFSO*/ // Scripting.FileSystemObject activeX
 /*exported _gpfNodeFs*/ // Node require("fs")
@@ -27,6 +20,9 @@
 /*eslint-disable no-unused-vars*/
 /*#endif*/
 
+/*jshint browser: true, node: true, phantom: true, rhino: true, wsh: true*/
+/*eslint-env browser, node, phantomjs, rhino, wsh*/
+
 // An empty function
 function _gpfEmptyFunc () {}
 
@@ -34,37 +30,42 @@ var
     // GPF version
     _gpfVersion = "0.1.5-alpha",
 
-    // Host type constants
-    _GPF_HOST_BROWSER               = "browser",
-    /*jshint browser: true*/
-    /*eslint-env browser*/
+    /**
+     * Host type
+     *
+     * @enum {String}
+     */
+    _GPF_HOST = {
+        /** Browser */
+        BROWSER:    "browser",
+        /** [NodeJs](http://nodejs.org/) */
+        NODEJS:     "nodejs",
+        /** [PhantomJS](http://phantomjs.org/) */
+        PHANTOMJS:  "phantomjs",
+        /** [Rhino](http://developer.mozilla.org/en/docs/Rhino) */
+        RHINO:      "rhino",
+        /** Unknown: detection failed */
+        UNKNOWN:    "unknown",
+        /** [cscript/wscript](http://technet.microsoft.com/en-us/library/bb490887.aspx) */
+        WSCRIPT:    "wscript"
+    },
 
-    _GPF_HOST_NODEJS                = "nodejs",
-    /*jshint node: true*/
-    /*eslint-env node*/
+    /**
+     * Current host type
+     *
+     * @type {_GPF_HOST}
+     */
+    _gpfHost = _GPF_HOST.UNKNOWN,
 
-    _GPF_HOST_PHANTOMJS             = "phantomjs",
-    /*jshint phantom: true*/
-    /*eslint-env phantomjs*/
-
-    _GPF_HOST_RHINO                 = "rhino",
-    /*jshint rhino: true*/
-    /*eslint-env rhino*/
-
-    _GPF_HOST_UNKNOWN               = "unknown",
-
-    _GPF_HOST_WSCRIPT               = "wscript",
-    /*jshint wsh: true*/
-    /*eslint-env wsh*/
-
-    // Host type, see _GPF_HOST_xxx
-    _gpfHost = _GPF_HOST_UNKNOWN,
-
-    // Indicates that paths are DOS-like (i.e. case insensitive with /)
+    /** Indicates that paths are DOS-like (i.e. case insensitive with /) */
     _gpfDosPath = false,
 
     /*jshint -W040*/ // This is the common way to get the global context
-    // Main context object
+    /**
+     * Main context object
+     *
+     * @type {Object}
+     */
     _gpfMainContext = this, //eslint-disable-line no-invalid-this, consistent-this
     /*jshint +W040*/
 
@@ -82,12 +83,6 @@ var
      */
     _gpfExit = _gpfEmptyFunc,
 
-    // The current host is a nodeJS like
-    _gpfInNode = false,
-
-    // The current host is a browser like
-    _gpfInBrowser = false,
-
     /**
      * Browser window object
      *
@@ -96,35 +91,35 @@ var
     _gpfWebWindow,
 
     /**
-     * Browser document object
+     * Browser [document](https://developer.mozilla.org/en-US/docs/Web/API/Document) object
      *
      * @type {Object}
      */
     _gpfWebDocument,
 
     /**
-     * Browser head tag
+     * Browser [head](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head) tag
      *
      * @type {Object}
      */
     _gpfWebHead,
 
     /**
-     * Scripting.FileSystemObject activeX
+     * [Scripting.FileSystemObject](https://msdn.microsoft.com/en-us/library/aa711216(v=vs.71).aspx) Object
      *
      * @type {Object}
      */
     _gpfMsFSO,
 
     /**
-     * Node require("fs")
+     * Node [require("fs")](https://nodejs.org/api/fs.html)
      *
      * @type {Object}
      */
     _gpfNodeFs,
 
     /**
-     * Node require("path")
+     * Node [require("path")](https://nodejs.org/api/path.html)
      *
      * @type {Object}
      */
@@ -155,7 +150,7 @@ var _gpfSyncReadForBoot;
 
 // Microsoft cscript / wscript
 if ("undefined" !== typeof WScript) {
-    _gpfHost = _GPF_HOST_WSCRIPT;
+    _gpfHost = _GPF_HOST.WSCRIPT;
     _gpfDosPath = true;
 
 /*#ifndef(UMD)*/
@@ -174,7 +169,7 @@ if ("undefined" !== typeof WScript) {
 /*#endif*/
 
 } else if ("undefined" !== typeof print && "undefined" !== typeof java) {
-    _gpfHost = _GPF_HOST_RHINO;
+    _gpfHost = _GPF_HOST.RHINO;
     _gpfDosPath = false;
 
 /*#ifndef(UMD)*/
@@ -185,7 +180,7 @@ if ("undefined" !== typeof WScript) {
 
 // PhantomJS
 } else if ("undefined" !== typeof phantom && phantom.version) {
-    _gpfHost = _GPF_HOST_PHANTOMJS;
+    _gpfHost = _GPF_HOST.PHANTOMJS;
     _gpfDosPath = require("fs").separator === "\\";
     _gpfMainContext = window;
 
@@ -201,7 +196,7 @@ if ("undefined" !== typeof WScript) {
 
 // Nodejs
 } else if ("undefined" !== typeof module && module.exports) {
-    _gpfHost = _GPF_HOST_NODEJS;
+    _gpfHost = _GPF_HOST.NODEJS;
     _gpfNodePath = require("path");
     _gpfDosPath = _gpfNodePath.sep === "\\";
     _gpfMainContext = global;
@@ -219,7 +214,7 @@ if ("undefined" !== typeof WScript) {
 
 // Browser
 } else if ("undefined" !== typeof window) {
-    _gpfHost = _GPF_HOST_BROWSER;
+    _gpfHost = _GPF_HOST.BROWSER;
     _gpfMainContext = window;
 
 /*#ifndef(UMD)*/
