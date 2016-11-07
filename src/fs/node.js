@@ -12,7 +12,7 @@
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
-/*global _gpfInNode*/ // The current host is a nodeJS like
+/*global _gpfHost*/
 /*global _gpfNodeFs:true*/ // Node require("fs")
 /*global _gpfNodePath*/ // Node require("path")
 /*global _GpfNodeStream*/ // gpf.stream.Node
@@ -167,7 +167,7 @@ var
     // @type {gpf.fs.NodeFileStorage}
     _gpfNodeFileStorage;
 
-if (_gpfInNode) {
+if (_GPF_HOST.NODEJS === _gpfHost) {
 
     /**
      * @inheritdoc gpf.fs#host
