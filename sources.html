@@ -48,7 +48,7 @@
         if ($object.isReadOnly()) {
             $write("disabled=\"true\" ");
         }
-        if ($object.testProperty(propertyName)) {
+        if ($object.getName() === "boot" || $object.testProperty(propertyName)) {
             $write("checked");
         }
     }
