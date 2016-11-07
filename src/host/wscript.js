@@ -3,7 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
+/*global _GPF_HOST*/
 /*global _gpfExit:true*/ // Exit function
 /*global _gpfHost*/ // Host type
 /*global _gpfMainContext*/ // Main context object
@@ -14,7 +14,7 @@
 /*eslint-disable new-cap*/
 
 /* istanbul ignore next */ // Tested with NodeJS
-if (_GPF_HOST_WSCRIPT === _gpfHost) {
+if (_GPF_HOST.WSCRIPT === _gpfHost) {
 
     // Define console APIs
     _gpfMainContext.console = {
