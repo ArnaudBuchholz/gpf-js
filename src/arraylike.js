@@ -3,7 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
+/*global _GPF_HOST*/
 /*global _gpfHost*/ // Host type
 /*global _gpfWebWindow*/ // Browser window object
 /*exported _gpfIsArrayLike*/ // Return true if the parameter looks like an array
@@ -25,7 +25,7 @@ var _gpfIsArrayLike  = function (obj) { //eslint-disable-line func-style
 };
 
 /* istanbul ignore next */ // Not tested with NodeJS
-if (_GPF_HOST_BROWSER === _gpfHost && (_gpfWebWindow.HTMLCollection || _gpfWebWindow.NodeList)) {
+if (_GPF_HOST.BROWSER === _gpfHost && (_gpfWebWindow.HTMLCollection || _gpfWebWindow.NodeList)) {
     _gpfIsArrayLike = function (obj) {
         return Array.isArray(obj)
             || obj instanceof _gpfWebWindow.HTMLCollection
