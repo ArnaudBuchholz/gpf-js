@@ -9,7 +9,7 @@
 /*global _GPF_FS_TYPE_DIRECTORY*/ // _GPF_FS_TYPE_DIRECTORY
 /*global _GPF_FS_TYPE_FILE*/ // _GPF_FS_TYPE_FILE
 /*global _GPF_FS_TYPE_NOT_FOUND*/ // _GPF_FS_TYPE_NOT_FOUND
-/*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
+/*global _GPF_HOST*/
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfArrayEnumerator*/ // Create an IEnumerator from an array
 /*global _gpfDefine*/ // Shortcut for gpf.define
@@ -456,7 +456,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
 
 });
 
-if (_GPF_HOST_WSCRIPT === _gpfHost) {
+if (_GPF_HOST.WSCRIPT === _gpfHost) {
 
     /**
      * @inheritdoc gpf.fs#host
