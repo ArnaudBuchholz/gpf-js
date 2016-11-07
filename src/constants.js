@@ -3,14 +3,8 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
-/*global _GPF_HOST_NODEJS*/ // gpf.HOST_NODEJS
-/*global _GPF_HOST_PHANTOMJS*/ // gpf.HOST_PHANTOMJS
-/*global _GPF_HOST_RHINO*/ // gpf.HOST_RHINO
-/*global _GPF_HOST_UNKNOWN*/ // gpf.HOST_UNKNOWN
-/*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
+/*global _GPF_HOST*/
 /*global _gpfAssert*/ // Assertion method
-/*global _gpfInNode*/ // The current host is a nodeJS like
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _GPF_FS_TYPE_DIRECTORY*/ // gpf.fs.TYPE_DIRECTORY
 /*exported _GPF_FS_TYPE_FILE*/ // gpf.fs.TYPE_FILE
@@ -146,16 +140,16 @@ function _gpfCreateConstants (obj, dictionary) {
 }
 
 _gpfCreateConstants(gpf, {
-    HOST_BROWSER: _GPF_HOST_BROWSER,
-    HOST_NODEJS: _GPF_HOST_NODEJS,
-    HOST_PHANTOMJS: _GPF_HOST_PHANTOMJS,
-    HOST_RHINO: _GPF_HOST_RHINO,
-    HOST_UNKNOWN: _GPF_HOST_UNKNOWN,
-    HOST_WSCRIPT: _GPF_HOST_WSCRIPT
+    HOST_BROWSER: _GPF_HOST.BROWSER,
+    HOST_NODEJS: _GPF_HOST.NODEJS,
+    HOST_PHANTOMJS: _GPF_HOST.PHANTOMJS,
+    HOST_RHINO: _GPF_HOST.RHINO,
+    HOST_UNKNOWN: _GPF_HOST.UNKNOWN,
+    HOST_WSCRIPT: _GPF_HOST.WSCRIPT
 });
 
 /* istanbul ignore else */ // Because tested with NodeJS
-if (_gpfInNode) {
+if (_GPF_HOST.NODEJS === _gpfHost) {
 
     /**
      * @namespace gpf.node
