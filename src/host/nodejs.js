@@ -15,8 +15,6 @@
 /* istanbul ignore else */ // Tested with NodeJS
 if (_GPF_HOST.NODEJS === _gpfHost) {
 
-    _gpfInNode = true;
-
     /* istanbul ignore next */ // Not testable
     _gpfExit = function (code) {
         process.exit(code);
