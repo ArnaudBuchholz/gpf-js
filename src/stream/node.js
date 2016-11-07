@@ -12,11 +12,12 @@
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfI*/ // gpf.interfaces
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
-/*global _gpfInNode*/ // The current host is a nodeJS like
+/*global _GPF_HOST*/
+/*global _gpfHost*/
 /*exported _GpfNodeStream*/ // Encapsulation of nodeJS streams
 /*#endif*/
 
-if (_gpfInNode) {
+if (_GPF_HOST.NODEJS === _gpfHost) {
 
     var // Base class of GPF NodeJS streams
         _GpfNodeStream = _gpfDefine("gpf.node.Stream", {
