@@ -4,8 +4,7 @@
 /*#ifndef(UMD)*/
 (function () {/* Begin of privacy scope */
     "use strict";
-/*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
-/*global _GPF_HOST_PHANTOMJS*/ // gpf.HOST_PHANTOMJS
+/*global _GPF_HOST*/
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
@@ -1300,7 +1299,7 @@
         });
     }
 
-    if (_GPF_HOST_BROWSER === gpf.host() || _GPF_HOST_PHANTOMJS === gpf.host()) {
+    if (_GPF_HOST.BROWSER === _gpfHost || _GPF_HOST.PHANTOMJS === _gpfHost) {
         _searchGpfLoaded();
     }
 
