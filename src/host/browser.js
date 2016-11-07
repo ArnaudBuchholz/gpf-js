@@ -3,7 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HOST_BROWSER*/ // gpf.HOST_BROWSER
+/*global _GPF_HOST*/
 /*global _gpfExit:true*/ // Exit function
 /*global _gpfHost*/ // Host type
 /*global _gpfInBrowser:true*/ // The current host is a browser like
@@ -16,7 +16,7 @@
 /*eslint-env browser*/
 
 /* istanbul ignore next */ // Tested with NodeJS
-if (_GPF_HOST_BROWSER === _gpfHost) {
+if (_GPF_HOST.BROWSER === _gpfHost) {
 
     _gpfInBrowser = true;
     _gpfExit = function (code) {
