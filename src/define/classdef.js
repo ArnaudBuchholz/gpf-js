@@ -3,7 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
+/*global _GPF_HOST*/
 /*global _getOldNewClassConstructor*/ // Allocate a named class constructor
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfAsserts*/ // Multiple assertion method
@@ -359,7 +359,7 @@ _GpfOldClassDefinition.prototype = {
      * @param {Number} visibility
      */
     _processDefinition: function (definition, visibility) {
-        var isWScript = _GPF_HOST_WSCRIPT === _gpfHost;
+        var isWScript = _GPF_HOST.WSCRIPT === _gpfHost;
         this._defaultVisibility = visibility;
         _gpfObjectForEach(definition, this._processDefinitionMember, this); /*gpf:inline(object)*/
         /* istanbul ignore next */ // WSCRIPT specific #78
