@@ -6,7 +6,6 @@
 /*global _GPF_HOST*/
 /*global _gpfExit:true*/ // Exit function
 /*global _gpfHost*/ // Host type
-/*global _gpfInNode:true*/ // The current host is a nodeJS like
 /*#endif*/
 
 /*jshint node: true*/
