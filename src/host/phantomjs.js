@@ -3,7 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HOST_PHANTOMJS*/ // gpf.HOST_PHANTOMJS
+/*global _GPF_HOST*/
 /*global _gpfExit:true*/ // Exit function
 /*global _gpfHost*/ // Host type
 /*global _gpfInBrowser:true*/ // The current host is a browser like
@@ -18,7 +18,7 @@
 /*eslint-env phantomjs, browser*/
 
 /* istanbul ignore next */ // Tested with NodeJS
-if (_GPF_HOST_PHANTOMJS === _gpfHost) {
+if (_GPF_HOST.PHANTOMJS === _gpfHost) {
 
     _gpfInNode = true;
     _gpfInBrowser = true;
