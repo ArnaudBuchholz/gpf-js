@@ -3,8 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HOST_RHINO*/ // gpf.HOST_RHINO
-/*global _GPF_HOST_WSCRIPT*/ // gpf.HOST_WSCRIPT
+/*global _GPF_HOST*/
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfHost*/ // Host type
@@ -79,11 +78,11 @@ if ("undefined" === typeof setTimeout) {
     /*jshint rhino: true*/
     /*eslint-env rhino*/
 
-    if (_GPF_HOST_WSCRIPT === _gpfHost) {
+    if (_GPF_HOST.WSCRIPT === _gpfHost) {
         _gpfSleep =  function (t) {
             WScript.Sleep(t); //eslint-disable-line new-cap
         };
-    } else if (_GPF_HOST_RHINO === _gpfHost) {
+    } else if (_GPF_HOST.RHINO === _gpfHost) {
         _gpfSleep = java.lang.Thread.sleep;
     } else {
         console.warn("No implementation for setTimeout");
