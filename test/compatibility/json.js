@@ -2,65 +2,77 @@
 
 describe("compatibility/json", function () {
 
-    var
-        tests = [{
-            label: "empty object",
-            obj: {},
-            json: "{}"
+    var tests = [{
+        label: "empty object",
+        obj: {},
+        json: "{}"
 
-        }, {
-            label: "simple string property",
-            obj: {
-                a: "123"
-            },
-            json: "{\"a\":\"123\"}"
+    }, {
+        label: "simple string property",
+        obj: {
+            a: "123"
+        },
+        json: "{\"a\":\"123\"}"
 
-        }, {
-            label: "simple number property",
-            obj: {
-                a: 123
-            },
-            json: "{\"a\":123}"
+    }, {
+        label: "simple number property",
+        obj: {
+            a: 123
+        },
+        json: "{\"a\":123}"
 
-        }, {
-            label: "simple boolean properties",
-            obj: {
-                a: true,
-                b: false
-            },
-            json: "{\"a\":true,\"b\":false}"
+    }, {
+        label: "simple boolean properties",
+        obj: {
+            a: true,
+            b: false
+        },
+        json: "{\"a\":true,\"b\":false}"
 
-        }, {
-            label: "mixed simple properties",
-            obj: {
-                a: "123",
-                b: 123,
-                c: true,
-                d: {}
-            },
-            json: "{\"a\":\"123\",\"b\":123,\"c\":true,\"d\":{}}"
+    }, {
+        label: "mixed simple properties",
+        obj: {
+            a: "123",
+            b: 123,
+            c: true,
+            d: {}
+        },
+        json: "{\"a\":\"123\",\"b\":123,\"c\":true,\"d\":{}}"
 
-        }, {
-            label: "function",
-            obj: {
-                a: 123,
-                b: function () {}
-            },
-            json: "{\"a\":123}",
-            parse: false
-        }, {
-            label: "array",
-            obj: {
-                a: [1, 2, 3]
-            },
-            json: "{\"a\":[1,2,3]}"
-        }, {
-            label: "null",
-            obj: {
-                a: null
-            },
-            json: "{\"a\":null}"
-        }];
+    }, {
+        label: "function",
+        obj: {
+            a: 123,
+            b: function () {}
+        },
+        json: "{\"a\":123}",
+        parse: false
+    }, {
+        label: "array",
+        obj: {
+            a: [1, 2, 3]
+        },
+        json: "{\"a\":[1,2,3]}"
+    }, {
+        label: "null",
+        obj: {
+            a: null
+        },
+        json: "{\"a\":null}"
+    }];
+
+    function _like (a, b) {
+        var typeofA = typeof a;
+        if (typeofA !== typeof b) {
+            return false;
+        }
+        if ("object" === typeofA && a && b) {
+            return Object.keys(a).every(function (key) {
+                return b.hasOwnProperty(key) && _like(a[key], b[key]);
+            });
+        }
+        return a === b;
+    }
 
     describe("JSON object", function () {
 
@@ -88,7 +100,7 @@ describe("compatibility/json", function () {
             }
             it("works on " + test.label, function () {
                 var obj = JSON.parse(test.json);
-                assert(true === gpf.like(obj, test.obj));
+                assert(true === _like(obj, test.obj));
             });
         });
 
@@ -116,7 +128,7 @@ describe("compatibility/json", function () {
                     }
                     it("works on " + test.label, function () {
                         var obj = gpf.internals._gpfJsonParsePolyfill(test.json);
-                        assert(true === gpf.like(obj, test.obj));
+                        assert(true === _like(obj, test.obj));
                     });
                 });
 
