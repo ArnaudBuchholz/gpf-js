@@ -6,14 +6,15 @@
 /*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
 /*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
-/*global _gpfInBrowser*/ // The current host is a browser like
+/*global _gpfHost*/
+/*global _GPF_HOST*/
 /*global _gpfWebDocument*/ // Browser document object
 /*global _gpfWebHead*/ // Browser head tag
 /*jshint browser: true*/
 /*#endif*/
 
 /* istanbul ignore next */ // Not testable with NodeJS
-if (_gpfInBrowser) {
+if (_GPF_HOST.BROWSER === _gpfHost) {
 
     /**
      * Dynamically loads a script in the browser, wait until the script is loaded to fire the eventsHandler when done.
