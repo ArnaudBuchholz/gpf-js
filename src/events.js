@@ -104,8 +104,8 @@ gpf.events = {
  */
 var _GpfEvent = gpf.events.Event = function (type, params, scope) {
     /*jshint validthis:true*/ // constructor
-    /*gpf:constant*/ this.type = type;
-    /*gpf:constant*/ this.scope = scope;
+    this.type = type;
+    this.scope = scope;
     if (undefined !== params) {
         this._params = params;
     }
