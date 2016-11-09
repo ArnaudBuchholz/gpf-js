@@ -33,10 +33,6 @@
         "doc": true
     },
     {
-        "name": "noconflict",
-        "doc": true
-    },
-    {
         "name": "arraylike",
         "doc": true
     },
@@ -405,6 +401,10 @@
     },
     {
         "name": "websvr",
+        "load": false
+    },
+    {
+        "name": "noconflict",
         "load": false
     }
 ]
