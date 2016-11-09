@@ -74,3 +74,9 @@ gpf.context = function (path) {
     }
     return _gpfContext(path.split("."));
 };
+
+/*#ifndef(UMD)*/
+
+gpf.internals._gpfContext = _gpfContext;
+
+/*#endif*/
