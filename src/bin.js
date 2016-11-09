@@ -268,7 +268,7 @@ gpf.bin = {
      * @param {Number} bitmask
      * @return {Boolean}
      */
-    test: function /*gpf:inline*/ (value, bitmask) {
+    test: function (value, bitmask) {
         return (value & bitmask) === bitmask;
     },
 
@@ -279,7 +279,7 @@ gpf.bin = {
      * @param {Number} bitmask
      * @return {Number}
      */
-    clear: function /*gpf:inline*/ (value, bitmask) {
+    clear: function (value, bitmask) {
         return value & ~bitmask;
     },
 
