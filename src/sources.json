@@ -62,7 +62,6 @@
     },
     {
         "name": "string/escapefor",
-        "test": false,
         "doc": true
     },
     {
