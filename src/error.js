@@ -103,40 +103,40 @@ function _gpfErrorDeclare (source, dictionary) {
 
 _gpfErrorDeclare("boot", {
     /**
-     * Thrown when a method is not yet implemented
+     * A method is not implemented
      *
-     * @class gpf.Error.notImplemented
-     * @extends gpf.Error
+     * @method gpf.Error.notImplemented
+     * @return {gpf.Error}
      */
     notImplemented:
         "Not implemented",
 
     /**
-     * Thrown to signal that an abstract method was not implemented in the class.
+     * An abstract method was invoked
      *
-     * @class gpf.Error.abstractMethod
-     * @extends gpf.Error
+     * @method gpf.Error.abstractMethod
+     * @return {gpf.Error}
      */
     abstractMethod:
         "Abstract method",
 
     /**
-     * Thrown when an assertion fails
+     * An assertion failed
      *
      * @param {Object} context Exception context
-     * - {String} message Assertion message
+     * - {String} message: Assertion message
      *
-     * @class gpf.Error.assertionFailed
-     * @extends gpf.Error
+     * @method gpf.Error.assertionFailed
+     * @return {gpf.Error}
      */
     assertionFailed:
         "Assertion failed: {message}",
 
     /**
-     * Thrown when a method is invoked with an invalid parameter
+     * A method is invoked with an invalid parameter
      *
-     * @class gpf.Error.notImplemented
-     * @extends gpf.Error
+     * @method gpf.Error.invalidParameter
+     * @return {gpf.Error}
      */
     invalidParameter:
         "Invalid parameter"
