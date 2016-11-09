@@ -23,6 +23,12 @@ describe("factory", function () {
                 assert(42 === myArray.length);
             });
 
+            it("adapts to a very long list of parameters", function () {
+                var myArray = _gpfNewApply(Array, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
+                assert(myArray instanceof Array);
+                assert(15 === myArray.length);
+            });
+
         });
 
     }
