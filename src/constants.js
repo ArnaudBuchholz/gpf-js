@@ -15,7 +15,6 @@
 /*exported _gpfAlpha*/ // Letters (lowercase)
 /*exported _gpfCreateConstants*/ // Automate constants creation
 /*exported _gpfDigit*/ // Digits
-/*exported _gpfFalseFunc*/ // An empty function returning false
 /*exported _gpfFunc*/ // Create a new function using the source
 /*exported _gpfIdentifierFirstChar*/ // allowed first char in an identifier
 /*exported _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
@@ -75,11 +74,6 @@ var
         + "for,function,if,import,in,instanceof,let,new,return,super,switch,this,throw,try,typeof,var,void,while,with,"
         + "yield").split(",")
     ;
-
-// An empty function returning false
-function _gpfFalseFunc () {
-    return false;
-}
 
 // Unsafe version of _gpfFunc
 function _gpfFuncUnsafe (params, source) {
