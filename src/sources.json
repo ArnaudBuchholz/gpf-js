@@ -125,7 +125,8 @@
         "doc": true
     },
     {
-        "name": "error"
+        "name": "error",
+        "doc": true
     },
     {
         "name": "events",
