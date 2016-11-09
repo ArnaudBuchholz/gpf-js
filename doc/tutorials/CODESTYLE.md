@@ -236,34 +236,6 @@ Some preprocessing instructions are defined inside comments:
 /*#endif*/
 ```
 
-*THE FOLLOWING SECTION WILL BE REFWRITTEN*
-
-The following tags are inserted to prepare future optimizations / improvement:
-
-* The assignment should considered as a constant definition
-
-```javascript
-        /*gpf:constant*/ error.code = code;
-```
-
-* The forEach/every/map/... instructions can be optimized with an inline substitution
-
-```javascript
-        /*gpf:inline(array)*/ this._columns.forEach(function (name, idx) {
-```
-
-* The _gpfObjectForEach instruction can be optimized with an inline substitution
-
-```javascript
-            /*gpf:inline(object)*/ _gpfObjectForEach(this._members, callback, thisArg);
-```
-
-* Some functions must be completely removed in RELEASE mode, the nop tag is used to flag the functions
-
-```javascript
-    /*gpf:nop*/ gpf.ASSERT = _gpfEmptyFunc;
-```
-
 ### Variables declaration
 
 Variables are grouped as much as possible: for instance, if the variable is used in one function only, its declaration
