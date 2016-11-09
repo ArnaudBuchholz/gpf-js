@@ -63,7 +63,7 @@ gpf.forEach = function (container, callback, thisArg) {
         _gpfArrayForEach(container, callback, thisArg);
         return;
     }
-    _gpfObjectForEach(container, callback, thisArg); /*gpf:inline(object)*/
+    _gpfObjectForEach(container, callback, thisArg);
 };
 
 /*#ifndef(UMD)*/
