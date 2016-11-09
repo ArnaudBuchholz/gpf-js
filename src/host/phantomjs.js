@@ -3,7 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HOST*/
+/*global _GPF_HOST*/ // Host types
 /*global _gpfExit:true*/ // Exit function
 /*global _gpfHost*/ // Host type
 /*global _gpfWebDocument:true*/ // Browser document object

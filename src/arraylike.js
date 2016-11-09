@@ -3,7 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HOST*/
+/*global _GPF_HOST*/ // Host types
 /*global _gpfHost*/ // Host type
 /*global _gpfWebWindow*/ // Browser window object
 /*exported _gpfIsArrayLike*/ // Return true if the parameter looks like an array

@@ -13,7 +13,6 @@
  * GPF Error class
  *
  * @constructor
- * @class _GpfError
  * @alias gpf.Error
  */
 var _GpfError = gpf.Error = function () {};
@@ -22,13 +21,25 @@ _GpfError.prototype = {
 
     constructor: _GpfError,
 
-    // Error code @readonly
+    /**
+     * Error code
+     *
+     * @readonly
+     */
     code: 0,
 
-    // Error name @readonly
+    /**
+     * Error name
+     *
+     * @readonly
+     */
     name: "Error",
 
-    // Error message @readonly
+    /**
+     * Error message
+     *
+     * @readonly
+     */
     message: ""
 
 };
@@ -38,38 +49,36 @@ function _gpfErrorFactory (code, name, message) {
         var error = new _GpfError(),
             finalMessage,
             replacements;
-        /*gpf:constant*/
         error.code = code;
-        /*gpf:constant*/
         error.name = name;
         if (context) {
             replacements = {};
-            _gpfObjectForEach(context, function (value, key) {/*gpf:inline(object)*/
+            _gpfObjectForEach(context, function (value, key) {
                 replacements["{" + key + "}"] = value.toString();
             });
             finalMessage = _gpfStringReplaceEx(message, replacements);
         } else {
             finalMessage = message;
         }
-        /*gpf:constant*/
         error.message = finalMessage;
         return error;
     };
 }
 
 /**
- * Generates an error function
+ * Generates an error class
  *
- * @param {Number} code
- * @param {String} name
- * @return {Function}
+ * @param {Number} code Error code
+ * @param {String} name Error name
+ * @param {String} message Error message
+ * @return {Function} New error class
  * @closure
  */
 function _gpfGenenerateErrorFunction (code, name, message) {
     var result = _gpfErrorFactory(code, name, message);
-    /*gpf:constant*/ result.CODE = code;
-    /*gpf:constant*/ result.NAME = name;
-    /*gpf:constant*/ result.MESSAGE = message;
+    result.CODE = code;
+    result.NAME = name;
+    result.MESSAGE = message;
     return result;
 }
 
@@ -78,33 +87,57 @@ var _gpfLastErrorCode = 0;
 
 /**
  * Declare error messages.
- * Each module declares its own errors.
+ * Each source declares its own errors.
  *
- * @param {String} module
- * @param {Object} list Dictionary of name to message
+ * @param {String} source Source name
+ * @param {Object} dictionary Dictionary of error name to message
  */
-function _gpfErrorDeclare (module, list) {
-    var
-        name,
-        code;
-    _gpfIgnore(module);
-    for (name in list) {
-        /* istanbul ignore else */
-        if (list.hasOwnProperty(name)) {
-            code = ++_gpfLastErrorCode;
-            gpf.Error["CODE_" + name.toUpperCase()] = code;
-            gpf.Error[name] = _gpfGenenerateErrorFunction(code, name, list[name]);
-        }
-    }
+function _gpfErrorDeclare (source, dictionary) {
+    _gpfIgnore(source);
+    _gpfObjectForEach(dictionary, function (message, name) {
+        var code = ++_gpfLastErrorCode;
+        gpf.Error["CODE_" + name.toUpperCase()] = code;
+        gpf.Error[name] = _gpfGenenerateErrorFunction(code, name, message);
+    });
 }
 
 _gpfErrorDeclare("boot", {
+    /**
+     * Thrown when a method is not yet implemented
+     *
+     * @class gpf.Error.notImplemented
+     * @extends gpf.Error
+     */
     notImplemented:
         "Not implemented",
+
+    /**
+     * Thrown to signal that an abstract method was not implemented in the class.
+     *
+     * @class gpf.Error.abstractMethod
+     * @extends gpf.Error
+     */
     abstractMethod:
         "Abstract method",
+
+    /**
+     * Thrown when an assertion fails
+     *
+     * @param {Object} context Exception context
+     * - {String} message Assertion message
+     *
+     * @class gpf.Error.assertionFailed
+     * @extends gpf.Error
+     */
     assertionFailed:
         "Assertion failed: {message}",
+
+    /**
+     * Thrown when a method is invoked with an invalid parameter
+     *
+     * @class gpf.Error.notImplemented
+     * @extends gpf.Error
+     */
     invalidParameter:
         "Invalid parameter"
 });

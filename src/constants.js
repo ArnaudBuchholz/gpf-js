@@ -3,8 +3,9 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HOST*/
+/*global _GPF_HOST*/ // Host types
 /*global _gpfAssert*/ // Assertion method
+/*global _gpfHost*/ // Host type
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _GPF_FS_TYPE_DIRECTORY*/ // gpf.fs.TYPE_DIRECTORY
 /*exported _GPF_FS_TYPE_FILE*/ // gpf.fs.TYPE_FILE
@@ -135,7 +136,7 @@ function _gpfIsUnsignedByte (value) {
  */
 function _gpfCreateConstants (obj, dictionary) {
     _gpfObjectForEach(dictionary, function (value, key) {
-        /*gpf:constant*/ obj[key] = value;
+        obj[key] = value;
     });
 }
 
