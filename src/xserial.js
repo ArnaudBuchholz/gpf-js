@@ -83,8 +83,7 @@ var
      *          node, otherwise the name to apply
      * @private
      */
-    _objMemberValueIsAttribute = function /*gpf:inline*/ (member, value,
-                                                          type, attArray) {
+    _objMemberValueIsAttribute = function (member, value, type, attArray) {
         var attribute;
         // Check if list or element
         if (value instanceof Array || attArray.has(_GpfXmlList)
@@ -148,8 +147,7 @@ var
      * @param {gpf.attributes.Map} attMap Map filled with XML attributes
      * @private
      */
-    _objMemberToSubNodes = function /*gpf:inline*/ (obj, member, wrapped,
-        attMap) {
+    _objMemberToSubNodes = function (obj, member, wrapped, attMap) {
         var
             value,
             attArray,
@@ -211,8 +209,7 @@ var
      * @param {gpf.attributes.Map} attMap Map filled with XML attributes
      * @private
      */
-    _objPrototypeToContentHandler = function /*gpf:inline*/ (obj, wrapped, name,
-        attMap) {
+    _objPrototypeToContentHandler = function (obj, wrapped, name, attMap) {
         var
             attArray,
             member,
