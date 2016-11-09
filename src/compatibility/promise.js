@@ -32,7 +32,7 @@ function _gpfPromiseSafeResolve (fn, onFulfilled, onRejected) {
 function _gpfPromiseFinale () {
     /*jshint validthis:true*/
     var me = this; //eslint-disable-line no-invalid-this
-    /*gpf:inline(array)*/ me._handlers.forEach(function (handler) {
+    me._handlers.forEach(function (handler) {
         handler.process(me);
     });
     me._handlers = []; // Reset list
@@ -191,13 +191,13 @@ _GpfPromise.all = function (promises) {
                 reject(e);
             }
         }
-        /*gpf:inline(array)*/ promises.forEach(handle);
+        promises.forEach(handle);
     });
 };
 
 _GpfPromise.race = function (promises) {
     return new _GpfPromise(function (resolve, reject) {
-        /*gpf:inline(array)*/ promises.forEach(function (promise) {
+        promises.forEach(function (promise) {
             promise.then(resolve, reject);
         });
     });
