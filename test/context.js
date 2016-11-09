@@ -39,4 +39,23 @@ describe("context", function () {
 
     });
 
+    if (gpf.internals) {
+
+        describe("_gpfContext", function () {
+            var _gpfContext = gpf.internals._gpfContext;
+
+            it("can build a context", function () {
+                var mainContext = gpf.context(),
+                    testContext = {};
+                mainContext.testContextJS = testContext;
+                var test = _gpfContext(["testContextJS", "folder", "name"], true);
+                assert(mainContext.testContextJS === testContext);
+                assert(mainContext.testContextJS.folder.name === test);
+                delete mainContext.testContextJS;
+            });
+
+        });
+
+    }
+
 });
