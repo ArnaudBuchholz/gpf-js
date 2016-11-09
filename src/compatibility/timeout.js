@@ -3,7 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HOST*/
+/*global _GPF_HOST*/ // Host types
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfHost*/ // Host type
@@ -40,7 +40,7 @@ function _gpSetTimeoutPolyfill (callback, timeout) {
 
 function _gpfClearTimeoutPolyfill (timeoutId) {
     var pos;
-    /*gpf:inline(array)*/ if (!_gpfTimeoutQueue.every(function (timeoutItem, index) {
+    if (!_gpfTimeoutQueue.every(function (timeoutItem, index) {
         if (timeoutItem.id === timeoutId) {
             pos = index;
             return false;
