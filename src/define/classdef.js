@@ -57,7 +57,7 @@ function _gpfDecodeAttributeMember (member) {
  */
 function _gpfUsesSuper (method) {
     var parts = method.toString().split("._super");
-    return !parts.every(function (part) {/*gpf:inline(array)*/
+    return !parts.every(function (part) {
         return -1 !== _gpfIdentifierOtherChars.indexOf(part.charAt(0));
     });
 }
@@ -143,7 +143,7 @@ function _gpfGetClassDefinition (constructor) {
         uid = constructor[_GPF_CLASSDEF_MARKER];
     if (undefined === uid) {
         classDef = new _GpfOldClassDefinition(constructor);
-        /*gpf:constant*/ constructor[_GPF_CLASSDEF_MARKER] = classDef._uid;
+        constructor[_GPF_CLASSDEF_MARKER] = classDef._uid;
     } else {
         classDef = _gpfClassDefinitions[uid];
     }
@@ -221,7 +221,7 @@ _GpfOldClassDefinition.prototype = {
     _addMember: function (member, memberValue, visibility) {
         if (_GPF_VISIBILITY_STATIC === visibility) {
             _gpfAssert(undefined === this._Constructor[member], "Static members can't be overridden");
-            /*gpf:constant*/ this._Constructor[member] = memberValue;
+            this._Constructor[member] = memberValue;
         } else if ("constructor" === member) {
             this._addConstructor(memberValue, visibility);
         } else {
@@ -361,7 +361,7 @@ _GpfOldClassDefinition.prototype = {
     _processDefinition: function (definition, visibility) {
         var isWScript = _GPF_HOST.WSCRIPT === _gpfHost;
         this._defaultVisibility = visibility;
-        _gpfObjectForEach(definition, this._processDefinitionMember, this); /*gpf:inline(object)*/
+        _gpfObjectForEach(definition, this._processDefinitionMember, this);
         /* istanbul ignore next */ // WSCRIPT specific #78
         if (isWScript && definition.hasOwnProperty("toString")) {
             this._processDefinitionMember(definition.toString, "toString");
@@ -387,7 +387,7 @@ _GpfOldClassDefinition.prototype = {
             _gpfAssert("function" === typeof _gpfAttributesAdd, "Attributes can't be defined before they exist");
             Constructor = this._Constructor;
             newPrototype = Constructor.prototype;
-            _gpfObjectForEach(attributes, function (attributeList, attributeName) {/*gpf:inline(object)*/
+            _gpfObjectForEach(attributes, function (attributeList, attributeName) {
                 attributeName = _gpfDecodeAttributeMember(attributeName);
                 if (attributeName in newPrototype || attributeName === "Class") {
                     _gpfAttributesAdd(Constructor, attributeName, attributeList);
@@ -408,8 +408,8 @@ _GpfOldClassDefinition.prototype = {
 
         // The new class constructor
         newClass = _getOldNewClassConstructor(this);
-        /*gpf:constant*/ this._Constructor = newClass;
-        /*gpf:constant*/ newClass[_GPF_CLASSDEF_MARKER] = this._uid;
+        this._Constructor = newClass;
+        newClass[_GPF_CLASSDEF_MARKER] = this._uid;
 
         // Basic JavaScript inheritance mechanism: Defines the newClass prototype as an instance of the super class
         newPrototype = Object.create(this._Super.prototype);
