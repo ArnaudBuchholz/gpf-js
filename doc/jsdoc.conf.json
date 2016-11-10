@@ -1,7 +1,6 @@
 {
     "opts": {
         "recurse": true,
-        "access": "all",
         "tutorials": "doc/tutorials"
     },
     "plugins": [
