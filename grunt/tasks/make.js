@@ -14,6 +14,7 @@ module.exports = function (grunt) {
         "uglify:buildTests",
         "copy:publishVersionPlato",
         "copy:publishVersion",
+        "copy:publishVersionDoc",
         "copy:publishTest"
     ]));
 };
