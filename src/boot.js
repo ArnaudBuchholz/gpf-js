@@ -28,7 +28,7 @@ function _gpfEmptyFunc () {}
 
 var
     // GPF version
-    _gpfVersion = "0.1.5-alpha",
+    _gpfVersion = "0.1.5-beta",
 
     /**
      * Host type
