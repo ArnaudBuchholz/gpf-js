@@ -99,6 +99,9 @@ function onLoad () {
                 } else {
                     statusClassName = "ok";
                 }
+                if (100 === ratio) {
+                    ratio = "100.0"
+                }
                 tile.appendChild(div(ratio + "%", "coverage " + type + " " + statusClassName,
                     "tmp/coverage/reports/lcov-report/index.html"));
             }
@@ -137,12 +140,12 @@ function onLoad () {
     };
 
     tile("doc", "Documentation")
-        .appendChild(execFactory({grunt: "jsdoc", title: "Generate documentation"}));
+        .appendChild(execFactory({grunt: "jsdoc:private", title: "Generate documentation"}));
     refresh.doc = function (tile) {
         remove(tile.querySelectorAll("div.version"));
         xhr("/package.json").get().asJson()
             .then(function (packageJson) {
-                tile.appendChild(div(packageJson.version, "version", "tmp/docs/index.html"));
+                tile.appendChild(div(packageJson.version, "version", "tmp/doc/private/index.html"));
             });
     };
 
