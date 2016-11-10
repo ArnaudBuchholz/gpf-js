@@ -6,6 +6,7 @@ var IO_PATH = "../ArnaudBuchholz.github.io/",
         getPlatoHistory: {},
         publishVersionPlato: {},
         publishVersion: {},
+        publishVersionDoc: {},
         publishTest: {},
         sourcesJson: {
             expand: true,
@@ -33,6 +34,12 @@ if (fs.existsSync(IO_PATH)) {
         cwd: "./build/",
         src: ["gpf.js", "gpf-debug.js", "tests.js"],
         dest: IO_PATH + "gpf/" + configuration.pkg.version + "/"
+    };
+    copy.publishVersionDoc = {
+        expand: true,
+        cwd: "./tmp/doc/public",
+        src: "**/*.*",
+        dest: IO_PATH + "gpf/" + configuration.pkg.version + "/doc/"
     };
     copy.publishTest = {
         expand: true,
