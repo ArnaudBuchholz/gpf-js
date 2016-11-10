@@ -14,10 +14,10 @@ Command lines must be run from the root of the gpf-js folder.
     * `java -jar node_modules\rhino-1_7r5-bin\rhino1_7R5\js.jar test\host\rhino.js`
 * With [grunt](http://gruntjs.com/):
     * testing with PhantomJS (as a browser):
-        * `grunt mocha`
-        * `grunt mocha:source`
-        * `grunt mocha:debug`
-        * `grunt mocha:release`
+        * `grunt connectIf mocha`
+        * `grunt connectIf mocha:source`
+        * `grunt connectIf mocha:debug`
+        * `grunt connectIf mocha:release`
     * testing with NodeJS:
         * `grunt mochaTest`
         * `grunt mochaTest:source`
