@@ -138,7 +138,7 @@ function _checkAccess (doclet) {
 function _postProcessDoclet (doclet, index, doclets) {
     var kind = doclet.kind;
     _logDoclet(doclet);
-    _handleCustomTags(doclet, doclets);``
+    _handleCustomTags(doclet, doclets);
     if (kind === "member") {
         _addMemberType(doclet);
         _checkAccess(doclet);
