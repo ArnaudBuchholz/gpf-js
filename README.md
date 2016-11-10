@@ -15,11 +15,11 @@ A multi-purpose JavaScript library created and maintained by
 ([cscript/wscript](http://technet.microsoft.com/en-us/library/bb490887.aspx),
 [NodeJS](http://nodejs.org/), [Rhino](https://developer.mozilla.org/en-US/docs/Mozilla/Projects/Rhino),
 [PhantomJS](http://phantomjs.org/), most *recent* browsers)
-* Namespace and class system
-* Java-like annotation tool (attributes)
-* Interface based
-* Asynchronous binary / textual streams
-* XML-aware
+* Namespace and class system *-- not implemented yet*
+* Java-like annotation tool (attributes) *-- not implemented yet*
+* Interface based *-- not implemented yet*
+* Asynchronous binary / textual streams *-- not implemented yet*
+* XML-aware *-- not implemented yet*
 * Self-Tested
 
 This library is developed in conjunction with a
@@ -42,7 +42,7 @@ Statements coverage|99.67%||90%|*12.07% ignored*
 Branches coverage|98.95%||90%|*21.35% ignored*
 Functions coverage|100%||90%|*13.01% ignored*
 Maintainability|80.29||65|
-Number of tests||284||*pending: 0, duration: 257ms*
+Number of tests||284||*pending: 0, duration: 281ms*
 Number of sources||29||
 Lines of code|79|2300||
 
