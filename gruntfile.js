@@ -28,6 +28,7 @@ module.exports = function (grunt) {
     global.configuration = {
         pkg: grunt.file.readJSON("./package.json"),
         metrics: grunt.file.readJSON("./make/metrics.json"),
+        httpPort: 8000,
         selenium: (function () {
             try {
                 return grunt.file.readJSON("./tmp/selenium.json");
