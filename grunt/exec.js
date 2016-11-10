@@ -96,7 +96,7 @@ function _buildTestConfig (name, command) {
 }
 
 _buildTestConfig("Node", "node test\\host\\nodejs.js");
-_buildTestConfig("Phantom", "phantomjs test\\host\\phantomjs.js");
+_buildTestConfig("Phantom", "node_modules\\phantomjs-prebuilt\\lib\\phantom\\bin\\phantomjs test\\host\\phantomjs.js");
 _buildTestConfig("Wscript", "cscript.exe /D /E:JScript test\\host\\cscript.js");
 _buildTestConfig("Rhino", "java -jar node_modules\\rhino-1_7r5-bin\\rhino1_7R5\\js.jar test\\host\\rhino.js");
 configuration.selenium.forEach(function (browser) {
