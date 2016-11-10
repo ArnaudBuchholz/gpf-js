@@ -3,31 +3,32 @@
 var path = require("path"),
     gpfPath = path.resolve(__dirname, "../.."),
     useFileAccess = false,
+    httpPort = "8000",
     args = process.argv.slice(2),
     browser = args[0],
-    version,
+    version = "",
     errorCount,
     buildWebDriverFor = require("../../seleniumDriverFactory.js"),
     By = require("selenium-webdriver").By,
     until = require("selenium-webdriver").until,
     driver = buildWebDriverFor(browser);
 
-if ("-release" === args[1]) {
-    version = "?release";
-} else if ("-debug" === args[1]) {
-    version = "?debug";
-} else {
-    version = "";
-}
-
-if ("-file" === args[2]) {
-    useFileAccess = true;
-}
+args.slice(1).forEach(function (arg) {
+    if ("-release" === arg) {
+        version = "?release";
+    } else if ("-debug" === arg) {
+        version = "?debug";
+    } else if ("-file" === arg) {
+        useFileAccess = true;
+    } else if (0 === arg.indexOf("-port:")) {
+        httpPort = arg.substr(6);
+    }
+});
 
 if (useFileAccess) {
     driver.get("file://" + gpfPath + "/test/host/web.html" + version);
 } else {
-    driver.get("http://localhost:8000/test/host/web.html" + version);
+    driver.get("http://localhost:" + httpPort + "/test/host/web.html" + version);
 }
 
 driver.wait(until.titleIs("GPF Tests - done"), 10000);
