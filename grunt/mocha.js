@@ -7,29 +7,30 @@ module.exports = {
     source: {
         options: {
             log: false,
-            run: false
-        },
-        src: [webUrl]
+            run: false,
+            urls: [webUrl]
+        }
     },
     verbose: {
         options: {
             log: true,
-            run: false
-        },
-        src: [webUrl]
+            run: false,
+            reporter: "spec",
+            urls: [webUrl]
+        }
     },
     debug: {
         options: {
             log: false,
-            run: false
-        },
-        src: [webUrl + "?debug"]
+            run: false,
+            urls: [webUrl + "?debug"]
+        }
     },
     release: {
         options: {
             log: false,
-            run: false
-        },
-        src: [webUrl + "?release"]
+            run: false,
+            urls: [webUrl + "?release"]
+        }
     }
 };
