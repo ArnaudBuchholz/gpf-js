@@ -13,7 +13,7 @@ function _logDoclet (doclet) {
     title.push(doclet.longname, " (", doclet.kind, ")");
     console.log(title.join(""));
     // try {
-    //     if (doclet.longname === "gpf.isArrayLike") {
+    //     if (doclet.longname === "_GpfDate") {
     //         console.log(doclet);
     //     }
     // } catch (e) {
@@ -138,11 +138,11 @@ function _checkAccess (doclet) {
 function _postProcessDoclet (doclet, index, doclets) {
     var kind = doclet.kind;
     _logDoclet(doclet);
-    _handleCustomTags(doclet, doclets);
+    _handleCustomTags(doclet, doclets);``
     if (kind === "member") {
         _addMemberType(doclet);
         _checkAccess(doclet);
-    } else if (kind === "function") {
+    } else if (-1 !== ["function", "class"].indexOf(kind)) {
         _checkAccess(doclet);
     }
 }
