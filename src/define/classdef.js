@@ -68,7 +68,7 @@ function _gpfUsesSuper (method) {
  * @param {Function} superMethod
  * @param {Function} method
  * @return {Function}
- * @closure
+ * @gpf:closure
  */
 function _gpfGenSuperMember (superMethod, method) {
     return function GpfSuperableMethod () {
@@ -234,7 +234,7 @@ _GpfOldClassDefinition.prototype = {
      *
      * @param {*} memberValue Must be a function
      * @param {number} visibility
-     * @closure
+     * @gpf:closure
      */
     _addConstructor: function (memberValue, visibility) {
         _gpfAsserts({
@@ -254,7 +254,7 @@ _GpfOldClassDefinition.prototype = {
      * @param {String} member Name of the member to define
      * @param {*} memberValue
      * @param {Number} visibility Visibility of the members
-     * @closure
+     * @gpf:closure
      */
     _addNonStaticMember: function (member, memberValue, visibility) {
         var newType = typeof memberValue,
