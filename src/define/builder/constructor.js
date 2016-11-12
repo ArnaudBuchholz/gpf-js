@@ -21,7 +21,7 @@ _gpfErrorDeclare("define/builder/constructor", {
  *
  * @param {Function} innerConstructor Constructor as defined by the class
  * @return {Function} Constructor
- * @closure
+ * @gpf:closure
  */
 function _gpfNewClassConstructorTpl (innerConstructor) {
     var constructor = function () {
