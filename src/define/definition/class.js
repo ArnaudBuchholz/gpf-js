@@ -147,7 +147,7 @@ _GpfClassDefinition.prototype = {
      * Add a member
      *
      * @param {_GpfClassDefMember} member Member to add
-     * @chainable
+     * @gpf:chainable
      */
     addMember: function (member) {
         _gpfAsserts({
