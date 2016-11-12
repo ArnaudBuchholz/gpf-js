@@ -46,10 +46,10 @@ function _gpfAssertsImpl (assertions) {
     }
 }
 
-/** @sameas _gpfAssertImpl */
+/** @gpf:sameas _gpfAssertImpl */
 gpf.assert = _gpfAssertImpl;
 
-/** @sameas _gpfAssertsImpl */
+/** @gpf:sameas _gpfAssertsImpl */
 gpf.asserts = _gpfAssertsImpl;
 
 /*#ifdef(DEBUG)*/
