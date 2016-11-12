@@ -91,7 +91,7 @@ if ("undefined" === typeof setTimeout) {
     _gpfMainContext.setTimeout = _gpSetTimeoutPolyfill;
     _gpfMainContext.clearTimeout = _gpfClearTimeoutPolyfill;
 
-    /** @sameas _gpfHandleTimeout */
+    /** @gpf:sameas _gpfHandleTimeout */
     gpf.handleTimeout = _gpfHandleTimeout;
 
 }
