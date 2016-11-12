@@ -13,7 +13,7 @@ function _logDoclet (doclet) {
     title.push(doclet.longname, " (", doclet.kind, ")");
     console.log(title.join(""));
     // try {
-    //     if (doclet.longname === "_GpfDate") {
+    //     if (doclet.longname === "<anonymous>~XhrRequest#headers") {
     //         console.log(doclet);
     //     }
     // } catch (e) {
@@ -89,7 +89,8 @@ var _customTags = {
 function _handleCustomTags (doclet, doclets) {
     if (doclet.tags) {
         doclet.tags.forEach(function (tag) {
-            var handler = _customTags[tag.title];
+            var customTag = tag.title.split("gpf:")[1];
+            var handler = _customTags[customTag];
             if (undefined !== handler) {
                 try {
                     handler(doclet, tag, doclets);
