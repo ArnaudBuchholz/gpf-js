@@ -18,7 +18,7 @@
          *
          * @param {String} name
          * @return {Function}
-         * @closure
+         * @gpf:closure
          * @private
          */
         _sync = function (name) {
@@ -36,7 +36,7 @@
          * @param {Number} length argument count in the function (used to deduce
          * where the event handler is)
          * @return {Function}
-         * @closure
+         * @gpf:closure
          * @private
          */
         _async = function (name, length) {
@@ -284,8 +284,7 @@
                  * Configure the error handler
                  *
                  * @param {gpf.events.Handler} eventHandler
-                 * @return {WrapInterface}
-                 * @chainable
+                 * @gpf:chainable
                  */
                 $catch: function (eventHandler) {
                     this._catch = eventHandler;
@@ -298,8 +297,7 @@
                  *
                  * @param {gpf.events.Handler} eventHandler
                  * @param {String}[eventType=done] eventType
-                 * @return {WrapInterface}
-                 * @chainable
+                 * @gpf:chainable
                  */
                 $finally: function (eventHandler, eventType) {
                     this._finally = eventHandler;
