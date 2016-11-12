@@ -51,7 +51,7 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototy
      * Add class attributes
      *
      * @param {gpf.attributes.Attribute|gpf.attributes.Attribute[]} attributes Class attributes to add
-     * @chainable
+     * @gpf:chainable
      */
     addClassAttributes: function (attributes) {
         this._attributes = [];
@@ -91,7 +91,7 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototy
      *
      * @param {String} name Member name
      * @param {gpf.attributes.Attribute|gpf.attributes.Attribute[]} attributes Attributes to add
-     * @chainable
+     * @gpf:chainable
      */
     addAttributes: function (name, attributes) {
         var member = this.getOwnMember(name);
@@ -129,7 +129,7 @@ _gpfExtend(_GpfClassDefMember.prototype, /** @lends _GpfClassDefMember.prototype
      * Add attributes
      *
      * @param {gpf.attributes.Attribute|gpf.attributes.Attribute[]} attributes Attributes to add
-     * @chainable
+     * @gpf:chainable
      */
     addAttributes: function (attributes) {
         this._attributes = [];
