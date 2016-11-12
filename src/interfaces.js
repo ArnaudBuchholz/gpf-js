@@ -138,8 +138,7 @@ _gpfDefIntrf("IEventDispatcher", {
      *
      * @param {String} event Event name
      * @param {gpf.events.Handler} eventsHandler Event handler
-     * @return {gpf.interfaces.IEventDispatcher} Self
-     * @chainable
+     * @gpf:chainable
      */
     addEventListener: function (event, eventsHandler) {
         _gpfIgnore(event, eventsHandler);
@@ -151,8 +150,7 @@ _gpfDefIntrf("IEventDispatcher", {
      *
      * @param {String} event Event name
      * @param {gpf.events.Handler} eventsHandler Event handler
-     * @return {gpf.interfaces.IEventDispatcher} Self
-     * @chainable
+     * @gpf:chainable
      */
     removeEventListener: function (event, eventsHandler) {
         _gpfIgnore(event, eventsHandler);
@@ -237,7 +235,7 @@ function _queryInterface (interfaceDefinition) {
  *
  * @param {Function} orgQueryInterface Interface to retreive
  * @return {Function} Default queryInterface implementation
- * @closure
+ * @gpf:closure
  */
 function _wrapQueryInterface (orgQueryInterface) {
     return function (interfaceDefinition) {
