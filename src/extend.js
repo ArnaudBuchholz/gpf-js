@@ -36,5 +36,5 @@ function _gpfExtend (destination, source) {
     return destination;
 }
 
-/** @sameas _gpfExtend */
+/** @gpf:sameas _gpfExtend */
 gpf.extend = _gpfExtend;
