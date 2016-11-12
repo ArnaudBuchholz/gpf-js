@@ -53,7 +53,7 @@
          * Set request headers
          *
          * @param {Object} headerDictionary Dictionary of header properties
-         * @chainable
+         * @gpf:chainable
          */
         headers: function (headerDictionary) {
             this._headers = headerDictionary;
