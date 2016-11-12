@@ -43,7 +43,7 @@ var
  *
  * @param {Function} Constructor Object constructor
  * @param {String} name Alias name (will be prefixed by $)
- * @closure
+ * @gpf:closure
  */
 function _gpfAlias (Constructor, name) {
     gpf["$" + name] = function () {
@@ -297,8 +297,7 @@ _gpfDefine("gpf.attributes.Map", {
          * Fill the map using class definition object
          *
          * @param {gpf.classDef} classDef class definition
-         * @return {gpf.attributes.Map}
-         * @chainable
+         * @gpf:chainable
          */
         fillFromClassDef: function (classDef) {
             var attributes,
@@ -322,8 +321,7 @@ _gpfDefine("gpf.attributes.Map", {
          * Fill the map using object's attributes
          *
          * @param {Object} object object to get attributes from
-         * @return {gpf.attributes.Map}
-         * @chainable
+         * @gpf:chainable
          */
         fillFromObject: function (object) {
             var classDef = _gpfGetClassDefinition(object.constructor);
