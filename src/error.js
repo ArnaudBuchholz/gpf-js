@@ -72,7 +72,7 @@ function _gpfErrorFactory (code, name, message) {
  * @param {String} name Error name
  * @param {String} message Error message
  * @return {Function} New error class
- * @closure
+ * @gpf:closure
  */
 function _gpfGenenerateErrorFunction (code, name, message) {
     var result = _gpfErrorFactory(code, name, message);
