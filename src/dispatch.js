@@ -21,8 +21,7 @@ function _gpfAllocateEventDispatcherListeners (object) {
  *
  * @param {String} event name
  * @param {gpf.events.Handler} eventsHandler
- * @return {Object}
- * @chainable
+ * @gpf:chainable
  */
 function _gpfAddEventListener (event, eventsHandler) {
     /*jshint validthis:true*/ // will be invoked as an object method
@@ -39,8 +38,7 @@ function _gpfAddEventListener (event, eventsHandler) {
  *
  * @param {String} event name
  * @param {gpf.events.Handler} eventsHandler
- * @return {Object}
- * @chainable
+ * @gpf:chainable
  */
 function _gpfRemoveEventListener (event, eventsHandler) {
     /*jshint validthis:true*/ // will be invoked as an object method
@@ -110,8 +108,6 @@ gpf.mixins = {
 
     /**
      * Event dispatcher mixin
-     *
-     * @mixin gpf.mixins.EventDispatcher
      */
     EventDispatcher: {
 
