@@ -15,7 +15,7 @@
  * @param {String} rootNamespace Root namespace (for instance: gpf.interfaces)
  * @param {String} defaultSuperName Default super class (relative to rootNamespace, for instance: Interface)
  * @return {Function} With the same signature than {@link gpf.define} but namespace and base are defaulted
- * @closure
+ * @gpf:closure
  */
 function _gpfGenerateCustomDefineHandler (rootNamespace, defaultSuperName) {
     rootNamespace += ".";
