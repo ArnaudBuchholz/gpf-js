@@ -89,7 +89,7 @@ function _gpfEventsIsValidHandler (eventHandler) {
 
 gpf.events = {
 
-    /** @sameas _gpfEventsIsValidHandler */
+    /** @gpf:sameas _gpfEventsIsValidHandler */
     isValidHandler: _gpfEventsIsValidHandler
 };
 
@@ -118,13 +118,13 @@ _GpfEvent.prototype = {
 
     /**
      * Event type
-     * @read-only
+     * @readonly
      */
     type: "",
 
     /**
      * Event scope
-     * @read-only
+     * @readonly
      */
     scope: null,
 
