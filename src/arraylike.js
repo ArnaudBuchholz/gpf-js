@@ -33,5 +33,5 @@ if (_GPF_HOST.BROWSER === _gpfHost && (_gpfWebWindow.HTMLCollection || _gpfWebWi
     };
 }
 
-/** @sameas _gpfIsArrayLike */
+/** @gpf:sameas _gpfIsArrayLike */
 gpf.isArrayLike = _gpfIsArrayLike;
