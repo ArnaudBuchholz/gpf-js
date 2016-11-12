@@ -37,7 +37,7 @@ function _gpfFireNodeError (err, eventsHandler) {
  *
  * @param {String} methodName
  * @return {Function]
- * @closure
+ * @gpf:closure
  */
 function _gpfGenFsCall (methodName) {
     return function (path, eventsHandler) {
