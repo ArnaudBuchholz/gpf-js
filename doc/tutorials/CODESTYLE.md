@@ -114,13 +114,12 @@ _gpfDefAttr("$UniqueAttribute", _gpfAttrConstraint, {
 Should generate the properties @private and @type {Boolean}
 
 Some 'extensions' are defined
-* @forwardThis: the scope of the function is forwarded to the callback function
-* @closure: if the function *directly* creates a closure
-* @mixin: a mixin definition
-* @chainable: indicates that the result of the method is the object itself, allowing method chaining
-* @read *memberName*: indicates a read accessor on a given member
-* @write *memberName*: indicates a write accessor on a given member
-* @sameas *referenceName*: copy the documentation of referenceName
+* @gpf:forwardThis: the scope of the function is forwarded to the callback function
+* @gpf:closure: if the function *directly* creates a closure
+* @gpf:chainable: indicates that the result of the method is the object itself, allowing method chaining
+* @gpf:read *memberName*: indicates a read accessor on a given member
+* @gpf:write *memberName*: indicates a write accessor on a given member
+* @gpf:sameas *referenceName*: copy the documentation of referenceName
 
 It happens sometimes that a variable might be assigned different function versions (to manage host compatibilities).
 The placeholder selected to insert documentation must make the variable path clear. For instance:
@@ -144,7 +143,7 @@ function _gpfExtend (destination, source) {
     return destination;
 }
 
-/** @sameas _gpfExtend */
+/** @gpf:sameas _gpfExtend */
 gpf.extend = _gpfExtend;
 ```
 
@@ -260,7 +259,7 @@ var
 Prefer the named function syntax over the variable one.
 
 Function variables are all declared at the beginning of the function.
-If a function create closures, the @closure tag is added.
+If a function create closures, the @gpf:closure tag is added.
 
 Functions signatures are checked by some APIs, hence it is important to declare all parameters. If they are not used,
 and to avoid linter warning, the _gpfIgnore function might be used: you may pass all unused parameters.
