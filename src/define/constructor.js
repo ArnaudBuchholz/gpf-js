@@ -21,7 +21,7 @@ _gpfErrorDeclare("define/constructor", {
  *
  * @param {_GpfOldClassDefinition} classDef
  * @return {Function}
- * @closure
+ * @gpf:closure
  */
 function _gpfNewClassConstructorTpl (classDef) {
     return function () {
