@@ -137,7 +137,7 @@ var
  * @param {Function} concatMethod
  * @param {gpf.events.Handler} eventsHandler
  *
- * @forwardThis
+ * @gpf:forwardThis
  *
  * @event data finished reading the stream, the buffer is provided
  * @eventParam {Array|String} buffer
@@ -153,7 +153,7 @@ gpf.stream.readAll = function (stream, concatMethod, eventsHandler) {
  * @param {gpf.interfaces.ITextStream} stream
  * @param {gpf.events.Handler} eventsHandler
  *
- * @forwardThis
+ * @gpf:forwardThis
  *
  * @event data finished reading the stream, the buffer is provided
  * @eventParam {Array|String} buffer
