@@ -615,7 +615,7 @@
 
             /**
              * @implements gpf.interfaces.ITextStream:read
-             * @closure
+             * @gpf:closure
              */
             read: function (count, eventsHandler) {
                 var
@@ -856,7 +856,7 @@
      * Otherwise, this can be used to refresh the missing associations.
      *
      * @return {Object|undefined} the DOM object
-     * @closure
+     * @gpf:closure
      */
     gpf.html.handle = function (instance, domSelection) {
         var
@@ -956,8 +956,7 @@
          *
          * @param {Object} domObject
          * @param {String|String[]} toCheck
-         * @return {Boolean}
-         * @chainable
+         * @gpf:chainable
          */
         hasClass: function (domObject, toCheck) {
             var
@@ -984,8 +983,7 @@
          * @param {Object} domObject
          * @param {String|String[]} toAdd
          * @param {String|String[]} toRemove
-         * @return {Object}
-         * @chainable
+         * @gpf:chainable
          */
         alterClass: function (domObject, toAdd, toRemove) {
             var
@@ -1033,8 +1031,7 @@
          *
          * @param {Object} domObject
          * @param {String|String[]} toAdd
-         * @return {Object}
-         * @chainable
+         * @gpf:chainable
          */
         addClass: function (domObject, toAdd) {
             return gpf.html.alterClass(domObject, toAdd, undefined);
@@ -1045,8 +1042,7 @@
          *
          * @param {Object} domObject
          * @param {String|String[]} toRemove
-         * @return {Object}
-         * @chainable
+         * @gpf:chainable
          */
         removeClass: function (domObject, toRemove) {
             return gpf.html.alterClass(domObject, undefined, toRemove);
