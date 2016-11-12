@@ -12,8 +12,7 @@
  *
  * @param {String} path method path
  * @param {Function} methodFactory Must return a function (it receives the path as parameter)
- * @return {function}
- * @closure
+ * @gpf:closure
  */
 function _gpfGetBootstrapMethod (path, methodFactory) {
     var pathList = path.split("."),
