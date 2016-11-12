@@ -79,8 +79,7 @@ _gpfExtend(gpf, {
      *
      * @param {Array} array
      * @param {*} value
-     * @return {Array}
-     * @chainable
+     * @gpf:chainable
      */
     set: function (array, value) {
         _gpfAssert(array instanceof Array, "gpf.set must be used with an Array");
@@ -96,8 +95,7 @@ _gpfExtend(gpf, {
      *
      * @param {Object/array} dictionary
      * @param {*} value
-     * @return {Object/array} dictionary
-     * @chainable
+     * @gpf:chainable
      */
     clear: _gpfSetClear
 
