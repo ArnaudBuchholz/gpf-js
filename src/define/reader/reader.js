@@ -52,7 +52,7 @@ _GpfClassDefinitionReader.prototype = {
      */
     _classDef: null,
 
-    /** @read _classDef */
+    /** @gpf:read _classDef */
     getClassDefinition: function () {
         return this._classDef;
     },
@@ -64,7 +64,7 @@ _GpfClassDefinitionReader.prototype = {
      */
     _definition: null,
 
-    /** @read _definition */
+    /** @gpf:read _definition */
     getDefinitionDictionary: function () {
         return this._definition;
     },
