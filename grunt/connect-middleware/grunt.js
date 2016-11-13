@@ -20,6 +20,7 @@ function _toHtml (content) {
     colors.forEach(function (name, index) {
         content = content
             .split("\x1B[3" + index + "m").join("<span class=\"" + name + "\">")
+            .split("\x1B[3" + index + ";1m").join("<span class=\"" + name + "\">")
             .split("\x1B[9" + index + "m").join("<span class=\"" + name + " bright\">");
     });
     return content;
