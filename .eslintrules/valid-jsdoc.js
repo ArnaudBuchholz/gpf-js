@@ -228,7 +228,7 @@ module.exports = {
                 functionData = fns.pop(),
                 params = Object.create(null);
             let hasReturns = false,
-                hasGpfChainable = false,
+                hasGpfReturnLike = false,
                 hasConstructor = false,
                 isInterface = false,
                 isOverride = false,
@@ -321,7 +321,9 @@ module.exports = {
                             break;
 
                         case "gpf":
-                            hasGpfChainable = tag.description === ":chainable";
+                            hasGpfReturnLike = tag.description === ":chainable"
+                                || tag.description.indexOf(":read") === 0
+                                || tag.description.indexOf(":write") === 0;
                             break;
 
                         // no default
@@ -339,7 +341,7 @@ module.exports = {
                 });
 
                 // check for functions missing @returns
-                if (!isOverride && !hasReturns && !hasGpfChainable && !hasConstructor && !isInterface &&
+                if (!isOverride && !hasReturns && !hasGpfReturnLike && !hasConstructor && !isInterface &&
                     node.parent.kind !== "get" && node.parent.kind !== "constructor" &&
                     node.parent.kind !== "set" && !isTypeClass(node)) {
                     if (requireReturn || functionData.returnPresent) {
