@@ -6,6 +6,8 @@
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
+/*global _gpfExtend*/ // gpf.extend
+/*global _gpfStringCapitalize*/ // Capitalize the string
 /*exported _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*#endif*/
 
@@ -17,7 +19,8 @@
  */
 var _GpfError = gpf.Error = function () {};
 
-_GpfError.prototype = {
+_GpfError.prototype = new Error();
+_gpfExtend(_GpfError.prototype, /** @lends gpf.Error.prototype */ {
 
     constructor: _GpfError,
 
@@ -40,28 +43,40 @@ _GpfError.prototype = {
      *
      * @readonly
      */
-    message: ""
+    message: "",
 
-};
-
-function _gpfErrorFactory (code, name, message) {
-    return function (context) {
-        var error = new _GpfError(),
-            finalMessage,
-            replacements;
-        error.code = code;
-        error.name = name;
+    /**
+     * Build message by substituting context variables
+     *
+     * @param {Object} context Dictionary of named keys
+     */
+    _buildMessage: function (context) {
+        var  replacements;
         if (context) {
             replacements = {};
             _gpfObjectForEach(context, function (value, key) {
                 replacements["{" + key + "}"] = value.toString();
             });
-            finalMessage = _gpfStringReplaceEx(message, replacements);
-        } else {
-            finalMessage = message;
+            this.message = _gpfStringReplaceEx(this.message, replacements);
         }
-        error.message = finalMessage;
-        return error;
+    }
+
+});
+
+function _gpfErrorFactory (code, name, message) {
+    function NewErrorClass (context) {
+        this._buildMessage(context);
+    }
+    NewErrorClass.prototype = new _GpfError();
+    _gpfExtend(NewErrorClass.prototype, {
+        constructor: NewErrorClass,
+        code: code,
+        name: name,
+        message: message
+    });
+    _GpfError[_gpfStringCapitalize(name)] = NewErrorClass;
+    return function (context) {
+        throw new NewErrorClass(context);
     };
 }
 
@@ -102,12 +117,7 @@ function _gpfErrorDeclare (source, dictionary) {
 }
 
 _gpfErrorDeclare("boot", {
-    /**
-     * A method is not implemented
-     *
-     * @method gpf.Error.notImplemented
-     * @return {gpf.Error}
-     */
+    /** @gpf:error A method is not implemented */
     notImplemented:
         "Not implemented",
 
@@ -115,7 +125,7 @@ _gpfErrorDeclare("boot", {
      * An abstract method was invoked
      *
      * @method gpf.Error.abstractMethod
-     * @return {gpf.Error}
+     * @throws {gpf.Error.AbstractMethod}
      */
     abstractMethod:
         "Abstract method",
