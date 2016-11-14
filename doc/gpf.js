@@ -12,13 +12,13 @@ function _logDoclet (doclet) {
     }
     title.push(doclet.longname, " (", doclet.kind, ")");
     console.log(title.join(""));
-    // try {
-    //     if (doclet.longname === "<anonymous>~XhrRequest#headers") {
-    //         console.log(doclet);
-    //     }
-    // } catch (e) {
-    //     // ignore
-    // }
+    try {
+        if (doclet.longname === "notImplemented" || doclet.longname === "gpf.Error.abstractMethod") {
+            console.log(doclet);
+        }
+    } catch (e) {
+        // ignore
+    }
 }
 
 function _findDoclet (doclets, longname, tag) {
@@ -82,6 +82,25 @@ var _customTags = {
         ].forEach(function (propertyName) {
             doclet[propertyName] = refDoclet[propertyName];
         });
+    },
+
+    // Error definition
+    error: function (doclet, tag, doclets) {
+        var errorName = doclet.name,
+            errorClass = errorName.charAt(0).toUpperCase() + errorName.substr(1),
+            errorDescription = tag.text;
+        doclet.description = "<p>" + errorDescription + "</p>";
+        doclet.kind = "function";
+        doclet.memberOf = "gpf.Error";
+        doclet.longname = "gpf.Error." + errorName;
+        doclet.scope = "static";
+        doclet.exceptions = [{
+            type: {
+                names: ["gpf.Error." + errorClass]
+            }
+        }];
+        _logDoclet(doclet);
+        console.log(doclet);
     }
 
 };
