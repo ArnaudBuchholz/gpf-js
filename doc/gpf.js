@@ -13,7 +13,7 @@ function _logDoclet (doclet) {
     title.push(doclet.longname, " (", doclet.kind, ")");
     console.log(title.join(""));
     try {
-        if (doclet.longname === "notImplemented" || doclet.longname === "gpf.Error.abstractMethod") {
+        if (doclet.longname === "gpf.Error.notImplemented" || doclet.longname === "gpf.Error.abstractMethod") {
             console.log(doclet);
         }
     } catch (e) {
@@ -82,25 +82,6 @@ var _customTags = {
         ].forEach(function (propertyName) {
             doclet[propertyName] = refDoclet[propertyName];
         });
-    },
-
-    // Error definition
-    error: function (doclet, tag, doclets) {
-        var errorName = doclet.name,
-            errorClass = errorName.charAt(0).toUpperCase() + errorName.substr(1),
-            errorDescription = tag.text;
-        doclet.description = "<p>" + errorDescription + "</p>";
-        doclet.kind = "function";
-        doclet.memberOf = "gpf.Error";
-        doclet.longname = "gpf.Error." + errorName;
-        doclet.scope = "static";
-        doclet.exceptions = [{
-            type: {
-                names: ["gpf.Error." + errorClass]
-            }
-        }];
-        _logDoclet(doclet);
-        console.log(doclet);
     }
 
 };
@@ -167,8 +148,51 @@ function _postProcessDoclet (doclet, index, doclets) {
     }
 }
 
+var _gpfError = null;
+
 // http://usejsdoc.org/about-plugins.html
 module.exports = {
+
+    astNodeVisitor: {
+        visitNode: function(node, e, parser, currentSourceName) {
+            // Special processing for @gpf:error
+            if (e.event === "symbolFound" && e.comment.indexOf("@gpf:error") !== -1) {
+                var description = e.comment.split("@gpf:error")[1],
+                    name = node.key.name,
+                    capitalizedName = name.charAt(0).toUpperCase() + name.substr(1);
+                description = description.substr(0, description.length - 2).trim();
+                console.log("@gpf:error", e, description, node.key.name, node.value.value);
+                e.comment = [
+                    "/**",
+                    " * " + description,
+                    " * @method gpf.Error." + node.key.name,
+                    " * @throws {gpf.Error." + capitalizedName + "}",
+                    " */"
+                    // "/**",
+                    // " * " + description,
+                    // " * @class gpf.Error." + capitalizedName,
+                    // " */"
+                ].join("\n");
+                e.event = "jsdocCommentFound";
+                _gpfError = {
+                    description: description,
+                    name: name,
+                    capitalizedName: capitalizedName
+                }
+            }
+            // if (_gpfError && !e.event) {
+            //     console.log("POST @gpf:error", e, node);
+            //     e.comment = [
+            //         "/**",
+            //         " * " + description,
+            //         " * @class gpf.Error." + capitalizedName,
+            //         " */"
+            //     ].join("\n");
+            //     e.event = "jsdocCommentFound";
+            //     _gpfError = null;
+            // }
+        }
+    },
 
     handlers: {
 
