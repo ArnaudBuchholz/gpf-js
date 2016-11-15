@@ -127,6 +127,11 @@ _gpfErrorDeclare("boot", {
      * @method gpf.Error.abstractMethod
      * @throws {gpf.Error.AbstractMethod}
      */
+    /**
+     * An abstract method was invoked
+     *
+     * @class gpf.Error.AbstractMethod
+     */
     abstractMethod:
         "Abstract method",
 
