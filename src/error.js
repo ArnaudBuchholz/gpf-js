@@ -3,11 +3,11 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfExtend*/ // gpf.extend
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*global _gpfStringReplaceEx*/ // String replacement using dictionary map
-/*global _gpfExtend*/ // gpf.extend
 /*global _gpfStringCapitalize*/ // Capitalize the string
+/*global _gpfStringReplaceEx*/ // String replacement using dictionary map
 /*exported _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*#endif*/
 
@@ -136,8 +136,7 @@ _gpfErrorDeclare("boot", {
      * @param {Object} context Exception context
      * - {String} message: Assertion message
      *
-     * @method gpf.Error.assertionFailed
-     * @return {gpf.Error}
+     * @class gpf.Error.AssertionFailed
      */
     assertionFailed:
         "Assertion failed: {message}",
