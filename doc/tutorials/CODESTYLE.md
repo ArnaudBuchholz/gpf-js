@@ -124,6 +124,21 @@ Some 'extensions' are defined
 It happens sometimes that a variable might be assigned different function versions (to manage host compatibilities).
 The placeholder selected to insert documentation must make the variable path clear. For instance:
 
+```javascript
+
+// Handle timeouts (mandatory for some environments)
+gpf.handleTimeout = _gpfEmptyFunc;
+
+/* ... */
+if ("undefined" === typeof setTimeout) {
+
+    /* ... */
+
+    /** @gpf:sameas _gpfHandleTimeout */
+    gpf.handleTimeout = _gpfHandleTimeout;
+
+```
+
 A counter example (where both private and public version exist):
 
 ```javascript
@@ -162,6 +177,8 @@ If a parameter documentation needs several lines, text should start at the begin
      */
     _gpfConflictingSymbol,
 ```
+
+Errors are automatically documented when the {@link _gpfErrorDeclare} API is used.
 
 ### Assertions
 
