@@ -13,7 +13,7 @@ function _logDoclet (doclet) {
     title.push(doclet.longname, " (", doclet.kind, ")");
     console.log(title.join(""));
     try {
-        if (doclet.longname === "gpf.Error.notImplemented" || doclet.longname === "gpf.Error.abstractMethod") {
+        if (doclet.longname.toLowerCase() === "gpf.error.abstractmethod") {
             console.log(doclet);
         }
     } catch (e) {
@@ -153,33 +153,60 @@ function _isInsideGpfErrorDeclare (node) {
     try {
         ancestor = node.parent.parent.parent;
     } catch (e) {
-        return false;
+        return null;
     }
-    return ancestor
+    if (ancestor
         && ancestor.type === "ExpressionStatement"
         && ancestor.expression.type === "CallExpression"
-        && ancestor.expression.callee.name === "_gpfErrorDeclare";
+        && ancestor.expression.callee.name === "_gpfErrorDeclare") {
+        var name = node.key.name,
+            comment;
+        if (node.leadingComments && node.leadingComments.length) {
+            comment = node.leadingComments[0].raw;
+        } else {
+            comment = "/**\n*/"; // Empty
+        }
+        return {
+            name: name,
+            message: node.value.value,
+            capitalizedName: name.charAt(0).toUpperCase() + name.substr(1),
+            comment: comment
+        };
+    }
 }
 
 function _visitNode (node, e, parser, currentSourceName) { //eslint-disable-line max-params
-    var comment;
-    if ("Property" === node.type && _isInsideGpfErrorDeclare(node)) {
+
+    function jsdocCommentFound (comment) {
         e.id = "astnode" + node.nodeId;
-        e.comment = node.leadingComments[0].raw;
+        e.comment = comment;
         e.lineno = node.parent.loc.start.line;
         e.filename = currentSourceName;
         e.astnode = node;
-        e.code = {
-            name: "gpf.Error." + node.key.name,
-            type: "member",
-            node: node
-        };
-        e.event = "symbolFound";
+        e.event = "jsdocCommentFound";
         e.finishers = [parser.addDocletRef];
+    }
 
-    } else if ("Literal" === node.type && _isInsideGpfErrorDeclare(node.parent)) {
-        comment = node.parent.leadingComments[0].raw;
-        console.log("_visitNode: Literal " + node.value + " " + comment);
+    var error = _isInsideGpfErrorDeclare(node),
+        comment;
+    if (error && "Property" === node.type) {
+        jsdocCommentFound([
+            "/**",
+            " * @method gpf.Error." + error.name,
+            " * @param {Object} context Exception context",
+            " * @throws {gpf.Error." + error.capitalizedName + "}",
+            " */"
+        ].join("\n"));
+        return;
+
+    }
+
+    error = _isInsideGpfErrorDeclare(node.parent);
+    if (error && "Literal" === node.type) {
+        comment = error.comment.split("\n").slice(0, -1);
+        comment.push(" * @class gpf.Error." + error.capitalizedName);
+        jsdocCommentFound(comment.join("\n"));
+
     }
 }
 
