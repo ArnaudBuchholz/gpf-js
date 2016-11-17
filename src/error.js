@@ -117,41 +117,21 @@ function _gpfErrorDeclare (source, dictionary) {
 }
 
 _gpfErrorDeclare("boot", {
-    /** @gpf:error A method is not implemented */
+    /**
+     * ### Summary
+     *
+     * A method is not implemented
+     *
+     */
     notImplemented:
         "Not implemented",
 
-    /**
-     * An abstract method was invoked
-     *
-     * @method gpf.Error.abstractMethod
-     * @throws {gpf.Error.AbstractMethod}
-     */
-    /**
-     * An abstract method was invoked
-     *
-     * @class gpf.Error.AbstractMethod
-     */
     abstractMethod:
         "Abstract method",
 
-    /**
-     * An assertion failed
-     *
-     * @param {Object} context Exception context
-     * - {String} message: Assertion message
-     *
-     * @class gpf.Error.AssertionFailed
-     */
     assertionFailed:
         "Assertion failed: {message}",
 
-    /**
-     * A method is invoked with an invalid parameter
-     *
-     * @method gpf.Error.invalidParameter
-     * @return {gpf.Error}
-     */
     invalidParameter:
         "Invalid parameter"
 });
