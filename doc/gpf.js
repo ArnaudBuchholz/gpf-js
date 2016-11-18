@@ -12,13 +12,13 @@ function _logDoclet (doclet) {
     }
     title.push(doclet.longname, " (", doclet.kind, ")");
     console.log(title.join(""));
-    try {
-        if (doclet.longname.toLowerCase() === "gpf.error.abstractmethod") {
-            console.log(doclet);
-        }
-    } catch (e) {
-        // ignore
-    }
+    // try {
+    //     if (doclet.longname.toLowerCase() === "gpf.error.abstractmethod") {
+    //         console.log(doclet);
+    //     }
+    // } catch (e) {
+    //     // ignore
+    // }
 }
 
 function _findDoclet (doclets, longname, tag) {
@@ -148,76 +148,49 @@ function _postProcessDoclet (doclet, index, doclets) {
     }
 }
 
-function _isInsideGpfErrorDeclare (node) {
-    var ancestor;
-    try {
-        ancestor = node.parent.parent.parent;
-    } catch (e) {
-        return null;
-    }
-    if (ancestor
-        && ancestor.type === "ExpressionStatement"
-        && ancestor.expression.type === "CallExpression"
-        && ancestor.expression.callee.name === "_gpfErrorDeclare") {
-        var name = node.key.name,
-            comment;
-        if (node.leadingComments && node.leadingComments.length) {
-            comment = node.leadingComments[0].raw;
-        } else {
-            comment = "/**\n*/"; // Empty
-        }
-        return {
-            name: name,
-            message: node.value.value,
-            capitalizedName: name.charAt(0).toUpperCase() + name.substr(1),
-            comment: comment
-        };
-    }
+var _reErrorDeclare = /_gpfErrorDeclare\("([a-zA-Z\\]+)", {\n((?:.*\n)*)\s*}\)/g,
+    _reErrorItems = /(\/\*\*(?:[^*]|\s|\*[^/])*\*\/)?\s*([a-zA-Z]+):\s*"([^"]*)"/g;
+
+function _generateJsDocForError (name, message, comment) {
+    var className = name.charAt(0).toUpperCase() + name.substr(1);
+    return [
+        "/**",
+        " * throw {@link gpf.Error." + className + "}",
+        " * @method gpf.Error." + name,
+        " * @throws {gpf.Error." + className + "}",
+        " */",
+        "/**",
+        " * @class gpf.Error." + className,
+        " */"
+    ].join("\r\n");
 }
 
-function _visitNode (node, e, parser, currentSourceName) { //eslint-disable-line max-params
-
-    function jsdocCommentFound (comment) {
-        e.id = "astnode" + node.nodeId;
-        e.comment = comment;
-        e.lineno = node.parent.loc.start.line;
-        e.filename = currentSourceName;
-        e.astnode = node;
-        e.event = "jsdocCommentFound";
-        e.finishers = [parser.addDocletRef];
-    }
-
-    var error = _isInsideGpfErrorDeclare(node),
-        comment;
-    if (error && "Property" === node.type) {
-        jsdocCommentFound([
-            "/**",
-            " * @method gpf.Error." + error.name,
-            " * @param {Object} context Exception context",
-            " * @throws {gpf.Error." + error.capitalizedName + "}",
-            " */"
-        ].join("\n"));
-        return;
-
-    }
-
-    error = _isInsideGpfErrorDeclare(node.parent);
-    if (error && "Literal" === node.type) {
-        comment = error.comment.split("\n").slice(0, -1);
-        comment.push(" * @class gpf.Error." + error.capitalizedName);
-        jsdocCommentFound(comment.join("\n"));
-
+function _checkForGpfErrorDeclare (event) {
+    _reErrorDeclare.lastIndex = 0;
+    var match = _reErrorDeclare.exec(event.source);
+    if (match) {
+        var // moduleName = match[1],
+            errorsPart = match[2],
+            errorItem,
+            comments = [];
+        _reErrorItems.lastIndex = 0;
+        errorItem = _reErrorItems.exec(errorsPart);
+        while (errorItem) {
+            comments.push(_generateJsDocForError(errorItem[2], errorItem[3], errorItem[1]));
+            errorItem = _reErrorItems.exec(errorsPart);
+        }
+        event.source += comments.join("\r\n");
     }
 }
 
 // http://usejsdoc.org/about-plugins.html
 module.exports = {
 
-    astNodeVisitor: {
-        visitNode: _visitNode
-    },
-
     handlers: {
+
+        beforeParse: function (event) {
+            _checkForGpfErrorDeclare(event);
+        },
 
         processingComplete: function (event) {
             event.doclets.forEach(_postProcessDoclet);
