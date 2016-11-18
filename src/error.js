@@ -116,7 +116,7 @@ function _gpfErrorDeclare (source, dictionary) {
     });
 }
 
-_gpfErrorDeclare("boot", {
+_gpfErrorDeclare("error", {
     /**
      * ### Summary
      *
