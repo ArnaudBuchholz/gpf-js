@@ -13,7 +13,7 @@ function _logDoclet (doclet) {
     title.push(doclet.longname, " (", doclet.kind, ")");
     console.log(title.join(""));
     // try {
-    //     if (doclet.longname.toLowerCase() === "gpf.error.abstractmethod") {
+    //     if (doclet.longname === "_gpfAssertImpl") {
     //         console.log(doclet);
     //     }
     // } catch (e) {
@@ -78,6 +78,7 @@ var _customTags = {
             "description",
             "params",
             "returns",
+            "exceptions",
             "kind"
         ].forEach(function (propertyName) {
             doclet[propertyName] = refDoclet[propertyName];
