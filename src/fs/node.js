@@ -123,7 +123,7 @@ _gpfDefine("gpf.fs.NodeFileStorage", {
             if (stream instanceof _GpfNodeStream) {
                 stream.close(eventsHandler);
             } else {
-                throw gpf.Error.invalidParameter();
+                gpf.Error.invalidParameter();
             }
         },
 
