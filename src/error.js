@@ -120,18 +120,51 @@ _gpfErrorDeclare("error", {
     /**
      * ### Summary
      *
-     * A method is not implemented
+     * Method or function is not implemented
      *
+     * ### Description
+     *
+     * This error is used to flag methods or functions that are not yet implemented.
      */
     notImplemented:
         "Not implemented",
 
+    /**
+     * ### Summary
+     *
+     * Method is abstract
+     *
+     * ### Description
+     *
+     * This error is used to implement abstract methods. Mostly used for interfaces.
+     */
     abstractMethod:
         "Abstract method",
 
+    /**
+     * ### Summary
+     *
+     * An assertion failed
+     *
+     * ### Description
+     *
+     * This error is triggered when an assertion fails
+     *
+     * @see {@link gpf.assert}
+     * @see {@link gpf.asserts}
+     */
     assertionFailed:
         "Assertion failed: {message}",
 
+    /**
+     * ### Summary
+     *
+     * Method or function was called with an invalid parameter
+     *
+     * ### Description
+     *
+     * This error is used when a parameter is invalid
+     */
     invalidParameter:
         "Invalid parameter"
 });
