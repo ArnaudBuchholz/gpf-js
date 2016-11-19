@@ -131,7 +131,7 @@ _GpfClassDefinition.prototype = {
      * - If overloading an inherited member, check that it is compatible
      *
      * @param {_GpfClassDefMember} member Member to check
-     * @throws {gpf.Error.classMemberAlreadyExist}
+     * @throws {gpf.Error.ClassMemberAlreadyExist}
      */
     _checkMemberBeforeAdd: function (member) {
         var name = member.getName(),
