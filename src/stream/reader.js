@@ -26,12 +26,12 @@ var
             _readSize: 0,
 
             _consolidateBuffer: function () {
-                throw gpf.Error.abstract();
+                gpf.Error.abstract();
             },
 
             _addBuffer: function (buffer) {
                 _gpfIgnore(buffer);
-                throw gpf.Error.abstract();
+                gpf.Error.abstract();
             }
         },
 
