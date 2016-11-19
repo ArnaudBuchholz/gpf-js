@@ -37,7 +37,7 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
                  */
                 close: function (eventsHandler) {
                     _gpfIgnore(eventsHandler);
-                    throw gpf.Error.abstractMethod();
+                    gpf.Error.abstractMethod();
                 }
 
             },
