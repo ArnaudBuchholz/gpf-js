@@ -16,7 +16,7 @@ var _gpfAssert,
  *
  * @param {Boolean} condition Truthy / [Falsy](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) value
  * @param {String} message Assertion message explaining the violation when the condition is false
- * @throws {gpf.Error.assertionFailed} Assertion failed error
+ * @throws {gpf.Error.AssertionFailed}
  */
 function _gpfAssertImpl (condition, message) {
     if (undefined === message) {
@@ -35,7 +35,7 @@ function _gpfAssertImpl (condition, message) {
  * Batch assertion helper
  *
  * @param {Object} assertions Dictionary of messages associated to condition values
- * @throws {gpf.Error.assertionFailed} Assertion failed error
+ * @throws {gpf.Error.AssertionFailed}
  */
 function _gpfAssertsImpl (assertions) {
     for (var message in assertions) {
