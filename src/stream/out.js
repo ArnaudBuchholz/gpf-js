@@ -121,7 +121,7 @@ _gpfDefine("gpf.stream.Out", {
              *
              * Right now: I don't need it.
              */
-            throw gpf.Error.notImplemented();
+            gpf.Error.notImplemented();
         }
 
     }
