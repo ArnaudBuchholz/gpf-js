@@ -20,7 +20,7 @@ _GpfClassDefinitionReader.defaultMemberProcessors.push({
         var attributeName = match[1],
             member = reader.getClassDefinition().getOwnMember(attributeName);
         if (!member) {
-            throw gpf.Error.attributeOnNonExistingMember({
+            gpf.Error.attributeOnNonExistingMember({
                 attributeName: attributeName
             });
         }
