@@ -150,7 +150,7 @@ var
              */
             parse: function (char) {
                 gpf.interfaces.ignoreParameter(char);
-                throw gpf.Error.abstract();
+                gpf.Error.abstract();
                 // return PatternItem.PARSE_IGNORED;
             },
 
@@ -187,7 +187,7 @@ var
             write: function (state, char) {
                 gpf.interfaces.ignoreParameter(state);
                 gpf.interfaces.ignoreParameter(char);
-                throw gpf.Error.abstract();
+                gpf.Error.abstract();
                 // return -1;
             }
 
@@ -314,12 +314,12 @@ var
                     this._exc = [];
                 } else if ("]" === char) {
                     if (this._inRange) {
-                        throw gpf.Error.patternInvalidSyntax();
+                        gpf.Error.patternInvalidSyntax();
                     }
                     return true;
                 } else if ("-" === char) {
                     if (this._inRange || 0 === chars.length) {
-                        throw gpf.Error.patternInvalidSyntax();
+                        gpf.Error.patternInvalidSyntax();
                     }
                     this._inRange = true;
                 } else {
@@ -351,7 +351,7 @@ var
                     chars;
                 if (this.hasOwnProperty("_exc")) {
                     if ("^" === char) {
-                        throw gpf.Error.patternInvalidSyntax();
+                        gpf.Error.patternInvalidSyntax();
                     }
                     chars = this._exc;
                 } else {
@@ -359,7 +359,7 @@ var
                 }
                 if ("[" === char) {
                     if (this.hasOwnProperty("_inc")) {
-                        throw gpf.Error.patternInvalidSyntax();
+                        gpf.Error.patternInvalidSyntax();
                     }
                     this._inc = [];
                 } else if (this._parse(char, chars)) {
