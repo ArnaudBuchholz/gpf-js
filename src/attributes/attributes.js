@@ -35,7 +35,7 @@ _gpfErrorDeclare("attributes/attributes", {
  */
 function _GpfAttrOnlyCheck (targetAttribute, objPrototype) {
     _gpfIgnore(targetAttribute, objPrototype);
-    throw gpf.Error.abstractMethod();
+    gpf.Error.abstractMethod();
 }
 
 var
@@ -59,7 +59,7 @@ var
 
             _checkTargetClassIsAttribute: function (objPrototype) {
                 if (!(objPrototype instanceof _gpfAttribute)) {
-                    throw gpf.Error.onlyForAttributeClass({
+                    gpf.Error.onlyForAttributeClass({
                         attributeName: this._getAttributeName()
                     });
                 }
@@ -67,7 +67,7 @@ var
 
             _checkMemberIsClass: function () {
                 if (this._member !== "Class") {
-                    throw gpf.Error.onlyOnClassForAttributeClass({
+                    gpf.Error.onlyOnClassForAttributeClass({
                         attributeName: this._getAttributeName()
                     });
                 }
@@ -164,7 +164,7 @@ _gpfDefAttr("$ClassAttribute", _gpfAttrConstraint, {
             if (targetAttribute._member !== "Class") {
                 var attributeClass = targetAttribute.constructor,
                     attributeClassDef = _gpfGetClassDefinition(attributeClass);
-                throw gpf.Error.classOnlyAttribute({
+                gpf.Error.classOnlyAttribute({
                     attributeName: attributeClassDef._name
                 });
             }
@@ -189,7 +189,7 @@ _gpfDefAttr("$MemberAttribute", _gpfAttrConstraint, {
             if (targetAttribute._member === "Class") {
                 var attributeClass = targetAttribute.constructor,
                     attributeClassDef = _gpfGetClassDefinition(attributeClass);
-                throw gpf.Error.memberOnlyAttribute({
+                gpf.Error.memberOnlyAttribute({
                     attributeName: attributeClassDef._name
                 });
             }
@@ -238,13 +238,13 @@ _gpfDefAttr("$UniqueAttribute", _gpfAttrConstraint, {
             // Don't forget that targetAttribute is already added to the object
             if (this._classScope) {
                 if (1 < attributesInObj.getCount()) {
-                    throw gpf.Error.uniqueAttributeConstraint({
+                    gpf.Error.uniqueAttributeConstraint({
                         attributeName: attributeClassDef._name,
                         className: objectClassDef._name
                     });
                 }
             } else if (1 < attributesInObj.getMemberAttributes(member).getItemsCount()) {
-                throw gpf.Error.uniqueMemberAttributeConstraint({
+                gpf.Error.uniqueMemberAttributeConstraint({
                     attributeName: attributeClassDef._name,
                     className: objectClassDef._name,
                     memberName: member
