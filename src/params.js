@@ -176,7 +176,7 @@
                 gpf.json.load(result, definition);
                 // name is required
                 if (!result._name) {
-                    throw gpf.Error.paramsNameRequired();
+                    gpf.Error.paramsNameRequired();
                 }
                 if (!result._multiple) {
                     /**
@@ -186,7 +186,7 @@
                      */
                     typeDefaultValue = this.DEFAULTS[result._type];
                     if (undefined === typeDefaultValue) {
-                        throw gpf.Error.paramsTypeUnknown();
+                        gpf.Error.paramsTypeUnknown();
                     }
                     if (result.hasOwnProperty("_defaultValue")) {
                         result._defaultValue =
@@ -343,7 +343,7 @@
                     name = parameter._name;
                     if (undefined === result[name]) {
                         if (parameter._required) {
-                            throw gpf.Error.paramsRequiredMissing({
+                            gpf.Error.paramsRequiredMissing({
                                 name: name
                             });
                         }
