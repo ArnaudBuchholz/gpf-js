@@ -306,7 +306,7 @@ gpf.xml.convert = function (value, out, eventsHandler) {
     var
         iXmlSerializable;
     if ("string" === typeof value) {
-        throw gpf.Error.notImplemented();
+        gpf.Error.notImplemented();
     } else if ("object" === typeof value) {
         iXmlSerializable = _gpfI.query(value, _gpfI.IXmlSerializable);
         if (null === iXmlSerializable) {
@@ -370,7 +370,7 @@ _gpfExtend(gpf.xml, {
         // Try with a starting _
         newName = "_" + name;
         if (!gpf.xml.isValidName(newName)) {
-            throw gpf.Error.xmlInvalidName();
+            gpf.Error.xmlInvalidName();
         }
         return newName;
     }
