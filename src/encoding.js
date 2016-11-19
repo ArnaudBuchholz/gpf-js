@@ -105,7 +105,7 @@ var
             // @inheritdoc gpf.stream.BufferedOnRead#_endOfInputStream
             _endOfInputStream: function () {
                 if (this._unprocessed.length) {
-                    throw gpf.Error.encodingEOFWithUnprocessedBytes();
+                    gpf.Error.encodingEOFWithUnprocessedBytes();
                 }
             },
 
@@ -145,7 +145,7 @@ gpf.encoding = {
     createEncoder: function (input, encoding) {
         var module = _gpfEncodings[encoding];
         if (undefined === module) {
-            throw gpf.Error.encodingNotSupported();
+            gpf.Error.encodingNotSupported();
         }
         return new EncoderStream(module[0], input);
     },
@@ -161,7 +161,7 @@ gpf.encoding = {
     createDecoder: function (input, encoding) {
         var module = _gpfEncodings[encoding];
         if (undefined === module) {
-            throw gpf.Error.encodingNotSupported();
+            gpf.Error.encodingNotSupported();
         }
         return new DecoderStream(module[1], input);
     }
