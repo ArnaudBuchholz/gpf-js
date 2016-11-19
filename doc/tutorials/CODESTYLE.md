@@ -190,7 +190,7 @@ Two functions are provided for assertions:
  *
  * @param {Boolean} condition Truthy / [Falsy](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) value
  * @param {String} message Assertion message explaining the violation when the condition is false
- * @throws {gpf.Error.assertionFailed} Assertion failed error
+ * @throws {gpf.Error.AssertionFailed}
  */
 _gpfAssert = function (condition, message) {/*...*/}
 
@@ -198,7 +198,7 @@ _gpfAssert = function (condition, message) {/*...*/}
  * Batch assertion helper
  *
  * @param {Object} assertions Dictionary of messages associated to condition values
- * @throws {gpf.Error.assertionFailed} Assertion failed error
+ * @throws {gpf.Error.AssertionFailed}
  */
 _gpfAsserts = function (assertions) {/*...*/}
 ```
