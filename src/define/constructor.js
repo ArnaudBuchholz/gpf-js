@@ -27,7 +27,7 @@ function _gpfNewClassConstructorTpl (classDef) {
     return function () {
         var me = this; //eslint-disable-line no-invalid-this
         if (!(me instanceof classDef._Constructor)) {
-            throw gpf.Error.constructorFunctionOLD();
+            gpf.Error.constructorFunctionOLD();
         }
         classDef._resolvedConstructor.apply(me, arguments);
     };
