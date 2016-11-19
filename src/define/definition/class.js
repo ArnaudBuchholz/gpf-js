@@ -109,7 +109,7 @@ _GpfClassDefinition.prototype = {
 
     _checkOwnMemberDoesntExist: function (name) {
         if (this._members.hasOwnProperty(name)) {
-            throw gpf.Error.classMemberAlreadyExist();
+            gpf.Error.classMemberAlreadyExist();
         }
     },
 
