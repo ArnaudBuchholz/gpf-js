@@ -393,7 +393,7 @@ _gpfDefine("gpf.fs.WScriptFileStorage", {
                 stream.close();
                 _gpfEventsFire.call(stream, _GPF_EVENT_READY, {}, eventsHandler);
             } else {
-                throw gpf.Error.invalidParameter();
+                gpf.Error.invalidParameter();
             }
         },
 
