@@ -138,7 +138,7 @@ _GpfCsvParser.prototype = {
             this._unquotedValue = value.substr(0, pos) + value.substr(pos + 1);
             return true;
         }
-        throw gpf.Error.csvInvalid();
+        gpf.Error.csvInvalid();
     },
 
     /**
@@ -286,7 +286,7 @@ _GpfCsvParser.prototype = {
             };
         this._convertLinesIntoValues(values, flags);
         if (flags.inQuotedString) {
-            throw gpf.Error.csvInvalid();
+            gpf.Error.csvInvalid();
         }
         return values;
     },
