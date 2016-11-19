@@ -205,7 +205,7 @@ _GpfOldClassDefinition.prototype = {
         } else {
             visibility = _gpfVisibilityKeywords.indexOf(visibility);
             if (-1 === visibility) {
-                throw gpf.Error.classInvalidVisibility();
+                gpf.Error.classInvalidVisibility();
             }
         }
         this._addMember(member, memberValue, visibility);
@@ -266,7 +266,7 @@ _GpfOldClassDefinition.prototype = {
         baseType = typeof baseMemberValue;
         if ("undefined" !== baseType) {
             if (null !== baseMemberValue && newType !== baseType) {
-                throw gpf.Error.classMemberOverloadWithTypeChange();
+                gpf.Error.classMemberOverloadWithTypeChange();
             }
             if ("function" === newType && _gpfUsesSuper(memberValue)) {
                 memberValue = _gpfGenSuperMember(baseMemberValue, memberValue);
@@ -347,7 +347,7 @@ _GpfOldClassDefinition.prototype = {
             return this._addMember(memberName, memberValue, this._deduceVisibility(memberName));
         }
         if (_GPF_VISIBILITY_UNKNOWN !== this._defaultVisibility) {
-            throw gpf.Error.classInvalidVisibility();
+            gpf.Error.classInvalidVisibility();
         }
         this._processDefinition(memberValue, newVisibility);
     },
