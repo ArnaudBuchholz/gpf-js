@@ -160,28 +160,28 @@ function _generateJsDocForError (name, message, comment) {
     _reContextualParams.lastIndex = 0;
     param = _reContextualParams.exec(message);
     while (param) {
-        params.push(param[1]);
+        params.push(" * - {String} " + param[1]);
         param = _reContextualParams.exec(message);
+    }
+    if (params.length) {
+        params.unshift(" * @param {Object} context Dictionary of parameters used to format the message, must contain");
+        params = params.join("\r\n");
+    } else {
+        params = undefined;
     }
     result = [
         "/**",
         " * throw {@link gpf.Error." + className + "}",
         " * @method gpf.Error." + name,
-        " * @throws {gpf.Error." + className + "}"
-    ];
-    if (params.length) {
-        result.push(" * @param {Object} context Dictionary of parameters used to format the message, must contain");
-        params.forEach(function (name) {
-            result.push(" * - {String} " + name);
-        });
-    }
-    result.push(" */",
+        " * @throws {gpf.Error." + className + "}",
+        params,
+        " */",
         "/**",
         comment,
         " * @class gpf.Error." + className,
+        params,
         " */"
-    );
-    console.log(name, message);
+    ];
     return result.join("\r\n");
 }
 
