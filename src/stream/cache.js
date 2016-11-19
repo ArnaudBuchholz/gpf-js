@@ -54,7 +54,7 @@ _gpfDefine("gpf.stream.BufferedOnRead", {
          */
         _addToBuffer: function (buffer) {
             _gpfIgnore(buffer);
-            throw gpf.Error.abstract();
+            gpf.Error.abstract();
         },
 
         /**
