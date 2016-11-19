@@ -25,7 +25,7 @@ function _gpfAssertImpl (condition, message) {
     }
     if (!condition) {
         console.warn("ASSERTION FAILED: " + message);
-        throw gpf.Error.assertionFailed({
+        gpf.Error.assertionFailed({
             message: message
         });
     }
