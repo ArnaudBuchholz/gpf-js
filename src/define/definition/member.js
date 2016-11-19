@@ -95,7 +95,7 @@ _GpfClassDefMember.prototype = {
 
     _checkMemberType: function (member) {
         if ("undefined" !== this._type && member._type !== this._type) {
-            throw gpf.Error.classMemberOverloadWithTypeChange();
+            gpf.Error.classMemberOverloadWithTypeChange();
         }
     }
 
