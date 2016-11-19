@@ -149,21 +149,39 @@ function _postProcessDoclet (doclet, index, doclets) {
 }
 
 var _reErrorDeclare = /_gpfErrorDeclare\("([a-zA-Z\\]+)", {\n((?:.*\n)*)\s*}\)/g,
-    _reErrorItems = /(?:\/\*\*((?:[^*]|\s|\*[^/])*)\*\/)?\s*([a-zA-Z]+):\s*"([^"]*)"/g;
+    _reErrorItems = /(?:\/\*\*((?:[^*]|\s|\*[^/])*)\*\/)?\s*([a-zA-Z]+):\s*"([^"]*)"/g,
+    _reContextualParams = /{(\w+)}/g;
 
 function _generateJsDocForError (name, message, comment) {
     var className = name.charAt(0).toUpperCase() + name.substr(1),
-        result = [
-            "/**",
-            " * throw {@link gpf.Error." + className + "}",
-            " * @method gpf.Error." + name,
-            " * @throws {gpf.Error." + className + "}",
-            " */",
-            "/**",
-            comment,
-            " * @class gpf.Error." + className,
-            " */"
-        ];
+        result,
+        params = [],
+        param;
+    _reContextualParams.lastIndex = 0;
+    param = _reContextualParams.exec(message);
+    while (param) {
+        params.push(param[1]);
+        param = _reContextualParams.exec(message);
+    }
+    result = [
+        "/**",
+        " * throw {@link gpf.Error." + className + "}",
+        " * @method gpf.Error." + name,
+        " * @throws {gpf.Error." + className + "}"
+    ];
+    if (params.length) {
+        result.push(" * @param {Object} context Dictionary of parameters used to format the message, must contain");
+        params.forEach(function (name) {
+            result.push(" * - {String} " + name);
+        });
+    }
+    result.push(" */",
+        "/**",
+        comment,
+        " * @class gpf.Error." + className,
+        " */"
+    );
+    console.log(name, message);
     return result.join("\r\n");
 }
 
