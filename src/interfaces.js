@@ -75,7 +75,7 @@ function _gpfQueryInterface (objectInstance, interfaceDefinition, throwError) {
         result = objectInstance.queryInterface(interfaceDefinition);
     }
     if (null === result && (undefined === throwError || throwError)) {
-        throw gpf.Error.interfaceExpected({
+        gpf.Error.interfaceExpected({
             name: _gpfGetClassDefinition(interfaceDefinition)._name
         });
     }
