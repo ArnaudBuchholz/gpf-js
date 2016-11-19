@@ -149,20 +149,22 @@ function _postProcessDoclet (doclet, index, doclets) {
 }
 
 var _reErrorDeclare = /_gpfErrorDeclare\("([a-zA-Z\\]+)", {\n((?:.*\n)*)\s*}\)/g,
-    _reErrorItems = /(\/\*\*(?:[^*]|\s|\*[^/])*\*\/)?\s*([a-zA-Z]+):\s*"([^"]*)"/g;
+    _reErrorItems = /(?:\/\*\*((?:[^*]|\s|\*[^/])*)\*\/)?\s*([a-zA-Z]+):\s*"([^"]*)"/g;
 
 function _generateJsDocForError (name, message, comment) {
-    var className = name.charAt(0).toUpperCase() + name.substr(1);
-    return [
-        "/**",
-        " * throw {@link gpf.Error." + className + "}",
-        " * @method gpf.Error." + name,
-        " * @throws {gpf.Error." + className + "}",
-        " */",
-        "/**",
-        " * @class gpf.Error." + className,
-        " */"
-    ].join("\r\n");
+    var className = name.charAt(0).toUpperCase() + name.substr(1),
+        result = [
+            "/**",
+            " * throw {@link gpf.Error." + className + "}",
+            " * @method gpf.Error." + name,
+            " * @throws {gpf.Error." + className + "}",
+            " */",
+            "/**",
+            comment,
+            " * @class gpf.Error." + className,
+            " */"
+        ];
+    return result.join("\r\n");
 }
 
 function _checkForGpfErrorDeclare (event) {
