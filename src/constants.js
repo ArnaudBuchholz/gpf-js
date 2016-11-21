@@ -1,5 +1,6 @@
 /**
  * @file Constants
+ * @since 0.1.5
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -31,6 +32,7 @@
 /**
  * @namespace gpf
  * @description Root namespace for GPF exports
+ * @since 0.1.5
  */
 
 var
@@ -95,6 +97,7 @@ function _gpfFuncUnsafe (params, source) {
  * @param {String} source Body of the function
  * @return {Function} New function
  * @private
+ * @since 0.1.5
  */
 function _gpfFunc (params, source) {
     if (undefined === source) {
@@ -127,6 +130,7 @@ function _gpfIsUnsignedByte (value) {
  * @param {Object} obj Object receiving the constants
  * @param {Object} dictionary Dictionary names to value
  * @private
+ * @since 0.1.5
  */
 function _gpfCreateConstants (obj, dictionary) {
     _gpfObjectForEach(dictionary, function (value, key) {
@@ -149,6 +153,7 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
     /**
      * @namespace gpf.node
      * @description Root namespace for NodeJS specifics
+     * @since 0.1.5
      */
     gpf.node = {};
 }
@@ -156,6 +161,7 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
 /**
  * @namespace gpf.web
  * @description Root namespace for web-related tools (even if not in a browser)
+ * @since 0.1.5
  */
 gpf.web = {};
 
