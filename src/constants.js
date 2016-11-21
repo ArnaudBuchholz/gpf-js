@@ -85,7 +85,6 @@ function _gpfFuncUnsafe (params, source) {
     }
     args = [].concat(params);
     args.push(source);
-    // TODO depending on the environment the result function name is anonymous !
     return _GpfFunc.apply(null, args);
 }
 
