@@ -1,5 +1,6 @@
 /**
  * @file Assertion helpers
+ * @since 0.1.5
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -17,6 +18,7 @@ var _gpfAssert,
  * @param {Boolean} condition Truthy / [Falsy](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) value
  * @param {String} message Assertion message explaining the violation when the condition is false
  * @throws {gpf.Error.AssertionFailed}
+ * @since 0.1.5
  */
 function _gpfAssertImpl (condition, message) {
     if (undefined === message) {
@@ -36,6 +38,7 @@ function _gpfAssertImpl (condition, message) {
  *
  * @param {Object} assertions Dictionary of messages associated to condition values
  * @throws {gpf.Error.AssertionFailed}
+ * @since 0.1.5
  */
 function _gpfAssertsImpl (assertions) {
     for (var message in assertions) {
@@ -46,10 +49,16 @@ function _gpfAssertsImpl (assertions) {
     }
 }
 
-/** @gpf:sameas _gpfAssertImpl */
+/**
+ * @gpf:sameas _gpfAssertImpl
+ * @since 0.1.5
+ */
 gpf.assert = _gpfAssertImpl;
 
-/** @gpf:sameas _gpfAssertsImpl */
+/**
+ * @gpf:sameas _gpfAssertsImpl
+ * @since 0.1.5
+ */
 gpf.asserts = _gpfAssertsImpl;
 
 /*#ifdef(DEBUG)*/
