@@ -1,5 +1,6 @@
 /**
  * @file Helper to escape strings
+ * @since 0.1.5
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -22,6 +23,7 @@ var _gpfStringEscapes = {};
  * - **"xml"**: escape &, < and >
  * - **"html"**: xml + some accentuated characters
  * @return {String} Escaped string
+ * @since 0.1.5
  */
 function _gpfStringEscapeFor (that, language) {
     _gpfAssert(undefined !== _gpfStringEscapes[language], "Unknown language");
