@@ -1,5 +1,6 @@
 /**
  * @file Promise polyfill
+ * @since 0.1.5
  */
 /*#ifndef(UMD)*/
 "use strict";
