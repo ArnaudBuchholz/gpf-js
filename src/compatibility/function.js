@@ -1,5 +1,6 @@
 /**
  * @file Function methods polyfill
+ * @since 0.1.5
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -60,6 +61,7 @@ if ((function () {
      * Return function name
      *
      * @return {String} Function name
+     * @since 0.1.5
      */
     Function.prototype.compatibleName = function () {
         return this.name;
