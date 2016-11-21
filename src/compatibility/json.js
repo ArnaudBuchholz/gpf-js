@@ -1,5 +1,6 @@
 /**
  * @file JSON polyfill
+ * @since 0.1.5
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -19,6 +20,7 @@ var
      *
      * @param {*} value the value to convert to a JSON string
      * @return {String} JSON representation of the value
+     * @since 0.1.5
      */
     _gpfJsonStringify,
 
@@ -27,6 +29,7 @@ var
      *
      * @param {*} text The string to parse as JSON
      * @return {Object} Parsed value
+     * @since 0.1.5
      */
     _gpfJsonParse;
 
