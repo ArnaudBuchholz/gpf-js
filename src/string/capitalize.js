@@ -1,5 +1,6 @@
 /**
  * @file Helper to capitalize strings
+ * @since 0.1.5
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -11,6 +12,7 @@
  *
  * @param {String} that String to capitalize
  * @return {String} Capitalized string
+ * @since 0.1.5
  */
 function _gpfStringCapitalize (that) {
     return that.charAt(0).toUpperCase() + that.substr(1);
