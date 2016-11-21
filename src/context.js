@@ -1,5 +1,6 @@
 /**
  * @file Context management
+ * @since 0.1.5
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -40,6 +41,7 @@ function _gpfReduceContext (path, reducer) {
  * - when it leads to nothing, `undefined` is returned
 
  * @typedef {*} gpfTypeContextResult
+ * @since 0.1.5
  */
 
 /**
@@ -50,6 +52,7 @@ function _gpfReduceContext (path, reducer) {
  * it allocates a default empty object. This allows building namespaces on the fly.
  *
  * @return {gpfTypeContextResult} Resolved path
+ * @since 0.1.5
  */
 function _gpfContext (path, createMissingParts) {
     var reducer;
@@ -67,6 +70,7 @@ function _gpfContext (path, createMissingParts) {
  * @param {String} path Dot separated list of identifiers
  *
  * @return {gpfTypeContextResult} Resolved path
+ * @since 0.1.5
  */
 gpf.context = function (path) {
     if (undefined === path) {
