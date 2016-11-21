@@ -1,5 +1,6 @@
 /**
  * @file Date methods polyfill
+ * @since 0.1.5
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -112,6 +113,7 @@ function _gpfProcessISO8601MatchResult (matchResult) {
  *
  * @param {*} value Value to test
  * @return {Number[]|undefined} 7 numbers composing the date (Month is 0-based). undefined if not matching.
+ * @since 0.1.5
  */
 function _gpfIsISO8601String (value) {
     if ("string" === typeof value) {
@@ -127,6 +129,7 @@ var _GpfGenuineDate = _gpfMainContext.Date;
  * Date constructor supporting ISO 8601 format
  *
  * @constructor
+ * @since 0.1.5
  */
 function _GpfDate () {
     var firstArgument = arguments[0],
