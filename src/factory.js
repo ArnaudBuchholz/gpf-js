@@ -1,5 +1,6 @@
 /**
  * @file Generic factory
+ * @since 0.1.5
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -34,6 +35,7 @@ function _gpfGenerateGenericFactory (maxParameters) {
  * Create any class by passing the right number of parameters
  *
  * @this {Function} constructor to invoke
+ * @since 0.1.5
  */
 var _gpfGenericFactory = _gpfGenerateGenericFactory(10);
 
@@ -49,6 +51,7 @@ var _gpfGenericFactory = _gpfGenerateGenericFactory(10);
  * @param {Function} Constructor Class constructor
  * @param {Array} parameters Parameters to pass to the constructor
  * @return {Object} New object
+ * @since 0.1.5
  */
 function _gpfNewApply (Constructor, parameters) {
     if (parameters.length > _gpfGenericFactory.length) {
