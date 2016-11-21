@@ -1,5 +1,6 @@
 /**
  * @file setTimeout polyfill
+ * @since 0.1.5
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -54,6 +55,7 @@ function _gpfClearTimeoutPolyfill (timeoutId) {
 /**
  * For WSCRIPT and RHINO environments, this function must be used to process the timeout queue when using
  * [setTimeout](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setTimeout)
+ * @since 0.1.5
  */
 function _gpfHandleTimeout () {
     var queue = _gpfTimeoutQueue,
@@ -91,7 +93,10 @@ if ("undefined" === typeof setTimeout) {
     _gpfMainContext.setTimeout = _gpSetTimeoutPolyfill;
     _gpfMainContext.clearTimeout = _gpfClearTimeoutPolyfill;
 
-    /** @gpf:sameas _gpfHandleTimeout */
+        /**
+     * @gpf:sameas _gpfHandleTimeout
+     * @since 0.1.5
+     */
     gpf.handleTimeout = _gpfHandleTimeout;
 
 }
