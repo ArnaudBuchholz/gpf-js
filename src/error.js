@@ -1,5 +1,6 @@
 /**
  * @file Error base class
+ * @since 0.1.5
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -16,6 +17,7 @@
  *
  * @constructor
  * @alias gpf.Error
+ * @since 0.1.5
  */
 var _GpfError = gpf.Error = function () {};
 
@@ -28,6 +30,7 @@ _gpfExtend(_GpfError.prototype, /** @lends gpf.Error.prototype */ {
      * Error code
      *
      * @readonly
+     * @since 0.1.5
      */
     code: 0,
 
@@ -35,6 +38,7 @@ _gpfExtend(_GpfError.prototype, /** @lends gpf.Error.prototype */ {
      * Error name
      *
      * @readonly
+     * @since 0.1.5
      */
     name: "Error",
 
@@ -42,6 +46,7 @@ _gpfExtend(_GpfError.prototype, /** @lends gpf.Error.prototype */ {
      * Error message
      *
      * @readonly
+     * @since 0.1.5
      */
     message: "",
 
@@ -49,6 +54,7 @@ _gpfExtend(_GpfError.prototype, /** @lends gpf.Error.prototype */ {
      * Build message by substituting context variables
      *
      * @param {Object} context Dictionary of named keys
+     * @since 0.1.5
      */
     _buildMessage: function (context) {
         var  replacements;
@@ -88,6 +94,7 @@ function _gpfErrorFactory (code, name, message) {
  * @param {String} message Error message
  * @return {Function} New error class
  * @gpf:closure
+ * @since 0.1.5
  */
 function _gpfGenenerateErrorFunction (code, name, message) {
     var result = _gpfErrorFactory(code, name, message);
@@ -106,6 +113,7 @@ var _gpfLastErrorCode = 0;
  *
  * @param {String} source Source name
  * @param {Object} dictionary Dictionary of error name to message
+ * @since 0.1.5
  */
 function _gpfErrorDeclare (source, dictionary) {
     _gpfIgnore(source);
@@ -125,6 +133,7 @@ _gpfErrorDeclare("error", {
      * ### Description
      *
      * This error is used to flag methods or functions that are not yet implemented.
+     * @since 0.1.5
      */
     notImplemented:
         "Not implemented",
@@ -137,6 +146,7 @@ _gpfErrorDeclare("error", {
      * ### Description
      *
      * This error is used to implement abstract methods. Mostly used for interfaces.
+     * @since 0.1.5
      */
     abstractMethod:
         "Abstract method",
@@ -152,6 +162,7 @@ _gpfErrorDeclare("error", {
      *
      * @see {@link gpf.assert}
      * @see {@link gpf.asserts}
+     * @since 0.1.5
      */
     assertionFailed:
         "Assertion failed: {message}",
@@ -164,6 +175,7 @@ _gpfErrorDeclare("error", {
      * ### Description
      *
      * This error is used when a parameter is invalid
+     * @since 0.1.5
      */
     invalidParameter:
         "Invalid parameter"
