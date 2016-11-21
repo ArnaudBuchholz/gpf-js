@@ -1,5 +1,6 @@
 /**
  * @file Polyfills installer
+ * @since 0.1.5
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -12,6 +13,7 @@
  * @property {Function} on Constructor where compatible members should be added if missing
  * @property {Object} methods Dictionary of named methods to add
  * @property {Object} statics Dictionary of named statics to add
+ * @since 0.1.5
  */
 
 /*#ifndef(UMD)*/
@@ -21,6 +23,7 @@
  *
  * @see {@link _GpfCompatibilityDescription}
  * @type {Object}
+ * @since 0.1.5
  */
 var _gpfCompatibility = {};
 
@@ -51,6 +54,7 @@ function _gpfInstallCompatibleStatics (on, statics) {
  *
  * @param {String} typeName Type name ("Object", "String"...)
  * @param {_GpfCompatibilityDescription} description Description of compatible methods
+ * @since 0.1.5
  */
 function _gpfInstallCompatibility (typeName, description) {
     var on = description.on;
