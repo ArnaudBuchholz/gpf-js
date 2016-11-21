@@ -1,5 +1,6 @@
 /**
  * @file Array detection
+ * @since 0.1.5
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -19,6 +20,7 @@
  *
  * @param {Object} obj Object to test
  * @return {Boolean} True if array-like
+ * @since 0.1.5
  */
 var _gpfIsArrayLike  = function (obj) { //eslint-disable-line func-style
     return Array.isArray(obj);
@@ -33,5 +35,8 @@ if (_GPF_HOST.BROWSER === _gpfHost && (_gpfWebWindow.HTMLCollection || _gpfWebWi
     };
 }
 
-/** @gpf:sameas _gpfIsArrayLike */
+/**
+ * @gpf:sameas _gpfIsArrayLike
+ * @since 0.1.5
+ */
 gpf.isArrayLike = _gpfIsArrayLike;
