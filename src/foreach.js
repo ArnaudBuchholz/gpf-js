@@ -1,5 +1,6 @@
 /**
  * @file Object enumerator
+ * @since 0.1.5
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -17,6 +18,7 @@
  * @param {String} index The index of the current item
  * @param {Object} container The container currently being enumerated (array or dictionary)
  * @return {undefined} No return expected
+ * @since 0.1.5
  */
 
 /**
@@ -25,6 +27,7 @@
  * @param {Array} array Array-like object
  * @param {gpfForEachCallback} callback Callback function executed on each array item
  * @param {*} [thisArg] thisArg Value to use as this when executing callback
+ * @since 0.1.5
  */
 function _gpfArrayForEach (array, callback, thisArg) {
     var index,
@@ -40,6 +43,7 @@ function _gpfArrayForEach (array, callback, thisArg) {
  * @param {Object} object Object
  * @param {gpfForEachCallback} callback Callback function executed on each own property
  * @param {*} [thisArg] thisArg Value to use as this when executing callback
+ * @since 0.1.5
  */
 function _gpfObjectForEach (object, callback, thisArg) {
     for (var property in object) {
@@ -57,6 +61,7 @@ function _gpfObjectForEach (object, callback, thisArg) {
  * @param {Array|Object} container Container to enumerate
  * @param {gpfForEachCallback} callback Callback function executed on each item or own property
  * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback
+ * @since 0.1.5
  */
 gpf.forEach = function (container, callback, thisArg) {
     if (_gpfIsArrayLike(container)) {
