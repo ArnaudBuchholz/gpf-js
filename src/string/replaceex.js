@@ -1,5 +1,6 @@
 /**
  * @file Helper to replace strings content
+ * @since 0.1.5
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -13,6 +14,7 @@
  * @param {String} that String to replace
  * @param {Object} replacements Dictionary of strings where each key is searched to be replaced by the associated value
  * @return {String} Replaced string
+ * @since 0.1.5
  */
 function _gpfStringReplaceEx (that, replacements) {
     var result = that;
