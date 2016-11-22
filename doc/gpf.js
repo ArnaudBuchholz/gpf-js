@@ -204,8 +204,38 @@ function _checkForGpfErrorDeclare (event) {
     }
 }
 
+function _isInsideGpfErrorDeclare (node) {
+    var ancestor;
+    try {
+        ancestor = node.parent.parent.parent;
+    } catch (e) {
+        return false;
+    }
+    return ancestor
+        && ancestor.type === "ExpressionStatement"
+        && ancestor.expression.type === "CallExpression"
+        && ancestor.expression.callee.name === "_gpfErrorDeclare"
+        && "Property" === node.type;
+}
+
+function _visitNode (node, e/*, parser, currentSourceName*/) { //eslint-disable-line max-params
+
+    if (_isInsideGpfErrorDeclare(node)) {
+        // This documentation is handled through beforeParse
+        e.preventDefault = true;
+        return;
+    }
+
+}
+
 // http://usejsdoc.org/about-plugins.html
 module.exports = {
+
+    astNodeVisitor: {
+
+        visitNode: _visitNode
+
+    },
 
     handlers: {
 
