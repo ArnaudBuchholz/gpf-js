@@ -61,7 +61,9 @@
         "string/escapefor"
     ],
     "error": [
+        "extend",
         "foreach",
+        "string/capitalize",
         "string/replaceex"
     ]
 }

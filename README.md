@@ -7,7 +7,7 @@ A multi-purpose JavaScript library created and maintained by
 [![NPM](https://nodei.co/npm/gpf-js.png?downloads=true&&downloadRank=true&stars=true)](https://nodei.co/npm/gpf-js/)
 [![NPM](https://nodei.co/npm-dl/gpf-js.png?months=3&height=3)](https://nodei.co/npm/gpf-js/)
 
-[Plato analysis](http://arnaudbuchholz.github.io/plato/gpf-js/index.html)
+[Plato analysis](https://arnaudbuchholz.github.io/gpf/0.1.5/plato/index.html)
 
 ## Features
 
@@ -32,19 +32,19 @@ This part is automatically updated upon a successful build:
 * Code coverage is based on NodeJS execution, ignored parts are mostly relevant of other hosts
 * The maintainability is based on [plato evaluation](http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/
 maintainability-index-range-and-meaning.aspx):
-  * [0.1.5-alpha](https://arnaudbuchholz.github.io/gpf/0.1.5-alpha/plato/index.html)
+  * [0.1.5](https://arnaudbuchholz.github.io/gpf/0.1.5/plato/index.html)
 
 **SME** stands for **s**ource **m**inimal **e**xpectation.
 
 Metric name | average | total | SME | comment
 ------ | ----- | ----- | ----- | -----
-Statements coverage|99.67%||90%|*12.07% ignored*
+Statements coverage|99.67%||90%|*12.03% ignored*
 Branches coverage|98.95%||90%|*21.35% ignored*
-Functions coverage|100%||90%|*13.01% ignored*
-Maintainability|80.29||65|
-Number of tests||284||*pending: 0, duration: 281ms*
+Functions coverage|100%||90%|*12.83% ignored*
+Maintainability|80.38||65|
+Number of tests||284||*pending: 0, duration: 294ms*
 Number of sources||29||
-Lines of code|79|2300||
+Lines of code|83|2411||
 
 ## Setup
 
