@@ -229,6 +229,7 @@ module.exports = {
                 params = Object.create(null);
             let hasReturns = false,
                 hasGpfReturnLike = false,
+                hasGpfSignature = false,
                 hasConstructor = false,
                 isInterface = false,
                 isOverride = false,
@@ -321,9 +322,10 @@ module.exports = {
                             break;
 
                         case "gpf":
-                            hasGpfReturnLike = tag.description === ":chainable"
-                                || tag.description.indexOf(":read") === 0
+                            hasGpfSignature = tag.description.indexOf(":read") === 0
                                 || tag.description.indexOf(":write") === 0;
+                            hasGpfReturnLike = hasGpfSignature
+                                || tag.description === ":chainable";
                             break;
 
                         // no default
@@ -373,7 +375,7 @@ module.exports = {
                                     name,
                                     jsdocName: jsdocParams[i]
                                 });
-                            } else if (!params[name] && !isOverride) {
+                            } else if (!params[name] && !isOverride && !hasGpfSignature) {
                                 context.report(jsdocNode, "Missing JSDoc for parameter '{{name}}'.", {
                                     name
                                 });
