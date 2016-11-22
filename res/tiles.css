@@ -211,6 +211,11 @@ ul#tiles > li#doc div.version{
     font-size: 16pt;
 }
 
+ul#tiles > li#doc div.public{
+    top: 56px;
+    font-size: 8pt;
+}
+
 /*endregion*/
 
 /*region Miscellaneous tile */
