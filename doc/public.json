@@ -1,0 +1,15 @@
+{
+    "opts": {
+        "recurse": true,
+        "tutorials": "doc/tutorials"
+    },
+    "plugins": [
+        "gpf",
+        "plugins/markdown"
+    ],
+    "templates": {
+        "default": {
+            "outputSourceFiles": false
+        }
+    }
+}
