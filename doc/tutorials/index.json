@@ -1,0 +1,11 @@
+{
+    "CODESTYLE": {
+        "title": "GPF Library code style"
+    },
+    "COMPATIBILITY": {
+        "title": "GPF Library compatibility layer"
+    },
+    "LOADING": {
+        "title": "Loading GPF Library"
+    }
+}
