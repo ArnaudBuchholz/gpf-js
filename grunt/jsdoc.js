@@ -7,7 +7,7 @@ module.exports = {
             "README.md"
         ]),
         options: {
-            configure: "doc/jsdoc.conf.json",
+            configure: "doc/private.json",
             access: "all",
             destination: "tmp/doc/private"
         }
@@ -18,7 +18,7 @@ module.exports = {
             "README.md"
         ]),
         options: {
-            configure: "doc/jsdoc.conf.json",
+            configure: "doc/public.json",
             destination: "tmp/doc/public"
         }
     }
