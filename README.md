@@ -7,8 +7,6 @@ A multi-purpose JavaScript library created and maintained by
 [![NPM](https://nodei.co/npm/gpf-js.png?downloads=true&&downloadRank=true&stars=true)](https://nodei.co/npm/gpf-js/)
 [![NPM](https://nodei.co/npm-dl/gpf-js.png?months=3&height=3)](https://nodei.co/npm/gpf-js/)
 
-[Plato analysis](https://arnaudbuchholz.github.io/gpf/0.1.5/plato/index.html)
-
 ## Features
 
 * Compatible with several hosts
@@ -30,9 +28,9 @@ documented and explained.
 
 This part is automatically updated upon a successful build:
 * Code coverage is based on NodeJS execution, ignored parts are mostly relevant of other hosts
-* The maintainability is based on [plato evaluation](http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/
-maintainability-index-range-and-meaning.aspx):
-  * [0.1.5](https://arnaudbuchholz.github.io/gpf/0.1.5/plato/index.html)
+* The [maintainability](https://arnaudbuchholz.github.io/gpf/0.1.5/plato/index.html) is based
+on [plato evaluation](http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/
+maintainability-index-range-and-meaning.aspx)
 
 **SME** stands for **s**ource **m**inimal **e**xpectation.
 
@@ -42,7 +40,7 @@ Statements coverage|99.67%||90%|*12.03% ignored*
 Branches coverage|98.95%||90%|*21.35% ignored*
 Functions coverage|100%||90%|*12.83% ignored*
 Maintainability|80.38||65|
-Number of tests||284||*pending: 0, duration: 294ms*
+Number of tests||284||*pending: 0, duration: 279ms*
 Number of sources||29||
 Lines of code|83|2411||
 
@@ -55,6 +53,12 @@ Lines of code|83|2411||
 ## Testing
 
 See [TESTME.md](https://github.com/ArnaudBuchholz/gpf-js/blob/master/TESTME.md)
+
+## Versions
+
+Version | Release | Debug | Plato
+------ | ----- | ----- | ----- | -----
+[0.1.5](https://arnaudbuchholz.github.io/gpf/0.1.5/doc/index.html) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.5/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.1.5) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.5/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.1.5) | [plato](https://arnaudbuchholz.github.io/gpf/0.1.5/plato/index.html)
 
 ## Credits
 
