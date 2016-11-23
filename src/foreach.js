@@ -17,7 +17,6 @@
  * @param {*} value The current item
  * @param {String} index The index of the current item
  * @param {Object} container The container currently being enumerated (array or dictionary)
- * @return {undefined} No return expected
  * @since 0.1.5
  */
 
