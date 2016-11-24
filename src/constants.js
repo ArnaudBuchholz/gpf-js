@@ -35,6 +35,14 @@
  * @since 0.1.5
  */
 
+/**
+ * @namespace gpf.typedef
+ * @description Root namespace for GPF type documentation.
+ *
+ * Note that this symbol does not exist and is used only for documentation purposes.
+ * @since 0.1.5
+ */
+
 var
 
     //region File system constants
