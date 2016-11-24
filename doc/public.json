@@ -1,13 +1,16 @@
 {
     "opts": {
         "recurse": true,
-        "tutorials": "doc/tutorials"
+        "tutorials": "doc/tutorials",
+        "template" : "node_modules/ink-docstrap/template"
     },
     "plugins": [
         "gpf",
         "plugins/markdown"
     ],
     "templates": {
+        "systemName": "GPF Library",
+        "theme": "spacelab",
         "default": {
             "outputSourceFiles": false
         }
