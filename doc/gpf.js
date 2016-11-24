@@ -204,6 +204,18 @@ function _checkForGpfErrorDeclare (event) {
     }
 }
 
+var _reFileComment = /(?:\/\*\*(?:[^*]|\s\*[^/])*\@file(?:[^*]|\s\*[^/])*\*\/)/g;
+
+function _disableFileComment (event) {
+    _reFileComment.lastIndex = 0;
+    var match = _reFileComment.exec(event.source),
+        fileComment;
+    if (match) {
+        fileComment = match[0];
+        event.source = event.source.replace(fileComment, "/* " + fileComment.substr(2));
+    }
+}
+
 function _isInsideGpfErrorDeclare (node) {
     var ancestor;
     try {
@@ -240,6 +252,7 @@ module.exports = {
     handlers: {
 
         beforeParse: function (event) {
+            _disableFileComment(event);
             _checkForGpfErrorDeclare(event);
         },
 
