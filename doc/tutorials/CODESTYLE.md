@@ -1,5 +1,3 @@
-# GPF Library code style
-
 ## Source structure
 
 ### Source

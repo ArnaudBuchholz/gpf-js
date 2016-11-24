@@ -1,5 +1,3 @@
-# Loading GPF Library
-
 ## [cscript/wscript](http://technet.microsoft.com/en-us/library/bb490887.aspx)
 
 ### Using [Windows Script File](https://en.wikipedia.org/wiki/Windows_Script_File) format

@@ -1,5 +1,3 @@
-# GPF Library compatibility layer
-
 The library offers a common compatibility layer whatever the environment it runs on.
 
 ## Standard object methods and statics
