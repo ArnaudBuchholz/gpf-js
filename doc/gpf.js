@@ -13,7 +13,7 @@ function _logDoclet (doclet) {
     title.push(doclet.longname, " (", doclet.kind, ")");
     console.log(title.join(""));
     // try {
-    //     if (doclet.longname === "_gpfAssertImpl") {
+    //     if (doclet.longname.indexOf("_GpfCompatibilityDescription") !== -1) {
     //         console.log(doclet);
     //     }
     // } catch (e) {
@@ -139,14 +139,14 @@ function _checkAccess (doclet) {
 
 function _postProcessDoclet (doclet, index, doclets) {
     var kind = doclet.kind;
-    _logDoclet(doclet);
     _handleCustomTags(doclet, doclets);
     if (kind === "member") {
         _addMemberType(doclet);
         _checkAccess(doclet);
-    } else if (-1 !== ["function", "class"].indexOf(kind)) {
+    } else if (-1 !== ["function", "typedef", "class"].indexOf(kind)) {
         _checkAccess(doclet);
     }
+    _logDoclet(doclet);
 }
 
 var _reErrorDeclare = /_gpfErrorDeclare\("([a-zA-Z\\]+)", {\n((?:.*\n)*)\s*}\)/g,
