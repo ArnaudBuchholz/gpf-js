@@ -12,7 +12,7 @@
 /**
  * Callback function executed on each array / dictionary item
  *
- * @callback gpfCallbackForEach
+ * @callback gpf.typedef.forEachCallback
  *
  * @param {*} value The current item
  * @param {String} index The index of the current item
@@ -24,7 +24,7 @@
  * Similar to [].forEach but for array-like
  *
  * @param {Array} array Array-like object
- * @param {gpfForEachCallback} callback Callback function executed on each array item
+ * @param {gpf.typedef.forEachCallback} callback Callback function executed on each array item
  * @param {*} [thisArg] thisArg Value to use as this when executing callback
  * @since 0.1.5
  */
@@ -40,7 +40,7 @@ function _gpfArrayForEach (array, callback, thisArg) {
  * Similar to [].forEach but for objects
  *
  * @param {Object} object Object
- * @param {gpfForEachCallback} callback Callback function executed on each own property
+ * @param {gpf.typedef.forEachCallback} callback Callback function executed on each own property
  * @param {*} [thisArg] thisArg Value to use as this when executing callback
  * @since 0.1.5
  */
@@ -58,7 +58,7 @@ function _gpfObjectForEach (object, callback, thisArg) {
  * NOTE: unlike [].forEach, non own properties are also enumerated
  *
  * @param {Array|Object} container Container to enumerate
- * @param {gpfForEachCallback} callback Callback function executed on each item or own property
+ * @param {gpf.typedef.forEachCallback} callback Callback function executed on each item or own property
  * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback
  * @since 0.1.5
  */
