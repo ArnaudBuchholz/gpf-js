@@ -70,3 +70,6 @@ Version | Release | Debug | Plato
 * [istanbul](https://github.com/gotwarlost/istanbul) code coverage tool
 * JavaScript task runner: [Grunt](http://gruntjs.com/)
 * Icons from [Hawcons](https://www.iconfinder.com/iconsets/hawcons)
+* Documentation generated from [jsdoc syntax](http://usejsdoc.org/)
+with [grunt-jsdoc](https://github.com/krampstudio/grunt-jsdoc)
+using template from [ink-docstrap](https://www.npmjs.com/package/ink-docstrap)
