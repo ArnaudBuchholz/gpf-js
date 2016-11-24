@@ -40,7 +40,7 @@ function _gpfReduceContext (path, reducer) {
  * - when `"gpf"`, it **always** returns the GPF object
  * - when it leads to nothing, `undefined` is returned
 
- * @typedef {*} gpfTypeContextResult
+ * @typedef {*} gpf.typedef.contextResult
  * @since 0.1.5
  */
 
@@ -51,7 +51,7 @@ function _gpfReduceContext (path, reducer) {
  * @param {Boolean} [createMissingParts=false] If the path includes undefined parts and createMissingParts is true,
  * it allocates a default empty object. This allows building namespaces on the fly.
  *
- * @return {gpfTypeContextResult} Resolved path
+ * @return {gpf.typedef.contextResult} Resolved path
  * @since 0.1.5
  */
 function _gpfContext (path, createMissingParts) {
@@ -69,7 +69,7 @@ function _gpfContext (path, createMissingParts) {
  *
  * @param {String} path Dot separated list of identifiers
  *
- * @return {gpfTypeContextResult} Resolved path
+ * @return {gpf.typedef.contextResult} Resolved path
  * @since 0.1.5
  */
 gpf.context = function (path) {
