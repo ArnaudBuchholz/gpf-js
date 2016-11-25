@@ -13,7 +13,9 @@ function _logDoclet (doclet) {
     title.push(doclet.longname, " (", doclet.kind, ")");
     console.log(title.join(""));
     // try {
-    //     if (doclet.longname.indexOf("_GpfCompatibilityDescription") !== -1) {
+    //     if (doclet.longname.indexOf("gpf.hosts") !== -1
+    //         || doclet.longname.indexOf("_GPF_HOST") !== -1
+    //         ) {
     //         console.log(doclet);
     //     }
     // } catch (e) {
@@ -79,7 +81,11 @@ var _customTags = {
             "params",
             "returns",
             "exceptions",
-            "kind"
+            "kind",
+            "isEnum",
+            "type",
+            "properties",
+            "readonly"
         ].forEach(function (propertyName) {
             doclet[propertyName] = refDoclet[propertyName];
         });
