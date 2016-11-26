@@ -9,9 +9,9 @@ describe("context", function () {
             assert("function" === typeof gpf.context);
             assert(null !== gpf.context());
             // Known and testable contexts
-            if (gpf.HOST_BROWSER === gpf.host()) {
+            if (gpf.hosts.browser === gpf.host()) {
                 assert(window === gpf.context());
-            } else if (gpf.HOST_NODEJS === gpf.host() || gpf.HOST_PHANTOMJS === gpf.host()) {
+            } else if (gpf.hosts.nodejs === gpf.host() || gpf.hosts.phantomjs === gpf.host()) {
                 assert(global === gpf.context());
             } else {
                 var context = (function () {
