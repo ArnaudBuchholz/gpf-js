@@ -1,5 +1,6 @@
 /**
  * @file Host detection, non-UMD loader
+ * @since 0.1.5
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -27,10 +28,16 @@
 function _gpfEmptyFunc () {}
 
 var
-    /** GPF Version */
+    /**
+     * GPF Version
+     * @since 0.1.5
+     */
     _gpfVersion = "0.1.5",
 
-    /** Host constants */
+    /**
+     * Host constants
+     * @since 0.1.5
+     */
     _GPF_HOST = {
         BROWSER:    "browser",
         NODEJS:     "nodejs",
@@ -44,10 +51,14 @@ var
      * Current host type
      *
      * @type {_GPF_HOST}
+     * @since 0.1.5
      */
     _gpfHost = _GPF_HOST.UNKNOWN,
 
-    /** Indicates that paths are DOS-like (i.e. case insensitive with /) */
+    /**
+     * Indicates that paths are DOS-like (i.e. case insensitive with /)
+     * @since 0.1.5
+     */
     _gpfDosPath = false,
 
     /*jshint -W040*/ // This is the common way to get the global context
@@ -55,6 +66,7 @@ var
      * Main context object
      *
      * @type {Object}
+     * @since 0.1.5
      */
     _gpfMainContext = this, //eslint-disable-line no-invalid-this, consistent-this
     /*jshint +W040*/
@@ -63,6 +75,7 @@ var
      * Helper to ignore unused parameter
      *
      * @param {*} param
+     * @since 0.1.5
      */
     /*gpf:nop*/ _gpfIgnore = _gpfEmptyFunc,
 
@@ -70,6 +83,7 @@ var
      * Exit function
      *
      * @param {Number} code
+     * @since 0.1.5
      */
     _gpfExit = _gpfEmptyFunc,
 
@@ -77,6 +91,7 @@ var
      * Browser window object
      *
      * @type {Object}
+     * @since 0.1.5
      */
     _gpfWebWindow,
 
@@ -84,6 +99,7 @@ var
      * Browser [document](https://developer.mozilla.org/en-US/docs/Web/API/Document) object
      *
      * @type {Object}
+     * @since 0.1.5
      */
     _gpfWebDocument,
 
@@ -91,6 +107,7 @@ var
      * Browser [head](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head) tag
      *
      * @type {Object}
+     * @since 0.1.5
      */
     _gpfWebHead,
 
@@ -98,6 +115,7 @@ var
      * [Scripting.FileSystemObject](https://msdn.microsoft.com/en-us/library/aa711216(v=vs.71).aspx) Object
      *
      * @type {Object}
+     * @since 0.1.5
      */
     _gpfMsFSO,
 
@@ -105,6 +123,7 @@ var
      * Node [require("fs")](https://nodejs.org/api/fs.html)
      *
      * @type {Object}
+     * @since 0.1.5
      */
     _gpfNodeFs,
 
@@ -112,6 +131,7 @@ var
      * Node [require("path")](https://nodejs.org/api/path.html)
      *
      * @type {Object}
+     * @since 0.1.5
      */
     _gpfNodePath;
 
@@ -130,6 +150,7 @@ _gpfVersion += "-source";
  *
  * @param {String} srcFileName
  * @return {String} content of the srcFileName
+ * @since 0.1.5
  */
 var _gpfSyncReadForBoot;
 
@@ -225,6 +246,7 @@ if ("undefined" !== typeof WScript) {
 /**
  * Loading sources occurs here for the non UMD version.
  * UMD versions (debug / release) will have everything concatenated.
+ * @since 0.1.5
  */
 
 // Need to create the gpf name 'manually'
@@ -281,19 +303,38 @@ eval(_gpfLoadSources()); //eslint-disable-line no-eval
  *
  * @enum {String}
  * @readonly
+ * @since 0.1.5
  */
 gpf.hosts = {
-    /** Any browser (phantomjs is recognized separately) */
+    /**
+     * Any browser (phantomjs is recognized separately)
+     * @since 0.1.5
+     */
     browser: _GPF_HOST.BROWSER,
-    /** [NodeJs](http://nodejs.org/) */
+    /**
+     * [NodeJs](http://nodejs.org/)
+     * @since 0.1.5
+     */
     nodejs: _GPF_HOST.NODEJS,
-    /** [PhantomJS](http://phantomjs.org/) */
+    /**
+     * [PhantomJS](http://phantomjs.org/)
+     * @since 0.1.5
+     */
     phantomjs: _GPF_HOST.PHANTOMJS,
-    /** [Rhino](http://developer.mozilla.org/en/docs/Rhino) */
+    /**
+     * [Rhino](http://developer.mozilla.org/en/docs/Rhino)
+     * @since 0.1.5
+     */
     rhino: _GPF_HOST.RHINO,
-    /** Unknown (detection failed or the host is unknown) */
+    /**
+     * Unknown (detection failed or the host is unknown)
+     * @since 0.1.5
+     */
     unknown: _GPF_HOST.UNKNOWN,
-    /** [cscript/wscript](http://technet.microsoft.com/en-us/library/bb490887.aspx) */
+    /**
+     * [cscript/wscript](http://technet.microsoft.com/en-us/library/bb490887.aspx)
+     * @since 0.1.5
+     */
     wscript: _GPF_HOST.WSCRIPT
 };
 
@@ -301,12 +342,18 @@ gpf.hosts = {
  * Returns the detected host type
  *
  * @return {gpf.hosts} Host type
+ * @since 0.1.5
  */
 gpf.host = function () {
     return _gpfHost;
 };
 
-// Returns the current version
+/**
+ * Returns the current version
+ *
+ * @return {String} Version
+ * @since 0.1.5
+ */
 gpf.version = function () {
     return _gpfVersion;
 };
