@@ -31,25 +31,15 @@
     function _gpfEmptyFunc() {
     }
     var
-        // GPF version
+        /** GPF Version */
         _gpfVersion = "0.1.5",
-        /**
-         * Host type
-         *
-         * @enum {String}
-         */
+        /** Host constants */
         _GPF_HOST = {
-            /** Browser */
             BROWSER: "browser",
-            /** [NodeJs](http://nodejs.org/) */
             NODEJS: "nodejs",
-            /** [PhantomJS](http://phantomjs.org/) */
             PHANTOMJS: "phantomjs",
-            /** [Rhino](http://developer.mozilla.org/en/docs/Rhino) */
             RHINO: "rhino",
-            /** Unknown: detection failed */
             UNKNOWN: "unknown",
-            /** [cscript/wscript](http://technet.microsoft.com/en-us/library/bb490887.aspx) */
             WSCRIPT: "wscript"
         },
         /**
@@ -143,14 +133,29 @@
         _gpfMainContext = window;
     }
     /**
-     * Returns a string identifying the detected host
+     * Host type enumeration
      *
-     * @return {String}
-     * - gpf.HOST_WSCRIPT for cscript and wscript
-     * - gpf.HOST_NODEJS for nodejs
-     * - gpf.HOST_PHANTOMJS for phantomjs
-     * - gpf.HOST_BROWSER for any browser
-     * - gpf.HOST_UNKNOWN if not detected
+     * @enum {String}
+     * @readonly
+     */
+    gpf.hosts = {
+        /** Any browser (phantomjs is recognized separately) */
+        browser: _GPF_HOST.BROWSER,
+        /** [NodeJs](http://nodejs.org/) */
+        nodejs: _GPF_HOST.NODEJS,
+        /** [PhantomJS](http://phantomjs.org/) */
+        phantomjs: _GPF_HOST.PHANTOMJS,
+        /** [Rhino](http://developer.mozilla.org/en/docs/Rhino) */
+        rhino: _GPF_HOST.RHINO,
+        /** Unknown (detection failed or the host is unknown) */
+        unknown: _GPF_HOST.UNKNOWN,
+        /** [cscript/wscript](http://technet.microsoft.com/en-us/library/bb490887.aspx) */
+        wscript: _GPF_HOST.WSCRIPT
+    };
+    /**
+     * Returns the detected host type
+     *
+     * @return {gpf.hosts} Host type
      */
     gpf.host = function () {
         return _gpfHost;
@@ -273,64 +278,7 @@
     // Because tested in DEBUG
     if (!_gpfAssert) {
     }
-    var _gpfIsArrayLike = function (obj) {
-        //eslint-disable-line func-style
-        return Array.isArray(obj);
-    };
-    /* istanbul ignore next */
-    // Not tested with NodeJS
-    if (_GPF_HOST.BROWSER === _gpfHost && (_gpfWebWindow.HTMLCollection || _gpfWebWindow.NodeList)) {
-        _gpfIsArrayLike = function (obj) {
-            return Array.isArray(obj) || obj instanceof _gpfWebWindow.HTMLCollection || obj instanceof _gpfWebWindow.NodeList;
-        };
-    }
-    /**
-     * @gpf:sameas _gpfIsArrayLike
-     * @since 0.1.5
-     */
-    gpf.isArrayLike = _gpfIsArrayLike;
-    function _gpfArrayForEach(array, callback, thisArg) {
-        var index, length = array.length;
-        for (index = 0; index < length; ++index) {
-            callback.call(thisArg, array[index], index, array);
-        }
-    }
-    /**
-     * Similar to [].forEach but for objects
-     *
-     * @param {Object} object Object
-     * @param {gpfForEachCallback} callback Callback function executed on each own property
-     * @param {*} [thisArg] thisArg Value to use as this when executing callback
-     * @since 0.1.5
-     */
-    function _gpfObjectForEach(object, callback, thisArg) {
-        for (var property in object) {
-            /* istanbul ignore else */
-            if (object.hasOwnProperty(property)) {
-                callback.call(thisArg, object[property], property, object);
-            }
-        }
-    }
-    /**
-     * Executes a provided function once per structure element.
-     * NOTE: unlike [].forEach, non own properties are also enumerated
-     *
-     * @param {Array|Object} container Container to enumerate
-     * @param {gpfForEachCallback} callback Callback function executed on each item or own property
-     * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback
-     * @since 0.1.5
-     */
-    gpf.forEach = function (container, callback, thisArg) {
-        if (_gpfIsArrayLike(container)) {
-            _gpfArrayForEach(container, callback, thisArg);
-            return;
-        }
-        _gpfObjectForEach(container, callback, thisArg);
-    };
     var
-        //region File system constants
-        _GPF_FS_TYPE_NOT_FOUND = 0, _GPF_FS_TYPE_FILE = 1, _GPF_FS_TYPE_DIRECTORY = 2, _GPF_FS_TYPE_UNKNOWN = 99,
-        //endregion
         // https://github.com/jshint/jshint/issues/525
         _GpfFunc = Function,
         // avoid JSHint error
@@ -368,7 +316,6 @@
      * @param {String[]} [params] params Parameter names list
      * @param {String} source Body of the function
      * @return {Function} New function
-     * @private
      * @since 0.1.5
      */
     function _gpfFunc(params, source) {
@@ -391,27 +338,6 @@
     function _gpfIsUnsignedByte(value) {
         return "number" === typeof value && 0 <= value && value < 256;
     }
-    /**
-     * Add constants to the provided object
-     *
-     * @param {Object} obj Object receiving the constants
-     * @param {Object} dictionary Dictionary names to value
-     * @private
-     * @since 0.1.5
-     */
-    function _gpfCreateConstants(obj, dictionary) {
-        _gpfObjectForEach(dictionary, function (value, key) {
-            obj[key] = value;
-        });
-    }
-    _gpfCreateConstants(gpf, {
-        HOST_BROWSER: _GPF_HOST.BROWSER,
-        HOST_NODEJS: _GPF_HOST.NODEJS,
-        HOST_PHANTOMJS: _GPF_HOST.PHANTOMJS,
-        HOST_RHINO: _GPF_HOST.RHINO,
-        HOST_UNKNOWN: _GPF_HOST.UNKNOWN,
-        HOST_WSCRIPT: _GPF_HOST.WSCRIPT
-    });
     /* istanbul ignore else */
     // Because tested with NodeJS
     if (_GPF_HOST.NODEJS === _gpfHost) {
@@ -428,6 +354,60 @@
      * @since 0.1.5
      */
     gpf.web = {};
+    var _gpfIsArrayLike = function (obj) {
+        //eslint-disable-line func-style
+        return Array.isArray(obj);
+    };
+    /* istanbul ignore next */
+    // Not tested with NodeJS
+    if (_GPF_HOST.BROWSER === _gpfHost && (_gpfWebWindow.HTMLCollection || _gpfWebWindow.NodeList)) {
+        _gpfIsArrayLike = function (obj) {
+            return Array.isArray(obj) || obj instanceof _gpfWebWindow.HTMLCollection || obj instanceof _gpfWebWindow.NodeList;
+        };
+    }
+    /**
+     * @gpf:sameas _gpfIsArrayLike
+     * @since 0.1.5
+     */
+    gpf.isArrayLike = _gpfIsArrayLike;
+    function _gpfArrayForEach(array, callback, thisArg) {
+        var index, length = array.length;
+        for (index = 0; index < length; ++index) {
+            callback.call(thisArg, array[index], index, array);
+        }
+    }
+    /**
+     * Similar to [].forEach but for objects
+     *
+     * @param {Object} object Object
+     * @param {gpf.typedef.forEachCallback} callback Callback function executed on each own property
+     * @param {*} [thisArg] thisArg Value to use as this when executing callback
+     * @since 0.1.5
+     */
+    function _gpfObjectForEach(object, callback, thisArg) {
+        for (var property in object) {
+            /* istanbul ignore else */
+            if (object.hasOwnProperty(property)) {
+                callback.call(thisArg, object[property], property, object);
+            }
+        }
+    }
+    /**
+     * Executes a provided function once per structure element.
+     * NOTE: unlike [].forEach, non own properties are also enumerated
+     *
+     * @param {Array|Object} container Container to enumerate
+     * @param {gpf.typedef.forEachCallback} callback Callback function executed on each item or own property
+     * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback
+     * @since 0.1.5
+     */
+    gpf.forEach = function (container, callback, thisArg) {
+        if (_gpfIsArrayLike(container)) {
+            _gpfArrayForEach(container, callback, thisArg);
+            return;
+        }
+        _gpfObjectForEach(container, callback, thisArg);
+    };
     function _gpfAssign(value, memberName) {
         /*jshint validthis:true*/
         this[memberName] = value;
@@ -1317,7 +1297,7 @@
      * - when `"gpf"`, it **always** returns the GPF object
      * - when it leads to nothing, `undefined` is returned
     
-     * @typedef {*} gpfTypeContextResult
+     * @typedef {*} gpf.typedef.contextResult
      * @since 0.1.5
      */
     /**
@@ -1327,7 +1307,7 @@
      * @param {Boolean} [createMissingParts=false] If the path includes undefined parts and createMissingParts is true,
      * it allocates a default empty object. This allows building namespaces on the fly.
      *
-     * @return {gpfTypeContextResult} Resolved path
+     * @return {gpf.typedef.contextResult} Resolved path
      * @since 0.1.5
      */
     function _gpfContext(path, createMissingParts) {
@@ -1344,7 +1324,7 @@
      *
      * @param {String} path Dot separated list of identifiers
      *
-     * @return {gpfTypeContextResult} Resolved path
+     * @return {gpf.typedef.contextResult} Resolved path
      * @since 0.1.5
      */
     gpf.context = function (path) {

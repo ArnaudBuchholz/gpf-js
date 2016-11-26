@@ -1,10 +1,9 @@
 {
+    "constants": [
+        "assert"
+    ],
     "foreach": [
         "arraylike"
-    ],
-    "constants": [
-        "assert",
-        "foreach"
     ],
     "extend": [
         "foreach"
