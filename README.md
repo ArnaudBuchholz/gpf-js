@@ -36,13 +36,13 @@ maintainability-index-range-and-meaning.aspx)
 
 Metric name | average | total | SME | comment
 ------ | ----- | ----- | ----- | -----
-Statements coverage|99.67%||90%|*12.03% ignored*
+Statements coverage|99.67%||90%|*12.09% ignored*
 Branches coverage|98.95%||90%|*21.35% ignored*
-Functions coverage|100%||90%|*12.83% ignored*
-Maintainability|80.38||65|
-Number of tests||284||*pending: 0, duration: 279ms*
+Functions coverage|100%||90%|*13.01% ignored*
+Maintainability|80.21||65|
+Number of tests||284||*pending: 0, duration: 275ms*
 Number of sources||29||
-Lines of code|83|2411||
+Lines of code|82|2386||
 
 ## Setup
 
