@@ -33,15 +33,15 @@
         "doc": true
     },
     {
+        "name": "constants",
+        "doc": true
+    },
+    {
         "name": "arraylike",
         "doc": true
     },
     {
         "name": "foreach",
-        "doc": true
-    },
-    {
-        "name": "constants",
         "doc": true
     },
     {
