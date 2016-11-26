@@ -7,7 +7,6 @@
 /*global _GPF_HOST*/ // Host types
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfHost*/ // Host type
-/*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _gpfALPHA*/ // Letters (uppercase)
 /*exported _gpfAlpha*/ // Letters (lowercase)
 /*exported _gpfCreateConstants*/ // Automate constants creation
