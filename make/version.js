@@ -94,4 +94,5 @@ function _handleSinceInSource (source) {
     }
 }
 
+sourcesJson[0].load = true; // boot must be altered too
 sourcesJson.forEach(_handleSinceInSource);
