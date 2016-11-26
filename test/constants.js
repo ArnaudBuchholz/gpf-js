@@ -37,25 +37,25 @@ describe("constants", function () {
             var host = gpf.host();
             // Must be one of these
             assert(-1 !== [
-                gpf.HOST_BROWSER,
-                gpf.HOST_NODEJS,
-                gpf.HOST_PHANTOMJS,
-                gpf.HOST_RHINO,
-                gpf.HOST_UNKNOWN,
-                gpf.HOST_WSCRIPT
+                gpf.hosts.browser,
+                gpf.hosts.nodejs,
+                gpf.hosts.phantomjs,
+                gpf.hosts.rhino,
+                gpf.hosts.unknown,
+                gpf.hosts.wscript
             ].indexOf(host));
         });
 
-        describe("gpf.HOST_xxx", function () {
+        describe("gpf.hosts enumeration", function () {
             [ // expected list of known host types
-                "BROWSER",
-                "NODEJS",
-                "PHANTOMJS",
-                "UNKNOWN",
-                "WSCRIPT"
-            ].forEach(function (eventName) {
-                it("declares gpf.HOST_" + eventName, function () {
-                    assert(undefined !== gpf["HOST_" + eventName]);
+                "browser",
+                "nodejs",
+                "phantomjs",
+                "unknown",
+                "wscript"
+            ].forEach(function (name) {
+                it("declares gpf.hosts." + name, function () {
+                    assert(undefined !== gpf.hosts[name]);
                 });
             });
         });
