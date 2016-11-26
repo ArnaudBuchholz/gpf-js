@@ -298,9 +298,9 @@ gpf.hosts = {
 };
 
 /**
- * Returns a string identifying the detected host
+ * Returns the detected host type
  *
- * @return {gpf.hosts}
+ * @return {gpf.hosts} Host type
  */
 gpf.host = function () {
     return _gpfHost;
