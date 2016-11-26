@@ -27,26 +27,16 @@
 function _gpfEmptyFunc () {}
 
 var
-    // GPF version
+    /** GPF Version */
     _gpfVersion = "0.1.5",
 
-    /**
-     * Host type
-     *
-     * @enum {String}
-     */
+    /** Host constants */
     _GPF_HOST = {
-        /** Browser */
         BROWSER:    "browser",
-        /** [NodeJs](http://nodejs.org/) */
         NODEJS:     "nodejs",
-        /** [PhantomJS](http://phantomjs.org/) */
         PHANTOMJS:  "phantomjs",
-        /** [Rhino](http://developer.mozilla.org/en/docs/Rhino) */
         RHINO:      "rhino",
-        /** Unknown: detection failed */
         UNKNOWN:    "unknown",
-        /** [cscript/wscript](http://technet.microsoft.com/en-us/library/bb490887.aspx) */
         WSCRIPT:    "wscript"
     },
 
@@ -287,14 +277,30 @@ eval(_gpfLoadSources()); //eslint-disable-line no-eval
 /*#endif*/
 
 /**
+ * Host type enumeration
+ *
+ * @enum {String}
+ * @readonly
+ */
+gpf.hosts = {
+    /** Any browser (phantomjs is recognized separately) */
+    browser: _GPF_HOST.BROWSER,
+    /** [NodeJs](http://nodejs.org/) */
+    nodejs: _GPF_HOST.NODEJS,
+    /** [PhantomJS](http://phantomjs.org/) */
+    phantomjs: _GPF_HOST.PHANTOMJS,
+    /** [Rhino](http://developer.mozilla.org/en/docs/Rhino) */
+    rhino: _GPF_HOST.RHINO,
+    /** Unknown (detection failed or the host is unknown) */
+    unknown: _GPF_HOST.UNKNOWN,
+    /** [cscript/wscript](http://technet.microsoft.com/en-us/library/bb490887.aspx) */
+    wscript: _GPF_HOST.WSCRIPT
+};
+
+/**
  * Returns a string identifying the detected host
  *
- * @return {String}
- * - gpf.HOST_WSCRIPT for cscript and wscript
- * - gpf.HOST_NODEJS for nodejs
- * - gpf.HOST_PHANTOMJS for phantomjs
- * - gpf.HOST_BROWSER for any browser
- * - gpf.HOST_UNKNOWN if not detected
+ * @return {gpf.hosts}
  */
 gpf.host = function () {
     return _gpfHost;
