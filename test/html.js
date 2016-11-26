@@ -188,7 +188,7 @@
 
     });
 
-    if (gpf.HOST_BROWSER === gpf.host()) {
+    if (gpf.hosts.browser === gpf.host()) {
 
         gpf.declareTests({
 
