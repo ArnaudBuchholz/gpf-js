@@ -12,15 +12,15 @@ function _logDoclet (doclet) {
     }
     title.push(doclet.longname, " (", doclet.kind, ")");
     console.log(title.join(""));
-    // try {
-    //     if (doclet.longname.indexOf("gpf.hosts") !== -1
-    //         || doclet.longname.indexOf("_GPF_HOST") !== -1
-    //         ) {
-    //         console.log(doclet);
-    //     }
-    // } catch (e) {
-    //     // ignore
-    // }
+    try {
+        if (doclet.longname.indexOf("gpf.hosts") !== -1
+            || doclet.longname.indexOf("_GPF_HOST") !== -1
+            ) {
+            console.log(doclet);
+        }
+    } catch (e) {
+        // ignore
+    }
 }
 
 function _findDoclet (doclets, longname, tag) {
@@ -143,6 +143,13 @@ function _checkAccess (doclet) {
     }
 }
 
+function _cleanEnum (doclet) {
+    // Remove default value from documentation
+    doclet.properties.forEach(function (property) {
+        delete property.defaultvalue;
+    });
+}
+
 function _postProcessDoclet (doclet, index, doclets) {
     var kind = doclet.kind;
     _handleCustomTags(doclet, doclets);
@@ -151,6 +158,9 @@ function _postProcessDoclet (doclet, index, doclets) {
         _checkAccess(doclet);
     } else if (-1 !== ["function", "typedef", "class"].indexOf(kind)) {
         _checkAccess(doclet);
+    }
+    if (doclet.isEnum) {
+        _cleanEnum(doclet);
     }
     _logDoclet(doclet);
 }
