@@ -8,10 +8,6 @@
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfHost*/ // Host type
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*exported _GPF_FS_TYPE_DIRECTORY*/ // gpf.fs.TYPE_DIRECTORY
-/*exported _GPF_FS_TYPE_FILE*/ // gpf.fs.TYPE_FILE
-/*exported _GPF_FS_TYPE_NOT_FOUND*/ // gpf.fs.TYPE_NOT_FOUND
-/*exported _GPF_FS_TYPE_UNKNOWN*/ // gpf.fs.TYPE_UNKNOWN
 /*exported _gpfALPHA*/ // Letters (uppercase)
 /*exported _gpfAlpha*/ // Letters (lowercase)
 /*exported _gpfCreateConstants*/ // Automate constants creation
@@ -44,15 +40,6 @@
  */
 
 var
-
-    //region File system constants
-
-    _GPF_FS_TYPE_NOT_FOUND          = 0,
-    _GPF_FS_TYPE_FILE               = 1,
-    _GPF_FS_TYPE_DIRECTORY          = 2,
-    _GPF_FS_TYPE_UNKNOWN            = 99,
-
-    //endregion
 
     // https://github.com/jshint/jshint/issues/525
     _GpfFunc = Function, // avoid JSHint error
@@ -103,7 +90,6 @@ function _gpfFuncUnsafe (params, source) {
  * @param {String[]} [params] params Parameter names list
  * @param {String} source Body of the function
  * @return {Function} New function
- * @private
  * @since 0.1.5
  */
 function _gpfFunc (params, source) {
@@ -130,29 +116,6 @@ function _gpfFunc (params, source) {
 function _gpfIsUnsignedByte (value) {
     return "number" === typeof value && 0 <= value && value < 256;
 }
-
-/**
- * Add constants to the provided object
- *
- * @param {Object} obj Object receiving the constants
- * @param {Object} dictionary Dictionary names to value
- * @private
- * @since 0.1.5
- */
-function _gpfCreateConstants (obj, dictionary) {
-    _gpfObjectForEach(dictionary, function (value, key) {
-        obj[key] = value;
-    });
-}
-
-_gpfCreateConstants(gpf, {
-    HOST_BROWSER: _GPF_HOST.BROWSER,
-    HOST_NODEJS: _GPF_HOST.NODEJS,
-    HOST_PHANTOMJS: _GPF_HOST.PHANTOMJS,
-    HOST_RHINO: _GPF_HOST.RHINO,
-    HOST_UNKNOWN: _GPF_HOST.UNKNOWN,
-    HOST_WSCRIPT: _GPF_HOST.WSCRIPT
-});
 
 /* istanbul ignore else */ // Because tested with NodeJS
 if (_GPF_HOST.NODEJS === _gpfHost) {
