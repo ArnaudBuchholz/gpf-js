@@ -41,7 +41,7 @@ describe("base", function () {
 
         describe("(internal)", function () {
 
-            if (gpf.HOST_NODEJS === gpf.host()) {
+            if (gpf.hosts.nodejs === gpf.host()) {
 
                 describe("_gpfNodeBuffer2JsArray", function () {
 
