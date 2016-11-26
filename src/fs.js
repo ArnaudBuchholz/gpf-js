@@ -19,6 +19,12 @@
 /*exported _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
 /*#endif*/
 
+var
+    _GPF_FS_TYPE_NOT_FOUND          = 0,
+    _GPF_FS_TYPE_FILE               = 1,
+    _GPF_FS_TYPE_DIRECTORY          = 2,
+    _GPF_FS_TYPE_UNKNOWN            = 99;
+
 _gpfErrorDeclare("fs", {
     "fileNotFound":
         "File not found"
