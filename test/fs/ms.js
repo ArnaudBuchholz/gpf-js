@@ -2,7 +2,7 @@
 
 describe("fs/ms", function () {
 
-    if (gpf.HOST_WSCRIPT !== gpf.host()) {
+    if (gpf.hosts.wscript !== gpf.host()) {
         return; // Skip
     }
 
