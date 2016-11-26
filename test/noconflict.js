@@ -4,7 +4,7 @@ describe("noconflict", function () {
 
     describe("gpf as a module", function () {
 
-        if (gpf.HOST_NODEJS === gpf.host()) {
+        if (gpf.hosts.nodejs === gpf.host()) {
             /*jshint node: true*/
             /*eslint-env node*/
 
@@ -18,7 +18,7 @@ describe("noconflict", function () {
                 assert(previousGpf === gpf);
             });
 
-        } else if ((gpf.HOST_BROWSER === gpf.host() || gpf.HOST_PHANTOMJS === gpf.host())
+        } else if ((gpf.hosts.browser === gpf.host() || gpf.hosts.phantomjs === gpf.host())
             && window.gpfSourcesPath && gpf.web.include) {
             /*jshint browser: true*/
             /*eslint-env browser*/
