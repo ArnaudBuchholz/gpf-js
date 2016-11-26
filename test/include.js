@@ -7,7 +7,7 @@ describe("include", function () {
 
         it("should exist only if in a browser environment", function () {
             var host = gpf.host();
-            if (-1 < [gpf.HOST_BROWSER, gpf.HOST_PHANTOMJS].indexOf(host)) {
+            if (-1 < [gpf.hosts.browser, gpf.hosts.phantomjs].indexOf(host)) {
                 assert(installed);
             } else {
                 assert(!installed);
