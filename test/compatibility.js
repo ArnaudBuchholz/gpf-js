@@ -242,21 +242,25 @@ describe("compatibility", function () {
                         var scope = {
                                 member: null
                             },
-                            bound;
+                            bound,
+                            result;
                         function testFunction (value) {
                             /*jshint validthis:true*/
                             /*eslint-disable no-invalid-this*/
                             assert(this === scope);
                             this.member = value;
                             /*eslint-enable no-invalid-this*/
+                            return value;
                         }
                         bound = method.apply(testFunction, [scope]);
                         // Check the scope when calling bound
-                        bound(true);
+                        result = bound(true);
                         assert(true === scope.member);
+                        assert(true === result);
                         // Ignore applied scope when bound
-                        bound.apply({}, [false]);
+                        result = bound.apply({}, [false]);
                         assert(false === scope.member);
+                        assert(false === result);
                     }
                 }
             },
