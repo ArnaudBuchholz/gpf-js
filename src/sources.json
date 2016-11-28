@@ -45,10 +45,6 @@
         "doc": true
     },
     {
-        "name": "extend",
-        "doc": true
-    },
-    {
         "name": "string/capitalize",
         "doc": true
     },
@@ -67,11 +63,6 @@
     },
     {
         "name": "string/escape/xml",
-        "test": false,
-        "doc": true
-    },
-    {
-        "name": "string/escape/html",
         "test": false,
         "doc": true
     },
@@ -117,6 +108,15 @@
     },
     {
         "name": "context",
+        "doc": true
+    },
+    {
+        "name": "extend",
+        "doc": true
+    },
+    {
+        "name": "string/escape/html",
+        "test": false,
         "doc": true
     },
     {
