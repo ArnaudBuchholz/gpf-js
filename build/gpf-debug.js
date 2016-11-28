@@ -31,9 +31,15 @@
     function _gpfEmptyFunc() {
     }
     var
-        /** GPF Version */
+        /**
+         * GPF Version
+         * @since 0.1.5
+         */
         _gpfVersion = "0.1.5",
-        /** Host constants */
+        /**
+         * Host constants
+         * @since 0.1.5
+         */
         _GPF_HOST = {
             BROWSER: "browser",
             NODEJS: "nodejs",
@@ -46,9 +52,13 @@
          * Current host type
          *
          * @type {_GPF_HOST}
+         * @since 0.1.5
          */
         _gpfHost = _GPF_HOST.UNKNOWN,
-        /** Indicates that paths are DOS-like (i.e. case insensitive with /) */
+        /**
+         * Indicates that paths are DOS-like (i.e. case insensitive with /)
+         * @since 0.1.5
+         */
         _gpfDosPath = false,
         /*jshint -W040*/
         // This is the common way to get the global context
@@ -56,6 +66,7 @@
          * Main context object
          *
          * @type {Object}
+         * @since 0.1.5
          */
         _gpfMainContext = this,
         //eslint-disable-line no-invalid-this, consistent-this
@@ -64,6 +75,7 @@
          * Helper to ignore unused parameter
          *
          * @param {*} param
+         * @since 0.1.5
          */
         /*gpf:nop*/
         _gpfIgnore = _gpfEmptyFunc,
@@ -71,42 +83,49 @@
          * Exit function
          *
          * @param {Number} code
+         * @since 0.1.5
          */
         _gpfExit = _gpfEmptyFunc,
         /**
          * Browser window object
          *
          * @type {Object}
+         * @since 0.1.5
          */
         _gpfWebWindow,
         /**
          * Browser [document](https://developer.mozilla.org/en-US/docs/Web/API/Document) object
          *
          * @type {Object}
+         * @since 0.1.5
          */
         _gpfWebDocument,
         /**
          * Browser [head](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head) tag
          *
          * @type {Object}
+         * @since 0.1.5
          */
         _gpfWebHead,
         /**
          * [Scripting.FileSystemObject](https://msdn.microsoft.com/en-us/library/aa711216(v=vs.71).aspx) Object
          *
          * @type {Object}
+         * @since 0.1.5
          */
         _gpfMsFSO,
         /**
          * Node [require("fs")](https://nodejs.org/api/fs.html)
          *
          * @type {Object}
+         * @since 0.1.5
          */
         _gpfNodeFs,
         /**
          * Node [require("path")](https://nodejs.org/api/path.html)
          *
          * @type {Object}
+         * @since 0.1.5
          */
         _gpfNodePath;
     _gpfVersion += "-debug";
@@ -137,30 +156,55 @@
      *
      * @enum {String}
      * @readonly
+     * @since 0.1.5
      */
     gpf.hosts = {
-        /** Any browser (phantomjs is recognized separately) */
+        /**
+         * Any browser (phantomjs is recognized separately)
+         * @since 0.1.5
+         */
         browser: _GPF_HOST.BROWSER,
-        /** [NodeJs](http://nodejs.org/) */
+        /**
+         * [NodeJs](http://nodejs.org/)
+         * @since 0.1.5
+         */
         nodejs: _GPF_HOST.NODEJS,
-        /** [PhantomJS](http://phantomjs.org/) */
+        /**
+         * [PhantomJS](http://phantomjs.org/)
+         * @since 0.1.5
+         */
         phantomjs: _GPF_HOST.PHANTOMJS,
-        /** [Rhino](http://developer.mozilla.org/en/docs/Rhino) */
+        /**
+         * [Rhino](http://developer.mozilla.org/en/docs/Rhino)
+         * @since 0.1.5
+         */
         rhino: _GPF_HOST.RHINO,
-        /** Unknown (detection failed or the host is unknown) */
+        /**
+         * Unknown (detection failed or the host is unknown)
+         * @since 0.1.5
+         */
         unknown: _GPF_HOST.UNKNOWN,
-        /** [cscript/wscript](http://technet.microsoft.com/en-us/library/bb490887.aspx) */
+        /**
+         * [cscript/wscript](http://technet.microsoft.com/en-us/library/bb490887.aspx)
+         * @since 0.1.5
+         */
         wscript: _GPF_HOST.WSCRIPT
     };
     /**
      * Returns the detected host type
      *
      * @return {gpf.hosts} Host type
+     * @since 0.1.5
      */
     gpf.host = function () {
         return _gpfHost;
     };
-    // Returns the current version
+    /**
+     * Returns the current version
+     *
+     * @return {String} Version
+     * @since 0.1.5
+     */
     gpf.version = function () {
         return _gpfVersion;
     };
@@ -408,31 +452,6 @@
         }
         _gpfObjectForEach(container, callback, thisArg);
     };
-    function _gpfAssign(value, memberName) {
-        /*jshint validthis:true*/
-        this[memberName] = value;
-    }
-    /**
-     * Extends the destination object by copying own enumerable properties from the source object.
-     * If the member already exists, it is overwritten.
-     *
-     * @param {Object} destination Destination object
-     * @param {...Object} source Source objects
-     * @return {Object} Destination object
-     * @since 0.1.5
-     */
-    function _gpfExtend(destination, source) {
-        _gpfIgnore(source);
-        [].slice.call(arguments, 1).forEach(function (nthSource) {
-            _gpfObjectForEach(nthSource, _gpfAssign, destination);
-        });
-        return destination;
-    }
-    /**
-     * @gpf:sameas _gpfExtend
-     * @since 0.1.5
-     */
-    gpf.extend = _gpfExtend;
     function _gpfStringCapitalize(that) {
         return that.charAt(0).toUpperCase() + that.substr(1);
     }
@@ -476,13 +495,6 @@
         "<": "&lt;",
         ">": "&gt;"
     };
-    _gpfStringEscapes.html = _gpfExtend(_gpfStringEscapes.xml, {
-        "à": "&agrave;",
-        "á": "&aacute;",
-        "è": "&egrave;",
-        "é": "&eacute;",
-        "ê": "&ecirc;"
-    });
     function _gpfInstallMissingMembers(on, members) {
         _gpfObjectForEach(members, function (value, memberName) {
             if (on[memberName] === undefined) {
@@ -631,8 +643,8 @@
             }
         }
     });
-    function _gpfBuildFactoryParameterList(maxParameters) {
-        return new Array(maxParameters).join(" ").split(" ").map(function (value, index) {
+    function _gpfBuildFunctionParameterList(count) {
+        return new Array(count).join(" ").split(" ").map(function (value, index) {
             return "p" + index;
         });
     }
@@ -648,7 +660,7 @@
         return src.join("\r\n");
     }
     function _gpfGenerateGenericFactory(maxParameters) {
-        var parameters = _gpfBuildFactoryParameterList(maxParameters);
+        var parameters = _gpfBuildFunctionParameterList(maxParameters);
         return _gpfFunc(parameters, _gpfGenerateGenericFactorySource(parameters));
     }
     /**
@@ -819,16 +831,26 @@
     }
     _gpfInstallCompatibleDate();    //endregion
     var _gpfArrayPrototypeSlice = Array.prototype.slice;
+    function _generateBindBuilderSource(length) {
+        return [
+            "var me = this;",
+            "return function (" + _gpfBuildFunctionParameterList(length).join(", ") + ") {",
+            "   var args = _gpfArrayPrototypeSlice.call(arguments, 0);",
+            "    return me.apply(thisArg, prependArgs.concat(args));",
+            "};"
+        ].join("\n");
+    }
     _gpfInstallCompatibility("Function", {
         on: Function,
         methods: {
             // Introduced with JavaScript 1.8.5
             bind: function (thisArg) {
-                var me = this, prependArgs = _gpfArrayPrototypeSlice.call(arguments, 1);
-                return function () {
-                    var args = _gpfArrayPrototypeSlice.call(arguments, 0);
-                    me.apply(thisArg, prependArgs.concat(args));
-                };
+                var me = this, prependArgs = _gpfArrayPrototypeSlice.call(arguments, 1), builderSource = _generateBindBuilderSource(Math.max(this.length - prependArgs.length, 0));
+                return _gpfFunc([
+                    "thisArg",
+                    "prependArgs",
+                    "_gpfArrayPrototypeSlice"
+                ], builderSource).call(me, thisArg, prependArgs, _gpfArrayPrototypeSlice);
             }
         }
     });
@@ -1333,6 +1355,38 @@
         }
         return _gpfContext(path.split("."));
     };
+    function _gpfAssign(value, memberName) {
+        /*jshint validthis:true*/
+        this[memberName] = value;
+    }
+    /**
+     * Extends the destination object by copying own enumerable properties from the source object.
+     * If the member already exists, it is overwritten.
+     *
+     * @param {Object} destination Destination object
+     * @param {...Object} source Source objects
+     * @return {Object} Destination object
+     * @since 0.1.5
+     */
+    function _gpfExtend(destination, source) {
+        _gpfIgnore(source);
+        [].slice.call(arguments, 1).forEach(function (nthSource) {
+            _gpfObjectForEach(nthSource, _gpfAssign, destination);
+        });
+        return destination;
+    }
+    /**
+     * @gpf:sameas _gpfExtend
+     * @since 0.1.5
+     */
+    gpf.extend = _gpfExtend;
+    _gpfStringEscapes.html = _gpfExtend(_gpfStringEscapes.xml, {
+        "à": "&agrave;",
+        "á": "&aacute;",
+        "è": "&egrave;",
+        "é": "&eacute;",
+        "ê": "&ecirc;"
+    });
     var _GpfError = gpf.Error = function () {
     };
     _GpfError.prototype = new Error();
@@ -1383,11 +1437,12 @@
         }
         NewErrorClass.prototype = new _GpfError();
         _gpfExtend(NewErrorClass.prototype, {
-            constructor: NewErrorClass,
             code: code,
             name: name,
             message: message
         });
+        // constructor can't be enumerated with wscript
+        NewErrorClass.prototype.constructor = NewErrorClass;
         _GpfError[_gpfStringCapitalize(name)] = NewErrorClass;
         return function (context) {
             throw new NewErrorClass(context);
