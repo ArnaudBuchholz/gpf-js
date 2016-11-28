@@ -11,14 +11,14 @@ describe("compatibility", function () {
         var array = new Array(5);
         array[2] = undefined;
         array[3] = 3;
-        method.apply(array, [function (value, idx) {
+        method.call(array, function (value, idx) {
             assert(2 === idx || 3 === idx);
             if (2 === idx) {
                 assert(undefined === value);
             } else {
                 assert(3 === value);
             }
-        }]);
+        });
     }
 
     var tests = {
@@ -26,7 +26,7 @@ describe("compatibility", function () {
             Array: {
                 every: {
                     length: 1,
-                    "should return true when it goes over all items": function (method) {
+                    "must return true when it goes over all items": function (method) {
                         var array = [1, 2, 3, -6, 10],
                             sum = 0,
                             result;
@@ -37,28 +37,28 @@ describe("compatibility", function () {
                         assert(true === result);
                         assert(10 === sum);
                     },
-                    "should return false when it stops on a given item": function (method) {
+                    "must return false when it stops on a given item": function (method) {
                         var array = [1, 2, 3, -6, 10],
                             sum = 0,
                             result;
-                        result = method.apply(array, [function (value) {
+                        result = method.call(array, function (value) {
                             if (value > 0) {
                                 sum += value;
                                 return true;
                             }
                             return false;
-                        }]);
+                        });
                         assert(false === result);
                         assert(6 === sum);
                     },
-                    "should iterate with a bound context": function (method) {
+                    "must iterate with a bound context": function (method) {
                         var array = [1, 2, 3, -6, 10],
                             scope = {
                                 sum: 0,
                                 index: 0
                             },
                             result;
-                        result = method.apply(array, [function (value, idx) {
+                        result = method.call(array, function (value, idx) {
                             var me = this; //eslint-disable-line no-invalid-this
                             assert(me === scope);
                             me.index = idx;
@@ -67,97 +67,97 @@ describe("compatibility", function () {
                                 return true;
                             }
                             return false;
-                        }, scope]);
+                        }, scope);
                         assert(false === result);
                         assert(6 === scope.sum);
                         assert(3 === scope.index);
                     },
-                    "should ignore undefined members": arrayMethodShouldIgnoreUndefined
+                    "must ignore undefined members": arrayMethodShouldIgnoreUndefined
                 },
                 filter: {
                     length: 1,
-                    "should filter": function (method) {
+                    "must filter": function (method) {
                         var array = [1, 2, 3, 4, 5],
                             result;
-                        result = method.apply(array, [function (value) {
+                        result = method.call(array, function (value) {
                             return value % 2 === 0;
-                        }]);
+                        });
                         assert(result.length === 2);
                         assert(result[0] === 2);
                         assert(result[1] === 4);
                     },
-                    "should filter with a bound context": function (method) {
+                    "must filter with a bound context": function (method) {
                         var array = [1, 2, 3, 4, 5],
                             obj = {},
                             result;
-                        result = method.apply(array, [function (value) {
+                        result = method.call(array, function (value) {
                             assert(this === obj); //eslint-disable-line no-invalid-this
                             return value % 2 === 0;
-                        }, obj]);
+                        }, obj);
                         assert(result.length === 2);
                         assert(result[0] === 2);
                         assert(result[1] === 4);
                     },
-                    "should ignore undefined members": arrayMethodShouldIgnoreUndefined
+                    "must ignore undefined members": arrayMethodShouldIgnoreUndefined
                 },
                 forEach: {
                     length: 1,
-                    "should iterate": function (method) {
+                    "must iterate": function (method) {
                         var array = [1, 2, 3],
                             sum = 0;
                         assert("function" === typeof array.forEach);
                         assert(!array.hasOwnProperty("forEach"));
-                        method.apply(array, [function (value) {
+                        method.call(array, function (value) {
                             sum += value;
-                        }]);
+                        });
                         assert(6 === sum);
                     },
-                    "should iterate with a bound context": function (method) {
+                    "must iterate with a bound context": function (method) {
                         var array = [1, 2, 3],
                             obj = {
                                 sum: 0
                             };
-                        method.apply(array, [function (value) {
+                        method.call(array, function (value) {
                             this.sum += value; //eslint-disable-line no-invalid-this
-                        }, obj]);
+                        }, obj);
                         assert(6 === obj.sum);
                     },
-                    "should ignore undefined members": arrayMethodShouldIgnoreUndefined
+                    "must ignore undefined members": arrayMethodShouldIgnoreUndefined
                 },
                 indexOf: {
                     length: 1,
-                    "should expose indexOf()": function (method) {
+                    "must expose indexOf()": function (method) {
                         var obj = {},
                             array = [1, 2, 3, obj, "abc"];
-                        assert(-1 === method.apply(array, [4]));
-                        assert(0 === method.apply(array, [1]));
-                        assert(3 === method.apply(array, [obj]));
-                        assert(-1 === method.apply(array, [{}]));
-                        assert(4 === method.apply(array, ["abc"]));
+                        assert(-1 === method.call(array, 4));
+                        assert(0 === method.call(array, 1));
+                        assert(3 === method.call(array, obj));
+                        assert(-1 === method.call(array, {}));
+                        assert(4 === method.call(array, "abc"));
                     }
                 },
                 map: {
                     length: 1,
-                    "should map with a bound context": function (method) {
+                    "must map with a bound context": function (method) {
                         var obj = {},
                             array = [1, 2, 3, obj, "abc"],
                             result;
                         assert("function" === typeof array.map);
                         assert(!array.hasOwnProperty("map"));
-                        result = method.apply(array, [function (value, idx) {
+                        result = method.call(array, function (value, idx) {
                             assert(this === obj); //eslint-disable-line no-invalid-this
                             assert(value === array[idx]);
                             return idx;
-                        }, obj]);
+                        }, obj);
                         assert(result.length === array.length);
                         assert(result[0] === 0);
                         assert(result[4] === 4);
                     },
-                    "should ignore undefined members": arrayMethodShouldIgnoreUndefined
+                    "must ignore undefined members": arrayMethodShouldIgnoreUndefined
                 },
                 reduce: {
                     length: 1,
-                    "should reduce with no initial value": function (method) {
+                    "must reduce with no initial value": function (method) {
                         var array = [0, 1, 2, 3, 4],
                             lastIndex = 1;
                         function reducer (previousValue, currentValue, index, processedArray) {
@@ -166,9 +166,9 @@ describe("compatibility", function () {
                             ++lastIndex;
                             return previousValue + currentValue;
                         }
-                        assert(10 === method.apply(array, [reducer]));
+                        assert(10 === method.call(array, reducer));
                     },
-                    "should reduce with intial value": function (method) {
+                    "must reduce with intial value": function (method) {
                         var array = [0, 1, 2, 3, 4],
                             lastIndex = 0;
                         function reducer (previousValue, currentValue, index, processedArray) {
@@ -177,7 +177,7 @@ describe("compatibility", function () {
                             ++lastIndex;
                             return previousValue + currentValue;
                         }
-                        assert(20 === method.apply(array, [reducer, 10]));
+                        assert(20 === method.call(array, reducer, 10));
                     }
                 },
                 from: {
@@ -238,29 +238,50 @@ describe("compatibility", function () {
             Function: {
                 bind: {
                     length: 1,
-                    "should bind to a context": function (method) {
+                    "must bind to a context": function (method) {
                         var scope = {
                                 member: null
                             },
-                            bound,
-                            result;
+                            bound;
                         function testFunction (value) {
                             /*jshint validthis:true*/
                             /*eslint-disable no-invalid-this*/
                             assert(this === scope);
                             this.member = value;
                             /*eslint-enable no-invalid-this*/
+                        }
+                        bound = method.call(testFunction, scope);
+                        // Check the scope when calling bound
+                        bound(true);
+                        assert(true === scope.member);
+                        // Ignore applied scope when bound
+                        bound.call({}, false);
+                        assert(false === scope.member);
+                    },
+                    "must return the same result": function (method) {
+                        function testFunction (value) {
                             return value;
                         }
-                        bound = method.apply(testFunction, [scope]);
-                        // Check the scope when calling bound
-                        result = bound(true);
-                        assert(true === scope.member);
-                        assert(true === result);
-                        // Ignore applied scope when bound
-                        result = bound.apply({}, [false]);
-                        assert(false === scope.member);
-                        assert(false === result);
+                        var boundFunction = method.call(testFunction, {});
+                        assert(false === boundFunction(false));
+                        assert(true === boundFunction(true));
+                    },
+                    "must preserve function signature": function (method) {
+                        function f1 (a, b, c) {
+                            return a + b + c;
+                        }
+                        assert(f1.length === 3);
+                        var f2 = method.call(f1, {});
+                        assert(f2.length === 3);
+                    },
+                    "must allow additional parameters binding": function (method) {
+                        function f1 (a, b, c) {
+                            return a + b + c;
+                        }
+                        assert(f1.length === 3);
+                        var f2 = method.call(f1, {}, 1);
+                        assert(f2.length === 2);
+                        assert(f2(2, 3) === 6);
                     }
                 }
             },
@@ -270,11 +291,11 @@ describe("compatibility", function () {
                     isStatic: true,
                     length: -1, // ignore
                     "allows creating objects with a given prototype": function (method) {
-                        var object = method.apply(Object, [{
+                        var object = method.call(Object, {
                             method: function () {
                                 return "myMethod";
                             }
-                        }]);
+                        });
                         assert(!object.hasOwnProperty("method"));
                         assert("function" === typeof object.method);
                         assert(object.method() === "myMethod");
@@ -287,7 +308,7 @@ describe("compatibility", function () {
                                 return "a";
                             }
                         };
-                        var a = method.apply(Object, [A.prototype]);
+                        var a = method.call(Object, A.prototype);
                         assert(a.a() === "a");
                         assert(a instanceof A);
                     },
@@ -302,7 +323,7 @@ describe("compatibility", function () {
                         function B () {
                         }
                         B.prototype = new A();
-                        var b = method.apply(Object, [B.prototype]);
+                        var b = method.call(Object, B.prototype);
                         assert(b.a() === "a");
                         assert(b instanceof A);
                         assert(b instanceof B);
@@ -320,7 +341,7 @@ describe("compatibility", function () {
                             }
                         };
                         object = Object.create(proto);
-                        assert(method.apply(Object, [object]) === proto);
+                        assert(method.call(Object, object) === proto);
                     },
                     "returns prototype from constructor": function (method) {
                         function A () {
@@ -332,7 +353,7 @@ describe("compatibility", function () {
                             }
                         };
                         var a = new A();
-                        assert(method.apply(Object, [a]) === A.prototype);
+                        assert(method.call(Object, a) === A.prototype);
                     }
                 },
                 keys: {
@@ -341,7 +362,7 @@ describe("compatibility", function () {
                     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
                     "returns list of indexes of an array": function (method) {
                         var arr = ["a", "b", "c"],
-                            keys = method.apply(Object, [arr]);
+                            keys = method.call(Object, arr);
                         assert(keys.length === 3);
                         assert(keys[0] === "0");
                         assert(keys[1] === "1");
@@ -349,7 +370,7 @@ describe("compatibility", function () {
                     },
                     "returns list of indexes of an array-like object": function (method) {
                         var obj = {0: "a", 1: "b", 2: "c"},
-                            keys = method.apply(Object, [obj]);
+                            keys = method.call(Object, obj);
                         assert(keys.length === 3);
                         // Order is not guaranteed
                         assert(-1 < keys.indexOf("0"));
@@ -358,7 +379,7 @@ describe("compatibility", function () {
                     },
                     "returns list of indexes of an array like object with random key ordering": function (method) {
                         var obj = {100: "a", 2: "b", 7: "c"},
-                            keys = method.apply(Object, [obj]);
+                            keys = method.call(Object, obj);
                         assert(keys.length === 3);
                         // Order is not guaranteed
                         assert(-1 < keys.indexOf("2"));
@@ -374,7 +395,7 @@ describe("compatibility", function () {
                         var obj = new MyObject(),
                             keys;
                         obj.c = 2;
-                        keys = method.apply(Object, [obj]);
+                        keys = method.call(Object, obj);
                         assert(keys.length === 1);
                         assert(keys[0] === "c");
                     }
@@ -385,7 +406,7 @@ describe("compatibility", function () {
                     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/values
                     "returns list of values of an object": function (method) {
                         var obj = {foo: "bar", baz: 42},
-                            values = method.apply(Object, [obj]);
+                            values = method.call(Object, obj);
                         assert(values.length === 2);
                         // Order is not guaranteed
                         assert(-1 < values.indexOf("bar"));
@@ -393,7 +414,7 @@ describe("compatibility", function () {
                     },
                     "returns list of values of an array-like object": function (method) {
                         var obj = {0: "a", 1: "b", 2: "c"},
-                            values = method.apply(Object, [obj]);
+                            values = method.call(Object, obj);
                         assert(values.length === 3);
                         // Order is not guaranteed
                         assert(-1 < values.indexOf("a"));
@@ -402,7 +423,7 @@ describe("compatibility", function () {
                     },
                     "returns list of values of an array like object with random key ordering": function (method) {
                         var obj = {100: "a", 2: "b", 7: "c"},
-                            values = method.apply(Object, [obj]);
+                            values = method.call(Object, obj);
                         assert(values.length === 3);
                         // Order is not guaranteed
                         assert(-1 < values.indexOf("a"));
@@ -418,7 +439,7 @@ describe("compatibility", function () {
                         var obj = new MyObject(),
                             values;
                         obj.c = 2;
-                        values = method.apply(Object, [obj]);
+                        values = method.call(Object, obj);
                         assert(values.length === 1);
                         assert(values[0] === 2);
                     }
@@ -428,9 +449,9 @@ describe("compatibility", function () {
             String: {
                 trim: {
                     length: 0,
-                    "should trim left and right": function (method) {
+                    "must trim left and right": function (method) {
                         var string = " \t  abc\t \t";
-                        assert("abc" === method.apply(string, []));
+                        assert("abc" === method.call(string));
                     }
                 }
             },
@@ -440,7 +461,7 @@ describe("compatibility", function () {
                     length: 0,
                     "converts to UTC string": function (method) {
                         var date = new Date("2003-01-22T22:45:00.000Z");
-                        assert("2003-01-22T22:45:00.000Z" === method.apply(date, []));
+                        assert("2003-01-22T22:45:00.000Z" === method.call(date));
                     }
                 }
             }
@@ -455,7 +476,7 @@ describe("compatibility", function () {
         };
 
     function shouldExpose (sample, methodName, arity) {
-        var baseLabel = "should expose the method " + methodName;
+        var baseLabel = "must expose the method " + methodName;
         if (sample instanceof Function) {
             it(baseLabel, function () {
                 assert("function" === typeof sample[methodName]);
@@ -543,7 +564,7 @@ describe("compatibility", function () {
 
         describe("default support", function () {
 
-            it("should allow building an array with a given size", function () {
+            it("must allow building an array with a given size", function () {
                 var array = new Array(5),
                     idx;
                 assert(5 === array.length);
@@ -582,7 +603,7 @@ describe("compatibility", function () {
                 assert(123 === thisName(123));
             });
 
-            it("should detect undefined parameter", function () {
+            it("must detect undefined parameter", function () {
                 function testFunction (expected) {
                     assert(arguments.length === expected);
                 }
