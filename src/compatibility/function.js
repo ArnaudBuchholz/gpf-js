@@ -5,10 +5,22 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfInstallCompatibility*/ // Define and install compatible methods
+/*global _gpfFunc*/ // Create a new function using the source
+/*global _gpfBuildFunctionParameterList*/ // Builds an array of parameters
 /*exported _gpfJsCommentsRegExp*/ // Find all JavaScript comments
 /*#endif*/
 
 var _gpfArrayPrototypeSlice = Array.prototype.slice;
+
+function _generateBindBuilderSource (length) {
+    return [
+        "var me = this;",
+        "return function (" + _gpfBuildFunctionParameterList(length).join(", ") + ") {",
+        "   var args = _gpfArrayPrototypeSlice.call(arguments, 0);",
+        "    return me.apply(thisArg, prependArgs.concat(args));",
+        "};"
+    ].join("\n");
+}
 
 _gpfInstallCompatibility("Function", {
     on: Function,
@@ -18,11 +30,10 @@ _gpfInstallCompatibility("Function", {
         // Introduced with JavaScript 1.8.5
         bind: function (thisArg) {
             var me = this,
-                prependArgs = _gpfArrayPrototypeSlice.call(arguments, 1);
-            return function () {
-                var args = _gpfArrayPrototypeSlice.call(arguments, 0);
-                me.apply(thisArg, prependArgs.concat(args));
-            };
+                prependArgs = _gpfArrayPrototypeSlice.call(arguments, 1),
+                builderSource = _generateBindBuilderSource(Math.max(this.length - prependArgs.length, 0));
+            return _gpfFunc(["thisArg", "prependArgs", "_gpfArrayPrototypeSlice"], builderSource)
+                .call(me, thisArg, prependArgs, _gpfArrayPrototypeSlice);
         }
 
     }
