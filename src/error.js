@@ -75,11 +75,12 @@ function _gpfErrorFactory (code, name, message) {
     }
     NewErrorClass.prototype = new _GpfError();
     _gpfExtend(NewErrorClass.prototype, {
-        constructor: NewErrorClass,
         code: code,
         name: name,
         message: message
     });
+    // constructor can't be enumerated with wscript
+    NewErrorClass.prototype.constructor = NewErrorClass;
     _GpfError[_gpfStringCapitalize(name)] = NewErrorClass;
     return function (context) {
         throw new NewErrorClass(context);
