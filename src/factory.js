@@ -6,10 +6,17 @@
 "use strict";
 /*global _gpfFunc*/ // Create a new function using the source
 /*exported _gpfNewApply*/ // Apply new operator with an array of parameters
+/*exported _gpfBuildFunctionParameterList*/ // Builds an array of parameters
 /*#endif*/
 
-function _gpfBuildFactoryParameterList (maxParameters) {
-    return new Array(maxParameters).join(" ").split(" ").map(function (value, index) {
+/**
+ * Builds an array of parameters
+ *
+ * @param {Number} count Number of parameters to generate
+ * @return {Array} Parameters named p0, p1, ...
+ */
+function _gpfBuildFunctionParameterList (count) {
+    return new Array(count).join(" ").split(" ").map(function (value, index) {
         return "p" + index;
     });
 }
@@ -27,7 +34,7 @@ function _gpfGenerateGenericFactorySource (parameters) {
 }
 
 function _gpfGenerateGenericFactory (maxParameters) {
-    var parameters = _gpfBuildFactoryParameterList(maxParameters);
+    var parameters = _gpfBuildFunctionParameterList(maxParameters);
     return _gpfFunc(parameters, _gpfGenerateGenericFactorySource(parameters));
 }
 
