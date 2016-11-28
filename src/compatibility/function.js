@@ -4,9 +4,9 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfInstallCompatibility*/ // Define and install compatible methods
-/*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfBuildFunctionParameterList*/ // Builds an array of parameters
+/*global _gpfFunc*/ // Create a new function using the source
+/*global _gpfInstallCompatibility*/ // Define and install compatible methods
 /*exported _gpfJsCommentsRegExp*/ // Find all JavaScript comments
 /*#endif*/
 
