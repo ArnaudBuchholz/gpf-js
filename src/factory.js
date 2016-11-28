@@ -5,8 +5,8 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfFunc*/ // Create a new function using the source
-/*exported _gpfNewApply*/ // Apply new operator with an array of parameters
 /*exported _gpfBuildFunctionParameterList*/ // Builds an array of parameters
+/*exported _gpfNewApply*/ // Apply new operator with an array of parameters
 /*#endif*/
 
 /**
@@ -14,6 +14,7 @@
  *
  * @param {Number} count Number of parameters to generate
  * @return {Array} Parameters named p0, p1, ...
+ * @since 0.1.5
  */
 function _gpfBuildFunctionParameterList (count) {
     return new Array(count).join(" ").split(" ").map(function (value, index) {
