@@ -1,6 +1,11 @@
 "use strict";
 
 module.exports = {
+    options: {
+        beautify: {
+            keep_quoted_props: true
+        }
+    },
     buildTests: {
         files: {
             "build/tests.js": ["test/host/bdd.js", configuration.testFiles]
