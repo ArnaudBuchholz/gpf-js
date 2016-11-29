@@ -3,7 +3,7 @@
 module.exports = {
     options: {
         beautify: {
-            keep_quoted_props: true
+            keep_quoted_props: true //eslint-disable-line camelcase
         }
     },
     buildTests: {
