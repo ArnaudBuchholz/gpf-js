@@ -24,6 +24,7 @@ function load (path) {
         /*jslint evil: false*/
     } catch (e) {
         WScript.Echo("An error occurred while evaluating: " + path + "\r\n" + e.message);
+        WScript.Quit(-1);
     }
 }
 
