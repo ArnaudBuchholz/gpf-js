@@ -1,9 +1,12 @@
 "use strict";
 
+/*jshint camelcase: false */
+/*eslint-disable camelcase*/
+
 module.exports = {
     options: {
         beautify: {
-            keep_quoted_props: true //eslint-disable-line camelcase
+            keep_quoted_props: true
         }
     },
     buildTests: {
