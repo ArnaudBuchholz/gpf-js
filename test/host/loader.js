@@ -45,9 +45,14 @@
 
     function _load (configuration, path) {
         var content = configuration.read(path);
-        /*jslint evil: true*/
-        eval(content); //eslint-disable-line no-eval
-        /*jslint evil: false*/
+        try {
+            /*jslint evil: true*/
+            eval(content); //eslint-disable-line no-eval
+            /*jslint evil: false*/
+        } catch (e) {
+            configuration.log("An error occurred while evaluating: " + path + "\r\n" + e.message);
+            configuration.exit(-1);
+        }
     }
 
     function _requireGpf (configuration, path) {
