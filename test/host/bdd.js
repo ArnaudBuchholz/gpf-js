@@ -417,6 +417,13 @@
         _pendingCallbacks: [],
 
         /**
+         * Type of the callbacks to process ("before", "beforeEach", ...)
+         *
+         * @type {String}
+         */
+        _pendingCallbacksType: "",
+
+        /**
          * Stacked beforeEach callbacks
          *
          * @type {Function[]}
@@ -627,18 +634,17 @@
         /**
          * Call (before|after)(Each)? callback
          *
-         * @param {String} type "before", "beforeEach", "after" or "afterEach"
          * @param {Function} callback Function to call
          * @return {Boolean} true if asynchronous
          */
-        _processCallback: function (type, callback) {
-            return this._monitorCallback(callback, this._callbackCompleted, type);
+        _processCallback: function (callback) {
+            return this._monitorCallback(callback, this._callbackCompleted);
         },
 
         // Callback completion function (see _monitorCallback)
-        _callbackCompleted: function (type, startDate, e) {
+        _callbackCompleted: function (ignored, startDate, e) {
             if (e) {
-                this._fail("UNEXPECTED error during " + type + "?", startDate, e);
+                this._fail("UNEXPECTED error during " + this._pendingCallbacksType + "?", startDate, e);
                 // TODO right now, an error is not acceptable at this point, signal and ends everything
                 this._nextChildIndex = this._describe.children.length;
                 this._describes = [];
@@ -652,7 +658,7 @@
             while (loop) {
                 // Check if any pending callback
                 while (this._pendingCallbacks.length) {
-                    if (this._processCallback(Runner.CALLBACKS_TYPE[this._state], this._pendingCallbacks.shift())) {
+                    if (this._processCallback(this._pendingCallbacks.shift())) {
                         // Asynchronous, have to wait for callback
                         return;
                     }
@@ -667,6 +673,7 @@
             var describe = this._describe;
             this._state = Runner.STATE_DESCRIBE_CHILDREN;
             this._pendingCallbacks = [].concat(describe.before);
+            this._pendingCallbacksType = "before";
             return true;
         },
 
@@ -708,6 +715,7 @@
         _onItBefore: function () {
             this._state = Runner.STATE_DESCRIBE_CHILDIT_EXECUTE;
             this._pendingCallbacks = [].concat(this._beforeEach);
+            this._pendingCallbacksType = "beforeEach";
             return true;
         },
 
@@ -732,6 +740,7 @@
         _onItAfter: function () {
             this._state = Runner.STATE_DESCRIBE_CHILDREN;
             this._pendingCallbacks = [].concat(this._afterEach);
+            this._pendingCallbacksType = "afterEach";
             return true;
         },
 
@@ -740,6 +749,7 @@
             var describe = this._describe;
             this._state = Runner.STATE_DESCRIBE_DONE;
             this._pendingCallbacks = [].concat(describe.after);
+            this._pendingCallbacksType = "after";
             return true;
         },
 
@@ -783,13 +793,6 @@
             STATE_FINISHED: "_onFinished",
 
             DEFAULT_TIMEOUT_DELAY: 2000, // 2s
-
-            CALLBACKS_TYPE: {
-                _onDescribeBefore: "before",
-                _onItBefore: "beforeEach",
-                _onItAfter: "afterEach",
-                _onDescribeAfter: "after"
-            },
 
             // Test if the provided parameter looks like a promise
             isPromise: function (obj) {
