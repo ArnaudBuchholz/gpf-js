@@ -13,16 +13,34 @@ describe("compatibility/timeout", function () {
                 allowedIds = [],
                 deniedIds = [];
 
+            function _callbackCommon (id) {
+                if (undefined === callbackDone) {
+                    console.error("Unexpected callback triggered when callbackDone is undefined");
+                }
+                if (-1 !== deniedIds.indexOf(id)) {
+                    throw new Error("Denied");
+                }
+                if (-1 === allowedIds.indexOf(id)) {
+                    throw new Error("Not allowed");
+                }
+                if (triggered) {
+                    throw new Error("triggered");
+                }
+            }
+
             function callback (id) {
-                assert(-1 === deniedIds.indexOf(id));
-                assert(-1 < allowedIds.indexOf(id));
-                assert(undefined !== callbackDone);
-                assert(true === synchronousFlag);
-                assert(false === triggered);
-                deniedIds.push(id); // Prevent multiple executions
-                synchronousFlag = false;
-                triggered = true;
-                callbackDone();
+                try {
+                    _callbackCommon(id);
+                    assert(true === synchronousFlag);
+                    deniedIds.push(id); // Prevent multiple executions
+                    synchronousFlag = false;
+                    triggered = true;
+// WScript.Echo("[" + id + "] triggered = true");
+                    callbackDone();
+                } catch (e) {
+// WScript.Echo("callback: " + e.message);
+                    callbackDone(e);
+                }
             }
 
             function clean (id) {
@@ -40,6 +58,7 @@ describe("compatibility/timeout", function () {
                 var id = methods.setTimeout(function () {
                     callback(id);
                 }, 20);
+// WScript.Echo("[" + id + "] triggered = false");
                 timeoutId = id;
                 synchronousFlag = true;
             });
@@ -104,12 +123,14 @@ describe("compatibility/timeout", function () {
                 var fasterTimeoutId;
 
                 function fasterCallback (id) {
-                    assert(-1 === deniedIds.indexOf(id));
-                    assert(-1 < allowedIds.indexOf(id));
-                    assert(undefined !== callbackDone);
-                    assert(false === triggered);
-                    deniedIds.push(id); // Prevent multiple executions
-                    callbackDone();
+                    try {
+                        _callbackCommon(id);
+                        deniedIds.push(id); // Prevent multiple executions
+                        callbackDone();
+                    } catch (e) {
+// WScript.Echo("fasterCallback: " + e.message);
+                        callbackDone(e);
+                    }
                 }
 
                 beforeEach(function () {
@@ -177,8 +198,10 @@ describe("compatibility/timeout", function () {
                         allowedIds.push(fasterTimeoutId);
                         allowedIds.push(timeoutId);
                         var numberOfCalls = 0;
-                        callbackDone = function () {
-                            if (2 === ++numberOfCalls) {
+                        callbackDone = function (e) {
+                            if (e) {
+                                done(e);
+                            } else if (2 === ++numberOfCalls) {
                                 done();
                             }
                         };
@@ -218,6 +241,8 @@ describe("compatibility/timeout", function () {
 
     if (gpf.internals) {
 
+        // for (var idx = 0; idx < 100; ++idx) {
+
         describe("(internal)", generateScenario({
 
             clearQueue: function () {
@@ -231,6 +256,8 @@ describe("compatibility/timeout", function () {
             handleTimeout: gpf.internals._gpfHandleTimeout
 
         }));
+
+    // }
 
     }
 
