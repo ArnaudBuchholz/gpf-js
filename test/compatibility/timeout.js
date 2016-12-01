@@ -4,71 +4,105 @@ describe("compatibility/timeout", function () {
 
     function generateScenario (methods) {
 
+        /*
+            Keep in mind that the so-called fastest callback is triggered *after* the first one
+            (on some environments, this time was measured to take up to 15ms).
+            If this value is not big enough, this will not give enough time for the fastest to be triggered before.
+        */
+        var TIMER_RESOLUTION = 10, // ms - it is almost impossible to be precise under this resolution
+            MAIN_TIMEOUT = 50, // ms - min recommended value is FAST_TIMEOUT + 2* TIMER_RESOLUTION
+            FAST_TIMEOUT = 20; // ms
+
         return function () {
 
             var timeoutId,
+                timeoutDateTime,
                 synchronousFlag,
                 triggered,
                 callbackDone,
                 allowedIds = [],
                 deniedIds = [];
 
-            function _callbackCommon (id) {
-                if (undefined === callbackDone) {
-                    console.error("Unexpected callback triggered when callbackDone is undefined");
-                }
+            function _checkIfTimeoutIdAllowed (id) {
                 if (-1 !== deniedIds.indexOf(id)) {
                     throw new Error("Denied");
                 }
                 if (-1 === allowedIds.indexOf(id)) {
                     throw new Error("Not allowed");
                 }
+            }
+
+            function _checkFlags () {
                 if (triggered) {
-                    throw new Error("triggered");
+                    throw new Error("Already triggered");
                 }
+                if (true !== synchronousFlag) {
+                    throw new Error("Triggered too soon (synchronousFlag should be true)");
+                }
+            }
+
+            function _checkDelay (startDateTime, timeoutDelay) {
+                var realDelay = new Date() - startDateTime;
+                if (realDelay < timeoutDelay && timeoutDelay - realDelay > TIMER_RESOLUTION) {
+                    throw new Error("Triggered too soon (" + realDelay + " does not respect the timeout delay of "
+                        + timeoutDelay + ")");
+                }
+            }
+
+            function _callbackCommon (id, startDateTime, timeoutDelay) {
+                if (undefined === callbackDone) {
+                    console.error("Unexpected callback triggered when callbackDone is undefined");
+                }
+                _checkIfTimeoutIdAllowed(id);
+                _checkFlags();
+                _checkDelay(startDateTime, timeoutDelay);
+                deniedIds.push(id); // Prevent multiple executions
             }
 
             function callback (id) {
                 try {
-                    _callbackCommon(id);
-                    assert(true === synchronousFlag);
-                    deniedIds.push(id); // Prevent multiple executions
+                    _callbackCommon(id, timeoutDateTime, MAIN_TIMEOUT);
                     synchronousFlag = false;
                     triggered = true;
-// WScript.Echo("[" + id + "] triggered = true");
                     callbackDone();
                 } catch (e) {
-// WScript.Echo("callback: " + e.message);
                     callbackDone(e);
                 }
+            }
+
+            function _clean (id) {
+                deniedIds.push(id);
+                methods.clearTimeout(id);
+                // no waiting, assuming this part works
             }
 
             function clean (id) {
                 if (-1 === deniedIds.indexOf(id) && -1 === allowedIds.indexOf(id)) {
                     // Not processed, cleaning
-                    deniedIds.push(id);
-                    methods.clearTimeout(id);
-                    // no waiting, assuming this part works
+                    _clean(id);
                 }
             }
 
-            beforeEach(function () {
-                methods.clearQueue();
+            function _scheduleCallback () {
+                if (timeoutId) {
+                    _clean(timeoutId);
+                }
                 triggered = false;
+                timeoutDateTime = new Date();
                 var id = methods.setTimeout(function () {
                     callback(id);
-                }, 20);
-// WScript.Echo("[" + id + "] triggered = false");
+                    timeoutId = undefined;
+                }, MAIN_TIMEOUT);
                 timeoutId = id;
                 synchronousFlag = true;
+            }
+
+            beforeEach(function () {
+                _scheduleCallback();
             });
 
             it("allocates a timeout id", function () {
                 assert(undefined !== timeoutId);
-            });
-
-            it("allows queueing a callback", function () {
-                methods.testQueueLength(1);
             });
 
             afterEach(function () {
@@ -83,7 +117,7 @@ describe("compatibility/timeout", function () {
                 });
 
                 it("removes the callback from the queue", function () {
-                    methods.testQueueLength(0);
+                    methods.handleTimeout(); // Should not trigger any callback
                 });
 
                 describe("again", function () {
@@ -93,7 +127,7 @@ describe("compatibility/timeout", function () {
                     });
 
                     it("does not fail", function () {
-                        methods.testQueueLength(0);
+                        methods.handleTimeout(); // Should not trigger any callback
                     });
 
                 });
@@ -113,40 +147,41 @@ describe("compatibility/timeout", function () {
                 });
 
                 it("removes the callback from the queue", function () {
-                    methods.testQueueLength(0);
+                    methods.handleTimeout(); // Should not trigger any callback
                 });
 
             });
 
             describe("sequencing with a second timeout", function () {
 
-                var fasterTimeoutId;
+                var fasterTimeoutId,
+                    fasterTimeoutDateTime;
 
                 function fasterCallback (id) {
                     try {
-                        _callbackCommon(id);
-                        deniedIds.push(id); // Prevent multiple executions
+                        _callbackCommon(id, fasterTimeoutDateTime, FAST_TIMEOUT);
                         callbackDone();
                     } catch (e) {
-// WScript.Echo("fasterCallback: " + e.message);
                         callbackDone(e);
                     }
                 }
 
                 beforeEach(function () {
+                    fasterTimeoutDateTime = new Date();
+                    /*
+                     * Because the test is asynchronous, we might have already reached the main timeout,
+                     * Reschedule it to make sure they both start at the same time.
+                     */
+                    _scheduleCallback();
                     var id = methods.setTimeout(function () {
                         fasterCallback(id);
-                    }, 10);
+                    }, FAST_TIMEOUT);
                     fasterTimeoutId = id;
                 });
 
                 it("allocates a different timeout id", function () {
                     assert(undefined !== fasterTimeoutId);
                     assert(fasterTimeoutId !== timeoutId);
-                });
-
-                it("allows queueing a different callback", function () {
-                    methods.testQueueLength(2);
                 });
 
                 afterEach(function () {
@@ -173,19 +208,7 @@ describe("compatibility/timeout", function () {
                         });
 
                         it("removes all callbacks from the queue", function () {
-                            methods.testQueueLength(0);
-                        });
-
-                    });
-
-                    describe("again", function () {
-
-                        beforeEach(function () {
-                            methods.clearTimeout(fasterTimeoutId);
-                        });
-
-                        it("does not fail", function () {
-                            methods.testQueueLength(1);
+                            methods.handleTimeout(); // Should not trigger any callback
                         });
 
                     });
@@ -213,7 +236,7 @@ describe("compatibility/timeout", function () {
                     });
 
                     it("removed all callbacks from the queue", function () {
-                        methods.testQueueLength(0);
+                        methods.handleTimeout(); // Should not trigger any callback
                     });
 
                 });
@@ -226,8 +249,6 @@ describe("compatibility/timeout", function () {
 
     describe("exposed API", generateScenario({
 
-        clearQueue: function () {},
-        testQueueLength: function () {},
         setTimeout: function (callback, delay) {
             return setTimeout(callback, delay);
         },
@@ -241,23 +262,13 @@ describe("compatibility/timeout", function () {
 
     if (gpf.internals) {
 
-        // for (var idx = 0; idx < 100; ++idx) {
-
         describe("(internal)", generateScenario({
 
-            clearQueue: function () {
-                gpf.internals._gpfTimeoutQueue.length = 0;
-            },
-            testQueueLength: function (size) {
-                assert(size === gpf.internals._gpfTimeoutQueue.length);
-            },
             setTimeout: gpf.internals._gpSetTimeoutPolyfill,
             clearTimeout: gpf.internals._gpfClearTimeoutPolyfill,
             handleTimeout: gpf.internals._gpfHandleTimeout
 
         }));
-
-    // }
 
     }
 
