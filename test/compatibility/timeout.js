@@ -215,19 +215,37 @@ describe("compatibility/timeout", function () {
 
                 });
 
+                function _allowTriggering (done, expectedCalls) {
+                    allowedIds.push(fasterTimeoutId);
+                    allowedIds.push(timeoutId);
+                    var numberOfCalls = 0;
+                    callbackDone = function (e) {
+                        if (e) {
+                            done(e);
+                        } else if (expectedCalls === ++numberOfCalls) {
+                            done();
+                        }
+                    };
+                }
+
+                describe("creating and cleaning a third timeout", function () {
+
+                    it("prevents execution", function (done) {
+                        _allowTriggering(done, 3);
+                        var thirdId = methods.setTimeout(function () {
+                            callbackDone(new Error("The third timeout was triggered"));
+                        }, 10 * MAIN_TIMEOUT);
+                        methods.clearTimeout(thirdId);
+                        methods.handleTimeout();
+                        callbackDone();
+                    });
+
+                });
+
                 describe("triggering", function () {
 
                     beforeEach(function (done) {
-                        allowedIds.push(fasterTimeoutId);
-                        allowedIds.push(timeoutId);
-                        var numberOfCalls = 0;
-                        callbackDone = function (e) {
-                            if (e) {
-                                done(e);
-                            } else if (2 === ++numberOfCalls) {
-                                done();
-                            }
-                        };
+                        _allowTriggering(done, 2);
                         methods.handleTimeout();
                     });
 
