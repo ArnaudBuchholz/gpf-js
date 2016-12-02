@@ -387,11 +387,11 @@ describe("compatibility/promise", function () {
                             if (5 === value) {
                                 setTimeout(function () {
                                     reject(value);
-                                }, 10);
+                                }, 20);
                             } else {
                                 setTimeout(function () {
                                     resolve(value);
-                                }, 20);
+                                }, 50);
                             }
                         });
                     }
