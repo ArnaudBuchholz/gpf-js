@@ -364,7 +364,7 @@ describe("compatibility/promise", function () {
                         return new PromiseClass(function (resolve/*, reject*/) {
                             setTimeout(function () {
                                 resolve(value);
-                            }, (10 - value) * 10); // Last should be the first to be executed
+                            }, (10 - value) * 20); // Last should be the first to be executed
                         });
                     }
                     for (index = 0; index < 10; ++index) {
