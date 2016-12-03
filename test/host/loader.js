@@ -1,5 +1,5 @@
 /*eslint strict: [2, "function"]*/ // IIFE form
-(function () {
+(function () { //eslint-disable-line max-statements
     "use strict";
 
     /*global run*/ // From bdd.js
@@ -140,6 +140,19 @@
         }
     }
 
+    function _safeRunBDD (configuration, verbose) {
+        try {
+            _runBDD(configuration, verbose);
+            if (configuration.done) {
+                configuration.done();
+            }
+            gpf.handleTimeout();
+        } catch (e) {
+            configuration.log("An error occurred while running the tests:\r\n" + e.message);
+            configuration.exit(-1);
+        }
+    }
+
     /**
      * @param {Object} configuration
      * - {String[]} parameters command line parameters
@@ -177,11 +190,7 @@
             _load(configuration, _resolvePath(configuration, "test/host/console.js"));
         }
         _loadTests(configuration, options, verbose);
-        _runBDD(configuration, verbose);
-        if (configuration.done) {
-            configuration.done();
-        }
-        gpf.handleTimeout();
+        _safeRunBDD(configuration, verbose);
     };
 
 }());
