@@ -40,7 +40,7 @@ Statements coverage|99.67%||90%|*12.07% ignored*
 Branches coverage|98.95%||90%|*21.35% ignored*
 Functions coverage|100%||90%|*13.01% ignored*
 Maintainability|80.15||65|
-Number of tests||290||*pending: 0, duration: 273ms*
+Number of tests||286||*pending: 0, duration: 567ms*
 Number of sources||29||
 Lines of code|84|2453||
 
