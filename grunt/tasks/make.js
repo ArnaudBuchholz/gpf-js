@@ -10,6 +10,7 @@ module.exports = function (grunt) {
         "exec:buildDebug",
         "exec:buildRelease",
         "uglify:buildRelease",
+        "exec:fixUglify",
         "concurrent:debug",
         "concurrent:release",
         "uglify:buildTests",
