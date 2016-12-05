@@ -58,7 +58,7 @@ See [TESTME.md](https://github.com/ArnaudBuchholz/gpf-js/blob/master/TESTME.md)
 
 Version | Release | Debug | Plato
 ------ | ----- | ----- | ----- | -----
-[0.1.5](https://arnaudbuchholz.github.io/gpf/0.1.5/doc/index.html) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.5/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.1.5) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.5/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.1.5) | [plato](https://arnaudbuchholz.github.io/gpf/0.1.5/plato/index.html)
+[0.1.5](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.1.5) / [doc](https://arnaudbuchholz.github.io/gpf/0.1.5/doc/index.html) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.5/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.1.5) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.5/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.1.5) | [plato](https://arnaudbuchholz.github.io/gpf/0.1.5/plato/index.html)
 
 ## Credits
 
