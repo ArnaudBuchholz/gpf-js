@@ -26,91 +26,94 @@
         console.error(msg);
     }
 
-    var MAX_WAIT = 50,
-        loadedCallback,
-        sourceIdx = 0,
-        sources,
-        includeReady = {};
+    var MAX_WAIT = 50;
 
-    function _waitForTestCases () {
+    function _waitForTestCases (testFiles, callback) {
         function _testCaseLoaded (testCaseSource) {
             /*jshint -W061*/
             eval(testCaseSource); //eslint-disable-line no-eval
             /*jshint +W061*/
-            _waitForTestCases();
+            _waitForTestCases(testFiles, callback);
         }
-        while (sourceIdx < sources.length) {
-            var source = sources[sourceIdx];
-            ++sourceIdx;
-            if (source.load !== false && source.test !== false) {
-                xhr(window.gpfTestsPath + source.name + ".js").get()
-                    .then(_testCaseLoaded, error);
-                return;
-            }
+        if (testFiles.length) {
+            xhr(testFiles.shift()).get()
+                .then(_testCaseLoaded, error);
+            return;
         }
         // Everything is loaded
-        loadedCallback();
+        callback();
     }
 
-    /**
-     * Actively wait for GPF to be loaded
-     */
-    function _waitForLoad () {
+    function _detectLegacy () {
+        var legacyVersion = (/version=([0-9\.]+)/).exec(window.location.search);
+        if (legacyVersion) {
+            return legacyVersion[1];
+        }
+    }
+
+    // Actively wait for GPF to be loaded
+    function _waitForLoad (callback) {
         // Check if the GPF library is loaded
         if ("undefined" === typeof gpf) {
             if (--MAX_WAIT) {
-                window.setTimeout(_waitForLoad, 100);
+                setTimeout(function () {
+                    _waitForLoad(callback);
+                }, 100);
             } else {
                 error("Unable to load GPF");
             }
             return;
         }
-        // Load sources
+        // Legacy test case?
+        var legacy = _detectLegacy();
+        if (legacy) {
+            _waitForTestCases([window.gpfTestsPath + "legacy/" + legacy + ".js"], callback);
+            return;
+        }
+        // Test files from sources.json
         var xhr = new XMLHttpRequest();
         xhr.open("GET", gpfSourcesPath + "sources.json");
         xhr.onreadystatechange = function () {
             if (4 === xhr.readyState) {
-                sources = JSON.parse(xhr.responseText);
-                _waitForTestCases();
+                _waitForTestCases(JSON.parse(xhr.responseText)
+                    .filter(function (source) {
+                        return source.load !== false && source.test !== false;
+                    })
+                    .map(function (source) {
+                        return window.gpfTestsPath + source.name + ".js";
+                    }), callback);
             }
         };
         xhr.send();
     }
 
-    includeReady.ready = _waitForLoad;
-
-    function _detectVersion (script) {
-        var locationSearch,
-            release,
-            debug,
-            version;
-        if (window.gpfVersion) {
-            locationSearch = window.gpfVersion;
-        } else {
-            locationSearch = window.location.search;
-        }
-        release = -1 < locationSearch.indexOf("release");
-        debug = -1 < locationSearch.indexOf("debug");
+    function _detectVersion () {
+        var locationSearch = window.location.search,
+            release = -1 < locationSearch.indexOf("release"),
+            debug = -1 < locationSearch.indexOf("debug"),
+            version,
+            path;
         if (release) {
             version = "release";
-            script.src = gpfSourcesPath + "../build/gpf.js";
+            path = "../build/gpf.js";
         } else if (debug) {
             version = "debug";
-            script.src = gpfSourcesPath + "../build/gpf-debug.js";
+            path = "../build/gpf-debug.js";
         } else {
             version = "sources";
-            script.src = gpfSourcesPath + "boot.js";
+            path = "boot.js";
         }
         log("Using " + version + " version");
+        return path;
     }
 
-    function _loadVersion () {
+    function _loadVersion (callback) {
         var head = document.getElementsByTagName("head")[0],
             script = document.createElement("script");
-        _detectVersion(script);
+        script.src = gpfSourcesPath + _detectVersion();
         script.language = "javascript";
         head.insertBefore(script, head.firstChild);
-        _waitForLoad();
+        _waitForLoad(callback);
     }
 
     /*
@@ -118,8 +121,7 @@
      * When done, execute the callback.
      */
     window.load = function (callback) {
-        loadedCallback = callback;
-        _loadVersion();
+        _loadVersion(callback);
     };
 
 }());
