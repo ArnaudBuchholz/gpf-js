@@ -14,7 +14,7 @@ function fix (name) {
 
     if (getVariableNameMatcher(EXCEPTION_VARIABLE).exec(before)) {
         console.error("Exception variable '" + EXCEPTION_VARIABLE + "' already used in " + fileName);
-        return 0;
+        return false;
     }
 
     after = before.replace(new RegExp("catch\\((\\w+)\\)\\s*{([^}]*)}", "g"), function (match, varName, block) {
@@ -29,9 +29,9 @@ function fix (name) {
 
     fs.writeFileSync(fileName, after);
     console.log("Fixed uglify'ed version of " + fileName);
-    return 1;
+    return true;
 }
 
-if (2 !== fix("gpf") + fix("tests")) {
+if (!fix(process.argv[2])) {
     process.exit(-1);
 }
