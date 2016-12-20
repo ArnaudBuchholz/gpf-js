@@ -44,7 +44,7 @@ if (fs.existsSync(IO_PATH)) {
     copy.publishTest = {
         expand: true,
         cwd: "./test/host/",
-        src: ["test.html"],
+        src: ["test.html", "bdd.js"],
         dest: IO_PATH + "gpf/"
     };
 }
