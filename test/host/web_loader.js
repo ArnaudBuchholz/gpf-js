@@ -67,6 +67,7 @@
         // Legacy test case?
         var legacy = _detectLegacy();
         if (legacy) {
+            delete gpf.internals;
             _waitForTestCases([window.gpfTestsPath + "legacy/" + legacy + ".js"], callback);
             return;
         }
