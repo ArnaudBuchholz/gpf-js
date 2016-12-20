@@ -56,7 +56,9 @@ module.exports = {
         exitCode: 0
     },
     fixUglify: {
-        cmd: "node make/fix_uglify.js",
+        cmd: function (name) {
+            return "node make/fix_uglify.js " + name;
+        },
         stdout: true,
         stderr: true,
         exitCode: 0
