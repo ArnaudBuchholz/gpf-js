@@ -108,6 +108,9 @@
             source;
         for (sourceIdx = 0; sourceIdx < len; ++sourceIdx) {
             source = names[sourceIdx];
+            if (source.indexOf("legacy/") === 0) {
+                delete gpf.internals;
+            }
             _loadTest(configuration, _resolvePath(configuration, "test/" + source + ".js"));
         }
     }
