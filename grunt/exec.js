@@ -101,6 +101,14 @@ function _buildTestConfig (name, command) {
         stderr: false,
         exitCode: 0
     };
+    module.exports["test" + name + "Legacy"] = {
+        cmd: function (version) {
+            return command + " legacy/" + version;
+        },
+        stdout: false,
+        stderr: false,
+        exitCode: 0
+    };
 }
 
 _buildTestConfig("Node", "node test/host/nodejs.js");
