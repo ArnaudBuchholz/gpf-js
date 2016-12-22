@@ -93,5 +93,24 @@ module.exports = {
             ]
         },
         src: configuration.testFiles
+    },
+    legacy: {
+        options: {
+            reporter: "dot",
+            quiet: false,
+            require: [
+                function () {
+                    clearRequireCache();
+                    global.gpfSourcesPath = "src/";
+                },
+                "./src/boot.js",
+                function () {
+                    require("../test/host/console.js");
+                    global.assert = require("assert");
+                    delete gpf.internals;
+                }
+            ]
+        },
+        src: "test/legacy/<%= grunt.task.current.args[0] %>.js"
     }
 };
