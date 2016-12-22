@@ -21,6 +21,7 @@
   },
   "homepage": "http://gpf-js.blogspot.com/",
   "devDependencies": {
+    "bluebird": "^3.4.7",
     "doctrine": "^1.5.0",
     "escodegen": "^1.7.0",
     "eslint": "^3.8.1",
