@@ -7,6 +7,7 @@ module.exports = function (grunt) {
         "jsdoc:public",
         "connectIf",
         "concurrent:source",
+        "concurrent:legacy",
         "exec:buildDebug",
         "exec:buildRelease",
         "uglify:buildRelease",
