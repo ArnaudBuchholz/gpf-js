@@ -1,6 +1,7 @@
 {
     "extends": "../.jshintrc",
     "node": true,
+    "esversion": 6,
     "globals": {
         "configuration": false
     }
