@@ -32,5 +32,12 @@ module.exports = {
             run: false,
             urls: [webUrl + "?release"]
         }
+    },
+    legacy:  {
+        options: {
+            log: false,
+            run: false,
+            urls: [webUrl + "?version=<%= grunt.task.current.args[0] %>"]
+        }
     }
 };
