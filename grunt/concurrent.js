@@ -8,6 +8,11 @@ configuration.selenium.forEach(function (browser) {
     testTasks.push("exec:test" + browser.charAt(0).toUpperCase() + browser.substr(1));
 });
 
+var legacyVersions = require("fs").readdirSync("test/legacy").map(function (name) {
+    return name.substr(0, name.lastIndexOf("."));
+});
+console.log(legacyVersions);
+
 module.exports = {
 
     // Linters
