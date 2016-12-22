@@ -4,14 +4,17 @@ var testTasks = [
     "exec:testWscript",
     "exec:testRhino"
 ];
-configuration.selenium.forEach(function (browser) {
+configuration.selenium.forEach(browser => {
     testTasks.push("exec:test" + browser.charAt(0).toUpperCase() + browser.substr(1));
 });
 
-var legacyVersions = require("fs").readdirSync("test/legacy").map(function (name) {
-    return name.substr(0, name.lastIndexOf("."));
-});
-console.log(legacyVersions);
+var legacyTasks = [];
+require("fs")
+    .readdirSync("test/legacy")
+    .map(name => name.substr(0, name.lastIndexOf(".")))
+    .forEach(version => {
+        legacyTasks = legacyTasks.concat(testTasks.map(task => `${task}Legacy:${version}`));
+    });
 
 module.exports = {
 
@@ -36,15 +39,15 @@ module.exports = {
     debug: [
         "mocha:debug",
         "mochaTest:debug"
-    ].concat(testTasks.map(function (name) {
-        return name + "Debug";
-    })),
+    ].concat(testTasks.map(name => name + "Debug")),
 
     // Tests on release version
     release: [
         "mocha:release",
         "mochaTest:release"
-    ].concat(testTasks.map(function (name) {
-        return name + "Release";
-    }))
+    ].concat(testTasks.map(name => name + "Release")),
+
+    // Tests on legacy test cases
+    legacy: legacyTasks
+
 };
