@@ -1,52 +1,40 @@
 "use strict";
 
-var path = require("path");
-
 function _logDoclet (doclet) {
-    var title = [];
+    let title = [];
     if (doclet.meta && doclet.meta.lineno) {
-        title.push("@", doclet.meta.lineno, ": ");
+        title.push(`@${doclet.meta.lineno}: `);
     }
     if (doclet.undocumented) {
         title.push("(u) ");
     }
-    title.push(doclet.longname, " (", doclet.kind, ")");
+    title.push(doclet.longname, ` (${doclet.kind})`);
     console.log(title.join(""));
-    try {
-        if (doclet.longname.indexOf("gpf.hosts") !== -1
-            || doclet.longname.indexOf("_GPF_HOST") !== -1
-            ) {
-            console.log(doclet);
-        }
-    } catch (e) {
-        // ignore
-    }
 }
 
 function _findDoclet (doclets, longname, tag) {
-    var resultDoclet;
-    doclets.every(function (doclet) {
+    let resultDoclet;
+    if (doclets.every(doclet => {
         if (doclet.longname === longname && !doclet.undocumented) {
             resultDoclet = doclet;
             return false;
         }
         return true;
-    });
-    if (!resultDoclet) {
-        throw new Error("invalid reference for @" + tag.title);
+    })) {
+        throw new Error(`invalid reference for @${tag.title}`);
     }
     return resultDoclet;
 }
 
 function _findRefDoclet (doclets, doclet, tag) {
-    var refLongname = tag.value;
-    if (-1 === refLongname.indexOf("#") && -1 !== doclet.longname.indexOf("#")) {
+    let refLongname = tag.value;
+    if (!refLongname.includes("#") && doclet.longname.includes("#")) {
         refLongname = doclet.longname.split("#")[0] + "#" + refLongname;
     }
     return _findDoclet(doclets, refLongname, tag);
 }
 
-var _customTags = {
+const _customTags = {
 
     // Returns the same type with a generic comment
     chainable: function (doclet/*, tag, doclets*/) {
@@ -60,7 +48,7 @@ var _customTags = {
 
     // Read accessor on a property
     read: function (doclet, tag, doclets) {
-        var refDoclet = _findRefDoclet(doclets, doclet, tag);
+        let refDoclet = _findRefDoclet(doclets, doclet, tag);
         doclet.returns = [{
             type: refDoclet.type,
             description: refDoclet.description
@@ -75,7 +63,7 @@ var _customTags = {
 
     // Same as another doclet
     sameas: function (doclet, tag, doclets) {
-        var refDoclet = _findRefDoclet(doclets, doclet, tag);
+        let refDoclet = _findRefDoclet(doclets, doclet, tag);
         [
             "description",
             "params",
@@ -86,7 +74,7 @@ var _customTags = {
             "type",
             "properties",
             "readonly"
-        ].forEach(function (propertyName) {
+        ].forEach(propertyName => {
             doclet[propertyName] = refDoclet[propertyName];
         });
     }
@@ -95,15 +83,14 @@ var _customTags = {
 
 function _handleCustomTags (doclet, doclets) {
     if (doclet.tags) {
-        doclet.tags.forEach(function (tag) {
-            var customTag = tag.title.split("gpf:")[1];
-            var handler = _customTags[customTag];
+        doclet.tags.forEach(tag => {
+            let customTag = tag.title.split("gpf:")[1],
+                handler = _customTags[customTag];
             if (undefined !== handler) {
                 try {
                     handler(doclet, tag, doclets);
                 } catch (e) {
-                    console.error(doclet.meta.path + path.sep + doclet.meta.filename + "@" + doclet.meta.lineno + ": "
-                        + e.message);
+                    console.error(`${doclet.meta.path}/${doclet.meta.filename}@${doclet.meta.lineno}:${e.message}`);
                     console.error(doclet);
                     throw e;
                 }
@@ -115,48 +102,44 @@ function _handleCustomTags (doclet, doclets) {
 function _addMemberType (doclet) {
     if (!doclet.type) {
         // type: { names: [ 'String' ] }
-        var codeType = doclet.meta.code.type,
+        let codeType = doclet.meta.code.type,
             type;
-        if (codeType === "Literal") {
+        if ("Literal" === codeType) {
             type = typeof doclet.meta.code.value;
             type = type.charAt(0).toUpperCase() + type.substr(1);
-        } else if (codeType === "ArrayExpression") {
+        } else if ("ArrayExpression" === codeType) {
             type = "Array";
-        } else if (codeType === "ObjectExpression") {
+        } else if ("ObjectExpression" === codeType) {
             type = "Object";
         }
-        doclet.type = {
-            names: [
-                type
-            ]
-        };
+        doclet.type = {names: [type || "Unknown"]};
     }
 }
 
 function _checkAccess (doclet) {
     if (!doclet.access) {
-        if (doclet.name.charAt(0) === "_") {
-            doclet.access = "private";
-        } else {
-            doclet.access = "public";
-        }
+        doclet.access = "_" === doclet.name.charAt(0) ? "private" : "public";
     }
 }
 
+const _enumType = {names: ["enum"]};
+
 function _cleanEnum (doclet) {
-    // Remove default value from documentation
-    doclet.properties.forEach(function (property) {
+    // Remove default value from documentation and update type
+    doclet.type = _enumType;
+    doclet.properties.forEach(property => {
         delete property.defaultvalue;
+        property.type = _enumType;
     });
 }
 
 function _postProcessDoclet (doclet, index, doclets) {
-    var kind = doclet.kind;
+    let kind = doclet.kind;
     _handleCustomTags(doclet, doclets);
-    if (kind === "member") {
+    if ("member" === kind) {
         _addMemberType(doclet);
         _checkAccess(doclet);
-    } else if (-1 !== ["function", "typedef", "class"].indexOf(kind)) {
+    } else if (["function", "typedef", "class"].includes(kind)) {
         _checkAccess(doclet);
     }
     if (doclet.isEnum) {
@@ -165,13 +148,13 @@ function _postProcessDoclet (doclet, index, doclets) {
     _logDoclet(doclet);
 }
 
-var _reErrorDeclare = /_gpfErrorDeclare\("([a-zA-Z\\]+)", {\n((?:.*\n)*)\s*}\)/g,
+const
+    _reErrorDeclare = /_gpfErrorDeclare\("([a-zA-Z\\]+)", {\n((?:.*\n)*)\s*}\)/g,
     _reErrorItems = /(?:\/\*\*((?:[^*]|\s|\*[^/])*)\*\/)?\s*([a-zA-Z]+):\s*"([^"]*)"/g,
     _reContextualParams = /{(\w+)}/g;
 
 function _generateJsDocForError (name, message, comment) {
-    var className = name.charAt(0).toUpperCase() + name.substr(1),
-        result,
+    let className = name.charAt(0).toUpperCase() + name.substr(1),
         params = [],
         param;
     _reContextualParams.lastIndex = 0;
@@ -186,27 +169,27 @@ function _generateJsDocForError (name, message, comment) {
     } else {
         params = undefined;
     }
-    result = [
+    return [
         "/**",
-        " * throw {@link gpf.Error." + className + "}",
-        " * @method gpf.Error." + name,
-        " * @throws {gpf.Error." + className + "}",
+        ` * throw {@link gpf.Error.${className}}`,
+        ` * @method gpf.Error.${name}`,
+        ` * @throws {gpf.Error.${className}}`,
         params,
         " */",
         "/**",
         comment,
-        " * @class gpf.Error." + className,
+        ` * @class gpf.Error.${className}`,
         params,
+        ` * @see gpf.Error.${name}`,
         " */"
-    ];
-    return result.join("\r\n");
+    ].join("\r\n");
 }
 
 function _checkForGpfErrorDeclare (event) {
     _reErrorDeclare.lastIndex = 0;
-    var match = _reErrorDeclare.exec(event.source);
+    let match = _reErrorDeclare.exec(event.source);
     if (match) {
-        var // moduleName = match[1],
+        let // moduleName = match[1],
             errorsPart = match[2],
             errorItem,
             comments = [];
@@ -220,29 +203,29 @@ function _checkForGpfErrorDeclare (event) {
     }
 }
 
-var _reFileComment = /(?:\/\*\*(?:[^*]|\s\*[^/])*\@file(?:[^*]|\s\*[^/])*\*\/)/g;
+const _reFileComment = /(?:\/\*\*(?:[^*]|\s\*[^/])*\@file(?:[^*]|\s\*[^/])*\*\/)/g;
 
 function _disableFileComment (event) {
     _reFileComment.lastIndex = 0;
-    var match = _reFileComment.exec(event.source),
+    let match = _reFileComment.exec(event.source),
         fileComment;
     if (match) {
         fileComment = match[0];
-        event.source = event.source.replace(fileComment, "/* " + fileComment.substr(2));
+        event.source = event.source.replace(fileComment, `/* ${fileComment.substr(2)}`);
     }
 }
 
 function _isInsideGpfErrorDeclare (node) {
-    var ancestor;
+    let ancestor;
     try {
         ancestor = node.parent.parent.parent;
     } catch (e) {
         return false;
     }
     return ancestor
-        && ancestor.type === "ExpressionStatement"
-        && ancestor.expression.type === "CallExpression"
-        && ancestor.expression.callee.name === "_gpfErrorDeclare"
+        && "ExpressionStatement" === ancestor.type
+        && "CallExpression" === ancestor.expression.type
+        && "_gpfErrorDeclare" === ancestor.expression.callee.name
         && "Property" === node.type;
 }
 
@@ -251,7 +234,6 @@ function _visitNode (node, e/*, parser, currentSourceName*/) { //eslint-disable-
     if (_isInsideGpfErrorDeclare(node)) {
         // This documentation is handled through beforeParse
         e.preventDefault = true;
-        return;
     }
 
 }
