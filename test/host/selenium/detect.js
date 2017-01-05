@@ -6,7 +6,7 @@
 
 var fs = require("fs"),
     buildWebDriverFor = require("./driverFactory.js"),
-    browsers = JSON.parse(fs.readFileSync("selenium.json").toString()),
+    browsers = JSON.parse(fs.readFileSync("./test/host/selenium/browsers.json").toString()),
     promises = [];
 
 // Pre-create the tmp folder (it might already exist)
