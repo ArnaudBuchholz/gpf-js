@@ -57,6 +57,8 @@ No driver is required
 
 Use chrome driver and set the following option in `tmp/selenium-opera.json`:
 
+https://github.com/operasoftware/operachromiumdriver/releases
+
 ```JavaScript
 {
     "setOperaBinaryPath": "path\\to\\opera.exe"
@@ -70,3 +72,10 @@ Use chrome driver and set the following option in `tmp/selenium-opera.json`:
 ## Microsoft Internet Explorer
 
 [IE Driver Server](https://selenium-release.storage.googleapis.com/2.52/IEDriverServer_x64_2.52.2.zip)
+
+## Safari
+
+[Safari 5.1.7 for Windows](http://appldnld.apple.com/Safari5/041-5487.20120509.INU8B/SafariSetup.exe)
+
+[Safari Driver](https://github.com/SeleniumHQ/selenium/wiki/SafariDriver)
+
