@@ -41,7 +41,7 @@ module.exports = {
         exitCode: 0
     },
     detectSelenium: {
-        cmd: "node detectSelenium.js",
+        cmd: "node test/host/selenium/detect.js",
         stdout: true,
         stderr: true,
         exitCode: 0

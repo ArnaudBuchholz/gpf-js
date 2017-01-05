@@ -5,7 +5,7 @@
 /*eslint-disable no-sync*/
 
 var fs = require("fs"),
-    buildWebDriverFor = require("./seleniumDriverFactory.js"),
+    buildWebDriverFor = require("./driverFactory.js"),
     browsers = JSON.parse(fs.readFileSync("selenium.json").toString()),
     promises = [];
 

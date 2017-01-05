@@ -8,7 +8,7 @@ var path = require("path"),
     browser = args[0],
     parameters = [],
     errorCount,
-    buildWebDriverFor = require("../../seleniumDriverFactory.js"),
+    buildWebDriverFor = require("selenium/driverFactory.js"),
     By = require("selenium-webdriver").By,
     until = require("selenium-webdriver").until,
     driver = buildWebDriverFor(browser);
