@@ -40,7 +40,45 @@ const
     },
 
     detectWScript = () => spawnProcess("cscript.exe", ["/Nologo", "/E:JScript", "build/gpf.js"])
-            .then(output => output.indexOf("Can't find script engine") === -1, () => false);
+            .then(output => output.indexOf("Can't find script engine") === -1, () => false),
+
+    askForQualityMetrics = (config) => inquirer.prompt([{
+        type: "confirm",
+        name: "confirmed",
+        message: "Do you want to quality metrics",
+        "default": false
+    }])
+        .then(answers => {
+            if (!answers.confirmed) {
+                return Promise.resolve();
+            }
+            return inquirer.prompt([{
+                type: "input",
+                name: "statements",
+                message: "Miminum coverage for statements",
+                "default": config.metrics.coverage.statements
+            }, {
+                type: "input",
+                name: "functions",
+                message: "Miminum coverage for functions",
+                "default": config.metrics.coverage.functions
+            }, {
+                type: "input",
+                name: "branches",
+                message: "Miminum coverage for branches",
+                "default": config.metrics.coverage.branches
+            }, {
+                type: "input",
+                name: "lines",
+                message: "Miminum coverage for lines",
+                "default": config.metrics.coverage.lines
+            }, {
+                type: "input",
+                name: "maintainability",
+                message: "Miminum maintainability ratio",
+                "default": config.metrics.maintainability
+            }]);
+        });
 
 fs.readFileAsync("tmp/config.json")
 
@@ -84,6 +122,7 @@ fs.readFileAsync("tmp/config.json")
             .then(wscriptInstalled => {
                 config.host.wscript = wscriptInstalled;
             })
+            .then(() => askForQualityMetrics(config))
             .then(() => console.log(JSON.stringify(config)))
 
     )["catch"](reason => console.error(reason.message));
