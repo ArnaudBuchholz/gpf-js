@@ -13,7 +13,9 @@ const
         host: {
             wscript: false
         },
-        selenium: {},
+        selenium: {
+            browsers: []
+        },
         metrics: {
             coverage: {
                 statements: 90,
@@ -42,7 +44,7 @@ const
     detectWScript = () => spawnProcess("cscript.exe", ["/Nologo", "/E:JScript", "build/gpf.js"])
             .then(output => output.indexOf("Can't find script engine") === -1, () => false),
 
-    askForQualityMetrics = (config) => inquirer.prompt([{
+    askForQualityMetrics = config => inquirer.prompt([{
         type: "confirm",
         name: "confirmed",
         message: "Do you want to quality metrics",
@@ -78,7 +80,23 @@ const
                 message: "Miminum maintainability ratio",
                 "default": config.metrics.maintainability
             }]);
-        });
+        }),
+
+    askForSelenium = config => (config.selenium.browsers.length === 0
+        ? Promise.resolve({confirmed: true})
+        : inquirer.prompt([{
+            type: "confirm",
+            name: "confirmed",
+            message: "Do you want to change selenium browser list"
+        }]))
+        .then(answers => answers.confirmed
+                ? spawnProcess("node", ["test/host/selenium/detect"])
+                    .then(() => fs.readFileAsync("tmp/selenium.json"))
+                    .then(buffer => {
+                        config.selenium.browsers = JSON.parse(buffer.toString());
+                    })
+                : Promise.resolve()
+        );
 
 fs.readFileAsync("tmp/config.json")
 
@@ -123,6 +141,9 @@ fs.readFileAsync("tmp/config.json")
                 config.host.wscript = wscriptInstalled;
             })
             .then(() => askForQualityMetrics(config))
-            .then(() => console.log(JSON.stringify(config)))
+            .then(() => askForSelenium(config))
+            .then(() => fs.mkdirAsync("tmp"))
+            .then(undefined, () => {}) // ignore mkdir error
+            .then(() => fs.writeFileAsync("tmp/config.json", JSON.stringify(config)))
 
     )["catch"](reason => console.error(reason.message));
