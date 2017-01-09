@@ -187,8 +187,8 @@ function onLoad () {
         }
     });
 
-    xhr("make/metrics.json").get().asJson().then(function (metricsData) {
-        metrics = metricsData;
+    xhr("tmp/config.json").get().asJson().then(function (config) {
+        metrics = config.metrics;
         refresh();
     });
 
