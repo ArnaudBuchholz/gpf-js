@@ -26,7 +26,7 @@ module.exports = function (grunt) {
                 }
                 grunt.util.spawn({
                     grunt: true,
-                    args: []
+                    args: ["check", "jsdoc", "default"]
                 }, done);
             });
         });
