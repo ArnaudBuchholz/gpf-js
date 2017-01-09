@@ -6,7 +6,7 @@
 
 var fs = require("fs"),
     buildWebDriverFor = require("./driverFactory.js"),
-    browsers = JSON.parse(fs.readFileSync("./test/host/selenium/browsers.json").toString()),
+    browsers = JSON.parse(fs.readFileSync("test/host/selenium/browsers.json").toString()),
     promises = [];
 
 // Pre-create the tmp folder (it might already exist)
@@ -59,7 +59,7 @@ if (browser) {
     });
 
 } else {
-    console.log("Testing drivers declared in ./selenium.json");
+    console.log("Testing drivers declared in test/host/selenium/browsers.json");
 
     browsers.forEach(function (browserToDetect) {
         promises.push(detect(browserToDetect));
@@ -70,7 +70,7 @@ if (browser) {
         var list = browsers.filter(function (browserToDetect, index) {
             return detectedDrivers[index];
         });
-        fs.writeFileSync("./tmp/selenium.json", JSON.stringify(list));
+        fs.writeFileSync("tmp/selenium.json", JSON.stringify(list));
         process.exit(0);
     });
 }
