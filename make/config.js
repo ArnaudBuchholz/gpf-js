@@ -31,12 +31,13 @@ const
         return new Promise(function (resolve, reject) {
             let process = require("child_process").spawn(command, params),
                 output = [];
-            process.stdout.on("data", buffer => output.push(buffer.toString()));
-            process.on("error", reject);
-            process.on("close", () => {
-                console.log(output.join(""));
-                resolve(output.join(""));
+            process.stdout.on("data", buffer => {
+                let text = buffer.toString();
+                text.split("\n").forEach(console.log);
+                output.push(text);
             });
+            process.on("error", reject);
+            process.on("close", () => resolve(output.join("")));
         });
 
     },
@@ -87,7 +88,7 @@ const
         : inquirer.prompt([{
             type: "confirm",
             name: "confirmed",
-            message: "Do you want to change selenium browser list"
+            message: "Do you want to detect browsers compatible with selenium"
         }]))
         .then(answers => answers.confirmed
                 ? spawnProcess("node", ["test/host/selenium/detect"])
@@ -102,7 +103,7 @@ fs.readFileAsync("tmp/config.json")
 
     .then(configJSON => {
 
-        inquirer.prompt([{
+        return inquirer.prompt([{
             type: "confirm",
             name: "confirmed",
             message: "Do you want to change configuration"
