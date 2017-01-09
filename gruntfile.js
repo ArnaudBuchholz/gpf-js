@@ -6,6 +6,33 @@ module.exports = function (grunt) {
 
     require("time-grunt")(grunt);
 
+    var config;
+    try {
+        config = grunt.file.readJSON("tmp/config.json");
+    } catch (e) {
+        grunt.log.writeln("No configuration file found");
+        grunt.registerTask("default", function () {
+            var done = this.async(); //eslint-disable-line no-invalid-this
+            grunt.util.spawn({
+                cmd: "node",
+                args: ["make/config"],
+                opts: {
+                    stdio: "inherit"
+                }
+            }, function (error) {
+                if (error) {
+                    done();
+                    return;
+                }
+                grunt.util.spawn({
+                    grunt: true,
+                    args: []
+                }, done);
+            });
+        });
+        return;
+    }
+
     // Build the list of valid source and test files based on sources.json
     var sources = grunt.file.readJSON("src/sources.json"),
         srcFiles = ["src/boot.js"],
@@ -27,16 +54,10 @@ module.exports = function (grunt) {
     // Since the tasks are split using load-grunt-config, I need a global object containing the configuration
     global.configuration = {
         pkg: grunt.file.readJSON("./package.json"),
-        metrics: grunt.file.readJSON("./make/metrics.json"),
-        httpPort: 8000,
-        selenium: (function () {
-            try {
-                return grunt.file.readJSON("./tmp/selenium.json");
-            } catch (e) {
-                console.warn("Tested selenium driver list is missing, use node detectSelenium");
-            }
-            return [];
-        }()),
+        cfg: config,
+        metrics: config.metrics,
+        httpPort: config.grunt.httpPort,
+        selenium: config.selenium.browsers,
         srcFiles: srcFiles,
         testFiles: testFiles,
         docFiles: docFiles,
