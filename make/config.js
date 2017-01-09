@@ -31,11 +31,8 @@ const
         return new Promise(function (resolve, reject) {
             let process = require("child_process").spawn(command, params),
                 output = [];
-            process.stdout.on("data", buffer => {
-                let text = buffer.toString();
-                text.split("\n").forEach(console.log);
-                output.push(text);
-            });
+            process.stdout.on("data", buffer => output.push(buffer.toString()));
+            process.stderr.on("data", buffer => output.push(buffer.toString()));
             process.on("error", reject);
             process.on("close", () => resolve(output.join("")));
         });
@@ -83,21 +80,27 @@ const
             }]);
         }),
 
-    askForSelenium = config => (config.selenium.browsers.length === 0
-        ? Promise.resolve({confirmed: true})
-        : inquirer.prompt([{
-            type: "confirm",
-            name: "confirmed",
-            message: "Do you want to detect browsers compatible with selenium"
-        }]))
-        .then(answers => answers.confirmed
-                ? spawnProcess("node", ["test/host/selenium/detect"])
-                    .then(() => fs.readFileAsync("tmp/selenium.json"))
-                    .then(buffer => {
-                        config.selenium.browsers = JSON.parse(buffer.toString());
-                    })
-                : Promise.resolve()
+    askForSelenium = config => {
+        let confirmation;
+        if (0 === config.selenium.browsers.length) {
+            confirmation = Promise.resolve({confirmed: true});
+            console.log("Detecting browsers compatible with selenium");
+        } else {
+            confirmation = inquirer.prompt([{
+                type: "confirm",
+                name: "confirmed",
+                message: "Do you want to detect browsers compatible with selenium"
+            }]);
+        }
+        return confirmation.then(answers => answers.confirmed
+            ? spawnProcess("node", ["test/host/selenium/detect"])
+                .then(() => fs.readFileAsync("tmp/selenium.json"))
+                .then(buffer => {
+                    config.selenium.browsers = JSON.parse(buffer.toString());
+                })
+            : Promise.resolve()
         );
+    };
 
 fs.readFileAsync("tmp/config.json")
 
