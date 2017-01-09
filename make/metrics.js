@@ -15,7 +15,7 @@ var sources = JSON.parse(fs.readFileSync("./src/sources.json"))
     });
 sources.unshift("boot"); // Also include boot
 
-var metrics = JSON.parse(fs.readFileSync("./make/metrics.json"));
+var metrics = JSON.parse(fs.readFileSync("tmp/config.json")).metrics;
 
 //region Istanbul coverage
 
