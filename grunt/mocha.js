@@ -1,7 +1,7 @@
 "use strict";
 
 // Test automation inside PhantomJS
-var webUrl = "http://localhost:" + configuration.httpPort + "/test/host/mocha/web.html";
+var webUrl = "http://localhost:" + configuration.serve.httpPort + "/test/host/mocha/web.html";
 
 module.exports = {
     source: {
