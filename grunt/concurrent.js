@@ -1,10 +1,14 @@
 "use strict";
 
 var testTasks = [
-    "exec:testWscript",
     "exec:testRhino"
 ];
-configuration.selenium.forEach(browser => {
+
+if (configuration.host.wscript) {
+    testTasks.push("exec:testWscript");
+}
+
+configuration.selenium.browsers.forEach(browser => {
     testTasks.push("exec:test" + browser.charAt(0).toUpperCase() + browser.substr(1));
 });
 
