@@ -13,7 +13,7 @@ module.exports = function (grunt) {
             done();
         }
 
-        http.get("http://localhost:" + configuration.httpPort + "/package.json", function (res) {
+        http.get("http://localhost:" + configuration.serve.httpPort + "/package.json", function (res) {
             run(200 !== res.statusCode);
         }).on("error", function () {
             run(true);
