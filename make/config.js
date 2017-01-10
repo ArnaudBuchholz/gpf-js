@@ -7,7 +7,7 @@ const
     inquirer = require("inquirer"),
 
     defaultConfig = {
-        grunt: {
+        serve: {
             httpPort: 8000
         },
         host: {
@@ -45,7 +45,7 @@ const
     askForQualityMetrics = config => inquirer.prompt([{
         type: "confirm",
         name: "confirmed",
-        message: "Do you want to quality metrics",
+        message: "Do you want to update the quality metrics",
         "default": false
     }])
         .then(answers => {
@@ -129,10 +129,10 @@ fs.readFileAsync("tmp/config.json")
             type: "input",
             name: "port",
             message: "Enter the http port used by grunt",
-            "default": config.grunt.httpPort
+            "default": config.serve.httpPort
         }])
             .then(answers => {
-                config.grunt.httpPort = answers.port;
+                config.serve.httpPort = answers.port;
                 return inquirer.prompt([{
                     type: "list",
                     name: "wscript",
