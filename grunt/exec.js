@@ -18,7 +18,7 @@ module.exports = {
     },
     plato: {
         cmd: "node node_modules/plato/bin/plato -l .jshintrc -t GPF-JS -d tmp/plato "
-                 + configuration.srcFiles.join(" "),
+                 + configuration.files.src.join(" "),
         stdout: true,
         stderr: true
     },
@@ -115,7 +115,7 @@ _buildTestConfig("Node", "node test/host/nodejs.js");
 _buildTestConfig("Phantom", "node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs test/host/phantomjs.js");
 _buildTestConfig("Wscript", "cscript.exe /D /E:JScript test/host/cscript.js");
 _buildTestConfig("Rhino", "java -jar node_modules/rhino-1_7r5-bin/rhino1_7R5/js.jar test/host/rhino.js");
-configuration.selenium.forEach(function (browser) {
+configuration.selenium.browsers.forEach(function (browser) {
     _buildTestConfig(browser.charAt(0).toUpperCase() + browser.substr(1), "node test/host/selenium.js " + browser
-        + " -port:" + configuration.httpPort);
+        + " -port:" + configuration.serve.httpPort);
 });
