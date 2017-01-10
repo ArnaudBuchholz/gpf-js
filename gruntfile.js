@@ -6,11 +6,10 @@ module.exports = function (grunt) {
 
     require("time-grunt")(grunt);
 
-    var config;
+    // Since the tasks are split using load-grunt-config, I need a global object containing the configuration
     try {
-        config = grunt.file.readJSON("tmp/config.json");
+        global.configuration = grunt.file.readJSON("tmp/config.json");
     } catch (e) {
-        grunt.log.writeln("No configuration file found");
         grunt.registerTask("default", function () {
             var done = this.async(); //eslint-disable-line no-invalid-this
             grunt.util.spawn({
@@ -26,7 +25,10 @@ module.exports = function (grunt) {
                 }
                 grunt.util.spawn({
                     grunt: true,
-                    args: ["check", "jsdoc", "default"]
+                    args: ["check", "jsdoc", "default"],
+                    opts: {
+                        stdio: "inherit"
+                    }
                 }, done);
             });
         });
@@ -51,27 +53,31 @@ module.exports = function (grunt) {
         }
     });
 
-    // Since the tasks are split using load-grunt-config, I need a global object containing the configuration
-    global.configuration = {
+    // Amend the configuration with internal settings
+    (function (internalSettings) {
+        Object.keys(internalSettings).forEach(function (name) {
+            global.configuration[name] = internalSettings[name];
+        });
+    }({
         pkg: grunt.file.readJSON("./package.json"),
-        cfg: config,
-        metrics: config.metrics,
-        httpPort: config.grunt.httpPort,
-        selenium: config.selenium.browsers,
-        srcFiles: srcFiles,
-        testFiles: testFiles,
-        docFiles: docFiles,
-        jsLintedFiles: [
-            "Gruntfile.js",
-            "grunt/**/*.js",
-            "statistics.js",
-            "make/*.js",
-            "test/host/**/*.js",
-            "res/*.js"
-        ]
-            .concat(srcFiles)
-            .concat(testFiles)
-    };
+        files: {
+            src: srcFiles,
+            test: testFiles,
+            doc: docFiles,
+            linting: {
+                js: [
+                    "Gruntfile.js",
+                    "grunt/**/*.js",
+                    "statistics.js",
+                    "make/*.js",
+                    "test/host/**/*.js",
+                    "res/*.js"
+                ]
+                    .concat(srcFiles)
+                    .concat(testFiles)
+            }
+        }
+    }));
 
     require("load-grunt-config")(grunt);
     grunt.task.loadTasks("grunt/tasks");
