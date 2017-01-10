@@ -1,6 +1,6 @@
 "use strict";
 
-var testTasks = [
+let testTasks = [
     "exec:testRhino"
 ];
 
@@ -9,10 +9,10 @@ if (configuration.host.wscript) {
 }
 
 configuration.selenium.browsers.forEach(browser => {
-    testTasks.push("exec:test" + browser.charAt(0).toUpperCase() + browser.substr(1));
+    testTasks.push(`exec:test${browser.charAt(0).toUpperCase()}${browser.substr(1)}`);
 });
 
-var legacyTasks = [];
+let legacyTasks = [];
 require("fs")
     .readdirSync("test/legacy")
     .map(name => name.substr(0, name.lastIndexOf(".")))
