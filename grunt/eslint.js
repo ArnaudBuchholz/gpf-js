@@ -4,5 +4,5 @@ module.exports = {
     options: {
         rulePaths: [".eslintrules"]
     },
-    target: configuration.jsLintedFiles
+    target: configuration.files.linting.js
 };
