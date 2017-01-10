@@ -5,7 +5,7 @@ module.exports = function (grunt) {
     grunt.registerTask("fixInstrument", function () {
         // Because code generation uses templates that are instrumented, the __cov_XXX variables must be global
         var fs = require("fs");
-        configuration.srcFiles.forEach(function (fileName) {
+        configuration.files.src.forEach(function (fileName) {
             var srcPath = "tmp/coverage/instrument/" + fileName,
                 instrumentedLines = fs
                     .readFileSync(srcPath)
