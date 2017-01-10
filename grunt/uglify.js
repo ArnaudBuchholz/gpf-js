@@ -12,7 +12,7 @@ module.exports = {
     },
     buildTests: {
         files: {
-            "build/tests.js": configuration.testFiles
+            "build/tests.js": configuration.files.test
         }
     },
     buildRelease: {
