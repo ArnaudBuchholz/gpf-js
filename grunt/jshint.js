@@ -4,5 +4,5 @@ module.exports = {
     options: {
         jshintrc: true
     },
-    files: configuration.jsLintedFiles.concat("make/*.json")
+    files: configuration.files.linting.js.concat("make/*.json")
 };
