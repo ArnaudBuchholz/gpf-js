@@ -26,7 +26,7 @@ module.exports = {
                 }
             ]
         },
-        src: configuration.testFiles
+        src: configuration.files.test
     },
     verbose: {
         options: {
@@ -43,7 +43,7 @@ module.exports = {
                 }
             ]
         },
-        src: configuration.testFiles
+        src: configuration.files.test
     },
     coverage: {
         options: {
@@ -62,7 +62,7 @@ module.exports = {
                 }
             ]
         },
-        src: configuration.testFiles
+        src: configuration.files.test
     },
     debug: {
         options: {
@@ -77,7 +77,7 @@ module.exports = {
                 }
             ]
         },
-        src: configuration.testFiles
+        src: configuration.files.test
     },
     release: {
         options: {
@@ -92,7 +92,7 @@ module.exports = {
                 }
             ]
         },
-        src: configuration.testFiles
+        src: configuration.files.test
     },
     legacy: {
         options: {
