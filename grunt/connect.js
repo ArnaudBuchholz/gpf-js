@@ -3,7 +3,7 @@
 module.exports = {
     server: {
         options: {
-            port: configuration.httpPort,
+            port: configuration.serve.httpPort,
             hostname: "*",
             open: true,
             middleware: function (connect, options, middlewares) {
