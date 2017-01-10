@@ -3,7 +3,7 @@
 module.exports = {
 
     "private": {
-        src: configuration.docFiles.concat([
+        src: configuration.files.doc.concat([
             "README.md"
         ]),
         options: {
@@ -14,7 +14,7 @@ module.exports = {
     },
 
     "public": {
-        src: configuration.docFiles.concat([
+        src: configuration.files.doc.concat([
             "README.md"
         ]),
         options: {
