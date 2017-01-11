@@ -125,7 +125,6 @@
     },
     {
         "name": "define",
-        "test": false,
         "doc": true
     },
     {
