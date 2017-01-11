@@ -1,5 +1,5 @@
 /**
- * @file Class management
+ * @file Define Entities
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -8,9 +8,10 @@
 /*#endif*/
 
 /**
- * Defines a class
- * @param {Object} definition Class definition
- * @return {Function} New class constructor
+ * Define an entity
+ *
+ * @param {Object} definition Entity definition
+ * @return {Function} Entity constructor
  */
 function _gpfDefine (definition) {
     _gpfIgnore(definition);
