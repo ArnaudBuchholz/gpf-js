@@ -124,6 +124,16 @@
         "doc": true
     },
     {
+        "name": "define/class/checkDefinition",
+        "test": false,
+        "doc": true
+    },
+    {
+        "name": "define/checkDefinintion",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "define",
         "doc": true
     },
@@ -341,6 +351,74 @@
     },
     {
         "name": "noconflict",
+        "load": false
+    },
+    {
+        "name": "define_",
+        "load": false
+    },
+    {
+        "name": "define_/classdef",
+        "load": false
+    },
+    {
+        "name": "define_/constructor",
+        "load": false
+    },
+    {
+        "name": "define_/custom",
+        "load": false
+    },
+    {
+        "name": "define_/factory",
+        "load": false
+    },
+    {
+        "name": "define_/internal",
+        "load": false
+    },
+    {
+        "name": "define_/params",
+        "load": false
+    },
+    {
+        "name": "define_/builder/constructor",
+        "load": false
+    },
+    {
+        "name": "define_/builder/default",
+        "load": false
+    },
+    {
+        "name": "define_/definition/attribute",
+        "load": false
+    },
+    {
+        "name": "define_/definition/class",
+        "load": false
+    },
+    {
+        "name": "define_/definition/member",
+        "load": false
+    },
+    {
+        "name": "define_/definition/visibility",
+        "load": false
+    },
+    {
+        "name": "define_/reader/attribute",
+        "load": false
+    },
+    {
+        "name": "define_/reader/member",
+        "load": false
+    },
+    {
+        "name": "define_/reader/reader",
+        "load": false
+    },
+    {
+        "name": "define_/reader/visibility",
         "load": false
     }
 ]
