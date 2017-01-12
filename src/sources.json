@@ -129,8 +129,8 @@
         "doc": true
     },
     {
-        "name": "define/checkDefinintion",
-        "test": false,
+        "name": "define/checkDefinition",
+        "test": true,
         "doc": true
     },
     {
