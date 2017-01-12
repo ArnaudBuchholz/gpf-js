@@ -180,6 +180,21 @@ describe("compatibility", function () {
                         assert(20 === method.call(array, reducer, 10));
                     }
                 },
+                some: {
+                    length: 1,
+                    "returns false when all members return false": function (method) {
+                        var array = [2, 5, 8, 1, 4];
+                        assert(false === method.call(array, function (element) {
+                            return element > 10;
+                        }));
+                    },
+                    "returns true when at least one member returns true": function (method) {
+                        var array = [12, 5, 8, 1, 4];
+                        assert(true === method.call(array, function (element) {
+                            return element > 10;
+                        }));
+                    }
+                },
                 from: {
                     isStatic: true,
                     length: 1,
