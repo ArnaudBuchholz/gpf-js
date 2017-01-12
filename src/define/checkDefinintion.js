@@ -30,7 +30,7 @@ _gpfErrorDeclare("define/checkDefinition", {
  */
 function _gpfDefineCheckDefinition (definition) {
     if (!definition.$class) {
-        gpf.error.missingEntityType();
+        gpf.Error.missingEntityType();
     }
     _gpfDefineCheckClassDefinition(definition);
 }
