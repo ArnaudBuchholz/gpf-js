@@ -11,6 +11,39 @@ describe("define", function () {
 
         describe("Simple class description", function () {
 
+            describe("Validation", function () {
+
+                it("checks that he entity type is specified", function () {
+                    var exceptionCaught;
+                    try {
+                        gpf.define({});
+                    } catch (e) {
+                        exceptionCaught = e;
+                    }
+                    assert(exceptionCaught instanceof gpf.Error.MissingEntityType);
+                });
+
+                [
+                    "12",
+                    "test",
+                    "Test$"
+                ].forEach(function (name) {
+                    it("validates the class name (rejects \"" + name + "\")", function () {
+                        var exceptionCaught;
+                        try {
+                            gpf.define({
+                                $class: name
+                            });
+                        } catch (e) {
+                            exceptionCaught = e;
+                        }
+                        assert(exceptionCaught instanceof gpf.Error.InvalidClassName);
+                    });
+                });
+
+            });
+
+/*
             var A = gpf.define({
                 $class: "A",
                 _member: "defaultValue",
@@ -42,6 +75,7 @@ describe("define", function () {
                 assert("defaultValue" === a.getMember());
             });
 
+*/
         });
 
     });
