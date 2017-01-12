@@ -3,7 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfDefineCheckDefinition*/ // Check the dictionary passed to gpf.define
 /*exported _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
@@ -14,8 +14,7 @@
  * @return {Function} Entity constructor
  */
 function _gpfDefine (definition) {
-    _gpfIgnore(definition);
-    // _gpfDefineCheckDefinition(definition);
+    _gpfDefineCheckDefinition(definition);
     return function () {};
 }
 
