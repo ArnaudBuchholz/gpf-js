@@ -17,8 +17,9 @@ function _gpfArrayBind (callback, thisArg) {
     return callback;
 }
 
-function _gpfArrayForEachOwn (array, callback, idx) {
-    var len = array.length;
+function _gpfArrayForEachOwn (array, callback) {
+    var len = array.length,
+        idx = 0;
     while (idx < len) {
         if (array.hasOwnProperty(idx)) {
             callback(array[idx], idx, array);
@@ -36,6 +37,10 @@ function _gpfArrayEveryOwn (array, callback, idx) {
         ++idx;
     }
     return true;
+}
+
+function _gpfArrayEveryOwnFrom0 (array, callback) {
+    return _gpfArrayEveryOwn(array, callback, 0);
 }
 
 //endregion
@@ -81,7 +86,7 @@ _gpfInstallCompatibility("Array", {
 
         // Introduced with JavaScript 1.6
         every: function (callback) {
-            return _gpfArrayEveryOwn(this, _gpfArrayBind(callback, arguments[1]), 0);
+            return _gpfArrayEveryOwnFrom0(this, _gpfArrayBind(callback, arguments[1]));
         },
 
         // Introduced with JavaScript 1.6
@@ -92,13 +97,13 @@ _gpfInstallCompatibility("Array", {
                 if (callback(item, idx, array)) {
                     result.push(item);
                 }
-            }, 0);
+            });
             return result;
         },
 
         // Introduced with JavaScript 1.6
         forEach: function (callback) {
-            _gpfArrayForEachOwn(this, _gpfArrayBind(callback, arguments[1]), 0);
+            _gpfArrayForEachOwn(this, _gpfArrayBind(callback, arguments[1]));
         },
 
         // Introduced with JavaScript 1.5
@@ -120,8 +125,16 @@ _gpfInstallCompatibility("Array", {
             callback = _gpfArrayBind(callback, arguments[1]);
             _gpfArrayForEachOwn(this, function (item, index, array) {
                 result[index] = callback(item, index, array);
-            }, 0);
+            });
             return result;
+        },
+
+        // Introduced with JavaScript 1.6
+        some: function (callback) {
+            callback = _gpfArrayBind(callback, arguments[1]);
+            return !_gpfArrayEveryOwnFrom0(this, function (item, index, array) {
+                return !callback(item, index, array);
+            });
         },
 
         // Introduced with JavaScript 1.8
