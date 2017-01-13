@@ -3,6 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfJsCommentsRegExp*/ // Find all JavaScript comments
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
@@ -57,7 +58,7 @@ _GpfFunctionBuilder.prototype = {
      */
     _extract: function (functionObject) {
         this.name = functionObject.compatibleName();
-        var source = Function.prototype.toString.call(functionObject).replace(_gpfJsCommentsRegExp, ""),
+        var source = _gpfEmptyFunc.toString.call(functionObject).replace(_gpfJsCommentsRegExp, ""),
             start,
             end;
         if (0 < functionObject.length) {
