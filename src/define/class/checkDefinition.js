@@ -2,7 +2,8 @@
  * @file Checking class dictionary
  */
 /*#ifndef(UMD)*/
-/*exported _gpfDefineCheckClassDefinition*/ // Check the dictionary passed to gpf.define
+/*global _gpfDefineAllowedCommon$Keys*/ // Common list of allowed $ keys
+/*global _gpfDefineTypedCheckers*/ // Dictionary of typed definition checker
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 "use strict";
 /*#endif*/
@@ -22,17 +23,26 @@ _gpfErrorDeclare("define/class/checkDefinition", {
     /**
      * ### Summary
      *
-     * The class definition contains an invalid keyword
+     * The class definition contains an property
      *
      * ### Description
      *
      * Some keywords are reserved
      */
-    invalidClassProperty: "Invalid property in class definition"
+    invalidClassProperty: "Invalid class property"
 
 });
 
-function _gpfDefineCheckClassDefinitionFor$Propos (definition) {
+var _gpfClassNameValidationRegExp = /^[A-Z_$][a-zA-Z0-9]+$/;
+
+function _gpfDefineCheckClassDefinitionName (name) {
+    _gpfClassNameValidationRegExp.lastIndex = 0;
+    if (!_gpfClassNameValidationRegExp.exec(name)) {
+        gpf.Error.invalidClassName();
+    }
+}
+
+function _gpfDefineCheckClassDefinitionFor$Keys (definition) {
     var properties = Object.keys(definition);
     if (properties.filter(function (name) {
         return name.charAt(0) === "$" && -1 === ["$class", "$extend"].indexOf(name);
@@ -56,8 +66,8 @@ function _gpfDefineCheckClassDefinitionForVisibility (definition) {
  * @param {Object} definition Class definition
  * @throws {gpf.Error.InvalidClassProperty}
  */
-function _gpfDefineCheckClassDefinition (definition) {
-    _gpfDefineCheckClassDefinitionFor$Propos(definition);
+_gpfDefineTypedCheckers["class"] = function (definition) {
+    _gpfDefineCheckClassDefinitionName(definition.$name);
+    _gpfDefineCheckClassDefinitionFor$Keys(definition);
     _gpfDefineCheckClassDefinitionForVisibility(definition);
-}
-
+};
