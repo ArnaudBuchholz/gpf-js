@@ -51,6 +51,39 @@ describe("define/checkDefinition", function () {
                 assert("Test" === transformed.$name);
             });
 
+            it("validates namespace", function () {
+                _gpfDefineTransformDefinition({
+                    $namespace: "lowerCamelCase.$accepted._also.numbers456"
+                });
+                _gpfDefineTransformDefinition({
+                    $namespace: "simple"
+                });
+                _gpfDefineTransformDefinition({
+                    $namespace: ""
+                });
+            });
+
+            [
+                "endingPointIsNotOK.",
+                "startingNumberIsNotOK.4test",
+                "$isOKOnlyAtBeginning.test$",
+                "_isOKOnlyAtBeginning.test_",
+                "CapitalFirstLetterIsNotOK"
+            ].forEach(function (invalidNamespace) {
+                it("rejects invalid namespace (" + invalidNamespace + ")", function () {
+                    var exceptionCaught;
+                    try {
+                        _gpfDefineTransformDefinition({
+                            $namespace: invalidNamespace
+                        });
+                    } catch (e) {
+                        exceptionCaught = e;
+                    }
+                    assert(exceptionCaught instanceof gpf.Error.InvalidEntityNamespace);
+                });
+
+            });
+
         });
 
     }
