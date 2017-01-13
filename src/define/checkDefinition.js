@@ -150,7 +150,7 @@ function _gpfDefineCheckDefinition (definition) {
     if (undefined === typedChecker) {
         gpf.Error.invalidEntityType();
     }
-    typedChecker(definition);
+    typedChecker(transformed);
     return transformed;
 }
 
