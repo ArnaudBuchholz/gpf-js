@@ -124,13 +124,12 @@
         "doc": true
     },
     {
-        "name": "define/class/checkDefinition",
-        "test": false,
+        "name": "define/checkDefinition",
         "doc": true
     },
     {
-        "name": "define/checkDefinition",
-        "test": true,
+        "name": "define/class/checkDefinition",
+        "test": false,
         "doc": true
     },
     {
