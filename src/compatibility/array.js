@@ -163,7 +163,7 @@ _gpfInstallCompatibility("Array", {
 
         // Introduced with JavaScript 1.8.5
         isArray: function (arrayLike) {
-            return "[object Array]" === Object.prototype.toString.call(arrayLike);
+            return "[object Array]" === {}.toString.call(arrayLike);
         }
 
     }
