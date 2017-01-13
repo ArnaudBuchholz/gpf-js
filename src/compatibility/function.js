@@ -5,6 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfBuildFunctionParameterList*/ // Builds an array of parameters
+/*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfInstallCompatibility*/ // Define and install compatible methods
 /*exported _gpfJsCommentsRegExp*/ // Find all JavaScript comments
@@ -47,7 +48,7 @@ var _gpfJsCommentsRegExp =  new RegExp("//.*$|/\\*(?:[^\\*]*|\\*[^/]*)\\*/", "gm
 function _gpfGetFunctionName () {
     // Use simple parsing
     /*jshint validthis:true*/
-    var functionSource = Function.prototype.toString.call(this), //eslint-disable-line no-invalid-this
+    var functionSource = _gpfEmptyFunc.toString.call(this), //eslint-disable-line no-invalid-this
         functionKeywordPos = functionSource.indexOf("function"),
         parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
     return functionSource
