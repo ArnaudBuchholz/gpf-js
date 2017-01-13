@@ -19,8 +19,18 @@ _gpfErrorDeclare("define/checkDefinition", {
      *
      * This error is thrown when the entity type is either missing or invalid
      */
-    invalidEntityType: "Invalid entity type"
+    invalidEntityType: "Invalid entity type",
 
+    /**
+     * ### Summary
+     *
+     * Entity namespace is invalid in the definition passed to {@link gpf.define}
+     *
+     * ### Description
+     *
+     * This error is thrown when the namespace is invalid
+     */
+    invalidEntityNamespace: "Invalid entity namespace"
 });
 
 /**
@@ -86,6 +96,16 @@ function _gpfDefineConvertNamespacedName (transformed, name) {
     transformed.$namespace = relNamespace.join(".");
 }
 
+var _gpfNamespaceValidationRegExp = /^[a-z_$][a-zA-Z0-9]+(:?\.[a-z_$][a-zA-Z0-9]+)*$/;
+
+function _gpfDefineCheckNamespace (transformed) {
+    var namespace = transformed.$namespace;
+    _gpfNamespaceValidationRegExp.lastIndex = 0;
+    if (namespace && !_gpfNamespaceValidationRegExp.exec(namespace)) {
+        gpf.Error.invalidEntityNamespace();
+    }
+}
+
 /**
  * If $name looks like a namespace (contains .), append to or define in $namespace
  * @param {Object} transformed Transformed definition where key transformation were applied
@@ -95,6 +115,7 @@ function _gpfDefineProcessNameAndNamespace (transformed) {
     if (name.indexOf(".") > -1) {
         _gpfDefineConvertNamespacedName(transformed, name);
     }
+    _gpfDefineCheckNamespace(transformed);
 }
 
 /**
