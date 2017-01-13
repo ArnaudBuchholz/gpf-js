@@ -1,10 +1,11 @@
 /**
- * @file Checking define dictionary
+ * @file Check define dictionary
  */
 /*#ifndef(UMD)*/
+/*exported _gpfDefineAllowedCommon$Keys*/ // Common list of allowed $ keys
 /*exported _gpfDefineCheckDefinition*/ // Check the dictionary passed to gpf.define
+/*exported _gpfDefineTypedCheckers*/ // Dictionary of typed definition checker
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfDefineCheckClassDefinition*/ // Check the class definition
 "use strict";
 /*#endif*/
 
@@ -12,15 +13,26 @@ _gpfErrorDeclare("define/checkDefinition", {
     /**
      * ### Summary
      *
-     * Entity type is missing in the definition passed to {@link gpf.define}
+     * Entity type is invalid in the definition passed to {@link gpf.define}
      *
      * ### Description
      *
-     * This error is thrown when the entity type is not specified
+     * This error is thrown when the entity type is either missing or invalid
      */
-    missingEntityType: "Entity type not specified"
+    invalidEntityType: "Invalid entity type"
 
 });
+
+/**
+ * Common list of allowed $ keys
+ *
+ * @type {String[]}
+ */
+var _gpfDefineAllowedCommon$Keys = "type,name,namespace".split(",").map(function (name) {
+    return "$" + name;
+});
+
+//region Key transformations
 
 /**
  * Dictionary of key transformations:
@@ -63,22 +75,25 @@ function _gpfDefineApplyKeyTransformations (definition) {
     return transformed;
 }
 
+function _gpfDefineConvertNamespacedName (transformed, name) {
+    var relNamespace = name.split("."),
+        namespace;
+    transformed.$name = relNamespace.pop();
+    namespace = transformed.$namespace;
+    if (namespace) {
+        relNamespace.unshift(namespace);
+    }
+    transformed.$namespace = relNamespace.join(".");
+}
+
 /**
  * If $name looks like a namespace (contains .), append to or define in $namespace
  * @param {Object} transformed Transformed definition where key transformation were applied
  */
 function _gpfDefineProcessNameAndNamespace (transformed) {
-    var name = transformed.$name,
-        relNamespace,
-        namespace;
-    if (name && name.indexOf(".") > -1) {
-        relNamespace = name.split(".");
-        transformed.$name = relNamespace.pop();
-        namespace = transformed.$namespace;
-        if (namespace) {
-            relNamespace.unshift(namespace);
-        }
-        transformed.$namespace = relNamespace.join(".");
+    var name = transformed.$name || "";
+    if (name.indexOf(".") > -1) {
+        _gpfDefineConvertNamespacedName(transformed, name);
     }
 }
 
@@ -96,19 +111,26 @@ function _gpfDefineTransformDefinition (definition) {
     return transformed;
 }
 
+//endregion
+
+/** Dictionary of typed definition checker */
+var _gpfDefineTypedCheckers = {};
+
 /**
  * Check the dictionary passed to gpf.define
  *
  * @param {Object} definition Entity definition
- * @return {Object} Checked entity definition, it contains a method generate that returns the constructor function
- * @throws {gpf.Error.MissingEntityType}
+ * @return {Object} Checked entity definition
+ * @throws {gpf.Error.InvalidEntityType}
  */
 function _gpfDefineCheckDefinition (definition) {
-    var transformed = _gpfDefineTransformDefinition(definition);
-    if (transformed.type !== "class") {
-        gpf.Error.missingEntityType();
+    var transformed = _gpfDefineTransformDefinition(definition),
+        typedChecker = _gpfDefineTypedCheckers[transformed.$type];
+    if (undefined === typedChecker) {
+        gpf.Error.invalidEntityType();
     }
-    return _gpfDefineCheckClassDefinition(transformed);
+    typedChecker(definition);
+    return transformed;
 }
 
 /*#ifndef(UMD)*/
