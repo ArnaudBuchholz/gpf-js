@@ -20,19 +20,19 @@ describe("define", function () {
                     } catch (e) {
                         exceptionCaught = e;
                     }
-                    assert(exceptionCaught instanceof gpf.Error.MissingEntityType);
+                    assert(exceptionCaught instanceof gpf.Error.InvalidEntityType);
                 });
 
                 [
-                    "12",
-                    "test",
-                    "Test$"
-                ].forEach(function (name) {
-                    it("validates the class name (rejects \"" + name + "\")", function () {
+                    "1NumberAtTheBeginningIsNotOK",
+                    "noUppercaseFirstLetterIsNotOK",
+                    "DollarSignAnywhereIsNotOK$"
+                ].forEach(function (invalidClassName) {
+                    it("rejects invalid class name (" + invalidClassName + ")", function () {
                         var exceptionCaught;
                         try {
                             gpf.define({
-                                $class: name
+                                $class: invalidClassName
                             });
                         } catch (e) {
                             exceptionCaught = e;
