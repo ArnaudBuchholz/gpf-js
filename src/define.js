@@ -1,5 +1,5 @@
 /**
- * @file Define Entities
+ * @file Entity (class, interface, attribute) definition
  */
 /*#ifndef(UMD)*/
 "use strict";
