@@ -53,7 +53,7 @@ Module.prototype = {
     analyze: function () {
         this.lines.every(this._dispatchLine, this);
         if (-1 === this._umdLineIndex) {
-            module.error("missing /*#ifndef(UMD)*/");
+            this.error("missing /*#ifndef(UMD)*/");
         }
     },
 
@@ -85,7 +85,7 @@ Module.prototype = {
     // Second line *must* be "use strict";
     _checkLine1: function (line) {
         if (line !== "\"use strict\";") {
-            module.error("missing \"use strict\";");
+            this.error("missing \"use strict\";");
             return false;
         }
         return true;
