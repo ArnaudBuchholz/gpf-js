@@ -1,5 +1,6 @@
 /**
  * @file Entity (class, interface, attribute) definition
+ * @since 0.1.6
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -12,6 +13,7 @@
  *
  * @param {Object} definition Entity definition
  * @return {Function} Entity constructor
+ * @since 0.1.6
  */
 function _gpfDefine (definition) {
     _gpfDefineCheckDefinition(definition);
@@ -20,5 +22,6 @@ function _gpfDefine (definition) {
 
 /**
  * @sameas _gpfDefine
+ * @since 0.1.6
  */
 gpf.define = _gpfDefine;
