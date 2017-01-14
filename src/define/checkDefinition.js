@@ -1,12 +1,14 @@
 /**
  * @file Check define dictionary
+ * @since 0.1.6
  */
 /*#ifndef(UMD)*/
+"use strict";
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*exported _gpfDefineAllowedCommon$Keys*/ // Common list of allowed $ keys
 /*exported _gpfDefineCheckDefinition*/ // Check the dictionary passed to gpf.define
+/*exported _gpfDefineGenerate$Keys*/ // Generate an array of names prefixed with $ from a comma separated list
 /*exported _gpfDefineTypedCheckers*/ // Dictionary of typed definition checker
-/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-"use strict";
 /*#endif*/
 
 _gpfErrorDeclare("define/checkDefinition", {
@@ -18,6 +20,7 @@ _gpfErrorDeclare("define/checkDefinition", {
      * ### Description
      *
      * This error is thrown when the entity type is either missing or invalid
+     * @since 0.1.6
      */
     invalidEntityType: "Invalid entity type",
 
@@ -29,18 +32,31 @@ _gpfErrorDeclare("define/checkDefinition", {
      * ### Description
      *
      * This error is thrown when the namespace is invalid
+     * @since 0.1.6
      */
     invalidEntityNamespace: "Invalid entity namespace"
 });
 
 /**
+ * Generate an array of names prefixed with $ from a comma separated list
+ *
+ * @param {String} names Comma separated list of name
+ * @return {String[]} Array of names prefixed with "$"
+ * @since 0.1.6
+ */
+function _gpfDefineGenerate$Keys (names) {
+    return names.split(function (name) {
+        return "$" + name;
+    });
+}
+
+/**
  * Common list of allowed $ keys
  *
  * @type {String[]}
+ * @since 0.1.6
  */
-var _gpfDefineAllowedCommon$Keys = "type,name,namespace".split(",").map(function (name) {
-    return "$" + name;
-});
+var _gpfDefineAllowedCommon$Keys = _gpfDefineGenerate$Keys("type,name,namespace");
 
 //region Key transformations
 
@@ -48,6 +64,7 @@ var _gpfDefineAllowedCommon$Keys = "type,name,namespace".split(",").map(function
  * Dictionary of key transformations:
  * - $class => $type="class", $name=value (overwrite)
  * - $name => $name if none specified
+ * @since 0.1.6
  */
 var _gpfDefineKeyTransformations = {
 
@@ -70,6 +87,7 @@ var _gpfDefineKeyTransformations = {
  * @param {Object} definition Entity definition given to gpf.define
  * @return {Object} Definition (not the same object) where key transformation were applied
  * @see _gpfDefineKeyTransformations
+ * @since 0.1.6
  */
 function _gpfDefineApplyKeyTransformations (definition) {
     var transformed = {};
@@ -109,6 +127,7 @@ function _gpfDefineCheckNamespace (transformed) {
 /**
  * If $name looks like a namespace (contains .), append to or define in $namespace
  * @param {Object} transformed Transformed definition where key transformation were applied
+ * @since 0.1.6
  */
 function _gpfDefineProcessNameAndNamespace (transformed) {
     var name = transformed.$name || "";
@@ -125,6 +144,7 @@ function _gpfDefineProcessNameAndNamespace (transformed) {
  *
  * @param {Object} definition Entity definition given to gpf.define
  * @return {Object} Transformed entity definition
+ * @since 0.1.6
  */
 function _gpfDefineTransformDefinition (definition) {
     var transformed = _gpfDefineApplyKeyTransformations(definition);
@@ -134,7 +154,10 @@ function _gpfDefineTransformDefinition (definition) {
 
 //endregion
 
-/** Dictionary of typed definition checker */
+/**
+ * Dictionary of typed definition checker
+ * @since 0.1.6
+ */
 var _gpfDefineTypedCheckers = {};
 
 /**
@@ -143,6 +166,7 @@ var _gpfDefineTypedCheckers = {};
  * @param {Object} definition Entity definition
  * @return {Object} Checked entity definition
  * @throws {gpf.Error.InvalidEntityType}
+ * @since 0.1.6
  */
 function _gpfDefineCheckDefinition (definition) {
     var transformed = _gpfDefineTransformDefinition(definition),
