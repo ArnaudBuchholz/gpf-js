@@ -16,7 +16,7 @@ _gpfErrorDeclare("define/class/checkDefinition", {
      *
      * ### Description
      *
-     * Only a valid JavaScript identifier (starting with an uppercase letter or _) is allowed
+     * Only a valid JavaScript identifier (starting with an uppercase letter, $ or _) is allowed
      */
     invalidClassName: "Invalid class name",
 
@@ -52,7 +52,7 @@ function _gpfDefineCheckClassDefinitionFor$Keys (definition) {
     }
 }
 
-function _gpfDefineCheckClassDefinitionForVisibility (definition) {
+function _gpfDefineCheckClassDefinitionForFordbiddenKeywords (definition) {
     if ("super,public,private,protected,static,mixin".split(",").some(function (key) {
         return undefined !== definition[key];
     })) {
@@ -69,5 +69,5 @@ function _gpfDefineCheckClassDefinitionForVisibility (definition) {
 _gpfDefineTypedCheckers["class"] = function (definition) {
     _gpfDefineCheckClassDefinitionName(definition.$name);
     _gpfDefineCheckClassDefinitionFor$Keys(definition);
-    _gpfDefineCheckClassDefinitionForVisibility(definition);
+    _gpfDefineCheckClassDefinitionForFordbiddenKeywords(definition);
 };
