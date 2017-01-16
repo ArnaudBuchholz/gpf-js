@@ -41,6 +41,25 @@ describe("define", function () {
                     });
                 });
 
+                [
+                    "A",
+                    "$B",
+                    "_C",
+                    "Test123"
+                ].forEach(function (validClassName) {
+                    it("validates class name (" + validClassName + ")", function () {
+                        var exceptionCaught;
+                        try {
+                            gpf.define({
+                                $class: validClassName
+                            });
+                        } catch (e) {
+                            exceptionCaught = e;
+                        }
+                        assert(undefined === exceptionCaught);
+                    });
+                });
+
             });
 
             it("rejects invalid $ property names", function () {
@@ -69,14 +88,25 @@ describe("define", function () {
                 assert(exceptionCaught instanceof gpf.Error.InvalidClassProperty);
             });
 
-/*
-            var A = gpf.define({
-                $class: "A",
-                _member: "defaultValue",
-                getMember: function () {
-                    return this._member;
-                }
+        });
+
+        describe("Definition", function () {
+
+            var A, a;
+
+            before(function () {
+
+                A = gpf.define({
+                    $class: "A",
+                    _member: "defaultValue",
+                    getMember: function () {
+                        return this._member;
+                    }
+                });
+
+                a = new A();
             });
+
 
             it("prevents constructor functions to be used without new", function () {
                 var exceptionCaught;
@@ -90,8 +120,6 @@ describe("define", function () {
                 assert(exceptionCaught.name === "constructorFunction");
             });
 
-            var a = new A();
-
             it("handles instanceof", function () {
                 assert(a instanceof A);
             });
@@ -101,7 +129,6 @@ describe("define", function () {
                 assert("defaultValue" === a.getMember());
             });
 
-*/
         });
 
     });
