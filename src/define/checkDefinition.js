@@ -45,7 +45,7 @@ _gpfErrorDeclare("define/checkDefinition", {
  * @since 0.1.6
  */
 function _gpfDefineGenerate$Keys (names) {
-    return names.split(function (name) {
+    return names.split(",").map(function (name) {
         return "$" + name;
     });
 }
