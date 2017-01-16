@@ -66,5 +66,15 @@
         "foreach",
         "string/capitalize",
         "string/replaceex"
+    ],
+    "define/checkDefinition": [
+        "error"
+    ],
+    "define/class/checkDefinition": [
+        "define/checkDefinition",
+        "error"
+    ],
+    "define": [
+        "define/checkDefinition"
     ]
 }
