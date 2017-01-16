@@ -43,6 +43,32 @@ describe("define", function () {
 
             });
 
+            it("rejects invalid $ property names", function () {
+                var exceptionCaught;
+                try {
+                    gpf.define({
+                        $class: "Test",
+                        $test: false
+                    });
+                } catch (e) {
+                    exceptionCaught = e;
+                }
+                assert(exceptionCaught instanceof gpf.Error.InvalidClassProperty);
+            });
+
+            it("rejects invalid property names (reserved keywords)", function () {
+                var exceptionCaught;
+                try {
+                    gpf.define({
+                        $class: "Test",
+                        super: false
+                    });
+                } catch (e) {
+                    exceptionCaught = e;
+                }
+                assert(exceptionCaught instanceof gpf.Error.InvalidClassProperty);
+            });
+
 /*
             var A = gpf.define({
                 $class: "A",
