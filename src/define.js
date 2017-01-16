@@ -4,7 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfDefineCheckDefinition*/ // Check the dictionary passed to gpf.define
+/*global _gpfDefineBuildTypedEntity*/ // Factory to create the correct entity type
 /*exported _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
@@ -16,7 +16,8 @@
  * @since 0.1.6
  */
 function _gpfDefine (definition) {
-    _gpfDefineCheckDefinition(definition);
+    /*var entityDefinition = */ _gpfDefineBuildTypedEntity(definition);
+    /* return entityDefinition.build(); */
     return function () {};
 }
 
