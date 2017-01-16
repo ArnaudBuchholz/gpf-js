@@ -37,7 +37,7 @@ _gpfErrorDeclare("define/class/checkDefinition", {
 
 });
 
-var _gpfClassNameValidationRegExp = /^[A-Z_$][a-zA-Z0-9]+$/;
+var _gpfClassNameValidationRegExp = /^[A-Z_$][a-zA-Z0-9]*$/;
 
 function _gpfDefineCheckClassDefinitionName (name) {
     _gpfClassNameValidationRegExp.lastIndex = 0;
