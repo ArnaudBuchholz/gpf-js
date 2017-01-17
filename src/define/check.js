@@ -5,6 +5,7 @@
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _GpfEntityDefinition*/ // GPF class definition
+/*global _gpfExtend*/ // gpf.extend
 /*#endif*/
 
 _gpfErrorDeclare("define/check", {
@@ -36,7 +37,7 @@ _gpfErrorDeclare("define/check", {
 
 var _gpfNamespaceValidationRegExp = /^[a-z_$][a-zA-Z0-9]+(:?\.[a-z_$][a-zA-Z0-9]+)*$/;
 
-_GpfEntityDefinition.prototype = {
+_gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.prototype */ {
 
     /** Entity type (class...) */
     _type: "",
@@ -96,4 +97,4 @@ _GpfEntityDefinition.prototype = {
         this._checkNamespace();
     }
 
-};
+});
