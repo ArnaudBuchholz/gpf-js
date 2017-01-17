@@ -124,17 +124,9 @@
         "doc": true
     },
     {
-        "name": "define/checkDefinition",
-        "doc": true
-    },
-    {
-        "name": "define/class/checkDefinition",
-        "test": false,
-        "doc": true
-    },
-    {
         "name": "define",
-        "doc": true
+        "doc": true,
+        "load": false
     },
     {
         "name": "events",
