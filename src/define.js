@@ -16,7 +16,8 @@
  * @since 0.1.6
  */
 function _gpfDefine (definition) {
-    /*var entityDefinition = */ _gpfDefineBuildTypedEntity(definition);
+    var entityDefinition = _gpfDefineBuildTypedEntity(definition);
+    entityDefinition.check();
     /* return entityDefinition.build(); */
     return function () {};
 }
