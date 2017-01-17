@@ -4,7 +4,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfAssert*/ // Assertion method
-/*exported _GpfEntityDefinition*/ // GPF class definition
+/*exported _GpfEntityDefinition*/ // Entity definition
 /*#endif*/
 
 /**
