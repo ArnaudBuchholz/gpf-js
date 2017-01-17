@@ -4,7 +4,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _GpfEntityDefinition*/ // GPF class definition
+/*global _GpfEntityDefinition*/ // Entity definition
 /*global _gpfExtend*/ // gpf.extend
 /*#endif*/
 
