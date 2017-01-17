@@ -89,7 +89,7 @@ _GpfEntityDefinition.prototype = {
         }
     },
 
-    _check: function () {
+    check: function () {
         this._readName();
         this._checkName();
         this._readNamespace();
