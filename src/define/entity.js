@@ -1,5 +1,6 @@
 /**
  * @file Entity definition
+ * @since 0.1.6
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -14,6 +15,7 @@
  *
  * @param {Object} definition Entity definition
  * @constructor
+ * @since 0.1.6
  */
 function _GpfEntityDefinition (definition) {
     _gpfAssert(definition && "object" === typeof definition, "Expected an entity definition");
@@ -25,7 +27,10 @@ function _GpfEntityDefinition (definition) {
 
 _GpfEntityDefinition.prototype = {
 
-    /** Definition provided upon construction */
+    /**
+     * Definition provided upon construction
+     * @since 0.1.6
+     */
     _initialDefinition: {}
 
 };
