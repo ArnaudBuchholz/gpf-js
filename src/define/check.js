@@ -4,14 +4,41 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _GpfEntityDefinition*/ // Entity definition
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfExtend*/ // gpf.extend
-/*exported _gpfDefineAllowedCommon$Keys*/ // Common list of allowed $ keys
+/*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _gpfDefineGenerate$Keys*/ // Generate an array of names prefixed with $ from a comma separated list
 /*#endif*/
 
+/**
+ * Generate an array of names prefixed with $ from a comma separated list
+ *
+ * @param {String} names Comma separated list of name
+ * @return {String[]} Array of names prefixed with "$"
+ * @since 0.1.6
+ */
+function _gpfDefineGenerate$Keys (names) {
+    return names.split(",").map(function (name) {
+        return "$" + name;
+    });
+}
+
 _gpfErrorDeclare("define/check", {
+    /**
+     * ### Summary
+     *
+     * One of the $ properties is invalid in the definition passed to {@link gpf.define}
+     *
+     * ### Description
+     *
+     * The list of possible $ properties is fixed and depends on the entity type.
+     * This error is thrown when one $ property is not allowed.
+     * @since 0.1.6
+     */
+    invalidEntity$Property: "Invalid entity $ property",
+
     /**
      * ### Summary
      *
@@ -38,15 +65,62 @@ _gpfErrorDeclare("define/check", {
 
 });
 
-var _gpfNamespaceValidationRegExp = /^[a-z_$][a-zA-Z0-9]+(:?\.[a-z_$][a-zA-Z0-9]+)*$/;
-
 _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.prototype */ {
 
     /**
      * Entity type (class...)
+     *
+     * @readonly
      * @since 0.1.6
      */
     _type: "",
+
+    /**
+     * List of allowed $ properties
+     *
+     * @type {String[]}
+     * @readonly
+     */
+    _allowed$Properties: _gpfDefineGenerate$Keys("type,name,namespace"),
+
+    /**
+     * Check if the $ property is allowed
+     *
+     * @param {String} name $ property name
+     * @see _GpfEntityDefinition.prototype._allowed$Properties
+     * @throws {gpf.Error.InvalidEntity$Property}
+     */
+    _check$Property: function (name) {
+        if (-1 === this._allowed$Properties.indexOf(name)) {
+            gpf.Error.invalidEntity$Property();
+        }
+    },
+
+    /**
+     * Check if the property is allowed
+     * NOTE: $ properties are handled by {@link _check$Property}
+     *
+     * @param {String} name property name
+     */
+    _checkProperty: function (name) {
+        _gpfIgnore(name);
+    },
+
+    /**
+     * Check the properties contained in the definition passed to {@link gpf.define}
+     * @since 0.1.6
+     */
+    _checkProperties: function () {
+        _gpfObjectForEach(this._initialDefinition, function (name) {
+            /*eslint-disable no-invalid-this*/ // bound through thisArg
+            if (name.charAt(0) === "$") {
+                this._check$Property(name);
+            } else {
+                this._checkProperty(name);
+            }
+            /*eslint-enable no-invalid-this*/
+        }, this);
+    },
 
     /**
      * Entity name
@@ -54,11 +128,18 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      */
     _name: "",
 
+    /** Compute name property */
     _readName: function () {
         var definition = this._initialDefinition;
         this._name = definition["$" + this._type] || definition.$name;
     },
 
+    /**
+     * Check name property
+     *
+     * @throws {gpf.Error.MissingEntityName}
+     * @since 0.1.6
+     */
     _checkName: function () {
         if (!this._name) {
             gpf.Error.missingEntityName();
@@ -71,6 +152,11 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      */
     _namespace: "",
 
+    /**
+     * If the name is prefixed with a namespace, isolate it and update name property
+     *
+     * @return {String|undefined} Namespace contained in the name or undefined if none
+     */
     _extractRelativeNamespaceFromName: function () {
         var name = this._name,
             lastDotPosition = name.lastIndexOf(".");
@@ -80,6 +166,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
         }
     },
 
+    /** Compute namespace property */
     _readNamespace: function () {
         var namespaces = [
             this._initialDefinition.$namespace,
@@ -92,17 +179,20 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
         }
     },
 
+    /**
+     * Check namespace property
+     *
+     * @throws {gpf.Error.InvalidEntityNamespace}
+     */
     _checkNamespace: function () {
         var namespace = this._namespace;
-        if (namespace) {
-            _gpfNamespaceValidationRegExp.lastIndex = 0;
-            if (!_gpfNamespaceValidationRegExp.exec(namespace)) {
-                gpf.Error.invalidEntityNamespace();
-            }
+        if (namespace && !(/^[a-z_$][a-zA-Z0-9]+(:?\.[a-z_$][a-zA-Z0-9]+)*$/).exec(namespace)) {
+            gpf.Error.invalidEntityNamespace();
         }
     },
 
     check: function () {
+        this._checkProperties();
         this._readName();
         this._checkName();
         this._readNamespace();
@@ -110,24 +200,3 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
     }
 
 });
-
-/**
- * Generate an array of names prefixed with $ from a comma separated list
- *
- * @param {String} names Comma separated list of name
- * @return {String[]} Array of names prefixed with "$"
- * @since 0.1.6
- */
-function _gpfDefineGenerate$Keys (names) {
-    return names.split(",").map(function (name) {
-        return "$" + name;
-    });
-}
-
-/**
- * Common list of allowed $ keys
- *
- * @type {String[]}
- * @since 0.1.6
- */
-var _gpfDefineAllowedCommon$Keys = _gpfDefineGenerate$Keys("type,name,namespace");
