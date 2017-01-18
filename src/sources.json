@@ -124,8 +124,23 @@
         "doc": true
     },
     {
+        "name": "define/detect",
+        "load": false
+    },
+    {
+        "name": "define/entity",
+        "load": false
+    },
+    {
+        "name": "define/check",
+        "load": false
+    },
+    {
+        "name": "define/class/class",
+        "load": false
+    },
+    {
         "name": "define",
-        "doc": true,
         "load": false
     },
     {
@@ -410,6 +425,10 @@
     },
     {
         "name": "define_/reader/visibility",
+        "load": false
+    },
+    {
+        "name": "define/class/checkDefinition",
         "load": false
     }
 ]
