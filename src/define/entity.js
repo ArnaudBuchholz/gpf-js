@@ -30,6 +30,7 @@ _GpfEntityDefinition.prototype = {
 
     /**
      * Entity initial definition passed to {@link gpf.define}
+     *
      * @readonly
      * @constant
      * @since 0.1.6
