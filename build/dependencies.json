@@ -67,14 +67,24 @@
         "string/capitalize",
         "string/replaceex"
     ],
-    "define/checkDefinition": [
-        "error"
+    "define/detect": [
+        "error",
+        "foreach"
     ],
-    "define/class/checkDefinition": [
-        "define/checkDefinition",
-        "error"
+    "define/entity": [
+        "assert"
+    ],
+    "define/check": [
+        "define/entity",
+        "error",
+        "extend"
+    ],
+    "define/class/class": [
+        "define/entity",
+        "define/detect",
+        "extend"
     ],
     "define": [
-        "define/checkDefinition"
+        "define/detect"
     ]
 }
