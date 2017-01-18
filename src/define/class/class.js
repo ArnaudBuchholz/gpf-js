@@ -1,10 +1,12 @@
 /**
  * @file Class definition
+ * @since 0.1.6
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfEntityDefinition*/ // Entity definition
-/*global _gpfDefineBuildTypedEntity*/ // Factory to create the correct entity type
+/*global _gpfDefineTypedBuilders*/ // Dictionary mapping type (class...) to the corresponding typed Entity constructor
+/*global _gpfExtend*/ // gpf.extend
 /*exported _gpfClassDefinition*/ // Class definition
 /*#endif*/
 
@@ -14,6 +16,7 @@
  * @param {Object} definition Entity definition
  * @extends _GpfEntityDefinition
  * @constructor
+ * @since 0.1.6
  */
 function _GpfClassDefinition (definition) {
     /*jshint validthis:true*/ // constructor
@@ -24,7 +27,17 @@ function _GpfClassDefinition (definition) {
 
 _GpfClassDefinition.prototype = Object.create(_GpfEntityDefinition.prototype);
 
-_gpfDefineBuildTypedEntity["class"] = _GpfClassDefinition;
+_gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */ {
+
+    /**
+     * @inheritdoc
+     * @since 0.1.6
+     */
+    _type: "class"
+
+});
+
+_gpfDefineTypedBuilders["class"] = _GpfClassDefinition;
 
 /*#ifndef(UMD)*/
 
