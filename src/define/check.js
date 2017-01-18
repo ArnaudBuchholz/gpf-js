@@ -1,11 +1,14 @@
 /**
  * @file Check entity definition
+ * @since 0.1.6
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _GpfEntityDefinition*/ // Entity definition
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfExtend*/ // gpf.extend
+/*exported _gpfDefineAllowedCommon$Keys*/ // Common list of allowed $ keys
+/*exported _gpfDefineGenerate$Keys*/ // Generate an array of names prefixed with $ from a comma separated list
 /*#endif*/
 
 _gpfErrorDeclare("define/check", {
@@ -39,10 +42,16 @@ var _gpfNamespaceValidationRegExp = /^[a-z_$][a-zA-Z0-9]+(:?\.[a-z_$][a-zA-Z0-9]
 
 _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.prototype */ {
 
-    /** Entity type (class...) */
+    /**
+     * Entity type (class...)
+     * @since 0.1.6
+     */
     _type: "",
 
-    /** Entity name */
+    /**
+     * Entity name
+     * @since 0.1.6
+     */
     _name: "",
 
     _readName: function () {
@@ -56,7 +65,10 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
         }
     },
 
-    /** Entity namespace */
+    /**
+     * Entity namespace
+     * @since 0.1.6
+     */
     _namespace: "",
 
     _extractRelativeNamespaceFromName: function () {
@@ -98,3 +110,24 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
     }
 
 });
+
+/**
+ * Generate an array of names prefixed with $ from a comma separated list
+ *
+ * @param {String} names Comma separated list of name
+ * @return {String[]} Array of names prefixed with "$"
+ * @since 0.1.6
+ */
+function _gpfDefineGenerate$Keys (names) {
+    return names.split(",").map(function (name) {
+        return "$" + name;
+    });
+}
+
+/**
+ * Common list of allowed $ keys
+ *
+ * @type {String[]}
+ * @since 0.1.6
+ */
+var _gpfDefineAllowedCommon$Keys = _gpfDefineGenerate$Keys("type,name,namespace");
