@@ -10,7 +10,8 @@
 
 /**
  * Entity definition
- * - Check the definition object for $ properties
+ * - Check the definition object for $ properties (and validate them)
+ * - Read the entity type, name and namespace
  * - Maintain a flat dictionary of members (using prototype inheritance)
  *
  * @param {Object} definition Entity definition
@@ -28,7 +29,9 @@ function _GpfEntityDefinition (definition) {
 _GpfEntityDefinition.prototype = {
 
     /**
-     * Definition provided upon construction
+     * Entity initial definition passed to {@link gpf.define}
+     * @readonly
+     * @constant
      * @since 0.1.6
      */
     _initialDefinition: {}
