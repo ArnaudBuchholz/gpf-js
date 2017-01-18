@@ -18,7 +18,8 @@ _gpfErrorDeclare("define/detect", {
      *
      * ### Description
      *
-     * This error is thrown when the entity type is either missing or invalid
+     * The entity type is either passed explicitly using the $type property or deduced from the type $ property
+     * (for instance $class). This error is thrown when the entity type is either missing or invalid.
      * @since 0.1.6
      */
     invalidEntityType: "Invalid entity type"
