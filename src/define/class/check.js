@@ -4,8 +4,8 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GpfEntityDefinition*/ // Entity definition
 /*global _GpfClassDefinition*/ // Class definition
+/*global _GpfEntityDefinition*/ // Entity definition
 /*global _gpfDefineGenerate$Keys*/ // Generate an array of names prefixed with $ from a comma separated list
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfExtend*/ // gpf.extend
