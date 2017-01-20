@@ -7,7 +7,7 @@
 /*global _GpfEntityDefinition*/ // Entity definition
 /*global _gpfDefineTypedBuilders*/ // Dictionary mapping type (class...) to the corresponding typed Entity constructor
 /*global _gpfExtend*/ // gpf.extend
-/*exported _gpfClassDefinition*/ // Class definition
+/*exported _GpfClassDefinition*/ // Class definition
 /*#endif*/
 
 /**
