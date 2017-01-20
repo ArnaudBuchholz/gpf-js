@@ -5,11 +5,10 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfEntityDefinition*/ // Entity definition
+/*global _gpfClassDefinition*/ // Class definition
+/*global _gpfDefineGenerate$Keys*/ // Generate an array of names prefixed with $ from a comma separated list
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfExtend*/ // gpf.extend
-/*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*global _gpfDefineGenerate$Keys*/ // Generate an array of names prefixed with $ from a comma separated list
-/*global _gpfClassDefinition*/ // Class definition
 /*#endif*/
 
 _gpfErrorDeclare("define/class/check", {
@@ -41,7 +40,10 @@ _gpfErrorDeclare("define/class/check", {
 
 _gpfExtend(_gpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototype */ {
 
-    /** @inheritdoc */
+    /**
+     * @inheritdoc
+     * @since 0.1.6
+     */
     _allowed$Properties: _GpfEntityDefinition.prototype._allowed$Properties
         .concat(_gpfDefineGenerate$Keys("class,extend")),
 
@@ -50,6 +52,7 @@ _gpfExtend(_gpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototy
      *
      * @param {String} name Member name
      * @throws {gpf.Error.InvalidClassProperty}
+     * @since 0.1.6
      */
     _checkMemberName: function (name) {
         if (!(/^[a-z_$][a-zA-Z0-9]*$/).exec(name)) {
@@ -63,6 +66,7 @@ _gpfExtend(_gpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototy
      * @type {String[]}
      * @readonly
      * @constant
+     * @since 0.1.6
      */
     _reservedNames: "super,public,private,protected,static,mixin".split(","),
 
@@ -71,6 +75,7 @@ _gpfExtend(_gpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototy
      *
      * @param {String} name Member name
      * @throws {gpf.Error.InvalidClassProperty}
+     * @since 0.1.6
      */
     _checkReservedName: function (name) {
         if (-1 !== this._reservedNames.indexOf(name)) {
@@ -81,6 +86,7 @@ _gpfExtend(_gpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototy
     /**
      * @inheritdoc
      * @throws {gpf.Error.InvalidClassProperty}
+     * @since 0.1.6
      */
     _checkProperty: function (name) {
         _GpfEntityDefinition.prototype._checkProperty.call(this, name);
