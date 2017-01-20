@@ -125,19 +125,26 @@
     },
     {
         "name": "define/detect",
-        "load": false
+        "test": false,
+        "doc": true
     },
     {
         "name": "define/entity",
-        "load": false
+        "test": false,
+        "doc": true
     },
     {
         "name": "define/check",
-        "load": false
+        "doc": true
     },
     {
         "name": "define/class/class",
-        "load": false
+        "test": false,
+        "doc": true
+    },
+    {
+        "name": "define/class/check",
+        "doc": true
     },
     {
         "name": "define",
@@ -425,10 +432,6 @@
     },
     {
         "name": "define_/reader/visibility",
-        "load": false
-    },
-    {
-        "name": "define/class/checkDefinition",
         "load": false
     }
 ]
