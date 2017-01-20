@@ -35,7 +35,7 @@
          * GPF Version
          * @since 0.1.5
          */
-        _gpfVersion = "0.1.5",
+        _gpfVersion = "0.1.6-alpha",
         /**
          * Host constants
          * @since 0.1.5
@@ -530,8 +530,8 @@
         }
         return callback;
     }
-    function _gpfArrayForEachOwn(array, callback, idx) {
-        var len = array.length;
+    function _gpfArrayForEachOwn(array, callback) {
+        var len = array.length, idx = 0;
         while (idx < len) {
             if (array.hasOwnProperty(idx)) {
                 callback(array[idx], idx, array);
@@ -548,6 +548,9 @@
             ++idx;
         }
         return true;
+    }
+    function _gpfArrayEveryOwnFrom0(array, callback) {
+        return _gpfArrayEveryOwn(array, callback, 0);
     }
     //endregion
     //region Array.from
@@ -582,7 +585,7 @@
         methods: {
             // Introduced with JavaScript 1.6
             every: function (callback) {
-                return _gpfArrayEveryOwn(this, _gpfArrayBind(callback, arguments[1]), 0);
+                return _gpfArrayEveryOwnFrom0(this, _gpfArrayBind(callback, arguments[1]));
             },
             // Introduced with JavaScript 1.6
             filter: function (callback) {
@@ -592,12 +595,12 @@
                     if (callback(item, idx, array)) {
                         result.push(item);
                     }
-                }, 0);
+                });
                 return result;
             },
             // Introduced with JavaScript 1.6
             forEach: function (callback) {
-                _gpfArrayForEachOwn(this, _gpfArrayBind(callback, arguments[1]), 0);
+                _gpfArrayForEachOwn(this, _gpfArrayBind(callback, arguments[1]));
             },
             // Introduced with JavaScript 1.5
             indexOf: function (searchElement) {
@@ -617,8 +620,15 @@
                 callback = _gpfArrayBind(callback, arguments[1]);
                 _gpfArrayForEachOwn(this, function (item, index, array) {
                     result[index] = callback(item, index, array);
-                }, 0);
+                });
                 return result;
+            },
+            // Introduced with JavaScript 1.6
+            some: function (callback) {
+                callback = _gpfArrayBind(callback, arguments[1]);
+                return !_gpfArrayEveryOwnFrom0(this, function (item, index, array) {
+                    return !callback(item, index, array);
+                });
             },
             // Introduced with JavaScript 1.8
             reduce: function (callback) {
@@ -639,7 +649,7 @@
             from: _gpfArrayFrom,
             // Introduced with JavaScript 1.8.5
             isArray: function (arrayLike) {
-                return "[object Array]" === Object.prototype.toString.call(arrayLike);
+                return "[object Array]" === {}.toString.call(arrayLike);
             }
         }
     });
@@ -860,7 +870,7 @@
     function _gpfGetFunctionName() {
         // Use simple parsing
         /*jshint validthis:true*/
-        var functionSource = Function.prototype.toString.call(this),
+        var functionSource = _gpfEmptyFunc.toString.call(this),
             //eslint-disable-line no-invalid-this
             functionKeywordPos = functionSource.indexOf("function"), parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
         return functionSource.substr(functionKeywordPos + 9, parameterListStartPos - functionKeywordPos - 9).replace(_gpfJsCommentsRegExp, "")    // remove comments
@@ -1531,5 +1541,375 @@
          * @since 0.1.5
          */
         invalidParameter: "Invalid parameter"
+    });
+    _gpfErrorDeclare("define/detect", {
+        /**
+         * ### Summary
+         *
+         * Entity type is invalid in the definition passed to {@link gpf.define}
+         *
+         * ### Description
+         *
+         * The entity type is either passed explicitly using the $type property or deduced from the type $ property
+         * (for instance $class). This error is thrown when the entity type is either missing or invalid.
+         * @since 0.1.6
+         */
+        invalidEntityType: "Invalid entity type"
+    });
+    /**
+     * Dictionary mapping type (class...) to the corresponding typed Entity constructor.
+     *
+     * This dictionary is filled by subsequent entity types.
+     * @since 0.1.6
+     */
+    var _gpfDefineTypedBuilders = {};
+    /**
+     * Search for type specific properties ($class...) and return associated builder function
+     *
+     * @param {Object} definition Entity definition literal object
+     * @return {Function|undefined} Entity builder or undefined
+     * @since 0.1.6
+     */
+    function _gpfDefineRead$TypedProperties(definition) {
+        var ResultEntityBuilder;
+        _gpfObjectForEach(_gpfDefineTypedBuilders, function (TypedEntityBuilder, type) {
+            if (definition["$" + type]) {
+                ResultEntityBuilder = TypedEntityBuilder;
+            }
+        });
+        return ResultEntityBuilder;
+    }
+    /**
+     * Check the $type property to return the associated builder function
+     *
+     * @param {Object} definition Entity definition literal object
+     * @return {Function} Entity builder
+     * @throws {gpf.Error.InvalidEntityType}
+     * @since 0.1.6
+     */
+    function _gpfDefineCheck$TypeProperty(definition) {
+        var typedEntityBuilder = _gpfDefineTypedBuilders[definition.$type];
+        if (undefined === typedEntityBuilder) {
+            gpf.Error.invalidEntityType();
+        }
+        return typedEntityBuilder;
+    }
+    /**
+     * Factory to create the correct entity type
+     *
+     * @param {Object} definition Entity definition literal object
+     * @return {_GpfEntityDefinition} Entity definition instance
+     * @throws {gpf.Error.InvalidEntityType}
+     * @since 0.1.6
+     */
+    function _gpfDefineBuildTypedEntity(definition) {
+        var EntityBuilder = _gpfDefineRead$TypedProperties(definition);
+        if (!EntityBuilder) {
+            EntityBuilder = _gpfDefineCheck$TypeProperty(definition);
+        }
+        return new EntityBuilder(definition);
+    }
+    function _GpfEntityDefinition(definition) {
+        _gpfAssert(definition && "object" === typeof definition, "Expected an entity definition");
+        /*jshint validthis:true*/
+        // constructor
+        /*eslint-disable no-invalid-this*/
+        this._initialDefinition = definition;    /*eslint-enable no-invalid-this*/
+    }
+    _GpfEntityDefinition.prototype = {
+        /**
+         * Entity initial definition passed to {@link gpf.define}
+         *
+         * @readonly
+         * @constant
+         * @since 0.1.6
+         */
+        _initialDefinition: {}
+    };
+    function _gpfDefineGenerate$Keys(names) {
+        return names.split(",").map(function (name) {
+            return "$" + name;
+        });
+    }
+    _gpfErrorDeclare("define/check", {
+        /**
+         * ### Summary
+         *
+         * One of the $ properties is invalid in the definition passed to {@link gpf.define}
+         *
+         * ### Description
+         *
+         * The list of possible $ properties is fixed and depends on the entity type.
+         * This error is thrown when one $ property is not allowed.
+         * @since 0.1.6
+         */
+        invalidEntity$Property: "Invalid entity $ property",
+        /**
+         * ### Summary
+         *
+         * Entity name is missing in the definition passed to {@link gpf.define}
+         *
+         * ### Description
+         *
+         * This error is thrown when the entity name is missing
+         * @since 0.1.6
+         */
+        missingEntityName: "Missing entity name",
+        /**
+         * ### Summary
+         *
+         * Entity namespace is invalid in the definition passed to {@link gpf.define}
+         *
+         * ### Description
+         *
+         * This error is thrown when the namespace is invalid
+         * @since 0.1.6
+         */
+        invalidEntityNamespace: "Invalid entity namespace"
+    });
+    function _gpfDefineEntityCheckNameIsNotEmpty() {
+        /*jshint validthis:true*/
+        // constructor
+        /*eslint-disable no-invalid-this*/
+        if (!this._name) {
+            gpf.Error.missingEntityName();
+        }    /*eslint-enable no-invalid-this*/
+    }
+    _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.prototype */
+    {
+        /**
+         * Entity type (class...)
+         *
+         * @readonly
+         * @since 0.1.6
+         */
+        _type: "",
+        /**
+         * List of allowed $ properties
+         *
+         * @type {String[]}
+         * @readonly
+         * @since 0.1.6
+         */
+        _allowed$Properties: _gpfDefineGenerate$Keys("type,name,namespace"),
+        /**
+         * Check if the $ property is allowed
+         *
+         * @param {String} name $ Property name
+         * @see _GpfEntityDefinition.prototype._allowed$Properties
+         * @throws {gpf.Error.InvalidEntity$Property}
+         * @since 0.1.6
+         */
+        _check$Property: function (name) {
+            if (-1 === this._allowed$Properties.indexOf(name)) {
+                gpf.Error.invalidEntity$Property();
+            }
+        },
+        /**
+         * Check if the property is allowed
+         * NOTE: $ properties are handled by {@link _check$Property}
+         *
+         * @param {String} name Property name
+         * @since 0.1.6
+         */
+        _checkProperty: _gpfFunc(["name"], " "),
+        /**
+         * Check the properties contained in the definition passed to {@link gpf.define}
+         * @since 0.1.6
+         */
+        _checkProperties: function () {
+            _gpfObjectForEach(this._initialDefinition, function (value, name) {
+                _gpfIgnore(value);
+                /*eslint-disable no-invalid-this*/
+                // bound through thisArg
+                if (name.charAt(0) === "$") {
+                    this._check$Property(name);
+                } else {
+                    this._checkProperty(name);
+                }    /*eslint-enable no-invalid-this*/
+            }, this);
+        },
+        /**
+         * Entity name
+         * @since 0.1.6
+         */
+        _name: "",
+        /**
+         * Compute name property
+         * @since 0.1.6
+         */
+        _readName: function () {
+            var definition = this._initialDefinition;
+            this._name = definition["$" + this._type] || definition.$name;
+        },
+        /**
+         * Check if name property is not empty (throw the error otherwise)
+         *
+         * @throws {gpf.Error.MissingEntityName}
+         * @since 0.1.6
+         */
+        _checkNameIsNotEmpty: _gpfDefineEntityCheckNameIsNotEmpty,
+        /**
+         * Check name property (content)
+         *
+         * @throws {gpf.Error.MissingEntityName}
+         * @since 0.1.6
+         */
+        _checkName: _gpfDefineEntityCheckNameIsNotEmpty,
+        /**
+         * Entity namespace
+         * @since 0.1.6
+         */
+        _namespace: "",
+        /**
+         * If the name is prefixed with a namespace, isolate it and update name property
+         *
+         * @return {String|undefined} Namespace contained in the name or undefined if none
+         * @since 0.1.6
+         */
+        _extractRelativeNamespaceFromName: function () {
+            var name = this._name, lastDotPosition = name.lastIndexOf(".");
+            if (-1 < lastDotPosition) {
+                this._name = name.substr(lastDotPosition + 1);
+                return name.substr(0, lastDotPosition);
+            }
+        },
+        /**
+         * Compute namespace property
+         * @since 0.1.6
+         */
+        _readNamespace: function () {
+            var namespaces = [
+                this._initialDefinition.$namespace,
+                this._extractRelativeNamespaceFromName()
+            ].filter(function (namespacePart) {
+                return namespacePart;
+            });
+            if (namespaces.length > 0) {
+                this._namespace = namespaces.join(".");
+            }
+        },
+        /**
+         * Check namespace property
+         *
+         * @throws {gpf.Error.InvalidEntityNamespace}
+         * @since 0.1.6
+         */
+        _checkNamespace: function () {
+            var namespace = this._namespace;
+            if (namespace && ![object Object].exec(namespace)) {
+                gpf.Error.invalidEntityNamespace();
+            }
+        },
+        check: function () {
+            this._checkProperties();
+            this._readName();
+            this._checkNameIsNotEmpty();
+            this._readNamespace();
+            this._checkName();
+            this._checkNamespace();
+        }
+    });
+    function _GpfClassDefinition(definition) {
+        /*jshint validthis:true*/
+        // constructor
+        /*eslint-disable no-invalid-this*/
+        _GpfEntityDefinition.call(this, definition);    /*eslint-enable no-invalid-this*/
+    }
+    _GpfClassDefinition.prototype = Object.create(_GpfEntityDefinition.prototype);
+    _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */
+    {
+        /**
+         * @inheritdoc
+         * @since 0.1.6
+         */
+        _type: "class"
+    });
+    _gpfDefineTypedBuilders["class"] = _GpfClassDefinition;
+    _gpfErrorDeclare("define/class/check", {
+        /**
+         * ### Summary
+         *
+         * The class name is invalid
+         *
+         * ### Description
+         *
+         * Only a valid JavaScript identifier (starting with an uppercase letter, $ or _) is allowed
+         * @since 0.1.6
+         */
+        invalidClassName: "Invalid class name",
+        /**
+         * ### Summary
+         *
+         * The class definition contains an property
+         *
+         * ### Description
+         *
+         * Some keywords are reserved
+         * @since 0.1.6
+         */
+        invalidClassProperty: "Invalid class property"
+    });
+    _gpfExtend(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototype */
+    {
+        /**
+         * @inheritdoc
+         * @since 0.1.6
+         */
+        _allowed$Properties: _GpfEntityDefinition.prototype._allowed$Properties.concat(_gpfDefineGenerate$Keys("class,extend")),
+        /**
+         * Check that the member name is a valid one
+         *
+         * @param {String} name Member name
+         * @throws {gpf.Error.InvalidClassProperty}
+         * @since 0.1.6
+         */
+        _checkMemberName: function (name) {
+            if (![object Object].exec(name)) {
+                gpf.Error.invalidClassProperty();
+            }
+        },
+        /**
+         * List of reserved member names
+         *
+         * @type {String[]}
+         * @readonly
+         * @constant
+         * @since 0.1.6
+         */
+        _reservedNames: "super,class,public,private,protected,static,mixin".split(","),
+        /**
+         * Check that the member name is not a reserved one
+         *
+         * @param {String} name Member name
+         * @throws {gpf.Error.InvalidClassProperty}
+         * @since 0.1.6
+         */
+        _checkReservedMemberName: function (name) {
+            if (-1 !== this._reservedNames.indexOf(name)) {
+                gpf.Error.invalidClassProperty();
+            }
+        },
+        /**
+         * @inheritdoc
+         * @throws {gpf.Error.InvalidClassProperty}
+         * @since 0.1.6
+         */
+        _checkProperty: function (name) {
+            _GpfEntityDefinition.prototype._checkProperty.call(this, name);
+            this._checkMemberName(name);
+            this._checkReservedMemberName(name);
+        },
+        /**
+         * @inheritdoc
+         * @throws {gpf.Error.InvalidClassName}
+         * @since 0.1.6
+         */
+        _checkName: function () {
+            _GpfEntityDefinition.prototype._checkName.call(this);
+            if (![object Object].exec(this._name)) {
+                gpf.Error.invalidClassName();
+            }
+        }
     });
 }));

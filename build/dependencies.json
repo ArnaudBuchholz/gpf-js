@@ -77,14 +77,20 @@
     "define/check": [
         "define/entity",
         "error",
-        "extend"
+        "extend",
+        "constants",
+        "foreach"
     ],
     "define/class/class": [
         "define/entity",
         "define/detect",
         "extend"
     ],
-    "define": [
-        "define/detect"
+    "define/class/check": [
+        "define/class/class",
+        "define/entity",
+        "define/check",
+        "error",
+        "extend"
     ]
 }
