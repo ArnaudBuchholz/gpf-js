@@ -142,7 +142,19 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
     },
 
     /**
-     * Check name property
+     * Check if name property is not empty (throw the error otherwise)
+     *
+     * @throws {gpf.Error.MissingEntityName}
+     * @since 0.1.6
+     */
+    _checkNameIsNotEmpty: function () {
+        if (!this._name) {
+            gpf.Error.missingEntityName();
+        }
+    },
+
+    /**
+     * Check name property (content)
      *
      * @throws {gpf.Error.MissingEntityName}
      * @since 0.1.6
@@ -206,6 +218,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
     check: function () {
         this._checkProperties();
         this._readName();
+        this._checkNameIsNotEmpty();
         this._readNamespace();
         this._checkName();
         this._checkNamespace();
