@@ -206,8 +206,8 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
     check: function () {
         this._checkProperties();
         this._readName();
-        this._checkName();
         this._readNamespace();
+        this._checkName();
         this._checkNamespace();
     }
 
