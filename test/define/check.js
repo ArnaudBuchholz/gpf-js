@@ -9,7 +9,7 @@ describe("define/checkDefinition", function () {
             var _GpfEntityDefinition = gpf.internals._GpfEntityDefinition,
                 _gpfDefineBuildTypedEntity = gpf.internals._gpfDefineBuildTypedEntity;
 
-            it("looks for an entity type", function () {
+            it("must have an entity type", function () {
                 var exceptionCaught;
                 try {
                     _gpfDefineBuildTypedEntity({});
@@ -17,6 +17,41 @@ describe("define/checkDefinition", function () {
                     exceptionCaught = e;
                 }
                 assert(exceptionCaught instanceof gpf.Error.InvalidEntityType);
+            });
+
+            it("checks for a valid name", function () {
+                var exceptionCaught;
+                try {
+                    var definition = _gpfDefineBuildTypedEntity({
+                        $type: "class"
+                    });
+                    definition.check();
+                } catch (e) {
+                    exceptionCaught = e;
+                }
+                assert(exceptionCaught instanceof gpf.Error.MissingEntityName);
+            });
+
+            it("validates minimal requirement (type and name)", function () {
+                _gpfDefineBuildTypedEntity({
+                    $type: "class",
+                    $name: "Test"
+                });
+            });
+
+            it("rejects invalid properties", function () {
+                var exceptionCaught;
+                try {
+                    var definition = _gpfDefineBuildTypedEntity({
+                        $type: "class",
+                        $name: "Test",
+                        $fail: true
+                    });
+                    definition.check();
+                } catch (e) {
+                    exceptionCaught = e;
+                }
+                assert(exceptionCaught instanceof gpf.Error.InvalidEntity$Property);
             });
 
             it("converts $class into _type and _name", function () {
