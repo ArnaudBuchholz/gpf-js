@@ -87,7 +87,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
     /**
      * Check if the $ property is allowed
      *
-     * @param {String} name $ property name
+     * @param {String} name $ Property name
      * @see _GpfEntityDefinition.prototype._allowed$Properties
      * @throws {gpf.Error.InvalidEntity$Property}
      * @since 0.1.6
@@ -102,7 +102,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      * Check if the property is allowed
      * NOTE: $ properties are handled by {@link _check$Property}
      *
-     * @param {String} name property name
+     * @param {String} name Property name
      * @since 0.1.6
      */
     _checkProperty: function (name) {
@@ -114,7 +114,8 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      * @since 0.1.6
      */
     _checkProperties: function () {
-        _gpfObjectForEach(this._initialDefinition, function (name) {
+        _gpfObjectForEach(this._initialDefinition, function (value, name) {
+            _gpfIgnore(value);
             /*eslint-disable no-invalid-this*/ // bound through thisArg
             if (name.charAt(0) === "$") {
                 this._check$Property(name);
