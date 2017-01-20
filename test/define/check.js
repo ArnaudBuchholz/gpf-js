@@ -1,6 +1,6 @@
 "use strict";
 
-describe("define/checkDefinition", function () {
+describe("define/check", function () {
 
     if (gpf.internals) {
 
