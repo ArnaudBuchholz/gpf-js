@@ -4,10 +4,10 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _GpfEntityDefinition*/ // Entity definition
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfExtend*/ // gpf.extend
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _gpfDefineGenerate$Keys*/ // Generate an array of names prefixed with $ from a comma separated list
 /*#endif*/
@@ -80,6 +80,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      *
      * @type {String[]}
      * @readonly
+     * @since 0.1.6
      */
     _allowed$Properties: _gpfDefineGenerate$Keys("type,name,namespace"),
 
@@ -89,6 +90,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      * @param {String} name $ property name
      * @see _GpfEntityDefinition.prototype._allowed$Properties
      * @throws {gpf.Error.InvalidEntity$Property}
+     * @since 0.1.6
      */
     _check$Property: function (name) {
         if (-1 === this._allowed$Properties.indexOf(name)) {
@@ -101,6 +103,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      * NOTE: $ properties are handled by {@link _check$Property}
      *
      * @param {String} name property name
+     * @since 0.1.6
      */
     _checkProperty: function (name) {
         _gpfIgnore(name);
@@ -128,7 +131,10 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      */
     _name: "",
 
-    /** Compute name property */
+    /**
+     * Compute name property
+     * @since 0.1.6
+     */
     _readName: function () {
         var definition = this._initialDefinition;
         this._name = definition["$" + this._type] || definition.$name;
@@ -156,6 +162,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      * If the name is prefixed with a namespace, isolate it and update name property
      *
      * @return {String|undefined} Namespace contained in the name or undefined if none
+     * @since 0.1.6
      */
     _extractRelativeNamespaceFromName: function () {
         var name = this._name,
@@ -166,7 +173,10 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
         }
     },
 
-    /** Compute namespace property */
+    /**
+     * Compute namespace property
+     * @since 0.1.6
+     */
     _readNamespace: function () {
         var namespaces = [
             this._initialDefinition.$namespace,
@@ -183,6 +193,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      * Check namespace property
      *
      * @throws {gpf.Error.InvalidEntityNamespace}
+     * @since 0.1.6
      */
     _checkNamespace: function () {
         var namespace = this._namespace;
