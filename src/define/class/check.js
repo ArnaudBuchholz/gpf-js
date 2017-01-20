@@ -5,7 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfEntityDefinition*/ // Entity definition
-/*global _gpfClassDefinition*/ // Class definition
+/*global _GpfClassDefinition*/ // Class definition
 /*global _gpfDefineGenerate$Keys*/ // Generate an array of names prefixed with $ from a comma separated list
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfExtend*/ // gpf.extend
@@ -38,7 +38,7 @@ _gpfErrorDeclare("define/class/check", {
 
 });
 
-_gpfExtend(_gpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototype */ {
+_gpfExtend(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototype */ {
 
     /**
      * @inheritdoc
