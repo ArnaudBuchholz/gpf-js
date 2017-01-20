@@ -7,6 +7,7 @@
 /*global _GpfEntityDefinition*/ // Entity definition
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfExtend*/ // gpf.extend
+/*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _gpfDefineGenerate$Keys*/ // Generate an array of names prefixed with $ from a comma separated list
@@ -65,6 +66,15 @@ _gpfErrorDeclare("define/check", {
 
 });
 
+function _gpfDefineEntityCheckNameIsNotEmpty () {
+    /*jshint validthis:true*/ // constructor
+    /*eslint-disable no-invalid-this*/
+    if (!this._name) {
+        gpf.Error.missingEntityName();
+    }
+    /*eslint-enable no-invalid-this*/
+}
+
 _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.prototype */ {
 
     /**
@@ -105,9 +115,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      * @param {String} name Property name
      * @since 0.1.6
      */
-    _checkProperty: function (name) {
-        _gpfIgnore(name);
-    },
+    _checkProperty: _gpfFunc(["name"], " "),
 
     /**
      * Check the properties contained in the definition passed to {@link gpf.define}
@@ -147,11 +155,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      * @throws {gpf.Error.MissingEntityName}
      * @since 0.1.6
      */
-    _checkNameIsNotEmpty: function () {
-        if (!this._name) {
-            gpf.Error.missingEntityName();
-        }
-    },
+    _checkNameIsNotEmpty: _gpfDefineEntityCheckNameIsNotEmpty,
 
     /**
      * Check name property (content)
@@ -159,11 +163,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      * @throws {gpf.Error.MissingEntityName}
      * @since 0.1.6
      */
-    _checkName: function () {
-        if (!this._name) {
-            gpf.Error.missingEntityName();
-        }
-    },
+    _checkName: _gpfDefineEntityCheckNameIsNotEmpty,
 
     /**
      * Entity namespace
