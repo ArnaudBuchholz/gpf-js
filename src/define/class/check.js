@@ -68,7 +68,7 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototy
      * @constant
      * @since 0.1.6
      */
-    _reservedNames: "super,public,private,protected,static,mixin".split(","),
+    _reservedNames: "super,class,public,private,protected,static,mixin".split(","),
 
     /**
      * Check that the member name is not a reserved one
@@ -77,7 +77,7 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototy
      * @throws {gpf.Error.InvalidClassProperty}
      * @since 0.1.6
      */
-    _checkReservedName: function (name) {
+    _checkReservedMemberName: function (name) {
         if (-1 !== this._reservedNames.indexOf(name)) {
             gpf.Error.invalidClassProperty();
         }
@@ -91,7 +91,7 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototy
     _checkProperty: function (name) {
         _GpfEntityDefinition.prototype._checkProperty.call(this, name);
         this._checkMemberName(name);
-        this._checkReservedName(name);
+        this._checkReservedMemberName(name);
     },
 
     /**
