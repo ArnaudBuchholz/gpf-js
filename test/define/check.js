@@ -22,10 +22,9 @@ describe("define/check", function () {
             it("checks for a valid name", function () {
                 var exceptionCaught;
                 try {
-                    var definition = _gpfDefineBuildTypedEntity({
+                    _gpfDefineBuildTypedEntity({
                         $type: "class"
                     });
-                    definition.check();
                 } catch (e) {
                     exceptionCaught = e;
                 }
@@ -42,12 +41,11 @@ describe("define/check", function () {
             it("rejects invalid properties", function () {
                 var exceptionCaught;
                 try {
-                    var definition = _gpfDefineBuildTypedEntity({
+                    _gpfDefineBuildTypedEntity({
                         $type: "class",
                         $name: "Test",
                         $fail: true
                     });
-                    definition.check();
                 } catch (e) {
                     exceptionCaught = e;
                 }
@@ -59,7 +57,6 @@ describe("define/check", function () {
                     $class: "Test"
                 });
                 assert(definition instanceof _GpfEntityDefinition);
-                definition.check();
                 assert("class" === definition._type);
                 assert("Test" === definition._name);
             });
@@ -68,7 +65,6 @@ describe("define/check", function () {
                 var definition = _gpfDefineBuildTypedEntity({
                     $class: "gpf.test.Test"
                 });
-                definition.check();
                 assert("class" === definition._type);
                 assert("Test" === definition._name);
                 assert("gpf.test" === definition._namespace);
@@ -79,7 +75,6 @@ describe("define/check", function () {
                     $class: "test.Test",
                     $namespace: "gpf"
                 });
-                definition.check();
                 assert("class" === definition._type);
                 assert("Test" === definition._name);
                 assert("gpf.test" === definition._namespace);
@@ -90,7 +85,6 @@ describe("define/check", function () {
                     $class: "Test",
                     $name: "Any"
                 });
-                definition.check();
                 assert("class" === definition._type);
                 assert("Test" === definition._name);
             });
@@ -99,15 +93,15 @@ describe("define/check", function () {
                 _gpfDefineBuildTypedEntity({
                     $class: "Test",
                     $namespace: "lowerCamelCase.$accepted._also.numbers456"
-                }).check();
+                });
                 _gpfDefineBuildTypedEntity({
                     $class: "Test",
                     $namespace: "simple"
-                }).check();
+                });
                 _gpfDefineBuildTypedEntity({
                     $class: "Test",
                     $namespace: ""
-                }).check();
+                });
             });
 
             [
@@ -123,7 +117,7 @@ describe("define/check", function () {
                         _gpfDefineBuildTypedEntity({
                             $class: "Test",
                             $namespace: invalidNamespace
-                        }).check();
+                        });
                     } catch (e) {
                         exceptionCaught = e;
                     }
