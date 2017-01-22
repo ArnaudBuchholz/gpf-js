@@ -28,6 +28,8 @@ function _GpfEntityDefinition (definition) {
 
 _GpfEntityDefinition.prototype = {
 
+    constructor: _GpfEntityDefinition,
+
     /**
      * Entity initial definition passed to {@link gpf.define}
      *
