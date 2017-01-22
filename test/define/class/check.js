@@ -20,7 +20,7 @@ describe("define/class/check", function () {
                 _gpfDefineBuildTypedEntity({
                     $class: "Test",
                     member: function () {}
-                }).check();
+                });
             });
 
             [
@@ -33,7 +33,7 @@ describe("define/class/check", function () {
                     try {
                         _gpfDefineBuildTypedEntity({
                             $class: invalidClassName
-                        }).check();
+                        });
                     } catch (e) {
                         exceptionCaught = e;
                     }
@@ -56,7 +56,7 @@ describe("define/class/check", function () {
                     rawDefinition[invalidPropertyName] = true;
                     try {
 
-                        _gpfDefineBuildTypedEntity(rawDefinition).check();
+                        _gpfDefineBuildTypedEntity(rawDefinition);
                     } catch (e) {
                         exceptionCaught = e;
                     }
