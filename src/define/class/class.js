@@ -29,6 +29,8 @@ _GpfClassDefinition.prototype = Object.create(_GpfEntityDefinition.prototype);
 
 _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */ {
 
+    constructor: _GpfClassDefinition,
+
     /**
      * @inheritdoc
      * @since 0.1.6
