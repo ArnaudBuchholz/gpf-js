@@ -76,11 +76,14 @@ function _gpfDefineCheck$TypeProperty (definition) {
  * @since 0.1.6
  */
 function _gpfDefineBuildTypedEntity (definition) {
-    var EntityBuilder = _gpfDefineRead$TypedProperties(definition);
+    var EntityBuilder = _gpfDefineRead$TypedProperties(definition),
+        entityDefinition;
     if (!EntityBuilder) {
         EntityBuilder = _gpfDefineCheck$TypeProperty(definition);
     }
-    return new EntityBuilder(definition);
+    entityDefinition = new EntityBuilder(definition);
+    entityDefinition.check();
+    return entityDefinition;
 }
 
 /*#ifndef(UMD)*/
