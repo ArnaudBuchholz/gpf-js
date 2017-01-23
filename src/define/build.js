@@ -4,9 +4,9 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GpfEntityDefinition*/ // Entity definition
 /*global _gpfContext*/ // Resolve contextual string
 /*global _gpfEmptyFunc*/ // An empty function
-/*global _GpfEntityDefinition*/ // Entity definition
 /*global _gpfExtend*/ // gpf.extend
 /*#endif*/
 
@@ -16,10 +16,14 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      * Instance builder function (a.k.a. constructor)
      *
      * @type {Function}
+     * @since 0.1.6
      */
     _instanceBuilder: _gpfEmptyFunc,
 
-    /** @gpf:read _instanceBuilder */
+    /**
+     * @gpf:read _instanceBuilder
+     * @since 0.1.6
+     */
     getInstanceBuilder: function () {
         if (!this._instanceBuilder) {
             this.build();
@@ -30,6 +34,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
     /**
      * @gpf:write _instanceBuilder
      * @protected
+     * @since 0.1.6
      */
     _setInstanceBuilder: function (value) {
         if (this._namespace) {
@@ -38,7 +43,10 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
         this._instanceBuilder = value;
     },
 
-    /** Process initial definition and generate instance builder function */
+    /**
+     * Process initial definition and generate instance builder function
+     * @since 0.1.6
+     */
     build: _gpfEmptyFunc
 
 });
