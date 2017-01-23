@@ -139,6 +139,7 @@
     },
     {
         "name": "define/build",
+        "load": false,
         "test": false,
         "doc": true
     },
