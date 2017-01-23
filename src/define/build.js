@@ -28,7 +28,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
     },
 
     /**
-     * @gpf:read _instanceBuilder
+     * @gpf:write _instanceBuilder
      * @protected
      */
     _setInstanceBuilder: function (value) {
