@@ -485,7 +485,19 @@ function onClick (event) {
 
 var draggedSourceName;
 
-gpf.forEach({
+(function (events) {
+    Object.keys(events).forEach(function (eventName) {
+        var handler = events[eventName];
+        function eventListener (event) {
+            var targetRow = upToSourceRow(event.target);
+            if (targetRow) {
+                handler(event, targetRow);
+            }
+        }
+        window.addEventListener(eventName, eventListener);
+    });
+
+}({
 
     drag: function (event, targetRow) {
         if (draggedSourceName === targetRow.id) {
@@ -536,14 +548,7 @@ gpf.forEach({
         event.preventDefault();
     }
 
-}, function (handler, eventName) {
-    window.addEventListener(eventName, function (event) {
-        var targetRow = upToSourceRow(event.target);
-        if (targetRow) {
-            handler(event, targetRow);
-        }
-    });
-});
+}));
 
 //endregion
 
@@ -596,7 +601,7 @@ function showError (message) {
 }
 
 window.addEventListener("load", function () {
-    Promise.all([xhr("src/sources.json").get(), xhr("build/dependencies.json").get()])
+    Promise.all([xhr("/src/sources.json").get(), xhr("/build/dependencies.json").get()])
         .then(function (responseTexts) {
             var tplRow = document.getElementById("tpl_row");
             rowFactory = tplRow.buildFactory();
