@@ -138,6 +138,11 @@
         "doc": true
     },
     {
+        "name": "define/build",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "define/class/class",
         "test": false,
         "doc": true
