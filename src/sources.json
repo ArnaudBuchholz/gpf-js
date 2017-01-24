@@ -124,6 +124,10 @@
         "doc": true
     },
     {
+        "name": "function",
+        "doc": true
+    },
+    {
         "name": "define/detect",
         "test": false,
         "doc": true
@@ -139,9 +143,7 @@
     },
     {
         "name": "define/build",
-        "load": false,
-        "test": false,
-        "doc": true
+        "load": false
     },
     {
         "name": "define/class/class",
@@ -178,10 +180,6 @@
     },
     {
         "name": "base",
-        "load": false
-    },
-    {
-        "name": "function",
         "load": false
     },
     {
