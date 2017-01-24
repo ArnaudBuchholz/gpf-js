@@ -67,6 +67,12 @@
         "string/capitalize",
         "string/replaceex"
     ],
+    "function": [
+        "assert",
+        "constants",
+        "compatibility/function",
+        "string/replaceex"
+    ],
     "define/detect": [
         "error",
         "foreach"
