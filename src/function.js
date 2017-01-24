@@ -1,8 +1,10 @@
 /**
  * @file Function builder
+ * @since 0.1.6
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfJsCommentsRegExp*/ // Find all JavaScript comments
@@ -15,37 +17,51 @@ function _gpfStringTrim (string) {
 }
 
 /**
- * Function builder
+ * Function builder.
+ * This helper class is capable of generating new functions.
  *
- * @class _GpfFunctionBuilder
+ * @param {Function} [referenceFunction] Function to analyze
  * @constructor
+ * @since 0.1.6
  */
-function _GpfFunctionBuilder (functionToAnalyze) {
+function _GpfFunctionBuilder (referenceFunction) {
     /*jshint validthis:true*/ // constructor
+    /*eslint-disable no-invalid-this*/
     this.parameters = [];
-    if (undefined !== functionToAnalyze) {
-        this._extract(functionToAnalyze);
+    if (undefined !== referenceFunction) {
+        _gpfAssert(_gpfEmptyFunc.toString.call(referenceFunction).indexOf("[native") !== 0, "No native function");
+        this._extract(referenceFunction);
     }
+    /*eslint-enable no-invalid-this*/
 }
 
 _GpfFunctionBuilder.prototype = {
 
-    // @property {Boolean} is a native function
-    isNative: false,
-
-    // @property {String} function name
+    /**
+     * Function name
+     * @since 0.1.6
+     */
     name: "",
 
-    // @property {String[]} paremeter names
+    /**
+     * Parameter names
+     *
+     * @type {String[]}
+     * @since 0.1.6
+     */
     parameters: [],
 
-    // @property {String} function body (comments are removed)
+    /**
+     * Function body: comments are removed from referenceFunction
+     * @since 0.1.6
+     */
     body: "",
 
     /**
      * Replace strings in the body
      *
-     * @param {Object} replacements map of strings to search and replace
+     * @param {Object} replacements Dictionary of string replacements
+     * @since 0.1.6
      */
     replaceInBody: function (replacements) {
         this.body = _gpfStringReplaceEx(this.body, replacements);
@@ -54,31 +70,31 @@ _GpfFunctionBuilder.prototype = {
     /**
      * Extract function information
      *
-     * @param {Function} functionObject
+     * @param {Function} [referenceFunction] Function to analyze
+     * @since 0.1.6
      */
-    _extract: function (functionObject) {
-        this.name = functionObject.compatibleName();
-        var source = _gpfEmptyFunc.toString.call(functionObject).replace(_gpfJsCommentsRegExp, ""),
+    _extract: function (referenceFunction) {
+        this.name = referenceFunction.compatibleName();
+        var source = _gpfEmptyFunc.toString.call(referenceFunction).replace(_gpfJsCommentsRegExp, ""),
             start,
             end;
-        if (0 < functionObject.length) {
+        if (0 < referenceFunction.length) {
             start = source.indexOf("(") + 1;
             end = source.indexOf(")", start) - 1;
             this.parameters = source.substr(start, end - start + 1).split(",").map(_gpfStringTrim);
         } else {
             this.parameters = [];
         }
-        if (-1 < source.indexOf("[native")) {
-            this.isNative = true;
-        } else {
-            start = source.indexOf("{") + 1;
-            end = source.lastIndexOf("}") - 1;
-            this.body = source.substr(start, end - start + 1);
-        }
+        start = source.indexOf("{") + 1;
+        end = source.lastIndexOf("}") - 1;
+        this.body = source.substr(start, end - start + 1);
     },
 
     /**
      * Build a new function using name, parameters and body
+     *
+     * @return {Function} New function
+     * @since 0.1.6
      */
     generate: function () {
         return _gpfFunc("return " + this._toSource())();
