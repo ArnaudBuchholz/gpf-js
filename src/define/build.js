@@ -1,6 +1,5 @@
 /**
  * @file Build entity
- * @since 0.1.6
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -16,13 +15,11 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      * Instance builder function (a.k.a. constructor)
      *
      * @type {Function}
-     * @since 0.1.6
      */
     _instanceBuilder: _gpfEmptyFunc,
 
     /**
      * @gpf:read _instanceBuilder
-     * @since 0.1.6
      */
     getInstanceBuilder: function () {
         if (!this._instanceBuilder) {
@@ -34,7 +31,6 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
     /**
      * @gpf:write _instanceBuilder
      * @protected
-     * @since 0.1.6
      */
     _setInstanceBuilder: function (value) {
         if (this._namespace) {
@@ -45,7 +41,6 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
 
     /**
      * Process initial definition and generate instance builder function
-     * @since 0.1.6
      */
     build: _gpfEmptyFunc
 
