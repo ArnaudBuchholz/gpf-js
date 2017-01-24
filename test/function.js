@@ -8,22 +8,7 @@ describe("function", function () {
 
         describe("_GpfFunctionBuilder", function () {
 
-            var _GpfFunctionBuilder = gpf.internals._GpfFunctionBuilder,
-                _gpfObjectForEach = gpf.internals._gpfObjectForEach;
-
-            _gpfObjectForEach({
-                "Object": Object,
-                "Function": Function,
-                "String": String,
-                "Array": Array
-            }, function (nativeFunction, name) {
-
-                it("detects native functions (" + name + ")", function () {
-                    var builder = new _GpfFunctionBuilder(nativeFunction);
-                    assert(true === builder.isNative);
-                });
-
-            });
+            var _GpfFunctionBuilder = gpf.internals._GpfFunctionBuilder;
 
             it("parses a function", function () {
                 function test (a, b) {
@@ -61,6 +46,20 @@ describe("function", function () {
                 var builder = new _GpfFunctionBuilder(test3);
                 assert("test3" === builder.name);
                 assert(0 === builder.parameters.length);
+            });
+
+            it("replaces body content", function () {
+                function test4 () {
+                    return 0;
+                }
+                var builder = new _GpfFunctionBuilder(test4),
+                    result;
+                assert("test4" === builder.name);
+                builder.replaceInBody({
+                    "0": "1"
+                });
+                result = builder.generate();
+                assert(1 === result());
             });
 
             it("can be used to create an anonymous function", function () {
