@@ -4,124 +4,154 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfAssert*/ // Assertion method
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfJsCommentsRegExp*/ // Find all JavaScript comments
-/*global _gpfStringReplaceEx*/ // String replacement using dictionary map
-/*exported _GpfFunctionBuilder*/ // Function builder
+/*global _gpfStringTrim*/ // Trim the string
+/*exported _gpfFunctionBuild*/ // Build function from description and context
+/*exported _gpfFunctionBuildSource*/ // Build function source from description
+/*exported _gpfFunctionDescribe*/ // Extract function description
 /*#endif*/
 
-function _gpfStringTrim (string) {
-    return string.trim();
+/**
+ * @typedef {Object} gpf.typedef.functionDescription
+ * @property {String} [name] Function name
+ * @property {Boolean} [strict=true] Function is strict
+ * @property {String[]} [parameters] Function parameters
+ * @property {String} [body] Function body
+ * @since 0.1.6
+ */
+
+function _gpfFunctionDescribeName (functionToDescribe, resultDescription) {
+    var name = functionToDescribe.compatibleName();
+    if (name) {
+        resultDescription.name = name;
+    }
+}
+
+function _gpfFunctionDescribeStrict (functionToDescribe, resultDescription) {
+    try {
+        /*jshint -W030*/
+        // Triggers an exception when strict
+        functionToDescribe.caller; //eslint-disable-line
+        resultDescription.strict = false;
+        /*jshint +W030*/
+    } catch (e) {
+        /* ignore */
+    }
+}
+
+function _gpfFunctionDescribeParameters (functionToDescribe, functionSource, resultDescription) {
+    if (functionToDescribe.length) {
+        resultDescription.parameters = (/\(\s*(\w+(?:\s*,\s*\w+)*)\s*\)/).exec(functionSource)[1]
+            .split(",")
+            .map(_gpfStringTrim);
+    }
+}
+
+function _gpfFunctionDescribeBody (functionSource, resultDescription) {
+    var body = _gpfStringTrim((/{((?:.*\n)*.*)}/).exec(functionSource)[1]);
+    if (body) {
+        resultDescription.body = body;
+    }
+}
+
+function _gpfFunctionDescribeSource (functionToDescribe, resultDescription) {
+    var source = _gpfEmptyFunc.toString.call(functionToDescribe).replace(_gpfJsCommentsRegExp, "");
+    _gpfFunctionDescribeParameters(functionToDescribe, source, resultDescription);
+    _gpfFunctionDescribeBody(source, resultDescription);
 }
 
 /**
- * Function builder.
- * This helper class is capable of generating new functions.
+ * Extract function description
  *
- * @param {Function} [referenceFunction] Function to analyze
- * @constructor
+ * @param {Function} functionToDescribe Function to describe
+ * @return {gpf.typedef.functionDescription} Function description
  * @since 0.1.6
  */
-function _GpfFunctionBuilder (referenceFunction) {
-    /*jshint validthis:true*/ // constructor
-    /*eslint-disable no-invalid-this*/
-    this.parameters = [];
-    if (undefined !== referenceFunction) {
-        _gpfAssert(_gpfEmptyFunc.toString.call(referenceFunction).indexOf("[native") !== 0, "No native function");
-        this._extract(referenceFunction);
-    }
-    /*eslint-enable no-invalid-this*/
+function _gpfFunctionDescribe (functionToDescribe) {
+    var result = {};
+    _gpfFunctionDescribeName(functionToDescribe, result);
+    _gpfFunctionDescribeStrict(functionToDescribe, result);
+    _gpfFunctionDescribeSource(functionToDescribe, result);
+    return result;
 }
 
-_GpfFunctionBuilder.prototype = {
-
-    /**
-     * Function name
-     * @since 0.1.6
-     */
-    name: "",
-
-    /**
-     * Parameter names
-     *
-     * @type {String[]}
-     * @since 0.1.6
-     */
-    parameters: [],
-
-    /**
-     * Function body: comments are removed from referenceFunction
-     * @since 0.1.6
-     */
-    body: "",
-
-    /**
-     * Replace strings in the body
-     *
-     * @param {Object} replacements Dictionary of string replacements
-     * @since 0.1.6
-     */
-    replaceInBody: function (replacements) {
-        this.body = _gpfStringReplaceEx(this.body, replacements);
-    },
-
-    /**
-     * Extract function information
-     *
-     * @param {Function} [referenceFunction] Function to analyze
-     * @since 0.1.6
-     */
-    _extract: function (referenceFunction) {
-        this.name = referenceFunction.compatibleName();
-        var source = _gpfEmptyFunc.toString.call(referenceFunction).replace(_gpfJsCommentsRegExp, ""),
-            start,
-            end;
-        if (0 < referenceFunction.length) {
-            start = source.indexOf("(") + 1;
-            end = source.indexOf(")", start) - 1;
-            this.parameters = source.substr(start, end - start + 1).split(",").map(_gpfStringTrim);
-        } else {
-            this.parameters = [];
-        }
-        start = source.indexOf("{") + 1;
-        end = source.lastIndexOf("}") - 1;
-        this.body = source.substr(start, end - start + 1);
-    },
-
-    /**
-     * Build a new function using name, parameters and body
-     *
-     * @return {Function} New function
-     * @since 0.1.6
-     */
-    generate: function () {
-        return _gpfFunc("return " + this._toSource())();
-    },
-
-    // build the source of the function
-    _toSource: function () {
-        var name;
-        if (this.name) {
-            name = " " + this.name;
-        } else {
-            name = "";
-        }
-        return [
-            "function",
-            name,
-            " ("
-        ].concat(this.parameters).concat([
-            ") {\n",
-            this.body,
-            "\n}"
-        ]).join("");
+function _gpfFunctionBuildSourceName (functionDescription) {
+    if (functionDescription.name) {
+        return " " + functionDescription.name;
     }
-};
+    return "";
+}
+
+function _gpfFunctionBuildSourceParameters (functionDescription) {
+    if (functionDescription.parameters) {
+        return functionDescription.parameters.join(", ");
+    }
+    return "";
+}
+
+function _gpfFunctionBuildSourceStrict (functionDescription) {
+    if (false === functionDescription.strict) {
+        return "";
+    }
+    return "\"use strict\";\n";
+}
+
+function _gpfFunctionBuildSourceBody (functionDescription) {
+    if (functionDescription.body) {
+        return functionDescription.body.toString();
+    }
+    return "";
+}
+
+/**
+ * Build function source from description
+ *
+ * @param {gpf.typedef.functionDescription} functionDescription Function description
+ * @return {String} Function source
+ * @since 0.1.6
+ */
+function _gpfFunctionBuildSource (functionDescription) {
+    return [
+        "function",
+        _gpfFunctionBuildSourceName(functionDescription),
+        "(",
+        _gpfFunctionBuildSourceParameters(functionDescription),
+        ") {\n",
+        _gpfFunctionBuildSourceStrict(functionDescription),
+        _gpfFunctionBuildSourceBody(functionDescription),
+        "\n}"
+    ].join("");
+}
+
+function _gpfFunctionBuildWithContext (functionDescription, context) {
+    return _gpfFunc("context", "with (context) return " + functionDescription)(context);
+}
+
+function _gpfFunctionBuildContextless (functionDescription) {
+    return _gpfFunc("return " + functionDescription)();
+}
+
+/**
+ * Build function from description and context
+ *
+ * @param {gpf.typedef.functionDescription} functionDescription Function description
+ * @param {Object} [context] Function context
+ * @return {Function} Function
+ * @since 0.1.6
+ */
+function _gpfFunctionBuild (functionDescription, context) {
+    var functionSource = _gpfFunctionBuildSource(functionDescription);
+    if (context) {
+        return _gpfFunctionBuildWithContext(functionSource, context);
+    }
+    return _gpfFunctionBuildContextless(functionSource);
+}
 
 /*#ifndef(UMD)*/
 
-gpf.internals._GpfFunctionBuilder = _GpfFunctionBuilder;
+gpf.internals._gpfFunctionDescribe = _gpfFunctionDescribe;
+gpf.internals._gpfFunctionBuild = _gpfFunctionBuild;
 
 /*#endif*/
