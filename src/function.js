@@ -16,7 +16,6 @@
 /**
  * @typedef {Object} gpf.typedef.functionDescription
  * @property {String} [name] Function name
- * @property {Boolean} [strict=true] Function is strict
  * @property {String[]} [parameters] Function parameters
  * @property {String} [body] Function body
  * @since 0.1.6
@@ -26,18 +25,6 @@ function _gpfFunctionDescribeName (functionToDescribe, resultDescription) {
     var name = functionToDescribe.compatibleName();
     if (name) {
         resultDescription.name = name;
-    }
-}
-
-function _gpfFunctionDescribeStrict (functionToDescribe, resultDescription) {
-    try {
-        /*jshint -W030*/
-        // Triggers an exception when strict
-        functionToDescribe.caller; //eslint-disable-line
-        resultDescription.strict = false;
-        /*jshint +W030*/
-    } catch (e) {
-        /* ignore */
     }
 }
 
@@ -72,7 +59,6 @@ function _gpfFunctionDescribeSource (functionToDescribe, resultDescription) {
 function _gpfFunctionDescribe (functionToDescribe) {
     var result = {};
     _gpfFunctionDescribeName(functionToDescribe, result);
-    _gpfFunctionDescribeStrict(functionToDescribe, result);
     _gpfFunctionDescribeSource(functionToDescribe, result);
     return result;
 }
@@ -89,13 +75,6 @@ function _gpfFunctionBuildSourceParameters (functionDescription) {
         return functionDescription.parameters.join(", ");
     }
     return "";
-}
-
-function _gpfFunctionBuildSourceStrict (functionDescription) {
-    if (false === functionDescription.strict) {
-        return "";
-    }
-    return "\"use strict\";\n";
 }
 
 function _gpfFunctionBuildSourceBody (functionDescription) {
@@ -119,7 +98,7 @@ function _gpfFunctionBuildSource (functionDescription) {
         "(",
         _gpfFunctionBuildSourceParameters(functionDescription),
         ") {\n",
-        _gpfFunctionBuildSourceStrict(functionDescription),
+        "\t\"use strict\"\n",
         _gpfFunctionBuildSourceBody(functionDescription),
         "\n}"
     ].join("");
