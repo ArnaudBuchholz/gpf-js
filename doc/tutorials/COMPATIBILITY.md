@@ -50,3 +50,9 @@ The library offers (when necessary) a [Promise/A+](https://promisesaplus.com/) i
 setInterval / clearInterval are not managed but can be easily simulated by chaining timeouts.
 
 On some hosts, {@link gpf.handleTimeout}() must be used to activate timeouts.
+
+## Strict mode
+
+When functions are generated,
+[strict mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode)
+is always assumed even if the host (such as Rhino or WScript) does not support it.
