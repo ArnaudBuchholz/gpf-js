@@ -68,10 +68,9 @@
         "string/replaceex"
     ],
     "function": [
-        "assert",
         "constants",
         "compatibility/function",
-        "string/replaceex"
+        "string/trim"
     ],
     "define/detect": [
         "error",
