@@ -6,22 +6,47 @@ describe("function", function () {
 
     if (gpf.internals) {
 
-        describe("_GpfFunctionBuilder", function () {
+        var Func = Function,
+            _gpfFunctionDescribe = gpf.internals._gpfFunctionDescribe;
 
-            var _GpfFunctionBuilder = gpf.internals._GpfFunctionBuilder;
+        describe("_gpfFunctionDescribe", function () {
 
-            it("parses a function", function () {
-                function test (a, b) {
+            it("describes a named function", function () {
+                var description = _gpfFunctionDescribe(function test (a, b) {
                     return a + b;
-                }
-                var builder = new _GpfFunctionBuilder(test);
-                assert("test" === builder.name);
-                assert(2 === builder.parameters.length);
-                assert("a" === builder.parameters[0]);
-                assert("b" === builder.parameters[1]);
+                });
+                assert(description.name === "test");
+                assert(description.strict !== false);
+                assert(description.parameters.length === 2);
+                assert(description.parameters[0] === "a");
+                assert(description.parameters[1] === "b");
+                assert(description.body.indexOf("return a + b;") !== -1);
             });
 
-            it("parses a function (with comments)", function () {
+            it("identifies an unnamed function", function () {
+                var description = _gpfFunctionDescribe(function () {
+                    return 0;
+                });
+                assert(!description.name);
+                assert(description.strict !== false);
+                assert(!description.parameters);
+                assert(description.body.indexOf("return 0;") !== -1);
+            });
+
+            it("identifies empty function", function () {
+                var description = _gpfFunctionDescribe(function () {
+                });
+                assert(undefined === description.body);
+            });
+
+            it("identifies non strict functions", function () {
+                var description = _gpfFunctionDescribe(new Func("return 0;"));
+                assert(description.strict === false);
+                assert(!description.parameters);
+                assert(description.body.indexOf("return 0;") !== -1);
+            });
+
+            it("filters out comments", function () {
                 /*jshint laxcomma:true*/
                 /*jshint -W014*/
                 function /*name is */ test2 (/*first*/a,
@@ -31,54 +56,65 @@ describe("function", function () {
                     /*comments are removed*/
                     return a + b + c;
                 }
-                var builder = new _GpfFunctionBuilder(test2);
-                assert("test2" === builder.name);
-                assert(3 === builder.parameters.length);
-                assert("a" === builder.parameters[0]);
-                assert("b" === builder.parameters[1]);
-                assert("c" === builder.parameters[2]);
+                var description = _gpfFunctionDescribe(test2);
+                assert(description.name === "test2");
+                assert(description.strict !== false);
+                assert(description.parameters.length === 3);
+                assert(description.parameters[0] === "a");
+                assert(description.parameters[1] === "b");
+                assert(description.parameters[2] === "c");
+                assert(description.body.indexOf("comments are removed") === -1);
             });
 
-            it("parses a function (no parameters)", function () {
-                function test3 () {
-                    return 0;
-                }
-                var builder = new _GpfFunctionBuilder(test3);
-                assert("test3" === builder.name);
-                assert(0 === builder.parameters.length);
+        });
+
+        describe("_gpfFunctionBuild", function () {
+            var _gpfFunctionBuild = gpf.internals._gpfFunctionBuild;
+
+            it("builds an empty anonymous function", function () {
+                var func = _gpfFunctionBuild({});
+                assert("function" === typeof func);
+                assert("" === func.compatibleName());
             });
 
-            it("replaces body content", function () {
-                function test4 () {
-                    return 0;
-                }
-                var builder = new _GpfFunctionBuilder(test4),
-                    result;
-                assert("test4" === builder.name);
-                builder.replaceInBody({
-                    "0": "1"
+            it("builds a named function", function () {
+                var func = _gpfFunctionBuild({
+                    name: "test"
                 });
-                result = builder.generate();
-                assert(1 === result());
+                assert("test" === func.compatibleName());
             });
 
-            it("can be used to create an anonymous function", function () {
-                var builder = new _GpfFunctionBuilder(),
-                    result;
-                builder.body = "return 1;";
-                result = builder.generate();
-                assert("" === result.compatibleName());
-                assert(1 === result());
+            it("builds a strict function", function () {
+                var func = _gpfFunctionBuild({}),
+                    description = _gpfFunctionDescribe(func);
+                assert(false !== description.strict);
             });
 
-            it("can be used to create a named function", function () {
-                var builder = new _GpfFunctionBuilder(),
-                    result;
-                builder.name = "test";
-                builder.body = "return 2;";
-                result = builder.generate();
-                assert("test" === result.compatibleName());
-                assert(2 === result());
+            it("builds a non strict function", function () {
+                var func = _gpfFunctionBuild({
+                        strict: false
+                    }),
+                    description = _gpfFunctionDescribe(func);
+                assert(false === description.strict);
+            });
+
+            it("builds a function with named parameters", function () {
+                var func = _gpfFunctionBuild({
+                    parameters: ["a", "b", "c"],
+                    body: "return a + b + c;"
+                });
+                assert(3 === func.length);
+                assert(6 === func(1, 2, 3));
+            });
+
+            it("builds a function with external context", function () {
+                var func = _gpfFunctionBuild({
+                    body: "return a;"
+                }, {
+                    a: "Hello World!"
+                });
+                assert(0 === func.length);
+                assert("Hello World!" === func());
             });
 
         });
