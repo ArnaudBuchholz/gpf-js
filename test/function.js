@@ -6,8 +6,7 @@ describe("function", function () {
 
     if (gpf.internals) {
 
-        var Func = Function,
-            _gpfFunctionDescribe = gpf.internals._gpfFunctionDescribe;
+        var _gpfFunctionDescribe = gpf.internals._gpfFunctionDescribe;
 
         describe("_gpfFunctionDescribe", function () {
 
@@ -16,7 +15,6 @@ describe("function", function () {
                     return a + b;
                 });
                 assert(description.name === "test");
-                assert(description.strict !== false);
                 assert(description.parameters.length === 2);
                 assert(description.parameters[0] === "a");
                 assert(description.parameters[1] === "b");
@@ -28,7 +26,6 @@ describe("function", function () {
                     return 0;
                 });
                 assert(!description.name);
-                assert(description.strict !== false);
                 assert(!description.parameters);
                 assert(description.body.indexOf("return 0;") !== -1);
             });
@@ -37,13 +34,6 @@ describe("function", function () {
                 var description = _gpfFunctionDescribe(function () {
                 });
                 assert(undefined === description.body);
-            });
-
-            it("identifies non strict functions", function () {
-                var description = _gpfFunctionDescribe(new Func("return 0;"));
-                assert(description.strict === false);
-                assert(!description.parameters);
-                assert(description.body.indexOf("return 0;") !== -1);
             });
 
             it("filters out comments", function () {
@@ -58,7 +48,6 @@ describe("function", function () {
                 }
                 var description = _gpfFunctionDescribe(test2);
                 assert(description.name === "test2");
-                assert(description.strict !== false);
                 assert(description.parameters.length === 3);
                 assert(description.parameters[0] === "a");
                 assert(description.parameters[1] === "b");
@@ -82,20 +71,6 @@ describe("function", function () {
                     name: "test"
                 });
                 assert("test" === func.compatibleName());
-            });
-
-            it("builds a strict function", function () {
-                var func = _gpfFunctionBuild({}),
-                    description = _gpfFunctionDescribe(func);
-                assert(false !== description.strict);
-            });
-
-            it("builds a non strict function", function () {
-                var func = _gpfFunctionBuild({
-                        strict: false
-                    }),
-                    description = _gpfFunctionDescribe(func);
-                assert(false === description.strict);
             });
 
             it("builds a function with named parameters", function () {
