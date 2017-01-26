@@ -92,16 +92,14 @@ function _gpfFunctionBuildSourceBody (functionDescription) {
  * @since 0.1.6
  */
 function _gpfFunctionBuildSource (functionDescription) {
-    return [
-        "function",
-        _gpfFunctionBuildSourceName(functionDescription),
-        "(",
-        _gpfFunctionBuildSourceParameters(functionDescription),
-        ") {\n",
-        "\t\"use strict\"\n",
-        _gpfFunctionBuildSourceBody(functionDescription),
-        "\n}"
-    ].join("");
+    return "function"
+        + _gpfFunctionBuildSourceName(functionDescription)
+        + "("
+        + _gpfFunctionBuildSourceParameters(functionDescription)
+        + ") {\n"
+        + "\t\"use strict\"\n"
+        + _gpfFunctionBuildSourceBody(functionDescription)
+        + "\n}";
 }
 
 function _gpfFunctionBuildWithContext (functionDescription, context) {
