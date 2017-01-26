@@ -30,14 +30,14 @@ function _gpfFunctionDescribeName (functionToDescribe, resultDescription) {
 
 function _gpfFunctionDescribeParameters (functionToDescribe, functionSource, resultDescription) {
     if (functionToDescribe.length) {
-        resultDescription.parameters = (/\(\s*(\w+(?:\s*,\s*\w+)*)\s*\)/).exec(functionSource)[1]
+        resultDescription.parameters = new RegExp("\\(\\s*(\\w+(?:\\s*,\\s*\\w+)*)\\s*\\)").exec(functionSource)[1]
             .split(",")
             .map(_gpfStringTrim);
     }
 }
 
 function _gpfFunctionDescribeBody (functionSource, resultDescription) {
-    var body = _gpfStringTrim((/{((?:.*\n)*.*)}/).exec(functionSource)[1]);
+    var body = _gpfStringTrim(new RegExp("{((?:.*\\n)*.*)}").exec(functionSource)[1]);
     if (body) {
         resultDescription.body = body;
     }
