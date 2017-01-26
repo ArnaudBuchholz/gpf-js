@@ -24,22 +24,20 @@ _gpfInstallCompatibility("Date", {
 
         // Introduced with JavaScript 1.8
         toISOString: function () {
-            return [
-                this.getUTCFullYear(),
-                "-",
-                _pad(this.getUTCMonth() + 1),
-                "-",
-                _pad(this.getUTCDate()),
-                "T",
-                _pad(this.getUTCHours()),
-                ":",
-                _pad(this.getUTCMinutes()),
-                ":",
-                _pad(this.getUTCSeconds()),
-                ".",
-                (this.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5),
-                "Z"
-            ].join("");
+            return this.getUTCFullYear()
+                + "-"
+                + _pad(this.getUTCMonth() + 1)
+                + "-"
+                + _pad(this.getUTCDate())
+                + "T"
+                + _pad(this.getUTCHours())
+                + ":"
+                + _pad(this.getUTCMinutes())
+                + ":"
+                + _pad(this.getUTCSeconds())
+                + "."
+                + (this.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5)
+                + "Z";
         }
 
     }
@@ -48,22 +46,8 @@ _gpfInstallCompatibility("Date", {
 
 //region Date override
 
-var _gpfISO8601RegExp = new RegExp([
-    "^([0-9][0-9][0-9][0-9])",
-    "\\-",
-    "([0-9][0-9])",
-    "\\-",
-    "([0-9][0-9])",
-    "(?:T",
-    "([0-9][0-9])",
-    "\\:",
-    "([0-9][0-9])",
-    "\\:",
-    "([0-9][0-9])",
-    "(?:\\.",
-    "([0-9][0-9][0-9])",
-    "Z)?)?$"
-].join(""));
+var _gpfISO8601RegExp = new RegExp("^([0-9][0-9][0-9][0-9])\\-([0-9][0-9])\\-([0-9][0-9])"
+    + "(?:T([0-9][0-9])\\:([0-9][0-9])\\:([0-9][0-9])(?:\\.([0-9][0-9][0-9])Z)?)?$");
 
 function _gpfCheckDateArray (dateArray) {
     if (dateArray[1] < 12
