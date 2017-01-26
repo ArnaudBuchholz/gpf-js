@@ -24,6 +24,10 @@ fs.readFileAsync(fileName)
     ].join("")))
     // Processing <Promise>.catch syntax
     .then(source => source.replace(/\.catch/g, "[\"catch\"]"))
+    // keep_quoted_props not working properly: .class => ["class"]
+    .then(source => source.replace(/\.(class)(\W)/g, function (match, property, leadingChar) {
+        return `["${property}"]${leadingChar}`;
+    }))
     // Serializing
     .then(source => fs.writeFileAsync(fileName, source))
     .then(() => console.log("Fixed uglify'ed version of " + fileName))
