@@ -210,7 +210,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      */
     _checkNamespace: function () {
         var namespace = this._namespace;
-        if (namespace && !(/^[a-z_$][a-zA-Z0-9]+(:?\.[a-z_$][a-zA-Z0-9]+)*$/).exec(namespace)) {
+        if (namespace && !new RegExp("^[a-z_$][a-zA-Z0-9]+(:?\\.[a-z_$][a-zA-Z0-9]+)*$").exec(namespace)) {
             gpf.Error.invalidEntityNamespace();
         }
     },
