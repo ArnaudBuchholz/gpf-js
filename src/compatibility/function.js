@@ -14,13 +14,11 @@
 var _gpfArrayPrototypeSlice = Array.prototype.slice;
 
 function _generateBindBuilderSource (length) {
-    return [
-        "var me = this;",
-        "return function (" + _gpfBuildFunctionParameterList(length).join(", ") + ") {",
-        "   var args = _gpfArrayPrototypeSlice.call(arguments, 0);",
-        "    return me.apply(thisArg, prependArgs.concat(args));",
-        "};"
-    ].join("\n");
+    return "var me = this;\n"
+        + "return function (" + _gpfBuildFunctionParameterList(length).join(", ") + ") {\n"
+        + "   var args = _gpfArrayPrototypeSlice.call(arguments, 0);\n"
+        + "    return me.apply(thisArg, prependArgs.concat(args));\n"
+        + "};";
 }
 
 _gpfInstallCompatibility("Function", {
