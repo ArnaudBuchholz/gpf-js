@@ -55,7 +55,7 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototy
      * @since 0.1.6
      */
     _checkMemberName: function (name) {
-        if (!(/^[a-z_$][a-zA-Z0-9]*$/).exec(name)) {
+        if (!new RegExp("^[a-z_$][a-zA-Z0-9]*$").exec(name)) {
             gpf.Error.invalidClassProperty();
         }
     },
@@ -101,7 +101,7 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototy
      */
     _checkName: function () {
         _GpfEntityDefinition.prototype._checkName.call(this);
-        if (!(/^[A-Z_$][a-zA-Z0-9]*$/).exec(this._name)) {
+        if (!new RegExp("^[A-Z_$][a-zA-Z0-9]*$").exec(this._name)) {
             gpf.Error.invalidClassName();
         }
     }
