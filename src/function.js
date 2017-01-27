@@ -9,7 +9,6 @@
 /*global _gpfJsCommentsRegExp*/ // Find all JavaScript comments
 /*global _gpfStringTrim*/ // Trim the string
 /*exported _gpfFunctionBuild*/ // Build function from description and context
-/*exported _gpfFunctionBuildSource*/ // Build function source from description
 /*exported _gpfFunctionDescribe*/ // Extract function description
 /*#endif*/
 
