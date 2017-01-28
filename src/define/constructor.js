@@ -27,7 +27,7 @@ function _gpfDefineGetSecuredNamedConstructor (entityDefinition) {
     function template () {
         /*jshint validthis:true*/ // constructor
         /*eslint-disable no-invalid-this*/
-        if (!(this instanceof entityDefinition._Constructor)) {
+        if (!(this instanceof entityDefinition._instanceBuilder)) {
             gpf.Error.constructorFunction();
         }
         entityDefinition._resolvedConstructor.apply(this, arguments);
