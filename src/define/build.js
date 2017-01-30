@@ -12,7 +12,7 @@
 _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.prototype */ {
 
     /**
-     * Instance builder function (a.k.a. constructor)
+     * Instance builder function (a.k.a. public constructor)
      *
      * @type {Function}
      */
