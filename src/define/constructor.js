@@ -8,6 +8,7 @@
 /*global _GpfEntityDefinition*/ // Entity definition
 /*global _gpfFunctionBuild*/ // Build function from description and context
 /*global _gpfFunctionDescribe*/ // Extract function description
+/*global _gpfExtend*/ // gpf.extend
 /*exported _gpfDefineGetSecuredNamedConstructor*/ // Allocate a secured named constructor
 /*#endif*/
 
