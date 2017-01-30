@@ -23,14 +23,13 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      */
     getInstanceBuilder: function () {
         if (!this._instanceBuilder) {
-            this.build();
+            this._setInstanceBuilder(this._build());
         }
         return this._instanceBuilder;
     },
 
     /**
      * @gpf:write _instanceBuilder
-     * @protected
      */
     _setInstanceBuilder: function (value) {
         if (this._namespace) {
@@ -41,7 +40,10 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
 
     /**
      * Process initial definition and generate instance builder function
+     *
+     * @return {Function} Instance builder function
+     * @protected
      */
-    build: _gpfEmptyFunc
+    _build: _gpfEmptyFunc
 
 });
