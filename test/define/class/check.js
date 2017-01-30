@@ -65,6 +65,33 @@ describe("define/class/check", function () {
 
             });
 
+            it("rejects invalid $extend", function () {
+                var exceptionCaught;
+                try {
+                    _gpfDefineBuildTypedEntity({
+                        $class: "Test",
+                        $extend: 12
+                    });
+                } catch (e) {
+                    exceptionCaught = e;
+                }
+                assert(exceptionCaught instanceof gpf.Error.InvalidClassExtend);
+            });
+
+            it("accepts native $extend", function () {
+                _gpfDefineBuildTypedEntity({
+                    $class: "Test",
+                    $extend: String
+                });
+            });
+
+            it("accepts contextual $extend", function () {
+                _gpfDefineBuildTypedEntity({
+                    $class: "Test",
+                    $extend: "String"
+                });
+            });
+
         });
 
     }
