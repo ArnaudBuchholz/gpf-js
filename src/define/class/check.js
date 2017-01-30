@@ -6,6 +6,7 @@
 "use strict";
 /*global _GpfClassDefinition*/ // Class definition
 /*global _GpfEntityDefinition*/ // Entity definition
+/*global _gpfContext*/ // Resolve contextual string
 /*global _gpfDefineGenerate$Keys*/ // Generate an array of names prefixed with $ from a comma separated list
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfExtend*/ // gpf.extend
@@ -27,16 +28,42 @@ _gpfErrorDeclare("define/class/check", {
     /**
      * ### Summary
      *
-     * The class definition contains an property
+     * The class definition contains an invalid property
      *
      * ### Description
      *
      * Some keywords are reserved
      * @since 0.1.6
      */
-    invalidClassProperty: "Invalid class property"
+    invalidClassProperty: "Invalid class property",
+
+    /**
+     * ### Summary
+     *
+     * The class definition contains an invalid $extend
+     *
+     * ### Description
+     *
+     * $extend can be either a class or a string that must resolve to a class using {@see gpf.context}
+     * @since 0.1.6
+     */
+    invalidClassExtend: "Invalid class extend"
 
 });
+
+/**
+ * If extend is a string, apply _gpfContext on it
+ *
+ * @param {*} extend Extend value
+ * @return {*} The initial value or the context one
+ * @since 0.1.6
+ */
+function _gpfDefineClassDecontextifyExtend (extend) {
+    if ("string" === typeof extend) {
+        return _gpfContext(extend.split("."));
+    }
+    return extend;
+}
 
 _gpfExtend(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototype */ {
 
@@ -104,6 +131,47 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototy
         if (!new RegExp("^[A-Z_$][a-zA-Z0-9]*$").exec(this._name)) {
             gpf.Error.invalidClassName();
         }
+    },
+
+    /**
+     * Base class
+     *
+     * @type {Function}
+     * @since 0.1.6
+     */
+    _extend: Object,
+
+    /**
+     * Read extend property
+     * @since 0.1.6
+     */
+    _readExtend: function () {
+        var extend = _gpfDefineClassDecontextifyExtend(this._initialDefinition.$extend);
+        if (extend) {
+            this._extend = extend;
+        }
+    },
+
+    /**
+     * Check extend property
+     *
+     * @throws {gpf.Error.InvalidClassExtend}
+     * @since 0.1.6
+     */
+    _checkExtend: function () {
+        if ("function" !== typeof this._extend) {
+            gpf.Error.invalidClassExtend();
+        }
+    },
+
+    /**
+     * @inheritdoc
+     * @since 0.1.6
+     */
+    check: function () {
+        _GpfEntityDefinition.prototype.check.call(this);
+        this._readExtend();
+        this._checkExtend();
     }
 
 });
