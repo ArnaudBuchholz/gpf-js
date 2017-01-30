@@ -3,6 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _GpfEntityDefinition*/ // Entity definition
 /*global _gpfFunctionBuild*/ // Build function from description and context
@@ -13,6 +14,18 @@
 _gpfErrorDeclare("define/constructor", {
     "constructorFunction":
         "This is a constructor function, use with new"
+});
+
+
+_gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.prototype */ {
+
+    /**
+     * Instance initializer function (a.k.a. private constructor)
+     *
+     * @type {Function}
+     */
+    _instanceInitializer: _gpfEmptyFunc
+
 });
 
 /**
@@ -30,7 +43,7 @@ function _gpfDefineGetSecuredNamedConstructor (entityDefinition) {
         if (!(this instanceof entityDefinition._instanceBuilder)) {
             gpf.Error.constructorFunction();
         }
-        entityDefinition._resolvedConstructor.apply(this, arguments);
+        entityDefinition._instanceInitializer.apply(this, arguments);
         /*eslint-enable no-invalid-this*/
     }
 
