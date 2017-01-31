@@ -2,7 +2,7 @@
 
 global.assert = require("assert");
 var Mocha = require("mocha"),
-    mocha = new Mocha({ui: "bdd"}),
+    mocha = new Mocha({ui: "bdd", ignoreLeaks: false, globals: "test"}),
     path = require("path"),
     fs = require("fs");
 
