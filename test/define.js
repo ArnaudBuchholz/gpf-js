@@ -2,6 +2,17 @@
 
 describe("define", function () {
 
+    var test = {};
+
+    before(function () {
+        // Defines a namespace root
+        gpf.context().test = test;
+    });
+
+    after(function () {
+        delete gpf.context().test;
+    });
+
     describe("gpf.define", function () {
 
         it("accepts only one parameter", function () {
@@ -131,7 +142,7 @@ describe("define", function () {
 
                 before(function () {
                     B = gpf.define({
-                        $class: "B",
+                        $class: "test.B",
                         $extend: A,
                         "constructor": function () {
                             this._member = "valueOfB";
@@ -147,6 +158,10 @@ describe("define", function () {
                 it("handles instanceof", function () {
                     assert(b instanceof A);
                     assert(b instanceof B);
+                });
+
+                it("handles namespace", function () {
+                    assert(test.B === B);
                 });
 
                 it("calls the constructor function", function () {
