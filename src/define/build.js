@@ -25,6 +25,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      * @since 0.1.6
      */
     getInstanceBuilder: function () {
+        /* istanbul ignore else */ // No use case to call getInstanceBuilder twice
         if (!this._instanceBuilder) {
             this._setInstanceBuilder(this._build());
         }
@@ -37,7 +38,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      */
     _setInstanceBuilder: function (value) {
         if (this._namespace) {
-            _gpfContext(this._namespace, true)[this._name] = value;
+            _gpfContext(this._namespace.split("."), true)[this._name] = value;
         }
         this._instanceBuilder = value;
     },
