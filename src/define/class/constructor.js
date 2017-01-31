@@ -1,14 +1,15 @@
 /**
  * @file Class constructor
+ * @since 0.1.6
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GpfClassDefinition*/ // Class definition
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _GpfClassDefinition*/ // Class definition
+/*global _gpfExtend*/ // gpf.extend
 /*global _gpfFunctionBuild*/ // Build function from description and context
 /*global _gpfFunctionDescribe*/ // Extract function description
-/*global _gpfExtend*/ // gpf.extend
 /*exported _gpfDefineGetClassSecuredConstructor*/ // Allocate a secured named constructor
 /*#endif*/
 
@@ -24,6 +25,7 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototy
      * Resolved constructor
      *
      * @type {Function}
+     * @since 0.1.6
      */
     _resolvedConstructor: _gpfEmptyFunc
 
@@ -35,6 +37,7 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototy
  * @param {_GpfClassDefinition} classDefinition Entity definition
  * @return {Function} Secured named constructor
  * @gpf:closure
+ * @since 0.1.6
  */
 function _gpfDefineGetClassSecuredConstructor (classDefinition) {
 
