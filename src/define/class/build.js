@@ -6,6 +6,7 @@
 /*global _GpfClassDefinition*/ // Class definition
 /*global _gpfExtend*/ // gpf.extend
 /*global _gpfDefineGetClassSecuredConstructor*/ // Allocate a secured named constructor
+/*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*#endif*/
 
 _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */ {
@@ -22,9 +23,18 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototy
         // Enforce the constructor to be what we expect
         newPrototype.constructor = newClass;
 
+        this._buildPrototype(newPrototype);
         this._resolveConstructor();
 
         return newClass;
+    },
+
+    _buildPrototype: function (newPrototype) {
+        _gpfObjectForEach(this._initialDefinition, function (value, memberName) {
+            if (memberName.charAt(0) !== "$" && memberName !== "constructor") {
+                newPrototype[memberName] = value;
+            }
+        });
     },
 
     _resolveConstructor: function () {
