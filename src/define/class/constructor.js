@@ -42,7 +42,7 @@ function _gpfDefineGetClassSecuredConstructor (classDefinition) {
         /*jshint validthis:true*/ // constructor
         /*eslint-disable no-invalid-this*/
         if (!(this instanceof classDefinition._instanceBuilder)) {
-            gpf.Error.constructorFunction();
+            gpf.Error.classConstructorFunction();
         }
         classDefinition._resolvedConstructor.apply(this, arguments);
         /*eslint-enable no-invalid-this*/
