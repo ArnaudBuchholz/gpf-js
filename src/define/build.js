@@ -16,7 +16,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      *
      * @type {Function}
      */
-    _instanceBuilder: _gpfEmptyFunc,
+    _instanceBuilder: null,
 
     /**
      * @gpf:read _instanceBuilder
