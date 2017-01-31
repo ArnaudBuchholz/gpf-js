@@ -94,6 +94,7 @@
     "define/class/check": [
         "define/class/class",
         "define/entity",
+        "context",
         "define/check",
         "error",
         "extend"
