@@ -86,6 +86,11 @@
         "constants",
         "foreach"
     ],
+    "define/build": [
+        "define/entity",
+        "context",
+        "extend"
+    ],
     "define/class/class": [
         "define/entity",
         "define/detect",
@@ -98,5 +103,20 @@
         "define/check",
         "error",
         "extend"
+    ],
+    "define/class/constructor": [
+        "define/class/class",
+        "error",
+        "extend",
+        "function"
+    ],
+    "define/class/build": [
+        "define/class/class",
+        "define/class/constructor",
+        "extend",
+        "foreach"
+    ],
+    "define": [
+        "define/detect"
     ]
 }
