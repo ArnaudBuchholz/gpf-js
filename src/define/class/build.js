@@ -1,17 +1,21 @@
 /**
  * @file Build class
+ * @since 0.1.6
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfClassDefinition*/ // Class definition
-/*global _gpfExtend*/ // gpf.extend
 /*global _gpfDefineGetClassSecuredConstructor*/ // Allocate a secured named constructor
+/*global _gpfExtend*/ // gpf.extend
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*#endif*/
 
 _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */ {
 
-    /** @inheritdoc */
+    /**
+     * @inheritdoc
+     * @since 0.1.6
+     */
     _build: function () {
         var newClass = _gpfDefineGetClassSecuredConstructor(this),
             // Basic JavaScript inheritance mechanism: Defines the newClass prototype as an instance of the super class
@@ -38,11 +42,10 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototy
     },
 
     _resolveConstructor: function () {
-        /* jshint -W069*/
-        var ownConstructor = this._initialDefinition["constructor"]; //eslint-disable-line dot-notation
-        /* jshint +W069*/
-        if (ownConstructor) {
-            this._resolvedConstructor = ownConstructor;
+        if (this._initialDefinition.hasOwnProperty("constructor")) {
+            /* jshint -W069*/
+            this._resolvedConstructor = this._initialDefinition["constructor"]; //eslint-disable-line dot-notation
+            /* jshint +W069*/
         } else {
             this._resolvedConstructor = this._extend;
         }
