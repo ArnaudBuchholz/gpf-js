@@ -148,7 +148,8 @@
     },
     {
         "name": "define/build",
-        "load": false
+        "test": false,
+        "doc": true
     },
     {
         "name": "define/class/class",
@@ -160,8 +161,18 @@
         "doc": true
     },
     {
+        "name": "define/class/constructor",
+        "test": false,
+        "doc": true
+    },
+    {
+        "name": "define/class/build",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "define",
-        "load": false
+        "doc": true
     },
     {
         "name": "events",
