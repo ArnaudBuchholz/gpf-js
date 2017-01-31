@@ -70,7 +70,7 @@ describe("define", function () {
                     } catch (e) {
                         exceptionCaught = e;
                     }
-                    assert(exceptionCaught instanceof gpf.Error.InvalidClassProperty);
+                    assert(exceptionCaught instanceof gpf.Error.InvalidEntity$Property);
                 });
 
                 it("rejects invalid property names (reserved keywords)", function () {
@@ -95,7 +95,6 @@ describe("define", function () {
             var A, a;
 
             before(function () {
-
                 A = gpf.define({
                     $class: "A",
                     _member: "defaultValue",
@@ -107,7 +106,6 @@ describe("define", function () {
                 a = new A();
             });
 
-
             it("prevents constructor functions to be used without new", function () {
                 var exceptionCaught;
                 try {
@@ -115,9 +113,7 @@ describe("define", function () {
                 } catch (e) {
                     exceptionCaught = e;
                 }
-                assert(exceptionCaught instanceof gpf.Error);
-                assert(exceptionCaught.code === gpf.Error.CODE_CONSTRUCTORFUNCTION);
-                assert(exceptionCaught.name === "constructorFunction");
+                assert(exceptionCaught instanceof gpf.Error.ClassConstructorFunction);
             });
 
             it("handles instanceof", function () {
@@ -125,8 +121,38 @@ describe("define", function () {
             });
 
             it("exposes methods", function () {
-                assert("function" === a.getMember);
+                assert("function" === typeof a.getMember);
                 assert("defaultValue" === a.getMember());
+            });
+
+            describe("Subclassing", function () {
+
+                var B, b;
+
+                before(function () {
+                    B = gpf.define({
+                        $class: "B",
+                        $extend: A,
+                        "constructor": function () {
+                            this._member = "valueOfB";
+                        },
+                        setMember: function (newValue) {
+                            this._member = newValue;
+                        }
+                    });
+
+                    b = new B();
+                });
+
+                it("handles instanceof", function () {
+                    assert(b instanceof A);
+                    assert(b instanceof B);
+                });
+
+                it("calls the constructor function", function () {
+                    assert(b.getMember() === "valueOfB");
+                });
+
             });
 
         });
