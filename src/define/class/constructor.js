@@ -9,7 +9,6 @@
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfExtend*/ // gpf.extend
 /*global _gpfFunctionBuild*/ // Build function from description and context
-/*global _gpfFunctionDescribe*/ // Extract function description
 /*exported _gpfDefineGetClassSecuredConstructor*/ // Allocate a secured named constructor
 /*#endif*/
 
@@ -40,21 +39,12 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototy
  * @since 0.1.6
  */
 function _gpfDefineGetClassSecuredConstructor (classDefinition) {
-
-    function template () {
-        /*jshint validthis:true*/ // constructor
-        /*eslint-disable no-invalid-this*/
-        if (!(this instanceof classDefinition._instanceBuilder)) {
-            gpf.Error.classConstructorFunction();
-        }
-        classDefinition._resolvedConstructor.apply(this, arguments);
-        /*eslint-enable no-invalid-this*/
-    }
-
-    var templateDef = _gpfFunctionDescribe(template);
-    templateDef.name = classDefinition._name;
-    return _gpfFunctionBuild(templateDef, {
-        gpf: gpf,
-        classDefinition: classDefinition
+    return _gpfFunctionBuild({
+        name: classDefinition._name,
+        body: "if (!(this instanceof a._instanceBuilder)) $.Error.classConstructorFunction();\n"
+            + "a._resolvedConstructor.apply(this, arguments);"
+    }, {
+        $: gpf,
+        a: classDefinition
     });
 }
