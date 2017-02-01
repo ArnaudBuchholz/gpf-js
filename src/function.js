@@ -102,7 +102,11 @@ function _gpfFunctionBuildSource (functionDescription) {
 }
 
 function _gpfFunctionBuildWithContext (functionDescription, context) {
-    return _gpfFunc("context", "with (context) return " + functionDescription)(context);
+    var parameterNames = Object.keys(context),
+        parameterValues = parameterNames.map(function (name) {
+            return context[name];
+        });
+    return _gpfFunc(parameterNames, "return " + functionDescription).apply(null, parameterValues);
 }
 
 function _gpfFunctionBuildContextless (functionDescription) {
