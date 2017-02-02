@@ -166,6 +166,11 @@
         "doc": true
     },
     {
+        "name": "define/class/super",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "define/class/build",
         "test": false,
         "doc": true
