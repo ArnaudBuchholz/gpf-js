@@ -110,8 +110,12 @@
         "extend",
         "function"
     ],
+    "define/class/super": [
+        "function"
+    ],
     "define/class/build": [
         "define/class/class",
+        "define/class/super",
         "define/class/constructor",
         "extend",
         "foreach"
