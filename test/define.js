@@ -111,6 +111,12 @@ describe("define", function () {
                     _member: "defaultValue",
                     getMember: function () {
                         return this._member;
+                    },
+                    "constructor": function (memberValue) {
+                        if (memberValue) {
+                            this._member = memberValue;
+                        }
+                        this._constructorOfA = true;
                     }
                 });
 
@@ -131,6 +137,10 @@ describe("define", function () {
                 assert(a instanceof A);
             });
 
+            it("calls constructor function", function () {
+                assert(a._constructorOfA);
+            });
+
             it("exposes methods", function () {
                 assert("function" === typeof a.getMember);
                 assert("defaultValue" === a.getMember());
@@ -144,15 +154,19 @@ describe("define", function () {
                     B = gpf.define({
                         $class: "test.B",
                         $extend: A,
-                        "constructor": function () {
-                            this._member = "valueOfB";
+                        "constructor": function (initialValue) {
+                            this.$super("valueOfB");
+                            this._constructorOfB = initialValue;
+                        },
+                        getMember: function () {
+                            return this.$super() + "-inB";
                         },
                         setMember: function (newValue) {
                             this._member = newValue;
                         }
                     });
 
-                    b = new B();
+                    b = new B(3475);
                 });
 
                 it("handles instanceof", function () {
@@ -165,9 +179,13 @@ describe("define", function () {
                 });
 
                 it("calls the constructor function", function () {
-                    assert(b.getMember() === "valueOfB");
+                    assert(b._constructorOfB === 3475);
                 });
 
+                it("calls the proper $super()", function () {
+                    assert(b._constructorOfA);
+                    assert(b.getMember() === "valueOfB-inB");
+                });
             });
 
         });
