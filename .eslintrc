@@ -218,7 +218,6 @@
     "globals": {
         "gpf":                          false,
         "gpfSourcesPath":               true,
-        "$super":                       true,
         "console":                      true,
         "setTimeout":                   true,
         "Promise":                      true,
