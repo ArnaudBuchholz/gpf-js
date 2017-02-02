@@ -75,7 +75,6 @@
         "Promise":          false,
 
         "gpf":              true,
-        "gpfSourcesPath":   true,
-        "$super":           true
+        "gpfSourcesPath":   true
     }
 }
