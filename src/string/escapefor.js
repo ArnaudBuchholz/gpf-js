@@ -13,6 +13,13 @@
 // Dictionary of language to escapes
 var _gpfStringEscapes = {};
 
+function _gpfStringEscapePostProcessFor (that, language) {
+    if ("javascript" === language) {
+        return "\"" + that + "\"";
+    }
+    return that;
+}
+
 /**
  *
  * Make the string content compatible with a given language
@@ -27,11 +34,7 @@ var _gpfStringEscapes = {};
  */
 function _gpfStringEscapeFor (that, language) {
     _gpfAssert(undefined !== _gpfStringEscapes[language], "Unknown language");
-    that = _gpfStringReplaceEx(that, _gpfStringEscapes[language]);
-    if ("javascript" === language) {
-        that = "\"" + that + "\"";
-    }
-    return that;
+    return _gpfStringEscapePostProcessFor(_gpfStringReplaceEx(that, _gpfStringEscapes[language]));
 }
 
 /*#ifndef(UMD)*/
