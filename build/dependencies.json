@@ -1,9 +1,12 @@
 {
-    "constants": [
-        "assert"
-    ],
     "foreach": [
         "arraylike"
+    ],
+    "assert": [
+        "foreach"
+    ],
+    "constants": [
+        "assert"
     ],
     "string/replaceex": [
         "foreach"
