@@ -5,12 +5,22 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfEmptyFunc*/ // An empty function
+/*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _gpfAssert*/ // Assertion method
 /*exported _gpfAsserts*/ // Multiple assertion method
 /*#endif*/
 
 var _gpfAssert,
     _gpfAsserts;
+
+function _gpfAssertFailIfConditionFalsy (condition, message) {
+    if (!condition) {
+        console.warn("ASSERTION FAILED: " + message);
+        gpf.Error.assertionFailed({
+            message: message
+        });
+    }
+}
 
 /**
  * Assertion helper
@@ -25,12 +35,7 @@ function _gpfAssertImpl (condition, message) {
         message = "Assertion with no message";
         condition = false;
     }
-    if (!condition) {
-        console.warn("ASSERTION FAILED: " + message);
-        gpf.Error.assertionFailed({
-            message: message
-        });
-    }
+    _gpfAssertFailIfConditionFalsy(condition, message);
 }
 
 /**
@@ -41,12 +46,7 @@ function _gpfAssertImpl (condition, message) {
  * @since 0.1.5
  */
 function _gpfAssertsImpl (assertions) {
-    for (var message in assertions) {
-        /* istanbul ignore else */
-        if (assertions.hasOwnProperty(message)) {
-            _gpfAssertImpl(assertions[message], message);
-        }
-    }
+    _gpfObjectForEach(assertions, _gpfAssertFailIfConditionFalsy);
 }
 
 /**
