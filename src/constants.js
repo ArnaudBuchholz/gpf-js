@@ -123,6 +123,7 @@ function _gpfFunc (params, source) {
  * @param {Number} min Minimum value (inclusive)
  * @param {Number} max Maximum value (inclusive)
  * @return {Boolean} True if the value is in the range
+ * @since 0.1.6
  */
 function _gpfIsInRange (value, min, max) {
     return min <= value && value <= max;
@@ -133,6 +134,7 @@ function _gpfIsInRange (value, min, max) {
  *
  * @param {*} value
  * @returns {Boolean} True if the value is an unsigned byte
+ * @since 0.1.6
  */
 // Returns true if the value is an unsigned byte
 function _gpfIsUnsignedByte (value) {
