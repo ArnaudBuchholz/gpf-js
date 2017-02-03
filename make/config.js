@@ -23,7 +23,7 @@ const
                 branches: 90,
                 lines: 90
             },
-            maintainability: 65
+            maintainability: 70
         }
     },
 
