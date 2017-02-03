@@ -7,5 +7,8 @@
     },
     "LOADING": {
         "title": "Loading GPF Library"
+    },
+    "DEFINE": {
+        "title": "GPF Entity definition"
     }
 }
