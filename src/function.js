@@ -95,22 +95,17 @@ function _gpfFunctionBuildSource (functionDescription) {
         + _gpfFunctionBuildSourceName(functionDescription)
         + "("
         + _gpfFunctionBuildSourceParameters(functionDescription)
-        + ") {\n"
-        + "\t\"use strict\"\n"
+        + ") {\n\t\"use strict\"\n"
         + _gpfFunctionBuildSourceBody(functionDescription)
         + "\n}";
 }
 
-function _gpfFunctionBuildWithContext (functionDescription, context) {
+function _gpfFunctionBuildWithContext (functionSource, context) {
     var parameterNames = Object.keys(context),
         parameterValues = parameterNames.map(function (name) {
             return context[name];
         });
-    return _gpfFunc(parameterNames, "return " + functionDescription).apply(null, parameterValues);
-}
-
-function _gpfFunctionBuildContextless (functionDescription) {
-    return _gpfFunc("return " + functionDescription)();
+    return _gpfFunc(parameterNames, "return " + functionSource).apply(null, parameterValues);
 }
 
 /**
@@ -122,11 +117,7 @@ function _gpfFunctionBuildContextless (functionDescription) {
  * @since 0.1.6
  */
 function _gpfFunctionBuild (functionDescription, context) {
-    var functionSource = _gpfFunctionBuildSource(functionDescription);
-    if (context) {
-        return _gpfFunctionBuildWithContext(functionSource, context);
-    }
-    return _gpfFunctionBuildContextless(functionSource);
+    return _gpfFunctionBuildWithContext(_gpfFunctionBuildSource(functionDescription), context || {});
 }
 
 /*#ifndef(UMD)*/
