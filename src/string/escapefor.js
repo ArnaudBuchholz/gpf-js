@@ -34,7 +34,7 @@ function _gpfStringEscapePostProcessFor (that, language) {
  */
 function _gpfStringEscapeFor (that, language) {
     _gpfAssert(undefined !== _gpfStringEscapes[language], "Unknown language");
-    return _gpfStringEscapePostProcessFor(_gpfStringReplaceEx(that, _gpfStringEscapes[language]));
+    return _gpfStringEscapePostProcessFor(_gpfStringReplaceEx(that, _gpfStringEscapes[language]), language);
 }
 
 /*#ifndef(UMD)*/
