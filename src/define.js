@@ -9,11 +9,12 @@
 /*#endif*/
 
 /**
- * Define an entity
+ * Define an entity, see {@tutorial DEFINE}
  *
  * @param {Object} definition Entity definition
  * @return {Function} Entity constructor
  * @since 0.1.6
+ * @see {@tutorial DEFINE}
  */
 function _gpfDefine (definition) {
     var entityDefinition = _gpfDefineBuildTypedEntity(definition);
@@ -21,7 +22,7 @@ function _gpfDefine (definition) {
 }
 
 /**
- * @sameas _gpfDefine
+ * @gpf:sameas _gpfDefine
  * @since 0.1.6
  */
 gpf.define = _gpfDefine;
