@@ -75,6 +75,17 @@ function _gpfDefineEntityCheckNameIsNotEmpty () {
     /*eslint-enable no-invalid-this*/
 }
 
+function _gpfDefineEntityCheckProperty (value, name) {
+    _gpfIgnore(value);
+    /*jshint -W040*/ /*eslint-disable no-invalid-this*/ // bound through thisArg
+    if (name.charAt(0) === "$") {
+        this._check$Property(name);
+    } else {
+        this._checkProperty(name);
+    }
+    /*jshint -W040*/ /*eslint-enable no-invalid-this*/
+}
+
 _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.prototype */ {
 
     /**
@@ -122,16 +133,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      * @since 0.1.6
      */
     _checkProperties: function () {
-        _gpfObjectForEach(this._initialDefinition, function (value, name) {
-            _gpfIgnore(value);
-            /*eslint-disable no-invalid-this*/ // bound through thisArg
-            if (name.charAt(0) === "$") {
-                this._check$Property(name);
-            } else {
-                this._checkProperty(name);
-            }
-            /*eslint-enable no-invalid-this*/
-        }, this);
+        _gpfObjectForEach(this._initialDefinition, _gpfDefineEntityCheckProperty, this);
     },
 
     /**
@@ -178,11 +180,10 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      * @since 0.1.6
      */
     _extractRelativeNamespaceFromName: function () {
-        var name = this._name,
-            lastDotPosition = name.lastIndexOf(".");
-        if (-1 < lastDotPosition) {
-            this._name = name.substr(lastDotPosition + 1);
-            return name.substr(0, lastDotPosition);
+        var parts = new RegExp("(.*)\\.([^\\.]+)$").exec(this._name);
+        if (parts) {
+            this._name = parts[2];
+            return parts[1];
         }
     },
 
@@ -209,8 +210,7 @@ _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.proto
      * @since 0.1.6
      */
     _checkNamespace: function () {
-        var namespace = this._namespace;
-        if (namespace && !new RegExp("^[a-z_$][a-zA-Z0-9]+(:?\\.[a-z_$][a-zA-Z0-9]+)*$").exec(namespace)) {
+        if (!new RegExp("^(:?[a-z_$][a-zA-Z0-9]+(:?\\.[a-z_$][a-zA-Z0-9]+)*)?$").exec(this._namespace)) {
             gpf.Error.invalidEntityNamespace();
         }
     },
