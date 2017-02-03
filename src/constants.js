@@ -71,7 +71,7 @@ var
         + "yield").split(",")
     ;
 
-// Unsafe version of _gpfFunc
+// Unprotected version of _gpfFunc
 function _gpfFuncUnsafe (params, source) {
     var args;
     if (0 === params.length) {
@@ -80,6 +80,23 @@ function _gpfFuncUnsafe (params, source) {
     args = [].concat(params);
     args.push(source);
     return _GpfFunc.apply(null, args);
+}
+
+// Protected version of _gpfFunc
+function _gpfFuncImpl (params, source) {
+    _gpfAssert("string" === typeof source && source.length, "Source expected (or use _gpfEmptyFunc)");
+    /*#ifdef(DEBUG)*/
+    try {
+        /*#endif*/
+        return _gpfFuncUnsafe(params, source);
+        /*#ifdef(DEBUG)*/
+    } catch (e) {
+        /* istanbul ignore next */ // Not supposed to happen (not tested)
+        console.error("An exception occurred compiling:\r\n" + source);
+        /* istanbul ignore next */
+        return null;
+    }
+    /*#endif*/
 }
 
 /**
@@ -96,24 +113,30 @@ function _gpfFunc (params, source) {
         source = params;
         params = [];
     }
-    _gpfAssert("string" === typeof source && source.length, "Source expected (or use _gpfEmptyFunc)");
-/*#ifdef(DEBUG)*/
-    try {
-/*#endif*/
-        return _gpfFuncUnsafe(params, source);
-/*#ifdef(DEBUG)*/
-    } catch (e) {
-        /* istanbul ignore next */ // Not supposed to happen (not tested)
-        console.error("An exception occurred compiling:\r\n" + source);
-        /* istanbul ignore next */
-        return null;
-    }
-/*#endif*/
+    return _gpfFuncImpl(params, source);
 }
 
+/**
+ * Check if the value is in the range defined by min and max
+ *
+ * @param {Number} value Value to check
+ * @param {Number} min Minimum value (inclusive)
+ * @param {Number} max Maximum value (inclusive)
+ * @return {Boolean} True if the value is in the range
+ */
+function _gpfIsInRange (value, min, max) {
+    return min <= value && value <= max;
+}
+
+/**
+ * Check if the value is an unsigned byte
+ *
+ * @param {*} value
+ * @returns {Boolean} True if the value is an unsigned byte
+ */
 // Returns true if the value is an unsigned byte
 function _gpfIsUnsignedByte (value) {
-    return "number" === typeof value && 0 <= value && value < 256;
+    return "number" === typeof value && _gpfIsInRange(value, 0, 255);
 }
 
 /* istanbul ignore else */ // Because tested with NodeJS
