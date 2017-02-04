@@ -84,6 +84,10 @@ The following member names are prohibited:
 
 ### Constructor
 
+.constructor property
+"constructor" member of entity definition dictionary
+Class handler is NOT 
+Secured to be used with new
 
 ### Inheritance
 
