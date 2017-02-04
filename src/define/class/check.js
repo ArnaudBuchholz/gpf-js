@@ -82,7 +82,7 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototy
      * @since 0.1.6
      */
     _checkMemberName: function (name) {
-        if (!new RegExp("^[a-z_$][a-zA-Z0-9]*$").exec(name)) {
+        if (!new RegExp("^[a-z_][a-zA-Z0-9]*$").exec(name)) {
             gpf.Error.invalidClassProperty();
         }
     },
