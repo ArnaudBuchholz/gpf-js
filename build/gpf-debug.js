@@ -35,7 +35,7 @@
          * GPF Version
          * @since 0.1.5
          */
-        _gpfVersion = "0.1.6-alpha",
+        _gpfVersion = "0.1.6",
         /**
          * Host constants
          * @since 0.1.5
@@ -271,133 +271,6 @@
             WScript.Quit(code);
         };
     }
-    var _gpfAssert, _gpfAsserts;
-    /**
-     * Assertion helper
-     *
-     * @param {Boolean} condition Truthy / [Falsy](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) value
-     * @param {String} message Assertion message explaining the violation when the condition is false
-     * @throws {gpf.Error.AssertionFailed}
-     * @since 0.1.5
-     */
-    function _gpfAssertImpl(condition, message) {
-        if (undefined === message) {
-            message = "Assertion with no message";
-            condition = false;
-        }
-        if (!condition) {
-            console.warn("ASSERTION FAILED: " + message);
-            gpf.Error.assertionFailed({ message: message });
-        }
-    }
-    /**
-     * Batch assertion helper
-     *
-     * @param {Object} assertions Dictionary of messages associated to condition values
-     * @throws {gpf.Error.AssertionFailed}
-     * @since 0.1.5
-     */
-    function _gpfAssertsImpl(assertions) {
-        for (var message in assertions) {
-            /* istanbul ignore else */
-            if (assertions.hasOwnProperty(message)) {
-                _gpfAssertImpl(assertions[message], message);
-            }
-        }
-    }
-    /**
-     * @gpf:sameas _gpfAssertImpl
-     * @since 0.1.5
-     */
-    gpf.assert = _gpfAssertImpl;
-    /**
-     * @gpf:sameas _gpfAssertsImpl
-     * @since 0.1.5
-     */
-    gpf.asserts = _gpfAssertsImpl;
-    // DEBUG specifics
-    _gpfAssert = _gpfAssertImpl;
-    _gpfAsserts = _gpfAssertsImpl;
-    /* istanbul ignore if */
-    // Because tested in DEBUG
-    if (!_gpfAssert) {
-    }
-    var
-        // https://github.com/jshint/jshint/issues/525
-        _GpfFunc = Function,
-        // avoid JSHint error
-        // Max value on 31 bits
-        _gpfMax31 = 2147483647,
-        // Max value on 32 bits
-        _gpfMax32 = 4294967295,
-        // Letters (lowercase)
-        _gpfAlpha = "abcdefghijklmnopqrstuvwxyz",
-        // Letters (uppercase)
-        _gpfALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-        // Digits
-        _gpfDigit = "0123456789",
-        // List of allowed first char in an identifier
-        _gpfIdentifierFirstChar = _gpfAlpha + _gpfALPHA + "_$",
-        // List of allowed other chars in an identifier
-        _gpfIdentifierOtherChars = _gpfAlpha + _gpfALPHA + _gpfDigit + "_$",
-        // TODO update with http://stackoverflow.com/questions/26255/reserved-keywords-in-javascript
-        // List of JavaScript keywords
-        _gpfJsKeywords = ("break,case,class,catch,const,continue,debugger,default,delete,do,else,export,extends,finally," + "for,function,if,import,in,instanceof,let,new,return,super,switch,this,throw,try,typeof,var,void,while,with," + "yield").split(",");
-    // Unsafe version of _gpfFunc
-    function _gpfFuncUnsafe(params, source) {
-        var args;
-        if (0 === params.length) {
-            return _GpfFunc(source);
-        }
-        args = [].concat(params);
-        args.push(source);
-        return _GpfFunc.apply(null, args);
-    }
-    /**
-     * Create a new function from the source and parameter list.
-     * In DEBUG mode, it catches any error to log the problem.
-     *
-     * @param {String[]} [params] params Parameter names list
-     * @param {String} source Body of the function
-     * @return {Function} New function
-     * @since 0.1.5
-     */
-    function _gpfFunc(params, source) {
-        if (undefined === source) {
-            source = params;
-            params = [];
-        }
-        _gpfAssert("string" === typeof source && source.length, "Source expected (or use _gpfEmptyFunc)");
-        try {
-            return _gpfFuncUnsafe(params, source);
-        } catch (e) {
-            /* istanbul ignore next */
-            // Not supposed to happen (not tested)
-            console.error("An exception occurred compiling:\r\n" + source);
-            /* istanbul ignore next */
-            return null;
-        }
-    }
-    // Returns true if the value is an unsigned byte
-    function _gpfIsUnsignedByte(value) {
-        return "number" === typeof value && 0 <= value && value < 256;
-    }
-    /* istanbul ignore else */
-    // Because tested with NodeJS
-    if (_GPF_HOST.NODEJS === _gpfHost) {
-        /**
-         * @namespace gpf.node
-         * @description Root namespace for NodeJS specifics
-         * @since 0.1.5
-         */
-        gpf.node = {};
-    }
-    /**
-     * @namespace gpf.web
-     * @description Root namespace for web-related tools (even if not in a browser)
-     * @since 0.1.5
-     */
-    gpf.web = {};
     var _gpfIsArrayLike = function (obj) {
         //eslint-disable-line func-style
         return Array.isArray(obj);
@@ -452,6 +325,154 @@
         }
         _gpfObjectForEach(container, callback, thisArg);
     };
+    var _gpfAssert, _gpfAsserts;
+    function _gpfAssertFailIfConditionFalsy(condition, message) {
+        if (!condition) {
+            console.warn("ASSERTION FAILED: " + message);
+            gpf.Error.assertionFailed({ message: message });
+        }
+    }
+    /**
+     * Assertion helper
+     *
+     * @param {Boolean} condition Truthy / [Falsy](https://developer.mozilla.org/en-US/docs/Glossary/Falsy) value
+     * @param {String} message Assertion message explaining the violation when the condition is false
+     * @throws {gpf.Error.AssertionFailed}
+     * @since 0.1.5
+     */
+    function _gpfAssertImpl(condition, message) {
+        if (undefined === message) {
+            message = "Assertion with no message";
+            condition = false;
+        }
+        _gpfAssertFailIfConditionFalsy(condition, message);
+    }
+    /**
+     * Batch assertion helper
+     *
+     * @param {Object} assertions Dictionary of messages associated to condition values
+     * @throws {gpf.Error.AssertionFailed}
+     * @since 0.1.5
+     */
+    function _gpfAssertsImpl(assertions) {
+        _gpfObjectForEach(assertions, _gpfAssertFailIfConditionFalsy);
+    }
+    /**
+     * @gpf:sameas _gpfAssertImpl
+     * @since 0.1.5
+     */
+    gpf.assert = _gpfAssertImpl;
+    /**
+     * @gpf:sameas _gpfAssertsImpl
+     * @since 0.1.5
+     */
+    gpf.asserts = _gpfAssertsImpl;
+    // DEBUG specifics
+    _gpfAssert = _gpfAssertImpl;
+    _gpfAsserts = _gpfAssertsImpl;
+    /* istanbul ignore if */
+    // Because tested in DEBUG
+    if (!_gpfAssert) {
+    }
+    var
+        // https://github.com/jshint/jshint/issues/525
+        _GpfFunc = Function,
+        // avoid JSHint error
+        // Max value on 31 bits
+        _gpfMax31 = 2147483647,
+        // Max value on 32 bits
+        _gpfMax32 = 4294967295,
+        // Letters (lowercase)
+        _gpfAlpha = "abcdefghijklmnopqrstuvwxyz",
+        // Letters (uppercase)
+        _gpfALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        // Digits
+        _gpfDigit = "0123456789",
+        // List of allowed first char in an identifier
+        _gpfIdentifierFirstChar = _gpfAlpha + _gpfALPHA + "_$",
+        // List of allowed other chars in an identifier
+        _gpfIdentifierOtherChars = _gpfAlpha + _gpfALPHA + _gpfDigit + "_$",
+        // TODO update with http://stackoverflow.com/questions/26255/reserved-keywords-in-javascript
+        // List of JavaScript keywords
+        _gpfJsKeywords = ("break,case,class,catch,const,continue,debugger,default,delete,do,else,export,extends,finally," + "for,function,if,import,in,instanceof,let,new,return,super,switch,this,throw,try,typeof,var,void,while,with," + "yield").split(",");
+    // Unprotected version of _gpfFunc
+    function _gpfFuncUnsafe(params, source) {
+        var args;
+        if (0 === params.length) {
+            return _GpfFunc(source);
+        }
+        args = [].concat(params);
+        args.push(source);
+        return _GpfFunc.apply(null, args);
+    }
+    // Protected version of _gpfFunc
+    function _gpfFuncImpl(params, source) {
+        _gpfAssert("string" === typeof source && source.length, "Source expected (or use _gpfEmptyFunc)");
+        try {
+            return _gpfFuncUnsafe(params, source);
+        } catch (e) {
+            /* istanbul ignore next */
+            // Not supposed to happen (not tested)
+            console.error("An exception occurred compiling:\r\n" + source);
+            /* istanbul ignore next */
+            return null;
+        }
+    }
+    /**
+     * Create a new function from the source and parameter list.
+     * In DEBUG mode, it catches any error to log the problem.
+     *
+     * @param {String[]} [params] params Parameter names list
+     * @param {String} source Body of the function
+     * @return {Function} New function
+     * @since 0.1.5
+     */
+    function _gpfFunc(params, source) {
+        if (undefined === source) {
+            source = params;
+            params = [];
+        }
+        return _gpfFuncImpl(params, source);
+    }
+    /**
+     * Check if the value is in the range defined by min and max
+     *
+     * @param {Number} value Value to check
+     * @param {Number} min Minimum value (inclusive)
+     * @param {Number} max Maximum value (inclusive)
+     * @return {Boolean} True if the value is in the range
+     * @since 0.1.6
+     */
+    function _gpfIsInRange(value, min, max) {
+        return min <= value && value <= max;
+    }
+    /**
+     * Check if the value is an unsigned byte
+     *
+     * @param {*} value
+     * @returns {Boolean} True if the value is an unsigned byte
+     * @since 0.1.6
+     */
+    // Returns true if the value is an unsigned byte
+    function _gpfIsUnsignedByte(value) {
+        return "number" === typeof value && _gpfIsInRange(value, 0, 255);
+    }
+    /* istanbul ignore else */
+    // Because tested with NodeJS
+    if (_GPF_HOST.NODEJS === _gpfHost) {
+        /**
+         * @namespace gpf.node
+         * @description Root namespace for NodeJS specifics
+         * @since 0.1.5
+         */
+        gpf.node = {};
+    }
+    /**
+     * @namespace gpf.web
+     * @description Root namespace for web-related tools (even if not in a browser)
+     * @since 0.1.5
+     */
+    gpf.web = {};
     function _gpfStringCapitalize(that) {
         return that.charAt(0).toUpperCase() + that.substr(1);
     }
@@ -463,6 +484,12 @@
         return result;
     }
     var _gpfStringEscapes = {};
+    function _gpfStringEscapePostProcessFor(that, language) {
+        if ("javascript" === language) {
+            return "\"" + that + "\"";
+        }
+        return that;
+    }
     /**
      *
      * Make the string content compatible with a given language
@@ -477,11 +504,7 @@
      */
     function _gpfStringEscapeFor(that, language) {
         _gpfAssert(undefined !== _gpfStringEscapes[language], "Unknown language");
-        that = _gpfStringReplaceEx(that, _gpfStringEscapes[language]);
-        if ("javascript" === language) {
-            that = "\"" + that + "\"";
-        }
-        return that;
+        return _gpfStringEscapePostProcessFor(_gpfStringReplaceEx(that, _gpfStringEscapes[language]), language);
     }
     _gpfStringEscapes.javascript = {
         "\\": "\\\\",
@@ -711,42 +734,12 @@
         methods: {
             // Introduced with JavaScript 1.8
             toISOString: function () {
-                return [
-                    this.getUTCFullYear(),
-                    "-",
-                    _pad(this.getUTCMonth() + 1),
-                    "-",
-                    _pad(this.getUTCDate()),
-                    "T",
-                    _pad(this.getUTCHours()),
-                    ":",
-                    _pad(this.getUTCMinutes()),
-                    ":",
-                    _pad(this.getUTCSeconds()),
-                    ".",
-                    (this.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5),
-                    "Z"
-                ].join("");
+                return this.getUTCFullYear() + "-" + _pad(this.getUTCMonth() + 1) + "-" + _pad(this.getUTCDate()) + "T" + _pad(this.getUTCHours()) + ":" + _pad(this.getUTCMinutes()) + ":" + _pad(this.getUTCSeconds()) + "." + (this.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5) + "Z";
             }
         }
     });
     //region Date override
-    var _gpfISO8601RegExp = new RegExp([
-        "^([0-9][0-9][0-9][0-9])",
-        "\\-",
-        "([0-9][0-9])",
-        "\\-",
-        "([0-9][0-9])",
-        "(?:T",
-        "([0-9][0-9])",
-        "\\:",
-        "([0-9][0-9])",
-        "\\:",
-        "([0-9][0-9])",
-        "(?:\\.",
-        "([0-9][0-9][0-9])",
-        "Z)?)?$"
-    ].join(""));
+    var _gpfISO8601RegExp = new RegExp("^([0-9][0-9][0-9][0-9])\\-([0-9][0-9])\\-([0-9][0-9])" + "(?:T([0-9][0-9])\\:([0-9][0-9])\\:([0-9][0-9])(?:\\.([0-9][0-9][0-9])Z)?)?$");
     function _gpfCheckDateArray(dateArray) {
         if (dateArray[1] < 12 && dateArray[2] < 32 && dateArray[3] < 24 && dateArray[4] < 60 && dateArray[5] < 60) {
             return dateArray;
@@ -842,13 +835,7 @@
     _gpfInstallCompatibleDate();    //endregion
     var _gpfArrayPrototypeSlice = Array.prototype.slice;
     function _generateBindBuilderSource(length) {
-        return [
-            "var me = this;",
-            "return function (" + _gpfBuildFunctionParameterList(length).join(", ") + ") {",
-            "   var args = _gpfArrayPrototypeSlice.call(arguments, 0);",
-            "    return me.apply(thisArg, prependArgs.concat(args));",
-            "};"
-        ].join("\n");
+        return "var me = this;\n" + "return function (" + _gpfBuildFunctionParameterList(length).join(", ") + ") {\n" + "   var args = _gpfArrayPrototypeSlice.call(arguments, 0);\n" + "    return me.apply(thisArg, prependArgs.concat(args));\n" + "};";
     }
     _gpfInstallCompatibility("Function", {
         on: Function,
@@ -1542,6 +1529,89 @@
          */
         invalidParameter: "Invalid parameter"
     });
+    function _gpfStringTrim(that) {
+        return that.trim();
+    }
+    function _gpfFunctionDescribeName(functionToDescribe, resultDescription) {
+        var name = functionToDescribe.compatibleName();
+        if (name) {
+            resultDescription.name = name;
+        }
+    }
+    function _gpfFunctionDescribeParameters(functionToDescribe, functionSource, resultDescription) {
+        if (functionToDescribe.length) {
+            resultDescription.parameters = new RegExp("\\(\\s*(\\w+(?:\\s*,\\s*\\w+)*)\\s*\\)").exec(functionSource)[1].split(",").map(_gpfStringTrim);
+        }
+    }
+    function _gpfFunctionDescribeBody(functionSource, resultDescription) {
+        var body = _gpfStringTrim(new RegExp("{((?:.*\\n)*.*)}").exec(functionSource)[1]);
+        if (body) {
+            resultDescription.body = body;
+        }
+    }
+    function _gpfFunctionDescribeSource(functionToDescribe, resultDescription) {
+        var source = _gpfEmptyFunc.toString.call(functionToDescribe).replace(_gpfJsCommentsRegExp, "");
+        _gpfFunctionDescribeParameters(functionToDescribe, source, resultDescription);
+        _gpfFunctionDescribeBody(source, resultDescription);
+    }
+    /**
+     * Extract function description
+     *
+     * @param {Function} functionToDescribe Function to describe
+     * @return {gpf.typedef.functionDescription} Function description
+     * @since 0.1.6
+     */
+    function _gpfFunctionDescribe(functionToDescribe) {
+        var result = {};
+        _gpfFunctionDescribeName(functionToDescribe, result);
+        _gpfFunctionDescribeSource(functionToDescribe, result);
+        return result;
+    }
+    function _gpfFunctionBuildSourceName(functionDescription) {
+        if (functionDescription.name) {
+            return " " + functionDescription.name;
+        }
+        return "";
+    }
+    function _gpfFunctionBuildSourceParameters(functionDescription) {
+        if (functionDescription.parameters) {
+            return functionDescription.parameters.join(", ");
+        }
+        return "";
+    }
+    function _gpfFunctionBuildSourceBody(functionDescription) {
+        if (functionDescription.body) {
+            return functionDescription.body.toString();
+        }
+        return "";
+    }
+    /**
+     * Build function source from description
+     *
+     * @param {gpf.typedef.functionDescription} functionDescription Function description
+     * @return {String} Function source
+     * @since 0.1.6
+     */
+    function _gpfFunctionBuildSource(functionDescription) {
+        return "function" + _gpfFunctionBuildSourceName(functionDescription) + "(" + _gpfFunctionBuildSourceParameters(functionDescription) + ") {\n\t\"use strict\"\n" + _gpfFunctionBuildSourceBody(functionDescription) + "\n}";
+    }
+    function _gpfFunctionBuildWithContext(functionSource, context) {
+        var parameterNames = Object.keys(context), parameterValues = parameterNames.map(function (name) {
+                return context[name];
+            });
+        return _gpfFunc(parameterNames, "return " + functionSource).apply(null, parameterValues);
+    }
+    /**
+     * Build function from description and context
+     *
+     * @param {gpf.typedef.functionDescription} functionDescription Function description
+     * @param {Object} [context] Function context
+     * @return {Function} Function
+     * @since 0.1.6
+     */
+    function _gpfFunctionBuild(functionDescription, context) {
+        return _gpfFunctionBuildWithContext(_gpfFunctionBuildSource(functionDescription), context || {});
+    }
     _gpfErrorDeclare("define/detect", {
         /**
          * ### Summary
@@ -1603,11 +1673,13 @@
      * @since 0.1.6
      */
     function _gpfDefineBuildTypedEntity(definition) {
-        var EntityBuilder = _gpfDefineRead$TypedProperties(definition);
+        var EntityBuilder = _gpfDefineRead$TypedProperties(definition), entityDefinition;
         if (!EntityBuilder) {
             EntityBuilder = _gpfDefineCheck$TypeProperty(definition);
         }
-        return new EntityBuilder(definition);
+        entityDefinition = new EntityBuilder(definition);
+        entityDefinition.check();
+        return entityDefinition;
     }
     function _GpfEntityDefinition(definition) {
         _gpfAssert(definition && "object" === typeof definition, "Expected an entity definition");
@@ -1617,6 +1689,7 @@
         this._initialDefinition = definition;    /*eslint-enable no-invalid-this*/
     }
     _GpfEntityDefinition.prototype = {
+        constructor: _GpfEntityDefinition,
         /**
          * Entity initial definition passed to {@link gpf.define}
          *
@@ -1675,6 +1748,18 @@
             gpf.Error.missingEntityName();
         }    /*eslint-enable no-invalid-this*/
     }
+    function _gpfDefineEntityCheckProperty(value, name) {
+        _gpfIgnore(value);
+        /*jshint -W040*/
+        /*eslint-disable no-invalid-this*/
+        // bound through thisArg
+        if (name.charAt(0) === "$") {
+            this._check$Property(name);
+        } else {
+            this._checkProperty(name);
+        }    /*jshint -W040*/
+             /*eslint-enable no-invalid-this*/
+    }
     _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.prototype */
     {
         /**
@@ -1718,16 +1803,7 @@
          * @since 0.1.6
          */
         _checkProperties: function () {
-            _gpfObjectForEach(this._initialDefinition, function (value, name) {
-                _gpfIgnore(value);
-                /*eslint-disable no-invalid-this*/
-                // bound through thisArg
-                if (name.charAt(0) === "$") {
-                    this._check$Property(name);
-                } else {
-                    this._checkProperty(name);
-                }    /*eslint-enable no-invalid-this*/
-            }, this);
+            _gpfObjectForEach(this._initialDefinition, _gpfDefineEntityCheckProperty, this);
         },
         /**
          * Entity name
@@ -1768,10 +1844,10 @@
          * @since 0.1.6
          */
         _extractRelativeNamespaceFromName: function () {
-            var name = this._name, lastDotPosition = name.lastIndexOf(".");
-            if (-1 < lastDotPosition) {
-                this._name = name.substr(lastDotPosition + 1);
-                return name.substr(0, lastDotPosition);
+            var parts = new RegExp("(.*)\\.([^\\.]+)$").exec(this._name);
+            if (parts) {
+                this._name = parts[2];
+                return parts[1];
             }
         },
         /**
@@ -1796,8 +1872,7 @@
          * @since 0.1.6
          */
         _checkNamespace: function () {
-            var namespace = this._namespace;
-            if (namespace && ![object Object].exec(namespace)) {
+            if (!new RegExp("^(:?[a-z_$][a-zA-Z0-9]+(:?\\.[a-z_$][a-zA-Z0-9]+)*)?$").exec(this._namespace)) {
                 gpf.Error.invalidEntityNamespace();
             }
         },
@@ -1810,6 +1885,46 @@
             this._checkNamespace();
         }
     });
+    _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.prototype */
+    {
+        /**
+         * Instance builder function (a.k.a. public constructor)
+         *
+         * @type {Function}
+         * @since 0.1.6
+         */
+        _instanceBuilder: null,
+        /**
+         * @gpf:read _instanceBuilder
+         * @since 0.1.6
+         */
+        getInstanceBuilder: function () {
+            /* istanbul ignore else */
+            // No use case to call getInstanceBuilder twice
+            if (!this._instanceBuilder) {
+                this._setInstanceBuilder(this._build());
+            }
+            return this._instanceBuilder;
+        },
+        /**
+         * @gpf:write _instanceBuilder
+         * @since 0.1.6
+         */
+        _setInstanceBuilder: function (value) {
+            if (this._namespace) {
+                _gpfContext(this._namespace.split("."), true)[this._name] = value;
+            }
+            this._instanceBuilder = value;
+        },
+        /**
+         * Process initial definition and generate instance builder function
+         *
+         * @return {Function} Instance builder function
+         * @protected
+         * @since 0.1.6
+         */
+        _build: _gpfEmptyFunc
+    });
     function _GpfClassDefinition(definition) {
         /*jshint validthis:true*/
         // constructor
@@ -1819,6 +1934,7 @@
     _GpfClassDefinition.prototype = Object.create(_GpfEntityDefinition.prototype);
     _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */
     {
+        constructor: _GpfClassDefinition,
         /**
          * @inheritdoc
          * @since 0.1.6
@@ -1841,15 +1957,39 @@
         /**
          * ### Summary
          *
-         * The class definition contains an property
+         * The class definition contains an invalid property
          *
          * ### Description
          *
          * Some keywords are reserved
          * @since 0.1.6
          */
-        invalidClassProperty: "Invalid class property"
+        invalidClassProperty: "Invalid class property",
+        /**
+         * ### Summary
+         *
+         * The class definition contains an invalid $extend
+         *
+         * ### Description
+         *
+         * $extend can be either a class or a string that must resolve to a class using {@see gpf.context}
+         * @since 0.1.6
+         */
+        invalidClassExtend: "Invalid class extend"
     });
+    /**
+     * If extend is a string, apply _gpfContext on it
+     *
+     * @param {*} extend Extend value
+     * @return {*} The initial value or the context one
+     * @since 0.1.6
+     */
+    function _gpfDefineClassDecontextifyExtend(extend) {
+        if ("string" === typeof extend) {
+            return _gpfContext(extend.split("."));
+        }
+        return extend;
+    }
     _gpfExtend(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototype */
     {
         /**
@@ -1865,7 +2005,7 @@
          * @since 0.1.6
          */
         _checkMemberName: function (name) {
-            if (![object Object].exec(name)) {
+            if (!new RegExp("^[a-z_][a-zA-Z0-9]*$").exec(name)) {
                 gpf.Error.invalidClassProperty();
             }
         },
@@ -1907,9 +2047,158 @@
          */
         _checkName: function () {
             _GpfEntityDefinition.prototype._checkName.call(this);
-            if (![object Object].exec(this._name)) {
+            if (!new RegExp("^[A-Z_$][a-zA-Z0-9]*$").exec(this._name)) {
                 gpf.Error.invalidClassName();
+            }
+        },
+        /**
+         * Base class
+         *
+         * @type {Function}
+         * @since 0.1.6
+         */
+        _extend: Object,
+        /**
+         * Read extend property
+         * @since 0.1.6
+         */
+        _readExtend: function () {
+            var extend = _gpfDefineClassDecontextifyExtend(this._initialDefinition.$extend);
+            if (extend) {
+                this._extend = extend;
+            }
+        },
+        /**
+         * Check extend property
+         *
+         * @throws {gpf.Error.InvalidClassExtend}
+         * @since 0.1.6
+         */
+        _checkExtend: function () {
+            if ("function" !== typeof this._extend) {
+                gpf.Error.invalidClassExtend();
+            }
+        },
+        /**
+         * @inheritdoc
+         * @since 0.1.6
+         */
+        check: function () {
+            _GpfEntityDefinition.prototype.check.call(this);
+            this._readExtend();
+            this._checkExtend();
+        }
+    });
+    _gpfErrorDeclare("define/class/constructor", { "classConstructorFunction": "This is a class constructor function, use with new" });
+    _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */
+    {
+        /**
+         * Resolved constructor
+         *
+         * @type {Function}
+         * @since 0.1.6
+         */
+        _resolvedConstructor: _gpfEmptyFunc
+    });
+    /**
+     * Allocate a secured named constructor
+     *
+     * @param {_GpfClassDefinition} classDefinition Entity definition
+     * @return {Function} Secured named constructor
+     * @gpf:closure
+     * @since 0.1.6
+     */
+    function _gpfDefineGetClassSecuredConstructor(classDefinition) {
+        return _gpfFunctionBuild({
+            name: classDefinition._name,
+            body: "if (!(this instanceof a._instanceBuilder)) $.Error.classConstructorFunction();\n" + "a._resolvedConstructor.apply(this, arguments);"
+        }, {
+            $: gpf,
+            a: classDefinition
+        });
+    }
+    function _gpfClassMethodCreateSuperified(method, superMethod) {
+        // Keep signature
+        var description = _gpfFunctionDescribe(method);
+        description.body = "this.$super=s;" + "var r=m.apply(this,arguments);" + "delete this.$super;\n" + "return r;";
+        return _gpfFunctionBuild(description, {
+            m: method,
+            s: superMethod
+        });
+    }
+    function _gpfClassMethodSuperifyIfNeeded(method, superMethod) {
+        if (new RegExp("\\.\\$super\\b").exec(method)) {
+            return _gpfClassMethodCreateSuperified(method, superMethod);
+        }
+        return method;
+    }
+    /**
+     * Create a method that can use this.$super
+     *
+     * @param {Function} method method to superify
+     * @param {Function} superMethod method to be called when this.$super is called
+     * @return {Function} Superified method
+     * @since 0.1.6
+     */
+    function _gpfClassMethodSuperify(method, superMethod) {
+        if (!superMethod) {
+            superMethod = _gpfEmptyFunc;
+        }
+        return _gpfClassMethodSuperifyIfNeeded(method, superMethod);
+    }
+    _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */
+    {
+        /**
+         * @inheritdoc
+         * @since 0.1.6
+         */
+        _build: function () {
+            var newClass = _gpfDefineGetClassSecuredConstructor(this),
+                // Basic JavaScript inheritance mechanism: Defines the newClass prototype as an instance of the super class
+                newPrototype = Object.create(this._extend.prototype);
+            // Populate our constructed prototype object
+            newClass.prototype = newPrototype;
+            // Enforce the constructor to be what we expect
+            newPrototype.constructor = newClass;
+            this._buildPrototype(newPrototype);
+            this._resolveConstructor();
+            return newClass;
+        },
+        _addMethodToPrototype: function (newPrototype, methodName, method) {
+            newPrototype[methodName] = _gpfClassMethodSuperify(method, this._extend.prototype[methodName]);
+        },
+        _addMemberToPrototype: function (newPrototype, memberName, value) {
+            if ("function" === typeof value) {
+                this._addMethodToPrototype(newPrototype, memberName, value);
+            } else {
+                newPrototype[memberName] = value;
+            }
+        },
+        _buildPrototype: function (newPrototype) {
+            _gpfObjectForEach(this._initialDefinition, function (value, memberName) {
+                if (memberName.charAt(0) !== "$" && memberName !== "constructor") {
+                    this._addMemberToPrototype(newPrototype, memberName, value);    //eslint-disable-line no-invalid-this
+                }
+            }, this);
+        },
+        _resolveConstructor: function () {
+            if (this._initialDefinition.hasOwnProperty("constructor")) {
+                /* jshint -W069*/
+                /*eslint-disable dot-notation*/
+                this._resolvedConstructor = _gpfClassMethodSuperify(this._initialDefinition["constructor"], this._extend);    /* jshint +W069*/
+                                                                                                                              /*eslint-enable dot-notation*/
+            } else {
+                this._resolvedConstructor = this._extend;
             }
         }
     });
+    function _gpfDefine(definition) {
+        var entityDefinition = _gpfDefineBuildTypedEntity(definition);
+        return entityDefinition.getInstanceBuilder();
+    }
+    /**
+     * @gpf:sameas _gpfDefine
+     * @since 0.1.6
+     */
+    gpf.define = _gpfDefine;
 }));
