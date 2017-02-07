@@ -14,7 +14,6 @@
 /*global _gpfArrayEnumerator*/ // Create an IEnumerator from an array
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
-/*global _gpfExtend*/ // gpf.extend
 /*global _gpfHost*/ // Host type
 /*global _gpfI*/ // gpf.interfaces
 /*global _gpfMsFSO:true*/ // Scripting.FileSystemObject activeX
@@ -222,7 +221,7 @@ var
             _gpfTextBytes[idx] = idx;
         }
         // Then add specifics
-        _gpfExtend(_gpfTextBytes, {
+        Object.assign(_gpfTextBytes, {
             "8364": 128,
             "8218": 130,
             "402": 131,
