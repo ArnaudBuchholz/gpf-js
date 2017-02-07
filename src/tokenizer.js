@@ -6,7 +6,6 @@
 /*global _gpfAlpha*/ // Letters (lowercase)
 /*global _gpfALPHA*/ // Letters (uppercase)
 /*global _gpfAssert*/ // Assertion method
-/*global _gpfExtend*/ // gpf.extend
 /*#endif*/
 
 /*
@@ -508,7 +507,7 @@ var
 
 gpf.js = {};
 
-_gpfExtend(gpf.js, {
+Object.assign(gpf.js, {
 
     /**
      * Returns the list of known keyword
