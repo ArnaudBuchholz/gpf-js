@@ -9,7 +9,6 @@
 /*global _gpfContext*/ // Resolve contextual string
 /*global _gpfDefineGenerate$Keys*/ // Generate an array of names prefixed with $ from a comma separated list
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfExtend*/ // gpf.extend
 /*#endif*/
 
 _gpfErrorDeclare("define/class/check", {
@@ -65,7 +64,7 @@ function _gpfDefineClassDecontextifyExtend (extend) {
     return extend;
 }
 
-_gpfExtend(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototype */ {
+Object.assign(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototype */ {
 
     /**
      * @inheritdoc
