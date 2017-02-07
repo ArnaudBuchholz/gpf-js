@@ -4,11 +4,10 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfExit*/ // Exit function
-/*global _gpfExtend*/ // gpf.extend
 /*exported _gpfNodeBuffer2JsArray*/ // Converts a NodeJS buffer into an int array
 /*#endif*/
 
-_gpfExtend(gpf, {
+Object.assign(gpf, {
 
     /**
      * Shallow copy an object
