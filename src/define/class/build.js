@@ -7,11 +7,10 @@
 /*global _GpfClassDefinition*/ // Class definition
 /*global _gpfClassMethodSuperify*/ // Create a method that can use this.$super
 /*global _gpfDefineGetClassSecuredConstructor*/ // Allocate a secured named constructor
-/*global _gpfExtend*/ // gpf.extend
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*#endif*/
 
-_gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */ {
+Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */ {
 
     /**
      * @inheritdoc
