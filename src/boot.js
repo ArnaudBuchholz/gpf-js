@@ -18,6 +18,7 @@
 /*exported _gpfWebDocument*/ // Browser document object
 /*exported _gpfWebHead*/ // Browser head tag
 /*exported _gpfWebWindow*/ // Browser window object
+/*exported _gpfSyncReadSourceJSON*/ // Reads a source json file (only in source mode)
 /*eslint-disable no-unused-vars*/
 /*#endif*/
 
@@ -32,7 +33,7 @@ var
      * GPF Version
      * @since 0.1.5
      */
-    _gpfVersion = "0.1.6",
+    _gpfVersion = "0.1.7-alpha",
 
     /**
      * Host constants
@@ -274,10 +275,23 @@ function _gpfGetSourcesPath () {
     return result;
 }
 
+var _gpfSourcesPath = _gpfGetSourcesPath();
+
+/**
+ * Reads a source file (only in source mode)
+ *
+ * NOTE this method is available only when running the source version
+ *
+ * @param {String} sourceFileName Source file name (relative to src folder)
+ * @return {String} Source content
+ */
+function _gpfSyncReadSourceJSON (sourceFileName) {
+    return JSON.parse(_gpfSyncReadForBoot(_gpfSourcesPath + sourceFileName));
+}
+
 function _gpfLoadSources () { //jshint ignore:line
     /*jslint evil: true*/
-    var sourcePath = _gpfGetSourcesPath(),
-        sourceListContent = _gpfSyncReadForBoot(sourcePath + "sources.json"),
+    var sourceListContent = _gpfSyncReadForBoot(_gpfSourcesPath + "sources.json"),
         _gpfSources,
         allContent = [],
         idx = 0,
@@ -286,7 +300,7 @@ function _gpfLoadSources () { //jshint ignore:line
     for (; idx < _gpfSources.length; ++idx) {
         source = _gpfSources[idx];
         if (source.load !== false) {
-            allContent.push(_gpfSyncReadForBoot(sourcePath + source.name + ".js"));
+            allContent.push(_gpfSyncReadForBoot(_gpfSourcesPath + source.name + ".js"));
         }
     }
     return allContent.join("\r\n");
