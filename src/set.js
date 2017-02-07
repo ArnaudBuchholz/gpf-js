@@ -4,7 +4,6 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfAssert*/ // Assertion method
-/*global _gpfExtend*/ // gpf.extend
 /*#endif*/
 
 //region test
@@ -63,7 +62,7 @@ function _gpfSetClear (set, value) {
 
 //endregion
 
-_gpfExtend(gpf, {
+Object.assign(gpf, {
 
     /*
      * Find the first member of dictionary which value equals to value.
