@@ -4,7 +4,6 @@
 /*#ifndef(UMD)*/
 (function () {/* Begin of privacy scope */
     "use strict";
-/*global _gpfExtend*/ // gpf.extend
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
@@ -12,7 +11,7 @@
         // gpfA = gpf.attributes,
         gpfI = gpf.interfaces;
 
-    _gpfExtend(gpf.xml, {
+    Object.assign(gpf.xml, {
         NODE_INVALID:                   0,
         NODE_ELEMENT:                   1,
         NODE_ATTRIBUTE:                 2,
