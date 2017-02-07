@@ -8,7 +8,6 @@
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfExtend*/ // gpf.extend
 /*#endif*/
 
     _gpfErrorDeclare("html", {
@@ -949,7 +948,7 @@
 
     //region Common HTML helpers
 
-    _gpfExtend(gpf.html, {
+    Object.assign(gpf.html, {
 
         /**
          * Check if the DOM object has the requested class name(s)
