@@ -8,7 +8,6 @@
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfExtend*/ // gpf.extend
 /*global _gpfI*/ // gpf.interfaces
 /*exported _gpfIsValidXmlName*/
 /*#endif*/
@@ -344,7 +343,7 @@ var
         return true;
     };
 
-_gpfExtend(gpf.xml, {
+Object.assign(gpf.xml, {
 
     /**
      * Check that the provided name can be use as an element or attribute
