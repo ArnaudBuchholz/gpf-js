@@ -4,16 +4,32 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfInstallCompatibility*/ // Define and install compatible methods
+/*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*#endif*/
 
 /*eslint-disable no-proto*/ // Used for compatibility reasons
 /*jshint -W103*/
 
+function _gpfObjectAssign (value, memberName) {
+    /*jshint validthis:true*/
+    this[memberName] = value; //eslint-disable-line no-invalid-this
+}
+
 _gpfInstallCompatibility("Object", {
     on: Object,
 
     statics: {
+
+        // Introduced with ECMAScript 2015
+        assign: function (destination, source) {
+            _gpfIgnore(source);
+            [].slice.call(arguments, 1).forEach(function (nthSource) {
+                _gpfObjectForEach(nthSource, _gpfObjectAssign, destination);
+            });
+            return destination;
+        },
 
         // Introduced with JavaScript 1.8.5
         create: (function () {
