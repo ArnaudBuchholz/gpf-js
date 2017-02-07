@@ -9,7 +9,6 @@
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
-/*global _gpfExtend*/ // gpf.extend
 /*global _gpfI*/ // gpf.interfaces
 /*global _gpfStreamPipe*/ // gpf.stream.pipe
 /*global _gpfStringCapitalize*/ // Capitalize the string
@@ -157,7 +156,7 @@ var
         }
     });
 
-_gpfExtend(gpf, {
+Object.assign(gpf, {
 
     /** sameas _gpfStringCapitalize */
     capitalize: _gpfStringCapitalize,
