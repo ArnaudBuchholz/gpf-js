@@ -9,7 +9,6 @@
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
-/*global _gpfExtend*/ // gpf.extend
 /*global _gpfI*/ // gpf.interfaces
 /*global _gpfStreamPipe*/ // gpf.stream.pipe
 /*exported _gpfArrayStream*/ // IReadableStream & IWritableStream for array
@@ -83,7 +82,7 @@ var
         }
     });
 
-_gpfExtend(gpf, {
+Object.assign(gpf, {
 
     /**
      * Converts the string into a stream
