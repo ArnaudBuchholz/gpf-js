@@ -13,7 +13,7 @@
 /*#endif*/
 
 /**
- * @typedef {Object} gpf.typedef.functionDescription
+ * @typedef {Object} gpf.typedef._functionDescription
  * @property {String} [name] Function name
  * @property {String[]} [parameters] Function parameters
  * @property {String} [body] Function body
@@ -52,7 +52,7 @@ function _gpfFunctionDescribeSource (functionToDescribe, resultDescription) {
  * Extract function description
  *
  * @param {Function} functionToDescribe Function to describe
- * @return {gpf.typedef.functionDescription} Function description
+ * @return {gpf.typedef._functionDescription} Function description
  * @since 0.1.6
  */
 function _gpfFunctionDescribe (functionToDescribe) {
@@ -86,7 +86,7 @@ function _gpfFunctionBuildSourceBody (functionDescription) {
 /**
  * Build function source from description
  *
- * @param {gpf.typedef.functionDescription} functionDescription Function description
+ * @param {gpf.typedef._functionDescription} functionDescription Function description
  * @return {String} Function source
  * @since 0.1.6
  */
@@ -111,7 +111,7 @@ function _gpfFunctionBuildWithContext (functionSource, context) {
 /**
  * Build function from description and context
  *
- * @param {gpf.typedef.functionDescription} functionDescription Function description
+ * @param {gpf.typedef._functionDescription} functionDescription Function description
  * @param {Object} [context] Function context
  * @return {Function} Function
  * @since 0.1.6
