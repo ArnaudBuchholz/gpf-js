@@ -302,6 +302,52 @@ describe("compatibility", function () {
             },
 
             Object: {
+                assign: {
+                    isStatic: true,
+                    length: 2,
+                    "extends objects members": function (method) {
+                        var destination = {
+                                "member1": "member1",
+                                "member2": 2
+                            },
+                            source = {
+                                "newMember": true
+                            },
+                            result = method.call(Object, destination, source);
+                        assert(result === destination); // Same object reference is returned
+                        assert(result.member1 === "member1"); // Existing members are preserved
+                        assert(result.member2 === 2); // Existing members are preserved
+                        assert(result.newMember === true); // New member added
+                        assert(source.newMember === true); // Source is not altered
+                    },
+                    "overwrites existing members": function (method) {
+                        var destination = {
+                                "member1": "member1"
+                            },
+                            source = {
+                                "member1": false
+                            },
+                            result = method.call(Object, destination, source);
+                        assert(result.member1 === false); // Overwritten
+                    },
+                    "supports more than one source parameter": function (method) {
+                        var destination = {
+                                "member1": "member1",
+                                "member2": 2
+                            },
+                            result = method.call(Object, destination, {
+                                "source1": 1,
+                                "member1": "member1.1"
+                            }, {
+                                "source2": 2,
+                                "member1": "member1.2"
+                            });
+                        assert(result.member1 === "member1.2"); // Last one wins
+                        assert(result.member2 === 2); // Existing members are preserved
+                        assert(result.source1 === 1); // Processed first source
+                        assert(result.source2 === 2); // Processed second source
+                    }
+                },
                 create: {
                     isStatic: true,
                     length: -1, // ignore
