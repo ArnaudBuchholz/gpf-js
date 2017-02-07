@@ -4,7 +4,6 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfAssert*/ // Assertion method
-/*global _gpfExtend*/ // gpf.extend
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*#endif*/
 
@@ -295,7 +294,7 @@ _GpfPathMatcher.prototype = {
 
 };
 
-_gpfExtend(gpf.path, {
+Object.assign(gpf.path, {
 
     /**
      * Matches the provided path
