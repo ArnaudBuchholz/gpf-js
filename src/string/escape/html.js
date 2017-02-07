@@ -4,14 +4,8 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfExtend*/ // gpf.extend
 /*global _gpfStringEscapes*/ // Dictionary of language to escapes
+/*global _gpfSyncReadSourceJSON*/ // Reads a source json file (only in source mode)
 /*#endif*/
 
-_gpfStringEscapes.html = _gpfExtend(_gpfStringEscapes.xml, {
-    "\u00E0": "&agrave;",
-    "\u00E1": "&aacute;",
-    "\u00E8": "&egrave;",
-    "\u00E9": "&eacute;",
-    "\u00EA": "&ecirc;"
-});
+_gpfStringEscapes.html = Object.assign({}, _gpfStringEscapes.xml, _gpfSyncReadSourceJSON("string/escape/html.json"));
