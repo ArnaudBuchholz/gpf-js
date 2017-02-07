@@ -6,7 +6,6 @@
 "use strict";
 /*global _GpfEntityDefinition*/ // Entity definition
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfExtend*/ // gpf.extend
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
@@ -86,7 +85,7 @@ function _gpfDefineEntityCheckProperty (value, name) {
     /*jshint -W040*/ /*eslint-enable no-invalid-this*/
 }
 
-_gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.prototype */ {
+Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.prototype */ {
 
     /**
      * Entity type (class...)
