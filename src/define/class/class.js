@@ -6,7 +6,6 @@
 "use strict";
 /*global _GpfEntityDefinition*/ // Entity definition
 /*global _gpfDefineTypedBuilders*/ // Dictionary mapping type (class...) to the corresponding typed Entity constructor
-/*global _gpfExtend*/ // gpf.extend
 /*exported _GpfClassDefinition*/ // Class definition
 /*#endif*/
 
@@ -27,7 +26,7 @@ function _GpfClassDefinition (definition) {
 
 _GpfClassDefinition.prototype = Object.create(_GpfEntityDefinition.prototype);
 
-_gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */ {
+Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */ {
 
     constructor: _GpfClassDefinition,
 
