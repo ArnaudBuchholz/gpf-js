@@ -4,7 +4,6 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfExtend*/ // gpf.extend
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*global _gpfStringCapitalize*/ // Capitalize the string
@@ -22,7 +21,7 @@
 var _GpfError = gpf.Error = function () {};
 
 _GpfError.prototype = new Error();
-_gpfExtend(_GpfError.prototype, /** @lends gpf.Error.prototype */ {
+Object.assign(_GpfError.prototype, /** @lends gpf.Error.prototype */ {
 
     constructor: _GpfError,
 
@@ -74,7 +73,7 @@ function _gpfErrorFactory (code, name, message) {
         this._buildMessage(context);
     }
     NewErrorClass.prototype = new _GpfError();
-    _gpfExtend(NewErrorClass.prototype, {
+    Object.assign(NewErrorClass.prototype, {
         code: code,
         name: name,
         message: message
