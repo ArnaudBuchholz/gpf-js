@@ -46,7 +46,20 @@ _gpfErrorDeclare("define/class/check", {
      * $extend can be either a class or a string that must resolve to a class using {@see gpf.context}
      * @since 0.1.6
      */
-    invalidClassExtend: "Invalid class extend"
+    invalidClassExtend: "Invalid class extend",
+
+    /**
+     * ### Summary
+     *
+     * The class constructor must be a method
+     *
+     * ### Description
+     *
+     * The constructor member is a special one, see {@tutorial DEFINE}
+     *
+     * @see {@tutorial DEFINE}
+     */
+    invalidClassConstructor: "Invalid class constructor"
 
 });
 
@@ -110,14 +123,29 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prot
     },
 
     /**
+     * Check the value of the member:
+     * - If the member name is "constructor", it must be a function
+     *
+     * @param {String} name Property name
+     * @param {*} value Property value
+     * @private
+     */
+    _checkMemberValue: function (name, value) {
+        if ("constructor" === name && "function" !== typeof value) {
+            gpf.Error.invalidClassConstructor();
+        }
+    },
+
+    /**
      * @inheritdoc
      * @throws {gpf.Error.InvalidClassProperty}
      * @since 0.1.6
      */
-    _checkProperty: function (name) {
+    _checkProperty: function (name, value) {
         _GpfEntityDefinition.prototype._checkProperty.call(this, name);
         this._checkMemberName(name);
         this._checkReservedMemberName(name);
+        this._checkMemberValue(name, value);
     },
 
     /**
