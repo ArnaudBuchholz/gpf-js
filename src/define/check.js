@@ -78,9 +78,9 @@ function _gpfDefineEntityCheckProperty (value, name) {
     _gpfIgnore(value);
     /*jshint -W040*/ /*eslint-disable no-invalid-this*/ // bound through thisArg
     if (name.charAt(0) === "$") {
-        this._check$Property(name);
+        this._check$Property(name, value);
     } else {
-        this._checkProperty(name);
+        this._checkProperty(name, value);
     }
     /*jshint -W040*/ /*eslint-enable no-invalid-this*/
 }
@@ -108,11 +108,13 @@ Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.pr
      * Check if the $ property is allowed
      *
      * @param {String} name $ Property name
+     * @param {*} value $ Property value
      * @see _GpfEntityDefinition.prototype._allowed$Properties
      * @throws {gpf.Error.InvalidEntity$Property}
      * @since 0.1.6
      */
-    _check$Property: function (name) {
+    _check$Property: function (name, value) {
+        _gpfIgnore(value);
         if (-1 === this._allowed$Properties.indexOf(name)) {
             gpf.Error.invalidEntity$Property();
         }
@@ -123,9 +125,10 @@ Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.pr
      * NOTE: $ properties are handled by {@link _check$Property}
      *
      * @param {String} name Property name
+     * @param {*} value Property value
      * @since 0.1.6
      */
-    _checkProperty: _gpfFunc(["name"], " "),
+    _checkProperty: _gpfFunc(["name", "value"], " "),
 
     /**
      * Check the properties contained in the definition passed to {@link gpf.define}
