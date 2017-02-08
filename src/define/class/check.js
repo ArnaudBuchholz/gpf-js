@@ -60,7 +60,21 @@ _gpfErrorDeclare("define/class/check", {
      * @see {@tutorial DEFINE}
      * @since 0.1.7
      */
-    invalidClassConstructor: "Invalid class constructor"
+    invalidClassConstructor: "Invalid class constructor",
+
+    /**
+     * ### Summary
+     *
+     * A member override is changing the type
+     *
+     * ### Description
+     *
+     * The constructor member is a special one, see {@tutorial DEFINE}
+     *
+     * @see {@tutorial DEFINE}
+     * @since 0.1.7
+     */
+    invalidClassOverride: "Invalid class override"
 
 });
 
@@ -124,6 +138,48 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prot
     },
 
     /**
+     * Check that the constructor is a method
+     *
+     * @param {*} constructorValue Value read from definition dictionary
+     * @throws {gpf.Error.InvalidClassConstructor}
+     * @since 0.1.7
+     */
+    _checkConstructorMember: function (constructorValue) {
+        if ("function" !== typeof constructorValue) {
+            gpf.Error.invalidClassConstructor();
+        }
+    },
+
+    /**
+     * Check if the value correspond to the overridden value
+     *
+     * @param {*} value Member value
+     * @param {*} overriddenValue Overridden member value
+     * @throws {gpf.Error.InvalidClassOverride}
+     * @since 0.1.7
+     */
+    _checkOverridenMember: function (value, overriddenValue) {
+        if (typeof value !== typeof overriddenValue) {
+            gpf.Error.invalidClassOverride();
+        }
+    },
+
+    /**
+     * Check if the member overrides an inherited one
+     *
+     * @param {String} name Member name
+     * @param {*} value Member value
+     * @throws {gpf.Error.InvalidClassOverride}
+     * @since 0.1.7
+     */
+    _checkIfOverriddenMember: function (name, value) {
+        var overriddenMember = this._extend.prototype[name];
+        if (undefined !== overriddenMember) {
+            this._checkOverridenMember(value, overriddenMember);
+        }
+    },
+
+    /**
      * Check the value of the member:
      * - If the member name is "constructor", it must be a function
      *
@@ -133,8 +189,10 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prot
      * @since 0.1.7
      */
     _checkMemberValue: function (name, value) {
-        if ("constructor" === name && "function" !== typeof value) {
-            gpf.Error.invalidClassConstructor();
+        if ("constructor" === name) {
+            this._checkConstructorMember(value);
+        } else {
+            this._checkIfOverriddenMember(name, value);
         }
     },
 
@@ -198,9 +256,9 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prot
      * @since 0.1.6
      */
     check: function () {
-        _GpfEntityDefinition.prototype.check.call(this);
         this._readExtend();
         this._checkExtend();
+        _GpfEntityDefinition.prototype.check.call(this);
     }
 
 });
