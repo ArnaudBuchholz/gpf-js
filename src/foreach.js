@@ -4,6 +4,8 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_HOST*/ // Host types
+/*global _gpfHost*/ // Host type
 /*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
 /*exported _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*exported _gpfObjectForEach*/ // Similar to [].forEach but for objects
@@ -36,6 +38,23 @@ function _gpfArrayForEach (array, callback, thisArg) {
     }
 }
 
+function _gpfObjectForEachOwnProperty (object, callback, thisArg) {
+    for (var property in object) {
+        /* istanbul ignore else */
+        if (object.hasOwnProperty(property)) {
+            callback.call(thisArg, object[property], property, object);
+        }
+    }
+}
+
+/* istanbul ignore next */ // Microsoft cscript / wscript specific version
+function _gpfObjectForEachOwnPropertyWScript (object, callback, thisArg) {
+    _gpfObjectForEachOwnProperty(object, callback, thisArg);
+    if (object.hasOwnProperty("constructor")) {
+        callback.call(thisArg, object.constructor, "constructor", object);
+    }
+}
+
 /**
  * Similar to [].forEach but for objects
  *
@@ -44,13 +63,12 @@ function _gpfArrayForEach (array, callback, thisArg) {
  * @param {*} [thisArg] thisArg Value to use as this when executing callback
  * @since 0.1.5
  */
-function _gpfObjectForEach (object, callback, thisArg) {
-    for (var property in object) {
-        /* istanbul ignore else */
-        if (object.hasOwnProperty(property)) {
-            callback.call(thisArg, object[property], property, object);
-        }
-    }
+var _gpfObjectForEach;
+/* istanbul ignore if */ // Microsoft cscript / wscript specific version
+if (_GPF_HOST.WSCRIPT === _gpfHost) {
+    _gpfObjectForEach = _gpfObjectForEachOwnPropertyWScript;
+} else {
+    _gpfObjectForEach = _gpfObjectForEachOwnProperty;
 }
 
 /**
