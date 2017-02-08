@@ -14,11 +14,11 @@
 /*exported _gpfMsFSO*/ // Scripting.FileSystemObject activeX
 /*exported _gpfNodeFs*/ // Node require("fs")
 /*exported _gpfNodePath*/ // Node require("path")
+/*exported _gpfSyncReadSourceJSON*/ // Reads a source json file (only in source mode)
 /*exported _gpfVersion*/ // GPF version
 /*exported _gpfWebDocument*/ // Browser document object
 /*exported _gpfWebHead*/ // Browser head tag
 /*exported _gpfWebWindow*/ // Browser window object
-/*exported _gpfSyncReadSourceJSON*/ // Reads a source json file (only in source mode)
 /*eslint-disable no-unused-vars*/
 /*#endif*/
 
@@ -171,7 +171,7 @@ if ("undefined" !== typeof WScript) {
     _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
 
     _gpfSyncReadForBoot = function (srcFileName) {
-        var srcFile = _gpfMsFSO.OpenTextFile(srcFileName),
+        var srcFile = _gpfMsFSO.OpenTextFile(srcFileName, 1),
             srcContent = srcFile.ReadAll();
         srcFile.Close();
         return srcContent;
@@ -284,9 +284,13 @@ var _gpfSourcesPath = _gpfGetSourcesPath();
  *
  * @param {String} sourceFileName Source file name (relative to src folder)
  * @return {String} Source content
+ * @since 0.1.7
  */
 function _gpfSyncReadSourceJSON (sourceFileName) {
-    return JSON.parse(_gpfSyncReadForBoot(_gpfSourcesPath + sourceFileName));
+    /*jslint evil: true*/
+    var result;
+    eval("result = " + _gpfSyncReadForBoot(_gpfSourcesPath + sourceFileName) + ";"); //eslint-disable-line no-eval
+    return result;
 }
 
 function _gpfLoadSources () { //jshint ignore:line
