@@ -161,6 +161,20 @@ describe("define", function () {
 
             describe("Subclassing", function () {
 
+                it("prevents invalid override", function () {
+                    var exceptionCaught;
+                    try {
+                        gpf.define({
+                            $class: "Test",
+                            $extend: A,
+                            getMember: false
+                        });
+                    } catch (e) {
+                        exceptionCaught = e;
+                    }
+                    assert(exceptionCaught instanceof gpf.Error.InvalidClassOverride);
+                });
+
                 var B, b;
 
                 before(function () {
