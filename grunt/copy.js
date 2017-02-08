@@ -8,10 +8,10 @@ var IO_PATH = "../ArnaudBuchholz.github.io/",
         publishVersion: {},
         publishVersionDoc: {},
         publishTest: {},
-        sourcesJson: {
+        instrumentSourcesJson: {
             expand: true,
             cwd: "./src/",
-            src: "sources.json",
+            src: "**/*.json",
             dest: "./tmp/coverage/instrument/src/"
         }
     };
