@@ -24,7 +24,7 @@ module.exports = function (grunt) {
     grunt.registerTask("istanbul", [
         "instrument",
         "fixInstrument",
-        "copy:sourcesJson",
+        "copy:instrumentSourcesJson",
         "mochaTest:coverage",
         "storeCoverage",
         "makeReport",
