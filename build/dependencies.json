@@ -41,7 +41,8 @@
         "compatibility"
     ],
     "compatibility/object": [
-        "compatibility"
+        "compatibility",
+        "foreach"
     ],
     "compatibility/string": [
         "compatibility"
@@ -57,15 +58,10 @@
         "constants",
         "string/escapefor"
     ],
-    "extend": [
-        "foreach"
-    ],
     "string/escape/html": [
-        "extend",
         "string/escapefor"
     ],
     "error": [
-        "extend",
         "foreach",
         "string/capitalize",
         "string/replaceex"
@@ -85,32 +81,27 @@
     "define/check": [
         "define/entity",
         "error",
-        "extend",
         "constants",
         "foreach"
     ],
     "define/build": [
         "define/entity",
-        "context",
-        "extend"
+        "context"
     ],
     "define/class/class": [
         "define/entity",
-        "define/detect",
-        "extend"
+        "define/detect"
     ],
     "define/class/check": [
         "define/class/class",
         "define/entity",
         "context",
         "define/check",
-        "error",
-        "extend"
+        "error"
     ],
     "define/class/constructor": [
         "define/class/class",
         "error",
-        "extend",
         "function"
     ],
     "define/class/super": [
@@ -120,7 +111,6 @@
         "define/class/class",
         "define/class/super",
         "define/class/constructor",
-        "extend",
         "foreach"
     ],
     "define": [
