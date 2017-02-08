@@ -97,6 +97,19 @@ describe("define", function () {
                     assert(exceptionCaught instanceof gpf.Error.InvalidClassProperty);
                 });
 
+                it("rejects constructor property if not a method", function () {
+                    var exceptionCaught;
+                    try {
+                        gpf.define({
+                            $class: "Test",
+                            constructor: false
+                        });
+                    } catch (e) {
+                        exceptionCaught = e;
+                    }
+                    assert(exceptionCaught instanceof gpf.Error.InvalidClassConstructor);
+                });
+
             });
 
         });
