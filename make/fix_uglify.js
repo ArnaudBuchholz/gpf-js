@@ -28,6 +28,10 @@ fs.readFileAsync(fileName)
     .then(source => source.replace(/\.(class)(\W)/g, function (match, property, leadingChar) {
         return `["${property}"]${leadingChar}`;
     }))
+    // replace new RegExp with literal
+    .then(source => source.replace(/new RegExp\("([^"]+)"(?:,"([a-z]+)")?\)/g, function (match, regexp, options) {
+        return `/${regexp.replace(/\\\\/g, "\\").replace(/\//g, "\\/")}/${options || ""}`;
+    }))
     // Serializing
     .then(source => fs.writeFileAsync(fileName, source))
     .then(() => console.log("Fixed uglify'ed version of " + fileName))
