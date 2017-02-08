@@ -1,16 +1,56 @@
 "use strict";
 
-function Preprocessor (src, defines) {
-    this._lines = src.split("\n");
-    this._defines = defines;
-    this._ignoreStack = [];
+/*
+ * Handle #if / #else / #endif comments
+ * Substitute _gpfSyncReadSourceJSON with content from the JSON file
+ */
+
+const
+    fs = require("fs"),
+    or = (previousValue, currentValue) => previousValue || currentValue;
+
+class Preprocessor {
+
+    constructor (src, defines) {
+        this._lines = src.split("\n");
+        this._defines = defines;
+        this._ignoreStack = [];
+    }
+
+    _searchForMatch (line) {
+        return !Object.keys(Preprocessor.tags).every(match => {
+            if (-1 < line.indexOf(match)) {
+                Preprocessor.tags[match].call(this, line);
+                return false;
+            }
+            return true;
+        });
+    }
+
+    getOutput () {
+        let lines = this._lines,
+            length = lines.length,
+            idx,
+            line,
+            matched;
+        for (idx = 0; idx < length; ++idx) {
+            line = lines[idx];
+            matched = this._searchForMatch(line);
+            if (matched || this._ignoreStack.reduce(or, false)) {
+                lines.splice(idx, 1);
+                --length;
+                --idx;
+            }
+        }
+        return this._lines.join("\n");
+    }
 }
 
 Preprocessor.tags = {
 
     "/*#if": function (line) {
         /*jshint validthis:true*/ // Called with the context of Preprocessor
-        var invert = -1 < line.indexOf("/*#ifndef("),
+        let invert = -1 < line.indexOf("/*#ifndef("),
             define = line.split("(")[1].split(")")[0],
             ignore;
         ignore = !this._defines[define];
@@ -34,54 +74,10 @@ Preprocessor.tags = {
 
 };
 
-function or (previousValue, currentValue) {
-    return previousValue || currentValue;
-}
-
-Preprocessor.prototype = {
-
-    // @property {String[]} lines
-    _lines: [],
-
-    // Defines
-    _defines: {},
-
-    // @property {Boolean[]}
-    _ignoreStack: [false],
-
-    _searchForMatch: function (line) {
-        var match;
-        for (match in Preprocessor.tags) {
-            if (Preprocessor.tags.hasOwnProperty(match)) {
-                if (-1 < line.indexOf(match)) {
-                    Preprocessor.tags[match].call(this, line);
-                    return true;
-                }
-            }
-        }
-    },
-
-    getOutput: function () {
-        var lines = this._lines,
-            length = lines.length,
-            idx,
-            line,
-            matched;
-        for (idx = 0; idx < length; ++idx) {
-            line = lines[idx];
-            matched = this._searchForMatch(line);
-            if (matched || this._ignoreStack.reduce(or, false)) {
-                lines.splice(idx, 1);
-                --length;
-                --idx;
-            }
-        }
-        return this._lines.join("\n");
-    }
-};
-
 // Preprocess the JavaScript source and resolve the #ifdef macros
-module.exports = function (src, defines) {
-    var preprocessor = new Preprocessor(src, defines);
-    return preprocessor.getOutput();
+module.exports = (src, defines) => {
+    let preprocessor = new Preprocessor(src, defines);
+    return preprocessor.getOutput().replace(/_gpfSyncReadSourceJSON\("([^"]+)"\)/g, (match, jsonFileName) =>
+        fs.readFileSync("../src/" + jsonFileName).toString()
+    );
 };
