@@ -58,6 +58,7 @@ _gpfErrorDeclare("define/class/check", {
      * The constructor member is a special one, see {@tutorial DEFINE}
      *
      * @see {@tutorial DEFINE}
+     * @since 0.1.7
      */
     invalidClassConstructor: "Invalid class constructor"
 
@@ -129,6 +130,7 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prot
      * @param {String} name Property name
      * @param {*} value Property value
      * @private
+     * @since 0.1.7
      */
     _checkMemberValue: function (name, value) {
         if ("constructor" === name && "function" !== typeof value) {
