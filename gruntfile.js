@@ -6,7 +6,8 @@ module.exports = function (grunt) {
 
     require("time-grunt")(grunt);
 
-    // Since the tasks are split using load-grunt-config, I need a global object containing the configuration
+    // Since the tasks are split using load-grunt-config, a global object contains the configuration
+    /*global configuration*/
     try {
         global.configuration = grunt.file.readJSON("tmp/config.json");
     } catch (e) {
@@ -35,38 +36,31 @@ module.exports = function (grunt) {
         return;
     }
 
-    // Build the list of valid source and test files based on sources.json
-    var sources = grunt.file.readJSON("src/sources.json"),
-        srcFiles = ["src/boot.js"],
-        docFiles = ["src/boot.js"],
-        testFiles = [];
-    sources.forEach(function (source) {
-        var name = source.name;
-        if (source.load !== false) {
-            srcFiles.push("src/" + name + ".js");
-            if (source.test !== false) {
-                testFiles.push("test/" + name + ".js");
+    configuration.readSources = function () {
+        // Build the list of valid source and test files based on sources.json
+        var sources = grunt.file.readJSON("src/sources.json"),
+            srcFiles = ["src/boot.js"],
+            docFiles = ["src/boot.js"],
+            testFiles = [];
+        sources.forEach(function (source) {
+            var name = source.name;
+            if (source.load !== false) {
+                srcFiles.push("src/" + name + ".js");
+                if (source.test !== false) {
+                    testFiles.push("test/" + name + ".js");
+                }
+                if (source.doc === true) {
+                    docFiles.push("src/" + name + ".js");
+                }
             }
-            if (source.doc === true) {
-                docFiles.push("src/" + name + ".js");
-            }
-        }
-    });
-
-    // Amend the configuration with internal settings
-    (function (internalSettings) {
-        Object.keys(internalSettings).forEach(function (name) {
-            global.configuration[name] = internalSettings[name];
         });
-    }({
-        pkg: grunt.file.readJSON("./package.json"),
-        files: {
+        this.files = {
             src: srcFiles,
             test: testFiles,
             doc: docFiles,
             linting: {
                 js: [
-                    "Gruntfile.js",
+                    "gruntfile.js",
                     "grunt/**/*.js",
                     "statistics.js",
                     "make/*.js",
@@ -76,8 +70,13 @@ module.exports = function (grunt) {
                     .concat(srcFiles)
                     .concat(testFiles)
             }
-        }
-    }));
+        };
+    };
+
+    configuration.readSources();
+
+    // Amend the configuration with internal settings
+    configuration.pkg = grunt.file.readJSON("./package.json");
 
     require("load-grunt-config")(grunt);
     grunt.task.loadTasks("grunt/tasks");
