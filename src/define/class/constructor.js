@@ -8,6 +8,7 @@
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunctionBuild*/ // Build function from description and context
+/*global _gpfFunctionDescribe*/ // Extract function description
 /*exported _gpfDefineGetClassSecuredConstructor*/ // Allocate a secured named constructor
 /*#endif*/
 
@@ -29,6 +30,23 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prot
 
 });
 
+function _gpfDefineGetClassSecuredConstructorDefinition (classDefinition) {
+    var name = classDefinition._name;
+    return {
+        name: name,
+        parameters: _gpfFunctionDescribe(classDefinition._resolvedConstructor).parameters,
+        body: "if (!(this instanceof _classDef_._instanceBuilder)) gpf.Error.classConstructorFunction();\n"
+            + "_classDef_._resolvedConstructor.apply(this, arguments);"
+    };
+}
+
+function _gpfDefineGetClassSecuredConstructorContext (classDefinition) {
+    return {
+        gpf: gpf,
+        _classDef_: classDefinition
+    };
+}
+
 /**
  * Allocate a secured named constructor
  *
@@ -38,12 +56,6 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prot
  * @since 0.1.6
  */
 function _gpfDefineGetClassSecuredConstructor (classDefinition) {
-    return _gpfFunctionBuild({
-        name: classDefinition._name,
-        body: "if (!(this instanceof a._instanceBuilder)) $.Error.classConstructorFunction();\n"
-            + "a._resolvedConstructor.apply(this, arguments);"
-    }, {
-        $: gpf,
-        a: classDefinition
-    });
+    return _gpfFunctionBuild(_gpfDefineGetClassSecuredConstructorDefinition(classDefinition),
+        _gpfDefineGetClassSecuredConstructorContext(classDefinition));
 }
