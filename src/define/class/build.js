@@ -17,19 +17,17 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prot
      * @since 0.1.6
      */
     _build: function () {
-        var newClass = _gpfDefineGetClassSecuredConstructor(this),
-            // Basic JavaScript inheritance mechanism: Defines the newClass prototype as an instance of the super class
-            newPrototype = Object.create(this._extend.prototype);
-
+        var newClass,
+            newPrototype;
+        this._resolveConstructor();
+        newClass = _gpfDefineGetClassSecuredConstructor(this);
+        // Basic JavaScript inheritance mechanism: Defines the newClass prototype as an instance of the super class
+        newPrototype = Object.create(this._extend.prototype);
         // Populate our constructed prototype object
         newClass.prototype = newPrototype;
-
         // Enforce the constructor to be what we expect
         newPrototype.constructor = newClass;
-
         this._buildPrototype(newPrototype);
-        this._resolveConstructor();
-
         return newClass;
     },
 
@@ -53,13 +51,19 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prot
         }, this);
     },
 
+    _setResolvedConstructorToInherited: function () {
+        if (this._extend !== Object) {
+            this._resolvedConstructor =  this._extend;
+        }
+    },
+
     _resolveConstructor: function () {
         if (this._initialDefinition.hasOwnProperty("constructor")) {
             /* jshint -W069*/ /*eslint-disable dot-notation*/
             this._resolvedConstructor = _gpfClassMethodSuperify(this._initialDefinition["constructor"], this._extend);
             /* jshint +W069*/ /*eslint-enable dot-notation*/
         } else {
-            this._resolvedConstructor = this._extend;
+            this._setResolvedConstructorToInherited();
         }
     }
 
