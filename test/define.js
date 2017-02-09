@@ -146,11 +146,15 @@ describe("define", function () {
                 assert(exceptionCaught instanceof gpf.Error.ClassConstructorFunction);
             });
 
+            it("creates a constructor with the same signature than the constructor property", function () {
+                assert(A.length === 1);
+            });
+
             it("handles instanceof", function () {
                 assert(a instanceof A);
             });
 
-            it("calls constructor function", function () {
+            it("calls constructor property", function () {
                 assert(a._constructorOfA);
             });
 
