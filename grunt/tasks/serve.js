@@ -12,8 +12,14 @@ module.exports = function (grunt) {
         }, 200);
 
         grunt.event.on("watch", function (action, filepath) {
-            changedFiles[filepath] = action;
-            onChange();
+            if (filepath.indexOf("sources.json") === -1) {
+                changedFiles[filepath] = action;
+                onChange();
+            } else {
+                configuration.readSources();
+                grunt.config.set("jshint.files", configuration.files.linting.js.concat("make/*.json"));
+                grunt.config.set("eslint.target", configuration.files.linting.js);
+            }
         });
     });
 
