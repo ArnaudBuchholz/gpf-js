@@ -17,8 +17,10 @@ module.exports = {
         exitCode: 0
     },
     plato: {
-        cmd: "node node_modules/plato/bin/plato -l .jshintrc -t GPF-JS -d tmp/plato "
-                 + configuration.files.src.join(" "),
+        cmd: function () {
+            return "node node_modules/plato/bin/plato -l .jshintrc -t GPF-JS -d tmp/plato "
+                + configuration.files.src.join(" ");
+        },
         stdout: true,
         stderr: true
     },
