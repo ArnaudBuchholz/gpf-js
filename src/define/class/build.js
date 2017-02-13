@@ -5,7 +5,6 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfClassDefinition*/ // Class definition
-/*global _gpfClassMethodSuperify*/ // Create a method that can use this.$super
 /*global _gpfDefineGetClassSecuredConstructor*/ // Allocate a secured named constructor
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*#endif*/
@@ -31,10 +30,24 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prot
         return newClass;
     },
 
+    /**
+     * Add method to the new class prototype
+     *
+     * @param {Object} newPrototype New class prototype
+     * @param {String} methodName Method name
+     * @param {Function} method Method
+     */
     _addMethodToPrototype: function (newPrototype, methodName, method) {
-        newPrototype[methodName] = _gpfClassMethodSuperify(method, methodName);
+        newPrototype[methodName] = this._superify(method, methodName);
     },
 
+    /**
+     * Add member to the new class prototype
+     *
+     * @param {Object} newPrototype New class prototype
+     * @param {String} memberName Member name
+     * @param {*} value Member value
+     */
     _addMemberToPrototype: function (newPrototype, memberName, value) {
         if ("function" === typeof value) {
             this._addMethodToPrototype(newPrototype, memberName, value);
@@ -43,6 +56,11 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prot
         }
     },
 
+    /**
+     * Build the new class prototype
+     *
+     * @param {Object} newPrototype New class prototype
+     */
     _buildPrototype: function (newPrototype) {
         _gpfObjectForEach(this._initialDefinition, function (value, memberName) {
             if (memberName.charAt(0) !== "$" && memberName !== "constructor") {
@@ -51,16 +69,18 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prot
         }, this);
     },
 
+    /** Set the inherited constructor if not Object */
     _setResolvedConstructorToInherited: function () {
         if (this._extend !== Object) {
             this._resolvedConstructor =  this._extend;
         }
     },
 
+    /** Assign the proper constructor to _resolvedConstructor */
     _resolveConstructor: function () {
         if (this._initialDefinition.hasOwnProperty("constructor")) {
             /* jshint -W069*/ /*eslint-disable dot-notation*/
-            this._resolvedConstructor = _gpfClassMethodSuperify(this._initialDefinition["constructor"], "constructor");
+            this._resolvedConstructor = this._superify(this._initialDefinition["constructor"], "constructor");
             /* jshint +W069*/ /*eslint-enable dot-notation*/
         } else {
             this._setResolvedConstructorToInherited();
