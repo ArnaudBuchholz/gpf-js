@@ -32,7 +32,7 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prot
     },
 
     _addMethodToPrototype: function (newPrototype, methodName, method) {
-        newPrototype[methodName] = _gpfClassMethodSuperify(method, this._extend.prototype[methodName]);
+        newPrototype[methodName] = _gpfClassMethodSuperify(method, methodName);
     },
 
     _addMemberToPrototype: function (newPrototype, memberName, value) {
@@ -60,7 +60,7 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prot
     _resolveConstructor: function () {
         if (this._initialDefinition.hasOwnProperty("constructor")) {
             /* jshint -W069*/ /*eslint-disable dot-notation*/
-            this._resolvedConstructor = _gpfClassMethodSuperify(this._initialDefinition["constructor"], this._extend);
+            this._resolvedConstructor = _gpfClassMethodSuperify(this._initialDefinition["constructor"], "constructor");
             /* jshint +W069*/ /*eslint-enable dot-notation*/
         } else {
             this._setResolvedConstructorToInherited();
