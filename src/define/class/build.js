@@ -36,6 +36,7 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prot
      * @param {Object} newPrototype New class prototype
      * @param {String} methodName Method name
      * @param {Function} method Method
+     * @since 0.1.7
      */
     _addMethodToPrototype: function (newPrototype, methodName, method) {
         newPrototype[methodName] = this._superify(method, methodName);
@@ -47,6 +48,7 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prot
      * @param {Object} newPrototype New class prototype
      * @param {String} memberName Member name
      * @param {*} value Member value
+     * @since 0.1.7
      */
     _addMemberToPrototype: function (newPrototype, memberName, value) {
         if ("function" === typeof value) {
@@ -60,6 +62,7 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prot
      * Build the new class prototype
      *
      * @param {Object} newPrototype New class prototype
+     * @since 0.1.7
      */
     _buildPrototype: function (newPrototype) {
         _gpfObjectForEach(this._initialDefinition, function (value, memberName) {
@@ -69,14 +72,20 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prot
         }, this);
     },
 
-    /** Set the inherited constructor if not Object */
+    /**
+     * Set the inherited constructor if not Object
+     * @since 0.1.7
+     */
     _setResolvedConstructorToInherited: function () {
         if (this._extend !== Object) {
             this._resolvedConstructor =  this._extend;
         }
     },
 
-    /** Assign the proper constructor to _resolvedConstructor */
+    /**
+     * Assign the proper constructor to _resolvedConstructor
+     * @since 0.1.7
+     */
     _resolveConstructor: function () {
         if (this._initialDefinition.hasOwnProperty("constructor")) {
             /* jshint -W069*/ /*eslint-disable dot-notation*/
