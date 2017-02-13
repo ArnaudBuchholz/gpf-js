@@ -194,6 +194,9 @@ describe("define", function () {
                         },
                         setMember: function (newValue) {
                             this._member = newValue;
+                        },
+                        baseTest: function () {
+                            return this.$super.getMember();
                         }
                     });
 
@@ -217,6 +220,11 @@ describe("define", function () {
                     assert(b._constructorOfA);
                     assert(b.getMember() === "valueOfB-inB");
                 });
+
+                it("offers a way to call named base method", function () {
+                    assert(b.baseTest() === "valueOfB");
+                });
+
             });
 
         });
