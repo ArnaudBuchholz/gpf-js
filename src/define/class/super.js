@@ -20,6 +20,7 @@ _gpfErrorDeclare("define/class/super", {
      * ### Description
      *
      * $super members must point to a method exposed by the inherited prototype.
+     * @since 0.1.7
      */
     invalidClassSuperMember: "Invalid class super member"
 
