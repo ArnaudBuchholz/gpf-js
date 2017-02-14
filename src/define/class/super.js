@@ -5,10 +5,25 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfClassDefinition*/ // Class definition
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunctionBuild*/ // Build function from description and context
 /*global _gpfFunctionDescribe*/ // Extract function description
 /*exported _gpfClassMethodSuperify*/ // Create a method that can use this.$super
 /*#endif*/
+
+_gpfErrorDeclare("define/class/super", {
+    /**
+     * ### Summary
+     *
+     * An invalid member of $super was used
+     *
+     * ### Description
+     *
+     * $super members must point to a method exposed by the inherited prototype.
+     */
+    invalidClassSuperMember: "Invalid class super member"
+
+});
 
 /**
  * Extract all 'members' that are used on $super
@@ -36,7 +51,11 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prot
             return superProto[methodName].apply(this, arguments); //eslint-disable-line no-invalid-this
         }
         superMembers.forEach(function (memberName) {
-            $super[memberName] = superProto[memberName].bind(that);
+            var superMethod = superProto[memberName];
+            if ("function" !== typeof superMethod) {
+                gpf.Error.invalidClassSuperMember();
+            }
+            $super[memberName] = superMethod.bind(that);
         });
         return $super;
     },
