@@ -5,7 +5,7 @@ function nop () {}
 var fs = require("fs"),
     childProcess = require("child_process"),
     http = require("http"),
-    kill = require("../../res/kill.js"),
+    // kill = require("../../res/kill.js"),
     args = process.argv.slice(2),
     config = JSON.parse(fs.readFileSync("tmp/config.json")),
     log = nop,
