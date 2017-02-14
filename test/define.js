@@ -197,6 +197,9 @@ describe("define", function () {
                         },
                         baseTest: function () {
                             return this.$super.getMember();
+                        },
+                        invalidSuperMember: function () {
+                            return this.$super.doesntExist();
                         }
                     });
 
@@ -223,6 +226,16 @@ describe("define", function () {
 
                 it("offers a way to call named base method", function () {
                     assert(b.baseTest() === "valueOfB");
+                });
+
+                it("fails when accessing an unknown $super member", function () {
+                    var exceptionCaught;
+                    try {
+                        b.invalidSuperMember();
+                    } catch (e) {
+                        exceptionCaught = e;
+                    }
+                    assert(exceptionCaught instanceof gpf.Error.InvalidClassSuperMember);
                 });
 
             });
