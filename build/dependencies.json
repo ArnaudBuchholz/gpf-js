@@ -105,11 +105,12 @@
         "function"
     ],
     "define/class/super": [
+        "define/class/class",
+        "error",
         "function"
     ],
     "define/class/build": [
         "define/class/class",
-        "define/class/super",
         "define/class/constructor",
         "foreach"
     ],
