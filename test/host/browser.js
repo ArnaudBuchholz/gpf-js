@@ -44,7 +44,17 @@ browserBin = config.browsers[browserName].bin;
 
 var browserProcess = childProcess.spawn(browserBin, [
     "http://localhost:" + config.serve.httpPort + "/test/host/web.html" + parameters
-]);
+], {
+    detached: true
+});
+
+browserProcess.stdout.on("data", function (text) {
+    log(text);
+});
+
+browserProcess.on("close", function () {
+    log("Browser process ended.");
+});
 
 log("Browser PID : " + browserProcess.pid);
 
@@ -57,7 +67,8 @@ function checkForCachedResult () {
         agent: false
     }, function (res) {
         if (res.statusCode === 200) {
-            kill(browserProcess.pid);
+            browserProcess.kill("SIGKILL");
+            // kill(browserProcess.pid);
             var data = [];
             res
                 .on("data", function (chunk) {
