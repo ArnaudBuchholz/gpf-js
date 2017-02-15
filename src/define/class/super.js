@@ -15,6 +15,18 @@ _gpfErrorDeclare("define/class/super", {
     /**
      * ### Summary
      *
+     * $super used in a member that doesn't override a method
+     *
+     * ### Description
+     *
+     * $super can't be used if the method does not override an inherited one
+     * @since 0.1.7
+     */
+    invalidClassSuper: "Invalid class super",
+
+    /**
+     * ### Summary
+     *
      * An invalid member of $super was used
      *
      * ### Description
@@ -27,6 +39,83 @@ _gpfErrorDeclare("define/class/super", {
 });
 
 /**
+ * Used when $super points to a non existent member
+ *
+ * @throws {gpf.Error.InvalidClassSuper}
+ * @since 0.1.7
+ */
+function _gpfClassNoSuper () {
+    gpf.Error.invalidClassSuper();
+}
+
+/**
+ * Copy super method signature and invokes it.
+ * NOTE: it is required to create a new function as it will receive additional members
+ *
+ * @param {Function} superMethod Super method to copy
+ * @return {Function} New function that wraps the super method
+ * @since 0.1.7
+ */
+function _gpfClassSuperCreateWithSameSignature (superMethod) {
+    var definition = _gpfFunctionDescribe(superMethod);
+    definition.body = "return _superMethod_.apply(this, arguments);";
+    return _gpfFunctionBuild(definition, {
+        _superMethod_: superMethod
+    });
+}
+
+/**
+ * Create $super function, either based on super method or triggering an error
+ *
+ * @param {*} superMember Member extracted from inherited prototype
+ * @return {Function} $super function
+ * @since 0.1.7
+ */
+function _gpfClassSuperCreate (superMember) {
+    if ("function" !== typeof superMember) {
+        superMember = _gpfClassNoSuper;
+    }
+    return _gpfClassSuperCreateWithSameSignature(superMember);
+}
+
+/**
+ * Copy super method signature and apply weak binding.
+ *
+ * @param {Object} that Object instance
+ * @param {Function} $super $super member
+ * @param {*} superMethod superMember Member extracted from inherited prototype
+ * @return {Function} $super method
+ * @since 0.1.7
+ */
+function _gpfClassSuperCreateWeakBoundWithSameSignature (that, $super, superMethod) {
+    var definition = _gpfFunctionDescribe(superMethod);
+    definition.body = "return _superMethod_.apply(this === _$super_ ? _that_ : this, arguments);";
+    return _gpfFunctionBuild(definition, {
+        _that_: that,
+        _$super_: $super,
+        _superMethod_: superMethod
+    });
+}
+
+/**
+ * Create $super method
+ * NOTE: if the super method is not a function, an exception is thrown
+ *
+ * @param {Object} that Object instance
+ * @param {Function} $super $super member
+ * @param {*} superMethod superMember Member extracted from inherited prototype
+ * @return {Function} $super method
+ * @throws {gpf.Error.InvalidClassSuperMember}
+ * @since 0.1.7
+ */
+function _gpfClassSuperCreateMember (that, $super, superMethod) {
+    if ("function" !== typeof superMethod) {
+        gpf.Error.invalidClassSuperMember();
+    }
+    return _gpfClassSuperCreateWeakBoundWithSameSignature(that, $super, superMethod);
+}
+
+/**
  * Extract all 'members' that are used on $super
  *
  * @param {Function} method Method to analyze
@@ -34,7 +123,7 @@ _gpfErrorDeclare("define/class/super", {
  * @since 0.1.7
  */
 function _gpfClassMethodExtractSuperMembers (method) {
-    var re = new RegExp("\\.\\$super\\.(\\w+)\\s*\\(", "g"),
+    var re = new RegExp("\\.\\$super\\.(\\w+)\\b", "g"),
         match = re.exec(method),
         result = [];
     while (match) {
@@ -46,17 +135,20 @@ function _gpfClassMethodExtractSuperMembers (method) {
 
 Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */ {
 
+    /**
+     * Called before invoking a that contains $super method, it is responsible of allocating the $super object
+     *
+     * @param {Object} that Object instance
+     * @param {String} methodName Name of the method that uses $super
+     * @param {String[]} superMembers Expected member names on $super
+     * @return {Function} $super method
+     * @since 0.1.7
+     */
     _get$Super: function (that, methodName, superMembers) {
-        var superProto = this._extend.prototype;
-        function $super () {
-            return superProto[methodName].apply(this, arguments); //eslint-disable-line no-invalid-this
-        }
+        var superProto = this._extend.prototype,
+            $super = _gpfClassSuperCreate(superProto[methodName]);
         superMembers.forEach(function (memberName) {
-            var superMethod = superProto[memberName];
-            if ("function" !== typeof superMethod) {
-                gpf.Error.invalidClassSuperMember();
-            }
-            $super[memberName] = superMethod.bind(that);
+            $super[memberName] = _gpfClassSuperCreateMember(that, $super, superProto[memberName]);
         });
         return $super;
     },
