@@ -130,6 +130,9 @@ describe("define", function () {
                             this._member = memberValue;
                         }
                         this._constructorOfA = true;
+                    },
+                    funcWith3params: function (p1, p2, p3) {
+                        return p1 + p2 + p3;
                     }
                 });
 
@@ -200,6 +203,17 @@ describe("define", function () {
                         },
                         invalidSuperMember: function () {
                             return this.$super.doesntExist();
+                        },
+                        noSuperMember: function () {
+                            return this.$super();
+                        },
+                        differentBinding: function () {
+                            return this.$super.getMember.call({
+                                _member: "different"
+                            });
+                        },
+                        checkSignature: function () {
+                            assert(this.$super.funcWith3params.length === 3);
                         }
                     });
 
@@ -236,6 +250,24 @@ describe("define", function () {
                         exceptionCaught = e;
                     }
                     assert(exceptionCaught instanceof gpf.Error.InvalidClassSuperMember);
+                });
+
+                it("fails when accessing inexistant $super", function () {
+                    var exceptionCaught;
+                    try {
+                        b.noSuperMember();
+                    } catch (e) {
+                        exceptionCaught = e;
+                    }
+                    assert(exceptionCaught instanceof gpf.Error.InvalidClassSuper);
+                });
+
+                it("allows calling $super member with a different binding", function () {
+                    assert(b.differentBinding() === "different");
+                });
+
+                it("respects methods signature", function () {
+                    b.checkSignature();
                 });
 
             });
