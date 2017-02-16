@@ -133,6 +133,9 @@ describe("define", function () {
                     },
                     funcWith3params: function (p1, p2, p3) {
                         return p1 + p2 + p3;
+                    },
+                    throwError: function () {
+                        throw new Error("error");
                     }
                 });
 
@@ -214,6 +217,9 @@ describe("define", function () {
                         },
                         checkSignature: function () {
                             assert(this.$super.funcWith3params.length === 3);
+                        },
+                        throwError: function () {
+                            this.$super();
                         }
                     });
 
@@ -268,6 +274,19 @@ describe("define", function () {
 
                 it("respects methods signature", function () {
                     b.checkSignature();
+                });
+
+                it("does not leak $super", function () {
+                    assert(undefined === b.$super);
+                });
+
+                it("does not leak $super on exception", function () {
+                    try {
+                        b.throwError();
+                    } catch (e) {
+                        // ignore
+                    }
+                    assert(undefined === b.$super);
                 });
 
             });
