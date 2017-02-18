@@ -3,7 +3,7 @@ It takes only one parameter: a definition dictionary that describes the entity t
 
 The primary goal of this mechanism is to simplify the description (and generation) of custom entities such as classes,
 interfaces and attributes. While the library evolves, it will take advantage of the most recent JavaScript features
-(depending on the host) to implement those entities without fundamentally change the way they are described.  
+(depending on the host) to implement those entities without fundamentally change the way they are described.
 
 ## $ properties
 
@@ -18,19 +18,19 @@ Properties that are common to all entity types:
 it may contain namespace information (for instance: `"tutorial.Sample"`)
 * `$namespace`: **(optional)** When specified, the resulting entity constructor is defined to the corresponding object.
 For instance: `$namespace: "test.doc", $name: "tutorial.Sample"` will make the entity constructor to be set into
-`test.doc.tutorial.Sample`. Validation regexp is: `^(:?[a-z_$][a-zA-Z0-9]+(:?\.[a-z_$][a-zA-Z0-9]+)*)?$`. 
+`test.doc.tutorial.Sample`. Validation regexp is: `^(:?[a-z_$][a-zA-Z0-9]+(:?\.[a-z_$][a-zA-Z0-9]+)*)?$`.
 
 This also means that any property starting with the $ sign will be treated as a special one and may generate validation
 errors if not supported by the entity type.
 
 ## Class
 
-The class entity is based on [class concepts](https://en.wikipedia.org/wiki/Class_%28computer_programming%29) 
+The class entity is based on [class concepts](https://en.wikipedia.org/wiki/Class_%28computer_programming%29)
 
-* `$type`: `"class"` 
+* `$type`: `"class"`
 * `$name`: **(required)** Class name (must start with an uppercase letter, $ or _,
 validation regexp is `/^[A-Z_$][a-zA-Z0-9]*$/`)
-* `$class`: Shortcut to synthesize `$type`, `$name` and `$namespace`  
+* `$class`: Shortcut to synthesize `$type`, `$name` and `$namespace`
 * `$extend`: Indicates the class to inherit from, it can be either a Class handler (JavaScript function) or a string
 giving the contextual path to the Class handler (through {@link gpf.context}).
 
@@ -68,7 +68,7 @@ It is recommended to define both methods and members in the class definition.
 Even if you can declare add members within the constructor (or by manipulating instances
 once created), making them known in the entity definition structure will allow latter
 optimizations.
- 
+
 The same way, the library extensively uses the _ character to indicate private member names.
 
 ### Reserved member names
@@ -119,9 +119,11 @@ Inherited constructor is not called implicitely.
 
 ### this.$super
 
-When [overriding](https://en.wikipedia.org/wiki/Method_overriding) a method, the super one is available through the
-method `this.$super()`. Keep in mind that this method is bound statically, meaning that if you modify the super method
-by changing the implementation (altering the prototype), $super will still point to the former one.
+When [overriding](https://en.wikipedia.org/wiki/Method_overriding) a method, the parent one is available through the
+method `this.$super()`. This method is bound dynamically, meaning that if you modify the super method
+by changing the implementation (altering the prototype), $super will always point to the right one.
+
+If you need to access another parent, you may use the syntax `this.$super.methodName()`.
 
 For instance:
 ```javascript
@@ -133,6 +135,9 @@ gpf.define({
     },
     getMember: function () {
         return this.$super() + "-inB";
+    },
+    getUppercasedMember: function () {
+        return this.$super.getMember().toUpperCase();
     },
     setMember: function (newValue) {
         this._member = newValue;
