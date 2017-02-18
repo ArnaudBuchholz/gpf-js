@@ -145,7 +145,11 @@ gpf.define({
 });
 ```
 
+Unlike `super`, `this.$super` and `this.$super.methodName` function objects are not equal to the parent ones. Yet they
+can be invoked with any given context.
+
 ### Supported features
 
 * Because of the way inheritance is implemented, you may define classes with any valid JavaScript class.
+* `constructor` property is set to the class constructor
 * [`instanceof`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof) is supported
