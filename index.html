@@ -132,15 +132,18 @@ function onLoad () {
                 return jsonFiles;
             })
             .then(function (jsonFiles) {
-                var envNames = document.getElementById("envNames"),
+                var config =  jsonFiles[0],
+                    envNames = document.getElementById("envNames"),
                     envItemFactory = document.getElementById("env-item").buildFactory(),
-                    envVersionLegacy = document.getElementById("envVersionLegacy");
-                jsonFiles[0].selenium.browsers.concat([
-                    "node",
-                    "phantom",
-                    "wscript",
-                    "rhino"
-                ]).forEach(function (name) {
+                    envVersionLegacy = document.getElementById("envVersionLegacy"),
+                    names = config.selenium.browsers.concat(["node", "phantom"]);
+                if (config.host.wscript) {
+                    names.push("wscript");
+                }
+                if (config.host.java) {
+                    names.push("rhino");
+                }
+                names.forEach(function (name) {
                     envNames.appendChild(envItemFactory({
                         name: name
                     }));
