@@ -157,8 +157,20 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prot
      * Body of superified method
      * @since 0.1.7
      */
-    _superifiedBody: "this.$super = _classDef_._get$Super(this, _methodName_, _superMembers_);\n"
-        + "try{ var _result_=_method_.apply(this,arguments); } finally { delete this.$super; }\n"
+    _superifiedBody: "var _super_;\n"
+        + "if (this.hasOwnProperty(\"$super\")) {\n"
+        + "    _super_ = this.$super;\n"
+        + "}\n"
+        + "this.$super = _classDef_._get$Super(this, _methodName_, _superMembers_);\n"
+        + "try{\n"
+        + "    var _result_ = _method_.apply(this, arguments);\n"
+        + "} finally {\n"
+        + "    if (undefined === _super_) {\n"
+        + "        delete this.$super;\n"
+        + "    } else {\n"
+        + "        this.$super = _super_;\n"
+        + "    }\n"
+        + "}\n"
         + "return _result_;",
 
     /**
