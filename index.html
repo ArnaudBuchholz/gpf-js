@@ -122,7 +122,7 @@ function onLoad () {
         remove(tile.querySelectorAll("optgroup#envVersionLegacy option"));
         Promise
             .all([
-                xhr("tmp/selenium.json").get().asJson(),
+                xhr("tmp/config.json").get().asJson(),
                 xhr("fs/test/legacy").get().asJson()
             ])
             .then(function (jsonFiles) {
@@ -135,7 +135,7 @@ function onLoad () {
                 var envNames = document.getElementById("envNames"),
                     envItemFactory = document.getElementById("env-item").buildFactory(),
                     envVersionLegacy = document.getElementById("envVersionLegacy");
-                jsonFiles[0].concat([
+                jsonFiles[0].selenium.browsers.concat([
                     "node",
                     "phantom",
                     "wscript",
