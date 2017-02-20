@@ -36,11 +36,19 @@ const
             process.on("error", reject);
             process.on("close", () => resolve(output.join("")));
         });
-
     },
+
+    askIfHostInstalledOrDetect = label => inquirer.prompt([{
+        type: "list",
+        name: "choice",
+        message: `Is ${label} installed?`,
+        choices: ["Autodetect", "Yes", "No"]
+    }]),
 
     detectWScript = () => spawnProcess("cscript.exe", ["/Nologo", "/E:JScript", "build/gpf.js"])
             .then(output => output.indexOf("Can't find script engine") === -1, () => false),
+
+    detectJava = () => spawnProcess("java", ["-version"]).then(() => true, () => false),
 
     askForQualityMetrics = config => inquirer.prompt([{
         type: "confirm",
@@ -133,18 +141,18 @@ fs.readFileAsync("tmp/config.json")
         }])
             .then(answers => {
                 config.serve.httpPort = answers.port;
-                return inquirer.prompt([{
-                    type: "list",
-                    name: "wscript",
-                    message: "Is cscript installed?",
-                    choices: ["Autodetect", "Yes", "No"]
-                }]);
+                return askIfHostInstalledOrDetect("cscript");
             })
-            .then(answers => "Autodetect" === answers.wscript ? detectWScript() : "Yes" === answers.wscript)
+            .then(answers => "Autodetect" === answers.choice ? detectWScript() : "Yes" === answers.choice)
             .then(wscriptInstalled => {
                 config.host.wscript = wscriptInstalled;
+                return askIfHostInstalledOrDetect("java");
             })
-            .then(() => askForQualityMetrics(config))
+            .then(answers => "Autodetect" === answers.choice ? detectJava() : "Yes" === answers.choice)
+            .then(javaInstalled => {
+                config.host.java = javaInstalled;
+                return askForQualityMetrics(config);
+            })
             .then(() => askForSelenium(config))
             .then(() => fs.mkdirAsync("tmp"))
             .then(undefined, () => {}) // ignore mkdir error
