@@ -258,7 +258,7 @@ describe("define", function () {
                     assert(exceptionCaught instanceof gpf.Error.InvalidClassSuperMember);
                 });
 
-                it("fails when accessing inexistant $super", function () {
+                it("fails when accessing inexistent $super", function () {
                     var exceptionCaught;
                     try {
                         b.noSuperMember();
@@ -289,6 +289,17 @@ describe("define", function () {
                     assert(undefined === b.$super);
                 });
 
+                it("handles several versions of $super", function () {
+                    var C = gpf.define({
+                            $class: "C",
+                            $extend: B,
+                            testMethod: function () {
+                                return this.$super.getMember();
+                            }
+                        }),
+                        c = new C();
+                    assert("valueOfB-inB" === c.testMethod());
+                });
             });
 
         });
