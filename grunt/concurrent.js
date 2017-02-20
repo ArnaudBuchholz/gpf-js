@@ -1,8 +1,10 @@
 "use strict";
 
-let testTasks = [
-    "exec:testRhino"
-];
+let testTasks = [];
+
+if (configuration.host.java) {
+    testTasks.push("exec:testRhino");
+}
 
 if (configuration.host.wscript) {
     testTasks.push("exec:testWscript");
