@@ -45,37 +45,9 @@ Command lines must be run from the root of the gpf-js folder.
 To enable browser automation with [Selenium](http://www.seleniumhq.org/), a driver must be installed for most browsers.
 It is recommended to put them in the current [PATH](https://en.wikipedia.org/wiki/PATH_%28variable%29).
 
-## Google Chrome
-
-[Chrome driver](https://sites.google.com/a/chromium.org/chromedriver/downloads)
-
-## FireFox
-
-No driver is required
-
-## Opera
-
-Use chrome driver and set the following option in `tmp/selenium-opera.json`:
-
-https://github.com/operasoftware/operachromiumdriver/releases
-
-```JavaScript
-{
-    "setOperaBinaryPath": "path\\to\\opera.exe"
-}
-```
-
-## Microsoft Edge
-
-[Microsoft WebDriver](https://www.microsoft.com/en-us/download/details.aspx?id=48212)
-
-## Microsoft Internet Explorer
-
-[IE Driver Server](https://selenium-release.storage.googleapis.com/2.52/IEDriverServer_x64_2.52.2.zip)
+Please check
+[selenium-webdriver documentation page](http://seleniumhq.github.io/selenium/docs/api/javascript/index.html).
 
 ## Safari
 
 [Safari 5.1.7 for Windows](http://appldnld.apple.com/Safari5/041-5487.20120509.INU8B/SafariSetup.exe)
-
-[Safari Driver](https://github.com/SeleniumHQ/selenium/wiki/SafariDriver)
-
