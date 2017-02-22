@@ -47,6 +47,7 @@ function detect (browser) {
             driver.quit().then(function () {
                 report(browser, true);
                 resolve(true);
+                process.removeListener("uncaughtException", fail);
             }, fail);
         } catch (e) {
             fail(e);
