@@ -34,7 +34,10 @@ function detect (browser) {
                 console.error(reason.message);
             }
             resolve(false);
+            process.removeListener("uncaughtException", fail);
         }
+
+        process.once("uncaughtException", fail);
 
         try {
             var driver = buildWebDriverFor(browser);
