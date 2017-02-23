@@ -69,11 +69,12 @@ module.exports = class ConfigFile {
     }
 
     _checkVersion () {
-        var currentVersion = this.content.version || 0;
+        let currentVersion = this.content.version || 0;
         if (currentVersion < contentMigrationPath.length) {
             contentMigrationPath.slice(currentVersion).forEach(migrate => migrate(this.content));
+            this.content.version = contentMigrationPath.length;
+            this.save();
         }
-        this.content.version = contentMigrationPath.length;
     }
 
     isNew () {
