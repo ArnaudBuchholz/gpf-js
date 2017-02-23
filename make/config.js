@@ -3,40 +3,17 @@
 /*eslint-env node*/
 
 const
-    fs = require("bluebird").promisifyAll(require("fs")),
     inquirer = require("inquirer"),
+    ConfigFile = require("./configFile.js"),
 
-    defaultConfig = {
-        serve: {
-            httpPort: 8000
-        },
-        host: {
-            wscript: false
-        },
-        selenium: {
-            browsers: []
-        },
-        metrics: {
-            coverage: {
-                statements: 90,
-                functions: 90,
-                branches: 90,
-                lines: 90
-            },
-            maintainability: 70
-        }
-    },
-
-    spawnProcess = (command, params) => {
-        return new Promise(function (resolve, reject) {
-            let process = require("child_process").spawn(command, params),
-                output = [];
-            process.stdout.on("data", buffer => output.push(buffer.toString()));
-            process.stderr.on("data", buffer => output.push(buffer.toString()));
-            process.on("error", reject);
-            process.on("close", () => resolve(output.join("")));
-        });
-    },
+    spawnProcess = (command, params) => new Promise(function (resolve, reject) {
+        let process = require("child_process").spawn(command, params),
+            output = [];
+        process.stdout.on("data", buffer => output.push(buffer.toString()));
+        process.stderr.on("data", buffer => output.push(buffer.toString()));
+        process.on("error", reject);
+        process.on("close", () => resolve(output.join("")));
+    }),
 
     askIfHostInstalledOrDetect = label => inquirer.prompt([{
         type: "list",
@@ -56,41 +33,46 @@ const
         message: "Do you want to update the quality metrics",
         "default": false
     }])
-        .then(answers => {
-            if (!answers.confirmed) {
-                return Promise.resolve();
-            }
-            return inquirer.prompt([{
+        .then(answers => !answers.confirmed
+            ? Promise.resolve()
+            : inquirer.prompt([{
                 type: "input",
                 name: "statements",
                 message: "Miminum coverage for statements",
-                "default": config.metrics.coverage.statements
+                "default": config.content.metrics.coverage.statements
             }, {
                 type: "input",
                 name: "functions",
                 message: "Miminum coverage for functions",
-                "default": config.metrics.coverage.functions
+                "default": config.content.metrics.coverage.functions
             }, {
                 type: "input",
                 name: "branches",
                 message: "Miminum coverage for branches",
-                "default": config.metrics.coverage.branches
+                "default": config.content.metrics.coverage.branches
             }, {
                 type: "input",
                 name: "lines",
                 message: "Miminum coverage for lines",
-                "default": config.metrics.coverage.lines
+                "default": config.content.metrics.coverage.lines
             }, {
                 type: "input",
                 name: "maintainability",
                 message: "Miminum maintainability ratio",
-                "default": config.metrics.maintainability
-            }]);
-        }),
+                "default": config.content.metrics.maintainability
+            }])
+                .then(answers => {
+                    config.content.metrics.coverage.statements = answers.statements;
+                    config.content.metrics.coverage.functions = answers.functions;
+                    config.content.metrics.coverage.branches = answers.branches;
+                    config.content.metrics.coverage.lines = answers.lines;
+                    config.content.metrics.maintainability = answers.maintainability;
+                })
+        ),
 
     askForSelenium = config => {
         let confirmation;
-        if (0 === config.selenium.browsers.length) {
+        if (0 === Object.keys(config.content.browsers).length) {
             confirmation = Promise.resolve({confirmed: true});
             console.log("Detecting browsers compatible with selenium");
         } else {
@@ -102,19 +84,15 @@ const
         }
         return confirmation.then(answers => answers.confirmed
             ? spawnProcess("node", ["test/host/selenium/detect"])
-                .then(() => fs.readFileAsync("tmp/selenium.json"))
-                .then(buffer => {
-                    config.selenium.browsers = JSON.parse(buffer.toString());
-                })
             : Promise.resolve()
         );
     };
 
-fs.readFileAsync("tmp/config.json")
+Promise.resolve(new ConfigFile())
 
-    .then(configJSON => {
-
-        return inquirer.prompt([{
+    .then(config => config.isNew()
+        ? (console.log("No configuration file found"), config)
+        : inquirer.prompt([{
             type: "confirm",
             name: "confirmed",
             message: "Do you want to change configuration"
@@ -123,39 +101,34 @@ fs.readFileAsync("tmp/config.json")
                 if (!answers.confirmed) {
                     throw new Error("aborted");
                 }
-                return JSON.parse(configJSON);
-            });
-
-    }, () => {
-        console.log("No configuration file found");
-        return defaultConfig;
-    })
-
+                return config;
+            })
+    )
     .then(config =>
 
         inquirer.prompt([{
             type: "input",
             name: "port",
             message: "Enter the http port used by grunt",
-            "default": config.serve.httpPort
+            "default": config.content.serve.httpPort
         }])
             .then(answers => {
-                config.serve.httpPort = answers.port;
+                config.content.serve.httpPort = answers.port;
                 return askIfHostInstalledOrDetect("cscript");
             })
             .then(answers => "Autodetect" === answers.choice ? detectWScript() : "Yes" === answers.choice)
             .then(wscriptInstalled => {
-                config.host.wscript = wscriptInstalled;
+                config.content.host.wscript = wscriptInstalled;
                 return askIfHostInstalledOrDetect("java");
             })
             .then(answers => "Autodetect" === answers.choice ? detectJava() : "Yes" === answers.choice)
             .then(javaInstalled => {
-                config.host.java = javaInstalled;
+                config.content.host.java = javaInstalled;
                 return askForQualityMetrics(config);
             })
             .then(() => askForSelenium(config))
             .then(() => fs.mkdirAsync("tmp"))
             .then(undefined, () => {}) // ignore mkdir error
-            .then(() => fs.writeFileAsync("tmp/config.json", JSON.stringify(config)))
+            .then(() => config.save())
 
     )["catch"](reason => console.error(reason.message));
