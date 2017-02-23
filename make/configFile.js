@@ -93,4 +93,41 @@ module.exports = class ConfigFile {
         }
     }
 
+    readSourceFiles () {
+        // Build the list of valid source and test files based on sources.json
+        let sources = JSON.parse(fs.readFileSync(path.join(__dirname, "../src/sources.json"))),
+            srcFiles = ["src/boot.js"],
+            docFiles = ["src/boot.js"],
+            testFiles = [];
+        sources.forEach(source => {
+            let name = source.name;
+            if (source.load !== false) {
+                srcFiles.push("src/" + name + ".js");
+                if (source.test !== false) {
+                    testFiles.push("test/" + name + ".js");
+                }
+                if (source.doc === true) {
+                    docFiles.push("src/" + name + ".js");
+                }
+            }
+        });
+        this.content.files = {
+            src: srcFiles,
+            test: testFiles,
+            doc: docFiles,
+            linting: {
+                js: [
+                    "gruntfile.js",
+                    "grunt/**/*.js",
+                    "statistics.js",
+                    "make/*.js",
+                    "test/host/**/*.js",
+                    "res/*.js"
+                ]
+                    .concat(srcFiles)
+                    .concat(testFiles)
+            }
+        };
+    }
+
 };
