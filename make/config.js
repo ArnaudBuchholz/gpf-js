@@ -33,9 +33,8 @@ const
         message: "Do you want to update the quality metrics",
         "default": false
     }])
-        .then(answers => !answers.confirmed
-            ? Promise.resolve()
-            : inquirer.prompt([{
+        .then(answers => answers.confirmed
+            ? inquirer.prompt([{
                 type: "input",
                 name: "statements",
                 message: "Miminum coverage for statements",
@@ -61,13 +60,14 @@ const
                 message: "Miminum maintainability ratio",
                 "default": config.content.metrics.maintainability
             }])
-                .then(answers => {
-                    config.content.metrics.coverage.statements = answers.statements;
-                    config.content.metrics.coverage.functions = answers.functions;
-                    config.content.metrics.coverage.branches = answers.branches;
-                    config.content.metrics.coverage.lines = answers.lines;
-                    config.content.metrics.maintainability = answers.maintainability;
+                .then(metrics => {
+                    config.content.metrics.coverage.statements = metrics.statements;
+                    config.content.metrics.coverage.functions = metrics.functions;
+                    config.content.metrics.coverage.branches = metrics.branches;
+                    config.content.metrics.coverage.lines = metrics.lines;
+                    config.content.metrics.maintainability = metrics.maintainability;
                 })
+            : Promise.resolve()
         ),
 
     askForSelenium = config => {
