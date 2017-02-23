@@ -10,12 +10,6 @@ Desktop.ini
 node_modules/
 npm-debug.log
 
-# Temporary folder
-
-tmp/*
-make/tmp/*
-make/build/*
-
 # Editors
 
 .idea
