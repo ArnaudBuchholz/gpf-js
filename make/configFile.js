@@ -53,6 +53,7 @@ module.exports = class ConfigFile {
         if (!this._fileName) {
             this._fileName = path.join(__dirname, "../tmp/config.json");
         }
+        return this._fileName;
     }
 
     read () {
