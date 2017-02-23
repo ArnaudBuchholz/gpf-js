@@ -126,9 +126,7 @@ Promise.resolve(new ConfigFile())
                 config.content.host.java = javaInstalled;
                 return askForQualityMetrics(config);
             })
+            .then(() => config.save()) // Save before checking Selenium (which updates the configuration file)
             .then(() => askForSelenium(config))
-            .then(() => fs.mkdirAsync("tmp"))
-            .then(undefined, () => {}) // ignore mkdir error
-            .then(() => config.save())
 
     )["catch"](reason => console.error(reason.message));
