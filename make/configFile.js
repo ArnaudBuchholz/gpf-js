@@ -43,7 +43,7 @@ const
         }
     ];
 
-module.export = class ConfigFile {
+module.exports = class ConfigFile {
 
     constructor () {
         this.read();
