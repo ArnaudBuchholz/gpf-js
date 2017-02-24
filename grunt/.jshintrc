@@ -3,6 +3,7 @@
     "node": true,
     "esversion": 6,
     "globals": {
-        "configuration": false
+        "configuration": false,
+        "configFile": false
     }
 }
