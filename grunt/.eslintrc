@@ -3,7 +3,8 @@
         "no-sync": 0
     },
     "globals": {
-        "configuration": false
+        "configuration": false,
+        "configFile": false
     },
     "env": {
         "node": true,
