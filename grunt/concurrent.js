@@ -10,8 +10,8 @@ if (configuration.host.wscript) {
     testTasks.push("exec:testWscript");
 }
 
-configuration.selenium.browsers.forEach(browser => {
-    testTasks.push(`exec:test${browser.charAt(0).toUpperCase()}${browser.substr(1)}`);
+Object.keys(configuration.browsers).forEach(browserName => {
+    testTasks.push(`exec:test${browserName.charAt(0).toUpperCase()}${browserName.substr(1)}`);
 });
 
 let legacyTasks = [];
