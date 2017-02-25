@@ -1,123 +1,94 @@
 "use strict";
 
-// Custom command lines
-module.exports = {
-    buildDebug: {
-        cmd: "node make.js debug",
-        cwd: "make",
+const
+    silent = {
         stdout: false,
-        stderr: false,
-        exitCode: 0
+        stderr: false
     },
-    buildRelease: {
-        cmd: "node make.js release",
-        cwd: "make",
+    showErrors = {
         stdout: false,
-        stderr: false,
-        exitCode: 0
+        stderr: true
     },
-    plato: {
-        cmd: function () {
-            return "node node_modules/plato/bin/plato -l .jshintrc -t GPF-JS -d tmp/plato "
-                + configuration.files.src.join(" ");
-        },
+    verbose = {
         stdout: true,
         stderr: true
     },
-    metrics: {
-        cmd: "node make/metrics.js",
-        stdout: false,
-        stderr: true,
+    failIfNot0 = {
         exitCode: 0
-    },
-    globals: {
-        cmd: "node make/globals.js",
-        stdout: false,
-        stderr: true,
-        exitCode: 0
-    },
-    version: {
-        cmd: "node make/version.js",
-        stdout: false,
-        stderr: false,
-        exitCode: 0
-    },
-    detectSelenium: {
-        cmd: "node test/host/selenium/detect.js",
-        stdout: true,
-        stderr: true,
-        exitCode: 0
-    },
-    jsdoc: {
-        cmd: function () {
-            return "node node_modules/jsdoc/jsdoc -d tmp/jsdoc --verbose "
-                + "-c doc/private.json " + [].slice.call(arguments).join(" ");
-        },
-        stdout: true,
-        stderr: true,
-        exitCode: 0
-    },
-    fixUglify: {
-        cmd: function (name) {
-            return "node make/fix_uglify.js " + name;
-        },
-        stdout: true,
-        stderr: true,
-        exitCode: 0
-    }
+    };
+
+// Custom command lines
+module.exports = {
+    buildDebug: Object.assign({
+        cmd: "node make.js debug",
+        cwd: "make"
+    }, silent, failIfNot0),
+    buildRelease: Object.assign({
+        cmd: "node make.js release",
+        cwd: "make"
+    }, silent, failIfNot0),
+    plato: Object.assign({
+        cmd: () => "node node_modules/plato/bin/plato -l .jshintrc -t GPF-JS -d tmp/plato "
+                    + configuration.files.src.join(" ")
+    }, verbose),
+    metrics: Object.assign({
+        cmd: "node make/metrics.js"
+    }, showErrors, failIfNot0),
+    globals: Object.assign({
+        cmd: "node make/globals.js"
+    }, showErrors, failIfNot0),
+    version: Object.assign({
+        cmd: "node make/version.js"
+    }, silent, failIfNot0),
+    detectSelenium: Object.assign({
+        cmd: "node test/host/selenium/detect.js"
+    }, verbose, failIfNot0),
+    jsdoc: Object.assign({
+        cmd: () => "node node_modules/jsdoc/jsdoc -d tmp/jsdoc --verbose "
+                    + "-c doc/private.json " + [].slice.call(arguments).join(" ")
+    }, verbose, failIfNot0),
+    fixUglify: Object.assign({
+        cmd: name => `node make/fix_uglify.js ${name}`
+    }, verbose, failIfNot0)
 };
 
-function _buildTestConfig (name, command) {
-    function buildCommand (suffix) {
-        return function () {
-            var parameter;
-            if (0 === arguments.length) {
-                parameter = "";
-            } else {
-                parameter = " " + [].slice.call(arguments, 0).join(" ");
-            }
-            return command + parameter + suffix;
-        };
-    }
-    module.exports["test" + name] = {
-        cmd: buildCommand(""),
-        stdout: false,
-        stderr: false,
-        exitCode: 0
+const _buildTestConfig = (name, command) => {
+    const buildCommand  = suffix => () => {
+        let parameter;
+        if (0 === arguments.length) {
+            parameter = "";
+        } else {
+            parameter = " " + [].slice.call(arguments, 0).join(" ");
+        }
+        return command + parameter + suffix;
     };
-    module.exports["test" + name + "Verbose"] = {
-        cmd: buildCommand(" -debugger"),
-        stdout: true,
-        stderr: true,
-        exitCode: 0
-    };
-    module.exports["test" + name + "Debug"] = {
-        cmd: buildCommand(" -debug"),
-        stdout: false,
-        stderr: false,
-        exitCode: 0
-    };
-    module.exports["test" + name + "Release"] = {
-        cmd: buildCommand(" -release"),
-        stdout: false,
-        stderr: false,
-        exitCode: 0
-    };
-    module.exports["test" + name + "Legacy"] = {
-        cmd: function (version) {
-            return command + " legacy/" + version;
-        },
-        stdout: false,
-        stderr: false,
-        exitCode: 0
-    };
-}
+    module.exports["test" + name] = Object.assign({
+        cmd: buildCommand("")
+    }, silent, failIfNot0);
+    module.exports["test" + name + "Verbose"] = Object.assign({
+        cmd: buildCommand(" -debugger")
+    }, verbose, failIfNot0);
+    module.exports["test" + name + "Debug"] = Object.assign({
+        cmd: buildCommand(" -debug")
+    }, silent, failIfNot0);
+    module.exports["test" + name + "Release"] = Object.assign({
+        cmd: buildCommand(" -release")
+    }, silent, failIfNot0);
+    module.exports["test" + name + "Legacy"] = Object.assign({
+        cmd: version => `${command} legacy/${version}`
+    }, silent, failIfNot0);
+};
 
 _buildTestConfig("Node", "node test/host/nodejs.js");
 _buildTestConfig("Phantom", "node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs test/host/phantomjs.js");
 _buildTestConfig("Wscript", "cscript.exe /D /E:JScript test/host/cscript.js");
 _buildTestConfig("Rhino", "java -jar node_modules/rhino-1_7r5-bin/rhino1_7R5/js.jar test/host/rhino.js");
-configuration.selenium.browsers.forEach(function (browser) {
-    _buildTestConfig(browser.charAt(0).toUpperCase() + browser.substr(1), "node test/host/selenium.js " + browser
-        + " -port:" + configuration.serve.httpPort);
+Object.keys(configuration.browsers).forEach(browserName =>{
+    let browserConfig = configuration.browsers[browserName],
+        capitalizedBrowserName = browserName.charAt(0).toUpperCase() + browserName.substr(1);
+    if ("selenium" === browserConfig.type) {
+        _buildTestConfig(capitalizedBrowserName, "node test/host/selenium.js " + browser);
+    } else if ("binary" === browserConfig.type) {
+        _buildTestConfig(capitalizedBrowserName, "node test/host/browser.js " + browser);
+    }
 });
