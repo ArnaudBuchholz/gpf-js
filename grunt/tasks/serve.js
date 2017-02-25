@@ -16,7 +16,7 @@ module.exports = function (grunt) {
                 changedFiles[filepath] = action;
                 onChange();
             } else {
-                configuration.readSources();
+                configFile.readSourceFiles();
                 grunt.config.set("jshint.files", configuration.files.linting.js.concat("make/*.json"));
                 grunt.config.set("eslint.target", configuration.files.linting.js);
             }
