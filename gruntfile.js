@@ -7,10 +7,11 @@ module.exports = function (grunt) {
     require("time-grunt")(grunt);
 
     // Since the tasks are split using load-grunt-config, a global object contains the configuration
-    /*global configuration*/
-    try {
-        global.configuration = grunt.file.readJSON("tmp/config.json");
-    } catch (e) {
+    /*global configFile, configuration*/
+    var ConfigFile = require("./make/configFile.js");
+    global.configFile = new ConfigFile();
+    global.configuration = configFile.content;
+    if (configFile.isNew()) {
         grunt.registerTask("default", function () {
             var done = this.async(); //eslint-disable-line no-invalid-this
             grunt.util.spawn({
@@ -36,44 +37,7 @@ module.exports = function (grunt) {
         return;
     }
 
-    configuration.readSources = function () {
-        // Build the list of valid source and test files based on sources.json
-        var sources = grunt.file.readJSON("src/sources.json"),
-            srcFiles = ["src/boot.js"],
-            docFiles = ["src/boot.js"],
-            testFiles = [];
-        sources.forEach(function (source) {
-            var name = source.name;
-            if (source.load !== false) {
-                srcFiles.push("src/" + name + ".js");
-                if (source.test !== false) {
-                    testFiles.push("test/" + name + ".js");
-                }
-                if (source.doc === true) {
-                    docFiles.push("src/" + name + ".js");
-                }
-            }
-        });
-        this.files = {
-            src: srcFiles,
-            test: testFiles,
-            doc: docFiles,
-            linting: {
-                js: [
-                    "gruntfile.js",
-                    "grunt/**/*.js",
-                    "statistics.js",
-                    "make/*.js",
-                    "test/host/**/*.js",
-                    "res/*.js"
-                ]
-                    .concat(srcFiles)
-                    .concat(testFiles)
-            }
-        };
-    };
-
-    configuration.readSources();
+    configFile.readSourceFiles();
 
     // Amend the configuration with internal settings
     configuration.pkg = grunt.file.readJSON("./package.json");
