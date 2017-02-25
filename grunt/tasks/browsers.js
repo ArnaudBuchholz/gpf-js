@@ -1,10 +1,10 @@
 "use strict";
 
 module.exports = function (grunt) {
-    configuration.selenium.browsers.forEach(function (browser) {
-        grunt.registerTask(browser, [
+    Object.keys(configuration.browsers).forEach(function (browserName) {
+        grunt.registerTask(browserName, [
             "connectIf",
-            "exec:test" + browser.charAt(0).toUpperCase() + browser.substr(1) + "Verbose"
+            "exec:test" + browserName.charAt(0).toUpperCase() + browserName.substr(1) + "Verbose"
         ]);
     });
 };
