@@ -2,9 +2,10 @@
 /*global xhr*/
 /*jshint browser: true*/
 /*eslint-env browser*/
+/*eslint-disable no-alert*/
 
 function showError (message) {
-    alert(message); //eslint-disable-line no-alert
+    alert(message);
 }
 
 //region Source and SourceArray definitions
