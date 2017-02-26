@@ -4,8 +4,10 @@
 
 /*eslint-disable no-sync*/
 
-var fs = require("fs"),
+var ConfigFile = require("../../../make/configFile.js"),
+    configFile = new ConfigFile(),
     buildWebDriverFor = require("./driverFactory.js"),
+    fs = require("fs"),
     browsers = JSON.parse(fs.readFileSync("test/host/selenium/browsers.json").toString()),
     promises = [];
 
@@ -70,11 +72,10 @@ if (browser) {
     });
 
     Promise.all(promises).then(function (detectedDrivers) {
-        console.log("Saving tmp/selenium.json");
-        var list = browsers.filter(function (browserToDetect, index) {
-            return detectedDrivers[index];
+        browsers.forEach(function (browserToDetect, index) {
+            configFile.setBrowserTypeEnabled(browserToDetect, "selenium", detectedDrivers[index]);
         });
-        fs.writeFileSync("tmp/selenium.json", JSON.stringify(list));
+        configFile.save();
         process.exit(0);
     });
 }
