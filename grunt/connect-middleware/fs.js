@@ -8,13 +8,20 @@ function _read (request, response, filePath) {
     response.end(fs.readFileSync(filePath));
 }
 
+function _succeeded (response, err) {
+    if (err) {
+        response.statusCode = 500;
+        response.end(err.toString());
+        return false;
+    }
+    return true;
+}
+
 function _readFolder (request, response, folderPath) {
     fs.readdir(folderPath, function (err, files) {
-        if (err) {
-            response.statusCode = 500;
-            response.end(err.toString());
+        if (_succeeded(response, err)) {
+            response.end(JSON.stringify(files));
         }
-        response.end(JSON.stringify(files));
     });
 }
 
@@ -26,12 +33,19 @@ function _write (request, response, filePath) {
         })
         .on("end", function () {
             fs.writeFile(filePath, Buffer.concat(data), function (err) {
-                if (err) {
-                    response.statusCode = 500;
+                if (_succeeded(response, err)) {
+                    response.end();
                 }
-                response.end();
             });
         });
+}
+
+function _delete (response, filePath) {
+    fs.unlink(filePath, function (err) {
+        if (_succeeded(response, err)) {
+            response.end();
+        }
+    });
 }
 
 module.exports = function (request, response, next) {
@@ -39,14 +53,23 @@ module.exports = function (request, response, next) {
     if (0 !== request.url.indexOf(BASE_URL)) {
         return next();
     }
-    if (-1 === ["GET", "PUT", "POST", "OPTIONS"].indexOf(request.method)) {
+
+    var method = request.method,
+        basePath = path.join(__dirname, "../.."),
+        filePath;
+
+    if (-1 === ["GET", "PUT", "POST", "OPTIONS", "DELETE"].indexOf(method)) {
         response.statusCode = 500;
         response.end("Invalid method");
         return;
     }
 
-    var method = request.method,
-        filePath = path.join(__dirname, "../..", request.url.substr(BASE_URL.length));
+    filePath = path.join(basePath, request.url.substr(BASE_URL.length));
+    if (-1 !== path.relative(basePath, filePath).indexOf("..")) {
+        response.statusCode = 403;
+        response.end("Path is forbidden: " + path.relative(__dirname, filePath));
+        return;
+    }
 
     fs.stat(filePath, function (err, stats) {
 
@@ -67,7 +90,10 @@ module.exports = function (request, response, next) {
             }
 
 
-        } else {
+        } else if ("DELETE" === request.method) {
+            _delete(response, filePath);
+
+        } else { // PUt & POST
             _write(request, response, filePath);
         }
     });
