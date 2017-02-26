@@ -395,11 +395,11 @@ SourceArray.prototype = {
     /**
      * Remove the source from the array
      *
-     * @param {Source} source Source to remove
+     * @param {Source} obsoleteSource Source to remove
      */
-    remove: function (source) {
+    remove: function (obsoleteSource) {
         this._sources = this._sources.filter(function (source) {
-            return source !== source;
+            return obsoleteSource !== source;
         });
         this._rebuildSourcesIndex();
     },
@@ -424,7 +424,7 @@ SourceArray.prototype = {
 
     /** Save to src/sources.json */
     save: function () {
-        xhr("/fs/src/sources.json").put(sources.toString())
+        xhr("/fs/src/sources.json").put(this.toString())
             .then(undefined, showError);
     }
 
@@ -503,12 +503,11 @@ function onDelete (source) {
         sources.remove(source);
         sources.save();
         var name = source.getName();
-        xhr("/fs/src/" + name + ".js")["delete"]()
-            .then(undefined, showError);
+        xhr("/fs/src/" + name + ".js")["delete"](); // Ignore error
         if (source.getTest()) {
-            xhr("/fs/test/" + name + ".js")["delete"]()
-                .then(undefined, showError);
+            xhr("/fs/test/" + name + ".js")["delete"](); // Ignore error
         }
+        reload();
     }
 }
 
@@ -655,7 +654,9 @@ window.addEventListener("load", function () {
             showError("A problem occurred while loading src/sources.json and build/dependencies.json: " + reason);
         });
 
-    document.getElementById("save").addEventListener("click", sources.save.bind(sources));
+    document.getElementById("save").addEventListener("click", function () {
+        sources.save();
+    });
     document.getElementById("check").addEventListener("click", check);
 
 });
