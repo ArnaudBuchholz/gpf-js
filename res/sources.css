@@ -20,6 +20,10 @@ ul.items span {
     margin-right: 4px;
 }
 
+.clickable {
+    cursor: pointer;
+}
+
 .dependencies {
     display: inline-block;
     background-color: indianred;
@@ -31,7 +35,6 @@ ul.items span {
     border-radius: 8px;
     width: 16px;
     height: 12px;
-    cursor: pointer;
 }
 
 .references {
@@ -45,7 +48,6 @@ ul.items span {
     border-radius: 8px;
     width: 16px;
     height: 12px;
-    cursor: pointer;
 }
 
 tr[exists] {
