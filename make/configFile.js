@@ -130,4 +130,27 @@ module.exports = class ConfigFile {
         };
     }
 
+    enableBrowserType (browserName, browserType) {
+        if (!this.content.browsers.hasOwnProperty(browserName)) {
+            this.content.browsers[browserName] = {
+                type: browserType
+            };
+        }
+    }
+
+    disableBrowserType (browserName, browserType) {
+        let config = this.content.browsers[browserName];
+        if (config && browserType === config.type) {
+            delete this.content.browsers[browserName];
+        }
+    }
+
+    setBrowserTypeEnabled (browserName, browserType, enabled) {
+        if (enabled) {
+            this.enableBrowserType(browserName, browserType);
+        } else {
+            this.disableBrowserType(browserName, browserType);
+        }
+    }
+
 };

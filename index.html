@@ -136,7 +136,7 @@ function onLoad () {
                     envNames = document.getElementById("envNames"),
                     envItemFactory = document.getElementById("env-item").buildFactory(),
                     envVersionLegacy = document.getElementById("envVersionLegacy"),
-                    names = config.selenium.browsers.concat(["node", "phantom"]);
+                    names = Object.keys(config.browsers).concat(["node", "phantom"]);
                 if (config.host.wscript) {
                     names.push("wscript");
                 }
