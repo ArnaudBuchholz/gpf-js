@@ -13,6 +13,7 @@
     <body class="noselect">
         <table>
             <thead>
+                <th>&nbsp;</th>
                 <th>Name</th>
                 <th>Dep.</th>
                 <th>Ref.</th>
@@ -53,11 +54,18 @@
     }
 %}
             <tr {%%}="row();">
+                <td>{%
+
+if (!($object.isReadOnly() || $object.testProperty("load"))) {
+                    %}<span class="clickable delete">&#8998;</span>{%
+}
+
+                %}</td>
                 <td>{% $write($object.getName()); %}</td>
                 <td>{%
 
 if ($object.hasDependencies()) {
-    %}<span class="dependencies" {%%}="$write('title=\'' + $object.getDependencies().join('\n') + '\'');">{% $write($object.getDependencies().length); %}</span>{%
+    %}<span class="clickable dependencies" {%%}="$write('title=\'' + $object.getDependencies().join('\n') + '\'');">{% $write($object.getDependencies().length); %}</span>{%
 } else {
     $write("&nbsp;");
 }
@@ -66,7 +74,7 @@ if ($object.hasDependencies()) {
                 <td>{%
 
 if ($object.isReferenced()) {
-    %}<span class="references" {%%}="$write('title=\'' + $object.getDependencyOf().join('\n') + '\'');">{% $write($object.getDependencyOf().length); %}</span>{%
+    %}<span class="clickable references" {%%}="$write('title=\'' + $object.getDependencyOf().join('\n') + '\'');">{% $write($object.getDependencyOf().length); %}</span>{%
 } else {
     $write("&nbsp;");
 }
