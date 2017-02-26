@@ -3,12 +3,11 @@
 
 const
     EXCEPTION_VARIABLE = "e_",
-    Promise = require("bluebird"),
-    fs = Promise.promisifyAll(require("fs")),
+    fs = require("fs"),
     fileName = `build/${process.argv[2]}.js`,
     getVariableNameMatcher = name => new RegExp("\\b" + name + "\\b", "g");
 
-fs.readFileAsync(fileName)
+Promise.resolve(fs.readFileSync(fileName))
     .then(buffer => buffer.toString())
     // Processing try {} catch variable
     .then(source => getVariableNameMatcher(EXCEPTION_VARIABLE).exec(source)
