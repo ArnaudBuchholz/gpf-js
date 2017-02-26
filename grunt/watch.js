@@ -6,7 +6,8 @@ module.exports = {
     tasks: [
         "jshint",
         "eslint",
-        "exec:plato"
+        "exec:plato",
+        "mochaTest:source"
     ],
     options: {
         spawn: false
