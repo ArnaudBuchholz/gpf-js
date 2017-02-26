@@ -52,16 +52,18 @@ module.exports = {
     }, verbose, failIfNot0)
 };
 
-const _buildTestConfig = (name, command) => {
-    const buildCommand  = suffix => () => {
-        let parameter;
-        if (0 === arguments.length) {
-            parameter = "";
-        } else {
-            parameter = " " + [].slice.call(arguments, 0).join(" ");
-        }
-        return command + parameter + suffix;
-    };
+function _buildTestConfig (name, command) {
+    function buildCommand (suffix) {
+        return function () {
+            let parameter;
+            if (0 === arguments.length) {
+                parameter = "";
+            } else {
+                parameter = " " + [].slice.call(arguments, 0).join(" ");
+            }
+            return command + parameter + suffix;
+        };
+    }
     module.exports["test" + name] = Object.assign({
         cmd: buildCommand("")
     }, silent, failIfNot0);
@@ -77,7 +79,7 @@ const _buildTestConfig = (name, command) => {
     module.exports["test" + name + "Legacy"] = Object.assign({
         cmd: version => `${command} legacy/${version}`
     }, silent, failIfNot0);
-};
+}
 
 _buildTestConfig("Node", "node test/host/nodejs.js");
 _buildTestConfig("Phantom", "node_modules/phantomjs-prebuilt/lib/phantom/bin/phantomjs test/host/phantomjs.js");
@@ -87,8 +89,8 @@ Object.keys(configuration.browsers).forEach(browserName =>{
     let browserConfig = configuration.browsers[browserName],
         capitalizedBrowserName = browserName.charAt(0).toUpperCase() + browserName.substr(1);
     if ("selenium" === browserConfig.type) {
-        _buildTestConfig(capitalizedBrowserName, "node test/host/selenium.js " + browser);
-    } else if ("binary" === browserConfig.type) {
-        _buildTestConfig(capitalizedBrowserName, "node test/host/browser.js " + browser);
+        _buildTestConfig(capitalizedBrowserName, `node test/host/selenium.js ${browserName}`);
+    } else if ("spawn" === browserConfig.type) {
+        _buildTestConfig(capitalizedBrowserName, `node test/host/browser.js ${browserName}`);
     }
 });
