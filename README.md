@@ -56,10 +56,10 @@ See [TESTME.md](https://github.com/ArnaudBuchholz/gpf-js/blob/master/TESTME.md)
 
 ## Versions
 
-Version | Release | Debug | Plato
+Version | Label | Release | Debug | Plato
 ------ | ----- | ----- | ----- | -----
-[0.1.5](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.1.5) / [doc](https://arnaudbuchholz.github.io/gpf/0.1.5/doc/index.html) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.5/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.1.5) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.5/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.1.5) | [plato](https://arnaudbuchholz.github.io/gpf/0.1.5/plato/index.html)
-[0.1.6](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.1.6) / [doc](https://arnaudbuchholz.github.io/gpf/0.1.6/doc/index.html) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.6/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.1.6) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.6/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.1.6) | [plato](https://arnaudbuchholz.github.io/gpf/0.1.6/plato/index.html)
+[0.1.5](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.1.5) / [doc](https://arnaudbuchholz.github.io/gpf/0.1.5/doc/index.html) | The new core | [lib](https://arnaudbuchholz.github.io/gpf/0.1.5/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.1.5) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.5/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.1.5) | [plato](https://arnaudbuchholz.github.io/gpf/0.1.5/plato/index.html)
+[0.1.6](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.1.6) / [doc](https://arnaudbuchholz.github.io/gpf/0.1.6/doc/index.html) | gpf.define | [lib](https://arnaudbuchholz.github.io/gpf/0.1.6/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.1.6) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.6/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.1.6) | [plato](https://arnaudbuchholz.github.io/gpf/0.1.6/plato/index.html)
 
 ## Credits
 
