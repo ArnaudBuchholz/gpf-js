@@ -12,7 +12,7 @@ module.exports = function (grunt) {
         }, 200);
 
         grunt.event.on("watch", function (action, filepath) {
-            if (filepath.indexOf("sources.json") === -1) {
+            if (action !== "deleted" && filepath.indexOf("sources.json") === -1) {
                 changedFiles[filepath] = action;
                 onChange();
             } else {
