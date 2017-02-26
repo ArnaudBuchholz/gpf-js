@@ -66,7 +66,8 @@
         get: false,
         options: false,
         post: true,
-        put: true
+        put: true,
+        "delete": false
     };
 
     Object.keys(_methods).forEach(function (methodName) {
