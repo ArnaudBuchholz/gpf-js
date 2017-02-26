@@ -10,7 +10,7 @@ module.exports = function (grunt) {
     /*global configFile, configuration*/
     var ConfigFile = require("./make/configFile.js");
     global.configFile = new ConfigFile();
-    global.configuration = configFile.content;
+    global.configuration = Object.create(configFile.content);
     if (configFile.isNew()) {
         grunt.registerTask("default", function () {
             var done = this.async(); //eslint-disable-line no-invalid-this
