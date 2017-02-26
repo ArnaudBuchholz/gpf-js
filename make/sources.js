@@ -3,6 +3,10 @@
 /*jshint browser: true*/
 /*eslint-env browser*/
 
+function showError (message) {
+    alert(message); //eslint-disable-line no-alert
+}
+
 //region Source and SourceArray definitions
 
 function Source (array, source, dependencies) {
@@ -349,6 +353,17 @@ SourceArray.prototype = {
     },
 
     /**
+     * Once the sources list is modified, rebuild the list of indexes
+     *
+     * @private
+     */
+    _rebuildSourcesIndex: function () {
+        this._sources.forEach(function (source, index) {
+            source.setIndex(index);
+        });
+    },
+
+    /**
      * Moves source after the referenced one
      *
      * @param {String} sourceName Name of the source to move
@@ -373,10 +388,20 @@ SourceArray.prototype = {
                 ++referenceSourcePos;
             }
             this._sources.splice(referenceSourcePos, 0, sourceToMove);
-            this._sources.forEach(function (source, index) {
-                source.setIndex(index);
-            });
+            this._rebuildSourcesIndex();
         }
+    },
+
+    /**
+     * Remove the source from the array
+     *
+     * @param {Source} source Source to remove
+     */
+    remove: function (source) {
+        this._sources = this._sources.filter(function (source) {
+            return source !== source;
+        });
+        this._rebuildSourcesIndex();
     },
 
     /**
@@ -395,6 +420,12 @@ SourceArray.prototype = {
                 }, null));
             }
         }, this);
+    },
+
+    /** Save to src/sources.json */
+    save: function () {
+        xhr("/fs/src/sources.json").put(sources.toString())
+            .then(undefined, showError);
     }
 
 };
@@ -467,6 +498,20 @@ function onCheckboxClick (checkbox, source) {
     }
 }
 
+function onDelete (source) {
+    if (!source.isReadOnly() && !source.getLoad() && confirm("Delete '" + source.getName() + "' ?")) {
+        sources.remove(source);
+        sources.save();
+        var name = source.getName();
+        xhr("/fs/src/" + name + ".js")["delete"]()
+            .then(undefined, showError);
+        if (source.getTest()) {
+            xhr("/fs/test/" + name + ".js")["delete"]()
+                .then(undefined, showError);
+        }
+    }
+}
+
 function onClick (event) {
     var target = event.target,
         sourceRow = upToSourceRow(target),
@@ -477,7 +522,8 @@ function onClick (event) {
     source = sources.byName(sourceRow.id);
     if ("checkbox" === target.getAttribute("type")) {
         onCheckboxClick(target, source);
-
+    } else if (-1 !== target.className.indexOf("delete")) {
+        onDelete(source);
     }
 }
 
@@ -596,10 +642,6 @@ function check () {
 
 //endregion
 
-function showError (message) {
-    alert(message); //eslint-disable-line no-alert
-}
-
 window.addEventListener("load", function () {
     Promise.all([xhr("/src/sources.json").get(), xhr("/build/dependencies.json").get()])
         .then(function (responseTexts) {
@@ -613,11 +655,7 @@ window.addEventListener("load", function () {
             showError("A problem occurred while loading src/sources.json and build/dependencies.json: " + reason);
         });
 
-    document.getElementById("save").addEventListener("click", function () {
-        xhr("/fs/src/sources.json").put(sources.toString())
-            .then(undefined, showError);
-    });
-
+    document.getElementById("save").addEventListener("click", sources.save.bind(sources));
     document.getElementById("check").addEventListener("click", check);
 
 });
