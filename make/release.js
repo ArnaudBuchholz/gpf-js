@@ -12,35 +12,18 @@
 
 const
     inquirer = require("inquirer"),
+    GitHub = require("github-api"),
     ConfigFile = require("./configFile.js"),
     configFile = new ConfigFile(),
     fs = require("fs"),
-    pkg = JSON.parse(fs.readFileSync("package.json")),
-    https = require("https"),
     url = require("url"),
-
-    httpsGet = options => new Promise((resolve, reject) =>
-        https.get(options, res => res.statusCode !== 200 ? reject(res) : resolve(res))
-            .on("error", reject)
-    ),
-
-    parseHttpResponseAsJSON = response => new Promise((resolve, reject) => {
-        response.setEncoding("utf8");
-        let rawData = [];
-        response
-            .on("data", chunk => rawData.push(chunk))
-            .on("end", () => {
-                try {
-                    resolve(JSON.parse(rawData.join("")));
-                } catch (e) {
-                    reject(e);
-                }
-            });
-    })
+    pkg = JSON.parse(fs.readFileSync("package.json"))
     ;
 
 let
-    version = pkg.version;
+    version = pkg.version,
+    gh;
+
 if (version.includes("-")) {
     version = version.split("-")[0];
 }
@@ -50,27 +33,69 @@ inquirer.prompt([{
     name: "version",
     message: "Please check the version: ",
     "default": version
+}, {
+    type: "input",
+    name: "githubUser",
+    message: "GitHub user: ",
+    "default": configFile.content.github ? configFile.content.github.user : ""
+}, {
+    type: "password",
+    name: "githubPassword",
+    message: "GitHub password: ",
+// }, {
+//     type: "input",
+//     name: "githubProxy",
+//     message: "GitHub proxy: ",
+//     "default": configFile.content.github ? configFile.content.github.proxy : ""
+
 }])
     .then(answers => {
         version = answers.version;
         console.log("Releasing version: " + version);
-        console.log("Getting GitHub milestones...");
-        return httpsGet(Object.assign({
-            auth: `${configFile.content.github.usr}:${configFile.content.github.pwd}`,
-        }, url.parse("https://api.github.com/repos/ArnaudBuchholz/gpf-js/milestones")))
-            .then(parseHttpResponseAsJSON);
+        // if (answers.githubProxy) {
+        //     console.log("Configuring proxy...");
+        //     require('global-tunnel').initialize(answers.githubProxy);
+        //     console.log("Proxy configured.");
+        // }
+        console.log("Authenticating on GitHub...");
+        gh = new GitHub({
+            username: answers.githubUser,
+            password: answers.githubPassword,
+        });
+        let user = gh.getUser();
+        return user.getProfile();
     })
-    .then(milestones => {
-        milestones.filter(milestone => milestone.title.includes(version));
-        if (1 === milestones.length) {
-            return Promise.resolve(milestones[0]);
+    .then(reqProfile => {
+        console.log(`Welcome ${reqProfile.data.name}.`);
+        return gh.getIssues("ArnaudBuchholz", "gpf-js").listMilestones();
+    })
+    .then(reqMilestones => {
+        var versionMilestone = reqMilestones.data.filter(milestone => milestone.title.includes(version))[0];
+        if (!versionMilestone) {
+            throw new Error("No corresponding milestone found");
         }
-        throw new Error("GitHub milestone not found");
-    }, response => {
-        console.error(`${response.statusCode} ${response.statusMessage}`);
+        console.log(`Milestone: ${versionMilestone.title}`);
+        console.log(`Remaining open issues: ${versionMilestone.open_issues}`);
+        // if (versionMilestone.open_issues) {
+        //     throw new Error("Issues remaining in the milestone");
+        // }
     })
-    .then(milestone => {
-        console.log(`GitHub milestone: ${milestone.title}`);
-    })
+    //
+    //     console.log("Getting GitHub milestones...");
+    //     return httpsGet("https://api.github.com/repos/ArnaudBuchholz/gpf-js/milestones")
+    //         .then(parseHttpResponseAsJSON);
+    // })
+    // .then(milestones => {
+    //     milestones.filter(milestone => milestone.title.includes(version));
+    //     if (1 === milestones.length) {
+    //         return Promise.resolve(milestones[0]);
+    //     }
+    //     throw new Error("GitHub milestone not found");
+    // }, response => {
+    //     console.error(`${response.statusCode} ${response.statusMessage}`);
+    // })
+    // .then(milestone => {
+    //     console.log(`GitHub milestone: ${milestone.title}`);
+    // })
     .catch(error => console.error(error))
 ;
