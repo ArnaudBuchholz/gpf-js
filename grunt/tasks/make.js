@@ -6,8 +6,11 @@ module.exports = function (grunt) {
         "check",
         "jsdoc:public",
         "connectIf",
-        "concurrent:source",
-        "concurrent:legacy",
+        "concurrent:source"
+    ]
+    .concat(configuration.files.legacyTest
+        .map(version => `concurrent:legacy${version.substr(0, version.lastIndexOf("."))}`))
+    .concat([
         "exec:buildDebug",
         "exec:buildRelease",
         "uglify:buildRelease",
@@ -20,5 +23,5 @@ module.exports = function (grunt) {
         "copy:publishVersion",
         "copy:publishVersionDoc",
         "copy:publishTest"
-    ]);
+    ]));
 };
