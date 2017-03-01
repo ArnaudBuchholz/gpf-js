@@ -16,13 +16,38 @@ const
     ConfigFile = require("./configFile.js"),
     configFile = new ConfigFile(),
     fs = require("fs"),
-    url = require("url"),
-    pkg = JSON.parse(fs.readFileSync("package.json"))
+    pkgText = fs.readFileSync("package.json").toString(),
+    pkg = JSON.parse(pkgText),
+    pkgVersion = pkg.version,
+
+    trimLeadingLF = buffer => {
+        let text = buffer.toString(),
+            lengthMinus1 = text.length - 1;
+        if (text.lastIndexOf("\n") === lengthMinus1) {
+            return text.substr(0, lengthMinus1);
+        }
+        return  text;
+    },
+
+    spawnGrunt = command => new Promise(function (resolve, reject) {
+        let grunt;
+        if (/^win/.test(process.platform)) {
+            grunt = "grunt.cmd";
+        } else {
+            grunt = "grunt";
+        }
+        let childProcess = require("child_process").spawn(grunt, [command]);
+        childProcess.stdout.on("data", buffer => console.log(trimLeadingLF(buffer)));
+        childProcess.stderr.on("data", buffer => console.error(trimLeadingLF(buffer)));
+        childProcess.on("error", reject);
+        childProcess.on("close", resolve);
+    })
     ;
 
 let
-    version = pkg.version,
-    gh;
+    version = pkgVersion,
+    gh,
+    versionTitle;
 
 if (version.includes("-")) {
     version = version.split("-")[0];
@@ -41,7 +66,7 @@ inquirer.prompt([{
 }, {
     type: "password",
     name: "githubPassword",
-    message: "GitHub password: ",
+    message: "GitHub password: "
 // }, {
 //     type: "input",
 //     name: "githubProxy",
@@ -51,6 +76,10 @@ inquirer.prompt([{
 }])
     .then(answers => {
         version = answers.version;
+        if (pkgVersion !== version) {
+            console.log("Updating package.json version...");
+            fs.writeFileSync("package.json", pkgText.replace(pkgVersion, version));
+        }
         console.log("Releasing version: " + version);
         // if (answers.githubProxy) {
         //     console.log("Configuring proxy...");
@@ -60,7 +89,7 @@ inquirer.prompt([{
         console.log("Authenticating on GitHub...");
         gh = new GitHub({
             username: answers.githubUser,
-            password: answers.githubPassword,
+            password: answers.githubPassword
         });
         let user = gh.getUser();
         return user.getProfile();
@@ -74,12 +103,32 @@ inquirer.prompt([{
         if (!versionMilestone) {
             throw new Error("No corresponding milestone found");
         }
+        versionTitle = versionMilestone.title.split(":")[1].trim();
         console.log(`Milestone: ${versionMilestone.title}`);
+        /*jshint camelcase: false */
         console.log(`Remaining open issues: ${versionMilestone.open_issues}`);
+        /*jshint camelcase: true */
         // if (versionMilestone.open_issues) {
         //     throw new Error("Issues remaining in the milestone");
         // }
+        let readmeLines = fs.readFileSync("README.md").toString().split("\n"),
+            indexOfCredits = readmeLines.indexOf("## Credits"),
+            lastVersionLineIndex = indexOfCredits - 2,
+            lastVersionLine = readmeLines[lastVersionLineIndex];
+        if (!lastVersionLine.startsWith(`[${version}]`)) {
+            console.log("Adding version line in README.md...");
+            readmeLines.splice(++lastVersionLineIndex, 0, `[${version}](https://github.com/ArnaudBuchholz/gpf-js/tree/`
+                + `v${version}) / [doc](https://arnaudbuchholz.github.io/gpf/${version}/doc/index.html) | `
+                + `${versionTitle} | [lib](https://arnaudbuchholz.github.io/gpf/${version}/gpf.js) / [test](https://`
+                + `arnaudbuchholz.github.io/gpf/test.html?release=${version}) | [lib](https://arnaudbuchholz.github.io/`
+                + `gpf/${version}/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=`
+                + `${version}) | [plato](https://arnaudbuchholz.github.io/gpf/${version}/plato/index.html)`
+            );
+            fs.writeFileSync("README.md", readmeLines.join("\n"));
+        }
+        return spawnGrunt("make");
     })
+    .then(() => spawnGrunt("copy:releasePlatoHistory"))
     //
     //     console.log("Getting GitHub milestones...");
     //     return httpsGet("https://api.github.com/repos/ArnaudBuchholz/gpf-js/milestones")
