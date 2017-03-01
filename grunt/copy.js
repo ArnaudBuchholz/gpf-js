@@ -9,6 +9,12 @@ var IO_PATH = "../ArnaudBuchholz.github.io/",
             src: "./build/report.history.*",
             dest: "./tmp/plato/"
         },
+        releasePlatoHistory: {
+            expand: true,
+            flatten: true,
+            src: "./tmp/plato/report.history.*",
+            dest: "./build/"
+        },
         publishVersionPlato: {},
         publishVersion: {},
         publishVersionDoc: {},
