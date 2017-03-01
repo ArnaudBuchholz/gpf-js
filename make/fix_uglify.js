@@ -32,7 +32,7 @@ Promise.resolve(fs.readFileSync(fileName))
         return `/${regexp.replace(/\\\\/g, "\\").replace(/\//g, "\\/")}/${options || ""}`;
     }))
     // Serializing
-    .then(source => fs.writeFileAsync(fileName, source))
+    .then(source => fs.writeFileSync(fileName, source))
     .then(() => console.log("Fixed uglify'ed version of " + fileName))
     .catch(error => {
         console.error("Error while fixing uglify'ed version of " + fileName + ": " + error.message);
