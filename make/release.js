@@ -2,6 +2,7 @@
 /*jshint node: true*/
 /*jshint camelcase: false*/ // Because of GitHub API
 /*eslint-env node*/
+/*eslint-disable camelcase*/ // Because of GitHub API
 
 /*
  * STEPS:
@@ -37,12 +38,6 @@ const
     },
 
     spawnProcess = (command, params, label) => new Promise(function (resolve, reject) {
-        let grunt;
-        if (/^win/.test(process.platform)) {
-            grunt = "grunt.cmd";
-        } else {
-            grunt = "grunt";
-        }
         let childProcess = require("child_process").spawn(command, params);
         childProcess.stdout.on("data", buffer => console.log(trimLeadingLF(buffer)));
         childProcess.stderr.on("data", buffer => console.error(trimLeadingLF(buffer)));
@@ -145,7 +140,7 @@ inquirer.prompt([{
         name: versionTitle
     }))
     .then(() => console.log(`Version ${version} released.`))
-    .then(() => fs.copySync("build/tests.js", `test/legacy/{version}.js`))
+    .then(() => fs.copySync("build/tests.js", `test/legacy/${version}.js`))
     .then(() => spawnGit(["commit", "-a", "-m", `Tests of v${version}`]))
     .then(() => spawnGit(["push"]))
     .catch(error => console.error(error));
