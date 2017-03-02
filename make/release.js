@@ -46,7 +46,7 @@ const
         childProcess.stdout.on("data", buffer => console.log(trimLeadingLF(buffer)));
         childProcess.stderr.on("data", buffer => console.error(trimLeadingLF(buffer)));
         childProcess.on("error", reject);
-        childProcess.on("close", resolve);
+        childProcess.on("close", code => code ? reject(new Error(`grunt ${command} failed`)) : resolve());
     })
     ;
 
@@ -137,8 +137,9 @@ inquirer.prompt([{
     .then(() => spawnGrunt("copy:releasePlatoHistory"))
     // git commit -a -m "Release v${version}"
     // git push
-    .then(() => gh.getRepo("ArnaudBuchholz", "gpf-js").createRelease({
-        tag_name: `v${version}`,
-        name: versionTitle
-    }))
+    // .then(() => gh.getRepo("ArnaudBuchholz", "gpf-js").createRelease({
+    //     tag_name: `v${version}`,
+    //     name: versionTitle
+    // }))
+    .then(() => console.log(`Version ${version} released.`))
     .catch(error => console.error(error));
