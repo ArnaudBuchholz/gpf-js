@@ -5,9 +5,15 @@
 /*
  * STEPS:
  * - Check version number
- * - Check GitHub milestones to identify the milestone and check that all issues are closed
- * - Update package.json
- *
+ * - Update package.json (if needed)
+ * - Check GitHub milestones to identify the milestone details and check that all issues are closed
+ * - Update README.md
+ * - Make
+ * - Copy tmp/plato/report.history.* to build/ (grunt copy:releasePlatoHistory)
+ * - commit & push
+ * - Create release on GitHub
+ * - Copy build/tests.js into test/host/legacy/{version}.js
+ * - commit & push
  */
 
 const
@@ -129,22 +135,10 @@ inquirer.prompt([{
         return spawnGrunt("make");
     })
     .then(() => spawnGrunt("copy:releasePlatoHistory"))
-    //
-    //     console.log("Getting GitHub milestones...");
-    //     return httpsGet("https://api.github.com/repos/ArnaudBuchholz/gpf-js/milestones")
-    //         .then(parseHttpResponseAsJSON);
-    // })
-    // .then(milestones => {
-    //     milestones.filter(milestone => milestone.title.includes(version));
-    //     if (1 === milestones.length) {
-    //         return Promise.resolve(milestones[0]);
-    //     }
-    //     throw new Error("GitHub milestone not found");
-    // }, response => {
-    //     console.error(`${response.statusCode} ${response.statusMessage}`);
-    // })
-    // .then(milestone => {
-    //     console.log(`GitHub milestone: ${milestone.title}`);
-    // })
-    .catch(error => console.error(error))
-;
+    // git commit -a -m "Release v${version}"
+    // git push
+    .then(() => gh.getRepo("ArnaudBuchholz", "gpf-js").createRelease({
+        tag_name: `v${version}`,
+        name: versionTitle
+    }))
+    .catch(error => console.error(error));
