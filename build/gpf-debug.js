@@ -35,7 +35,7 @@
          * GPF Version
          * @since 0.1.5
          */
-        _gpfVersion = "0.1.6",
+        _gpfVersion = "0.1.7",
         /**
          * Host constants
          * @since 0.1.5
@@ -293,6 +293,22 @@
             callback.call(thisArg, array[index], index, array);
         }
     }
+    function _gpfObjectForEachOwnProperty(object, callback, thisArg) {
+        for (var property in object) {
+            /* istanbul ignore else */
+            if (object.hasOwnProperty(property)) {
+                callback.call(thisArg, object[property], property, object);
+            }
+        }
+    }
+    /* istanbul ignore next */
+    // Microsoft cscript / wscript specific version
+    function _gpfObjectForEachOwnPropertyWScript(object, callback, thisArg) {
+        _gpfObjectForEachOwnProperty(object, callback, thisArg);
+        if (object.hasOwnProperty("constructor")) {
+            callback.call(thisArg, object.constructor, "constructor", object);
+        }
+    }
     /**
      * Similar to [].forEach but for objects
      *
@@ -301,13 +317,13 @@
      * @param {*} [thisArg] thisArg Value to use as this when executing callback
      * @since 0.1.5
      */
-    function _gpfObjectForEach(object, callback, thisArg) {
-        for (var property in object) {
-            /* istanbul ignore else */
-            if (object.hasOwnProperty(property)) {
-                callback.call(thisArg, object[property], property, object);
-            }
-        }
+    var _gpfObjectForEach;
+    /* istanbul ignore if */
+    // Microsoft cscript / wscript specific version
+    if (_GPF_HOST.WSCRIPT === _gpfHost) {
+        _gpfObjectForEach = _gpfObjectForEachOwnPropertyWScript;
+    } else {
+        _gpfObjectForEach = _gpfObjectForEachOwnProperty;
     }
     /**
      * Executes a provided function once per structure element.
@@ -885,9 +901,21 @@
             return this.name;
         };
     }    //endregion
+    function _gpfObjectAssign(value, memberName) {
+        /*jshint validthis:true*/
+        this[memberName] = value;    //eslint-disable-line no-invalid-this
+    }
     _gpfInstallCompatibility("Object", {
         on: Object,
         statics: {
+            // Introduced with ECMAScript 2015
+            assign: function (destination, source) {
+                _gpfIgnore(source);
+                [].slice.call(arguments, 1).forEach(function (nthSource) {
+                    _gpfObjectForEach(nthSource, _gpfObjectAssign, destination);
+                });
+                return destination;
+            },
             // Introduced with JavaScript 1.8.5
             create: function () {
                 function Temp() {
@@ -1352,32 +1380,8 @@
         }
         return _gpfContext(path.split("."));
     };
-    function _gpfAssign(value, memberName) {
-        /*jshint validthis:true*/
-        this[memberName] = value;
-    }
-    /**
-     * Extends the destination object by copying own enumerable properties from the source object.
-     * If the member already exists, it is overwritten.
-     *
-     * @param {Object} destination Destination object
-     * @param {...Object} source Source objects
-     * @return {Object} Destination object
-     * @since 0.1.5
-     */
-    function _gpfExtend(destination, source) {
-        _gpfIgnore(source);
-        [].slice.call(arguments, 1).forEach(function (nthSource) {
-            _gpfObjectForEach(nthSource, _gpfAssign, destination);
-        });
-        return destination;
-    }
-    /**
-     * @gpf:sameas _gpfExtend
-     * @since 0.1.5
-     */
-    gpf.extend = _gpfExtend;
-    _gpfStringEscapes.html = _gpfExtend(_gpfStringEscapes.xml, {
+    gpf.extend = Object.assign;
+    _gpfStringEscapes.html = Object.assign({}, _gpfStringEscapes.xml, {
         "à": "&agrave;",
         "á": "&aacute;",
         "è": "&egrave;",
@@ -1387,7 +1391,7 @@
     var _GpfError = gpf.Error = function () {
     };
     _GpfError.prototype = new Error();
-    _gpfExtend(_GpfError.prototype, /** @lends gpf.Error.prototype */
+    Object.assign(_GpfError.prototype, /** @lends gpf.Error.prototype */
     {
         constructor: _GpfError,
         /**
@@ -1433,7 +1437,7 @@
             this._buildMessage(context);
         }
         NewErrorClass.prototype = new _GpfError();
-        _gpfExtend(NewErrorClass.prototype, {
+        Object.assign(NewErrorClass.prototype, {
             code: code,
             name: name,
             message: message
@@ -1558,7 +1562,7 @@
      * Extract function description
      *
      * @param {Function} functionToDescribe Function to describe
-     * @return {gpf.typedef.functionDescription} Function description
+     * @return {gpf.typedef._functionDescription} Function description
      * @since 0.1.6
      */
     function _gpfFunctionDescribe(functionToDescribe) {
@@ -1588,7 +1592,7 @@
     /**
      * Build function source from description
      *
-     * @param {gpf.typedef.functionDescription} functionDescription Function description
+     * @param {gpf.typedef._functionDescription} functionDescription Function description
      * @return {String} Function source
      * @since 0.1.6
      */
@@ -1604,7 +1608,7 @@
     /**
      * Build function from description and context
      *
-     * @param {gpf.typedef.functionDescription} functionDescription Function description
+     * @param {gpf.typedef._functionDescription} functionDescription Function description
      * @param {Object} [context] Function context
      * @return {Function} Function
      * @since 0.1.6
@@ -1754,13 +1758,13 @@
         /*eslint-disable no-invalid-this*/
         // bound through thisArg
         if (name.charAt(0) === "$") {
-            this._check$Property(name);
+            this._check$Property(name, value);
         } else {
-            this._checkProperty(name);
+            this._checkProperty(name, value);
         }    /*jshint -W040*/
              /*eslint-enable no-invalid-this*/
     }
-    _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.prototype */
+    Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.prototype */
     {
         /**
          * Entity type (class...)
@@ -1781,11 +1785,13 @@
          * Check if the $ property is allowed
          *
          * @param {String} name $ Property name
+         * @param {*} value $ Property value
          * @see _GpfEntityDefinition.prototype._allowed$Properties
          * @throws {gpf.Error.InvalidEntity$Property}
          * @since 0.1.6
          */
-        _check$Property: function (name) {
+        _check$Property: function (name, value) {
+            _gpfIgnore(value);
             if (-1 === this._allowed$Properties.indexOf(name)) {
                 gpf.Error.invalidEntity$Property();
             }
@@ -1795,9 +1801,13 @@
          * NOTE: $ properties are handled by {@link _check$Property}
          *
          * @param {String} name Property name
+         * @param {*} value Property value
          * @since 0.1.6
          */
-        _checkProperty: _gpfFunc(["name"], " "),
+        _checkProperty: _gpfFunc([
+            "name",
+            "value"
+        ], " "),
         /**
          * Check the properties contained in the definition passed to {@link gpf.define}
          * @since 0.1.6
@@ -1885,7 +1895,7 @@
             this._checkNamespace();
         }
     });
-    _gpfExtend(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.prototype */
+    Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.prototype */
     {
         /**
          * Instance builder function (a.k.a. public constructor)
@@ -1932,7 +1942,7 @@
         _GpfEntityDefinition.call(this, definition);    /*eslint-enable no-invalid-this*/
     }
     _GpfClassDefinition.prototype = Object.create(_GpfEntityDefinition.prototype);
-    _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */
+    Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */
     {
         constructor: _GpfClassDefinition,
         /**
@@ -1975,7 +1985,33 @@
          * $extend can be either a class or a string that must resolve to a class using {@see gpf.context}
          * @since 0.1.6
          */
-        invalidClassExtend: "Invalid class extend"
+        invalidClassExtend: "Invalid class extend",
+        /**
+         * ### Summary
+         *
+         * The class constructor must be a method
+         *
+         * ### Description
+         *
+         * The constructor member is a special one, see {@tutorial DEFINE}
+         *
+         * @see {@tutorial DEFINE}
+         * @since 0.1.7
+         */
+        invalidClassConstructor: "Invalid class constructor",
+        /**
+         * ### Summary
+         *
+         * A member override is changing the type
+         *
+         * ### Description
+         *
+         * The constructor member is a special one, see {@tutorial DEFINE}
+         *
+         * @see {@tutorial DEFINE}
+         * @since 0.1.7
+         */
+        invalidClassOverride: "Invalid class override"
     });
     /**
      * If extend is a string, apply _gpfContext on it
@@ -1990,7 +2026,7 @@
         }
         return extend;
     }
-    _gpfExtend(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototype */
+    Object.assign(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototype */
     {
         /**
          * @inheritdoc
@@ -2031,14 +2067,70 @@
             }
         },
         /**
+         * Check that the constructor is a method
+         *
+         * @param {*} constructorValue Value read from definition dictionary
+         * @throws {gpf.Error.InvalidClassConstructor}
+         * @since 0.1.7
+         */
+        _checkConstructorMember: function (constructorValue) {
+            if ("function" !== typeof constructorValue) {
+                gpf.Error.invalidClassConstructor();
+            }
+        },
+        /**
+         * Check if the value correspond to the overridden value
+         *
+         * @param {*} value Member value
+         * @param {*} overriddenValue Overridden member value
+         * @throws {gpf.Error.InvalidClassOverride}
+         * @since 0.1.7
+         */
+        _checkOverridenMember: function (value, overriddenValue) {
+            if (typeof value !== typeof overriddenValue) {
+                gpf.Error.invalidClassOverride();
+            }
+        },
+        /**
+         * Check if the member overrides an inherited one
+         *
+         * @param {String} name Member name
+         * @param {*} value Member value
+         * @throws {gpf.Error.InvalidClassOverride}
+         * @since 0.1.7
+         */
+        _checkIfOverriddenMember: function (name, value) {
+            var overriddenMember = this._extend.prototype[name];
+            if (undefined !== overriddenMember) {
+                this._checkOverridenMember(value, overriddenMember);
+            }
+        },
+        /**
+         * Check the value of the member:
+         * - If the member name is "constructor", it must be a function
+         *
+         * @param {String} name Property name
+         * @param {*} value Property value
+         * @private
+         * @since 0.1.7
+         */
+        _checkMemberValue: function (name, value) {
+            if ("constructor" === name) {
+                this._checkConstructorMember(value);
+            } else {
+                this._checkIfOverriddenMember(name, value);
+            }
+        },
+        /**
          * @inheritdoc
          * @throws {gpf.Error.InvalidClassProperty}
          * @since 0.1.6
          */
-        _checkProperty: function (name) {
+        _checkProperty: function (name, value) {
             _GpfEntityDefinition.prototype._checkProperty.call(this, name);
             this._checkMemberName(name);
             this._checkReservedMemberName(name);
+            this._checkMemberValue(name, value);
         },
         /**
          * @inheritdoc
@@ -2084,13 +2176,13 @@
          * @since 0.1.6
          */
         check: function () {
-            _GpfEntityDefinition.prototype.check.call(this);
             this._readExtend();
             this._checkExtend();
+            _GpfEntityDefinition.prototype.check.call(this);
         }
     });
     _gpfErrorDeclare("define/class/constructor", { "classConstructorFunction": "This is a class constructor function, use with new" });
-    _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */
+    Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */
     {
         /**
          * Resolved constructor
@@ -2100,6 +2192,20 @@
          */
         _resolvedConstructor: _gpfEmptyFunc
     });
+    function _gpfDefineGetClassSecuredConstructorDefinition(classDefinition) {
+        var name = classDefinition._name;
+        return {
+            name: name,
+            parameters: _gpfFunctionDescribe(classDefinition._resolvedConstructor).parameters,
+            body: "if (!(this instanceof _classDef_._instanceBuilder)) gpf.Error.classConstructorFunction();\n" + "_classDef_._resolvedConstructor.apply(this, arguments);"
+        };
+    }
+    function _gpfDefineGetClassSecuredConstructorContext(classDefinition) {
+        return {
+            gpf: gpf,
+            _classDef_: classDefinition
+        };
+    }
     /**
      * Allocate a secured named constructor
      *
@@ -2109,64 +2215,225 @@
      * @since 0.1.6
      */
     function _gpfDefineGetClassSecuredConstructor(classDefinition) {
-        return _gpfFunctionBuild({
-            name: classDefinition._name,
-            body: "if (!(this instanceof a._instanceBuilder)) $.Error.classConstructorFunction();\n" + "a._resolvedConstructor.apply(this, arguments);"
-        }, {
-            $: gpf,
-            a: classDefinition
-        });
+        return _gpfFunctionBuild(_gpfDefineGetClassSecuredConstructorDefinition(classDefinition), _gpfDefineGetClassSecuredConstructorContext(classDefinition));
     }
-    function _gpfClassMethodCreateSuperified(method, superMethod) {
-        // Keep signature
-        var description = _gpfFunctionDescribe(method);
-        description.body = "this.$super=s;" + "var r=m.apply(this,arguments);" + "delete this.$super;\n" + "return r;";
-        return _gpfFunctionBuild(description, {
-            m: method,
-            s: superMethod
-        });
-    }
-    function _gpfClassMethodSuperifyIfNeeded(method, superMethod) {
-        if (new RegExp("\\.\\$super\\b").exec(method)) {
-            return _gpfClassMethodCreateSuperified(method, superMethod);
-        }
-        return method;
+    _gpfErrorDeclare("define/class/super", {
+        /**
+         * ### Summary
+         *
+         * $super used in a member that doesn't override a method
+         *
+         * ### Description
+         *
+         * $super can't be used if the method does not override an inherited one
+         * @since 0.1.7
+         */
+        invalidClassSuper: "Invalid class super",
+        /**
+         * ### Summary
+         *
+         * An invalid member of $super was used
+         *
+         * ### Description
+         *
+         * $super members must point to a method exposed by the inherited prototype.
+         * @since 0.1.7
+         */
+        invalidClassSuperMember: "Invalid class super member"
+    });
+    /**
+     * Used when $super points to a non existent member
+     *
+     * @throws {gpf.Error.InvalidClassSuper}
+     * @since 0.1.7
+     */
+    function _gpfClassNoSuper() {
+        gpf.Error.invalidClassSuper();
     }
     /**
-     * Create a method that can use this.$super
+     * Copy super method signature and invokes it.
+     * NOTE: it is required to create a new function as it will receive additional members
      *
-     * @param {Function} method method to superify
-     * @param {Function} superMethod method to be called when this.$super is called
-     * @return {Function} Superified method
-     * @since 0.1.6
+     * @param {Function} superMethod Super method to copy
+     * @return {Function} New function that wraps the super method
+     * @since 0.1.7
      */
-    function _gpfClassMethodSuperify(method, superMethod) {
-        if (!superMethod) {
-            superMethod = _gpfEmptyFunc;
-        }
-        return _gpfClassMethodSuperifyIfNeeded(method, superMethod);
+    function _gpfClassSuperCreateWithSameSignature(superMethod) {
+        var definition = _gpfFunctionDescribe(superMethod);
+        definition.body = "return _superMethod_.apply(this, arguments);";
+        return _gpfFunctionBuild(definition, { _superMethod_: superMethod });
     }
-    _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */
+    /**
+     * Create $super function, either based on super method or triggering an error
+     *
+     * @param {*} superMember Member extracted from inherited prototype
+     * @return {Function} $super function
+     * @since 0.1.7
+     */
+    function _gpfClassSuperCreate(superMember) {
+        if ("function" !== typeof superMember) {
+            superMember = _gpfClassNoSuper;
+        }
+        return _gpfClassSuperCreateWithSameSignature(superMember);
+    }
+    /**
+     * Copy super method signature and apply weak binding.
+     *
+     * @param {Object} that Object instance
+     * @param {Function} $super $super member
+     * @param {*} superMethod superMember Member extracted from inherited prototype
+     * @return {Function} $super method
+     * @since 0.1.7
+     */
+    function _gpfClassSuperCreateWeakBoundWithSameSignature(that, $super, superMethod) {
+        var definition = _gpfFunctionDescribe(superMethod);
+        definition.body = "return _superMethod_.apply(this === _$super_ ? _that_ : this, arguments);";
+        return _gpfFunctionBuild(definition, {
+            _that_: that,
+            _$super_: $super,
+            _superMethod_: superMethod
+        });
+    }
+    /**
+     * Create $super method
+     * NOTE: if the super method is not a function, an exception is thrown
+     *
+     * @param {Object} that Object instance
+     * @param {Function} $super $super member
+     * @param {*} superMethod superMember Member extracted from inherited prototype
+     * @return {Function} $super method
+     * @throws {gpf.Error.InvalidClassSuperMember}
+     * @since 0.1.7
+     */
+    function _gpfClassSuperCreateMember(that, $super, superMethod) {
+        if ("function" !== typeof superMethod) {
+            gpf.Error.invalidClassSuperMember();
+        }
+        return _gpfClassSuperCreateWeakBoundWithSameSignature(that, $super, superMethod);
+    }
+    /**
+     * Extract all 'members' that are used on $super
+     *
+     * @param {Function} method Method to analyze
+     * @return {String[]} Member names that are used
+     * @since 0.1.7
+     */
+    function _gpfClassMethodExtractSuperMembers(method) {
+        var re = new RegExp("\\.\\$super\\.(\\w+)\\b", "g"), match = re.exec(method), result = [];
+        while (match) {
+            result.push(match[1]);
+            match = re.exec(method);
+        }
+        return result;
+    }
+    Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */
+    {
+        /**
+         * Called before invoking a that contains $super method, it is responsible of allocating the $super object
+         *
+         * @param {Object} that Object instance
+         * @param {String} methodName Name of the method that uses $super
+         * @param {String[]} superMembers Expected member names on $super
+         * @return {Function} $super method
+         * @since 0.1.7
+         */
+        _get$Super: function (that, methodName, superMembers) {
+            var superProto = this._extend.prototype, $super = _gpfClassSuperCreate(superProto[methodName]);
+            superMembers.forEach(function (memberName) {
+                $super[memberName] = _gpfClassSuperCreateMember(that, $super, superProto[memberName]);
+            });
+            return $super;
+        },
+        /**
+         * Body of superified method
+         * @since 0.1.7
+         */
+        _superifiedBody: "var _super_;\n" + "if (this.hasOwnProperty(\"$super\")) {\n" + "    _super_ = this.$super;\n" + "}\n" + "this.$super = _classDef_._get$Super(this, _methodName_, _superMembers_);\n" + "try{\n" + "    var _result_ = _method_.apply(this, arguments);\n" + "} finally {\n" + "    if (undefined === _super_) {\n" + "        delete this.$super;\n" + "    } else {\n" + "        this.$super = _super_;\n" + "    }\n" + "}\n" + "return _result_;",
+        /**
+         * Generates context for the superified method
+         *
+         * @param {Function} method Method to superify
+         * @param {String} methodName Name of the method (used to search in object prototype)
+         * @param {String[]} superMembers Detected $super members used in the method
+         * @return {Object} Context of superified method
+         * @since 0.1.7
+         */
+        _getSuperifiedContext: function (method, methodName, superMembers) {
+            return {
+                _method_: method,
+                _methodName_: methodName,
+                _superMembers_: superMembers,
+                _classDef_: this
+            };
+        },
+        /**
+         * Generates the superified version of the method
+         *
+         * @param {Function} method Method to superify
+         * @param {String} methodName Name of the method (used to search in object prototype)
+         * @param {String[]} superMembers Detected $super members used in the method
+         * @return {Function} Superified method
+         * @since 0.1.7
+         */
+        _createSuperified: function (method, methodName, superMembers) {
+            // Keep signature
+            var description = _gpfFunctionDescribe(method);
+            description.body = this._superifiedBody;
+            return _gpfFunctionBuild(description, this._getSuperifiedContext(method, methodName, superMembers));
+        },
+        /**
+         * Create a method that can use this.$super
+         *
+         * @param {Function} method Method to superify
+         * @param {String} methodName Name of the method (used to search in object prototype)
+         * @return {Function} Superified method
+         * @since 0.1.7
+         */
+        _superify: function (method, methodName) {
+            if (new RegExp("\\.\\$super\\b").exec(method)) {
+                return this._createSuperified(method, methodName, _gpfClassMethodExtractSuperMembers(method));
+            }
+            return method;
+        }
+    });
+    Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */
     {
         /**
          * @inheritdoc
          * @since 0.1.6
          */
         _build: function () {
-            var newClass = _gpfDefineGetClassSecuredConstructor(this),
-                // Basic JavaScript inheritance mechanism: Defines the newClass prototype as an instance of the super class
-                newPrototype = Object.create(this._extend.prototype);
+            var newClass, newPrototype;
+            this._resolveConstructor();
+            newClass = _gpfDefineGetClassSecuredConstructor(this);
+            // Basic JavaScript inheritance mechanism: Defines the newClass prototype as an instance of the super class
+            newPrototype = Object.create(this._extend.prototype);
             // Populate our constructed prototype object
             newClass.prototype = newPrototype;
             // Enforce the constructor to be what we expect
             newPrototype.constructor = newClass;
             this._buildPrototype(newPrototype);
-            this._resolveConstructor();
             return newClass;
         },
+        /**
+         * Add method to the new class prototype
+         *
+         * @param {Object} newPrototype New class prototype
+         * @param {String} methodName Method name
+         * @param {Function} method Method
+         * @since 0.1.7
+         */
         _addMethodToPrototype: function (newPrototype, methodName, method) {
-            newPrototype[methodName] = _gpfClassMethodSuperify(method, this._extend.prototype[methodName]);
+            newPrototype[methodName] = this._superify(method, methodName);
         },
+        /**
+         * Add member to the new class prototype
+         *
+         * @param {Object} newPrototype New class prototype
+         * @param {String} memberName Member name
+         * @param {*} value Member value
+         * @since 0.1.7
+         */
         _addMemberToPrototype: function (newPrototype, memberName, value) {
             if ("function" === typeof value) {
                 this._addMethodToPrototype(newPrototype, memberName, value);
@@ -2174,6 +2441,12 @@
                 newPrototype[memberName] = value;
             }
         },
+        /**
+         * Build the new class prototype
+         *
+         * @param {Object} newPrototype New class prototype
+         * @since 0.1.7
+         */
         _buildPrototype: function (newPrototype) {
             _gpfObjectForEach(this._initialDefinition, function (value, memberName) {
                 if (memberName.charAt(0) !== "$" && memberName !== "constructor") {
@@ -2181,14 +2454,27 @@
                 }
             }, this);
         },
+        /**
+         * Set the inherited constructor if not Object
+         * @since 0.1.7
+         */
+        _setResolvedConstructorToInherited: function () {
+            if (this._extend !== Object) {
+                this._resolvedConstructor = this._extend;
+            }
+        },
+        /**
+         * Assign the proper constructor to _resolvedConstructor
+         * @since 0.1.7
+         */
         _resolveConstructor: function () {
             if (this._initialDefinition.hasOwnProperty("constructor")) {
                 /* jshint -W069*/
                 /*eslint-disable dot-notation*/
-                this._resolvedConstructor = _gpfClassMethodSuperify(this._initialDefinition["constructor"], this._extend);    /* jshint +W069*/
-                                                                                                                              /*eslint-enable dot-notation*/
+                this._resolvedConstructor = this._superify(this._initialDefinition["constructor"], "constructor");    /* jshint +W069*/
+                                                                                                                      /*eslint-enable dot-notation*/
             } else {
-                this._resolvedConstructor = this._extend;
+                this._setResolvedConstructorToInherited();
             }
         }
     });
