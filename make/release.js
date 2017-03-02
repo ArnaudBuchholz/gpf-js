@@ -21,7 +21,7 @@ const
     GitHub = require("github-api"),
     ConfigFile = require("./configFile.js"),
     configFile = new ConfigFile(),
-    fs = require("fs"),
+    fs = require("fs-extra"),
     pkgText = fs.readFileSync("package.json").toString(),
     pkg = JSON.parse(pkgText),
     pkgVersion = pkg.version,
@@ -93,7 +93,7 @@ inquirer.prompt([{
         version = answers.version;
         if (pkgVersion !== version) {
             console.log("Updating package.json version...");
-            // fs.writeFileSync("package.json", pkgText.replace(pkgVersion, version));
+            fs.writeFileSync("package.json", pkgText.replace(pkgVersion, version));
         }
         console.log("Releasing version: " + version);
         console.log("Authenticating on GitHub...");
@@ -118,9 +118,9 @@ inquirer.prompt([{
         /*jshint camelcase: false */
         console.log(`Remaining open issues: ${versionMilestone.open_issues}`);
         /*jshint camelcase: true */
-        // if (versionMilestone.open_issues) {
-        //     throw new Error("Issues remaining in the milestone");
-        // }
+        if (versionMilestone.open_issues) {
+            throw new Error("Issues remaining in the milestone");
+        }
         let readmeLines = fs.readFileSync("README.md").toString().split("\n"),
             indexOfCredits = readmeLines.indexOf("## Credits"),
             lastVersionLineIndex = indexOfCredits - 2,
@@ -134,16 +134,19 @@ inquirer.prompt([{
                 + `gpf/${version}/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=`
                 + `${version}) | [plato](https://arnaudbuchholz.github.io/gpf/${version}/plato/index.html)`
             );
-            // fs.writeFileSync("README.md", readmeLines.join("\n"));
+            fs.writeFileSync("README.md", readmeLines.join("\n"));
         }
-        // return spawnGrunt("make");
+        return spawnGrunt("make");
     })
-    // .then(() => spawnGrunt("copy:releasePlatoHistory"))
-    .then(() => spawnGit(["commit", "-a", "-m", "test"])) // `Release v${version}`]))
+    .then(() => spawnGrunt("copy:releasePlatoHistory"))
+    .then(() => spawnGit(["commit", "-a", "-m", `Release v${version}`]))
     .then(() => spawnGit(["push"]))
-    // .then(() => gh.getRepo("ArnaudBuchholz", "gpf-js").createRelease({
-    //     tag_name: `v${version}`,
-    //     name: versionTitle
-    // }))
+    .then(() => gh.getRepo("ArnaudBuchholz", "gpf-js").createRelease({
+        tag_name: `v${version}`,
+        name: versionTitle
+    }))
     .then(() => console.log(`Version ${version} released.`))
+    .then(() => fs.copySync("build/tests.js", `test/legacy/{version}.js`))
+    .then(() => spawnGit(["commit", "-a", "-m", `Tests of v${version}`]))
+    .then(() => spawnGit(["push"]))
     .catch(error => console.error(error));
