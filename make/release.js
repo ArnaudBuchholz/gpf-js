@@ -141,6 +141,7 @@ inquirer.prompt([{
     }))
     .then(() => console.log(`Version ${version} released.`))
     .then(() => fs.copySync("build/tests.js", `test/legacy/${version}.js`))
+    .then(() => spawnGit(["add", `test/legacy/${version}.js`]))
     .then(() => spawnGit(["commit", "-a", "-m", `Tests of v${version}`]))
     .then(() => spawnGit(["push"]))
     .catch(error => console.error(error));
