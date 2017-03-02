@@ -1,5 +1,6 @@
 "use strict";
 /*jshint node: true*/
+/*jshint camelcase: false*/ // Because of GitHub API
 /*eslint-env node*/
 
 /*
@@ -115,9 +116,7 @@ inquirer.prompt([{
         }
         versionTitle = versionMilestone.title.split(":")[1].trim();
         console.log(`Milestone: ${versionMilestone.title}`);
-        /*jshint camelcase: false */
         console.log(`Remaining open issues: ${versionMilestone.open_issues}`);
-        /*jshint camelcase: true */
         if (versionMilestone.open_issues) {
             throw new Error("Issues remaining in the milestone");
         }
