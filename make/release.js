@@ -35,19 +35,33 @@ const
         return  text;
     },
 
-    spawnGrunt = command => new Promise(function (resolve, reject) {
+    spawnProcess = (command, params, label) => new Promise(function (resolve, reject) {
         let grunt;
         if (/^win/.test(process.platform)) {
             grunt = "grunt.cmd";
         } else {
             grunt = "grunt";
         }
-        let childProcess = require("child_process").spawn(grunt, [command]);
+        let childProcess = require("child_process").spawn(command, params);
         childProcess.stdout.on("data", buffer => console.log(trimLeadingLF(buffer)));
         childProcess.stderr.on("data", buffer => console.error(trimLeadingLF(buffer)));
         childProcess.on("error", reject);
-        childProcess.on("close", code => code ? reject(new Error(`grunt ${command} failed`)) : resolve());
-    })
+        childProcess.on("close", code => code ? reject(new Error(`${label} failed`)) : resolve());
+    }),
+
+    spawnGrunt = command => {
+        let grunt;
+        if (/^win/.test(process.platform)) {
+            grunt = "grunt.cmd";
+        } else {
+            grunt = "grunt";
+        }
+        return spawnProcess(grunt, [command], `grunt ${command}`);
+    },
+
+    spawnGit = params => {
+        return spawnProcess("git", params, `git ${params.join(" ")}`);
+    }
     ;
 
 let
@@ -73,25 +87,15 @@ inquirer.prompt([{
     type: "password",
     name: "githubPassword",
     message: "GitHub password: "
-// }, {
-//     type: "input",
-//     name: "githubProxy",
-//     message: "GitHub proxy: ",
-//     "default": configFile.content.github ? configFile.content.github.proxy : ""
 
 }])
     .then(answers => {
         version = answers.version;
         if (pkgVersion !== version) {
             console.log("Updating package.json version...");
-            fs.writeFileSync("package.json", pkgText.replace(pkgVersion, version));
+            // fs.writeFileSync("package.json", pkgText.replace(pkgVersion, version));
         }
         console.log("Releasing version: " + version);
-        // if (answers.githubProxy) {
-        //     console.log("Configuring proxy...");
-        //     require('global-tunnel').initialize(answers.githubProxy);
-        //     console.log("Proxy configured.");
-        // }
         console.log("Authenticating on GitHub...");
         gh = new GitHub({
             username: answers.githubUser,
@@ -130,13 +134,13 @@ inquirer.prompt([{
                 + `gpf/${version}/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=`
                 + `${version}) | [plato](https://arnaudbuchholz.github.io/gpf/${version}/plato/index.html)`
             );
-            fs.writeFileSync("README.md", readmeLines.join("\n"));
+            // fs.writeFileSync("README.md", readmeLines.join("\n"));
         }
-        return spawnGrunt("make");
+        // return spawnGrunt("make");
     })
-    .then(() => spawnGrunt("copy:releasePlatoHistory"))
-    // git commit -a -m "Release v${version}"
-    // git push
+    // .then(() => spawnGrunt("copy:releasePlatoHistory"))
+    .then(() => spawnGit(["commit", "-a", "-m", "test"])) // `Release v${version}`]))
+    .then(() => spawnGit(["push"]))
     // .then(() => gh.getRepo("ArnaudBuchholz", "gpf-js").createRelease({
     //     tag_name: `v${version}`,
     //     name: versionTitle
