@@ -51,3 +51,35 @@ Please check
 ## Safari
 
 [Safari 5.1.7 for Windows](http://appldnld.apple.com/Safari5/041-5487.20120509.INU8B/SafariSetup.exe)
+
+# Command line browser testing
+
+Coming with [version 0.1.7](http://gpf-js.blogspot.ca/2017/03/release-017.html), it is now possible to test a specific
+browser using a command line.
+
+There are several assumptions:
+- The command line is
+[spawned](https://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options) with only
+one parameter: the URL to open,
+- The command line must remain active until the test is completed,
+- When the test completes, the spawned process is closed with a
+[SIGKILL](https://nodejs.org/api/process.html#process_signal_events) signal.
+
+To configure the command line:
+- Make sure to run `grunt` at least once: this will initialize the `tmp/config.json` file. 
+- Open the `tmp/config.json` file, look for the `"browsers"` part
+- For each browser you want to test, add a key with type=spawn and the binary path to the command line set in bin
+
+For instance, Safari testing on Windows:
+
+```javascript
+    "browsers": {
+        "chrome": {
+            "type": "selenium"
+        },
+        "safari": {
+            "type": "spawn",
+            "bin": "C:\\Program Files (x86)\\Safari\\Safari.exe"
+        }
+    },
+```
