@@ -9,21 +9,7 @@
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*exported _gpfDefineGenerate$Keys*/ // Generate an array of names prefixed with $ from a comma separated list
 /*#endif*/
-
-/**
- * Generate an array of names prefixed with $ from a comma separated list
- *
- * @param {String} names Comma separated list of name
- * @return {String[]} Array of names prefixed with "$"
- * @since 0.1.6
- */
-function _gpfDefineGenerate$Keys (names) {
-    return names.split(",").map(function (name) {
-        return "$" + name;
-    });
-}
 
 _gpfErrorDeclare("define/check", {
     /**
@@ -78,7 +64,7 @@ function _gpfDefineEntityCheckProperty (value, name) {
     _gpfIgnore(value);
     /*jshint -W040*/ /*eslint-disable no-invalid-this*/ // bound through thisArg
     if (name.charAt(0) === "$") {
-        this._check$Property(name, value);
+        this._check$Property(name.substr(1), value);
     } else {
         this._checkProperty(name, value);
     }
@@ -102,21 +88,32 @@ Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.pr
      * @readonly
      * @since 0.1.6
      */
-    _allowed$Properties: _gpfDefineGenerate$Keys("type,name,namespace"),
+    _allowed$Properties: "type,name,namespace".split(","),
+
+    /**
+     * Check if the $ property is allowed by comparing in _allowed$Properties
+     *
+     * @param {String} name $ Property name (without the starting $)
+     * @see _GpfEntityDefinition.prototype._allowed$Properties
+     * @throws {gpf.Error.InvalidEntity$Property}
+     */
+    _check$PropertyInAllowed$Properties: function (name) {
+        if (-1 === this._allowed$Properties.indexOf(name)) {
+            gpf.Error.invalidEntity$Property();
+        }
+    },
 
     /**
      * Check if the $ property is allowed
      *
-     * @param {String} name $ Property name
+     * @param {String} name $ Property name (without the starting $)
      * @param {*} value $ Property value
-     * @see _GpfEntityDefinition.prototype._allowed$Properties
-     * @throws {gpf.Error.InvalidEntity$Property}
      * @since 0.1.6
      */
     _check$Property: function (name, value) {
         _gpfIgnore(value);
-        if (-1 === this._allowed$Properties.indexOf(name)) {
-            gpf.Error.invalidEntity$Property();
+        if (name !== this._type) {
+            this._check$PropertyInAllowed$Properties(name);
         }
     },
 
