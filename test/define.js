@@ -49,6 +49,18 @@ describe("define", function () {
 
     }
 
+    function _generateBasicValidations (descriptor) {
+        it(descriptor.it, function () {
+            var exceptionCaught;
+            try {
+                gpf.define(descriptor.definition);
+            } catch (e) {
+                exceptionCaught = e;
+            }
+            assert(exceptionCaught instanceof descriptor.exception);
+        });
+    }
+
     describe("gpf.define", function () {
 
         it("accepts only one parameter", function () {
@@ -58,14 +70,10 @@ describe("define", function () {
 
         describe("Common validation", function () {
 
-            it("checks that he entity type is specified", function () {
-                var exceptionCaught;
-                try {
-                    gpf.define({});
-                } catch (e) {
-                    exceptionCaught = e;
-                }
-                assert(exceptionCaught instanceof gpf.Error.InvalidEntityType);
+            _generateBasicValidations({
+                it: "checks that he entity type is specified",
+                definition: {},
+                exception: gpf.Error.InvalidEntityType
             });
 
         });
@@ -84,44 +92,31 @@ describe("define", function () {
                     "Test123": true
                 });
 
-                it("rejects invalid $ property names", function () {
-                    var exceptionCaught;
-                    try {
-                        gpf.define({
-                            $class: "Test",
-                            $test: false
-                        });
-                    } catch (e) {
-                        exceptionCaught = e;
-                    }
-                    assert(exceptionCaught instanceof gpf.Error.InvalidEntity$Property);
-                });
+                [{
+                    it: "rejects invalid $ property names",
+                    definition: {
+                        $class: "Test",
+                        $test: false
+                    },
+                    exception: gpf.Error.InvalidEntity$Property
 
-                it("rejects invalid property names (reserved keywords)", function () {
-                    var exceptionCaught;
-                    try {
-                        gpf.define({
-                            $class: "Test",
-                            "super": false
-                        });
-                    } catch (e) {
-                        exceptionCaught = e;
-                    }
-                    assert(exceptionCaught instanceof gpf.Error.InvalidClassProperty);
-                });
+                }, {
+                    it: "rejects invalid property names (reserved keywords)",
+                    definition: {
+                        $class: "Test",
+                        "super": false
+                    },
+                    exception: gpf.Error.InvalidClassProperty
 
-                it("rejects constructor property if not a method", function () {
-                    var exceptionCaught;
-                    try {
-                        gpf.define({
-                            $class: "Test",
-                            constructor: false
-                        });
-                    } catch (e) {
-                        exceptionCaught = e;
-                    }
-                    assert(exceptionCaught instanceof gpf.Error.InvalidClassConstructor);
-                });
+                }, {
+                    it: "rejects constructor property if not a method",
+                    definition: {
+                        $class: "Test",
+                        constructor: false
+                    },
+                    exception: gpf.Error.InvalidClassConstructor
+
+                }].forEach(_generateBasicValidations);
 
             });
 
