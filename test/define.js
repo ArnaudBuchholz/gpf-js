@@ -337,7 +337,7 @@ describe("define", function () {
                             $interface: "ITest",
                             member: false
                         },
-                        exception: gpf.Error.InvalidInterfaceMember
+                        exception: gpf.Error.InvalidInterfaceProperty
 
                     }, {
                         it: "rejects invalid property names (reserved keywords)",
@@ -345,7 +345,7 @@ describe("define", function () {
                             $interface: "ITest",
                             "super": function () {}
                         },
-                        exception: gpf.Error.InvalidInterfaceMember
+                        exception: gpf.Error.InvalidInterfaceProperty
 
                     }, {
                         it: "rejects constructor property",
@@ -353,7 +353,7 @@ describe("define", function () {
                             $class: "Test",
                             constructor: function () {}
                         },
-                        exception: gpf.Error.InvalidInterfaceMember
+                        exception: gpf.Error.InvalidInterfaceProperty
 
                     }].forEach(_generateBasicValidations);
 
