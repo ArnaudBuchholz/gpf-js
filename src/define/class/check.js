@@ -7,7 +7,6 @@
 /*global _GpfClassDefinition*/ // Class definition
 /*global _GpfEntityDefinition*/ // Entity definition
 /*global _gpfContext*/ // Resolve contextual string
-/*global _gpfDefineGenerate$Keys*/ // Generate an array of names prefixed with $ from a comma separated list
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*#endif*/
 
@@ -98,8 +97,7 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prot
      * @inheritdoc
      * @since 0.1.6
      */
-    _allowed$Properties: _GpfEntityDefinition.prototype._allowed$Properties
-        .concat(_gpfDefineGenerate$Keys("class,extend")),
+    _allowed$Properties: _GpfEntityDefinition.prototype._allowed$Properties.concat(["extend"]),
 
     /**
      * Check that the member name is a valid one
