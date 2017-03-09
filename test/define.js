@@ -331,6 +331,56 @@ describe("define", function () {
                         "IS": true
                     });
 
+                    [{
+                        it: "rejects interface if all members are not methods",
+                        definition: {
+                            $interface: "ITest",
+                            member: false
+                        },
+                        exception: gpf.Error.InvalidInterfaceMember
+
+                    }, {
+                        it: "rejects invalid property names (reserved keywords)",
+                        definition: {
+                            $interface: "ITest",
+                            "super": function () {}
+                        },
+                        exception: gpf.Error.InvalidInterfaceMember
+
+                    }, {
+                        it: "rejects constructor property",
+                        definition: {
+                            $class: "Test",
+                            constructor: function () {}
+                        },
+                        exception: gpf.Error.InvalidInterfaceMember
+
+                    }].forEach(_generateBasicValidations);
+
+                });
+
+                describe("Implementation", function () {
+
+                    var ITest = gpf.define({
+                        $interface: "ITest",
+                        test: function (value) {
+                            return value;
+                        }
+                    });
+
+                    it("can't be used as a class extend", function () {
+                        var exceptionCaught;
+                        try {
+                            gpf.define({
+                                $class: "Test",
+                                $extend: ITest
+                            });
+                        } catch (e) {
+                            exceptionCaught = e;
+                        }
+                        assert(exceptionCaught instanceof gpf.Error.InvalidClassExtend);
+                    });
+
                 });
 
             });
