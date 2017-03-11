@@ -143,6 +143,11 @@
         "doc": true
     },
     {
+        "name": "abstract",
+        "test": true,
+        "doc": true
+    },
+    {
         "name": "define/check",
         "doc": true
     },
@@ -174,6 +179,14 @@
         "name": "define/class/build",
         "test": false,
         "doc": true
+    },
+    {
+        "name": "define/interface/interface",
+        "load": false
+    },
+    {
+        "name": "define/interface/check",
+        "load": false
     },
     {
         "name": "define",
@@ -457,6 +470,10 @@
     },
     {
         "name": "define_/reader/visibility",
+        "load": false
+    },
+    {
+        "name": "interfaces_",
         "load": false
     }
 ]
