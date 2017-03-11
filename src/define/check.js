@@ -9,6 +9,7 @@
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
+/*global _gpfCreateAbstractFunction*/ // Build a function that throws the abstractMethod exception
 /*#endif*/
 
 _gpfErrorDeclare("define/check", {
@@ -118,6 +119,64 @@ Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.pr
     },
 
     /**
+     * Throw the invalid property error
+     *
+     * @abstract
+     * @protected
+     */
+    _throwInvalidProperty: _gpfCreateAbstractFunction(0),
+
+    /**
+     * Regular expression used to validate member name
+     *
+     * @type {RegExp}
+     * @readonly
+     * @protected
+     */
+    _reMemberName: new RegExp(".*"),
+
+    /**
+     * Check that the member name is a valid one
+     *
+     * @param {String} name Member name
+     */
+    _checkMemberName: function (name) {
+        if (!this._reMemberName.exec(name)) {
+            this._throwInvalidProperty();
+        }
+    },
+
+    /**
+     * List of reserved member names
+     *
+     * @type {String[]}
+     * @readonly
+     * @constant
+     */
+    _reservedNames: "super,class,public,private,protected,static,mixin".split(","),
+
+    /**
+     * Check that the member name is not a reserved one
+     *
+     * @param {String} name Member name
+     * @since 0.1.6
+     */
+    _checkReservedMemberName: function (name) {
+        if (-1 !== this._reservedNames.indexOf(name)) {
+            this._throwInvalidProperty();
+        }
+    },
+
+    /**
+     * Check the value of the member
+     *
+     * @param {String} name Property name
+     * @param {*} value Property value
+     * @protected
+     */
+    _checkMemberValue: _gpfFunc(["name", "value"], " "),
+
+    /**
      * Check if the property is allowed
      * NOTE: $ properties are handled by {@link _check$Property}
      *
@@ -125,7 +184,11 @@ Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.pr
      * @param {*} value Property value
      * @since 0.1.6
      */
-    _checkProperty: _gpfFunc(["name", "value"], " "),
+    _checkProperty: function (name, value) {
+        this._checkMemberName(name);
+        this._checkReservedMemberName(name);
+        this._checkMemberValue(name, value);
+    },
 
     /**
      * Check the properties contained in the definition passed to {@link gpf.define}
