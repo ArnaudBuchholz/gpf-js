@@ -39,3 +39,9 @@ function _gpfCreateAbstractFunction (numberOfParameters) {
         _throw_: gpf.Error.abstractMethod
     });
 }
+
+/*#ifndef(UMD)*/
+
+gpf.internals._gpfCreateAbstractFunction = _gpfCreateAbstractFunction;
+
+/*#endif*/
