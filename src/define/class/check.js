@@ -100,40 +100,14 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prot
     _allowed$Properties: _GpfEntityDefinition.prototype._allowed$Properties.concat(["extend"]),
 
     /**
-     * Check that the member name is a valid one
-     *
-     * @param {String} name Member name
-     * @throws {gpf.Error.InvalidClassProperty}
-     * @since 0.1.6
+     * @iheritdoc
      */
-    _checkMemberName: function (name) {
-        if (!new RegExp("^[a-z_][a-zA-Z0-9]*$").exec(name)) {
-            gpf.Error.invalidClassProperty();
-        }
-    },
+    _throwInvalidProperty: gpf.Error.invalidClassProperty,
 
     /**
-     * List of reserved member names
-     *
-     * @type {String[]}
-     * @readonly
-     * @constant
-     * @since 0.1.6
+     * @inheritdoc
      */
-    _reservedNames: "super,class,public,private,protected,static,mixin".split(","),
-
-    /**
-     * Check that the member name is not a reserved one
-     *
-     * @param {String} name Member name
-     * @throws {gpf.Error.InvalidClassProperty}
-     * @since 0.1.6
-     */
-    _checkReservedMemberName: function (name) {
-        if (-1 !== this._reservedNames.indexOf(name)) {
-            gpf.Error.invalidClassProperty();
-        }
-    },
+    _reMemberName: new RegExp("^[a-z_][a-zA-Z0-9]*$"),
 
     /**
      * Check that the constructor is a method
@@ -183,7 +157,6 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prot
      *
      * @param {String} name Property name
      * @param {*} value Property value
-     * @private
      * @since 0.1.7
      */
     _checkMemberValue: function (name, value) {
@@ -192,18 +165,6 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prot
         } else {
             this._checkIfOverriddenMember(name, value);
         }
-    },
-
-    /**
-     * @inheritdoc
-     * @throws {gpf.Error.InvalidClassProperty}
-     * @since 0.1.6
-     */
-    _checkProperty: function (name, value) {
-        _GpfEntityDefinition.prototype._checkProperty.call(this, name);
-        this._checkMemberName(name);
-        this._checkReservedMemberName(name);
-        this._checkMemberValue(name, value);
     },
 
     /**
