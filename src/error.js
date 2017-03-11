@@ -141,19 +141,6 @@ _gpfErrorDeclare("error", {
     /**
      * ### Summary
      *
-     * Method is abstract
-     *
-     * ### Description
-     *
-     * This error is used to implement abstract methods. Mostly used for interfaces.
-     * @since 0.1.5
-     */
-    abstractMethod:
-        "Abstract method",
-
-    /**
-     * ### Summary
-     *
      * An assertion failed
      *
      * ### Description
