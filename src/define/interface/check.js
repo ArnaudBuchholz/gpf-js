@@ -5,7 +5,6 @@
 "use strict";
 /*global _GpfInterfaceDefinition*/ // Interface definition
 /*global _GpfEntityDefinition*/ // Entity definition
-/*global _gpfDefineGenerate$Keys*/ // Generate an array of names prefixed with $ from a comma separated list
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*#endif*/
 
@@ -37,67 +36,22 @@ _gpfErrorDeclare("define/interface/check", {
 Object.assign(_GpfInterfaceDefinition.prototype, /** @lends _gpfClassDefinition.prototype */ {
 
     /**
+     * @iheritdoc
+     */
+    _throwInvalidProperty: gpf.Error.invalidInterfaceProperty,
+
+    /**
      * @inheritdoc
      */
-    _allowed$Properties: _GpfEntityDefinition.prototype._allowed$Properties
-        .concat(_gpfDefineGenerate$Keys("interface")),
+    _reMemberName: new RegExp("^[a-z][a-zA-Z0-9]*$"),
 
     /**
-     * Check that the member name is a valid one
-     *
-     * @param {String} name Member name
-     * @throws {gpf.Error.InvalidInterfaceProperty}
-     */
-    _checkMemberName: function (name) {
-        if (!new RegExp("^[a-z][a-zA-Z0-9]*$").exec(name)) {
-            gpf.Error.invalidInterfaceProperty();
-        }
-    },
-
-    /**
-     * List of reserved member names
-     *
-     * @type {String[]}
-     * @readonly
-     * @constant
-     */
-    _reservedNames: "super,class,public,private,protected,static,mixin,constructor".split(","),
-
-    /**
-     * Check that the member name is not a reserved one
-     *
-     * @param {String} name Member name
-     * @throws {gpf.Error.InvalidInterfaceProperty}
-     */
-    _checkReservedMemberName: function (name) {
-        if (-1 !== this._reservedNames.indexOf(name)) {
-            gpf.Error.invalidInterfaceProperty();
-        }
-    },
-
-    /**
-     * Check the value of the member: it must be a function
-     *
-     * @param {String} name Property name
-     * @param {*} value Property value
-     * @throws {gpf.Error.InvalidInterfaceProperty}
-     * @private
+     * @inheritdoc
      */
     _checkMemberValue: function (name, value) {
         if ("function" !== typeof value) {
             gpf.Error.invalidInterfaceProperty();
         }
-    },
-
-    /**
-     * @inheritdoc
-     * @throws {gpf.Error.InvalidInterfaceProperty}
-     */
-    _checkProperty: function (name, value) {
-        _GpfEntityDefinition.prototype._checkProperty.call(this, name);
-        this._checkMemberName(name);
-        this._checkReservedMemberName(name);
-        this._checkMemberValue(name, value);
     },
 
     /**
