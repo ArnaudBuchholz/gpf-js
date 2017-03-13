@@ -169,15 +169,13 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prot
 
     /**
      * @inheritdoc
-     * @throws {gpf.Error.InvalidClassName}
-     * @since 0.1.6
      */
-    _checkName: function () {
-        _GpfEntityDefinition.prototype._checkName.call(this);
-        if (!new RegExp("^[A-Z_$][a-zA-Z0-9]*$").exec(this._name)) {
-            gpf.Error.invalidClassName();
-        }
-    },
+    _reName: new RegExp("^[A-Z_$][a-zA-Z0-9]*$"),
+
+    /**
+     * @iheritdoc
+     */
+    _throwInvalidName: gpf.Error.invalidClassName,
 
     /**
      * Base class
