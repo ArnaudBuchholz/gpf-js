@@ -101,11 +101,13 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prot
 
     /**
      * @iheritdoc
+     * @since 0.1.8
      */
     _throwInvalidProperty: gpf.Error.invalidClassProperty,
 
     /**
      * @inheritdoc
+     * @since 0.1.8
      */
     _reMemberName: new RegExp("^[a-z_][a-zA-Z0-9]*$"),
 
@@ -169,11 +171,13 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prot
 
     /**
      * @inheritdoc
+     * @since 0.1.8
      */
     _reName: new RegExp("^[A-Z_$][a-zA-Z0-9]*$"),
 
     /**
      * @iheritdoc
+     * @since 0.1.8
      */
     _throwInvalidName: gpf.Error.invalidClassName,
 
