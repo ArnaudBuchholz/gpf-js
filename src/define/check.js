@@ -5,11 +5,11 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfEntityDefinition*/ // Entity definition
+/*global _gpfCreateAbstractFunction*/ // Build a function that throws the abstractMethod exception
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*global _gpfCreateAbstractFunction*/ // Build a function that throws the abstractMethod exception
 /*#endif*/
 
 _gpfErrorDeclare("define/check", {
@@ -107,6 +107,7 @@ Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.pr
      *
      * @abstract
      * @protected
+     * @since 0.1.8
      */
     _throwInvalidProperty: _gpfCreateAbstractFunction(0),
 
@@ -116,6 +117,7 @@ Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.pr
      * @type {RegExp}
      * @readonly
      * @protected
+     * @since 0.1.8
      */
     _reMemberName: new RegExp(".*"),
 
@@ -123,6 +125,7 @@ Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.pr
      * Check that the member name is a valid one
      *
      * @param {String} name Member name
+     * @since 0.1.8
      */
     _checkMemberName: function (name) {
         if (!this._reMemberName.exec(name)) {
@@ -136,6 +139,7 @@ Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.pr
      * @type {String[]}
      * @readonly
      * @constant
+     * @since 0.1.8
      */
     _reservedNames: "super,class,public,private,protected,static,mixin".split(","),
 
@@ -157,6 +161,7 @@ Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.pr
      * @param {String} name Property name
      * @param {*} value Property value
      * @protected
+     * @since 0.1.8
      */
     _checkMemberValue: _gpfFunc(["name", "value"], " "),
 
@@ -214,6 +219,7 @@ Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.pr
      *
      * @abstract
      * @protected
+     * @since 0.1.8
      */
     _throwInvalidName: _gpfCreateAbstractFunction(0),
 
@@ -223,6 +229,7 @@ Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.pr
      * @type {RegExp}
      * @readonly
      * @protected
+     * @since 0.1.8
      */
     _reName: new RegExp(".*"),
 
