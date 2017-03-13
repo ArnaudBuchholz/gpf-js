@@ -58,15 +58,6 @@ function _gpfDefineEntityCheck$PropertyInAllowed$Properties (name, allowedList) 
     }
 }
 
-function _gpfDefineEntityCheckNameIsNotEmpty () {
-    /*jshint validthis:true*/ // constructor
-    /*eslint-disable no-invalid-this*/
-    if (!this._name) {
-        gpf.Error.missingEntityName();
-    }
-    /*eslint-enable no-invalid-this*/
-}
-
 function _gpfDefineEntityCheckProperty (value, name) {
     _gpfIgnore(value);
     /*jshint -W040*/ /*eslint-disable no-invalid-this*/ // bound through thisArg
@@ -212,15 +203,39 @@ Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.pr
      * @throws {gpf.Error.MissingEntityName}
      * @since 0.1.6
      */
-    _checkNameIsNotEmpty: _gpfDefineEntityCheckNameIsNotEmpty,
+    _checkNameIsNotEmpty: function () {
+        if (!this._name) {
+            gpf.Error.missingEntityName();
+        }
+    },
+
+    /**
+     * Throw the invalid name error
+     *
+     * @abstract
+     * @protected
+     */
+    _throwInvalidName: _gpfCreateAbstractFunction(0),
+
+    /**
+     * Regular expression used to validate entity name
+     *
+     * @type {RegExp}
+     * @readonly
+     * @protected
+     */
+    _reName: new RegExp(".*"),
 
     /**
      * Check name property (content)
      *
-     * @throws {gpf.Error.MissingEntityName}
      * @since 0.1.6
      */
-    _checkName: _gpfDefineEntityCheckNameIsNotEmpty,
+    _checkName: function () {
+        if (!this._reName.exec(this._name)) {
+            this._throwInvalidName();
+        }
+    },
 
     /**
      * Entity namespace
