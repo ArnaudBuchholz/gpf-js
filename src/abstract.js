@@ -1,11 +1,12 @@
 /**
  * @file Abstract method helper
+ * @since 0.1.8
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfBuildFunctionParameterList*/ // Builds an array of parameters
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunctionBuild*/ // Build function from description and context
-/*global _gpfBuildFunctionParameterList*/ // Builds an array of parameters
 /*exported _gpfCreateAbstractFunction*/ // Build a function that throws the abstractMethod exception
 /*#endif*/
 
@@ -30,6 +31,7 @@ _gpfErrorDeclare("abstract", {
  *
  * @param {Number} numberOfParameters Defines the signature of the resulting function
  * @return {Function} Function that throws the abstractMethod exception
+ * @since 0.1.8
  */
 function _gpfCreateAbstractFunction (numberOfParameters) {
     return _gpfFunctionBuild({
