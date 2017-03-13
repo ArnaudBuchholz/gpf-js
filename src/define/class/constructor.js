@@ -50,7 +50,7 @@ function _gpfDefineGetClassSecuredConstructorContext (classDefinition) {
 /**
  * Allocate a secured named constructor
  *
- * @param {_GpfClassDefinition} classDefinition Entity definition
+ * @param {_GpfClassDefinition} classDefinition Class definition
  * @return {Function} Secured named constructor
  * @gpf:closure
  * @since 0.1.6
