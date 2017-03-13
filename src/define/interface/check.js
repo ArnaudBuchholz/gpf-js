@@ -4,7 +4,6 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfInterfaceDefinition*/ // Interface definition
-/*global _GpfEntityDefinition*/ // Entity definition
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*#endif*/
 
@@ -33,7 +32,7 @@ _gpfErrorDeclare("define/interface/check", {
 
 });
 
-Object.assign(_GpfInterfaceDefinition.prototype, /** @lends _gpfClassDefinition.prototype */ {
+Object.assign(_GpfInterfaceDefinition.prototype, /** @lends _GpfInterfaceDefinition.prototype */ {
 
     /**
      * @iheritdoc
@@ -56,13 +55,12 @@ Object.assign(_GpfInterfaceDefinition.prototype, /** @lends _gpfClassDefinition.
 
     /**
      * @inheritdoc
-     * @throws {gpf.Error.InvalidInterfaceName}
      */
-    _checkName: function () {
-        _GpfEntityDefinition.prototype._checkName.call(this);
-        if (!new RegExp("^I[a-zA-Z0-9]*$").exec(this._name)) {
-            gpf.Error.invalidInterfaceName();
-        }
-    }
+    _reName: new RegExp("^I[a-zA-Z0-9]*$"),
+
+    /**
+     * @iheritdoc
+     */
+    _throwInvalidName: gpf.Error.invalidInterfaceName
 
 });
