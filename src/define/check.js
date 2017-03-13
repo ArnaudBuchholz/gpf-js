@@ -52,6 +52,12 @@ _gpfErrorDeclare("define/check", {
 
 });
 
+function _gpfDefineEntityCheck$PropertyInAllowed$Properties (name, allowedList) {
+    if (-1 === allowedList.indexOf(name)) {
+        gpf.Error.invalidEntity$Property();
+    }
+}
+
 function _gpfDefineEntityCheckNameIsNotEmpty () {
     /*jshint validthis:true*/ // constructor
     /*eslint-disable no-invalid-this*/
@@ -92,19 +98,6 @@ Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.pr
     _allowed$Properties: "type,name,namespace".split(","),
 
     /**
-     * Check if the $ property is allowed by comparing in _allowed$Properties
-     *
-     * @param {String} name $ Property name (without the starting $)
-     * @see _GpfEntityDefinition.prototype._allowed$Properties
-     * @throws {gpf.Error.InvalidEntity$Property}
-     */
-    _check$PropertyInAllowed$Properties: function (name) {
-        if (-1 === this._allowed$Properties.indexOf(name)) {
-            gpf.Error.invalidEntity$Property();
-        }
-    },
-
-    /**
      * Check if the $ property is allowed
      *
      * @param {String} name $ Property name (without the starting $)
@@ -114,7 +107,7 @@ Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.pr
     _check$Property: function (name, value) {
         _gpfIgnore(value);
         if (name !== this._type) {
-            this._check$PropertyInAllowed$Properties(name);
+            _gpfDefineEntityCheck$PropertyInAllowed$Properties(name, this._allowed$Properties);
         }
     },
 
