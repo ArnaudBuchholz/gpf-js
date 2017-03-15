@@ -78,8 +78,14 @@
     "define/entity": [
         "assert"
     ],
+    "abstract": [
+        "factory",
+        "error",
+        "function"
+    ],
     "define/check": [
         "define/entity",
+        "abstract",
         "error",
         "constants",
         "foreach"
@@ -96,7 +102,6 @@
         "define/class/class",
         "define/entity",
         "context",
-        "define/check",
         "error"
     ],
     "define/class/constructor": [
@@ -112,6 +117,24 @@
     "define/class/build": [
         "define/class/class",
         "define/class/constructor",
+        "foreach"
+    ],
+    "define/interface/interface": [
+        "define/entity",
+        "define/detect"
+    ],
+    "define/interface/check": [
+        "define/entity",
+        "define/interface/interface",
+        "error"
+    ],
+    "define/interface/constructor": [
+        "error",
+        "function"
+    ],
+    "define/interface/build": [
+        "define/interface/interface",
+        "define/interface/constructor",
         "foreach"
     ],
     "define": [
