@@ -1,5 +1,6 @@
 /**
  * @file Check entity definition
+ * @since 0.1.8
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -17,6 +18,7 @@ _gpfErrorDeclare("define/interface/check", {
      * ### Description
      *
      * Only a valid JavaScript identifier (starting with an uppercase I) is allowed
+     * @since 0.1.8
      */
     invalidInterfaceName: "Invalid interface name",
 
@@ -28,6 +30,7 @@ _gpfErrorDeclare("define/interface/check", {
      * ### Description
      *
      * An interface can contain only methods and no constructor
+     * @since 0.1.8
      */
     invalidInterfaceProperty: "Invalid interface property"
 
@@ -37,21 +40,25 @@ Object.assign(_GpfInterfaceDefinition.prototype, /** @lends _GpfInterfaceDefinit
 
     /**
      * @iheritdoc
+     * @since 0.1.8
      */
     _throwInvalidProperty: gpf.Error.invalidInterfaceProperty,
 
     /**
      * @inheritdoc
+     * @since 0.1.8
      */
     _reMemberName: new RegExp("^[a-z][a-zA-Z0-9]*$"),
 
     /**
      * @inheritdoc
+     * @since 0.1.8
      */
     _reservedNames: _GpfEntityDefinition.prototype._reservedNames.concat("constructor"),
 
     /**
      * @inheritdoc
+     * @since 0.1.8
      */
     _checkMemberValue: function (name, value) {
         if ("function" !== typeof value) {
@@ -61,11 +68,13 @@ Object.assign(_GpfInterfaceDefinition.prototype, /** @lends _GpfInterfaceDefinit
 
     /**
      * @inheritdoc
+     * @since 0.1.8
      */
     _reName: new RegExp("^I[a-zA-Z0-9]*$"),
 
     /**
      * @iheritdoc
+     * @since 0.1.8
      */
     _throwInvalidName: gpf.Error.invalidInterfaceName
 
