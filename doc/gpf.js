@@ -1,5 +1,13 @@
 "use strict";
 
+let verbose;
+if ([].slice.call(process.argv).some(arg => arg === "--verbose")) {
+    verbose = t => console.log(`[gpf doc plugin] ${t}`);
+} else {
+    verbose = () => {};
+}
+verbose("loaded");
+
 function _logDoclet (doclet) {
     let title = [];
     if (doclet.meta && doclet.meta.lineno) {
@@ -88,6 +96,7 @@ function _handleCustomTags (doclet, doclets) {
                 handler = _customTags[customTag];
             if (undefined !== handler) {
                 try {
+                    verbose(customTag);
                     handler(doclet, tag, doclets);
                 } catch (e) {
                     console.error(`${doclet.meta.path}/${doclet.meta.filename}@${doclet.meta.lineno}:${e.message}`);
@@ -149,7 +158,7 @@ function _postProcessDoclet (doclet, index, doclets) {
 }
 
 const
-    _reErrorDeclare = /_gpfErrorDeclare\("([a-zA-Z\\]+)", {\n((?:.*\n)*)\s*}\)/g,
+    _reErrorDeclare = /_gpfErrorDeclare\("([a-zA-Z\\]+)", {\n((?:[^}]|}[^)]|\n)*)\s*}\)/g,
     _reErrorItems = /(?:\/\*\*((?:[^*]|\s|\*[^/])*)\*\/)?\s*([a-zA-Z]+):\s*"([^"]*)"/g,
     _reContextualParams = /{(\w+)}/g;
 
@@ -196,6 +205,7 @@ function _checkForGpfErrorDeclare (event) {
         _reErrorItems.lastIndex = 0;
         errorItem = _reErrorItems.exec(errorsPart);
         while (errorItem) {
+            verbose(`error: ${errorItem[2]}`);
             comments.push(_generateJsDocForError(errorItem[2], errorItem[3], errorItem[1]));
             errorItem = _reErrorItems.exec(errorsPart);
         }
@@ -250,12 +260,16 @@ module.exports = {
     handlers: {
 
         beforeParse: function (event) {
+            verbose(">> beforeParse");
             _disableFileComment(event);
             _checkForGpfErrorDeclare(event);
+            verbose("<< beforeParse");
         },
 
         processingComplete: function (event) {
+            verbose(">> processingComplete");
             event.doclets.forEach(_postProcessDoclet);
+            verbose(">> processingComplete");
         }
 
     }
