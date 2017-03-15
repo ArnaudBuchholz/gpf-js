@@ -5,9 +5,9 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfClassDefinition*/ // Class definition
-/*global _gpfEmptyFunc*/ // An empty function
 /*global _GpfEntityDefinition*/ // Entity definition
 /*global _gpfContext*/ // Resolve contextual string
+/*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*#endif*/
 
@@ -205,6 +205,7 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prot
      * Check if the extend property points to an interface
      *
      * @throws {gpf.Error.InvalidClassExtend}
+     * @since 0.1.8
      */
     _checkExtendIsNotAnInterface: function () {
         if (-1 !== _gpfEmptyFunc.toString.call(this._extend).indexOf("interfaceConstructorFunction")) {
