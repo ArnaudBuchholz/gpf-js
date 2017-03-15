@@ -1,5 +1,6 @@
 /**
  * @file Interface constructor
+ * @since 0.1.8
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -35,6 +36,7 @@ function _gpfDefineGetInterfaceConstructorContext (interfaceDefinition) {
  * @param {_GpfInterfaceDefinition} interfaceDefinition Interface definition
  * @return {Function} Secured named constructor
  * @gpf:closure
+ * @since 0.1.8
  */
 function _gpfDefineGetInterfaceConstructor (interfaceDefinition) {
     return _gpfFunctionBuild(_gpfDefineGetInterfaceConstructorDefinition(interfaceDefinition),
