@@ -1,5 +1,6 @@
 /**
  * @file Interface definition
+ * @since 0.1.8
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -14,6 +15,7 @@
  * @param {Object} definition Entity definition
  * @extends _GpfEntityDefinition
  * @constructor
+ * @since 0.1.8
  */
 function _GpfInterfaceDefinition (definition) {
     /*jshint validthis:true*/ // constructor
@@ -28,7 +30,10 @@ Object.assign(_GpfInterfaceDefinition.prototype, /** @lends _GpfInterfaceDefinit
 
     constructor: _GpfInterfaceDefinition,
 
-    /** @inheritdoc */
+    /**
+     * @inheritdoc
+     * @since 0.1.8
+     */
     _type: "interface"
 
 });
