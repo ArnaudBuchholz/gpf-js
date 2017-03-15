@@ -312,80 +312,78 @@ describe("define", function () {
 
         });
 
-        if (gpf.interfaces) {
+        describe("Interface definition", function () {
 
-            describe("Interface definition", function () {
+            describe("Validation", function () {
 
-                describe("Validation", function () {
-
-                    _generateNamesValidation("interface", gpf.Error.InvalidInterfaceName, {
-                        "1NumberAtTheBeginningIsNotOK": false,
-                        "noUppercaseFirstLetterIsNotOK": false,
-                        "DollarSignAnywhereIsNotOK$": false,
-                        "NotStartingWithUppercaseI": false,
-                        "A": false,
-                        "$B": false,
-                        "_C": false,
-                        "Test123": false,
-                        "ISample": true,
-                        "IS": true
-                    });
-
-                    [{
-                        it: "rejects interface if all members are not methods",
-                        definition: {
-                            $interface: "ITest",
-                            member: false
-                        },
-                        exception: gpf.Error.InvalidInterfaceProperty
-
-                    }, {
-                        it: "rejects invalid property names (reserved keywords)",
-                        definition: {
-                            $interface: "ITest",
-                            "super": function () {}
-                        },
-                        exception: gpf.Error.InvalidInterfaceProperty
-
-                    }, {
-                        it: "rejects constructor property",
-                        definition: {
-                            $class: "Test",
-                            constructor: function () {}
-                        },
-                        exception: gpf.Error.InvalidInterfaceProperty
-
-                    }].forEach(_generateBasicValidations);
-
+                _generateNamesValidation("interface", gpf.Error.InvalidInterfaceName, {
+                    "1NumberAtTheBeginningIsNotOK": false,
+                    "noUppercaseFirstLetterIsNotOK": false,
+                    "DollarSignAnywhereIsNotOK$": false,
+                    "NotStartingWithUppercaseI": false,
+                    "A": false,
+                    "$B": false,
+                    "_C": false,
+                    "Test123": false,
+                    "ISample": true,
+                    "IS": true
                 });
 
-                describe("Implementation", function () {
-
-                    var ITest = gpf.define({
+                [{
+                    it: "rejects interface if all members are not methods",
+                    definition: {
                         $interface: "ITest",
-                        test: function (value) {
-                            return value;
-                        }
-                    });
+                        member: false
+                    },
+                    exception: gpf.Error.InvalidInterfaceProperty
 
-                    it("can't be used as a class extend", function () {
-                        var exceptionCaught;
-                        try {
-                            gpf.define({
-                                $class: "Test",
-                                $extend: ITest
-                            });
-                        } catch (e) {
-                            exceptionCaught = e;
+                }, {
+                    it: "rejects invalid property names (reserved keywords)",
+                    definition: {
+                        $interface: "ITest",
+                        "super": function () {
                         }
-                        assert(exceptionCaught instanceof gpf.Error.InvalidClassExtend);
-                    });
+                    },
+                    exception: gpf.Error.InvalidInterfaceProperty
 
+                }, {
+                    it: "rejects constructor property",
+                    definition: {
+                        $interface: "ITest",
+                        constructor: function () {
+                        }
+                    },
+                    exception: gpf.Error.InvalidInterfaceProperty
+
+                }].forEach(_generateBasicValidations);
+
+            });
+
+            describe("Implementation", function () {
+
+                var ITest = gpf.define({
+                    $interface: "ITest",
+                    test: function (value) {
+                        return value;
+                    }
+                });
+
+                it("can't be used as a class extend", function () {
+                    var exceptionCaught;
+                    try {
+                        gpf.define({
+                            $class: "Test",
+                            $extend: ITest
+                        });
+                    } catch (e) {
+                        exceptionCaught = e;
+                    }
+                    assert(exceptionCaught instanceof gpf.Error.InvalidClassExtend);
                 });
 
             });
 
-        }
+        });
 
     });
 
