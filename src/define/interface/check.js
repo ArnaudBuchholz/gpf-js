@@ -3,6 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GpfEntityDefinition*/ // Entity definition
 /*global _GpfInterfaceDefinition*/ // Interface definition
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*#endif*/
@@ -28,7 +29,7 @@ _gpfErrorDeclare("define/interface/check", {
      *
      * An interface can contain only methods and no constructor
      */
-    InvalidInterfaceProperty: "Invalid interface property"
+    invalidInterfaceProperty: "Invalid interface property"
 
 });
 
@@ -43,6 +44,11 @@ Object.assign(_GpfInterfaceDefinition.prototype, /** @lends _GpfInterfaceDefinit
      * @inheritdoc
      */
     _reMemberName: new RegExp("^[a-z][a-zA-Z0-9]*$"),
+
+    /**
+     * @inheritdoc
+     */
+    _reservedNames: _GpfEntityDefinition.prototype._reservedNames.concat("constructor"),
 
     /**
      * @inheritdoc
