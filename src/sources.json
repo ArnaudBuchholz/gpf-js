@@ -181,15 +181,23 @@
     },
     {
         "name": "define/interface/interface",
-        "load": false
+        "test": false,
+        "doc": true
     },
     {
         "name": "define/interface/check",
-        "load": false
+        "test": false,
+        "doc": true
     },
     {
         "name": "define/interface/constructor",
-        "load": false
+        "test": false,
+        "doc": true
+    },
+    {
+        "name": "define/interface/build",
+        "test": false,
+        "doc": true
     },
     {
         "name": "define",
