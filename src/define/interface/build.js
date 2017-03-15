@@ -1,9 +1,10 @@
 /**
  * @file Build class
+ * @since 0.1.8
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GpfInterfaceDefinition*/ // Class definition
+/*global _GpfInterfaceDefinition*/ // Interface definition
 /*global _gpfDefineGetInterfaceConstructor*/ // Allocate an interface constructor
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*#endif*/
@@ -12,6 +13,7 @@ Object.assign(_GpfInterfaceDefinition.prototype, /** @lends _GpfInterfaceDefinit
 
     /**
      * @inheritdoc
+     * @since 0.1.8
      */
     _build: function () {
         var newClass,
