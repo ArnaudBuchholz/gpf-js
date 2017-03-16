@@ -16,7 +16,7 @@ _gpfDefine({ /** @lends {gpf.interfaces.IUnknown} */
     $interface: "gpf.interfaces.IUnknown",
 
     /**
-     * Query interface object
+     * Retrieves an object supporting the requested interface (maybe the object itself)
      *
      * @param {Function} Interface specifier function
      * @return {Object} The object implementing the interface or null
