@@ -139,5 +139,14 @@
     ],
     "define": [
         "define/detect"
+    ],
+    "interfaces": [
+        "context",
+        "error",
+        "foreach"
+    ],
+    "interfaces/unknown": [
+        "abstract",
+        "define"
     ]
 }
