@@ -19,6 +19,7 @@ module.exports = function (grunt) {
                 configFile.readSourceFiles();
                 grunt.config.set("jshint.files", configuration.files.linting.js.concat("make/*.json"));
                 grunt.config.set("eslint.target", configuration.files.linting.js);
+                grunt.config.set("mochaTest.source.src", configuration.files.test);
             }
         });
     });
