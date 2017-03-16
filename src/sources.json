@@ -204,6 +204,15 @@
         "doc": true
     },
     {
+        "name": "interfaces",
+        "doc": true
+    },
+    {
+        "name": "interfaces/unknown",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "events",
         "load": false
     },
@@ -265,10 +274,6 @@
     },
     {
         "name": "attributes/class",
-        "load": false
-    },
-    {
-        "name": "interfaces",
         "load": false
     },
     {
