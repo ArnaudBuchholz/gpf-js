@@ -14,7 +14,7 @@ describe("assert", function () {
             } catch (e) {
                 exceptionCaught = e;
             }
-            assert(undefined !== exceptionCaught);
+            assert(exceptionCaught instanceof gpf.Error.AssertionFailed);
         });
 
         [
@@ -53,7 +53,7 @@ describe("assert", function () {
                 } catch (e) {
                     exceptionCaught = e;
                 }
-                assert(undefined !== exceptionCaught);
+                assert(exceptionCaught instanceof gpf.Error.AssertionFailed);
             });
         });
 
@@ -71,6 +71,9 @@ describe("assert", function () {
         it("fails on first falsy", function () {
             var exceptionCaught;
             try {
+                if (console.expects) {
+                    console.expects("warn", /.*/);
+                }
                 gpf.asserts({
                     "It works": true,
                     "It fails": false
@@ -78,7 +81,23 @@ describe("assert", function () {
             } catch (e) {
                 exceptionCaught = e;
             }
-            assert(undefined !== exceptionCaught);
+            assert(exceptionCaught instanceof gpf.Error.AssertionFailed);
+        });
+
+    });
+
+    describe("gpf.preventAssertWarnings", function () {
+
+        it("prevents assertion warnings", function () {
+            gpf.preventAssertWarnings(true);
+            var exceptionCaught;
+            try {
+                gpf.assert(false, "It fails");
+            } catch (e) {
+                exceptionCaught = e;
+            }
+            assert(exceptionCaught instanceof gpf.Error.AssertionFailed);
+            gpf.preventAssertWarnings(false);
         });
 
     });
