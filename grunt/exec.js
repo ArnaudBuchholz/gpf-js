@@ -44,8 +44,10 @@ module.exports = {
         cmd: "node test/host/selenium/detect.js"
     }, verbose, failIfNot0),
     jsdoc: Object.assign({
-        cmd: () => "node node_modules/jsdoc/jsdoc -d tmp/jsdoc --verbose "
-                    + "-c doc/private.json " + [].slice.call(arguments).join(" ")
+        cmd: function () {
+            return "node node_modules/jsdoc/jsdoc -d tmp/jsdoc --verbose "
+                + "-c doc/private.json " + [].slice.call(arguments).join(" ");
+        }
     }, verbose, failIfNot0),
     fixUglify: Object.assign({
         cmd: name => `node make/fix_uglify.js ${name}`
