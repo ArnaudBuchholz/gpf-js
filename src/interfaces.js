@@ -17,7 +17,7 @@ _gpfErrorDeclare("interfaces", {
 });
 
 function _gpfInterfaceIsInvalidMethod (referenceMethod, method) {
-    return "function" !== typeof method || referenceMethod.length !== referenceMethod.length;
+    return "function" !== typeof method || referenceMethod.length !== method.length;
 }
 
 /**
