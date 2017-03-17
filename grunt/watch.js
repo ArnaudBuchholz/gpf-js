@@ -7,7 +7,7 @@ module.exports = {
         "jshint",
         "eslint",
         "exec:plato",
-        "mochaTest:source"
+        "mochaTest:source:noConsole"
     ],
     options: {
         spawn: false
