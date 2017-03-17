@@ -69,6 +69,20 @@ describe("interfaces", function () {
             }));
         });
 
+        it("rejects member if parameters count does not match (none)", function () {
+            assert(false === gpf.interfaces.isImplementedBy("gpf.interfaces.IUnknown", {
+                queryInterface: function () {}
+            }));
+        });
+
+        it("rejects member if parameters count does not match (more)", function () {
+            assert(false === gpf.interfaces.isImplementedBy(gpf.interfaces.IUnknown, {
+                queryInterface: function (a, b, c) {
+                    return a + b + c;
+                }
+            }));
+        });
+
     });
 
 });
