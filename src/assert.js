@@ -11,11 +11,18 @@
 /*#endif*/
 
 var _gpfAssert,
-    _gpfAsserts;
+    _gpfAsserts,
+    _gpfAssertWarn = true;
+
+function _gpfAssertConsoleWarn (message) {
+    if (_gpfAssertWarn) {
+        console.warn("ASSERTION FAILED: " + message);
+    }
+}
 
 function _gpfAssertFailIfConditionFalsy (condition, message) {
     if (!condition) {
-        console.warn("ASSERTION FAILED: " + message);
+        _gpfAssertConsoleWarn(message);
         gpf.Error.assertionFailed({
             message: message
         });
@@ -60,6 +67,17 @@ gpf.assert = _gpfAssertImpl;
  * @since 0.1.5
  */
 gpf.asserts = _gpfAssertsImpl;
+
+/**
+ * By default, a failing assert will generate a console warning.
+ * Use this method to prevent console warnings to be generated.
+ *
+ * @param {Boolean} silent True to prevent console warnings on failing assertions
+ * @since 0.1.8
+ */
+gpf.preventAssertWarnings = function (silent) {
+    _gpfAssertWarn = !silent;
+};
 
 /*#ifdef(DEBUG)*/
 
