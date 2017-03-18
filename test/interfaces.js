@@ -2,6 +2,8 @@
 
 describe("interfaces", function () {
 
+    function _ignore () {}
+
     describe("gpf.interfaces.IUnknown", function () {
 
         it("exists", function () {
@@ -79,6 +81,63 @@ describe("interfaces", function () {
             assert(false === gpf.interfaces.isImplementedBy(gpf.interfaces.IUnknown, {
                 queryInterface: function (a, b, c) {
                     return a + b + c;
+                }
+            }));
+        });
+
+    });
+
+    describe("gpf.interfaces.query", function () {
+
+        function ITest () {}
+        ITest.prototype.test = function (a, b) {
+            return a + b;
+        };
+
+        it("returns the object if it implements the interface (using interface name)", function () {
+            var obj = {
+                queryInterface: function (oneParameter) {
+                    return oneParameter;
+                }
+            };
+            assert(obj === gpf.interfaces.query("gpf.interfaces.IUnknown", obj));
+        });
+
+        it("returns the object if it implements the interface (using interface specifier)", function () {
+            var obj = {
+                test: function (a, b) {
+                    _ignore(a, b);
+                }
+            };
+            assert(obj === gpf.interfaces.query(ITest, obj));
+        });
+
+        it("returns null if IUnknown is implemented but not the expected interface", function () {
+            assert(null === gpf.interfaces.query(ITest, {
+                queryInterface: function (oneParameter) {
+                    _ignore(oneParameter);
+                    return null; // Because this is the expected interface
+                }
+            }));
+        });
+
+        it("uses IUnknown to get the expected interface", function () {
+            assert(null !== gpf.interfaces.query(ITest, {
+                queryInterface: function (interfaceSpecifier) {
+                    assert(interfaceSpecifier === ITest);
+                    return {
+                        test: function (a, b) {
+                            _ignore(a, b);
+                        }
+                    };
+                }
+            }));
+        });
+
+        it("returns undefined if neither the expected interface or IUnknown are implemented", function () {
+            assert(undefined === gpf.interfaces.query(ITest, {
+                queryInterface: function () { // Not matching IUnknown
+                    return null;
                 }
             }));
         });
