@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfContext*/ // Resolve contextual string
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
@@ -23,8 +24,8 @@ function _gpfInterfaceIsInvalidMethod (referenceMethod, method) {
 /**
  * Verify that the object implements the specified interface
  *
- * @param {gpf.interfaces.Interface} interfaceSpecifier Reference interface
- * @param {Object} inspectedObject Object (or class) to inspect
+ * @param {Function} interfaceSpecifier Reference interface
+ * @param {Object} inspectedObject Object (or class prototype) to inspect
  * @return {Boolean} True if implemented
  * @since 0.1.8
  */
@@ -36,6 +37,54 @@ function _gpfInterfaceIsImplementedBy (interfaceSpecifier, inspectedObject) {
         }
     });
     return result;
+}
+
+/**
+ * Retrieve an object implementing the expected interface from an object using the IUnknown interface
+ *
+ * @param {Function} interfaceSpecifier Reference interface
+ * @param {Object} queriedObject Object to query
+ * @return {Object|null} Object implementing the interface or null
+ * @since 0.1.8
+ */
+function _gpfInterfaceQueryThroughIUnknown (interfaceSpecifier, queriedObject) {
+    var result = queriedObject.queryInterface(interfaceSpecifier);
+    _gpfAssert(null === result || _gpfInterfaceIsImplementedBy(interfaceSpecifier, result),
+        "Invalid result of queryInterface (must be null or an object implementing the interface)");
+    return result;
+}
+
+/**
+ * Retrieve an object implementing the expected interface from an object trying the IUnknown interface
+ *
+ * @param {Function} interfaceSpecifier Reference interface
+ * @param {Object} queriedObject Object to query
+ * @return {Object|null|undefined} Object implementing the interface or null,
+ * undefined is returned when IUnknown is not implemented
+ * @since 0.1.8
+ */
+function _gpfInterfaceQueryTryIUnknown (interfaceSpecifier, queriedObject) {
+    if (_gpfInterfaceIsImplementedBy(gpf.interfaces.IUnknown, queriedObject)) {
+        return _gpfInterfaceQueryThroughIUnknown(interfaceSpecifier, queriedObject);
+    }
+}
+
+/**
+ * Retrieve an object implementing the expected interface from an object:
+ * - Either the object implements the interface, it is returned
+ * - Or the object implements IUnknown, then queryInterface is used
+ *
+ * @param {Function} interfaceSpecifier Reference interface
+ * @param {Object} queriedObject Object to query
+ * @return {Object|null|undefined} Object implementing the interface or null,
+ * undefined is returned when IUnknown is not implemented
+ * @since 0.1.8
+ */
+function _gpfInterfaceQuery (interfaceSpecifier, queriedObject) {
+    if (_gpfInterfaceIsImplementedBy(interfaceSpecifier, queriedObject)) {
+        return queriedObject;
+    }
+    return _gpfInterfaceQueryTryIUnknown(interfaceSpecifier, queriedObject);
 }
 
 function _gpfInterfaceResolveSpecifier (interfaceSpecifier) {
@@ -70,6 +119,21 @@ var _gpfI = gpf.interfaces = {
     isImplementedBy: function (interfaceSpecifier, inspectedObject) {
         return _gpfInterfaceIsImplementedBy(_gpfInterfaceResolveSpecifier(interfaceSpecifier),
             _gpfInterfaceToInspectableObject(inspectedObject));
+    },
+
+    /**
+     * Retrieve an object implementing the expected interface from an object:
+     * - Either the object implements the interface, it is returned
+     * - Or the object implements IUnknown, then queryInterface is used
+     *
+     * @param {Function|String} interfaceSpecifier Interface specifier
+     * @param {Object} queriedObject Object to query
+     * @return {Object|null|undefined} Object implementing the interface or null,
+     * undefined is returned when IUnknown is not implemented
+     * @since 0.1.8
+     */
+    query: function (interfaceSpecifier, queriedObject) {
+        return _gpfInterfaceQuery(_gpfInterfaceResolveSpecifier(interfaceSpecifier), queriedObject);
     }
 
 };
