@@ -135,17 +135,39 @@
         }
     }
 
-    function _runBDD (configuration, verbose) {
+    function _runBDDPerf (configuration/*, options*/) {
+        var totalTimeSpent = 0,
+            loop = 1;
+        function callback (type, data) {
+            if (type === "results") {
+                configuration.log("Round " + loop + ": " + data.timeSpent + "ms");
+                totalTimeSpent += data.timeSpent;
+                if (9 < loop) {
+                    configuration.log("Mean time: " + Math.floor(totalTimeSpent / 10) + "ms");
+                } else {
+                    ++loop;
+                    run(callback);
+                }
+            }
+        }
+        run(callback);
+    }
+
+    function _runBDD (configuration, options, verbose) {
         if (false !== configuration.useBDD) {
             verbose("Running BDD");
             exit = configuration.exit; // used by BDD.js
-            run();
+            if (options.perf) {
+                _runBDDPerf(configuration, options);
+            } else {
+                run();
+            }
         }
     }
 
-    function _safeRunBDD (configuration, verbose) {
+    function _safeRunBDD (configuration, options, verbose) {
         try {
-            _runBDD(configuration, verbose);
+            _runBDD(configuration, options, verbose);
             if (configuration.done) {
                 configuration.done();
             }
@@ -176,12 +198,13 @@
                 debug: false,
                 verbose: false,
                 ignoreConsole: false,
+                perf: false,
                 tests: []
             },
             verbose;
         _processParameters(configuration, options);
         // Define a debug function that outputs when verbose is set
-        if (options.verbose) {
+        if (options.verbose && !options.perf) {
             verbose = configuration.log;
         } else {
             verbose = function () {};
@@ -193,7 +216,7 @@
             _load(configuration, _resolvePath(configuration, "test/host/console.js"));
         }
         _loadTests(configuration, options, verbose);
-        _safeRunBDD(configuration, verbose);
+        _safeRunBDD(configuration, options, verbose);
     };
 
 }());
