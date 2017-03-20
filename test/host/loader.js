@@ -1,4 +1,5 @@
 /*eslint strict: [2, "function"]*/ // IIFE form
+/*jshint -W071*/
 (function () { //eslint-disable-line max-statements
     "use strict";
 
