@@ -153,3 +153,58 @@ can be invoked with any given context.
 * Because of the way inheritance is implemented, you may define classes with any valid JavaScript class.
 * `constructor` property is set to the class constructor
 * [`instanceof`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof) is supported
+
+## Interface
+
+The class entity is based on [interface concept](https://en.wikipedia.org/wiki/Public_interface)
+
+* `$type`: `"interface"`
+* `$name`: **(required)** Interface name (must start with an uppercase I, validation regexp is `/^I[a-zA-Z0-9]*$/`)
+* `$interface`: Shortcut to synthesize `$type`, `$name` and `$namespace`
+
+For instance:
+
+```javascript
+var ISerializable = gpf.define({
+    $interface: "ISerializable",
+
+    serialize: function (stream) {}
+});
+
+var obj = {
+    serialize: function (stream) {
+    }
+};
+
+assert(gpf.interfaces.isImplementedBy(ISerializable, obj));
+```
+
+### Members
+
+The goal of an interface is to establish a [contract of service](https://en.wikipedia.org/wiki/Design_by_contract)
+between the object implementing the interface and the consumer. Only methods are allowed.
+Because an interface exposes only 'public' methods, names must respect the validation regexp
+`^[a-z][a-zA-Z0-9]*$`. 
+
+### Reserved member names
+
+The following member names are prohibited:
+* super
+* class
+* public
+* private
+* protected
+* static
+* mixin
+* constructor
+
+### Constructor
+
+An interface can't be instantiated, hence no constructor is allowed.
+
+### Supported features
+
+Interfaces are leveraged through these two APIs:
+* {@link gpf.interfaces.isImplementedBy} to check if an object implements a given interface
+* {@link gpf.interfaces.query} to query a specific interface either because it implements it or
+because it implements the {@link gpf.interfaces.IUnknown} interface. 
