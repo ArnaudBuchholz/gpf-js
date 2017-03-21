@@ -1,4 +1,5 @@
 "use strict";
+/*eslint-disable no-ternary*/
 
 var count = 0;
 
@@ -15,7 +16,7 @@ module.exports = {
     },
 
     "?:": function () {
-        return (++count % 2) ? "1" : "2";
+        return ++count % 2 ? "1" : "2";
     }
 
 };
