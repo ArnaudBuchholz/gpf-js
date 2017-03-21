@@ -1,25 +1,106 @@
 "use strict";
 
-var fs = require("fs"),
+const
+    fs = require("fs"),
     esprima = require("esprima"),
     escodegen = require("escodegen"),
     identifierCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
-    jsKeywords = fs.readFileSync("../res/javascript.keywords.txt").toString().split("\n");
+    jsKeywords = fs.readFileSync("../res/javascript.keywords.txt").toString().split("\n"),
 
-function ASTreducer () {
-    this._identifiers = {};
-    this._identifiersStack = [];
-}
+    // Test if the AST item has the request gpf: tag
+    isTaggedWith = (ast, tag) => ast.leadingComments
+        ? ast.leadingComments.some(comment => comment.value === `gpf:${tag}`)
+        : false,
 
-ASTreducer.prototype = {
+    reducers = {
+
+        VariableDeclaration: {
+
+            // TODO distinguish 'globals' from inner variables
+            pre: (ast, reducer) => reducer.beginIdentifierMapping(ast.declarations
+                        .filter(decl => !isTaggedWith(decl, "no-reduce"))
+                        .map(decl => decl.id.name), true)
+
+        },
+
+        FunctionDeclaration: {
+
+            // Names are reduced at an higher level
+            pre: (ast, reducer) => Array.isArray(ast.params)
+                ? reducer.beginIdentifierMapping(ast.params
+                    .map(param => param.name), false)
+                : 0,
+
+            // Clean parameters (and inner variables) substitutions
+            post: (reducer/*, ast*/) => reducer.endIdentifierMapping()
+
+        },
+
+        FunctionExpression: {
+
+            // Process parameters
+            pre: (ast, reducer) => Array.isArray(ast.params)
+                ? reducer.beginIdentifierMapping(ast.params
+                    .filter(param => !isTaggedWith(param, "no-reduce"))
+                    .map(param => param.name), false)
+                : 0,
+
+            // Clean parameters (and inner variables) substitutions
+            post: (reducer/*, ast*/) => reducer.endIdentifierMapping()
+
+        },
+
+        Identifier: {
+
+            // TODO Check the astParent avoid !MemberExpression.property
+            pre: (astItem, reducer) => {
+                let newName = reducer.isIdentifierMapped(astItem.name);
+                if (undefined !== newName) {
+                    astItem.name = newName;
+                }
+            }
+
+        },
+
+        MemberExpression: {
+
+            walk: (astItem, reducer) => {
+                reducer.reduce(astItem.object);
+                // Reduce property only if computed
+                if (astItem.computed) {
+                    reducer.reduce(astItem.property);
+                }
+            }
+
+        },
+
+        ObjectExpression: {
+
+            walk: (astItem, reducer) => astItem.properties.forEach(property => reducer.reduce(property.value))
+
+        }
+    };
+
+class ASTreducer {
+
+    constructor () {
+        // Dictionary of name to mapped identifiers (Array)
+        this._identifiers = {}; // NOTE key is escaped to avoid collision with existing members
+
+        // Number of identifiers mapped
+        this._identifierCount = 0;
+
+        // Stack of name arrays (corresponding to the cumulated calls to beginIdentifierMapping)
+        this._identifiersStack = [];
+    }
 
     // Process the AST to reduce the generated source
-    reduce: function (ast) {
+    reduce (ast) {
         this._walk(ast);
-    },
+    }
 
     // Create new variable names for the provided name list (forVariables is used to distinguish function names)
-    beginIdentifierMapping: function (names, forVariables) {
+    beginIdentifierMapping (names, forVariables) {
         var
             len = names.length,
             idx,
@@ -38,10 +119,10 @@ ASTreducer.prototype = {
             }
             newNames.unshift(this._newName());
         }
-    },
+    }
 
     // Roll back new variable names created with beginIdentifierMapping
-    endIdentifierMapping: function () {
+    endIdentifierMapping () {
         // Undo identifiers stack until a non 'isVariables' one is found
         var
             stack = this._identifiersStack,
@@ -64,28 +145,19 @@ ASTreducer.prototype = {
             }
             this._identifierCount = names.identifierCount;
         } while (names.isVariables);
-    },
+    }
 
     // Return the mapped identifier (if any)
-    isIdentifierMapped: function (name) {
+    isIdentifierMapped (name) {
         name = " " + name;
         if (this._identifiers.hasOwnProperty(name)) {
             return this._identifiers[name][0];
         }
         return undefined;
-    },
-
-    // Stack of name arrays (corresponding to the cumulated calls to beginIdentifierMapping)
-    _identifiersStack: [],
-
-    // Number of identifiers mapped
-    _identifierCount: 0,
-
-    // Dictionary of name to mapped identifiers (Array)
-    _identifiers: {}, // NOTE key is escaped to avoid collision with existing members
+    }
 
     // Explore the AST array and apply the necessary transformations
-    _walkArray: function (astArray) {
+    _walkArray (astArray) {
         var
             idx,
             subItem,
@@ -107,10 +179,10 @@ ASTreducer.prototype = {
         for (idx = 0; idx < astArray.length; ++idx) {
             this._walk(astArray[idx]);
         }
-    },
+    }
 
     // Explore the AST members and apply the necessary transformations
-    _walkItem: function (ast) {
+    _walkItem (ast) {
         var member,
             subItem;
         for (member in ast) {
@@ -121,13 +193,11 @@ ASTreducer.prototype = {
                 }
             }
         }
-    },
+    }
 
     // Apply AST reducer to reduce it
-    _reduce: function (ast) {
-        var
-            myStatics = this.constructor,
-            processor = myStatics[ast.type] || {};
+    _reduce (ast) {
+        var processor = reducers[ast.type] || {};
         if (processor.pre) {
             processor.pre(ast, this);
         }
@@ -139,7 +209,7 @@ ASTreducer.prototype = {
         if (processor.post) {
             processor.post(this, ast);
         }
-    },
+    }
 
     /* Explore the AST structure and apply the necessary transformations.
      * The transformations are based on processors declared as static members of this class.
@@ -148,16 +218,16 @@ ASTreducer.prototype = {
      * - post: function to apply after exploring the AST
      * - walk: override the AST exploring
      */
-    _walk: function (ast) {
+    _walk (ast) {
         if (ast instanceof Array) {
             this._walkArray(ast);
         } else {
             this._reduce(ast);
         }
-    },
+    }
 
     // New name allocator (based on number of identifiers)
-    _newName: function () {
+    _newName () {
         var
             id,
             newName,
@@ -175,135 +245,7 @@ ASTreducer.prototype = {
         return newName;
     }
 
-};
-
-// Test if the AST item has the request gpf: tag
-ASTreducer.isTaggedWith = function (ast, tag) {
-    var array,
-        len,
-        idx;
-    if (!ast.leadingComments) {
-        return false;
-    }
-    tag = "gpf:" + tag;
-    array = ast.leadingComments;
-    len = array.length;
-    for (idx = 0; idx < len; ++idx) {
-        if (array[idx].value === tag) {
-            return true;
-        }
-    }
-    return false;
-};
-
-ASTreducer.VariableDeclaration = {
-
-    pre: function (ast, reducer) {
-        var
-            names = [],
-            len = ast.declarations.length,
-            idx,
-            decl;
-        for (idx = 0; idx < len; ++idx) {
-            decl = ast.declarations[idx];
-            if (!ASTreducer.isTaggedWith(decl, "no-reduce")) {
-                names.push(decl.id.name);
-            }
-        }
-        // TODO distinguish 'globals' from inner variables
-        reducer.beginIdentifierMapping(names, true);
-    }
-
-};
-
-ASTreducer.FunctionDeclaration = {
-
-    pre: function (ast, reducer) {
-        // Name is reduced at an higher level
-        var
-            names = [],
-            idx,
-            len;
-        // Process parameters
-        if (ast.params && ast.params.length) {
-            len = ast.params.length;
-            for (idx = 0; idx < len; ++idx) {
-                names.push(ast.params[idx].name);
-            }
-        }
-        reducer.beginIdentifierMapping(names, false);
-    },
-
-    post: function (reducer/*, ast*/) {
-        // Clean parameters (and inner variables) substitutions
-        reducer.endIdentifierMapping();
-    }
-
-};
-
-ASTreducer.FunctionExpression = {
-
-    pre: function (ast, reducer) {
-        var
-            names = [],
-            len,
-            idx,
-            param;
-        // Process parameters
-        if (ast.params && ast.params.length) {
-            len = ast.params.length;
-            for (idx = 0; idx < len; ++idx) {
-                param = ast.params[idx];
-                if (!ASTreducer.isTaggedWith(param, "no-reduce")) {
-                    names.push(ast.params[idx].name);
-                }
-            }
-        }
-        reducer.beginIdentifierMapping(names, false);
-    },
-
-    post: function (reducer/*, ast*/) {
-        // Clean parameters (and inner variables) substitutions
-        reducer.endIdentifierMapping();
-    }
-
-};
-
-ASTreducer.Identifier = {
-
-    pre: function (astItem, reducer) {
-        // TODO Check the astParent avoid !MemberExpression.property
-        var newName = reducer.isIdentifierMapped(astItem.name);
-        if (undefined !== newName) {
-            astItem.name = newName;
-        }
-    }
-
-};
-
-ASTreducer.MemberExpression = {
-
-    walk: function (astItem, reducer) {
-        reducer.reduce(astItem.object);
-        // Reduce property only if computed
-        if (astItem.computed) {
-            reducer.reduce(astItem.property);
-        }
-    }
-
-};
-
-ASTreducer.ObjectExpression = {
-
-    walk: function (astItem, reducer) {
-        var len, idx;
-        len = astItem.properties.length;
-        for (idx = 0; idx < len; ++idx) {
-            reducer.reduce(astItem.properties[idx].value);
-        }
-    }
-
-};
+}
 
 module.exports = {
 
