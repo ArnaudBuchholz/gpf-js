@@ -28,6 +28,7 @@ const
             // Names are reduced at an higher level
             pre: (ast, reducer) => Array.isArray(ast.params)
                 ? reducer.beginIdentifierMapping(ast.params
+                    .filter(param => !isTaggedWith(param, "no-reduce"))
                     .map(param => param.name), false)
                 : 0,
 
@@ -101,48 +102,35 @@ class ASTreducer {
 
     // Create new variable names for the provided name list (forVariables is used to distinguish function names)
     beginIdentifierMapping (names, forVariables) {
-        var
-            len = names.length,
-            idx,
-            name,
-            newNames;
-        if (forVariables) {
-            names.isVariables = true;
-        }
+        names.isVariables = forVariables;
         names.identifierCount = this._identifierCount;
         this._identifiersStack.push(names);
-        for (idx = 0; idx < len; ++idx) {
-            name = " " + names[idx];
-            newNames = this._identifiers[name];
+        names.forEach(name => {
+            name = " " + name;
+            let newNames = this._identifiers[name];
             if (undefined === newNames) {
                 newNames = this._identifiers[name] = [];
             }
             newNames.unshift(this._newName());
-        }
+        }, this);
     }
 
     // Roll back new variable names created with beginIdentifierMapping
     endIdentifierMapping () {
         // Undo identifiers stack until a non 'isVariables' one is found
-        var
-            stack = this._identifiersStack,
-            names,
-            len,
-            idx,
-            name,
-            newNames;
+        let stack = this._identifiersStack,
+            names;
         do {
             names = stack.pop();
-            len = names.length;
-            for (idx = 0; idx < len; ++idx) {
-                name = " " + names[idx];
-                newNames = this._identifiers[name];
+            names.forEach(name => {
+                name = " " + name;
+                let newNames = this._identifiers[name];
                 if (newNames.length === 1) {
                     delete this._identifiers[name];
                 } else {
                     newNames.shift();
                 }
-            }
+            });
             this._identifierCount = names.identifierCount;
         } while (names.isVariables);
     }
@@ -153,51 +141,32 @@ class ASTreducer {
         if (this._identifiers.hasOwnProperty(name)) {
             return this._identifiers[name][0];
         }
-        return undefined;
     }
 
     // Explore the AST array and apply the necessary transformations
     _walkArray (astArray) {
-        var
-            idx,
-            subItem,
-            names;
         // First pass to see if any FunctionDeclaration names
-        for (idx = 0; idx < astArray.length; ++idx) {
-            subItem = astArray[idx];
-            if (subItem.type === "FunctionDeclaration") {
-                if (undefined === names) {
-                    names = [];
-                }
-                names.push(subItem.id.name);
-            }
-        }
-        if (undefined !== names) {
-            this.beginIdentifierMapping(names, true);
-        }
+        let names = astArray
+            .filter(astItem => astItem.type === "FunctionDeclaration")
+            .map(astItem => astItem.id.name);
+        this.beginIdentifierMapping(names, true);
         // Second pass to reduce
-        for (idx = 0; idx < astArray.length; ++idx) {
-            this._walk(astArray[idx]);
-        }
+        astArray.forEach(astItem => this._walk(astItem));
     }
 
     // Explore the AST members and apply the necessary transformations
     _walkItem (ast) {
-        var member,
-            subItem;
-        for (member in ast) {
-            if (ast.hasOwnProperty(member)) {
-                subItem = ast[member];
-                if ("object" === typeof subItem && subItem) {
-                    this._walk(subItem);
-                }
+        Object.keys(ast).forEach(member => {
+            let astMember = ast[member];
+            if ("object" === typeof astMember && astMember) {
+                this._walk(astMember);
             }
-        }
+        });
     }
 
     // Apply AST reducer to reduce it
     _reduce (ast) {
-        var processor = reducers[ast.type] || {};
+        let processor = reducers[ast.type] || {};
         if (processor.pre) {
             processor.pre(ast, this);
         }
@@ -228,8 +197,7 @@ class ASTreducer {
 
     // New name allocator (based on number of identifiers)
     _newName () {
-        var
-            id,
+        let id,
             newName,
             mod = identifierCharacters.length;
         do {
@@ -252,12 +220,11 @@ module.exports = {
     // Transform the source into an AST representation
     transform: function (src) {
         // https://github.com/Constellation/escodegen/issues/85
-        var
-            ast = esprima.parse(src, {
-                range: true,
-                tokens: true,
-                comment: true
-            });
+        let ast = esprima.parse(src, {
+            range: true,
+            tokens: true,
+            comment: true
+        });
         ast = escodegen.attachComments(ast, ast.comments, ast.tokens);
         delete ast.tokens;
         delete ast.comments;
@@ -266,8 +233,10 @@ module.exports = {
 
     // Apply the reduction algorithm
     reduce: function (ast) {
+        console.log("reduce");
         var reducer = new ASTreducer();
         reducer.reduce(ast);
+        Object.keys(reducer._identifiers).forEach(id => console.log(`\t${id}`));
         return ast;
     },
 
