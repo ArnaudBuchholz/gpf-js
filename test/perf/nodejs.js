@@ -23,12 +23,12 @@ Object.keys(testCases).forEach(function (label) {
 console.log("Results:");
 var lastCount = 0;
 testResults.sort(function (a, b) {
-    return a.count - b.count;
+    return b.count - a.count;
 
 }).forEach(function (result, index) {
     var message = "\t[" + (index + 1) + "] " + result.label + ": " + result.count.toLocaleString("en-US");
     if (0 < index) {
-        message += " +" + Math.floor(1000 * (result.count - lastCount) / lastCount) / 10 + "%";
+        message += " -" + Math.floor(1000 * (lastCount - result.count) / lastCount) / 10 + "%";
     }
     console.log(message);
     lastCount = result.count;
