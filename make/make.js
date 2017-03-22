@@ -1,19 +1,19 @@
 "use strict";
 
-var fs = require("fs"),
+const
+    fs = require("fs"),
     build = require("./build.js"),
+    sourcesDict = {};
+let
+    debug = () => {},
     version = "debug",
-    debug,
     parameters,
     debugParameters,
     sources,
-    sourcesDict = {},
     result;
 
-debug = function () {};
-
 // Cheap parameter parsing
-process.argv.slice(2).forEach(function (value) {
+process.argv.slice(2).forEach(value => {
     if ("-verbose" === value) {
         debug = function () {
             console.log.apply(console, arguments);
@@ -23,7 +23,7 @@ process.argv.slice(2).forEach(function (value) {
     }
 });
 
-console.log("Generating version '" + version + "'");
+console.log(`Generating version '${version}'`);
 debug("\tReading parameters...");
 try {
     debugParameters = JSON.parse(fs.readFileSync("debug.json").toString());
@@ -41,17 +41,13 @@ try {
 // Get the list of sources
 debug("\tGetting the list of sources...");
 sources = JSON.parse(fs.readFileSync("../src/sources.json"))
-    .filter(function (source) {
-        return source.load !== false;
-    })
-    .map(function (source) {
-        return source.name;
-    });
+    .filter(source => source.load !== false)
+    .map(source => source.name);
 
 // Read sources
-sources.forEach(function (name) {
-    debug("\tReading " + name + "...");
-    sourcesDict[name] = fs.readFileSync("../src/" + name + ".js").toString();
+sources.forEach(name => {
+    debug(`\tReading ${name}...`);
+    sourcesDict[name] = fs.readFileSync(`../src/${name}.js`).toString();
 });
 debug("\tReading UMD...");
 sourcesDict.UMD = fs.readFileSync("UMD.js").toString();
@@ -59,7 +55,7 @@ debug("\tReading boot...");
 sourcesDict.boot = fs.readFileSync("../src/boot.js").toString();
 
 function mkDir (path) {
-    var parentPath;
+    let parentPath;
     if (!fs.existsSync(path)) {
         parentPath = path.split("/");
         parentPath.pop();
@@ -72,16 +68,16 @@ function mkDir (path) {
 }
 
 debug("\tCreating working folder...");
-parameters.temporaryPath = "../tmp/build/" + version;
+parameters.temporaryPath = `../tmp/build/${version}`;
 mkDir(parameters.temporaryPath);
 
 //Go over sources to create other temporary folders
-sources.forEach(function (name) {
+sources.forEach(name => {
     if (name.indexOf("/")) {
         // remove file name
         name = name.split("/");
         name.pop();
-        mkDir(parameters.temporaryPath + "/" + name.join("/"));
+        mkDir(`${parameters.temporaryPath}/${name.join("/")}`);
     }
 });
 
@@ -90,14 +86,14 @@ try {
 } catch (e) {
     console.error(e.message);
     if (e.step) {
-        console.error("Step: " + e.step);
+        console.error(`Step: ${e.step}`);
     }
     if (e.sourceName) {
-        console.error("Source name: " + e.sourceName);
+        console.error(`Source name: ${e.sourceName}`);
     }
     process.exit();
 }
 
 debug("\tCreating output folder...");
 mkDir("../build");
-fs.writeFileSync("../build/gpf-" + version + ".js", result);
+fs.writeFileSync(`../build/gpf-${version}.js`, result);
