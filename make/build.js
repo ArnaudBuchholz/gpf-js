@@ -1,63 +1,58 @@
 "use strict";
 
-var fs = require("fs"),
+const
+    fs = require("fs"),
     preprocess = require("./preprocess.js"),
-    ast = require("./ast.js");
+    ast = require("./ast.js"),
 
-function clone (obj) {
-    return JSON.parse(JSON.stringify(obj));
-}
+    nop = () => {},
+    clone = obj => JSON.parse(JSON.stringify(obj));
 
-function Builder (sources, parameters, debug) {
-    this._sources = sources;
-    this._parameters = parameters;
-    this._debug = debug;
-}
+class Builder {
 
-Builder.prototype = {
+    constructor (sources, parameters, debug) {
+        // Sources dictionary (name => String)
+        this._sources = sources;
 
-    // Sources dictionary (name => String)
-    _sources: {},
+        // Parameters of the build
+        this._parameters = parameters;
 
-    // Parameters of the build
-    _parameters: {},
+        // Debug function
+        this._debug = debug || nop;
 
-    // Debug function
-    _debug: function () {
-    },
+        // AST objects (name => Object)
+        this._asts = {};
 
-    // AST objects (name => Object)
-    _asts: {},
-
-    // AST result placeholder
-    _placeholder: {},
+        // AST result placeholder
+        this._placeholder = {};
+    }
 
     // save temporary files
-    _save: function (fileName, data) {
+    _save (fileName, data) {
         if (this._parameters.saveTemporaryfiles) {
             fs.writeFileSync(this._parameters.temporaryPath + "/" + fileName, data);
         }
-    },
+    }
 
     // preprocess source file, convert to AST and reduce it if necessary
-    _toAst: function (name) {
-        this._debug("\tConverting " + name + " to AST...");
-        var source = this._sources[name],
+    _toAst (name) {
+        this._debug(`\tConverting ${name} to AST...`);
+        let source = this._sources[name],
             astObject;
         source = this._preProcess(source, name);
-        this._save(name + ".js", source);
+        this._save(`${name}.js`, source);
         astObject = this._transform(source, name);
-        this._save(name + ".ast.json", JSON.stringify(astObject));
+        this._save(`${name}.ast.json`, JSON.stringify(astObject));
         if (this._parameters.reduce) {
             astObject = this._reduce(astObject, name);
-            this._save(name + ".ast.reduced.json", JSON.stringify(astObject));
-            this._save(name + ".ast.reduced.js", ast.rewrite(astObject, this._parameters.debugRewriteOptions));
+            this._save(`${name}.ast.reduced.json`, JSON.stringify(astObject));
+            this._save(`${name}.ast.reduced.js`, ast.rewrite(astObject, this._parameters.debugRewriteOptions));
         }
         this._asts[name] = astObject;
         return astObject;
-    },
+    }
 
-    _preProcess: function (source, name) {
+    _preProcess (source, name) {
         try {
             return preprocess(source, this._parameters.define);
         } catch (e) {
@@ -65,9 +60,9 @@ Builder.prototype = {
             e.step = "preprocess";
             throw e;
         }
-    },
+    }
 
-    _transform: function (source, name) {
+    _transform (source, name) {
         try {
             return ast.transform(source);
         } catch (e) {
@@ -75,9 +70,9 @@ Builder.prototype = {
             e.step = "ast.transform";
             throw e;
         }
-    },
+    }
 
-    _reduce: function (astObject, name) {
+    _reduce (astObject, name) {
         try {
             return ast.reduce(astObject);
         } catch (e) {
@@ -85,11 +80,11 @@ Builder.prototype = {
             e.step = "ast.reduce";
             throw e;
         }
-    },
+    }
 
     // _toAst and append to _placeholder
-    _addAst: function (name) {
-        var astObject = this._toAst(name),
+    _addAst (name) {
+        let astObject = this._toAst(name),
             astBody = clone(astObject.body),
             placeholder = this._placeholder;
         if (astBody instanceof Array) {
@@ -99,11 +94,11 @@ Builder.prototype = {
         } else {
             placeholder.push(astBody);
         }
-    },
+    }
 
-    build: function () {
+    build () {
         this._debug("Building library");
-        var ARGUMENTS = "arguments",
+        let ARGUMENTS = "arguments",
             resultAst,
             name;
         // Generate UMD AST
@@ -125,10 +120,10 @@ Builder.prototype = {
         return ast.rewrite(resultAst, this._parameters.rewriteOptions);
     }
 
-};
+}
 
 // Build the requested version
-module.exports = function (sources, parameters, debug) {
+module.exports = (sources, parameters, debug) => {
     var builder = new Builder(sources, parameters, debug);
     return builder.build();
 };
