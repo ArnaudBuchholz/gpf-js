@@ -43,11 +43,6 @@ class Builder {
         this._save(`${name}.js`, source);
         astObject = this._transform(source, name);
         this._save(`${name}.ast.json`, JSON.stringify(astObject));
-        if (this._parameters.reduce) {
-            astObject = this._reduce(astObject, name);
-            this._save(`${name}.ast.reduced.json`, JSON.stringify(astObject));
-            this._save(`${name}.ast.reduced.js`, ast.rewrite(astObject, this._parameters.debugRewriteOptions));
-        }
         this._asts[name] = astObject;
         return astObject;
     }
@@ -72,12 +67,15 @@ class Builder {
         }
     }
 
-    _reduce (astObject, name) {
+    _optimize (resultAst) {
         try {
-            return ast.reduce(astObject);
+            this._debug("\tOptimizing AST...");
+            let optimizedAst = ast.optimize(resultAst);
+            this._save("result.ast.optimized.json", JSON.stringify(optimizedAst));
+            this._save("result.ast.optimized.js", ast.rewrite(optimizedAst, this._parameters.debugRewriteOptions));
+            return optimizedAst;
         } catch (e) {
-            e.sourceName = name;
-            e.step = "ast.reduce";
+            e.step = "ast.optimize";
             throw e;
         }
     }
@@ -112,6 +110,10 @@ class Builder {
             if (this._sources.hasOwnProperty(name) && undefined === this._asts[name]) {
                 this._addAst(name);
             }
+        }
+        // Optimize ?
+        if (this._parameters.optimize) {
+            resultAst = this._optimize(resultAst);
         }
         // Saving the result
         this._debug("\tSaving concatenated AST...");
