@@ -8,7 +8,7 @@ const
     jsKeywords = fs.readFileSync("../res/javascript.keywords.txt").toString().split("\n"),
 
     // Test if the AST item has the request gpf: tag
-    isTaggedWith = (ast, tag) => ast.leadingComments
+    isTaggedWithGpf = (ast, tag) => ast.leadingComments
         ? ast.leadingComments.some(comment => comment.value === `gpf:${tag}`)
         : false,
 
@@ -18,7 +18,7 @@ const
 
             // TODO distinguish 'globals' from inner variables
             pre: (ast, reducer) => reducer.beginIdentifierMapping(ast.declarations
-                        .filter(decl => !isTaggedWith(decl, "no-reduce"))
+                        .filter(decl => !isTaggedWithGpf(decl, "no-reduce"))
                         .map(decl => decl.id.name), true)
 
         },
@@ -28,7 +28,7 @@ const
             // Names are reduced at an higher level
             pre: (ast, reducer) => Array.isArray(ast.params)
                 ? reducer.beginIdentifierMapping(ast.params
-                    .filter(param => !isTaggedWith(param, "no-reduce"))
+                    .filter(param => !isTaggedWithGpf(param, "no-reduce"))
                     .map(param => param.name), false)
                 : 0,
 
@@ -42,7 +42,7 @@ const
             // Process parameters
             pre: (ast, reducer) => Array.isArray(ast.params)
                 ? reducer.beginIdentifierMapping(ast.params
-                    .filter(param => !isTaggedWith(param, "no-reduce"))
+                    .filter(param => !isTaggedWithGpf(param, "no-reduce"))
                     .map(param => param.name), false)
                 : 0,
 
@@ -233,10 +233,8 @@ module.exports = {
 
     // Apply the reduction algorithm
     reduce: function (ast) {
-        console.log("reduce");
         var reducer = new ASTreducer();
-        reducer.reduce(ast);
-        Object.keys(reducer._identifiers).forEach(id => console.log(`\t${id}`));
+        reducer.reduce({}); // disabled for now
         return ast;
     },
 
