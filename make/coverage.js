@@ -102,7 +102,7 @@
         },
 
         /**
-         * @param {Boolean} rounded Truncate decimals when true
+         * @param {Boolean} [rounded] Truncate decimals when true
          * @return {Number} Coverage ratio in percent
          */
         getCoverageRatio: function (rounded) {
@@ -113,7 +113,7 @@
         },
 
         /**
-         * @param {Boolean} rounded Truncate decimals when true
+         * @param {Boolean} [rounded] Truncate decimals when true
          * @return {Number} Ignored ratio in percent
          */
         getIgnoredRatio: function (rounded) {
