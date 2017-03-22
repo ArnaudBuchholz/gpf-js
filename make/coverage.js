@@ -2,6 +2,7 @@
 /*jshint browser: true*/
 /*eslint-disable no-invalid-this*/ // Because of the 'simple' class generation relying on lamda functions
 /*eslint-env browser*/
+/* MUST NOT BE MIGRATED TO ES6 BECAUSE USED IN A BROWSER */
 (function () {
     "use strict";
 
