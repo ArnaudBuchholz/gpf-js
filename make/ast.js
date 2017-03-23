@@ -3,7 +3,7 @@
 const
     esprima = require("esprima"),
     escodegen = require("escodegen"),
-    parent$ = Symbol("Hidden parent property"),
+    parent$ = Symbol(),
 
     // Test if the AST item has the request gpf: tag
     // isTaggedWithGpf = (ast, tag) => ast.leadingComments
@@ -28,17 +28,7 @@ const
 
         FunctionDeclaration: {
 
-            pre: (ast, optimizer) => {
-                let name = ast.id.name;
-                if (!optimizer._functions) {
-                    optimizer._functions = {};
-                }
-                optimizer._functions[name] = {
-                    ast: ast,
-                    callCount: 0,
-                    useCount: 0
-                };
-            },
+            pre: (ast, optimizer) => optimizer.store("function", ast.id.name, ast),
 
             walk: ["body"]
 
@@ -51,18 +41,14 @@ const
         CallExpression: {
 
             pre: (ast, optimizer) => {
-                let functionData,
-                    functionName;
+                let functionName;
                 if (ast.callee.type === "Identifier") {
                     functionName = ast.callee.name;
                 } else if (ast.callee.type === "MemberExpression" && ast.callee.object.type === "Identifier") {
                     functionName = ast.callee.object.name;
                 }
                 if (functionName) {
-                    functionData = optimizer._functions ? optimizer._functions[functionName] : null;
-                    if (functionData) {
-                        ++functionData.callCount;
-                    }
+                    optimizer.inc("function", functionName, "callCount");
                 }
             },
 
@@ -72,12 +58,7 @@ const
 
         Identifier: {
 
-            pre: (ast, optimizer) => {
-                var functionData = optimizer._functions ? optimizer._functions[ast.name] : null;
-                if (functionData) {
-                    ++functionData.useCount;
-                }
-            },
+            pre: (ast, optimizer) => optimizer.inc("function", ast.name, "useCount"),
 
             walk: null
 
@@ -98,6 +79,43 @@ class Optimizer {
     constructor (ast) {
         this._ast = ast;
     }
+
+    //region Helpers to keep track of information through analysis
+
+    _getStoreMap (category) {
+        let memberName = `_${category}Map`,
+            map = this[memberName];
+        if (undefined === map) {
+            map = this[memberName] = {};
+        }
+        return map;
+    }
+
+    store (category, key, ast) {
+        if (key) {
+            let data = {
+                ast: ast
+            };
+            this._getStoreMap(category)[key] = data;
+            return data;
+        }
+    }
+
+    retrieve (category, key) {
+        let storeMap = this._getStoreMap(category);
+        if (storeMap.hasOwnProperty(key))  {
+            return this._getStoreMap(category)[key];
+        }
+    }
+
+    inc (category, key, counter) {
+        let data = this.retrieve(category, key);
+        if (data) {
+            data[counter] = 1 + (data[counter] || 0);
+        }
+    }
+
+    //endregion
 
     //region Analyze
 
@@ -123,17 +141,19 @@ class Optimizer {
     //region Optimize
 
     optimize () {
-        var dt = new Date();
-        if (this._functions) {
-            Object.keys(this._functions).forEach(name => {
-                var functionData = this._functions[name];
-                addAstComment(functionData.ast, `call-count ${functionData.callCount}`);
-                addAstComment(functionData.ast, `use-count ${functionData.useCount}`);
-                if (functionData.callCount === 0 && functionData.useCount === 0) {
-                    addAstComment(functionData.ast, "remove");
-                }
-            });
-        }
+        let dt = new Date();
+        Object.keys(this._getStoreMap("function")).forEach(name => {
+            const {
+                ast,
+                callCount,
+                useCount
+            } = this.retrieve("function", name);
+            addAstComment(ast, `function call-count ${callCount}`);
+            addAstComment(ast, `function use-count ${useCount}`);
+            if (!callCount && !useCount) {
+                addAstComment(ast, "function remove");
+            }
+        });
         addAstComment(this._ast, "time-spent(optimize) " + (new Date() - dt));
     }
 
