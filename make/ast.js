@@ -3,11 +3,12 @@
 const
     esprima = require("esprima"),
     escodegen = require("escodegen"),
+    parent$ = Symbol("Hidden parent property"),
 
     // Test if the AST item has the request gpf: tag
-    isTaggedWithGpf = (ast, tag) => ast.leadingComments
-        ? ast.leadingComments.some(comment => comment.value === `gpf:${tag}`)
-        : false,
+    // isTaggedWithGpf = (ast, tag) => ast.leadingComments
+    //     ? ast.leadingComments.some(comment => comment.value === `gpf:${tag}`)
+    //     : false,
 
     addAstComment = (ast, text) => {
         if (!Array.isArray(ast.leadingComments)) {
@@ -37,7 +38,9 @@ const
                     callCount: 0,
                     useCount: 0
                 };
-            }
+            },
+
+            walk: ["body"]
 
         },
 
@@ -48,11 +51,22 @@ const
         CallExpression: {
 
             pre: (ast, optimizer) => {
-                var functionData = optimizer._functions ? optimizer._functions[ast.callee.name] : null;
-                if (functionData) {
-                    ++functionData.callCount;
+                let functionData,
+                    functionName;
+                if (ast.callee.type === "Identifier") {
+                    functionName = ast.callee.name;
+                } else if (ast.callee.type === "MemberExpression" && ast.callee.object.type === "Identifier") {
+                    functionName = ast.callee.object.name;
                 }
-            }
+                if (functionName) {
+                    functionData = optimizer._functions ? optimizer._functions[functionName] : null;
+                    if (functionData) {
+                        ++functionData.callCount;
+                    }
+                }
+            },
+
+            walk: ["arguments"]
 
         },
 
@@ -63,7 +77,9 @@ const
                 if (functionData) {
                     ++functionData.useCount;
                 }
-            }
+            },
+
+            walk: null
 
         },
 
@@ -87,7 +103,7 @@ class Optimizer {
 
     analyze () {
         var dt = new Date();
-        this._walk(this._ast, this._analyze);
+        this._process(this._ast, this._analyze);
         addAstComment(this._ast, "time-spent(analyze) " + (new Date() - dt));
     }
 
@@ -96,16 +112,7 @@ class Optimizer {
         if (analyzer.pre) {
             analyzer.pre(ast, this);
         }
-        if (analyzer.walk) {
-            analyzer.walk(ast, this);
-        } else {
-            Object.keys(ast).forEach(member => {
-                let astMember = ast[member];
-                if ("object" === typeof astMember && astMember) {
-                    this._walk(astMember, this._analyze);
-                }
-            });
-        }
+        this._walk(ast, this._analyze, analyzer.walk);
         if (analyzer.post) {
             analyzer.post(ast, this);
         }
@@ -122,6 +129,9 @@ class Optimizer {
                 var functionData = this._functions[name];
                 addAstComment(functionData.ast, `call-count ${functionData.callCount}`);
                 addAstComment(functionData.ast, `use-count ${functionData.useCount}`);
+                if (functionData.callCount === 0 && functionData.useCount === 0) {
+                    addAstComment(functionData.ast, "remove");
+                }
             });
         }
         addAstComment(this._ast, "time-spent(optimize) " + (new Date() - dt));
@@ -129,9 +139,35 @@ class Optimizer {
 
     //endregion
 
-    _walk (ast, method) {
+    _walk (ast, method, members) {
+        if (undefined === members) {
+            members = Object.keys(ast);
+        }
+        if (members && members.length) {
+            members
+                .forEach(member => {
+                    let astMember = ast[member];
+                    if ("object" === typeof astMember && astMember) {
+                        astMember[parent$] = {
+                            ast: ast,
+                            member: member
+                        };
+                        this._process(astMember, this._analyze);
+                    }
+                });
+        }
+    }
+
+    _process (ast, method) {
         if (Array.isArray(ast)) {
-            ast.forEach(astItem => this._walk(astItem, method));
+            ast.forEach((astItem, index) => {
+                if ("object" === typeof astItem && astItem) {
+                    astItem[parent$] = Object.create(ast[parent$]);
+                    astItem[parent$].index = index;
+                    this._process(astItem, method);
+                }
+            });
+            delete ast._parent;
         } else {
             method.call(this, ast);
         }
