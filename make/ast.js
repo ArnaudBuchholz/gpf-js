@@ -20,6 +20,20 @@ const
         });
     },
 
+    astRemove = astToRemove => {
+        let {
+                ast,
+                member,
+                index
+            } = astToRemove[parent$],
+            memberValue = ast[member];
+        if (Array.isArray(memberValue)) {
+            memberValue.splice(index, 1);
+        } else {
+            delete ast[member];
+        }
+    },
+
     analyzers = {
 
         VariableDeclaration: {
@@ -76,8 +90,14 @@ const
 
 class Optimizer {
 
-    constructor (ast) {
+    constructor (ast, settings, debug) {
         this._ast = ast;
+        this._settings = settings;
+        this._debug = debug;
+    }
+
+    debug (text) {
+        this._debug(`\t\t${text}`);
     }
 
     //region Helpers to keep track of information through analysis
@@ -122,7 +142,7 @@ class Optimizer {
     analyze () {
         var dt = new Date();
         this._process(this._ast, this._analyze);
-        addAstComment(this._ast, "time-spent(analyze) " + (new Date() - dt));
+        addAstComment(this._ast, "time-spent analyze " + (new Date() - dt));
     }
 
     _analyze (ast) {
@@ -148,13 +168,18 @@ class Optimizer {
                 callCount,
                 useCount
             } = this.retrieve("function", name);
-            addAstComment(ast, `function call-count ${callCount}`);
-            addAstComment(ast, `function use-count ${useCount}`);
+            addAstComment(ast, `function call-count ${callCount || 0}`);
+            addAstComment(ast, `function use-count ${useCount || 0}`);
             if (!callCount && !useCount) {
-                addAstComment(ast, "function remove");
+                if (this._settings === true) {
+                    astRemove(ast);
+                } else {
+                    this.debug(`${name} function remove`);
+                    addAstComment(ast, "function remove");
+                }
             }
         });
-        addAstComment(this._ast, "time-spent(optimize) " + (new Date() - dt));
+        addAstComment(this._ast, "time-spent optimize " + (new Date() - dt));
     }
 
     //endregion
@@ -212,8 +237,8 @@ module.exports = {
     },
 
     // Detect & apply optimization patterns
-    optimize: function (ast) {
-        let optimizer = new Optimizer(ast);
+    optimize: function (ast, setting, debug) {
+        let optimizer = new Optimizer(ast, setting, debug);
         optimizer.analyze();
         optimizer.optimize();
         return ast;
