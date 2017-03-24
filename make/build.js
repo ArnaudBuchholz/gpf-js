@@ -67,10 +67,10 @@ class Builder {
         }
     }
 
-    _optimize (resultAst) {
+    _optimize (resultAst, setting) {
         try {
             this._debug("\tOptimizing AST...");
-            let optimizedAst = ast.optimize(resultAst);
+            let optimizedAst = ast.optimize(resultAst, setting, this._debug);
             this._save("result.ast.optimized.json", JSON.stringify(optimizedAst));
             this._save("result.ast.optimized.js", ast.rewrite(optimizedAst, this._parameters.debugRewriteOptions));
             return optimizedAst;
@@ -113,7 +113,7 @@ class Builder {
         }
         // Optimize ?
         if (this._parameters.optimize) {
-            resultAst = this._optimize(resultAst);
+            resultAst = this._optimize(resultAst, this._parameters.optimize);
         }
         // Saving the result
         this._debug("\tSaving concatenated AST...");
