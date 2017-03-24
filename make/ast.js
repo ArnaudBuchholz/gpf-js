@@ -5,10 +5,9 @@ const
     escodegen = require("escodegen"),
     parent$ = Symbol(),
 
-    // Test if the AST item has the request gpf: tag
-    // isTaggedWithGpf = (ast, tag) => ast.leadingComments
-    //     ? ast.leadingComments.some(comment => comment.value === `gpf:${tag}`)
-    //     : false,
+    isTaggedWithGpf = (ast, tag) => ast.leadingComments
+        ? ast.leadingComments.some(comment => comment.value === `gpf:${tag}`)
+        : false,
 
     addAstComment = (ast, text) => {
         if (!Array.isArray(ast.leadingComments)) {
@@ -20,7 +19,9 @@ const
         });
     },
 
-    astRemove = astToRemove => {
+    getAstParent = (ast) => ast[parent$].ast,
+
+    removeAst = astToRemove => {
         let {
                 ast,
                 member,
@@ -37,6 +38,18 @@ const
     analyzers = {
 
         VariableDeclaration: {
+
+        },
+
+        VariableDeclarator: {
+
+            pre: (ast, optimizer) => {
+                if (isTaggedWithGpf(ast, "nop")) {
+                    optimizer.store("nop", ast.id.name, ast);
+                }
+            },
+
+            walk: ["init"]
 
         },
 
@@ -72,7 +85,12 @@ const
 
         Identifier: {
 
-            pre: (ast, optimizer) => optimizer.inc("function", ast.name, "useCount"),
+            pre: (ast, optimizer) => {
+                optimizer.inc("function", ast.name, "useCount");
+                if (optimizer.retrieve("nop", ast.name) && getAstParent(ast).type === "CallExpression") {
+                    optimizer.link("nop", ast.name, getAstParent(getAstParent(ast)));
+                }
+            },
 
             walk: null
 
@@ -83,6 +101,16 @@ const
         },
 
         ObjectExpression: {
+
+        },
+
+        ExpressionStatement: {
+
+            pre: (ast, optimizer) => {
+                if (isTaggedWithGpf(ast, "nop") && ast.expression.type === "AssignmentExpression") {
+                    optimizer.store("nop", ast.expression.left.name, ast);
+                }
+            }
 
         }
 
@@ -116,6 +144,7 @@ class Optimizer {
             let data = {
                 ast: ast
             };
+            this.debug(`>> ${category}/${key}`);
             this._getStoreMap(category)[key] = data;
             return data;
         }
@@ -132,6 +161,16 @@ class Optimizer {
         let data = this.retrieve(category, key);
         if (data) {
             data[counter] = 1 + (data[counter] || 0);
+        }
+    }
+
+    link (category, key, ast) {
+        let data = this.retrieve(category, key);
+        if (data) {
+            if (!data.links) {
+                data.links = [];
+            }
+            data .links.push(ast);
         }
     }
 
@@ -160,6 +199,15 @@ class Optimizer {
 
     //region Optimize
 
+    _remove (ast, category, name) {
+        this.debug(`${name} ${category} remove`);
+        if (this._settings === true) {
+            removeAst(ast);
+        } else {
+            addAstComment(ast, `${category} remove`);
+        }
+    }
+
     optimize () {
         let dt = new Date();
         Object.keys(this._getStoreMap("function")).forEach(name => {
@@ -171,13 +219,16 @@ class Optimizer {
             addAstComment(ast, `function call-count ${callCount || 0}`);
             addAstComment(ast, `function use-count ${useCount || 0}`);
             if (!callCount && !useCount) {
-                if (this._settings === true) {
-                    astRemove(ast);
-                } else {
-                    this.debug(`${name} function remove`);
-                    addAstComment(ast, "function remove");
-                }
+                this._remove(ast, "function", name);
             }
+        });
+        Object.keys(this._getStoreMap("nop")).forEach(name => {
+            const {
+                ast,
+                links
+            } = this.retrieve("nop", name);
+            this._remove(ast, "nop", name);
+            (links || []).forEach(linkedAst => this._remove(linkedAst, "nop", `use-of ${name}`));
         });
         addAstComment(this._ast, "time-spent optimize " + (new Date() - dt));
     }
