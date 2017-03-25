@@ -141,6 +141,7 @@
         "define/detect"
     ],
     "interfaces": [
+        "assert",
         "context",
         "error",
         "foreach"
