@@ -24,13 +24,13 @@ const
     removeAst = astToRemove => {
         let {
                 ast,
-                member,
-                index
+                member
             } = astToRemove[parent$],
             memberValue = ast[member];
         if (Array.isArray(memberValue)) {
-            memberValue.splice(index, 1);
+            memberValue.splice(memberValue.indexOf(astToRemove), 1);
         } else {
+            // Not sure it is safe to do so
             delete ast[member];
         }
     },
@@ -79,7 +79,7 @@ const
                 }
             },
 
-            walk: ["arguments"]
+            walk: ["callee", "arguments"]
 
         },
 
@@ -87,7 +87,7 @@ const
 
             pre: (ast, optimizer) => {
                 optimizer.inc("function", ast.name, "useCount");
-                if (optimizer.retrieve("nop", ast.name) && getAstParent(ast).type === "CallExpression") {
+                if (optimizer.retrieve("nop", ast.name) && "CallExpression" === getAstParent(ast).type) {
                     optimizer.link("nop", ast.name, getAstParent(getAstParent(ast)));
                 }
             },
@@ -256,10 +256,9 @@ class Optimizer {
 
     _process (ast, method) {
         if (Array.isArray(ast)) {
-            ast.forEach((astItem, index) => {
+            ast.forEach((astItem) => {
                 if ("object" === typeof astItem && astItem) {
-                    astItem[parent$] = Object.create(ast[parent$]);
-                    astItem[parent$].index = index;
+                    astItem[parent$] = ast[parent$];
                     this._process(astItem, method);
                 }
             });
