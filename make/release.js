@@ -107,7 +107,6 @@ inquirer.prompt([{
     })
     .then(reqMilestones => {
         versionMilestone = reqMilestones.data.filter(candidate => candidate.title.includes(version))[0];
-        console.log(versionMilestone);
         if (!versionMilestone) {
             throw new Error("No corresponding milestone found");
         }
@@ -132,12 +131,12 @@ inquirer.prompt([{
             );
             fs.writeFileSync("README.md", readmeLines.join("\n"));
         }
-        // return spawnGrunt("make");
+        return spawnGrunt("make");
     })
     .then(() => spawnGrunt("copy:releasePlatoHistory"))
     .then(() => spawnGit(["commit", "-a", "-m", `Release v${version}`]))
     .then(() => spawnGit(["push"]))
-    .then(() => gh.getIssues("ArnaudBuchholz", "gpf-js").editMilestone(versionMilestone.id, {
+    .then(() => gh.getIssues("ArnaudBuchholz", "gpf-js").editMilestone(versionMilestone.number, {
         state: "closed"
     }))
     .then(() => gh.getRepo("ArnaudBuchholz", "gpf-js").createRelease({
