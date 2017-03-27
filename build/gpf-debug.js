@@ -35,7 +35,7 @@
          * GPF Version
          * @since 0.1.5
          */
-        _gpfVersion = "0.1.7",
+        _gpfVersion = "0.1.8",
         /**
          * Host constants
          * @since 0.1.5
@@ -341,10 +341,15 @@
         }
         _gpfObjectForEach(container, callback, thisArg);
     };
-    var _gpfAssert, _gpfAsserts;
+    var _gpfAssert, _gpfAsserts, _gpfAssertWarn = true;
+    function _gpfAssertConsoleWarn(message) {
+        if (_gpfAssertWarn) {
+            console.warn("ASSERTION FAILED: " + message);
+        }
+    }
     function _gpfAssertFailIfConditionFalsy(condition, message) {
         if (!condition) {
-            console.warn("ASSERTION FAILED: " + message);
+            _gpfAssertConsoleWarn(message);
             gpf.Error.assertionFailed({ message: message });
         }
     }
@@ -383,6 +388,16 @@
      * @since 0.1.5
      */
     gpf.asserts = _gpfAssertsImpl;
+    /**
+     * By default, a failing assert will generate a console warning.
+     * Use this method to prevent console warnings to be generated.
+     *
+     * @param {Boolean} silent True to prevent console warnings on failing assertions
+     * @since 0.1.8
+     */
+    gpf.preventAssertWarnings = function (silent) {
+        _gpfAssertWarn = !silent;
+    };
     // DEBUG specifics
     _gpfAssert = _gpfAssertImpl;
     _gpfAsserts = _gpfAssertsImpl;
@@ -1499,17 +1514,6 @@
         /**
          * ### Summary
          *
-         * Method is abstract
-         *
-         * ### Description
-         *
-         * This error is used to implement abstract methods. Mostly used for interfaces.
-         * @since 0.1.5
-         */
-        abstractMethod: "Abstract method",
-        /**
-         * ### Summary
-         *
          * An assertion failed
          *
          * ### Description
@@ -1703,10 +1707,31 @@
          */
         _initialDefinition: {}
     };
-    function _gpfDefineGenerate$Keys(names) {
-        return names.split(",").map(function (name) {
-            return "$" + name;
-        });
+    _gpfErrorDeclare("abstract", {
+        /**
+         * ### Summary
+         *
+         * Method is abstract
+         *
+         * ### Description
+         *
+         * This error is used to implement abstract methods. Mostly used for interfaces.
+         * @since 0.1.5
+         */
+        abstractMethod: "Abstract method"
+    });
+    /**
+     * Build a function that throws the abstractMethod exception
+     *
+     * @param {Number} numberOfParameters Defines the signature of the resulting function
+     * @return {Function} Function that throws the abstractMethod exception
+     * @since 0.1.8
+     */
+    function _gpfCreateAbstractFunction(numberOfParameters) {
+        return _gpfFunctionBuild({
+            parameters: _gpfBuildFunctionParameterList(numberOfParameters),
+            body: "_throw_();"
+        }, { _throw_: gpf.Error.abstractMethod });
     }
     _gpfErrorDeclare("define/check", {
         /**
@@ -1744,13 +1769,10 @@
          */
         invalidEntityNamespace: "Invalid entity namespace"
     });
-    function _gpfDefineEntityCheckNameIsNotEmpty() {
-        /*jshint validthis:true*/
-        // constructor
-        /*eslint-disable no-invalid-this*/
-        if (!this._name) {
-            gpf.Error.missingEntityName();
-        }    /*eslint-enable no-invalid-this*/
+    function _gpfDefineEntityCheck$PropertyInAllowed$Properties(name, allowedList) {
+        if (-1 === allowedList.indexOf(name)) {
+            gpf.Error.invalidEntity$Property();
+        }
     }
     function _gpfDefineEntityCheckProperty(value, name) {
         _gpfIgnore(value);
@@ -1758,7 +1780,7 @@
         /*eslint-disable no-invalid-this*/
         // bound through thisArg
         if (name.charAt(0) === "$") {
-            this._check$Property(name, value);
+            this._check$Property(name.substr(1), value);
         } else {
             this._checkProperty(name, value);
         }    /*jshint -W040*/
@@ -1780,22 +1802,80 @@
          * @readonly
          * @since 0.1.6
          */
-        _allowed$Properties: _gpfDefineGenerate$Keys("type,name,namespace"),
+        _allowed$Properties: "type,name,namespace".split(","),
         /**
          * Check if the $ property is allowed
          *
-         * @param {String} name $ Property name
+         * @param {String} name $ Property name (without the starting $)
          * @param {*} value $ Property value
-         * @see _GpfEntityDefinition.prototype._allowed$Properties
-         * @throws {gpf.Error.InvalidEntity$Property}
          * @since 0.1.6
          */
         _check$Property: function (name, value) {
             _gpfIgnore(value);
-            if (-1 === this._allowed$Properties.indexOf(name)) {
-                gpf.Error.invalidEntity$Property();
+            if (name !== this._type) {
+                _gpfDefineEntityCheck$PropertyInAllowed$Properties(name, this._allowed$Properties);
             }
         },
+        /**
+         * Throw the invalid property error
+         *
+         * @abstract
+         * @protected
+         * @since 0.1.8
+         */
+        _throwInvalidProperty: _gpfCreateAbstractFunction(0),
+        /**
+         * Regular expression used to validate member name
+         *
+         * @type {RegExp}
+         * @readonly
+         * @protected
+         * @since 0.1.8
+         */
+        _reMemberName: new RegExp(".*"),
+        /**
+         * Check that the member name is a valid one
+         *
+         * @param {String} name Member name
+         * @since 0.1.8
+         */
+        _checkMemberName: function (name) {
+            if (!this._reMemberName.exec(name)) {
+                this._throwInvalidProperty();
+            }
+        },
+        /**
+         * List of reserved member names
+         *
+         * @type {String[]}
+         * @readonly
+         * @constant
+         * @since 0.1.8
+         */
+        _reservedNames: "super,class,public,private,protected,static,mixin".split(","),
+        /**
+         * Check that the member name is not a reserved one
+         *
+         * @param {String} name Member name
+         * @since 0.1.6
+         */
+        _checkReservedMemberName: function (name) {
+            if (-1 !== this._reservedNames.indexOf(name)) {
+                this._throwInvalidProperty();
+            }
+        },
+        /**
+         * Check the value of the member
+         *
+         * @param {String} name Property name
+         * @param {*} value Property value
+         * @protected
+         * @since 0.1.8
+         */
+        _checkMemberValue: _gpfFunc([
+            "name",
+            "value"
+        ], " "),
         /**
          * Check if the property is allowed
          * NOTE: $ properties are handled by {@link _check$Property}
@@ -1804,10 +1884,11 @@
          * @param {*} value Property value
          * @since 0.1.6
          */
-        _checkProperty: _gpfFunc([
-            "name",
-            "value"
-        ], " "),
+        _checkProperty: function (name, value) {
+            this._checkMemberName(name);
+            this._checkReservedMemberName(name);
+            this._checkMemberValue(name, value);
+        },
         /**
          * Check the properties contained in the definition passed to {@link gpf.define}
          * @since 0.1.6
@@ -1834,14 +1915,38 @@
          * @throws {gpf.Error.MissingEntityName}
          * @since 0.1.6
          */
-        _checkNameIsNotEmpty: _gpfDefineEntityCheckNameIsNotEmpty,
+        _checkNameIsNotEmpty: function () {
+            if (!this._name) {
+                gpf.Error.missingEntityName();
+            }
+        },
+        /**
+         * Throw the invalid name error
+         *
+         * @abstract
+         * @protected
+         * @since 0.1.8
+         */
+        _throwInvalidName: _gpfCreateAbstractFunction(0),
+        /**
+         * Regular expression used to validate entity name
+         *
+         * @type {RegExp}
+         * @readonly
+         * @protected
+         * @since 0.1.8
+         */
+        _reName: new RegExp(".*"),
         /**
          * Check name property (content)
          *
-         * @throws {gpf.Error.MissingEntityName}
          * @since 0.1.6
          */
-        _checkName: _gpfDefineEntityCheckNameIsNotEmpty,
+        _checkName: function () {
+            if (!this._reName.exec(this._name)) {
+                this._throwInvalidName();
+            }
+        },
         /**
          * Entity namespace
          * @since 0.1.6
@@ -2032,40 +2137,17 @@
          * @inheritdoc
          * @since 0.1.6
          */
-        _allowed$Properties: _GpfEntityDefinition.prototype._allowed$Properties.concat(_gpfDefineGenerate$Keys("class,extend")),
+        _allowed$Properties: _GpfEntityDefinition.prototype._allowed$Properties.concat(["extend"]),
         /**
-         * Check that the member name is a valid one
-         *
-         * @param {String} name Member name
-         * @throws {gpf.Error.InvalidClassProperty}
-         * @since 0.1.6
+         * @iheritdoc
+         * @since 0.1.8
          */
-        _checkMemberName: function (name) {
-            if (!new RegExp("^[a-z_][a-zA-Z0-9]*$").exec(name)) {
-                gpf.Error.invalidClassProperty();
-            }
-        },
+        _throwInvalidProperty: gpf.Error.invalidClassProperty,
         /**
-         * List of reserved member names
-         *
-         * @type {String[]}
-         * @readonly
-         * @constant
-         * @since 0.1.6
+         * @inheritdoc
+         * @since 0.1.8
          */
-        _reservedNames: "super,class,public,private,protected,static,mixin".split(","),
-        /**
-         * Check that the member name is not a reserved one
-         *
-         * @param {String} name Member name
-         * @throws {gpf.Error.InvalidClassProperty}
-         * @since 0.1.6
-         */
-        _checkReservedMemberName: function (name) {
-            if (-1 !== this._reservedNames.indexOf(name)) {
-                gpf.Error.invalidClassProperty();
-            }
-        },
+        _reMemberName: new RegExp("^[a-z_][a-zA-Z0-9]*$"),
         /**
          * Check that the constructor is a method
          *
@@ -2111,7 +2193,6 @@
          *
          * @param {String} name Property name
          * @param {*} value Property value
-         * @private
          * @since 0.1.7
          */
         _checkMemberValue: function (name, value) {
@@ -2123,26 +2204,14 @@
         },
         /**
          * @inheritdoc
-         * @throws {gpf.Error.InvalidClassProperty}
-         * @since 0.1.6
+         * @since 0.1.8
          */
-        _checkProperty: function (name, value) {
-            _GpfEntityDefinition.prototype._checkProperty.call(this, name);
-            this._checkMemberName(name);
-            this._checkReservedMemberName(name);
-            this._checkMemberValue(name, value);
-        },
+        _reName: new RegExp("^[A-Z_$][a-zA-Z0-9]*$"),
         /**
-         * @inheritdoc
-         * @throws {gpf.Error.InvalidClassName}
-         * @since 0.1.6
+         * @iheritdoc
+         * @since 0.1.8
          */
-        _checkName: function () {
-            _GpfEntityDefinition.prototype._checkName.call(this);
-            if (!new RegExp("^[A-Z_$][a-zA-Z0-9]*$").exec(this._name)) {
-                gpf.Error.invalidClassName();
-            }
-        },
+        _throwInvalidName: gpf.Error.invalidClassName,
         /**
          * Base class
          *
@@ -2161,6 +2230,17 @@
             }
         },
         /**
+         * Check if the extend property points to an interface
+         *
+         * @throws {gpf.Error.InvalidClassExtend}
+         * @since 0.1.8
+         */
+        _checkExtendIsNotAnInterface: function () {
+            if (-1 !== _gpfEmptyFunc.toString.call(this._extend).indexOf("interfaceConstructorFunction")) {
+                gpf.Error.invalidClassExtend();
+            }
+        },
+        /**
          * Check extend property
          *
          * @throws {gpf.Error.InvalidClassExtend}
@@ -2170,6 +2250,7 @@
             if ("function" !== typeof this._extend) {
                 gpf.Error.invalidClassExtend();
             }
+            this._checkExtendIsNotAnInterface();
         },
         /**
          * @inheritdoc
@@ -2209,7 +2290,7 @@
     /**
      * Allocate a secured named constructor
      *
-     * @param {_GpfClassDefinition} classDefinition Entity definition
+     * @param {_GpfClassDefinition} classDefinition Class definition
      * @return {Function} Secured named constructor
      * @gpf:closure
      * @since 0.1.6
@@ -2478,6 +2559,139 @@
             }
         }
     });
+    function _GpfInterfaceDefinition(definition) {
+        /*jshint validthis:true*/
+        // constructor
+        /*eslint-disable no-invalid-this*/
+        _GpfEntityDefinition.call(this, definition);    /*eslint-enable no-invalid-this*/
+    }
+    _GpfInterfaceDefinition.prototype = Object.create(_GpfEntityDefinition.prototype);
+    Object.assign(_GpfInterfaceDefinition.prototype, /** @lends _GpfInterfaceDefinition.prototype */
+    {
+        constructor: _GpfInterfaceDefinition,
+        /**
+         * @inheritdoc
+         * @since 0.1.8
+         */
+        _type: "interface"
+    });
+    _gpfDefineTypedBuilders["interface"] = _GpfInterfaceDefinition;
+    _gpfErrorDeclare("define/interface/check", {
+        /**
+         * ### Summary
+         *
+         * The interface name is invalid
+         *
+         * ### Description
+         *
+         * Only a valid JavaScript identifier (starting with an uppercase I) is allowed
+         * @since 0.1.8
+         */
+        invalidInterfaceName: "Invalid interface name",
+        /**
+         * ### Summary
+         *
+         * The interface definition contains an invalid property
+         *
+         * ### Description
+         *
+         * An interface can contain only methods and no constructor
+         * @since 0.1.8
+         */
+        invalidInterfaceProperty: "Invalid interface property"
+    });
+    Object.assign(_GpfInterfaceDefinition.prototype, /** @lends _GpfInterfaceDefinition.prototype */
+    {
+        /**
+         * @iheritdoc
+         * @since 0.1.8
+         */
+        _throwInvalidProperty: gpf.Error.invalidInterfaceProperty,
+        /**
+         * @inheritdoc
+         * @since 0.1.8
+         */
+        _reMemberName: new RegExp("^[a-z][a-zA-Z0-9]*$"),
+        /**
+         * @inheritdoc
+         * @since 0.1.8
+         */
+        _reservedNames: _GpfEntityDefinition.prototype._reservedNames.concat("constructor"),
+        /**
+         * @inheritdoc
+         * @since 0.1.8
+         */
+        _checkMemberValue: function (name, value) {
+            if ("function" !== typeof value) {
+                gpf.Error.invalidInterfaceProperty();
+            }
+        },
+        /**
+         * @inheritdoc
+         * @since 0.1.8
+         */
+        _reName: new RegExp("^I[a-zA-Z0-9]*$"),
+        /**
+         * @iheritdoc
+         * @since 0.1.8
+         */
+        _throwInvalidName: gpf.Error.invalidInterfaceName
+    });
+    _gpfErrorDeclare("define/interface/constructor", { "interfaceConstructorFunction": "This is an interface constructor function, do not invoke" });
+    function _gpfDefineGetInterfaceConstructorDefinition(interfaceDefinition) {
+        var name = interfaceDefinition._name;
+        return {
+            name: name,
+            body: "gpf.Error.interfaceConstructorFunction();"
+        };
+    }
+    function _gpfDefineGetInterfaceConstructorContext(interfaceDefinition) {
+        return {
+            gpf: gpf,
+            _classDef_: interfaceDefinition
+        };
+    }
+    /**
+     * Allocate a secured named constructor
+     *
+     * @param {_GpfInterfaceDefinition} interfaceDefinition Interface definition
+     * @return {Function} Secured named constructor
+     * @gpf:closure
+     * @since 0.1.8
+     */
+    function _gpfDefineGetInterfaceConstructor(interfaceDefinition) {
+        return _gpfFunctionBuild(_gpfDefineGetInterfaceConstructorDefinition(interfaceDefinition), _gpfDefineGetInterfaceConstructorContext(interfaceDefinition));
+    }
+    Object.assign(_GpfInterfaceDefinition.prototype, /** @lends _GpfInterfaceDefinition.prototype */
+    {
+        /**
+         * @inheritdoc
+         * @since 0.1.8
+         */
+        _build: function () {
+            var newClass, newPrototype;
+            newClass = _gpfDefineGetInterfaceConstructor(this);
+            // Populate our constructed prototype object
+            newPrototype = newClass.prototype;
+            // Enforce the constructor to be what we expect
+            newPrototype.constructor = newClass;
+            this._buildPrototype(newPrototype);
+            return newClass;
+        },
+        /**
+         * Build the new class prototype
+         *
+         * @param {Object} newPrototype New class prototype
+         * @since 0.1.7
+         */
+        _buildPrototype: function (newPrototype) {
+            _gpfObjectForEach(this._initialDefinition, function (value, memberName) {
+                if (memberName.charAt(0) !== "$") {
+                    newPrototype[memberName] = value;
+                }
+            }, this);
+        }
+    });
     function _gpfDefine(definition) {
         var entityDefinition = _gpfDefineBuildTypedEntity(definition);
         return entityDefinition.getInstanceBuilder();
@@ -2487,4 +2701,125 @@
      * @since 0.1.6
      */
     gpf.define = _gpfDefine;
+    _gpfErrorDeclare("interfaces", { interfaceExpected: "Expected interface not implemented: {name}" });
+    function _gpfInterfaceIsInvalidMethod(referenceMethod, method) {
+        return "function" !== typeof method || referenceMethod.length !== method.length;
+    }
+    /**
+     * Verify that the object implements the specified interface
+     *
+     * @param {Function} interfaceSpecifier Reference interface
+     * @param {Object} inspectedObject Object (or class prototype) to inspect
+     * @return {Boolean} True if implemented
+     * @since 0.1.8
+     */
+    function _gpfInterfaceIsImplementedBy(interfaceSpecifier, inspectedObject) {
+        var result = true;
+        _gpfObjectForEach(interfaceSpecifier.prototype, function (referenceMethod, name) {
+            if (_gpfInterfaceIsInvalidMethod(referenceMethod, inspectedObject[name])) {
+                result = false;
+            }
+        });
+        return result;
+    }
+    /**
+     * Retrieve an object implementing the expected interface from an object using the IUnknown interface
+     *
+     * @param {Function} interfaceSpecifier Reference interface
+     * @param {Object} queriedObject Object to query
+     * @return {Object|null} Object implementing the interface or null
+     * @since 0.1.8
+     */
+    function _gpfInterfaceQueryThroughIUnknown(interfaceSpecifier, queriedObject) {
+        var result = queriedObject.queryInterface(interfaceSpecifier);
+        _gpfAssert(null === result || _gpfInterfaceIsImplementedBy(interfaceSpecifier, result), "Invalid result of queryInterface (must be null or an object implementing the interface)");
+        return result;
+    }
+    /**
+     * Retrieve an object implementing the expected interface from an object trying the IUnknown interface
+     *
+     * @param {Function} interfaceSpecifier Reference interface
+     * @param {Object} queriedObject Object to query
+     * @return {Object|null|undefined} Object implementing the interface or null,
+     * undefined is returned when IUnknown is not implemented
+     * @since 0.1.8
+     */
+    function _gpfInterfaceQueryTryIUnknown(interfaceSpecifier, queriedObject) {
+        if (_gpfInterfaceIsImplementedBy(gpf.interfaces.IUnknown, queriedObject)) {
+            return _gpfInterfaceQueryThroughIUnknown(interfaceSpecifier, queriedObject);
+        }
+    }
+    /**
+     * Retrieve an object implementing the expected interface from an object:
+     * - Either the object implements the interface, it is returned
+     * - Or the object implements IUnknown, then queryInterface is used
+     *
+     * @param {Function} interfaceSpecifier Reference interface
+     * @param {Object} queriedObject Object to query
+     * @return {Object|null|undefined} Object implementing the interface or null,
+     * undefined is returned when IUnknown is not implemented
+     * @since 0.1.8
+     */
+    function _gpfInterfaceQuery(interfaceSpecifier, queriedObject) {
+        if (_gpfInterfaceIsImplementedBy(interfaceSpecifier, queriedObject)) {
+            return queriedObject;
+        }
+        return _gpfInterfaceQueryTryIUnknown(interfaceSpecifier, queriedObject);
+    }
+    function _gpfInterfaceResolveSpecifier(interfaceSpecifier) {
+        if ("string" === typeof interfaceSpecifier) {
+            return _gpfContext(interfaceSpecifier.split("."));
+        }
+        return interfaceSpecifier;
+    }
+    function _gpfInterfaceToInspectableObject(inspectedObject) {
+        if (inspectedObject instanceof Function) {
+            return inspectedObject.prototype;
+        }
+        return inspectedObject;
+    }
+    /**
+     * @namespace gpf.interfaces
+     * @description Root namespace for GPF interfaces
+     * @since 0.1.8
+     */
+    var _gpfI = gpf.interfaces = {
+        /**
+         * Verify that the object (or class) implements the current interface
+         *
+         * @param {Function|String} interfaceSpecifier Interface specifier
+         * @param {Object|Function} inspectedObject object (or class) to inspect
+         * @return {Boolean} True if implemented
+         * @since 0.1.8
+         */
+        isImplementedBy: function (interfaceSpecifier, inspectedObject) {
+            return _gpfInterfaceIsImplementedBy(_gpfInterfaceResolveSpecifier(interfaceSpecifier), _gpfInterfaceToInspectableObject(inspectedObject));
+        },
+        /**
+         * Retrieve an object implementing the expected interface from an object:
+         * - Either the object implements the interface, it is returned
+         * - Or the object implements IUnknown, then queryInterface is used
+         *
+         * @param {Function|String} interfaceSpecifier Interface specifier
+         * @param {Object} queriedObject Object to query
+         * @return {Object|null|undefined} Object implementing the interface or null,
+         * undefined is returned when IUnknown is not implemented
+         * @since 0.1.8
+         */
+        query: function (interfaceSpecifier, queriedObject) {
+            return _gpfInterfaceQuery(_gpfInterfaceResolveSpecifier(interfaceSpecifier), queriedObject);
+        }
+    };
+    _gpfDefine({
+        $interface: "gpf.interfaces.IUnknown",
+        /**
+         * Retrieves an object supporting the requested interface (maybe the object itself)
+         *
+         * @method gpf.interfaces.IUnknown.queryInterface
+         * @param {Function} Interface specifier function
+         * @return {Object} The object implementing the interface or null
+         * @since 0.1.8
+         */
+        queryInterface: _gpfCreateAbstractFunction(1)
+    });
 }));
