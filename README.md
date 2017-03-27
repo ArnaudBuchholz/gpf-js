@@ -13,9 +13,9 @@ A multi-purpose JavaScript library created and maintained by
 ([cscript/wscript](http://technet.microsoft.com/en-us/library/bb490887.aspx),
 [NodeJS](http://nodejs.org/), [Rhino](https://developer.mozilla.org/en-US/docs/Mozilla/Projects/Rhino),
 [PhantomJS](http://phantomjs.org/), most *recent* browsers)
-* Namespace and class system *-- not implemented yet*
+* Namespace and class system
 * Java-like annotation tool (attributes) *-- not implemented yet*
-* Interface based *-- not implemented yet*
+* Interface based
 * Asynchronous binary / textual streams *-- not implemented yet*
 * XML-aware *-- not implemented yet*
 * Self-Tested
