@@ -63,6 +63,7 @@ const
 let
     version = pkgVersion,
     gh,
+    versionMilestone,
     versionTitle;
 
 if (version.includes("-")) {
@@ -105,7 +106,7 @@ inquirer.prompt([{
         return gh.getIssues("ArnaudBuchholz", "gpf-js").listMilestones();
     })
     .then(reqMilestones => {
-        var versionMilestone = reqMilestones.data.filter(milestone => milestone.title.includes(version))[0];
+        versionMilestone = reqMilestones.data.filter(candidate => candidate.title.includes(version))[0];
         if (!versionMilestone) {
             throw new Error("No corresponding milestone found");
         }
@@ -135,6 +136,9 @@ inquirer.prompt([{
     .then(() => spawnGrunt("copy:releasePlatoHistory"))
     .then(() => spawnGit(["commit", "-a", "-m", `Release v${version}`]))
     .then(() => spawnGit(["push"]))
+    .then(() => gh.getIssues("ArnaudBuchholz", "gpf-js").editMilestone(versionMilestone.id, {
+        state: "closed"
+    }))
     .then(() => gh.getRepo("ArnaudBuchholz", "gpf-js").createRelease({
         tag_name: `v${version}`,
         name: versionTitle
