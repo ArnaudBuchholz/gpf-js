@@ -45,7 +45,7 @@ module.exports = {
     }, verbose, failIfNot0),
     jsdoc: Object.assign({
         cmd: function () {
-            return "node node_modules/jsdoc/jsdoc -d tmp/jsdoc --verbose "
+            return "node node_modules/jsdoc/jsdoc -d tmp/jsdoc --verbose -a all "
                 + "-c doc/private.json " + [].slice.call(arguments).join(" ");
         }
     }, verbose, failIfNot0),
