@@ -21,10 +21,16 @@ function _gpfCreateSortVariables (specifications, body) {
         if (0 !== index) {
             body.push(",\n    ");
         }
-        body.push("a", index, " = a.", specification.property, ",\n");
-        body.push("    b", index, " = b.", specification.property);
+        body.push("a", index, " = a.", specification.property, ",\n    b", index, " = b.", specification.property);
     });
     body.push(";\n");
+}
+
+function _gpfCreateSortComparison (type, left, right) {
+    if (!type || "number" === type) {
+        return left + " - " + right + ";";
+    }// else if ("string" === specification.type) {
+    return left + ".localeCompare(" + right + ");";
 }
 
 function _gpfCreateSortCondition (body, specification, index) {
@@ -37,13 +43,8 @@ function _gpfCreateSortCondition (body, specification, index) {
         left = "a" + index;
         right = "b" + index;
     }
-    body.push("if (", left, " !== ", right, ") {\n    return ");
-    if (!specification.type || "number" === specification.type) {
-        body.push(left, " - ", right, ";");
-    } else if ("string" === specification.type) {
-        body.push(left, ".localeCompare(", right, ");");
-    }
-    body.push("\n}\n");
+    body.push("if (", left, " !== ", right, ") {\n    return ",
+        _gpfCreateSortComparison(specification.type, left, right), "\n}\n");
 }
 
 function _gpfCreateSortBody (specifications) {
