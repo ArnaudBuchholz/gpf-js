@@ -213,6 +213,10 @@
         "doc": true
     },
     {
+        "name": "sort",
+        "doc": true
+    },
+    {
         "name": "events",
         "load": false
     },
