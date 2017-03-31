@@ -15,10 +15,10 @@
  * @property {Boolean} [ascending=true] Descending if false
  */
 
-function _gpfCreateSortVariables (specifications, body) {
-    body.push("var ", specifications.map(function (specification, index) {
+function _gpfCreateSortVariables (specifications) {
+    return "var " + specifications.map(function (specification, index) {
         return "a" + index + "=a." + specification.property + ",b" + index + "=b." + specification.property;
-    }).join(","), ";");
+    }).join(",") + ";";
 }
 
 function _gpfCreateSortComparison (type, left, right) {
@@ -29,7 +29,7 @@ function _gpfCreateSortComparison (type, left, right) {
     return left + "-" + right;
 }
 
-function _gpfCreateSortCondition (body, specification, index) {
+function _gpfCreateSortCondition (specification, index) {
     var left,
         right;
     if (specification.ascending === false) {
@@ -39,17 +39,15 @@ function _gpfCreateSortCondition (body, specification, index) {
         left = "a" + index;
         right = "b" + index;
     }
-    body.push("if(", left, "!==", right, ")return ",
-        _gpfCreateSortComparison(specification.type, left, right), ";");
+    return "if(" + left + "!==" + right + ")return " + _gpfCreateSortComparison(specification.type, left, right) + ";";
 }
 
 function _gpfCreateSortBody (specifications) {
-    var body = [];
-    _gpfCreateSortVariables(specifications, body);
-    specifications.forEach(_gpfCreateSortCondition.bind(null, body));
-    body.push("return 0;");
-    return body;
+    return _gpfCreateSortVariables(specifications)
+        + specifications.map(_gpfCreateSortCondition).join("")
+        + "return 0;";
 }
+
 /**
  * Create a sorting function based on the given specification
  *
@@ -57,7 +55,7 @@ function _gpfCreateSortBody (specifications) {
  * @return {Function} Function that can compare two objects
  */
 function _gpfCreateSortFunction (specifications) {
-    return _gpfFunc(["a", "b"], _gpfCreateSortBody(specifications).join(""));
+    return _gpfFunc(["a", "b"], _gpfCreateSortBody(specifications));
 }
 
 /**
