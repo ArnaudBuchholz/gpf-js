@@ -217,6 +217,16 @@
         "doc": true
     },
     {
+        "name": "interfaces/stream",
+        "test": false,
+        "doc": true
+    },
+    {
+        "name": "interfaces/filestorage",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "events",
         "load": false
     },
@@ -281,19 +291,7 @@
         "load": false
     },
     {
-        "name": "interfaces/enumerator",
-        "load": false
-    },
-    {
         "name": "interfaces/array",
-        "load": false
-    },
-    {
-        "name": "interfaces/stream",
-        "load": false
-    },
-    {
-        "name": "interfaces/filestorage",
         "load": false
     },
     {
@@ -494,6 +492,10 @@
     },
     {
         "name": "interfaces_",
+        "load": false
+    },
+    {
+        "name": "interfaces/enumerator_",
         "load": false
     }
 ]
