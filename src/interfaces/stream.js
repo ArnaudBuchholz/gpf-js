@@ -1,10 +1,10 @@
 /**
- * @file IReadableStream, IWritableStream
+ * @file IReadableStream and IWritableStream interfaces
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfDefIntrf*/ // gpf.define for interfaces
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfCreateAbstractFunction*/ // Build a function that throws the abstractMethod exception
+/*global _gpfDefine*/ // Shortcut for gpf.define
 /*#endif*/
 
 /**
@@ -16,72 +16,41 @@
  * For write, the stream is allowed to reject the call if it does not receive the expected format.
  */
 
- /* istanbul ignore next */ // Interface
 /**
  * The Readable stream interface is the abstraction for a source of data that you are reading from.
  * In other words, data comes out of a Readable stream.
  *
- * @class gpf.interfaces.IReadableStream
- * @extends gpf.interfaces.Interface
+ * @interface gpf.interfaces.IReadableStream
  */
-_gpfDefIntrf("IReadableStream", {
+_gpfDefine({
+    $interface: "gpf.interfaces.IReadableStream",
 
     /**
-     * Triggers the reading of data.
-     * The expected behavior is:
-     * - The callback is asynchronous
-     * - One of the following callback must be called after a read
-     *   - EVENT_ERROR: an error occurred.
-     *     the stream can't be used after this.
-     *   - EVENT_END_OF_DATA: stream ended.
-     *     the stream can't be used after this.
-     *   - EVENT_DATA: a buffer is provided, it can't be empty.
+     * Read data from the underlying source
      *
-     * @param {Number} [size=0] size Number of bytes to read. Read as much as possible if 0
-     * @param {gpf.events.Handler} eventsHandler
-     *
-     * @event gpf.events.EVENT_DATA
-     * Some data is ready to be used
-     * @eventParam {Number[]|String} buffer Unsigned bytes/String buffer
-     *
-     * @event gpf.events.EVENT_END_OF_DATA
-     * No more data can be read from the stream
+     * @method gpf.interfaces.IReadableStream#read
+     * @param {Number} [size=0] size Number of bytes to read, read as much as possible if 0
+     * @return {Promise<Array>} Data array, empty if no more data
      */
-    "[read]": [gpf.$ClassEventHandler()],
-    read: function (size, eventsHandler) {
-        _gpfIgnore(size, eventsHandler);
-    }
+    read: _gpfCreateAbstractFunction(1)
 
 });
 
-/* istanbul ignore next */ // Interface
 /**
  * The Writable stream interface is an abstraction for a destination that you are writing data to.
  *
- * @class gpf.interfaces.IReadableStream
- * @extends gpf.interfaces.Interface
+ * @interface gpf.interfaces.IWritableStream
  */
-_gpfDefIntrf("IWritableStream", {
+_gpfDefine({
+    $interface: "gpf.interfaces.IWritableStream",
 
     /**
-     * Triggers the writing of data.
-     * The expected behavior is:
-     * - The callback is asynchronous
-     * - One of the following callback must be called after a read
-     *   - EVENT_ERROR: an error occurred.
-     *     the stream can't be used after this.
-     *   - EVENT_READY: the write operation succeeded, the provided buffer has
-     *     been fully written (otherwise an error is thrown)
+     * Write data to the underlying destination
      *
-     * @param {Number[]|String} buffer Unsigned Bytes/String buffer to write
-     * @param {gpf.events.Handler} eventsHandler
-     *
-     * @event gpf.events.EVENT_READY
-     * it is appropriate to begin writing more data to the stream
+     * @method gpf.interfaces.IWritableStream#write
+     * @param {Array} data Data array
+     * @return {Promise} Resolved when ready
      */
-    "[write]": [gpf.$ClassEventHandler()],
-    write: function (buffer, eventsHandler) {
-        _gpfIgnore(buffer, eventsHandler);
-    }
+    write: _gpfCreateAbstractFunction(1)
 
 });
