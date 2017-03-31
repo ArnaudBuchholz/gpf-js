@@ -16,21 +16,17 @@
  */
 
 function _gpfCreateSortVariables (specifications, body) {
-    body.push("var ");
-    specifications.forEach(function (specification, index) {
-        if (0 !== index) {
-            body.push(",\n    ");
-        }
-        body.push("a", index, " = a.", specification.property, ",\n    b", index, " = b.", specification.property);
-    });
-    body.push(";\n");
+    body.push("var ", specifications.map(function (specification, index) {
+        return "a" + index + "=a." + specification.property + ",b" + index + "=b." + specification.property;
+    }).join(","), ";");
 }
 
 function _gpfCreateSortComparison (type, left, right) {
-    if (!type || "number" === type) {
-        return left + " - " + right + ";";
-    }// else if ("string" === specification.type) {
-    return left + ".localeCompare(" + right + ");";
+    if ("string" === type) {
+        return left + ".localeCompare(" + right + ")";
+    }
+    // default is number
+    return left + "-" + right;
 }
 
 function _gpfCreateSortCondition (body, specification, index) {
@@ -43,8 +39,8 @@ function _gpfCreateSortCondition (body, specification, index) {
         left = "a" + index;
         right = "b" + index;
     }
-    body.push("if (", left, " !== ", right, ") {\n    return ",
-        _gpfCreateSortComparison(specification.type, left, right), "\n}\n");
+    body.push("if(", left, "!==", right, ")return ",
+        _gpfCreateSortComparison(specification.type, left, right), ";");
 }
 
 function _gpfCreateSortBody (specifications) {
