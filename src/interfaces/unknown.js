@@ -20,7 +20,7 @@ _gpfDefine({
     /**
      * Retrieves an object supporting the requested interface (maybe the object itself)
      *
-     * @method gpf.interfaces.IUnknown.queryInterface
+     * @method gpf.interfaces.IUnknown#queryInterface
      * @param {Function} Interface specifier function
      * @return {Object} The object implementing the interface or null
      * @since 0.1.8
