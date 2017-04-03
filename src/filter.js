@@ -74,6 +74,8 @@
  * @typedef gpf.typedef.filterLike
  * @property {gpf.typedef.filterItem} like Item
  * @property {String} regexp Regular expression specification
+ * @property {Number} [group] If the regular expression contains capturing group, this members can be used to return
+ * the group by index (1-based)
  */
 
 /**
