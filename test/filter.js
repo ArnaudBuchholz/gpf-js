@@ -1,12 +1,12 @@
 "use strict";
 
-describe("sort", function () {
+describe("filter", function () {
 
-    var array = [{id: 0, num: 5, str: "e", group: 1},
-                {id: 1, num: 1, str: "b", group: 0},
-                {id: 2, num: 4, str: "a", group: 1},
-                {id: 3, num: 2, str: "d", group: 0},
-                {id: 4, num: 3, str: "c", group: 1}];
+    var array = [{id: 0, num: 5, str: "e", group: 1, search: "first"},
+                {id: 1, num: 1, str: "b", group: 0, search: "second"},
+                {id: 2, num: 4, str: "a", group: 1, search: "third"},
+                {id: 3, num: 2, str: "d", group: 0, search: "fourth"},
+                {id: 4, num: 3, str: "c", group: 1, search: "fifth"}];
 
     function checkFilteringResult (result, ids) {
         assert(result.length === ids.length);
@@ -43,6 +43,34 @@ describe("sort", function () {
             expected: [0, 1, 2, 3]
 
         }, {
+            label: "filters with lower than (lt)",
+            filter: {
+                lt: [{property: "num"}, 3]
+            },
+            expected: [1, 3]
+
+        }, {
+            label: "filters with lower than or equal (lte)",
+            filter: {
+                lte: [{property: "num"}, 3]
+            },
+            expected: [1, 3, 4]
+
+        }, {
+            label: "filters with greater than (gt)",
+            filter: {
+                gt: [{property: "num"}, 3]
+            },
+            expected: [0, 2]
+
+        }, {
+            label: "filters with greater than or equal (lte)",
+            filter: {
+                gte: [{property: "num"}, 3]
+            },
+            expected: [0, 2, 4]
+
+        }, {
             label: "filters on string values (not eq)",
             filter: {
                 not: {
@@ -59,14 +87,18 @@ describe("sort", function () {
             },
             expected: [2, 4]
 
-        // or
         }, {
-            label: "filters with or (no conditions)",
+            label: "filters on string values (like with capturing group)",
             filter: {
-                or: []
+                eq: [{
+                    like: {property: "search"},
+                    regexp: "f([a-z]*)th",
+                    group: 1
+                }, "if"]
             },
-            expected: []
+            expected: [4]
 
+        // or
         }, {
             label: "filters with or (one condition)",
             filter: {
@@ -98,13 +130,6 @@ describe("sort", function () {
             expected: [1, 3, 4]
 
         // and
-        }, {
-            label: "filters with and (no conditions)",
-            filter: {
-                and: []
-            },
-            expected: [0, 1, 2, 3, 4]
-
         }, {
             label: "filters with and (one condition)",
             filter: {
