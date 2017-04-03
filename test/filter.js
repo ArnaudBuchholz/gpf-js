@@ -17,9 +17,15 @@ describe("sort", function () {
 
     describe("gpf.createFilterFunction", function () {
 
+        // Simple operators
         [{
             label: "filters on numeric values",
             filter: {eq: [{property: "num"}, 1]},
+            expected: [1]
+
+        }, {
+            label: "filters on own values",
+            filter: {eq: [{property: "num"}, {property: "id"}]},
             expected: [1]
 
         }, {
@@ -45,6 +51,15 @@ describe("sort", function () {
             },
             expected: [0, 1, 2, 3]
 
+        }, {
+            label: "filters on string values (like)",
+            filter: {
+                like: {property: "str"},
+                regexp: "[a|c]"
+            },
+            expected: [2, 4]
+
+        // or
         }, {
             label: "filters with or (no conditions)",
             filter: {
@@ -82,6 +97,7 @@ describe("sort", function () {
             },
             expected: [1, 3, 4]
 
+        // and
         }, {
             label: "filters with and (no conditions)",
             filter: {
