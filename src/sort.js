@@ -9,6 +9,8 @@
 //region test
 
 /**
+ * Property sorting specification
+ *
  * @typedef gpf.typedef.sortItem
  * @property {String} property Name of the property to sort by
  * @property {String} [type="number"] Property type, only allowed values are "number" and "string"
