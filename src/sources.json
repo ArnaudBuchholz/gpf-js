@@ -217,6 +217,10 @@
         "doc": true
     },
     {
+        "name": "filter",
+        "doc": true
+    },
+    {
         "name": "interfaces/stream",
         "test": false,
         "doc": true
