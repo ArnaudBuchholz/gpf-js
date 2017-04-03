@@ -33,6 +33,34 @@
  */
 
 /**
+ * Filter lower than specification
+ *
+ * @typedef gpf.typedef.filterLt
+ * @property {gpf.typedef.filterItem[]} lt List of items to compare
+ */
+
+/**
+ * Filter lower than or equal specification
+ *
+ * @typedef gpf.typedef.filterLte
+ * @property {gpf.typedef.filterItem[]} lte List of items to compare
+ */
+
+/**
+ * Filter greater than specification
+ *
+ * @typedef gpf.typedef.filterGt
+ * @property {gpf.typedef.filterItem[]} gt List of items to compare
+ */
+
+/**
+ * Filter greater than or equal specification
+ *
+ * @typedef gpf.typedef.filterGte
+ * @property {gpf.typedef.filterItem[]} gte List of items to compare
+ */
+
+/**
  * Filter not specification
  *
  * @typedef gpf.typedef.filterNot
@@ -71,6 +99,10 @@
  *  gpf.typedef.filterProperty
  *  | gpf.typedef.filterEq
  *  | gpf.typedef.filterNe
+ *  | gpf.typedef.filterLt
+ *  | gpf.typedef.filterLte
+ *  | gpf.typedef.filterGt
+ *  | gpf.typedef.filterGte
  *  | gpf.typedef.filterNot
  *  | gpf.typedef.filterLike
  *  | gpf.typedef.filterOr
@@ -87,14 +119,9 @@ function _gpfCreateFilterArrayConverter (member, operator) {
     };
 }
 
-function _gpfCreateFilterArrayConverterWithDefault (member, operator, defaultValue) {
-    return function (specification) {
-        var array = specification[member];
-        if (0 === array.length) {
-            return defaultValue;
-        }
-        return "(" + array.map(_gpfCreateFilterConvert).join(operator) + ")";
-    };
+function _gpfCreateFilterLike (specification) {
+    return "(new RegExp(" + JSON.stringify(specification.regexp) + ").exec("
+        + _gpfCreateFilterConvert(specification.like) + "))";
 }
 
 var // List of converters
@@ -105,21 +132,27 @@ var // List of converters
         },
 
         eq: _gpfCreateFilterArrayConverter("eq", "==="),
-
         ne: _gpfCreateFilterArrayConverter("ne", "!=="),
+        lt: _gpfCreateFilterArrayConverter("lt", "<"),
+        lte: _gpfCreateFilterArrayConverter("lte", "<="),
+        gt: _gpfCreateFilterArrayConverter("gt", ">"),
+        gte: _gpfCreateFilterArrayConverter("gte", ">="),
 
         not: function (specification) {
             return "!" + _gpfCreateFilterConvert(specification.not);
         },
 
         like: function (specification) {
-            return "(new RegExp(" + JSON.stringify(specification.regexp) + ").exec("
-                + _gpfCreateFilterConvert(specification.like) + "))";
+            var like = _gpfCreateFilterLike(specification);
+            if (specification.group) {
+                return "(" + like + "||[])[" + specification.group + "]";
+            }
+            return like;
         },
 
-        or: _gpfCreateFilterArrayConverterWithDefault("or", "||", "false"),
+        or: _gpfCreateFilterArrayConverter("or", "||"),
 
-        and: _gpfCreateFilterArrayConverterWithDefault("and", "&&", "true"),
+        and: _gpfCreateFilterArrayConverter("and", "&&"),
 
         undefined: function (specification) {
             return JSON.stringify(specification);
@@ -145,10 +178,11 @@ function _gpfCreateFilterBody (specification) {
 }
 
 /**
- * Create a sorting function based on the given specification
+ * Create a filtering function based on the given specification.
  *
  * @param {gpf.typedef.filterItem} specification Filter specification
- * @return {Function} Function that can filter object
+ * @return {Function} Function that takes an object and return a truthy / falsy value indicating if the object
+ * matches the filter
  */
 gpf.createFilterFunction = function (specification) {
     return _gpfFunc(["i"], _gpfCreateFilterBody(specification));
