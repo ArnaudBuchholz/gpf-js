@@ -3,8 +3,8 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfCreateAbstractFunction*/ // Build a function that throws the abstractMethod exception
-/*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfDefineInterface*/ // Internal interface definition helper
+/*global _gpfSyncReadSourceJSON*/ // Reads a source json file (only in source mode)
 /*#endif*/
 
 /**
@@ -22,35 +22,29 @@
  *
  * @interface gpf.interfaces.IReadableStream
  */
-_gpfDefine({
-    $interface: "gpf.interfaces.IReadableStream",
 
-    /**
-     * Read data from the underlying source
-     *
-     * @method gpf.interfaces.IReadableStream#read
-     * @param {Number} [size=0] size Number of bytes to read, read as much as possible if 0
-     * @return {Promise<Array>} Data array, empty if no more data
-     */
-    read: _gpfCreateAbstractFunction(1)
+/**
+ * Read data from the underlying source
+ *
+ * @method gpf.interfaces.IReadableStream#read
+ * @param {Number} [size=0] size Number of bytes to read, read as much as possible if 0
+ * @return {Promise<Array>} Data array, empty if no more data
+ */
 
-});
+_gpfDefineInterface("ReadableStream", _gpfSyncReadSourceJSON("interfaces/readablestream.json"));
 
 /**
  * The Writable stream interface is an abstraction for a destination that you are writing data to.
  *
  * @interface gpf.interfaces.IWritableStream
  */
-_gpfDefine({
-    $interface: "gpf.interfaces.IWritableStream",
 
-    /**
-     * Write data to the underlying destination
-     *
-     * @method gpf.interfaces.IWritableStream#write
-     * @param {Array} data Data array
-     * @return {Promise} Resolved when ready
-     */
-    write: _gpfCreateAbstractFunction(1)
+/**
+ * Write data to the underlying destination
+ *
+ * @method gpf.interfaces.IWritableStream#write
+ * @param {Array} data Data array
+ * @return {Promise} Resolved when ready
+ */
 
-});
+_gpfDefineInterface("WritableStream", _gpfSyncReadSourceJSON("interfaces/writablestream.json"));
