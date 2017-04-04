@@ -221,7 +221,12 @@
         "doc": true
     },
     {
-        "name": "interfaces/stream",
+        "name": "interfaces/readablestream",
+        "test": false,
+        "doc": true
+    },
+    {
+        "name": "interfaces/writablestream",
         "test": false,
         "doc": true
     },
@@ -232,6 +237,11 @@
     },
     {
         "name": "interfaces/filestorage",
+        "test": false,
+        "doc": true
+    },
+    {
+        "name": "fs",
         "test": false,
         "doc": true
     },
@@ -301,10 +311,6 @@
     },
     {
         "name": "interfaces/array",
-        "load": false
-    },
-    {
-        "name": "fs",
         "load": false
     },
     {
@@ -505,6 +511,10 @@
     },
     {
         "name": "interfaces/enumerator_",
+        "load": false
+    },
+    {
+        "name": "fs/find",
         "load": false
     }
 ]
