@@ -1,0 +1,9 @@
+{
+    "getInfo": 1,
+    "openTextStream": 2,
+    "close": 1,
+    "explore": 1,
+    "createDirectory": 1,
+    "deleteFile": 1,
+    "deleteDirectory": 1
+}
