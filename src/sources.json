@@ -226,6 +226,11 @@
         "doc": true
     },
     {
+        "name": "interfaces/enumerator",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "interfaces/filestorage",
         "test": false,
         "doc": true
