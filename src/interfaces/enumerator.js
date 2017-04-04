@@ -26,7 +26,7 @@
  * Moves the enumerator to the next element of the enumeration.
  *
  * @method gpf.interfaces.IEnumerator#moveNext
- * @return {Promise<*>} Resolved with the next element
+ * @return {Promise<*>} Resolved with the next element (undefined if none)
  */
 
 /**
