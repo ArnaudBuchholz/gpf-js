@@ -6,8 +6,11 @@
 "use strict";
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfContext*/ // Resolve contextual string
+/*global _gpfCreateAbstractFunction*/ // Build a function that throws the abstractMethod exception
+/*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
+/*exported _gpfDefineInterface*/ // Internal interface definition helper
 /*exported _gpfI*/ // gpf.interfaces
 /*exported _gpfQueryInterface*/ // gpf.interfaces.query
 /*#endif*/
@@ -138,9 +141,19 @@ var _gpfI = gpf.interfaces = {
 
 };
 
-
-/*#ifndef(UMD)*/
-
-// gpf.internals._gpfQueryInterface = _gpfQueryInterface;
-
-/*#endif*/
+/**
+ * Internal interface definition helper
+ *
+ * @param {String} name Interface name
+ * @param {Object} definition Interface definition association method names to the number
+ * of parameters
+ */
+function _gpfDefineInterface (name, definition) {
+    var interfaceDefinition = {
+        $interface: "gpf.interfaces.I" + name
+    };
+    Object.keys(definition).forEach(function (methodName) {
+        interfaceDefinition[methodName] = _gpfCreateAbstractFunction(definition[methodName]);
+    });
+    _gpfDefine(interfaceDefinition);
+}
