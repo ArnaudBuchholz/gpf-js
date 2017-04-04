@@ -10,5 +10,8 @@
     },
     "DEFINE": {
         "title": "GPF Entity definition"
+    },
+    "INTERFACES": {
+        "title": "GPF Standard interfaces"
     }
 }
