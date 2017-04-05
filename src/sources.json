@@ -242,7 +242,6 @@
     },
     {
         "name": "fs",
-        "test": false,
         "doc": true
     },
     {
