@@ -1,11 +1,11 @@
 /**
  * @file File system implementation
+ * @since 0.1.9
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*exported _GPF_FS_TYPESS*/ // File system types constants
 /*exported _GPF_FS_OPENFOR*/ // File system stream opening mode
-//*exported _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
+/*exported _GPF_FS_TYPESS*/ // File system types constants
 /*#endif*/
 
 var
@@ -27,12 +27,18 @@ var
         READING: 0,
         APPENDING: 1
 
-    };
+    },
+
+    /**
+     * Host file storage
+     *
+     * @type {gpf.interfaces.IFileStorage}
+     */
+    _gpfHostFileStorage = null;
 
 /**
  * @namespace gpf.fs
  * @description Root namespace for filesystem specifics
- * @since 0.1.5
  */
 gpf.fs = {
 
@@ -90,7 +96,7 @@ gpf.fs = {
      * @return {gpf.interfaces.IFileStorage} IFileStorage interface
      */
     getFileStorage: function () {
-        return null;
+        return _gpfHostFileStorage;
     }
 
 };
