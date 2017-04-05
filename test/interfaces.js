@@ -65,6 +65,12 @@ describe("interfaces", function () {
             assert(true === gpf.interfaces.isImplementedBy(gpf.interfaces.IUnknown, TestGPFClass));
         });
 
+        [false, null, undefined, 0, NaN, ""].forEach(function (falsyValue) {
+            it("rejects " + JSON.stringify(falsyValue), function () {
+                assert(false === gpf.interfaces.isImplementedBy("gpf.interfaces.IUnknown", falsyValue));
+            });
+        });
+
         it("rejects member if not a method", function () {
             assert(false === gpf.interfaces.isImplementedBy("gpf.interfaces.IUnknown", {
                 queryInterface: "Not a method"
