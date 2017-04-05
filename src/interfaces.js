@@ -115,11 +115,14 @@ var _gpfI = gpf.interfaces = {
      * Verify that the object (or class) implements the current interface
      *
      * @param {Function|String} interfaceSpecifier Interface specifier
-     * @param {Object|Function} inspectedObject object (or class) to inspect
+     * @param {Object|Function} inspectedObject object (or class) to inspect.
      * @return {Boolean} True if implemented
      * @since 0.1.8
      */
     isImplementedBy: function (interfaceSpecifier, inspectedObject) {
+        if (!inspectedObject) {
+            return false;
+        }
         return _gpfInterfaceIsImplementedBy(_gpfInterfaceResolveSpecifier(interfaceSpecifier),
             _gpfInterfaceToInspectableObject(inspectedObject));
     },
