@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*exported _gpfSetHostFileStorage*/ // Set the result of gpf.fs.getFileStorage
 /*exported _GPF_FS_OPENFOR*/ // File system stream opening mode
 /*exported _GPF_FS_TYPESS*/ // File system types constants
 /*#endif*/
@@ -101,3 +102,11 @@ gpf.fs = {
 
 };
 
+/**
+ * Set the result of {@see gpf.fs.getFileStorage}
+ *
+ * @param {gpf.interfaces.IFileStorage} iFileStorage object implementing IFileStorage
+ */
+function _gpfSetHostFileStorage (iFileStorage) {
+    _gpfHostFileStorage = iFileStorage;
+}
