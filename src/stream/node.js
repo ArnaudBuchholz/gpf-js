@@ -10,6 +10,8 @@
 /*global _GPF_HOST*/
 /*global _gpfHost*/
 /*global _gpfCreateAbstractFunction*/ // Build a function that throws the abstractMethod exception
+/*global _gpfStreamSecureRead*/
+/*global _gpfStreamSecureWrite*/
 /*#endif*/
 
 if (_GPF_HOST.NODEJS === _gpfHost) {
@@ -63,6 +65,7 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
             this.$super(stream);
             stream.on("end", this._onEnd.bind(this));
             stream.on("error", this._onError.bind(this));
+            stream.on("readable", this._onReadable.bind(this));
         },
 
         /** @inheritdoc gpf.node.BaseStream#close */
@@ -73,13 +76,35 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
         //region gpf.interfaces.IReadableStream
 
         /** @inheritdoc gpf.interfaces.IReadableStream#read */
-        read: function (size) {
+        read: _gpfStreamSecureRead(function (size) {
+            return new Promise(function (resolve, reject) {
+                this._resolve = resolve;
+                this._reject = reject;
+                if (this._ended) {
+                    return resolve([]);
+                }
+                _read(size);
+            }.bind(this));
+        },
+
+        _read: function (size) {
+            var chunk = this._stream.read(size);
+            if (this._failed) {
+                return reject(this._failed);
+            }
+            if (null === chunk) {
+                // Must wait for readable
+            }
+            resolve(chunk);
+
             var chunk = this._stream.read(size);
 
+            if (null === chunk) {
+                //
+                return Promise.resolve([]);
+            }
+            return Promise.resolve(chunk);
 
-            this.read = gpf.Error.readInProgress;
-
-            delete this.read;
 
             this._setEventsHandler(eventsHandler, gpf.Error.readInProgress);
             // If we received the "readable" event
@@ -95,7 +120,7 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
             }
             this._size = size;
             this._stream.once("readable", this._boundOnReadable);
-        }
+        }),
 
         //endregion
 
