@@ -15,11 +15,11 @@
  */
 
 /**
- * Read data from the underlying source
+ * Read all data from the underlying source. Chunk of data is passed to the {@see gpf.interfaces.IWritableStream}.
  *
  * @method gpf.interfaces.IReadableStream#read
- * @param {Number} [size=0] size Number of bytes to read, read as much as possible if 0
- * @return {Promise<Array>} Data array, empty if no more data
+ * @param {gpf.interfaces.IWritableStream} output Stream that receives chunk of data
+ * @return {Promise} Resolved when the stream has ended
  */
 
 _gpfDefineInterface("ReadableStream", _gpfSyncReadSourceJSON("interfaces/readablestream.json"));
