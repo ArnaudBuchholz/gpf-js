@@ -10,10 +10,42 @@
 /*#endif*/
 
 _gpfErrorDeclare("stream", {
+
+    /**
+     * ### Summary
+     *
+     * A read operation is already in progress
+     *
+     * ### Description
+     *
+     * This error is triggered if two reads are made simultaneously on the stream
+     */
     readInProgress:
         "A read operation is already in progress",
+
+    /**
+     * ### Summary
+     *
+     * A write operation is already in progress
+     *
+     * ### Description
+     *
+     * This error is triggered if two writes are made simultaneously on the stream
+     */
     writeInProgress:
-        "A write operation is already in progress"
+        "A write operation is already in progress",
+
+    /**
+     * ### Summary
+     *
+     * Stream is in an invalid state
+     *
+     * ### Description
+     *
+     * If an error occurred while using the stream, no additional operations can be made
+     */
+    invalidStreamState:
+        "Stream is in an invalid state"
 });
 
 var _GPF_STREAM_DEFAULT_READ_SIZE = 4096;
