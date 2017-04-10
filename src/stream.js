@@ -5,7 +5,8 @@
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*exported _GPF_STREAM_DEFAULT_READ_SIZE*/ // Global default for stream read size
-/*exported _gpfStreamSecuredRead*/
+/*exported _gpfStreamSecureRead*/ // Generate a wrapper to secure multiple calls to stream#read
+/*exported _gpfStreamSecureWrite*/ // Generates a wrapper to secure multiple calls to stream#write
 /*#endif*/
 
 _gpfErrorDeclare("stream", {
@@ -23,9 +24,36 @@ var _GPF_STREAM_DEFAULT_READ_SIZE = 4096;
  */
 gpf.stream = {};
 
-function _gpfStreamSecuredRead (size) {
-    this.read = gpf.error.readInProgress;
-    return this._read(size).then(undefined, function (e) {
-        this.read = _gpfStreamSecuredRead
-    }.bind(this));
+/**
+ * Generate a wrapper to secure multiple calls to stream#read
+ *
+ * @param {Function} read Read function
+ * @return {Function} Function exposing {@see gpf.interfaces.IReadableStream#read}
+ * @gpf:closure
+ */
+function _gpfStreamSecureRead (read) {
+    var inProgress = false;
+    return function (size) {
+        if (inProgress) {
+            gpf.error.readInProgress();
+        }
+        return read(size);
+    };
+}
+
+/**
+ * Generate a wrapper to secure multiple calls to stream#write
+ *
+ * @param {Function} write Write function
+ * @return {Function} Function exposing {@see gpf.interfaces.IWritableStream#write}
+ * @gpf:closure
+ */
+function _gpfStreamSecureWrite (write) {
+    var inProgress = false;
+    return function (buffer) {
+        if (inProgress) {
+            gpf.error.writeInProgress();
+        }
+        return write(buffer);
+    };
 }
