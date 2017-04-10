@@ -5,6 +5,7 @@
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*exported _GPF_STREAM_DEFAULT_READ_SIZE*/ // Global default for stream read size
+/*exported _gpfStreamSecuredRead*/
 /*#endif*/
 
 _gpfErrorDeclare("stream", {
@@ -16,5 +17,15 @@ _gpfErrorDeclare("stream", {
 
 var _GPF_STREAM_DEFAULT_READ_SIZE = 4096;
 
-gpf.stream = {
-};
+/**
+ * @namespace gpf.stream
+ * @description Root namespace for GPF streams
+ */
+gpf.stream = {};
+
+function _gpfStreamSecuredRead (size) {
+    this.read = gpf.error.readInProgress;
+    return this._read(size).then(undefined, function (e) {
+        this.read = _gpfStreamSecuredRead
+    }.bind(this));
+}
