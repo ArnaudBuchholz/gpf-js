@@ -3,136 +3,101 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_EVENT_DATA*/ // gpf.events.EVENT_DATA
-/*global _GPF_EVENT_END_OF_DATA*/ // gpf.events.EVENT_END_OF_DATA
-/*global _GPF_EVENT_ERROR*/ // gpf.events.EVENT_ERROR
-/*global _GPF_EVENT_READY*/ // gpf.events.EVENT_READY
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfDefine*/ // Shortcut for gpf.define
-/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfI*/ // gpf.interfaces
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _GPF_HOST*/
 /*global _gpfHost*/
-/*exported _GpfNodeStream*/ // Encapsulation of nodeJS streams
+/*global _gpfCreateAbstractFunction*/ // Build a function that throws the abstractMethod exception
 /*#endif*/
 
 if (_GPF_HOST.NODEJS === _gpfHost) {
 
-    var // Base class of GPF NodeJS streams
-        _GpfNodeStream = _gpfDefine("gpf.node.Stream", {
-            "+": {
+    /**
+     * Base class wrapping NodeJS streams
+     *
+     * @class {gpf.node.BaseStream}
+     */
+    _gpfDefine(/** @lends gpf.node.BaseStream */ {
+        $class: "gpf.node.BaseStream",
 
-                // @param {Object} stream
-                constructor: function (stream) {
-                    this._stream = stream;
-                },
+        /**
+         * @param {Object} stream NodeJS stream object
+         * @constructor
+         */
+        constructor: function (stream) {
+            this._stream = stream;
+        },
 
-                /**
-                 * Close the current stream
-                 *
-                 * @param {gpf.events.Handler} eventsHandler
-                 *
-                 * @event gpf.events.EVENT_READY
-                 */
-                close: function (eventsHandler) {
-                    _gpfIgnore(eventsHandler);
-                    gpf.Error.abstractMethod();
-                }
+        /**
+         * Close the stream
+         *
+         * @return {Promise} Resolved when closed
+         */
+        close: _gpfCreateAbstractFunction(0),
 
-            },
-            "#": {
+        /**
+         * @property {Object} NodeJS stream object
+         */
+        _stream: null,
 
-                // property {Object} Node stream
-                _stream: null,
-
-                // @property {gpf.events.Handler} Last read eventsHandler also used as a critical section
-                _eventsHandler: null,
-
-                /**
-                 * Sets the _eventsHandler variable, fails if already existing (this is significant of a read/write
-                 * operation that is in progress).
-                 *
-                 * @param {gpf.events.Handler} eventsHandler Events handler
-                 * @param {Function} errorFactory Builds the error to throw
-                 */
-                _setEventsHandler: function (eventsHandler, errorFactory) {
-                    if (null !== this._eventsHandler) {
-                        throw errorFactory();
-                    }
-                    this._eventsHandler = eventsHandler;
-                },
-
-                /**
-                 * Provides an atomic access to the _eventsHandler variable (that is immediately cleared)
-                 *
-                 * @return {gpf.events.Handler}
-                 */
-                _getEventsHandler: function () {
-                    var result = this._eventsHandler;
-                    _gpfAssert(null !== result, "Event handler expected");
-                    this._eventsHandler = null;
-                    return result;
-                }
-
-            }
-        });
+    });
 
     /**
      * Wraps a readable stream from NodeJS into a IReadableStream
      *
-     * @class gpf.stream.NodeReadable
-     * @extends {gpf.node.Stream}
-     * @implements gpf.interfaces.IReadableStream
+     * @class {gpf.node.ReadableStream}
+     * @extends {gpf.node.BaseStream}
+     * @implements {gpf.interfaces.IReadableStream}
      */
-    _gpfDefine("gpf.node.ReadableStream", _GpfNodeStream, {
-        "[Class]": [gpf.$InterfaceImplement(_gpfI.IReadableStream)],
-        "+": {
+    _gpfDefine({
+        $class: "gpf.node.ReadableStream",
+        $extend: "gpf.node.BaseStream",
 
-            // @param {stream.Readable} stream
-            constructor: function (stream) {
-                this._super(stream);
-                stream.on("end", this._onEnd.bind(this));
-                stream.on("error", this._onError.bind(this));
-                this._boundOnReadable =  this._onReadable.bind(this);
-            },
-
-            // @inheritdoc gpf.node.Stream#close
-            close: function (eventsHandler) {
-                _gpfEventsFire.call(this, _GPF_EVENT_READY, {}, eventsHandler);
-            },
-
-            //region gpf.interfaces.IReadableStream
-
-            // @inheritdoc gpf.interfaces.IReadableStream#read
-            read: function (size, eventsHandler) {
-                var chunk;
-                this._setEventsHandler(eventsHandler, gpf.Error.readInProgress);
-                // If we received the "readable" event
-                if (this._readable) {
-                    // We try to read a chunk
-                    chunk = this._stream.read(size);
-                    if (chunk) {
-                        this._onData(chunk);
-                        return;
-                    }
-                    // No chunk means we must wait for next "readable"
-                    this._readable = false;
-                }
-                this._size = size;
-                this._stream.once("readable", this._boundOnReadable);
-            }
-
-            //endregion
-
+        /**
+         * @param {Object} stream NodeJS stream object
+         * @constructor
+         */
+        constructor: function (stream) {
+            this.$super(stream);
+            stream.on("end", this._onEnd.bind(this));
+            stream.on("error", this._onError.bind(this));
         },
-        "#": {
 
-            // @property {Boolean} Before doing any read on the stream, we wait for the readable event to be thrown
-            _readable: false,
+        /** @inheritdoc gpf.node.BaseStream#close */
+        close: function () {
+            return Promise.resolve();
+        },
 
-            // @property {Number} Last read size (if pending)
-            _size: 0,
+        //region gpf.interfaces.IReadableStream
+
+        /** @inheritdoc gpf.interfaces.IReadableStream#read */
+        read: function (size) {
+            var chunk = this._stream.read(size);
+
+
+            this.read = gpf.Error.readInProgress;
+
+            delete this.read;
+
+            this._setEventsHandler(eventsHandler, gpf.Error.readInProgress);
+            // If we received the "readable" event
+            if (this._readable) {
+                // We try to read a chunk
+                chunk = this._stream.read(size);
+                if (chunk) {
+                    this._onData(chunk);
+                    return;
+                }
+                // No chunk means we must wait for next "readable"
+                this._readable = false;
+            }
+            this._size = size;
+            this._stream.once("readable", this._boundOnReadable);
+        }
+
+        //endregion
 
             /**
              * Handles "readable" stream event
