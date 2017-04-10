@@ -33,11 +33,19 @@ gpf.stream = {};
  */
 function _gpfStreamSecureRead (read) {
     var inProgress = false;
-    return function (size) {
+    return function (output) {
         if (inProgress) {
             gpf.error.readInProgress();
         }
-        return read(size);
+        inProgress = true;
+        return read(output)
+            .then(function (result) {
+                inProgress = false;
+                return Promise.resolve(result);
+            }, function (reason) {
+                inProgress = false;
+                return Promise.reject(reason);
+            });
     };
 }
 
@@ -52,8 +60,16 @@ function _gpfStreamSecureWrite (write) {
     var inProgress = false;
     return function (buffer) {
         if (inProgress) {
-            gpf.error.writeInProgress();
+            gpf.error.readInProgress();
         }
-        return write(buffer);
+        inProgress = true;
+        return write(buffer)
+            .then(function (result) {
+                inProgress = false;
+                return Promise.resolve(result);
+            }, function (reason) {
+                inProgress = false;
+                return Promise.reject(reason);
+            });
     };
 }
