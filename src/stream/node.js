@@ -4,7 +4,6 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfDefine*/ // Shortcut for gpf.define
-/*global _gpfI*/ // gpf.interfaces
 /*global _GPF_HOST*/
 /*global _gpfHost*/
 /*global _gpfCreateAbstractFunction*/ // Build a function that throws the abstractMethod exception
@@ -28,6 +27,7 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
          */
         constructor: function (stream) {
             this._stream = stream;
+            stream.on("error", this._onError.bind(this));
         },
 
         /**
@@ -37,10 +37,46 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
          */
         close: _gpfCreateAbstractFunction(0),
 
+        //region Error handling
+
         /**
-         * @property {Object} NodeJS stream object
+         * NodeJS stream object
          */
-        _stream: null
+        _stream: null,
+
+        /**
+         * An error occurred
+         */
+        _failed: false,
+
+        /**
+         * Current promise rejection callback
+         * @type {Function}
+         */
+        _reject: gpf.Error.invalidStreamState,
+
+        /**
+         * If an error occurred, the exception {@see gpf.Error.InvalidStreamState} is thrown
+         *
+         * @throws {gpf.Error.InvalidStreamState}
+         */
+        _hasFailed: function () {
+            if (this._failed) {
+                gpf.Error.invalidStreamState()
+            }
+        },
+
+        /**
+         * Bound to the error event of the stream, reject the current promise if it occurs.
+         *
+         * @param {*} error Stream error
+         */
+        _onError: function (error) {
+            this._failed = true;
+            this._reject(error);
+        }
+
+        //endregion
 
     });
 
@@ -64,8 +100,10 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
 
         /** @inheritdoc gpf.interfaces.IReadableStream#read */
         read: _gpfStreamSecureRead(function (output) {
-            var stream = this._stream; //eslint-disable-line no-invalid-this
+            var me = this,  //eslint-disable-line no-invalid-this
+                stream = me._stream;
             return new Promise(function (resolve, reject) {
+                me._reject = reject;
                 stream
                     .on("data", function (chunk) {
                         stream.pause();
@@ -77,8 +115,7 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
                                 reject(e);
                             });
                     })
-                    .on("end", resolve)
-                    .on("error", reject);
+                    .on("end", resolve);
             });
         })
 
@@ -104,25 +141,16 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
 
         /** @inheritdoc gpf.interfaces.IWritableStream#write */
         read: _gpfStreamSecureWrite(function (buffer) {
-            var stream = this._stream; //eslint-disable-line no-invalid-this
+            var me = this,  //eslint-disable-line no-invalid-this
+                stream = me._stream;
             return new Promise(function (resolve, reject) {
-                stream.write(buffer);
-
-                stream
-                    .on("data", function (chunk) {
-                        stream.pause();
-                        output.write(chunk)
-                            .then(function () {
-                                stream.resume();
-                            }, function (e) {
-                                stream.close();
-                                reject(e);
-                            });
-                    })
-                    .on("end", resolve)
-                    .on("error", reject);
+                me._reject = reject;
+                me._hasFailed();
+                if (stream.write(buffer)) {
+                    return resolve();
+                }
+                stream.once("drain", resolve);
             });
-
         })
 
         //endregion
