@@ -22,15 +22,6 @@
 /*jshint node:true*/
 /*eslint-env node*/
 
-/**
- * Helper to wrap node error
- *
- * @param {*} err
- * @param {gpf.events.Handler} eventsHandler
- */
-function _gpfFireNodeError (err, eventsHandler) {
-    _gpfEventsFire(_GPF_EVENT_ERROR, {error: err}, eventsHandler);
-}
 
 /**
  * Generate one of the calls based on a method name
