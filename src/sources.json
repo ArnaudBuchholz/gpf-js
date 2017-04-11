@@ -245,6 +245,10 @@
         "doc": true
     },
     {
+        "name": "path",
+        "doc": true
+    },
+    {
         "name": "events",
         "load": false
     },
@@ -278,10 +282,6 @@
     },
     {
         "name": "bin",
-        "load": false
-    },
-    {
-        "name": "path",
         "load": false
     },
     {
