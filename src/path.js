@@ -18,9 +18,15 @@ function _gpfPathSplit (path) {
     return path.split("/");
 }
 
-function _gpfPathRemoveTrailingBlank (splitPath) {
-    if (splitPath.length && !splitPath[splitPath.length - 1]) {
+function _gpfPathSafeRemoveTrailingBlank (splitPath) {
+    if (!splitPath[splitPath.length - 1]) {
         splitPath.pop();
+    }
+}
+
+function _gpfPathRemoveTrailingBlank (splitPath) {
+    if (splitPath.length) {
+        _gpfPathSafeRemoveTrailingBlank(splitPath);
     }
 }
 
@@ -28,8 +34,8 @@ function _gpfPathRemoveTrailingBlank (splitPath) {
  * Normalize paths and returns an array of parts.
  * If a DOS-like path is detected (use of \), it is lower-cased
  *
- * @param {String} path
- * @return {String[]}
+ * @param {String} path Path to normalize
+ * @return {String[]} Normalized path represented as an array of parts
  */
 function _gpfPathDecompose (path) {
     var splitPath = _gpfPathSplit(path);
@@ -42,8 +48,8 @@ function _gpfPathDecompose (path) {
 /**
  * Normalize path
  *
- * @param {String} path
- * @return {string}
+ * @param {String} path Path to normalize
+ * @return {String} Normalized path
  */
 function _gpfPathNormalize (path) {
     return _gpfPathDecompose(path).join("/");
@@ -52,47 +58,56 @@ function _gpfPathNormalize (path) {
 /**
  * Get the last name of a path
  *
- * @param {String} path
- * @return {String}
+ * @param {String} path Path to analyze
+ * @return {String} Name
  */
 function _gpfPathName (path) {
-    path = _gpfPathDecompose(path);
-    return path[path.length - 1];
+    return _gpfPathDecompose(path).pop();
+}
+
+function _gpfPathAppend (splitPath, relativePath) {
+    var relativeSplitPath = _gpfPathDecompose(relativePath);
+    while (".." === relativeSplitPath[0]) {
+        relativeSplitPath.shift();
+        if (undefined === splitPath.pop()) {
+            return; // does not resolve on unknown parent
+        }
+    }
+    [].push.apply(splitPath, relativeSplitPath);
 }
 
 /**
  * Join all arguments together and normalize the resulting path
  *
- * @param {String} path
- * @param {...String} relativePath
+ * @param {String} path Base path
+ * @param {...String} relativePath Relative parts to append to the base path
+ * @return {String} Joined path
  */
 function _gpfPathJoin (path) {
     var splitPath = _gpfPathDecompose(path);
-    [].slice.call(arguments, 1).forEach(function (relativePath) {
-        var relativeSplitPath = _gpfPathDecompose(relativePath);
-        while (".." === relativeSplitPath[0]) {
-            relativeSplitPath.shift();
-            if (undefined === splitPath.pop()) {
-                return; // does not resolve on unknown parent
-            }
-        }
-        [].push.apply(splitPath, relativeSplitPath);
-    });
+    [].slice.call(arguments, 1).forEach(_gpfPathAppend.bind(null, splitPath));
     return splitPath.join("/");
 }
 
-function _gpfPathShiftIdenticalBeginning (splitFromPath, splitToPath) {
-    while (splitFromPath.length && splitToPath.length && splitFromPath[0] === splitToPath[0]) {
+function _gpfPathSafeShiftIdenticalBeginning (splitFromPath, splitToPath) {
+    while (splitFromPath[0] === splitToPath[0]) {
         splitFromPath.shift();
         splitToPath.shift();
+    }
+}
+
+function _gpfPathShiftIdenticalBeginning (splitFromPath, splitToPath) {
+    if (splitFromPath.length && splitToPath.length) {
+        _gpfPathSafeShiftIdenticalBeginning(splitFromPath, splitToPath);
     }
 }
 
 /**
  * Solve the relative path from from to to
  *
- * @param {String} from
- * @param {String} to
+ * @param {String} from From path
+ * @param {String} to To path
+ * @return {String} Relative path
  */
 function _gpfPathRelative (from, to) {
     var length,
@@ -109,14 +124,14 @@ function _gpfPathRelative (from, to) {
 
 gpf.path = {
 
-    // @inheritdoc _gpfPathJoin
+    /** @gpf:sameas _gpfPathJoin */
     join: _gpfPathJoin,
 
     /**
      * Get the parent of a path
      *
-     * @param {String} path
-     * @return {String}
+     * @param {String} path Path to analyze
+     * @return {String} Parent path
      */
     parent: function (path) {
         path = _gpfPathDecompose(path);
@@ -124,19 +139,14 @@ gpf.path = {
         return path.join("/");
     },
 
-    /**
-     * Get the last name of a path
-     *
-     * @param {String} path
-     * @return {String}
-     */
+    /** @gpf:sameas _gpfPathName */
     name: _gpfPathName,
 
     /**
      * Get the last name of a path without the extension
      *
-     * @param {String} path
-     * @return {String}
+     * @param {String} path Path to analyze
+     * @return {String} Name without the extension
      */
     nameOnly: function (path) {
         var name = _gpfPathName(path),
@@ -150,8 +160,8 @@ gpf.path = {
     /**
      * Get the extension of the last name of a path (including dot)
      *
-     * @param {String} path
-     * @return {String}
+     * @param {String} path Path to analyze
+     * @return {String} Extension (including dot)
      */
     extension: function (path) {
         var name = _gpfPathName(path),
@@ -162,7 +172,7 @@ gpf.path = {
         return name.substr(pos);
     },
 
-    // @inheritdoc @_gpfPathRelative
+    /** @gpf:sameas _gpfPathRelative*/
     relative: _gpfPathRelative
 
 };
