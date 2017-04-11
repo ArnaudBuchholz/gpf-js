@@ -174,6 +174,19 @@ describe("path", function () {
                 assert(relative("a/bc/def", "g/h/i/jkl") === "../../../g/h/i/jkl");
             });
 
+
+            it("handles edge cases (left empty)", function () {
+                assert(relative("", "abc/ghi") === "abc/ghi");
+            });
+
+            it("handles edge cases (right empty)", function () {
+                assert(relative("abc/ghi", "") === "../..");
+            });
+
+            it("handles edge cases (both empty)", function () {
+                assert(relative("", "") === "");
+            });
+
         });
 
     }
