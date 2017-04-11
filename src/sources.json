@@ -249,6 +249,11 @@
         "doc": true
     },
     {
+        "name": "fs/node",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "events",
         "load": false
     },
@@ -346,14 +351,6 @@
     },
     {
         "name": "tokenizer",
-        "load": false
-    },
-    {
-        "name": "fs/node",
-        "load": false
-    },
-    {
-        "name": "fs/ms",
         "load": false
     },
     {
@@ -514,6 +511,18 @@
     },
     {
         "name": "fs/find",
+        "load": false
+    },
+    {
+        "name": "fs/explore",
+        "load": false
+    },
+    {
+        "name": "fs/node/node",
+        "load": false
+    },
+    {
+        "name": "fs/wscript/ms",
         "load": false
     }
 ]
