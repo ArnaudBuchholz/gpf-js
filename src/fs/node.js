@@ -6,6 +6,7 @@
 /*global _GPF_FS_TYPES*/ // File system types constants
 /*global _GPF_HOST*/
 /*global _gpfHost*/
+/*global _gpfCreateAbstractFunction*/ // Build a function that throws the abstractMethod exception
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfNodeFs:true*/ // Node require("fs")
 /*global _gpfNodePath*/ // Node require("path")
@@ -67,7 +68,7 @@ var _gpfNodeFileStorage = _gpfDefine({
                         .then(function (stats) {
                             var info = {
                                 fileName: _gpfNodePath.basename(path),
-                                filePath: _gpfNodePath.resolve(path),
+                                filePath: _gpfPathNormalize(_gpfNodePath.resolve(path)),
                                 size: stats.size,
                                 createdDateTime: stats.ctime,
                                 modifiedDateTime: stats.mtime
@@ -87,7 +88,14 @@ var _gpfNodeFileStorage = _gpfDefine({
                 };
             });
 
-    }
+    },
+
+    "openTextStream": _gpfCreateAbstractFunction(2),
+    "close": _gpfCreateAbstractFunction(1),
+    "explore": _gpfCreateAbstractFunction(1),
+    "createDirectory": _gpfCreateAbstractFunction(1),
+    "deleteFile": _gpfCreateAbstractFunction(1),
+    "deleteDirectory": _gpfCreateAbstractFunction(1)
 
     //endregion
 
