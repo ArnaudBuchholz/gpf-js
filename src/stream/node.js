@@ -62,7 +62,7 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
          */
         _hasFailed: function () {
             if (this._failed) {
-                gpf.Error.invalidStreamState()
+                gpf.Error.invalidStreamState();
             }
         },
 
@@ -105,21 +105,31 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
             return new Promise(function (resolve, reject) {
                 me._reject = reject;
                 stream
-                    .on("data", function (chunk) {
-                        stream.pause();
-                        output.write(chunk)
-                            .then(function () {
-                                stream.resume();
-                            }, function (e) {
-                                stream.close();
-                                reject(e);
-                            });
-                    })
+                    .on("data", me._onData.bind(me, output))
                     .on("end", resolve);
             });
-        })
+        }),
 
         //endregion
+
+        /**
+         * Stream 'data' event handler
+         *
+         * @param {gpf.interfaces.IWritableStream} output Output stream
+         * @param {Object} chunk Buffer
+         */
+        _onData: function (output, chunk) {
+            var me = this,
+                stream = me._stream;
+            stream.pause();
+            output.write(chunk)
+                .then(function () {
+                    stream.resume();
+                }, function (e) {
+                    stream.close();
+                    me._reject(e);
+                });
+        }
 
     });
 
