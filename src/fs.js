@@ -6,7 +6,7 @@
 "use strict";
 /*exported _gpfSetHostFileStorage*/ // Set the result of gpf.fs.getFileStorage
 /*exported _GPF_FS_OPENFOR*/ // File system stream opening mode
-/*exported _GPF_FS_TYPESS*/ // File system types constants
+/*exported _GPF_FS_TYPES*/ // File system types constants
 /*#endif*/
 
 var
