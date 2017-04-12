@@ -143,11 +143,36 @@
     "interfaces": [
         "assert",
         "context",
+        "abstract",
+        "define",
         "error",
         "foreach"
     ],
     "interfaces/unknown": [
+        "interfaces"
+    ],
+    "sort": [
+        "constants"
+    ],
+    "filter": [
+        "constants"
+    ],
+    "interfaces/readablestream": [
+        "interfaces"
+    ],
+    "interfaces/writablestream": [
+        "interfaces"
+    ],
+    "interfaces/enumerator": [
+        "interfaces"
+    ],
+    "interfaces/filestorage": [
+        "interfaces"
+    ],
+    "fs/node": [
+        "fs",
         "abstract",
-        "define"
+        "define",
+        "path"
     ]
 }
