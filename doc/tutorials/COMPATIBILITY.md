@@ -35,6 +35,8 @@ supported on all hosts.
 * [Object.keys](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys)
 * [Object.values](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/values)
 
+**NOTE:** Object.keys doesn't behave the same way on primitive types depending on the host. 
+
 ### String
 
 * [trim](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trim)
