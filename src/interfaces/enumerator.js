@@ -1,5 +1,6 @@
 /**
  * @file IEnumerator interface
+ * @since 0.1.9
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -11,6 +12,7 @@
  * Offers a way to access an asynchronous enumeration
  *
  * @interface gpf.interfaces.IEnumerator
+ * @since 0.1.9
  */
 
 /**
@@ -20,6 +22,7 @@
  *
  * @method gpf.interfaces.IEnumerator#reset
  * @return {Promise} Resolved when the enumerator is ready to be used
+ * @since 0.1.9
  */
 
 /**
@@ -27,6 +30,7 @@
  *
  * @method gpf.interfaces.IEnumerator#moveNext
  * @return {Promise<*>} Resolved with the next element (undefined if none)
+ * @since 0.1.9
  */
 
 /**
@@ -34,6 +38,7 @@
  *
  * @method gpf.interfaces.IEnumerator#getCurrent
  * @return {*} Current element in the collection (undefined if none)
+ * @since 0.1.9
  */
 
 _gpfDefineInterface("Enumerator", _gpfSyncReadSourceJSON("interfaces/enumerator.json"));
