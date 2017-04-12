@@ -1,17 +1,18 @@
 /**
  * @file NodeJS File system implementation
+ * @since 0.1.9
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_FS_TYPES*/ // File system types constants
-/*global _GPF_HOST*/
-/*global _gpfHost*/
+/*global _GPF_HOST*/ // Host types
 /*global _gpfCreateAbstractFunction*/ // Build a function that throws the abstractMethod exception
 /*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfHost*/ // Host type
 /*global _gpfNodeFs:true*/ // Node require("fs")
 /*global _gpfNodePath*/ // Node require("path")
 /*global _gpfPathNormalize*/ // Normalize path
-/*global _gpfSetHostFileStorage*/
+/*global _gpfSetHostFileStorage*/ // Set the result of gpf.fs.getFileStorage
 /*#endif*/
 
 /*jshint node:true*/
@@ -24,6 +25,7 @@
  * @param {String} path fs method name
  * @return {Promise<*>} Resolved with API result
  * @gpf:closure
+ * @since 0.1.9
  */
 function _gpfFsNodeFsCall (methodName, path) {
     path = _gpfPathNormalize(path);
@@ -44,6 +46,7 @@ function _gpfFsNodeFsCall (methodName, path) {
  *
  * @class {gpf.node.FileStorage}
  * @implements {gpf.interfaces.IFileStorage}
+ * @since 0.1.9
  */
 var _gpfNodeFileStorage = _gpfDefine({
     $class: "gpf.node.FileStorage",
@@ -56,7 +59,10 @@ var _gpfNodeFileStorage = _gpfDefine({
 
     //region IFileStorage
 
-    /** @inheritdoc gpf.interfaces.IFileStorage#getInfo */
+    /**
+     * @inheritdoc gpf.interfaces.IFileStorage#getInfo
+     * @since 0.1.9
+     */
     getInfo: function (path) {
         path = _gpfPathNormalize(path);
         return new Promise(function (resolve) {
