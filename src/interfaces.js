@@ -150,6 +150,7 @@ var _gpfI = gpf.interfaces = {
  * @param {String} name Interface name
  * @param {Object} definition Interface definition association method names to the number
  * of parameters
+ * @since 0.1.9
  */
 function _gpfDefineInterface (name, definition) {
     var interfaceDefinition = {
