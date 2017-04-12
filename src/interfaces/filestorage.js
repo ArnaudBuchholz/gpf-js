@@ -1,5 +1,6 @@
 /**
  * @file IFileStorage interface
+ * @since 0.1.9
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -15,12 +16,14 @@
  * @property {Number} size Size of the object (if relevant)
  * @property {Date} createdDateTime
  * @property {Date} modifiedDateTime
+ * @since 0.1.9
  */
 
 /**
  * File Storage interface, defines base methods to access any kind of file storage
  *
  * @interface gpf.interfaces.IFileStorage
+ * @since 0.1.9
  */
 
 /**
@@ -29,6 +32,7 @@
  * @method gpf.interfaces.IFileStorage#getInfo
  * @param {String} path Storage path to get info from
  * @return {Promise<gpf.typedef.fileStorageInfo>} information
+ * @since 0.1.9
  */
 
 /**
@@ -38,6 +42,7 @@
  * @param {String} path Storage path to open stream on
  * @param {gpf.fs.openFor} mode Switch between reading and appending
  * @return {Promise<gpf.interfaces.IReadableStream|gpf.interfaces.IWritableStream>} Stream to the file
+ * @since 0.1.9
  */
 
 /**
@@ -46,6 +51,7 @@
  * @method gpf.interfaces.IFileStorage#close
  * @param {gpf.interfaces.IReadableStream|gpf.interfaces.IWritableStream} stream Stream to close
  * @return {Promise} Resolved when closed
+ * @since 0.1.9
  */
 
 /**
@@ -55,6 +61,7 @@
  * @param {String} path Storage path to a directory to explore
  * @return {Promise<gpf.interfaces.IEnumerator<gpf.typedef.fileStorageInfo>>} Enumerator interface to get directory
  * content names
+ * @since 0.1.9
  */
 
 /**
@@ -63,6 +70,7 @@
  * @method gpf.interfaces.IFileStorage#createDirectory
  * @param {String} path Storage path of the directory to create
  * @return {Promise} Resolved when created
+ * @since 0.1.9
  */
 
 /**
@@ -71,6 +79,7 @@
  * @method gpf.interfaces.IFileStorage#deleteFile
  * @param {String} path Storage path to the file
  * @return {Promise} Resolved when deleted
+ * @since 0.1.9
  */
 
 /**
@@ -79,6 +88,7 @@
  * @method gpf.interfaces.IFileStorage#deleteDirectory
  * @param {String} path Storage path to the directory
  * @return {Promise} Resolved when deleted
+ * @since 0.1.9
  */
 
 _gpfDefineInterface("FileStorage", _gpfSyncReadSourceJSON("interfaces/filestorage.json"));
