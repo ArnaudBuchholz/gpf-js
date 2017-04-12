@@ -150,7 +150,7 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
         //region gpf.interfaces.IReadableStream
 
         /** @inheritdoc gpf.interfaces.IWritableStream#write */
-        read: _gpfStreamSecureWrite(function (buffer) {
+        write: _gpfStreamSecureWrite(function (buffer) {
             var me = this,  //eslint-disable-line no-invalid-this
                 stream = me._stream;
             return new Promise(function (resolve, reject) {

@@ -128,6 +128,10 @@ function _gpfPathRelative (from, to) {
     return splitTo.join("/");
 }
 
+/**
+ * @namespace gpf.path
+ * @description Root namespace for path manipulation
+ */
 gpf.path = {
 
     /**

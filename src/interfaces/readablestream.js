@@ -6,6 +6,7 @@
 "use strict";
 /*global _gpfDefineInterface*/ // Internal interface definition helper
 /*global _gpfSyncReadSourceJSON*/ // Reads a source json file (only in source mode)
+/*exported _gpfIReadableStream*/ // gpf.interfaces.IReadableStream
 /*#endif*/
 
 /**
@@ -25,4 +26,10 @@
  * @since 0.1.9
  */
 
-_gpfDefineInterface("ReadableStream", _gpfSyncReadSourceJSON("interfaces/readablestream.json"));
+/**
+ * IReadableStream interface specifier
+ *
+ * @type {gpf.interfaces.IReadableStream}
+ */
+var _gpfIReadableStream = _gpfDefineInterface("ReadableStream",
+    _gpfSyncReadSourceJSON("interfaces/readablestream.json"));

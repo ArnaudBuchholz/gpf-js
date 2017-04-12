@@ -4,7 +4,12 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfIReadableStream*/ // gpf.interfaces.IReadableStream
+/*global _gpfQueryInterface*/ // gpf.interfaces.query
+/*global _gpfIWritableStream*/ // gpf.interfaces.IWritableStream
 /*exported _GPF_STREAM_DEFAULT_READ_SIZE*/ // Global default for stream read size
+/*exported _gpfStreamQueryReadable*/ // Get an IReadableStream or fail if not implemented
+/*exported _gpfStreamQueryWritable*/ // Get an IWritableStream or fail if not implemented
 /*exported _gpfStreamSecureRead*/ // Generate a wrapper to secure multiple calls to stream#read
 /*exported _gpfStreamSecureWrite*/ // Generates a wrapper to secure multiple calls to stream#write
 /*#endif*/
@@ -57,7 +62,41 @@ var _GPF_STREAM_DEFAULT_READ_SIZE = 4096;
 gpf.stream = {};
 
 /**
- * Generate a wrapper to secure multiple calls to stream#read
+ * Get an IReadableStream or fail if not implemented
+ *
+ * @param {Object} queriedObject Object to query
+ * @return {gpf.interfaces.IReadableStream} IReadableStream interface
+ * @throws {gpf.Error.InterfaceExpected}
+ */
+function _gpfStreamQueryReadable (queriedObject) {
+    var iReadableStream = _gpfQueryInterface(_gpfIReadableStream, queriedObject);
+    if (!iReadableStream) {
+        gpf.Error.interfaceExpected({
+            name: "gpf.interfaces.IReadableStream"
+        });
+    }
+    return iReadableStream;
+}
+
+/**
+ * Get an IWritableStream or fail if not implemented
+ *
+ * @param {Object} queriedObject Object to query
+ * @return {gpf.interfaces.IWritableStream} IWritableStream interface
+ * @throws {gpf.Error.InterfaceExpected}
+ */
+function _gpfStreamQueryWritable (queriedObject) {
+    var iWritableStream = _gpfQueryInterface(_gpfIWritableStream, queriedObject);
+    if (!iWritableStream) {
+        gpf.Error.interfaceExpected({
+            name: "gpf.interfaces.IWritableStream"
+        });
+    }
+    return iWritableStream;
+}
+
+/**
+ * Generate a wrapper to query IWritableStream from the parameter and secure multiple calls to stream#read
  *
  * @param {Function} read Read function
  * @return {Function} Function exposing {@see gpf.interfaces.IReadableStream#read}
@@ -69,8 +108,9 @@ function _gpfStreamSecureRead (read) {
         if (inProgress) {
             gpf.error.readInProgress();
         }
+        var iWritableStream = _gpfStreamQueryWritable(output);
         inProgress = true;
-        return read(output)
+        return read(iWritableStream)
             .then(function (result) {
                 inProgress = false;
                 return Promise.resolve(result);
