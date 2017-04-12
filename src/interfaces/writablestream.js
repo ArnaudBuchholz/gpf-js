@@ -1,5 +1,6 @@
 /**
  * @file IWritableStream interface
+ * @since 0.1.9
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -11,6 +12,7 @@
  * The Writable stream interface is an abstraction for a destination that you are writing data to.
  *
  * @interface gpf.interfaces.IWritableStream
+ * @since 0.1.9
  */
 
 /**
@@ -19,6 +21,7 @@
  * @method gpf.interfaces.IWritableStream#write
  * @param {Array} data Data array
  * @return {Promise} Resolved when ready
+ * @since 0.1.9
  */
 
 _gpfDefineInterface("WritableStream", _gpfSyncReadSourceJSON("interfaces/writablestream.json"));
