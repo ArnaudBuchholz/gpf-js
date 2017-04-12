@@ -3,7 +3,7 @@
 (function () {
     "use strict";
 
-    /*global run*/ // From bdd.js
+    /*global run, exit:true*/ // From bdd.js
 
     var Func = Function,
         sources,
