@@ -1,5 +1,6 @@
 /**
  * @file IReadableStream interface
+ * @since 0.1.9
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -12,6 +13,7 @@
  * In other words, data comes out of a Readable stream.
  *
  * @interface gpf.interfaces.IReadableStream
+ * @since 0.1.9
  */
 
 /**
@@ -20,6 +22,7 @@
  * @method gpf.interfaces.IReadableStream#read
  * @param {gpf.interfaces.IWritableStream} output Stream that receives chunk of data
  * @return {Promise} Resolved when the stream has ended
+ * @since 0.1.9
  */
 
 _gpfDefineInterface("ReadableStream", _gpfSyncReadSourceJSON("interfaces/readablestream.json"));
