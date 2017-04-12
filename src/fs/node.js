@@ -52,6 +52,7 @@ var _gpfNodeFileStorage = _gpfDefine({
     $class: "gpf.node.FileStorage",
 
     constructor: function () {
+        /* istanbul ignore next */ // Because boot always implies require("fs")
         if (!_gpfNodeFs) {
             _gpfNodeFs = require("fs");
         }
@@ -81,6 +82,7 @@ var _gpfNodeFileStorage = _gpfDefine({
                             };
                             if (stats.isDirectory()) {
                                 info.type = _GPF_FS_TYPES.DIRECTORY;
+                            /* istanbul ignore else */ // Because unknown type can't be tested
                             } else if (stats.isFile()) {
                                 info.type = _GPF_FS_TYPES.FILE;
                             } else {
@@ -107,6 +109,7 @@ var _gpfNodeFileStorage = _gpfDefine({
 
 });
 
+/* istanbul ignore else */ // Because tested with NodeJS
 if (_GPF_HOST.NODEJS === _gpfHost) {
 
     _gpfSetHostFileStorage(new _gpfNodeFileStorage());
