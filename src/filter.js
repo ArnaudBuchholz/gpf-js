@@ -135,8 +135,8 @@ function _gpfCreateFilterArrayConverter (member, operator) {
 }
 
 function _gpfCreateFilterLike (specification) {
-    return "(new RegExp(" + JSON.stringify(specification.regexp) + ").exec("
-        + _gpfCreateFilterConvert(specification.like) + "))";
+    return "/" + specification.regexp + "/.exec("
+        + _gpfCreateFilterConvert(specification.like) + ")";
 }
 
 var // List of converters
