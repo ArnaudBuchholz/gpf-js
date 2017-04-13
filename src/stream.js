@@ -10,6 +10,7 @@
 /*exported _GPF_STREAM_DEFAULT_READ_SIZE*/ // Global default for stream read size
 /*exported _gpfStreamQueryReadable*/ // Get an IReadableStream or fail if not implemented
 /*exported _gpfStreamQueryWritable*/ // Get an IWritableStream or fail if not implemented
+/*exported _gpfStreamSecureInstallProgressFlag*/ // Install the progress flag used by _gpfStreamSecureRead and Write
 /*exported _gpfStreamSecureRead*/ // Generate a wrapper to secure multiple calls to stream#read
 /*exported _gpfStreamSecureWrite*/ // Generates a wrapper to secure multiple calls to stream#write
 /*#endif*/
@@ -94,6 +95,15 @@ function _gpfStreamQueryWritable (queriedObject) {
 }
 
 var _gpfStreamInProgressPropertyName = "gpf.stream#inProgress";
+
+/**
+ * Install the progress flag used by _gpfStreamSecureRead and Write
+ *
+ * @param {Function} constructor Class constructor
+ */
+function _gpfStreamSecureInstallProgressFlag (constructor) {
+    constructor.prototype[_gpfStreamInProgressPropertyName] = false;
+}
 
 /**
  * Generate a wrapper to query IWritableStream from the parameter and secure multiple calls to stream#read
