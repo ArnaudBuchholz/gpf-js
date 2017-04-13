@@ -241,6 +241,14 @@
         "doc": true
     },
     {
+        "name": "stream",
+        "doc": true
+    },
+    {
+        "name": "stream/string",
+        "doc": true
+    },
+    {
         "name": "fs",
         "doc": true
     },
@@ -315,10 +323,6 @@
     },
     {
         "name": "interfaces/array",
-        "load": false
-    },
-    {
-        "name": "stream",
         "load": false
     },
     {
