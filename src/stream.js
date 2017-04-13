@@ -5,11 +5,12 @@
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfIReadableStream*/ // gpf.interfaces.IReadableStream
-/*global _gpfQueryInterface*/ // gpf.interfaces.query
+/*global _gpfInterfaceQuery*/ // gpf.interfaces.query
 /*global _gpfIWritableStream*/ // gpf.interfaces.IWritableStream
 /*exported _GPF_STREAM_DEFAULT_READ_SIZE*/ // Global default for stream read size
 /*exported _gpfStreamQueryReadable*/ // Get an IReadableStream or fail if not implemented
 /*exported _gpfStreamQueryWritable*/ // Get an IWritableStream or fail if not implemented
+/*exported _gpfStreamSecureInstallProgressFlag*/ // Install the progress flag used by _gpfStreamSecureRead and Write
 /*exported _gpfStreamSecureRead*/ // Generate a wrapper to secure multiple calls to stream#read
 /*exported _gpfStreamSecureWrite*/ // Generates a wrapper to secure multiple calls to stream#write
 /*#endif*/
@@ -53,8 +54,6 @@ _gpfErrorDeclare("stream", {
         "Stream is in an invalid state"
 });
 
-var _GPF_STREAM_DEFAULT_READ_SIZE = 4096;
-
 /**
  * @namespace gpf.stream
  * @description Root namespace for GPF streams
@@ -69,7 +68,7 @@ gpf.stream = {};
  * @throws {gpf.Error.InterfaceExpected}
  */
 function _gpfStreamQueryReadable (queriedObject) {
-    var iReadableStream = _gpfQueryInterface(_gpfIReadableStream, queriedObject);
+    var iReadableStream = _gpfInterfaceQuery(_gpfIReadableStream, queriedObject);
     if (!iReadableStream) {
         gpf.Error.interfaceExpected({
             name: "gpf.interfaces.IReadableStream"
@@ -86,13 +85,24 @@ function _gpfStreamQueryReadable (queriedObject) {
  * @throws {gpf.Error.InterfaceExpected}
  */
 function _gpfStreamQueryWritable (queriedObject) {
-    var iWritableStream = _gpfQueryInterface(_gpfIWritableStream, queriedObject);
+    var iWritableStream = _gpfInterfaceQuery(_gpfIWritableStream, queriedObject);
     if (!iWritableStream) {
         gpf.Error.interfaceExpected({
             name: "gpf.interfaces.IWritableStream"
         });
     }
     return iWritableStream;
+}
+
+var _gpfStreamInProgressPropertyName = "gpf.stream#inProgress";
+
+/**
+ * Install the progress flag used by _gpfStreamSecureRead and Write
+ *
+ * @param {Function} constructor Class constructor
+ */
+function _gpfStreamSecureInstallProgressFlag (constructor) {
+    constructor.prototype[_gpfStreamInProgressPropertyName] = false;
 }
 
 /**
@@ -103,19 +113,19 @@ function _gpfStreamQueryWritable (queriedObject) {
  * @gpf:closure
  */
 function _gpfStreamSecureRead (read) {
-    var inProgress = false;
     return function (output) {
-        if (inProgress) {
-            gpf.error.readInProgress();
+        var me = this; //eslint-disable-line no-invalid-this
+        if (me[_gpfStreamInProgressPropertyName]) {
+            gpf.Error.readInProgress();
         }
         var iWritableStream = _gpfStreamQueryWritable(output);
-        inProgress = true;
-        return read(iWritableStream)
+        me[_gpfStreamInProgressPropertyName] = true;
+        return read.call(me, iWritableStream)
             .then(function (result) {
-                inProgress = false;
+                me[_gpfStreamInProgressPropertyName] = false;
                 return Promise.resolve(result);
             }, function (reason) {
-                inProgress = false;
+                me[_gpfStreamInProgressPropertyName] = false;
                 return Promise.reject(reason);
             });
     };
@@ -129,18 +139,18 @@ function _gpfStreamSecureRead (read) {
  * @gpf:closure
  */
 function _gpfStreamSecureWrite (write) {
-    var inProgress = false;
     return function (buffer) {
-        if (inProgress) {
-            gpf.error.readInProgress();
+        var me = this; //eslint-disable-line no-invalid-this
+        if (me[_gpfStreamInProgressPropertyName]) {
+            gpf.Error.writeInProgress();
         }
-        inProgress = true;
-        return write(buffer)
+        me[_gpfStreamInProgressPropertyName] = true;
+        return write.call(me, buffer) //eslint-disable-line no-invalid-this
             .then(function (result) {
-                inProgress = false;
+                me[_gpfStreamInProgressPropertyName] = false;
                 return Promise.resolve(result);
             }, function (reason) {
-                inProgress = false;
+                me[_gpfStreamInProgressPropertyName] = false;
                 return Promise.reject(reason);
             });
     };
