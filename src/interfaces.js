@@ -12,7 +12,7 @@
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _gpfDefineInterface*/ // Internal interface definition helper
 /*exported _gpfI*/ // gpf.interfaces
-/*exported _gpfQueryInterface*/ // gpf.interfaces.query
+/*exported _gpfInterfaceQuery*/ // gpf.interfaces.query
 /*#endif*/
 
 _gpfErrorDeclare("interfaces", {
@@ -159,5 +159,5 @@ function _gpfDefineInterface (name, definition) {
     Object.keys(definition).forEach(function (methodName) {
         interfaceDefinition[methodName] = _gpfCreateAbstractFunction(definition[methodName]);
     });
-    _gpfDefine(interfaceDefinition);
+    return _gpfDefine(interfaceDefinition);
 }
