@@ -5,7 +5,7 @@
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfIReadableStream*/ // gpf.interfaces.IReadableStream
-/*global _gpfQueryInterface*/ // gpf.interfaces.query
+/*global _gpfInterfaceQuery*/ // gpf.interfaces.query
 /*global _gpfIWritableStream*/ // gpf.interfaces.IWritableStream
 /*exported _GPF_STREAM_DEFAULT_READ_SIZE*/ // Global default for stream read size
 /*exported _gpfStreamQueryReadable*/ // Get an IReadableStream or fail if not implemented
@@ -69,7 +69,7 @@ gpf.stream = {};
  * @throws {gpf.Error.InterfaceExpected}
  */
 function _gpfStreamQueryReadable (queriedObject) {
-    var iReadableStream = _gpfQueryInterface(_gpfIReadableStream, queriedObject);
+    var iReadableStream = _gpfInterfaceQuery(_gpfIReadableStream, queriedObject);
     if (!iReadableStream) {
         gpf.Error.interfaceExpected({
             name: "gpf.interfaces.IReadableStream"
@@ -86,7 +86,7 @@ function _gpfStreamQueryReadable (queriedObject) {
  * @throws {gpf.Error.InterfaceExpected}
  */
 function _gpfStreamQueryWritable (queriedObject) {
-    var iWritableStream = _gpfQueryInterface(_gpfIWritableStream, queriedObject);
+    var iWritableStream = _gpfInterfaceQuery(_gpfIWritableStream, queriedObject);
     if (!iWritableStream) {
         gpf.Error.interfaceExpected({
             name: "gpf.interfaces.IWritableStream"
@@ -110,7 +110,7 @@ function _gpfStreamSecureRead (read) {
         }
         var iWritableStream = _gpfStreamQueryWritable(output);
         inProgress = true;
-        return read(iWritableStream)
+        return read.call(this, iWritableStream) //eslint-disable-line no-invalid-this
             .then(function (result) {
                 inProgress = false;
                 return Promise.resolve(result);
@@ -135,7 +135,7 @@ function _gpfStreamSecureWrite (write) {
             gpf.error.readInProgress();
         }
         inProgress = true;
-        return write(buffer)
+        return write.call(this, buffer) //eslint-disable-line no-invalid-this
             .then(function (result) {
                 inProgress = false;
                 return Promise.resolve(result);
