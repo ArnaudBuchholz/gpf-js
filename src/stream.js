@@ -53,8 +53,6 @@ _gpfErrorDeclare("stream", {
         "Stream is in an invalid state"
 });
 
-var _GPF_STREAM_DEFAULT_READ_SIZE = 4096;
-
 /**
  * @namespace gpf.stream
  * @description Root namespace for GPF streams
@@ -95,6 +93,8 @@ function _gpfStreamQueryWritable (queriedObject) {
     return iWritableStream;
 }
 
+var _gpfStreamInProgressPropertyName = "gpf.stream#inProgress";
+
 /**
  * Generate a wrapper to query IWritableStream from the parameter and secure multiple calls to stream#read
  *
@@ -103,19 +103,19 @@ function _gpfStreamQueryWritable (queriedObject) {
  * @gpf:closure
  */
 function _gpfStreamSecureRead (read) {
-    var inProgress = false;
     return function (output) {
-        if (inProgress) {
-            gpf.error.readInProgress();
+        var me = this; //eslint-disable-line no-invalid-this
+        if (me[_gpfStreamInProgressPropertyName]) {
+            gpf.Error.readInProgress();
         }
         var iWritableStream = _gpfStreamQueryWritable(output);
-        inProgress = true;
-        return read.call(this, iWritableStream) //eslint-disable-line no-invalid-this
+        me[_gpfStreamInProgressPropertyName] = true;
+        return read.call(me, iWritableStream)
             .then(function (result) {
-                inProgress = false;
+                me[_gpfStreamInProgressPropertyName] = false;
                 return Promise.resolve(result);
             }, function (reason) {
-                inProgress = false;
+                me[_gpfStreamInProgressPropertyName] = false;
                 return Promise.reject(reason);
             });
     };
@@ -129,18 +129,18 @@ function _gpfStreamSecureRead (read) {
  * @gpf:closure
  */
 function _gpfStreamSecureWrite (write) {
-    var inProgress = false;
     return function (buffer) {
-        if (inProgress) {
-            gpf.error.readInProgress();
+        var me = this; //eslint-disable-line no-invalid-this
+        if (me[_gpfStreamInProgressPropertyName]) {
+            gpf.Error.writeInProgress();
         }
-        inProgress = true;
-        return write.call(this, buffer) //eslint-disable-line no-invalid-this
+        me[_gpfStreamInProgressPropertyName] = true;
+        return write.call(me, buffer) //eslint-disable-line no-invalid-this
             .then(function (result) {
-                inProgress = false;
+                me[_gpfStreamInProgressPropertyName] = false;
                 return Promise.resolve(result);
             }, function (reason) {
-                inProgress = false;
+                me[_gpfStreamInProgressPropertyName] = false;
                 return Promise.reject(reason);
             });
     };
