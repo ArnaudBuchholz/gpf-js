@@ -169,6 +169,16 @@
     "interfaces/filestorage": [
         "interfaces"
     ],
+    "stream": [
+        "error",
+        "interfaces/readablestream",
+        "interfaces/writablestream",
+        "interfaces"
+    ],
+    "stream/string": [
+        "define",
+        "stream"
+    ],
     "fs/node": [
         "fs",
         "abstract",
