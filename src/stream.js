@@ -165,3 +165,13 @@ function _gpfStreamSecureWrite (write) {
             });
     };
 }
+
+/*#ifndef(UMD)*/
+
+gpf.internals._gpfStreamQueryReadable = _gpfStreamQueryReadable;
+gpf.internals._gpfStreamQueryWritable = _gpfStreamQueryWritable;
+gpf.internals._gpfStreamSecureInstallProgressFlag = _gpfStreamSecureInstallProgressFlag;
+gpf.internals._gpfStreamSecureRead = _gpfStreamSecureRead;
+gpf.internals._gpfStreamSecureWrite = _gpfStreamSecureWrite;
+
+/*#endif*/
