@@ -50,9 +50,11 @@ function _gpfObjectForEachOwnProperty (object, callback, thisArg) {
 /* istanbul ignore next */ // Microsoft cscript / wscript specific version
 function _gpfObjectForEachOwnPropertyWScript (object, callback, thisArg) {
     _gpfObjectForEachOwnProperty(object, callback, thisArg);
-    if (object.hasOwnProperty("constructor")) {
-        callback.call(thisArg, object.constructor, "constructor", object);
-    }
+    ["constructor", "toString"].forEach(function (property) {
+        if (object.hasOwnProperty(property)) {
+            callback.call(thisArg, object[property], property, object);
+        }
+    });
 }
 
 /**
