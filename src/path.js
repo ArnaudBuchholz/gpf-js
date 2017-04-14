@@ -131,6 +131,7 @@ function _gpfPathRelative (from, to) {
 /**
  * @namespace gpf.path
  * @description Root namespace for path manipulation
+ * @since 0.1.9
  */
 gpf.path = {
 
