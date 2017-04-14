@@ -29,6 +29,7 @@
  * IWritableStream interface specifier
  *
  * @type {gpf.interfaces.IWritableStream}
+ * @since 0.1.9
  */
 var _gpfIWritableStream = _gpfDefineInterface("WritableStream",
     _gpfSyncReadSourceJSON("interfaces/writablestream.json"));
