@@ -1,12 +1,13 @@
 /**
  * @file Streams helpers
+ * @since 0.1.9
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfIReadableStream*/ // gpf.interfaces.IReadableStream
-/*global _gpfInterfaceQuery*/ // gpf.interfaces.query
 /*global _gpfIWritableStream*/ // gpf.interfaces.IWritableStream
+/*global _gpfInterfaceQuery*/ // gpf.interfaces.query
 /*exported _GPF_STREAM_DEFAULT_READ_SIZE*/ // Global default for stream read size
 /*exported _gpfStreamQueryReadable*/ // Get an IReadableStream or fail if not implemented
 /*exported _gpfStreamQueryWritable*/ // Get an IWritableStream or fail if not implemented
@@ -25,6 +26,7 @@ _gpfErrorDeclare("stream", {
      * ### Description
      *
      * This error is triggered if two reads are made simultaneously on the stream
+     * @since 0.1.9
      */
     readInProgress:
         "A read operation is already in progress",
@@ -37,6 +39,7 @@ _gpfErrorDeclare("stream", {
      * ### Description
      *
      * This error is triggered if two writes are made simultaneously on the stream
+     * @since 0.1.9
      */
     writeInProgress:
         "A write operation is already in progress",
@@ -49,6 +52,7 @@ _gpfErrorDeclare("stream", {
      * ### Description
      *
      * If an error occurred while using the stream, no additional operations can be made
+     * @since 0.1.9
      */
     invalidStreamState:
         "Stream is in an invalid state"
@@ -57,6 +61,7 @@ _gpfErrorDeclare("stream", {
 /**
  * @namespace gpf.stream
  * @description Root namespace for GPF streams
+ * @since 0.1.9
  */
 gpf.stream = {};
 
@@ -66,6 +71,7 @@ gpf.stream = {};
  * @param {Object} queriedObject Object to query
  * @return {gpf.interfaces.IReadableStream} IReadableStream interface
  * @throws {gpf.Error.InterfaceExpected}
+ * @since 0.1.9
  */
 function _gpfStreamQueryReadable (queriedObject) {
     var iReadableStream = _gpfInterfaceQuery(_gpfIReadableStream, queriedObject);
@@ -83,6 +89,7 @@ function _gpfStreamQueryReadable (queriedObject) {
  * @param {Object} queriedObject Object to query
  * @return {gpf.interfaces.IWritableStream} IWritableStream interface
  * @throws {gpf.Error.InterfaceExpected}
+ * @since 0.1.9
  */
 function _gpfStreamQueryWritable (queriedObject) {
     var iWritableStream = _gpfInterfaceQuery(_gpfIWritableStream, queriedObject);
@@ -100,6 +107,7 @@ var _gpfStreamInProgressPropertyName = "gpf.stream#inProgress";
  * Install the progress flag used by _gpfStreamSecureRead and Write
  *
  * @param {Function} constructor Class constructor
+ * @since 0.1.9
  */
 function _gpfStreamSecureInstallProgressFlag (constructor) {
     constructor.prototype[_gpfStreamInProgressPropertyName] = false;
@@ -111,6 +119,7 @@ function _gpfStreamSecureInstallProgressFlag (constructor) {
  * @param {Function} read Read function
  * @return {Function} Function exposing {@see gpf.interfaces.IReadableStream#read}
  * @gpf:closure
+ * @since 0.1.9
  */
 function _gpfStreamSecureRead (read) {
     return function (output) {
@@ -137,6 +146,7 @@ function _gpfStreamSecureRead (read) {
  * @param {Function} write Write function
  * @return {Function} Function exposing {@see gpf.interfaces.IWritableStream#write}
  * @gpf:closure
+ * @since 0.1.9
  */
 function _gpfStreamSecureWrite (write) {
     return function (buffer) {
