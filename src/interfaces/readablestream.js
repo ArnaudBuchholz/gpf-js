@@ -30,6 +30,7 @@
  * IReadableStream interface specifier
  *
  * @type {gpf.interfaces.IReadableStream}
+ * @since 0.1.9
  */
 var _gpfIReadableStream = _gpfDefineInterface("ReadableStream",
     _gpfSyncReadSourceJSON("interfaces/readablestream.json"));
