@@ -164,7 +164,21 @@ var _gpfNodeFileStorage = _gpfDefine({
         gpf.error.incompatibleStream();
     },
 
-    "explore": _gpfCreateAbstractFunction(1),
+    /** @inheritdoc */
+    explore: function (path) {
+/*
+        var me = this;
+        path = _gpfPathNormalize(path);
+        _gpfNodeFs.readdir(path, function (err, files) {
+            if (err) {
+                _gpfFireNodeError(err, eventsHandler);
+                return;
+            }
+            _gpfEventsFire(_GPF_EVENT_READY, {enumerator: _gpfFsExploreEnumerator(me, files)}, eventsHandler);
+        });
+*/
+        return Promise.reject(path);
+    },
 
     /** @inheritdoc */
     createDirectory: _gpfFsNodeFsCallWithPath.bind(null, "mkdir"),
