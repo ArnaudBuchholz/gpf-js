@@ -6,7 +6,6 @@
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _GPF_HOST*/
 /*global _gpfHost*/
-/*global _gpfCreateAbstractFunction*/ // Build a function that throws the abstractMethod exception
 /*global _gpfStreamSecureRead*/
 /*global _gpfStreamSecureWrite*/
 /*#endif*/
@@ -35,7 +34,9 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
          *
          * @return {Promise} Resolved when closed
          */
-        close: _gpfCreateAbstractFunction(0),
+        close: function () {
+            return Promise.resolve();
+        },
 
         //region Error handling
 
@@ -91,11 +92,6 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
         $class: "gpf.node.ReadableStream",
         $extend: "gpf.node.BaseStream",
 
-        /** @inheritdoc gpf.node.BaseStream#close */
-        close: function () {
-            return Promise.resolve();
-        },
-
         //region gpf.interfaces.IReadableStream
 
         /** @inheritdoc gpf.interfaces.IReadableStream#read */
@@ -141,11 +137,8 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
      * @implements {gpf.interfaces.IWritableStream}
      */
     _gpfDefine({
-
-        /** @inheritdoc gpf.node.BaseStream#close */
-        close: function () {
-            return Promise.resolve();
-        },
+        $class: "gpf.node.WritableStream",
+        $extend: "gpf.node.BaseStream",
 
         //region gpf.interfaces.IReadableStream
 
