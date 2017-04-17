@@ -16,6 +16,18 @@
 /*#endif*/
 
 _gpfErrorDeclare("interfaces", {
+
+    /**
+     * ### Summary
+     *
+     * Expected interface not implemented
+     *
+     * ### Description
+     *
+     * This error is used when a function expects a specific interface and it can't be resolved with the provided
+     * parameter.
+     * @since 0.1.8
+     */
     interfaceExpected:
         "Expected interface not implemented: {name}"
 });
