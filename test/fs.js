@@ -84,6 +84,28 @@ describe("fs", function () {
 
             });
 
+            describe("openTextStream (read)", function () {
+
+                it("reads a text file", function (done) {
+                    var iFileStorage = gpf.fs.getFileStorage(),
+                        iReadableStream = iFileStorage.openTextStream(gpf.path.join(root, "folder/hello world.txt"),
+                            gpf.fs.openFor.reading),
+                        iWritableStream = new gpf.stream.WritableString();
+                    assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IReadableStream, iReadableStream));
+                    iReadableStream.read(iWritableStream)
+                        .then(function () {
+                            var exceptionCaught;
+                            try {
+                                assert(iWritableStream.toString() === "hello world\n");
+                            } catch (e) {
+                                exceptionCaught = e;
+                            }
+                            done(exceptionCaught);
+                        });
+                });
+
+            });
+
         } else {
 
             it("does not return a file storage interface", function () {
