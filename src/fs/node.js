@@ -20,39 +20,75 @@
 /*eslint-env node*/
 
 /**
- * Encapsulate fs API inside a Promise
+ * Encapsulate fs API with a list of parameters inside a Promise
  *
  * @param {String} methodName fs method name
- * @param {String} path fs method name
+ * @param {Array} args Argument array
  * @return {Promise<*>} Resolved with API result
  * @gpf:closure
  * @since 0.1.9
  */
-function _gpfFsNodeFsCall (methodName, path) {
-    path = _gpfPathNormalize(path);
+function _gpfFsNodeFsCall (methodName, args) {
     return new Promise(function (resolve, reject) {
-        _gpfNodeFs[methodName](path, function (err, result) {
+        _gpfNodeFs[methodName].apply(_gpfNodeFs, args.concat([function (err, result) {
             if (err) {
                 reject(err);
             } else {
                 resolve(result);
             }
-        });
+        }]));
     });
 }
 
-function _gpfFsNodeOpenTextStreamForReading (path) {
-    return new gpf.node.ReadableStream(_gpfNodeFs.createReadStream(path, {
-        flags: "r",
-        autoClose: true
-    }));
+/**
+ * Encapsulate fs API taking a path parameter inside a Promise
+ *
+ * @param {String} methodName fs method name
+ * @param {String} path file path
+ * @return {Promise<*>} Resolved with API result
+ * @gpf:closure
+ * @since 0.1.9
+ */
+function _gpfFsNodeFsCallWithPath (methodName, path) {
+    return _gpfFsNodeFsCall(methodName, [_gpfPathNormalize(path)]);
 }
 
+function _gpfFsNodeOpenTextStream (path, options) {
+    return _gpfFsNodeFsCall("open", [_gpfPathNormalize(path), options.flags])
+        .then(function (fd) {
+            return new options.GpfStream(_gpfNodeFs[options.nodeStream]("", {
+                fd: fd,
+                autoClose: false
+            }), _gpfFsNodeFsCall.bind(null, "close", [fd]));
+        });
+}
+
+/**
+ * Open a text stream for reading
+ *
+ * @param {String} path File path
+ * @return {Promise<gpf.interfaces.IReadableStream>} gpf.node.ReadableStream
+ */
+function _gpfFsNodeOpenTextStreamForReading (path) {
+    return _gpfFsNodeOpenTextStream(path, {
+        flags: "r",
+        GpfStream: gpf.node.ReadableStream,
+        nodeStream: "createReadStream"
+    });
+}
+
+/**
+ * Open a text stream for appending
+ *
+ * @param {String} path File path
+ * @return {Promise<gpf.interfaces.IWritableStream>} gpf.node.WritableStream
+ */
 function _gpfFsNodeOpenTextStreamForAppending (path) {
-    return new gpf.node.WritableStream(_gpfNodeFs.createWriteStream(path, {
-        flags: "w+",
-        autoClose: true
-    }));
+    return _gpfFsNodeOpenTextStream(path, {
+        flags: "a",
+        GpfStream: gpf.node.WritableStream,
+        nodeStream: "createWriteStream"
+    });
 }
 
 /**
@@ -85,7 +121,7 @@ var _gpfNodeFileStorage = _gpfDefine({
         })
             .then(function (exists) {
                 if (exists) {
-                    return _gpfFsNodeFsCall("stat", path)
+                    return _gpfFsNodeFsCallWithPath("stat", path)
                         .then(function (stats) {
                             var info = {
                                 fileName: _gpfNodePath.basename(path),
@@ -123,16 +159,21 @@ var _gpfNodeFileStorage = _gpfDefine({
     /** @inheritdoc */
     close: function (stream) {
         if (stream instanceof gpf.node.BaseStream) {
-            stream.close();
-        } else {
-            gpf.error.incompatibleStream();
+            return stream.close();
         }
+        gpf.error.incompatibleStream();
     },
 
     "explore": _gpfCreateAbstractFunction(1),
-    "createDirectory": _gpfCreateAbstractFunction(1),
-    "deleteFile": _gpfCreateAbstractFunction(1),
-    "deleteDirectory": _gpfCreateAbstractFunction(1)
+
+    /** @inheritdoc */
+    createDirectory: _gpfFsNodeFsCallWithPath.bind(null, "mkdir"),
+
+    /** @inheritdoc */
+    deleteFile: _gpfFsNodeFsCallWithPath.bind(null, "unlink"),
+
+    /** @inheritdoc */
+    deleteDirectory: _gpfFsNodeFsCallWithPath.bind(null, "rmdir")
 
     //endregion
 
