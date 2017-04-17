@@ -257,6 +257,11 @@
         "doc": true
     },
     {
+        "name": "stream/node",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "fs/node",
         "test": false,
         "doc": true
@@ -335,10 +340,6 @@
     },
     {
         "name": "array",
-        "load": false
-    },
-    {
-        "name": "stream/node",
         "load": false
     },
     {
