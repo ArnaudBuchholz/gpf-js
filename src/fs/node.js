@@ -6,6 +6,7 @@
 "use strict";
 /*global _GPF_FS_TYPES*/ // File system types constants
 /*global _GPF_HOST*/ // Host types
+/*global _GPF_FS_OPENFOR*/
 /*global _gpfCreateAbstractFunction*/ // Build a function that throws the abstractMethod exception
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfHost*/ // Host type
@@ -40,6 +41,19 @@ function _gpfFsNodeFsCall (methodName, path) {
     });
 }
 
+function _gpfFsNodeOpenTextStreamForReading (path) {
+    return new gpf.node.ReadableStream(_gpfNodeFs.createReadStream(path, {
+        flags: "r",
+        autoClose: true
+    }));
+}
+
+function _gpfFsNodeOpenTextStreamForAppending (path) {
+    return new gpf.node.WritableStream(_gpfNodeFs.createWriteStream(path, {
+        flags: "w+",
+        autoClose: true
+    }));
+}
 
 /**
  * NodeJS specific IFileStorage implementation
@@ -98,8 +112,23 @@ var _gpfNodeFileStorage = _gpfDefine({
 
     },
 
-    "openTextStream": _gpfCreateAbstractFunction(2),
-    "close": _gpfCreateAbstractFunction(1),
+    /** @inheritdoc */
+    openTextStream: function (path, mode) {
+        if (_GPF_FS_OPENFOR.READING === mode) {
+            return _gpfFsNodeOpenTextStreamForReading(path);
+        }
+        return _gpfFsNodeOpenTextStreamForAppending(path);
+    },
+
+    /** @inheritdoc */
+    close: function (stream) {
+        if (stream instanceof gpf.node.BaseStream) {
+            stream.close();
+        } else {
+            gpf.error.incompatibleStream();
+        }
+    },
+
     "explore": _gpfCreateAbstractFunction(1),
     "createDirectory": _gpfCreateAbstractFunction(1),
     "deleteFile": _gpfCreateAbstractFunction(1),
