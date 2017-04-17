@@ -4,10 +4,26 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*exported _GPF_FS_OPENFOR*/ // File system stream opening mode
 /*exported _GPF_FS_TYPES*/ // File system types constants
 /*exported _gpfSetHostFileStorage*/ // Set the result of gpf.fs.getFileStorage
 /*#endif*/
+
+_gpfErrorDeclare("fs", {
+
+    /**
+     * ### Summary
+     *
+     * Incompatible stream
+     *
+     * ### Description
+     *
+     * This error is used when a file storage tries to close a stream that was not allocaetd by itself.
+     */
+    incompatibleStream:
+        "Incompatible stream"
+});
 
 var
     /**
