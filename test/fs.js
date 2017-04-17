@@ -24,6 +24,22 @@ function _createPath (path) {
     return processPart();
 }
 
+function _removePath (path) {
+    var parts = path.split("/"),
+        iFileStorage = gpf.fs.getFileStorage();
+    function processPart () {
+        var subPath = parts.join("/");
+        return iFileStorage.deleteDirectory(subPath)
+            .then(function () {
+                parts.pop();
+                if (parts.length > 3) {
+                    return processPart();
+                }
+            });
+    }
+    return processPart();
+}
+
 describe("fs", function () {
 
     describe("gpf.fs.getFileStorage", function () {
@@ -109,7 +125,7 @@ describe("fs", function () {
 
             describe("openTextStream", function () {
 
-                function _read (path) {
+                function _read (path, content) {
                     var iFileStorage = gpf.fs.getFileStorage(),
                         iWritableStream = new gpf.stream.WritableString();
                     return iFileStorage.openTextStream(path, gpf.fs.openFor.reading)
@@ -117,7 +133,7 @@ describe("fs", function () {
                             assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IReadableStream, iReadableStream));
                             return iReadableStream.read(iWritableStream)
                                 .then(function () {
-                                    assert(iWritableStream.toString() === "hello world\n");
+                                    assert(iWritableStream.toString() === content);
                                     return iFileStorage.close(iReadableStream);
                                 });
                         });
@@ -126,7 +142,7 @@ describe("fs", function () {
                 describe("read", function () {
 
                     it("reads a text file", function (done) {
-                        _read(gpf.path.join(data, "folder/hello world.txt"))
+                        _read(gpf.path.join(data, "folder/hello world.txt"), "hello world\n")
                             .then(done, done);
                     });
 
@@ -152,13 +168,44 @@ describe("fs", function () {
                             }, done);
                     });
 
-                    it("writes a text file", function (done) {
-                        var filePath = gpf.path.join(tmp, "hello world.txt");
-                        _write(filePath, "hello world\n")
+                    after(function (done) {
+                        _removePath(tmp)
                             .then(function () {
-                                return _read(filePath);
-                            })
-                            .then(done, done);
+                                done();
+                            }, done);
+                    });
+
+                    describe("initial", function () {
+
+                        var filePath = gpf.path.join(tmp, "hello world.txt");
+
+                        before(function (done) {
+                            _write(filePath, "hello world\n")
+                                .then(done, done);
+                        });
+
+                        after(function (done) {
+                            gpf.fs.getFileStorage().deleteFile(filePath)
+                                .then(done, done);
+                        });
+
+                        it("writes a text file", function (done) {
+                            _read(filePath, "hello world\n")
+                                .then(done, done);
+                        });
+
+                        describe("append", function () {
+
+                            it("appends a text file", function (done) {
+                                _write(filePath, "goodbye\n")
+                                    .then(function () {
+                                        return _read(filePath, "hello world\ngoodbye\n");
+                                    })
+                                    .then(done, done);
+                            });
+
+                        });
+
                     });
 
                 });
