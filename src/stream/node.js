@@ -4,6 +4,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfEmptyFunc*/ // An empty function
 /*global _GPF_HOST*/
 /*global _gpfHost*/
 /*global _gpfStreamSecureRead*/
@@ -22,12 +23,20 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
 
         /**
          * @param {Object} stream NodeJS stream object
+         * @param {Function} close Close handler
          * @constructor
          */
-        constructor: function (stream) {
+        constructor: function (stream, close) {
             this._stream = stream;
+            this._close = close;
             stream.on("error", this._onError.bind(this));
         },
+
+        /**
+         * Function to be called when the stream is closed
+         * @type {Function}
+         */
+        _close: _gpfEmptyFunc,
 
         /**
          * Close the stream
@@ -35,7 +44,7 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
          * @return {Promise} Resolved when closed
          */
         close: function () {
-            return Promise.resolve();
+            return this._close();
         },
 
         //region Error handling
