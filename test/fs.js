@@ -97,6 +97,7 @@ describe("fs", function () {
                             var exceptionCaught;
                             try {
                                 assert(iWritableStream.toString() === "hello world\n");
+                                iFileStorage.close(iReadableStream);
                             } catch (e) {
                                 exceptionCaught = e;
                             }
