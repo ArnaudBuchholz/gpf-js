@@ -10,14 +10,13 @@ function _createPath (path) {
             return Promise.resolve();
         }
         var subPath = parts.slice(0, index + 1).join("/");
-console.log(subPath);
         return iFileStorage.getInfo(subPath)
             .then(function (info) {
                 if (info.type === gpf.fs.types.directory) {
                     return processPart();
                 }
                 if (info.type === gpf.fs.types.notFound) {
-                    return iFileStorage.createDirectory(path).then(processPart);
+                    return iFileStorage.createDirectory(subPath).then(processPart);
                 }
                 return Promise.reject("ERROR");
             });
@@ -32,18 +31,18 @@ describe("fs", function () {
         if (gpf.hosts.nodejs === gpf.host()) {
 
             var data = "test/data",
-                tmp = "tmp/fs/" + gpf.host() + "/" + (new Date()).toISOString() + "/" + Math.floor(100 * Math.random());
+                tmp = "tmp/fs/" + gpf.host() + "/"
+                    + (new Date()).toISOString().replace(/\-|T|\:|\.|Z/g, "")
+                    + "/" + Math.floor(100 * Math.random());
 
             it("returns a file storage interface", function () {
-                var iFileStorage = gpf.fs.getFileStorage();
-                assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IFileStorage, iFileStorage));
+                assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IFileStorage, gpf.fs.getFileStorage()));
             });
 
             describe("getInfo", function () {
 
                 it("can get file information", function (done) {
-                    var iFileStorage = gpf.fs.getFileStorage();
-                    iFileStorage.getInfo(gpf.path.join(data, "file.bin"))
+                    gpf.fs.getFileStorage().getInfo(gpf.path.join(data, "file.bin"))
                         .then(function (info) {
                             var exceptionCaught;
                             try {
@@ -67,8 +66,7 @@ describe("fs", function () {
                 });
 
                 it("can get directory information", function (done) {
-                    var iFileStorage = gpf.fs.getFileStorage();
-                    iFileStorage.getInfo(gpf.path.join(data, "folder"))
+                    gpf.fs.getFileStorage().getInfo(gpf.path.join(data, "folder"))
                         .then(function (info) {
                             var exceptionCaught;
                             try {
@@ -91,8 +89,7 @@ describe("fs", function () {
                 });
 
                 it("does not fail if the file does not exist", function (done) {
-                    var iFileStorage = gpf.fs.getFileStorage();
-                    iFileStorage.getInfo(gpf.path.join(data, "nope"))
+                    gpf.fs.getFileStorage().getInfo(gpf.path.join(data, "nope"))
                         .then(function (info) {
                             var exceptionCaught;
                             try {
@@ -110,36 +107,60 @@ describe("fs", function () {
 
             });
 
-            describe("openTextStream (read)", function () {
+            describe("openTextStream", function () {
 
-                it("reads a text file", function (done) {
+                function _read (path) {
                     var iFileStorage = gpf.fs.getFileStorage(),
-                        iReadableStream = iFileStorage.openTextStream(gpf.path.join(data, "folder/hello world.txt"),
-                            gpf.fs.openFor.reading),
                         iWritableStream = new gpf.stream.WritableString();
-                    assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IReadableStream, iReadableStream));
-                    iReadableStream.read(iWritableStream)
-                        .then(function () {
-                            var exceptionCaught;
-                            try {
-                                assert(iWritableStream.toString() === "hello world\n");
-                                iFileStorage.close(iReadableStream);
-                            } catch (e) {
-                                exceptionCaught = e;
-                            }
-                            done(exceptionCaught);
+                    return iFileStorage.openTextStream(path, gpf.fs.openFor.reading)
+                        .then(function (iReadableStream) {
+                            assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IReadableStream, iReadableStream));
+                            return iReadableStream.read(iWritableStream)
+                                .then(function () {
+                                    assert(iWritableStream.toString() === "hello world\n");
+                                    return iFileStorage.close(iReadableStream);
+                                });
                         });
+                }
+
+                describe("read", function () {
+
+                    it("reads a text file", function (done) {
+                        _read(gpf.path.join(data, "folder/hello world.txt"))
+                            .then(done, done);
+                    });
+
                 });
 
-            });
+                describe("write", function () {
 
-            describe("openTextStream (write)", function () {
+                    function _write (path, content) {
+                        var iFileStorage = gpf.fs.getFileStorage();
+                        return iFileStorage.openTextStream(path, gpf.fs.openFor.appending)
+                            .then(function (iWritableStream) {
+                                return iWritableStream.write(content)
+                                    .then(function () {
+                                        return iFileStorage.close(iWritableStream);
+                                    });
+                            });
+                    }
 
-                before(function (done) {
-                    _createPath(tmp)
-                        .then(function () {
-                            done();
-                        }, done);
+                    before(function (done) {
+                        _createPath(tmp)
+                            .then(function () {
+                                done();
+                            }, done);
+                    });
+
+                    it("writes a text file", function (done) {
+                        var filePath = gpf.path.join(tmp, "hello world.txt");
+                        _write(filePath, "hello world\n")
+                            .then(function () {
+                                return _read(filePath);
+                            })
+                            .then(done, done);
+                    });
+
                 });
 
             });
