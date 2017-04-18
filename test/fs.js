@@ -201,7 +201,6 @@ describe("fs", function () {
                                     return iEnumerator.moveNext();
                                 })
                                 .then(function (info) {
-                                    console.log(1);
                                     if (info.type === gpf.fs.types.file) {
                                         _checkFileBin(info);
                                     } else {
@@ -210,7 +209,6 @@ describe("fs", function () {
                                     return iEnumerator.moveNext();
                                 })
                                 .then(function (info) {
-                                    console.log(2);
                                     if (info.type === gpf.fs.types.file) {
                                         _checkFileBin(info);
                                     } else {
