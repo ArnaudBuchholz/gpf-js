@@ -34,7 +34,7 @@ function _gpfFsExploreEnumerator (iFileStorage, listOfPaths) {
             }
             return Promise.resolve();
         },
-        current: function () {
+        getCurrent: function () {
             return info;
         }
     };
