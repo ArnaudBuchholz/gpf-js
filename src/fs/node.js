@@ -7,8 +7,8 @@
 /*global _GPF_FS_TYPES*/ // File system types constants
 /*global _GPF_HOST*/ // Host types
 /*global _GPF_FS_OPENFOR*/
-/*global _gpfCreateAbstractFunction*/ // Build a function that throws the abstractMethod exception
 /*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
 /*global _gpfHost*/ // Host type
 /*global _gpfNodeFs:true*/ // Node require("fs")
 /*global _gpfNodePath*/ // Node require("path")
@@ -166,18 +166,11 @@ var _gpfNodeFileStorage = _gpfDefine({
 
     /** @inheritdoc */
     explore: function (path) {
-/*
         var me = this;
-        path = _gpfPathNormalize(path);
-        _gpfNodeFs.readdir(path, function (err, files) {
-            if (err) {
-                _gpfFireNodeError(err, eventsHandler);
-                return;
-            }
-            _gpfEventsFire(_GPF_EVENT_READY, {enumerator: _gpfFsExploreEnumerator(me, files)}, eventsHandler);
-        });
-*/
-        return Promise.reject(path);
+        return _gpfFsNodeFsCallWithPath("readdir", path)
+            .then(function (content) {
+                return _gpfFsExploreEnumerator(me, content);
+            });
     },
 
     /** @inheritdoc */
