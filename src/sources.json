@@ -257,6 +257,11 @@
         "doc": true
     },
     {
+        "name": "fs/explore",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "stream/node",
         "test": false,
         "doc": true
@@ -516,10 +521,6 @@
     },
     {
         "name": "fs/find",
-        "load": false
-    },
-    {
-        "name": "fs/explore",
         "load": false
     },
     {
