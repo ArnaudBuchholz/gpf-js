@@ -170,7 +170,7 @@ var _gpfNodeFileStorage = _gpfDefine({
         if (stream instanceof gpf.node.BaseStream) {
             return stream.close();
         }
-        gpf.error.incompatibleStream();
+        return Promise.reject(new gpf.Error.IncompatibleStream());
     },
 
     /**
