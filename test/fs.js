@@ -1,53 +1,75 @@
 "use strict";
 
-function _createPath (path) {
-    var parts = path.split("/"),
-        index = -1,
-        iFileStorage = gpf.fs.getFileStorage();
-    function processPart () {
-        ++index;
-        if (index === parts.length) {
-            return Promise.resolve();
-        }
-        var subPath = parts.slice(0, index + 1).join("/");
-        return iFileStorage.getInfo(subPath)
-            .then(function (info) {
-                if (info.type === gpf.fs.types.directory) {
-                    return processPart();
-                }
-                if (info.type === gpf.fs.types.notFound) {
-                    return iFileStorage.createDirectory(subPath).then(processPart);
-                }
-                return Promise.reject("ERROR");
-            });
-    }
-    return processPart();
-}
-
-function _removePath (path) {
-    var parts = path.split("/"),
-        iFileStorage = gpf.fs.getFileStorage();
-    function processPart () {
-        var subPath = parts.join("/");
-        return iFileStorage.deleteDirectory(subPath)
-            .then(function () {
-                parts.pop();
-                if (parts.length > 3) {
-                    return processPart();
-                }
-            });
-    }
-    return processPart();
-}
-
 describe("fs", function () {
 
     describe("gpf.fs.getFileStorage", function () {
 
+        function _createPath (path) {
+            var parts = path.split("/"),
+                index = -1,
+                iFileStorage = gpf.fs.getFileStorage();
+            function processPart () {
+                ++index;
+                if (index === parts.length) {
+                    return Promise.resolve();
+                }
+                var subPath = parts.slice(0, index + 1).join("/");
+                return iFileStorage.getInfo(subPath)
+                    .then(function (info) {
+                        if (info.type === gpf.fs.types.directory) {
+                            return processPart();
+                        }
+                        if (info.type === gpf.fs.types.notFound) {
+                            return iFileStorage.createDirectory(subPath).then(processPart);
+                        }
+                        return Promise.reject("ERROR");
+                    });
+            }
+            return processPart();
+        }
+
+        function _removePath (path) {
+            var parts = path.split("/"),
+                iFileStorage = gpf.fs.getFileStorage();
+            function processPart () {
+                var subPath = parts.join("/");
+                return iFileStorage.deleteDirectory(subPath)
+                    .then(function () {
+                        parts.pop();
+                        if (parts.length > 3) {
+                            return processPart();
+                        }
+                    });
+            }
+            return processPart();
+        }
+
+        var data = "test/data";
+
+        function _checkFileBin (info) {
+            assert(info.type === gpf.fs.types.file);
+            assert(info.fileName === "file.bin");
+            assert(info.filePath.indexOf(data + "/file.bin") !== -1);
+            assert(info.size === 256);
+            assert(info.createdDateTime instanceof Date);
+            assert(info.createdDateTime.getUTCFullYear() > 2010);
+            assert(info.modifiedDateTime instanceof Date);
+            assert(info.modifiedDateTime.getUTCFullYear() > 2010);
+        }
+
+        function _checkFolder (info) {
+            assert(info.type === gpf.fs.types.directory);
+            assert(info.fileName === "folder");
+            assert(info.filePath.indexOf(data + "/folder") !== -1);
+            assert(info.createdDateTime instanceof Date);
+            assert(info.createdDateTime.getUTCFullYear() > 2010);
+            assert(info.modifiedDateTime instanceof Date);
+            assert(info.modifiedDateTime.getUTCFullYear() > 2010);
+        }
+
         if (gpf.hosts.nodejs === gpf.host()) {
 
-            var data = "test/data",
-                tmp = "tmp/fs/" + gpf.host() + "/"
+            var tmp = "tmp/fs/" + gpf.host() + "/"
                     + (new Date()).toISOString().replace(/\-|T|\:|\.|Z/g, "")
                     + "/" + Math.floor(100 * Math.random());
 
@@ -59,66 +81,22 @@ describe("fs", function () {
 
                 it("can get file information", function (done) {
                     gpf.fs.getFileStorage().getInfo(gpf.path.join(data, "file.bin"))
-                        .then(function (info) {
-                            var exceptionCaught;
-                            try {
-                                assert(info.type === gpf.fs.types.file);
-                                assert(info.fileName === "file.bin");
-                                assert(info.filePath.indexOf(data + "/file.bin") !== -1);
-                                assert(info.size === 256);
-                                assert(info.createdDateTime instanceof Date);
-                                assert(info.createdDateTime.getUTCFullYear() > 2010);
-                                assert(info.modifiedDateTime instanceof Date);
-                                assert(info.modifiedDateTime.getUTCFullYear() > 2010);
-
-                            } catch (e) {
-                                exceptionCaught = e;
-                            }
-                            done(exceptionCaught);
-
-                        }, function (error) {
-                            done(error);
-                        });
+                        .then(_checkFileBin)
+                        .then(done, done);
                 });
 
                 it("can get directory information", function (done) {
                     gpf.fs.getFileStorage().getInfo(gpf.path.join(data, "folder"))
-                        .then(function (info) {
-                            var exceptionCaught;
-                            try {
-                                assert(info.type === gpf.fs.types.directory);
-                                assert(info.fileName === "folder");
-                                assert(info.filePath.indexOf(data + "/folder") !== -1);
-                                assert(info.createdDateTime instanceof Date);
-                                assert(info.createdDateTime.getUTCFullYear() > 2010);
-                                assert(info.modifiedDateTime instanceof Date);
-                                assert(info.modifiedDateTime.getUTCFullYear() > 2010);
-
-                            } catch (e) {
-                                exceptionCaught = e;
-                            }
-                            done(exceptionCaught);
-
-                        }, function (error) {
-                            done(error);
-                        });
+                        .then(_checkFolder)
+                        .then(done, done);
                 });
 
                 it("does not fail if the file does not exist", function (done) {
                     gpf.fs.getFileStorage().getInfo(gpf.path.join(data, "nope"))
                         .then(function (info) {
-                            var exceptionCaught;
-                            try {
-                                assert(info.type === gpf.fs.types.notFound);
-
-                            } catch (e) {
-                                exceptionCaught = e;
-                            }
-                            done(exceptionCaught);
-
-                        }, function (error) {
-                            done(error);
-                        });
+                            assert(info.type === gpf.fs.types.notFound);
+                        })
+                        .then(done, done);
                 });
 
             });
@@ -208,6 +186,39 @@ describe("fs", function () {
 
                     });
 
+                });
+
+            });
+
+            describe("explore", function () {
+
+                it("lists the content of a folder", function (done) {
+                    gpf.fs.getFileStorage().explore(data)
+                        .then(function (iEnumerator) {
+                            assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IEnumerator, iEnumerator));
+                            return iEnumerator.reset()
+                                .then(function () {
+                                    return iEnumerator.moveNext();
+                                })
+                                .then(function (info) {
+                                    console.log(1);
+                                    if (info.type === gpf.fs.types.file) {
+                                        _checkFileBin(info);
+                                    } else {
+                                        _checkFolder(info);
+                                    }
+                                    return iEnumerator.moveNext();
+                                })
+                                .then(function (info) {
+                                    console.log(2);
+                                    if (info.type === gpf.fs.types.file) {
+                                        _checkFileBin(info);
+                                    } else {
+                                        _checkFolder(info);
+                                    }
+                                })
+                                .then(done, done);
+                        });
                 });
 
             });
