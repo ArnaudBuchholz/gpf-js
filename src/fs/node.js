@@ -4,16 +4,16 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_FS_OPENFOR*/ // File system stream opening mode
 /*global _GPF_FS_TYPES*/ // File system types constants
 /*global _GPF_HOST*/ // Host types
-/*global _GPF_FS_OPENFOR*/
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
 /*global _gpfHost*/ // Host type
 /*global _gpfNodeFs:true*/ // Node require("fs")
 /*global _gpfNodePath*/ // Node require("path")
-/*global _gpfPathNormalize*/ // Normalize path
 /*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
+/*global _gpfPathNormalize*/ // Normalize path
 /*global _gpfSetHostFileStorage*/ // Set the result of gpf.fs.getFileStorage
 /*#endif*/
 
@@ -69,6 +69,7 @@ function _gpfFsNodeOpenTextStream (path, options) {
  *
  * @param {String} path File path
  * @return {Promise<gpf.interfaces.IReadableStream>} gpf.node.ReadableStream
+ * @since 0.1.9
  */
 function _gpfFsNodeOpenTextStreamForReading (path) {
     return _gpfFsNodeOpenTextStream(path, {
@@ -83,6 +84,7 @@ function _gpfFsNodeOpenTextStreamForReading (path) {
  *
  * @param {String} path File path
  * @return {Promise<gpf.interfaces.IWritableStream>} gpf.node.WritableStream
+ * @since 0.1.9
  */
 function _gpfFsNodeOpenTextStreamForAppending (path) {
     return _gpfFsNodeOpenTextStream(path, {
@@ -149,7 +151,10 @@ var _gpfNodeFileStorage = _gpfDefine({
 
     },
 
-    /** @inheritdoc */
+    /**
+     * @inheritdoc
+     * @since 0.1.9
+     */
     openTextStream: function (path, mode) {
         if (_GPF_FS_OPENFOR.READING === mode) {
             return _gpfFsNodeOpenTextStreamForReading(path);
@@ -157,7 +162,10 @@ var _gpfNodeFileStorage = _gpfDefine({
         return _gpfFsNodeOpenTextStreamForAppending(path);
     },
 
-    /** @inheritdoc */
+    /**
+     * @inheritdoc
+     * @since 0.1.9
+     */
     close: function (stream) {
         if (stream instanceof gpf.node.BaseStream) {
             return stream.close();
@@ -165,7 +173,10 @@ var _gpfNodeFileStorage = _gpfDefine({
         gpf.error.incompatibleStream();
     },
 
-    /** @inheritdoc */
+    /**
+     * @inheritdoc
+     * @since 0.1.9
+     */
     explore: function (path) {
         var me = this;
         return _gpfFsNodeFsCallWithPath("readdir", path)
@@ -176,13 +187,22 @@ var _gpfNodeFileStorage = _gpfDefine({
             });
     },
 
-    /** @inheritdoc */
+    /**
+     * @inheritdoc
+     * @since 0.1.9
+     */
     createDirectory: _gpfFsNodeFsCallWithPath.bind(null, "mkdir"),
 
-    /** @inheritdoc */
+    /**
+     * @inheritdoc
+     * @since 0.1.9
+     */
     deleteFile: _gpfFsNodeFsCallWithPath.bind(null, "unlink"),
 
-    /** @inheritdoc */
+    /**
+     * @inheritdoc
+     * @since 0.1.9
+     */
     deleteDirectory: _gpfFsNodeFsCallWithPath.bind(null, "rmdir")
 
     //endregion
