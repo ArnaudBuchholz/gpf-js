@@ -20,6 +20,7 @@ _gpfErrorDeclare("fs", {
      * ### Description
      *
      * This error is used when a file storage tries to close a stream that was not allocaetd by itself.
+     * @since 0.1.9
      */
     incompatibleStream:
         "Incompatible stream"
