@@ -1,5 +1,6 @@
 /**
  * @file File system explore enumerator helper
+ * @since 0.1.9
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -13,6 +14,7 @@
  * @param {String[]} listOfPaths List of paths to return
  * @return {gpf.interfaces.IEnumerator} IEnumerator interface
  * @gpf:closure
+ * @since 0.1.9
  */
 function _gpfFsExploreEnumerator (iFileStorage, listOfPaths) {
     var pos = -1,
