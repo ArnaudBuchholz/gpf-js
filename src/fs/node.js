@@ -13,6 +13,7 @@
 /*global _gpfNodeFs:true*/ // Node require("fs")
 /*global _gpfNodePath*/ // Node require("path")
 /*global _gpfPathNormalize*/ // Normalize path
+/*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
 /*global _gpfSetHostFileStorage*/ // Set the result of gpf.fs.getFileStorage
 /*#endif*/
 
@@ -169,7 +170,9 @@ var _gpfNodeFileStorage = _gpfDefine({
         var me = this;
         return _gpfFsNodeFsCallWithPath("readdir", path)
             .then(function (content) {
-                return _gpfFsExploreEnumerator(me, content);
+                return _gpfFsExploreEnumerator(me, content.map(function (name) {
+                    return _gpfPathJoin(path, name);
+                }));
             });
     },
 
