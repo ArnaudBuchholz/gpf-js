@@ -179,10 +179,17 @@
         "define",
         "stream"
     ],
+    "fs": [
+        "error"
+    ],
+    "stream/node": [
+        "define",
+        "stream"
+    ],
     "fs/node": [
         "fs",
-        "abstract",
         "define",
+        "fs/explore",
         "path"
     ]
 }
