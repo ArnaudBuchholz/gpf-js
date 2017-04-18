@@ -6,6 +6,7 @@
 "use strict";
 /*exported _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*exported _gpfPathNormalize*/ // Normalize path
+/*exported _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
 /*#endif*/
 
 //region _gpfPathDecompose
