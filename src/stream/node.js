@@ -12,6 +12,7 @@
 /*global _gpfStreamSecureWrite*/ // Generates a wrapper to secure multiple calls to stream#write
 /*#endif*/
 
+/* istanbul ignore else */ // Because tested with NodeJS
 if (_GPF_HOST.NODEJS === _gpfHost) {
 
     /**
