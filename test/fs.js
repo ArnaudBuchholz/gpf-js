@@ -1,7 +1,5 @@
 "use strict";
 
-/*eslint-disable no-sync*/
-
 describe("fs", function () {
 
     describe("gpf.fs.getFileStorage", function () {
@@ -241,53 +239,6 @@ describe("fs", function () {
                 });
 
             });
-
-            if (gpf.hosts.nodejs === gpf.host()) {
-
-                describe("node specifics", function () {
-
-                    it("forwards inner errors (generic API)", function (done) {
-                        gpf.fs.getFileStorage().deleteFile(gpf.path.join(tmp, "file.bin"))
-                            .then(function () {
-                                throw new Error("Should fail");
-                            }, function (err) {
-                                assert(err.code === "ENOENT");
-                                done();
-                            })["catch"](function (e) {
-                                done(e);
-                            });
-                    });
-
-                    it("forwards inner errors (stream encapsulation)", function (done) {
-                        var fs = require("fs"),
-                            fd = fs.openSync(gpf.path.join(data, "file.bin"), "r"),
-                            nodeStream = fs.createReadStream("", {
-                                fd: fd,
-                                autoClose: false
-                            }),
-                            iReadableStream = new gpf.node.ReadableStream(nodeStream),
-                            iWritableStream = new gpf.stream.WritableString();
-                        fs.closeSync(fd);
-                        iReadableStream.read(iWritableStream)
-                            .then(function () {
-                                assert(false); // Should not happen
-                            }, function (err) {
-                                assert(err.code === "EBADF");
-                                // return iReadableStream.read(iWritableStream);
-                            // })
-                            // .then(function () {
-                            //     assert(false); // Should not happen
-                            // }, function (err) {
-                            //     assert(err instanceof gpf.Error.InvalidStreamState);
-                                done();
-                            })["catch"](function (e) {
-                                done(e);
-                            });
-                    });
-
-                });
-
-            }
 
         } else {
 
