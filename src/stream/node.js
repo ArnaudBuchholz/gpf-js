@@ -113,6 +113,24 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
         $class: "gpf.node.ReadableStream",
         $extend: "gpf.node.BaseStream",
 
+        /**
+         * The stream ended
+         * @since 0.1.9
+         */
+        _ended: false,
+
+        /**
+         * If the stream ended, the exception {@see gpf.Error.InvalidStreamState} is thrown
+         *
+         * @throws {gpf.Error.InvalidStreamState}
+         * @since 0.1.9
+         */
+        _hasEnded: function () {
+            if (this._ended) {
+                gpf.Error.invalidStreamState();
+            }
+        },
+
         //region gpf.interfaces.IReadableStream
 
         /**
@@ -124,9 +142,14 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
                 stream = me._stream;
             return new Promise(function (resolve, reject) {
                 me._reject = reject;
+                me._hasFailed();
+                me._hasEnded();
                 stream
                     .on("data", me._onData.bind(me, output))
-                    .on("end", resolve);
+                    .on("end", function () {
+                        me._ended = true;
+                        resolve();
+                    });
             });
         }),
 
@@ -146,10 +169,7 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
             output.write(chunk)
                 .then(function () {
                     stream.resume();
-                }, function (e) {
-                    stream.close();
-                    me._reject(e);
-                });
+                }, me._reject);
         }
 
     });
