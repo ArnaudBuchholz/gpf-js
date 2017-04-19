@@ -263,12 +263,11 @@
     },
     {
         "name": "stream/node",
-        "test": false,
+        "test": true,
         "doc": true
     },
     {
         "name": "fs/node",
-        "test": false,
         "doc": true
     },
     {
