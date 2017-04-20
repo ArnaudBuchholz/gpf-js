@@ -40,7 +40,7 @@ describe("path", function () {
             });
 
             it("handles multiple joins", function () {
-                assert(join("abc", "def", "../ghi", "../jkl") === "abc/jkl");
+                assert(join("abc", "def", "../ghi/jkl", "../jkl") === "abc/ghi/jkl");
             });
 
             it("resolves on known parent", function () {
@@ -52,7 +52,13 @@ describe("path", function () {
             });
 
             it("does not resolve on unknown parent", function () {
-                assert(join("abc", "../../ghi") === "");
+                var exceptionCaught;
+                try {
+                    join("abc", "../../ghi");
+                } catch (e) {
+                    exceptionCaught = e;
+                }
+                assert(exceptionCaught instanceof gpf.Error.UnreachablePath);
             });
 
         });
@@ -71,8 +77,16 @@ describe("path", function () {
                 assert(path.parent("abc") === "");
             });
 
-            it("returns empty when empty", function () {
-                assert(path.parent("") === "");
+            it("fails when empty", function () {
+                it("does not resolve on unknown parent", function () {
+                    var exceptionCaught;
+                    try {
+                        path.parent("");
+                    } catch (e) {
+                        exceptionCaught = e;
+                    }
+                    assert(exceptionCaught instanceof gpf.Error.UnreachablePath);
+                });
             });
 
         });
