@@ -4,10 +4,28 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*exported _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*exported _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
 /*exported _gpfPathNormalize*/ // Normalize path
 /*#endif*/
+
+_gpfErrorDeclare("path", {
+
+    /**
+     * ### Summary
+     *
+     * Unreachable path
+     *
+     * ### Description
+     *
+     * This error is triggered when trying to get the parent of a root path using {@link gpf.path.parent) or
+     * {@link gpf.path.join) with ..
+     * @since 0.1.9
+     */
+    unreachablePath:
+        "Unreachable path"
+});
 
 //region _gpfPathDecompose
 
@@ -29,6 +47,14 @@ function _gpfPathSafeRemoveTrailingBlank (splitPath) {
 function _gpfPathRemoveTrailingBlank (splitPath) {
     if (splitPath.length) {
         _gpfPathSafeRemoveTrailingBlank(splitPath);
+    }
+}
+
+function _gpfPathUp (splitPath) {
+    if (splitPath.length) {
+        splitPath.pop();
+    } else {
+        gpf.Error.unreachablePath();
     }
 }
 
@@ -71,14 +97,13 @@ function _gpfPathName (path) {
 }
 
 function _gpfPathAppend (splitPath, relativePath) {
-    var relativeSplitPath = _gpfPathDecompose(relativePath);
-    while (".." === relativeSplitPath[0]) {
-        relativeSplitPath.shift();
-        if (undefined === splitPath.pop()) {
-            return; // does not resolve on unknown parent
+    _gpfPathDecompose(relativePath).forEach(function (relativeItem) {
+        if (".." === relativeItem) {
+            _gpfPathUp(splitPath);
+        } else {
+            splitPath.push(relativeItem);
         }
-    }
-    [].push.apply(splitPath, relativeSplitPath);
+    });
 }
 
 /**
@@ -87,6 +112,7 @@ function _gpfPathAppend (splitPath, relativePath) {
  * @param {String} path Base path
  * @param {...String} relativePath Relative parts to append to the base path
  * @return {String} Joined path
+ * @throws {gpf.Error.UnreachablePath}
  * @since 0.1.9
  */
 function _gpfPathJoin (path) {
@@ -103,7 +129,7 @@ function _gpfPathSafeShiftIdenticalBeginning (splitFromPath, splitToPath) {
 }
 
 function _gpfPathShiftIdenticalBeginning (splitFromPath, splitToPath) {
-    if (splitFromPath.length && splitToPath.length) {
+    if (splitFromPath.length * splitToPath.length) { // equivalent to splitFromPath.length && splitToPath.length
         _gpfPathSafeShiftIdenticalBeginning(splitFromPath, splitToPath);
     }
 }
@@ -147,11 +173,12 @@ gpf.path = {
      *
      * @param {String} path Path to analyze
      * @return {String} Parent path
+     * @throws {gpf.Error.UnreachablePath}
      * @since 0.1.9
      */
     parent: function (path) {
         path = _gpfPathDecompose(path);
-        path.pop();
+        _gpfPathUp(path);
         return path.join("/");
     },
 
