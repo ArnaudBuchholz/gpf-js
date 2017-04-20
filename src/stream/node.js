@@ -62,10 +62,10 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
         _stream: null,
 
         /**
-         * An error occurred
+         * The stream has an invalid state and can't be used anymore
          * @since 0.1.9
          */
-        _failed: false,
+        _invalid: false,
 
         /**
          * Current promise rejection callback
@@ -75,13 +75,13 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
         _reject: gpf.Error.invalidStreamState,
 
         /**
-         * If an error occurred, the exception {@see gpf.Error.InvalidStreamState} is thrown
+         * If the stream has an invalid state, the exception {@see gpf.Error.InvalidStreamState} is thrown
          *
          * @throws {gpf.Error.InvalidStreamState}
          * @since 0.1.9
          */
-        _hasFailed: function () {
-            if (this._failed) {
+        _checkIfValid: function () {
+            if (this._invalid) {
                 gpf.Error.invalidStreamState();
             }
         },
@@ -93,7 +93,7 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
          * @since 0.1.9
          */
         _onError: function (error) {
-            this._failed = true;
+            this._invalid = true;
             this._reject(error);
         }
 
@@ -113,24 +113,6 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
         $class: "gpf.node.ReadableStream",
         $extend: "gpf.node.BaseStream",
 
-        /**
-         * The stream ended
-         * @since 0.1.9
-         */
-        _ended: false,
-
-        /**
-         * If the stream ended, the exception {@see gpf.Error.InvalidStreamState} is thrown
-         *
-         * @throws {gpf.Error.InvalidStreamState}
-         * @since 0.1.9
-         */
-        _hasEnded: function () {
-            if (this._ended) {
-                gpf.Error.invalidStreamState();
-            }
-        },
-
         //region gpf.interfaces.IReadableStream
 
         /**
@@ -142,12 +124,11 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
                 stream = me._stream;
             return new Promise(function (resolve, reject) {
                 me._reject = reject;
-                me._hasFailed();
-                me._hasEnded();
+                me._checkIfValid();
                 stream
                     .on("data", me._onData.bind(me, output))
                     .on("end", function () {
-                        me._ended = true;
+                        me._invalid = true;
                         resolve();
                     });
             });
@@ -197,7 +178,7 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
                 stream = me._stream;
             return new Promise(function (resolve, reject) {
                 me._reject = reject;
-                me._hasFailed();
+                me._checkIfValid();
                 if (stream.write(buffer)) {
                     return resolve();
                 }
