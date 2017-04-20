@@ -94,6 +94,20 @@ function _gpfFsNodeOpenTextStreamForAppending (path) {
     });
 }
 
+function _getFileType (stats) {
+    if (stats.isFile()) {
+        return _GPF_FS_TYPES.FILE;
+    }
+    return _GPF_FS_TYPES.UNKNOWN;
+}
+
+function _getType (stats) {
+    if (stats.isDirectory()) {
+        return _GPF_FS_TYPES.DIRECTORY;
+    }
+    return _getFileType(stats);
+}
+
 /**
  * NodeJS specific IFileStorage implementation
  *
@@ -126,22 +140,14 @@ var _gpfNodeFileStorage = _gpfDefine({
                 if (exists) {
                     return _gpfFsNodeFsCallWithPath("stat", path)
                         .then(function (stats) {
-                            var info = {
+                            return {
                                 fileName: _gpfNodePath.basename(path),
                                 filePath: _gpfPathNormalize(_gpfNodePath.resolve(path)),
                                 size: stats.size,
                                 createdDateTime: stats.ctime,
-                                modifiedDateTime: stats.mtime
+                                modifiedDateTime: stats.mtime,
+                                type: _getType(stats)
                             };
-                            if (stats.isDirectory()) {
-                                info.type = _GPF_FS_TYPES.DIRECTORY;
-                            /* istanbul ignore else */ // Because unknown type can't be tested
-                            } else if (stats.isFile()) {
-                                info.type = _GPF_FS_TYPES.FILE;
-                            } else {
-                                info.type = _GPF_FS_TYPES.UNKNOWN;
-                            }
-                            return info;
                         });
                 }
                 return {
