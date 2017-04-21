@@ -323,7 +323,8 @@ module.exports = {
 
                         case "gpf":
                             hasGpfSignature = tag.description.indexOf(":read") === 0
-                                || tag.description.indexOf(":write") === 0;
+                                || tag.description.indexOf(":write") === 0
+                                || tag.description.indexOf(":sameas") === 0;
                             hasGpfReturnLike = hasGpfSignature
                                 || tag.description === ":chainable";
                             break;
