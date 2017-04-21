@@ -78,15 +78,13 @@ describe("path", function () {
             });
 
             it("fails when empty", function () {
-                it("does not resolve on unknown parent", function () {
-                    var exceptionCaught;
-                    try {
-                        path.parent("");
-                    } catch (e) {
-                        exceptionCaught = e;
-                    }
-                    assert(exceptionCaught instanceof gpf.Error.UnreachablePath);
-                });
+                var exceptionCaught;
+                try {
+                    path.parent("");
+                } catch (e) {
+                    exceptionCaught = e;
+                }
+                assert(exceptionCaught instanceof gpf.Error.UnreachablePath);
             });
 
         });
