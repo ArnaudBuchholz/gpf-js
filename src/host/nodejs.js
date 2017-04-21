@@ -20,4 +20,11 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
         process.exit(code);
     };
 
+    /**
+     * @namespace gpf.node
+     * @description Root namespace for NodeJS specifics
+     * @since 0.1.5
+     */
+    gpf.node = {};
+
 }
