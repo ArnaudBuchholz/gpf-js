@@ -94,18 +94,18 @@ function _gpfFsNodeOpenTextStreamForAppending (path) {
     });
 }
 
-function _getFileType (stats) {
+function _gpfFsNodeGetFileType (stats) {
     if (stats.isFile()) {
         return _GPF_FS_TYPES.FILE;
     }
     return _GPF_FS_TYPES.UNKNOWN;
 }
 
-function _getType (stats) {
+function _gpfFsNodeGetType (stats) {
     if (stats.isDirectory()) {
         return _GPF_FS_TYPES.DIRECTORY;
     }
-    return _getFileType(stats);
+    return _gpfFsNodeGetFileType(stats);
 }
 
 var _gpfNodeFileStorage = _gpfDefine(/** @lends gpf.node.FileStorage */ {
@@ -125,7 +125,7 @@ var _gpfNodeFileStorage = _gpfDefine(/** @lends gpf.node.FileStorage */ {
         }
     },
 
-    //region IFileStorage
+    //region gpf.interfaces.IFileStorage
 
     /**
      * @gpf:sameas gpf.interfaces.IFileStorage#getInfo
@@ -146,7 +146,7 @@ var _gpfNodeFileStorage = _gpfDefine(/** @lends gpf.node.FileStorage */ {
                                 size: stats.size,
                                 createdDateTime: stats.ctime,
                                 modifiedDateTime: stats.mtime,
-                                type: _getType(stats)
+                                type: _gpfFsNodeGetType(stats)
                             };
                         });
                 }
