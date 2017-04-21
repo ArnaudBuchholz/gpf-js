@@ -16,7 +16,7 @@ A multi-purpose JavaScript library created and maintained by
 * Namespace and class system
 * Java-like annotation tool (attributes) *-- not implemented yet*
 * Interface based
-* Asynchronous binary / textual streams *-- not implemented yet*
+* Asynchronous textual streams
 * XML-aware *-- not implemented yet*
 * Self-Tested
 
