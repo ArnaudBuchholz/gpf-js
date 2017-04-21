@@ -18,7 +18,7 @@
  */
 
 /**
- * Read all data from the underlying source. Chunk of data is passed to the {@see gpf.interfaces.IWritableStream}.
+ * Read all data from the underlying source. Chunk of data is passed to the {@link gpf.interfaces.IWritableStream}.
  *
  * @method gpf.interfaces.IReadableStream#read
  * @param {gpf.interfaces.IWritableStream} output Stream that receives chunk of data
