@@ -8,11 +8,10 @@
 /*global _GPF_HOST*/ // Host types
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfHost*/ // Host type
+/*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
 /*global _gpfPathNormalize*/ // Normalize path
 /*global _gpfSetHostFileStorage*/ // Set the result of gpf.fs.getFileStorage
-/*global _gpfArrayEnumerator*/ // Create an IEnumerator from an array
 /*global _gpfDefine*/ // Shortcut for gpf.define
-/*global _gpfEventsFire*/ // gpf.events.fire (internal, parameters must match)
 /*global _gpfHost*/ // Host type
 /*global _gpfMsFSO:true*/ // Scripting.FileSystemObject activeX
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
@@ -22,6 +21,7 @@
 /*jshint wsh:true*/
 /*eslint-env wsh*/
 /*eslint-disable new-cap*/ // FileSystem object APIs are uppercased
+/*global Enumerator*/ // Enumerator helper
 
 /**
  * Translate WScript file object into a {@link gpf.typedef.fileStorageInfo}
@@ -64,7 +64,26 @@ function _gpfFsWscriptGetInfo (path) {
     return _gpfFsWscriptGetFileInfo(path);
 }
 
-var _gpfWScriptFileStorage = _gpfDefine("gpf.wscript.FileStorage", {
+function _gpfFsWScriptExploreList (collection) {
+    var fsoEnum = new Enumerator(collection),
+        results = [];
+    for (; !fsoEnum.atEnd(); fsoEnum.moveNext()) {
+        results.push(fsoEnum.item().Path);
+    }
+    return results;
+}
+
+function _gpfFsWScriptExplore (path) {
+    var folder;
+    if (_gpfMsFSO.FolderExists(path)) {
+        folder = _gpfMsFSO.GetFolder(path);
+        return _gpfFsWScriptExploreList(folder.SubFolders)
+            .concat(_gpfFsWScriptExploreList(folder.Files));
+    }
+    return [];
+}
+
+var _GpfWScriptFileStorage = _gpfDefine("gpf.wscript.FileStorage", {
 
     /**
      * WScript specific IFileStorage implementation
@@ -112,29 +131,11 @@ var _gpfWScriptFileStorage = _gpfDefine("gpf.wscript.FileStorage", {
     },
 
     /**
-     * @inheritdoc IFileStorage#explore
+     * @gpf:sameas gpf.interfaces.IFileStorage#explore
+     * @since 0.1.9
      */
-    explore: function (path, eventsHandler) {
-        path = _gpfPathDecompose(path).join("\\");
-        var result = [],
-            folder,
-            fsoEnum;
-        if (_gpfMsFSO.FolderExists(path)) {
-            folder = _gpfMsFSO.GetFolder(path);
-            // files
-            fsoEnum = new Enumerator(folder.Files);
-            for (; fsoEnum.atEnd(); fsoEnum.moveNext()) {
-                result.push(_gpfFsoObjToInfo(fsoEnum.item(),
-                    _GPF_FS_TYPE_FILE));
-            }
-            // folders
-            fsoEnum = new Enumerator(folder.SubFolders);
-            for (; fsoEnum.atEnd(); fsoEnum.moveNext()) {
-                result.push(_gpfFsoObjToInfo(fsoEnum.item(),
-                    _GPF_FS_TYPE_DIRECTORY));
-            }
-        }
-        _gpfEventsFire.call(null, _GPF_EVENT_READY, {enumerator: _gpfArrayEnumerator(result)}, eventsHandler);
+    explore: function (path) {
+        return Promise.resolve(_gpfFsExploreEnumerator(this, _gpfFsWScriptExplore(_gpfPathDecompose(path).join("\\"))));
     },
 
     /**
@@ -162,6 +163,6 @@ var _gpfWScriptFileStorage = _gpfDefine("gpf.wscript.FileStorage", {
 /* istanbul ignore */ // Because tested with NodeJS
 if (_GPF_HOST.WSCRIPT === _gpfHost) {
 
-    _gpfSetHostFileStorage(new _gpfWScriptFileStorage());
+    _gpfSetHostFileStorage(new _GpfWScriptFileStorage());
 
 }
