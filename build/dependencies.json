@@ -182,6 +182,9 @@
     "fs": [
         "error"
     ],
+    "path": [
+        "error"
+    ],
     "stream/node": [
         "define",
         "stream"
