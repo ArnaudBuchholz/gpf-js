@@ -141,17 +141,6 @@ function _gpfIsUnsignedByte (value) {
     return "number" === typeof value && _gpfIsInRange(value, 0, 255);
 }
 
-/* istanbul ignore else */ // Because tested with NodeJS
-if (_GPF_HOST.NODEJS === _gpfHost) {
-
-    /**
-     * @namespace gpf.node
-     * @description Root namespace for NodeJS specifics
-     * @since 0.1.5
-     */
-    gpf.node = {};
-}
-
 /**
  * @namespace gpf.web
  * @description Root namespace for web-related tools (even if not in a browser)
