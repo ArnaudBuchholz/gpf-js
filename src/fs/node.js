@@ -108,16 +108,16 @@ function _getType (stats) {
     return _getFileType(stats);
 }
 
-/**
- * NodeJS specific IFileStorage implementation
- *
- * @class {gpf.node.FileStorage}
- * @implements {gpf.interfaces.IFileStorage}
- * @since 0.1.9
- */
-var _gpfNodeFileStorage = _gpfDefine({
+var _gpfNodeFileStorage = _gpfDefine(/** @lends gpf.node.FileStorage */ {
     $class: "gpf.node.FileStorage",
 
+    /**
+     * NodeJS specific IFileStorage implementation
+     *
+     * @constructor gpf.node.FileStorage
+     * @implements {gpf.interfaces.IFileStorage}
+     * @since 0.1.9
+     */
     constructor: function () {
         /* istanbul ignore next */ // Because boot always implies require("fs")
         if (!_gpfNodeFs) {
@@ -128,7 +128,7 @@ var _gpfNodeFileStorage = _gpfDefine({
     //region IFileStorage
 
     /**
-     * @inheritdoc gpf.interfaces.IFileStorage#getInfo
+     * @gpf:sameas gpf.interfaces.IFileStorage#getInfo
      * @since 0.1.9
      */
     getInfo: function (path) {
@@ -158,7 +158,7 @@ var _gpfNodeFileStorage = _gpfDefine({
     },
 
     /**
-     * @inheritdoc
+     * @gpf:sameas gpf.interfaces.IFileStorage#openTextStream
      * @since 0.1.9
      */
     openTextStream: function (path, mode) {
@@ -169,7 +169,7 @@ var _gpfNodeFileStorage = _gpfDefine({
     },
 
     /**
-     * @inheritdoc
+     * @gpf:sameas gpf.interfaces.IFileStorage#close
      * @since 0.1.9
      */
     close: function (stream) {
@@ -180,7 +180,7 @@ var _gpfNodeFileStorage = _gpfDefine({
     },
 
     /**
-     * @inheritdoc
+     * @gpf:sameas gpf.interfaces.IFileStorage#explore
      * @since 0.1.9
      */
     explore: function (path) {
@@ -194,19 +194,19 @@ var _gpfNodeFileStorage = _gpfDefine({
     },
 
     /**
-     * @inheritdoc
+     * @gpf:sameas gpf.interfaces.IFileStorage#createDirectory
      * @since 0.1.9
      */
     createDirectory: _gpfFsNodeFsCallWithPath.bind(null, "mkdir"),
 
     /**
-     * @inheritdoc
+     * @gpf:sameas gpf.interfaces.IFileStorage#deleteFile
      * @since 0.1.9
      */
     deleteFile: _gpfFsNodeFsCallWithPath.bind(null, "unlink"),
 
     /**
-     * @inheritdoc
+     * @gpf:sameas gpf.interfaces.IFileStorage#deleteDirectory
      * @since 0.1.9
      */
     deleteDirectory: _gpfFsNodeFsCallWithPath.bind(null, "rmdir")
