@@ -15,19 +15,16 @@
 /* istanbul ignore else */ // Because tested with NodeJS
 if (_GPF_HOST.NODEJS === _gpfHost) {
 
-    /**
-     * Base class wrapping NodeJS streams
-     *
-     * @class {gpf.node.BaseStream}
-     * @since 0.1.9
-     */
     _gpfDefine(/** @lends gpf.node.BaseStream */ {
         $class: "gpf.node.BaseStream",
 
         /**
+         * Base class wrapping NodeJS streams
+         *
+         * @constructor gpf.node.BaseStream
          * @param {Object} stream NodeJS stream object
          * @param {Function} close Close handler
-         * @constructor
+         * @private
          * @since 0.1.9
          */
         constructor: function (stream, close) {
@@ -104,19 +101,19 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
     /**
      * Wraps a readable stream from NodeJS into a IReadableStream
      *
-     * @class {gpf.node.ReadableStream}
-     * @extends {gpf.node.BaseStream}
+     * @class gpf.node.ReadableStream
+     * @extends gpf.node.BaseStream
      * @implements {gpf.interfaces.IReadableStream}
      * @since 0.1.9
      */
-    _gpfDefine({
+    _gpfDefine(/** @lends gpf.node.ReadableStream */{
         $class: "gpf.node.ReadableStream",
         $extend: "gpf.node.BaseStream",
 
         //region gpf.interfaces.IReadableStream
 
         /**
-         * @inheritdoc gpf.interfaces.IReadableStream#read
+         * @gpf:sameas gpf.interfaces.IReadableStream#read
          * @since 0.1.9
          */
         read: _gpfStreamSecureRead(function (output) {
@@ -158,19 +155,19 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
     /**
      * Wraps a writable stream from NodeJS into a IWritableStream
      *
-     * @class {gpf.node.WritableStream}
-     * @extends {gpf.node.BaseStream}
+     * @class gpf.node.WritableStream
+     * @extends gpf.node.BaseStream
      * @implements {gpf.interfaces.IWritableStream}
      * @since 0.1.9
      */
-    _gpfDefine({
+    _gpfDefine(/** @lends gpf.node.WritableStream */{
         $class: "gpf.node.WritableStream",
         $extend: "gpf.node.BaseStream",
 
-        //region gpf.interfaces.IReadableStream
+        //region gpf.interfaces.IWritableStream
 
         /**
-         * @inheritdoc gpf.interfaces.IWritableStream#write
+         * @gpf:sameas gpf.interfaces.IWritableStream#write
          * @since 0.1.9
          */
         write: _gpfStreamSecureWrite(function (buffer) {
