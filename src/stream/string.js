@@ -11,19 +11,15 @@
 /*#endif*/
 
 var
-    /**
-     * Wraps a string inside a readable stream
-     *
-     * @class {gpf.node.ReadableStream}
-     * @implements {gpf.interfaces.IReadableStream}
-     * @since 0.1.9
-     */
-    _gpfStreamReadableString = _gpfDefine({
+    _gpfStreamReadableString = _gpfDefine(/** @lends gpf.node.ReadableString */ {
         $class: "gpf.stream.ReadableString",
 
         /**
+         * Wraps a string inside a readable stream
+         *
+         * @constructor gpf.node.ReadableString
+         * @implements {gpf.interfaces.IReadableStream}
          * @param {String} buffer String buffer
-         * @constructor
          * @since 0.1.9
          */
         constructor: function (buffer) {
@@ -33,7 +29,7 @@ var
         //region gpf.interfaces.IReadableStream
 
         /**
-         * @inheritdoc gpf.interfaces.IReadableStream#read
+         * @gpf:sameas gpf.interfaces.IReadableStream#read
          * @since 0.1.9
          */
         read: _gpfStreamSecureRead(function (output) {
@@ -51,17 +47,16 @@ var
     }),
 
     /**
-     * Creates a writable stream that can be converted to string
-     *
-     * @class {gpf.node.WritableStream}
-     * @implements {gpf.interfaces.IWritableStream}
      * @since 0.1.9
      */
-    _gpfStreamWritableString = _gpfDefine({
+    _gpfStreamWritableString = _gpfDefine(/** @lends gpf.node.WritableString */ {
         $class: "gpf.stream.WritableString",
 
         /**
-         * @constructor
+         * Creates a writable stream that can be converted to string
+         *
+         * @constructor gpf.node.WritableString
+         * @implements {gpf.interfaces.IWritableStream}
          * @since 0.1.9
          */
         constructor: function () {
@@ -71,7 +66,7 @@ var
         //region gpf.interfaces.IReadableStream
 
         /**
-         * @inheritdoc gpf.interfaces.IWritableStream#write
+         * @gpf:sameas gpf.interfaces.IWritableStream#write
          * @since 0.1.9
          */
         write: _gpfStreamSecureWrite(function (buffer) {
