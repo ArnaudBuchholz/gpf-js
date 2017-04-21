@@ -37,4 +37,10 @@ if (_GPF_HOST.WSCRIPT === _gpfHost) {
         WScript.Quit(code);
     };
 
+    /**
+     * @namespace gpf.wscript
+     * @description Root namespace for WScript specifics
+     */
+    gpf.wscript = {};
+
 }
