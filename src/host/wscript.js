@@ -40,6 +40,7 @@ if (_GPF_HOST.WSCRIPT === _gpfHost) {
     /**
      * @namespace gpf.wscript
      * @description Root namespace for WScript specifics
+     * @since 0.1.9
      */
     gpf.wscript = {};
 
