@@ -16,6 +16,9 @@
 /*global _gpfMsFSO:true*/ // Scripting.FileSystemObject activeX
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*global _gpfPathNormalize*/ // Normalize path
+/*global _GpfWscriptBaseStream*/ // gpf.wscript.BaseStream
+/*global _GpfWscriptReadableStream*/ // gpf.wscript.ReadableStream
+/*global _GpfWscriptWritableStream*/ // gpf.wscript.WritableStream
 // /*#endif*/
 
 /*jshint wsh:true*/
@@ -41,7 +44,14 @@ function _gpfFsWScriptObjToFileStorageInfo (obj, type) {
     };
 }
 
-function _gpfFsWscriptFSOCallWithArgs (name, path) {
+function _gpfFsWscriptFSOCallWithArg (name, path) {
+    return new Promise(function (resolve) {
+        _gpfMsFSO[name](_gpfPathDecompose(path).join("\\"));
+        resolve();
+    });
+}
+
+function _gpfFsWscriptFSOCallWithArgAndTrue (name, path) {
     return new Promise(function (resolve) {
         _gpfMsFSO[name](_gpfPathDecompose(path).join("\\"), true);
         resolve();
@@ -83,7 +93,8 @@ function _gpfFsWScriptExplore (path) {
     return [];
 }
 
-var _GpfWScriptFileStorage = _gpfDefine("gpf.wscript.FileStorage", {
+var _GpfWScriptFileStorage = _gpfDefine(/** @lends gpf.wscript.FileStorage */ {
+    $class: "gpf.wscript.FileStorage",
 
     /**
      * WScript specific IFileStorage implementation
@@ -113,10 +124,15 @@ var _GpfWScriptFileStorage = _gpfDefine("gpf.wscript.FileStorage", {
      */
     openTextStream: function (path, mode) {
         path = _gpfPathDecompose(path).join("\\");
-        if (_GPF_FS_OPENFOR.READING === mode) {
-            return _gpfFsWscriptOpenTextStreamForReading(path);
-        }
-        return _gpfFsWscriptOpenTextStreamForAppending(path);
+        return new Promise(function (resolve) {
+            var stream;
+            if (_GPF_FS_OPENFOR.READING === mode) {
+                stream = new _GpfWscriptReadableStream(_gpfMsFSO.OpenTextFile(path, 1, false));
+            } else {
+                stream = new _GpfWscriptWritableStream(_gpfMsFSO.OpenTextFile(path, 8, true));
+            }
+            resolve(stream);
+        });
     },
 
     /**
@@ -124,7 +140,7 @@ var _GpfWScriptFileStorage = _gpfDefine("gpf.wscript.FileStorage", {
      * @since 0.1.9
      */
     close: function (stream) {
-        if (stream instanceof gpf.wscript.BaseStream) {
+        if (stream instanceof _GpfWscriptBaseStream) {
             return stream.close();
         }
         return Promise.reject(new gpf.Error.IncompatibleStream());
@@ -142,19 +158,19 @@ var _GpfWScriptFileStorage = _gpfDefine("gpf.wscript.FileStorage", {
      * @gpf:sameas gpf.interfaces.IFileStorage#createDirectory
      * @since 0.1.9
      */
-    createDirectory: _gpfFsWscriptFSOCallWithArgs.bind("CreateFolder"),
+    createDirectory: _gpfFsWscriptFSOCallWithArg.bind(null, "CreateFolder"),
 
     /**
      * @gpf:sameas gpf.interfaces.IFileStorage#deleteFile
      * @since 0.1.9
      */
-    deleteFile: _gpfFsWscriptFSOCallWithArgs.bind("DeleteFile"),
+    deleteFile: _gpfFsWscriptFSOCallWithArgAndTrue.bind(null, "DeleteFile"),
 
     /**
      * @gpf:sameas gpf.interfaces.IFileStorage#deleteDirectory
      * @since 0.1.9
      */
-    deleteDirectory: _gpfFsWscriptFSOCallWithArgs.bind("DeleteFolder")
+    deleteDirectory: _gpfFsWscriptFSOCallWithArgAndTrue.bind(null, "DeleteFolder")
 
     //endregion
 
