@@ -263,11 +263,20 @@
     },
     {
         "name": "stream/node",
-        "test": true,
         "doc": true
     },
     {
         "name": "fs/node",
+        "doc": true
+    },
+    {
+        "name": "stream/wscript",
+        "test": false,
+        "doc": true
+    },
+    {
+        "name": "fs/wscript",
+        "test": false,
         "doc": true
     },
     {
@@ -340,10 +349,6 @@
     },
     {
         "name": "string",
-        "load": false
-    },
-    {
-        "name": "array",
         "load": false
     },
     {
@@ -523,11 +528,7 @@
         "load": false
     },
     {
-        "name": "fs/node/node",
-        "load": false
-    },
-    {
-        "name": "fs/wscript/ms",
+        "name": "stream/array",
         "load": false
     }
 ]
