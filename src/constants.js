@@ -4,9 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HOST*/ // Host types
 /*global _gpfAssert*/ // Assertion method
-/*global _gpfHost*/ // Host type
 /*exported _gpfALPHA*/ // Letters (uppercase)
 /*exported _gpfAlpha*/ // Letters (lowercase)
 /*exported _gpfCreateConstants*/ // Automate constants creation
