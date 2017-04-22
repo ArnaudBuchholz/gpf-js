@@ -21,8 +21,8 @@ Object.assign(_GpfInterfaceDefinition.prototype, /** @lends _GpfInterfaceDefinit
         newClass = _gpfDefineGetInterfaceConstructor(this);
         // Populate our constructed prototype object
         newPrototype = newClass.prototype;
-        // Enforce the constructor to be what we expect
-        newPrototype.constructor = newClass;
+        // Ensure no constructor on prototype (because of interface)
+        delete newPrototype.constructor;
         this._buildPrototype(newPrototype);
         return newClass;
     },
