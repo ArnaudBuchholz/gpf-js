@@ -8,10 +8,12 @@
 /*global _gpfStreamSecureInstallProgressFlag*/ // Install the progress flag used by _gpfStreamSecureRead and Write
 /*global _gpfStreamSecureRead*/ // Generate a wrapper to secure multiple calls to stream#read
 /*global _gpfStreamSecureWrite*/ // Generates a wrapper to secure multiple calls to stream#write
+/*exported _GpfStreamReadableString*/ // gpf.stream.ReadableString
+/*exported _GpfStreamWritableString*/ // gpf.stream.WritableString
 /*#endif*/
 
 var
-    _gpfStreamReadableString = _gpfDefine(/** @lends gpf.node.ReadableString */ {
+    _GpfStreamReadableString = _gpfDefine(/** @lends gpf.node.ReadableString */ {
         $class: "gpf.stream.ReadableString",
 
         /**
@@ -49,7 +51,7 @@ var
     /**
      * @since 0.1.9
      */
-    _gpfStreamWritableString = _gpfDefine(/** @lends gpf.node.WritableString */ {
+    _GpfStreamWritableString = _gpfDefine(/** @lends gpf.node.WritableString */ {
         $class: "gpf.stream.WritableString",
 
         /**
@@ -90,5 +92,5 @@ var
 
     });
 
-_gpfStreamSecureInstallProgressFlag(_gpfStreamReadableString);
-_gpfStreamSecureInstallProgressFlag(_gpfStreamWritableString);
+_gpfStreamSecureInstallProgressFlag(_GpfStreamReadableString);
+_gpfStreamSecureInstallProgressFlag(_GpfStreamWritableString);
