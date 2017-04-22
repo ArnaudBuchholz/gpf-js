@@ -7,6 +7,9 @@
 /*global _GPF_FS_OPENFOR*/ // File system stream opening mode
 /*global _GPF_FS_TYPES*/ // File system types constants
 /*global _GPF_HOST*/ // Host types
+/*global _GpfNodeBaseStream*/ // gpf.node.BaseStream
+/*global _GpfNodeReadableStream*/ // gpf.node.ReadableStream
+/*global _GpfNodeWritableStream*/ // gpf.node.WritableStream
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
 /*global _gpfHost*/ // Host type
@@ -74,7 +77,7 @@ function _gpfFsNodeOpenTextStream (path, options) {
 function _gpfFsNodeOpenTextStreamForReading (path) {
     return _gpfFsNodeOpenTextStream(path, {
         flags: "r",
-        GpfStream: gpf.node.ReadableStream,
+        GpfStream: _GpfNodeReadableStream,
         nodeStream: "createReadStream"
     });
 }
@@ -89,7 +92,7 @@ function _gpfFsNodeOpenTextStreamForReading (path) {
 function _gpfFsNodeOpenTextStreamForAppending (path) {
     return _gpfFsNodeOpenTextStream(path, {
         flags: "a",
-        GpfStream: gpf.node.WritableStream,
+        GpfStream: _GpfNodeWritableStream,
         nodeStream: "createWriteStream"
     });
 }
@@ -173,7 +176,7 @@ var _gpfNodeFileStorage = _gpfDefine(/** @lends gpf.node.FileStorage */ {
      * @since 0.1.9
      */
     close: function (stream) {
-        if (stream instanceof gpf.node.BaseStream) {
+        if (stream instanceof _GpfNodeBaseStream) {
             return stream.close();
         }
         return Promise.reject(new gpf.Error.IncompatibleStream());
