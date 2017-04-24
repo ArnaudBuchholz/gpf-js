@@ -16,6 +16,21 @@ describe("fs/node", function () {
                 });
         });
 
+        if (gpf.internals) {
+            var _gpfFsNodeGetType = gpf.internals._gpfFsNodeGetType;
+
+            it("uses unknown file type if not file or directory", function () {
+                assert(gpf.fs.types.unknown === _gpfFsNodeGetType({
+                    isDirectory: function () {
+                        return false;
+                    },
+                    isFile: function () {
+                        return false;
+                    }
+                }));
+            });
+        }
+
     }
 
 });
