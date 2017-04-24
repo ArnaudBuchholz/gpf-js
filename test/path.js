@@ -126,6 +126,12 @@ describe("path", function () {
                 name: "",
                 nameOnly: "",
                 extension: ""
+            }, {
+                label: "handles empty path",
+                path: "",
+                name: "",
+                nameOnly: "",
+                extension: ""
             }];
 
         function buildTestFunc (source) {
