@@ -293,6 +293,41 @@ function _gpfSyncReadSourceJSON (sourceFileName) {
     return result;
 }
 
+/**
+ * Check if source matches the current host
+ *
+ * @param {Object} source Source to be loaded
+ * @return {Boolean} Source fits the current host
+ * @since 0.1.9
+ */
+function _gpfIsSourceMatchingHost (source) {
+    var name = source.name.split("/").pop();
+    if (name !== "unknown" && _GPF_HOST.hasOwnProperty(name.toUpperCase())) {
+        return name === _gpfHost;
+    }
+    return true;
+}
+
+/**
+ * Check if source can be loaded
+ *
+ * @param {Object} source Source to be loaded
+ * @return {Boolean} Source can be loaded
+ * @since 0.1.9
+ */
+function _gpfIsSourceLoadable (source) {
+    if (source.load === false) {
+        return false;
+    }
+    return _gpfIsSourceMatchingHost(source);
+}
+
+/**
+ * Load content of all sources
+ *
+ * @return {String} Consolidated sources
+ * @since 0.1.9
+ */
 function _gpfLoadSources () { //jshint ignore:line
     /*jslint evil: true*/
     var sourceListContent = _gpfSyncReadForBoot(_gpfSourcesPath + "sources.json"),
@@ -303,7 +338,7 @@ function _gpfLoadSources () { //jshint ignore:line
     eval("_gpfSources = " + sourceListContent + ";"); //eslint-disable-line no-eval
     for (; idx < _gpfSources.length; ++idx) {
         source = _gpfSources[idx];
-        if (source.load !== false) {
+        if (_gpfIsSourceLoadable(source)) {
             allContent.push(_gpfSyncReadForBoot(_gpfSourcesPath + source.name + ".js"));
         }
     }
