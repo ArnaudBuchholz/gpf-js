@@ -262,11 +262,11 @@
         "doc": true
     },
     {
-        "name": "stream/node",
+        "name": "stream/nodejs",
         "doc": true
     },
     {
-        "name": "fs/node",
+        "name": "fs/nodejs",
         "doc": true
     },
     {
