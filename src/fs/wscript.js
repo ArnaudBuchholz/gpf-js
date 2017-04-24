@@ -1,25 +1,26 @@
 /**
  * @file WScript specific File System implementation
+ * @since 0.1.9
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_FS_OPENFOR*/ // File system stream opening mode
 /*global _GPF_FS_TYPES*/ // File system types constants
 /*global _GPF_HOST*/ // Host types
+/*global _GpfWscriptBaseStream*/ // gpf.wscript.BaseStream
+/*global _GpfWscriptReadableStream*/ // gpf.wscript.ReadableStream
+/*global _GpfWscriptWritableStream*/ // gpf.wscript.WritableStream
 /*global _gpfDefine*/ // Shortcut for gpf.define
-/*global _gpfHost*/ // Host type
+/*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
-/*global _gpfPathNormalize*/ // Normalize path
-/*global _gpfSetHostFileStorage*/ // Set the result of gpf.fs.getFileStorage
-/*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfHost*/ // Host type
 /*global _gpfHost*/ // Host type
 /*global _gpfMsFSO:true*/ // Scripting.FileSystemObject activeX
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*global _gpfPathNormalize*/ // Normalize path
-/*global _GpfWscriptBaseStream*/ // gpf.wscript.BaseStream
-/*global _GpfWscriptReadableStream*/ // gpf.wscript.ReadableStream
-/*global _GpfWscriptWritableStream*/ // gpf.wscript.WritableStream
-// /*#endif*/
+/*global _gpfPathNormalize*/ // Normalize path
+/*global _gpfSetHostFileStorage*/ // Set the result of gpf.fs.getFileStorage
+/*#endif*/
 
 /*jshint wsh:true*/
 /*eslint-env wsh*/
@@ -32,6 +33,7 @@
  * @param {Object} obj WScript file object
  * @param {gpf.fs.types} type Object type
  * @return {gpf.typedef.fileStorageInfo} Information about the object
+ * @since 0.1.9
  */
 function _gpfFsWScriptObjToFileStorageInfo (obj, type) {
     return {
@@ -101,6 +103,7 @@ var _GpfWScriptFileStorage = _gpfDefine(/** @lends gpf.wscript.FileStorage */ {
      *
      * @constructor gpf.wscript.FileStorage
      * @implements {gpf.interfaces.IFileStorage}
+     * @since 0.1.9
      */
     constructor: function () {
         if (!_gpfMsFSO) {
@@ -176,7 +179,6 @@ var _GpfWScriptFileStorage = _gpfDefine(/** @lends gpf.wscript.FileStorage */ {
 
 });
 
-/* istanbul ignore */ // Because tested with NodeJS
 if (_GPF_HOST.WSCRIPT === _gpfHost) {
 
     _gpfSetHostFileStorage(new _GpfWScriptFileStorage());
