@@ -16,7 +16,7 @@
 
 /*eslint-disable new-cap*/ // FileSystem object APIs are uppercased
 
-/* istanbul ignore */ // Because tested with NodeJS
+/* istanbul ignore next */ // Because tested with NodeJS
 if (_GPF_HOST.WSCRIPT === _gpfHost) {
 
     var
