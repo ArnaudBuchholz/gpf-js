@@ -28,18 +28,22 @@ sources.forEach(function (sourceName) {
     var fileCoverage = coverageReport.get(sourceName),
         fileTrace = [sourceName, "                                  ".substr(sourceName.length)],
         fileIsKO = false;
-    coverageParts.forEach(function (coveragePart) {
-        var ratio = fileCoverage[coveragePart].getCoverageRatio(true);
-        if (ratio < metrics.coverage[coveragePart]) {
-            fileIsKO = true;
-        }
-        if (ratio === 100) {
-            ratio = "   ";
-        } else {
-            ratio += "%";
-        }
-        fileTrace.push(coveragePart, ": ", ratio, " ");
-    });
+    if (fileCoverage) {
+        coverageParts.forEach(function (coveragePart) {
+            var ratio = fileCoverage[coveragePart].getCoverageRatio(true);
+            if (ratio < metrics.coverage[coveragePart]) {
+                fileIsKO = true;
+            }
+            if (ratio === 100) {
+                ratio = "   ";
+            } else {
+                ratio += "%";
+            }
+            fileTrace.push(coveragePart, ": ", ratio, " ");
+        });
+    } else {
+        fileTrace.push(" - ignored -");
+    }
     if (fileIsKO) {
         console.error(fileTrace.join(""));
         hasCoverageError = true;
