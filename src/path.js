@@ -38,15 +38,9 @@ function _gpfPathSplit (path) {
     return path.split("/");
 }
 
-function _gpfPathSafeRemoveTrailingBlank (splitPath) {
+function _gpfPathRemoveTrailingBlank (splitPath) {
     if (!splitPath[splitPath.length - 1]) {
         splitPath.pop();
-    }
-}
-
-function _gpfPathRemoveTrailingBlank (splitPath) {
-    if (splitPath.length) {
-        _gpfPathSafeRemoveTrailingBlank(splitPath);
     }
 }
 
@@ -93,7 +87,10 @@ function _gpfPathNormalize (path) {
  * @since 0.1.9
  */
 function _gpfPathName (path) {
-    return _gpfPathDecompose(path).pop();
+    if (path) {
+        return _gpfPathDecompose(path).pop();
+    }
+    return "";
 }
 
 function _gpfPathAppend (splitPath, relativePath) {
