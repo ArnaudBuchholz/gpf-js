@@ -101,7 +101,6 @@ function _gpfFsNodeGetFileType (stats) {
     if (stats.isFile()) {
         return _GPF_FS_TYPES.FILE;
     }
-    /* istanbul ignore next */ // Not testable (until mocking stats)
     return _GPF_FS_TYPES.UNKNOWN;
 }
 
@@ -225,3 +224,9 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
     _gpfSetHostFileStorage(new _gpfNodeFileStorage());
 
 }
+
+/*#ifndef(UMD)*/
+
+gpf.internals._gpfFsNodeGetType = _gpfFsNodeGetType;
+
+/*#endif*/
