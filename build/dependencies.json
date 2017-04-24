@@ -191,6 +191,18 @@
     ],
     "fs/node": [
         "fs",
+        "stream/node",
+        "define",
+        "fs/explore",
+        "path"
+    ],
+    "stream/wscript": [
+        "define",
+        "stream"
+    ],
+    "fs/wscript": [
+        "fs",
+        "stream/wscript",
         "define",
         "fs/explore",
         "path"
