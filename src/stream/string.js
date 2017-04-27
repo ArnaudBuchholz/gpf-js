@@ -19,7 +19,7 @@ var
         /**
          * Wraps a string inside a readable stream
          *
-         * @constructor gpf.node.ReadableString
+         * @constructor gpf.stream.ReadableString
          * @implements {gpf.interfaces.IReadableStream}
          * @param {String} buffer String buffer
          * @since 0.1.9
@@ -57,7 +57,7 @@ var
         /**
          * Creates a writable stream that can be converted to string
          *
-         * @constructor gpf.node.WritableString
+         * @constructor gpf.stream.WritableString
          * @implements {gpf.interfaces.IWritableStream}
          * @since 0.1.9
          */
