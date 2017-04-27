@@ -111,6 +111,7 @@ var _GpfWScriptFileStorage = _gpfDefine(/** @lends gpf.wscript.FileStorage */ {
      *
      * @constructor gpf.wscript.FileStorage
      * @implements {gpf.interfaces.IFileStorage}
+     * @private
      * @since 0.1.9
      */
     constructor: function () {
