@@ -25,15 +25,18 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
             /**
              * Base class wrapping NodeJS streams
              *
-             * @constructor gpf.node.BaseStream
              * @param {Object} stream NodeJS stream object
-             * @param {Function} close Close handler
+             * @param {Function} [close] Close handler
+             *
+             * @constructor gpf.node.BaseStream
              * @private
              * @since 0.1.9
              */
             constructor: function (stream, close) {
                 this._stream = stream;
-                this._close = close;
+                if ("function" === typeof close) {
+                    this._close = close;
+                }
                 stream.on("error", this._onError.bind(this));
             },
 
@@ -105,6 +108,9 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
         /**
          * Wraps a readable stream from NodeJS into a IReadableStream
          *
+         * @param {Object} stream NodeJS stream object
+         * @param {Function} [close] Close handler
+         *
          * @class gpf.node.ReadableStream
          * @extends gpf.node.BaseStream
          * @implements {gpf.interfaces.IReadableStream}
@@ -158,6 +164,9 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
 
         /**
          * Wraps a writable stream from NodeJS into a IWritableStream
+         *
+         * @param {Object} stream NodeJS stream object
+         * @param {Function} [close] Close handler
          *
          * @class gpf.node.WritableStream
          * @extends gpf.node.BaseStream
