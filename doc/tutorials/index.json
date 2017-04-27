@@ -13,5 +13,9 @@
     },
     "INTERFACES": {
         "title": "GPF Standard interfaces"
+    },
+    "TESTME": {
+        "title": "GPF Library testing"
     }
+
 }
