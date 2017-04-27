@@ -1,4 +1,4 @@
-# Testing the library
+## Testing the library
 
 For HTTP access, you must first run `grunt serve`.
 Command lines must be run from the root of the gpf-js folder.
@@ -40,7 +40,7 @@ Command lines must be run from the root of the gpf-js folder.
         * `grunt ie`
         * `grunt safari`
 
-# Selenium drivers
+## Selenium drivers
 
 To enable browser automation with [Selenium](http://www.seleniumhq.org/), a driver must be installed for most browsers.
 It is recommended to put them in the current [PATH](https://en.wikipedia.org/wiki/PATH_%28variable%29).
@@ -48,11 +48,11 @@ It is recommended to put them in the current [PATH](https://en.wikipedia.org/wik
 Please check
 [selenium-webdriver documentation page](http://seleniumhq.github.io/selenium/docs/api/javascript/index.html).
 
-## Safari
+### Safari
 
 [Safari 5.1.7 for Windows](http://appldnld.apple.com/Safari5/041-5487.20120509.INU8B/SafariSetup.exe)
 
-# Command line browser testing
+## Command line browser testing
 
 Coming with [version 0.1.7](http://gpf-js.blogspot.ca/2017/03/release-017.html), it is now possible to test a specific
 browser using a command line.
