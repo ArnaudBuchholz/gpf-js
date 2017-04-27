@@ -52,7 +52,7 @@ Lines of code|89|4277||
 
 ## Testing
 
-See [TESTME.md](https://github.com/ArnaudBuchholz/gpf-js/blob/master/TESTME.md)
+See [TESTME.md](https://github.com/ArnaudBuchholz/gpf-js/blob/master/doc/tutorials/TESTME.md)
 
 ## Versions
 
