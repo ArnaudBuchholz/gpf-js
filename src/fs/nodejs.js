@@ -119,6 +119,7 @@ var _gpfNodeFileStorage = _gpfDefine(/** @lends gpf.node.FileStorage */ {
      *
      * @constructor gpf.node.FileStorage
      * @implements {gpf.interfaces.IFileStorage}
+     * @private
      * @since 0.1.9
      */
     constructor: function () {
