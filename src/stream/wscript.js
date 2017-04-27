@@ -56,6 +56,7 @@ if (_GPF_HOST.WSCRIPT === _gpfHost) {
          * @class gpf.wscript.ReadableStream
          * @extends gpf.wscript.BaseStream
          * @implements {gpf.interfaces.IReadableStream}
+         * @private
          * @since 0.1.9
          */
         _GpfWscriptReadableStream = _gpfDefine(/** @lends gpf.wscript.ReadableStream */{
@@ -94,6 +95,7 @@ if (_GPF_HOST.WSCRIPT === _gpfHost) {
          * @class gpf.wscript.WritableStream
          * @extends gpf.wscript.BaseStream
          * @implements {gpf.interfaces.IWritableStream}
+         * @private
          * @since 0.1.9
          */
         _GpfWscriptWritableStream = _gpfDefine(/** @lends gpf.wscript.WritableStream */{
