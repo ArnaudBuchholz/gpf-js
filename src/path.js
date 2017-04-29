@@ -19,8 +19,10 @@ _gpfErrorDeclare("path", {
      *
      * ### Description
      *
-     * This error is triggered when trying to get the parent of a root path using {@link gpf.path.parent) or
-     * {@link gpf.path.join) with ..
+     * This error is triggered when trying to get the parent of a root path using gpf.path.parent or
+     * gpf.path.join with ..
+     * @see gpf.path.join
+     * @see gpf.path.parent
      * @since 0.1.9
      */
     unreachablePath:
