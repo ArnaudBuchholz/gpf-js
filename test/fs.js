@@ -207,7 +207,6 @@ describe("fs", function () {
 
             describe("explore", function () {
 
-
                 it("lists the content of a folder", function (done) {
                     gpf.fs.getFileStorage().explore(data)
                         .then(function (iEnumerator) {
