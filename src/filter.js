@@ -14,7 +14,7 @@
  *
  * @typedef gpf.typedef.filterProperty
  * @property {String} property Property name to read
- * @see gpf.typedef.filterItem
+ * @see gpf.createFilterFunction
  * @since 0.1.9
  */
 
@@ -24,6 +24,7 @@
  * @typedef gpf.typedef.filterEq
  * @property {gpf.typedef.filterItem[]} eq List of items to compare,
  * returns true if all values are strictly equal
+ * @see gpf.createFilterFunction
  * @since 0.1.9
  */
 
@@ -33,6 +34,7 @@
  * @typedef gpf.typedef.filterNe
  * @property {gpf.typedef.filterItem[]} eq List of items to compare,
  * returns true if all values are strictly different
+ * @see gpf.createFilterFunction
  * @since 0.1.9
  */
 
@@ -41,6 +43,7 @@
  *
  * @typedef gpf.typedef.filterLt
  * @property {gpf.typedef.filterItem[]} lt List of items to compare
+ * @see gpf.createFilterFunction
  * @since 0.1.9
  */
 
@@ -49,6 +52,7 @@
  *
  * @typedef gpf.typedef.filterLte
  * @property {gpf.typedef.filterItem[]} lte List of items to compare
+ * @see gpf.createFilterFunction
  * @since 0.1.9
  */
 
@@ -57,6 +61,7 @@
  *
  * @typedef gpf.typedef.filterGt
  * @property {gpf.typedef.filterItem[]} gt List of items to compare
+ * @see gpf.createFilterFunction
  * @since 0.1.9
  */
 
@@ -65,6 +70,7 @@
  *
  * @typedef gpf.typedef.filterGte
  * @property {gpf.typedef.filterItem[]} gte List of items to compare
+ * @see gpf.createFilterFunction
  * @since 0.1.9
  */
 
@@ -74,6 +80,7 @@
  * @typedef gpf.typedef.filterNot
  * @property {gpf.typedef.filterItem} not Item to negate,
  * returns true if the item is falsy, false otherwise
+ * @see gpf.createFilterFunction
  * @since 0.1.9
  */
 
@@ -85,6 +92,7 @@
  * @property {String} regexp Regular expression specification
  * @property {Number} [group] If the regular expression contains capturing group, this members can be used to return
  * the group by index (1-based)
+ * @see gpf.createFilterFunction
  * @since 0.1.9
  */
 
@@ -94,6 +102,7 @@
  * @typedef gpf.typedef.filterOr
  * @property {gpf.typedef.filterItem[]} or List of items to or,
  * returns the first truthy value or the last falsy value
+ * @see gpf.createFilterFunction
  * @since 0.1.9
  */
 
@@ -103,6 +112,7 @@
  * @typedef gpf.typedef.filterAnd
  * @property {gpf.typedef.filterItem[]} and List of items to and,
  * returns the first falsy value or the last truthy value
+ * @see gpf.createFilterFunction
  * @since 0.1.9
  */
 
@@ -122,6 +132,7 @@
  *  | gpf.typedef.filterOr
  *  | gpf.typedef.filterAnd
  * } gpf.typedef.filterItem
+ * @see gpf.createFilterFunction
  * @since 0.1.9
  */
 
