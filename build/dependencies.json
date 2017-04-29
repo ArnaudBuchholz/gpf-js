@@ -185,13 +185,13 @@
     "path": [
         "error"
     ],
-    "stream/node": [
+    "stream/nodejs": [
         "define",
         "stream"
     ],
-    "fs/node": [
+    "fs/nodejs": [
         "fs",
-        "stream/node",
+        "stream/nodejs",
         "define",
         "fs/explore",
         "path"
