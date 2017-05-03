@@ -33,7 +33,7 @@ var
      * GPF Version
      * @since 0.1.5
      */
-    _gpfVersion = "0.1.9",
+    _gpfVersion = "0.2.1-alpha",
 
     /**
      * Host constants
