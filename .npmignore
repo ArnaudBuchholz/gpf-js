@@ -20,6 +20,7 @@ doc
 grunt
 make
 res
+src
 test
 .editorconfig
 .eslintrc
