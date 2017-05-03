@@ -1,0 +1,33 @@
+# Windows specifics
+Thumbs.db
+Desktop.ini
+
+# Git override
+
+.gitconfig
+
+# Temporary folder
+
+tmp
+
+# Project files & folders
+
+.eslintrules
+doc
+grunt
+make
+res
+test
+.editorconfig
+.eslintrc
+.jshintrc
+gruntfile.js
+index.html
+
+# Editors
+
+.idea
+
+# Temporary files
+
+debug.log
