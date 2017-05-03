@@ -13,6 +13,9 @@ tmp
 # Project files & folders
 
 .eslintrules
+build/dependencies.json
+build/report.history.*
+build/tests.js
 doc
 grunt
 make
@@ -20,6 +23,7 @@ res
 test
 .editorconfig
 .eslintrc
+.htmllintrc
 .jshintrc
 gruntfile.js
 index.html
