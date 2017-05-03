@@ -16,6 +16,7 @@
  * - Create release on GitHub
  * - Copy build/tests.js into test/host/legacy/{version}.js
  * - commit & push
+ * - npm publish
  */
 
 const
@@ -37,12 +38,12 @@ const
         return  text;
     },
 
-    spawnProcess = (command, params, label) => new Promise(function (resolve, reject) {
+    spawnProcess = (command, params) => new Promise(function (resolve, reject) {
         let childProcess = require("child_process").spawn(command, params);
         childProcess.stdout.on("data", buffer => console.log(trimLeadingLF(buffer)));
         childProcess.stderr.on("data", buffer => console.error(trimLeadingLF(buffer)));
         childProcess.on("error", reject);
-        childProcess.on("close", code => code ? reject(new Error(`${label} failed`)) : resolve());
+        childProcess.on("close", code => code ? reject(new Error(`${command} ${params.join(" ")} failed`)) : resolve());
     }),
 
     spawnGrunt = command => {
@@ -52,12 +53,10 @@ const
         } else {
             grunt = "grunt";
         }
-        return spawnProcess(grunt, [command], `grunt ${command}`);
+        return spawnProcess(grunt, [command]);
     },
 
-    spawnGit = params => {
-        return spawnProcess("git", params, `git ${params.join(" ")}`);
-    }
+    spawnGit = params => spawnProcess("git", params)
     ;
 
 let
@@ -148,4 +147,5 @@ inquirer.prompt([{
     .then(() => spawnGit(["add", `test/legacy/${version}.js`]))
     .then(() => spawnGit(["commit", "-a", "-m", `Tests of v${version}`]))
     .then(() => spawnGit(["push"]))
+    .then(() => spawnProcess("npm", ["publish"]))
     .catch(error => console.error(error));
