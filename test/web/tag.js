@@ -4,26 +4,19 @@ describe("web/tag", function () {
 
     describe("gpf.web.createTagFunction", function () {
 
-        it("creates a generic shortcut for DOM generation", function () {
-            var tag = gpf.web.createTagFunction(),
-                tree = tag({nodeName: "div"}, tag({nodeName: "span"}));
-            assert(tree.toString() === "<div><span/></div>");
-        });
-
-        it("requires node name when using the generic shortcut", function () {
+        it("requires node name when calling the function", function () {
             var exceptionCaught;
             try {
-                var tag = gpf.web.createTagFunction();
-                tag();
+                gpf.web.createTagFunction();
             } catch (e) {
                 exceptionCaught = e;
             }
-            assert(exceptionCaught === gpf.Error.MissingNodeName);
+            assert(exceptionCaught instanceof gpf.Error.MissingNodeName);
         });
 
         it("creates shortcut for tag generation", function () {
             var div = gpf.web.createTagFunction("div"),
-                tree = div("Hello world!");
+                tree = div("Hello World!");
             assert(tree.toString() === "<div>Hello World!</div>");
         });
 
@@ -43,10 +36,17 @@ describe("web/tag", function () {
 
         it("allows DOM injection", function () {
             var nodeProto = {
+                    _attributes: {},
                     _children: [],
                     appendChild: function (child) {
                         this._children.push(child);
                         return child;
+                    },
+                    setAttribute: function (name, value) {
+                        if (!this.hasOwnAttribute("_attributes")) {
+                            this._attributes = {};
+                        }
+                        this._attributes[name] = value;
                     }
                 },
                 mockDocument = {
@@ -63,11 +63,12 @@ describe("web/tag", function () {
                 mockNode = mockDocument.createElement("any"),
                 div = gpf.web.createTagFunction("div"),
                 span = gpf.web.createTagFunction("span"),
-                tree = div("Hello ", span("World!"));
+                tree = div({className: "test"}, "Hello ", span("World!"));
             var result = tree.appendTo(mockNode);
             assert(result instanceof nodeProto);
             assert(result.ownerDocument === mockDocument);
             assert(result.nodeName === "div");
+            assert(result._attributes.className === "test");
             assert(result._children.length === 2);
             assert(result._children[0] === "Hello ");
             assert(result._children[1] instanceof nodeProto);
