@@ -280,6 +280,10 @@
         "doc": true
     },
     {
+        "name": "web/tag",
+        "doc": true
+    },
+    {
         "name": "events",
         "load": false
     },
