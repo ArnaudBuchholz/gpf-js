@@ -44,20 +44,23 @@ var _GpfWebTag = _gpfDefine({
     $class: "gpf.web.Tag",
 
     constructor: function (nodeName, attributes, children) {
-        if (!nodeName) {
-            gpf.Error.missingNodeName();
-        }
         this._nodeName = nodeName;
-        if (attributes) {
-            this._attributes = attributes;
-        }
-        if (children) {
-            this._children = children;
-        }
+        this._setAttributes(attributes);
+        this._setChildren(children);
     },
 
     _nodeName: "",
+
+    _setAttributes: function (attributes) {
+        this._attributes = attributes || {};
+    },
+
     _attributes: {},
+
+    setChildren: function (children) {
+        this._children = children || [];
+    },
+
     _children: [],
 
     toString: function () {
@@ -101,29 +104,23 @@ function _gpfWebTagIsAttributes (firstParameter) {
             && !Array.isArray(firstParameter);
 }
 
-function _gpfWebTag (attributes) {
-    /*jshint validthis:true*/
-    var me = this; //eslint-disable-line no-invalid-this
-    if (_gpfWebTagIsAttributes(attributes)) {
-        return new _GpfWebTag(me.nodeName, attributes, [].slice.call(arguments, 1));
-    }
-    return new _GpfWebTag(me.nodeName, undefined, [].slice.call(arguments, 0));
-}
-
 /**
  * Create a function that can be used to generate HTML
  *
- * @param {String} [tagName] tag name
+ * @param {String} [nodeName] tag name
  * @return {Function} The tag generation function
  * @gpf:closure
  */
-function _gpfWebTagCreateFunction (tagName) {
-    if (!tagName) {
+function _gpfWebTagCreateFunction (nodeName) {
+    if (!nodeName) {
         gpf.Error.missingNodeName();
     }
-    return _gpfWebTag.bind({
-        nodeName: tagName
-    });
+    return function (attributes) {
+        if (_gpfWebTagIsAttributes(attributes)) {
+            return new _GpfWebTag(nodeName, attributes, [].slice.call(arguments, 1));
+        }
+        return new _GpfWebTag(nodeName, undefined, [].slice.call(arguments, 0));
+    };
 }
 
 /** @gpf:sameas _gpfWebTagCreateFunction */
