@@ -7,8 +7,17 @@
 /*global _GPF_HOST*/ // Host types
 /*global _gpfHost*/ // Host type
 /*global _gpfWebWindow*/ // Browser window object
+/*exported _gpfIsArray*/ // Return true if the paramater is an array
 /*exported _gpfIsArrayLike*/ // Return true if the parameter looks like an array
 /*#endif*/
+
+/**
+ * Return true if the paramater is an array
+ *
+ * @param {*} value Value to test
+ * @return {Boolean} True if the value is an array
+ */
+var _gpfIsArray = Array.isArray;
 
 /**
  * Return true if the parameter looks like an array, meaning a property length is available and members can be
@@ -23,13 +32,13 @@
  * @since 0.1.5
  */
 var _gpfIsArrayLike  = function (obj) { //eslint-disable-line func-style
-    return Array.isArray(obj);
+    return _gpfIsArray(obj);
 };
 
 /* istanbul ignore next */ // Not tested with NodeJS
 if (_GPF_HOST.BROWSER === _gpfHost && (_gpfWebWindow.HTMLCollection || _gpfWebWindow.NodeList)) {
     _gpfIsArrayLike = function (obj) {
-        return Array.isArray(obj)
+        return _gpfIsArray(obj)
             || obj instanceof _gpfWebWindow.HTMLCollection
             || obj instanceof _gpfWebWindow.NodeList;
     };
