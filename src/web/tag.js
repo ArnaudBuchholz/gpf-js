@@ -1,5 +1,6 @@
 /**
  * @file Tag generation helper
+ * @since 0.2.1
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -18,6 +19,7 @@ _gpfErrorDeclare("web/tag", {
      * ### Description
      *
      * A tag can't be created if the node name is missing
+     * @since 0.2.1
      */
     missingNodeName: "Missing node name"
 
@@ -57,7 +59,7 @@ var _GpfWebTag = _gpfDefine({
 
     _attributes: {},
 
-    setChildren: function (children) {
+    _setChildren: function (children) {
         this._children = children || [];
     },
 
@@ -110,6 +112,7 @@ function _gpfWebTagIsAttributes (firstParameter) {
  * @param {String} [nodeName] tag name
  * @return {Function} The tag generation function
  * @gpf:closure
+ * @since 0.2.1
  */
 function _gpfWebTagCreateFunction (nodeName) {
     if (!nodeName) {
@@ -123,5 +126,8 @@ function _gpfWebTagCreateFunction (nodeName) {
     };
 }
 
-/** @gpf:sameas _gpfWebTagCreateFunction */
+/**
+ * @gpf:sameas _gpfWebTagCreateFunction
+ * @since 0.2.1
+ */
 gpf.web.createTagFunction = _gpfWebTagCreateFunction;
