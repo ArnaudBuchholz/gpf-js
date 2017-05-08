@@ -4,12 +4,13 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*exported _gpfIsLiteralObject*/ // Check if the parameter is a literal object
 /*#endif*/
 
 var _gpfObjectToString = Object.prototype.toString;
 
 /**
- * Check if the value is a literal object
+ * Check if the parameter is a literal object
  *
  * @param {*} value Value to check
  * @return {Boolean} True if the value is a literal object
