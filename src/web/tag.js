@@ -1,11 +1,11 @@
 /**
  * @file Tag generation helper
- * @since 0.2.1
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfIsLiteralObject*/ // Check if the parameter is a literal object
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*#endif*/
@@ -19,7 +19,6 @@ _gpfErrorDeclare("web/tag", {
      * ### Description
      *
      * A tag can't be created if the node name is missing
-     * @since 0.2.1
      */
     missingNodeName: "Missing node name"
 
@@ -100,26 +99,19 @@ var _GpfWebTag = _gpfDefine({
 
 });
 
-function _gpfWebTagIsAttributes (firstParameter) {
-    return !(firstParameter instanceof _GpfWebTag)
-            && "string" !== typeof firstParameter
-            && !Array.isArray(firstParameter);
-}
-
 /**
  * Create a function that can be used to generate HTML
  *
  * @param {String} [nodeName] tag name
  * @return {Function} The tag generation function
  * @gpf:closure
- * @since 0.2.1
  */
 function _gpfWebTagCreateFunction (nodeName) {
     if (!nodeName) {
         gpf.Error.missingNodeName();
     }
     return function (attributes) {
-        if (_gpfWebTagIsAttributes(attributes)) {
+        if (_gpfIsLiteralObject(attributes)) {
             return new _GpfWebTag(nodeName, attributes, [].slice.call(arguments, 1));
         }
         return new _GpfWebTag(nodeName, undefined, [].slice.call(arguments, 0));
@@ -128,6 +120,5 @@ function _gpfWebTagCreateFunction (nodeName) {
 
 /**
  * @gpf:sameas _gpfWebTagCreateFunction
- * @since 0.2.1
  */
 gpf.web.createTagFunction = _gpfWebTagCreateFunction;
