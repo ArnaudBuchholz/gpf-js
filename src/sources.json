@@ -292,7 +292,7 @@
         "load": false
     },
     {
-        "name": "include",
+        "name": "web/include",
         "load": false
     },
     {
