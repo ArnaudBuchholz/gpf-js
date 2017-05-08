@@ -5,6 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfFunc*/ // Create a new function using the source
+/*global _gpfIsArray*/ // Return true if the paramater is an array
 /*#endif*/
 
 //region test
@@ -71,7 +72,7 @@ function _gpfCreateSortFunction (specifications) {
  * @since 0.1.9
  */
 gpf.createSortFunction = function (specifications) {
-    if (!Array.isArray(specifications)) {
+    if (!_gpfIsArray(specifications)) {
         specifications = [specifications];
     }
     return _gpfCreateSortFunction(specifications);
