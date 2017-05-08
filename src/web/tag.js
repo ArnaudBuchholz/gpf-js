@@ -5,6 +5,7 @@
 "use strict";
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfIsArray*/ // Return true if the paramater is an array
 /*global _gpfIsLiteralObject*/ // Check if the parameter is a literal object
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
@@ -24,16 +25,17 @@ _gpfErrorDeclare("web/tag", {
 
 });
 
+var _gpfWebTagAttributeAliases = {
+    "className": "class"
+};
+
 function _gpfWebTagAttributeAlias (name) {
-    if ("className" === name) {
-        return "class";
-    }
-    return name;
+    return _gpfWebTagAttributeAliases[name] || name;
 }
 
 function _gpfWebTagFlattenChildren (array, callback) {
     array.forEach(function (item) {
-        if (Array.isArray(item)) {
+        if (_gpfIsArray(item)) {
             _gpfWebTagFlattenChildren(item, callback);
         } else {
             callback(item);
