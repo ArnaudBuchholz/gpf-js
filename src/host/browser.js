@@ -8,7 +8,6 @@
 /*global _gpfExit:true*/ // Exit function
 /*global _gpfHost*/ // Host type
 /*global _gpfWebDocument:true*/ // Browser document object
-/*global _gpfWebHead:true*/ // Browser head tag
 /*global _gpfWebWindow:true*/ // Browser window object
 /*#endif*/
 
@@ -24,6 +23,5 @@ if (_GPF_HOST.BROWSER === _gpfHost) {
 
     _gpfWebWindow = window;
     _gpfWebDocument = document;
-    _gpfWebHead = _gpfWebDocument.getElementsByTagName("head")[0] || _gpfWebDocument.documentElement;
 
 }
