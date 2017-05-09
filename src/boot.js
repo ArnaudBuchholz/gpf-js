@@ -17,7 +17,6 @@
 /*exported _gpfSyncReadSourceJSON*/ // Reads a source json file (only in source mode)
 /*exported _gpfVersion*/ // GPF version
 /*exported _gpfWebDocument*/ // Browser document object
-/*exported _gpfWebHead*/ // Browser head tag
 /*exported _gpfWebWindow*/ // Browser window object
 /*eslint-disable no-unused-vars*/
 /*#endif*/
@@ -103,14 +102,6 @@ var
      * @since 0.1.5
      */
     _gpfWebDocument,
-
-    /**
-     * Browser [head](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head) tag
-     *
-     * @type {Object}
-     * @since 0.1.5
-     */
-    _gpfWebHead,
 
     /**
      * [Scripting.FileSystemObject](https://msdn.microsoft.com/en-us/library/aa711216(v=vs.71).aspx) Object
