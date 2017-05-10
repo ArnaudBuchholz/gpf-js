@@ -7,15 +7,16 @@
 /*global _GPF_HOST*/ // Host types
 /*global _gpfHost*/ // Host type
 /*global _gpfWebWindow*/ // Browser window object
-/*exported _gpfIsArray*/ // Return true if the paramater is an array
+/*exported _gpfIsArray*/ // Return true if the parameter is an array
 /*exported _gpfIsArrayLike*/ // Return true if the parameter looks like an array
 /*#endif*/
 
 /**
- * Return true if the paramater is an array
+ * Return true if the parameter is an array
  *
  * @param {*} value Value to test
  * @return {Boolean} True if the value is an array
+ * @since 0.2.1
  */
 var _gpfIsArray = Array.isArray;
 
