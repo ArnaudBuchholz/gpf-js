@@ -15,9 +15,13 @@ describe("web/tag", function () {
         });
 
         it("creates shortcut for tag generation", function () {
-            var div = gpf.web.createTagFunction("div"),
-                tree = div("Hello World!");
-            assert(tree.toString() === "<div>Hello World!</div>");
+            var div = gpf.web.createTagFunction("div");
+            assert(div("Hello World!").toString() === "<div>Hello World!</div>");
+        });
+
+        it("generates closed tags when empty", function () {
+            var div = gpf.web.createTagFunction("div");
+            assert(div().toString() === "<div/>");
         });
 
         it("supports tree building (parameters)", function () {
