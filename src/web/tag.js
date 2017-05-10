@@ -1,11 +1,12 @@
 /**
  * @file Tag generation helper
+ * @since 0.2.1
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfIsArray*/ // Return true if the paramater is an array
+/*global _gpfIsArray*/ // Return true if the parameter is an array
 /*global _gpfIsLiteralObject*/ // Check if the parameter is a literal object
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
@@ -20,6 +21,7 @@ _gpfErrorDeclare("web/tag", {
      * ### Description
      *
      * A tag can't be created if the node name is missing
+     * @since 0.2.1
      */
     missingNodeName: "Missing node name"
 
@@ -28,6 +30,7 @@ _gpfErrorDeclare("web/tag", {
 /**
  * Mapping of attribute name aliases
  * @type {Object}
+ * @since 0.2.1
  */
 var _gpfWebTagAttributeAliases = {
     "className": "class"
@@ -38,6 +41,7 @@ var _gpfWebTagAttributeAliases = {
  *
  * @param {String} name Attribute name used in the tag function
  * @return {String} Attribute to set on the node ele,ment
+ * @since 0.2.1
  */
 function _gpfWebTagAttributeAlias (name) {
     return _gpfWebTagAttributeAliases[name] || name;
@@ -49,6 +53,7 @@ function _gpfWebTagAttributeAlias (name) {
  *
  * @param {Array} array array of items
  * @param {Function} callback Function to apply on each array item
+ * @since 0.2.1
  */
 function _gpfWebTagFlattenChildren (array, callback) {
     array.forEach(function (item) {
@@ -72,31 +77,31 @@ var _GpfWebTag = _gpfDefine({
      *
      * @constructor gpf.web.Ta
      * @private
+     * @since 0.2.1
      */
     constructor: function (nodeName, attributes, children) {
         this._nodeName = nodeName;
-        this._setAttributes(attributes);
-        this._setChildren(children);
+        this._attributes = attributes || {};
+        this._children = children;
     },
 
-    /** Node name */
+    /**
+     * Node name
+     * @since 0.2.1
+     */
     _nodeName: "",
 
-    /** Node attributes */
+    /**
+     * Node attributes
+     * @since 0.2.1
+     */
     _attributes: {},
 
-    /** @gpf:write _attributes */
-    _setAttributes: function (attributes) {
-        this._attributes = attributes || {};
-    },
-
-    /** Node children */
+    /**
+     * Node children
+     * @since 0.2.1
+     */
     _children: [],
-
-    /** @gpf:write _children */
-    _setChildren: function (children) {
-        this._children = children || [];
-    },
 
     //region toString implementation
 
@@ -126,6 +131,7 @@ var _GpfWebTag = _gpfDefine({
      * Convert the current tag into HTML
      *
      * @return {String} HTML representation of the tag
+     * @since 0.2.1
      */
     toString: function () {
         return "<" + this._nodeName + this._getAttributesAsString() + this._getClosingString();
@@ -156,6 +162,7 @@ var _GpfWebTag = _gpfDefine({
      *
      * @param {Object} node Expected to be a DOM node
      * @return {Object} Created node
+     * @since 0.2.1
      */
     appendTo: function (node) {
         var ownerDocument = node.ownerDocument,
@@ -175,6 +182,7 @@ var _GpfWebTag = _gpfDefine({
  * @param {String} [nodeName] tag name
  * @return {Function} The tag generation function
  * @gpf:closure
+ * @since 0.2.1
  */
 function _gpfWebTagCreateFunction (nodeName) {
     if (!nodeName) {
@@ -195,5 +203,6 @@ function _gpfWebTagCreateFunction (nodeName) {
 
 /**
  * @gpf:sameas _gpfWebTagCreateFunction
+ * @since 0.2.1
  */
 gpf.web.createTagFunction = _gpfWebTagCreateFunction;
