@@ -22,5 +22,8 @@ function _gpfIsLiteralObject (value) {
             && Object.getPrototypeOf(value) === Object.getPrototypeOf({});
 }
 
-/** @gpf:sameas _gpfIsLiteralObject */
+/**
+ * @gpf:sameas _gpfIsLiteralObject
+ * @since 0.2.1
+ */
 gpf.isLiteralObject = _gpfIsLiteralObject;
