@@ -77,9 +77,16 @@
                 _requireGpf(configuration, _resolvePath(configuration, "build/gpf-debug.js"));
 
             } else {
-                verbose("Using source version");
+                if (options.coverage) {
+                    verbose("Using *instrumented* source version");
+                    context.global = context;
+                    context.gpfSourcesPath = _resolvePath(configuration, "tmp/coverage/instrument/src/");
+
+                } else {
+                    verbose("Using source version");
+                    context.gpfSourcesPath = _resolvePath(configuration, "src/");
+                }
                 // Set the source path
-                context.gpfSourcesPath = _resolvePath(configuration, "src/");
                 _load(configuration, _resolvePath(configuration, "src/boot.js"));
             }
             // Load the list of modules
@@ -200,6 +207,7 @@
         var options = {
                 release: false,
                 debug: false,
+                coverage: false,
                 verbose: false,
                 ignoreConsole: false,
                 perf: false,
