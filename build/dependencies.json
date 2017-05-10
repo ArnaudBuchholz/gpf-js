@@ -26,7 +26,8 @@
     ],
     "compatibility/array": [
         "foreach",
-        "compatibility"
+        "compatibility",
+        "arraylike"
     ],
     "factory": [
         "constants"
@@ -152,7 +153,8 @@
         "interfaces"
     ],
     "sort": [
-        "constants"
+        "constants",
+        "arraylike"
     ],
     "filter": [
         "constants"
@@ -206,5 +208,13 @@
         "define",
         "fs/explore",
         "path"
+    ],
+    "web/tag": [
+        "define",
+        "error",
+        "arraylike",
+        "literal",
+        "foreach",
+        "string/escapefor"
     ]
 }
