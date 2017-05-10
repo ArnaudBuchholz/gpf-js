@@ -6,6 +6,7 @@
 "use strict";
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfInstallCompatibility*/ // Define and install compatible methods
+/*global _gpfIsArray:true*/ // Return true if the parameter is an array
 /*#endif*/
 
 //region Array helpers
@@ -169,3 +170,9 @@ _gpfInstallCompatibility("Array", {
     }
 
 });
+
+// Update if it was not defined
+/* istanbul ignore next */ // Because tested NodeJS
+if (!_gpfIsArray) {
+    _gpfIsArray = Array.isArray;
+}
