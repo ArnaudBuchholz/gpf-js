@@ -28,6 +28,11 @@
 
     var MAX_WAIT = 50;
 
+    function _setupConfig () {
+        window.config = {};
+        config.httpPort = parseInt(location.port, 10);
+    }
+
     function _waitForTestCases (testFiles, callback) {
         function _testCaseLoaded (testCaseSource) {
             /*jshint -W061*/
@@ -41,6 +46,7 @@
             return;
         }
         // Everything is loaded
+        _setupConfig();
         callback();
     }
 
