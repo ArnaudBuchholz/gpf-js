@@ -5,28 +5,96 @@
 "use strict";
 /*#endif*/
 
-function _gpfHttpProcess (request) {
+/** Http methods */
+var _HTTP_METHODS = {
+    GET: "GET",
+    POST: "POST",
+    PUT: "PUT",
+    OPTIONS: "OPTIONS",
+    DELETE: "DELETE"
+};
+
+/**
+ * HTTP request settings
+ *
+ * @typedef gpf.typedef.httpRequestSettings
+ * @property {gpf.http.methods} method HTTP method
+ *
+ * @see gpf.http.request
+ */
+
+/**
+ * HTTP request response
+ *
+ * @typedef gpf.typedef.httpRequestResponse
+ * @property {gpf.http.methods} method HTTP method
+ *
+ * @see gpf.http.request
+ */
+
+/**
+ *
+ * @param {gpf.typedef.httpRequestSettings} request HTTP Request settings
+ * @return {Promise} Resolved on request completion
+ */
+function _gpfHttpRequest (request) {
 
 }
 
-function _gpfProcessAlias (method, url) {
+/**
+ * Implementation of aliases
+ *
+ * @param {String} method HTTP method to apply
+ * @param {String|gpf.typedef.httpRequestSettings} url Url to send the request to or a request settings object
+ * @param {*} [data] Data to be sent to the server
+ * @return {Promise}
+ */
+function _gpfProcessAlias (method, url, data) {
     if ("string" === typeof url) {
-        return _gpfHttpProcess({
+        return _gpfHttpRequest({
             method: method,
-            url: url
+            url: url,
+            data: data
         });
     }
-    return _gpfHttpProcess(Object.assign({
+    return _gpfHttpRequest(Object.assign({
         method: method
     }, url));
 }
 
 gpf.http = {
 
-    /** @gpf:sameas _gpfHttpProcess */
-    request: _gpfHttpProcess,
+    /**
+     * HTTP methods enumeration
+     *
+     * @enum {String}
+     * @readonly
+     */
+    methods: {
 
-    get: _gpfProcessAlias.bind(gpf.http, "GET"),
-    post: _gpfProcessAlias.bind(gpf.http, "POST")
+        /** GET */
+        get: _HTTP_METHODS.GET,
+
+        /** POST */
+        post: _HTTP_METHODS.POST,
+
+        /** PUT */
+        put: _HTTP_METHODS.PUT,
+
+        /** OPTIONS */
+        options: _HTTP_METHODS.OPTIONS,
+
+        /** PUT */
+        "delete": _HTTP_METHODS.DELETE
+    },
+
+    /** @gpf:sameas _gpfHttpRequest */
+    request: _gpfHttpRequest,
+
+    get: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.GET),
+    post: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.POST),
+    put: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.PUT),
+    options: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.OPTIONS),
+    "delete": _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.DELETE)
 
 };
