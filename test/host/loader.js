@@ -142,6 +142,13 @@
             }
         },
 
+        _setupConfig = function (configuration/*, options*/) {
+            var configFile = JSON.parse(configuration.read("tmp/config.json"));
+            context.config = {
+                httpPort: configFile.serve.httpPort
+            };
+        },
+
         _runBDDPerf = function (configuration/*, options*/) {
             var totalTimeSpent = 0,
                 loop = 1;
@@ -228,6 +235,7 @@
             _load(configuration, _resolvePath(configuration, "test/host/console.js"));
         }
         _loadTests(configuration, options, verbose);
+        _setupConfig(configuration, options);
         _safeRunBDD(configuration, options, verbose);
     };
 
