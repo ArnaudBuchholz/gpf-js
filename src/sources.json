@@ -288,6 +288,10 @@
         "doc": true
     },
     {
+        "name": "http",
+        "load": false
+    },
+    {
         "name": "events",
         "load": false
     },
@@ -433,10 +437,6 @@
     },
     {
         "name": "html",
-        "load": false
-    },
-    {
-        "name": "http",
         "load": false
     },
     {
