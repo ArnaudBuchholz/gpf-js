@@ -18,7 +18,9 @@ var _HTTP_METHODS = {
  * HTTP request settings
  *
  * @typedef gpf.typedef.httpRequestSettings
- * @property {gpf.http.methods} method HTTP method
+ * @property {gpf.http.methods} [method=gpf.http.methods.get] HTTP method
+ * @property {String} url URL to submit the request to
+ * @property {Object} [headers] Request headers
  *
  * @see gpf.http.request
  */
@@ -27,18 +29,23 @@ var _HTTP_METHODS = {
  * HTTP request response
  *
  * @typedef gpf.typedef.httpRequestResponse
- * @property {gpf.http.methods} method HTTP method
+ * @property {int} status HTTP status
+ * @property {Object} headers HTTP response headers
+ * @property {String} responseText Response Text
  *
  * @see gpf.http.request
  */
 
 /**
+ * HTTP request common implementation
  *
  * @param {gpf.typedef.httpRequestSettings} request HTTP Request settings
- * @return {Promise} Resolved on request completion
+ * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
  */
 function _gpfHttpRequest (request) {
-
+    return new Promise(function () {
+        gpf.Error.notImplemented(request);
+    });
 }
 
 /**
@@ -47,7 +54,7 @@ function _gpfHttpRequest (request) {
  * @param {String} method HTTP method to apply
  * @param {String|gpf.typedef.httpRequestSettings} url Url to send the request to or a request settings object
  * @param {*} [data] Data to be sent to the server
- * @return {Promise}
+ * @return {Promise<gpf.typedef.httpRequestResponse>} HTTP request promise
  */
 function _gpfProcessAlias (method, url, data) {
     if ("string" === typeof url) {
