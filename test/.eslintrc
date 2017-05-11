@@ -3,7 +3,8 @@
         "max-nested-callbacks": [2, 10]
     },
     "globals": {
-        "assert": false
+        "assert": false,
+        "config": false
     },
     "env": {
         "node": true,
