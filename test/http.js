@@ -2,14 +2,22 @@
 
 describe("http", function () {
 
-    var baseUrl = "http://localhost:" + config.httpPort + "/";
+    it("knows config.httpPort", function () {
+        assert("object" === typeof config && "number" === typeof config.httpPort);
+    });
 
     describe("gpf.http", function () {
+
+        var baseUrl;
+
+        before(function () {
+            baseUrl = "http://localhost:" + config.httpPort + "/echo/?";
+        });
 
         it("allows the GET operation", function (done) {
             gpf.http.request({
                 method: gpf.http.get,
-                url: baseUrl + "echo?status=200&content=Hello%20World"
+                url: baseUrl + "status=200&content=Hello%20World"
 
             }).then(function (response) {
                 assert(response.statusCode === 200);
@@ -19,15 +27,16 @@ describe("http", function () {
         });
 
         it("supports common shortcuts", function (done) {
-            gpf.http.get(baseUrl + "echo?status=200&content=Hello%20World").then(function (response) {
+            gpf.http.get(baseUrl + "status=200&content=Hello%20World").then(function (response) {
                 assert(response.statusCode === 200);
-                assert(response.textContent === "Hello World");
+                assert(JSON.parsresponse.responseText === "Hello World");
                 done();
             }, done);
         });
 
     });
 
+/*
     describe("gpf.http.mock", function () {
 
         it("mocks any request", function (done) {
@@ -41,7 +50,7 @@ describe("http", function () {
                 }
             })
         });
-
     });
+ */
 
 });
