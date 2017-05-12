@@ -3,6 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*exported _gpfHttpRequestImpl*/ // HTTP request host specific implementation
 /*#endif*/
 
 /** Http methods */
@@ -37,15 +38,25 @@ var _HTTP_METHODS = {
  */
 
 /**
+ * HTTP request host specific implementation
+ *
+ * @param {gpf.typedef.httpRequestSettings} request HTTP Request settings
+ * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+ */
+var _gpfHttpRequestImpl = function () { //eslint-disable-line func-style
+    return new Promise(function () {
+        gpf.Error.notImplemented();
+    });
+};
+
+/**
  * HTTP request common implementation
  *
  * @param {gpf.typedef.httpRequestSettings} request HTTP Request settings
  * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
  */
 function _gpfHttpRequest (request) {
-    return new Promise(function () {
-        gpf.Error.notImplemented(request);
-    });
+    return _gpfHttpRequestImpl(request);
 }
 
 /**
