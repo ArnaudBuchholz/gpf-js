@@ -292,6 +292,10 @@
         "load": false
     },
     {
+        "name": "http/browser",
+        "load": false
+    },
+    {
         "name": "events",
         "load": false
     },
