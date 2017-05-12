@@ -3,6 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*exported _gpfHttpRequestImpl*/ // HTTP request host specific implementation
 /*#endif*/
 
@@ -41,12 +42,12 @@ var _HTTP_METHODS = {
  * HTTP request host specific implementation
  *
  * @param {gpf.typedef.httpRequestSettings} request HTTP Request settings
- * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+ * @param {Function} resolve Promise resolve helper
+ * @param {Function} reject Promise reject helper
  */
-var _gpfHttpRequestImpl = function () { //eslint-disable-line func-style
-    return new Promise(function () {
-        gpf.Error.notImplemented();
-    });
+var _gpfHttpRequestImpl = function (request, resolve, reject) { //eslint-disable-line func-style
+    _gpfIgnore(request, resolve, reject);
+    gpf.Error.notImplemented();
 };
 
 /**
@@ -56,7 +57,9 @@ var _gpfHttpRequestImpl = function () { //eslint-disable-line func-style
  * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
  */
 function _gpfHttpRequest (request) {
-    return _gpfHttpRequestImpl(request);
+    return new Promise(function (resolve, reject) {
+        _gpfHttpRequestImpl(request, resolve, reject);
+    });
 }
 
 /**
