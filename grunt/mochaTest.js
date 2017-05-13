@@ -1,12 +1,18 @@
 "use strict";
 
-function clearRequireCache () {
-    for (var key in require.cache) {
-        if (require.cache.hasOwnProperty(key)) {
-            delete require.cache[key];
-        }
-    }
-}
+const
+    clearRequireCache = () => {
+        Object.keys(require.cache).forEach(key => delete require.cache[key]);
+    },
+
+    setup = (sourcesPath) => {
+        clearRequireCache();
+        global.gpfSourcesPath = sourcesPath;
+        global.assert = require("assert");
+        global.config = {
+            httpPort: configuration.serve.httpPort
+        };
+    };
 
 // Test automation inside NodeJS
 module.exports = (grunt) => {
@@ -17,8 +23,7 @@ module.exports = (grunt) => {
                 quiet: false,
                 require: [
                     () => {
-                        clearRequireCache();
-                        global.gpfSourcesPath = "src/";
+                        setup("src/");
                     },
                     "./src/boot.js",
                     () => {
@@ -27,7 +32,6 @@ module.exports = (grunt) => {
                         } else {
                             require("../test/host/console.js");
                         }
-                        global.assert = require("assert");
                     }
                 ]
             },
@@ -39,13 +43,9 @@ module.exports = (grunt) => {
                 quiet: false,
                 require: [
                     () => {
-                        clearRequireCache();
-                        global.gpfSourcesPath = "src/";
+                        setup("src/");
                     },
-                    "./src/boot.js",
-                    () => {
-                        global.assert = require("assert");
-                    }
+                    "./src/boot.js"
                 ]
             },
             src: configuration.files.test
@@ -57,13 +57,11 @@ module.exports = (grunt) => {
                 quiet: true,
                 require: [
                     () => {
-                        clearRequireCache();
-                        global.gpfSourcesPath = "tmp/coverage/instrument/src/";
+                        setup("tmp/coverage/instrument/src/");
                     },
                     "./tmp/coverage/instrument/src/boot.js",
                     () => {
                         require("../test/host/console.js");
-                        global.assert = require("assert");
                     }
                 ]
             },
@@ -75,10 +73,9 @@ module.exports = (grunt) => {
                 quiet: false,
                 require: [
                     () => {
-                        clearRequireCache();
+                        setup();
                         global.gpf = require("../build/gpf-debug.js");
                         require("../test/host/console.js");
-                        global.assert = require("assert");
                     }
                 ]
             },
@@ -90,10 +87,9 @@ module.exports = (grunt) => {
                 quiet: false,
                 require: [
                     () => {
-                        clearRequireCache();
+                        setup();
                         global.gpf = require("../build/gpf.js");
                         require("../test/host/console.js");
-                        global.assert = require("assert");
                     }
                 ]
             },
@@ -105,13 +101,11 @@ module.exports = (grunt) => {
                 quiet: false,
                 require: [
                     () => {
-                        clearRequireCache();
-                        global.gpfSourcesPath = "src/";
+                        setup("src/");
                     },
                     "./src/boot.js",
                     () => {
                         require("../test/host/console.js");
-                        global.assert = require("assert");
                         delete gpf.internals;
                     }
                 ]
