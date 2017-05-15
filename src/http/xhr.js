@@ -14,7 +14,7 @@
 /*eslint-env browser*/
 
 /* istanbul ignore next */ // Because tested with NodeJS
-if (_GPF_HOST.BROWSER === _gpfHost) {
+if (_GPF_HOST.BROWSER === _gpfHost || _GPF_HOST.PHANTOMJS === _gpfHost) {
 
     _gpfSetHttpRequestImpl(function (request, resolve, reject) {
         _gpfIgnore(reject);
@@ -34,7 +34,7 @@ if (_GPF_HOST.BROWSER === _gpfHost) {
                 });
             }
         };
-        xhr.send(request.data);
+        xhr.send(request.data || null);
     });
 
 }
