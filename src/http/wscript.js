@@ -5,6 +5,7 @@
 "use strict";
 /*global _GPF_HOST*/ // Host types
 /*global _gpfHost*/ // Host type
+/*global _gpfHttpParseHeaders*/ // Parse HTTP response headers
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfSetHttpRequestImpl*/ // Set the HTTP Request Implementation method
 /*#endif*/
@@ -28,6 +29,7 @@ if (_GPF_HOST.WSCRIPT === _gpfHost) {
         winHttp.Send(request.data || null);
         resolve({
             status: winHttp.Status,
+            headers: _gpfHttpParseHeaders(winHttp.GetAllResponseHeaders()),
             responseText: winHttp.ResponseText
         });
     });
