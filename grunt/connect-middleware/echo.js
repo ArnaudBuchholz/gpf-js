@@ -34,13 +34,26 @@ module.exports = (request, response, next) => {
         });
     }
 
-    setTimeout(() => {
-        response.statusCode = statusCode;
-        if (attributes) {
-            Object.keys(attributes).forEach(name => {
-                response.setHeader(name, attributes[name]);
-            });
-        }
-        response.end(content);
-    }, wait);
+    const
+        answer = () => {
+            response.statusCode = statusCode;
+            if (attributes) {
+                Object.keys(attributes).forEach(name => {
+                    response.setHeader(name, attributes[name]);
+                });
+            }
+            response.end(content);
+        };
+
+    let data = [];
+    request
+        .on("data", function (chunk) {
+            data.push(chunk);
+        })
+        .on("end", function () {
+            if (data.length) {
+                content = Buffer.concat(data).toString();
+            }
+            setTimeout(answer, wait);
+        });
 };
