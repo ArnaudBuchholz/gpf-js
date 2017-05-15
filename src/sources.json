@@ -288,12 +288,19 @@
         "doc": true
     },
     {
-        "name": "http",
-        "load": false
+        "name": "http"
     },
     {
         "name": "http/browser",
-        "load": false
+        "test": false
+    },
+    {
+        "name": "http/nodejs",
+        "test": false
+    },
+    {
+        "name": "http/wscript",
+        "test": false
     },
     {
         "name": "events",
