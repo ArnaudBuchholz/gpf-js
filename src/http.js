@@ -4,7 +4,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
-/*exported _gpfHttpRequestImpl*/ // HTTP request host specific implementation
+/*exported _gpfSetHttpRequestImpl*/ // Set the HTTP Request Implementation method
 /*#endif*/
 
 /** Http methods */
@@ -49,6 +49,15 @@ var _gpfHttpRequestImpl = function (request, resolve, reject) { //eslint-disable
     _gpfIgnore(request, resolve, reject);
     gpf.Error.notImplemented();
 };
+
+/**
+ * Set the HTTP Request Implementation method
+ *
+ * @param {Function} method Implementation
+ */
+function _gpfSetHttpRequestImpl (method) {
+    _gpfHttpRequestImpl = method;
+}
 
 /**
  * HTTP request common implementation
