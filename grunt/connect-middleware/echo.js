@@ -13,7 +13,7 @@ module.exports = (request, response, next) => {
     let parsedUrl = url.parse(request.url, true),
         statusCode = 200,
         wait = 0,
-        attributes,
+        headers,
         content;
 
     if (parsedUrl.query.status) {
@@ -22,8 +22,8 @@ module.exports = (request, response, next) => {
     if (parsedUrl.query.wait) {
         wait = parseInt(parsedUrl.query.wait, 10);
     }
-    if (parsedUrl.query.attributes) {
-        attributes = JSON.parse(parsedUrl.query.attributes);
+    if (parsedUrl.query.headers) {
+        headers = JSON.parse(parsedUrl.query.headers);
     }
     if (parsedUrl.query.content) {
         content = parsedUrl.query.content;
@@ -37,9 +37,9 @@ module.exports = (request, response, next) => {
     const
         answer = () => {
             response.statusCode = statusCode;
-            if (attributes) {
-                Object.keys(attributes).forEach(name => {
-                    response.setHeader(name, attributes[name]);
+            if (headers) {
+                Object.keys(headers).forEach(name => {
+                    response.setHeader(name, headers[name]);
                 });
             }
             response.end(content);
