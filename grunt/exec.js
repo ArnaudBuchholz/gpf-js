@@ -87,7 +87,7 @@ function _buildTestConfig (name, command) {
 
 _buildTestConfig("Node", "node test/host/nodejs.js");
 _buildTestConfig("Phantom", `node_modules${pathSep}phantomjs-prebuilt${pathSep}lib${pathSep}phantom${pathSep}bin`
-                            + `${pathSep}phantomjs test/host/phantomjs.js`);
+                            + `${pathSep}phantomjs --web-security=false test/host/phantomjs.js`);
 _buildTestConfig("Wscript", "cscript.exe /D /E:JScript test/host/cscript.js");
 _buildTestConfig("Rhino", "java -jar node_modules/rhino-1_7r5-bin/rhino1_7R5/js.jar test/host/rhino.js");
 Object.keys(configuration.browsers).forEach(browserName =>{
