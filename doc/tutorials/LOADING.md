@@ -53,6 +53,8 @@ or
 </script>
 ```
 
+If you plan to use {@link gpf.http.request}, you may need to turn off security with
+[--web-security=false](http://phantomjs.org/api/command-line.html)   
 
 ## Browsers
 
