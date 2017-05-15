@@ -16,11 +16,11 @@ describe("http", function () {
 
         it("allows the GET operation", function (done) {
             gpf.http.request({
-                method: gpf.http.get,
+                method: gpf.http.methods.get,
                 url: baseUrl + "status=200&content=Hello%20World"
 
             }).then(function (response) {
-                assert(response.statusCode === 200);
+                assert(response.status === 200);
                 assert(response.responseText === "Hello World");
                 done();
             }, done);
@@ -28,7 +28,7 @@ describe("http", function () {
 
         it("supports common shortcuts", function (done) {
             gpf.http.get(baseUrl + "status=200&content=Hello%20World").then(function (response) {
-                assert(response.statusCode === 200);
+                assert(response.status === 200);
                 assert(response.responseText === "Hello World");
                 done();
             }, done);
