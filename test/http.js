@@ -70,6 +70,27 @@ describe("http", function () {
             })["catch"](done);
         });
 
+        it("allows the POST operation", function (done) {
+            gpf.http.request({
+                method: gpf.http.methods.post,
+                url: baseUrl + "status=200",
+                data: "Hello World"
+
+            }).then(function (response) {
+                assert(response.status === 200);
+                assert(response.responseText === "Hello World");
+                done();
+            })["catch"](done);
+        });
+
+        it("offers the POST shortcut", function (done) {
+            gpf.http.post(baseUrl + "status=200", "Hello World").then(function (response) {
+                assert(response.status === 200);
+                assert(response.responseText === "Hello World");
+                done();
+            })["catch"](done);
+        });
+
     });
 
 /*
