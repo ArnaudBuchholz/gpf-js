@@ -23,7 +23,9 @@ module.exports = (request, response, next) => {
         wait = parseInt(parsedUrl.query.wait, 10);
     }
     if (parsedUrl.query.headers) {
-        headers = JSON.parse(parsedUrl.query.headers);
+        headers = Object.assign(JSON.parse(parsedUrl.query.headers), request.headers);
+    } else {
+        headers = request.headers;
     }
     if (parsedUrl.query.content) {
         content = parsedUrl.query.content;
