@@ -1,6 +1,7 @@
 ## Testing the library
 
-For HTTP access, you must first run `grunt serve`.
+You must first run `grunt serve`.
+
 Command lines must be run from the root of the gpf-js folder.
 
 * With [mocha](https://mochajs.org/):
