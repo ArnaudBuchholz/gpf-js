@@ -41,6 +41,22 @@ describe("http", function () {
             })["catch"](done);
         });
 
+        it("forwards request headers", function (done) {
+            gpf.http.request({
+                method: gpf.http.methods.get,
+                url: baseUrl + "status=200",
+                headers: {
+                    "x-test": "Value"
+                }
+
+            }).then(function (response) {
+                assert(response.status === 200);
+                assert(response.headers["x-test"] === "Value");
+                done();
+
+            })["catch"](done);
+        });
+
         it("gives access to response headers", function (done) {
             gpf.http.request({
                 method: gpf.http.methods.get,
