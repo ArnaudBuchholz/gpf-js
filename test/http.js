@@ -23,15 +23,35 @@ describe("http", function () {
                 assert(response.status === 200);
                 assert(response.responseText === "Hello World");
                 done();
-            }, done);
+            })["catch"](done);
         });
 
-        it("supports common shortcuts", function (done) {
+        it("offers the GET shortcut", function (done) {
             gpf.http.get(baseUrl + "status=200&content=Hello%20World").then(function (response) {
                 assert(response.status === 200);
                 assert(response.responseText === "Hello World");
                 done();
-            }, done);
+            })["catch"](done);
+        });
+
+        it("succeeds when the HTTP request fails", function (done) {
+            gpf.http.get(baseUrl + "status=500").then(function (response) {
+                assert(response.status === 500);
+                done();
+            })["catch"](done);
+        });
+
+        it("gives access to response headers", function (done) {
+            gpf.http.request({
+                method: gpf.http.methods.get,
+                url: baseUrl + "status=200&headers={\"x-test-1\":\"OK\",\"x-test-2\":123}"
+
+            }).then(function (response) {
+                assert(response.status === 200);
+                assert(response.headers["x-test-1"] === "OK");
+                assert(response.headers["x-test-2"] === "123");
+                done();
+            })["catch"](done);
         });
 
     });
