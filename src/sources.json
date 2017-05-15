@@ -291,6 +291,10 @@
         "name": "http"
     },
     {
+        "name": "http/headers",
+        "test": false
+    },
+    {
         "name": "http/browser",
         "test": false
     },
