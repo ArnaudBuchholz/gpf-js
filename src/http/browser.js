@@ -5,7 +5,8 @@
 "use strict";
 /*global _GPF_HOST*/ // Host types
 /*global _gpfHost*/ // Host type
-/*global _gpfHttpRequestImpl:true*/ // HTTP request host specific implementation
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfSetHttpRequestImpl*/ // Set the HTTP Request Implementation method
 /*#endif*/
 
 /*jshint browser: true*/
@@ -28,27 +29,25 @@ function _gpfHttpBrowserGetResponseHeaders (xhr) {
 /* istanbul ignore next */ // Because tested with NodeJS
 if (_GPF_HOST.BROWSER === _gpfHost) {
 
-    _gpfHttpRequestImpl = function (request, resolve, reject) {
+    _gpfSetHttpRequestImpl(function (request, resolve, reject) {
+        _gpfIgnore(reject);
         var xhr = new XMLHttpRequest();
         xhr.open(request.method, request.url);
-        Object.keys(request.headers).forEach(function (headerName) {
-            xhr.setRequestHeader(headerName, request.headers[headerName]);
-        });
+        if (request.headers) {
+            Object.keys(request.headers).forEach(function (headerName) {
+                xhr.setRequestHeader(headerName, request.headers[headerName]);
+            });
+        }
         xhr.onreadystatechange = function () {
             if (4 === xhr.readyState) {
-                var response = {
+                resolve({
                     status: xhr.status,
                     headers: _gpfHttpBrowserGetResponseHeaders(xhr),
                     responseText: xhr.responseText
-                };
-                if (2 === Math.floor(xhr.status / 100)) {
-                    resolve(response);
-                } else {
-                    reject(response);
-                }
+                });
             }
         };
         xhr.send(request.data);
-    };
+    });
 
 }
