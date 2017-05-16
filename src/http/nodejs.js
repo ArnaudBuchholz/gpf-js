@@ -1,5 +1,5 @@
 /**
- * @file Browser specific HTTP implementation
+ * @file NodeJS specific HTTP implementation
  */
 /*#ifndef(UMD)*/
 "use strict";
