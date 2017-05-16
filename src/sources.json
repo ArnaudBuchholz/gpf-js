@@ -307,6 +307,10 @@
         "test": false
     },
     {
+        "name": "http/rhino",
+        "test": false
+    },
+    {
         "name": "events",
         "load": false
     },
