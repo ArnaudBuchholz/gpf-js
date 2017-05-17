@@ -4,12 +4,7 @@ const
     BASE_URL = "/echo/",
     url = require("url");
 
-module.exports = (request, response, next) => {
-
-    if (0 !== request.url.indexOf(BASE_URL)) {
-        return next();
-    }
-
+function _process (request, response) {
     let parsedUrl = url.parse(request.url, true),
         statusCode = 200,
         wait = 0,
@@ -58,4 +53,13 @@ module.exports = (request, response, next) => {
             }
             setTimeout(answer, wait);
         });
+}
+
+module.exports = (request, response, next) => {
+
+    if (0 !== request.url.indexOf(BASE_URL)) {
+        return next();
+    }
+
+    _process(request, response);
 };
