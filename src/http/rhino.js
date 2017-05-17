@@ -25,7 +25,10 @@ if (_GPF_HOST.RHINO === _gpfHost) {
         }
         if (request.data) {
             httpConnection.setDoOutput(true);
-            httpConnection.getOutputStream(); // .write(request.data);
+            var outputStreamWriter = new java.io.OutputStreamWriter(httpConnection.getOutputStream());
+            outputStreamWriter.write(request.data);
+            outputStreamWriter.flush();
+            outputStreamWriter.close();
         }
         var response;
         try {
