@@ -26,8 +26,18 @@ describe("http", function () {
             })["catch"](done);
         });
 
-        it("offers the GET shortcut", function (done) {
+        it("offers the GET shortcut (using string parameter)", function (done) {
             gpf.http.get(baseUrl + "status=200&content=Hello%20World").then(function (response) {
+                assert(response.status === 200);
+                assert(response.responseText === "Hello World");
+                done();
+            })["catch"](done);
+        });
+
+        it("offers the GET shortcut (using object parameter)", function (done) {
+            gpf.http.get({
+                url: baseUrl + "status=200&content=Hello%20World"
+            }).then(function (response) {
                 assert(response.status === 200);
                 assert(response.responseText === "Hello World");
                 done();
