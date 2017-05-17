@@ -138,6 +138,11 @@
         "doc": true
     },
     {
+        "name": "regexp",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "define/entity",
         "test": false,
         "doc": true
