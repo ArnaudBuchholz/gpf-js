@@ -3,7 +3,6 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*exported _gpfSetHttpRequestImpl*/ // Set the HTTP Request Implementation method
 /*#endif*/
 
@@ -45,10 +44,7 @@ var _HTTP_METHODS = {
  * @param {Function} resolve Promise resolve helper
  * @param {Function} reject Promise reject helper
  */
-var _gpfHttpRequestImpl = function (request, resolve, reject) { //eslint-disable-line func-style
-    _gpfIgnore(request, resolve, reject);
-    gpf.Error.notImplemented();
-};
+var _gpfHttpRequestImpl;
 
 /**
  * Set the HTTP Request Implementation method
