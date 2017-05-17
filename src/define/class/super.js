@@ -8,6 +8,7 @@
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunctionBuild*/ // Build function from description and context
 /*global _gpfFunctionDescribe*/ // Extract function description
+/*global _gpfRegExpForEach*/ // Executes the callback for each match of the regular expression
 /*exported _gpfClassMethodSuperify*/ // Create a method that can use this.$super
 /*#endif*/
 
@@ -116,6 +117,13 @@ function _gpfClassSuperCreateMember (that, $super, superMethod) {
 }
 
 /**
+ * Regular expression detecting .$super use
+ *
+ * @type {RegExp}
+ */
+var _gpfClassSuperRegExp = new RegExp("\\.\\$super\\.(\\w+)\\b", "g");
+
+/**
  * Extract all 'members' that are used on $super
  *
  * @param {Function} method Method to analyze
@@ -123,13 +131,11 @@ function _gpfClassSuperCreateMember (that, $super, superMethod) {
  * @since 0.1.7
  */
 function _gpfClassMethodExtractSuperMembers (method) {
-    var re = new RegExp("\\.\\$super\\.(\\w+)\\b", "g"),
-        match = re.exec(method),
-        result = [];
-    while (match) {
+    var result = [];
+    _gpfClassSuperRegExp.lastIndex = 0;
+    _gpfRegExpForEach(_gpfClassSuperRegExp, method, function (match) {
         result.push(match[1]);
-        match = re.exec(method);
-    }
+    });
     return result;
 }
 
