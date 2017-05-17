@@ -23,19 +23,25 @@ if (_GPF_HOST.RHINO === _gpfHost) {
                 httpConnection.setRequestProperty(headerName, request.headers[headerName]);
             });
         }
-
-        var response = httpConnection.getInputStream(),
-            scanner = new java.util.Scanner(response),
+        if (request.data) {
+            httpConnection.setDoOutput(true);
+            httpConnection.getOutputStream(); // .write(request.data);
+        }
+        var response;
+        try {
+            response = httpConnection.getInputStream();
+        } catch (e) {
+            response = httpConnection.getErrorStream();
+        }
+        var scanner = new java.util.Scanner(response),
             responseText = String(scanner.useDelimiter("\\A").next());
         response.close();
-
         var headers = {},
             headerFields = httpConnection.getHeaderFields(),
             keys = headerFields.keySet().toArray();
         keys.forEach(function (key) {
             headers[String(key)] = String(headerFields.get(key).get(0));
         });
-
         resolve({
             status: httpConnection.getResponseCode(),
             headers: headers,
