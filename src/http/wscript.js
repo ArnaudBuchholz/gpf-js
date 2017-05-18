@@ -6,7 +6,6 @@
 /*global _GPF_HOST*/ // Host types
 /*global _gpfHost*/ // Host type
 /*global _gpfHttpParseHeaders*/ // Parse HTTP response headers
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfSetHttpRequestImpl*/ // Set the HTTP Request Implementation method
 /*#endif*/
 
@@ -14,19 +13,30 @@
 /*eslint-env wsh*/
 /*eslint-disable new-cap*/
 
+function _gpfHttpWScriptSetHeaders (winHttp, headers) {
+    if (headers) {
+        Object.keys(headers).forEach(function (headerName) {
+            winHttp.setRequestHeader(headerName, headers[headerName]);
+        });
+    }
+}
+
+function _gpfHttpWScriptSend (winHttp, data) {
+    if (data) {
+        winHttp.Send(data);
+    } else {
+        winHttp.Send();
+    }
+}
+
 if (_GPF_HOST.WSCRIPT === _gpfHost) {
 
-    _gpfSetHttpRequestImpl(function (request, resolve, reject) {
-        _gpfIgnore(reject);
+    _gpfSetHttpRequestImpl(function (request, resolve) {
         var winHttp = new ActiveXObject("WinHttp.WinHttpRequest.5.1");
         // winHttp.SetTimeouts(0, 60000, 30000, 30000);
         winHttp.Open(request.method, request.url);
-        if (request.headers) {
-            Object.keys(request.headers).forEach(function (headerName) {
-                winHttp.setRequestHeader(headerName, request.headers[headerName]);
-            });
-        }
-        winHttp.Send(request.data || null);
+        _gpfHttpWScriptSetHeaders(winHttp, request.headers);
+        _gpfHttpWScriptSend(winHttp, request.data);
         resolve({
             status: winHttp.Status,
             headers: _gpfHttpParseHeaders(winHttp.GetAllResponseHeaders()),
