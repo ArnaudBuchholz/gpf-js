@@ -13,7 +13,7 @@
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
 /*global _gpfHost*/ // Host type
-/*global _gpfNodeFs:true*/ // Node require("fs")
+/*global _gpfNodeFs*/ // Node require("fs")
 /*global _gpfNodePath*/ // Node require("path")
 /*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
 /*global _gpfPathNormalize*/ // Normalize path
@@ -111,23 +111,16 @@ function _gpfFsNodeGetType (stats) {
     return _gpfFsNodeGetFileType(stats);
 }
 
+/**
+ * NodeJS specific IFileStorage implementation
+ *
+ * @class gpf.node.FileStorage
+ * @implements {gpf.interfaces.IFileStorage}
+ * @private
+ * @since 0.1.9
+ */
 var _gpfNodeFileStorage = _gpfDefine(/** @lends gpf.node.FileStorage */ {
     $class: "gpf.node.FileStorage",
-
-    /**
-     * NodeJS specific IFileStorage implementation
-     *
-     * @constructor gpf.node.FileStorage
-     * @implements {gpf.interfaces.IFileStorage}
-     * @private
-     * @since 0.1.9
-     */
-    constructor: function () {
-        /* istanbul ignore next */ // Because boot always implies require("fs")
-        if (!_gpfNodeFs) {
-            _gpfNodeFs = require("fs");
-        }
-    },
 
     //region gpf.interfaces.IFileStorage
 
