@@ -35,7 +35,6 @@ _gpfHttpRequestImplByHost[_GPF_HOST.BROWSER]
     = function (request, resolve) {
         var xhr = _gpfHttpXhrOpen(request);
         _gpfHttpXhrSetHeaders(xhr, request.headers);
-        _gpfHttpXhrSend(xhr, request.data);
         _gpfHttpXhrWaitForCompletion(xhr, function () {
             resolve({
                 status: xhr.status,
@@ -43,4 +42,5 @@ _gpfHttpRequestImplByHost[_GPF_HOST.BROWSER]
                 responseText: xhr.responseText
             });
         });
+        _gpfHttpXhrSend(xhr, request.data);
     };
