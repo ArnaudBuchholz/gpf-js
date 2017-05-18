@@ -8,7 +8,7 @@
 /*global _gpfHttpRequestImplByHost*/ // HTTP Request Implementation per host
 /*global _GpfRhinoReadableStream*/ // gpf.rhino.ReadableStream
 /*global _GpfRhinoWritableStream*/ // gpf.rhino.WritableStream
-/*global _GpfStreamWritableString*/ // gpf.stream.WritableString
+/*global _gpfStringFromStream*/ // Read the stream
 /*#endif*/
 
 /*jshint rhino: true*/
@@ -37,12 +37,11 @@ function _gpfHttpRhinoGetResponse (httpConnection) {
 }
 
 function _gpfHttpRhinoGetResponseText (httpConnection) {
-    var iReadableStream = new _GpfRhinoReadableStream(_gpfHttpRhinoGetResponse(httpConnection)),
-        iWritableStream = new _GpfStreamWritableString();
-    return iReadableStream.read(iWritableStream)
-        .then(function () {
+    var iReadableStream = new _GpfRhinoReadableStream(_gpfHttpRhinoGetResponse(httpConnection));
+    return _gpfStringFromStream(iReadableStream)
+        .then(function (responseText) {
             iReadableStream.close();
-            return iWritableStream.toString();
+            return responseText;
         });
 }
 
