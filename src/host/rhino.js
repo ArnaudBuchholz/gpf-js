@@ -36,4 +36,10 @@ if (_GPF_HOST.RHINO === _gpfHost) {
         java.lang.System.exit(code);
     };
 
+    /**
+     * @namespace gpf.rhino
+     * @description Root namespace for Rhino specifics
+     */
+    gpf.rhino = {};
+
 }
