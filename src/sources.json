@@ -296,7 +296,7 @@
         "name": "http"
     },
     {
-        "name": "http/headers",
+        "name": "http/helpers",
         "test": false
     },
     {
