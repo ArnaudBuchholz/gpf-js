@@ -6,25 +6,35 @@
 /*global _GPF_HOST*/ // Host types
 /*global _gpfHost*/ // Host type
 /*global _gpfHttpParseHeaders*/ // Parse HTTP response headers
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfSetHttpRequestImpl*/ // Set the HTTP Request Implementation method
 /*#endif*/
 
 /*jshint browser: true*/
 /*eslint-env browser*/
 
+function _gpfHttpXhrSetHeaders (xhr, headers) {
+    if (headers) {
+        Object.keys(headers).forEach(function (headerName) {
+            xhr.setRequestHeader(headerName, headers[headerName]);
+        });
+    }
+}
+
+function _gpfHttpXhrSend (xhr, data) {
+    if (data) {
+        xhr.send(data);
+    } else {
+        xhr.send();
+    }
+}
+
 /* istanbul ignore next */ // Because tested with NodeJS
 if (_GPF_HOST.BROWSER === _gpfHost || _GPF_HOST.PHANTOMJS === _gpfHost) {
 
-    _gpfSetHttpRequestImpl(function (request, resolve, reject) {
-        _gpfIgnore(reject);
+    _gpfSetHttpRequestImpl(function (request, resolve) {
         var xhr = new XMLHttpRequest();
         xhr.open(request.method, request.url);
-        if (request.headers) {
-            Object.keys(request.headers).forEach(function (headerName) {
-                xhr.setRequestHeader(headerName, request.headers[headerName]);
-            });
-        }
+        _gpfHttpXhrSetHeaders(xhr, request.headers);
         xhr.onreadystatechange = function () {
             if (4 === xhr.readyState) {
                 resolve({
@@ -34,7 +44,7 @@ if (_GPF_HOST.BROWSER === _gpfHost || _GPF_HOST.PHANTOMJS === _gpfHost) {
                 });
             }
         };
-        xhr.send(request.data || null);
+        _gpfHttpXhrSend(xhr, request.data);
     });
 
 }
