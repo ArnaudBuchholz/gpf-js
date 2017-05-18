@@ -3,7 +3,8 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*exported _gpfSetHttpRequestImpl*/ // Set the HTTP Request Implementation method
+/*global _gpfHost*/ // Host type
+/*exported _gpfHttpRequestImplByHost*/ // HTTP Request Implementation per host
 /*#endif*/
 
 /** Http methods */
@@ -38,22 +39,11 @@ var _HTTP_METHODS = {
  */
 
 /**
- * HTTP request host specific implementation
+ * HTTP request host specific implementation per host
  *
- * @param {gpf.typedef.httpRequestSettings} request HTTP Request settings
- * @param {Function} resolve Promise resolve helper
- * @param {Function} reject Promise reject helper
+ * @type {Object}
  */
-var _gpfHttpRequestImpl;
-
-/**
- * Set the HTTP Request Implementation method
- *
- * @param {Function} method Implementation
- */
-function _gpfSetHttpRequestImpl (method) {
-    _gpfHttpRequestImpl = method;
-}
+var _gpfHttpRequestImplByHost = {};
 
 /**
  * HTTP request common implementation
@@ -63,7 +53,7 @@ function _gpfSetHttpRequestImpl (method) {
  */
 function _gpfHttpRequest (request) {
     return new Promise(function (resolve, reject) {
-        _gpfHttpRequestImpl(request, resolve, reject);
+        _gpfHttpRequestImplByHost[_gpfHost](request, resolve, reject);
     });
 }
 
