@@ -17,7 +17,7 @@
 var _gpfHttpWScriptSetHeaders = _gpfHttpGenSetHeaders("setRequestHeader"),
     _gpfHttpWScriptSend = _gpfHttpGenSend("Send");
 
-function _gpfHttpWScriptAllocate(request) {
+function _gpfHttpWScriptAllocate (request) {
     var winHttp = new ActiveXObject("WinHttp.WinHttpRequest.5.1");
     winHttp.Open(request.method, request.url);
     return winHttp;
