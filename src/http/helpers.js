@@ -36,9 +36,8 @@ function _gpfHttpParseHeaders (headers) {
 function _gpfHttpGenSetHeaders (methodName) {
     return function (httpObj, headers) {
         if (headers) {
-            var method = httpObj[methodName];
             Object.keys(headers).forEach(function (headerName) {
-                method.call(httpObj, headerName, headers[headerName]);
+                httpObj[methodName](headerName, headers[headerName]);
             });
         }
     };
@@ -53,11 +52,10 @@ function _gpfHttpGenSetHeaders (methodName) {
  */
 function _gpfHttpGenSend (methodName) {
     return function (httpObj, data) {
-        var method = httpObj[methodName];
         if (data) {
-            method.call(httpObj, data);
+            httpObj[methodName](data);
         } else {
-            method.call(httpObj);
+            httpObj[methodName]();
         }
     };
 }
