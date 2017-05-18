@@ -307,6 +307,11 @@
         "doc": true
     },
     {
+        "name": "string/fromStream",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "http/nodejs",
         "test": false,
         "doc": true
