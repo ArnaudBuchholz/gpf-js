@@ -293,27 +293,38 @@
         "doc": true
     },
     {
-        "name": "http"
+        "name": "http",
+        "doc": true
     },
     {
         "name": "http/helpers",
-        "test": false
+        "test": false,
+        "doc": true
     },
     {
         "name": "http/xhr",
-        "test": false
+        "test": false,
+        "doc": true
     },
     {
         "name": "http/nodejs",
-        "test": false
+        "test": false,
+        "doc": true
     },
     {
         "name": "http/wscript",
-        "test": false
+        "test": false,
+        "doc": true
+    },
+    {
+        "name": "stream/rhino",
+        "test": false,
+        "doc": true
     },
     {
         "name": "http/rhino",
-        "test": false
+        "test": false,
+        "doc": true
     },
     {
         "name": "events",
