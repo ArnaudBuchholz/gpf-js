@@ -14,6 +14,13 @@
 var _gpfNodeJSURL,
     _gpfNodeJSHTTP;
 
+function _gpfHttpNodeInitURLAndHTTP () {
+    if (!_gpfNodeJSURL) {
+        _gpfNodeJSURL = require("url");
+        _gpfNodeJSHTTP = require("http");
+    }
+}
+
 function _gpfHttpNodeProcessResponse (resolve, nodeResponse) {
     var response = {
             status: nodeResponse.statusCode,
@@ -21,24 +28,20 @@ function _gpfHttpNodeProcessResponse (resolve, nodeResponse) {
         },
         responseText = [];
     nodeResponse.setEncoding("utf8");
-    nodeResponse.on("data", function (chunk) {
-        responseText.push(chunk.toString());
-    });
-    nodeResponse.on("end", function () {
-        response.responseText = responseText.join("");
-        resolve(response);
-    });
+    nodeResponse
+        .on("data", function (chunk) {
+            responseText.push(chunk.toString());
+        })
+        .on("end", function () {
+            response.responseText = responseText.join("");
+            resolve(response);
+        });
 }
 
 if (_GPF_HOST.NODEJS === _gpfHost) {
 
     _gpfSetHttpRequestImpl(function (request, resolve, reject) {
-        if (!_gpfNodeJSURL) {
-            _gpfNodeJSURL = require("url");
-        }
-        if (!_gpfNodeJSHTTP) {
-            _gpfNodeJSHTTP = require("http");
-        }
+        _gpfHttpNodeInitURLAndHTTP();
         var options = Object.assign(_gpfNodeJSURL.parse(request.url), request),
             clientRequest = _gpfNodeJSHTTP.request(options, _gpfHttpNodeProcessResponse.bind(null, resolve));
         clientRequest.on("error", reject);
