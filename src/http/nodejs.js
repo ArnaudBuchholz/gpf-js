@@ -4,8 +4,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
-/*global _gpfHost*/ // Host type
-/*global _gpfSetHttpRequestImpl*/ // Set the HTTP Request Implementation method
+/*global _gpfHttpRequestImplByHost*/ // HTTP Request Implementation per host
 /*#endif*/
 
 /*jshint node: true*/
@@ -38,17 +37,13 @@ function _gpfHttpNodeProcessResponse (resolve, nodeResponse) {
         });
 }
 
-if (_GPF_HOST.NODEJS === _gpfHost) {
-
-    _gpfSetHttpRequestImpl(function (request, resolve, reject) {
-        _gpfHttpNodeInitURLAndHTTP();
-        var options = Object.assign(_gpfNodeJSURL.parse(request.url), request),
-            clientRequest = _gpfNodeJSHTTP.request(options, _gpfHttpNodeProcessResponse.bind(null, resolve));
-        clientRequest.on("error", reject);
-        if (request.data) {
-            clientRequest.write(request.data);
-        }
-        clientRequest.end();
-    });
-
-}
+_gpfHttpRequestImplByHost[_GPF_HOST.NODEJS] = function (request, resolve, reject) {
+    _gpfHttpNodeInitURLAndHTTP();
+    var options = Object.assign(_gpfNodeJSURL.parse(request.url), request),
+        clientRequest = _gpfNodeJSHTTP.request(options, _gpfHttpNodeProcessResponse.bind(null, resolve));
+    clientRequest.on("error", reject);
+    if (request.data) {
+        clientRequest.write(request.data);
+    }
+    clientRequest.end();
+};
