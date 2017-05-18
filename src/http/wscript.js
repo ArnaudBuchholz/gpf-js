@@ -17,15 +17,23 @@
 var _gpfHttpWScriptSetHeaders = _gpfHttpGenSetHeaders("setRequestHeader"),
     _gpfHttpWScriptSend = _gpfHttpGenSend("Send");
 
-_gpfHttpRequestImplByHost[_GPF_HOST.WSCRIPT] = function (request, resolve) {
+function _gpfHttpWScriptAllocate(request) {
     var winHttp = new ActiveXObject("WinHttp.WinHttpRequest.5.1");
-    // winHttp.SetTimeouts(0, 60000, 30000, 30000);
     winHttp.Open(request.method, request.url);
-    _gpfHttpWScriptSetHeaders(winHttp, request.headers);
-    _gpfHttpWScriptSend(winHttp, request.data);
+    return winHttp;
+}
+
+function _gpfHttpWScriptResolve (winHttp, resolve) {
     resolve({
         status: winHttp.Status,
         headers: _gpfHttpParseHeaders(winHttp.GetAllResponseHeaders()),
         responseText: winHttp.ResponseText
     });
+}
+
+_gpfHttpRequestImplByHost[_GPF_HOST.WSCRIPT] = function (request, resolve) {
+    var winHttp = _gpfHttpWScriptAllocate(request);
+    _gpfHttpWScriptSetHeaders(winHttp, request.headers);
+    _gpfHttpWScriptSend(winHttp, request.data);
+    _gpfHttpWScriptResolve(winHttp, resolve);
 };
