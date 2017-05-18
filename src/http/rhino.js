@@ -5,7 +5,6 @@
 "use strict";
 /*global _GPF_HOST*/ // Host types
 /*global _gpfHost*/ // Host type
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfSetHttpRequestImpl*/ // Set the HTTP Request Implementation method
 /*#endif*/
 
@@ -58,8 +57,7 @@ function _gpfHttpRhinoGetHeaders (httpConnection) {
 
 if (_GPF_HOST.RHINO === _gpfHost) {
 
-    _gpfSetHttpRequestImpl(function (request, resolve, reject) {
-        _gpfIgnore(reject);
+    _gpfSetHttpRequestImpl(function (request, resolve) {
         var httpConnection = new java.net.URL(request.url).openConnection();
         httpConnection.setRequestMethod(request.method);
         _gpfHttpRhinoSetHeaders(httpConnection, request.headers);
