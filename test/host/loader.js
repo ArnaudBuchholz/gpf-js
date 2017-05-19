@@ -95,7 +95,7 @@
         },
 
         _loadBDD = function (configuration, verbose) {
-            if (false !== configuration.useBDD) {
+            if (undefined === configuration.run) {
                 verbose("Loading BDD");
                 _load(configuration, _resolvePath(configuration, "test/host/bdd.js"));
             }
@@ -172,22 +172,21 @@
         },
 
         _runBDD = function (configuration, options, verbose) {
-            if (false !== configuration.useBDD) {
-                verbose("Running BDD");
-                exit = configuration.exit; // used by BDD.js
-                if (options.perf) {
-                    _runBDDPerf(configuration, options);
-                } else {
-                    run();
-                }
+            verbose("Running BDD");
+            exit = configuration.exit; // used by BDD.js
+            if (options.perf) {
+                _runBDDPerf(configuration, options);
+            } else {
+                run();
             }
         },
 
         _safeRunBDD = function (configuration, options, verbose) {
             try {
-                _runBDD(configuration, options, verbose);
-                if (configuration.done) {
-                    configuration.done();
+                if (undefined === configuration.run) {
+                    _runBDD(configuration, options, verbose);
+                } else {
+                    configuration.run();
                 }
                 gpf.handleTimeout();
             } catch (e) {
@@ -196,19 +195,17 @@
             }
         };
 
-    /**
-     * @param {Object} configuration
+    /*
+     * Expected members on configuration:
      * - {String[]} parameters command line parameters
      * - {String} gpfPath GPF base path
      * - {String} pathSeparator
-     * - {Boolean} useBDD
      * - {Function} log
      * - {Function} exit
      * - (Function) require
      * - (Function) read  function (filePath) {} reads a file
      * - (Function) [loadTest=undefined] loadTest function (filePath) {} reads a test file
-     * - {Function} done
-     * @private
+     * - {Function} run When defined, this method is triggered to execute the tests
      */
     context.loadGpfAndTests = function (configuration) {
         var options = {
