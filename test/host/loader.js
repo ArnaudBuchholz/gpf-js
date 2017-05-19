@@ -171,12 +171,29 @@
             run(callback);
         },
 
+        _runBDDForCoverage = function (configuration, options, verbose) {
+            verbose("Running BDD - coverage");
+            run(function (type, data) {
+                if (type !== "results") {
+                    return;
+                }
+                if (data.fail) {
+                    exit(-1);
+                }
+                verbose("saving results");
+//                verbose(JSON.stringify(__coverage__));
+            });
+        },
+
         _runBDD = function (configuration, options, verbose) {
-            verbose("Running BDD");
             exit = configuration.exit; // used by BDD.js
             if (options.perf) {
+                verbose("Running BDD - performances");
                 _runBDDPerf(configuration, options);
+            } else if (options.coverage) {
+                _runBDDForCoverage(configuration, options, verbose);
             } else {
+                verbose("Running BDD");
                 run();
             }
         },
