@@ -18,11 +18,10 @@ loadGpfAndTests({
     read: function (filePath) {
         return fs.readFileSync(filePath).toString();
     },
-    useBDD: false,
     loadTest: function (filePath) {
         mocha.addFile(filePath);
     },
-    done: function () {
+    run: function () {
         // Now, you can run the tests.
         mocha.run(function (failures) {
             process.on("exit", function () {
