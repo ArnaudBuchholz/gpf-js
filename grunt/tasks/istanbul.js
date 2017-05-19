@@ -25,6 +25,7 @@ module.exports = function (grunt) {
         "instrument",
         "fixInstrument",
         "copy:instrumentSourcesJson",
+        "connectIf",
         "mochaTest:coverage",
         "storeCoverage",
         "makeReport",
