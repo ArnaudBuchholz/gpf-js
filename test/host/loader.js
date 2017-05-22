@@ -87,8 +87,7 @@
                     verbose("Using source version");
                     context.gpfSourcesPath = _resolvePath(configuration, "src/");
                 }
-                // Set the source path
-                _load(configuration, _resolvePath(configuration, "src/boot.js"));
+                _load(configuration, gpfSourcesPath + "boot.js");
             }
             // Load the list of modules
             var sourcesJson = configuration.read("src/sources.json");
