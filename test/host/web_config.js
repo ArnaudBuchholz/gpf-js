@@ -2,6 +2,24 @@
 
 function nop () {}
 
+function verbose (result) {
+    result.log = console.log.bind(console);
+}
+
+function getParametersPush (param) {
+    return function (result, parameters) {
+        parameters.push(param);
+    };
+}
+
+var argumentsHandlers = {
+    "-verbose": verbose,
+    "-debugger": verbose,
+    "-release": getParametersPush("release"),
+    "-debug": getParametersPush("debug"),
+    "-coverage": getParametersPush("coverage")
+};
+
 /**
  * Read the configuration & process parameters to determine the browser type and URL
  *
@@ -27,12 +45,9 @@ module.exports = function (browserType, urlParameters) {
         parameters.push(urlParameters);
     }
     process.argv.slice(2).forEach(function (arg) {
-        if ("-verbose" === arg || "-debugger" === arg) {
-            result.log = console.log.bind(console);
-        } else if ("-release" === arg) {
-            parameters.push("release");
-        } else if ("-debug" === arg) {
-            parameters.push("debug");
+        var handler = argumentsHandlers[arg];
+        if (handler) {
+            handler(result, parameters);
         } else if (0 === arg.indexOf("legacy/")) {
             parameters.push("version=" + arg.substr(7));
         } else {
