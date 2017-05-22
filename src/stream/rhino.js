@@ -19,6 +19,7 @@
 /* istanbul ignore else */ // Because tested with NodeJS
 if (_GPF_HOST.RHINO === _gpfHost) {
 
+
     var
         _GpfRhinoBaseStream = _gpfDefine(/** @lends gpf.rhino.BaseStream */ {
             $class: "gpf.rhino.BaseStream",
@@ -70,11 +71,29 @@ if (_GPF_HOST.RHINO === _gpfHost) {
             //region gpf.interfaces.IReadableStream
 
             /**
+             * Process error that occurred during the stream reading
+             *
+             * @param {Error} e Error coming from read
+             * @return {Promise} Read result replacement
+             */
+            _handleError: function (e) {
+                if (e.message.indexOf("java.util.NoSuchElementException") === 0) {
+                    // Empty stream
+                    return Promise.resolve();
+                }
+                throw e;
+            },
+
+            /**
              * @gpf:sameas gpf.interfaces.IReadableStream#read
              */
             read: _gpfStreamSecureRead(function (output) {
                 var scanner = new java.util.Scanner(this._stream); //eslint-disable-line no-invalid-this
-                return output.write(String(scanner.useDelimiter("\\A").next()));
+                try {
+                    return output.write(String(scanner.useDelimiter("\\A").next()));
+                } catch (e) {
+                    return this._handleError(e); //eslint-disable-line no-invalid-this
+                }
             })
 
             //endregion
@@ -127,5 +146,4 @@ if (_GPF_HOST.RHINO === _gpfHost) {
             _writer: null
 
         });
-
 }
