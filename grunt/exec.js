@@ -74,6 +74,9 @@ function _buildTestConfig (name, command) {
     module.exports["test" + name + "Verbose"] = Object.assign({
         cmd: buildCommand(" -debugger")
     }, verbose, failIfNot0);
+    module.exports["test" + name + "Coverage"] = Object.assign({
+        cmd: buildCommand(" -coverage")
+    }, silent, failIfNot0);
     module.exports["test" + name + "Debug"] = Object.assign({
         cmd: buildCommand(" -debug")
     }, silent, failIfNot0);
