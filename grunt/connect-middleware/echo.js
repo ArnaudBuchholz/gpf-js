@@ -22,13 +22,13 @@ function _process (request, response) {
     } else {
         headers = request.headers;
     }
-    if (parsedUrl.query.content) {
-        content = parsedUrl.query.content;
-    } else {
+    if (undefined === parsedUrl.query.content) {
         content = JSON.stringify({
             method: request.method,
             url: request.url
         });
+    } else {
+        content = parsedUrl.query.content;
     }
 
     const
