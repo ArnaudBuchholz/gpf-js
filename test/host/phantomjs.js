@@ -10,9 +10,7 @@ loadGpfAndTests({
     // https://groups.google.com/forum/#!msg/phantomjs/OswbWiKrLYI/ndoXvK13OrIJ
     gpfPath: phantom.libraryPath.split("/").slice(0, -2).join(fs.separator),
     pathSeparator: fs.separator,
-    log: function (text) {
-        console.log(text);
-    },
+    log: console.log.bind(console),
     exit: phantom.exit,
     require: require,
     read: function (filePath) {
