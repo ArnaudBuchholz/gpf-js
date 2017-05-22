@@ -4,6 +4,7 @@
     "use strict";
 
     /*global run, exit:true*/ // From bdd.js
+    /*global __coverage__*/ // Coverage data
 
     var Func = Function,
         sources,
@@ -178,10 +179,19 @@
                     return;
                 }
                 if (data.fail) {
+                    verbose("Failed: " + data.fail + ".");
                     exit(-1);
                 }
-                verbose("saving results");
-//                verbose(JSON.stringify(__coverage__));
+                verbose("Uploading coverage results...");
+                gpf.http.request({
+                    method: gpf.http.methods.post,
+                    url: "http://localhost:" + config.httpPort + "/fs/tmp/coverage/reports/coverage."
+                        + gpf.host() + ".json",
+                    data: JSON.stringify(__coverage__)
+                })
+                    .then(function () {
+                        verbose("Coverage results uploaded.");
+                    });
             });
         },
 
