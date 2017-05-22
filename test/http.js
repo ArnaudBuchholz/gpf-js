@@ -51,6 +51,13 @@ describe("http", function () {
             })["catch"](done);
         });
 
+        it("succeeds when the HTTP response is empty", function (done) {
+            gpf.http.get(baseUrl + "content=").then(function (response) {
+                assert(response.responseText === "");
+                done();
+            })["catch"](done);
+        });
+
         it("forwards request headers", function (done) {
             gpf.http.request({
                 method: gpf.http.methods.get,
