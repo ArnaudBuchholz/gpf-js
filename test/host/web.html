@@ -47,6 +47,7 @@ var lines = [];
 function insertLines() {
     if (lines.length) {
         var results = document.getElementById("results");
+
         results.innerHTML = results.innerHTML + lines.join("");
         lines = [];
     }
@@ -144,15 +145,12 @@ load(function () {
             line = lines.pop();
             insertLines(); // flush
             results = document.getElementById("results");
-            // Tweak the line so that it can be retreived
+            // Tweak the line so that it can be retrieved
             line = line.replace("<tr class", "<tr id=\"status\" class");
             results.innerHTML = line + results.innerHTML;
             document.title = "GPF Tests - done";
-            // Check if result must be cached
-            var match = /cache=([0-9]+)/.exec(location.search);
-            if (match) {
-                xhr("/cache/" + match[1]).post(JSON.stringify(data));
-            }
+            // Post processing
+            afterRun(data);
         }
     });
 });
