@@ -96,8 +96,9 @@
 
         _loadBDD = function (configuration, verbose) {
             if (undefined === configuration.run) {
-                verbose("Loading BDD");
+                verbose("Loading BDD...");
                 _load(configuration, _resolvePath(configuration, "test/host/bdd.js"));
+                verbose("BDD loaded.");
             }
         },
 
@@ -134,12 +135,14 @@
             }
         },
 
-        _loadTests = function (configuration, options) {
+        _loadTests = function (configuration, options, verbose) {
+            verbose("Loading test files...");
             if (options.tests.length) {
                 _loadTestsFromNames(configuration, options.tests);
             } else {
                 _loadTestsFromModules(configuration);
             }
+            verbose("Test files loaded.");
         },
 
         _setupConfig = function (configuration/*, options*/) {
@@ -190,6 +193,7 @@
                 })
                     .then(function () {
                         verbose("Coverage results uploaded.");
+                        exit(0);
                     }, function (reason) {
                         verbose("Upload failed: " + reason.toString());
                         exit(-1);
@@ -257,8 +261,9 @@
         _loadGpf(configuration, options, verbose);
         _loadBDD(configuration, verbose);
         if (!options.ignoreConsole) {
-            verbose("Loading console");
+            verbose("Loading console...");
             _load(configuration, _resolvePath(configuration, "test/host/console.js"));
+            verbose("Console loaded.");
         }
         _loadTests(configuration, options, verbose);
         _setupConfig(configuration, options);
