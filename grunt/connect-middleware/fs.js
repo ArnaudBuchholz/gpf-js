@@ -93,7 +93,7 @@ module.exports = function (request, response, next) {
         } else if ("DELETE" === request.method) {
             _delete(response, filePath);
 
-        } else { // PUt & POST
+        } else { // PUT & POST
             _write(request, response, filePath);
         }
     });
