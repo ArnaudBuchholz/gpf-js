@@ -4,13 +4,7 @@
     "use strict";
     /*jshint browser: true*/
     /*eslint-env browser*/
-
-    if (!window.gpfSourcesPath) {
-        window.gpfSourcesPath = "../../src/";
-    }
-    if (!window.gpfTestsPath) {
-        window.gpfTestsPath = "../";
-    }
+    /*global __coverage__*/ // Coverage data
 
     function log (msg) {
         if (console.expects) {
@@ -98,6 +92,7 @@
         var locationSearch = window.location.search,
             release = -1 < locationSearch.indexOf("release"),
             debug = -1 < locationSearch.indexOf("debug"),
+            coverage = -1 < locationSearch.indexOf("coverage"),
             version,
             path;
         if (release) {
@@ -106,6 +101,11 @@
         } else if (debug) {
             version = "debug";
             path = "../build/gpf-debug.js";
+        } else if (coverage) {
+            version = "instrumented sources";
+            window.global = window;
+            gpfSourcesPath += "../tmp/coverage/instrument/src/";
+            path = "boot.js";
         } else {
             version = "sources";
             path = "boot.js";
@@ -116,8 +116,9 @@
 
     function _loadVersion (callback) {
         var head = document.getElementsByTagName("head")[0],
-            script = document.createElement("script");
-        script.src = gpfSourcesPath + _detectVersion();
+            script = document.createElement("script"),
+            version = _detectVersion();
+        script.src = gpfSourcesPath + version;
         script.language = "javascript";
         head.insertBefore(script, head.firstChild);
         _waitForLoad(callback);
@@ -129,6 +130,19 @@
      */
     window.load = function (callback) {
         _loadVersion(callback);
+    };
+
+    // Call it after tests to handle cached results & coverage storage
+    window.afterRun = function (data) {
+        // Check if result must be cached
+        var match = (/cache=([0-9]+)/).exec(location.search);
+        if (match) {
+            xhr("/cache/" + match[1]).post(JSON.stringify(data));
+        }
+        // Store coverage data
+        if (__coverage__) {
+            xhr("/fs/tmp/coverage/reports/coverage.browser.json").post(JSON.stringify(__coverage__));
+        }
     };
 
 }());
