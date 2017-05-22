@@ -190,6 +190,8 @@
                 })
                     .then(function () {
                         verbose("Coverage results uploaded.");
+                    }, function (reason) {
+                        verbose("Upload failed: " + reason.toString());
                     });
             });
         },
