@@ -33,20 +33,26 @@ const
         } else {
             dst[fileName] = srcCoverageData;
         }
+    },
+
+    mergeCoverage = (dst, src) => {
+        Object.keys(src).forEach(fileName => {
+            mergeCoverageData(dst, src, fileName);
+        });
     };
 
 module.exports = function (grunt) {
 
     grunt.registerTask("mergeCoverage", () => {
-        let coverage = fs.readFileSync("tmp/coverage/reports/coverage.json");
+        let coverage = grunt.file.readJSON("tmp/coverage/reports/coverage.json");
         [
             "browser",
             "phantomjs",
             "rhino",
             "wscript"
         ].forEach(host => {
-            let hostCoverage = fs.readFileSync(`tmp/coverage/reports/coverage.${host}.json`);
-            Object.keys(hostCoverage).forEach(mergeCoverageData.bind(null, coverage, hostCoverage));
+            let hostCoverage = grunt.file.readJSON(`tmp/coverage/reports/coverage.${host}.json`);
+            mergeCoverage(coverage, hostCoverage);
         });
         fs.writeFileSync("tmp/coverage/reports/coverage.json", JSON.stringify(coverage));
     });
@@ -99,7 +105,7 @@ module.exports = function (grunt) {
         }
     }
 
-    coverageTasks.push(/*"mergeCoverage", */ "makeReport", "coverage");
+    coverageTasks.push("mergeCoverage", "makeReport", "coverage");
 
     grunt.registerTask("istanbul", coverageTasks);
 };
