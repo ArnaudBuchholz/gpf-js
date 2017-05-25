@@ -5,8 +5,8 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
+/*global _gpfBootImplByHost*/ // Boot host specific implementation per host
 /*global _gpfExit:true*/ // Exit function
-/*global _gpfHost*/ // Host type
 /*global _gpfWebDocument:true*/ // Browser document object
 /*global _gpfWebWindow:true*/ // Browser window object
 /*#endif*/
@@ -15,9 +15,9 @@
 /*jshint browser: true*/
 /*eslint-env phantomjs, browser*/
 
-/* istanbul ignore next */ // Tested with NodeJS
-if (_GPF_HOST.PHANTOMJS === _gpfHost) {
+_gpfBootImplByHost[_GPF_HOST.PHANTOMJS] = function () {
 
+    /* istanbul ignore next */ // Not testable
     _gpfExit = function (code) {
         phantom.exit(code);
     };
@@ -25,4 +25,4 @@ if (_GPF_HOST.PHANTOMJS === _gpfHost) {
     _gpfWebWindow = window;
     _gpfWebDocument = document;
 
-}
+};
