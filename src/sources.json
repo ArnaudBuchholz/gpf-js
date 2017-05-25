@@ -4,6 +4,10 @@
         "load": false
     },
     {
+        "name": "console",
+        "doc": true
+    },
+    {
         "name": "host/browser",
         "test": false,
         "doc": true
@@ -24,7 +28,17 @@
         "doc": true
     },
     {
+        "name": "host/unknown",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "host/wscript",
+        "test": false,
+        "doc": true
+    },
+    {
+        "name": "host",
         "test": false,
         "doc": true
     },
