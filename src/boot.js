@@ -18,6 +18,7 @@
 /*exported _gpfVersion*/ // GPF version
 /*exported _gpfWebDocument*/ // Browser document object
 /*exported _gpfWebWindow*/ // Browser window object
+/*exported _gpfBootImplByHost*/ // Boot host specific implementation per host
 /*eslint-disable no-unused-vars*/
 /*#endif*/
 
@@ -125,7 +126,14 @@ var
      * @type {Object}
      * @since 0.1.5
      */
-    _gpfNodePath;
+    _gpfNodePath,
+
+    /**
+     * Boot host specific implementation per host
+     *
+     * @type {Object}
+     */
+    _gpfBootImplByHost = {};
 
 /*#ifdef(DEBUG)*/
 
@@ -149,7 +157,6 @@ var _gpfSyncReadForBoot;
 /*#endif*/
 
 /* Host detection */
-/* istanbul ignore next */
 
 // Microsoft cscript / wscript
 if ("undefined" !== typeof WScript) {
@@ -215,8 +222,15 @@ if ("undefined" !== typeof WScript) {
 
 /*#endif*/
 
+// Unknown
+/* istanbul ignore if */ // Or it wouldn't be unknown :-)
+} else if ("undefined" === typeof window) {
+
+    _gpfHost = _GPF_HOST.UNKNOWN;
+
 // Browser
-} else if ("undefined" !== typeof window) {
+} else {
+
     _gpfHost = _GPF_HOST.BROWSER;
     _gpfMainContext = window;
 
