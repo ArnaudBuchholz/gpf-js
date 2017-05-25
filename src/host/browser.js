@@ -5,8 +5,8 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
+/*global _gpfBootImplByHost*/ // Boot host specific implementation per host
 /*global _gpfExit:true*/ // Exit function
-/*global _gpfHost*/ // Host type
 /*global _gpfWebDocument:true*/ // Browser document object
 /*global _gpfWebWindow:true*/ // Browser window object
 /*#endif*/
@@ -14,9 +14,9 @@
 /*jshint browser: true*/
 /*eslint-env browser*/
 
-/* istanbul ignore next */ // Tested with NodeJS
-if (_GPF_HOST.BROWSER === _gpfHost) {
+_gpfBootImplByHost[_GPF_HOST.BROWSER] = function () {
 
+    /* istanbul ignore next */ // Not testable
     _gpfExit = function (code) {
         window.location = "https://arnaudbuchholz.github.io/gpf/exit.html?" + (code || 0);
     };
@@ -24,4 +24,4 @@ if (_GPF_HOST.BROWSER === _gpfHost) {
     _gpfWebWindow = window;
     _gpfWebDocument = document;
 
-}
+};
