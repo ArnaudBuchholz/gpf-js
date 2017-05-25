@@ -30,6 +30,13 @@ var
      */
     _gpfNodeUrl;
 
+/**
+ * @namespace gpf.node
+ * @description Root namespace for NodeJS specifics
+ * @since 0.1.5
+ */
+gpf.node = {};
+
 _gpfBootImplByHost[_GPF_HOST.NODEJS] = function () {
 
     _gpfNodeFs = require("fs");
@@ -40,12 +47,5 @@ _gpfBootImplByHost[_GPF_HOST.NODEJS] = function () {
     _gpfExit = function (code) {
         process.exit(code);
     };
-
-    /**
-     * @namespace gpf.node
-     * @description Root namespace for NodeJS specifics
-     * @since 0.1.5
-     */
-    gpf.node = {};
 
 };
