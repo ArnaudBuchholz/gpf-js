@@ -13,13 +13,11 @@
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
-/*global _gpfHost*/ // Host type
-/*global _gpfHost*/ // Host type
-/*global _gpfMsFSO:true*/ // Scripting.FileSystemObject activeX
+/*global _gpfMsFSO*/ // Scripting.FileSystemObject activeX
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*global _gpfPathNormalize*/ // Normalize path
 /*global _gpfPathNormalize*/ // Normalize path
-/*global _gpfSetHostFileStorage*/ // Set the result of gpf.fs.getFileStorage
+/*global _gpfFileStorageByHost*/ // gpf.interfaces.IFileStorage per host
 /*#endif*/
 
 /*jshint wsh:true*/
@@ -27,7 +25,6 @@
 /*eslint-disable new-cap*/ // FileSystem object APIs are uppercased
 /*global Enumerator*/ // Enumerator helper
 
-/* istanbul ignore next */ // Because tested with NodeJS
 /**
  * Translate WScript file object into a {@link gpf.typedef.fileStorageInfo}
  *
@@ -47,7 +44,7 @@ function _gpfFsWScriptObjToFileStorageInfo (obj, type) {
     };
 }
 
-/* istanbul ignore next */ // Because tested with NodeJS
+/* istanbuk ignore next */ // Because tested with NodeJS
 function _gpfFsWscriptFSOCallWithArg (name, path) {
     return new Promise(function (resolve) {
         _gpfMsFSO[name](_gpfPathDecompose(path).join("\\"));
@@ -55,7 +52,7 @@ function _gpfFsWscriptFSOCallWithArg (name, path) {
     });
 }
 
-/* istanbul ignore next */ // Because tested with NodeJS
+/* istanbuk ignore next */ // Because tested with NodeJS
 function _gpfFsWscriptFSOCallWithArgAndTrue (name, path) {
     return new Promise(function (resolve) {
         _gpfMsFSO[name](_gpfPathDecompose(path).join("\\"), true);
@@ -63,7 +60,7 @@ function _gpfFsWscriptFSOCallWithArgAndTrue (name, path) {
     });
 }
 
-/* istanbul ignore next */ // Because tested with NodeJS
+/* istanbuk ignore next */ // Because tested with NodeJS
 function _gpfFsWscriptGetFileInfo (path) {
     if (_gpfMsFSO.FileExists(path)) {
         return _gpfFsWScriptObjToFileStorageInfo(_gpfMsFSO.GetFile(path), _GPF_FS_TYPES.FILE);
@@ -73,7 +70,7 @@ function _gpfFsWscriptGetFileInfo (path) {
     };
 }
 
-/* istanbul ignore next */ // Because tested with NodeJS
+/* istanbuk ignore next */ // Because tested with NodeJS
 function _gpfFsWscriptGetInfo (path) {
     if (_gpfMsFSO.FolderExists(path)) {
         return _gpfFsWScriptObjToFileStorageInfo(_gpfMsFSO.GetFolder(path), _GPF_FS_TYPES.DIRECTORY);
@@ -81,7 +78,7 @@ function _gpfFsWscriptGetInfo (path) {
     return _gpfFsWscriptGetFileInfo(path);
 }
 
-/* istanbul ignore next */ // Because tested with NodeJS
+/* istanbuk ignore next */ // Because tested with NodeJS
 function _gpfFsWScriptExploreList (collection) {
     var fsoEnum = new Enumerator(collection),
         results = [];
@@ -91,7 +88,7 @@ function _gpfFsWScriptExploreList (collection) {
     return results;
 }
 
-/* istanbul ignore next */ // Because tested with NodeJS
+/* istanbuk ignore next */ // Because tested with NodeJS
 function _gpfFsWScriptExplore (path) {
     var folder;
     if (_gpfMsFSO.FolderExists(path)) {
@@ -102,23 +99,16 @@ function _gpfFsWScriptExplore (path) {
     return [];
 }
 
-/* istanbul ignore next */ // Because tested with NodeJS
+/**
+ * WScript specific IFileStorage implementation
+ *
+ * @class gpf.wscript.FileStorage
+ * @implements {gpf.interfaces.IFileStorage}
+ * @private
+ * @since 0.1.9
+ */
 var _GpfWScriptFileStorage = _gpfDefine(/** @lends gpf.wscript.FileStorage */ {
     $class: "gpf.wscript.FileStorage",
-
-    /**
-     * WScript specific IFileStorage implementation
-     *
-     * @constructor gpf.wscript.FileStorage
-     * @implements {gpf.interfaces.IFileStorage}
-     * @private
-     * @since 0.1.9
-     */
-    constructor: function () {
-        if (!_gpfMsFSO) {
-            _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
-        }
-    },
 
     //region gpf.interfaces.IFileStorage
 
@@ -188,9 +178,4 @@ var _GpfWScriptFileStorage = _gpfDefine(/** @lends gpf.wscript.FileStorage */ {
 
 });
 
-/* istanbul ignore next */ // Because tested with NodeJS
-if (_GPF_HOST.WSCRIPT === _gpfHost) {
-
-    _gpfSetHostFileStorage(new _GpfWScriptFileStorage());
-
-}
+_gpfFileStorageByHost[_GPF_HOST.WSCRIPT] = new _GpfWScriptFileStorage();
