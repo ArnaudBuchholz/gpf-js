@@ -5,8 +5,8 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
+/*global _gpfBootImplByHost*/ // Boot host specific implementation per host
 /*global _gpfExit:true*/ // Exit function
-/*global _gpfHost*/ // Host type
 /*global _gpfNodeFs:true*/ // Node require("fs")
 /*exported _gpfNodeHttp*/ // Node require("http")
 /*exported _gpfNodeUrl*/ // Node require("url")
@@ -30,8 +30,7 @@ var
      */
     _gpfNodeUrl;
 
-/* istanbul ignore else */ // Tested with NodeJS
-if (_GPF_HOST.NODEJS === _gpfHost) {
+_gpfBootImplByHost[_GPF_HOST.NODEJS] = function () {
 
     _gpfNodeFs = require("fs");
     _gpfNodeHttp = require("http");
@@ -49,4 +48,4 @@ if (_GPF_HOST.NODEJS === _gpfHost) {
      */
     gpf.node = {};
 
-}
+};
