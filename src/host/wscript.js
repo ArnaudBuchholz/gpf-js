@@ -9,6 +9,7 @@
 /*global _gpfConsoleGenerate*/ // Generate an object that can be used to simulate console methods
 /*global _gpfExit:true*/ // Exit function
 /*global _gpfMainContext*/ // Main context object
+/*global _gpfMsFSO:true*/ // Scripting.FileSystemObject activeX
 /*#endif*/
 
 /*jshint wsh: true*/
@@ -28,6 +29,8 @@ function _gpfWScriptEcho (text) {
 }
 
 _gpfBootImplByHost[_GPF_HOST.WSCRIPT] = function () {
+
+    _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
 
     // Define console APIs
     _gpfMainContext.console = _gpfConsoleGenerate(_gpfWScriptEcho);
