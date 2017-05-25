@@ -5,9 +5,10 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfHost*/ // Host type
 /*exported _GPF_FS_OPENFOR*/ // File system stream opening mode
 /*exported _GPF_FS_TYPES*/ // File system types constants
-/*exported _gpfSetHostFileStorage*/ // Set the result of gpf.fs.getFileStorage
+/*exported _gpfFileStorageByHost*/ // gpf.interfaces.IFileStorage per host
 /*#endif*/
 
 _gpfErrorDeclare("fs", {
@@ -50,12 +51,11 @@ var
     },
 
     /**
-     * Host file storage
+     * {@see gpf.interfaces.IFileStorage} per host
      *
-     * @type {gpf.interfaces.IFileStorage}
-     * @since 0.1.9
+     * @type {Object}
      */
-    _gpfHostFileStorage = null;
+    _gpfFileStorageByHost = {};
 
 /**
  * @namespace gpf.fs
@@ -123,21 +123,11 @@ gpf.fs = {
     /**
      * Get the current host file storage (null if none)
      *
-     * @return {gpf.interfaces.IFileStorage} IFileStorage interface
+     * @return {gpf.interfaces.IFileStorage|null} IFileStorage interface
      * @since 0.1.9
      */
     getFileStorage: function () {
-        return _gpfHostFileStorage;
+        return _gpfFileStorageByHost[_gpfHost] || null;
     }
 
 };
-
-/**
- * Set the result of {@see gpf.fs.getFileStorage}
- *
- * @param {gpf.interfaces.IFileStorage} iFileStorage object implementing IFileStorage
- * @since 0.1.9
- */
-function _gpfSetHostFileStorage (iFileStorage) {
-    _gpfHostFileStorage = iFileStorage;
-}
