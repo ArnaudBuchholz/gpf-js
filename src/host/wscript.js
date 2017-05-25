@@ -5,8 +5,9 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
+/*global _gpfBootImplByHost*/ // Boot host specific implementation per host
+/*global _gpfConsoleGenerate*/ // Generate an object that can be used to simulate console methods
 /*global _gpfExit:true*/ // Exit function
-/*global _gpfHost*/ // Host type
 /*global _gpfMainContext*/ // Main context object
 /*#endif*/
 
@@ -14,34 +15,26 @@
 /*eslint-env wsh*/
 /*eslint-disable new-cap*/
 
-/* istanbul ignore next */ // Tested with NodeJS
-if (_GPF_HOST.WSCRIPT === _gpfHost) {
+/**
+ * @namespace gpf.wscript
+ * @description Root namespace for WScript specifics
+ * @since 0.1.9
+ */
+gpf.wscript = {};
+
+/* istanbul ignore next */ // WScript.Echo can't be bound to WScript and not testable
+function _gpfWScriptEcho (text) {
+    WScript.Echo(text);
+}
+
+_gpfBootImplByHost[_GPF_HOST.WSCRIPT] = function () {
 
     // Define console APIs
-    _gpfMainContext.console = {
-        log: function (t) {
-            WScript.Echo("    " + t);
-        },
-        info: function (t) {
-            WScript.Echo("[?] " + t);
-        },
-        warn: function (t) {
-            WScript.Echo("/!\\ " + t);
-        },
-        error: function (t) {
-            WScript.Echo("(X) " + t);
-        }
-    };
+    _gpfMainContext.console = _gpfConsoleGenerate(_gpfWScriptEcho);
 
+    /* istanbul ignore next */ // Not testable
     _gpfExit = function (code) {
         WScript.Quit(code);
     };
 
-    /**
-     * @namespace gpf.wscript
-     * @description Root namespace for WScript specifics
-     * @since 0.1.9
-     */
-    gpf.wscript = {};
-
-}
+};
