@@ -12,12 +12,11 @@
 /*global _GpfNodeWritableStream*/ // gpf.node.WritableStream
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
-/*global _gpfHost*/ // Host type
 /*global _gpfNodeFs*/ // Node require("fs")
 /*global _gpfNodePath*/ // Node require("path")
 /*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
 /*global _gpfPathNormalize*/ // Normalize path
-/*global _gpfSetHostFileStorage*/ // Set the result of gpf.fs.getFileStorage
+/*global _gpfFileStorageByHost*/ // gpf.interfaces.IFileStorage per host
 /*#endif*/
 
 /*jshint node:true*/
@@ -212,12 +211,7 @@ var _gpfNodeFileStorage = _gpfDefine(/** @lends gpf.node.FileStorage */ {
 
 });
 
-/* istanbul ignore else */ // Because tested with NodeJS
-if (_GPF_HOST.NODEJS === _gpfHost) {
-
-    _gpfSetHostFileStorage(new _gpfNodeFileStorage());
-
-}
+_gpfFileStorageByHost[_GPF_HOST.NODEJS] = new _gpfNodeFileStorage();
 
 /*#ifndef(UMD)*/
 
