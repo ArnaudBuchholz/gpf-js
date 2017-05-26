@@ -237,6 +237,24 @@ describe("fs", function () {
                         });
                 });
 
+                it("fails on a file", function (done) {
+                    gpf.fs.getFileStorage().explore(gpf.path.join(data, "file.bin"))
+                        .then(function () {
+                            done(new Error("unexpected"));
+                        }, function () {
+                            done();
+                        });
+                });
+
+                it("fails with an invalid path", function (done) {
+                    gpf.fs.getFileStorage().explore(gpf.path.join(data, "nothing"))
+                        .then(function () {
+                            done(new Error("unexpected"));
+                        }, function () {
+                            done();
+                        });
+                });
+
             });
 
         } else {
