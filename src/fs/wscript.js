@@ -12,6 +12,7 @@
 /*global _GpfWscriptWritableStream*/ // gpf.wscript.WritableStream
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
 /*global _gpfMsFSO*/ // Scripting.FileSystemObject activeX
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
@@ -24,6 +25,21 @@
 /*eslint-env wsh*/
 /*eslint-disable new-cap*/ // FileSystem object APIs are uppercased
 /*global Enumerator*/ // Enumerator helper
+
+_gpfErrorDeclare("fs/wscript", {
+
+    /**
+     * ### Summary
+     *
+     * Path not explorable
+     *
+     * ### Description
+     *
+     * This error is used when explore is used with a path that does not point to a folder.
+     */
+    pathNotExplorable: "Path not explorable"
+
+});
 
 /**
  * Translate WScript file object into a {@link gpf.typedef.fileStorageInfo}
@@ -44,7 +60,6 @@ function _gpfFsWScriptObjToFileStorageInfo (obj, type) {
     };
 }
 
-/* istanbuk ignore next */ // Because tested with NodeJS
 function _gpfFsWscriptFSOCallWithArg (name, path) {
     return new Promise(function (resolve) {
         _gpfMsFSO[name](_gpfPathDecompose(path).join("\\"));
@@ -52,7 +67,6 @@ function _gpfFsWscriptFSOCallWithArg (name, path) {
     });
 }
 
-/* istanbuk ignore next */ // Because tested with NodeJS
 function _gpfFsWscriptFSOCallWithArgAndTrue (name, path) {
     return new Promise(function (resolve) {
         _gpfMsFSO[name](_gpfPathDecompose(path).join("\\"), true);
@@ -60,7 +74,6 @@ function _gpfFsWscriptFSOCallWithArgAndTrue (name, path) {
     });
 }
 
-/* istanbuk ignore next */ // Because tested with NodeJS
 function _gpfFsWscriptGetFileInfo (path) {
     if (_gpfMsFSO.FileExists(path)) {
         return _gpfFsWScriptObjToFileStorageInfo(_gpfMsFSO.GetFile(path), _GPF_FS_TYPES.FILE);
@@ -70,7 +83,6 @@ function _gpfFsWscriptGetFileInfo (path) {
     };
 }
 
-/* istanbuk ignore next */ // Because tested with NodeJS
 function _gpfFsWscriptGetInfo (path) {
     if (_gpfMsFSO.FolderExists(path)) {
         return _gpfFsWScriptObjToFileStorageInfo(_gpfMsFSO.GetFolder(path), _GPF_FS_TYPES.DIRECTORY);
@@ -78,7 +90,6 @@ function _gpfFsWscriptGetInfo (path) {
     return _gpfFsWscriptGetFileInfo(path);
 }
 
-/* istanbuk ignore next */ // Because tested with NodeJS
 function _gpfFsWScriptExploreList (collection) {
     var fsoEnum = new Enumerator(collection),
         results = [];
@@ -88,7 +99,6 @@ function _gpfFsWScriptExploreList (collection) {
     return results;
 }
 
-/* istanbuk ignore next */ // Because tested with NodeJS
 function _gpfFsWScriptExplore (path) {
     var folder;
     if (_gpfMsFSO.FolderExists(path)) {
@@ -96,7 +106,7 @@ function _gpfFsWScriptExplore (path) {
         return _gpfFsWScriptExploreList(folder.SubFolders)
             .concat(_gpfFsWScriptExploreList(folder.Files));
     }
-    return [];
+    gpf.Error.pathNotExplorable();
 }
 
 /**
@@ -153,7 +163,10 @@ var _GpfWScriptFileStorage = _gpfDefine(/** @lends gpf.wscript.FileStorage */ {
      * @since 0.1.9
      */
     explore: function (path) {
-        return Promise.resolve(_gpfFsExploreEnumerator(this, _gpfFsWScriptExplore(_gpfPathDecompose(path).join("\\"))));
+        var me = this;
+        return new Promise(function (resolve) {
+            resolve(_gpfFsExploreEnumerator(me, _gpfFsWScriptExplore(_gpfPathDecompose(path).join("\\"))));
+        });
     },
 
     /**
