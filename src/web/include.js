@@ -13,7 +13,6 @@
 /*jshint browser: true*/
 /*#endif*/
 
-/* istanbul ignore next */ // Not testable with NodeJS
 if (_GPF_HOST.BROWSER === _gpfHost) {
 
     /**
