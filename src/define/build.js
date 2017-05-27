@@ -24,7 +24,7 @@ Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.pr
      * @since 0.1.6
      */
     getInstanceBuilder: function () {
-        /* istanbul ignore else */ // No use case to call getInstanceBuilder twice
+        /* istanbul ignore else */ // define.build.1
         if (!this._instanceBuilder) {
             this._setInstanceBuilder(this._build());
         }
