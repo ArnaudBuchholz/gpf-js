@@ -17,7 +17,7 @@
 
 _gpfBootImplByHost[_GPF_HOST.PHANTOMJS] = function () {
 
-    /* istanbul ignore next */ // Not testable
+    /* istanbul ignore next */ // exit.1
     _gpfExit = function (code) {
         phantom.exit(code);
     };
