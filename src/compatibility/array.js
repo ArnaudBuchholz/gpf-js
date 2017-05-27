@@ -172,7 +172,6 @@ _gpfInstallCompatibility("Array", {
 });
 
 // Update if it was not defined
-/* istanbul ignore next */ // Because tested NodeJS
 if (!_gpfIsArray) {
     _gpfIsArray = Array.isArray;
 }
