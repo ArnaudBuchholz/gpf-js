@@ -91,7 +91,6 @@ function _gpfJsonParsePolyfill (test) {
 }
 
 // Used only for environments where JSON is not defined
-/* istanbul ignore next */
 if ("undefined" === typeof JSON) {
 
     _gpfJsonStringify = _gpfJsonStringifyPolyfill;
