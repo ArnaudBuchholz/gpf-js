@@ -83,18 +83,16 @@ function _gpfFuncUnsafe (params, source) {
 // Protected version of _gpfFunc
 function _gpfFuncImpl (params, source) {
     _gpfAssert("string" === typeof source && source.length, "Source expected (or use _gpfEmptyFunc)");
-    /*#ifdef(DEBUG)*/
+/*#ifdef(DEBUG)*/
     try {
-        /*#endif*/
+/*#endif*/
         return _gpfFuncUnsafe(params, source);
-        /*#ifdef(DEBUG)*/
+/*#ifdef(DEBUG)*/
     } catch (e) {
-        /* istanbul ignore next */ // Not supposed to happen (not tested)
-        console.error("An exception occurred compiling:\r\n" + source);
-        /* istanbul ignore next */
-        return null;
+        // Makes it easier to debug
+        throw new Error("_gpfFuncImpl exception: " + e.message + "\r\n" + source);
     }
-    /*#endif*/
+/*#endif*/
 }
 
 /**
@@ -149,5 +147,6 @@ gpf.web = {};
 /*#ifndef(UMD)*/
 
 gpf.internals._gpfIsUnsignedByte = _gpfIsUnsignedByte;
+gpf.internals._gpfFuncImpl = _gpfFuncImpl;
 
 /*#endif*/
