@@ -81,7 +81,6 @@ function _gpfGenSuperMember (superMethod, method) {
             result = method.apply(this, arguments);
         } finally {
             // Remove it after execution
-            /* istanbul ignore else */ // I don't expect to define a member named _super to avoid confusion
             if (undefined === previousSuper) {
                 delete this._super;
             } else {
@@ -362,12 +361,10 @@ _GpfOldClassDefinition.prototype = {
         var isWScript = _GPF_HOST.WSCRIPT === _gpfHost;
         this._defaultVisibility = visibility;
         _gpfObjectForEach(definition, this._processDefinitionMember, this);
-        /* istanbul ignore next */ // WSCRIPT specific #78
         if (isWScript && definition.hasOwnProperty("toString")) {
             this._processDefinitionMember(definition.toString, "toString");
         }
         this._defaultVisibility = _GPF_VISIBILITY_UNKNOWN;
-        /* istanbul ignore next */ // WSCRIPT specific #14
         if (isWScript && definition.hasOwnProperty("constructor")) {
             this._addConstructor(definition.constructor, this._defaultVisibility);
         }
