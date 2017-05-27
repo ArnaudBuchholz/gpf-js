@@ -25,7 +25,7 @@ _gpfBootImplByHost[_GPF_HOST.RHINO] = function () {
     // Define console APIs
     _gpfMainContext.console = _gpfConsoleGenerate(print);
 
-    /* istanbul ignore next */ // Not testable
+    /* istanbul ignore next */ // exit.1
     _gpfExit = function (code) {
         java.lang.System.exit(code);
     };
