@@ -21,7 +21,6 @@ var /**
 
 _gpfConflictingSymbol = _gpfMainContext.gpf;
 
-/* istanbul ignore next */ // web only
 /**
  * Relinquish control of the gpf variable.
  *
