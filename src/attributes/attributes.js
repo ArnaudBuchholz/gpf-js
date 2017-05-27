@@ -26,7 +26,6 @@ _gpfErrorDeclare("attributes/attributes", {
         "Attribute {attributeName} already defined on {className}::{memberName}"
 });
 
-/* istanbul ignore next */ // Abstract method
 /**
  * Throws an exception if target attribute can't be applied to objPrototype
  *
