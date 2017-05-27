@@ -115,7 +115,6 @@ function _gpfArrayEnumerator (array) {
     };
 }
 
-/* istanbul ignore next */ // Interface
 /**
  * Enumerable interface
  *
