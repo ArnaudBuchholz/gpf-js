@@ -14,7 +14,6 @@
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*#endif*/
 
-/* istanbul ignore next */ // Interface
 /**
  * Read only array interface
  *
@@ -41,7 +40,6 @@ var iROArray = _gpfDefIntrf("IReadOnlyArray", {
 
 });
 
-/* istanbul ignore next */ // Interface
 /**
  * Mutable array interface
  *
