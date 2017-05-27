@@ -36,7 +36,6 @@ var _gpfIsArrayLike  = function (obj) { //eslint-disable-line func-style
     return _gpfIsArray(obj);
 };
 
-/* istanbul ignore next */ // Not tested with NodeJS
 if (_GPF_HOST.BROWSER === _gpfHost && (_gpfWebWindow.HTMLCollection || _gpfWebWindow.NodeList)) {
     _gpfIsArrayLike = function (obj) {
         return _gpfIsArray(obj)
