@@ -64,7 +64,6 @@ function _gpfHandleTimeout () {
     while (queue.length) {
         timeoutItem = queue.shift();
         now = new Date();
-        /* istanbul ignore else */ // Harder to test (would require a very long loop)
         if (timeoutItem.dt > now) {
             _gpfSleep(timeoutItem.dt - now);
         }
