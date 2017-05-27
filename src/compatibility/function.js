@@ -56,11 +56,10 @@ function _gpfGetFunctionName () {
 }
 
 // Handling function name properly
-/* istanbul ignore if */ // NodeJS exposes Function.prototype.name
 if ((function () {
-    /* istanbul ignore next */ // Will never be evaluated
-    function functionName () {}
-    return functionName.name !== "functionName";
+    // Trick source minification
+    var testFunction = _gpfFunc("return function functionName () {};")();
+    return testFunction.name !== "functionName";
 })()) {
 
     Function.prototype.compatibleName = _gpfGetFunctionName;
