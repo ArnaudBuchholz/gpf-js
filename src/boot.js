@@ -223,7 +223,7 @@ if ("undefined" !== typeof WScript) {
 /*#endif*/
 
 // Unknown
-/* istanbul ignore if */ // Or it wouldn't be unknown :-)
+/* istanbul ignore if */ // boot.1
 } else if ("undefined" === typeof window) {
 
     _gpfHost = _GPF_HOST.UNKNOWN;
@@ -264,7 +264,6 @@ _gpfMainContext.gpf = {
 function _gpfGetSourcesPath () {
     var result = gpfSourcesPath,
         pathSep;
-    /* istanbul ignore next */ // Handled the right way with NodeJS
     if ("undefined" === typeof result) {
         result = "";
     } else {
