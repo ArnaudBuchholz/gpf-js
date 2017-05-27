@@ -158,7 +158,6 @@ function _gpfInstallCompatibleDate () {
             && 0 === shortDate.getUTCMonth()
             && 22 === shortDate.getUTCDate();
     } catch (e) {} //eslint-disable-line no-empty
-    /* istanbul ignore if */ // NodeJS environment supports ISO 8601 format
     if (!supported) {
         // Replace constructor with new one
         _gpfMainContext.Date = _GpfDate;
