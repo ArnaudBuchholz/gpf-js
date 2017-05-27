@@ -86,7 +86,7 @@ gpf.preventAssertWarnings = function (silent) {
 _gpfAssert = _gpfAssertImpl;
 _gpfAsserts = _gpfAssertsImpl;
 
-/* istanbul ignore if */ // Because tested in DEBUG
+/* istanbul ignore if */ // assert.1
 if (!_gpfAssert) {
 
 /*#else*/
