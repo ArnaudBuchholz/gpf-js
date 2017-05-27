@@ -90,6 +90,22 @@ describe("constants", function () {
 
         });
 
+        describe("(internal) _gpfFuncImpl", function () {
+
+            var _gpfFuncImpl = gpf.internals._gpfFuncImpl;
+
+            it("fails if function can't be generated", function () {
+                var exceptionCaught;
+                try {
+                    _gpfFuncImpl([], "{");
+                } catch (e) {
+                    exceptionCaught = e;
+                }
+                assert(exceptionCaught);
+            });
+
+        });
+
     }
 
 });
