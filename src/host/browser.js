@@ -16,7 +16,7 @@
 
 _gpfBootImplByHost[_GPF_HOST.BROWSER] = function () {
 
-    /* istanbul ignore next */ // Not testable
+    /* istanbul ignore next */ // exit.1
     _gpfExit = function (code) {
         window.location = "https://arnaudbuchholz.github.io/gpf/exit.html?" + (code || 0);
     };
