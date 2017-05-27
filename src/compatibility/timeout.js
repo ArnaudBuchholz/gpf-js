@@ -72,7 +72,6 @@ function _gpfHandleTimeout () {
 }
 
 // Used only for WSCRIPT & RHINO environments
-/* istanbul ignore next */
 if ("undefined" === typeof setTimeout) {
 
     /*jshint wsh: true*/
