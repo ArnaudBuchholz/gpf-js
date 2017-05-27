@@ -33,7 +33,6 @@ Object.assign(gpf, {
 });
 
 
-/* istanbul ignore next */ // Not testable
 /**
  * Exit function
  *
