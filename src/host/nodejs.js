@@ -43,7 +43,7 @@ _gpfBootImplByHost[_GPF_HOST.NODEJS] = function () {
     _gpfNodeHttp = require("http");
     _gpfNodeUrl = require("url");
 
-    /* istanbul ignore next */ // Not testable
+    /* istanbul ignore next */ // exit.1
     _gpfExit = function (code) {
         process.exit(code);
     };
