@@ -23,7 +23,7 @@
  */
 gpf.wscript = {};
 
-/* istanbul ignore next */ // WScript.Echo can't be bound to WScript and not testable
+/* istanbul ignore next */ // wscript.echo.1
 function _gpfWScriptEcho (text) {
     WScript.Echo(text);
 }
@@ -35,7 +35,7 @@ _gpfBootImplByHost[_GPF_HOST.WSCRIPT] = function () {
     // Define console APIs
     _gpfMainContext.console = _gpfConsoleGenerate(_gpfWScriptEcho);
 
-    /* istanbul ignore next */ // Not testable
+    /* istanbul ignore next */ // exit.1
     _gpfExit = function (code) {
         WScript.Quit(code);
     };
