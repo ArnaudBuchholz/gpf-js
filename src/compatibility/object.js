@@ -40,7 +40,6 @@ _gpfInstallCompatibility("Object", {
                 Temp.prototype = O;
                 var obj = new Temp();
                 Temp.prototype = null;
-                /* istanbul ignore if */ // NodeJS implements __proto__
                 if (!obj.__proto__) {
                     obj.__proto__ = O;
                 }
@@ -50,11 +49,9 @@ _gpfInstallCompatibility("Object", {
 
         // Introduced with JavaScript 1.8.5
         getPrototypeOf: function (object) {
-            /* istanbul ignore else */ // NodeJS implements __proto__
             if (object.__proto__) {
                 return object.__proto__;
             }
-            /* istanbul ignore next */ // NodeJS implements __proto__
             // May break if the constructor has been tampered with
             return object.constructor.prototype;
         },
