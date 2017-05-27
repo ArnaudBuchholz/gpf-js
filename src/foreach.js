@@ -40,14 +40,13 @@ function _gpfArrayForEach (array, callback, thisArg) {
 
 function _gpfObjectForEachOwnProperty (object, callback, thisArg) {
     for (var property in object) {
-        /* istanbul ignore else */
+        /* istanbul ignore else */ // hasOwnProperty.1
         if (object.hasOwnProperty(property)) {
             callback.call(thisArg, object[property], property, object);
         }
     }
 }
 
-/* istanbul ignore next */ // Microsoft cscript / wscript specific version
 function _gpfObjectForEachOwnPropertyWScript (object, callback, thisArg) {
     _gpfObjectForEachOwnProperty(object, callback, thisArg);
     ["constructor", "toString"].forEach(function (property) {
@@ -66,7 +65,6 @@ function _gpfObjectForEachOwnPropertyWScript (object, callback, thisArg) {
  * @since 0.1.5
  */
 var _gpfObjectForEach;
-/* istanbul ignore if */ // Microsoft cscript / wscript specific version
 if (_GPF_HOST.WSCRIPT === _gpfHost) {
     _gpfObjectForEach = _gpfObjectForEachOwnPropertyWScript;
 } else {
