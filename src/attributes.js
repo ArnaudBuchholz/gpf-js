@@ -145,7 +145,6 @@ _gpfAssertAttributeOnly = function (value) {
     _gpfAssert(value instanceof _gpfAttribute, "Expected an Attribute-like parameter");
 };
 
-/* istanbul ignore if */ // Because tested in DEBUG
 if (!_gpfAssertAttributeClassOnly) {
 
 /*#else*/
