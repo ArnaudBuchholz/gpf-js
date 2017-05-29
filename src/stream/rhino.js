@@ -75,15 +75,15 @@ var
                 // Empty stream
                 return Promise.resolve();
             }
-            throw e;
+            return Promise.reject(e);
         },
 
         /**
          * @gpf:sameas gpf.interfaces.IReadableStream#read
          */
         read: _gpfStreamSecureRead(function (output) {
-            var scanner = new java.util.Scanner(this._stream); //eslint-disable-line no-invalid-this
             try {
+                var scanner = new java.util.Scanner(this._stream); //eslint-disable-line no-invalid-this
                 return output.write(String(scanner.useDelimiter("\\A").next()));
             } catch (e) {
                 return this._handleError(e); //eslint-disable-line no-invalid-this
