@@ -8,3 +8,4 @@ Source | Identifier | Description
 assert | assert.1 | Coverage is estimated with the source version of GPF-JS, i.e. in DEBUG mode.
 define/build | define.build.1 | This method is defined as a property getter but is used only once for now as it is not exposed.
 host/wscript | wscript.echo.1 | WScript.Echo can't be bound to WScript and is not testable.
+compability/promise | compability.promise.1 | Exception handling inside promise handlers are securing the code. No time was spent to understand how exceptions could occur in some particular case.  
