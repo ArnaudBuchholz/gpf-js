@@ -337,7 +337,6 @@
     },
     {
         "name": "stream/rhino",
-        "test": false,
         "doc": true
     },
     {
