@@ -23,6 +23,7 @@ function _gpfPromiseSafeResolve (fn, onFulfilled, onRejected) {
     try {
         fn(makeSafe(onFulfilled), makeSafe(onRejected));
     } catch (e) {
+        /* istanbul ignore else */ // compability.promise.1
         if (safe) {
             safe = false;
             onRejected(e);
@@ -64,6 +65,7 @@ function _gpfPromiseResolve (newValue) {
         me._value = newValue;
         _gpfPromiseFinale.call(me);
     } catch (e) {
+        /* istanbul ignore next */ // compability.promise.1
         _gpfPromiseReject.call(me, e);
     }
 }
@@ -189,6 +191,7 @@ _GpfPromise.all = function (promises) {
                     resolve(promises);
                 }
             } catch (e) {
+                /* istanbul ignore next */ // compability.promise.1
                 reject(e);
             }
         }
