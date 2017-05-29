@@ -5,6 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*exported _GPF_HOST*/ // Host types
+/*exported _gpfBootImplByHost*/ // Boot host specific implementation per host
 /*exported _gpfDosPath*/ // DOS-like path
 /*exported _gpfEmptyFunc*/ // An empty function
 /*exported _gpfExit*/ // Exit function
@@ -18,7 +19,6 @@
 /*exported _gpfVersion*/ // GPF version
 /*exported _gpfWebDocument*/ // Browser document object
 /*exported _gpfWebWindow*/ // Browser window object
-/*exported _gpfBootImplByHost*/ // Boot host specific implementation per host
 /*eslint-disable no-unused-vars*/
 /*#endif*/
 
@@ -132,6 +132,7 @@ var
      * Boot host specific implementation per host
      *
      * @type {Object}
+     * @since 0.2.1
      */
     _gpfBootImplByHost = {};
 
@@ -264,17 +265,13 @@ _gpfMainContext.gpf = {
 function _gpfGetSourcesPath () {
     var result = gpfSourcesPath,
         pathSep;
-    if ("undefined" === typeof result) {
-        result = "";
+    if (_gpfDosPath) {
+        pathSep = "\\";
     } else {
-        if (_gpfDosPath) {
-            pathSep = "\\";
-        } else {
-            pathSep = "/";
-        }
-        if (result.charAt(result.length - 1) !== pathSep) {
-            result += pathSep;
-        }
+        pathSep = "/";
+    }
+    if (result.charAt(result.length - 1) !== pathSep) {
+        result += pathSep;
     }
     return result;
 }
