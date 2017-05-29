@@ -34,8 +34,8 @@ describe("web/tag", function () {
         it("supports tree building (array parameter)", function () {
             var div = gpf.web.createTagFunction("div"),
                 span = gpf.web.createTagFunction("span"),
-                tree = div("Hello ", [span("Wor"), span("ld!")]);
-            assert(tree.toString() === "<div>Hello <span>Wor</span><span>ld!</span></div>");
+                tree = div({width: "80%"}, "Hello ", [span("Wor"), span("ld!")]);
+            assert(tree.toString() === "<div width=\"80%\">Hello <span>Wor</span><span>ld!</span></div>");
         });
 
         it("allows DOM injection", function () {
