@@ -223,7 +223,7 @@ if ("undefined" !== typeof WScript) {
 /*#endif*/
 
 // Unknown
-/* istanbul ignore if */ // boot.1
+/* istanbul ignore if */ // unknown.1
 } else if ("undefined" === typeof window) {
 
     _gpfHost = _GPF_HOST.UNKNOWN;
