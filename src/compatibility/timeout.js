@@ -83,6 +83,7 @@ if ("undefined" === typeof setTimeout) {
         _gpfSleep =  function (t) {
             WScript.Sleep(t); //eslint-disable-line new-cap
         };
+    /* istanbul ignore else */ // unknown.1
     } else if (_GPF_HOST.RHINO === _gpfHost) {
         _gpfSleep = java.lang.Thread.sleep;
     } else {
