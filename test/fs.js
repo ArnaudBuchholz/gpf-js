@@ -111,17 +111,32 @@ describe("fs", function () {
                             assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IReadableStream, iReadableStream));
                             return iReadableStream.read(iWritableStream)
                                 .then(function () {
-                                    assert(iWritableStream.toString() === content);
-                                    return iFileStorage.close(iReadableStream);
+                                    if (content) {
+                                        assert(iWritableStream.toString() === content);
+                                    }
+                                    return iFileStorage.close(iReadableStream)
+                                        .then(function () {
+                                            return iWritableStream.toString();
+                                        });
                                 });
                         });
                 }
 
                 describe("read", function () {
 
-                    it("reads a text file", function (done) {
+                    it("reads a small text file", function (done) {
                         _read(gpf.path.join(data, "folder/hello world.txt"), "hello world\n")
-                            .then(done, done);
+                            .then(function () {
+                                done();
+                            }, done);
+                    });
+
+                    it("reads a larger text file", function (done) {
+                        _read(gpf.path.join(data, "folder/lorem ipsum.txt"))
+                            .then(function (content) {
+                                assert(content.indexOf("Phasellus posuere.") !== -1); // Should contain it
+                                done();
+                            })["catch"](done);
                     });
 
                 });
@@ -169,7 +184,9 @@ describe("fs", function () {
 
                         it("writes a text file", function (done) {
                             _read(filePath, "hello world\n")
-                                .then(done, done);
+                                .then(function () {
+                                    done();
+                                }, done);
                         });
 
                         describe("append", function () {
@@ -179,7 +196,9 @@ describe("fs", function () {
                                     .then(function () {
                                         return _read(filePath, "hello world\ngoodbye\n");
                                     })
-                                    .then(done, done);
+                                    .then(function () {
+                                        done();
+                                    }, done);
                             });
 
                         });
