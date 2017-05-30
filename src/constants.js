@@ -5,6 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfAssert*/ // Assertion method
+/*global _gpfSyncReadSourceJSON*/ // Reads a source json file (only in source mode)
 /*exported _gpfALPHA*/ // Letters (uppercase)
 /*exported _gpfAlpha*/ // Letters (lowercase)
 /*exported _gpfCreateConstants*/ // Automate constants creation
@@ -62,11 +63,8 @@ var
     // List of allowed other chars in an identifier
     _gpfIdentifierOtherChars = _gpfAlpha + _gpfALPHA + _gpfDigit + "_$",
 
-    // TODO update with http://stackoverflow.com/questions/26255/reserved-keywords-in-javascript
     // List of JavaScript keywords
-    _gpfJsKeywords = ("break,case,class,catch,const,continue,debugger,default,delete,do,else,export,extends,finally,"
-        + "for,function,if,import,in,instanceof,let,new,return,super,switch,this,throw,try,typeof,var,void,while,with,"
-        + "yield").split(",")
+    _gpfJsKeywords = _gpfSyncReadSourceJSON("javascript/keywords.json")
     ;
 
 // Unprotected version of _gpfFunc
