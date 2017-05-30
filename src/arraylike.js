@@ -17,6 +17,13 @@
  */
 var _gpfIsArray = Array.isArray;
 
+function _gpfArrayHasValidLengthProperty (obj) {
+    if (obj) {
+        return Math.floor(obj.length) === obj.length;
+    }
+    return false;
+}
+
 /**
  * Return true if the parameter looks like an array, meaning a property length is available and members can be
  * accessed through the [] operator. The length property does not have to be writable.
@@ -26,7 +33,7 @@ var _gpfIsArray = Array.isArray;
  * @since 0.1.5
  */
 function _gpfIsArrayLike (obj) {
-    return _gpfIsArray(obj) || Math.floor(obj.length) === obj.length;
+    return _gpfIsArray(obj) || _gpfArrayHasValidLengthProperty(obj);
 }
 
 /**
