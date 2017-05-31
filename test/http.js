@@ -17,26 +17,30 @@ describe("http", function () {
         it("allows the GET operation", function (done) {
             gpf.http.request({
                 method: gpf.http.methods.get,
-                url: baseUrl + "status=200&content=Hello%20World"
+                url: baseUrl + "status=200"
 
             }).then(function (response) {
                 assert(response.status === 200);
-                assert(response.responseText === "Hello World");
+                var echoed = JSON.parse(response.responseText);
+                assert(echoed.method === "GET");
+                assert(echoed.url === "/echo/?status=200");
                 done();
             })["catch"](done);
         });
 
         it("offers the GET shortcut (using string parameter)", function (done) {
-            gpf.http.get(baseUrl + "status=200&content=Hello%20World").then(function (response) {
+            gpf.http.get(baseUrl + "status=200").then(function (response) {
                 assert(response.status === 200);
-                assert(response.responseText === "Hello World");
+                var echoed = JSON.parse(response.responseText);
+                assert(echoed.method === "GET");
+                assert(echoed.url === "/echo/?status=200");
                 done();
             })["catch"](done);
         });
 
         it("offers the GET shortcut (using object parameter)", function (done) {
             gpf.http.get({
-                url: baseUrl + "status=200&content=Hello%20World"
+                url: baseUrl + "status=200&response=Hello%20World"
             }).then(function (response) {
                 assert(response.status === 200);
                 assert(response.responseText === "Hello World");
@@ -52,7 +56,7 @@ describe("http", function () {
         });
 
         it("succeeds when the HTTP response is empty", function (done) {
-            gpf.http.get(baseUrl + "content=").then(function (response) {
+            gpf.http.get(baseUrl + "response=").then(function (response) {
                 assert(response.responseText === "");
                 done();
             })["catch"](done);
@@ -95,7 +99,10 @@ describe("http", function () {
 
             }).then(function (response) {
                 assert(response.status === 200);
-                assert(response.responseText === "Hello World");
+                var echoed = JSON.parse(response.responseText);
+                assert(echoed.method === "POST");
+                assert(echoed.url === "/echo/?status=200");
+                assert(echoed.body === "Hello World");
                 done();
             })["catch"](done);
         });
@@ -103,7 +110,10 @@ describe("http", function () {
         it("offers the POST shortcut", function (done) {
             gpf.http.post(baseUrl + "status=200", "Hello World").then(function (response) {
                 assert(response.status === 200);
-                assert(response.responseText === "Hello World");
+                var echoed = JSON.parse(response.responseText);
+                assert(echoed.method === "POST");
+                assert(echoed.url === "/echo/?status=200");
+                assert(echoed.body === "Hello World");
                 done();
             })["catch"](done);
         });
