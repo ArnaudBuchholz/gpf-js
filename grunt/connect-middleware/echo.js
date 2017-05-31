@@ -9,7 +9,7 @@ function _process (request, response) {
         statusCode = 200,
         wait = 0,
         headers,
-        content;
+        responseText;
 
     if (parsedUrl.query.status) {
         statusCode = parseInt(parsedUrl.query.status, 10);
@@ -22,13 +22,8 @@ function _process (request, response) {
     } else {
         headers = request.headers;
     }
-    if (undefined === parsedUrl.query.content) {
-        content = JSON.stringify({
-            method: request.method,
-            url: request.url
-        });
-    } else {
-        content = parsedUrl.query.content;
+    if (undefined !== parsedUrl.query.response) {
+        responseText = parsedUrl.query.response;
     }
 
     const
@@ -39,7 +34,7 @@ function _process (request, response) {
                     response.setHeader(name, headers[name]);
                 });
             }
-            response.end(content);
+            response.end(responseText);
         };
 
     let data = [];
@@ -48,8 +43,16 @@ function _process (request, response) {
             data.push(chunk);
         })
         .on("end", function () {
-            if (data.length) {
-                content = Buffer.concat(data).toString();
+            if (undefined === responseText) {
+                var responseBody = {
+                    method: request.method,
+                    url: request.url
+                };
+                if (data.length) {
+                    responseBody.body = Buffer.concat(data).toString();
+                }
+                responseText = JSON.stringify(responseBody);
+                console.log(responseText);
             }
             setTimeout(answer, wait);
         });
