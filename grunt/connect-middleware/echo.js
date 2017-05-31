@@ -52,7 +52,6 @@ function _process (request, response) {
                     responseBody.body = Buffer.concat(data).toString();
                 }
                 responseText = JSON.stringify(responseBody);
-                console.log(responseText);
             }
             setTimeout(answer, wait);
         });
