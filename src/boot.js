@@ -223,14 +223,9 @@ if ("undefined" !== typeof WScript) {
 
 /*#endif*/
 
-// Unknown
-/* istanbul ignore if */ // unknown.1
-} else if ("undefined" === typeof window) {
-
-    _gpfHost = _GPF_HOST.UNKNOWN;
-
 // Browser
-} else {
+/* istanbul ignore else */ // unknown.1
+} else if ("undefined" !== typeof window) {
 
     _gpfHost = _GPF_HOST.BROWSER;
     _gpfMainContext = window;
@@ -261,22 +256,13 @@ _gpfMainContext.gpf = {
     internals: {} // To support testable internals
 };
 
-// gpfSourcesPath - if defined - gives the relative path to sources
-function _gpfGetSourcesPath () {
-    var result = gpfSourcesPath,
-        pathSep;
-    if (_gpfDosPath) {
-        pathSep = "\\";
-    } else {
-        pathSep = "/";
-    }
-    if (result.charAt(result.length - 1) !== pathSep) {
-        result += pathSep;
-    }
-    return result;
-}
-
-var _gpfSourcesPath = _gpfGetSourcesPath();
+/**
+ * Contains the root path of GPF sources
+ *
+ * @name gpfSourcesPath
+ * @type {String}
+ * @private
+ */
 
 /**
  * Reads a source file (only in source mode)
@@ -290,37 +276,8 @@ var _gpfSourcesPath = _gpfGetSourcesPath();
 function _gpfSyncReadSourceJSON (sourceFileName) {
     /*jslint evil: true*/
     var result;
-    eval("result = " + _gpfSyncReadForBoot(_gpfSourcesPath + sourceFileName) + ";"); //eslint-disable-line no-eval
+    eval("result = " + _gpfSyncReadForBoot(gpfSourcesPath + sourceFileName) + ";"); //eslint-disable-line no-eval
     return result;
-}
-
-/**
- * Check if source matches the current host
- *
- * @param {Object} source Source to be loaded
- * @return {Boolean} Source fits the current host
- * @since 0.1.9
- */
-function _gpfIsSourceMatchingHost (source) {
-    var name = source.name.split("/").pop();
-    if (name !== "unknown" && _GPF_HOST.hasOwnProperty(name.toUpperCase())) {
-        return name === _gpfHost;
-    }
-    return true;
-}
-
-/**
- * Check if source can be loaded
- *
- * @param {Object} source Source to be loaded
- * @return {Boolean} Source can be loaded
- * @since 0.1.9
- */
-function _gpfIsSourceLoadable (source) {
-    if (source.load === false) {
-        return false;
-    }
-    return _gpfIsSourceMatchingHost(source);
 }
 
 /**
@@ -331,7 +288,7 @@ function _gpfIsSourceLoadable (source) {
  */
 function _gpfLoadSources () { //jshint ignore:line
     /*jslint evil: true*/
-    var sourceListContent = _gpfSyncReadForBoot(_gpfSourcesPath + "sources.json"),
+    var sourceListContent = _gpfSyncReadForBoot(gpfSourcesPath + "sources.json"),
         _gpfSources,
         allContent = [],
         idx = 0,
@@ -339,8 +296,8 @@ function _gpfLoadSources () { //jshint ignore:line
     eval("_gpfSources = " + sourceListContent + ";"); //eslint-disable-line no-eval
     for (; idx < _gpfSources.length; ++idx) {
         source = _gpfSources[idx];
-        if (_gpfIsSourceLoadable(source)) {
-            allContent.push(_gpfSyncReadForBoot(_gpfSourcesPath + source.name + ".js"));
+        if (source.load !== false) {
+            allContent.push(_gpfSyncReadForBoot(gpfSourcesPath + source.name + ".js"));
         }
     }
     return allContent.join("\r\n");
