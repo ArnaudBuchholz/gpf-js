@@ -28,17 +28,36 @@ function _gpfHttpNodeProcessResponse (nodeResponse, resolve) {
         });
 }
 
+function _gpfHttpNodeAdjustSettingsForSend (settings, data) {
+    if (data) {
+        settings.headers = Object.assign({
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Length": Buffer.byteLength(data)
+        }, settings.headers);
+    }
+}
+
+function _gpfHttpNodeBuildRequestSettings (request) {
+    var settings = Object.assign(_gpfNodeUrl.parse(request.url), request);
+    _gpfHttpNodeAdjustSettingsForSend(settings, request.data);
+    return settings;
+}
+
 function _gpfHttpNodeAllocate (request, resolve) {
-    return _gpfNodeHttp.request(Object.assign(_gpfNodeUrl.parse(request.url), request), function (nodeResponse) {
+    var settings = _gpfHttpNodeBuildRequestSettings(request);
+    return _gpfNodeHttp.request(settings, function (nodeResponse) {
         _gpfHttpNodeProcessResponse(nodeResponse, resolve);
     });
 }
 
 function _gpfHttpNodeSend (clientRequest, data) {
     if (data) {
-        clientRequest.write(data);
+        clientRequest.write(data, "utf8", function () {
+            clientRequest.end();
+        });
+    } else {
+        clientRequest.end();
     }
-    clientRequest.end();
 }
 
 _gpfHttpRequestImplByHost[_GPF_HOST.NODEJS] = function (request, resolve, reject) {
