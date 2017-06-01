@@ -91,31 +91,55 @@ describe("http", function () {
             })["catch"](done);
         });
 
-        it("allows the POST operation", function (done) {
-            gpf.http.request({
-                method: gpf.http.methods.post,
-                url: baseUrl + "status=200",
-                data: "Hello World"
+        [
+            "post",
+            "put",
+            "options",
+            "delete"
 
-            }).then(function (response) {
-                assert(response.status === 200);
-                var echoed = JSON.parse(response.responseText);
-                assert(echoed.method === "POST");
-                assert(echoed.url === "/echo/?status=200");
-                assert(echoed.body === "Hello World");
-                done();
-            })["catch"](done);
-        });
+        ].forEach(function (method, index) {
 
-        it("offers the POST shortcut", function (done) {
-            gpf.http.post(baseUrl + "status=200", "Hello World").then(function (response) {
-                assert(response.status === 200);
-                var echoed = JSON.parse(response.responseText);
-                assert(echoed.method === "POST");
-                assert(echoed.url === "/echo/?status=200");
-                assert(echoed.body === "Hello World");
-                done();
-            })["catch"](done);
+            var uppercasedMethod = method.toUpperCase(),
+                body;
+            if (index < 2) { // post & put
+                body = "Hello World";
+            }
+
+            it("allows the " + uppercasedMethod + " operation", function (done) {
+                gpf.http.request({
+                    method: gpf.http.methods[method],
+                    url: baseUrl + "status=200",
+                    data: body
+
+                }).then(function (response) {
+                    assert(response.status === 200);
+                    var echoed = JSON.parse(response.responseText);
+                    assert(echoed.method === uppercasedMethod);
+                    assert(echoed.url === "/echo/?status=200");
+                    if (body) {
+                        assert(echoed.body === body);
+                    } else {
+                        assert(!echoed.body);
+                    }
+                    done();
+                })["catch"](done);
+            });
+
+            it("offers the " + uppercasedMethod + " shortcut", function (done) {
+                gpf.http[method](baseUrl + "status=200", body).then(function (response) {
+                    assert(response.status === 200);
+                    var echoed = JSON.parse(response.responseText);
+                    assert(echoed.method === uppercasedMethod);
+                    assert(echoed.url === "/echo/?status=200");
+                    if (body) {
+                        assert(echoed.body === body);
+                    } else {
+                        assert(!echoed.body);
+                    }
+                    done();
+                })["catch"](done);
+            });
+
         });
 
     });
