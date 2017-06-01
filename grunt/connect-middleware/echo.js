@@ -34,7 +34,14 @@ function _process (request, response) {
                     response.setHeader(name, headers[name]);
                 });
             }
-            response.end(responseText);
+            if (responseText) {
+                response.setHeader("content-length", Buffer.byteLength(responseText));
+                response.write(responseText, function () {
+                    response.end();
+                });
+            } else {
+                response.end();
+            }
         };
 
     let data = [];
