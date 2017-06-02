@@ -1,5 +1,6 @@
 /**
  * @file Console simulation for hosts
+ * @since 0.2.1
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -11,6 +12,7 @@
  *
  * @param {Function} outputLine Function that outputs one line
  * @return {Object} object offering console methods
+ * @since 0.2.1
  */
 function _gpfConsoleGenerate (outputLine) {
     return {
