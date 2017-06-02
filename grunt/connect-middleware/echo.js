@@ -34,6 +34,10 @@ function _process (request, response) {
                     response.setHeader(name, headers[name]);
                 });
             }
+            // No cache (https://stackoverflow.com/questions/49547/how-to-control-web-page-caching-across-all-browsers)
+            response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+            response.setHeader("Pragma", "no-cache");
+            response.setHeader("Expires", "0");
             if (responseText) {
                 response.setHeader("content-length", Buffer.byteLength(responseText));
                 response.write(responseText, function () {
