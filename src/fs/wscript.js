@@ -13,12 +13,12 @@
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfFileStorageByHost*/ // gpf.interfaces.IFileStorage per host
 /*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
 /*global _gpfMsFSO*/ // Scripting.FileSystemObject activeX
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*global _gpfPathNormalize*/ // Normalize path
 /*global _gpfPathNormalize*/ // Normalize path
-/*global _gpfFileStorageByHost*/ // gpf.interfaces.IFileStorage per host
 /*#endif*/
 
 /*jshint wsh:true*/
@@ -36,6 +36,7 @@ _gpfErrorDeclare("fs/wscript", {
      * ### Description
      *
      * This error is used when explore is used with a path that does not point to a folder.
+     * @since 0.2.1
      */
     pathNotExplorable: "Path not explorable"
 
