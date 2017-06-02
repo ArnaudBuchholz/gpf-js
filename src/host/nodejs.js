@@ -20,6 +20,7 @@ var
      * require("http")
      *
      * @type {Object}
+     * @since 0.2.1
      */
     _gpfNodeHttp,
 
@@ -27,6 +28,7 @@ var
      * require("url")
      *
      * @type {Object}
+     * @since 0.2.1
      */
     _gpfNodeUrl;
 
