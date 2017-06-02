@@ -1,5 +1,6 @@
 /**
  * @file Regular Expession helper
+ * @since 0.2.1
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -13,6 +14,7 @@
  *
  * @param {Array} match The current match
  * @param {String} string The string that is currently being matched
+ * @since 0.2.1
  */
 
 /**
@@ -24,6 +26,7 @@
  * @param {RegExp} regexp Regular expression to execute
  * @param {String} string String to match
  * @param {gpf.typedef.regExpForEachCallback} callback Callback function executed on each match
+ * @since 0.2.1
  */
 function _gpfRegExpForEach (regexp, string, callback) {
     var match;
