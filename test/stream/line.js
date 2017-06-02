@@ -2,7 +2,7 @@
 
 describe("stream/line", function () {
 
-    it("generate lines out of any stream", function (done) {
+    it("generates lines out of any stream", function (done) {
         var lineIndex = 0,
             expectedLines = [
                 "abcdef",
@@ -11,7 +11,7 @@ describe("stream/line", function () {
                 "stuvwx",
                 "yz"
             ],
-            lineStream = new gpf.stream.Line(),
+            lineStream = new gpf.stream.LineAdapter(),
             outStream = {
                 write: function (buffer) {
                     if (buffer !== expectedLines[lineIndex]) {
@@ -21,8 +21,10 @@ describe("stream/line", function () {
                     return Promise.resolve("No match");
                 }
             };
-        lineStream.pipe(outStream);
-        lineStream.write("abc")
+        lineStream.read(outStream)
+            .then(function () {
+                return lineStream.write("abc");
+            })
             .then(function () {
                 return lineStream.write("def\n");
             })
@@ -39,7 +41,7 @@ describe("stream/line", function () {
                 return lineStream.write("stuvwx\nyz");
             })
             .then(function () {
-                lineStream.flush();
+                return lineStream.write("\n");
             })
             .then(function () {
                 done();
