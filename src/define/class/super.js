@@ -120,6 +120,7 @@ function _gpfClassSuperCreateMember (that, $super, superMethod) {
  * Regular expression detecting .$super use
  *
  * @type {RegExp}
+ * @since 0.2.1
  */
 var _gpfClassSuperRegExp = new RegExp("\\.\\$super\\.(\\w+)\\b", "g");
 
