@@ -54,6 +54,7 @@ var
      * {@see gpf.interfaces.IFileStorage} per host
      *
      * @type {Object}
+     * @since 0.2.1
      */
     _gpfFileStorageByHost = {};
 
