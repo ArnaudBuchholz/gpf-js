@@ -1,13 +1,14 @@
 /**
  * @file Rhino specific HTTP implementation
+ * @since 0.2.1
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
-/*global _gpfHttpGenSetHeaders*/ // Generates a function that transmit headers to the http object
-/*global _gpfHttpRequestImplByHost*/ // HTTP Request Implementation per host
 /*global _GpfRhinoReadableStream*/ // gpf.rhino.ReadableStream
 /*global _GpfRhinoWritableStream*/ // gpf.rhino.WritableStream
+/*global _gpfHttpGenSetHeaders*/ // Generates a function that transmit headers to the http object
+/*global _gpfHttpRequestImplByHost*/ // HTTP Request Implementation per host
 /*global _gpfStringFromStream*/ // Read the stream
 /*#endif*/
 
