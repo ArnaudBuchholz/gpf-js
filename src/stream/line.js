@@ -10,6 +10,21 @@
 /*exported _GpfStreamLineAdatper*/ // gpf.stream.LineAdapter
 /*#endif*/
 
+function _gpfStreamLineWrite (output, lines) {
+    if (!lines.length) {
+        return Promise.resolve();
+    }
+    var line = lines.shift(),
+        lengthMinus1 = line.length - 1;
+    if (line.lastIndexOf("\r") === lengthMinus1) {
+        line = line.substr(0, lengthMinus1);
+    }
+    return output.write(line)
+       .then(function () {
+           return _gpfStreamLineWrite(output, lines);
+       });
+}
+
 var
     _GpfStreamLineAdatper = _gpfDefine(/** @lends gpf.stream.LineAdapter */ {
         $class: "gpf.stream.LineAdapter",
@@ -29,7 +44,12 @@ var
 
         /** @gpf:sameas gpf.interfaces.IReadableStream#read */
         read: _gpfStreamSecureRead(function (output) {
-            return output.write(this._buffer); //eslint-disable-line no-invalid-this
+            var me = this; //eslint-disable-line no-invalid-this
+            me._output = output;
+            if (me._buffer.length) {
+                return me._process();
+            }
+            return Promise.resolve();
         }),
 
         //endregion
@@ -38,14 +58,42 @@ var
 
         /** @gpf:sameas gpf.interfaces.IWritableStream#write */
         write: _gpfStreamSecureWrite(function (buffer) {
-            this._buffer.push(buffer.toString()); //eslint-disable-line no-invalid-this
+            var me = this; //eslint-disable-line no-invalid-this
+            me._buffer.push(buffer.toString());
+            if (me._output) {
+                return me._process();
+            }
             return Promise.resolve();
         }),
 
         //endregion
 
+        /**
+         * Output stream
+         *
+         * @type {gpf.interfaces.IWritableStream}
+         */
+        _output: null,
+
         /** Buffer */
-        _buffer: []
+        _buffer: [],
+
+        /**
+         * Check if the buffer contains any carriage return and write to output
+         *
+         * @return {Promise} Resolve when all lines were written
+         */
+        _process: function () {
+            var me = this,
+                lines = this._buffer.join("").split("\n"),
+                lastLine;
+            this._buffer.length = 0;
+            lastLine = lines.pop();
+            if (lastLine) {
+                this._buffer.push(lastLine);
+            }
+            return _gpfStreamLineWrite(me._output, lines);
+        }
 
     });
 
