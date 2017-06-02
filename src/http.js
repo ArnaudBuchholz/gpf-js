@@ -87,6 +87,11 @@ function _gpfProcessAlias (method, url, data) {
     }, url));
 }
 
+/**
+ * @namespace gpf.http
+ * @description Root namespace for http specifics
+ * @since 0.2.1
+ */
 gpf.http = {
 
     /**
@@ -135,10 +140,56 @@ gpf.http = {
      */
     request: _gpfHttpRequest,
 
+    /**
+     * HTTP GET request
+     *
+     * @method
+     * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
+     * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+     * @since 0.2.1
+     */
     get: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.GET),
+
+    /**
+     * HTTP POST request
+     *
+     * @method
+     * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
+     * @param {String} data Data to POST
+     * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+     * @since 0.2.1
+     */
     post: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.POST),
+
+    /**
+     * HTTP PUT request
+     *
+     * @method
+     * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
+     * @param {String} data Data to PUT
+     * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+     * @since 0.2.1
+     */
     put: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.PUT),
+
+    /**
+     * HTTP OPTIONS request
+     *
+     * @method
+     * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
+     * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+     * @since 0.2.1
+     */
     options: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.OPTIONS),
+
+    /**
+     * HTTP DELETE request
+     *
+     * @method
+     * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
+     * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+     * @since 0.2.1
+     */
     "delete": _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.DELETE)
 
 };
