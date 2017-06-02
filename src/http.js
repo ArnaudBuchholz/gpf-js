@@ -1,5 +1,6 @@
 /**
  * @file HTTP helper
+ * @since 0.2.1
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -7,7 +8,10 @@
 /*exported _gpfHttpRequestImplByHost*/ // HTTP Request Implementation per host
 /*#endif*/
 
-/** Http methods */
+/**
+ * Http methods
+ * @since 0.2.1
+ */
 var _HTTP_METHODS = {
     GET: "GET",
     POST: "POST",
@@ -25,6 +29,7 @@ var _HTTP_METHODS = {
  * @property {Object} [headers] Request headers
  *
  * @see gpf.http.request
+ * @since 0.2.1
  */
 
 /**
@@ -36,12 +41,14 @@ var _HTTP_METHODS = {
  * @property {String} responseText Response Text
  *
  * @see gpf.http.request
+ * @since 0.2.1
  */
 
 /**
  * HTTP request host specific implementation per host
  *
  * @type {Object}
+ * @since 0.2.1
  */
 var _gpfHttpRequestImplByHost = {};
 
@@ -50,6 +57,7 @@ var _gpfHttpRequestImplByHost = {};
  *
  * @param {gpf.typedef.httpRequestSettings} request HTTP Request settings
  * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+ * @since 0.2.1
  */
 function _gpfHttpRequest (request) {
     return new Promise(function (resolve, reject) {
@@ -64,6 +72,7 @@ function _gpfHttpRequest (request) {
  * @param {String|gpf.typedef.httpRequestSettings} url Url to send the request to or a request settings object
  * @param {*} [data] Data to be sent to the server
  * @return {Promise<gpf.typedef.httpRequestResponse>} HTTP request promise
+ * @since 0.2.1
  */
 function _gpfProcessAlias (method, url, data) {
     if ("string" === typeof url) {
@@ -85,26 +94,45 @@ gpf.http = {
      *
      * @enum {String}
      * @readonly
+     * @since 0.2.1
      */
     methods: {
 
-        /** GET */
+        /**
+         * GET
+         * @since 0.2.1
+         */
         get: _HTTP_METHODS.GET,
 
-        /** POST */
+        /**
+         * POST
+         * @since 0.2.1
+         */
         post: _HTTP_METHODS.POST,
 
-        /** PUT */
+        /**
+         * PUT
+         * @since 0.2.1
+         */
         put: _HTTP_METHODS.PUT,
 
-        /** OPTIONS */
+        /**
+         * OPTIONS
+         * @since 0.2.1
+         */
         options: _HTTP_METHODS.OPTIONS,
 
-        /** PUT */
+        /**
+         * PUT
+         * @since 0.2.1
+         */
         "delete": _HTTP_METHODS.DELETE
     },
 
-    /** @gpf:sameas _gpfHttpRequest */
+    /**
+     * @gpf:sameas _gpfHttpRequest
+     * @since 0.2.1
+     */
     request: _gpfHttpRequest,
 
     get: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.GET),
