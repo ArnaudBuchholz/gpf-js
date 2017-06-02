@@ -22,10 +22,32 @@ eval(fso.OpenTextFile("gpf.js", 1, false, 0).ReadAll());
 
 ## [NodeJS](http://nodejs.org/)
 
-*Will be modified when the NPM package will be ready*
+### Using gpf.js directly
+
+Assuming the file is in the same folder than your source.
 
 ```javascript
 var gpf = require("./gpf.js");
+```
+
+### Using NPM package
+
+To install the [gpf-js package](https://www.npmjs.com/package/gpf-js) use:
+
+`
+npm install gpf-js --save
+`
+
+Then, in your code, you can access the release version with:
+
+```javascript
+var gpf = require("gpf-js");
+```
+
+Or the debug version with:
+
+```javascript
+var gpf = require("gpf-js/debug");
 ```
 
 ## [Rhino](https://developer.mozilla.org/en-US/docs/Mozilla/Projects/Rhino)
