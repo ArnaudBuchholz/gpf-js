@@ -1,5 +1,6 @@
 /**
  * @file Unknown host adapter
+ * @since 0.2.1
  */
 /*#ifndef(UMD)*/
 "use strict";
