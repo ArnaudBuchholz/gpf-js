@@ -262,6 +262,7 @@ _gpfMainContext.gpf = {
  * @name gpfSourcesPath
  * @type {String}
  * @private
+ * @since 0.0.1
  */
 
 /**
