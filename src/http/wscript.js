@@ -1,5 +1,6 @@
 /**
  * @file MS Script specific HTTP implementation
+ * @since 0.2.1
  */
 /*#ifndef(UMD)*/
 "use strict";
