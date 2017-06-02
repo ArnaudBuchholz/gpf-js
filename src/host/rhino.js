@@ -17,6 +17,7 @@
 /**
  * @namespace gpf.rhino
  * @description Root namespace for Rhino specifics
+ * @since 0.2.1
  */
 gpf.rhino = {};
 
