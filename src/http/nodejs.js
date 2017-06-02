@@ -1,14 +1,15 @@
 /**
  * @file NodeJS specific HTTP implementation
+ * @since 0.2.1
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
-/*global _gpfHttpRequestImplByHost*/ // HTTP Request Implementation per host
 /*global _GpfNodeReadableStream*/ // gpf.node.ReadableStream
-/*global _gpfStringFromStream*/ // Read the stream
+/*global _gpfHttpRequestImplByHost*/ // HTTP Request Implementation per host
 /*global _gpfNodeHttp*/ // Node require("http")
-/*global  _gpfNodeUrl*/ // Node require("url")
+/*global _gpfNodeUrl*/ // Node require("url")
+/*global _gpfStringFromStream*/ // Read the stream
 /*#endif*/
 
 /*jshint node: true*/
