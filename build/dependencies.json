@@ -1,4 +1,10 @@
 {
+    "host/rhino": [
+        "console"
+    ],
+    "host/wscript": [
+        "console"
+    ],
     "foreach": [
         "arraylike"
     ],
@@ -113,7 +119,8 @@
     "define/class/super": [
         "define/class/class",
         "error",
-        "function"
+        "function",
+        "regexp"
     ],
     "define/class/build": [
         "define/class/class",
@@ -206,6 +213,7 @@
         "fs",
         "stream/wscript",
         "define",
+        "error",
         "fs/explore",
         "path"
     ],
@@ -216,5 +224,36 @@
         "literal",
         "foreach",
         "string/escapefor"
+    ],
+    "http/helpers": [
+        "regexp"
+    ],
+    "http/xhr": [
+        "http/helpers",
+        "http"
+    ],
+    "string/fromStream": [
+        "stream/string",
+        "stream"
+    ],
+    "http/nodejs": [
+        "stream/nodejs",
+        "http",
+        "host/nodejs",
+        "string/fromStream"
+    ],
+    "http/wscript": [
+        "http/helpers",
+        "http"
+    ],
+    "stream/rhino": [
+        "define",
+        "stream"
+    ],
+    "http/rhino": [
+        "stream/rhino",
+        "http/helpers",
+        "http",
+        "string/fromStream"
     ]
 }
