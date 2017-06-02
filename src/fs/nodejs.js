@@ -11,12 +11,12 @@
 /*global _GpfNodeReadableStream*/ // gpf.node.ReadableStream
 /*global _GpfNodeWritableStream*/ // gpf.node.WritableStream
 /*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfFileStorageByHost*/ // gpf.interfaces.IFileStorage per host
 /*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
 /*global _gpfNodeFs*/ // Node require("fs")
 /*global _gpfNodePath*/ // Node require("path")
 /*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
 /*global _gpfPathNormalize*/ // Normalize path
-/*global _gpfFileStorageByHost*/ // gpf.interfaces.IFileStorage per host
 /*#endif*/
 
 /*jshint node:true*/
