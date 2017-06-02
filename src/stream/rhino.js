@@ -1,5 +1,6 @@
 /**
  * @file Rhino specific stream implementation
+ * @since 0.2.1
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -25,6 +26,7 @@ var
          *
          * @constructor gpf.rhino.BaseStream
          * @private
+         * @since 0.2.1
          */
         constructor: function (stream) {
             this._stream = stream;
@@ -34,6 +36,7 @@ var
          * Close the stream
          *
          * @return {Promise} Resolved when closed
+         * @since 0.2.1
          */
         close: function () {
             this._stream.close();
@@ -44,6 +47,7 @@ var
          * Rhino stream object
          *
          * @type {java.io.InputStream|java.io.OutputStream}
+         * @since 0.2.1
          */
         _stream: null
 
@@ -57,6 +61,7 @@ var
      * @class gpf.rhino.ReadableStream
      * @extends gpf.rhino.BaseStream
      * @implements {gpf.interfaces.IReadableStream}
+     * @since 0.2.1
      */
     _GpfRhinoReadableStream = _gpfDefine(/** @lends gpf.rhino.ReadableStream */{
         $class: "gpf.rhino.ReadableStream",
@@ -69,6 +74,7 @@ var
          *
          * @param {Error} e Error coming from read
          * @return {Promise} Read result replacement
+         * @since 0.2.1
          */
         _handleError: function (e) {
             if (e.message.indexOf("java.util.NoSuchElementException") === 0) {
@@ -80,6 +86,7 @@ var
 
         /**
          * @gpf:sameas gpf.interfaces.IReadableStream#read
+         * @since 0.2.1
          */
         read: _gpfStreamSecureRead(function (output) {
             try {
@@ -102,6 +109,7 @@ var
      * @class gpf.rhino.WritableStream
      * @extends gpf.rhino.BaseStream
      * @implements {gpf.interfaces.IWritableStream}
+     * @since 0.2.1
      */
     _GpfRhinoWritableStream = _gpfDefine(/** @lends gpf.rhino.WritableStream */{
         $class: "gpf.rhino.WritableStream",
@@ -116,6 +124,7 @@ var
 
         /**
          * @gpf:sameas gpf.interfaces.IWritableStream#write
+         * @since 0.2.1
          */
         write: _gpfStreamSecureWrite(function (buffer) {
             var writer = this._writer; //eslint-disable-line no-invalid-this
@@ -126,7 +135,10 @@ var
 
         //endregion
 
-        /** @inheritdoc */
+        /**
+         * @inheritdoc
+         * @since 0.2.1
+         */
         close: function () {
             this._writer.close();
             return this.$super();
@@ -136,6 +148,7 @@ var
          * Stream writer
          *
          * @type {java.io.OutputStreamWriter}
+         * @since 0.2.1
          */
         _writer: null
 
