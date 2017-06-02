@@ -345,6 +345,10 @@
         "doc": true
     },
     {
+        "name": "stream/line",
+        "doc": true
+    },
+    {
         "name": "events",
         "load": false
     },
