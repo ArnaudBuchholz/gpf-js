@@ -7,6 +7,7 @@
 /*global _gpfInstallCompatibility*/ // Define and install compatible methods
 /*global _gpfMainContext*/ // Main context object
 /*global _gpfNewApply*/ // Apply new operator with an array of parameters
+/*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*exported _gpfIsISO8601String*/ // Check if the string is an ISO 8601 representation of a date
 /*#endif*/
 
@@ -17,6 +18,23 @@ function _pad (number) {
     return number;
 }
 
+function _gpfDateToISOString (date) {
+    return date.getUTCFullYear()
+        + "-"
+        + _pad(date.getUTCMonth() + 1)
+        + "-"
+        + _pad(date.getUTCDate())
+        + "T"
+        + _pad(date.getUTCHours())
+        + ":"
+        + _pad(date.getUTCMinutes())
+        + ":"
+        + _pad(date.getUTCSeconds())
+        + "."
+        + (date.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5)
+        + "Z";
+}
+
 _gpfInstallCompatibility("Date", {
     on: Date,
 
@@ -24,20 +42,7 @@ _gpfInstallCompatibility("Date", {
 
         // Introduced with JavaScript 1.8
         toISOString: function () {
-            return this.getUTCFullYear()
-                + "-"
-                + _pad(this.getUTCMonth() + 1)
-                + "-"
-                + _pad(this.getUTCDate())
-                + "T"
-                + _pad(this.getUTCHours())
-                + ":"
-                + _pad(this.getUTCMinutes())
-                + ":"
-                + _pad(this.getUTCSeconds())
-                + "."
-                + (this.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5)
-                + "Z";
+            return _gpfDateToISOString(this);
         }
 
     }
@@ -49,12 +54,16 @@ _gpfInstallCompatibility("Date", {
 var _gpfISO8601RegExp = new RegExp("^([0-9][0-9][0-9][0-9])\\-([0-9][0-9])\\-([0-9][0-9])"
     + "(?:T([0-9][0-9])\\:([0-9][0-9])\\:([0-9][0-9])(?:\\.([0-9][0-9][0-9])Z)?)?$");
 
+function _gpfIsValidDateInDateArray (dateArray) {
+    return dateArray[1] < 12 && dateArray[2] < 32;
+}
+
+function _gpfIsValidTimeInDateArray (dateArray) {
+    return dateArray[3] < 24 && dateArray[4] < 60 && dateArray[5] < 60;
+}
+
 function _gpfCheckDateArray (dateArray) {
-    if (dateArray[1] < 12
-        && dateArray[2] < 32
-        && dateArray[3] < 24
-        && dateArray[4] < 60
-        && dateArray[5] < 60) {
+    if (_gpfIsValidDateInDateArray(dateArray) && _gpfIsValidTimeInDateArray(dateArray)) {
         return dateArray;
     }
 }
@@ -125,40 +134,27 @@ function _GpfDate () {
 }
 
 function _gpfCopyDateStatics () {
-    var members = [
-            "prototype", // Ensure instanceof
-            "UTC",
-            "parse",
-            "now"
-        ],
-        len = members.length,
-        idx,
-        member;
-    for (idx = 0; idx < len; ++idx) {
-        member = members[idx];
+    _gpfArrayForEach([
+        "prototype", // Ensure instanceof
+        "UTC",
+        "parse",
+        "now"
+    ], function (member) {
         _GpfDate[member] = _GpfGenuineDate[member];
-    }
+    });
 }
 
 function _gpfInstallCompatibleDate () {
     _gpfCopyDateStatics();
     // Test if ISO 8601 format variations are supported
-    var supported = false;
+    var longDateAsString,
+        shortDateAsString;
     try {
-        var longDate = new Date("2003-01-22T22:45:34.075Z"),
-            shortDate = new Date("2003-01-22");
-        supported = 2003 === longDate.getUTCFullYear()
-            && 0 === longDate.getUTCMonth()
-            && 22 === longDate.getUTCDate()
-            && 22 === longDate.getUTCHours()
-            && 45 === longDate.getUTCMinutes()
-            && 34 === longDate.getUTCSeconds()
-            && 75 === longDate.getUTCMilliseconds()
-            && 2003 === shortDate.getUTCFullYear()
-            && 0 === shortDate.getUTCMonth()
-            && 22 === shortDate.getUTCDate();
+        longDateAsString = _gpfDateToISOString(new Date("2003-01-22T22:45:34.075Z"));
+        shortDateAsString = _gpfDateToISOString(new Date("2003-01-22"));
     } catch (e) {} //eslint-disable-line no-empty
-    if (!supported) {
+    if (longDateAsString !== "2003-01-22T22:45:34.075Z"
+        || shortDateAsString !== "2003-01-22T00:00:00.000Z") {
         // Replace constructor with new one
         _gpfMainContext.Date = _GpfDate;
     }
