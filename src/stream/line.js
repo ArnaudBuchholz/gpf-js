@@ -10,16 +10,24 @@
 /*exported _GpfStreamLineAdatper*/ // gpf.stream.LineAdapter
 /*#endif*/
 
+function _gpfStreamLineLastDoesntEndsWithLF (buffer) {
+    var lastItem = buffer[buffer.length - 1];
+    return lastItem.charAt(lastItem.length - 1) !== "\n";
+}
+
+function _gpfStreamLineTrimCR (line) {
+    var lengthMinus1 = line.length - 1;
+    if (line.lastIndexOf("\r") === lengthMinus1) {
+        return line.substr(0, lengthMinus1);
+    }
+    return line;
+}
+
 function _gpfStreamLineWrite (output, lines) {
     if (!lines.length) {
         return Promise.resolve();
     }
-    var line = lines.shift(),
-        lengthMinus1 = line.length - 1;
-    if (line.lastIndexOf("\r") === lengthMinus1) {
-        line = line.substr(0, lengthMinus1);
-    }
-    return output.write(line)
+    return output.write(_gpfStreamLineTrimCR(lines.shift()))
        .then(function () {
            return _gpfStreamLineWrite(output, lines);
        });
@@ -69,6 +77,18 @@ var
         //endregion
 
         /**
+         * Completes the stream, flush the remaining characters as the last line if any
+         *
+         * @return {Promise} Resolve when written to the output
+         */
+        endOfStream: function () {
+            if (_gpfStreamLineLastDoesntEndsWithLF(this._buffer)) {
+                return this.write("\n");
+            }
+            return Promise.resolve();
+        },
+
+        /**
          * Output stream
          *
          * @type {gpf.interfaces.IWritableStream}
@@ -79,20 +99,37 @@ var
         _buffer: [],
 
         /**
+         * Extract lines from buffer
+         *
+         * @return {String[]} Array of lines
+         */
+        _extractLines: function () {
+            return this._buffer.join("").split("\n");
+        },
+
+        /**
+         * The array lines is built using split on \n. Hence, the last line is what comes after the last \n.
+         * If not empty, it must be pushed back to the buffer.
+         *
+         * @param {String[]} lines Array of lines
+         */
+        _pushBackLastLineIfNotEmpty: function (lines) {
+            var lastLine = lines.pop();
+            if (lastLine.length) {
+                this._buffer.push(lastLine);
+            }
+        },
+
+        /**
          * Check if the buffer contains any carriage return and write to output
          *
          * @return {Promise} Resolve when all lines were written
          */
         _process: function () {
-            var me = this,
-                lines = this._buffer.join("").split("\n"),
-                lastLine;
+            var lines = this._extractLines();
             this._buffer.length = 0;
-            lastLine = lines.pop();
-            if (lastLine) {
-                this._buffer.push(lastLine);
-            }
-            return _gpfStreamLineWrite(me._output, lines);
+            this._pushBackLastLineIfNotEmpty(lines);
+            return _gpfStreamLineWrite(this._output, lines);
         }
 
     });
