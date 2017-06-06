@@ -1,21 +1,24 @@
 {
     "CODESTYLE": {
-        "title": "GPF Library code style"
+        "title": "Code style"
     },
     "COMPATIBILITY": {
-        "title": "GPF Library compatibility layer"
+        "title": "Compatibility layer"
     },
     "LOADING": {
         "title": "Loading GPF Library"
     },
     "DEFINE": {
-        "title": "GPF Entity definition"
+        "title": "Entity definition"
     },
     "INTERFACES": {
-        "title": "GPF Standard interfaces"
+        "title": "Standard interfaces"
     },
     "TESTME": {
-        "title": "GPF Library testing"
+        "title": "Library testing"
+    },
+    "COVERAGE": {
+        "title": "Code coverage exceptions"
     }
 
 }
