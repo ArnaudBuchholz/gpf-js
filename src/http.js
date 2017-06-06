@@ -27,6 +27,7 @@ var _HTTP_METHODS = {
  * @property {gpf.http.methods} [method=gpf.http.methods.get] HTTP method
  * @property {String} url URL to submit the request to
  * @property {Object} [headers] Request headers
+ * @property {String} [data] Request data, valid only for {@link gpf.http.methods.post} and {@link gpf.http.methods.put}
  *
  * @see gpf.http.request
  * @since 0.2.1
