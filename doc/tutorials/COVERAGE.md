@@ -1,5 +1,3 @@
-## Coverage exceptions
-
 Source | Identifier | Description
 ------ | ---------- | -----------
  - | hasOwnProperty.1 | [Else case for hasOwnProperty](https://github.com/gotwarlost/istanbul/blob/master/ignoring-code-for-coverage.md#ignore-an-else-path).
