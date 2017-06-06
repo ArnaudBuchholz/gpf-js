@@ -80,6 +80,7 @@ var
          * Completes the stream, flush the remaining characters as the last line if any
          *
          * @return {Promise} Resolve when written to the output
+         * @todo This is experimental until a better way is found
          */
         endOfStream: function () {
             if (_gpfStreamLineLastDoesntEndsWithLF(this._buffer)) {
