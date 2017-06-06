@@ -156,7 +156,18 @@ function _gpfPathRelative (from, to) {
 
 /**
  * @namespace gpf.path
- * @description Root namespace for path manipulation
+ * @description Root namespace for path manipulation.
+ *
+ * As the library works with several hosts (Windows and Unix-like, see {@tutorial LOADING}),
+ * the API accepts any kind of [path separator](https://en.wikipedia.org/wiki/Path_%28computing%29).
+ * However, they can't be mixed.
+ *
+ * When giving a path, the rule is:
+ * - If the path contains at least one \, it is considered a Windows one
+ * - Otherwise, the path is considered a Unix one
+ *
+ * On the other hand, all path returned by the API are using the Unix-like formalism.
+ *
  * @since 0.1.9
  */
 gpf.path = {
