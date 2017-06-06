@@ -2,10 +2,14 @@
 
 ### Source
 
-All source file must be using UTF-8 encoding and DOS-like carriage return.
+All source file must be using [ASCII encoding](https://en.wikipedia.org/wiki/ASCII) and
+[UNIX-like carriage return](https://en.wikipedia.org/wiki/Carriage_return).
 They end with an empty line.
 
-Most sources start with:
+If specific character must be used, the [Unicode escape sequence](https://developer.mozilla.org/en-US/docs/Web/
+JavaScript/Reference/Lexical_grammar#String_literals) can be used.
+
+Sources start with:
 
 ```javascript
 /*#ifndef(UMD)*/
@@ -31,8 +35,6 @@ They are sorted alphabetically automatically by the build process.
 ### Formatting
 
 The project comes with an [.editorconfig file](http://editorconfig.org/).
-
-All files are using UTF-8 encoding with UNIX-like carriage return (linefeed only).
 
 The maximum line length is set to 120.
 
@@ -408,12 +410,15 @@ It overlaps JSHint validation and has more checks.
 
 Turning off istanbul is allowed provided a comment explains why the code is skipped.
 
-The only exception is the following (use of hasOwnProperty):
+These comments are consolidated inside the {@tutorial COVERAGE} page, an ID is allocated for each
+and reported in the source.
+
+For instance:
 
 ```javascript
 _gpfAsserts = function (messages) {
     for (var message in messages) {
-        /* istanbul ignore else */
+        /* istanbul ignore else */ // hasOwnProperty.1
         if (messages.hasOwnProperty(message)) {
             _gpfAssert(messages[message], message);
         }
