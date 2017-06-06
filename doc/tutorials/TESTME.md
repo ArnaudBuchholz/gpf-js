@@ -1,4 +1,4 @@
-## Testing the library
+## Command line testing
 
 You must first run `grunt serve`.
 
