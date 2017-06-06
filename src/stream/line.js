@@ -1,5 +1,6 @@
 /**
  * @file Line adapter stream
+ * @since 0.2.1
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -43,6 +44,7 @@ var
          * @constructor gpf.stream.LineAdapter
          * @implements {gpf.interfaces.IReadableStream}
          * @implements {gpf.interfaces.IWritableStream}
+         * @since 0.2.1
          */
         constructor: function () {
             this._buffer = [];
@@ -50,7 +52,10 @@ var
 
         //region gpf.interfaces.IReadableStream
 
-        /** @gpf:sameas gpf.interfaces.IReadableStream#read */
+        /**
+         * @gpf:sameas gpf.interfaces.IReadableStream#read
+         * @since 0.2.1
+         */
         read: _gpfStreamSecureRead(function (output) {
             var me = this; //eslint-disable-line no-invalid-this
             me._output = output;
@@ -64,7 +69,10 @@ var
 
         //region gpf.interfaces.IReadableStream
 
-        /** @gpf:sameas gpf.interfaces.IWritableStream#write */
+        /**
+         * @gpf:sameas gpf.interfaces.IWritableStream#write
+         * @since 0.2.1
+         */
         write: _gpfStreamSecureWrite(function (buffer) {
             var me = this; //eslint-disable-line no-invalid-this
             me._buffer.push(buffer.toString());
@@ -81,6 +89,7 @@ var
          *
          * @return {Promise} Resolve when written to the output
          * @todo This is experimental until a better way is found
+         * @since 0.2.1
          */
         endOfStream: function () {
             if (_gpfStreamLineLastDoesntEndsWithLF(this._buffer)) {
@@ -93,16 +102,21 @@ var
          * Output stream
          *
          * @type {gpf.interfaces.IWritableStream}
+         * @since 0.2.1
          */
         _output: null,
 
-        /** Buffer */
+        /**
+         * Buffer
+         * @since 0.2.1
+         */
         _buffer: [],
 
         /**
          * Extract lines from buffer
          *
          * @return {String[]} Array of lines
+         * @since 0.2.1
          */
         _extractLines: function () {
             return this._buffer.join("").split("\n");
@@ -113,6 +127,7 @@ var
          * If not empty, it must be pushed back to the buffer.
          *
          * @param {String[]} lines Array of lines
+         * @since 0.2.1
          */
         _pushBackLastLineIfNotEmpty: function (lines) {
             var lastLine = lines.pop();
@@ -125,6 +140,7 @@ var
          * Check if the buffer contains any carriage return and write to output
          *
          * @return {Promise} Resolve when all lines were written
+         * @since 0.2.1
          */
         _process: function () {
             var lines = this._extractLines();
