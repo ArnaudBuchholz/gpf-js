@@ -39,6 +39,7 @@
         "constants"
     ],
     "compatibility/date": [
+        "foreach",
         "compatibility",
         "factory"
     ],
@@ -255,5 +256,9 @@
         "http/helpers",
         "http",
         "string/fromStream"
+    ],
+    "stream/line": [
+        "define",
+        "stream"
     ]
 }
