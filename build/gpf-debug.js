@@ -35,7 +35,7 @@
          * GPF Version
          * @since 0.1.5
          */
-        _gpfVersion = "0.1.9",
+        _gpfVersion = "0.2.1",
         /**
          * Host constants
          * @since 0.1.5
@@ -101,13 +101,6 @@
          */
         _gpfWebDocument,
         /**
-         * Browser [head](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head) tag
-         *
-         * @type {Object}
-         * @since 0.1.5
-         */
-        _gpfWebHead,
-        /**
          * [Scripting.FileSystemObject](https://msdn.microsoft.com/en-us/library/aa711216(v=vs.71).aspx) Object
          *
          * @type {Object}
@@ -127,10 +120,16 @@
          * @type {Object}
          * @since 0.1.5
          */
-        _gpfNodePath;
+        _gpfNodePath,
+        /**
+         * Boot host specific implementation per host
+         *
+         * @type {Object}
+         * @since 0.2.1
+         */
+        _gpfBootImplByHost = {};
     _gpfVersion += "-debug";
     /* Host detection */
-    /* istanbul ignore next */
     // Microsoft cscript / wscript
     if ("undefined" !== typeof WScript) {
         _gpfHost = _GPF_HOST.WSCRIPT;
@@ -147,6 +146,8 @@
         _gpfNodePath = require("path");
         _gpfDosPath = _gpfNodePath.sep === "\\";
         _gpfMainContext = global;    // Browser
+                                     /* istanbul ignore else */
+                                     // unknown.1
     } else if ("undefined" !== typeof window) {
         _gpfHost = _GPF_HOST.BROWSER;
         _gpfMainContext = window;
@@ -208,91 +209,116 @@
     gpf.version = function () {
         return _gpfVersion;
     };
-    if (_GPF_HOST.BROWSER === _gpfHost) {
+    function _gpfConsoleGenerate(outputLine) {
+        return {
+            log: function (text) {
+                outputLine("    " + text);
+            },
+            info: function (text) {
+                outputLine("[?] " + text);
+            },
+            warn: function (text) {
+                outputLine("/!\\ " + text);
+            },
+            error: function (text) {
+                outputLine("(X) " + text);
+            }
+        };
+    }
+    _gpfBootImplByHost[_GPF_HOST.BROWSER] = function () {
+        /* istanbul ignore next */
+        // exit.1
         _gpfExit = function (code) {
             window.location = "https://arnaudbuchholz.github.io/gpf/exit.html?" + (code || 0);
         };
         _gpfWebWindow = window;
         _gpfWebDocument = document;
-        _gpfWebHead = _gpfWebDocument.getElementsByTagName("head")[0] || _gpfWebDocument.documentElement;
-    }
-    if (_GPF_HOST.NODEJS === _gpfHost) {
+    };
+    var
+        /**
+         * require("http")
+         *
+         * @type {Object}
+         * @since 0.2.1
+         */
+        _gpfNodeHttp,
+        /**
+         * require("url")
+         *
+         * @type {Object}
+         * @since 0.2.1
+         */
+        _gpfNodeUrl;
+    /**
+     * @namespace gpf.node
+     * @description Root namespace for NodeJS specifics
+     * @since 0.1.5
+     */
+    gpf.node = {};
+    _gpfBootImplByHost[_GPF_HOST.NODEJS] = function () {
+        _gpfNodeFs = require("fs");
+        _gpfNodeHttp = require("http");
+        _gpfNodeUrl = require("url");
         /* istanbul ignore next */
-        // Not testable
+        // exit.1
         _gpfExit = function (code) {
             process.exit(code);
         };
-        /**
-         * @namespace gpf.node
-         * @description Root namespace for NodeJS specifics
-         * @since 0.1.5
-         */
-        gpf.node = {};
-    }
-    if (_GPF_HOST.PHANTOMJS === _gpfHost) {
+    };
+    _gpfBootImplByHost[_GPF_HOST.PHANTOMJS] = function () {
+        /* istanbul ignore next */
+        // exit.1
         _gpfExit = function (code) {
             phantom.exit(code);
         };
         _gpfWebWindow = window;
         _gpfWebDocument = document;
-        _gpfWebHead = _gpfWebDocument.getElementsByTagName("head")[0] || _gpfWebDocument.documentElement;
-    }
-    if (_GPF_HOST.RHINO === _gpfHost) {
+    };
+    gpf.rhino = {};
+    _gpfBootImplByHost[_GPF_HOST.RHINO] = function () {
         // Define console APIs
-        _gpfMainContext.console = {
-            log: function (t) {
-                print("    " + t);
-            },
-            info: function (t) {
-                print("[?] " + t);
-            },
-            warn: function (t) {
-                print("/!\\ " + t);
-            },
-            error: function (t) {
-                print("(X) " + t);
-            }
-        };
+        _gpfMainContext.console = _gpfConsoleGenerate(print);
+        /* istanbul ignore next */
+        // exit.1
         _gpfExit = function (code) {
             java.lang.System.exit(code);
         };
+    };
+    _gpfBootImplByHost[_GPF_HOST.UNKNOWN] = _gpfEmptyFunc;
+    gpf.wscript = {};
+    /* istanbul ignore next */
+    // wscript.echo.1
+    function _gpfWScriptEcho(text) {
+        WScript.Echo(text);
     }
-    if (_GPF_HOST.WSCRIPT === _gpfHost) {
+    _gpfBootImplByHost[_GPF_HOST.WSCRIPT] = function () {
+        _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
         // Define console APIs
-        _gpfMainContext.console = {
-            log: function (t) {
-                WScript.Echo("    " + t);
-            },
-            info: function (t) {
-                WScript.Echo("[?] " + t);
-            },
-            warn: function (t) {
-                WScript.Echo("/!\\ " + t);
-            },
-            error: function (t) {
-                WScript.Echo("(X) " + t);
-            }
-        };
+        _gpfMainContext.console = _gpfConsoleGenerate(_gpfWScriptEcho);
+        /* istanbul ignore next */
+        // exit.1
         _gpfExit = function (code) {
             WScript.Quit(code);
         };
-        /**
-         * @namespace gpf.wscript
-         * @description Root namespace for WScript specifics
-         * @since 0.1.9
-         */
-        gpf.wscript = {};
-    }
-    var _gpfIsArrayLike = function (obj) {
-        //eslint-disable-line func-style
-        return Array.isArray(obj);
     };
-    /* istanbul ignore next */
-    // Not tested with NodeJS
-    if (_GPF_HOST.BROWSER === _gpfHost && (_gpfWebWindow.HTMLCollection || _gpfWebWindow.NodeList)) {
-        _gpfIsArrayLike = function (obj) {
-            return Array.isArray(obj) || obj instanceof _gpfWebWindow.HTMLCollection || obj instanceof _gpfWebWindow.NodeList;
-        };
+    _gpfBootImplByHost[_gpfHost]();
+    var _gpfIsArray = Array.isArray;
+    function _gpfArrayHasValidLengthProperty(obj) {
+        if (obj) {
+            return Math.floor(obj.length) === obj.length;
+        }
+        return false;
+    }
+    /**
+     * Return true if the parameter looks like an array, meaning a property length is available and members can be
+     * accessed through the [] operator. The length property does not have to be writable.
+     *
+     * @param {Object} obj Object to test
+     * @return {Boolean} True if array-like
+     * @since 0.1.5
+     */
+    function _gpfIsArrayLike(obj) {
+        return _gpfIsArray(obj) || _gpfArrayHasValidLengthProperty(obj);
     }
     /**
      * @gpf:sameas _gpfIsArrayLike
@@ -308,13 +334,12 @@
     function _gpfObjectForEachOwnProperty(object, callback, thisArg) {
         for (var property in object) {
             /* istanbul ignore else */
+            // hasOwnProperty.1
             if (object.hasOwnProperty(property)) {
                 callback.call(thisArg, object[property], property, object);
             }
         }
     }
-    /* istanbul ignore next */
-    // Microsoft cscript / wscript specific version
     function _gpfObjectForEachOwnPropertyWScript(object, callback, thisArg) {
         _gpfObjectForEachOwnProperty(object, callback, thisArg);
         [
@@ -335,8 +360,6 @@
      * @since 0.1.5
      */
     var _gpfObjectForEach;
-    /* istanbul ignore if */
-    // Microsoft cscript / wscript specific version
     if (_GPF_HOST.WSCRIPT === _gpfHost) {
         _gpfObjectForEach = _gpfObjectForEachOwnPropertyWScript;
     } else {
@@ -419,7 +442,7 @@
     _gpfAssert = _gpfAssertImpl;
     _gpfAsserts = _gpfAssertsImpl;
     /* istanbul ignore if */
-    // Because tested in DEBUG
+    // assert.1
     if (!_gpfAssert) {
     }
     var
@@ -440,9 +463,73 @@
         _gpfIdentifierFirstChar = _gpfAlpha + _gpfALPHA + "_$",
         // List of allowed other chars in an identifier
         _gpfIdentifierOtherChars = _gpfAlpha + _gpfALPHA + _gpfDigit + "_$",
-        // TODO update with http://stackoverflow.com/questions/26255/reserved-keywords-in-javascript
         // List of JavaScript keywords
-        _gpfJsKeywords = ("break,case,class,catch,const,continue,debugger,default,delete,do,else,export,extends,finally," + "for,function,if,import,in,instanceof,let,new,return,super,switch,this,throw,try,typeof,var,void,while,with," + "yield").split(",");
+        _gpfJsKeywords = [
+            "abstract",
+            "arguments",
+            "await",
+            "boolean",
+            "break",
+            "byte",
+            "case",
+            "catch",
+            "char",
+            "class",
+            "const",
+            "continue",
+            "debugger",
+            "default",
+            "delete",
+            "do",
+            "double",
+            "else",
+            "enum",
+            "eval",
+            "export",
+            "extends",
+            "false",
+            "final",
+            "finally",
+            "float",
+            "for",
+            "function",
+            "goto",
+            "if",
+            "implements",
+            "import",
+            "in",
+            "instanceof",
+            "int",
+            "interface",
+            "let",
+            "long",
+            "native",
+            "new",
+            "null",
+            "package",
+            "private",
+            "protected",
+            "public",
+            "return",
+            "short",
+            "static",
+            "super",
+            "switch",
+            "synchronized",
+            "this",
+            "throw",
+            "throws",
+            "transient",
+            "true",
+            "try",
+            "typeof",
+            "var",
+            "void",
+            "volatile",
+            "while",
+            "with",
+            "yield"
+        ];
     // Unprotected version of _gpfFunc
     function _gpfFuncUnsafe(params, source) {
         var args;
@@ -459,11 +546,8 @@
         try {
             return _gpfFuncUnsafe(params, source);
         } catch (e) {
-            /* istanbul ignore next */
-            // Not supposed to happen (not tested)
-            console.error("An exception occurred compiling:\r\n" + source);
-            /* istanbul ignore next */
-            return null;
+            // Makes it easier to debug
+            throw new Error("_gpfFuncImpl exception: " + e.message + "\r\n" + source);
         }
     }
     /**
@@ -714,6 +798,10 @@
             }
         }
     });
+    // Update if it was not defined
+    if (!_gpfIsArray) {
+        _gpfIsArray = Array.isArray;
+    }
     function _gpfBuildFunctionParameterList(count) {
         if (0 === count) {
             return [];
@@ -770,19 +858,28 @@
         }
         return number;
     }
+    function _gpfDateToISOString(date) {
+        return date.getUTCFullYear() + "-" + _pad(date.getUTCMonth() + 1) + "-" + _pad(date.getUTCDate()) + "T" + _pad(date.getUTCHours()) + ":" + _pad(date.getUTCMinutes()) + ":" + _pad(date.getUTCSeconds()) + "." + (date.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5) + "Z";
+    }
     _gpfInstallCompatibility("Date", {
         on: Date,
         methods: {
             // Introduced with JavaScript 1.8
             toISOString: function () {
-                return this.getUTCFullYear() + "-" + _pad(this.getUTCMonth() + 1) + "-" + _pad(this.getUTCDate()) + "T" + _pad(this.getUTCHours()) + ":" + _pad(this.getUTCMinutes()) + ":" + _pad(this.getUTCSeconds()) + "." + (this.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5) + "Z";
+                return _gpfDateToISOString(this);
             }
         }
     });
     //region Date override
     var _gpfISO8601RegExp = new RegExp("^([0-9][0-9][0-9][0-9])\\-([0-9][0-9])\\-([0-9][0-9])" + "(?:T([0-9][0-9])\\:([0-9][0-9])\\:([0-9][0-9])(?:\\.([0-9][0-9][0-9])Z)?)?$");
+    function _gpfIsValidDateInDateArray(dateArray) {
+        return dateArray[1] < 12 && dateArray[2] < 32;
+    }
+    function _gpfIsValidTimeInDateArray(dateArray) {
+        return dateArray[3] < 24 && dateArray[4] < 60 && dateArray[5] < 60;
+    }
     function _gpfCheckDateArray(dateArray) {
-        if (dateArray[1] < 12 && dateArray[2] < 32 && dateArray[3] < 24 && dateArray[4] < 60 && dateArray[5] < 60) {
+        if (_gpfIsValidDateInDateArray(dateArray) && _gpfIsValidTimeInDateArray(dateArray)) {
             return dateArray;
         }
     }
@@ -844,31 +941,27 @@
         return _gpfNewApply(_GpfGenuineDate, arguments);
     }
     function _gpfCopyDateStatics() {
-        var members = [
-                "prototype",
-                // Ensure instanceof
-                "UTC",
-                "parse",
-                "now"
-            ], len = members.length, idx, member;
-        for (idx = 0; idx < len; ++idx) {
-            member = members[idx];
+        _gpfArrayForEach([
+            "prototype",
+            // Ensure instanceof
+            "UTC",
+            "parse",
+            "now"
+        ], function (member) {
             _GpfDate[member] = _GpfGenuineDate[member];
-        }
+        });
     }
     function _gpfInstallCompatibleDate() {
         _gpfCopyDateStatics();
         // Test if ISO 8601 format variations are supported
-        var supported = false;
+        var longDateAsString, shortDateAsString;
         try {
-            var longDate = new Date("2003-01-22T22:45:34.075Z"), shortDate = new Date("2003-01-22");
-            supported = 2003 === longDate.getUTCFullYear() && 0 === longDate.getUTCMonth() && 22 === longDate.getUTCDate() && 22 === longDate.getUTCHours() && 45 === longDate.getUTCMinutes() && 34 === longDate.getUTCSeconds() && 75 === longDate.getUTCMilliseconds() && 2003 === shortDate.getUTCFullYear() && 0 === shortDate.getUTCMonth() && 22 === shortDate.getUTCDate();
+            longDateAsString = _gpfDateToISOString(new Date("2003-01-22T22:45:34.075Z"));
+            shortDateAsString = _gpfDateToISOString(new Date("2003-01-22"));
         } catch (e) {
         }
         //eslint-disable-line no-empty
-        /* istanbul ignore if */
-        // NodeJS environment supports ISO 8601 format
-        if (!supported) {
+        if (longDateAsString !== "2003-01-22T22:45:34.075Z" || shortDateAsString !== "2003-01-22T00:00:00.000Z") {
             // Replace constructor with new one
             _gpfMainContext.Date = _GpfDate;
         }
@@ -905,14 +998,10 @@
 .trim();
     }
     // Handling function name properly
-    /* istanbul ignore if */
-    // NodeJS exposes Function.prototype.name
     if (function () {
-            /* istanbul ignore next */
-            // Will never be evaluated
-            function functionName() {
-            }
-            return functionName.name !== "functionName";
+            // Trick source minification
+            var testFunction = _gpfFunc("return function functionName () {};")();
+            return testFunction.name !== "functionName";
         }()) {
         Function.prototype.compatibleName = _gpfGetFunctionName;
     } else {
@@ -949,8 +1038,6 @@
                     Temp.prototype = O;
                     var obj = new Temp();
                     Temp.prototype = null;
-                    /* istanbul ignore if */
-                    // NodeJS implements __proto__
                     if (!obj.__proto__) {
                         obj.__proto__ = O;
                     }
@@ -959,13 +1046,9 @@
             }(),
             // Introduced with JavaScript 1.8.5
             getPrototypeOf: function (object) {
-                /* istanbul ignore else */
-                // NodeJS implements __proto__
                 if (object.__proto__) {
                     return object.__proto__;
                 }
-                /* istanbul ignore next */
-                // NodeJS implements __proto__
                 // May break if the constructor has been tampered with
                 return object.constructor.prototype;
             },
@@ -1016,6 +1099,8 @@
         try {
             fn(makeSafe(onFulfilled), makeSafe(onRejected));
         } catch (e) {
+            /* istanbul ignore else */
+            // compability.promise.1
             if (safe) {
                 safe = false;
                 onRejected(e);
@@ -1057,6 +1142,8 @@
             me._value = newValue;
             _gpfPromiseFinale.call(me);
         } catch (e) {
+            /* istanbul ignore next */
+            // compability.promise.1
             _gpfPromiseReject.call(me, e);
         }
     }
@@ -1076,7 +1163,7 @@
             //eslint-disable-line no-invalid-this
             if (promise._state === null) {
                 /* istanbul ignore else */
-                // Not sure when it would happen
+                // hasOwnProperty.1
                 if (!promise.hasOwnProperty("_handlers")) {
                     promise._handlers = [];
                 }
@@ -1164,6 +1251,8 @@
                         resolve(promises);
                     }
                 } catch (e) {
+                    /* istanbul ignore next */
+                    // compability.promise.1
                     reject(e);
                 }
             }
@@ -1177,8 +1266,6 @@
             });
         });
     };
-    /* istanbul ignore next */
-    // Promise exists now in NodeJS
     if (undefined === _gpfMainContext.Promise) {
         _gpfMainContext.Promise = _GpfPromise;
     }
@@ -1228,8 +1315,6 @@
         while (queue.length) {
             timeoutItem = queue.shift();
             now = new Date();
-            /* istanbul ignore else */
-            // Harder to test (would require a very long loop)
             if (timeoutItem.dt > now) {
                 _gpfSleep(timeoutItem.dt - now);
             }
@@ -1237,7 +1322,6 @@
         }
     }
     // Used only for WSCRIPT & RHINO environments
-    /* istanbul ignore next */
     if ("undefined" === typeof setTimeout) {
         /*jshint wsh: true*/
         /*eslint-env wsh*/
@@ -1246,7 +1330,8 @@
         if (_GPF_HOST.WSCRIPT === _gpfHost) {
             _gpfSleep = function (t) {
                 WScript.Sleep(t);    //eslint-disable-line new-cap
-            };
+            };    /* istanbul ignore else */
+                  // unknown.1
         } else if (_GPF_HOST.RHINO === _gpfHost) {
             _gpfSleep = java.lang.Thread.sleep;
         } else {
@@ -1329,7 +1414,6 @@
         return _gpfFunc("return " + test)();
     }
     // Used only for environments where JSON is not defined
-    /* istanbul ignore next */
     if ("undefined" === typeof JSON) {
         _gpfJsonStringify = _gpfJsonStringifyPolyfill;
         _gpfJsonParse = _gpfJsonParsePolyfill;
@@ -1701,6 +1785,15 @@
         entityDefinition.check();
         return entityDefinition;
     }
+    function _gpfRegExpForEach(regexp, string, callback) {
+        var match;
+        /*jshint -W084*/
+        // to avoid repeating twice the exec
+        while (match = regexp.exec(string)) {
+            //eslint-disable-line no-cond-assign
+            callback(match, string);
+        }
+    }    /*jshint +W084*/
     function _GpfEntityDefinition(definition) {
         _gpfAssert(definition && "object" === typeof definition, "Expected an entity definition");
         /*jshint validthis:true*/
@@ -2027,7 +2120,7 @@
          */
         getInstanceBuilder: function () {
             /* istanbul ignore else */
-            // No use case to call getInstanceBuilder twice
+            // define.build.1
             if (!this._instanceBuilder) {
                 this._setInstanceBuilder(this._build());
             }
@@ -2405,6 +2498,13 @@
         return _gpfClassSuperCreateWeakBoundWithSameSignature(that, $super, superMethod);
     }
     /**
+     * Regular expression detecting .$super use
+     *
+     * @type {RegExp}
+     * @since 0.2.1
+     */
+    var _gpfClassSuperRegExp = new RegExp("\\.\\$super\\.(\\w+)\\b", "g");
+    /**
      * Extract all 'members' that are used on $super
      *
      * @param {Function} method Method to analyze
@@ -2412,11 +2512,11 @@
      * @since 0.1.7
      */
     function _gpfClassMethodExtractSuperMembers(method) {
-        var re = new RegExp("\\.\\$super\\.(\\w+)\\b", "g"), match = re.exec(method), result = [];
-        while (match) {
+        var result = [];
+        _gpfClassSuperRegExp.lastIndex = 0;
+        _gpfRegExpForEach(_gpfClassSuperRegExp, method, function (match) {
             result.push(match[1]);
-            match = re.exec(method);
-        }
+        });
         return result;
     }
     Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */
@@ -2902,7 +3002,7 @@
      * @since 0.1.9
      */
     gpf.createSortFunction = function (specifications) {
-        if (!Array.isArray(specifications)) {
+        if (!_gpfIsArray(specifications)) {
             specifications = [specifications];
         }
         return _gpfCreateSortFunction(specifications);
@@ -3118,7 +3218,7 @@
             });
         };
     }
-    var _GpfStreamReadableString = _gpfDefine(/** @lends gpf.node.ReadableString */
+    var _GpfStreamReadableString = _gpfDefine(/** @lends gpf.stream.ReadableString */
         {
             $class: "gpf.stream.ReadableString",
             /**
@@ -3150,7 +3250,7 @@
         /**
          * @since 0.1.9
          */
-        _GpfStreamWritableString = _gpfDefine(/** @lends gpf.node.WritableString */
+        _GpfStreamWritableString = _gpfDefine(/** @lends gpf.stream.WritableString */
         {
             $class: "gpf.stream.WritableString",
             /**
@@ -3220,12 +3320,12 @@
             APPENDING: 1
         },
         /**
-         * Host file storage
+         * {@see gpf.interfaces.IFileStorage} per host
          *
-         * @type {gpf.interfaces.IFileStorage}
-         * @since 0.1.9
+         * @type {Object}
+         * @since 0.2.1
          */
-        _gpfHostFileStorage = null;
+        _gpfFileStorageByHost = {};
     /**
      * @namespace gpf.fs
      * @description Root namespace for filesystem specifics
@@ -3284,22 +3384,13 @@
         /**
          * Get the current host file storage (null if none)
          *
-         * @return {gpf.interfaces.IFileStorage} IFileStorage interface
+         * @return {gpf.interfaces.IFileStorage|null} IFileStorage interface
          * @since 0.1.9
          */
         getFileStorage: function () {
-            return _gpfHostFileStorage;
+            return _gpfFileStorageByHost[_gpfHost] || null;
         }
     };
-    /**
-     * Set the result of {@see gpf.fs.getFileStorage}
-     *
-     * @param {gpf.interfaces.IFileStorage} iFileStorage object implementing IFileStorage
-     * @since 0.1.9
-     */
-    function _gpfSetHostFileStorage(iFileStorage) {
-        _gpfHostFileStorage = iFileStorage;
-    }
     _gpfErrorDeclare("path", {
         /**
          * ### Summary
@@ -3429,7 +3520,18 @@
     }
     /**
      * @namespace gpf.path
-     * @description Root namespace for path manipulation
+     * @description Root namespace for path manipulation.
+     *
+     * As the library works with several hosts (Windows and Unix-like, see {@tutorial LOADING}),
+     * the API accepts any kind of [path separator](https://en.wikipedia.org/wiki/Path_%28computing%29).
+     * However, they can't be mixed.
+     *
+     * When giving a path, the rule is:
+     * - If the path contains at least one \, it is considered a Windows one
+     * - Otherwise, the path is considered a Unix one
+     *
+     * On the other hand, all path returned by the API are using the Unix-like formalism.
+     *
      * @since 0.1.9
      */
     gpf.path = {
@@ -3513,165 +3615,163 @@
             }
         };
     }
-    if (_GPF_HOST.NODEJS === _gpfHost) {
-        var _GpfNodeBaseStream = _gpfDefine(/** @lends gpf.node.BaseStream */
-            {
-                $class: "gpf.node.BaseStream",
-                /**
-                 * Base class wrapping NodeJS streams
-                 *
-                 * @param {Object} stream NodeJS stream object
-                 * @param {Function} [close] Close handler
-                 *
-                 * @constructor gpf.node.BaseStream
-                 * @private
-                 * @since 0.1.9
-                 */
-                constructor: function (stream, close) {
-                    this._stream = stream;
-                    if ("function" === typeof close) {
-                        this._close = close;
-                    }
-                    stream.on("error", this._onError.bind(this));
-                },
-                /**
-                 * Function to be called when the stream is closed
-                 * @type {Function}
-                 * @since 0.1.9
-                 */
-                _close: _gpfEmptyFunc,
-                /**
-                 * Close the stream
-                 *
-                 * @return {Promise} Resolved when closed
-                 * @since 0.1.9
-                 */
-                close: function () {
-                    return this._close();
-                },
-                //region Error handling
-                /**
-                 * NodeJS stream object
-                 * @since 0.1.9
-                 */
-                _stream: null,
-                /**
-                 * The stream has an invalid state and can't be used anymore
-                 * @since 0.1.9
-                 */
-                _invalid: false,
-                /**
-                 * Current promise rejection callback
-                 * @type {Function}
-                 * @since 0.1.9
-                 */
-                _reject: gpf.Error.invalidStreamState,
-                /**
-                 * If the stream has an invalid state, the exception {@see gpf.Error.InvalidStreamState} is thrown
-                 *
-                 * @throws {gpf.Error.InvalidStreamState}
-                 * @since 0.1.9
-                 */
-                _checkIfValid: function () {
-                    if (this._invalid) {
-                        gpf.Error.invalidStreamState();
-                    }
-                },
-                /**
-                 * Bound to the error event of the stream, reject the current promise if it occurs.
-                 *
-                 * @param {*} error Stream error
-                 * @since 0.1.9
-                 */
-                _onError: function (error) {
-                    this._invalid = true;
-                    this._reject(error);
-                }    //endregion
-            }),
+    var _GpfNodeBaseStream = _gpfDefine(/** @lends gpf.node.BaseStream */
+        {
+            $class: "gpf.node.BaseStream",
             /**
-             * Wraps a readable stream from NodeJS into a IReadableStream
+             * Base class wrapping NodeJS streams
              *
              * @param {Object} stream NodeJS stream object
              * @param {Function} [close] Close handler
              *
-             * @class gpf.node.ReadableStream
-             * @extends gpf.node.BaseStream
-             * @implements {gpf.interfaces.IReadableStream}
+             * @constructor gpf.node.BaseStream
+             * @private
              * @since 0.1.9
              */
-            _GpfNodeReadableStream = _gpfDefine(/** @lends gpf.node.ReadableStream */
-            {
-                $class: "gpf.node.ReadableStream",
-                $extend: "gpf.node.BaseStream",
-                //region gpf.interfaces.IReadableStream
-                /**
-                 * @gpf:sameas gpf.interfaces.IReadableStream#read
-                 * @since 0.1.9
-                 */
-                read: _gpfStreamSecureRead(function (output) {
-                    var me = this,
-                        //eslint-disable-line no-invalid-this
-                        stream = me._stream;
-                    return new Promise(function (resolve, reject) {
-                        me._reject = reject;
-                        me._checkIfValid();
-                        stream.on("data", me._onData.bind(me, output)).on("end", function () {
-                            me._invalid = true;
-                            resolve();
-                        });
-                    });
-                }),
-                //endregion
-                /**
-                 * Stream 'data' event handler
-                 *
-                 * @param {gpf.interfaces.IWritableStream} output Output stream
-                 * @param {Object} chunk Buffer
-                 * @since 0.1.9
-                 */
-                _onData: function (output, chunk) {
-                    var me = this, stream = me._stream;
-                    stream.pause();
-                    output.write(chunk).then(function () {
-                        stream.resume();
-                    }, me._reject);
+            constructor: function (stream, close) {
+                this._stream = stream;
+                if ("function" === typeof close) {
+                    this._close = close;
                 }
-            }),
+                stream.on("error", this._onError.bind(this));
+            },
             /**
-             * Wraps a writable stream from NodeJS into a IWritableStream
-             *
-             * @param {Object} stream NodeJS stream object
-             * @param {Function} [close] Close handler
-             *
-             * @class gpf.node.WritableStream
-             * @extends gpf.node.BaseStream
-             * @implements {gpf.interfaces.IWritableStream}
+             * Function to be called when the stream is closed
+             * @type {Function}
              * @since 0.1.9
              */
-            _GpfNodeWritableStream = _gpfDefine(/** @lends gpf.node.WritableStream */
-            {
-                $class: "gpf.node.WritableStream",
-                $extend: "gpf.node.BaseStream",
-                //region gpf.interfaces.IWritableStream
-                /**
-                 * @gpf:sameas gpf.interfaces.IWritableStream#write
-                 * @since 0.1.9
-                 */
-                write: _gpfStreamSecureWrite(function (buffer) {
-                    var me = this,
-                        //eslint-disable-line no-invalid-this
-                        stream = me._stream;
-                    return new Promise(function (resolve, reject) {
-                        me._reject = reject;
-                        me._checkIfValid();
-                        if (stream.write(buffer)) {
-                            return resolve();
-                        }
-                        stream.once("drain", resolve);
+            _close: _gpfEmptyFunc,
+            /**
+             * Close the stream
+             *
+             * @return {Promise} Resolved when closed
+             * @since 0.1.9
+             */
+            close: function () {
+                return this._close();
+            },
+            //region Error handling
+            /**
+             * NodeJS stream object
+             * @since 0.1.9
+             */
+            _stream: null,
+            /**
+             * The stream has an invalid state and can't be used anymore
+             * @since 0.1.9
+             */
+            _invalid: false,
+            /**
+             * Current promise rejection callback
+             * @type {Function}
+             * @since 0.1.9
+             */
+            _reject: gpf.Error.invalidStreamState,
+            /**
+             * If the stream has an invalid state, the exception {@see gpf.Error.InvalidStreamState} is thrown
+             *
+             * @throws {gpf.Error.InvalidStreamState}
+             * @since 0.1.9
+             */
+            _checkIfValid: function () {
+                if (this._invalid) {
+                    gpf.Error.invalidStreamState();
+                }
+            },
+            /**
+             * Bound to the error event of the stream, reject the current promise if it occurs.
+             *
+             * @param {*} error Stream error
+             * @since 0.1.9
+             */
+            _onError: function (error) {
+                this._invalid = true;
+                this._reject(error);
+            }    //endregion
+        }),
+        /**
+         * Wraps a readable stream from NodeJS into a IReadableStream
+         *
+         * @param {Object} stream NodeJS stream object
+         * @param {Function} [close] Close handler
+         *
+         * @class gpf.node.ReadableStream
+         * @extends gpf.node.BaseStream
+         * @implements {gpf.interfaces.IReadableStream}
+         * @since 0.1.9
+         */
+        _GpfNodeReadableStream = _gpfDefine(/** @lends gpf.node.ReadableStream */
+        {
+            $class: "gpf.node.ReadableStream",
+            $extend: "gpf.node.BaseStream",
+            //region gpf.interfaces.IReadableStream
+            /**
+             * @gpf:sameas gpf.interfaces.IReadableStream#read
+             * @since 0.1.9
+             */
+            read: _gpfStreamSecureRead(function (output) {
+                var me = this,
+                    //eslint-disable-line no-invalid-this
+                    stream = me._stream;
+                return new Promise(function (resolve, reject) {
+                    me._reject = reject;
+                    me._checkIfValid();
+                    stream.on("data", me._onData.bind(me, output)).on("end", function () {
+                        me._invalid = true;
+                        resolve();
                     });
-                })    //endregion
-            });
-    }
+                });
+            }),
+            //endregion
+            /**
+             * Stream 'data' event handler
+             *
+             * @param {gpf.interfaces.IWritableStream} output Output stream
+             * @param {Object} chunk Buffer
+             * @since 0.1.9
+             */
+            _onData: function (output, chunk) {
+                var me = this, stream = me._stream;
+                stream.pause();
+                output.write(chunk).then(function () {
+                    stream.resume();
+                }, me._reject);
+            }
+        }),
+        /**
+         * Wraps a writable stream from NodeJS into a IWritableStream
+         *
+         * @param {Object} stream NodeJS stream object
+         * @param {Function} [close] Close handler
+         *
+         * @class gpf.node.WritableStream
+         * @extends gpf.node.BaseStream
+         * @implements {gpf.interfaces.IWritableStream}
+         * @since 0.1.9
+         */
+        _GpfNodeWritableStream = _gpfDefine(/** @lends gpf.node.WritableStream */
+        {
+            $class: "gpf.node.WritableStream",
+            $extend: "gpf.node.BaseStream",
+            //region gpf.interfaces.IWritableStream
+            /**
+             * @gpf:sameas gpf.interfaces.IWritableStream#write
+             * @since 0.1.9
+             */
+            write: _gpfStreamSecureWrite(function (buffer) {
+                var me = this,
+                    //eslint-disable-line no-invalid-this
+                    stream = me._stream;
+                return new Promise(function (resolve, reject) {
+                    me._reject = reject;
+                    me._checkIfValid();
+                    if (stream.write(buffer)) {
+                        return resolve();
+                    }
+                    stream.once("drain", resolve);
+                });
+            })    //endregion
+        });
     function _gpfFsNodeFsCall(methodName, args) {
         return new Promise(function (resolve, reject) {
             _gpfNodeFs[methodName].apply(_gpfNodeFs, args.concat([function (err, result) {
@@ -3746,24 +3846,17 @@
         }
         return _gpfFsNodeGetFileType(stats);
     }
+    /**
+     * NodeJS specific IFileStorage implementation
+     *
+     * @class gpf.node.FileStorage
+     * @implements {gpf.interfaces.IFileStorage}
+     * @private
+     * @since 0.1.9
+     */
     var _gpfNodeFileStorage = _gpfDefine(/** @lends gpf.node.FileStorage */
     {
         $class: "gpf.node.FileStorage",
-        /**
-         * NodeJS specific IFileStorage implementation
-         *
-         * @constructor gpf.node.FileStorage
-         * @implements {gpf.interfaces.IFileStorage}
-         * @private
-         * @since 0.1.9
-         */
-        constructor: function () {
-            /* istanbul ignore next */
-            // Because boot always implies require("fs")
-            if (!_gpfNodeFs) {
-                _gpfNodeFs = require("fs");
-            }
-        },
         //region gpf.interfaces.IFileStorage
         /**
          * @gpf:sameas gpf.interfaces.IFileStorage#getInfo
@@ -3837,103 +3930,118 @@
          */
         deleteDirectory: _gpfFsNodeFsCallWithPath.bind(null, "rmdir")    //endregion
     });
-    /* istanbul ignore else */
-    // Because tested with NodeJS
-    if (_GPF_HOST.NODEJS === _gpfHost) {
-        _gpfSetHostFileStorage(new _gpfNodeFileStorage());
-    }
-    if (_GPF_HOST.WSCRIPT === _gpfHost) {
-        var _GpfWscriptBaseStream = _gpfDefine(/** @lends gpf.wscript.BaseStream */
-            {
-                $class: "gpf.wscript.BaseStream",
-                /**
-                 * Base class wrapping NodeJS streams
-                 *
-                 * @constructor gpf.wscript.BaseStream
-                 * @param {Object} file File object
-                 * @private
-                 * @since 0.1.9
-                 */
-                constructor: function (file) {
-                    this._file = file;
-                },
-                /**
-                 * Close the stream
-                 *
-                 * @return {Promise} Resolved when closed
-                 * @since 0.1.9
-                 */
-                close: function () {
-                    return new Promise(function (resolve) {
-                        this._file.Close();
-                        resolve();
-                    }.bind(this));
-                }
-            }),
+    _gpfFileStorageByHost[_GPF_HOST.NODEJS] = new _gpfNodeFileStorage();
+    var _GpfWscriptBaseStream = _gpfDefine(/** @lends gpf.wscript.BaseStream */
+        {
+            $class: "gpf.wscript.BaseStream",
             /**
-             * Wraps a file object from FileSystemObject into a IReadableStream
+             * Base class wrapping NodeJS streams
              *
-             * @class gpf.wscript.ReadableStream
-             * @extends gpf.wscript.BaseStream
-             * @implements {gpf.interfaces.IReadableStream}
+             * @constructor gpf.wscript.BaseStream
+             * @param {Object} file File object
              * @private
              * @since 0.1.9
              */
-            _GpfWscriptReadableStream = _gpfDefine(/** @lends gpf.wscript.ReadableStream */
-            {
-                $class: "gpf.wscript.ReadableStream",
-                $extend: "gpf.wscript.BaseStream",
-                //region gpf.interfaces.IReadableStream
-                /**
-                 * @gpf:sameas gpf.interfaces.IReadableStream#read
-                 * @since 0.1.9
-                 */
-                read: _gpfStreamSecureRead(function (output) {
-                    var me = this,
-                        //eslint-disable-line no-invalid-this
-                        file = me._file;
-                    return new Promise(function (resolve) {
-                        function read() {
-                            return output.write(file.Read(4096))    // buffer size
+            constructor: function (file) {
+                this._file = file;
+            },
+            /**
+             * Close the stream
+             *
+             * @return {Promise} Resolved when closed
+             * @since 0.1.9
+             */
+            close: function () {
+                return new Promise(function (resolve) {
+                    this._file.Close();
+                    resolve();
+                }.bind(this));
+            }
+        }),
+        /**
+         * Wraps a file object from FileSystemObject into a IReadableStream
+         *
+         * @class gpf.wscript.ReadableStream
+         * @extends gpf.wscript.BaseStream
+         * @implements {gpf.interfaces.IReadableStream}
+         * @private
+         * @since 0.1.9
+         */
+        _GpfWscriptReadableStream = _gpfDefine(/** @lends gpf.wscript.ReadableStream */
+        {
+            $class: "gpf.wscript.ReadableStream",
+            $extend: "gpf.wscript.BaseStream",
+            //region gpf.interfaces.IReadableStream
+            /**
+             * @gpf:sameas gpf.interfaces.IReadableStream#read
+             * @since 0.1.9
+             */
+            read: _gpfStreamSecureRead(function (output) {
+                var me = this,
+                    //eslint-disable-line no-invalid-this
+                    file = me._file;
+                return new Promise(function (resolve) {
+                    function read() {
+                        return output.write(file.Read(4096))    // buffer size
 .then(function () {
-                                if (!file.AtEndOfStream) {
-                                    return read();
-                                }
-                            });
-                        }
-                        return read().then(resolve);
-                    });
-                })    //endregion
-            }),
+                            if (!file.AtEndOfStream) {
+                                return read();
+                            }
+                        });
+                    }
+                    return read().then(resolve);
+                });
+            })    //endregion
+        }),
+        /**
+         * Wraps a file object from FileSystemObject into a IWritableStream
+         *
+         * @class gpf.wscript.WritableStream
+         * @extends gpf.wscript.BaseStream
+         * @implements {gpf.interfaces.IWritableStream}
+         * @private
+         * @since 0.1.9
+         */
+        _GpfWscriptWritableStream = _gpfDefine(/** @lends gpf.wscript.WritableStream */
+        {
+            $class: "gpf.wscript.WritableStream",
+            $extend: "gpf.wscript.BaseStream",
+            //region gpf.interfaces.IWritableStream
             /**
-             * Wraps a file object from FileSystemObject into a IWritableStream
-             *
-             * @class gpf.wscript.WritableStream
-             * @extends gpf.wscript.BaseStream
-             * @implements {gpf.interfaces.IWritableStream}
-             * @private
+             * @gpf:sameas gpf.interfaces.IWritableStream#write
              * @since 0.1.9
              */
-            _GpfWscriptWritableStream = _gpfDefine(/** @lends gpf.wscript.WritableStream */
-            {
-                $class: "gpf.wscript.WritableStream",
-                $extend: "gpf.wscript.BaseStream",
-                //region gpf.interfaces.IWritableStream
-                /**
-                 * @gpf:sameas gpf.interfaces.IWritableStream#write
-                 * @since 0.1.9
-                 */
-                write: _gpfStreamSecureWrite(function (buffer) {
-                    var me = this,
-                        //eslint-disable-line no-invalid-this
-                        file = me._file;
-                    return new Promise(function (resolve) {
-                        file.Write(buffer);
-                        resolve();
-                    });
-                })    //endregion
-            });
-    }
+            write: _gpfStreamSecureWrite(function (buffer) {
+                var me = this,
+                    //eslint-disable-line no-invalid-this
+                    file = me._file;
+                return new Promise(function (resolve) {
+                    file.Write(buffer);
+                    resolve();
+                });
+            })    //endregion
+        });
+    _gpfErrorDeclare("fs/wscript", {
+        /**
+         * ### Summary
+         *
+         * Path not explorable
+         *
+         * ### Description
+         *
+         * This error is used when explore is used with a path that does not point to a folder.
+         * @since 0.2.1
+         */
+        pathNotExplorable: "Path not explorable"
+    });
+    /**
+     * Translate WScript file object into a {@link gpf.typedef.fileStorageInfo}
+     *
+     * @param {Object} obj WScript file object
+     * @param {gpf.fs.types} type Object type
+     * @return {gpf.typedef.fileStorageInfo} Information about the object
+     * @since 0.1.9
+     */
     function _gpfFsWScriptObjToFileStorageInfo(obj, type) {
         return {
             type: type,
@@ -3944,40 +4052,30 @@
             modifiedDateTime: new Date(obj.DateLastModified)
         };
     }
-    /* istanbul ignore next */
-    // Because tested with NodeJS
     function _gpfFsWscriptFSOCallWithArg(name, path) {
         return new Promise(function (resolve) {
             _gpfMsFSO[name](_gpfPathDecompose(path).join("\\"));
             resolve();
         });
     }
-    /* istanbul ignore next */
-    // Because tested with NodeJS
     function _gpfFsWscriptFSOCallWithArgAndTrue(name, path) {
         return new Promise(function (resolve) {
             _gpfMsFSO[name](_gpfPathDecompose(path).join("\\"), true);
             resolve();
         });
     }
-    /* istanbul ignore next */
-    // Because tested with NodeJS
     function _gpfFsWscriptGetFileInfo(path) {
         if (_gpfMsFSO.FileExists(path)) {
             return _gpfFsWScriptObjToFileStorageInfo(_gpfMsFSO.GetFile(path), _GPF_FS_TYPES.FILE);
         }
         return { type: _GPF_FS_TYPES.NOT_FOUND };
     }
-    /* istanbul ignore next */
-    // Because tested with NodeJS
     function _gpfFsWscriptGetInfo(path) {
         if (_gpfMsFSO.FolderExists(path)) {
             return _gpfFsWScriptObjToFileStorageInfo(_gpfMsFSO.GetFolder(path), _GPF_FS_TYPES.DIRECTORY);
         }
         return _gpfFsWscriptGetFileInfo(path);
     }
-    /* istanbul ignore next */
-    // Because tested with NodeJS
     function _gpfFsWScriptExploreList(collection) {
         var fsoEnum = new Enumerator(collection), results = [];
         for (; !fsoEnum.atEnd(); fsoEnum.moveNext()) {
@@ -3985,34 +4083,25 @@
         }
         return results;
     }
-    /* istanbul ignore next */
-    // Because tested with NodeJS
     function _gpfFsWScriptExplore(path) {
         var folder;
         if (_gpfMsFSO.FolderExists(path)) {
             folder = _gpfMsFSO.GetFolder(path);
             return _gpfFsWScriptExploreList(folder.SubFolders).concat(_gpfFsWScriptExploreList(folder.Files));
         }
-        return [];
+        gpf.Error.pathNotExplorable();
     }
-    /* istanbul ignore next */
-    // Because tested with NodeJS
+    /**
+     * WScript specific IFileStorage implementation
+     *
+     * @class gpf.wscript.FileStorage
+     * @implements {gpf.interfaces.IFileStorage}
+     * @private
+     * @since 0.1.9
+     */
     var _GpfWScriptFileStorage = _gpfDefine(/** @lends gpf.wscript.FileStorage */
     {
         $class: "gpf.wscript.FileStorage",
-        /**
-         * WScript specific IFileStorage implementation
-         *
-         * @constructor gpf.wscript.FileStorage
-         * @implements {gpf.interfaces.IFileStorage}
-         * @private
-         * @since 0.1.9
-         */
-        constructor: function () {
-            if (!_gpfMsFSO) {
-                _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
-            }
-        },
         //region gpf.interfaces.IFileStorage
         /**
          * @gpf:sameas gpf.interfaces.IFileStorage#getInfo
@@ -4052,7 +4141,10 @@
          * @since 0.1.9
          */
         explore: function (path) {
-            return Promise.resolve(_gpfFsExploreEnumerator(this, _gpfFsWScriptExplore(_gpfPathDecompose(path).join("\\"))));
+            var me = this;
+            return new Promise(function (resolve) {
+                resolve(_gpfFsExploreEnumerator(me, _gpfFsWScriptExplore(_gpfPathDecompose(path).join("\\"))));
+            });
         },
         /**
          * @gpf:sameas gpf.interfaces.IFileStorage#createDirectory
@@ -4070,9 +4162,787 @@
          */
         deleteDirectory: _gpfFsWscriptFSOCallWithArgAndTrue.bind(null, "DeleteFolder")    //endregion
     });
-    /* istanbul ignore next */
-    // Because tested with NodeJS
-    if (_GPF_HOST.WSCRIPT === _gpfHost) {
-        _gpfSetHostFileStorage(new _GpfWScriptFileStorage());
+    _gpfFileStorageByHost[_GPF_HOST.WSCRIPT] = new _GpfWScriptFileStorage();
+    var _gpfObjectToString = Object.prototype.toString;
+    /**
+     * Check if the parameter is a literal object
+     *
+     * @param {*} value Value to check
+     * @return {Boolean} True if the value is a literal object
+     * @since 0.2.1
+     */
+    function _gpfIsLiteralObject(value) {
+        return value instanceof Object && _gpfObjectToString.call(value) === "[object Object]" && Object.getPrototypeOf(value) === Object.getPrototypeOf({});
     }
+    /**
+     * @gpf:sameas _gpfIsLiteralObject
+     * @since 0.2.1
+     */
+    gpf.isLiteralObject = _gpfIsLiteralObject;
+    _gpfErrorDeclare("web/tag", {
+        /**
+         * ### Summary
+         *
+         * Missing node name
+         *
+         * ### Description
+         *
+         * A tag can't be created if the node name is missing
+         * @since 0.2.1
+         */
+        missingNodeName: "Missing node name"
+    });
+    /**
+     * Mapping of attribute name aliases
+     * @type {Object}
+     * @since 0.2.1
+     */
+    var _gpfWebTagAttributeAliases = { "className": "class" };
+    /**
+     * Resolve attribute name
+     *
+     * @param {String} name Attribute name used in the tag function
+     * @return {String} Attribute to set on the node ele,ment
+     * @since 0.2.1
+     */
+    function _gpfWebTagAttributeAlias(name) {
+        return _gpfWebTagAttributeAliases[name] || name;
+    }
+    /**
+     * Apply the callback to each array item,
+     * process recursively if the array item is an array
+     *
+     * @param {Array} array array of items
+     * @param {Function} callback Function to apply on each array item
+     * @since 0.2.1
+     */
+    function _gpfWebTagFlattenChildren(array, callback) {
+        array.forEach(function (item) {
+            if (_gpfIsArray(item)) {
+                _gpfWebTagFlattenChildren(item, callback);
+            } else {
+                callback(item);
+            }
+        });
+    }
+    var _GpfWebTag = _gpfDefine({
+        $class: "gpf.web.Tag",
+        /**
+         * Tag object
+         *
+         * @param {String} nodeName Node name
+         * @param {Object} [attributes] Dictionary of attributes to set
+         * @param {Array} [children] Children
+         *
+         * @constructor gpf.web.Ta
+         * @private
+         * @since 0.2.1
+         */
+        constructor: function (nodeName, attributes, children) {
+            this._nodeName = nodeName;
+            this._attributes = attributes || {};
+            this._children = children;
+        },
+        /**
+         * Node name
+         * @since 0.2.1
+         */
+        _nodeName: "",
+        /**
+         * Node attributes
+         * @since 0.2.1
+         */
+        _attributes: {},
+        /**
+         * Node children
+         * @since 0.2.1
+         */
+        _children: [],
+        //region toString implementation
+        _getAttributesAsString: function () {
+            return Object.keys(this._attributes).map(function (name) {
+                return " " + _gpfWebTagAttributeAlias(name) + "=\"" + _gpfStringEscapeFor(this._attributes[name], "html") + "\"";
+            }, this).join("");
+        },
+        _getChildrenAsString: function () {
+            var result = [];
+            _gpfWebTagFlattenChildren(this._children, function (child) {
+                result.push(child.toString());
+            });
+            return result.join("");
+        },
+        _getClosingString: function () {
+            if (this._children.length) {
+                return ">" + this._getChildrenAsString() + "</" + this._nodeName + ">";
+            }
+            return "/>";
+        },
+        /**
+         * Convert the current tag into HTML
+         *
+         * @return {String} HTML representation of the tag
+         * @since 0.2.1
+         */
+        toString: function () {
+            return "<" + this._nodeName + this._getAttributesAsString() + this._getClosingString();
+        },
+        //endregion
+        //region appendTo implementation
+        _setAttributesTo: function (node) {
+            _gpfObjectForEach(this._attributes, function (value, name) {
+                node.setAttribute(_gpfWebTagAttributeAlias(name), value);
+            });
+        },
+        _appendChildrenTo: function (node, ownerDocument) {
+            _gpfWebTagFlattenChildren(this._children, function (child) {
+                if (child instanceof _GpfWebTag) {
+                    child.appendTo(node);
+                } else {
+                    node.appendChild(ownerDocument.createTextNode(child.toString()));
+                }
+            });
+        },
+        /**
+         * Appends the tag to the provided node
+         *
+         * @param {Object} node Expected to be a DOM node
+         * @return {Object} Created node
+         * @since 0.2.1
+         */
+        appendTo: function (node) {
+            var ownerDocument = node.ownerDocument, element = ownerDocument.createElement(this._nodeName);
+            this._setAttributesTo(element);
+            this._appendChildrenTo(element, ownerDocument);
+            return node.appendChild(element);
+        }    //endregion
+    });
+    /**
+     * Create a function that can be used to generate HTML
+     *
+     * @param {String} [nodeName] tag name
+     * @return {Function} The tag generation function
+     * @gpf:closure
+     * @since 0.2.1
+     */
+    function _gpfWebTagCreateFunction(nodeName) {
+        if (!nodeName) {
+            gpf.Error.missingNodeName();
+        }
+        return function (firstParam) {
+            var sliceFrom, attributes;
+            if (_gpfIsLiteralObject(firstParam)) {
+                attributes = firstParam;
+                sliceFrom = 1;
+            } else {
+                sliceFrom = 0;
+            }
+            return new _GpfWebTag(nodeName, attributes, [].slice.call(arguments, sliceFrom));
+        };
+    }
+    /**
+     * @gpf:sameas _gpfWebTagCreateFunction
+     * @since 0.2.1
+     */
+    gpf.web.createTagFunction = _gpfWebTagCreateFunction;
+    var _HTTP_METHODS = {
+        GET: "GET",
+        POST: "POST",
+        PUT: "PUT",
+        OPTIONS: "OPTIONS",
+        DELETE: "DELETE"
+    };
+    /**
+     * HTTP request settings
+     *
+     * @typedef gpf.typedef.httpRequestSettings
+     * @property {gpf.http.methods} [method=gpf.http.methods.get] HTTP method
+     * @property {String} url URL to submit the request to
+     * @property {Object} [headers] Request headers
+     * @property {String} [data] Request data, valid only for {@link gpf.http.methods.post} and {@link gpf.http.methods.put}
+     *
+     * @see gpf.http.request
+     * @since 0.2.1
+     */
+    /**
+     * HTTP request response
+     *
+     * @typedef gpf.typedef.httpRequestResponse
+     * @property {int} status HTTP status
+     * @property {Object} headers HTTP response headers
+     * @property {String} responseText Response Text
+     *
+     * @see gpf.http.request
+     * @since 0.2.1
+     */
+    /**
+     * HTTP request host specific implementation per host
+     *
+     * @type {Object}
+     * @since 0.2.1
+     */
+    var _gpfHttpRequestImplByHost = {};
+    /**
+     * HTTP request common implementation
+     *
+     * @param {gpf.typedef.httpRequestSettings} request HTTP Request settings
+     * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+     * @since 0.2.1
+     */
+    function _gpfHttpRequest(request) {
+        return new Promise(function (resolve, reject) {
+            _gpfHttpRequestImplByHost[_gpfHost](request, resolve, reject);
+        });
+    }
+    /**
+     * Implementation of aliases
+     *
+     * @param {String} method HTTP method to apply
+     * @param {String|gpf.typedef.httpRequestSettings} url Url to send the request to or a request settings object
+     * @param {*} [data] Data to be sent to the server
+     * @return {Promise<gpf.typedef.httpRequestResponse>} HTTP request promise
+     * @since 0.2.1
+     */
+    function _gpfProcessAlias(method, url, data) {
+        if ("string" === typeof url) {
+            return _gpfHttpRequest({
+                method: method,
+                url: url,
+                data: data
+            });
+        }
+        return _gpfHttpRequest(Object.assign({ method: method }, url));
+    }
+    /**
+     * @namespace gpf.http
+     * @description Root namespace for http specifics
+     * @since 0.2.1
+     */
+    gpf.http = {
+        /**
+         * HTTP methods enumeration
+         *
+         * @enum {String}
+         * @readonly
+         * @since 0.2.1
+         */
+        methods: {
+            /**
+             * GET
+             * @since 0.2.1
+             */
+            get: _HTTP_METHODS.GET,
+            /**
+             * POST
+             * @since 0.2.1
+             */
+            post: _HTTP_METHODS.POST,
+            /**
+             * PUT
+             * @since 0.2.1
+             */
+            put: _HTTP_METHODS.PUT,
+            /**
+             * OPTIONS
+             * @since 0.2.1
+             */
+            options: _HTTP_METHODS.OPTIONS,
+            /**
+             * PUT
+             * @since 0.2.1
+             */
+            "delete": _HTTP_METHODS.DELETE
+        },
+        /**
+         * @gpf:sameas _gpfHttpRequest
+         * @since 0.2.1
+         */
+        request: _gpfHttpRequest,
+        /**
+         * HTTP GET request
+         *
+         * @method
+         * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
+         * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+         * @since 0.2.1
+         */
+        get: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.GET),
+        /**
+         * HTTP POST request
+         *
+         * @method
+         * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
+         * @param {String} data Data to POST
+         * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+         * @since 0.2.1
+         */
+        post: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.POST),
+        /**
+         * HTTP PUT request
+         *
+         * @method
+         * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
+         * @param {String} data Data to PUT
+         * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+         * @since 0.2.1
+         */
+        put: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.PUT),
+        /**
+         * HTTP OPTIONS request
+         *
+         * @method
+         * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
+         * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+         * @since 0.2.1
+         */
+        options: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.OPTIONS),
+        /**
+         * HTTP DELETE request
+         *
+         * @method
+         * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
+         * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+         * @since 0.2.1
+         */
+        "delete": _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.DELETE)
+    };
+    var _gpfHttpHeadersParserRE = new RegExp("([^:\\s]+)\\s*: ?([^\\r]*)", "gm");
+    /**
+     * Parse HTTP response headers
+     *
+     * @param {String} headers Response headers
+     * @return {Object} headers dictionary
+     * @since 0.2.1
+     */
+    function _gpfHttpParseHeaders(headers) {
+        var result = {};
+        _gpfHttpHeadersParserRE.lastIndex = 0;
+        _gpfRegExpForEach(_gpfHttpHeadersParserRE, headers, function (match) {
+            result[match[1]] = match[2];
+        });
+        return result;
+    }
+    /**
+     * Generates a function that transmit headers to the http object
+     *
+     * @param {String} methodName Name of the method to call
+     * @return {Function} Method to set the headers
+     * @gpf:closure
+     * @since 0.2.1
+     */
+    function _gpfHttpGenSetHeaders(methodName) {
+        return function (httpObj, headers) {
+            if (headers) {
+                Object.keys(headers).forEach(function (headerName) {
+                    httpObj[methodName](headerName, headers[headerName]);
+                });
+            }
+        };
+    }
+    /**
+     * Generates a function that implements the http send logic
+     *
+     * @param {String} methodName Name of the method to call
+     * @return {Function} Method to trigger the send
+     * @gpf:closure
+     * @since 0.2.1
+     */
+    function _gpfHttpGenSend(methodName) {
+        return function (httpObj, data) {
+            if (data) {
+                httpObj[methodName](data);
+            } else {
+                httpObj[methodName]();
+            }
+        };
+    }
+    var _gpfHttpXhrSetHeaders = _gpfHttpGenSetHeaders("setRequestHeader"), _gpfHttpXhrSend = _gpfHttpGenSend("send");
+    function _gpfHttpXhrOpen(request) {
+        var xhr = new XMLHttpRequest();
+        xhr.open(request.method, request.url);
+        return xhr;
+    }
+    function _gpfHttpXhrWaitForCompletion(xhr, callback) {
+        xhr.onreadystatechange = function () {
+            if (4 === xhr.readyState) {
+                callback();
+            }
+        };
+    }
+    _gpfHttpRequestImplByHost[_GPF_HOST.BROWSER] = _gpfHttpRequestImplByHost[_GPF_HOST.PHANTOMJS] = function (request, resolve) {
+        var xhr = _gpfHttpXhrOpen(request);
+        _gpfHttpXhrSetHeaders(xhr, request.headers);
+        _gpfHttpXhrWaitForCompletion(xhr, function () {
+            resolve({
+                status: xhr.status,
+                headers: _gpfHttpParseHeaders(xhr.getAllResponseHeaders()),
+                responseText: xhr.responseText
+            });
+        });
+        _gpfHttpXhrSend(xhr, request.data);
+    };
+    function _gpfStringFromStream(readableStream) {
+        var iWritableString = new _GpfStreamWritableString(), iReadableStream = _gpfStreamQueryReadable(readableStream);
+        return iReadableStream.read(iWritableString).then(function () {
+            return iWritableString.toString();
+        });
+    }
+    function _gpfHttpNodeProcessResponse(nodeResponse, resolve) {
+        nodeResponse.setEncoding("utf8");
+        var iReadableStream = new _GpfNodeReadableStream(nodeResponse);
+        _gpfStringFromStream(iReadableStream).then(function (responseText) {
+            iReadableStream.close();
+            resolve({
+                status: nodeResponse.statusCode,
+                headers: nodeResponse.headers,
+                responseText: responseText
+            });
+        });
+    }
+    function _gpfHttpNodeAdjustSettingsForSend(settings, data) {
+        if (data) {
+            settings.headers = Object.assign({
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Content-Length": Buffer.byteLength(data)
+            }, settings.headers);
+        }
+    }
+    function _gpfHttpNodeBuildRequestSettings(request) {
+        var settings = Object.assign(_gpfNodeUrl.parse(request.url), request);
+        _gpfHttpNodeAdjustSettingsForSend(settings, request.data);
+        return settings;
+    }
+    function _gpfHttpNodeAllocate(request, resolve) {
+        var settings = _gpfHttpNodeBuildRequestSettings(request);
+        return _gpfNodeHttp.request(settings, function (nodeResponse) {
+            _gpfHttpNodeProcessResponse(nodeResponse, resolve);
+        });
+    }
+    function _gpfHttpNodeSend(clientRequest, data) {
+        if (data) {
+            clientRequest.write(data, "utf8", function () {
+                clientRequest.end();
+            });
+        } else {
+            clientRequest.end();
+        }
+    }
+    _gpfHttpRequestImplByHost[_GPF_HOST.NODEJS] = function (request, resolve, reject) {
+        var clientRequest = _gpfHttpNodeAllocate(request, resolve);
+        clientRequest.on("error", reject);
+        _gpfHttpNodeSend(clientRequest, request.data);
+    };
+    var _gpfHttpWScriptSetHeaders = _gpfHttpGenSetHeaders("setRequestHeader"), _gpfHttpWScriptSend = _gpfHttpGenSend("Send");
+    function _gpfHttpWScriptAllocate(request) {
+        var winHttp = new ActiveXObject("WinHttp.WinHttpRequest.5.1");
+        winHttp.Open(request.method, request.url);
+        return winHttp;
+    }
+    function _gpfHttpWScriptResolve(winHttp, resolve) {
+        resolve({
+            status: winHttp.Status,
+            headers: _gpfHttpParseHeaders(winHttp.GetAllResponseHeaders()),
+            responseText: winHttp.ResponseText
+        });
+    }
+    _gpfHttpRequestImplByHost[_GPF_HOST.WSCRIPT] = function (request, resolve) {
+        var winHttp = _gpfHttpWScriptAllocate(request);
+        _gpfHttpWScriptSetHeaders(winHttp, request.headers);
+        _gpfHttpWScriptSend(winHttp, request.data);
+        _gpfHttpWScriptResolve(winHttp, resolve);
+    };
+    var _GpfRhinoBaseStream = _gpfDefine(/** @lends gpf.rhino.BaseStream */
+        {
+            $class: "gpf.rhino.BaseStream",
+            /**
+             * Base class wrapping Rhino streams
+             *
+             * @param {java.io.InputStream|java.io.OutputStream} stream Rhino input or output stream object
+             *
+             * @constructor gpf.rhino.BaseStream
+             * @private
+             * @since 0.2.1
+             */
+            constructor: function (stream) {
+                this._stream = stream;
+            },
+            /**
+             * Close the stream
+             *
+             * @return {Promise} Resolved when closed
+             * @since 0.2.1
+             */
+            close: function () {
+                this._stream.close();
+                return Promise.resolve();
+            },
+            /**
+             * Rhino stream object
+             *
+             * @type {java.io.InputStream|java.io.OutputStream}
+             * @since 0.2.1
+             */
+            _stream: null
+        }),
+        /**
+         * Wraps a readable stream from Rhino into a IReadableStream
+         *
+         * @param {java.io.InputStream} stream Rhino stream object
+         *
+         * @class gpf.rhino.ReadableStream
+         * @extends gpf.rhino.BaseStream
+         * @implements {gpf.interfaces.IReadableStream}
+         * @since 0.2.1
+         */
+        _GpfRhinoReadableStream = _gpfDefine(/** @lends gpf.rhino.ReadableStream */
+        {
+            $class: "gpf.rhino.ReadableStream",
+            $extend: "gpf.rhino.BaseStream",
+            //region gpf.interfaces.IReadableStream
+            /**
+             * Process error that occurred during the stream reading
+             *
+             * @param {Error} e Error coming from read
+             * @return {Promise} Read result replacement
+             * @since 0.2.1
+             */
+            _handleError: function (e) {
+                if (e.message.indexOf("java.util.NoSuchElementException") === 0) {
+                    // Empty stream
+                    return Promise.resolve();
+                }
+                return Promise.reject(e);
+            },
+            /**
+             * @gpf:sameas gpf.interfaces.IReadableStream#read
+             * @since 0.2.1
+             */
+            read: _gpfStreamSecureRead(function (output) {
+                try {
+                    var scanner = new java.util.Scanner(this._stream);
+                    //eslint-disable-line no-invalid-this
+                    return output.write(String(scanner.useDelimiter("\\A").next()));
+                } catch (e) {
+                    return this._handleError(e);    //eslint-disable-line no-invalid-this
+                }
+            })    //endregion
+        }),
+        /**
+         * Wraps a writable stream from Rhino into a IWritableStream
+         *
+         * @param {java.io.OutputStream} stream Rhino stream object
+         *
+         * @class gpf.rhino.WritableStream
+         * @extends gpf.rhino.BaseStream
+         * @implements {gpf.interfaces.IWritableStream}
+         * @since 0.2.1
+         */
+        _GpfRhinoWritableStream = _gpfDefine(/** @lends gpf.rhino.WritableStream */
+        {
+            $class: "gpf.rhino.WritableStream",
+            $extend: "gpf.rhino.BaseStream",
+            constructor: function (stream) {
+                this.$super(stream);
+                this._writer = new java.io.OutputStreamWriter(stream);
+            },
+            //region gpf.interfaces.IWritableStream
+            /**
+             * @gpf:sameas gpf.interfaces.IWritableStream#write
+             * @since 0.2.1
+             */
+            write: _gpfStreamSecureWrite(function (buffer) {
+                var writer = this._writer;
+                //eslint-disable-line no-invalid-this
+                writer.write(buffer);
+                writer.flush();
+                return Promise.resolve();
+            }),
+            //endregion
+            /**
+             * @inheritdoc
+             * @since 0.2.1
+             */
+            close: function () {
+                this._writer.close();
+                return this.$super();
+            },
+            /**
+             * Stream writer
+             *
+             * @type {java.io.OutputStreamWriter}
+             * @since 0.2.1
+             */
+            _writer: null
+        });
+    var _gpfHttpRhinoSetHeaders = _gpfHttpGenSetHeaders("setRequestProperty");
+    function _gpfHttpRhinoSendData(httpConnection, data) {
+        if (data) {
+            httpConnection.setDoOutput(true);
+            var iWritableStream = new _GpfRhinoWritableStream(httpConnection.getOutputStream());
+            return iWritableStream.write(data).then(function () {
+                iWritableStream.close();
+            });
+        }
+        return Promise.resolve();
+    }
+    function _gpfHttpRhinoGetResponse(httpConnection) {
+        try {
+            return httpConnection.getInputStream();
+        } catch (e) {
+            return httpConnection.getErrorStream();
+        }
+    }
+    function _gpfHttpRhinoGetResponseText(httpConnection) {
+        var iReadableStream = new _GpfRhinoReadableStream(_gpfHttpRhinoGetResponse(httpConnection));
+        return _gpfStringFromStream(iReadableStream).then(function (responseText) {
+            iReadableStream.close();
+            return responseText;
+        });
+    }
+    function _gpfHttpRhinoGetHeaders(httpConnection) {
+        var headers = {}, headerFields = httpConnection.getHeaderFields(), keys = headerFields.keySet().toArray();
+        keys.forEach(function (key) {
+            headers[String(key)] = String(headerFields.get(key).get(0));
+        });
+        return headers;
+    }
+    function _gpfHttpRhinoResolve(httpConnection, resolve) {
+        _gpfHttpRhinoGetResponseText(httpConnection).then(function (responseText) {
+            resolve({
+                status: httpConnection.getResponseCode(),
+                headers: _gpfHttpRhinoGetHeaders(httpConnection),
+                responseText: responseText
+            });
+        });
+    }
+    _gpfHttpRequestImplByHost[_GPF_HOST.RHINO] = function (request, resolve) {
+        var httpConnection = new java.net.URL(request.url).openConnection();
+        httpConnection.setRequestMethod(request.method);
+        _gpfHttpRhinoSetHeaders(httpConnection, request.headers);
+        _gpfHttpRhinoSendData(httpConnection, request.data);
+        _gpfHttpRhinoResolve(httpConnection, resolve);
+    };
+    function _gpfStreamLineLastDoesntEndsWithLF(buffer) {
+        var lastItem = buffer[buffer.length - 1];
+        return lastItem.charAt(lastItem.length - 1) !== "\n";
+    }
+    function _gpfStreamLineTrimCR(line) {
+        var lengthMinus1 = line.length - 1;
+        if (line.lastIndexOf("\r") === lengthMinus1) {
+            return line.substr(0, lengthMinus1);
+        }
+        return line;
+    }
+    function _gpfStreamLineWrite(output, lines) {
+        if (!lines.length) {
+            return Promise.resolve();
+        }
+        return output.write(_gpfStreamLineTrimCR(lines.shift())).then(function () {
+            return _gpfStreamLineWrite(output, lines);
+        });
+    }
+    var _GpfStreamLineAdatper = _gpfDefine(/** @lends gpf.stream.LineAdapter */
+    {
+        $class: "gpf.stream.LineAdapter",
+        /**
+         * Stream line adapter
+         *
+         * @constructor gpf.stream.LineAdapter
+         * @implements {gpf.interfaces.IReadableStream}
+         * @implements {gpf.interfaces.IWritableStream}
+         * @since 0.2.1
+         */
+        constructor: function () {
+            this._buffer = [];
+        },
+        //region gpf.interfaces.IReadableStream
+        /**
+         * @gpf:sameas gpf.interfaces.IReadableStream#read
+         * @since 0.2.1
+         */
+        read: _gpfStreamSecureRead(function (output) {
+            var me = this;
+            //eslint-disable-line no-invalid-this
+            me._output = output;
+            if (me._buffer.length) {
+                return me._process();
+            }
+            return Promise.resolve();
+        }),
+        //endregion
+        //region gpf.interfaces.IReadableStream
+        /**
+         * @gpf:sameas gpf.interfaces.IWritableStream#write
+         * @since 0.2.1
+         */
+        write: _gpfStreamSecureWrite(function (buffer) {
+            var me = this;
+            //eslint-disable-line no-invalid-this
+            me._buffer.push(buffer.toString());
+            if (me._output) {
+                return me._process();
+            }
+            return Promise.resolve();
+        }),
+        //endregion
+        /**
+         * Completes the stream, flush the remaining characters as the last line if any
+         *
+         * @return {Promise} Resolve when written to the output
+         * @todo This is experimental until a better way is found
+         * @since 0.2.1
+         */
+        endOfStream: function () {
+            if (_gpfStreamLineLastDoesntEndsWithLF(this._buffer)) {
+                return this.write("\n");
+            }
+            return Promise.resolve();
+        },
+        /**
+         * Output stream
+         *
+         * @type {gpf.interfaces.IWritableStream}
+         * @since 0.2.1
+         */
+        _output: null,
+        /**
+         * Buffer
+         * @since 0.2.1
+         */
+        _buffer: [],
+        /**
+         * Extract lines from buffer
+         *
+         * @return {String[]} Array of lines
+         * @since 0.2.1
+         */
+        _extractLines: function () {
+            return this._buffer.join("").split("\n");
+        },
+        /**
+         * The array lines is built using split on \n. Hence, the last line is what comes after the last \n.
+         * If not empty, it must be pushed back to the buffer.
+         *
+         * @param {String[]} lines Array of lines
+         * @since 0.2.1
+         */
+        _pushBackLastLineIfNotEmpty: function (lines) {
+            var lastLine = lines.pop();
+            if (lastLine.length) {
+                this._buffer.push(lastLine);
+            }
+        },
+        /**
+         * Check if the buffer contains any carriage return and write to output
+         *
+         * @return {Promise} Resolve when all lines were written
+         * @since 0.2.1
+         */
+        _process: function () {
+            var lines = this._extractLines();
+            this._buffer.length = 0;
+            this._pushBackLastLineIfNotEmpty(lines);
+            return _gpfStreamLineWrite(this._output, lines);
+        }
+    });
+    _gpfStreamSecureInstallProgressFlag(_GpfStreamLineAdatper);
 }));
