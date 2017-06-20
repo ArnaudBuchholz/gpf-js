@@ -71,6 +71,9 @@ _gpfHttpRequestImplByHost[_GPF_HOST.RHINO] = function (request, resolve) {
     var httpConnection = new java.net.URL(request.url).openConnection();
     httpConnection.setRequestMethod(request.method);
     _gpfHttpRhinoSetHeaders(httpConnection, request.headers);
-    _gpfHttpRhinoSendData(httpConnection, request.data);
-    _gpfHttpRhinoResolve(httpConnection, resolve);
+    _gpfHttpRhinoSendData(httpConnection, request.data)
+        .then(function () {
+            _gpfHttpRhinoResolve(httpConnection, resolve);
+        });
+
 };
