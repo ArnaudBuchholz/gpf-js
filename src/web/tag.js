@@ -10,6 +10,7 @@
 /*global _gpfIsLiteralObject*/ // Check if the parameter is a literal object
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
+/*global _gpfSyncReadSourceJSON*/ // Reads a source json file (only in source mode)
 /*#endif*/
 
 _gpfErrorDeclare("web/tag", {
@@ -23,8 +24,18 @@ _gpfErrorDeclare("web/tag", {
      * A tag can't be created if the node name is missing
      * @since 0.2.1
      */
-    missingNodeName: "Missing node name"
+    missingNodeName: "Missing node name",
 
+    /**
+     * ### Summary
+     *
+     * Unknown namespace prefix
+     *
+     * ### Description
+     *
+     * A prefix has been used prior to be associated with a namespace
+     */
+    unknownNamespacePrefix: "Unknown namespace prefix"
 });
 
 /**
@@ -32,9 +43,30 @@ _gpfErrorDeclare("web/tag", {
  * @type {Object}
  * @since 0.2.1
  */
-var _gpfWebTagAttributeAliases = {
-    "className": "class"
-};
+var _gpfWebTagAttributeAliases = _gpfSyncReadSourceJSON("web/attributes.json");
+
+/**
+ * Mapping of prefixes for namespaces
+ * @type {Object}
+ */
+var _gpfWebNamespacePrefix = _gpfSyncReadSourceJSON("web/namespaces.json");
+
+function _gpfWebGetNamespace (prefix) {
+    var namespace = _gpfWebNamespacePrefix[prefix];
+    if (undefined === namespace) {
+        gpf.Error.unknownNamespacePrefix();
+    }
+}
+
+function _gpfWebGetNamespaceAndName (name) {
+    var parts = name.split(":");
+    if (parts.length === 2) {
+        return {
+            namespace: _gpfWebGetNamespace[parts[0]],
+            name: parts[1]
+        };
+    }
+}
 
 /**
  * Resolve attribute name
@@ -140,6 +172,15 @@ var _GpfWebTag = _gpfDefine({
     //endregion
 
     //region appendTo implementation
+
+    _createElement: function (node) {
+        var ownerDocument = node.ownerDocument,
+            namespaceAndName = _gpfWebGetNamespaceAndName(this._nodeName);
+        if (namespaceAndName) {
+            return ownerDocument.createElementNS(namespaceAndName.namespace, namespaceAndName.name);
+        }
+        return ownerDocument.createElement(this._nodeName);
+    },
 
     _setAttributesTo: function (node) {
         _gpfObjectForEach(this._attributes, function (value, name) {
