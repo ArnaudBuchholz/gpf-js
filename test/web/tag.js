@@ -115,30 +115,46 @@ describe("web/tag", function () {
             assert(result._children[1]._children[0] === "World!");
         });
 
-        it("permits namespaces", function () {
-            var mockNode = mockDocument.createElement("any"),
-                svgImage = gpf.web.createTagFunction("svg:image"),
-                tree = svgImage({x: 0, y: 0, "xlink:href": "test.png"}),
-                result = tree.appendTo(mockNode);
-            assert(result instanceof Node);
-            assert(result.ownerDocument === mockDocument);
-            assert(result.nodeName === "image");
-            assert(result._namespace === "http://www.w3.org/2000/svg");
-            assert(result._hasAttribute("http://www.w3.org/1999/xlink", "href") === "test.png");
-            assert(result._hasAttribute("", "x") === 0);
-        });
+        describe("Namespace handling", function () {
 
-        it("fails if namespace is unknown", function () {
-            var mockNode = mockDocument.createElement("any"),
-                svgImage = gpf.web.createTagFunction("svg2:image"),
-                tree = svgImage({x: 0, y: 0, "xlink:href": "test.png"}),
-                exceptionCaught;
-            try {
-                tree.appendTo(mockNode);
-            } catch (e) {
-                exceptionCaught = e;
-            }
-            assert(exceptionCaught instanceof gpf.Error.UnknownNamespacePrefix);
+            it("permits namespaces for node appending", function () {
+                var mockNode = mockDocument.createElement("any"),
+                    svgImage = gpf.web.createTagFunction("svg:image"),
+                    tree = svgImage({x: 0, y: 0, "xlink:href": "test.png"}),
+                    result = tree.appendTo(mockNode);
+                assert(result instanceof Node);
+                assert(result.ownerDocument === mockDocument);
+                assert(result.nodeName === "image");
+                assert(result._namespace === "http://www.w3.org/2000/svg");
+                assert(result._hasAttribute("http://www.w3.org/1999/xlink", "href") === "test.png");
+                assert(result._hasAttribute("", "x") === 0);
+            });
+
+            it("fails if namespace is unknown", function () {
+                var mockNode = mockDocument.createElement("any"),
+                    svgImage = gpf.web.createTagFunction("svg2:image"),
+                    tree = svgImage({x: 0, y: 0, "xlink:href": "test.png"}),
+                    exceptionCaught;
+                try {
+                    tree.appendTo(mockNode);
+                } catch (e) {
+                    exceptionCaught = e;
+                }
+                assert(exceptionCaught instanceof gpf.Error.UnknownNamespacePrefix);
+            });
+
+            it("fails when used for string generation", function () {
+                var svgImage = gpf.web.createTagFunction("svg:image"),
+                    tree = svgImage({x: 0, y: 0, "xlink:href": "test.png"}),
+                    exceptionCaught;
+                try {
+                    tree.toString();
+                } catch (e) {
+                    exceptionCaught = e;
+                }
+                assert(exceptionCaught instanceof gpf.Error.UnableToUseNamespaceInString);
+            });
+
         });
 
     });
