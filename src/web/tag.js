@@ -35,7 +35,18 @@ _gpfErrorDeclare("web/tag", {
      *
      * A prefix has been used prior to be associated with a namespace
      */
-    unknownNamespacePrefix: "Unknown namespace prefix"
+    unknownNamespacePrefix: "Unknown namespace prefix",
+
+    /**
+     * ### Summary
+     *
+     * Unable to use namespace in string
+     *
+     * ### Description
+     *
+     * A prefix associated to a namespace has been used and can't be converted to string
+     */
+    unableToUseNamespaceInString: "Unable to use namespace in string"
 });
 
 /**
@@ -51,20 +62,46 @@ var _gpfWebTagAttributeAliases = _gpfSyncReadSourceJSON("web/attributes.json");
  */
 var _gpfWebNamespacePrefix = _gpfSyncReadSourceJSON("web/namespaces.json");
 
+/**
+ * Retrieves namespace associated to the prefix or fail
+ *
+ * @param {String} prefix Namespace prefix
+ * @return {String} Namespace URI
+ * @throws {gpf.Error.UnknownNamespacePrefix}
+ */
 function _gpfWebGetNamespace (prefix) {
     var namespace = _gpfWebNamespacePrefix[prefix];
     if (undefined === namespace) {
         gpf.Error.unknownNamespacePrefix();
     }
+    return namespace;
 }
 
+/**
+ * Resolves prefixed name to namespace and name
+ *
+ * @param {String} name Attribute or node name
+ * @return {{namespace, name}|undefined} Namespace and name in a structure if prefixed, undefined otherwise
+ */
 function _gpfWebGetNamespaceAndName (name) {
     var parts = name.split(":");
     if (parts.length === 2) {
         return {
-            namespace: _gpfWebGetNamespace[parts[0]],
+            namespace: _gpfWebGetNamespace(parts[0]),
             name: parts[1]
         };
+    }
+}
+
+/**
+ * Fails if the name includes namespace prefix
+ *
+ * @param {String} name Attribute or node name
+ * @throws {gpf.Error.UnableToUseNamespaceInString}
+ */
+function _gpfWebCheckNamespaceSafe (name) {
+    if (-1 !== name.indexOf(":")) {
+        gpf.Error.unableToUseNamespaceInString();
     }
 }
 
@@ -139,6 +176,7 @@ var _GpfWebTag = _gpfDefine({
 
     _getAttributesAsString: function () {
         return Object.keys(this._attributes).map(function (name) {
+            _gpfWebCheckNamespaceSafe(name);
             return " " + _gpfWebTagAttributeAlias(name)
                 + "=\"" + _gpfStringEscapeFor(this._attributes[name], "html") + "\"";
         }, this).join("");
@@ -166,6 +204,7 @@ var _GpfWebTag = _gpfDefine({
      * @since 0.2.1
      */
     toString: function () {
+        _gpfWebCheckNamespaceSafe(this._nodeName);
         return "<" + this._nodeName + this._getAttributesAsString() + this._getClosingString();
     },
 
@@ -175,20 +214,26 @@ var _GpfWebTag = _gpfDefine({
 
     _createElement: function (node) {
         var ownerDocument = node.ownerDocument,
-            namespaceAndName = _gpfWebGetNamespaceAndName(this._nodeName);
-        if (namespaceAndName) {
-            return ownerDocument.createElementNS(namespaceAndName.namespace, namespaceAndName.name);
+            qualified = _gpfWebGetNamespaceAndName(this._nodeName);
+        if (qualified) {
+            return ownerDocument.createElementNS(qualified.namespace, qualified.name);
         }
         return ownerDocument.createElement(this._nodeName);
     },
 
     _setAttributesTo: function (node) {
         _gpfObjectForEach(this._attributes, function (value, name) {
-            node.setAttribute(_gpfWebTagAttributeAlias(name), value);
+            var qualified = _gpfWebGetNamespaceAndName(name);
+            if (qualified) {
+                node.setAttributeNS(qualified.namespace, _gpfWebTagAttributeAlias(qualified.name), value);
+            } else {
+                node.setAttribute(_gpfWebTagAttributeAlias(name), value);
+            }
         });
     },
 
-    _appendChildrenTo: function (node, ownerDocument) {
+    _appendChildrenTo: function (node) {
+        var ownerDocument = node.ownerDocument;
         _gpfWebTagFlattenChildren(this._children, function (child) {
             if (child instanceof _GpfWebTag) {
                 child.appendTo(node);
@@ -206,10 +251,9 @@ var _GpfWebTag = _gpfDefine({
      * @since 0.2.1
      */
     appendTo: function (node) {
-        var ownerDocument = node.ownerDocument,
-            element = ownerDocument.createElement(this._nodeName);
+        var element = this._createElement(node);
         this._setAttributesTo(element);
-        this._appendChildrenTo(element, ownerDocument);
+        this._appendChildrenTo(element);
         return node.appendChild(element);
     }
 
