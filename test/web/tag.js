@@ -2,6 +2,67 @@
 
 describe("web/tag", function () {
 
+    function Attribute (namespace, name, value) {
+        this._namespace = namespace;
+        this._name = name;
+        this._value = value;
+    }
+
+    Attribute.prototype = {
+        _namespace: "",
+        _name: "",
+        _value: undefined
+    };
+
+    function Node (ownerDocument, namespace, name) {
+        this.ownerDocument = ownerDocument;
+        this._namespace = namespace;
+        this.nodeName = name;
+        this._attributes = [];
+        this._children = [];
+    }
+
+    Node.prototype = {
+        ownerDocument: null,
+        _namespace: "",
+        nodeName: "",
+        _attributes: [],
+        _children: [],
+        appendChild: function (child) {
+            this._children.push(child);
+            return child;
+        },
+        setAttribute: function (name, value) {
+            this._attributes.push(new Attribute("", name, value));
+        },
+        setAttributeNS: function (namespace, name, value) {
+            this._attributes.push(new Attribute(namespace, name, value));
+        },
+        _hasAttribute: function (namespace, name) {
+            var result;
+            this._attributes.every(function (attribute) {
+                if (attribute._namespace === namespace && attribute._name === name) {
+                    result = attribute._value;
+                    return false;
+                }
+                return true;
+            });
+            return result;
+        }
+    };
+
+    var mockDocument = {
+        createElement: function (nodeName) {
+            return new Node(this, "", nodeName);
+        },
+        createElementNS: function (namespace, nodeName) {
+            return new Node(this, namespace, nodeName);
+        },
+        createTextNode: function (text) {
+            return text;
+        }
+    };
+
     describe("gpf.web.createTagFunction", function () {
 
         it("requires node name when calling the function", function () {
@@ -39,48 +100,32 @@ describe("web/tag", function () {
         });
 
         it("allows DOM injection", function () {
-            function Node () {}
-            Node.prototype = {
-                _attributes: {},
-                _children: [],
-                appendChild: function (child) {
-                    if (!this.hasOwnProperty("_children")) {
-                        this._children = [];
-                    }
-                    this._children.push(child);
-                    return child;
-                },
-                setAttribute: function (name, value) {
-                    if (!this.hasOwnProperty("_attributes")) {
-                        this._attributes = {};
-                    }
-                    this._attributes[name] = value;
-                }
-            };
-            var mockDocument = {
-                    createElement: function (nodeName) {
-                        var node = new Node();
-                        node.nodeName = nodeName;
-                        node.ownerDocument = this;
-                        return node;
-                    },
-                    createTextNode: function (text) {
-                        return text;
-                    }
-                },
-                mockNode = mockDocument.createElement("any"),
+            var mockNode = mockDocument.createElement("any"),
                 div = gpf.web.createTagFunction("div"),
                 span = gpf.web.createTagFunction("span"),
-                tree = div({className: "test"}, "Hello ", span("World!"));
-            var result = tree.appendTo(mockNode);
+                tree = div({className: "test"}, "Hello ", span("World!")),
+                result = tree.appendTo(mockNode);
             assert(result instanceof Node);
             assert(result.ownerDocument === mockDocument);
             assert(result.nodeName === "div");
-            assert(result._attributes["class"] === "test");
+            assert(result._hasAttribute("", "class") === "test");
             assert(result._children.length === 2);
             assert(result._children[0] === "Hello ");
             assert(result._children[1] instanceof Node);
             assert(result._children[1]._children[0] === "World!");
+        });
+
+        it("permits namespaces", function () {
+            var mockNode = mockDocument.createElement("any"),
+                svgImage = gpf.web.createTagFunction("svg:image"),
+                tree = svgImage({x: 0, y: 0, "xlink:href": "test.png"}),
+                result = tree.appendTo(mockNode);
+            assert(result instanceof Node);
+            assert(result.ownerDocument === mockDocument);
+            assert(result.nodeName === "image");
+            assert(result._namespace === "http://www.w3.org/2000/svg");
+            assert(result._hasAttribute("http://www.w3.org/1999/xlink", "href") === "test.png");
+            assert(result._hasAttribute("", "x") === 0);
         });
 
     });
