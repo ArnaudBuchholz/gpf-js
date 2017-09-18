@@ -128,6 +128,19 @@ describe("web/tag", function () {
             assert(result._hasAttribute("", "x") === 0);
         });
 
+        it("fails if namespace is unknown", function () {
+            var mockNode = mockDocument.createElement("any"),
+                svgImage = gpf.web.createTagFunction("svg2:image"),
+                tree = svgImage({x: 0, y: 0, "xlink:href": "test.png"}),
+                exceptionCaught;
+            try {
+                tree.appendTo(mockNode);
+            } catch (e) {
+                exceptionCaught = e;
+            }
+            assert(exceptionCaught instanceof gpf.Error.UnknownNamespacePrefix);
+        });
+
     });
 
 });
