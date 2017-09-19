@@ -1,23 +1,25 @@
 "use strict";
 
-let verbose;
-if ([].slice.call(process.argv).some(arg => arg === "--verbose")) {
-    verbose = t => console.log(`[gpf doc plugin] ${t}`);
-} else {
-    verbose = () => {};
-}
-verbose("loaded");
+const
+    path = require("path"),
+    trace = t => console.log(`[gpf doc plugin] ${t}`);
+
+trace("loaded");
 
 function _logDoclet (doclet) {
     let title = [];
     if (doclet.meta && doclet.meta.lineno) {
-        title.push(`@${doclet.meta.lineno}: `);
+        let relativePath = doclet.meta.path.split(`gpf-js${path.sep}src`)[1];
+        if (relativePath) {
+            relativePath = relativePath.substr(1) + path.sep;
+        }
+        title.push(`${relativePath}${doclet.meta.filename}@${doclet.meta.lineno}: `);
     }
     if (doclet.undocumented) {
         title.push("(u) ");
     }
     title.push(doclet.longname, ` (${doclet.kind})`);
-    console.log(title.join(""));
+    trace(title.join(""));
 }
 
 function _findDoclet (doclets, longname, tag) {
@@ -90,13 +92,14 @@ const _customTags = {
 };
 
 function _handleCustomTags (doclet, doclets) {
+    let tags = [];
     if (doclet.tags) {
         doclet.tags.forEach(tag => {
             let customTag = tag.title.split("gpf:")[1],
                 handler = _customTags[customTag];
             if (undefined !== handler) {
                 try {
-                    verbose(customTag);
+                    tags.push(customTag);
                     handler(doclet, tag, doclets);
                 } catch (e) {
                     console.error(`${doclet.meta.path}/${doclet.meta.filename}@${doclet.meta.lineno}:${e.message}`);
@@ -106,6 +109,7 @@ function _handleCustomTags (doclet, doclets) {
             }
         });
     }
+    return tags;
 }
 
 function _addMemberType (doclet) {
@@ -143,8 +147,8 @@ function _cleanEnum (doclet) {
 }
 
 function _postProcessDoclet (doclet, index, doclets) {
-    let kind = doclet.kind;
-    _handleCustomTags(doclet, doclets);
+    let kind = doclet.kind,
+        tags = _handleCustomTags(doclet, doclets);
     if ("member" === kind) {
         _addMemberType(doclet);
         _checkAccess(doclet);
@@ -155,6 +159,9 @@ function _postProcessDoclet (doclet, index, doclets) {
         _cleanEnum(doclet);
     }
     _logDoclet(doclet);
+    if (tags.length) {
+        trace("\t@gpf:" + tags.join(", @gpf:"));
+    }
 }
 
 const
@@ -205,7 +212,7 @@ function _checkForGpfErrorDeclare (event) {
         _reErrorItems.lastIndex = 0;
         errorItem = _reErrorItems.exec(errorsPart);
         while (errorItem) {
-            verbose(`error: ${errorItem[2]}`);
+            trace(`error: ${errorItem[2]}`);
             comments.push(_generateJsDocForError(errorItem[2], errorItem[3], errorItem[1]));
             errorItem = _reErrorItems.exec(errorsPart);
         }
@@ -260,16 +267,16 @@ module.exports = {
     handlers: {
 
         beforeParse: function (event) {
-            verbose(">> beforeParse");
+            trace(`>> beforeParse(${event.filename})`);
             _disableFileComment(event);
             _checkForGpfErrorDeclare(event);
-            verbose("<< beforeParse");
+            trace(`>> beforeParse(${event.filename})`);
         },
 
         processingComplete: function (event) {
-            verbose(">> processingComplete");
+            trace(">> processingComplete");
             event.doclets.forEach(_postProcessDoclet);
-            verbose(">> processingComplete");
+            trace("<< processingComplete");
         }
 
     }
