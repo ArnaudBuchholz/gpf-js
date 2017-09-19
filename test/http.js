@@ -95,14 +95,32 @@ describe("http", function () {
             "post",
             "put",
             "options",
-            "delete"
+            "delete",
+            "head"
 
         ].forEach(function (method, index) {
 
             var uppercasedMethod = method.toUpperCase(),
-                body;
+                body,
+                checkResponse;
+
             if (index < 2) { // post & put
                 body = "Hello World";
+            }
+
+            if (method === "head") {
+                checkResponse = function () {}; // No response expected
+            } else {
+                checkResponse = function (responseText) {
+                    var echoed = JSON.parse(responseText);
+                    assert(echoed.method === uppercasedMethod);
+                    assert(echoed.url === "/echo/?status=200");
+                    if (body) {
+                        assert(echoed.body === body);
+                    } else {
+                        assert(!echoed.body);
+                    }
+                };
             }
 
             it("allows the " + uppercasedMethod + " operation", function (done) {
@@ -113,14 +131,7 @@ describe("http", function () {
 
                 }).then(function (response) {
                     assert(response.status === 200);
-                    var echoed = JSON.parse(response.responseText);
-                    assert(echoed.method === uppercasedMethod);
-                    assert(echoed.url === "/echo/?status=200");
-                    if (body) {
-                        assert(echoed.body === body);
-                    } else {
-                        assert(!echoed.body);
-                    }
+                    checkResponse(response.responseText);
                     done();
                 })["catch"](done);
             });
@@ -128,14 +139,7 @@ describe("http", function () {
             it("offers the " + uppercasedMethod + " shortcut", function (done) {
                 gpf.http[method](baseUrl + "status=200", body).then(function (response) {
                     assert(response.status === 200);
-                    var echoed = JSON.parse(response.responseText);
-                    assert(echoed.method === uppercasedMethod);
-                    assert(echoed.url === "/echo/?status=200");
-                    if (body) {
-                        assert(echoed.body === body);
-                    } else {
-                        assert(!echoed.body);
-                    }
+                    checkResponse(response.responseText);
                     done();
                 })["catch"](done);
             });
