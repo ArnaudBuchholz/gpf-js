@@ -2,114 +2,102 @@
 
 const
     path = require("path"),
-    trace = t => console.log(`[gpf doc plugin] ${t}`);
+    trace = text => console.log(`[gpf doc plugin] ${text}`),
 
-trace("loaded");
+    relativeFilename = filename => filename.split(`gpf-js${path.sep}src${path.sep}`)[1],
+    relativeFilenameAt = meta => `${relativeFilename(meta.path + path.sep + meta.filename)}@${meta.lineno}`,
 
-function _logDoclet (doclet) {
-    let title = [];
-    if (doclet.meta && doclet.meta.lineno) {
-        let relativePath = doclet.meta.path.split(`gpf-js${path.sep}src`)[1];
-        if (relativePath) {
-            relativePath = relativePath.substr(1) + path.sep;
+    logDoclet = doclet => {
+        const
+            title = [],
+            meta = doclet.meta;
+        if (meta && meta.lineno) {
+            title.push(`${relativeFilenameAt(meta)}: `);
         }
-        title.push(`${relativePath}${doclet.meta.filename}@${doclet.meta.lineno}: `);
-    }
-    if (doclet.undocumented) {
-        title.push("(u) ");
-    }
-    title.push(doclet.longname, ` (${doclet.kind})`);
-    trace(title.join(""));
-}
-
-function _findDoclet (doclets, longname, tag) {
-    let resultDoclet;
-    if (doclets.every(doclet => {
-        if (doclet.longname === longname && !doclet.undocumented) {
-            resultDoclet = doclet;
-            return false;
+        if (doclet.undocumented) {
+            title.push("(u) ");
         }
-        return true;
-    })) {
-        throw new Error(`invalid reference for @${tag.title}`);
-    }
-    return resultDoclet;
-}
-
-function _findRefDoclet (doclets, doclet, tag) {
-    let refLongname = tag.value;
-    if (!refLongname.includes("#") && doclet.longname.includes("#")) {
-        refLongname = doclet.longname.split("#")[0] + "#" + refLongname;
-    }
-    return _findDoclet(doclets, refLongname, tag);
-}
-
-const _tags = {
-
-    // Returns the same type with a generic comment
-    "gpf:chainable": function (doclet/*, tag, doclets*/) {
-        doclet.returns = [{
-            type: {
-                names: [doclet.memberof]
-            },
-            description: "<i>Self reference to allow chaining</i>"
-        }];
+        title.push(doclet.longname, ` (${doclet.kind})`);
+        trace(title.join(""));
     },
 
-    // Read accessor on a property
-    "gpf:read": function (doclet, tag, doclets) {
-        let refDoclet = _findRefDoclet(doclets, doclet, tag);
-        doclet.returns = [{
-            type: refDoclet.type,
-            description: refDoclet.description
-        }];
-        doclet.description = "<i>GET accessor for</i> " + refDoclet.description;
+    docletNotFound = tagTitle => {
+        throw new Error(`invalid reference for @${tagTitle}`);
     },
 
-    // Write accessor on a property
-    "gpf:write": function (/*doclet, tag, doclets*/) {
-        // var refDoclet = _findRefDoclet(doclets, doclet, tag);
+    findDoclet = (doclets, longname, tagTitle) =>
+        doclets.find(doclet => doclet.longname === longname && !doclet.undocumented)
+        || docletNotFound(tagTitle),
+
+    findRefDoclet = (doclets, doclet, tag) => {
+        let refLongname = tag.value;
+        if (!refLongname.includes("#") && doclet.longname.includes("#")) {
+            refLongname = doclet.longname.split("#")[0] + "#" + refLongname;
+        }
+        return findDoclet(doclets, refLongname, tag.title);
     },
 
-    // Same as another doclet
-    "gpf:sameas": function (doclet, tag, doclets) {
-        let refDoclet = _findRefDoclet(doclets, doclet, tag);
-        [
-            "description",
-            "params",
-            "returns",
-            "exceptions",
-            "kind",
-            "isEnum",
-            "type",
-            "properties",
-            "readonly"
-        ].forEach(propertyName => {
-            doclet[propertyName] = refDoclet[propertyName];
-        });
-    }
+    gpfTags = {
 
-};
+        // Returns the same type with a generic comment
+        "gpf:chainable": function (doclet/*, tag, doclets*/) {
+            doclet.returns = [{
+                type: {
+                    names: [doclet.memberof]
+                },
+                description: "<i>Self reference to allow chaining</i>"
+            }];
+        },
 
-function _handleTags (doclet, doclets) {
-    let tags = [];
-    if (doclet.tags) {
-        doclet.tags.forEach(tag => {
-            let handler = _tags[tag.title];
-            if (undefined !== handler) {
-                try {
-                    tags.push(tag.title);
-                    handler(doclet, tag, doclets);
-                } catch (e) {
-                    console.error(`${doclet.meta.path}/${doclet.meta.filename}@${doclet.meta.lineno}:${e.message}`);
-                    console.error(doclet);
-                    throw e;
-                }
+        // Read accessor on a property
+        "gpf:read": function (doclet, tag, doclets) {
+            let refDoclet = findRefDoclet(doclets, doclet, tag);
+            doclet.returns = [{
+                type: refDoclet.type,
+                description: refDoclet.description
+            }];
+            doclet.description = "<i>GET accessor for</i> " + refDoclet.description;
+        },
+
+        // Write accessor on a property
+        "gpf:write": function (/*doclet, tag, doclets*/) {
+            // var refDoclet = findRefDoclet(doclets, doclet, tag);
+        },
+
+        // Same as another doclet
+        "gpf:sameas": function (doclet, tag, doclets) {
+            let refDoclet = findRefDoclet(doclets, doclet, tag);
+            [
+                "description",
+                "params",
+                "returns",
+                "exceptions",
+                "kind",
+                "isEnum",
+                "type",
+                "properties",
+                "readonly"
+            ].forEach(propertyName => {
+                doclet[propertyName] = refDoclet[propertyName];
+            });
+        }
+
+    },
+
+    handleGpfTags = (doclet, doclets) => (doclet.tags || []).filter(tag => {
+        let handler = gpfTags[tag.title];
+        if (undefined !== handler) {
+            try {
+                handler(doclet, tag, doclets);
+                return true;
+            } catch (e) {
+                const meta = doclet.meta;
+                console.error(`${relativeFilenameAt(meta)}:${e.message}`);
+                console.error(doclet);
             }
-        });
-    }
-    return tags;
-}
+        }
+        return false;
+    }).map(tag => tag.title);
 
 function _addMemberType (doclet) {
     if (!doclet.type) {
@@ -151,7 +139,7 @@ function _checkImplements (doclet, doclets) {
     }
     trace(`\t@implements: ${doclet.implements.join(",")}`);
     doclet.implements.forEach(interfaceName => {
-        const interfaceDoclet = _findDoclet(doclets, interfaceName, {title: "implements"});
+        const interfaceDoclet = findDoclet(doclets, interfaceName, {title: "implements"});
         /* APPEND to description
          *
          * <h3>Implementated in<h3><ul>
@@ -182,14 +170,14 @@ const _kinds = {
 
 function _postProcessDoclet (doclet, index, doclets) {
     let kindHandling = _kinds[doclet.kind],
-        handledTags = _handleTags(doclet, doclets);
+        handledTags = handleGpfTags(doclet, doclets);
     if (kindHandling) {
         kindHandling(doclet, doclets);
     }
     if (doclet.isEnum) {
         _cleanEnum(doclet);
     }
-    _logDoclet(doclet);
+    logDoclet(doclet);
     if (handledTags.length) {
         trace(`\t@${handledTags.join(", @")}`);
     }
@@ -286,6 +274,8 @@ function _visitNode (node, e/*, parser, currentSourceName*/) { //eslint-disable-
 
 }
 
+trace("loaded");
+
 // http://usejsdoc.org/about-plugins.html
 module.exports = {
 
@@ -298,10 +288,10 @@ module.exports = {
     handlers: {
 
         beforeParse: function (event) {
-            trace(`>> beforeParse(${event.filename})`);
+            trace(`>> beforeParse(${relativeFilename(event.filename)})`);
             _disableFileComment(event);
             _checkForGpfErrorDeclare(event);
-            trace(`>> beforeParse(${event.filename})`);
+            trace(`>> beforeParse(${relativeFilename(event.filename)})`);
         },
 
         processingComplete: function (event) {
