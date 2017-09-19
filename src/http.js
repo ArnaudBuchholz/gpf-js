@@ -17,7 +17,8 @@ var _HTTP_METHODS = {
     POST: "POST",
     PUT: "PUT",
     OPTIONS: "OPTIONS",
-    DELETE: "DELETE"
+    DELETE: "DELETE",
+    HEAD: "HEAD"
 };
 
 /**
@@ -129,10 +130,15 @@ gpf.http = {
         options: _HTTP_METHODS.OPTIONS,
 
         /**
-         * PUT
+         * DELETE
          * @since 0.2.1
          */
-        "delete": _HTTP_METHODS.DELETE
+        "delete": _HTTP_METHODS.DELETE,
+
+        /**
+         * HEAD
+         */
+        head: _HTTP_METHODS.HEAD
     },
 
     /**
@@ -191,6 +197,15 @@ gpf.http = {
      * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
      * @since 0.2.1
      */
-    "delete": _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.DELETE)
+    "delete": _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.DELETE),
+
+    /**
+     * HTTP HEAD request
+     *
+     * @method
+     * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
+     * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+     */
+    head: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.HEAD)
 
 };
