@@ -44,10 +44,10 @@ function _findRefDoclet (doclets, doclet, tag) {
     return _findDoclet(doclets, refLongname, tag);
 }
 
-const _customTags = {
+const _tags = {
 
     // Returns the same type with a generic comment
-    chainable: function (doclet/*, tag, doclets*/) {
+    "gpf:chainable": function (doclet/*, tag, doclets*/) {
         doclet.returns = [{
             type: {
                 names: [doclet.memberof]
@@ -57,7 +57,7 @@ const _customTags = {
     },
 
     // Read accessor on a property
-    read: function (doclet, tag, doclets) {
+    "gpf:read": function (doclet, tag, doclets) {
         let refDoclet = _findRefDoclet(doclets, doclet, tag);
         doclet.returns = [{
             type: refDoclet.type,
@@ -67,12 +67,12 @@ const _customTags = {
     },
 
     // Write accessor on a property
-    write: function (/*doclet, tag, doclets*/) {
+    "gpf:write": function (/*doclet, tag, doclets*/) {
         // var refDoclet = _findRefDoclet(doclets, doclet, tag);
     },
 
     // Same as another doclet
-    sameas: function (doclet, tag, doclets) {
+    "gpf:sameas": function (doclet, tag, doclets) {
         let refDoclet = _findRefDoclet(doclets, doclet, tag);
         [
             "description",
@@ -91,15 +91,14 @@ const _customTags = {
 
 };
 
-function _handleCustomTags (doclet, doclets) {
+function _handleTags (doclet, doclets) {
     let tags = [];
     if (doclet.tags) {
         doclet.tags.forEach(tag => {
-            let customTag = tag.title.split("gpf:")[1],
-                handler = _customTags[customTag];
+            let handler = _tags[tag.title];
             if (undefined !== handler) {
                 try {
-                    tags.push(customTag);
+                    tags.push(tag.title);
                     handler(doclet, tag, doclets);
                 } catch (e) {
                     console.error(`${doclet.meta.path}/${doclet.meta.filename}@${doclet.meta.lineno}:${e.message}`);
@@ -146,21 +145,53 @@ function _cleanEnum (doclet) {
     });
 }
 
-function _postProcessDoclet (doclet, index, doclets) {
-    let kind = doclet.kind,
-        tags = _handleCustomTags(doclet, doclets);
-    if ("member" === kind) {
+function _checkImplements (doclet, doclets) {
+    if (!doclet.implements) {
+        return;
+    }
+    trace(`\t@implements: ${doclet.implements.join(",")}`);
+    doclet.implements.forEach(interfaceName => {
+        const interfaceDoclet = _findDoclet(doclets, interfaceName, {title: "implements"});
+        /* APPEND to description
+         *
+         * <h3>Implementated in<h3><ul>
+         *     <li>{@link this class name}</li>
+         * </ul>
+         */
+        // trace("\t" + interfaceDoclet.description);
+        // trace("\t\t" + Object.keys(interfaceDoclet));
+    });
+}
+
+const _kinds = {
+
+    member: doclet => {
         _addMemberType(doclet);
         _checkAccess(doclet);
-    } else if (["function", "typedef", "class"].includes(kind)) {
+    },
+
+    "function": _checkAccess,
+    "typedef": _checkAccess,
+
+    "class": (doclet, doclets) => {
         _checkAccess(doclet);
+        _checkImplements(doclet, doclets);
+    }
+
+};
+
+function _postProcessDoclet (doclet, index, doclets) {
+    let kindHandling = _kinds[doclet.kind],
+        handledTags = _handleTags(doclet, doclets);
+    if (kindHandling) {
+        kindHandling(doclet, doclets);
     }
     if (doclet.isEnum) {
         _cleanEnum(doclet);
     }
     _logDoclet(doclet);
-    if (tags.length) {
-        trace("\t@gpf:" + tags.join(", @gpf:"));
+    if (handledTags.length) {
+        trace(`\t@${handledTags.join(", @")}`);
     }
 }
 
