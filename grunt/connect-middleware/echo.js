@@ -54,7 +54,7 @@ function _process (request, response) {
             data.push(chunk);
         })
         .on("end", function () {
-            if (undefined === responseText) {
+            if (undefined === responseText && request.method !== "HEAD") {
                 var responseBody = {
                     method: request.method,
                     url: request.url
