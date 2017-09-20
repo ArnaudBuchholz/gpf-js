@@ -118,7 +118,7 @@ function _gpfFsWScriptExplore (path) {
  * @private
  * @since 0.1.9
  */
-var _GpfWScriptFileStorage = _gpfDefine(/** @lends gpf.wscript.FileStorage */ {
+var _GpfWScriptFileStorage = _gpfDefine(/** @lends gpf.wscript.FileStorage.prototype */ {
     $class: "gpf.wscript.FileStorage",
 
     //region gpf.interfaces.IFileStorage
