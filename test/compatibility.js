@@ -524,6 +524,16 @@ describe("compatibility", function () {
                         var date = new Date("2003-01-22T22:45:00.000Z");
                         assert("2003-01-22T22:45:00.000Z" === method.call(date));
                     }
+                },
+                now: {
+                    isStatic: true,
+                    length: 0,
+                    "Gives current time": function (method) {
+                        var usualNow = new Date().getTime(),
+                            dateNow = method.call(Date);
+                        assert("number" === typeof dateNow);
+                        assert(usualNow <= dateNow);
+                    }
                 }
             }
 
