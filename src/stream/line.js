@@ -35,7 +35,7 @@ function _gpfStreamLineWrite (output, lines) {
 }
 
 var
-    _GpfStreamLineAdatper = _gpfDefine(/** @lends gpf.stream.LineAdapter */ {
+    _GpfStreamLineAdatper = _gpfDefine(/** @lends gpf.stream.LineAdapter.prototype */ {
         $class: "gpf.stream.LineAdapter",
 
         /**
