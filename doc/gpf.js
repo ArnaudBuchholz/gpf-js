@@ -97,182 +97,186 @@ const
             }
         }
         return false;
-    }).map(tag => tag.title);
+    }).map(tag => tag.title),
 
-function _addMemberType (doclet) {
-    if (!doclet.type) {
-        // type: { names: [ 'String' ] }
-        let codeType = doclet.meta.code.type,
-            type;
-        if ("Literal" === codeType) {
-            type = typeof doclet.meta.code.value;
-            type = type.charAt(0).toUpperCase() + type.substr(1);
-        } else if ("ArrayExpression" === codeType) {
-            type = "Array";
-        } else if ("ObjectExpression" === codeType) {
-            type = "Object";
+    addMemberType = doclet => {
+        if (!doclet.type) {
+            // type: { names: [ 'String' ] }
+            let codeType = doclet.meta.code.type,
+                type;
+            if ("Literal" === codeType) {
+                type = typeof doclet.meta.code.value;
+                type = type.charAt(0).toUpperCase() + type.substr(1);
+            } else if ("ArrayExpression" === codeType) {
+                type = "Array";
+            } else if ("ObjectExpression" === codeType) {
+                type = "Object";
+            }
+            doclet.type = {names: [type || "Unknown"]};
         }
-        doclet.type = {names: [type || "Unknown"]};
-    }
-}
-
-function _checkAccess (doclet) {
-    if (!doclet.access) {
-        doclet.access = "_" === doclet.name.charAt(0) ? "private" : "public";
-    }
-}
-
-const _enumType = {names: ["enum"]};
-
-function _cleanEnum (doclet) {
-    // Remove default value from documentation and update type
-    doclet.type = _enumType;
-    doclet.properties.forEach(property => {
-        delete property.defaultvalue;
-        property.type = _enumType;
-    });
-}
-
-function _checkImplements (doclet, doclets) {
-    if (!doclet.implements) {
-        return;
-    }
-    trace(`\t@implements: ${doclet.implements.join(",")}`);
-    doclet.implements.forEach(interfaceName => {
-        const interfaceDoclet = findDoclet(doclets, interfaceName, {title: "implements"});
-        /* APPEND to description
-         *
-         * <h3>Implementated in<h3><ul>
-         *     <li>{@link this class name}</li>
-         * </ul>
-         */
-        // trace("\t" + interfaceDoclet.description);
-        // trace("\t\t" + Object.keys(interfaceDoclet));
-    });
-}
-
-const _kinds = {
-
-    member: doclet => {
-        _addMemberType(doclet);
-        _checkAccess(doclet);
     },
 
-    "function": _checkAccess,
-    "typedef": _checkAccess,
-
-    "class": (doclet, doclets) => {
-        _checkAccess(doclet);
-        _checkImplements(doclet, doclets);
-    }
-
-};
-
-function _postProcessDoclet (doclet, index, doclets) {
-    let kindHandling = _kinds[doclet.kind],
-        handledTags = handleGpfTags(doclet, doclets);
-    if (kindHandling) {
-        kindHandling(doclet, doclets);
-    }
-    if (doclet.isEnum) {
-        _cleanEnum(doclet);
-    }
-    logDoclet(doclet);
-    if (handledTags.length) {
-        trace(`\t@${handledTags.join(", @")}`);
-    }
-}
-
-const
-    _reErrorDeclare = /_gpfErrorDeclare\("([a-zA-Z\\]+)", {\n((?:[^}]|}[^)]|\n)*)\s*}\)/g,
-    _reErrorItems = /(?:\/\*\*((?:[^*]|\s|\*[^/])*)\*\/)?\s*([a-zA-Z]+):\s*"([^"]*)"/g,
-    _reContextualParams = /{(\w+)}/g;
-
-function _generateJsDocForError (name, message, comment) {
-    let className = name.charAt(0).toUpperCase() + name.substr(1),
-        params = [],
-        param;
-    _reContextualParams.lastIndex = 0;
-    param = _reContextualParams.exec(message);
-    while (param) {
-        params.push(" * - {String} " + param[1]);
-        param = _reContextualParams.exec(message);
-    }
-    if (params.length) {
-        params.unshift(" * @param {Object} context Dictionary of parameters used to format the message, must contain");
-        params = params.join("\r\n");
-    } else {
-        params = undefined;
-    }
-    return [
-        "/**",
-        ` * throw {@link gpf.Error.${className}}`,
-        ` * @method gpf.Error.${name}`,
-        ` * @throws {gpf.Error.${className}}`,
-        params,
-        " */",
-        "/**",
-        comment,
-        ` * @class gpf.Error.${className}`,
-        params,
-        ` * @see gpf.Error.${name}`,
-        " */"
-    ].join("\r\n");
-}
-
-function _checkForGpfErrorDeclare (event) {
-    _reErrorDeclare.lastIndex = 0;
-    let match = _reErrorDeclare.exec(event.source);
-    if (match) {
-        let // moduleName = match[1],
-            errorsPart = match[2],
-            errorItem,
-            comments = [];
-        _reErrorItems.lastIndex = 0;
-        errorItem = _reErrorItems.exec(errorsPart);
-        while (errorItem) {
-            trace(`error: ${errorItem[2]}`);
-            comments.push(_generateJsDocForError(errorItem[2], errorItem[3], errorItem[1]));
-            errorItem = _reErrorItems.exec(errorsPart);
+    checkAccess = doclet => {
+        if (!doclet.access) {
+            doclet.access = "_" === doclet.name.charAt(0) ? "private" : "public";
         }
-        event.source += comments.join("\r\n");
-    }
-}
+    },
 
-const _reFileComment = /(?:\/\*\*(?:[^*]|\s\*[^/])*\@file(?:[^*]|\s\*[^/])*\*\/)/g;
+    enumType = {names: ["enum"]},
 
-function _disableFileComment (event) {
-    _reFileComment.lastIndex = 0;
-    let match = _reFileComment.exec(event.source),
-        fileComment;
-    if (match) {
-        fileComment = match[0];
-        event.source = event.source.replace(fileComment, `/* ${fileComment.substr(2)}`);
-    }
-}
+    cleanEnum = doclet => {
+        // Remove default value from documentation and update type
+        doclet.type = enumType;
+        doclet.properties.forEach(property => {
+            delete property.defaultvalue;
+            property.type = enumType;
+        });
+    },
 
-function _isInsideGpfErrorDeclare (node) {
-    let ancestor;
-    try {
-        ancestor = node.parent.parent.parent;
-    } catch (e) {
-        return false;
-    }
-    return ancestor
-        && "ExpressionStatement" === ancestor.type
-        && "CallExpression" === ancestor.expression.type
-        && "_gpfErrorDeclare" === ancestor.expression.callee.name
-        && "Property" === node.type;
-}
+    implementsTitle = "<h4>Implemented in:</h4><ul>",
 
-function _visitNode (node, e/*, parser, currentSourceName*/) { //eslint-disable-line max-params
+    checkImplements = (doclet, doclets) => {
+        if (!doclet.implements) {
+            return;
+        }
+        trace(`\t@implements: ${doclet.implements.join(",")}`);
+        doclet.implements.forEach(interfaceName => {
+            const interfaceDoclet = findDoclet(doclets, interfaceName, "@implements");
+            if (!interfaceDoclet._implementedIn) {
+                interfaceDoclet._description = interfaceDoclet.description;
+                interfaceDoclet._implementedIn = [];
+            }
+            interfaceDoclet._implementedIn.push(doclet.longname);
+            interfaceDoclet.description = interfaceDoclet._description
+                + implementsTitle
+                + interfaceDoclet._implementedIn
+                    .sort()
+                    .map(longname => `<li>{@link ${longname}}</li>`)
+                    .join("")
+                + "</ul>";
+        });
+    },
 
-    if (_isInsideGpfErrorDeclare(node)) {
-        // This documentation is handled through beforeParse
-        e.preventDefault = true;
-    }
+    kinds = {
 
-}
+        member: doclet => {
+            addMemberType(doclet);
+            checkAccess(doclet);
+        },
+
+        "function": checkAccess,
+        "typedef": checkAccess,
+
+        "class": (doclet, doclets) => {
+            checkAccess(doclet);
+            checkImplements(doclet, doclets);
+        }
+
+    },
+
+    postProcessDoclet = (doclet, index, doclets) => {
+        let kindHandling = kinds[doclet.kind],
+            handledTags = handleGpfTags(doclet, doclets);
+        if (kindHandling) {
+            kindHandling(doclet, doclets);
+        }
+        if (doclet.isEnum) {
+            cleanEnum(doclet);
+        }
+        logDoclet(doclet);
+        if (handledTags.length) {
+            trace(`\t@${handledTags.join(", @")}`);
+        }
+    },
+
+    reErrorDeclare = /_gpfErrorDeclare\("([a-zA-Z\\]+)", {\n((?:[^}]|}[^)]|\n)*)\s*}\)/g,
+    reErrorItems = /(?:\/\*\*((?:[^*]|\s|\*[^/])*)\*\/)?\s*([a-zA-Z]+):\s*"([^"]*)"/g,
+    reContextualParams = /{(\w+)}/g,
+    errorParam = " * @param {Object} context Dictionary of parameters used to format the message, must contain",
+
+    generateJsDocForError = (name, message, comment) => {
+        let className = name.charAt(0).toUpperCase() + name.substr(1),
+            params = [],
+            param;
+        reContextualParams.lastIndex = 0;
+        param = reContextualParams.exec(message);
+        while (param) {
+            params.push(" * - {String} " + param[1]);
+            param = reContextualParams.exec(message);
+        }
+        if (params.length) {
+            params.unshift(errorParam);
+            params = params.join("\r\n");
+        } else {
+            params = undefined;
+        }
+        return [
+            "/**",
+            ` * throw {@link gpf.Error.${className}}`,
+            ` * @method gpf.Error.${name}`,
+            ` * @throws {gpf.Error.${className}}`,
+            params,
+            " */",
+            "/**",
+            comment,
+            ` * @class gpf.Error.${className}`,
+            params,
+            ` * @see gpf.Error.${name}`,
+            " */"
+        ].join("\r\n");
+    },
+
+    checkForGpfErrorDeclare = event => {
+        reErrorDeclare.lastIndex = 0;
+        let match = reErrorDeclare.exec(event.source);
+        if (match) {
+            let // moduleName = match[1],
+                errorsPart = match[2],
+                errorItem,
+                comments = [];
+            reErrorItems.lastIndex = 0;
+            errorItem = reErrorItems.exec(errorsPart);
+            while (errorItem) {
+                trace(`error: ${errorItem[2]}`);
+                comments.push(generateJsDocForError(errorItem[2], errorItem[3], errorItem[1]));
+                errorItem = reErrorItems.exec(errorsPart);
+            }
+            event.source += comments.join("\r\n");
+        }
+    },
+
+    reFileComment = /(?:\/\*\*(?:[^*]|\s\*[^/])*\@file(?:[^*]|\s\*[^/])*\*\/)/g,
+
+    disableFileComment = event => {
+        reFileComment.lastIndex = 0;
+        let match = reFileComment.exec(event.source),
+            fileComment;
+        if (match) {
+            fileComment = match[0];
+            event.source = event.source.replace(fileComment, `/* ${fileComment.substr(2)}`);
+        }
+    },
+
+    isInsideGpfErrorDeclare = node => {
+        let ancestor;
+        try {
+            ancestor = node.parent.parent.parent;
+        } catch (e) {
+            return false;
+        }
+        return ancestor
+            && "ExpressionStatement" === ancestor.type
+            && "CallExpression" === ancestor.expression.type
+            && "_gpfErrorDeclare" === ancestor.expression.callee.name
+            && "Property" === node.type;
+    },
+
+    visitNode = (node, e/*, parser, currentSourceName*/) => { //eslint-disable-line max-params
+        if (isInsideGpfErrorDeclare(node)) {
+            // This documentation is handled through beforeParse
+            e.preventDefault = true;
+        }
+    };
 
 trace("loaded");
 
@@ -281,22 +285,22 @@ module.exports = {
 
     astNodeVisitor: {
 
-        visitNode: _visitNode
+        visitNode: visitNode
 
     },
 
     handlers: {
 
-        beforeParse: function (event) {
+        beforeParse: event => {
             trace(`>> beforeParse(${relativeFilename(event.filename)})`);
-            _disableFileComment(event);
-            _checkForGpfErrorDeclare(event);
+            disableFileComment(event);
+            checkForGpfErrorDeclare(event);
             trace(`>> beforeParse(${relativeFilename(event.filename)})`);
         },
 
-        processingComplete: function (event) {
+        processingComplete: event => {
             trace(">> processingComplete");
-            event.doclets.forEach(_postProcessDoclet);
+            event.doclets.forEach(postProcessDoclet);
             trace("<< processingComplete");
         }
 
