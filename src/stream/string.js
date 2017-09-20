@@ -13,7 +13,7 @@
 /*#endif*/
 
 var
-    _GpfStreamReadableString = _gpfDefine(/** @lends gpf.stream.ReadableString */ {
+    _GpfStreamReadableString = _gpfDefine(/** @lends gpf.stream.ReadableString.prototype */ {
         $class: "gpf.stream.ReadableString",
 
         /**
@@ -51,7 +51,7 @@ var
     /**
      * @since 0.1.9
      */
-    _GpfStreamWritableString = _gpfDefine(/** @lends gpf.stream.WritableString */ {
+    _GpfStreamWritableString = _gpfDefine(/** @lends gpf.stream.WritableString.prototype */ {
         $class: "gpf.stream.WritableString",
 
         /**
