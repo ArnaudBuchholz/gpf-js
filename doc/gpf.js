@@ -78,7 +78,9 @@ const
                 "properties",
                 "readonly"
             ].forEach(propertyName => {
-                doclet[propertyName] = refDoclet[propertyName];
+                if (propertyName !== "description" || !doclet.hasOwnProperty(propertyName)) {
+                    doclet[propertyName] = refDoclet[propertyName];
+                }
             });
         }
 
