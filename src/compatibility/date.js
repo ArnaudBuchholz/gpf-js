@@ -45,6 +45,14 @@ _gpfInstallCompatibility("Date", {
             return _gpfDateToISOString(this);
         }
 
+    },
+
+    statics: {
+
+        now: function () {
+            return new Date().getTime();
+        }
+
     }
 
 });
