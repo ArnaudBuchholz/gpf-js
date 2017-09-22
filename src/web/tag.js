@@ -14,7 +14,7 @@
 /*#endif*/
 
 /**
- * Tag
+ * Tag instance allocated by {@link gpf.typedef.tagFunc}
  *
  * @class gpf.typedef.Tag
  *
@@ -36,7 +36,7 @@
  * DOM insertion
  *
  * @method gpf.typedef.Tag.prototype.appendTo
- * @return {Object} node DOM Node to append the node to
+ * @param {Object} node DOM parent to append the node to
  * @return {Object} Created DOM Node
  *
  * @see gpf.web.createTagFunction
@@ -44,10 +44,10 @@
  */
 
 /**
- * Tag generation function child specification
+ * Tag generation function child specification.  When string, a text node is created.
  *
  * @typedef gpf.typedef.tagChild
- * @property {String|gpf.typedef.Tag} When string, a text node is created.
+ * @property {String|gpf.typedef.Tag}
  *
  * @see gpf.web.createTagFunction
  * @since 0.2.1
@@ -66,17 +66,16 @@
 /**
  * Tag generation function, it accepts up to two parameters:
  * - When no parameter is passed, an empty node is created
- * - If the first parameter is a literal object (see (@link gpf.isLiteralObject}), its properties are used to
+ * - If the first parameter is a literal object (see {@link gpf.isLiteralObject}), its properties are used to
  *   define the node attributes
- * - Otherwise, the second (or first if not a literal object) can be:
- *   - A string (text node)
- *   - An object (child node)
- *   - An array of string / objects
+ * - Otherwise, the second (or first if not a literal object) is used to define children that will be appended to this
+ *   tag
  *
  * @callback gpf.typedef.tagFunc
  *
- * @param {Object|gpf.typedef.tagChildren} [attributes=undefined]
- * @param {gpf.typedef.tagChildren} [children=undefined]
+ * @param {Object|gpf.typedef.tagChildren} [attributes=undefined] When a literal object is passed, it is interpreted
+ * as an attribute dictionary
+ * @param {gpf.typedef.tagChildren} [children=undefined] List of children
  * @return {gpf.typedef.Tag} Tag object
  *
  * @see gpf.web.createTagFunction
@@ -332,7 +331,7 @@ var _GpfWebTag = _gpfDefine({
 });
 
 /**
- * Create a function that can be used to generate HTML
+ * Create a tag generation function
  *
  * @param {String} nodeName tag name
  * @return {gpf.typedef.tagFunc} The tag generation function
@@ -372,8 +371,5 @@ function _gpfWebTagCreateFunction (nodeName) {
  *     span = gpf.web.createTagFunction("span"),
  *     tree = div({className: "test"}, "Hello ", span("World!")),
  *     result = tree.appendTo(mockNode);
- * assert(result instanceof Node);
- * assert(result.ownerDocument === mockDocument);
- * assert(result.nodeName === "div");
  */
 gpf.web.createTagFunction = _gpfWebTagCreateFunction;
