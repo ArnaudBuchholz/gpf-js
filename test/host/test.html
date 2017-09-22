@@ -31,6 +31,10 @@ if (base) {
     base += "/";
 }
 
+window.config = {
+    httpPort: 0
+};
+
 document.write("<script src=\"" + base + "gpf" + flavor + ".js\"></" + "script>");
 document.write("<script src=\"" + base + "tests.js\"></" + "script>");
 
