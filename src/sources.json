@@ -349,6 +349,11 @@
         "doc": true
     },
     {
+        "name": "interfaces/flushablestream",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "events",
         "load": false
     },
