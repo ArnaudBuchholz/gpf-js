@@ -17,8 +17,9 @@ The library offers a common compatibility layer whatever the environment it runs
 ### Date
 
 The Date constructor supports [ISO 8601 format](http://gpf-js.blogspot.ca/2016/02/date-override.html)
-and instances offers
-[toIsoString](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString) method.
+and instances offers:
+* [toIsoString](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString)
+* [Date.now](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now)
 
 ### Function
 
