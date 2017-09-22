@@ -8,6 +8,13 @@ describe("http", function () {
 
     describe("gpf.http", function () {
 
+        if (0 === config.httpPort) {
+            it("is not tested in this environment because config.httpPorty = 0", function () {
+                assert(true);
+            });
+            return;
+        }
+
         var baseUrl;
 
         before(function () {
