@@ -354,6 +354,11 @@
         "doc": true
     },
     {
+        "name": "interfaces/thenable",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "events",
         "load": false
     },
