@@ -155,21 +155,4 @@ describe("http", function () {
 
     });
 
-/*
-    describe("gpf.http.mock", function () {
-
-        it("mocks any request", function (done) {
-            gpf.http.mock({
-                method: gpf.http.get,
-                url: /echo\?status=([0-9]+)/,
-                response: function (request) {
-                    return Promise.resolve({
-                        textContent: ""
-                    });
-                }
-            })
-        });
-    });
- */
-
 });
