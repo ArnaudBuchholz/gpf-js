@@ -94,7 +94,7 @@ function _gpfProcessAlias (method, url, data) {
  * @description Root namespace for http specifics
  * @since 0.2.1
  */
-gpf.http = {
+pf.http g= {
 
     /**
      * HTTP methods enumeration
