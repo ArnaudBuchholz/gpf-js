@@ -265,8 +265,8 @@
             _load(configuration, _resolvePath(configuration, "test/host/console.js"));
             verbose("Console loaded.");
         }
-        _loadTests(configuration, options, verbose);
         _setupConfig(configuration, options);
+        _loadTests(configuration, options, verbose);
         _safeRunBDD(configuration, options, verbose);
     };
 
