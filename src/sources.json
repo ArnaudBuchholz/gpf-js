@@ -307,12 +307,17 @@
         "doc": true
     },
     {
-        "name": "http",
+        "name": "http/helpers",
+        "test": false,
         "doc": true
     },
     {
-        "name": "http/helpers",
+        "name": "http/mock",
         "test": false,
+        "doc": true
+    },
+    {
+        "name": "http",
         "doc": true
     },
     {
