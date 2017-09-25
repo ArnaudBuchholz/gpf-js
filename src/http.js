@@ -4,22 +4,11 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_HTTP_METHODS*/ // HTTP Methods
 /*global _gpfHost*/ // Host type
+/*global _gpfHttpMockCheck*/ // Check if the provided request match any of the mocked one
 /*exported _gpfHttpRequestImplByHost*/ // HTTP Request Implementation per host
 /*#endif*/
-
-/**
- * Http methods
- * @since 0.2.1
- */
-var _HTTP_METHODS = {
-    GET: "GET",
-    POST: "POST",
-    PUT: "PUT",
-    OPTIONS: "OPTIONS",
-    DELETE: "DELETE",
-    HEAD: "HEAD"
-};
 
 /**
  * HTTP request settings
@@ -62,6 +51,10 @@ var _gpfHttpRequestImplByHost = {};
  * @since 0.2.1
  */
 function _gpfHttpRequest (request) {
+    var oMockedResponse = _gpfHttpMockCheck(request);
+    if (oMockedResponse) {
+        return oMockedResponse;
+    }
     return new Promise(function (resolve, reject) {
         _gpfHttpRequestImplByHost[_gpfHost](request, resolve, reject);
     });
@@ -89,12 +82,7 @@ function _gpfProcessAlias (method, url, data) {
     }, url));
 }
 
-/**
- * @namespace gpf.http
- * @description Root namespace for http specifics
- * @since 0.2.1
- */
-gpf.http = {
+Object.assign(gpf.http, /** @lends gpf.http */ {
 
     /**
      * HTTP methods enumeration
@@ -109,36 +97,36 @@ gpf.http = {
          * GET
          * @since 0.2.1
          */
-        get: _HTTP_METHODS.GET,
+        get: _GPF_HTTP_METHODS.GET,
 
         /**
          * POST
          * @since 0.2.1
          */
-        post: _HTTP_METHODS.POST,
+        post: _GPF_HTTP_METHODS.POST,
 
         /**
          * PUT
          * @since 0.2.1
          */
-        put: _HTTP_METHODS.PUT,
+        put: _GPF_HTTP_METHODS.PUT,
 
         /**
          * OPTIONS
          * @since 0.2.1
          */
-        options: _HTTP_METHODS.OPTIONS,
+        options: _GPF_HTTP_METHODS.OPTIONS,
 
         /**
          * DELETE
          * @since 0.2.1
          */
-        "delete": _HTTP_METHODS.DELETE,
+        "delete": _GPF_HTTP_METHODS.DELETE,
 
         /**
          * HEAD
          */
-        head: _HTTP_METHODS.HEAD
+        head: _GPF_HTTP_METHODS.HEAD
     },
 
     /**
@@ -155,7 +143,7 @@ gpf.http = {
      * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
      * @since 0.2.1
      */
-    get: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.GET),
+    get: _gpfProcessAlias.bind(gpf.http, _GPF_HTTP_METHODS.GET),
 
     /**
      * HTTP POST request
@@ -166,7 +154,7 @@ gpf.http = {
      * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
      * @since 0.2.1
      */
-    post: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.POST),
+    post: _gpfProcessAlias.bind(gpf.http, _GPF_HTTP_METHODS.POST),
 
     /**
      * HTTP PUT request
@@ -177,7 +165,7 @@ gpf.http = {
      * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
      * @since 0.2.1
      */
-    put: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.PUT),
+    put: _gpfProcessAlias.bind(gpf.http, _GPF_HTTP_METHODS.PUT),
 
     /**
      * HTTP OPTIONS request
@@ -187,7 +175,7 @@ gpf.http = {
      * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
      * @since 0.2.1
      */
-    options: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.OPTIONS),
+    options: _gpfProcessAlias.bind(gpf.http, _GPF_HTTP_METHODS.OPTIONS),
 
     /**
      * HTTP DELETE request
@@ -197,7 +185,7 @@ gpf.http = {
      * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
      * @since 0.2.1
      */
-    "delete": _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.DELETE),
+    "delete": _gpfProcessAlias.bind(gpf.http, _GPF_HTTP_METHODS.DELETE),
 
     /**
      * HTTP HEAD request
@@ -206,6 +194,6 @@ gpf.http = {
      * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
      * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
      */
-    head: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.HEAD)
+    head: _gpfProcessAlias.bind(gpf.http, _GPF_HTTP_METHODS.HEAD)
 
-};
+});
