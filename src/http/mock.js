@@ -3,6 +3,8 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_HTTP_METHODS*/ // HTTP Methods
+/*exported _gpfHttpMockCheck*/ // Check if the provided request match any of the mocked one
 /*#endif*/
 
 /**
@@ -24,35 +26,91 @@
  * @property {gpf.typedef.mockedResponseCallback} response Function that generates response when mocking applies
  */
 
+/**
+ * Maps request method to an array of mocked requests
+ *
+ * @type {Object}
+ */
 var _gpfHttpMockedRequests = {};
 
-function _gpfHttpMock (request) {
-    var result;
-    // Every?
-    _gpfArrayForEach(_gpfHttpMockedRequests[request.method], function (mockedRequest) {
-        var url = mockedRequest.url,
-            match;
-        url.lastIndex = 0;
-        match = url.exec(request.url);
-        if (match) {
-            result = mockedRequest.response.apply(null, [request].concat([].slice(match, 1)));
-        }
-    });
+/**
+ * Match the provided request with the mocked one
+ *
+ * @param {gpf.typedef.mockedRequest} mockedRequest Mocked request to match
+ * @param {gpf.typedef.httpRequestSettings} request Request to match
+ * @return {Promise<gpf.typedef.httpRequestResponse>|undefined} undefined if not matching
+ */
+function _gpfHttMockMatchRequest (mockedRequest, request) {
+    var url = mockedRequest.url,
+        match;
+    url.lastIndex = 0;
+    match = url.exec(request.url);
+    if (match) {
+        return mockedRequest.response.apply(null, [request].concat([].slice.call(match, 1)));
+    }
+}
+
+/**
+ * Match the provided request to the list of mocked ones
+ *
+ * @param {gpf.typedef.mockedRequest[]} mockedRequests List of mocked requests for the given method
+ * @param {gpf.typedef.httpRequestSettings} request Request to match
+ * @return {Promise<gpf.typedef.httpRequestResponse>|undefined} undefined if no mocked request matches
+ */
+function _gpfHttMockMatch (mockedRequests, request) {
+    var len = mockedRequests.length,
+        idx = len,
+        result;
+    while (idx-- && !result) {
+        result = _gpfHttMockMatchRequest(mockedRequests[idx], request);
+    }
     return result;
 }
 
+/**
+ * Check if the provided request match any of the mocked one
+ *
+ * @param {gpf.typedef.httpRequestSettings} request Request to check
+ * @return {Promise<gpf.typedef.httpRequestResponse>|undefined} undefined if no mocked request matches
+ */
+function _gpfHttpMockCheck (request) {
+    var mockedRequests = _gpfHttpMockedRequests[request.method];
+    if (mockedRequests) {
+        return _gpfHttMockMatch(mockedRequests, request);
+    }
+}
+
+var _gpfHttpMockLastId = 0;
+
 function _gpfHttpMockAdd (definition) {
-    // Install handler
-
+    var method = definition.method || _GPF_HTTP_METHODS.GET,
+        mockedRequests = _gpfHttpMockedRequests[method],
+        id;
+    if (!mockedRequests) {
+        mockedRequests = _gpfHttpMockedRequests[method] = [];
+    }
+    ++_gpfHttpMockLastId;
+    id = method + "." + _gpfHttpMockLastId;
+    mockedRequests.push(Object.assign({
+        method: method,
+        id: id
+    }, definition));
+    return id;
 }
 
-function _gpfHttpMockRemove (definition) {
-
+function _gpfHttpMockRemove (id) {
+    var method = id.split(".")[0];
+    _gpfHttpMockedRequests[method] = _gpfHttpMockedRequests[method].map(function (mockedRequest) {
+        return mockedRequest.id !== id;
+    });
 }
 
-function _gpfHttpMockReset (definition) {
-
+function _gpfHttpMockReset () {
+    Object.keys(_GPF_HTTP_METHODS).forEach(function (method) {
+        delete _gpfHttpMockedRequests[method];
+    });
 }
 
-
-// gpf.http.mock = _gpfHttpMockAdd;
+gpf.http.mock = _gpfHttpMockAdd;
+gpf.http.mock.remove = _gpfHttpMockRemove;
+gpf.http.mock.reset = _gpfHttpMockReset;
