@@ -51,11 +51,7 @@ var _gpfHttpRequestImplByHost = {};
  * @since 0.2.1
  */
 function _gpfHttpRequest (request) {
-    var oMockedResponse = _gpfHttpMockCheck(request);
-    if (oMockedResponse) {
-        return oMockedResponse;
-    }
-    return new Promise(function (resolve, reject) {
+    return _gpfHttpMockCheck(request) || new Promise(function (resolve, reject) {
         _gpfHttpRequestImplByHost[_gpfHost](request, resolve, reject);
     });
 }
