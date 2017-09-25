@@ -27,6 +27,12 @@
  */
 
 /**
+ * Mocked request identifier
+ *
+ * @typedef gpf.typedef.mockedRequestID
+ */
+
+/**
  * Maps request method to an array of mocked requests
  *
  * @type {Object}
@@ -82,6 +88,13 @@ function _gpfHttpMockCheck (request) {
 
 var _gpfHttpMockLastId = 0;
 
+/**
+ * Add a mocked request
+ *
+ * @param {gpf.typedef.mockedRequest} definition Mocked request definition
+ * @return {gpf.typedef.mockedRequestID} Mocked request identifier, to be used with {@link gpf.http.mock.remove}
+ * @see gpf.http
+ */
 function _gpfHttpMockAdd (definition) {
     var method = definition.method || _GPF_HTTP_METHODS.GET,
         mockedRequests = _gpfHttpMockedRequests[method],
@@ -98,19 +111,32 @@ function _gpfHttpMockAdd (definition) {
     return id;
 }
 
+/**
+ * Removes a mocked request
+ *
+ * @param {gpf.typedef.mockedRequestID} id Mocked request identifier returned by {@link gpf.http.mock}
+ */
 function _gpfHttpMockRemove (id) {
     var method = id.split(".")[0];
-    _gpfHttpMockedRequests[method] = _gpfHttpMockedRequests[method].map(function (mockedRequest) {
+    _gpfHttpMockedRequests[method] = _gpfHttpMockedRequests[method].filter(function (mockedRequest) {
         return mockedRequest.id !== id;
     });
 }
 
+/**
+ * Clears all mocked requests
+ */
 function _gpfHttpMockReset () {
     Object.keys(_GPF_HTTP_METHODS).forEach(function (method) {
         delete _gpfHttpMockedRequests[method];
     });
 }
 
+/** @sameas _gpfHttpMockAdd */
 gpf.http.mock = _gpfHttpMockAdd;
+
+/** @sameas _gpfHttpMockRemove */
 gpf.http.mock.remove = _gpfHttpMockRemove;
+
+/** @sameas _gpfHttpMockReset */
 gpf.http.mock.reset = _gpfHttpMockReset;
