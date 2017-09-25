@@ -8,7 +8,28 @@
 /*exported _gpfHttpGenSend*/ // Generates a function that implements the http send logic
 /*exported _gpfHttpGenSetHeaders*/ // Generates a function that transmit headers to the http object
 /*exported _gpfHttpParseHeaders*/ // Parse HTTP response headers
+/*exported _GPF_HTTP_METHODS*/ // HTTP Methods
 /*#endif*/
+
+/**
+ * @namespace gpf.http
+ * @description Root namespace for http specifics
+ * @since 0.2.1
+ */
+gpf.http = {};
+
+/**
+ * Http methods
+ * @since 0.2.1
+ */
+var _GPF_HTTP_METHODS = {
+    GET: "GET",
+    POST: "POST",
+    PUT: "PUT",
+    OPTIONS: "OPTIONS",
+    DELETE: "DELETE",
+    HEAD: "HEAD"
+};
 
 var _gpfHttpHeadersParserRE = new RegExp("([^:\\s]+)\\s*: ?([^\\r]*)", "gm");
 
