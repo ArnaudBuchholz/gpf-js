@@ -26,8 +26,8 @@ describe("gpf.http.mock", function () {
 
         before(function () {
             mockId = gpf.http.mock({
-                method: gpf.http.get,
-                url: /echo\?status=([0-9]+)/,
+                method: gpf.http.methods.get,
+                url: /echo\/\?status=([0-9]+)/,
                 response: function (request, status) {
                     return Promise.resolve({
                         status: String(parseInt(status, 10) + 1),
