@@ -312,6 +312,10 @@
         "doc": true
     },
     {
+        "name": "interfaces/thenable",
+        "doc": true
+    },
+    {
         "name": "http/mock",
         "doc": true
     },
@@ -354,11 +358,6 @@
     },
     {
         "name": "interfaces/flushablestream",
-        "test": false,
-        "doc": true
-    },
-    {
-        "name": "interfaces/thenable",
         "test": false,
         "doc": true
     },
