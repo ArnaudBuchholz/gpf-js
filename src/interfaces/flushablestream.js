@@ -1,5 +1,6 @@
 /**
  * @file IFlushableStream interface
+ * @since 0.2.2
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -12,6 +13,7 @@
  * The Flushable stream interface defines a method to flush any buffered data
  *
  * @interface gpf.interfaces.IFlushableStream
+ * @since 0.2.2
  */
 
 /**
@@ -19,12 +21,14 @@
  *
  * @method gpf.interfaces.IFlushableStream#flush
  * @return {Promise} Resolved when ready
+ * @since 0.2.2
  */
 
 /**
  * IFlushableStream interface specifier
  *
  * @type {gpf.interfaces.IFlushableStream}
+ * @since 0.2.2
  */
 var _gpfIFlushableStream = _gpfDefineInterface("FlushableStream",
     _gpfSyncReadSourceJSON("interfaces/flushablestream.json"));
