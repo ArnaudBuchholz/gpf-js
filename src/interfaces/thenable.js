@@ -1,5 +1,6 @@
 /**
  * @file IThenable interface
+ * @since 0.2.2
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -13,6 +14,7 @@
  * [then](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then) method
  *
  * @interface gpf.interfaces.IThenable
+ * @since 0.2.2
  */
 
 /**
@@ -23,12 +25,14 @@
  * @param {Function} onFulfilled called if the Promise is fulfilled
  * @param {Function} [onRejected] called if the Promise is rejected
  * @return {Promise} Promise
+ * @since 0.2.2
  */
 
 /**
  * IThenable interface specifier
  *
  * @type {gpf.interfaces.IThenable}
+ * @since 0.2.2
  */
 var _gpfIThenable = _gpfDefineInterface("Thenable",
     _gpfSyncReadSourceJSON("interfaces/thenable.json"));
