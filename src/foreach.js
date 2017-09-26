@@ -8,8 +8,8 @@
 /*global _gpfHost*/ // Host type
 /*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
 /*exported _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
-/*exported _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _gpfArrayForEachFalsy*/ // _gpfArrayForEach that returns first truthy value computed by the callback
+/*exported _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*#endif*/
 
 /**
@@ -65,6 +65,7 @@ function _gpfObjectForEachOwnPropertyWScript (object, callback, thisArg) {
  * @param {gpf.typedef.forEachCallback} callback Callback function executed on each array item
  * @param {*} [thisArg] thisArg Value to use as this when executing callback
  * @return {*} first truthy value returned by the callback or undefined after all items were enumerated
+ * @since 0.2.2
  */
 function _gpfArrayForEachFalsy (array, callback, thisArg) {
     var result,
