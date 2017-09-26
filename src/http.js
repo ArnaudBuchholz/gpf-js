@@ -121,6 +121,7 @@ Object.assign(gpf.http, /** @lends gpf.http */ {
 
         /**
          * HEAD
+         * @since 0.2.2
          */
         head: _GPF_HTTP_METHODS.HEAD
     },
@@ -189,6 +190,7 @@ Object.assign(gpf.http, /** @lends gpf.http */ {
      * @method
      * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
      * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+     * @since 0.2.2
      */
     head: _gpfProcessAlias.bind(gpf.http, _GPF_HTTP_METHODS.HEAD)
 
