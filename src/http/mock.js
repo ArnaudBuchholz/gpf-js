@@ -1,5 +1,6 @@
 /**
  * @file HTTP mocking
+ * @since 0.2.2
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -16,6 +17,7 @@
  * @param {gpf.typedef.httpRequestSettings} HTTP request settings
  * @param {...String} captured Regular expression capturing group values
  * @return {Promise<gpf.typedef.httpRequestResponse>|undefined}
+ * @since 0.2.2
  */
 
 /**
@@ -25,18 +27,21 @@
  * @property {gpf.http.methods} method HTTP method to mock
  * @property {RegExp} url Regular expression matching the URL to mock
  * @property {gpf.typedef.mockedResponseCallback} response Function that generates response when mocking applies
+ * @since 0.2.2
  */
 
 /**
  * Mocked request identifier
  *
  * @typedef gpf.typedef.mockedRequestID
+ * @since 0.2.2
  */
 
 /**
  * Maps request method to an array of mocked requests
  *
  * @type {Object}
+ * @since 0.2.2
  */
 var _gpfHttpMockedRequests = {};
 
@@ -46,6 +51,7 @@ var _gpfHttpMockedRequests = {};
  * @param {gpf.typedef.mockedRequest} mockedRequest Mocked request to match
  * @return {Promise<gpf.typedef.httpRequestResponse>|undefined} undefined if not matching
  * @this {gpf.typedef.httpRequestSettings}
+ * @since 0.2.2
  */
 function _gpfHttMockMatchRequest (mockedRequest) {
     /*jshint validthis:true*/
@@ -64,6 +70,7 @@ function _gpfHttMockMatchRequest (mockedRequest) {
  * @param {gpf.typedef.mockedRequest[]} mockedRequests List of mocked requests for the given method
  * @param {gpf.typedef.httpRequestSettings} request Request to match
  * @return {Promise<gpf.typedef.httpRequestResponse>|undefined} undefined if no mocked request matches
+ * @since 0.2.2
  */
 function _gpfHttMockMatch (mockedRequests, request) {
     return _gpfArrayForEachFalsy(mockedRequests, _gpfHttMockMatchRequest.bind(request));
@@ -74,6 +81,7 @@ function _gpfHttMockMatch (mockedRequests, request) {
  *
  * @param {gpf.typedef.httpRequestSettings} request Request to check
  * @return {Promise<gpf.typedef.httpRequestResponse>|undefined} undefined if no mocked request matches
+ * @since 0.2.2
  */
 function _gpfHttpMockCheck (request) {
     return _gpfHttMockMatch(_gpfHttpMockedRequests[request.method], request);
@@ -87,6 +95,7 @@ var _gpfHttpMockLastId = 0;
  * @param {gpf.typedef.mockedRequest} definition Mocked request definition
  * @return {gpf.typedef.mockedRequestID} Mocked request identifier, to be used with {@link gpf.http.mock.remove}
  * @see gpf.http
+ * @since 0.2.2
  */
 function _gpfHttpMockAdd (definition) {
     var method = definition.method,
@@ -104,6 +113,7 @@ function _gpfHttpMockAdd (definition) {
  * Removes a mocked request
  *
  * @param {gpf.typedef.mockedRequestID} id Mocked request identifier returned by {@link gpf.http.mock}
+ * @since 0.2.2
  */
 function _gpfHttpMockRemove (id) {
     var method = id.split(".")[0];
@@ -114,6 +124,7 @@ function _gpfHttpMockRemove (id) {
 
 /**
  * Clears all mocked requests
+ * @since 0.2.2
  */
 function _gpfHttpMockReset () {
     Object.keys(_GPF_HTTP_METHODS).forEach(function (method) {
@@ -123,11 +134,20 @@ function _gpfHttpMockReset () {
 
 _gpfHttpMockReset();
 
-/** @sameas _gpfHttpMockAdd */
+/**
+ * @sameas _gpfHttpMockAdd
+ * @since 0.2.2
+ */
 gpf.http.mock = _gpfHttpMockAdd;
 
-/** @sameas _gpfHttpMockRemove */
+/**
+ * @sameas _gpfHttpMockRemove
+ * @since 0.2.2
+ */
 gpf.http.mock.remove = _gpfHttpMockRemove;
 
-/** @sameas _gpfHttpMockReset */
+/**
+ * @sameas _gpfHttpMockReset
+ * @since 0.2.2
+ */
 gpf.http.mock.reset = _gpfHttpMockReset;
