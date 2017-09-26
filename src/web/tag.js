@@ -103,6 +103,7 @@ _gpfErrorDeclare("web/tag", {
      * ### Description
      *
      * A prefix has been used prior to be associated with a namespace
+     * @since 0.2.2
      */
     unknownNamespacePrefix: "Unknown namespace prefix",
 
@@ -114,6 +115,7 @@ _gpfErrorDeclare("web/tag", {
      * ### Description
      *
      * A prefix associated to a namespace has been used and can't be converted to string
+     * @since 0.2.2
      */
     unableToUseNamespaceInString: "Unable to use namespace in string"
 });
@@ -128,6 +130,7 @@ var _gpfWebTagAttributeAliases = _gpfSyncReadSourceJSON("web/attributes.json");
 /**
  * Mapping of prefixes for namespaces
  * @type {Object}
+ * @since 0.2.2
  */
 var _gpfWebNamespacePrefix = _gpfSyncReadSourceJSON("web/namespaces.json");
 
@@ -137,6 +140,7 @@ var _gpfWebNamespacePrefix = _gpfSyncReadSourceJSON("web/namespaces.json");
  * @param {String} prefix Namespace prefix
  * @return {String} Namespace URI
  * @throws {gpf.Error.UnknownNamespacePrefix}
+ * @since 0.2.2
  */
 function _gpfWebGetNamespace (prefix) {
     var namespace = _gpfWebNamespacePrefix[prefix];
@@ -151,6 +155,7 @@ function _gpfWebGetNamespace (prefix) {
  *
  * @param {String} name Attribute or node name
  * @return {{namespace, name}|undefined} Namespace and name in a structure if prefixed, undefined otherwise
+ * @since 0.2.2
  */
 function _gpfWebGetNamespaceAndName (name) {
     var parts = name.split(":");
@@ -167,6 +172,7 @@ function _gpfWebGetNamespaceAndName (name) {
  *
  * @param {String} name Attribute or node name
  * @throws {gpf.Error.UnableToUseNamespaceInString}
+ * @since 0.2.2
  */
 function _gpfWebCheckNamespaceSafe (name) {
     if (-1 !== name.indexOf(":")) {
