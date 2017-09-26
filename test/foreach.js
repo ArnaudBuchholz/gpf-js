@@ -73,4 +73,60 @@ describe("foreach", function () {
 
     });
 
+    if (gpf.internals) {
+
+        describe("(internal)", function () {
+
+            describe("_gpfObjectForEach", function () {
+
+                var _gpfObjectForEach = gpf.internals._gpfObjectForEach;
+
+                it("enumerates object keys and values", function () {
+                    var count = 0;
+                    _gpfObjectForEach(object, function (value, index, refObject) {
+                        ++count;
+                        assert(refObject === object);
+                        assert(value === object[index]);
+                    });
+                    assert(count === 5);
+                });
+
+            });
+
+            describe("_gpfArrayForEachFalsy", function () {
+
+                var _gpfArrayForEachFalsy = gpf.internals._gpfArrayForEachFalsy;
+
+                it("enumerates all values if no truthy result", function () {
+                    var count = 0,
+                        result = _gpfArrayForEachFalsy(array, function (value, index, refArray) {
+                            ++count;
+                            assert(refArray === array);
+                            assert(value === array[index]);
+                        });
+                    assert(result === undefined);
+                    assert(count === array.length);
+                });
+
+                it("stops on first truthy value and return it", function () {
+                    var count = 0,
+                        expectedResult = {},
+                        result = _gpfArrayForEachFalsy(array, function (value, index, refArray) {
+                            if (value === 4) {
+                                return expectedResult;
+                            }
+                            ++count;
+                            assert(refArray === array);
+                            assert(value === array[index]);
+                        });
+                    assert(result === expectedResult);
+                    assert(count === 4);
+                });
+
+            });
+
+        });
+
+    }
+
 });
