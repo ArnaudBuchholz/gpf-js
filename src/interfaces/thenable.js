@@ -7,6 +7,8 @@
 /*global _gpfDefineInterface*/ // Internal interface definition helper
 /*global _gpfSyncReadSourceJSON*/ // Reads a source json file (only in source mode)
 /*exported _gpfIThenable*/ // gpf.interfaces.IThenable
+/*exported _gpfPromisy*/ // Converts any value into a Promise
+/*exported _gpfPromisyDefined*/ // Converts any value but undefined into a Promise
 /*#endif*/
 
 /**
@@ -36,3 +38,36 @@
  */
 var _gpfIThenable = _gpfDefineInterface("Thenable",
     _gpfSyncReadSourceJSON("interfaces/thenable.json"));
+
+/**
+ * Converts any value into a promise.
+ * If the value implements {@link gpf.interfaces.IThenable}, it is considered as a promise.
+ *
+ * @param {*} value Value to convert
+ * @return {Promise<*>} Promisified version of the value
+ */
+function _gpfPromisify (value) {
+    if (gpf.interfaces.isImplementedBy(gpf.interfaces.IThenable, value)) {
+        return value;
+    }
+    return Promise.resolve(value);
+}
+
+/**
+ * Converts value into a promise if not undefined.
+ * If the value implements {@link gpf.interfaces.IThenable}, it is considered as a promise.
+ *
+ * @param {*} value Value to convert
+ * @return {Promise<*>|undefined} Promisified version of the value or undefined
+ */
+function _gpfPromisifyDefined (value) {
+    if (undefined !== value) {
+        return _gpfPromisify(value);
+    }
+}
+
+/** @gpf:sameas _gpfPromisify */
+gpf.promisify = _gpfPromisify;
+
+/** @gpf:sameas _gpfPromisifyDefined */
+gpf.promisifyDefined = _gpfPromisifyDefined;
