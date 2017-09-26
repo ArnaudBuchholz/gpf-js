@@ -4,6 +4,8 @@
  */
 "use strict";
 
+/*jshint esversion: 6*/
+
 //------------------------------------------------------------------------------
 // Requirements
 //------------------------------------------------------------------------------
@@ -250,7 +252,7 @@ module.exports = {
                     if (/braces/i.test(ex.message)) {
                         context.report(jsdocNode, "JSDoc type missing brace.");
                     } else {
-                        context.report(jsdocNode, "JSDoc syntax error.");
+                        context.report(jsdocNode, `JSDoc syntax error (${ex.message})`);
                     }
 
                     return;
