@@ -42,6 +42,9 @@
                     options.tests.push(value);
                 }
             }
+            if (options.perfInfinite) {
+                options.perf = true;
+            }
         },
 
         _load = function (configuration, path) {
@@ -152,18 +155,29 @@
             };
         },
 
-        _runBDDPerf = function (configuration/*, options*/) {
+        _runBDDPerf = function (configuration, options) {
             var totalTimeSpent = 0,
-                loop = 1;
+                loop = 1,
+                maxLoop;
+            if (options.perfInfinite) {
+                maxLoop = Math.MAX_SAFE_INTEGER;
+            } else {
+                maxLoop = 10;
+            }
             function callback (type, data) {
-                if (type === "results") {
+                if ("it" === type) {
+                    if (!data.result) {
+                        configuration.log("ERROR: " + JSON.stringify(data));
+                        maxLoop = 0; // Stop
+                    }
+                } else if ("results" === type) {
                     if (1 === loop) {
                         configuration.log("Round " + loop + ": " + data.timeSpent + "ms (ignored)");
                     } else {
                         configuration.log("Round " + loop + ": " + data.timeSpent + "ms");
                         totalTimeSpent += data.timeSpent;
                     }
-                    if (10 < loop) {
+                    if (maxLoop < loop) {
                         configuration.log("Mean time: " + Math.floor(totalTimeSpent / 10) + "ms");
                     } else {
                         ++loop;
@@ -177,7 +191,7 @@
         _runBDDForCoverage = function (configuration, options, verbose) {
             verbose("Running BDD - coverage");
             run(function (type, data) {
-                if (type !== "results") {
+                if ("results" !== type) {
                     return;
                 }
                 if (data.fail) {
@@ -248,12 +262,13 @@
                 verbose: false,
                 ignoreConsole: false,
                 perf: false,
+                perfInfinite: false,
                 tests: []
             },
             verbose;
         _processParameters(configuration, options);
         // Define a debug function that outputs when verbose is set
-        if (options.verbose && !options.perf) {
+        if (options.verbose) {
             verbose = configuration.log;
         } else {
             verbose = function () {};
