@@ -7,8 +7,8 @@
 /*global _gpfDefineInterface*/ // Internal interface definition helper
 /*global _gpfSyncReadSourceJSON*/ // Reads a source json file (only in source mode)
 /*exported _gpfIThenable*/ // gpf.interfaces.IThenable
-/*exported _gpfPromisy*/ // Converts any value into a Promise
-/*exported _gpfPromisyDefined*/ // Converts any value but undefined into a Promise
+/*exported _gpfPromisify*/ // Converts any value into a Promise
+/*exported _gpfPromisifyDefined*/ // Converts any value but undefined into a Promise
 /*#endif*/
 
 /**
