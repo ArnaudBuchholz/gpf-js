@@ -6,6 +6,7 @@
 "use strict";
 /*global _GPF_HTTP_METHODS*/ // HTTP Methods
 /*global _gpfArrayForEachFalsy*/ // _gpfArrayForEach that returns first truthy value computed by the callback
+/*global _gpfPromisifyDefined*/ // Converts any value but undefined into a Promise
 /*exported _gpfHttpMockCheck*/ // Check if the provided request match any of the mocked one
 /*#endif*/
 
@@ -60,7 +61,7 @@ function _gpfHttMockMatchRequest (mockedRequest) {
     url.lastIndex = 0;
     match = url.exec(this.url);
     if (match) {
-        return mockedRequest.response.apply(null, [this].concat([].slice.call(match, 1)));
+        return _gpfPromisifyDefined(mockedRequest.response.apply(null, [this].concat([].slice.call(match, 1))));
     }
 }
 
@@ -135,19 +136,19 @@ function _gpfHttpMockReset () {
 _gpfHttpMockReset();
 
 /**
- * @sameas _gpfHttpMockAdd
+ * @gpf:sameas _gpfHttpMockAdd
  * @since 0.2.2
  */
 gpf.http.mock = _gpfHttpMockAdd;
 
 /**
- * @sameas _gpfHttpMockRemove
+ * @gpf:sameas _gpfHttpMockRemove
  * @since 0.2.2
  */
 gpf.http.mock.remove = _gpfHttpMockRemove;
 
 /**
- * @sameas _gpfHttpMockReset
+ * @gpf:sameas _gpfHttpMockReset
  * @since 0.2.2
  */
 gpf.http.mock.reset = _gpfHttpMockReset;
