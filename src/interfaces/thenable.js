@@ -45,6 +45,7 @@ var _gpfIThenable = _gpfDefineInterface("Thenable",
  *
  * @param {*} value Value to convert
  * @return {Promise<*>} Promisified version of the value
+ * @since 0.2.2
  */
 function _gpfPromisify (value) {
     if (gpf.interfaces.isImplementedBy(gpf.interfaces.IThenable, value)) {
@@ -59,6 +60,7 @@ function _gpfPromisify (value) {
  *
  * @param {*} value Value to convert
  * @return {Promise<*>|undefined} Promisified version of the value or undefined
+ * @since 0.2.2
  */
 function _gpfPromisifyDefined (value) {
     if (undefined !== value) {
@@ -66,8 +68,14 @@ function _gpfPromisifyDefined (value) {
     }
 }
 
-/** @gpf:sameas _gpfPromisify */
+/**
+ * @gpf:sameas _gpfPromisify
+ * @since 0.2.2
+ */
 gpf.promisify = _gpfPromisify;
 
-/** @gpf:sameas _gpfPromisifyDefined */
+/**
+ * @gpf:sameas _gpfPromisifyDefined
+ * @since 0.2.2
+ */
 gpf.promisifyDefined = _gpfPromisifyDefined;
