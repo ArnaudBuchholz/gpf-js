@@ -32,13 +32,13 @@ describe("gpf.http.mock", function () {
                     if (status === "400") {
                         return; // Don't mock
                     }
-                    return Promise.resolve({
+                    return {
                         status: parseInt(status, 10) + 1,
                         headers: {
                             "x-mock": true
                         },
                         responseText: "It works"
-                    });
+                    };
                 }
             });
         });
@@ -119,11 +119,11 @@ describe("gpf.http.mock", function () {
 
             function getResponse (index) {
                 return function () {
-                    return Promise.resolve({
+                    return {
                         status: 200,
                         headers: {},
                         responseText: "answer-" + index
-                    });
+                    };
                 };
             }
 
