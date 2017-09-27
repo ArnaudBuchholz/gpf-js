@@ -2,7 +2,7 @@
 
 describe("gpf.interfaces.IThenable", function () {
 
-    function ignore(value) {
+    function ignore (value) {
         return value;
     }
 
@@ -32,12 +32,8 @@ describe("gpf.interfaces.IThenable", function () {
         });
 
         it("returns the promise parameter", function () {
-            try {
-                var promise = Promise.resolve();
-                assert(promise === method(promise));
-            } catch (e) {
-                done(e);
-            }
+            var promise = Promise.resolve();
+            assert(promise === method(promise));
         });
 
         it("returns the IThenable parameter", function (done) {
