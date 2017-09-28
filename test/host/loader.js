@@ -155,31 +155,66 @@
             };
         },
 
+        _mean = function (values) {
+            var total = 0,
+                len = values.length,
+                idx;
+            for (idx = 0; idx < len; ++idx) {
+                total += values[idx];
+            }
+            return Math.floor(total / len);
+        },
+
+        _stdDeviation = function (values) {
+            var mean = _mean(values),
+                total = 0,
+                len = values.length,
+                idx,
+                diff;
+            for (idx = 0; idx < len; ++idx) {
+                diff = values[idx] - mean;
+                total += diff * diff;
+            }
+            return Math.floor(Math.sqrt(total / len));
+        },
+
+        _pad = function (value, size) {
+            var pad = size - value.toString().length;
+            if (pad > 0) {
+                return new Array(pad).join(" ") + value;
+            }
+            return value;
+        },
+
         _runBDDPerf = function (configuration, options) {
-            var totalTimeSpent = 0,
-                loop = 1,
+            var loop = 1,
                 maxLoop,
-                runWithCallback;
+                runWithCallback,
+                measures = [];
             if (options.perfInfinite) {
                 maxLoop = Math.MAX_SAFE_INTEGER;
             } else {
                 maxLoop = 10;
             }
             function callback (type, data) {
+                var statistics;
                 if ("it" === type) {
                     if (!data.result) {
                         configuration.log("ERROR: " + JSON.stringify(data));
                         maxLoop = 0; // Stop
                     }
                 } else if ("results" === type) {
+                    statistics = ["Round ", _pad(loop, 9), ": ", _pad(data.timeSpent, 5), "ms "];
                     if (1 === loop) {
-                        configuration.log("Round " + loop + ": " + data.timeSpent + "ms (ignored)");
+                        statistics.push("(ignored)");
                     } else {
-                        configuration.log("Round " + loop + ": " + data.timeSpent + "ms");
-                        totalTimeSpent += data.timeSpent;
+                        measures.push(data.timeSpent);
+                        statistics.push("mean: ", _pad(_mean(measures), 5), "ms ",
+                            "deviation: ", _pad(_stdDeviation(measures), 5));
                     }
+                    configuration.log(statistics.join(""));
                     if (maxLoop < loop) {
-                        configuration.log("Mean time: " + Math.floor(totalTimeSpent / 10) + "ms");
+                        configuration.log("Mean time: " + _mean(measures) + "ms");
                     } else {
                         ++loop;
                         setTimeout(runWithCallback, 0);
