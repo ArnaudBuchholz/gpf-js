@@ -20,11 +20,9 @@ describe("compatibility/promise", function () {
             });
 
             it("waits for asynchronous fulfilment", function (done) {
+                var callback;
                 new PromiseClass(function (resolve/*, reject*/) {
-                    assert("function" === typeof resolve);
-                    setTimeout(function () {
-                        resolve("ok");
-                    }, 0);
+                    callback = resolve;
                 })
                     .then(function (value) {
                         assert("ok" === value);
@@ -32,12 +30,12 @@ describe("compatibility/promise", function () {
                     })["catch"](function (reason) {
                         done(reason);
                     });
+                callback("ok");
             });
 
             it("waits for synchronous rejection (rejection handler)", function (done) {
                 var fulfilled = false;
                 new PromiseClass(function (resolve, reject) {
-                    assert("function" === typeof resolve);
                     assert("function" === typeof reject);
                     reject("ko");
                 })
@@ -53,13 +51,10 @@ describe("compatibility/promise", function () {
             });
 
             it("waits for asynchronous rejection (rejection handler)", function (done) {
-                var fulfilled = false;
+                var fulfilled = false,
+                    callback;
                 new PromiseClass(function (resolve, reject) {
-                    assert("function" === typeof resolve);
-                    assert("function" === typeof reject);
-                    setTimeout(function () {
-                        reject("ko");
-                    }, 0);
+                    callback = reject;
                 })
                     .then(function () {
                         fulfilled = true;
@@ -70,12 +65,11 @@ describe("compatibility/promise", function () {
                     })["catch"](function (reason) {
                         done(reason);
                     });
+                callback("ko");
             });
 
             it("waits for synchronous rejection (catch handler)", function (done) {
                 new PromiseClass(function (resolve, reject) {
-                    assert("function" === typeof resolve);
-                    assert("function" === typeof reject);
                     reject("ko");
                 })
                     .then(function () {
@@ -91,12 +85,9 @@ describe("compatibility/promise", function () {
             });
 
             it("waits for asynchronous rejection (catch handler)", function (done) {
+                var callback;
                 new PromiseClass(function (resolve, reject) {
-                    assert("function" === typeof resolve);
-                    assert("function" === typeof reject);
-                    setTimeout(function () {
-                        reject("ko");
-                    }, 0);
+                    callback = reject;
                 })
                     .then(function () {
                         assert(false);
@@ -108,12 +99,11 @@ describe("compatibility/promise", function () {
                             done(e);
                         }
                     });
+                callback("ko");
             });
 
             it("rejects automatically on exception", function (done) {
-                new PromiseClass(function (resolve, reject) {
-                    assert("function" === typeof resolve);
-                    assert("function" === typeof reject);
+                new PromiseClass(function (/*resolve, reject*/) {
                     throw new Error("ko");
                 })
                     .then(function () {
@@ -128,12 +118,8 @@ describe("compatibility/promise", function () {
             });
 
             it("catches exception from the fulfilment handler", function (done) {
-                new PromiseClass(function (resolve, reject) {
-                    assert("function" === typeof resolve);
-                    assert("function" === typeof reject);
-                    setTimeout(function () {
-                        resolve("ok");
-                    }, 0);
+                new PromiseClass(function (resolve/*, reject*/) {
+                    resolve("ok");
                 })
                     .then(function (value) {
                         assert("ok" === value);
@@ -151,11 +137,7 @@ describe("compatibility/promise", function () {
 
             it("catches exception from the rejection handler", function (done) {
                 new PromiseClass(function (resolve, reject) {
-                    assert("function" === typeof resolve);
-                    assert("function" === typeof reject);
-                    setTimeout(function () {
-                        reject("ko");
-                    }, 0);
+                    reject("ko");
                 })
                     .then(function () {
                         assert(false);
@@ -243,9 +225,7 @@ describe("compatibility/promise", function () {
                     .then(function (value) {
                         assert("ok 2" === value);
                         return new PromiseClass(function (resolve/*, reject*/) {
-                            setTimeout(function () {
-                                resolve("ok 3");
-                            }, 0);
+                            resolve("ok 3");
                         });
                     })
                     .then(function (value) {
@@ -359,12 +339,11 @@ describe("compatibility/promise", function () {
 
                 it("waits for the first promise that is resolved", function (done) {
                     var promises = [],
-                        index;
+                        index,
+                        callbacks = [];
                     function resolveAfter (value) {
                         return new PromiseClass(function (resolve/*, reject*/) {
-                            setTimeout(function () {
-                                resolve(value);
-                            }, (10 - value) * 20); // Last should be the first to be executed
+                            callbacks.unshift(resolve.bind(null, value)); // reverse order
                         });
                     }
                     for (index = 0; index < 10; ++index) {
@@ -373,25 +352,26 @@ describe("compatibility/promise", function () {
                     PromiseClass.race(promises)
                         .then(function (value) {
                             assert(value === 9);
+                            callbacks[9](); // Ignored
                             done();
                         })["catch"](function (reason) {
                             done(reason);
                         });
+                    callbacks[0](); // Only this one should win Promise.race
+                    callbacks[1]();
+                    callbacks[2]();
                 });
 
                 it("waits for the first promise that is resolved or rejected", function (done) {
                     var promises = [],
-                        index;
+                        index,
+                        callbacks = [];
                     function resolveOrRejectAfter (value) {
                         return new PromiseClass(function (resolve, reject) {
                             if (5 === value) {
-                                setTimeout(function () {
-                                    reject(value);
-                                }, 20);
+                                callbacks.push(reject.bind(null, value));
                             } else {
-                                setTimeout(function () {
-                                    resolve(value);
-                                }, 50);
+                                callbacks.push(resolve.bind(null, value));
                             }
                         });
                     }
@@ -405,11 +385,15 @@ describe("compatibility/promise", function () {
                             try {
                                 assert("number" === typeof reason);
                                 assert(5 === reason);
+                                callbacks[9](); // Ignored
                                 done();
                             } catch (e) {
                                 done(e);
                             }
                         });
+                    callbacks[5]();  // Only this one should win Promise.race
+                    callbacks[0]();
+                    callbacks[1]();
                 });
 
             });
