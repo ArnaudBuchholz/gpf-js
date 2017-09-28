@@ -158,7 +158,8 @@
         _runBDDPerf = function (configuration, options) {
             var totalTimeSpent = 0,
                 loop = 1,
-                maxLoop;
+                maxLoop,
+                runWithCallback;
             if (options.perfInfinite) {
                 maxLoop = Math.MAX_SAFE_INTEGER;
             } else {
@@ -181,11 +182,14 @@
                         configuration.log("Mean time: " + Math.floor(totalTimeSpent / 10) + "ms");
                     } else {
                         ++loop;
-                        run(callback);
+                        setTimeout(runWithCallback, 0);
                     }
                 }
             }
-            run(callback);
+            runWithCallback = function () {
+                run(callback);
+            };
+            runWithCallback();
         },
 
         _runBDDForCoverage = function (configuration, options, verbose) {
