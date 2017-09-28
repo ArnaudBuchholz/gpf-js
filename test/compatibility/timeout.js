@@ -9,9 +9,9 @@ describe("compatibility/timeout", function () {
             (on some environments, this time was measured to take up to 15ms).
             If this value is not big enough, this will not give enough time for the fastest to be triggered before.
         */
-        var TIMER_RESOLUTION = 10, // ms - it is almost impossible to be precise under this resolution
-            MAIN_TIMEOUT = 50, // ms - min recommended value is FAST_TIMEOUT + 2* TIMER_RESOLUTION
-            FAST_TIMEOUT = 20; // ms
+        var TIMER_RESOLUTION = 1, // ms - it is almost impossible to be precise under this resolution
+            MAIN_TIMEOUT = 5, // ms - min recommended value is FAST_TIMEOUT + 2* TIMER_RESOLUTION
+            FAST_TIMEOUT = 2; // ms
 
         return function () {
 
