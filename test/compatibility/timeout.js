@@ -20,19 +20,21 @@ describe("compatibility/timeout", function () {
                 synchronousFlag,
                 triggered,
                 callbackDone,
-                allowedIds = [],
-                deniedIds = [];
+                allowedIds,
+                deniedIds;
 
-            function _checkIfTimeoutIdAllowed (id) {
+            before(function () {
+                allowedIds = [];
+                deniedIds = [];
+            });
+
+            function _checkIfTimeoutIdAllowedAndFlags (id) {
                 if (-1 !== deniedIds.indexOf(id)) {
                     throw new Error("Denied");
                 }
                 if (-1 === allowedIds.indexOf(id)) {
                     throw new Error("Not allowed");
                 }
-            }
-
-            function _checkFlags () {
                 if (triggered) {
                     throw new Error("Already triggered");
                 }
@@ -53,8 +55,7 @@ describe("compatibility/timeout", function () {
                 if (undefined === callbackDone) {
                     console.error("Unexpected callback triggered when callbackDone is undefined");
                 }
-                _checkIfTimeoutIdAllowed(id);
-                _checkFlags();
+                _checkIfTimeoutIdAllowedAndFlags(id);
                 _checkDelay(startDateTime, timeoutDelay);
                 deniedIds.push(id); // Prevent multiple executions
             }
