@@ -1,19 +1,19 @@
 [{
-    issue: 187,
-    before: "0.2.2",
-    ignore: [{
-        describe: "Promise.race"
+    "issue": 187,
+    "before": "0.2.2",
+    "ignore": [{
+        "describe": "Promise.race"
     }]
 }, {
-    issue: 188,
-    ignore: [{
-        describe: "name support",
-        it: "describes a named function"
+    "issue": 188,
+    "ignore": [{
+        "describe": "name support",
+        "it": "describes a named function"
     }, {
-        describe: "_gpfFunctionDescribe",
-        it: "filters out comments"
+        "describe": "_gpfFunctionDescribe",
+        "it": "filters out comments"
     }, {
-        describe: "_gpfFunctionDescribe",
-        it: "describes a named function"
+        "describe": "_gpfFunctionDescribe",
+        "it": "describes a named function"
     }]
 }]
