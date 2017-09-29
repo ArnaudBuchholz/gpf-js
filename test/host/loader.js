@@ -186,6 +186,22 @@
             return value;
         },
 
+        _perfError = function (configuration, data) {
+            configuration.log("ERROR during performance test:");
+            var property,
+                value;
+            for (property in data) {
+                if (data.hasOwnProperty(property)) {
+                    value = data[property];
+                    if (property === "exception" && value instanceof Error) {
+                        configuration.log("\t" + _pad(property, 10) + ": " + value.message);
+                    } else {
+                        configuration.log("\t" + _pad(property, 10) + ": " + value.toString());
+                    }
+                }
+            }
+        },
+
         _runBDDPerf = function (configuration, options) {
             var loop = 1,
                 maxLoop,
@@ -200,7 +216,7 @@
                 var statistics;
                 if ("it" === type) {
                     if (!data.result) {
-                        configuration.log("ERROR: " + JSON.stringify(data));
+                        _perfError(configuration, data);
                         maxLoop = 0; // Stop
                     }
                 } else if ("results" === type) {
