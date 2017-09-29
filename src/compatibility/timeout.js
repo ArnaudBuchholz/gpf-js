@@ -24,6 +24,9 @@ gpf.handleTimeout = _gpfEmptyFunc;
 
 // Sorting function used to reorder the async queue
 function _gpfSortOnDt (a, b) {
+    if (a.dt === b.dt) {
+        return a.id - b.id;
+    }
     return a.dt - b.dt;
 }
 
@@ -31,7 +34,7 @@ function _gpSetTimeoutPolyfill (callback, timeout) {
     _gpfAssert("number" === typeof timeout, "Timeout is required");
     var timeoutItem = {
         id: ++_gpfTimeoutID,
-        dt: new Date(new Date().getTime() + timeout),
+        dt: new Date().getTime() + timeout,
         cb: callback
     };
     _gpfTimeoutQueue.push(timeoutItem);
@@ -63,9 +66,10 @@ function _gpfHandleTimeout () {
         now;
     while (queue.length) {
         timeoutItem = queue.shift();
-        now = new Date();
-        if (timeoutItem.dt > now) {
+        now = new Date().getTime();
+        while (timeoutItem.dt > now) {
             _gpfSleep(timeoutItem.dt - now);
+            now = new Date().getTime();
         }
         timeoutItem.cb();
     }
