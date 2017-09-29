@@ -611,8 +611,8 @@
         _gentItContext: function () {
             var depth = this._describes.length,
                 idx,
-                result = [];
-            for (idx = 0; idx < depth; ++idx) {
+                result = ["<root>"];
+            for (idx = 1; idx < depth; ++idx) { // Skip root
                 result.push(this._describes[idx].label);
             }
             return result;
@@ -741,6 +741,7 @@
             }
             ++this._statistics.pending;
             this._callback("it", {
+                context: this._gentItContext(),
                 depth: this._describes.length,
                 label: it.label,
                 pending: true
