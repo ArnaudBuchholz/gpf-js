@@ -229,6 +229,18 @@
     "http/helpers": [
         "regexp"
     ],
+    "interfaces/thenable": [
+        "interfaces"
+    ],
+    "http/mock": [
+        "http/helpers",
+        "foreach",
+        "interfaces/thenable"
+    ],
+    "http": [
+        "http/helpers",
+        "http/mock"
+    ],
     "http/xhr": [
         "http/helpers",
         "http"
@@ -260,5 +272,8 @@
     "stream/line": [
         "define",
         "stream"
+    ],
+    "interfaces/flushablestream": [
+        "interfaces"
     ]
 }
