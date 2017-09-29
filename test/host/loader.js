@@ -113,13 +113,47 @@
             }
         },
 
-        _loadTestsFromNames = function (configuration, names) {
+        _patchLegacy = function (configuration, verbose, version) {
+            var legacy = JSON.parse(configuration.read(_resolvePath(configuration, "test/legacy/legacy.json")))
+                    .filter(function (item) {
+                        return item.version < version;
+                    }),
+                _describe = context.describe,
+                _it = context.it;
+            // gpf is loaded
+            context.describe = function (label) {
+                var issue;
+                legacy.every(function (item) {
+                    return item && true;
+                });
+                if (issue) {
+                    verbose("describe(\"" + label + "\", ...) ignored, see issue #" + issue);
+                } else {
+                    _describe.apply(this, arguments);
+                }
+            };
+            context.it = function (label) {
+                var issue;
+                legacy.every(function (item) {
+                    return item && true;
+                });
+                if (issue) {
+                    verbose("it(\"" + label + "\", ...) ignored, see issue #" + issue);
+                } else {
+                    _it.apply(this, arguments);
+                }
+            };
+        },
+
+        _loadTestsFromNames = function (configuration, names, verbose) {
             var len = names.length,
                 sourceIdx,
                 source;
             for (sourceIdx = 0; sourceIdx < len; ++sourceIdx) {
                 source = names[sourceIdx];
-                if (source.indexOf("legacy/") === 0) {
+                if ((/^legacy(\\|\/)/).exec(source)) {
+                    verbose("Legacy detected");
+                    _patchLegacy(configuration, verbose, source.substr(7));
                     delete gpf.internals;
                 }
                 _loadTest(configuration, _resolvePath(configuration, "test/" + source + ".js"));
@@ -139,10 +173,11 @@
         },
 
         _loadTests = function (configuration, options, verbose) {
-            verbose("Loading test files...");
             if (options.tests.length) {
-                _loadTestsFromNames(configuration, options.tests);
+                verbose("Loading specified test files...");
+                _loadTestsFromNames(configuration, options.tests, verbose);
             } else {
+                verbose("Loading all test files...");
                 _loadTestsFromModules(configuration);
             }
             verbose("Test files loaded.");
