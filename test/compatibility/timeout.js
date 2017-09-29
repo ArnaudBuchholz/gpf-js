@@ -45,7 +45,7 @@ describe("compatibility/timeout", function () {
 
             function _checkDelay (startDateTime, timeoutDelay) {
                 var realDelay = new Date() - startDateTime;
-                if (methods.checkDelay && realDelay < timeoutDelay && timeoutDelay - realDelay > TIMER_RESOLUTION) {
+                if (realDelay < timeoutDelay && timeoutDelay - realDelay > TIMER_RESOLUTION) {
                     throw new Error("Triggered too soon (" + realDelay + " does not respect the timeout delay of "
                         + timeoutDelay + ")");
                 }
@@ -268,7 +268,6 @@ describe("compatibility/timeout", function () {
 
     describe("exposed API", generateScenario({
 
-        checkDelay: true,
         setTimeout: function (callback, delay) {
             return setTimeout(callback, delay);
         },
@@ -283,7 +282,6 @@ describe("compatibility/timeout", function () {
 
         describe("(internal)", generateScenario({
 
-            checkDelay: false,
             setTimeout: gpf.internals._gpSetTimeoutPolyfill,
             clearTimeout: gpf.internals._gpfClearTimeoutPolyfill,
             handleTimeout: gpf.internals._gpfHandleTimeout
