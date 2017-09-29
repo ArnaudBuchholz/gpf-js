@@ -1,0 +1,7 @@
+[{
+    issue: 187,
+    before: "0.2.2",
+    ignore: [{
+        describe: "Promise.race"
+    }]
+}]
