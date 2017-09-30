@@ -114,28 +114,45 @@
         },
 
         _patchLegacy = function (configuration, verbose, version) {
+            // gpf is loaded
             var legacy = JSON.parse(configuration.read(_resolvePath(configuration, "test/legacy/legacy.json")))
                     .filter(function (item) {
-                        return item.version < version;
+                        return item.before > version;
                     }),
+                _describes = [],
                 _describe = context.describe,
                 _it = context.it;
-            // gpf is loaded
             context.describe = function (label) {
                 var issue;
                 legacy.every(function (item) {
-                    return item && true;
+                    if (item.ignore.some(function (ignore) {
+                        return ignore.describe === label && !ignore.it;
+
+                    })) {
+                        issue = item.issue;
+                        return false;
+                    }
+                    return true;
                 });
                 if (issue) {
                     verbose("describe(\"" + label + "\", ...) ignored, see issue #" + issue);
                 } else {
+                    _describes.unshift(label);
                     _describe.apply(this, arguments);
+                    _describes.shift();
                 }
             };
             context.it = function (label) {
                 var issue;
                 legacy.every(function (item) {
-                    return item && true;
+                    if (item.ignore.some(function (ignore) {
+                        return ignore.describe === _describes[0] && ignore.it === label;
+
+                    })) {
+                        issue = item.issue;
+                        return false;
+                    }
+                    return true;
                 });
                 if (issue) {
                     verbose("it(\"" + label + "\", ...) ignored, see issue #" + issue);
