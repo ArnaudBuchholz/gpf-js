@@ -13,108 +13,108 @@ describe("compatibility/timeout", function () {
             MAIN_TIMEOUT = 5, // ms - min recommended value is FAST_TIMEOUT + 2* TIMER_RESOLUTION
             FAST_TIMEOUT = 2; // ms
 
+        function now () {
+            return new Date().getTime();
+        }
+
+        function Timeout (delay) {
+            this._start = now();
+            this._delay = delay;
+            this._id = methods.setTimeout(Timeout.prototype.callback.bind(this), delay);
+            this._synchronous = false;
+            Timeout.list.push(this);
+        }
+
+        Timeout.list = [];
+
+        Timeout.allocate = function (delay) {
+            var timeout = new Timeout(delay);
+            Timeout.list.push(timeout);
+            return timeout;
+        };
+
+        Timeout.prototype = {
+            _start: 0,
+            _delay: 0,
+            _synchronous: true,
+            _id: 0,
+            _allowed: false,
+            _triggered: false,
+            _error: null,
+
+            id: function () {
+                return this._id;
+            },
+
+            callback: function () {
+                try {
+                    if (!this._allowed) {
+                        throw new Error("Not allowed");
+                    }
+                    if (this._triggered) {
+                        throw new Error("Already triggered");
+                    }
+                    this._triggered = true;
+                    if (this._synchronous) {
+                        throw new Error("Triggered too soon (synchronous should be false)");
+                    }
+                    var realDelay = now() - this._start;
+                    if (realDelay < this._delay && this._delay - realDelay > TIMER_RESOLUTION) {
+                        throw new Error("Triggered too soon (" + realDelay + " does not respect the timeout delay of "
+                            + this._delay + ")");
+                    }
+                } catch (e) {
+                    this._error = e;
+                }
+            },
+
+            clear: function () {
+                methods.cleanTimeout(this._id);
+                delete this._allowed;
+            },
+
+            clean: function () {
+                if (!this._triggered) {
+                    this.clear();
+                }
+                var len = Timeout.list.length,
+                    idx;
+                for (idx = 0; idx < len; ++idx) {
+                    if (Timeout.list[idx] === this) {
+                        break;
+                    }
+                }
+                Timeout.list.splice(idx, 1);
+            }
+
+        };
+
         return function () {
 
-            var timeoutId,
-                timeoutDateTime,
-                synchronousFlag,
-                triggered,
-                callbackDone,
-                allowedIds,
-                deniedIds;
+            var firstTimeout;
 
             before(function () {
-                allowedIds = [];
-                deniedIds = [];
+                Timeout.list = [];
             });
 
-            function _checkIfTimeoutIdAllowedAndFlags (id) {
-                if (-1 !== deniedIds.indexOf(id)) {
-                    throw new Error("Denied");
-                }
-                if (-1 === allowedIds.indexOf(id)) {
-                    throw new Error("Not allowed");
-                }
-                if (triggered) {
-                    throw new Error("Already triggered");
-                }
-                if (true !== synchronousFlag) {
-                    throw new Error("Triggered too soon (synchronousFlag should be true)");
-                }
-            }
-
-            function _checkDelay (startDateTime, timeoutDelay) {
-                var realDelay = new Date() - startDateTime;
-                if (realDelay < timeoutDelay && timeoutDelay - realDelay > TIMER_RESOLUTION) {
-                    throw new Error("Triggered too soon (" + realDelay + " does not respect the timeout delay of "
-                        + timeoutDelay + ")");
-                }
-            }
-
-            function _callbackCommon (id, startDateTime, timeoutDelay) {
-                if (undefined === callbackDone) {
-                    console.error("Unexpected callback triggered when callbackDone is undefined");
-                }
-                _checkIfTimeoutIdAllowedAndFlags(id);
-                _checkDelay(startDateTime, timeoutDelay);
-                deniedIds.push(id); // Prevent multiple executions
-            }
-
-            function callback (id) {
-                try {
-                    _callbackCommon(id, timeoutDateTime, MAIN_TIMEOUT);
-                    synchronousFlag = false;
-                    triggered = true;
-                    callbackDone();
-                } catch (e) {
-                    callbackDone(e);
-                }
-            }
-
-            function _clean (id) {
-                deniedIds.push(id);
-                methods.clearTimeout(id);
-                // no waiting, assuming this part works
-            }
-
-            function clean (id) {
-                if (-1 === deniedIds.indexOf(id) && -1 === allowedIds.indexOf(id)) {
-                    // Not processed, cleaning
-                    _clean(id);
-                }
-            }
-
-            function _scheduleCallback () {
-                if (timeoutId) {
-                    _clean(timeoutId);
-                }
-                triggered = false;
-                timeoutDateTime = new Date();
-                var id = methods.setTimeout(function () {
-                    callback(id);
-                    timeoutId = undefined;
-                }, MAIN_TIMEOUT);
-                timeoutId = id;
-                synchronousFlag = true;
-            }
-
             beforeEach(function () {
-                _scheduleCallback();
+                firstTimeout = Timeout.allocate(MAIN_TIMEOUT);
+                assert(Timeout.list.length === 1);
             });
 
             it("allocates a timeout id", function () {
-                assert(undefined !== timeoutId);
+                assert(undefined !== firstTimeout.id());
             });
 
             afterEach(function () {
-                clean(timeoutId);
+                firstTimeout.clean();
+                assert(Timeout.list.length === 0);
             });
 
             describe("clearing", function () {
 
                 beforeEach(function () {
-                    deniedIds.push(timeoutId);
-                    methods.clearTimeout(timeoutId);
+                    firstTimeout.clear();
                 });
 
                 it("removes the callback from the queue", function () {
@@ -124,7 +124,7 @@ describe("compatibility/timeout", function () {
                 describe("again", function () {
 
                     beforeEach(function () {
-                        methods.clearTimeout(timeoutId);
+                        firstTimeout.clear();
                     });
 
                     it("does not fail", function () {
@@ -144,7 +144,7 @@ describe("compatibility/timeout", function () {
                 });
 
                 it("executes the callback from the queue", function () {
-                    assert(true === triggered);
+                    assert(-1 !== triggeredIds.indexOf(timeoutId));
                 });
 
                 it("removes the callback from the queue", function () {
@@ -205,7 +205,7 @@ describe("compatibility/timeout", function () {
                         });
 
                         it("executes the remaining callback from the queue", function () {
-                            assert(true === triggered);
+                            assert(-1 !== triggeredIds.indexOf(timeoutId));
                         });
 
                         it("removes all callbacks from the queue", function () {
@@ -251,7 +251,8 @@ describe("compatibility/timeout", function () {
                     });
 
                     it("executes the callbacks from the queue", function () {
-                        assert(true === triggered);
+                        assert(-1 !== triggeredIds.indexOf(fasterTimeoutId));
+                        assert(-1 !== triggeredIds.indexOf(timeoutId));
                     });
 
                     it("removed all callbacks from the queue", function () {
