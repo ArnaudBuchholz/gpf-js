@@ -45,6 +45,60 @@
         }
     }
 
+    function _patchLegacy (version) {
+        // gpf is loaded
+        return xhr("/test/legacy/legacy.json").get().asJson()
+            .then(function (legacy) {
+                return legacy.filter(function (item) {
+                    return item.before > version;
+                });
+            })
+            .then(function (legacy) {
+                var
+                    _describes = [],
+                    _describe = window.describe,
+                    _it = window.it;
+                window.describe = function (label) {
+                    var issue;
+                    legacy.every(function (item) {
+                        if (item.ignore.some(function (ignore) {
+                            return ignore.describe === label && !ignore.it;
+
+                        })) {
+                            issue = item.issue;
+                            return false;
+                        }
+                        return true;
+                    });
+                    if (issue) {
+                        log("describe(\"" + label + "\", ...) ignored, see issue #" + issue);
+                    } else {
+                        _describes.unshift(label);
+                        _describe.apply(this, arguments);
+                        _describes.shift();
+                    }
+                };
+                window.it = function (label) {
+                    var issue;
+                    legacy.every(function (item) {
+                        if (item.ignore.some(function (ignore) {
+                            return ignore.describe === _describes[0] && ignore.it === label;
+
+                        })) {
+                            issue = item.issue;
+                            return false;
+                        }
+                        return true;
+                    });
+                    if (issue) {
+                        log("it(\"" + label + "\", ...) ignored, see issue #" + issue);
+                    } else {
+                        _it.apply(this, arguments);
+                    }
+                };
+            });
+    }
+
     // Actively wait for GPF to be loaded
     function _waitForLoad (callback) {
         // Check if the GPF library is loaded
@@ -62,7 +116,10 @@
         var legacy = _detectLegacy();
         if (legacy) {
             delete gpf.internals;
-            _waitForTestCases([window.gpfTestsPath + "legacy/" + legacy + ".js"], callback);
+            _patchLegacy(legacy)
+                .then(function () {
+                    _waitForTestCases([window.gpfTestsPath + "legacy/" + legacy + ".js"], callback);
+                });
             return;
         }
         // Test files from sources.json
@@ -121,6 +178,10 @@
     function _setupConfig () {
         window.config = {};
         config.httpPort = parseInt(location.port, 10);
+        var msie = (/(msie|trident)/i).test(navigator.userAgent);
+        if (msie) {
+            config.timerResolution = 5; // Found out that this is the only way to safely run tests
+        }
     }
 
     /*
@@ -140,7 +201,7 @@
             xhr("/cache/" + match[1]).post(JSON.stringify(data));
         }
         // Store coverage data
-        if (__coverage__) {
+        if ("undefined" !== typeof __coverage__) {
             xhr("/fs/tmp/coverage/reports/coverage.browser.json").post(JSON.stringify(__coverage__));
         }
     };
