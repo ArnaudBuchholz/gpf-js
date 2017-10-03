@@ -39,7 +39,6 @@ describe("compatibility/timeout", function () {
             for (idx = 0; idx < len; ++idx) {
                 timeout = Timeout.list[idx];
                 if (timeout.error()) {
-WScript.Echo("/!\\ " + timeout._error.message);
                     return false;
                 }
             }
@@ -84,7 +83,6 @@ WScript.Echo("/!\\ " + timeout._error.message);
                     this._done();
                 } catch (e) {
                     this._error = e;
-WScript.Echo("/!\\ " + e.message);
                     this._done(e);
                 }
             },
@@ -228,6 +226,7 @@ WScript.Echo("/!\\ " + e.message);
 
                         beforeEach(function (done) {
                             firstTimeout.allow(done);
+                            methods.handleTimeout(); // Should trigger callback
                             Timeout.check();
                         });
 
@@ -261,7 +260,7 @@ WScript.Echo("/!\\ " + e.message);
                     it("prevents execution of the third", function (done) {
                         var thirdTimeout = Timeout.allocate(10 * MAIN_TIMEOUT),
                             done2 = _doneMultiplexer(done, 2);
-                        thirdTimeout.clear();
+                        thirdTimeout.clean();
                         firstTimeout.allow(done2);
                         fasterTimeout.allow(done2);
                         methods.handleTimeout();
@@ -273,33 +272,23 @@ WScript.Echo("/!\\ " + e.message);
                 describe("triggering", function () {
 
                     beforeEach(function (done) {
-                        WScript.Echo("be0");
                         var done2 = _doneMultiplexer(done, 2);
-                        WScript.Echo("be1");
                         firstTimeout.allow(done2);
-                        WScript.Echo("be2");
                         fasterTimeout.allow(done2);
-                        WScript.Echo("be3");
                         methods.handleTimeout();
-                        WScript.Echo("be4");
                         Timeout.check();
-                        WScript.Echo("be5");
                     });
 
                     it("executes the callbacks from the queue", function () {
-                        WScript.Echo("i0");
                         assert(firstTimeout.triggered());
-                        WScript.Echo("i1");
                         assert(fasterTimeout.triggered());
-                        WScript.Echo("i2");
                         Timeout.check();
-                        WScript.Echo("i2");
                     });
 
-                    // it("removed all callbacks from the queue", function () {
-                    //     methods.handleTimeout(); // Should not trigger any callback
-                    //     Timeout.check();
-                    // });
+                    it("removed all callbacks from the queue", function () {
+                        methods.handleTimeout(); // Should not trigger any callback
+                        Timeout.check();
+                    });
 
                 });
 
