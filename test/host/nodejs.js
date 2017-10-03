@@ -13,5 +13,8 @@ loadGpfAndTests({
     require: require,
     read: function (filePath) {
         return fs.readFileSync(filePath).toString();
+    },
+    config: {
+        timerResolution: 5 // Seems to be less tolerant to heavy loads
     }
 });
