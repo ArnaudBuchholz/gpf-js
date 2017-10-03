@@ -3,6 +3,8 @@
     "before": "0.2.2",
     "ignore": [{
         "describe": "Promise.race"
+    }, {
+        "describe": "compatibility/timeout"
     }]
 }, {
     "issue": 188,
