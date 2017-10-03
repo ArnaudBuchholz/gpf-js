@@ -3,7 +3,11 @@
     "before": "0.2.2",
     "ignore": [{
         "describe": "Promise.race"
-    }, {
+    }]
+}, {
+    "issue": 189,
+    "before": "0.2.2",
+    "ignore": [{
         "describe": "compatibility/timeout"
     }]
 }, {
