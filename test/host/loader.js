@@ -202,9 +202,9 @@
 
         _setupConfig = function (configuration/*, options*/) {
             var configFile = JSON.parse(configuration.read("tmp/config.json"));
-            context.config = {
+            context.config = Object.assign({
                 httpPort: configFile.serve.httpPort
-            };
+            }, configuration.config);
         },
 
         _mean = function (values) {
