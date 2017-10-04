@@ -114,7 +114,8 @@ module.exports = class ConfigFile {
         this.content.files = {
             src: srcFiles,
             test: testFiles,
-            legacyTest: fs.readdirSync(path.join(__dirname, "../test/legacy")),
+            legacyTest: fs.readdirSync(path.join(__dirname, "../test/legacy"))
+                .filter(name => name.endsWith(".js")),
             doc: docFiles,
             linting: {
                 js: [
