@@ -1,9 +1,9 @@
 /*eslint strict: [2, "function"]*/
 gpf.require({
     amd: "../amd.js",
+    commonjs: "../common.js",
     data: "../data.json",
-    gpf: "../gpf.js",
-    commonjs: "../common.js"
+    gpf: "../gpf.js"
 
 }, function (require) {
     "use strict";
