@@ -42,7 +42,9 @@ describe("require", function () {
         describe("Synchronous loading", function () {
 
             beforeEach(function () {
-                gpf.require.cache = {};
+                gpf.require.configure({
+                    clearCache: true
+                });
             });
 
             it("loads JSON file as an object", function () {
@@ -63,12 +65,19 @@ describe("require", function () {
                 assert("anonymous" === amd.name);
             });
 
+            it("supports GPF modules (gpf is defined)", function () {
+                var amd = gpf.require("gpf.js");
+                validateModule(amd, "gpf", true);
+            });
+
         });
 
         describe("Asynchronous loading", function () {
 
             beforeEach(function () {
-                gpf.require.cache = {};
+                gpf.require.configure({
+                    clearCache: true
+                });
             });
 
             it("loads JSON file as an object", function (done) {
@@ -123,59 +132,108 @@ describe("require", function () {
                     }
                 });
             });
-        });
 
-
-        it("handles gpf.require modules", function (done) {
-            gpf.require({
-                test: "gpf.js"
-            }, function (require) {
-                try {
-                    assert("object" === typeof require.test);
-                    done();
-                } catch (e) {
-                    done(e);
-                }
-            });
-        });
-
-        it("caches loaded parts", function (done) {
-            gpf.require({
-                data: "data.json"
-            }, function (require) {
-                require.data.additional = true;
+            it("supports GPF modules (gpf is defined)", function (done) {
                 gpf.require({
-                    data2: "data.json"
-                }, function (cachedRequire) {
+                    gpf: "gpf.js"
+                }, function (require) {
                     try {
-                        assert(true === cachedRequire.data2.additional);
+                        validateModule(require.gpf, "gpf", true);
                         done();
                     } catch (e) {
                         done(e);
                     }
                 });
             });
+
+        });
+
+        describe("Complex case", function () {
+
+            beforeEach(function () {
+                gpf.require.configure({
+                    clearCache: true
+                });
+            });
+
+            it("loads everything recursively", function (done) {
+                gpf.require({
+                    all: "folder/all.js"
+                }, function (require) {
+                    try {
+                        validateModule(require.all.amd, "amd", true);
+                        validateModule(require.all.commonjs, "commonjs", true);
+                        validateData(require.all.data);
+                        validateModule(require.all.gpf, "gpf", true);
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
+                });
+            });
+
         });
 
     });
 
-    describe("gpf.require.cache", function () {
+    describe("caching", function () {
 
-        it("allows injection", function (done) {
-            var fakeData = {
-                member: "value2"
-            };
-            gpf.require.cache[gpf.require.resolve("data.json")] = fakeData;
-            gpf.require({
-                data: "data.json"
-            }, function (require) {
-                try {
-                    assert(fakeData === require.data);
-                    done();
-                } catch (e) {
-                    done(e);
-                }
+        beforeEach(function () {
+            gpf.require.configure({
+                clearCache: true
             });
+        });
+
+        describe("caching of loaded parts", function () {
+
+            var additional = {};
+
+            beforeEach(function () {
+                var data = gpf.require("data.json");
+                data.additional = additional;
+            });
+
+            it("keeps modified objects", function (done) {
+                gpf.require({
+                    data: "data.json"
+                }, function (require) {
+                    try {
+                        assert(additional === require.data.additional);
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
+                });
+            });
+
+        });
+
+        describe("cache injection", function () {
+
+            var mocked = {};
+
+            beforeEach(function () {
+                var cache = {};
+                cache[gpf.require.resolve("data.json")] = mocked;
+                gpf.require.configure({
+                    clearCache: true,
+                    cache: cache
+                });
+            });
+
+            it("keeps injected objects", function (done) {
+                gpf.require({
+                    data: "data.json"
+                }, function (require) {
+                    try {
+                        assert(mocked === require.data);
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
+                });
+            });
+
         });
 
     });
