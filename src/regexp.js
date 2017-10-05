@@ -1,5 +1,5 @@
 /**
- * @file Regular Expession helper
+ * @file Regular Expression helper
  * @since 0.2.1
  */
 /*#ifndef(UMD)*/
