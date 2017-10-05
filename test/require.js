@@ -39,39 +39,6 @@ describe("require", function () {
             }
         }
 
-        describe("Synchronous loading", function () {
-
-            beforeEach(function () {
-                gpf.require.configure({
-                    clearCache: true
-                });
-            });
-
-            it("loads JSON file as an object", function () {
-                validateData(gpf.require("data.json"));
-            });
-
-            it("supports CommonJS format", function () {
-                validateModule(gpf.require("commonjs.js"), "commonjs", true);
-            });
-
-            it("supports AMD format (named with factory)", function () {
-                validateModule(gpf.require("amd.js"), "amd", true);
-            });
-
-            it("supports AMD format (anonymous static)", function () {
-                var amd = gpf.require("anonymous_amd.js");
-                validateModule(amd, "amd", false);
-                assert("anonymous" === amd.name);
-            });
-
-            it("supports GPF modules (gpf is defined)", function () {
-                var amd = gpf.require("gpf.js");
-                validateModule(amd, "gpf", true);
-            });
-
-        });
-
         describe("Asynchronous loading", function () {
 
             beforeEach(function () {
@@ -148,7 +115,7 @@ describe("require", function () {
 
         });
 
-        describe("Complex case", function () {
+        describe("Recursive loading", function () {
 
             beforeEach(function () {
                 gpf.require.configure({
@@ -188,9 +155,17 @@ describe("require", function () {
 
             var additional = {};
 
-            beforeEach(function () {
-                var data = gpf.require("data.json");
-                data.additional = additional;
+            beforeEach(function (done) {
+                gpf.require({
+                    data: "data.json"
+                }, function (require) {
+                    try {
+                        require.data.additional = additional;
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
+                });
             });
 
             it("keeps modified objects", function (done) {
