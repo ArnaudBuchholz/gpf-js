@@ -139,13 +139,14 @@ function _gpfRequire (dependencies, factory) {
         promises = [],
         keys = Object.keys(dependencies);
     _gpfArrayForEach(keys, function (key) {
-        promises.push(_gpfRequireGet(_gpfRequireResolve.call(me, dependencies[key])));
+        promises.push(_gpfRequireGet.call(me, _gpfRequireResolve.call(me, dependencies[key])));
     }, me);
     return Promise.all(promises)
         .then(function (resources) {
             var result,
                 require;
             if ("function" === typeof factory) {
+                require = {};
                 _gpfArrayForEach(keys, function (key, index) {
                     require[key] = resources[index];
                 });
