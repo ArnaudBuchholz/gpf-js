@@ -14,7 +14,7 @@
 /*jshint -W040*/
 /*eslint-disable no-invalid-this*/
 
-_gpfErrorDeclare("stream", {
+_gpfErrorDeclare("require", {
 
     /**
      * ### Summary
