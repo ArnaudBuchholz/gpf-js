@@ -7,6 +7,7 @@
 /*global _GPF_HTTP_METHODS*/ // HTTP Methods
 /*global _gpfHost*/ // Host type
 /*global _gpfHttpMockCheck*/ // Check if the provided request match any of the mocked one
+/*exported _gpfHttpRequest*/ // HTTP request common implementation
 /*exported _gpfHttpRequestImplByHost*/ // HTTP Request Implementation per host
 /*#endif*/
 
