@@ -3,9 +3,16 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfHost*/
+/*global _GPF_HOST*/
 /*global _gpfArrayForEach*/
 /*global _gpfPathJoin*/
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfHttpRequest*/
+/*global _GPF_HTTP_METHODS*/
+/*global _gpfFileStorageByHost*/
+/*global _GPF_FS_OPENFOR*/
+/*global _GpfStreamWritableString*/
 /*#endif*/
 
 /* this is globally used as the current context in this module */
@@ -99,15 +106,46 @@ function _gpfRequireResolve (name) {
     return _gpfPathJoin(this.base, name);
 }
 
-function _gpfRequireLoad (name) {
+var _gpfRequireLoad;
 
+function _gpfRequireLoadHTTP (name) {
+    return _gpfHttpRequest({
+        method: _GPF_HTTP_METHODS.GET,
+        url: name
+    }).then(function (response) {
+        return response.responseText;
+    });
+}
+
+function _gpfRequireLoadFS (name) {
+    var fs = _gpfFileStorageByHost[_gpfHost],
+        iWritableStream = new _GpfStreamWritableString();
+    return fs.fs.openTextStream(name, _GPF_FS_OPENFOR.READING)
+        .then(function (iReadStream) {
+            return iReadStream.read(iWritableStream);
+        })
+        .then(function () {
+            return iWritableStream.toString();
+        });
+}
+
+if (_gpfHost === _GPF_HOST.BROWSER || _gpfHost === _GPF_HOST.PHANTOM_JS) {
+    _gpfRequireLoad = _gpfRequireLoadHTTP;
+} else {
+    _gpfRequireLoad = _gpfRequireLoadFS;
 }
 
 function _gpfRequireGet (name) {
-    if (this.cache[name]) {
-        return Promise.resolve(this.cache[name]);
+    var me = this;
+    if (me.cache[name]) {
+        return Promise.resolve(me.cache[name]);
     }
-    return _gpfRequireLoad.call(this, name);
+    return _gpfRequireLoad.call(me, name)
+        .then(function (resource) {
+            // Need to handle resource type
+            me.cache[name] = resource;
+            return resource;
+        });
 }
 
 /**
@@ -140,9 +178,6 @@ function _gpfRequire (dependencies, factory) {
                 result = factory(require);
             } else {
                 result = factory;
-            }
-            if (me.name) {
-                me.cache[me.name] = result;
             }
             return result;
         });
