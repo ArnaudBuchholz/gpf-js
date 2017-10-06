@@ -3,10 +3,27 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfEmptyFunc*/
+/*global _gpfIgnore*/
 /*global _gpfArrayForEach*/
 /*global _gpfPathJoin*/
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*#endif*/
+
+_gpfErrorDeclare("stream", {
+
+    /**
+     * ### Summary
+     *
+     * Invalid {@link gpf.require.configure} option
+     *
+     * ### Description
+     *
+     * This error is triggered whenever an option passed to {@link gpf.require.configure} is not recognized.
+     * Please check the {@link gpf.typedef.requireOptions} documentation.
+     */
+    invalidRequireConfigureOption:
+        "Invalid configuration option"
+});
 
 /**
  * @typedef gpf.typedef.requireOptions
@@ -66,20 +83,24 @@ function _gpfRequireConfigure (options) {
         // Some keys must be processed first
         return _gpfRequireOptionPriority(key1) - _gpfRequireOptionPriority(key2);
     }), function (key) {
-        (_gpfRequireOptionHandler[key] || _gpfEmptyFunc).call(me, options[key]);
+        (_gpfRequireOptionHandler[key] || gpf.error.invalidRequireConfigureOption).call(me, options[key]);
     }, me);
 }
 
 /**
  * Resolves the resource name according to current require context
  *
- * @param {String} name
+ * @param {String} name Relative resource name
  * @return {String} Resolved name
  */
 function _gpfRequireResolve (name) {
     /*jshint validthis:true*/
     var me = this; //eslint-disable-line no-invalid-this
     return _gpfPathJoin(me.base, name);
+}
+
+function _gpfRequireLoad (name) {
+
 }
 
 /**
@@ -95,7 +116,31 @@ function _gpfRequireResolve (name) {
  * @return {Promise<*>} Resolved with the factory result
  */
 function _gpfRequire (dependencies, factory) {
-    return new Promise();
+    /*jshint validthis:true*/
+    var me = this, //eslint-disable-line no-invalid-this
+        promises = [],
+        keys = Object.keys(dependencies);
+    _gpfArrayForEach(keys, function (key) {
+        var name = _gpfRequireResolve.call(me, dependencies[key]);
+        promises.push(_gpfRequireLoad(name));
+    }, me);
+    return Promise.all(promises)
+        .then(function (resources) {
+            var result,
+                require;
+            if ("function" === typeof factory) {
+                _gpfArrayForEach(keys, function (key, index) {
+                    require[key] = resources[index];
+                });
+                result = factory(require);
+            } else {
+                result = factory;
+            }
+            if (me.name) {
+                me.cache[me.name] = result;
+            }
+            return result;
+        });
 }
 
 function _gpfRequireAllocate (parentContext) {
