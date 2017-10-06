@@ -6,6 +6,7 @@
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*exported _gpfPathDecompose*/ // Normalize path and returns an array of parts
+/*exported _gpfPathExtension*/ // Get the extension of the last name of a path (including dot)
 /*exported _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
 /*exported _gpfPathNormalize*/ // Normalize path
 /*#endif*/
@@ -93,6 +94,23 @@ function _gpfPathName (path) {
         return _gpfPathDecompose(path).pop();
     }
     return "";
+}
+
+
+/**
+ * Get the extension of the last name of a path (including dot)
+ *
+ * @param {String} path Path to analyze
+ * @return {String} Extension (including dot)
+ * @since 0.1.9
+ */
+function _gpfPathExtension (path) {
+    var name = _gpfPathName(path),
+        pos = name.lastIndexOf(".");
+    if (-1 === pos) {
+        return "";
+    }
+    return name.substr(pos);
 }
 
 function _gpfPathAppend (splitPath, relativePath) {
@@ -215,20 +233,10 @@ gpf.path = {
     },
 
     /**
-     * Get the extension of the last name of a path (including dot)
-     *
-     * @param {String} path Path to analyze
-     * @return {String} Extension (including dot)
+     * @gpf:sameas _gpfPathExtension
      * @since 0.1.9
      */
-    extension: function (path) {
-        var name = _gpfPathName(path),
-            pos = name.lastIndexOf(".");
-        if (-1 === pos) {
-            return "";
-        }
-        return name.substr(pos);
-    },
+    extension: _gpfPathExtension,
 
     /**
      * @gpf:sameas _gpfPathRelative
