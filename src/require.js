@@ -4,16 +4,10 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_FS_OPENFOR*/ // File system stream opening mode
-/*global _GPF_HOST*/ // Host types
-/*global _GPF_HTTP_METHODS*/ // HTTP Methods
-/*global _GpfStreamWritableString*/ // gpf.stream.WritableString
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfFileStorageByHost*/ // gpf.interfaces.IFileStorage per host
-/*global _gpfHost*/ // Host type
-/*global _gpfHttpRequest*/ // HTTP request common implementation
 /*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
+/*global _gpfRequireLoad*/
 /*#endif*/
 
 /* this is globally used as the current context in this module */
@@ -112,35 +106,6 @@ function _gpfRequireConfigure (options) {
  */
 function _gpfRequireResolve (name) {
     return _gpfPathJoin(this.base, name);
-}
-
-var _gpfRequireLoad;
-
-function _gpfRequireLoadHTTP (name) {
-    return _gpfHttpRequest({
-        method: _GPF_HTTP_METHODS.GET,
-        url: name
-    }).then(function (response) {
-        return response.responseText;
-    });
-}
-
-function _gpfRequireLoadFS (name) {
-    var fs = _gpfFileStorageByHost[_gpfHost],
-        iWritableStream = new _GpfStreamWritableString();
-    return fs.fs.openTextStream(name, _GPF_FS_OPENFOR.READING)
-        .then(function (iReadStream) {
-            return iReadStream.read(iWritableStream);
-        })
-        .then(function () {
-            return iWritableStream.toString();
-        });
-}
-
-if (_gpfHost === _GPF_HOST.BROWSER || _gpfHost === _GPF_HOST.PHANTOM_JS) {
-    _gpfRequireLoad = _gpfRequireLoadHTTP;
-} else {
-    _gpfRequireLoad = _gpfRequireLoadFS;
 }
 
 function _gpfRequireGet (name) {
