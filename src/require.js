@@ -3,11 +3,14 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfIgnore*/
 /*global _gpfArrayForEach*/
 /*global _gpfPathJoin*/
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*#endif*/
+
+/* this is globally used as the current context in this module */
+/*jshint -W040*/
+/*eslint-disable no-invalid-this*/
 
 _gpfErrorDeclare("stream", {
 
@@ -74,11 +77,10 @@ var _gpfRequireOptionHandler = {
 /**
  * Configure the {@link gpf.require} layer
  *
- * @param {requireOptions} options Options to configure
+ * @param {gpf.typedef.requireOptions} options Options to configure
  */
 function _gpfRequireConfigure (options) {
-    /*jshint validthis:true*/
-    var me = this; //eslint-disable-line no-invalid-this
+    var me = this;
     _gpfArrayForEach(Object.keys(options).sort(function (key1, key2) {
         // Some keys must be processed first
         return _gpfRequireOptionPriority(key1) - _gpfRequireOptionPriority(key2);
@@ -94,35 +96,38 @@ function _gpfRequireConfigure (options) {
  * @return {String} Resolved name
  */
 function _gpfRequireResolve (name) {
-    /*jshint validthis:true*/
-    var me = this; //eslint-disable-line no-invalid-this
-    return _gpfPathJoin(me.base, name);
+    return _gpfPathJoin(this.base, name);
 }
 
 function _gpfRequireLoad (name) {
 
 }
 
+function _gpfRequireGet (name) {
+    if (this.cache[name]) {
+        return Promise.resolve(this.cache[name]);
+    }
+    return _gpfRequireLoad.call(this, name);
+}
+
 /**
- * Load all dependencies and pass them to the factory function as a single object
+ * Load all resources and pass them to the factory function as a single object
  *
- * @param {Object} dependencies Dictionary of dependencies, the keys are preserved while passing to the factory
- * function
+ * @param {Object} dependencies Dictionary of dependencies, the keys are preserved while passing the result
+ * dictionary to the factory function
  * @param {Function|*} factory Can be either:
  * * A factory function executed when all dependencies are resolved, the first parameter will be a dictionary
  *   giving access to all dependencies by their name. The result of the factory function will be cached as the result
- *   of this module
+ *   of this resource (if loaded through gpf.require)
  * * A value that will be cached as well
- * @return {Promise<*>} Resolved with the factory result
+ * @return {Promise<*>} Resolved with the factory function result or the object
  */
 function _gpfRequire (dependencies, factory) {
-    /*jshint validthis:true*/
-    var me = this, //eslint-disable-line no-invalid-this
+    var me = this,
         promises = [],
         keys = Object.keys(dependencies);
     _gpfArrayForEach(keys, function (key) {
-        var name = _gpfRequireResolve.call(me, dependencies[key]);
-        promises.push(_gpfRequireLoad(name));
+        promises.push(_gpfRequireGet(_gpfRequireResolve.call(me, dependencies[key])));
     }, me);
     return Promise.all(promises)
         .then(function (resources) {
@@ -143,6 +148,12 @@ function _gpfRequire (dependencies, factory) {
         });
 }
 
+/**
+ * Allocate a new require function with the proper configure / resolve
+ *
+ * @param {Object} parentContext Context to inherit from
+ * @return {Function} See {@gpf.require}
+ */
 function _gpfRequireAllocate (parentContext) {
     var context = {
             base: parentContext.base,
