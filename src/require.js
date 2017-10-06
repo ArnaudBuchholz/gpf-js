@@ -1,18 +1,19 @@
 /**
  * @file Require implementation
+ * @since 0.2.2
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfHost*/
-/*global _GPF_HOST*/
-/*global _gpfArrayForEach*/
-/*global _gpfPathJoin*/
+/*global _GPF_FS_OPENFOR*/ // File system stream opening mode
+/*global _GPF_HOST*/ // Host types
+/*global _GPF_HTTP_METHODS*/ // HTTP Methods
+/*global _GpfStreamWritableString*/ // gpf.stream.WritableString
+/*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfHttpRequest*/
-/*global _GPF_HTTP_METHODS*/
-/*global _gpfFileStorageByHost*/
-/*global _GPF_FS_OPENFOR*/
-/*global _GpfStreamWritableString*/
+/*global _gpfFileStorageByHost*/ // gpf.interfaces.IFileStorage per host
+/*global _gpfHost*/ // Host type
+/*global _gpfHttpRequest*/ // HTTP request common implementation
+/*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
 /*#endif*/
 
 /* this is globally used as the current context in this module */
@@ -30,6 +31,7 @@ _gpfErrorDeclare("stream", {
      *
      * This error is triggered whenever an option passed to {@link gpf.require.configure} is not recognized.
      * Please check the {@link gpf.typedef.requireOptions} documentation.
+     * @since 0.2.2
      */
     invalidRequireConfigureOption:
         "Invalid configuration option"
@@ -40,12 +42,14 @@ _gpfErrorDeclare("stream", {
  * @property {String} [base] Base path used to resolve names
  * @property {Object} [cache] Inject names into the require cache
  * @property {Boolean} [clearCache=false] When set, the require cache is cleared
+ * @since 0.2.2
  */
 
 /**
  * @typedef gpf.typedef._requireContext
  * @property {String} base Base path used to resolve names
  * @property {Object} cache Dictionary of loaded requires
+ * @since 0.2.2
  */
 
 /**
@@ -53,6 +57,7 @@ _gpfErrorDeclare("stream", {
  *
  * @param {String} name option name
  * @return {Number} Option priority
+ * @since 0.2.2
  */
 function _gpfRequireOptionPriority (name) {
     if ("clearCache" === name) {
@@ -64,6 +69,7 @@ function _gpfRequireOptionPriority (name) {
 /**
  *  Dictionary of option name to function handling the option
  * @type {Object}
+ * @since 0.2.2
  */
 var _gpfRequireOptionHandler = {
 
@@ -85,6 +91,7 @@ var _gpfRequireOptionHandler = {
  * Configure the {@link gpf.require} layer
  *
  * @param {gpf.typedef.requireOptions} options Options to configure
+ * @since 0.2.2
  */
 function _gpfRequireConfigure (options) {
     var me = this;
@@ -101,6 +108,7 @@ function _gpfRequireConfigure (options) {
  *
  * @param {String} name Relative resource name
  * @return {String} Resolved name
+ * @since 0.2.2
  */
 function _gpfRequireResolve (name) {
     return _gpfPathJoin(this.base, name);
@@ -159,6 +167,7 @@ function _gpfRequireGet (name) {
  *   of this resource (if loaded through gpf.require)
  * * A value that will be cached as well
  * @return {Promise<*>} Resolved with the factory function result or the object
+ * @since 0.2.2
  */
 function _gpfRequire (dependencies, factory) {
     var me = this,
@@ -188,6 +197,7 @@ function _gpfRequire (dependencies, factory) {
  *
  * @param {Object} parentContext Context to inherit from
  * @return {Function} See {@gpf.require}
+ * @since 0.2.2
  */
 function _gpfRequireAllocate (parentContext) {
     var context = {
@@ -200,7 +210,10 @@ function _gpfRequireAllocate (parentContext) {
     return require;
 }
 
-/** @gpf:sameas _gpfRequire */
+/**
+ * @gpf:sameas _gpfRequire
+ * @since 0.2.2
+ */
 gpf.require = _gpfRequireAllocate({
     base: "",
     cache: {}
@@ -209,9 +222,11 @@ gpf.require = _gpfRequireAllocate({
 /**
  * @method gpf.require.configure
  * @gpf:sameas _gpfRequireConfigure
+ * @since 0.2.2
  */
 
 /**
  * @method gpf.require.resolve
  * @gpf:sameas _gpfRequireResolve
+ * @since 0.2.2
  */
