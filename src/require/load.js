@@ -10,15 +10,12 @@
 /*global _gpfFileStorageByHost*/ // gpf.interfaces.IFileStorage per host
 /*global _gpfHost*/ // Host type
 /*global _gpfHttpRequest*/ // HTTP request common implementation
+/*global _gpfPathExtension*/
 /*exported _gpfRequireLoad*/ // Load the resource
+/*exported _gpfRequireProcessor*/ // Mapping of resource extension to processor function
 /*#endif*/
 
-/**
- * Load the resource
- * @param {String} name Resource name
- * @return {Promise} Resolved with the resource
- */
-var _gpfRequireLoad;
+var _gpfRequireLoadImpl;
 
 function _gpfRequireLoadHTTP (name) {
     return _gpfHttpRequest({
@@ -32,7 +29,7 @@ function _gpfRequireLoadHTTP (name) {
 function _gpfRequireLoadFS (name) {
     var fs = _gpfFileStorageByHost[_gpfHost],
         iWritableStream = new _GpfStreamWritableString();
-    return fs.fs.openTextStream(name, _GPF_FS_OPENFOR.READING)
+    return fs.openTextStream(name, _GPF_FS_OPENFOR.READING)
         .then(function (iReadStream) {
             return iReadStream.read(iWritableStream);
         })
@@ -42,7 +39,32 @@ function _gpfRequireLoadFS (name) {
 }
 
 if (_gpfHost === _GPF_HOST.BROWSER || _gpfHost === _GPF_HOST.PHANTOM_JS) {
-    _gpfRequireLoad = _gpfRequireLoadHTTP;
+    _gpfRequireLoadImpl = _gpfRequireLoadHTTP;
 } else {
-    _gpfRequireLoad = _gpfRequireLoadFS;
+    _gpfRequireLoadImpl = _gpfRequireLoadFS;
 }
+
+/**
+ * Mapping of resource extension to processor function
+ *
+ * @type {Object}
+ */
+var _gpfRequireProcessor = {};
+
+/**
+ * Load the resource
+ * @param {String} name Resource name
+ * @return {Promise} Resolved with the resource
+ */
+function _gpfRequireLoad (name) {
+    return _gpfRequireLoadImpl(name)
+        .then(function (content) {
+            var processor = _gpfRequireProcessor[_gpfPathExtension(name).toLowerCase()];
+            if (processor) {
+                return processor(name, content);
+            }
+            // Treated as simple text file by default
+            return content;
+        });
+}
+
