@@ -8,6 +8,7 @@
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
 /*global _gpfRequireLoad*/
+/*exported _gpfRequireAllocate*/ // Allocate a new require function with the proper configure / resolve
 /*#endif*/
 
 /* this is globally used as the current context in this module */
