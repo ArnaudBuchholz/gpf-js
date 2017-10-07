@@ -9,6 +9,7 @@
 /*exported _gpfPathExtension*/ // Get the extension of the last name of a path (including dot)
 /*exported _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
 /*exported _gpfPathNormalize*/ // Normalize path
+/*exported _gpfPathParent*/ // Get the parent of a path
 /*#endif*/
 
 _gpfErrorDeclare("path", {
@@ -96,7 +97,6 @@ function _gpfPathName (path) {
     return "";
 }
 
-
 /**
  * Get the extension of the last name of a path (including dot)
  *
@@ -152,6 +152,20 @@ function _gpfPathShiftIdenticalBeginning (splitFromPath, splitToPath) {
 }
 
 /**
+ * Get the parent of a path
+ *
+ * @param {String} path Path to analyze
+ * @return {String} Parent path
+ * @throws {gpf.Error.UnreachablePath}
+ * @since 0.1.9
+ */
+function _gpfPathParent (path) {
+    path = _gpfPathDecompose(path);
+    _gpfPathUp(path);
+    return path.join("/");
+}
+
+/**
  * Solve the relative path from from to to
  *
  * @param {String} from From path
@@ -197,18 +211,10 @@ gpf.path = {
     join: _gpfPathJoin,
 
     /**
-     * Get the parent of a path
-     *
-     * @param {String} path Path to analyze
-     * @return {String} Parent path
-     * @throws {gpf.Error.UnreachablePath}
+     * @gpf:sameas _gpfPathParent
      * @since 0.1.9
      */
-    parent: function (path) {
-        path = _gpfPathDecompose(path);
-        _gpfPathUp(path);
-        return path.join("/");
-    },
+    parent: _gpfPathParent,
 
     /**
      * @gpf:sameas _gpfPathName
