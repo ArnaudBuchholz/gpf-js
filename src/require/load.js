@@ -15,6 +15,10 @@
 /*exported _gpfRequireProcessor*/ // Mapping of resource extension to processor function
 /*#endif*/
 
+/* this is globally used as the current context in this module */
+/*jshint -W040*/
+/*eslint-disable no-invalid-this*/
+
 var _gpfRequireLoadImpl;
 
 function _gpfRequireLoadHTTP (name) {
@@ -29,6 +33,10 @@ function _gpfRequireLoadHTTP (name) {
 function _gpfRequireLoadFS (name) {
     var fs = _gpfFileStorageByHost[_gpfHost],
         iWritableStream = new _GpfStreamWritableString();
+    if (name.charAt(0) === "/") {
+        // Must be relative to the current execution path
+        name = "." + name;
+    }
     return fs.openTextStream(name, _GPF_FS_OPENFOR.READING)
         .then(function (iReadStream) {
             return iReadStream.read(iWritableStream);
@@ -57,11 +65,12 @@ var _gpfRequireProcessor = {};
  * @return {Promise} Resolved with the resource
  */
 function _gpfRequireLoad (name) {
+    var me = this;
     return _gpfRequireLoadImpl(name)
         .then(function (content) {
             var processor = _gpfRequireProcessor[_gpfPathExtension(name).toLowerCase()];
             if (processor) {
-                return processor(name, content);
+                return processor.call(me, name, content);
             }
             // Treated as simple text file by default
             return content;
