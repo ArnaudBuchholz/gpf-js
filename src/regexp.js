@@ -26,13 +26,18 @@
  * @param {RegExp} regexp Regular expression to execute
  * @param {String} string String to match
  * @param {gpf.typedef.regExpForEachCallback} callback Callback function executed on each match
+ * @return {Number} Number of occurrences
  * @since 0.2.1
+ * @version 0.2.2 Returns the number of occurrences
  */
 function _gpfRegExpForEach (regexp, string, callback) {
-    var match;
+    var match,
+        count = 0;
     /*jshint -W084*/ // to avoid repeating twice the exec
     while (match = regexp.exec(string)) { //eslint-disable-line no-cond-assign
         callback(match, string);
+        ++count;
     }
+    return count;
 }
 /*jshint +W084*/
