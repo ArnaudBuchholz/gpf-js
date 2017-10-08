@@ -8,6 +8,7 @@
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
 /*global _gpfRequireLoad*/
+/*global _gpfPromisify*/
 /*exported _gpfRequireAllocate*/ // Allocate a new require function with the proper configure / resolve
 /*#endif*/
 
@@ -73,7 +74,9 @@ var _gpfRequireOptionHandler = {
     },
 
     cache: function (cache) {
-        Object.assign(this.cache, cache);
+        _gpfArrayForEach(Object.keys(cache), function (name) {
+            this.cache[name] = _gpfPromisify(cache[name]);
+        }, this);
     },
 
     clearCache: function () {
@@ -110,16 +113,14 @@ function _gpfRequireResolve (name) {
 }
 
 function _gpfRequireGet (name) {
-    var me = this;
+    var me = this,
+        promise;
     if (me.cache[name]) {
-        return Promise.resolve(me.cache[name]);
+        return me.cache[name];
     }
-    return _gpfRequireLoad.call(me, name)
-        .then(function (resource) {
-            // Need to handle resource type
-            me.cache[name] = resource;
-            return resource;
-        });
+    promise = _gpfRequireLoad.call(me, name);
+    me.cache[name] = promise;
+    return promise;
 }
 
 /**
