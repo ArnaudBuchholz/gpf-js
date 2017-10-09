@@ -25,19 +25,18 @@
  *
  * @param {RegExp} regexp Regular expression to execute
  * @param {String} string String to match
- * @param {gpf.typedef.regExpForEachCallback} callback Callback function executed on each match
- * @return {Number} Number of occurrences
+ * @return {Array} Array of matches
  * @since 0.2.1
- * @version 0.2.2 Returns the number of occurrences
+ * @version 0.2.2 Reset lastIndex and returns the array of matches
  */
-function _gpfRegExpForEach (regexp, string, callback) {
+function _gpfRegExpForEach (regexp, string) {
     var match,
-        count = 0;
+        matches = [];
+    regexp.lastIndex = 0;
     /*jshint -W084*/ // to avoid repeating twice the exec
     while (match = regexp.exec(string)) { //eslint-disable-line no-cond-assign
-        callback(match, string);
-        ++count;
+        matches.push(match);
     }
-    return count;
+    return matches;
 }
 /*jshint +W084*/
