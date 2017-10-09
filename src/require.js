@@ -164,17 +164,20 @@ function _gpfRequire (dependencies, factory) {
  * Allocate a new require function with the proper configure / resolve
  *
  * @param {Object} parentContext Context to inherit from
+ * @param {gpf.typedef.requireOptions} [options] Options to configure
  * @return {Function} See {@gpf.require}
  * @since 0.2.2
  */
-function _gpfRequireAllocate (parentContext) {
-    var context = {
-            base: parentContext.base,
-            cache: Object.create(parentContext.cache) // ?!?
-        },
-        require = _gpfRequire.bind(context);
+function _gpfRequireAllocate (parentContext, options) {
+    var context = Object.create(parentContext),
+        require;
+    context.cache = Object.create(parentContext.cache);
+    require = _gpfRequire.bind(context);
     require.configure = _gpfRequireConfigure.bind(context);
     require.resolve = _gpfRequireResolve.bind(context);
+    if (options) {
+        require.configure(options);
+    }
     return require;
 }
 
