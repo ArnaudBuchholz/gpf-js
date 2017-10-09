@@ -3,6 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfIgnore*/
 /*global _gpfFunc*/
 /*global _gpfRegExpForEach*/
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
@@ -53,8 +54,33 @@ function _gpfRequireCommonJs (myRequire, content, requires) {
 
 //region GPF, AMD (define) and others
 
-function _gpfRequireOtherJs(content) {
-    return null;
+
+function _gpfRequireAmdDefine (name, dependencies, factory) {
+    /*jshint validthis:true*/
+    var context = this; //eslint-disable-line
+    if (Array.isArray(name)) {
+        factory = dependencies;
+        dependencies = name;
+    }
+    _gpfIgnore(name);
+    context.promise = context.require(dependencies, function (require) {
+        require.length = dependencies.length;
+        return factory.apply(null, [].slice.call(require));
+    });
+}
+
+// function _gpfRequireInJSResource () {
+//
+// }
+
+function _gpfRequireOtherJs(myRequire, content) {
+    var context = {
+        promise: null,
+        require: myRequire
+    };
+    var factory = _gpfFunc(["gpf", "define"], content);
+    factory(gpf, _gpfRequireAmdDefine.bind(context));
+    return context.promise;
 }
 
 //endregion
