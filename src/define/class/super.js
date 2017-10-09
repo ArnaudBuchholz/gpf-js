@@ -132,12 +132,10 @@ var _gpfClassSuperRegExp = new RegExp("\\.\\$super\\.(\\w+)\\b", "g");
  * @since 0.1.7
  */
 function _gpfClassMethodExtractSuperMembers (method) {
-    var result = [];
-    _gpfClassSuperRegExp.lastIndex = 0;
-    _gpfRegExpForEach(_gpfClassSuperRegExp, method, function (match) {
-        result.push(match[1]);
-    });
-    return result;
+    return _gpfRegExpForEach(_gpfClassSuperRegExp, method)
+        .map(function (match) {
+            return match[1];
+        });
 }
 
 Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */ {
