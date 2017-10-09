@@ -5,6 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfRegExpForEach*/ // Executes the callback for each match of the regular expression
+/*global _gpfArrayForEach*/ // Executes the callback for each match of the regular expression
 /*exported _GPF_HTTP_METHODS*/ // HTTP Methods
 /*exported _gpfHttpGenSend*/ // Generates a function that implements the http send logic
 /*exported _gpfHttpGenSetHeaders*/ // Generates a function that transmit headers to the http object
@@ -42,8 +43,7 @@ var _gpfHttpHeadersParserRE = new RegExp("([^:\\s]+)\\s*: ?([^\\r]*)", "gm");
  */
 function _gpfHttpParseHeaders (headers) {
     var result = {};
-    _gpfHttpHeadersParserRE.lastIndex = 0;
-    _gpfRegExpForEach(_gpfHttpHeadersParserRE, headers, function (match) {
+    _gpfArrayForEach(_gpfRegExpForEach(_gpfHttpHeadersParserRE, headers), function (match) {
         result[match[1]] = match[2];
     });
     return result;
