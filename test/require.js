@@ -18,7 +18,7 @@ describe("require", function () {
             assert(gpf.require.resolve("folder/file.js") === "/test/require/folder/file.js");
         });
 
-        it("resolves relative path with folders", function () {
+        it("resolves relative path with folders (use of ..)", function () {
             assert(gpf.require.resolve("../file.js") === "/test/file.js");
         });
 
@@ -141,6 +141,41 @@ describe("require", function () {
 
         });
 
+        describe("Error handling", function () {
+
+            it("fails if resource does not exist", function (done) {
+                gpf.require({
+                    notFound: "notFound.js"
+                }).then(function () {
+                    done(new Error("Should not happen"));
+                }, function (reason) {
+                    try {
+                        assert(reason instanceof Error);
+                        assert(reason.message !== "Should not happen");
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
+                });
+            });
+
+            it("fails if one javascript resource fails", function (done) {
+                gpf.require({
+                    error: "error.js"
+                }).then(function () {
+                    done(new Error("Should not happen"));
+                }, function (reason) {
+                    try {
+                        assert(reason instanceof Error);
+                        assert(reason.message === "FAIL!");
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
+                });
+            });
+
+        });
     });
 
     describe("caching", function () {
