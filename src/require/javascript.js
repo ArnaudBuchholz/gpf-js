@@ -34,70 +34,63 @@ _gpfErrorDeclare("require/javascript", {
 
 var _gpfRequireJsModuleRegEx = /[^\.]\brequire\b\s*\(\s*['|"]([^"']+)['|"]\s*\)/g;
 
-function _gpfRequireCommonJs (myRequire, content, requires) {
+function _gpfRequireCommonJs (myGpf, content, requires) {
     var dependencies = requires.reduce(function (dictionary, name) {
             dictionary[name] = name;
             return dictionary;
         }, {}),
         factory = _gpfFunc(["gpf", "module", "require"], content);
-    return myRequire(dependencies, function (require) {
+    return myGpf.require(dependencies, function (require) {
         var module = {};
         function commonJSRequire (name) {
             return require[name] || gpf.Error.noCommonJSDynamicRequire();
         }
-        factory(gpf, module, commonJSRequire);
+        factory(myGpf, module, commonJSRequire);
         return module.exports;
     });
 }
 
-//enregion
+//endregion
 
 //region GPF, AMD (define) and others
 
-
 function _gpfRequireAmdDefine (name, dependencies, factory) {
     /*jshint validthis:true*/
-    var context = this; //eslint-disable-line
+    var myGpf = this; //eslint-disable-line
     if (Array.isArray(name)) {
         factory = dependencies;
         dependencies = name;
+    } else if ("function" === typeof name) {
+        factory = name;
+        dependencies = [];
     }
     _gpfIgnore(name);
-    context.promise = context.require(dependencies, function (require) {
+    return myGpf.require(dependencies, function (require) {
         require.length = dependencies.length;
         return factory.apply(null, [].slice.call(require));
     });
 }
 
-// function _gpfRequireInJSResource () {
-//
-// }
-
-function _gpfRequireOtherJs(myRequire, content) {
-    var context = {
-        promise: null,
-        require: myRequire
-    };
+function _gpfRequireOtherJs (myGpf, content) {
     var factory = _gpfFunc(["gpf", "define"], content);
-    factory(gpf, _gpfRequireAmdDefine.bind(context));
-    return context.promise;
+    return factory(myGpf, _gpfRequireAmdDefine.bind(myGpf));
+    // return firstPromise;
 }
 
 //endregion
 
 _gpfRequireProcessor[".js"] = function (name, content) {
-    var me = this,
-        myRequire = _gpfRequireAllocate(me);
-    myRequire.configure({
+    var me = this, // current require context
+        myGpf = Object.create(gpf);
+    myGpf.require = _gpfRequireAllocate(me, {
         base: _gpfPathParent(name)
     });
     // CommonJS ?
-    var requires = [],
-        count = _gpfRegExpForEach(_gpfRequireJsModuleRegEx, content, function (match) {
-            requires.push(match[1]);
-        });
-    if (count) {
-        return _gpfRequireCommonJs(myRequire, content, requires);
+    var requires = _gpfRegExpForEach(_gpfRequireJsModuleRegEx, content);
+    if (requires.length) {
+        return _gpfRequireCommonJs(myGpf, content, requires.map(function (match) {
+            return match[1];
+        }));
     }
-    return _gpfRequireOtherJs(myRequire, content);
+    return _gpfRequireOtherJs(myGpf, content);
 };
