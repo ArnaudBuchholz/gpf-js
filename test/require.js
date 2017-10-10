@@ -113,6 +113,23 @@ describe("require", function () {
                 });
             });
 
+            it("supports JavaScript file (no result)", function (done) {
+                gpf.context().test = {};
+                gpf.require({
+                    js: "empty.js"
+                }, function (require) {
+                    try {
+                        assert(require.js === undefined);
+                        assert(gpf.context().test.empty);
+                        done();
+                    } catch (e) {
+                        done(e);
+                    } finally {
+                        delete gpf.context().test;
+                    }
+                });
+            });
+
         });
 
         describe("Recursive loading", function () {
