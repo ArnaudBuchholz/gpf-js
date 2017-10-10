@@ -28,5 +28,8 @@ loadGpfAndTests({
                 process.exit(failures);
             });
         });
+    },
+    config: {
+        timerResolution: 5 // Seems to be less tolerant to heavy loads
     }
 });
