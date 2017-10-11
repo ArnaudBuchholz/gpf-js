@@ -209,7 +209,7 @@ function _gpfWebTagFlattenChildren (array, callback) {
     });
 }
 
-var _GpfWebTag = _gpfDefine({
+var _GpfWebTag = _gpfDefine(/** @lends gpf.web.Tag.prototype */ {
     $class: "gpf.web.Tag",
 
     /**
@@ -219,7 +219,7 @@ var _GpfWebTag = _gpfDefine({
      * @param {Object} [attributes] Dictionary of attributes to set
      * @param {Array} [children] Children
      *
-     * @constructor gpf.web.Ta
+     * @constructor gpf.web.Tag
      * @private
      * @since 0.2.1
      */
