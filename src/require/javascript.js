@@ -54,20 +54,48 @@ function _gpfRequireCommonJs (myGpf, content, requires) {
 
 //region GPF, AMD (define) and others
 
+function _gpfRequireAmdDefineParamsFactoryOnly (params) {
+    return {
+        dependencies: [],
+        factory: params[0]
+    };
+}
+
+function _gpfRequireAmdDefineParamsDependenciesAndFactory (params) {
+    return {
+        dependencies: params[0],
+        factory: params[1]
+    };
+}
+
+function _gpfRequireAmdDefineParamsAll (params) {
+    return {
+        dependencies: params[1],
+        factory: params[2]
+    };
+}
+
+var
+    /**
+     * Mapping of define parameter count to dependencies / factory
+     *
+     * @type {Function[]}
+     */
+    _gpfRequireAmdDefineParamsMapping = [
+        null,
+        _gpfRequireAmdDefineParamsFactoryOnly,
+        _gpfRequireAmdDefineParamsDependenciesAndFactory,
+        _gpfRequireAmdDefineParamsAll
+    ];
+
 function _gpfRequireAmdDefine (name, dependencies, factory) {
     /*jshint validthis:true*/
-    var myGpf = this; //eslint-disable-line
-    if (Array.isArray(name)) {
-        factory = dependencies;
-        dependencies = name;
-    } else if ("function" === typeof name) {
-        factory = name;
-        dependencies = [];
-    }
-    _gpfIgnore(name);
-    myGpf.require(dependencies, function (require) {
-        require.length = dependencies.length;
-        return factory.apply(null, [].slice.call(require));
+    _gpfIgnore(name, dependencies, factory);
+    var myGpf = this, //eslint-disable-line
+        params = _gpfRequireAmdDefineParamsMapping[arguments.length](arguments);
+    myGpf.require(params.dependencies, function (require) {
+        require.length = params.dependencies.length;
+        return params.factory.apply(null, [].slice.call(require));
     });
 }
 
@@ -84,17 +112,16 @@ _gpfRequireProcessor[".js"] = function (name, content) {
         myRequire = _gpfRequireAllocate(me, {
             base: _gpfPathParent(name)
         }),
-        promise;
+        promise = Promise.resolve(); // default
     /*
      * Wrap gpf.require to:
      * 1) Grab the first allocated promise (if any)
-     * 2) Prevent any misuse of resolve / configure
+     * 2) Prevent any misuse of resolve / configure *before* the first call
      */
     myGpf.require = function () {
         var result = myRequire.apply(this, arguments);
-        if (undefined === promise) {
-            promise = result;
-        }
+        myGpf.require = myRequire;
+        promise = result;
         return result;
     };
     // CommonJS ?
@@ -105,5 +132,5 @@ _gpfRequireProcessor[".js"] = function (name, content) {
         }));
     }
     _gpfRequireOtherJs(myGpf, content);
-    return promise || Promise.resolve();
+    return promise;
 };
