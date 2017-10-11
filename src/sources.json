@@ -363,25 +363,25 @@
     },
     {
         "name": "require/load",
-        "load": false,
+        "load": true,
         "test": false,
         "doc": true
     },
     {
         "name": "require/json",
-        "load": false,
+        "load": true,
         "test": false,
         "doc": true
     },
     {
         "name": "require/javascript",
-        "load": false,
+        "load": true,
         "test": false,
         "doc": true
     },
     {
         "name": "require",
-        "load": false,
+        "load": true,
         "doc": true
     },
     {
