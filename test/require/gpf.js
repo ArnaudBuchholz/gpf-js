@@ -1,5 +1,5 @@
 /*eslint strict: [2, "function"]*/
-gpf.require({
+gpf.require.define({
     data: "data.json"
 }, function (require) {
     "use strict";
