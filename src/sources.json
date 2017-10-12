@@ -367,6 +367,11 @@
         "doc": true
     },
     {
+        "name": "require/wrap",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "require/json",
         "test": false,
         "doc": true
