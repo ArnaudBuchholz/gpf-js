@@ -1,10 +1,11 @@
 /**
  * @file Require context wrapper
+ * @since 0.2.2
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfRequireAllocate*/
-/*global _gpfPathParent*/
+/*global _gpfPathParent*/ // Get the parent of a path
+/*global _gpfRequireAllocate*/ // Allocate a new require context with the proper methods
 /*exported _gpfRequireWrapGpf*/ // Wrap gpf to fit the new context and give access to gpf.require.define promise
 /*#endif*/
 
@@ -12,6 +13,7 @@
  * @typedef gpf.typedef._requireWrapper
  * @property {Object} gpf Modified version of gpf handle
  * @property {Promise<*>} promise Promise that is resolved immediately or upon the first use of gpf.require.define
+ * @since 0.2.2
  */
 
 function _gpfRequireAllocateWrapper () {
@@ -45,6 +47,7 @@ function _gpfRequirePlugWrapper (wrapper, require) {
  * @param {Object} context Require context
  * @param {String} name Resource (resolved) name
  * @return {gpf.typedef._requireWrapper} Wrapper
+ * @since 0.2.2
  */
 function _gpfRequireWrapGpf (context, name) {
     return _gpfRequirePlugWrapper(_gpfRequireAllocateWrapper(), _gpfRequireAllocate(context, {
