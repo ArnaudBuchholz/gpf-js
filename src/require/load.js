@@ -61,8 +61,9 @@ var _gpfRequireProcessor = {};
 
 /**
  * Load the resource
+ *
  * @param {String} name Resource name
- * @return {Promise} Resolved with the resource
+ * @return {Promise<*>} Resolved with the resource result
  */
 function _gpfRequireLoad (name) {
     var me = this;
