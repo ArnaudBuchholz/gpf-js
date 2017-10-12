@@ -227,6 +227,7 @@
         "string/escapefor"
     ],
     "http/helpers": [
+        "foreach",
         "regexp"
     ],
     "interfaces/thenable": [
@@ -275,5 +276,33 @@
     ],
     "interfaces/flushablestream": [
         "interfaces"
+    ],
+    "require/load": [
+        "fs",
+        "http/helpers",
+        "stream/string",
+        "http",
+        "path"
+    ],
+    "require/wrap": [
+        "path",
+        "require"
+    ],
+    "require/json": [
+        "require/load"
+    ],
+    "require/javascript": [
+        "error",
+        "constants",
+        "regexp",
+        "require/load",
+        "require/wrap"
+    ],
+    "require": [
+        "foreach",
+        "error",
+        "path",
+        "interfaces/thenable",
+        "require/load"
     ]
 }
