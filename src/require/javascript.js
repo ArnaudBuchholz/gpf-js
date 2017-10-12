@@ -1,14 +1,15 @@
 /**
  * @file Require javascript resource handling
+ * @since 0.2.2
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfIgnore*/
-/*global _gpfFunc*/
-/*global _gpfRegExpForEach*/
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfRequireProcessor*/
-/*global _gpfRequireWrapGpf*/
+/*global _gpfFunc*/ // Create a new function using the source
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfRegExpForEach*/ // Executes the callback for each match of the regular expression
+/*global _gpfRequireProcessor*/ // Mapping of resource extension to processor function
+/*global _gpfRequireWrapGpf*/ // Wrap gpf to fit the new context and give access to gpf.require.define promise
 /*#endif*/
 
 _gpfErrorDeclare("require/javascript", {
@@ -23,6 +24,7 @@ _gpfErrorDeclare("require/javascript", {
      * When loading a [CommonJS](http://www.commonjs.org/) module, a first pass is done to extract all requires being
      * called. If the require is based on a complex parameter (variable or string manipulation), the loader won't be
      * able to understand the require. No fallback mechanism is implemented yet
+     * @since 0.2.2
      */
     noCommonJSDynamicRequire:
         "Dynamic require not supported"
@@ -80,6 +82,7 @@ var
      * Mapping of define parameter count to dependencies / factory
      *
      * @type {Function[]}
+     * @since 0.2.2
      */
     _gpfRequireAmdDefineParamsMapping = [
         null,
