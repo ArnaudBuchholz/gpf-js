@@ -10,6 +10,7 @@
  * Extends the destination object by copying own enumerable properties from the source object.
  * If the member already exists, it is overwritten.
  *
+ * @method gpf.extend
  * @param {Object} destination Destination object
  * @param {...Object} source Source objects
  * @return {Object} Destination object
