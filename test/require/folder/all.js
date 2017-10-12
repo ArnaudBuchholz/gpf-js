@@ -1,5 +1,5 @@
 /*eslint strict: [2, "function"]*/
-gpf.require({
+gpf.require.define({
     amd: "../amd.js",
     commonjs: "../commonjs.js",
     data: "../data.json",
