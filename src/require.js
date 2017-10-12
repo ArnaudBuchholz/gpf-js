@@ -181,9 +181,8 @@ function _gpfRequireDefine (dependencies, factory) {
  * @since 0.2.2
  */
 function _gpfRequireAllocate (parentContext, options) {
-    var context = Object.create(parentContext),
+    var context = Object.create(parentContext), // cache content is shared but other properties are protected
         require = {};
-    context.cache = Object.create(parentContext.cache);
     require.define = _gpfRequireDefine.bind(context);
     require.resolve = _gpfRequireResolve.bind(context);
     require.configure = _gpfRequireConfigure.bind(context);
