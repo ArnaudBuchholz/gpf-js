@@ -8,8 +8,7 @@
 /*global _gpfRegExpForEach*/
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfRequireProcessor*/
-/*global _gpfRequireAllocate*/
-/*global _gpfPathParent*/
+/*global _gpfRequireWrapGpf*/
 /*#endif*/
 
 _gpfErrorDeclare("require/javascript", {
@@ -106,32 +105,15 @@ function _gpfRequireOtherJs (myGpf, content) {
 
 //endregion
 
-function _gpfRequireWrapGpfFor (context, name) {
-    var wrappedGpf = Object.create(gpf),
-        newRequire = _gpfRequireAllocate(context, {
-            base: _gpfPathParent(name)
-        }),
-        initialDefine = newRequire.define;
-    newRequire._promise = Promise.resolve(); // default
-    // Wrap require.define to Grab the first allocated promise (if any)
-    newRequire.define = function () {
-        newRequire._promise = initialDefine.apply(this, arguments);
-        newRequire.define = initialDefine;
-        return newRequire._promise;
-    };
-    wrappedGpf.require = newRequire;
-    return wrappedGpf;
-}
-
 _gpfRequireProcessor[".js"] = function (name, content) {
-    var myGpf = _gpfRequireWrapGpfFor(this, name);
+    var wrapper = _gpfRequireWrapGpf(this, name);
     // CommonJS ?
     var requires = _gpfRegExpForEach(_gpfRequireJsModuleRegEx, content);
     if (requires.length) {
-        return _gpfRequireCommonJs(myGpf, content, requires.map(function (match) {
+        return _gpfRequireCommonJs(wrapper.gpf, content, requires.map(function (match) {
             return match[1];
         }));
     }
-    _gpfRequireOtherJs(myGpf, content);
-    return myGpf.require._promise;
+    _gpfRequireOtherJs(wrapper.gpf, content);
+    return wrapper.promise;
 };
