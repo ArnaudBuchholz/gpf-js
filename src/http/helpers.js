@@ -4,8 +4,8 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfRegExpForEach*/ // Executes the callback for each match of the regular expression
-/*global _gpfArrayForEach*/ // Executes the callback for each match of the regular expression
 /*exported _GPF_HTTP_METHODS*/ // HTTP Methods
 /*exported _gpfHttpGenSend*/ // Generates a function that implements the http send logic
 /*exported _gpfHttpGenSetHeaders*/ // Generates a function that transmit headers to the http object
