@@ -47,7 +47,7 @@ function _gpfRequireLoadFS (name) {
         });
 }
 
-if (_gpfHost === _GPF_HOST.BROWSER || _gpfHost === _GPF_HOST.PHANTOM_JS) {
+if (_gpfHost === _GPF_HOST.BROWSER || _gpfHost === _GPF_HOST.PHANTOMJS) {
     _gpfRequireLoadImpl = _gpfRequireLoadHTTP;
 } else {
     _gpfRequireLoadImpl = _gpfRequireLoadFS;
