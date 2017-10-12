@@ -7,8 +7,8 @@
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
-/*global _gpfRequireLoad*/
-/*global _gpfPromisify*/
+/*global _gpfPromisify*/ // Converts any value into a Promise
+/*global _gpfRequireLoad*/ // Load the resource
 /*exported _gpfRequireAllocate*/ // Allocate a new require context with the proper methods
 /*#endif*/
 
@@ -36,6 +36,7 @@ _gpfErrorDeclare("require", {
 /**
  * @namespace gpf.require
  * @description Root namespace for the GPF modularization helpers.
+ * @since 0.2.2
  */
 
 /**
@@ -122,6 +123,7 @@ function _gpfRequireResolve (name) {
  *
  * @param {String} name Resource name
  * @return {Promise<*>} Resource association
+ * @since 0.2.2
  */
 function _gpfRequireGet (name) {
     var me = this,
