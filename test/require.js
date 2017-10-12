@@ -24,7 +24,7 @@ describe("require", function () {
 
     });
 
-    describe("gpf.require", function () {
+    describe("gpf.require.define", function () {
 
         function validateData (data) {
             assert("object" === typeof data);
@@ -48,7 +48,7 @@ describe("require", function () {
             });
 
             it("loads JSON file as an object", function (done) {
-                gpf.require({
+                gpf.require.define({
                     data: "data.json"
                 }, function (require) {
                     try {
@@ -61,7 +61,7 @@ describe("require", function () {
             });
 
             it("supports CommonJS format", function (done) {
-                gpf.require({
+                gpf.require.define({
                     commonjs: "commonjs.js"
                 }, function (require) {
                     try {
@@ -74,7 +74,7 @@ describe("require", function () {
             });
 
             it("supports AMD format (named with factory)", function (done) {
-                gpf.require({
+                gpf.require.define({
                     amd: "amd.js"
                 }, function (require) {
                     try {
@@ -87,7 +87,7 @@ describe("require", function () {
             });
 
             it("supports AMD format (anonymous static)", function (done) {
-                gpf.require({
+                gpf.require.define({
                     amd: "anonymous_amd.js"
                 }, function (require) {
                     try {
@@ -101,7 +101,7 @@ describe("require", function () {
             });
 
             it("supports GPF modules (gpf is defined)", function (done) {
-                gpf.require({
+                gpf.require.define({
                     gpf: "gpf.js"
                 }, function (require) {
                     try {
@@ -115,7 +115,7 @@ describe("require", function () {
 
             it("supports JavaScript file (no result)", function (done) {
                 gpf.context().test = {};
-                gpf.require({
+                gpf.require.define({
                     js: "empty.js"
                 }, function (require) {
                     try {
@@ -141,7 +141,7 @@ describe("require", function () {
             });
 
             it("loads everything recursively", function (done) {
-                gpf.require({
+                gpf.require.define({
                     all: "folder/all.js"
                 }, function (require) {
                     try {
@@ -161,7 +161,7 @@ describe("require", function () {
         describe("Error handling", function () {
 
             it("fails if resource does not exist", function (done) {
-                gpf.require({
+                gpf.require.define({
                     notFound: "notFound.js"
                 }).then(function () {
                     done(new Error("Should not happen"));
@@ -177,7 +177,7 @@ describe("require", function () {
             });
 
             it("fails if one javascript resource fails", function (done) {
-                gpf.require({
+                gpf.require.define({
                     error: "error.js"
                 }).then(function () {
                     done(new Error("Should not happen"));
@@ -208,7 +208,7 @@ describe("require", function () {
             var additional = {};
 
             beforeEach(function (done) {
-                gpf.require({
+                gpf.require.define({
                     data: "data.json"
                 }, function (require) {
                     try {
@@ -221,7 +221,7 @@ describe("require", function () {
             });
 
             it("keeps modified objects", function (done) {
-                gpf.require({
+                gpf.require.define({
                     data: "data.json"
                 }, function (require) {
                     try {
@@ -249,7 +249,7 @@ describe("require", function () {
             });
 
             it("keeps injected objects", function (done) {
-                gpf.require({
+                gpf.require.define({
                     data: "data.json"
                 }, function (require) {
                     try {
