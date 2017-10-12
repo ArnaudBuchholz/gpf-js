@@ -9,7 +9,7 @@
 /*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
 /*global _gpfRequireLoad*/
 /*global _gpfPromisify*/
-/*exported _gpfRequireAllocate*/ // Allocate a new require function with the proper configure / resolve
+/*exported _gpfRequireAllocate*/ // Allocate a new require context with the proper methods
 /*#endif*/
 
 /* this is globally used as the current context in this module */
@@ -32,6 +32,11 @@ _gpfErrorDeclare("require", {
     invalidRequireConfigureOption:
         "Invalid configuration option"
 });
+
+/**
+ * @namespace gpf.require
+ * @description Root namespace for the GPF modularization helpers.
+ */
 
 /**
  * @typedef gpf.typedef.requireOptions
@@ -112,6 +117,12 @@ function _gpfRequireResolve (name) {
     return _gpfPathJoin(this.base, name);
 }
 
+/**
+ * Get the cached resource or load it
+ *
+ * @param {String} name Resource name
+ * @return {Promise<*>} Resource association
+ */
 function _gpfRequireGet (name) {
     var me = this,
         promise;
@@ -124,19 +135,20 @@ function _gpfRequireGet (name) {
 }
 
 /**
- * Load all resources and pass them to the factory function as a single object
+ * Modularization helper.
+ * Defines a new module by executing the factory function with the loaded dependencies.
  *
  * @param {Object} dependencies Dictionary of dependencies, the keys are preserved while passing the result
  * dictionary to the factory function
  * @param {Function|*} factory Can be either:
  * * A factory function executed when all dependencies are resolved, the first parameter will be a dictionary
- *   giving access to all dependencies by their name. The result of the factory function will be cached as the result
- *   of this resource (if loaded through gpf.require)
- * * A value that will be cached as well
+ *   with all dependencies indexed by their name (as initially specified in the dependencies parameter).
+ *   The result of the factory function will be cached as the result of this resource
+ * * Any value that will be cached as well as the result of this resource
  * @return {Promise<*>} Resolved with the factory function result or the object
  * @since 0.2.2
  */
-function _gpfRequire (dependencies, factory) {
+function _gpfRequireDefine (dependencies, factory) {
     var me = this,
         promises = [],
         keys = Object.keys(dependencies);
@@ -161,34 +173,36 @@ function _gpfRequire (dependencies, factory) {
 }
 
 /**
- * Allocate a new require function with the proper configure / resolve
+ * Allocate a new require context with the proper methods
  *
  * @param {Object} parentContext Context to inherit from
  * @param {gpf.typedef.requireOptions} [options] Options to configure
- * @return {Function} See {@gpf.require}
+ * @return {Object} Containing {@link gpf.require.define}, {@link gpf.require.resolve} and {@link gpf.require.configure}
  * @since 0.2.2
  */
 function _gpfRequireAllocate (parentContext, options) {
     var context = Object.create(parentContext),
-        require;
+        require = {};
     context.cache = Object.create(parentContext.cache);
-    require = _gpfRequire.bind(context);
-    require.configure = _gpfRequireConfigure.bind(context);
+    require.define = _gpfRequireDefine.bind(context);
     require.resolve = _gpfRequireResolve.bind(context);
+    require.configure = _gpfRequireConfigure.bind(context);
     if (options) {
         require.configure(options);
     }
     return require;
 }
 
-/**
- * @gpf:sameas _gpfRequire
- * @since 0.2.2
- */
 gpf.require = _gpfRequireAllocate({
     base: "",
     cache: {}
 });
+
+/**
+ * @method gpf.require.define
+ * @gpf:sameas _gpfRequireDefine
+ * @since 0.2.2
+ */
 
 /**
  * @method gpf.require.configure
