@@ -34,18 +34,19 @@ _gpfErrorDeclare("require/javascript", {
 
 var _gpfRequireJsModuleRegEx = /[^\.]\brequire\b\s*\(\s*['|"]([^"']+)['|"]\s*\)/g;
 
+function _gpfRequireCommonJSBuildNamedDependencies (requires) {
+    return requires.reduce(function (dictionary, name) {
+        dictionary[name] = name;
+        return dictionary;
+    }, {});
+}
+
 function _gpfRequireCommonJs (myGpf, content, requires) {
-    var dependencies = requires.reduce(function (dictionary, name) {
-            dictionary[name] = name;
-            return dictionary;
-        }, {}),
-        factory = _gpfFunc(["gpf", "module", "require"], content);
-    return myGpf.require(dependencies, function (require) {
+    return myGpf.require.define(_gpfRequireCommonJSBuildNamedDependencies(requires), function (require) {
         var module = {};
-        function commonJSRequire (name) {
+        _gpfFunc(["gpf", "module", "require"], content)(myGpf, module, function (name) {
             return require[name] || gpf.Error.noCommonJSDynamicRequire();
-        }
-        factory(myGpf, module, commonJSRequire);
+        });
         return module.exports;
     });
 }
@@ -93,37 +94,37 @@ function _gpfRequireAmdDefine (name, dependencies, factory) {
     _gpfIgnore(name, dependencies, factory);
     var myGpf = this, //eslint-disable-line
         params = _gpfRequireAmdDefineParamsMapping[arguments.length](arguments);
-    myGpf.require(params.dependencies, function (require) {
+    myGpf.require.define(params.dependencies, function (require) {
         require.length = params.dependencies.length;
         return params.factory.apply(null, [].slice.call(require));
     });
 }
 
 function _gpfRequireOtherJs (myGpf, content) {
-    var factory = _gpfFunc(["gpf", "define"], content);
-    factory(myGpf, _gpfRequireAmdDefine.bind(myGpf));
+    _gpfFunc(["gpf", "define"], content)(myGpf, _gpfRequireAmdDefine.bind(myGpf));
 }
 
 //endregion
 
-_gpfRequireProcessor[".js"] = function (name, content) {
-    var me = this, // current require context
-        myGpf = Object.create(gpf),
-        myRequire = _gpfRequireAllocate(me, {
+function _gpfRequireWrapGpfFor (context, name) {
+    var wrappedGpf = Object.create(gpf),
+        newRequire = _gpfRequireAllocate(context, {
             base: _gpfPathParent(name)
         }),
-        promise = Promise.resolve(); // default
-    /*
-     * Wrap gpf.require to:
-     * 1) Grab the first allocated promise (if any)
-     * 2) Prevent any misuse of resolve / configure *before* the first call
-     */
-    myGpf.require = function () {
-        var result = myRequire.apply(this, arguments);
-        myGpf.require = myRequire;
-        promise = result;
-        return result;
+        initialDefine = newRequire.define;
+    newRequire._promise = Promise.resolve(); // default
+    // Wrap require.define to Grab the first allocated promise (if any)
+    newRequire.define = function () {
+        newRequire._promise = initialDefine.apply(this, arguments);
+        newRequire.define = initialDefine;
+        return newRequire._promise;
     };
+    wrappedGpf.require = newRequire;
+    return wrappedGpf;
+}
+
+_gpfRequireProcessor[".js"] = function (name, content) {
+    var myGpf = _gpfRequireWrapGpfFor(this, name);
     // CommonJS ?
     var requires = _gpfRegExpForEach(_gpfRequireJsModuleRegEx, content);
     if (requires.length) {
@@ -132,5 +133,5 @@ _gpfRequireProcessor[".js"] = function (name, content) {
         }));
     }
     _gpfRequireOtherJs(myGpf, content);
-    return promise;
+    return myGpf.require._promise;
 };
