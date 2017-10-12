@@ -17,6 +17,15 @@
  * @since 0.2.1
  */
 
+function _gpfRegExpGetNextMatch (regexp, string) {
+    return regexp.exec(string);
+}
+
+function _gpfRegExpGetFirstMatch (regexp, string) {
+    regexp.lastIndex = 0;
+    return _gpfRegExpGetNextMatch(regexp, string);
+}
+
 /**
  * Executes the callback for each match of the regular expression.
  * When configured with /g and used before,
@@ -30,13 +39,11 @@
  * @version 0.2.2 Reset lastIndex and returns the array of matches
  */
 function _gpfRegExpForEach (regexp, string) {
-    var match,
-        matches = [];
-    regexp.lastIndex = 0;
-    /*jshint -W084*/ // to avoid repeating twice the exec
-    while (match = regexp.exec(string)) { //eslint-disable-line no-cond-assign
+    var matches = [],
+        match = _gpfRegExpGetFirstMatch(regexp, string);
+    while (match) {
         matches.push(match);
+        match = _gpfRegExpGetNextMatch(regexp, string);
     }
     return matches;
 }
-/*jshint +W084*/
