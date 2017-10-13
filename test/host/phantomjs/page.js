@@ -1,4 +1,5 @@
 "use strict";
+/*global phantom*/
 
 var fs = require("fs"),
     webPage = require("webpage"),
@@ -7,8 +8,11 @@ var fs = require("fs"),
     sUrl = "http://localhost:" + settings.serve.httpPort + "/test/host/phantomjs/page.html";
 
 console.log("Opening " + sUrl);
-page.open(sUrl, function (status) {
-    console.log("Status: " + status);
-    console.log(page.module.exports);
 
+page.onConsoleMessage = function (msg/*, lineNum, sourceId*/) {
+    console.log(msg);
+};
+
+page.open(sUrl, function () {
+    phantom.exit();
 });
