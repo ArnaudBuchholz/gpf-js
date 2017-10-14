@@ -4,11 +4,9 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_FS_OPENFOR*/ // File system stream opening mode
 /*global _GPF_HOST*/ // Host types
 /*global _GPF_HTTP_METHODS*/ // HTTP Methods
-/*global _GpfStreamWritableString*/ // gpf.stream.WritableString
-/*global _gpfFileStorageByHost*/ // gpf.interfaces.IFileStorage per host
+/*global _gpfFsRead*/ // Generic read method
 /*global _gpfHost*/ // Host type
 /*global _gpfHttpRequest*/ // HTTP request common implementation
 /*global _gpfPathExtension*/ // Get the extension of the last name of a path (including dot)
@@ -32,22 +30,14 @@ function _gpfRequireLoadHTTP (name) {
 }
 
 function _gpfRequireLoadFS (name) {
-    var fs = _gpfFileStorageByHost[_gpfHost],
-        iWritableStream = new _GpfStreamWritableString();
     if (name.charAt(0) === "/") {
         // Must be relative to the current execution path
         name = "." + name;
     }
-    return fs.openTextStream(name, _GPF_FS_OPENFOR.READING)
-        .then(function (iReadStream) {
-            return iReadStream.read(iWritableStream);
-        })
-        .then(function () {
-            return iWritableStream.toString();
-        });
+    return _gpfFsRead(name);
 }
 
-if (_gpfHost === _GPF_HOST.BROWSER || _gpfHost === _GPF_HOST.PHANTOMJS) {
+if (_gpfHost === _GPF_HOST.BROWSER) {
     _gpfRequireLoadImpl = _gpfRequireLoadHTTP;
 } else {
     _gpfRequireLoadImpl = _gpfRequireLoadFS;
