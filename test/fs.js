@@ -2,6 +2,8 @@
 
 describe("fs", function () {
 
+    var data = "test/data";
+
     describe("gpf.fs.getFileStorage", function () {
 
         function _createPath (path) {
@@ -43,8 +45,6 @@ describe("fs", function () {
             }
             return processPart();
         }
-
-        var data = "test/data";
 
         function _checkFileBin (info) {
             assert(info.type === gpf.fs.types.file);
@@ -286,5 +286,40 @@ describe("fs", function () {
         }
 
     });
+
+    if (gpf.host() !== gpf.hosts.browser) {
+
+        describe("gpf.fs.read", function () {
+
+            it("gives a generic read access to the file system", function (done) {
+                gpf.fs.read(gpf.path.join(data, "folder/hello world.txt"))
+                    .then(function (content) {
+                        try {
+                            assert(content === "hello world\n");
+                            done();
+                        } catch (e) {
+                            done(e);
+                        }
+                    }, done);
+            });
+
+            it("fails if the file does not exist", function (done) {
+                gpf.fs.read(gpf.path.join(data, "nope"))
+                    .then(function () {
+                        done("Should not happen");
+
+                    }, function (reason) {
+                        try {
+                            assert(undefined !== reason);
+                            done();
+                        } catch (e) {
+                            done(e);
+                        }
+                    });
+            });
+
+        });
+
+    }
 
 });
