@@ -7,7 +7,7 @@
 /*global _GPF_HOST*/ // Host types
 /*global _gpfBootImplByHost*/ // Boot host specific implementation per host
 /*global _gpfExit:true*/ // Exit function
-/*global _gpfNodeFs:true*/ // Node require("fs")
+/*global _gpfNodeFs:true*/ // Node/PhantomJS require("fs")
 /*exported _gpfNodeHttp*/ // Node require("http")
 /*exported _gpfNodeUrl*/ // Node require("url")
 /*#endif*/
