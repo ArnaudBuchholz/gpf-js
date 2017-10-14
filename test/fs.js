@@ -310,7 +310,7 @@ describe("fs", function () {
 
                     }, function (reason) {
                         try {
-                            assert(undefined !== reason);
+                            assert(reason instanceof Error);
                             done();
                         } catch (e) {
                             done(e);
