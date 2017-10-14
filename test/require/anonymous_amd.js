@@ -1,10 +1,11 @@
 /*global define*/
 /*eslint strict: [2, "function"]*/
-define(function () {
+define(["data.json"], function (data) {
     "use strict";
 
     return {
         type: "amd",
-        name: "anonymous"
+        data: data,
+        name: ""
     };
 });
