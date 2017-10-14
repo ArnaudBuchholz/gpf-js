@@ -189,8 +189,8 @@ if ("undefined" !== typeof WScript) {
 
 /*#endif*/
 
-// PhantomJS
-} else if ("undefined" !== typeof phantom && phantom.version) {
+// PhantomJS - When used as a command line (otherwise considered as a browser)
+} else if ("undefined" !== typeof phantom && phantom.version && !document.currentScript) {
     _gpfHost = _GPF_HOST.PHANTOMJS;
     _gpfDosPath = require("fs").separator === "\\";
     _gpfMainContext = window;
