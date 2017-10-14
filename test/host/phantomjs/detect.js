@@ -1,4 +1,5 @@
 "use strict";
+/*global document*/
 
 if (document.currentScript) {
     module.exports = "web page";
