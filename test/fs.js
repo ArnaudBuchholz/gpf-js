@@ -306,7 +306,7 @@ describe("fs", function () {
             it("fails if the file does not exist", function (done) {
                 gpf.fs.read(gpf.path.join(data, "nope"))
                     .then(function () {
-                        done("Should not happen");
+                        done(new Error("Should not happen"));
 
                     }, function (reason) {
                         try {
