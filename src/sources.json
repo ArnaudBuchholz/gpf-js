@@ -299,6 +299,21 @@
         "doc": true
     },
     {
+        "name": "fs/browser",
+        "test": false,
+        "doc": true
+    },
+    {
+        "name": "fs/rhino",
+        "test": false,
+        "doc": true
+    },
+    {
+        "name": "fs/phantomjs",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "literal",
         "doc": true
     },
