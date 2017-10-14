@@ -10,7 +10,12 @@
 /*#endif*/
 
 _gpfFsReadImplByHost[_GPF_HOST.PHANTOMJS] = function (path) {
-    return new Promise(function (resolve) {
-        resolve(_gpfNodeFs.read(path));
+    return new Promise(function (resolve, reject) {
+        try {
+            resolve(_gpfNodeFs.read(path));
+        } catch (e) {
+            // Error is a string
+            reject(new Error(e));
+        }
     });
 };
