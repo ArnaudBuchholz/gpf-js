@@ -7,6 +7,7 @@
 /*global _GPF_HOST*/ // Host types
 /*global _gpfBootImplByHost*/ // Boot host specific implementation per host
 /*global _gpfExit:true*/ // Exit function
+/*global _gpfNodeFs:true*/ // Node/PhantomJS require("fs")
 /*global _gpfWebDocument:true*/ // Browser document object
 /*global _gpfWebWindow:true*/ // Browser window object
 /*#endif*/
@@ -24,5 +25,6 @@ _gpfBootImplByHost[_GPF_HOST.PHANTOMJS] = function () {
 
     _gpfWebWindow = window;
     _gpfWebDocument = document;
+    _gpfNodeFs = require("fs");
 
 };
