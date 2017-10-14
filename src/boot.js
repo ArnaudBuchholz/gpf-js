@@ -13,7 +13,7 @@
 /*exported _gpfIgnore*/ // Helper to remove unused parameter warning
 /*exported _gpfMainContext*/ // Main context object
 /*exported _gpfMsFSO*/ // Scripting.FileSystemObject activeX
-/*exported _gpfNodeFs*/ // Node require("fs")
+/*exported _gpfNodeFs*/ // Node/PhantomJS require("fs")
 /*exported _gpfNodePath*/ // Node require("path")
 /*exported _gpfSyncReadSourceJSON*/ // Reads a source json file (only in source mode)
 /*exported _gpfVersion*/ // GPF version
