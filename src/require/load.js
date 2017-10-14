@@ -10,6 +10,7 @@
 /*global _gpfHost*/ // Host type
 /*global _gpfHttpRequest*/ // HTTP request common implementation
 /*global _gpfPathExtension*/ // Get the extension of the last name of a path (including dot)
+/*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
 /*exported _gpfRequireLoad*/ // Load the resource
 /*exported _gpfRequireProcessor*/ // Mapping of resource extension to processor function
 /*#endif*/
@@ -30,11 +31,8 @@ function _gpfRequireLoadHTTP (name) {
 }
 
 function _gpfRequireLoadFS (name) {
-    if (name.charAt(0) === "/") {
-        // Must be relative to the current execution path
-        name = "." + name;
-    }
-    return _gpfFsRead(name);
+    // Must be relative to the current execution path
+    return _gpfFsRead(_gpfPathJoin(".", name));
 }
 
 if (_gpfHost === _GPF_HOST.BROWSER) {
