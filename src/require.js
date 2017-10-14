@@ -103,7 +103,7 @@ function _gpfRequireConfigure (options) {
         // Some keys must be processed first
         return _gpfRequireOptionPriority(key1) - _gpfRequireOptionPriority(key2);
     }), function (key) {
-        (_gpfRequireOptionHandler[key] || gpf.error.invalidRequireConfigureOption).call(me, options[key]);
+        (_gpfRequireOptionHandler[key] || gpf.Error.invalidRequireConfigureOption).call(me, options[key]);
     }, me);
 }
 
