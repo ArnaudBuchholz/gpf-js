@@ -10,7 +10,8 @@ const
         global.gpfSourcesPath = sourcesPath;
         global.assert = require("assert");
         global.config = {
-            httpPort: configuration.serve.httpPort
+            httpPort: configuration.serve.httpPort,
+            timerResolution: 5
         };
     };
 
