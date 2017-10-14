@@ -33,7 +33,7 @@ _gpfErrorDeclare("require/javascript", {
 
 //region CommonJS
 
-var _gpfRequireJsModuleRegEx = /[^\.]\brequire\b\s*\(\s*['|"]([^"']+)['|"]\s*\)/g;
+var _gpfRequireJsModuleRegEx = /[^\.]\brequire\b\s*\(\s*(?:['|"]([^"']+)['|"]|[^\)]+)\s*\)/g;
 
 function _gpfRequireCommonJSBuildNamedDependencies (requires) {
     return requires.reduce(function (dictionary, name) {
@@ -113,9 +113,14 @@ _gpfRequireProcessor[".js"] = function (name, content) {
     // CommonJS ?
     var requires = _gpfRegExpForEach(_gpfRequireJsModuleRegEx, content);
     if (requires.length) {
-        return _gpfRequireCommonJs(wrapper.gpf, content, requires.map(function (match) {
-            return match[1];
-        }));
+        return _gpfRequireCommonJs(wrapper.gpf, content, requires
+            .map(function (match) {
+                return match[1]; // may be undefined if dynamic
+            })
+            .filter(function (require) {
+                return require;
+            })
+        );
     }
     _gpfRequireOtherJs(wrapper.gpf, content);
     return wrapper.promise;
