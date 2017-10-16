@@ -35,7 +35,7 @@ _gpfErrorDeclare("require", {
 
 /**
  * @namespace gpf.require
- * @description Root namespace for the GPF modularization helpers.
+ * @description Root namespace for the modularization helpers.
  * @since 0.2.2
  */
 
@@ -43,7 +43,7 @@ _gpfErrorDeclare("require", {
  * @typedef gpf.typedef.requireOptions
  * @property {String} [base] Base path used to resolve names
  * @property {Object} [cache] Inject names into the require cache
- * @property {Boolean} [clearCache=false] When set, the require cache is cleared
+ * @property {Boolean} [clearCache=false] When set, the require cache is first cleared
  * @since 0.2.2
  */
 
@@ -108,11 +108,12 @@ function _gpfRequireConfigure (options) {
 }
 
 /**
- * Resolves the resource name according to current require context
+ * Resolves the resource name according to current require context.
  *
  * @param {String} name Relative resource name
  * @return {String} Resolved name
  * @since 0.2.2
+ *
  */
 function _gpfRequireResolve (name) {
     return _gpfPathJoin(this.base, name);
@@ -137,17 +138,17 @@ function _gpfRequireGet (name) {
 }
 
 /**
- * Modularization helper.
- * Defines a new module by executing the factory function with the loaded dependencies.
+ * Defines a new module by executing the factory function with the specified dependencies.
  *
  * @param {Object} dependencies Dictionary of dependencies, the keys are preserved while passing the result
  * dictionary to the factory function
- * @param {Function|*} factory Can be either:
+ * @param {*} factory Can be either:
  * * A factory function executed when all dependencies are resolved, the first parameter will be a dictionary
  *   with all dependencies indexed by their name (as initially specified in the dependencies parameter).
- *   The result of the factory function will be cached as the result of this resource
- * * Any value that will be cached as well as the result of this resource
+ *   The result of the factory function will be cached of this resource
+ * * Any value that will be cached as the result of this resource
  * @return {Promise<*>} Resolved with the factory function result or the object
+ * @see {@tutorial REQUIRE}
  * @since 0.2.2
  */
 function _gpfRequireDefine (dependencies, factory) {
@@ -209,10 +210,30 @@ gpf.require = _gpfRequireAllocate({
  * @method gpf.require.configure
  * @gpf:sameas _gpfRequireConfigure
  * @since 0.2.2
+ *
+ * @example <caption>Setting the base path</caption>
+ * gpf.require.configure({
+ *   base: "/test/require"
+ * });
+ * assert(gpf.require.resolve("file.js") === "/test/require/file.js");
+ *
+ * @example <caption>Injecting in the cache</caption>
+ * var cache = {};
+ * cache[gpf.require.resolve("data.json")] = {};
+ * gpf.require.configure({
+ *   clearCache: true,
+ *   cache: cache
+ * });
  */
 
 /**
  * @method gpf.require.resolve
  * @gpf:sameas _gpfRequireResolve
  * @since 0.2.2
+ *
+ * @example <caption>Setting the base path</caption>
+ * gpf.require.configure({
+ *   base: "/test/require"
+ * });
+ * assert(gpf.require.resolve("file.js") === "/test/require/file.js");
  */
