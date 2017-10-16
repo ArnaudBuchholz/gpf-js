@@ -19,6 +19,8 @@
     },
     "COVERAGE": {
         "title": "Code coverage exceptions"
+    },
+    "REQUIRE": {
+        "title": "Modularization"
     }
-
 }
