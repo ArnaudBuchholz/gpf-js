@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GPF-JS logo</title>
+    <script language="JavaScript" src="../build/gpf.js"></script>
+    <script language="JavaScript">
+
+function onLoad() {
+    var svg = document.getElementById("svg"),
+        path = gpf.web.createTagFunction("svg:path");
+    path({
+        fill: "none",
+        stroke: "black",
+        "stroke-width": .1,
+        d: "M 1 1 L 2 2 L 3 1 L 4 2 L 5 1 Z"
+    }).appendTo(svg);
+}
+
+
+    </script>
+</head>
+<body onload="onLoad()">
+    <svg id="svg" width="100%" height="100%" viewBox="0 0 100 100">
+    </svg>
+</body>
+</html>
