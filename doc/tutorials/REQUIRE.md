@@ -37,6 +37,8 @@ In general, the `gpf` symbol is always available. It allows you to access the gl
 `{@see gpf.context}` API.
 In particular, you may define a gpf module using {@see gpf.require.define}.
 
+### GPF Module
+
 ```JavaScript
 gpf.require.define({
     name1: "dependency1.js",
@@ -70,7 +72,7 @@ gpf.require.define({
 });
 ```
  
-## Asynchronous Module Definition (AMD)
+### Asynchronous Module Definition (AMD)
 
 The [AMD](https://en.wikipedia.org/wiki/Asynchronous_module_definition) format
 
@@ -167,7 +169,7 @@ define(function () {
 });
 ```
 
-## CommonJS
+### CommonJS
 
 The [CommonJS](https://en.wikipedia.org/wiki/CommonJS) format:
 
