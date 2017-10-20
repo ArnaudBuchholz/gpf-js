@@ -138,17 +138,18 @@ function _gpfRequireGet (name) {
 }
 
 /**
- * Defines a new module by executing the factory function with the specified dependencies.
+ * Defines a new module by executing the factory function with the specified dependent resources,
+ * see {@tutorial REQUIRE}
+ *
  *
  * @param {Object} dependencies Dictionary of dependencies, the keys are preserved while passing the result
  * dictionary to the factory function
  * @param {*} factory Can be either:
- * * A factory function executed when all dependencies are resolved, the first parameter will be a dictionary
+ * * A factory function executed when all resources are resolved, the first parameter will be a dictionary
  *   with all dependencies indexed by their name (as initially specified in the dependencies parameter).
- *   The result of the factory function will be cached of this resource
+ *   The result of the factory function will be cached as the result of this resource
  * * Any value that will be cached as the result of this resource
  * @return {Promise<*>} Resolved with the factory function result or the object
- * @see {@tutorial REQUIRE}
  * @since 0.2.2
  */
 function _gpfRequireDefine (dependencies, factory) {
