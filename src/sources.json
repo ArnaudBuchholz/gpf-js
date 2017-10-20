@@ -401,6 +401,10 @@
         "doc": true
     },
     {
+        "name": "stream/array",
+        "doc": true
+    },
+    {
         "name": "events",
         "load": false
     },
@@ -642,10 +646,6 @@
     },
     {
         "name": "fs/find",
-        "load": false
-    },
-    {
-        "name": "stream/array",
         "load": false
     }
 ]
