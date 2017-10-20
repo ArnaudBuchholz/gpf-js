@@ -1,7 +1,35 @@
 "use strict";
 
-describe("array", function () {
+describe("stream/array", function () {
 
+    describe("gpf.stream.WritableArray", function () {
+
+        it("supports multiple sequenced calls", function (done) {
+            var iWritableStream = new gpf.stream.WritableArray(),
+                source = ["Hell", "o ", "World", null, {}],
+                step = 0;
+            function write () {
+                if (source.length === step) {
+                    try {
+                        var result = iWritableStream.toArray();
+                        assert(source.length === result.length);
+                        source.forEach(function (value, index) {
+                            assert(value === result[index]);
+                        });
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
+                } else {
+                    iWritableStream.write(source[step++]).then(write, done);
+                }
+            }
+            write();
+        });
+
+    });
+
+/*
     describe("gpf.arrayToStream", function () {
 
         it("can be used for reading", function (done) {
@@ -114,7 +142,7 @@ describe("array", function () {
             gpf.events.getPromiseHandler(function (eventHandler) {
                 gpf.arrayFromStream(stream, eventHandler);
             })
-                .then(function (/*event*/) {
+                .then(function (/*event*-/) {
                     done("Not supposed to work");
 
                 })["catch"](function (reason) {
@@ -124,5 +152,6 @@ describe("array", function () {
         });
 
     });
+*/
 
 });
