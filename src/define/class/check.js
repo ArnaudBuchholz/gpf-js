@@ -57,7 +57,6 @@ _gpfErrorDeclare("define/class/check", {
      *
      * The constructor member is a special one, see {@tutorial DEFINE}
      *
-     * @see {@tutorial DEFINE}
      * @since 0.1.7
      */
     invalidClassConstructor: "Invalid class constructor",
@@ -71,7 +70,6 @@ _gpfErrorDeclare("define/class/check", {
      *
      * The constructor member is a special one, see {@tutorial DEFINE}
      *
-     * @see {@tutorial DEFINE}
      * @since 0.1.7
      */
     invalidClassOverride: "Invalid class override"
