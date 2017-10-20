@@ -42,7 +42,7 @@ dictionary and consolidated with the same name in one parameter.
 
 The module public API (i.e. resource output) is the result of the factory function.
 
-```JavaScript
+```javascript
 gpf.require.define({
     name1: "dependency1.js",
     name2: "dependency2.js",
@@ -79,7 +79,7 @@ gpf.require.define({
 
 The library supports the [AMD](https://en.wikipedia.org/wiki/Asynchronous_module_definition) format.
 
-```JavaScript
+```javascript
 define("amd", [
     "dependency1.js",
     "dependency2.js",
@@ -113,7 +113,7 @@ define("amd", [
 
 Or a shorter version (no name)
 
-```JavaScript
+```javascript
 define([
     "dependency1.js",
     "dependency2.js",
@@ -147,7 +147,7 @@ define([
 
 Even shorter if you don't need dependencies:
 
-```JavaScript
+```javascript
 define(function () {
     "use strict";
     // Private scope
@@ -177,7 +177,7 @@ define(function () {
 The library also supports the [CommonJS](https://en.wikipedia.org/wiki/CommonJS) format with one restriction.
 Only static requires can be used (i.e. the require parameter **must** be a string).
 
-```JavaScript
+```javascript
 "use strict";
 // Private scope
 
