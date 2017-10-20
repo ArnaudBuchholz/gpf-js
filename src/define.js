@@ -14,7 +14,6 @@
  * @param {Object} definition Entity definition
  * @return {Function} Entity constructor
  * @since 0.1.6
- * @see {@tutorial DEFINE}
  */
 function _gpfDefine (definition) {
     var entityDefinition = _gpfDefineBuildTypedEntity(definition);
