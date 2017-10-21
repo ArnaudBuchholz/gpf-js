@@ -1,5 +1,6 @@
 /**
  * @file Array related streams
+ * @since 0.2.2
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -22,6 +23,7 @@ var
          * @constructor gpf.stream.ReadableArray
          * @implements {gpf.interfaces.IReadableStream}
          * @param {Array} buffer Array buffer
+         * @since 0.2.2
          */
         constructor: function (buffer) {
             this._buffer = buffer;
@@ -31,6 +33,7 @@ var
 
         /**
          * @gpf:sameas gpf.interfaces.IReadableStream#read
+         * @since 0.2.2
          */
         read: _gpfStreamSecureRead(function (output) {
             var buffer = this._buffer, //eslint-disable-line no-invalid-this
@@ -39,7 +42,7 @@ var
                 if (buffer.length === step) {
                     return Promise.resolve();
                 }
-                return output.write(buffer[step++]);
+                return output.write(buffer[step++]).then(write);
             }
             return write();
         }),
@@ -48,6 +51,7 @@ var
 
         /**
          * Buffer
+         * @since 0.2.2
          */
         _buffer: []
 
@@ -61,6 +65,7 @@ var
          *
          * @constructor gpf.stream.WritableArray
          * @implements {gpf.interfaces.IWritableStream}
+         * @since 0.2.2
          */
         constructor: function () {
             this._buffer = [];
@@ -70,6 +75,7 @@ var
 
         /**
          * @gpf:sameas gpf.interfaces.IWritableStream#write
+         * @since 0.2.2
          */
         write: _gpfStreamSecureWrite(function (buffer) {
             this._buffer.push(buffer); //eslint-disable-line no-invalid-this
@@ -84,6 +90,7 @@ var
 
         /**
          * Buffer
+         * @since 0.2.2
          */
         _buffer: []
 
