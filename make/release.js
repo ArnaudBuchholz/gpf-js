@@ -19,6 +19,15 @@
  * - npm publish
  */
 
+let
+    version,
+    gh,
+    versionMilestone,
+    versionTitle,
+    testMode = process.argv.some(arg => arg === "-test"),
+    noBuild = process.argv.some(arg => arg === "-noBuild"),
+    error;
+
 const
     inquirer = require("inquirer"),
     GitHub = require("github-api"),
@@ -56,14 +65,21 @@ const
         return spawnProcess(grunt, [command]);
     },
 
-    spawnGit = params => spawnProcess("git", params)
-    ;
+    spawnGit = params => spawnProcess("git", params),
 
-let
-    version = pkgVersion,
-    gh,
-    versionMilestone,
-    versionTitle;
+    throwError = x => {
+        throw new Error(x);
+    },
+    logError = x => console.error(`*** ${x} ***`);
+
+version = pkgVersion;
+error = testMode ? logError : throwError;
+if (testMode) {
+    console.warn("*** Test mode ***");
+}
+if (noBuild) {
+    console.warn("*** No build ***");
+}
 
 if (version.includes("-")) {
     version = version.split("-")[0];
@@ -107,13 +123,13 @@ inquirer.prompt([{
     .then(reqMilestones => {
         versionMilestone = reqMilestones.data.filter(candidate => candidate.title.includes(version))[0];
         if (!versionMilestone) {
-            throw new Error("No corresponding milestone found");
+            error("No corresponding milestone found");
         }
         versionTitle = versionMilestone.title.split(":")[1].trim();
         console.log(`Milestone: ${versionMilestone.title}`);
         console.log(`Remaining open issues: ${versionMilestone.open_issues}`);
         if (versionMilestone.open_issues) {
-            throw new Error("Issues remaining in the milestone");
+            error("Issues remaining in the milestone");
         }
         let readmeLines = fs.readFileSync("README.md").toString().split("\n"),
             indexOfCredits = readmeLines.indexOf("## Credits"),
@@ -130,22 +146,30 @@ inquirer.prompt([{
             );
             fs.writeFileSync("README.md", readmeLines.join("\n"));
         }
-        return spawnGrunt("make");
+        return noBuild ? 0 : spawnGrunt("make");
     })
     .then(() => spawnGrunt("copy:releasePlatoHistory"))
-    .then(() => spawnGit(["commit", "-a", "-m", `Release v${version}`]))
-    .then(() => spawnGit(["push"]))
-    .then(() => gh.getIssues("ArnaudBuchholz", "gpf-js").editMilestone(versionMilestone.number, {
-        state: "closed"
-    }))
-    .then(() => gh.getRepo("ArnaudBuchholz", "gpf-js").createRelease({
-        tag_name: `v${version}`,
-        name: versionTitle
-    }))
-    .then(() => console.log(`Version ${version} released.`))
+    .then(() => testMode
+        ? console.warn("No GIT publishing in test mode")
+        : Promise.resolve()
+            .then(() => spawnGit(["commit", "-a", "-m", `Release v${version}`]))
+            .then(() => spawnGit(["push"]))
+            .then(() => gh.getIssues("ArnaudBuchholz", "gpf-js").editMilestone(versionMilestone.number, {
+                state: "closed"
+            }))
+            .then(() => gh.getRepo("ArnaudBuchholz", "gpf-js").createRelease({
+                tag_name: `v${version}`,
+                name: versionTitle
+            }))
+            .then(() => console.log(`Version ${version} released.`))
+    )
     .then(() => fs.copySync("build/tests.js", `test/legacy/${version}.js`))
-    .then(() => spawnGit(["add", `test/legacy/${version}.js`]))
-    .then(() => spawnGit(["commit", "-a", "-m", `Tests of v${version}`]))
-    .then(() => spawnGit(["push"]))
-    .then(() => spawnProcess("npm", ["publish"]))
-    .catch(error => console.error(error));
+    .then(() => testMode
+        ? console.warn("No legacy/test commit in test mode")
+        : Promise.resolve()
+            .then(() => spawnGit(["add", `test/legacy/${version}.js`]))
+            .then(() => spawnGit(["commit", "-a", "-m", `Tests of v${version}`]))
+            .then(() => spawnGit(["push"]))
+    )
+    .then(() => spawnProcess("npm.cmd", ["publish"]))
+    .catch(console.error);
