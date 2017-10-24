@@ -9,15 +9,14 @@ A multi-purpose JavaScript library created and maintained by
 
 ## Features
 
-* Compatible with several hosts
+* Provides a common scripting layer for several hosts
 ([cscript/wscript](http://technet.microsoft.com/en-us/library/bb490887.aspx),
 [NodeJS](http://nodejs.org/), [Rhino](https://developer.mozilla.org/en-US/docs/Mozilla/Projects/Rhino),
 [PhantomJS](http://phantomjs.org/), most *recent* browsers)
 * Namespace and class system
-* Java-like annotation tool (attributes) *-- not implemented yet*
 * Interface based
-* Asynchronous textual streams
-* XML-aware *-- not implemented yet*
+* Asynchronous streams
+* Modularization helper
 * Self-Tested
 
 This library is developed in conjunction with a
