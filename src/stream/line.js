@@ -44,6 +44,7 @@ var
          * @constructor gpf.stream.LineAdapter
          * @implements {gpf.interfaces.IReadableStream}
          * @implements {gpf.interfaces.IWritableStream}
+         * @implements {gpf.interfaces.IFlushableStream}
          * @since 0.2.1
          */
         constructor: function () {
@@ -84,18 +85,26 @@ var
 
         //endregion
 
-        /**
-         * Completes the stream, flush the remaining characters as the last line if any
-         *
-         * @return {Promise} Resolve when written to the output
-         * @todo This is experimental until a better way is found
-         * @since 0.2.1
-         */
-        endOfStream: function () {
+        //region gpf.interfaces.IFlushableStream
+
+        flush: function () {
             if (_gpfStreamLineLastDoesntEndsWithLF(this._buffer)) {
                 return this.write("\n");
             }
             return Promise.resolve();
+        },
+
+        //endregion
+
+        /**
+         * Completes the stream, flush the remaining characters as the last line if any
+         *
+         * @return {Promise} Resolve when written to the output
+         * @deprecated since version 0.2.2, use flush
+         * @since 0.2.1
+         */
+        endOfStream: function () {
+            return this.flush();
         },
 
         /**
