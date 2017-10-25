@@ -3,8 +3,15 @@
 describe("require", function () {
 
     before(function () {
+        var basePath;
+        if (0 === config.httpPort) {
+            // published version
+            basePath = "/gpf/test-resources/require";
+        } else {
+            basePath = "/test/require";
+        }
         gpf.require.configure({
-            base: "/test/require"
+            base: basePath
         });
     });
 
