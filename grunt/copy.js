@@ -1,6 +1,7 @@
 "use strict";
 
-var IO_PATH = "../ArnaudBuchholz.github.io/",
+const
+    IO_PATH = "../ArnaudBuchholz.github.io/",
     fs = require("fs"),
     copy = {
         getPlatoHistory: {
@@ -19,6 +20,7 @@ var IO_PATH = "../ArnaudBuchholz.github.io/",
         publishVersion: {},
         publishVersionDoc: {},
         publishTest: {},
+        publishTestRequire: {},
         instrumentSourcesJson: {
             expand: true,
             cwd: "./src/",
@@ -28,30 +30,38 @@ var IO_PATH = "../ArnaudBuchholz.github.io/",
     };
 
 if (fs.existsSync(IO_PATH)) {
-    copy.publishVersionPlato = {
-        expand: true,
-        cwd: "./tmp/plato/",
-        src: "**/*.*",
-        dest: IO_PATH + "gpf/" + configuration.pkg.version + "/plato/"
-    };
-    copy.publishVersion = {
-        expand: true,
-        cwd: "./build/",
-        src: ["gpf.js", "gpf-debug.js", "tests.js"],
-        dest: IO_PATH + "gpf/" + configuration.pkg.version + "/"
-    };
-    copy.publishVersionDoc = {
-        expand: true,
-        cwd: "./tmp/doc/public",
-        src: "**/*.*",
-        dest: IO_PATH + "gpf/" + configuration.pkg.version + "/doc/"
-    };
-    copy.publishTest = {
-        expand: true,
-        cwd: "./test/host/",
-        src: ["test.html", "bdd.js"],
-        dest: IO_PATH + "gpf/"
-    };
+    Object.assign(copy, {
+        publishVersionPlato: {
+            expand: true,
+            cwd: "./tmp/plato/",
+            src: "**/*.*",
+            dest: IO_PATH + "gpf/" + configuration.pkg.version + "/plato/"
+        },
+        publishVersion: {
+            expand: true,
+            cwd: "./build/",
+            src: ["gpf.js", "gpf-debug.js", "tests.js"],
+            dest: IO_PATH + "gpf/" + configuration.pkg.version + "/"
+        },
+        publishVersionDoc: {
+            expand: true,
+            cwd: "./tmp/doc/public",
+            src: "**/*.*",
+            dest: IO_PATH + "gpf/" + configuration.pkg.version + "/doc/"
+        },
+        publishTest: {
+            expand: true,
+            cwd: "./test/host/",
+            src: ["test.html", "bdd.js"],
+            dest: IO_PATH + "gpf/"
+        },
+        publishTestRequire: {
+            expand: true,
+            cwd: "./test/require/",
+            src: "**/*.*",
+            dest: IO_PATH + "gpf/test-resources/require"
+        }
+    });
 }
 
 module.exports = copy;
