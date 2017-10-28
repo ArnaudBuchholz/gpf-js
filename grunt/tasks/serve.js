@@ -27,6 +27,7 @@ module.exports = function (grunt) {
     grunt.registerTask("serve", [
         "pre-serve",
         "connect:server",
+        "open_tiles",
         "watch"
     ]);
 };
