@@ -5,7 +5,6 @@ module.exports = {
         options: {
             port: configuration.serve.httpPort,
             hostname: "*",
-            open: true,
             middleware: function (connect, options, middlewares) {
 
                 var MIDDLEWARE_FOLDER = "connect-middleware",
