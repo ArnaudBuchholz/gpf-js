@@ -3,18 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <title>GPF-JS logo</title>
-    <script language="JavaScript" src="../build/gpf.js"></script>
     <script language="JavaScript">
+        var gpfSourcesPath = "../src/";
+    </script>
+    <script language="JavaScript" src="../src/boot.js"></script>
+    <script language="JavaScript">
+
+var COLS = 20,
+    ROWS = 20;
 
 function onLoad() {
     var svg = document.getElementById("svg"),
-        path = gpf.web.createTagFunction("svg:path");
+        path = gpf.web.createTagFunction("svg:path"),
+        x = 1,
+        y = 2,
+        rows = ROWS,
+        cols,
+        d;
+
+    while (rows--) {
+        d = ["M 1", y];
+        cols = COLS;
+        x = 1;
+        while (cols--) {
+            d.push("L", x, y, "L", x + 1, y - 1, "L", x + 2, y - 1, "L", x + 3, y);
+            x += 4;
+        }
+        cols = COLS;
+        --x;
+        while (cols--) {
+            d.push("L", x, y, "L", x - 1, y + 1, "L", x - 2, y + 1, "L", x - 3, y);
+            x -= 4;
+        }
+        path({
+            fill: "none",
+            stroke: "black",
+            "stroke-width": .1,
+            d: d.join(" ")
+        }).appendTo(svg);
+        y += 2;
+    }
     path({
         fill: "none",
-        stroke: "black",
-        "stroke-width": .1,
-        d: "M 1 1 L 2 2 L 3 1 L 4 2 L 5 1 Z"
+        stroke: "red",
+        "stroke-width": 1,
+        d: "M 22.5 20.5 L 22.5 10.5"
     }).appendTo(svg);
+
 }
 
 
