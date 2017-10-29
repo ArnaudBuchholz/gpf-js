@@ -9,8 +9,8 @@
     <script language="JavaScript" src="../src/boot.js"></script>
     <script language="JavaScript">
 
-var COLS = 20,
-    ROWS = 20;
+var COLS = 10,
+    ROWS = 10;
 
 function onLoad() {
     var svg = document.getElementById("svg"),
@@ -52,11 +52,19 @@ function onLoad() {
 
 }
 
+document/*.getElementById("svg")*/.addEventListener("mousemove", function (e) {
+    var y = e.clientY - document.getElementById("svg").getBoundingClientRect().top;
+    document.getElementById("x").innerHTML = e.clientX;
+    document.getElementById("y").innerHTML = y;
+});
 
     </script>
 </head>
 <body onload="onLoad()">
-    <svg id="svg" width="100%" height="100%" viewBox="0 0 100 100">
+    <div>
+        X: <span id="x"></span>, Y: <span id="y"></span>
+    </div>
+    <svg id="svg" width="100%" height="100%" viewBox="0 0 40 40">
     </svg>
 </body>
 </html>
