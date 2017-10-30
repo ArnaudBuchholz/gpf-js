@@ -94,27 +94,37 @@ function onLoad() {
             d: (new Path(x, y))
                 .m(0, 0).l(1, 1).l(2, 0).l(2, -4).l(1, -4).l(0, -4).l(0, -3).l(1, -2)
                 .toString()
+        });
+    }
+
+    function p (x, y, color) {
+        color = color || "red";
+        return path({
+            fill: "none",
+            stroke: color,
+            "stroke-width": 1,
+            d: (new Path(x, y))
+                .m(0, 0).l(0, -3).l(1, -3).l(2, -3).l(2, -2).l(1, -1)
+                .toString()
         })
     }
 
-    // g
+    function f (x, y, color) {
+        color = color || "red";
+        return path({
+            fill: "none",
+            stroke: color,
+            "stroke-width": 1,
+            d: (new Path(x, y))
+                .m(0, 0).l(1, 1).l(2, 0).l(2, -4).l(3, -4).l(4, -4)
+                .m(1, -1).l(3, -2)
+                .toString()
+        })
+    }
+
     g(1, 6).appendTo(svg);
-    g(2, 7, "blue").appendTo(svg);
-    // p
-    path({
-        fill: "none",
-        stroke: "red",
-        "stroke-width": 1,
-        d: "M 10.5 14 L 10.5 8 L 12.5 7 L 14.5 8 L 14.5 10 L 12.5 11"
-    }).appendTo(svg);
-    // f
-    path({
-        fill: "none",
-        stroke: "red",
-        "stroke-width": 1,
-        d: "M 12.5 15 L 14.5 16 L 16.5 15 L 16.5 7 L 18.5 6 L 20.5 7"
-            + "M 14.5 12 L 18.5 10"
-    }).appendTo(svg);
+    p(4, 6).appendTo(svg);
+    f(5, 6).appendTo(svg);
 
     path({
         fill: "none",
