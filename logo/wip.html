@@ -43,30 +43,79 @@ function onLoad() {
         }).appendTo(svg);
         y += 2;
     }
-    path({
-        fill: "none",
-        stroke: "red",
-        "stroke-width": 1,
-        d: "M 4.5 15 L 6.5 16 L 8.5 15 L 8.5 7 L 6.5 6 L 4.5 7 L 4.5 9 L 6.5 10"
-    }).appendTo(svg);
+
+    function Path (x, y) {
+        if (undefined !== x && undefined !== y) {
+            this._refX = x;
+            this._refY = y;
+        }
+
+        this._d = [];
+    }
+
+    Path.prototype = {
+
+        _refX: 0,
+        _refY: 0,
+        _d: [],
+
+        _at: function (x, y) {
+            if (0 == this._refX % 2 && x % 2) {
+                --y;
+            }
+            var absX = this._refX + x,
+                svgX = 2.5 + 2 * absX,
+                svgY = 2 + 2 * (this._refY + y) + absX % 2;
+            return svgX + " " + svgY;
+        },
+
+        m: function (x, y) {
+            this._d.push("M", this._at(x, y));
+            return this;
+        },
+
+        l: function (x, y) {
+            this._d.push("L", this._at(x, y));
+            return this;
+        },
+
+        toString: function () {
+            return this._d.join(" ");
+        }
+
+    };
+
+    function g (x, y, color) {
+        color = color || "red";
+        return path({
+            fill: "none",
+            stroke: color,
+            "stroke-width": 1,
+            d: (new Path(x, y))
+                .m(0, 0).l(1, 1).l(2, 0).l(2, -4).l(1, -4).l(0, -4).l(0, -3).l(1, -2)
+                .toString()
+        })
+    }
+
+    // g
+    g(1, 6).appendTo(svg);
+    g(2, 7, "blue").appendTo(svg);
+    // p
     path({
         fill: "none",
         stroke: "red",
         "stroke-width": 1,
         d: "M 10.5 14 L 10.5 8 L 12.5 7 L 14.5 8 L 14.5 10 L 12.5 11"
     }).appendTo(svg);
+    // f
     path({
         fill: "none",
         stroke: "red",
         "stroke-width": 1,
         d: "M 12.5 15 L 14.5 16 L 16.5 15 L 16.5 7 L 18.5 6 L 20.5 7"
+            + "M 14.5 12 L 18.5 10"
     }).appendTo(svg);
-    path({
-        fill: "none",
-        stroke: "red",
-        "stroke-width": 1,
-        d: "M 14.5 12 L 18.5 10"
-    }).appendTo(svg);
+
     path({
         fill: "none",
         stroke: "black",
