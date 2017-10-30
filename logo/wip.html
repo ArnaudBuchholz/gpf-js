@@ -15,16 +15,16 @@ var COLS = 10,
 function onLoad() {
     var svg = document.getElementById("svg"),
         path = gpf.web.createTagFunction("svg:path"),
-        x = 1,
+        x,
         y = 2,
         rows = ROWS,
         cols,
         d;
 
     while (rows--) {
-        d = ["M 1", y];
-        cols = COLS;
         x = 1;
+        d = ["M", x, y];
+        cols = COLS;
         while (cols--) {
             d.push("L", x, y, "L", x + 1, y - 1, "L", x + 2, y - 1, "L", x + 3, y);
             x += 4;
@@ -53,18 +53,32 @@ function onLoad() {
 }
 
 document/*.getElementById("svg")*/.addEventListener("mousemove", function (e) {
-    var y = e.clientY - document.getElementById("svg").getBoundingClientRect().top;
-    document.getElementById("x").innerHTML = e.clientX;
-    document.getElementById("y").innerHTML = y;
+    var svg = document.getElementById("svg"),
+        svgRect = svg.getBoundingClientRect(),
+        svgViewBox = svg.getAttribute("viewBox").split(" "),
+        svgViewWidth = parseInt(svgViewBox[2], 10),
+        svgViewHeight = parseInt(svgViewBox[3], 10),
+        svgScaleX = svgRect.width / svgViewWidth,
+        svgScaleY = svgRect.height / svgViewHeight,
+        y = e.clientY - svgRect.top,
+        svgX = Math.floor(e.clientX / svgScaleX),
+        svgY = Math.floor(y / svgScaleY);
+//        row = svgRect.height / ;
+
+    document.getElementById("info").innerHTML = [
+        "svgX: ", svgX,
+        ", svgY: ", svgY,
+
+    ].join("");
+
 });
 
     </script>
 </head>
 <body onload="onLoad()">
-    <div>
-        X: <span id="x"></span>, Y: <span id="y"></span>
-    </div>
     <svg id="svg" width="100%" height="100%" viewBox="0 0 40 40">
     </svg>
+    <div id="info">
+    </div>
 </body>
 </html>
