@@ -35,7 +35,7 @@
          * GPF Version
          * @since 0.1.5
          */
-        _gpfVersion = "0.2.1",
+        _gpfVersion = "0.2.2",
         /**
          * Host constants
          * @since 0.1.5
@@ -136,8 +136,8 @@
         _gpfDosPath = true;
     } else if ("undefined" !== typeof print && "undefined" !== typeof java) {
         _gpfHost = _GPF_HOST.RHINO;
-        _gpfDosPath = false;    // PhantomJS
-    } else if ("undefined" !== typeof phantom && phantom.version) {
+        _gpfDosPath = false;    // PhantomJS - When used as a command line (otherwise considered as a browser)
+    } else if ("undefined" !== typeof phantom && phantom.version && !document.currentScript) {
         _gpfHost = _GPF_HOST.PHANTOMJS;
         _gpfDosPath = require("fs").separator === "\\";
         _gpfMainContext = window;    // Nodejs
@@ -273,6 +273,7 @@
         };
         _gpfWebWindow = window;
         _gpfWebDocument = document;
+        _gpfNodeFs = require("fs");
     };
     gpf.rhino = {};
     _gpfBootImplByHost[_GPF_HOST.RHINO] = function () {
@@ -350,6 +351,22 @@
                 callback.call(thisArg, object[property], property, object);
             }
         });
+    }
+    /**
+     * _gpfArrayForEach that returns first truthy value computed by the callback
+     *
+     * @param {Array} array Array-like object
+     * @param {gpf.typedef.forEachCallback} callback Callback function executed on each array item
+     * @param {*} [thisArg] thisArg Value to use as this when executing callback
+     * @return {*} first truthy value returned by the callback or undefined after all items were enumerated
+     * @since 0.2.2
+     */
+    function _gpfArrayForEachFalsy(array, callback, thisArg) {
+        var result, index, length = array.length;
+        for (index = 0; index < length && !result; ++index) {
+            result = callback.call(thisArg, array[index], index, array);
+        }
+        return result;
     }
     /**
      * Similar to [].forEach but for objects
@@ -868,6 +885,11 @@
             toISOString: function () {
                 return _gpfDateToISOString(this);
             }
+        },
+        statics: {
+            now: function () {
+                return new Date().getTime();
+            }
         }
     });
     //region Date override
@@ -1280,13 +1302,16 @@
     gpf.handleTimeout = _gpfEmptyFunc;
     // Sorting function used to reorder the async queue
     function _gpfSortOnDt(a, b) {
+        if (a.dt === b.dt) {
+            return a.id - b.id;
+        }
         return a.dt - b.dt;
     }
     function _gpSetTimeoutPolyfill(callback, timeout) {
         _gpfAssert("number" === typeof timeout, "Timeout is required");
         var timeoutItem = {
             id: ++_gpfTimeoutID,
-            dt: new Date(new Date().getTime() + timeout),
+            dt: new Date().getTime() + timeout,
             cb: callback
         };
         _gpfTimeoutQueue.push(timeoutItem);
@@ -1314,9 +1339,10 @@
         var queue = _gpfTimeoutQueue, timeoutItem, now;
         while (queue.length) {
             timeoutItem = queue.shift();
-            now = new Date();
-            if (timeoutItem.dt > now) {
+            now = new Date().getTime();
+            while (timeoutItem.dt > now) {
                 _gpfSleep(timeoutItem.dt - now);
+                now = new Date().getTime();
             }
             timeoutItem.cb();
         }
@@ -1785,15 +1811,33 @@
         entityDefinition.check();
         return entityDefinition;
     }
-    function _gpfRegExpForEach(regexp, string, callback) {
-        var match;
-        /*jshint -W084*/
-        // to avoid repeating twice the exec
-        while (match = regexp.exec(string)) {
-            //eslint-disable-line no-cond-assign
-            callback(match, string);
+    function _gpfRegExpGetNextMatch(regexp, string) {
+        return regexp.exec(string);
+    }
+    function _gpfRegExpGetFirstMatch(regexp, string) {
+        regexp.lastIndex = 0;
+        return _gpfRegExpGetNextMatch(regexp, string);
+    }
+    /**
+     * Executes the callback for each match of the regular expression.
+     * When configured with /g and used before,
+     * the [lastIndex](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex)
+     * must be first reset
+     *
+     * @param {RegExp} regexp Regular expression to execute
+     * @param {String} string String to match
+     * @return {Array} Array of matches
+     * @since 0.2.1
+     * @version 0.2.2 Reset lastIndex and returns the array of matches
+     */
+    function _gpfRegExpForEach(regexp, string) {
+        var matches = [], match = _gpfRegExpGetFirstMatch(regexp, string);
+        while (match) {
+            matches.push(match);
+            match = _gpfRegExpGetNextMatch(regexp, string);
         }
-    }    /*jshint +W084*/
+        return matches;
+    }
     function _GpfEntityDefinition(definition) {
         _gpfAssert(definition && "object" === typeof definition, "Expected an entity definition");
         /*jshint validthis:true*/
@@ -2205,7 +2249,6 @@
          *
          * The constructor member is a special one, see {@tutorial DEFINE}
          *
-         * @see {@tutorial DEFINE}
          * @since 0.1.7
          */
         invalidClassConstructor: "Invalid class constructor",
@@ -2218,7 +2261,6 @@
          *
          * The constructor member is a special one, see {@tutorial DEFINE}
          *
-         * @see {@tutorial DEFINE}
          * @since 0.1.7
          */
         invalidClassOverride: "Invalid class override"
@@ -2512,12 +2554,9 @@
      * @since 0.1.7
      */
     function _gpfClassMethodExtractSuperMembers(method) {
-        var result = [];
-        _gpfClassSuperRegExp.lastIndex = 0;
-        _gpfRegExpForEach(_gpfClassSuperRegExp, method, function (match) {
-            result.push(match[1]);
+        return _gpfRegExpForEach(_gpfClassSuperRegExp, method).map(function (match) {
+            return match[1];
         });
-        return result;
     }
     Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */
     {
@@ -3218,7 +3257,7 @@
             });
         };
     }
-    var _GpfStreamReadableString = _gpfDefine(/** @lends gpf.stream.ReadableString */
+    var _GpfStreamReadableString = _gpfDefine(/** @lends gpf.stream.ReadableString.prototype */
         {
             $class: "gpf.stream.ReadableString",
             /**
@@ -3250,7 +3289,7 @@
         /**
          * @since 0.1.9
          */
-        _GpfStreamWritableString = _gpfDefine(/** @lends gpf.stream.WritableString */
+        _GpfStreamWritableString = _gpfDefine(/** @lends gpf.stream.WritableString.prototype */
         {
             $class: "gpf.stream.WritableString",
             /**
@@ -3325,7 +3364,39 @@
          * @type {Object}
          * @since 0.2.1
          */
-        _gpfFileStorageByHost = {};
+        _gpfFileStorageByHost = {},
+        /**
+         * {@see gpf.fs.read} per host
+         *
+         * @type {Object}
+         * @since 0.2.2
+         */
+        _gpfFsReadImplByHost = {};
+    /**
+     * Generic read method using FileStorage
+     *
+     * @param {String} path File path
+     * @return {Promise<String>} Resolved with the file content
+     * @since 0.2.2
+     */
+    function _gpfFileStorageRead(path) {
+        var fs = _gpfFileStorageByHost[_gpfHost], iWritableStream = new _GpfStreamWritableString();
+        return fs.openTextStream(path, _GPF_FS_OPENFOR.READING).then(function (iReadStream) {
+            return iReadStream.read(iWritableStream);
+        }).then(function () {
+            return iWritableStream.toString();
+        });
+    }
+    /**
+     * Generic read method
+     *
+     * @param {String} path File path
+     * @return {Promise<String>} Resolved with the file content
+     * @since 0.2.2
+     */
+    function _gpfFsRead(path) {
+        return _gpfFsReadImplByHost[_gpfHost](path);
+    }
     /**
      * @namespace gpf.fs
      * @description Root namespace for filesystem specifics
@@ -3389,7 +3460,12 @@
          */
         getFileStorage: function () {
             return _gpfFileStorageByHost[_gpfHost] || null;
-        }
+        },
+        /**
+         * @gpf:sameas _gpfFsRead
+         * @since 0.2.2
+         */
+        read: _gpfFsRead
     };
     _gpfErrorDeclare("path", {
         /**
@@ -3465,6 +3541,20 @@
         }
         return "";
     }
+    /**
+     * Get the extension of the last name of a path (including dot)
+     *
+     * @param {String} path Path to analyze
+     * @return {String} Extension (including dot)
+     * @since 0.1.9
+     */
+    function _gpfPathExtension(path) {
+        var name = _gpfPathName(path), pos = name.lastIndexOf(".");
+        if (-1 === pos) {
+            return "";
+        }
+        return name.substr(pos);
+    }
     function _gpfPathAppend(splitPath, relativePath) {
         _gpfPathDecompose(relativePath).forEach(function (relativeItem) {
             if (".." === relativeItem) {
@@ -3499,6 +3589,19 @@
             // equivalent to splitFromPath.length && splitToPath.length
             _gpfPathSafeShiftIdenticalBeginning(splitFromPath, splitToPath);
         }
+    }
+    /**
+     * Get the parent of a path
+     *
+     * @param {String} path Path to analyze
+     * @return {String} Parent path
+     * @throws {gpf.Error.UnreachablePath}
+     * @since 0.1.9
+     */
+    function _gpfPathParent(path) {
+        path = _gpfPathDecompose(path);
+        _gpfPathUp(path);
+        return path.join("/");
     }
     /**
      * Solve the relative path from from to to
@@ -3541,18 +3644,10 @@
          */
         join: _gpfPathJoin,
         /**
-         * Get the parent of a path
-         *
-         * @param {String} path Path to analyze
-         * @return {String} Parent path
-         * @throws {gpf.Error.UnreachablePath}
+         * @gpf:sameas _gpfPathParent
          * @since 0.1.9
          */
-        parent: function (path) {
-            path = _gpfPathDecompose(path);
-            _gpfPathUp(path);
-            return path.join("/");
-        },
+        parent: _gpfPathParent,
         /**
          * @gpf:sameas _gpfPathName
          * @since 0.1.9
@@ -3573,19 +3668,10 @@
             return name.substr(0, pos);
         },
         /**
-         * Get the extension of the last name of a path (including dot)
-         *
-         * @param {String} path Path to analyze
-         * @return {String} Extension (including dot)
+         * @gpf:sameas _gpfPathExtension
          * @since 0.1.9
          */
-        extension: function (path) {
-            var name = _gpfPathName(path), pos = name.lastIndexOf(".");
-            if (-1 === pos) {
-                return "";
-            }
-            return name.substr(pos);
-        },
+        extension: _gpfPathExtension,
         /**
          * @gpf:sameas _gpfPathRelative
          * @since 0.1.9
@@ -3615,7 +3701,7 @@
             }
         };
     }
-    var _GpfNodeBaseStream = _gpfDefine(/** @lends gpf.node.BaseStream */
+    var _GpfNodeBaseStream = _gpfDefine(/** @lends gpf.node.BaseStream.prototype */
         {
             $class: "gpf.node.BaseStream",
             /**
@@ -3700,7 +3786,7 @@
          * @implements {gpf.interfaces.IReadableStream}
          * @since 0.1.9
          */
-        _GpfNodeReadableStream = _gpfDefine(/** @lends gpf.node.ReadableStream */
+        _GpfNodeReadableStream = _gpfDefine(/** @lends gpf.node.ReadableStream.prototype */
         {
             $class: "gpf.node.ReadableStream",
             $extend: "gpf.node.BaseStream",
@@ -3749,7 +3835,7 @@
          * @implements {gpf.interfaces.IWritableStream}
          * @since 0.1.9
          */
-        _GpfNodeWritableStream = _gpfDefine(/** @lends gpf.node.WritableStream */
+        _GpfNodeWritableStream = _gpfDefine(/** @lends gpf.node.WritableStream.prototype */
         {
             $class: "gpf.node.WritableStream",
             $extend: "gpf.node.BaseStream",
@@ -3854,7 +3940,7 @@
      * @private
      * @since 0.1.9
      */
-    var _gpfNodeFileStorage = _gpfDefine(/** @lends gpf.node.FileStorage */
+    var _GpfNodeFileStorage = _gpfDefine(/** @lends gpf.node.FileStorage.prototype */
     {
         $class: "gpf.node.FileStorage",
         //region gpf.interfaces.IFileStorage
@@ -3930,8 +4016,9 @@
          */
         deleteDirectory: _gpfFsNodeFsCallWithPath.bind(null, "rmdir")    //endregion
     });
-    _gpfFileStorageByHost[_GPF_HOST.NODEJS] = new _gpfNodeFileStorage();
-    var _GpfWscriptBaseStream = _gpfDefine(/** @lends gpf.wscript.BaseStream */
+    _gpfFileStorageByHost[_GPF_HOST.NODEJS] = new _GpfNodeFileStorage();
+    _gpfFsReadImplByHost[_GPF_HOST.NODEJS] = _gpfFileStorageRead;
+    var _GpfWscriptBaseStream = _gpfDefine(/** @lends gpf.wscript.BaseStream.prototype */
         {
             $class: "gpf.wscript.BaseStream",
             /**
@@ -3967,7 +4054,7 @@
          * @private
          * @since 0.1.9
          */
-        _GpfWscriptReadableStream = _gpfDefine(/** @lends gpf.wscript.ReadableStream */
+        _GpfWscriptReadableStream = _gpfDefine(/** @lends gpf.wscript.ReadableStream.prototype */
         {
             $class: "gpf.wscript.ReadableStream",
             $extend: "gpf.wscript.BaseStream",
@@ -4002,7 +4089,7 @@
          * @private
          * @since 0.1.9
          */
-        _GpfWscriptWritableStream = _gpfDefine(/** @lends gpf.wscript.WritableStream */
+        _GpfWscriptWritableStream = _gpfDefine(/** @lends gpf.wscript.WritableStream.prototype */
         {
             $class: "gpf.wscript.WritableStream",
             $extend: "gpf.wscript.BaseStream",
@@ -4099,7 +4186,7 @@
      * @private
      * @since 0.1.9
      */
-    var _GpfWScriptFileStorage = _gpfDefine(/** @lends gpf.wscript.FileStorage */
+    var _GpfWScriptFileStorage = _gpfDefine(/** @lends gpf.wscript.FileStorage.prototype */
     {
         $class: "gpf.wscript.FileStorage",
         //region gpf.interfaces.IFileStorage
@@ -4163,6 +4250,23 @@
         deleteDirectory: _gpfFsWscriptFSOCallWithArgAndTrue.bind(null, "DeleteFolder")    //endregion
     });
     _gpfFileStorageByHost[_GPF_HOST.WSCRIPT] = new _GpfWScriptFileStorage();
+    _gpfFsReadImplByHost[_GPF_HOST.WSCRIPT] = _gpfFileStorageRead;
+    _gpfFsReadImplByHost[_GPF_HOST.BROWSER] = gpf.Error.notImplemented;
+    _gpfFsReadImplByHost[_GPF_HOST.RHINO] = function (path) {
+        return new Promise(function (resolve) {
+            resolve(readFile(path));
+        });
+    };
+    _gpfFsReadImplByHost[_GPF_HOST.PHANTOMJS] = function (path) {
+        return new Promise(function (resolve, reject) {
+            try {
+                resolve(_gpfNodeFs.read(path));
+            } catch (e) {
+                // Error is a string
+                reject(new Error(e));
+            }
+        });
+    };
     var _gpfObjectToString = Object.prototype.toString;
     /**
      * Check if the parameter is a literal object
@@ -4190,7 +4294,29 @@
          * A tag can't be created if the node name is missing
          * @since 0.2.1
          */
-        missingNodeName: "Missing node name"
+        missingNodeName: "Missing node name",
+        /**
+         * ### Summary
+         *
+         * Unknown namespace prefix
+         *
+         * ### Description
+         *
+         * A prefix has been used prior to be associated with a namespace
+         * @since 0.2.2
+         */
+        unknownNamespacePrefix: "Unknown namespace prefix",
+        /**
+         * ### Summary
+         *
+         * Unable to use namespace in string
+         *
+         * ### Description
+         *
+         * A prefix associated to a namespace has been used and can't be converted to string
+         * @since 0.2.2
+         */
+        unableToUseNamespaceInString: "Unable to use namespace in string"
     });
     /**
      * Mapping of attribute name aliases
@@ -4198,6 +4324,58 @@
      * @since 0.2.1
      */
     var _gpfWebTagAttributeAliases = { "className": "class" };
+    /**
+     * Mapping of prefixes for namespaces
+     * @type {Object}
+     * @since 0.2.2
+     */
+    var _gpfWebNamespacePrefix = {
+        "svg": "http://www.w3.org/2000/svg",
+        "xlink": "http://www.w3.org/1999/xlink"
+    };
+    /**
+     * Retrieves namespace associated to the prefix or fail
+     *
+     * @param {String} prefix Namespace prefix
+     * @return {String} Namespace URI
+     * @throws {gpf.Error.UnknownNamespacePrefix}
+     * @since 0.2.2
+     */
+    function _gpfWebGetNamespace(prefix) {
+        var namespace = _gpfWebNamespacePrefix[prefix];
+        if (undefined === namespace) {
+            gpf.Error.unknownNamespacePrefix();
+        }
+        return namespace;
+    }
+    /**
+     * Resolves prefixed name to namespace and name
+     *
+     * @param {String} name Attribute or node name
+     * @return {{namespace, name}|undefined} Namespace and name in a structure if prefixed, undefined otherwise
+     * @since 0.2.2
+     */
+    function _gpfWebGetNamespaceAndName(name) {
+        var parts = name.split(":");
+        if (parts.length === 2) {
+            return {
+                namespace: _gpfWebGetNamespace(parts[0]),
+                name: parts[1]
+            };
+        }
+    }
+    /**
+     * Fails if the name includes namespace prefix
+     *
+     * @param {String} name Attribute or node name
+     * @throws {gpf.Error.UnableToUseNamespaceInString}
+     * @since 0.2.2
+     */
+    function _gpfWebCheckNamespaceSafe(name) {
+        if (-1 !== name.indexOf(":")) {
+            gpf.Error.unableToUseNamespaceInString();
+        }
+    }
     /**
      * Resolve attribute name
      *
@@ -4225,7 +4403,8 @@
             }
         });
     }
-    var _GpfWebTag = _gpfDefine({
+    var _GpfWebTag = _gpfDefine(/** @lends gpf.web.Tag.prototype */
+    {
         $class: "gpf.web.Tag",
         /**
          * Tag object
@@ -4234,7 +4413,7 @@
          * @param {Object} [attributes] Dictionary of attributes to set
          * @param {Array} [children] Children
          *
-         * @constructor gpf.web.Ta
+         * @constructor gpf.web.Tag
          * @private
          * @since 0.2.1
          */
@@ -4261,6 +4440,7 @@
         //region toString implementation
         _getAttributesAsString: function () {
             return Object.keys(this._attributes).map(function (name) {
+                _gpfWebCheckNamespaceSafe(name);
                 return " " + _gpfWebTagAttributeAlias(name) + "=\"" + _gpfStringEscapeFor(this._attributes[name], "html") + "\"";
             }, this).join("");
         },
@@ -4284,16 +4464,30 @@
          * @since 0.2.1
          */
         toString: function () {
+            _gpfWebCheckNamespaceSafe(this._nodeName);
             return "<" + this._nodeName + this._getAttributesAsString() + this._getClosingString();
         },
         //endregion
         //region appendTo implementation
+        _createElement: function (node) {
+            var ownerDocument = node.ownerDocument, qualified = _gpfWebGetNamespaceAndName(this._nodeName);
+            if (qualified) {
+                return ownerDocument.createElementNS(qualified.namespace, qualified.name);
+            }
+            return ownerDocument.createElement(this._nodeName);
+        },
         _setAttributesTo: function (node) {
             _gpfObjectForEach(this._attributes, function (value, name) {
-                node.setAttribute(_gpfWebTagAttributeAlias(name), value);
+                var qualified = _gpfWebGetNamespaceAndName(name);
+                if (qualified) {
+                    node.setAttributeNS(qualified.namespace, _gpfWebTagAttributeAlias(qualified.name), value);
+                } else {
+                    node.setAttribute(_gpfWebTagAttributeAlias(name), value);
+                }
             });
         },
-        _appendChildrenTo: function (node, ownerDocument) {
+        _appendChildrenTo: function (node) {
+            var ownerDocument = node.ownerDocument;
             _gpfWebTagFlattenChildren(this._children, function (child) {
                 if (child instanceof _GpfWebTag) {
                     child.appendTo(node);
@@ -4310,17 +4504,17 @@
          * @since 0.2.1
          */
         appendTo: function (node) {
-            var ownerDocument = node.ownerDocument, element = ownerDocument.createElement(this._nodeName);
+            var element = this._createElement(node);
             this._setAttributesTo(element);
-            this._appendChildrenTo(element, ownerDocument);
+            this._appendChildrenTo(element);
             return node.appendChild(element);
         }    //endregion
     });
     /**
-     * Create a function that can be used to generate HTML
+     * Create a tag generation function
      *
-     * @param {String} [nodeName] tag name
-     * @return {Function} The tag generation function
+     * @param {String} nodeName tag name
+     * @return {gpf.typedef.tagFunc} The tag generation function
      * @gpf:closure
      * @since 0.2.1
      */
@@ -4342,168 +4536,33 @@
     /**
      * @gpf:sameas _gpfWebTagCreateFunction
      * @since 0.2.1
+     *
+     * @example <caption>Tree building to string</caption>
+     * var div = gpf.web.createTagFunction("div"),
+     *     span = gpf.web.createTagFunction("span"),
+     * tree = div({className: "test1"}, "Hello ", span({className: "test2"}, "World!"));
+     * // tree.toString() gives <div class="test1">Hello <span class="test2">World!</span></div>
+     *
+     * @example <caption>Tree building to DOM</caption>
+     * var mockNode = mockDocument.createElement("any"),
+     *     div = gpf.web.createTagFunction("div"),
+     *     span = gpf.web.createTagFunction("span"),
+     *     tree = div({className: "test"}, "Hello ", span("World!")),
+     *     result = tree.appendTo(mockNode);
      */
     gpf.web.createTagFunction = _gpfWebTagCreateFunction;
-    var _HTTP_METHODS = {
+    gpf.http = {};
+    /**
+     * Http methods
+     * @since 0.2.1
+     */
+    var _GPF_HTTP_METHODS = {
         GET: "GET",
         POST: "POST",
         PUT: "PUT",
         OPTIONS: "OPTIONS",
-        DELETE: "DELETE"
-    };
-    /**
-     * HTTP request settings
-     *
-     * @typedef gpf.typedef.httpRequestSettings
-     * @property {gpf.http.methods} [method=gpf.http.methods.get] HTTP method
-     * @property {String} url URL to submit the request to
-     * @property {Object} [headers] Request headers
-     * @property {String} [data] Request data, valid only for {@link gpf.http.methods.post} and {@link gpf.http.methods.put}
-     *
-     * @see gpf.http.request
-     * @since 0.2.1
-     */
-    /**
-     * HTTP request response
-     *
-     * @typedef gpf.typedef.httpRequestResponse
-     * @property {int} status HTTP status
-     * @property {Object} headers HTTP response headers
-     * @property {String} responseText Response Text
-     *
-     * @see gpf.http.request
-     * @since 0.2.1
-     */
-    /**
-     * HTTP request host specific implementation per host
-     *
-     * @type {Object}
-     * @since 0.2.1
-     */
-    var _gpfHttpRequestImplByHost = {};
-    /**
-     * HTTP request common implementation
-     *
-     * @param {gpf.typedef.httpRequestSettings} request HTTP Request settings
-     * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
-     * @since 0.2.1
-     */
-    function _gpfHttpRequest(request) {
-        return new Promise(function (resolve, reject) {
-            _gpfHttpRequestImplByHost[_gpfHost](request, resolve, reject);
-        });
-    }
-    /**
-     * Implementation of aliases
-     *
-     * @param {String} method HTTP method to apply
-     * @param {String|gpf.typedef.httpRequestSettings} url Url to send the request to or a request settings object
-     * @param {*} [data] Data to be sent to the server
-     * @return {Promise<gpf.typedef.httpRequestResponse>} HTTP request promise
-     * @since 0.2.1
-     */
-    function _gpfProcessAlias(method, url, data) {
-        if ("string" === typeof url) {
-            return _gpfHttpRequest({
-                method: method,
-                url: url,
-                data: data
-            });
-        }
-        return _gpfHttpRequest(Object.assign({ method: method }, url));
-    }
-    /**
-     * @namespace gpf.http
-     * @description Root namespace for http specifics
-     * @since 0.2.1
-     */
-    gpf.http = {
-        /**
-         * HTTP methods enumeration
-         *
-         * @enum {String}
-         * @readonly
-         * @since 0.2.1
-         */
-        methods: {
-            /**
-             * GET
-             * @since 0.2.1
-             */
-            get: _HTTP_METHODS.GET,
-            /**
-             * POST
-             * @since 0.2.1
-             */
-            post: _HTTP_METHODS.POST,
-            /**
-             * PUT
-             * @since 0.2.1
-             */
-            put: _HTTP_METHODS.PUT,
-            /**
-             * OPTIONS
-             * @since 0.2.1
-             */
-            options: _HTTP_METHODS.OPTIONS,
-            /**
-             * PUT
-             * @since 0.2.1
-             */
-            "delete": _HTTP_METHODS.DELETE
-        },
-        /**
-         * @gpf:sameas _gpfHttpRequest
-         * @since 0.2.1
-         */
-        request: _gpfHttpRequest,
-        /**
-         * HTTP GET request
-         *
-         * @method
-         * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
-         * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
-         * @since 0.2.1
-         */
-        get: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.GET),
-        /**
-         * HTTP POST request
-         *
-         * @method
-         * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
-         * @param {String} data Data to POST
-         * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
-         * @since 0.2.1
-         */
-        post: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.POST),
-        /**
-         * HTTP PUT request
-         *
-         * @method
-         * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
-         * @param {String} data Data to PUT
-         * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
-         * @since 0.2.1
-         */
-        put: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.PUT),
-        /**
-         * HTTP OPTIONS request
-         *
-         * @method
-         * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
-         * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
-         * @since 0.2.1
-         */
-        options: _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.OPTIONS),
-        /**
-         * HTTP DELETE request
-         *
-         * @method
-         * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
-         * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
-         * @since 0.2.1
-         */
-        "delete": _gpfProcessAlias.bind(gpf.http, _HTTP_METHODS.DELETE)
+        DELETE: "DELETE",
+        HEAD: "HEAD"
     };
     var _gpfHttpHeadersParserRE = new RegExp("([^:\\s]+)\\s*: ?([^\\r]*)", "gm");
     /**
@@ -4515,8 +4574,7 @@
      */
     function _gpfHttpParseHeaders(headers) {
         var result = {};
-        _gpfHttpHeadersParserRE.lastIndex = 0;
-        _gpfRegExpForEach(_gpfHttpHeadersParserRE, headers, function (match) {
+        _gpfArrayForEach(_gpfRegExpForEach(_gpfHttpHeadersParserRE, headers), function (match) {
             result[match[1]] = match[2];
         });
         return result;
@@ -4555,6 +4613,274 @@
             }
         };
     }
+    var _gpfIThenable = _gpfDefineInterface("Thenable", { "then": 2 });
+    /**
+     * Converts any value into a promise.
+     * If the value implements {@link gpf.interfaces.IThenable}, it is considered as a promise.
+     *
+     * @param {*} value Value to convert
+     * @return {Promise<*>} Promisified version of the value
+     * @since 0.2.2
+     */
+    function _gpfPromisify(value) {
+        if (gpf.interfaces.isImplementedBy(gpf.interfaces.IThenable, value)) {
+            return value;
+        }
+        return Promise.resolve(value);
+    }
+    /**
+     * Converts value into a promise if not undefined.
+     * If the value implements {@link gpf.interfaces.IThenable}, it is considered as a promise.
+     *
+     * @param {*} value Value to convert
+     * @return {Promise<*>|undefined} Promisified version of the value or undefined
+     * @since 0.2.2
+     */
+    function _gpfPromisifyDefined(value) {
+        if (undefined !== value) {
+            return _gpfPromisify(value);
+        }
+    }
+    /**
+     * @gpf:sameas _gpfPromisify
+     * @since 0.2.2
+     */
+    gpf.promisify = _gpfPromisify;
+    /**
+     * @gpf:sameas _gpfPromisifyDefined
+     * @since 0.2.2
+     */
+    gpf.promisifyDefined = _gpfPromisifyDefined;
+    var _gpfHttpMockedRequests = {};
+    /**
+     * Match the provided request with the mocked one
+     *
+     * @param {gpf.typedef.mockedRequest} mockedRequest Mocked request to match
+     * @return {Promise<gpf.typedef.httpRequestResponse>|undefined} undefined if not matching
+     * @this {gpf.typedef.httpRequestSettings}
+     * @since 0.2.2
+     */
+    function _gpfHttMockMatchRequest(mockedRequest) {
+        /*jshint validthis:true*/
+        var url = mockedRequest.url, match;
+        url.lastIndex = 0;
+        match = url.exec(this.url);
+        if (match) {
+            return _gpfPromisifyDefined(mockedRequest.response.apply(null, [this].concat([].slice.call(match, 1))));
+        }
+    }
+    /**
+     * Match the provided request to the list of mocked ones
+     *
+     * @param {gpf.typedef.mockedRequest[]} mockedRequests List of mocked requests for the given method
+     * @param {gpf.typedef.httpRequestSettings} request Request to match
+     * @return {Promise<gpf.typedef.httpRequestResponse>|undefined} undefined if no mocked request matches
+     * @since 0.2.2
+     */
+    function _gpfHttMockMatch(mockedRequests, request) {
+        return _gpfArrayForEachFalsy(mockedRequests, _gpfHttMockMatchRequest.bind(request));
+    }
+    /**
+     * Check if the provided request match any of the mocked one
+     *
+     * @param {gpf.typedef.httpRequestSettings} request Request to check
+     * @return {Promise<gpf.typedef.httpRequestResponse>|undefined} undefined if no mocked request matches
+     * @since 0.2.2
+     */
+    function _gpfHttpMockCheck(request) {
+        return _gpfHttMockMatch(_gpfHttpMockedRequests[request.method], request);
+    }
+    var _gpfHttpMockLastId = 0;
+    /**
+     * Add a mocked request
+     *
+     * @param {gpf.typedef.mockedRequest} definition Mocked request definition
+     * @return {gpf.typedef.mockedRequestID} Mocked request identifier, to be used with {@link gpf.http.mock.remove}
+     * @see gpf.http
+     * @since 0.2.2
+     */
+    function _gpfHttpMockAdd(definition) {
+        var method = definition.method, id;
+        ++_gpfHttpMockLastId;
+        id = method + "." + _gpfHttpMockLastId;
+        _gpfHttpMockedRequests[method].unshift(Object.assign({
+            method: method,
+            id: id
+        }, definition));
+        return id;
+    }
+    /**
+     * Removes a mocked request
+     *
+     * @param {gpf.typedef.mockedRequestID} id Mocked request identifier returned by {@link gpf.http.mock}
+     * @since 0.2.2
+     */
+    function _gpfHttpMockRemove(id) {
+        var method = id.split(".")[0];
+        _gpfHttpMockedRequests[method] = _gpfHttpMockedRequests[method].filter(function (mockedRequest) {
+            return mockedRequest.id !== id;
+        });
+    }
+    /**
+     * Clears all mocked requests
+     * @since 0.2.2
+     */
+    function _gpfHttpMockReset() {
+        Object.keys(_GPF_HTTP_METHODS).forEach(function (method) {
+            _gpfHttpMockedRequests[method] = [];
+        });
+    }
+    _gpfHttpMockReset();
+    /**
+     * @gpf:sameas _gpfHttpMockAdd
+     * @since 0.2.2
+     */
+    gpf.http.mock = _gpfHttpMockAdd;
+    /**
+     * @gpf:sameas _gpfHttpMockRemove
+     * @since 0.2.2
+     */
+    gpf.http.mock.remove = _gpfHttpMockRemove;
+    /**
+     * @gpf:sameas _gpfHttpMockReset
+     * @since 0.2.2
+     */
+    gpf.http.mock.reset = _gpfHttpMockReset;
+    var _gpfHttpRequestImplByHost = {};
+    /**
+     * HTTP request common implementation
+     *
+     * @param {gpf.typedef.httpRequestSettings} request HTTP Request settings
+     * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+     * @since 0.2.1
+     */
+    function _gpfHttpRequest(request) {
+        return _gpfHttpMockCheck(request) || new Promise(function (resolve, reject) {
+            _gpfHttpRequestImplByHost[_gpfHost](request, resolve, reject);
+        });
+    }
+    /**
+     * Implementation of aliases
+     *
+     * @param {String} method HTTP method to apply
+     * @param {String|gpf.typedef.httpRequestSettings} url Url to send the request to or a request settings object
+     * @param {*} [data] Data to be sent to the server
+     * @return {Promise<gpf.typedef.httpRequestResponse>} HTTP request promise
+     * @since 0.2.1
+     */
+    function _gpfProcessAlias(method, url, data) {
+        if ("string" === typeof url) {
+            return _gpfHttpRequest({
+                method: method,
+                url: url,
+                data: data
+            });
+        }
+        return _gpfHttpRequest(Object.assign({ method: method }, url));
+    }
+    Object.assign(gpf.http, /** @lends gpf.http */
+    {
+        /**
+         * HTTP methods enumeration
+         *
+         * @enum {String}
+         * @readonly
+         * @since 0.2.1
+         */
+        methods: {
+            /**
+             * GET
+             * @since 0.2.1
+             */
+            get: _GPF_HTTP_METHODS.GET,
+            /**
+             * POST
+             * @since 0.2.1
+             */
+            post: _GPF_HTTP_METHODS.POST,
+            /**
+             * PUT
+             * @since 0.2.1
+             */
+            put: _GPF_HTTP_METHODS.PUT,
+            /**
+             * OPTIONS
+             * @since 0.2.1
+             */
+            options: _GPF_HTTP_METHODS.OPTIONS,
+            /**
+             * DELETE
+             * @since 0.2.1
+             */
+            "delete": _GPF_HTTP_METHODS.DELETE,
+            /**
+             * HEAD
+             * @since 0.2.2
+             */
+            head: _GPF_HTTP_METHODS.HEAD
+        },
+        /**
+         * @gpf:sameas _gpfHttpRequest
+         * @since 0.2.1
+         */
+        request: _gpfHttpRequest,
+        /**
+         * HTTP GET request
+         *
+         * @method
+         * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
+         * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+         * @since 0.2.1
+         */
+        get: _gpfProcessAlias.bind(gpf.http, _GPF_HTTP_METHODS.GET),
+        /**
+         * HTTP POST request
+         *
+         * @method
+         * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
+         * @param {String} data Data to POST
+         * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+         * @since 0.2.1
+         */
+        post: _gpfProcessAlias.bind(gpf.http, _GPF_HTTP_METHODS.POST),
+        /**
+         * HTTP PUT request
+         *
+         * @method
+         * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
+         * @param {String} data Data to PUT
+         * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+         * @since 0.2.1
+         */
+        put: _gpfProcessAlias.bind(gpf.http, _GPF_HTTP_METHODS.PUT),
+        /**
+         * HTTP OPTIONS request
+         *
+         * @method
+         * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
+         * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+         * @since 0.2.1
+         */
+        options: _gpfProcessAlias.bind(gpf.http, _GPF_HTTP_METHODS.OPTIONS),
+        /**
+         * HTTP DELETE request
+         *
+         * @method
+         * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
+         * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+         * @since 0.2.1
+         */
+        "delete": _gpfProcessAlias.bind(gpf.http, _GPF_HTTP_METHODS.DELETE),
+        /**
+         * HTTP HEAD request
+         *
+         * @method
+         * @param {String|gpf.typedef.httpRequestSettings} urlOrRequest URL or HTTP Request settings
+         * @return {Promise<gpf.typedef.httpRequestResponse>} Resolved on request completion
+         * @since 0.2.2
+         */
+        head: _gpfProcessAlias.bind(gpf.http, _GPF_HTTP_METHODS.HEAD)
+    });
     var _gpfHttpXhrSetHeaders = _gpfHttpGenSetHeaders("setRequestHeader"), _gpfHttpXhrSend = _gpfHttpGenSend("send");
     function _gpfHttpXhrOpen(request) {
         var xhr = new XMLHttpRequest();
@@ -4650,7 +4976,7 @@
         _gpfHttpWScriptSend(winHttp, request.data);
         _gpfHttpWScriptResolve(winHttp, resolve);
     };
-    var _GpfRhinoBaseStream = _gpfDefine(/** @lends gpf.rhino.BaseStream */
+    var _GpfRhinoBaseStream = _gpfDefine(/** @lends gpf.rhino.BaseStream.prototype */
         {
             $class: "gpf.rhino.BaseStream",
             /**
@@ -4693,7 +5019,7 @@
          * @implements {gpf.interfaces.IReadableStream}
          * @since 0.2.1
          */
-        _GpfRhinoReadableStream = _gpfDefine(/** @lends gpf.rhino.ReadableStream */
+        _GpfRhinoReadableStream = _gpfDefine(/** @lends gpf.rhino.ReadableStream.prototype */
         {
             $class: "gpf.rhino.ReadableStream",
             $extend: "gpf.rhino.BaseStream",
@@ -4736,7 +5062,7 @@
          * @implements {gpf.interfaces.IWritableStream}
          * @since 0.2.1
          */
-        _GpfRhinoWritableStream = _gpfDefine(/** @lends gpf.rhino.WritableStream */
+        _GpfRhinoWritableStream = _gpfDefine(/** @lends gpf.rhino.WritableStream.prototype */
         {
             $class: "gpf.rhino.WritableStream",
             $extend: "gpf.rhino.BaseStream",
@@ -4818,8 +5144,9 @@
         var httpConnection = new java.net.URL(request.url).openConnection();
         httpConnection.setRequestMethod(request.method);
         _gpfHttpRhinoSetHeaders(httpConnection, request.headers);
-        _gpfHttpRhinoSendData(httpConnection, request.data);
-        _gpfHttpRhinoResolve(httpConnection, resolve);
+        _gpfHttpRhinoSendData(httpConnection, request.data).then(function () {
+            _gpfHttpRhinoResolve(httpConnection, resolve);
+        });
     };
     function _gpfStreamLineLastDoesntEndsWithLF(buffer) {
         var lastItem = buffer[buffer.length - 1];
@@ -4840,7 +5167,7 @@
             return _gpfStreamLineWrite(output, lines);
         });
     }
-    var _GpfStreamLineAdatper = _gpfDefine(/** @lends gpf.stream.LineAdapter */
+    var _GpfStreamLineAdatper = _gpfDefine(/** @lends gpf.stream.LineAdapter.prototype */
     {
         $class: "gpf.stream.LineAdapter",
         /**
@@ -4849,6 +5176,7 @@
          * @constructor gpf.stream.LineAdapter
          * @implements {gpf.interfaces.IReadableStream}
          * @implements {gpf.interfaces.IWritableStream}
+         * @implements {gpf.interfaces.IFlushableStream}
          * @since 0.2.1
          */
         constructor: function () {
@@ -4884,18 +5212,23 @@
             return Promise.resolve();
         }),
         //endregion
-        /**
-         * Completes the stream, flush the remaining characters as the last line if any
-         *
-         * @return {Promise} Resolve when written to the output
-         * @todo This is experimental until a better way is found
-         * @since 0.2.1
-         */
-        endOfStream: function () {
+        //region gpf.interfaces.IFlushableStream
+        flush: function () {
             if (_gpfStreamLineLastDoesntEndsWithLF(this._buffer)) {
                 return this.write("\n");
             }
             return Promise.resolve();
+        },
+        //endregion
+        /**
+         * Completes the stream, flush the remaining characters as the last line if any
+         *
+         * @return {Promise} Resolve when written to the output
+         * @deprecated since version 0.2.2, use flush
+         * @since 0.2.1
+         */
+        endOfStream: function () {
+            return this.flush();
         },
         /**
          * Output stream
@@ -4945,4 +5278,455 @@
         }
     });
     _gpfStreamSecureInstallProgressFlag(_GpfStreamLineAdatper);
+    var _gpfIFlushableStream = _gpfDefineInterface("FlushableStream", { "flush": 0 });
+    var _gpfRequireLoadImpl;
+    function _gpfRequireLoadHTTP(name) {
+        return _gpfHttpRequest({
+            method: _GPF_HTTP_METHODS.GET,
+            url: name
+        }).then(function (response) {
+            return response.responseText;
+        });
+    }
+    function _gpfRequireLoadFS(name) {
+        // Must be relative to the current execution path
+        return _gpfFsRead(_gpfPathJoin(".", name));
+    }
+    if (_gpfHost === _GPF_HOST.BROWSER) {
+        _gpfRequireLoadImpl = _gpfRequireLoadHTTP;
+    } else {
+        _gpfRequireLoadImpl = _gpfRequireLoadFS;
+    }
+    /**
+     * Mapping of resource extension to processor function
+     *
+     * @type {Object}
+     * @since 0.2.2
+     */
+    var _gpfRequireProcessor = {};
+    /**
+     * Load the resource
+     *
+     * @param {String} name Resource name
+     * @return {Promise<*>} Resolved with the resource result
+     * @since 0.2.2
+     */
+    function _gpfRequireLoad(name) {
+        var me = this;
+        return _gpfRequireLoadImpl(name).then(function (content) {
+            var processor = _gpfRequireProcessor[_gpfPathExtension(name).toLowerCase()];
+            if (processor) {
+                return processor.call(me, name, content);
+            }
+            // Treated as simple text file by default
+            return content;
+        });
+    }
+    function _gpfRequireAllocateWrapper() {
+        return {
+            gpf: Object.create(gpf),
+            promise: Promise.resolve(),
+            _initialDefine: null
+        };
+    }
+    function _gpfRequireWrappedDefine() {
+        /*jshint validthis:true*/
+        var wrapper = this,
+            //eslint-disable-line
+            gpfRequire = wrapper.gpf.require, gpfRequireDefine = wrapper._initialDefine;
+        wrapper.promise = gpfRequireDefine.apply(gpfRequire, arguments);
+        gpfRequire.define = gpfRequireDefine;
+        return wrapper.promise;
+    }
+    function _gpfRequirePlugWrapper(wrapper, require) {
+        wrapper._initialDefine = require.define;
+        require.define = _gpfRequireWrappedDefine.bind(wrapper);
+        wrapper.gpf.require = require;
+        return wrapper;
+    }
+    /**
+     * Wrap gpf to fit the new context and give access to gpf.require.define promise
+     *
+     * @param {Object} context Require context
+     * @param {String} name Resource (resolved) name
+     * @return {gpf.typedef._requireWrapper} Wrapper
+     * @since 0.2.2
+     */
+    function _gpfRequireWrapGpf(context, name) {
+        return _gpfRequirePlugWrapper(_gpfRequireAllocateWrapper(), _gpfRequireAllocate(context, { base: _gpfPathParent(name) }));
+    }
+    _gpfRequireProcessor[".json"] = function (name, content) {
+        return JSON.parse(content);
+    };
+    _gpfErrorDeclare("require/javascript", {
+        /**
+         * ### Summary
+         *
+         * Dynamic require not supported
+         *
+         * ### Description
+         *
+         * When loading a [CommonJS](http://www.commonjs.org/) module, a first pass is done to extract all requires being
+         * called. If the require is based on a complex parameter (variable or string manipulation), the loader won't be
+         * able to understand the require. No fallback mechanism is implemented yet
+         * @since 0.2.2
+         */
+        noCommonJSDynamicRequire: "Dynamic require not supported"
+    });
+    //region CommonJS
+    var _gpfRequireJsModuleRegEx = /[^\.]\brequire\b\s*\(\s*(?:['|"]([^"']+)['|"]|[^\)]+)\s*\)/g;
+    function _gpfRequireCommonJSBuildNamedDependencies(requires) {
+        return requires.reduce(function (dictionary, name) {
+            dictionary[name] = name;
+            return dictionary;
+        }, {});
+    }
+    function _gpfRequireCommonJs(myGpf, content, requires) {
+        return myGpf.require.define(_gpfRequireCommonJSBuildNamedDependencies(requires), function (require) {
+            var module = {};
+            _gpfFunc([
+                "gpf",
+                "module",
+                "require"
+            ], content)(myGpf, module, function (name) {
+                return require[name] || gpf.Error.noCommonJSDynamicRequire();
+            });
+            return module.exports;
+        });
+    }
+    //endregion
+    //region GPF, AMD (define) and others
+    function _gpfRequireAmdDefineParamsFactoryOnly(params) {
+        return {
+            dependencies: [],
+            factory: params[0]
+        };
+    }
+    function _gpfRequireAmdDefineParamsDependenciesAndFactory(params) {
+        return {
+            dependencies: params[0],
+            factory: params[1]
+        };
+    }
+    function _gpfRequireAmdDefineParamsAll(params) {
+        return {
+            dependencies: params[1],
+            factory: params[2]
+        };
+    }
+    var
+    /**
+     * Mapping of define parameter count to dependencies / factory
+     *
+     * @type {Function[]}
+     * @since 0.2.2
+     */
+    _gpfRequireAmdDefineParamsMapping = [
+        null,
+        _gpfRequireAmdDefineParamsFactoryOnly,
+        _gpfRequireAmdDefineParamsDependenciesAndFactory,
+        _gpfRequireAmdDefineParamsAll
+    ];
+    function _gpfRequireAmdDefine(name, dependencies, factory) {
+        /*jshint validthis:true*/
+        _gpfIgnore(name, dependencies, factory);
+        var myGpf = this,
+            //eslint-disable-line
+            params = _gpfRequireAmdDefineParamsMapping[arguments.length](arguments);
+        myGpf.require.define(params.dependencies, function (require) {
+            require.length = params.dependencies.length;
+            return params.factory.apply(null, [].slice.call(require));
+        });
+    }
+    function _gpfRequireOtherJs(myGpf, content) {
+        _gpfFunc([
+            "gpf",
+            "define"
+        ], content)(myGpf, _gpfRequireAmdDefine.bind(myGpf));
+    }
+    //endregion
+    _gpfRequireProcessor[".js"] = function (name, content) {
+        var wrapper = _gpfRequireWrapGpf(this, name);
+        // CommonJS ?
+        var requires = _gpfRegExpForEach(_gpfRequireJsModuleRegEx, content);
+        if (requires.length) {
+            return _gpfRequireCommonJs(wrapper.gpf, content, requires.map(function (match) {
+                return match[1];    // may be undefined if dynamic
+            }).filter(function (require) {
+                return require;
+            }));
+        }
+        _gpfRequireOtherJs(wrapper.gpf, content);
+        return wrapper.promise;
+    };
+    _gpfErrorDeclare("require", {
+        /**
+         * ### Summary
+         *
+         * Invalid {@link gpf.require.configure} option
+         *
+         * ### Description
+         *
+         * This error is triggered whenever an option passed to {@link gpf.require.configure} is not recognized.
+         * Please check the {@link gpf.typedef.requireOptions} documentation.
+         * @since 0.2.2
+         */
+        invalidRequireConfigureOption: "Invalid configuration option"
+    });
+    /**
+     * @namespace gpf.require
+     * @description Root namespace for the modularization helpers.
+     * @since 0.2.2
+     */
+    /**
+     * @typedef gpf.typedef.requireOptions
+     * @property {String} [base] Base path used to resolve names
+     * @property {Object} [cache] Inject names into the require cache
+     * @property {Boolean} [clearCache=false] When set, the require cache is first cleared
+     * @since 0.2.2
+     */
+    /**
+     * @typedef gpf.typedef._requireContext
+     * @property {String} base Base path used to resolve names
+     * @property {Object} cache Dictionary of loaded requires
+     * @since 0.2.2
+     */
+    /**
+     * Valuate the option priority to have them executed in the proper order
+     *
+     * @param {String} name option name
+     * @return {Number} Option priority
+     * @since 0.2.2
+     */
+    function _gpfRequireOptionPriority(name) {
+        if ("clearCache" === name) {
+            return -1;
+        }
+        return 1;
+    }
+    /**
+     *  Dictionary of option name to function handling the option
+     * @type {Object}
+     * @since 0.2.2
+     */
+    var _gpfRequireOptionHandler = {
+        base: function (base) {
+            this.base = base;
+        },
+        cache: function (cache) {
+            _gpfArrayForEach(Object.keys(cache), function (name) {
+                this.cache[name] = _gpfPromisify(cache[name]);
+            }, this);
+        },
+        clearCache: function () {
+            this.cache = {};
+        }
+    };
+    /**
+     * Configure the {@link gpf.require} layer
+     *
+     * @param {gpf.typedef.requireOptions} options Options to configure
+     * @since 0.2.2
+     */
+    function _gpfRequireConfigure(options) {
+        var me = this;
+        _gpfArrayForEach(Object.keys(options).sort(function (key1, key2) {
+            // Some keys must be processed first
+            return _gpfRequireOptionPriority(key1) - _gpfRequireOptionPriority(key2);
+        }), function (key) {
+            (_gpfRequireOptionHandler[key] || gpf.Error.invalidRequireConfigureOption).call(me, options[key]);
+        }, me);
+    }
+    /**
+     * Resolves the resource name according to current require context.
+     *
+     * @param {String} name Relative resource name
+     * @return {String} Resolved name
+     * @since 0.2.2
+     *
+     */
+    function _gpfRequireResolve(name) {
+        return _gpfPathJoin(this.base, name);
+    }
+    /**
+     * Get the cached resource or load it
+     *
+     * @param {String} name Resource name
+     * @return {Promise<*>} Resource association
+     * @since 0.2.2
+     */
+    function _gpfRequireGet(name) {
+        var me = this, promise;
+        if (me.cache[name]) {
+            return me.cache[name];
+        }
+        promise = _gpfRequireLoad.call(me, name);
+        me.cache[name] = promise;
+        return promise;
+    }
+    /**
+     * Defines a new module by executing the factory function with the specified dependent resources,
+     * see {@tutorial REQUIRE}
+     *
+     *
+     * @param {Object} dependencies Dictionary of dependencies, the keys are preserved while passing the result
+     * dictionary to the factory function
+     * @param {*} factory Can be either:
+     * * A factory function executed when all resources are resolved, the first parameter will be a dictionary
+     *   with all dependencies indexed by their name (as initially specified in the dependencies parameter).
+     *   The result of the factory function will be cached as the result of this resource
+     * * Any value that will be cached as the result of this resource
+     * @return {Promise<*>} Resolved with the factory function result or the object
+     * @since 0.2.2
+     */
+    function _gpfRequireDefine(dependencies, factory) {
+        var me = this, promises = [], keys = Object.keys(dependencies);
+        _gpfArrayForEach(keys, function (key) {
+            promises.push(_gpfRequireGet.call(me, _gpfRequireResolve.call(me, dependencies[key])));
+        }, me);
+        return Promise.all(promises).then(function (resources) {
+            var result, require;
+            if ("function" === typeof factory) {
+                require = {};
+                _gpfArrayForEach(keys, function (key, index) {
+                    require[key] = resources[index];
+                });
+                result = factory(require);
+            } else {
+                result = factory;
+            }
+            return result;
+        });
+    }
+    /**
+     * Allocate a new require context with the proper methods
+     *
+     * @param {Object} parentContext Context to inherit from
+     * @param {gpf.typedef.requireOptions} [options] Options to configure
+     * @return {Object} Containing {@link gpf.require.define}, {@link gpf.require.resolve} and {@link gpf.require.configure}
+     * @since 0.2.2
+     */
+    function _gpfRequireAllocate(parentContext, options) {
+        var context = Object.create(parentContext),
+            // cache content is shared but other properties are protected
+            require = {};
+        require.define = _gpfRequireDefine.bind(context);
+        require.resolve = _gpfRequireResolve.bind(context);
+        require.configure = _gpfRequireConfigure.bind(context);
+        if (options) {
+            require.configure(options);
+        }
+        return require;
+    }
+    gpf.require = _gpfRequireAllocate({
+        base: "",
+        cache: {}
+    });    /**
+            * @method gpf.require.define
+            * @gpf:sameas _gpfRequireDefine
+            * @since 0.2.2
+            */
+           /**
+            * @method gpf.require.configure
+            * @gpf:sameas _gpfRequireConfigure
+            * @since 0.2.2
+            *
+            * @example <caption>Setting the base path</caption>
+            * gpf.require.configure({
+            *   base: "/test/require"
+            * });
+            * assert(gpf.require.resolve("file.js") === "/test/require/file.js");
+            *
+            * @example <caption>Injecting in the cache</caption>
+            * var cache = {};
+            * cache[gpf.require.resolve("data.json")] = {};
+            * gpf.require.configure({
+            *   clearCache: true,
+            *   cache: cache
+            * });
+            */
+           /**
+            * @method gpf.require.resolve
+            * @gpf:sameas _gpfRequireResolve
+            * @since 0.2.2
+            *
+            * @example <caption>Setting the base path</caption>
+            * gpf.require.configure({
+            *   base: "/test/require"
+            * });
+            * assert(gpf.require.resolve("file.js") === "/test/require/file.js");
+            */
+    var _GpfStreamReadableArray = _gpfDefine(/** @lends gpf.stream.ReadableArray.prototype */
+        {
+            $class: "gpf.stream.ReadableArray",
+            /**
+             * Wraps an array inside a readable stream.
+             * Each array item is written separately to the output
+             *
+             * @constructor gpf.stream.ReadableArray
+             * @implements {gpf.interfaces.IReadableStream}
+             * @param {Array} buffer Array buffer
+             * @since 0.2.2
+             */
+            constructor: function (buffer) {
+                this._buffer = buffer;
+            },
+            //region gpf.interfaces.IReadableStream
+            /**
+             * @gpf:sameas gpf.interfaces.IReadableStream#read
+             * @since 0.2.2
+             */
+            read: _gpfStreamSecureRead(function (output) {
+                var buffer = this._buffer,
+                    //eslint-disable-line no-invalid-this
+                    step = 0;
+                function write() {
+                    if (buffer.length === step) {
+                        return Promise.resolve();
+                    }
+                    return output.write(buffer[step++]).then(write);
+                }
+                return write();
+            }),
+            //endregion
+            /**
+             * Buffer
+             * @since 0.2.2
+             */
+            _buffer: []
+        }), _GpfStreamWritableArray = _gpfDefine(/** @lends gpf.stream.WritableArray.prototype */
+        {
+            $class: "gpf.stream.WritableArray",
+            /**
+             * Creates a writable stream that pushes all writes into an array
+             *
+             * @constructor gpf.stream.WritableArray
+             * @implements {gpf.interfaces.IWritableStream}
+             * @since 0.2.2
+             */
+            constructor: function () {
+                this._buffer = [];
+            },
+            //region gpf.interfaces.IReadableStream
+            /**
+             * @gpf:sameas gpf.interfaces.IWritableStream#write
+             * @since 0.2.2
+             */
+            write: _gpfStreamSecureWrite(function (buffer) {
+                this._buffer.push(buffer);
+                //eslint-disable-line no-invalid-this
+                return Promise.resolve();
+            }),
+            //endregion
+            toArray: function () {
+                return this._buffer;
+            },
+            /**
+             * Buffer
+             * @since 0.2.2
+             */
+            _buffer: []
+        });
+    _gpfStreamSecureInstallProgressFlag(_GpfStreamReadableArray);
+    _gpfStreamSecureInstallProgressFlag(_GpfStreamWritableArray);
 }));

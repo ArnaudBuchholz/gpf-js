@@ -37,13 +37,13 @@ maintainability-index-range-and-meaning.aspx)
 
 Metric name | average | total | SME | comment
 ------ | ----- | ----- | ----- | -----
-Statements coverage|100%||90%|*0.74% ignored*
-Branches coverage|100%||90%|*1.77% ignored*
-Functions coverage|100%||90%|*1.36% ignored*
-Maintainability|82.04||70|
-Number of tests||598||*pending: 0, duration: 1513ms*
-Number of sources||78||
-Lines of code|94|7408||
+Statements coverage|100%||90%|*0.64% ignored*
+Branches coverage|100%||90%|*1.61% ignored*
+Functions coverage|100%||90%|*1.17% ignored*
+Maintainability|82.07||70|
+Number of tests||669||*pending: 0, duration: 545ms*
+Number of sources||90||
+Lines of code|96|8652||
 
 ## Setup
 
@@ -65,6 +65,7 @@ Version | Label | Release | Debug | Plato
 [0.1.8](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.1.8) / [doc](https://arnaudbuchholz.github.io/gpf/0.1.8/doc/index.html) | Interfaces | [lib](https://arnaudbuchholz.github.io/gpf/0.1.8/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.1.8) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.8/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.1.8) | [plato](https://arnaudbuchholz.github.io/gpf/0.1.8/plato/index.html)
 [0.1.9](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.1.9) / [doc](https://arnaudbuchholz.github.io/gpf/0.1.9/doc/index.html) | Records files | [lib](https://arnaudbuchholz.github.io/gpf/0.1.9/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.1.9) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.9/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.1.9) | [plato](https://arnaudbuchholz.github.io/gpf/0.1.9/plato/index.html)
 [0.2.1](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.2.1) / [doc](https://arnaudbuchholz.github.io/gpf/0.2.1/doc/index.html) | Side project support | [lib](https://arnaudbuchholz.github.io/gpf/0.2.1/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.2.1) | [lib](https://arnaudbuchholz.github.io/gpf/0.2.1/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.2.1) | [plato](https://arnaudbuchholz.github.io/gpf/0.2.1/plato/index.html)
+[0.2.2](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.2.2) / [doc](https://arnaudbuchholz.github.io/gpf/0.2.2/doc/index.html) | gpf.require | [lib](https://arnaudbuchholz.github.io/gpf/0.2.2/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.2.2) | [lib](https://arnaudbuchholz.github.io/gpf/0.2.2/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.2.2) | [plato](https://arnaudbuchholz.github.io/gpf/0.2.2/plato/index.html)
 
 ## Credits
 
