@@ -18,15 +18,15 @@ function onLoad() {
         HEIGHT = 9,
         grid = new Array(WIDTH * HEIGHT);
     [
-        [8],
-        [3,5,7,0,9,11],
-        [2,12],
-        [2,12],
-        [2,11,13],
-        [0,0,3,10,13],
-        [2,10,12],
-        [2,10],
-        [4,0,8]
+        [2, 0, 12, 13],
+        [1, 0, 3, 5, 7, 0, 9, 11],
+        [2, 12],
+        [0, 0, 2, 12],
+        [0, 0, 2, 11, 13],
+        [0, 1, 4, 10, 13],
+        [3, 10, 12],
+        [0, 0, 2, 10, 12, 13],
+        [4, 0, 8]
     ].forEach(function (row, y) {
         var idx = 0;
         while (idx < row.length) {
@@ -41,74 +41,97 @@ function onLoad() {
     function tile (x, y) {
         return path({
             fill: "none",
-            stroke: "black",
+            stroke: "white",
             "stroke-width": .1,
+            fill: "silver",
             d: ["M", x, y, "L", x + 1, y - 1, "L", x + 2, y - 1, "L", x + 3, y,
                 "L", x + 2, y + 1, "L", x + 1, y + 1, "L", x, y].join(" ")
         })
     }
 
-    var borders = [];
+    var vectors = [];
 
-    function addBorder(mx, my, lx, ly) {
-        borders.push({mx: mx, my: my, lx: lx, ly: ly});
+    function addVector(mx, my, lx, ly) {
+        vectors.push({mx: mx, my: my, lx: lx, ly: ly});
     }
 
-    for (y = 0; y < HEIGHT; ++y) {
-        for (x = 0; x < WIDTH; ++x) {
-            if (grid[y * WIDTH + x]) {
-                var x0 = 1 + x * 2,
-                    y0 = 2 + y * 2 + x % 2,
-                    yUp,
-                    yDown;
-                if (x % 2) {
-                    yUp = y;
-                    yDown = y + 1;
-                } else {
-                    yUp = y - 1;
-                    yDown = y;
-                }
-                tile(x0, y0).appendTo(svg);
-                if (0 === y || !grid[(y - 1) * WIDTH + x]) {
-                    addBorder(x0 + 1, y0 - 1, x0 + 2, y0 - 1);
-                }
-                if (0 === x) {
-                    addBorder(x0, y0, x0 + 1, y0 - 1);
-                    addBorder(x0 + 1, y0 + 1, x0, y0);
-                } else {
-                    if (-1 === yUp || !grid[yUp * WIDTH + x - 1]) {
-                        addBorder(x0, y0, x0 + 1, y0 - 1);
-                    }
-                    if (HEIGHT > y && !grid[yDown * WIDTH + x - 1]) {
-                        addBorder(x0 + 1, y0 + 1, x0, y0);
-                    }
-                }
-                if (WIDTH - 1 === x) {
-                    addBorder(x0 + 2, y0 - 1, x0 + 3, y0);
-                    addBorder(x0 + 3, y0, x0 + 2, y0 + 1);
-                } else {
-                    if (-1 === yUp || !grid[yUp * WIDTH + x + 1]) {
-                        addBorder(x0 + 2, y0 - 1, x0 + 3, y0);
-                    }
-                    if (HEIGHT > y && !grid[yDown * WIDTH + x + 1]) {
-                        addBorder(x0 + 3, y0, x0 + 2, y0 + 1);
-                    }
-                }
-                if (HEIGHT - 1 === y || !grid[(y + 1) * WIDTH + x]) {
-                    addBorder(x0 + 2, y0 + 1, x0 + 1, y0 + 1);
-                }
+    grid.forEach(function (_, pos) {
+        var x = pos % WIDTH,
+            y = (pos - x) / WIDTH,
+            x0 = 1 + x * 2,
+            y0 = 2 + y * 2 + x % 2,
+            yUp,
+            yDown;
+        if (x % 2) {
+            yUp = y;
+            yDown = y + 1;
+        } else {
+            yUp = y - 1;
+            yDown = y;
+        }
+        tile(x0, y0).appendTo(svg);
+        if (0 === y || !grid[(y - 1) * WIDTH + x]) {
+            addVector(x0 + 1, y0 - 1, x0 + 2, y0 - 1);
+        }
+        if (0 === x) {
+            addVector(x0, y0, x0 + 1, y0 - 1);
+            addVector(x0 + 1, y0 + 1, x0, y0);
+        } else {
+            if (-1 === yUp || !grid[yUp * WIDTH + x - 1]) {
+                addVector(x0, y0, x0 + 1, y0 - 1);
+            }
+            if (HEIGHT > y && !grid[yDown * WIDTH + x - 1]) {
+                addVector(x0 + 1, y0 + 1, x0, y0);
             }
         }
-    }
+        if (WIDTH - 1 === x) {
+            addVector(x0 + 2, y0 - 1, x0 + 3, y0);
+            addVector(x0 + 3, y0, x0 + 2, y0 + 1);
+        } else {
+            if (-1 === yUp || !grid[yUp * WIDTH + x + 1]) {
+                addVector(x0 + 2, y0 - 1, x0 + 3, y0);
+            }
+            if (HEIGHT > y && !grid[yDown * WIDTH + x + 1]) {
+                addVector(x0 + 3, y0, x0 + 2, y0 + 1);
+            }
+        }
+        if (HEIGHT - 1 === y || !grid[(y + 1) * WIDTH + x]) {
+            addVector(x0 + 2, y0 + 1, x0 + 1, y0 + 1);
+        }
+    });
 
-    path({
-        fill: "none",
-        stroke: "red",
-        "stroke-width": .2,
-        d: borders.map(function (vector) {
-            return "M " + vector.mx + " " + vector.my + " L " + vector.lx + " " + vector.ly;
-        }).join(" ")
-    }).appendTo(svg);
+    while (vectors.length) {
+        var border = vectors.pop();
+        border.d = [border.mx + " " + border.my, border.lx + " " + border.ly];
+        while (!vectors.every(function (vector, idx) {
+            var match = false;
+            if (vector.lx === border.mx && vector.ly === border.my) {
+                border.d.unshift(vector.mx + " " + vector.my);
+                border.mx = vector.mx;
+                border.my = vector.my;
+                vectors.splice(idx, 1); // remove
+                match = true;
+            }
+            if (vector.mx === border.lx && vector.my === border.ly) {
+                border.d.push(vector.lx + " " + vector.ly);
+                border.lx = vector.lx;
+                border.ly = vector.ly;
+                match = true;
+            }
+            if (match) {
+                vectors.splice(idx, 1); // remove
+                return false;
+            }
+            return true;
+        })) {}
+
+        path({
+            fill: "none",
+            stroke: "black",
+            "stroke-width": .2,
+            d: "M " + border.d.join(" L ")
+        }).appendTo(svg);
+    }
 
     function ref (_refX, _refY) {
         var _d = [];
@@ -141,7 +164,7 @@ function onLoad() {
     function letter(d) {
         return path({
             fill: "none",
-            stroke: "red",
+            stroke: "blue",
             "stroke-width": 1,
             d: d.toString()
         });
@@ -168,7 +191,7 @@ function onLoad() {
     </script>
 </head>
 <body onload="onLoad()">
-    <svg id="svg" width="100%" height="50%" viewBox="0 0 40 20">
+    <svg id="svg" width="100%" height="50%" viewBox="0 0 32 20">
     </svg>
 </body>
 </html>
