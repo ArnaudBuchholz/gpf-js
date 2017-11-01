@@ -41,7 +41,7 @@ function onLoad() {
     function tile (x, y) {
         return path({
             fill: "url(#tile)",
-            stroke: "white",
+            stroke: "rgb(255,255,255)",
             "stroke-width": .1,
             d: ["M", x, y, "L", x + 1, y - 1, "L", x + 2, y - 1, "L", x + 3, y,
                 "L", x + 2, y + 1, "L", x + 1, y + 1, "L", x, y].join(" ")
@@ -126,7 +126,7 @@ function onLoad() {
 
         path({
             fill: "none",
-            stroke: "black",
+            stroke: "rgb(0,0,0)",
             "stroke-width": .2,
             d: "M " + border.d.join(" L ")
         }).appendTo(svg);
@@ -163,7 +163,7 @@ function onLoad() {
     function letter(d) {
         return path({
             fill: "none",
-            stroke: "blue",
+            stroke: "rgba(64,0,128,.3)",
             "stroke-width": 1,
             d: d.toString()
         });
@@ -190,7 +190,7 @@ function onLoad() {
     </script>
 </head>
 <body onload="onLoad()">
-    <svg id="svg" width="100%" height="50%" viewBox="0 0 32 20">
+    <svg id="svg" width="320" height="200" viewBox="0 0 32 20">
         <defs>
             <linearGradient id="tile" x1="0" y1="0" x2="100%" y2="100%">
                 <stop offset="0%" style="stop-color:rgb(255,255,255); stop-opacity:1" />
