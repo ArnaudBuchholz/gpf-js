@@ -1,4 +1,6 @@
 # GPF Library
+![GPF Logo](http://arnaudbuchholz.github.io/gpf/gpf_320x200.svg)
+
 [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
 
 A multi-purpose JavaScript library created and maintained by
