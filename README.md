@@ -53,19 +53,25 @@ Lines of code|96|8652||
 
 ## Testing
 
-See [TESTME.md](https://github.com/ArnaudBuchholz/gpf-js/blob/master/doc/tutorials/TESTME.md)
+See [Library testing](https://github.com/ArnaudBuchholz/gpf-js/blob/master/doc/tutorials/TESTME.md)
+
+## Documentation
+
+The [documentation]((https://arnaudbuchholz.github.io/gpf/doc/index.html)) is extracted from the sources using   
+[jsdoc syntax](http://usejsdoc.org/) with [grunt-jsdoc](https://github.com/krampstudio/grunt-jsdoc)
+and the template from [ink-docstrap](https://www.npmjs.com/package/ink-docstrap)
 
 ## Versions
 
 Version | Label | Release | Debug | Plato
 ------ | ----- | ----- | ----- | -----
-[0.1.5](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.1.5) / [doc](https://arnaudbuchholz.github.io/gpf/0.1.5/doc/index.html) | The new core | [lib](https://arnaudbuchholz.github.io/gpf/0.1.5/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.1.5) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.5/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.1.5) | [plato](https://arnaudbuchholz.github.io/gpf/0.1.5/plato/index.html)
-[0.1.6](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.1.6) / [doc](https://arnaudbuchholz.github.io/gpf/0.1.6/doc/index.html) | gpf.define | [lib](https://arnaudbuchholz.github.io/gpf/0.1.6/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.1.6) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.6/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.1.6) | [plato](https://arnaudbuchholz.github.io/gpf/0.1.6/plato/index.html)
-[0.1.7](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.1.7) / [doc](https://arnaudbuchholz.github.io/gpf/0.1.7/doc/index.html) | Securing gpf.define | [lib](https://arnaudbuchholz.github.io/gpf/0.1.7/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.1.7) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.7/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.1.7) | [plato](https://arnaudbuchholz.github.io/gpf/0.1.7/plato/index.html)
-[0.1.8](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.1.8) / [doc](https://arnaudbuchholz.github.io/gpf/0.1.8/doc/index.html) | Interfaces | [lib](https://arnaudbuchholz.github.io/gpf/0.1.8/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.1.8) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.8/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.1.8) | [plato](https://arnaudbuchholz.github.io/gpf/0.1.8/plato/index.html)
-[0.1.9](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.1.9) / [doc](https://arnaudbuchholz.github.io/gpf/0.1.9/doc/index.html) | Records files | [lib](https://arnaudbuchholz.github.io/gpf/0.1.9/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.1.9) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.9/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.1.9) | [plato](https://arnaudbuchholz.github.io/gpf/0.1.9/plato/index.html)
-[0.2.1](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.2.1) / [doc](https://arnaudbuchholz.github.io/gpf/0.2.1/doc/index.html) | Side project support | [lib](https://arnaudbuchholz.github.io/gpf/0.2.1/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.2.1) | [lib](https://arnaudbuchholz.github.io/gpf/0.2.1/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.2.1) | [plato](https://arnaudbuchholz.github.io/gpf/0.2.1/plato/index.html)
-[0.2.2](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.2.2) / [doc](https://arnaudbuchholz.github.io/gpf/0.2.2/doc/index.html) | gpf.require | [lib](https://arnaudbuchholz.github.io/gpf/0.2.2/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.2.2) | [lib](https://arnaudbuchholz.github.io/gpf/0.2.2/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.2.2) | [plato](https://arnaudbuchholz.github.io/gpf/0.2.2/plato/index.html)
+[0.1.5](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.1.5) | The new core | [lib](https://arnaudbuchholz.github.io/gpf/0.1.5/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.1.5) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.5/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.1.5) | [plato](https://arnaudbuchholz.github.io/gpf/0.1.5/plato/index.html)
+[0.1.6](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.1.6) | gpf.define | [lib](https://arnaudbuchholz.github.io/gpf/0.1.6/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.1.6) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.6/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.1.6) | [plato](https://arnaudbuchholz.github.io/gpf/0.1.6/plato/index.html)
+[0.1.7](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.1.7) | Securing gpf.define | [lib](https://arnaudbuchholz.github.io/gpf/0.1.7/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.1.7) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.7/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.1.7) | [plato](https://arnaudbuchholz.github.io/gpf/0.1.7/plato/index.html)
+[0.1.8](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.1.8) | Interfaces | [lib](https://arnaudbuchholz.github.io/gpf/0.1.8/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.1.8) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.8/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.1.8) | [plato](https://arnaudbuchholz.github.io/gpf/0.1.8/plato/index.html)
+[0.1.9](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.1.9) | Records files | [lib](https://arnaudbuchholz.github.io/gpf/0.1.9/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.1.9) | [lib](https://arnaudbuchholz.github.io/gpf/0.1.9/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.1.9) | [plato](https://arnaudbuchholz.github.io/gpf/0.1.9/plato/index.html)
+[0.2.1](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.2.1) | Side project support | [lib](https://arnaudbuchholz.github.io/gpf/0.2.1/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.2.1) | [lib](https://arnaudbuchholz.github.io/gpf/0.2.1/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.2.1) | [plato](https://arnaudbuchholz.github.io/gpf/0.2.1/plato/index.html)
+[0.2.2](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.2.2) | gpf.require | [lib](https://arnaudbuchholz.github.io/gpf/0.2.2/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.2.2) | [lib](https://arnaudbuchholz.github.io/gpf/0.2.2/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.2.2) | [plato](https://arnaudbuchholz.github.io/gpf/0.2.2/plato/index.html)
 
 ## Credits
 
@@ -77,6 +83,3 @@ Version | Label | Release | Debug | Plato
 * [istanbul](https://github.com/gotwarlost/istanbul) code coverage tool
 * JavaScript task runner: [Grunt](http://gruntjs.com/)
 * Icons from [Hawcons](https://www.iconfinder.com/iconsets/hawcons)
-* Documentation generated from [jsdoc syntax](http://usejsdoc.org/)
-with [grunt-jsdoc](https://github.com/krampstudio/grunt-jsdoc)
-using template from [ink-docstrap](https://www.npmjs.com/package/ink-docstrap)
