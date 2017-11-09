@@ -148,7 +148,7 @@ inquirer.prompt([{
         }
         return noBuild ? 0 : spawnGrunt("make");
     })
-    .then(() => spawnGrunt("copy:releasePlatoHistory"))
+    .then(() => spawnGrunt("zip:platoHistory"))
     .then(() => testMode
         ? console.warn("No GIT publishing in test mode")
         : Promise.resolve()
