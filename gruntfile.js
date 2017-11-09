@@ -42,6 +42,11 @@ module.exports = function (grunt) {
     // Amend the configuration with internal settings
     configuration.pkg = grunt.file.readJSON("./package.json");
 
+    // As well as known path
+    configuration.path = {
+        plato: "tmp/plato/"
+    };
+
     require("load-grunt-config")(grunt);
     grunt.task.loadTasks("grunt/tasks");
 
