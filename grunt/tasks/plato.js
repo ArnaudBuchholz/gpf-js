@@ -1,9 +1,11 @@
 "use strict";
 
-module.exports = function (grunt) {
+module.exports = grunt => {
+
     grunt.registerTask("plato", [
         "clean:plato",
-        "copy:getPlatoHistory",
+        "unzip:platoHistory",
         "exec:plato"
     ]);
+
 };
