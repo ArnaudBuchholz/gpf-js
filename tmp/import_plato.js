@@ -14,28 +14,33 @@ const
         "Wed, 07 Jun 2017": "0.2.1",
         "Wed, 01 Nov 2017": "0.2.2"
     },
-    reDate = /[a-z]{3}, \d\d [a-z]{3} \d{4}/i;
+    reDate = /[a-z]{3}, \d\d [a-z]{3} \d{4}/i,
+    sortHistoryItems = (a, b) => new Date(a.date) - new Date(b.date);
 
-main.forEach(function (item, itemIndex) {
+main.forEach(item => {
     const
         date = reDate.exec(item.date)[0],
         release = releases[date],
-        published = `../../ArnaudBuchholz.github.io/gpf/${release}/plato/files/`;
+        publishedFolder = `../../ArnaudBuchholz.github.io/gpf/${release}/plato/files/`;
     let
         count = 0;
-    console.log(`${date}: ${release}\n\t${published}`);
+    console.log(`${date}: ${release}\n\t${publishedFolder}`);
     files.forEach(function (file) {
         const
-            publishedFile = published + file,
-            finalReportOfFile = JSON.parse(fs.readFileSync(`plato/files/${file}/report.history.json`))
+            publishedFilePath = `${publishedFolder + file}/report.history.json`,
+            finalReportOfFilePah = `plato/files/${file}/report.history.json`,
+            finalReportOfFile = JSON.parse(fs.readFileSync(finalReportOfFilePah))
                 .filter(history => reDate.exec(history.date)[0] !== date);
         try {
-            fs.statSync(publishedFile); // Will fail if not existing
-            const historyOfFile = JSON.parse(fs.readFileSync(`${publishedFile}/report.history.json`))
-                .sort((a, b) => a.date.localeCompare(b.date))
-                .filter(history => reDate.exec(history.date)[0] === date)[0];
+            fs.statSync(publishedFilePath); // Will fail if not existing
+            const historyOfFile = JSON.parse(fs.readFileSync(publishedFilePath))
+                .sort(sortHistoryItems)
+                .filter(history => reDate.exec(history.date)[0] === date)
+                .pop();
             if (historyOfFile) {
                 console.log(`\t${file} ${historyOfFile.date}`);
+                finalReportOfFile.push(historyOfFile);
+                fs.writeFileSync(finalReportOfFilePah, JSON.stringify(finalReportOfFile.sort(sortHistoryItems)));
                 ++count;
             }
         } catch (e) {
@@ -43,5 +48,4 @@ main.forEach(function (item, itemIndex) {
         }
     });
     console.log(`\tFile count: ${count}`);
-    if (itemIndex === 1) process.exit(0);
 });
