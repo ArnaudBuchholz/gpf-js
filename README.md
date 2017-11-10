@@ -28,7 +28,7 @@ documented and explained.
 ## Metrics
 
 This part is automatically updated upon a successful build:
-* Code coverage is computed by executing []all hosts](https://arnaudbuchholz.github.io/gpf/doc/tutorial-LOADING.html),
+* Code coverage is computed by executing [all hosts](https://arnaudbuchholz.github.io/gpf/doc/tutorial-LOADING.html),
 ignored parts are [documented](https://arnaudbuchholz.github.io/gpf/doc/tutorial-COVERAGE.html)
 * The [maintainability](https://arnaudbuchholz.github.io/gpf/plato/index.html) is based on
 [plato evaluation](http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx)
@@ -57,7 +57,7 @@ See [Library testing](https://github.com/ArnaudBuchholz/gpf-js/blob/master/doc/t
 
 ## Documentation
 
-The [documentation](https://arnaudbuchholz.github.io/gpf/doc/index.html) is extracted from the sources using   
+The [documentation](https://arnaudbuchholz.github.io/gpf/doc/index.html) is extracted from the sources using
 [jsdoc syntax](http://usejsdoc.org/) with [grunt-jsdoc](https://github.com/krampstudio/grunt-jsdoc)
 and the template from [ink-docstrap](https://www.npmjs.com/package/ink-docstrap)
 
