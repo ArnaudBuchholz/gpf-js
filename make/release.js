@@ -137,12 +137,12 @@ inquirer.prompt([{
             lastVersionLine = readmeLines[lastVersionLineIndex];
         if (!lastVersionLine.startsWith(`[${version}]`)) {
             console.log("Adding version line in README.md...");
-            readmeLines.splice(++lastVersionLineIndex, 0, `[${version}](https://github.com/ArnaudBuchholz/gpf-js/tree/`
-                + `v${version}) / [doc](https://arnaudbuchholz.github.io/gpf/${version}/doc/index.html) | `
-                + `${versionTitle} | [lib](https://arnaudbuchholz.github.io/gpf/${version}/gpf.js) / [test](https://`
-                + `arnaudbuchholz.github.io/gpf/test.html?release=${version}) | [lib](https://arnaudbuchholz.github.io/`
-                + `gpf/${version}/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=`
-                + `${version}) | [plato](https://arnaudbuchholz.github.io/gpf/${version}/plato/index.html)`
+            readmeLines.splice(++lastVersionLineIndex, 0,
+                `[${version}](https://github.com/ArnaudBuchholz/gpf-js/tree/v${version}) | ${versionTitle} | `
+                + `[lib](https://arnaudbuchholz.github.io/gpf/${version}/gpf.js) / `
+                + `[test](https://arnaudbuchholz.github.io/gpf/test.html?release=${version}) | `
+                + `[lib](https://arnaudbuchholz.github.io/gpf/${version}/gpf-debug.js) / `
+                + `[test](https://arnaudbuchholz.github.io/gpf/test.html?debug=${version})`
             );
             fs.writeFileSync("README.md", readmeLines.join("\n"));
         }
