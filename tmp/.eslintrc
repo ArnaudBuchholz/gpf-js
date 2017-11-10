@@ -1,0 +1,10 @@
+{
+    "rules": {
+        "no-sync": 0,
+        "func-style": 0
+    },
+    "env": {
+        "node": true,
+        "es6": true
+    }
+}
