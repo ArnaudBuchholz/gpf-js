@@ -23,7 +23,7 @@ if (fs.existsSync(IO_PATH)) {
             expand: true,
             cwd: "./tmp/plato/",
             src: "**/*.*",
-            dest: IO_PATH + "gpf/" + configuration.pkg.version + "/plato/"
+            dest: IO_PATH + "gpf/plato/"
         },
         publishVersion: {
             expand: true,
@@ -35,7 +35,7 @@ if (fs.existsSync(IO_PATH)) {
             expand: true,
             cwd: "./tmp/doc/public",
             src: "**/*.*",
-            dest: IO_PATH + "gpf/" + configuration.pkg.version + "/doc/"
+            dest: IO_PATH + "gpf/doc/"
         },
         publishTest: {
             expand: true,
