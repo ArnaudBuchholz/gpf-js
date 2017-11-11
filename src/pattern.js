@@ -850,7 +850,7 @@ var
 //                        result = item.write(tmpState, char);
 //                        if (PatternItem.WRITE_NO_MATCH !== result) {
 //                            state.replaceItem = item;
-//                            gpf.extend(state, tmpState);
+//                            Object.assign(state, tmpState);
 //                            return result;
 //                        }
 //                    }
