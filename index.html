@@ -148,13 +148,17 @@ function onLoad () {
                         name: name
                     }));
                 });
-                jsonFiles[1].forEach(function (name) {
-                    var version = name.substr(0, name.lastIndexOf("."));
-                    var option = document.createElement("option");
-                    option.value = "Legacy:" + version;
-                    option.label = version;
-                    envVersionLegacy.appendChild(option);
-                });
+                jsonFiles[1]
+                    .filter(function (name) {
+                        return name !== "legacy.json";
+                    })
+                    .forEach(function (name) {
+                        var version = name.substr(0, name.lastIndexOf(".")),
+                            option = document.createElement("option");
+                        option.value = "Legacy:" + version;
+                        option.label = version;
+                        envVersionLegacy.appendChild(option);
+                    });
             });
 
     };
