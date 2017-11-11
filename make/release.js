@@ -29,6 +29,8 @@ let
     error;
 
 const
+    gitProjectUrl = "https://github.com/ArnaudBuchholz/gpf-js/",
+    publicationUrl = "${publicationUrl}",
     inquirer = require("inquirer"),
     GitHub = require("github-api"),
     ConfigFile = require("./configFile.js"),
@@ -131,22 +133,39 @@ inquirer.prompt([{
         if (versionMilestone.open_issues) {
             error("Issues remaining in the milestone");
         }
-        let readmeLines = fs.readFileSync("README.md").toString().split("\n"),
-            indexOfCredits = readmeLines.indexOf("## Credits"),
-            lastVersionLineIndex = indexOfCredits - 2,
-            lastVersionLine = readmeLines[lastVersionLineIndex];
-        if (!lastVersionLine.startsWith(`[${version}]`)) {
-            console.log("Adding version line in README.md...");
-            readmeLines.splice(++lastVersionLineIndex, 0,
-                `[${version}](https://github.com/ArnaudBuchholz/gpf-js/tree/v${version}) | ${versionTitle} | `
-                + `[lib](https://arnaudbuchholz.github.io/gpf/${version}/gpf.js) / `
-                + `[test](https://arnaudbuchholz.github.io/gpf/test.html?release=${version}) | `
-                + `[lib](https://arnaudbuchholz.github.io/gpf/${version}/gpf-debug.js) / `
-                + `[test](https://arnaudbuchholz.github.io/gpf/test.html?debug=${version})`
-            );
-            fs.writeFileSync("README.md", readmeLines.join("\n"));
-        }
         return noBuild ? 0 : spawnGrunt("make");
+    })
+    .then(() => {
+        console.log("Updating build/releases.json...");
+        const
+            now = new Date(),
+            z = x => x < 10 ? "0" + x : x.toString(),
+            releases = JSON.parse(fs.readFileSync("build/releases.json").toString());
+        releases.push({
+            version: version,
+            label: versionTitle,
+            date: `${now.getFullYear()}-${z(now.getMonth() + 1)}-${z(now.getDay() + 1)}`,
+            notes: "",
+            milestone: versionMilestone.number,
+            metrics: JSON.parse(fs.readFileSync("tmp/releaseMetrics.json").toString())
+        });
+        fs.writeFileSync("build/releases.json", JSON.stringify(releases, null, 4));
+        console.log("Updating README.md...");
+        const
+            readmeLines = fs.readFileSync("README.md").toString().split("\n"),
+            indexOfVersions = readmeLines.indexOf("## Versions"),
+            indexOfCredits = readmeLines.indexOf("## Credits");
+        readmeLines.splice(indexOfVersions + 2, indexOfCredits - indexOfVersions - 3,
+            "Date | Version | Label | Release | Debug\n------ | ------ | ----- | ----- | -----",
+            releases.reverse().map(release => `${release.date} | `
+                + `[${release.version}](${gitProjectUrl}tree/v${release.version}) | ${release.label} | `
+                + `[lib](${publicationUrl}${release.version}/gpf.js) / `
+                + `[test](${publicationUrl}test.html?release=${release.version}) | `
+                + `[lib](${publicationUrl}${release.version}/gpf-debug.js) / `
+                + `[test](${publicationUrl}test.html?debug=${release.version})`
+            ).join("\n")
+        );
+        fs.writeFileSync("README.md", readmeLines.join("\n"));
     })
     .then(() => spawnGrunt("zip:platoHistory"))
     .then(() => testMode
@@ -171,5 +190,7 @@ inquirer.prompt([{
             .then(() => spawnGit(["commit", "-a", "-m", `Tests of v${version}`]))
             .then(() => spawnGit(["push"]))
     )
-    .then(() => spawnProcess("npm.cmd", ["publish"]))
+    .then(() => testMode
+        ? console.warn("No NPM publish in test mode")
+        : spawnProcess("npm.cmd", ["publish"]))
     .catch(console.error);
