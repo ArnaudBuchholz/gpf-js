@@ -125,10 +125,6 @@
         "doc": true
     },
     {
-        "name": "extend",
-        "doc": true
-    },
-    {
         "name": "string/escape/html",
         "test": false,
         "doc": true
