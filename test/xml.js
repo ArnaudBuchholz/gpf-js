@@ -40,7 +40,7 @@
 
         }),
 
-        starshipTroopers = gpf.extend(new Movie(), {
+        starshipTroopers = Object.assign(new Movie(), {
             _title: "Starship Troopers",
             _releaseDate: new Date(1997, 6, 11),
             _rating: 6.9,
