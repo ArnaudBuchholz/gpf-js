@@ -565,10 +565,6 @@
         "load": false
     },
     {
-        "name": "noconflict",
-        "load": false
-    },
-    {
         "name": "define_",
         "load": false
     },
