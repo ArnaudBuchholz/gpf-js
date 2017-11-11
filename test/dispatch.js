@@ -10,7 +10,7 @@ describe("dispatch", function () {
             // Create a new object
             dispatcher = {};
             // Extend it to support the EventDispatcher methods
-            gpf.extend(dispatcher, gpf.mixins.EventDispatcher);
+            Object.assign(dispatcher, gpf.mixins.EventDispatcher);
         });
 
         it("exposes addEventListener method", function () {
