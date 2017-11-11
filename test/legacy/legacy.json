@@ -22,4 +22,10 @@
         "describe": "_gpfFunctionDescribe",
         "it": "describes a named function"
     }]
+}, {
+    "issue": 204,
+    "before": "0.2.3",
+    "ignore": [{
+        "describe": "gpf.extend"
+    }]
 }]
