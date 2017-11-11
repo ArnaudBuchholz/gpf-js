@@ -59,6 +59,10 @@ describe("gpf.http.mock", function () {
             })["catch"](done);
         });
 
+        if (0 === config.httpPort) {
+            return;
+        }
+
         it("matches request URL and method (non matching URL)", function (done) {
             gpf.http.get(baseUrl).then(function (response) {
                 assert(response.status === 200);
