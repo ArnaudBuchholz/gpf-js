@@ -6,7 +6,6 @@
 /*global _GpfClassDefMember*/ // GPF class member definition
 /*global _GpfClassDefinition*/ // GPF class definition
 /*global _gpfAssert*/ // Assertion method
-/*global _gpfExtend*/ // gpf.extend
 /*#endif*/
 
 /**
@@ -22,7 +21,7 @@ function _gpfToAttributeArray (attributes) {
 
 //region Extension of _GpfClassDefinition
 
-_gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */ {
+Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */ {
 
     /**
      * Class attributes
@@ -106,7 +105,7 @@ _gpfExtend(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototy
 
 //region Extension of _GpfClassDefMember
 
-_gpfExtend(_GpfClassDefMember.prototype, /** @lends _GpfClassDefMember.prototype */ {
+Object.assign(_GpfClassDefMember.prototype, /** @lends _GpfClassDefMember.prototype */ {
 
     /**
      * Member attributes
