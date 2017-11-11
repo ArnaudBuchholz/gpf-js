@@ -4,7 +4,6 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfClassDefMember*/ // GPF class member definition
-/*global _gpfExtend*/ // gpf.extend
 /*exported _GPF_VISIBILITY*/ // Member visibility enum
 /*exported _gpfVisibilityFromKeyword*/ // Convert visibility keyword into enum
 /*exported _gpfVisibilityKeywords*/ // List of visibility keywords
@@ -42,7 +41,7 @@ function _gpfVisibilityFromKeyword (keyword) {
 
 //region Extension of _GpfClassDefMember
 
-_gpfExtend(_GpfClassDefMember.prototype, /** @lends _GpfClassDefMember.prototype */ {
+Object.assign(_GpfClassDefMember.prototype, /** @lends _GpfClassDefMember.prototype */ {
 
     /**
      * Member visibility
