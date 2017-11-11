@@ -21,6 +21,7 @@ module.exports = function (grunt) {
         "copy:publishVersionPlato",
         "copy:publishVersion",
         "copy:publishTest",
-        "copy:publishTestRequire"
+        "copy:publishTestRequire",
+        "copy:publishTestData"
     ]));
 };
