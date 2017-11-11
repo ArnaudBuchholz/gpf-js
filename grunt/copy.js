@@ -9,6 +9,7 @@ const
         publishVersionDoc: {},
         publishTest: {},
         publishTestRequire: {},
+        publishTestData: {},
         instrumentSourcesJson: {
             expand: true,
             cwd: "./src/",
@@ -48,6 +49,12 @@ if (fs.existsSync(IO_PATH)) {
             cwd: "./test/require/",
             src: "**/*.*",
             dest: IO_PATH + "gpf/test-resources/require"
+        },
+        publishTestData: {
+            expand: true,
+            cwd: "./test/data/",
+            src: "**/*.*",
+            dest: IO_PATH + "gpf/test-resources/data"
         }
     });
 }
