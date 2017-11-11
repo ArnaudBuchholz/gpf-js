@@ -17,7 +17,7 @@ describe("like", function () {
                 return string;
             }
         },
-        object2 = gpf.extend({
+        object2 = Object.assign({
             cloneOf: object
         }, object);
 
@@ -46,26 +46,26 @@ describe("like", function () {
         describe("objects", function () {
 
             it("compares object members", function () {
-                assert(false === gpf.like(object, gpf.extend({rigtOnly: true}, object)));
-                assert(false === gpf.like(gpf.extend({leftOnly: true}, object)), object);
+                assert(false === gpf.like(object, Object.assign({rigtOnly: true}, object)));
+                assert(false === gpf.like(Object.assign({leftOnly: true}, object)), object);
             });
 
             it("compares members' value", function () {
-                var left = gpf.extend({}, object),
-                    right = gpf.extend({}, object);
+                var left = Object.assign({}, object),
+                    right = Object.assign({}, object);
                 left.different = true;
                 right.different = false;
                 assert(false === gpf.like(left, right));
             });
 
             it("supports deep comparison", function () {
-                assert(true === gpf.like(object, gpf.extend({}, object)));
-                assert(true === gpf.like(object2, gpf.extend({}, object2)));
+                assert(true === gpf.like(object, Object.assign({}, object)));
+                assert(true === gpf.like(object2, Object.assign({}, object2)));
             });
 
             it("supports recursive comparison", function () {
-                var left = gpf.extend({}, object),
-                    right = gpf.extend({}, object);
+                var left = Object.assign({}, object),
+                    right = Object.assign({}, object);
                 left.test1 = left;
                 right.test1 = right;
                 left.test2 = right;
