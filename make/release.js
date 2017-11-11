@@ -30,7 +30,7 @@ let
 
 const
     gitProjectUrl = "https://github.com/ArnaudBuchholz/gpf-js/",
-    publicationUrl = "${publicationUrl}",
+    publicationUrl = "https://arnaudbuchholz.github.io/gpf/",
     inquirer = require("inquirer"),
     GitHub = require("github-api"),
     ConfigFile = require("./configFile.js"),
