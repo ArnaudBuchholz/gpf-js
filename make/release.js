@@ -166,7 +166,9 @@ inquirer.prompt([{
             ).join("\n")
         );
         fs.writeFileSync("README.md", readmeLines.join("\n"));
+        return noBuild ? 0 : spawnGrunt("jsdoc:public");
     })
+    .then(() => noBuild ? 0 : spawnGrunt("copy:publishVersionDoc"))
     .then(() => spawnGrunt("zip:platoHistory"))
     .then(() => testMode
         ? console.warn("No GIT publishing in test mode")
