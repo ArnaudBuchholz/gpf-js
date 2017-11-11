@@ -4,7 +4,6 @@ module.exports = function (grunt) {
     grunt.registerTask("make", [
         "exec:version",
         "check",
-        "jsdoc:public",
         "connectIf",
         "concurrent:source"
     ]
@@ -21,7 +20,6 @@ module.exports = function (grunt) {
         "exec:fixUglify:tests",
         "copy:publishVersionPlato",
         "copy:publishVersion",
-        "copy:publishVersionDoc",
         "copy:publishTest",
         "copy:publishTestRequire"
     ]));
