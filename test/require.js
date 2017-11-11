@@ -2,8 +2,9 @@
 
 describe("require", function () {
 
+    var basePath;
+
     before(function () {
-        var basePath;
         if (0 === config.httpPort) {
             // published version
             basePath = "/gpf/test-resources/require";
@@ -18,15 +19,15 @@ describe("require", function () {
     describe("gpf.require.resolve", function () {
 
         it("resolves relative path", function () {
-            assert(gpf.require.resolve("file.js") === "/test/require/file.js");
+            assert(gpf.require.resolve("file.js") === basePath + "/file.js");
         });
 
         it("resolves relative path with folders", function () {
-            assert(gpf.require.resolve("folder/file.js") === "/test/require/folder/file.js");
+            assert(gpf.require.resolve("folder/file.js") === basePath + "/folder/file.js");
         });
 
         it("resolves relative path with folders (use of ..)", function () {
-            assert(gpf.require.resolve("../file.js") === "/test/file.js");
+            assert(gpf.require.resolve("../file.js") === basePath.split("/").slice(0, -1).join("/") + "/file.js");
         });
 
     });
