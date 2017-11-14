@@ -74,7 +74,7 @@
  * @callback gpf.typedef.tagFunc
  *
  * @param {Object|gpf.typedef.tagChildren} [attributes=undefined] When a literal object is passed, it is interpreted
- * as an attribute dictionary
+ * as an attribute dictionary. The attribute name may contain the xlink namespace prefix.
  * @param {gpf.typedef.tagChildren} [children=undefined] List of children
  * @return {gpf.typedef.Tag} Tag object
  *
@@ -339,7 +339,8 @@ var _GpfWebTag = _gpfDefine(/** @lends gpf.web.Tag.prototype */ {
 /**
  * Create a tag generation function
  *
- * @param {String} nodeName tag name
+ * @param {String} nodeName tag name.
+ * May include the namespace prefix svg for [SVG elements](https://developer.mozilla.org/en-US/docs/Web/SVG)
  * @return {gpf.typedef.tagFunc} The tag generation function
  * @gpf:closure
  * @since 0.2.1
@@ -377,5 +378,12 @@ function _gpfWebTagCreateFunction (nodeName) {
  *     span = gpf.web.createTagFunction("span"),
  *     tree = div({className: "test"}, "Hello ", span("World!")),
  *     result = tree.appendTo(mockNode);
+ *
+ * @example <caption>SVG building</caption>
+ * var mockNode = mockDocument.createElement("any"),
+ *     svgImage = gpf.web.createTagFunction("svg:image"),
+ *     tree = svgImage({x: 0, y: 0, "xlink:href": "test.png"}),
+ *     result = tree.appendTo(mockNode);
+ *
  */
 gpf.web.createTagFunction = _gpfWebTagCreateFunction;
