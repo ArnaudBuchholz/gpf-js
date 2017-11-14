@@ -412,15 +412,28 @@ SourceArray.prototype = {
      */
     setCheckDictionary: function (checkDictionary) {
         this._checkDictionary = checkDictionary;
-        // Add missing sources
-        Object.keys(checkDictionary).forEach(function (name) {
-            if ("new" === checkDictionary[name]) {
-                this._sources.push(new Source(this, {
+        var newSources = Object.keys(checkDictionary)
+            .filter(function (name) {
+                return "new" === checkDictionary[name];
+            })
+            .map(function (name) {
+                return new Source(this, {
                     name: name,
                     load: false
-                }, null));
-            }
-        }, this);
+                }, null);
+            }, this);
+        // Add missing sources after the last loaded one
+        if (newSources.length > 0) {
+            var lastLoadedSource = this._sources.length;
+            this._sources.every(function (source, index) {
+                if (index && !source.getLoad()) { // Skip boot
+                    lastLoadedSource = index + 1;
+                    return false;
+                }
+                return true;
+            });
+            this._sources.splice.apply(this._sources, [lastLoadedSource, 0].concat(newSources));
+        }
     },
 
     /** Save to src/sources.json */
