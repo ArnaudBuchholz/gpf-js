@@ -48,7 +48,7 @@ Lines of code|96|8652||
 ## Setup
 
 * Clone repository
-* install [grunt](http://gruntjs.com/)
+* install [grunt](https://gruntjs.com/getting-started): `npm install -g grunt-cli`
 * at the root of the cloned repository: `npm install`, then `grunt`
 
 ## Testing
