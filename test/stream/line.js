@@ -52,7 +52,7 @@ describe("stream/line", function () {
                 return _part2(lineStream);
             })
             .then(function () {
-                return lineStream.endOfStream();
+                return lineStream.flush();
             })
             .then(function () {
                 done();
@@ -69,7 +69,7 @@ describe("stream/line", function () {
                 return lineStream.write("\n");
             })
             .then(function () {
-                return lineStream.endOfStream();
+                return lineStream.flush();
             })
             .then(function () {
                 return lineStream.read(_getOutput());
@@ -89,7 +89,7 @@ describe("stream/line", function () {
                 return _part2(lineStream);
             })
             .then(function () {
-                return lineStream.endOfStream();
+                return lineStream.flush();
             })
             .then(function () {
                 done();
