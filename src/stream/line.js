@@ -97,17 +97,6 @@ var
         //endregion
 
         /**
-         * Completes the stream, flush the remaining characters as the last line if any
-         *
-         * @return {Promise} Resolve when written to the output
-         * @deprecated since version 0.2.2, use flush
-         * @since 0.2.1
-         */
-        endOfStream: function () {
-            return this.flush();
-        },
-
-        /**
          * Output stream
          *
          * @type {gpf.interfaces.IWritableStream}
