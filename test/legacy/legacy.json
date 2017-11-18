@@ -28,4 +28,10 @@
     "ignore": [{
         "describe": "gpf.extend"
     }]
+}, {
+    "issue": 203,
+    "before": "0.2.3",
+    "ignore": [{
+        "describe": "stream/line"
+    }]
 }]
