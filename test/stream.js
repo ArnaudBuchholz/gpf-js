@@ -8,7 +8,17 @@ describe("stream", function () {
             _gpfStreamQueryWritable = gpf.internals._gpfStreamQueryWritable,
             _gpfStreamSecureInstallProgressFlag = gpf.internals._gpfStreamSecureInstallProgressFlag,
             _gpfStreamSecureRead = gpf.internals._gpfStreamSecureRead,
-            _gpfStreamSecureWrite = gpf.internals._gpfStreamSecureWrite;
+            _gpfStreamSecureWrite = gpf.internals._gpfStreamSecureWrite,
+            _invalidValuesForQuery = [
+                "",
+                "Hello World !",
+                false,
+                true,
+                null,
+                undefined,
+                0,
+                1
+            ];
 
         describe("(internal)", function () {
 
@@ -32,6 +42,18 @@ describe("stream", function () {
                     assert(exceptionCaught instanceof gpf.Error.InterfaceExpected);
                 });
 
+                _invalidValuesForQuery.forEach(function (value) {
+                    it("fails when the parameters is invalid - " + JSON.stringify(value), function () {
+                        var exceptionCaught;
+                        try {
+                            _gpfStreamQueryReadable(value);
+                        } catch (e) {
+                            exceptionCaught = e;
+                        }
+                        assert(exceptionCaught instanceof gpf.Error.InterfaceExpected);
+                    });
+                });
+
             });
 
             describe("_gpfStreamQueryWritable", function () {
@@ -52,6 +74,18 @@ describe("stream", function () {
                         exceptionCaught = e;
                     }
                     assert(exceptionCaught instanceof gpf.Error.InterfaceExpected);
+                });
+
+                _invalidValuesForQuery.forEach(function (value) {
+                    it("fails when the parameters is invalid - " + JSON.stringify(value), function () {
+                        var exceptionCaught;
+                        try {
+                            _gpfStreamQueryWritable(value);
+                        } catch (e) {
+                            exceptionCaught = e;
+                        }
+                        assert(exceptionCaught instanceof gpf.Error.InterfaceExpected);
+                    });
                 });
 
             });
