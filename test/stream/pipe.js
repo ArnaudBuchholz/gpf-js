@@ -8,7 +8,7 @@ describe("stream/pipe", function () {
             .then(function () {
                 assert(iWritableStream.toString() === "Hello World");
                 done();
-            });
+            })["catch"](done);
     });
 
 });
