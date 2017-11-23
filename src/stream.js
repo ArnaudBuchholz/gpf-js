@@ -65,6 +65,25 @@ _gpfErrorDeclare("stream", {
  */
 gpf.stream = {};
 
+function _gpfStreamQuery (queriedObject, interfaceSpecifier, interfaceName) {
+    var iStream = _gpfInterfaceQuery(interfaceSpecifier, queriedObject);
+    if (!iStream) {
+        gpf.Error.interfaceExpected({
+            name: interfaceName
+        });
+    }
+    return iStream;
+}
+
+function _gpfStreamQueryCommon (queriedObject, interfaceSpecifier, interfaceName) {
+    if (!queriedObject) {
+        gpf.Error.interfaceExpected({
+            name: interfaceName
+        });
+    }
+    return _gpfStreamQuery(queriedObject, interfaceSpecifier, interfaceName);
+}
+
 /**
  * Get an IReadableStream or fail if not implemented
  *
@@ -74,13 +93,7 @@ gpf.stream = {};
  * @since 0.1.9
  */
 function _gpfStreamQueryReadable (queriedObject) {
-    var iReadableStream = _gpfInterfaceQuery(_gpfIReadableStream, queriedObject);
-    if (!iReadableStream) {
-        gpf.Error.interfaceExpected({
-            name: "gpf.interfaces.IReadableStream"
-        });
-    }
-    return iReadableStream;
+    return _gpfStreamQueryCommon(queriedObject, _gpfIReadableStream, "gpf.interfaces.IReadableStream");
 }
 
 /**
@@ -92,13 +105,7 @@ function _gpfStreamQueryReadable (queriedObject) {
  * @since 0.1.9
  */
 function _gpfStreamQueryWritable (queriedObject) {
-    var iWritableStream = _gpfInterfaceQuery(_gpfIWritableStream, queriedObject);
-    if (!iWritableStream) {
-        gpf.Error.interfaceExpected({
-            name: "gpf.interfaces.IWritableStream"
-        });
-    }
-    return iWritableStream;
+    return _gpfStreamQueryCommon(queriedObject, _gpfIWritableStream, "gpf.interfaces.IWritableStream");
 }
 
 var _gpfStreamInProgressPropertyName = "gpf.stream#inProgress";
