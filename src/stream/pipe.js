@@ -3,7 +3,8 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-//*global _gpfQueryInterface*/ // gpf.interfaces.query
+/*global _gpfStreamQueryReadable*/ // Get an IReadableStream or fail if not implemented
+/*global _gpfStreamQueryWritable*/ // Get an IWritableStream or fail if not implemented
 /*exported _gpfStreamPipe*/ // gpf.stream.pipe
 /*#endif*/
 
@@ -15,7 +16,9 @@
  * @return {Promise} Resolved when reading (and subsequent writings) are done
  */
 function _gpfStreamPipe (source, destination) {
-    return Promise.resolve();
+    var iReadableStream = _gpfStreamQueryReadable(source),
+        iWritableStream = _gpfStreamQueryWritable(destination);
+    return iReadableStream .read(iWritableStream);
 }
 
 /** @gpf:sameas _gpfStreamPipe */
