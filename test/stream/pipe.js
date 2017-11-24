@@ -30,13 +30,32 @@ describe("stream/pipe", function () {
 
     });
 
-    it("chains an IReadableStream with a IWritableStream", function (done) {
-        var iWritableStream = new gpf.stream.WritableString();
-        gpf.stream.pipe(new gpf.stream.ReadableString("Hello World"), iWritableStream)
-            .then(function () {
-                assert(iWritableStream.toString() === "Hello World");
-                done();
-            })["catch"](done);
+    describe("Chaining an IReadableStream with an IWritableStream", function () {
+
+        it("Transfer data", function (done) {
+            var iWritableStream = new gpf.stream.WritableString();
+            gpf.stream.pipe(new gpf.stream.ReadableString("Hello World"), iWritableStream)
+                .then(function () {
+                    assert(iWritableStream.toString() === "Hello World");
+                    done();
+                })["catch"](done);
+        });
+
+        it("Triggers flush when the read ends", function (done) {
+            var iWritableStream = new gpf.stream.WritableString(),
+                flushed = false;
+            iWritableStream.flush = function () {
+                flushed = true;
+                return Promise.resolve();
+            };
+            gpf.stream.pipe(new gpf.stream.ReadableString("Hello World"), iWritableStream)
+                .then(function () {
+                    assert(iWritableStream.toString() === "Hello World");
+                    assert(flushed);
+                    done();
+                })["catch"](done);
+        });
+
     });
 
 });
