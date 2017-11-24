@@ -1,5 +1,9 @@
 "use strict";
 
+function ignore(x) {
+    return x;
+}
+
 describe("stream/pipe", function () {
 
     describe("parameters validation", function () {
@@ -52,6 +56,72 @@ describe("stream/pipe", function () {
                 .then(function () {
                     assert(iWritableStream.toString() === "Hello World");
                     assert(flushed);
+                    done();
+                })["catch"](done);
+        });
+
+        it("Forward errors (read - reject)", function (done) {
+            var iWritableStream = new gpf.stream.WritableString(),
+                iReadableStream = {
+                    read: function (iOutput) {
+                        ignore(iOutput);
+                        return Promise.reject("FAIL");
+                    }
+                };
+            gpf.stream.pipe(iReadableStream, iWritableStream)
+                .then(function () {
+                    throw new Error("Should fail");
+                }, function (reason) {
+                    assert(reason === "FAIL");
+                    done();
+                })["catch"](done);
+        });
+
+        it("Forward errors (read - exception)", function (done) {
+            var iWritableStream = new gpf.stream.WritableString(),
+                iReadableStream = {
+                    read: function (iOutput) {
+                        ignore(iOutput);
+                        throw new Error("FAIL");
+                    }
+                };
+            gpf.stream.pipe(iReadableStream, iWritableStream)
+                .then(function () {
+                    throw new Error("Should fail");
+                }, function (reason) {
+                    assert(reason.message === "FAIL");
+                    done();
+                })["catch"](done);
+        });
+
+        it("Forward errors (write - reject)", function (done) {
+            var iWritableStream = {
+                write: function (data) {
+                    ignore(data);
+                    return Promise.reject("FAIL");
+                }
+            };
+            gpf.stream.pipe(new gpf.stream.ReadableString("Hello World"), iWritableStream)
+                .then(function () {
+                    throw new Error("Should fail");
+                }, function (reason) {
+                    assert(reason === "FAIL");
+                    done();
+                })["catch"](done);
+        });
+
+        it("Forward errors (write - exception)", function (done) {
+            var iWritableStream = {
+                write: function (data) {
+                    ignore(data);
+                    throw new Error("FAIL");
+                }
+            };
+            gpf.stream.pipe(new gpf.stream.ReadableString("Hello World"), iWritableStream)
+                .then(function () {
+                    throw new Error("Should fail");
+                }, function (reason) {
+                    assert(reason.message === "FAIL");
                     done();
                 })["catch"](done);
         });
