@@ -11,6 +11,28 @@
 /*#endif*/
 
 /**
+ * Creates a pipe sequence chain between an intermediate stream and a writable (flushable?) destination
+ *
+ * @param {Object} intermediate Must at least implements IReadableStream interface.
+ * If it implements the IFlushableStream interface, it is assumed that it retains data
+ * until it receives the Flush. Meaning, the read won't complete until the flush call.
+ * If it does not implement the IFlushableStream, the read may end before the whole sequence
+ * has finished. It means that the next write should trigger a new read and flush must be simulated at
+ * least to pass it to the
+ * @param destination
+ * @private
+ */
+/*
+function _gpfStreamPipeToFlushableWrite (intermediate, destination) {
+
+    var iReadableStream = _gpfStreamQueryReadable(intermediate),
+        iWritableStream = _gpfStreamQueryWritable(destination),
+        iFlushableOutStream = _gpfInterfaceQuery(_gpfIFlushableStream, destination);
+
+}
+*/
+
+/**
  * Pipe streams.
  *
  * @param {gpf.interfaces.IReadableStream} source Source stream
