@@ -1,12 +1,20 @@
 "use strict";
 
-function ignore(x) {
+function ignore (x) {
     return x;
 }
 
 describe("stream/pipe", function () {
 
     describe("parameters validation", function () {
+
+        function _read (iWritableStream) {
+            ignore(iWritableStream);
+        }
+
+        function _write (data) {
+            ignore(data);
+        }
 
         it("fails if the first parameter is not an IReadableStream", function () {
             var exceptionCaught;
@@ -22,9 +30,7 @@ describe("stream/pipe", function () {
             var exceptionCaught;
             try {
                 gpf.stream.pipe({
-                    read: function (iWritableStream) {
-                        return Promise.resolve(iWritableStream);
-                    }
+                    read: _read
                 });
             } catch (e) {
                 exceptionCaught = e;
@@ -32,9 +38,62 @@ describe("stream/pipe", function () {
             assert(exceptionCaught instanceof gpf.Error.InterfaceExpected);
         });
 
+        describe("handling a sequence with more than two streams", function () {
+
+            it("misses intermediate read", function () {
+                var exceptionCaught;
+                try {
+                    gpf.stream.pipe({
+                        read: _read
+                    }, {
+                        write: _write
+                    }, {
+                        write: _write
+                    });
+                } catch (e) {
+                    exceptionCaught = e;
+                }
+                assert(exceptionCaught instanceof gpf.Error.InterfaceExpected);
+            });
+
+            it("misses intermediate write", function () {
+                var exceptionCaught;
+                try {
+                    gpf.stream.pipe({
+                        read: _read
+                    }, {
+                        read: _read
+                    }, {
+                        write: _write
+                    });
+                } catch (e) {
+                    exceptionCaught = e;
+                }
+                assert(exceptionCaught instanceof gpf.Error.InterfaceExpected);
+            });
+
+            it("does not end with write", function () {
+                var exceptionCaught;
+                try {
+                    gpf.stream.pipe({
+                        read: _read
+                    }, {
+                        read: _read,
+                        write: _write
+                    }, {
+                    });
+                } catch (e) {
+                    exceptionCaught = e;
+                }
+                assert(exceptionCaught instanceof gpf.Error.InterfaceExpected);
+            });
+
+        });
+
+
     });
 
-    describe("chaining one IReadableStream to one IWritableStream", function () {
+    describe("IReadableStream -> IWritableStream", function () {
 
         it("Transfer data", function (done) {
             var iWritableStream = new gpf.stream.WritableString();
@@ -127,5 +186,9 @@ describe("stream/pipe", function () {
         });
 
     });
+
+    // describe("IReadableStream -> IReadableStream/IWritableStream -> IWritableStream", function () {
+    //
+    // });
 
 });
