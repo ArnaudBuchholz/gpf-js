@@ -20,13 +20,17 @@
 function _gpfStreamPipe (source, destination) {
     var iReadableStream = _gpfStreamQueryReadable(source),
         iWritableStream = _gpfStreamQueryWritable(destination);
-    return iReadableStream.read(iWritableStream)
-        .then(function () {
-            var iFlushableStream = _gpfInterfaceQuery(_gpfIFlushableStream, iWritableStream);
-            if (iFlushableStream) {
-                return iFlushableStream.flush();
-            }
-        });
+    try {
+        return iReadableStream.read(iWritableStream)
+            .then(function () {
+                var iFlushableStream = _gpfInterfaceQuery(_gpfIFlushableStream, iWritableStream);
+                if (iFlushableStream) {
+                    return iFlushableStream.flush();
+                }
+            });
+    } catch (e) {
+        return Promise.reject(e);
+    }
 }
 
 /** @gpf:sameas _gpfStreamPipe */
