@@ -34,7 +34,7 @@ describe("stream/pipe", function () {
 
     });
 
-    describe("Chaining an IReadableStream with an IWritableStream", function () {
+    describe("chaining one IReadableStream to one IWritableStream", function () {
 
         it("Transfer data", function (done) {
             var iWritableStream = new gpf.stream.WritableString();
