@@ -26,7 +26,7 @@
  */
 function _gpfStreamPipeToFlushableWrite (intermediate, destination) {
     var iReadableIntermediate = _gpfStreamQueryReadable(intermediate),
-        iWritableIntermdiate = _gpfStreamQueryWritable(intermediate),
+        iWritableIntermediate = _gpfStreamQueryWritable(intermediate),
         iFlushableIntermediate = _gpfInterfaceQuery(_gpfIFlushableStream, intermediate),
         iWritableDestination = _gpfStreamQueryWritable(destination),
         iFlushableDestination = _gpfInterfaceQuery(_gpfIFlushableStream, destination);
@@ -50,11 +50,20 @@ function _gpfStreamPipeToFlushableWrite (intermediate, destination) {
         },
 
         write: function (data) {
-            return iWritableIntermdiate.write(data);
+            return iWritableIntermediate.write(data);
         }
 
     };
 
+}
+
+function _gpfStreamPipeReduce (streams) {
+    var idx = streams.length - 1,
+        iWritableStream = streams[idx];
+    while (idx > 0) {
+        iWritableStream = _gpfStreamPipeToFlushableWrite(streams[--idx], iWritableStream);
+    }
+    return iWritableStream;
 }
 
 /**
@@ -66,7 +75,12 @@ function _gpfStreamPipeToFlushableWrite (intermediate, destination) {
  */
 function _gpfStreamPipe (source, destination) {
     var iReadableStream = _gpfStreamQueryReadable(source),
+        iWritableStream;
+    if (arguments.length > 2) {
+        iWritableStream = _gpfStreamPipeReduce([].slice.call(arguments, 1));
+    } else {
         iWritableStream = _gpfStreamQueryWritable(destination);
+    }
     try {
         return iReadableStream.read(iWritableStream)
             .then(function () {
