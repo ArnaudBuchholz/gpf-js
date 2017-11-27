@@ -90,7 +90,6 @@ describe("stream/pipe", function () {
 
         });
 
-
     });
 
     describe("IReadableStream -> IWritableStream", function () {
@@ -187,8 +186,26 @@ describe("stream/pipe", function () {
 
     });
 
-    // describe("IReadableStream -> IReadableStream/IWritableStream -> IWritableStream", function () {
-    //
-    // });
+    describe("IReadableStream -> IReadableStream/IWritableStream -> IWritableStream", function () {
+
+        it("handles the whole stream", function (done) {
+            var iReadableArray = new gpf.stream.ReadableArray([
+                    "Hello ",
+                    "World!",
+                    "\n",
+                    "Goodbye!"
+                ]),
+                iLineAdapter = new gpf.stream.LineAdapter(),
+                iWritableArray = new gpf.stream.WritableArray();
+            gpf.stream.pipe(iReadableArray, iLineAdapter, iWritableArray)
+                .then(function () {
+                    var result = iWritableArray.toArray();
+                    assert(result.length === 2);
+                    assert(result[0] === "Hello World!");
+                    assert(result[1] === "Goodbye!");
+                })["catch"](done);
+        });
+
+    });
 
 });
