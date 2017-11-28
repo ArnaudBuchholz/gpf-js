@@ -3,6 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfStreamQueryReadable*/ // Get an IReadableStream or fail if not implemented
 /*global _gpfStreamQueryWritable*/ // Get an IWritableStream or fail if not implemented
 /*global _gpfInterfaceQuery*/ // gpf.interfaces.query
@@ -65,6 +66,13 @@ function _gpfStreamPipeReduce (streams) {
     return iWritableStream;
 }
 
+function _gpfStreamPipeToWritable (streams) {
+    if (streams.length > 1) {
+        return _gpfStreamPipeReduce(streams);
+    }
+    return _gpfStreamQueryWritable(streams[0]);
+}
+
 /**
  * Pipe streams.
  *
@@ -73,20 +81,14 @@ function _gpfStreamPipeReduce (streams) {
  * @return {Promise} Resolved when reading (and subsequent writings) are done
  */
 function _gpfStreamPipe (source, destination) {
+    _gpfIgnore(destination);
     var iReadableStream = _gpfStreamQueryReadable(source),
-        iWritableStream;
-    if (arguments.length > 2) {
-        iWritableStream = _gpfStreamPipeReduce([].slice.call(arguments, 1));
-    } else {
-        iWritableStream = _gpfStreamQueryWritable(destination);
-    }
+        iWritableStream = _gpfStreamPipeToWritable([].slice.call(arguments, 1)),
+        iFlushableStream = _gpfStreamPipeToFlushable(iWritableStream);
     try {
         return iReadableStream.read(iWritableStream)
             .then(function () {
-                var iFlushableStream = _gpfInterfaceQuery(_gpfIFlushableStream, iWritableStream);
-                if (iFlushableStream) {
-                    return iFlushableStream.flush();
-                }
+                return iFlushableStream.flush();
             });
     } catch (e) {
         return Promise.reject(e);
