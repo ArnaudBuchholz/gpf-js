@@ -108,7 +108,10 @@ function _gpfStreamQueryWritable (queriedObject) {
     return _gpfStreamQueryCommon(queriedObject, _gpfIWritableStream, "gpf.interfaces.IWritableStream");
 }
 
-var _gpfStreamInProgressPropertyName = "gpf.stream#inProgress";
+/* 'Hidden' properties used to secure Read / Write operations */
+var _gpfStreamProgressPropertyNamePrefix = "gpf.stream#progress",
+    _gpfStreamProgressRead = _gpfStreamProgressPropertyNamePrefix + "/read",
+    _gpfStreamProgressWrite = _gpfStreamProgressPropertyNamePrefix + "/write";
 
 /**
  * Install the progress flag used by _gpfStreamSecureRead and Write
@@ -117,7 +120,52 @@ var _gpfStreamInProgressPropertyName = "gpf.stream#inProgress";
  * @since 0.1.9
  */
 function _gpfStreamSecureInstallProgressFlag (constructor) {
-    constructor.prototype[_gpfStreamInProgressPropertyName] = false;
+    constructor.prototype[_gpfStreamProgressRead] = false;
+    constructor.prototype[_gpfStreamProgressWrite] = false;
+}
+
+/**
+ * Starts a secured read operation (if possible)
+ *
+ * @param {Object} stream configured with {@see _gpfStreamSecureInstallProgressFlag}
+ * @throws {gpf.Error.ReadInProgress}
+ */
+function _gpfStreamProgressStartRead (stream) {
+    if (stream[_gpfStreamProgressRead]) {
+        gpf.Error.readInProgress();
+    }
+    stream[_gpfStreamProgressRead] = true;
+}
+
+/**
+ * Ends a read operation
+ *
+ * @param {Object} stream configured with {@see _gpfStreamSecureInstallProgressFlag}
+ */
+function _gpfStreamProgressEndRead (stream) {
+    stream[_gpfStreamProgressRead] = false;
+}
+
+/**
+ * Starts a secured write operation (if possible)
+ *
+ * @param {Object} stream configured with {@see _gpfStreamSecureInstallProgressFlag}
+ * @throws {gpf.Error.WriteInProgress}
+ */
+function _gpfStreamProgressStartWrite (stream) {
+    if (stream[_gpfStreamProgressWrite]) {
+        gpf.Error.writeInProgress();
+    }
+    stream[_gpfStreamProgressWrite] = true;
+}
+
+/**
+ * Ends a write operation
+ *
+ * @param {Object} stream configured with {@see _gpfStreamSecureInstallProgressFlag}
+ */
+function _gpfStreamProgressEndWrite (stream) {
+    stream[_gpfStreamProgressWrite] = false;
 }
 
 /**
@@ -130,18 +178,15 @@ function _gpfStreamSecureInstallProgressFlag (constructor) {
  */
 function _gpfStreamSecureRead (read) {
     return function (output) {
-        var me = this; //eslint-disable-line no-invalid-this
-        if (me[_gpfStreamInProgressPropertyName]) {
-            gpf.Error.readInProgress();
-        }
-        var iWritableStream = _gpfStreamQueryWritable(output);
-        me[_gpfStreamInProgressPropertyName] = true;
+        var me = this,  //eslint-disable-line no-invalid-this
+            iWritableStream = _gpfStreamQueryWritable(output);
+        _gpfStreamProgressStartRead(me);
         return read.call(me, iWritableStream)
             .then(function (result) {
-                me[_gpfStreamInProgressPropertyName] = false;
+                _gpfStreamProgressEndRead(me);
                 return Promise.resolve(result);
             }, function (reason) {
-                me[_gpfStreamInProgressPropertyName] = false;
+                _gpfStreamProgressEndRead(me);
                 return Promise.reject(reason);
             });
     };
@@ -158,16 +203,13 @@ function _gpfStreamSecureRead (read) {
 function _gpfStreamSecureWrite (write) {
     return function (buffer) {
         var me = this; //eslint-disable-line no-invalid-this
-        if (me[_gpfStreamInProgressPropertyName]) {
-            gpf.Error.writeInProgress();
-        }
-        me[_gpfStreamInProgressPropertyName] = true;
+        _gpfStreamProgressStartWrite(me);
         return write.call(me, buffer) //eslint-disable-line no-invalid-this
             .then(function (result) {
-                me[_gpfStreamInProgressPropertyName] = false;
+                _gpfStreamProgressEndWrite(me);
                 return Promise.resolve(result);
             }, function (reason) {
-                me[_gpfStreamInProgressPropertyName] = false;
+                _gpfStreamProgressEndWrite(me);
                 return Promise.reject(reason);
             });
     };
