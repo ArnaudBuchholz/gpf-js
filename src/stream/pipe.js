@@ -10,6 +10,14 @@
 /*exported _gpfStreamPipe*/ // gpf.stream.pipe
 /*#endif*/
 
+var _gpfStreamPipeFakeFlushable = {
+    flush: Promise.resolve.bind(Promise)
+};
+
+function _gpfStreamPipeToFlushable (stream) {
+    return _gpfInterfaceQuery(_gpfIFlushableStream, stream) || _gpfStreamPipeFakeFlushable;
+}
+
 /**
  * Create a flushable & writable stream by combining the intermediate stream with the writable destination
  *
@@ -27,26 +35,18 @@
 function _gpfStreamPipeToFlushableWrite (intermediate, destination) {
     var iReadableIntermediate = _gpfStreamQueryReadable(intermediate),
         iWritableIntermediate = _gpfStreamQueryWritable(intermediate),
-        iFlushableIntermediate = _gpfInterfaceQuery(_gpfIFlushableStream, intermediate),
+        iFlushableIntermediate = _gpfStreamPipeToFlushable(intermediate),
         iWritableDestination = _gpfStreamQueryWritable(destination),
-        iFlushableDestination = _gpfInterfaceQuery(_gpfIFlushableStream, destination);
-
-    function _flushDestination () {
-        if (iFlushableDestination) {
-            return iFlushableDestination.flush();
-        }
-        return Promise.resolve();
-    }
+        iFlushableDestination = _gpfStreamPipeToFlushable(destination);
 
     iReadableIntermediate.read(iWritableDestination);
     return {
 
         flush: function () {
-            if (iFlushableIntermediate) {
-                return iFlushableIntermediate.flush()
-                    .then(_flushDestination);
-            }
-            return _flushDestination();
+            return iFlushableIntermediate.flush()
+                .then(function () {
+                    return iFlushableDestination.flush();
+                });
         },
 
         write: function (data) {
@@ -54,7 +54,6 @@ function _gpfStreamPipeToFlushableWrite (intermediate, destination) {
         }
 
     };
-
 }
 
 function _gpfStreamPipeReduce (streams) {
