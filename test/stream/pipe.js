@@ -207,6 +207,49 @@ describe("stream/pipe", function () {
                 })["catch"](done);
         });
 
+        it("handles non flushable intermediate stream", function (done) {
+            var iReadableArray = new gpf.stream.ReadableArray([
+                    "Hello ",
+                    "World!",
+                    "\n",
+                    "Goodbye!"
+                ]),
+                intermediate = (function () {
+                    var
+                        _data,
+                        _writable;
+                    function _forget () {
+                        _data = undefined;
+                        _writable = undefined;
+                    }
+                    return {
+                        read: function (iWritable) {
+                            _writable = iWritable;
+                            if (undefined !== _data) {
+                                return _writable.write(_data).then(_forget);
+                            }
+                            return Promise.resolve();
+                        },
+                        write: function (data) {
+                            _data = data;
+                            if (_writable) {
+                                return _writable.write(data).then(_forget);
+                            }
+                            return Promise.resolve();
+                        }
+                    };
+                }()),
+                iWritableArray = new gpf.stream.WritableArray();
+            gpf.stream.pipe(iReadableArray, intermediate, iWritableArray)
+                .then(function () {
+                    var result = iWritableArray.toArray();
+                    assert(result.length === 2);
+                    assert(result[0] === "Hello World!");
+                    assert(result[1] === "Goodbye!");
+                    done();
+                })["catch"](done);
+        });
+
     });
 
 });
