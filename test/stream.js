@@ -105,7 +105,7 @@ describe("stream", function () {
 
                 _gpfStreamSecureInstallProgressFlag(IReadableStream);
 
-                it("is accepts only IWritableStream", function () {
+                it("accepts only IWritableStream", function () {
                     var iReadableStream = new IReadableStream(),
                         exceptionCaught;
                     try {
