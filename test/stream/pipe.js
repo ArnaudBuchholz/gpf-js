@@ -203,6 +203,7 @@ describe("stream/pipe", function () {
                     assert(result.length === 2);
                     assert(result[0] === "Hello World!");
                     assert(result[1] === "Goodbye!");
+                    done();
                 })["catch"](done);
         });
 
