@@ -224,6 +224,9 @@ describe("stream/pipe", function () {
                     }
                     return {
                         read: function (iWritable) {
+                            if (_writable) {
+                                throw new Error("Already reading");
+                            }
                             _writable = iWritable;
                             if (undefined !== _data) {
                                 return _writable.write(_data).then(_forget);
@@ -231,6 +234,9 @@ describe("stream/pipe", function () {
                             return Promise.resolve();
                         },
                         write: function (data) {
+                            if (_writable) {
+                                throw new Error("Buffer full");
+                            }
                             _data = data;
                             if (_writable) {
                                 return _writable.write(data).then(_forget);
