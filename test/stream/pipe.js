@@ -186,7 +186,7 @@ describe("stream/pipe", function () {
 
     });
 
-    describe("IReadableStream -> IReadableStream/IWritableStream -> IWritableStream", function () {
+    describe("IReadableStream -> IReadableStream/IWritableStream* -> IWritableStream", function () {
 
         it("handles the whole stream", function (done) {
             var iReadableArray = new gpf.stream.ReadableArray([
@@ -214,7 +214,7 @@ describe("stream/pipe", function () {
                     "\n",
                     "Goodbye!"
                 ]),
-                intermediate = (function () {
+                nonFlushable = (function () {
                     var
                         _data,
                         _writable;
@@ -234,7 +234,7 @@ describe("stream/pipe", function () {
                             return Promise.resolve();
                         },
                         write: function (data) {
-                            if (_writable) {
+                            if (_data) {
                                 throw new Error("Buffer full");
                             }
                             _data = data;
@@ -245,8 +245,9 @@ describe("stream/pipe", function () {
                         }
                     };
                 }()),
+                iLineAdapter = new gpf.stream.LineAdapter(),
                 iWritableArray = new gpf.stream.WritableArray();
-            gpf.stream.pipe(iReadableArray, intermediate, iWritableArray)
+            gpf.stream.pipe(iReadableArray, nonFlushable, iLineAdapter, iWritableArray)
                 .then(function () {
                     var result = iWritableArray.toArray();
                     assert(result.length === 2);
