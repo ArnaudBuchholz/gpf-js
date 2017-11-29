@@ -1,10 +1,10 @@
 "use strict";
 
-function ignore (x) {
-    return x;
-}
-
 describe("stream/pipe", function () {
+
+    function ignore (x) {
+        return x;
+    }
 
     describe("parameters validation", function () {
 
@@ -92,6 +92,44 @@ describe("stream/pipe", function () {
 
     });
 
+    function _readRejectError (iOutput) {
+        ignore(iOutput);
+        return Promise.reject("FAIL");
+    }
+
+    function _readThrowError (iOutput) {
+        ignore(iOutput);
+        throw new Error("FAIL");
+    }
+
+    function _writeRejectError (data) {
+        ignore(data);
+        return Promise.reject("FAIL");
+    }
+
+    function _writeThrowError (data) {
+        ignore(data);
+        throw new Error("FAIL");
+    }
+
+    function _wrapForRejectionHandler (promise, done) {
+        promise.then(function () {
+            throw new Error("Should fail");
+        }, function (reason) {
+            assert(reason === "FAIL");
+            done();
+        })["catch"](done);
+    }
+
+    function _wrapForExceptionHandler (promise, done) {
+        promise.then(function () {
+            throw new Error("Should fail");
+        }, function (reason) {
+            assert(reason.message === "FAIL");
+            done();
+        })["catch"](done);
+    }
+
     describe("IReadableStream -> IWritableStream", function () {
 
         it("Transfer data", function (done) {
@@ -121,142 +159,138 @@ describe("stream/pipe", function () {
         it("Forward errors (read - reject)", function (done) {
             var iWritableStream = new gpf.stream.WritableString(),
                 iReadableStream = {
-                    read: function (iOutput) {
-                        ignore(iOutput);
-                        return Promise.reject("FAIL");
-                    }
+                    read: _readRejectError
                 };
-            gpf.stream.pipe(iReadableStream, iWritableStream)
-                .then(function () {
-                    throw new Error("Should fail");
-                }, function (reason) {
-                    assert(reason === "FAIL");
-                    done();
-                })["catch"](done);
+            _wrapForRejectionHandler(gpf.stream.pipe(iReadableStream, iWritableStream), done);
         });
 
         it("Forward errors (read - exception)", function (done) {
             var iWritableStream = new gpf.stream.WritableString(),
                 iReadableStream = {
-                    read: function (iOutput) {
-                        ignore(iOutput);
-                        throw new Error("FAIL");
-                    }
+                    read: _readThrowError
                 };
-            gpf.stream.pipe(iReadableStream, iWritableStream)
-                .then(function () {
-                    throw new Error("Should fail");
-                }, function (reason) {
-                    assert(reason.message === "FAIL");
-                    done();
-                })["catch"](done);
+            _wrapForExceptionHandler(gpf.stream.pipe(iReadableStream, iWritableStream), done);
         });
 
         it("Forward errors (write - reject)", function (done) {
             var iWritableStream = {
-                write: function (data) {
-                    ignore(data);
-                    return Promise.reject("FAIL");
-                }
+                write: _writeRejectError
             };
-            gpf.stream.pipe(new gpf.stream.ReadableString("Hello World"), iWritableStream)
-                .then(function () {
-                    throw new Error("Should fail");
-                }, function (reason) {
-                    assert(reason === "FAIL");
-                    done();
-                })["catch"](done);
+            _wrapForRejectionHandler(gpf.stream.pipe(new gpf.stream.ReadableString("Hello World"), iWritableStream),
+                done);
         });
 
         it("Forward errors (write - exception)", function (done) {
             var iWritableStream = {
-                write: function (data) {
-                    ignore(data);
-                    throw new Error("FAIL");
-                }
+                write: _writeThrowError
             };
-            gpf.stream.pipe(new gpf.stream.ReadableString("Hello World"), iWritableStream)
-                .then(function () {
-                    throw new Error("Should fail");
-                }, function (reason) {
-                    assert(reason.message === "FAIL");
-                    done();
-                })["catch"](done);
+            _wrapForExceptionHandler(gpf.stream.pipe(new gpf.stream.ReadableString("Hello World"), iWritableStream),
+                done);
         });
 
     });
 
+    function _getNonFlushableStream () {
+        var
+            _data,
+            _writable;
+        function _forget () {
+            _data = undefined;
+            _writable = undefined;
+        }
+        return {
+            read: function (iWritable) {
+                if (_writable) {
+                    throw new Error("Already reading");
+                }
+                _writable = iWritable;
+                if (undefined !== _data) {
+                    return _writable.write(_data).then(_forget);
+                }
+                return Promise.resolve();
+            },
+            write: function (data) {
+                if (_data) {
+                    throw new Error("Buffer full");
+                }
+                _data = data;
+                if (_writable) {
+                    return _writable.write(data).then(_forget);
+                }
+                return Promise.resolve();
+            }
+        };
+    }
+
+    function _pipe (streams) {
+        var iReadableArray = new gpf.stream.ReadableArray([
+                "Hello ",
+                "World!",
+                "\n",
+                "Goodbye!"
+            ]),
+            iWritableArray = new gpf.stream.WritableArray();
+        return gpf.stream.pipe.apply(gpf.stream, [iReadableArray].concat(streams, iWritableArray))
+            .then(function () {
+                return iWritableArray;
+            });
+    }
+
+    function _validate (streams, done) {
+        _pipe(streams)
+            .then(function (iWritableArray) {
+                var result = iWritableArray.toArray();
+                assert(result.length === 2);
+                assert(result[0] === "Hello World!");
+                assert(result[1] === "Goodbye!");
+                done();
+            })["catch"](done);
+    }
+
     describe("IReadableStream -> IReadableStream/IWritableStream* -> IWritableStream", function () {
 
         it("handles the whole stream", function (done) {
-            var iReadableArray = new gpf.stream.ReadableArray([
-                    "Hello ",
-                    "World!",
-                    "\n",
-                    "Goodbye!"
-                ]),
-                iLineAdapter = new gpf.stream.LineAdapter(),
-                iWritableArray = new gpf.stream.WritableArray();
-            gpf.stream.pipe(iReadableArray, iLineAdapter, iWritableArray)
-                .then(function () {
-                    var result = iWritableArray.toArray();
-                    assert(result.length === 2);
-                    assert(result[0] === "Hello World!");
-                    assert(result[1] === "Goodbye!");
-                    done();
-                })["catch"](done);
+            _validate([new gpf.stream.LineAdapter()], done);
         });
 
         it("handles non flushable intermediate stream", function (done) {
-            var iReadableArray = new gpf.stream.ReadableArray([
-                    "Hello ",
-                    "World!",
-                    "\n",
-                    "Goodbye!"
-                ]),
-                nonFlushable = (function () {
-                    var
-                        _data,
-                        _writable;
-                    function _forget () {
-                        _data = undefined;
-                        _writable = undefined;
-                    }
-                    return {
-                        read: function (iWritable) {
-                            if (_writable) {
-                                throw new Error("Already reading");
-                            }
-                            _writable = iWritable;
-                            if (undefined !== _data) {
-                                return _writable.write(_data).then(_forget);
-                            }
-                            return Promise.resolve();
-                        },
-                        write: function (data) {
-                            if (_data) {
-                                throw new Error("Buffer full");
-                            }
-                            _data = data;
-                            if (_writable) {
-                                return _writable.write(data).then(_forget);
-                            }
-                            return Promise.resolve();
-                        }
-                    };
-                }()),
-                iLineAdapter = new gpf.stream.LineAdapter(),
-                iWritableArray = new gpf.stream.WritableArray();
-            gpf.stream.pipe(iReadableArray, nonFlushable, iLineAdapter, iWritableArray)
-                .then(function () {
-                    var result = iWritableArray.toArray();
-                    assert(result.length === 2);
-                    assert(result[0] === "Hello World!");
-                    assert(result[1] === "Goodbye!");
-                    done();
-                })["catch"](done);
+            _validate([
+                _getNonFlushableStream(),
+                new gpf.stream.LineAdapter()
+            ], done);
         });
 
+        it("Forward errors (read - reject)", function (done) {
+            var nonFlushable = _getNonFlushableStream();
+            nonFlushable.read = _readRejectError;
+            _wrapForRejectionHandler(_pipe([nonFlushable, new gpf.stream.LineAdapter()]), done);
+        });
+
+    /*
+            it("Forward errors (read - exception)", function (done) {
+                var iWritableStream = new gpf.stream.WritableString(),
+                    iReadableStream = {
+                        read: _readThrowError
+                    };
+                _wrapForExceptionHandler(gpf.stream.pipe(iReadableStream, iWritableStream), done);
+            });
+
+            it("Forward errors (write - reject)", function (done) {
+                var iWritableStream = {
+                    write: _writeRejectError
+                };
+                _wrapForRejectionHandler(gpf.stream.pipe(new gpf.stream.ReadableString("Hello World"), iWritableStream),
+                    done);
+            });
+
+            it("Forward errors (write - exception)", function (done) {
+                var iWritableStream = {
+                    write: _writeThrowError
+                };
+                _wrapForExceptionHandler(gpf.stream.pipe(new gpf.stream.ReadableString("Hello World"), iWritableStream),
+                    done);
+            });
+    */
     });
 
 });
