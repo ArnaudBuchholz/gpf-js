@@ -261,36 +261,57 @@ describe("stream/pipe", function () {
         });
 
         it("Forward errors (read - reject)", function (done) {
-            var nonFlushable = _getNonFlushableStream();
-            nonFlushable.read = _readRejectError;
-            _wrapForRejectionHandler(_pipe([nonFlushable, new gpf.stream.LineAdapter()]), done);
+            var error = _getNonFlushableStream();
+            error.read = _readRejectError;
+            _wrapForRejectionHandler(_pipe([error, new gpf.stream.LineAdapter()]), done);
         });
 
-    /*
-            it("Forward errors (read - exception)", function (done) {
-                var iWritableStream = new gpf.stream.WritableString(),
-                    iReadableStream = {
-                        read: _readThrowError
-                    };
-                _wrapForExceptionHandler(gpf.stream.pipe(iReadableStream, iWritableStream), done);
-            });
+        it("Forward errors (read - exception)", function (done) {
+            var error = _getNonFlushableStream();
+            error.read = _readThrowError;
+            _wrapForExceptionHandler(_pipe([error, new gpf.stream.LineAdapter()]), done);
+        });
 
-            it("Forward errors (write - reject)", function (done) {
-                var iWritableStream = {
-                    write: _writeRejectError
-                };
-                _wrapForRejectionHandler(gpf.stream.pipe(new gpf.stream.ReadableString("Hello World"), iWritableStream),
-                    done);
-            });
+        it("Forward errors (write - reject)", function (done) {
+            var error = _getNonFlushableStream();
+            error.write = _writeRejectError;
+            _wrapForRejectionHandler(_pipe([error, new gpf.stream.LineAdapter()]), done);
+        });
 
-            it("Forward errors (write - exception)", function (done) {
-                var iWritableStream = {
-                    write: _writeThrowError
-                };
-                _wrapForExceptionHandler(gpf.stream.pipe(new gpf.stream.ReadableString("Hello World"), iWritableStream),
-                    done);
-            });
-    */
+        it("Forward errors (write - exception)", function (done) {
+            var error = _getNonFlushableStream();
+            error.write = _writeThrowError;
+            _wrapForExceptionHandler(_pipe([error, new gpf.stream.LineAdapter()]), done);
+        });
+
+        it("Forward errors (second read - reject)", function (done) {
+            var nonFlushable = _getNonFlushableStream(),
+                error = _getNonFlushableStream();
+            error.read = _readRejectError;
+            _wrapForRejectionHandler(_pipe([nonFlushable, error, new gpf.stream.LineAdapter()]), done);
+        });
+
+        it("Forward errors (second read - exception)", function (done) {
+            var nonFlushable = _getNonFlushableStream(),
+                error = _getNonFlushableStream();
+            error.read = _readThrowError;
+            _wrapForExceptionHandler(_pipe([nonFlushable, error, new gpf.stream.LineAdapter()]), done);
+        });
+
+        it("Forward errors (second write - reject)", function (done) {
+            var nonFlushable = _getNonFlushableStream(),
+                error = _getNonFlushableStream();
+            error.write = _writeRejectError;
+            _wrapForRejectionHandler(_pipe([nonFlushable, error, new gpf.stream.LineAdapter()]), done);
+        });
+
+        it("Forward errors (second write - exception)", function (done) {
+            var nonFlushable = _getNonFlushableStream(),
+                error = _getNonFlushableStream();
+            error.write = _writeThrowError;
+            _wrapForExceptionHandler(_pipe([nonFlushable, error, new gpf.stream.LineAdapter()]), done);
+        });
+
     });
 
 });
