@@ -38,9 +38,17 @@ function _gpfStreamPipeToFlushableWrite (intermediate, destination) {
         iWritableIntermediate = _gpfStreamQueryWritable(intermediate),
         iFlushableIntermediate = _gpfStreamPipeToFlushable(intermediate),
         iWritableDestination = _gpfStreamQueryWritable(destination),
-        iFlushableDestination = _gpfStreamPipeToFlushable(destination);
+        iFlushableDestination = _gpfStreamPipeToFlushable(destination),
+        readingDone = false;
 
-    iReadableIntermediate.read(iWritableDestination);
+    function _read () {
+        iReadableIntermediate.read(iWritableDestination)
+            .then(function () {
+                readingDone = true;
+            });
+    }
+    _read();
+
     return {
 
         flush: function () {
@@ -51,7 +59,12 @@ function _gpfStreamPipeToFlushableWrite (intermediate, destination) {
         },
 
         write: function (data) {
-            return iWritableIntermediate.write(data);
+            return iWritableIntermediate.write(data)
+                .then(function () {
+                    if (readingDone) {
+                        _read();
+                    }
+                });
         }
 
     };
