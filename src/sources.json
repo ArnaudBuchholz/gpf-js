@@ -401,6 +401,10 @@
         "doc": true
     },
     {
+        "name": "stream/pipe",
+        "doc": true
+    },
+    {
         "name": "events",
         "load": false
     },
@@ -462,10 +466,6 @@
     },
     {
         "name": "interfaces/array",
-        "load": false
-    },
-    {
-        "name": "stream/pipe",
         "load": false
     },
     {
