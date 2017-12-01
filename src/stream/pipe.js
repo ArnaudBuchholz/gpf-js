@@ -1,13 +1,14 @@
 /**
  * @file Stream piping
+ * @since 0.2.3
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfIFlushableStream*/ // gpf.interfaces.IFlushableStream
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfInterfaceQuery*/ // gpf.interfaces.query
 /*global _gpfStreamQueryReadable*/ // Get an IReadableStream or fail if not implemented
 /*global _gpfStreamQueryWritable*/ // Get an IWritableStream or fail if not implemented
-/*global _gpfInterfaceQuery*/ // gpf.interfaces.query
-/*global _gpfIFlushableStream*/ // gpf.interfaces.IFlushableStream
 /*exported _gpfStreamPipe*/ // gpf.stream.pipe
 /*#endif*/
 
@@ -32,6 +33,7 @@ function _gpfStreamPipeToFlushable (stream) {
  * If it implements the IFlushableStream, it will be called when the intermediate completes.
  *
  * @return {Object} Implementing IWritableStream and IFlushableStream
+ * @since 0.2.3
  */
 function _gpfStreamPipeToFlushableWrite (intermediate, destination) {
     var iReadableIntermediate = _gpfStreamQueryReadable(intermediate),
@@ -57,23 +59,23 @@ function _gpfStreamPipeToFlushableWrite (intermediate, destination) {
     }
     _read();
 
+    function _checkIfReadError () {
+        if (readError) {
+            return Promise.reject(readError);
+        }
+    }
+
     return {
 
         flush: function () {
-            if (readError) {
-                return Promise.reject(readError);
-            }
-            return iFlushableIntermediate.flush()
+            return _checkIfReadError() || iFlushableIntermediate.flush()
                 .then(function () {
                     return iFlushableDestination.flush();
                 });
         },
 
         write: function (data) {
-            if (readError) {
-                return Promise.reject(readError);
-            }
-            return iWritableIntermediate.write(data)
+            return _checkIfReadError() || iWritableIntermediate.write(data)
                 .then(function () {
                     if (readingDone) {
                         _read();
@@ -106,6 +108,7 @@ function _gpfStreamPipeToWritable (streams) {
  * @param {gpf.interfaces.IReadableStream} source Source stream
  * @param {...gpf.interfaces.IWritableStream} destination Writable streams
  * @return {Promise} Resolved when reading (and subsequent writings) are done
+ * @since 0.2.3
  */
 function _gpfStreamPipe (source, destination) {
     _gpfIgnore(destination);
@@ -122,5 +125,8 @@ function _gpfStreamPipe (source, destination) {
     }
 }
 
-/** @gpf:sameas _gpfStreamPipe */
+/**
+ * @gpf:sameas _gpfStreamPipe
+ * @since 0.2.3
+ */
 gpf.stream.pipe = _gpfStreamPipe;
