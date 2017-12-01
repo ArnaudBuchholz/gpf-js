@@ -129,6 +129,7 @@ function _gpfStreamSecureInstallProgressFlag (constructor) {
  *
  * @param {Object} stream configured with {@see _gpfStreamSecureInstallProgressFlag}
  * @throws {gpf.Error.ReadInProgress}
+ * @since 0.2.3
  */
 function _gpfStreamProgressStartRead (stream) {
     if (stream[_gpfStreamProgressRead]) {
@@ -141,6 +142,7 @@ function _gpfStreamProgressStartRead (stream) {
  * Ends a read operation
  *
  * @param {Object} stream configured with {@see _gpfStreamSecureInstallProgressFlag}
+ * @since 0.2.3
  */
 function _gpfStreamProgressEndRead (stream) {
     stream[_gpfStreamProgressRead] = false;
@@ -151,6 +153,7 @@ function _gpfStreamProgressEndRead (stream) {
  *
  * @param {Object} stream configured with {@see _gpfStreamSecureInstallProgressFlag}
  * @throws {gpf.Error.WriteInProgress}
+ * @since 0.2.3
  */
 function _gpfStreamProgressStartWrite (stream) {
     if (stream[_gpfStreamProgressWrite]) {
@@ -163,6 +166,7 @@ function _gpfStreamProgressStartWrite (stream) {
  * Ends a write operation
  *
  * @param {Object} stream configured with {@see _gpfStreamSecureInstallProgressFlag}
+ * @since 0.2.3
  */
 function _gpfStreamProgressEndWrite (stream) {
     stream[_gpfStreamProgressWrite] = false;
