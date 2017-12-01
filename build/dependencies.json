@@ -317,5 +317,10 @@
     "stream/array": [
         "define",
         "stream"
+    ],
+    "stream/pipe": [
+        "interfaces/flushablestream",
+        "interfaces",
+        "stream"
     ]
 }
