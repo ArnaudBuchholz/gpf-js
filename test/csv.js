@@ -4,110 +4,135 @@ describe("csv", function () {
 
     describe("gpf.csv.parse", function () {
 
-        it("reads a one-column CSV file", function () {
-            var records = gpf.csv.parse([
-                "LINE",
-                "0",
-                "1"
-            ].join("\r\n"));
-            assert(2 === records.length);
-            assert("0" === records[0].LINE);
-            assert("1" === records[1].LINE);
-        });
-
-        it("reads a CSV file", function () {
-            var records = gpf.csv.parse([
-                "LINE;VALUE",
-                "0;ABC",
-                "1;DEF"
-            ].join("\r\n"));
-            assert(2 === records.length);
-            assert("0" === records[0].LINE);
-            assert("ABC" === records[0].VALUE);
-            assert("1" === records[1].LINE);
-            assert("DEF" === records[1].VALUE);
-        });
-
-        it("supports value quoting", function () {
-            var records = gpf.csv.parse([
-                "LINE;VALUE",
-                "0;\"ABC\"",
-                "1;DEF",
-                "2;GH\"I",
-                "3;\"JK\"\"L\"",
-                "4;\"MN",
-                "O\""
-            ].join("\r\n"));
-            assert(5 === records.length);
-            assert("0" === records[0].LINE);
-            assert("ABC" === records[0].VALUE);
-            assert("1" === records[1].LINE);
-            assert("DEF" === records[1].VALUE);
-            assert("2" === records[2].LINE);
-            assert("GH\"I" === records[2].VALUE);
-            assert("3" === records[3].LINE);
-            assert("JK\"L" === records[3].VALUE);
-            assert("4" === records[4].LINE);
-            assert("MN\r\nO" === records[4].VALUE);
-        });
-
-        it("supports quoting the separator as well", function () {
-            var records = gpf.csv.parse([
-                "LINE;VALUE",
-                "0;\"A;BC\""
-            ].join("\r\n"));
-            assert(1 === records.length);
-            assert("0" === records[0].LINE);
-            assert("A;BC" === records[0].VALUE);
-        });
-
-        it("supports header being specified as an option", function () {
-            var records = gpf.csv.parse([
-                "0;ABC",
-                "1;DEF"
-            ].join("\r\n"), {
-                header: "LINE;VALUE"
-            });
-            assert(2 === records.length);
-            assert("0" === records[0].LINE);
-            assert("ABC" === records[0].VALUE);
-            assert("1" === records[1].LINE);
-            assert("DEF" === records[1].VALUE);
-        });
-
-        it("detects unterminated quoted string", function () {
-            var caught = false;
-            try {
-                gpf.csv.parse([
-                    "LINE;VALUE",
-                    "0;\"A",
-                    "BC"
-                ].join("\r\n"));
-            } catch (e) {
-                assert(e instanceof gpf.Error);
-                assert(e.code === gpf.Error.CODE_CSVINVALID);
-                assert(e.code === gpf.Error.csvInvalid.CODE);
-                assert(e.name === "csvInvalid");
-                caught = true;
+        function _pipe (params) {
+            var csv,
+                iWritableArray = new gpf.stream.WritableArray();
+            if (Array.isArray(params.csv)) {
+                csv = params.csv.join("\r\n");
+            } else {
+                csv = params.csv;
             }
-            assert(true === caught);
+            return gpf.stream.pipe(new gpf.stream.ReadableString(csv), params.parser, iWritableArray)
+                .then(function () {
+                    return iWritableArray.toArray();
+                });
+        }
+
+        function _process (params, done) {
+            _pipe(params).then(function (records) {
+                assert(records.length === params.expected.length);
+                records.forEach(function (record, index) {
+                    var expected = params.expected[index],
+                        keys = Object.keys(record);
+                    assert(keys.join(",") === Object.keys(expected).join(","));
+                    keys.forEach(function (key) {
+                        assert(record[key] === expected[key]);
+                    });
+                });
+                done();
+            })["catch"](done);
+        }
+
+        it("reads a one-column CSV file", function (done) {
+            _process({
+                csv: ["LINE", "0", "1"],
+                parser: new gpf.csv.Parser(),
+                expected: [{
+                    LINE: "0"
+                }, {
+                    LINE: "1"
+                }]
+            }, done);
         });
 
-        it("detects invalid quoted string", function () {
-            var caught = false;
-            try {
-                gpf.csv.parse([
-                    "LINE;VALUE",
-                    "0;\"A\"BC\""
-                ].join("\r\n"));
-            } catch (e) {
-                assert(e instanceof gpf.Error);
-                assert(e.code === gpf.Error.CODE_CSVINVALID);
-                assert(e.code === gpf.Error.csvInvalid.CODE);
-                assert(e.name === "csvInvalid");
-                caught = true;
-            }
-            assert(true === caught);
+        it("reads a CSV file", function (done) {
+            _process({
+                csv: ["LINE;VALUE", "0;ABC", "1;DEF"],
+                parser: new gpf.csv.Parser(),
+                expected: [{
+                    LINE: "0",
+                    VALUE: "ABC"
+                }, {
+                    LINE: "1",
+                    VALUE: "DEF"
+                }]
+            }, done);
+        });
+
+        it("supports value quoting", function (done) {
+            _process({
+                csv: ["LINE;VALUE", "0;\"ABC\"", "1;DEF", "2;GH\"I", "3;\"JK\"\"L\"", "4;\"MN", "O\""],
+                parser: new gpf.csv.Parser(),
+                expected: [{
+                    LINE: "0",
+                    VALUE: "ABC"
+                }, {
+                    LINE: "1",
+                    VALUE: "DEF"
+                }, {
+                    LINE: "2",
+                    VALUE: "GH\"I"
+                }, {
+                    LINE: "3",
+                    VALUE: "JK\"L"
+                }, {
+                    LINE: "4",
+                    VALUE: "MN\nO"
+                }]
+            }, done);
+        });
+
+        it("supports quoting the separator as well", function (done) {
+            _process({
+                csv: ["LINE;VALUE", "0;\"A;BC\""],
+                parser: new gpf.csv.Parser(),
+                expected: [{
+                    LINE: "0",
+                    VALUE: "A;BC"
+                }]
+            }, done);
+        });
+
+        it("supports header being specified as an option", function (done) {
+            _process({
+                csv: ["0;ABC", "1;DEF"],
+                parser: new gpf.csv.Parser({
+                    header: "LINE;VALUE"
+                }),
+                expected: [{
+                    LINE: "0",
+                    VALUE: "ABC"
+                }, {
+                    LINE: "1",
+                    VALUE: "DEF"
+                }]
+            }, done);
+        });
+
+        it("detects unterminated quoted string", function (done) {
+            _pipe({
+                csv: ["LINE;VALUE", "0;\"A", "BC"],
+                parser: new gpf.csv.Parser()
+            })
+                .then(function () {
+                    done(new Error("Should fail"));
+                }, function (reason) {
+                    assert(reason instanceof gpf.Error.InvalidCSV);
+                    done();
+                })["catch"](done);
+        });
+
+        it("detects invalid quoted string", function (done) {
+            _pipe({
+                csv: ["LINE;VALUE", "0;\"A\"BC\""],
+                parser: new gpf.csv.Parser()
+            })
+                .then(function () {
+                    done(new Error("Should fail"));
+                }, function (reason) {
+                    assert(reason instanceof gpf.Error.InvalidCSV);
+                    done();
+                })["catch"](done);
         });
 
     });
