@@ -87,6 +87,10 @@ var
 
         //region gpf.interfaces.IFlushableStream
 
+        /**
+         * @gpf:sameas gpf.interfaces.IFlushableStream#flush
+         * @since 0.2.1
+         */
         flush: function () {
             if (_gpfStreamLineLastDoesntEndsWithLF(this._buffer)) {
                 return this.write("\n");
