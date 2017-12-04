@@ -4,11 +4,12 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfDefine*/ // Shortcut for gpf.define
 /*exported _gpfCsvParse*/ // CSV parsing function
 /*#endif*/
 
 _gpfErrorDeclare("csv", {
-    csvInvalid:
+    InvalidCSV:
         "Invalid CSV syntax (bad quote sequence or missing end of file)"
 });
 
