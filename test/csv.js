@@ -5,14 +5,9 @@ describe("csv", function () {
     describe("gpf.csv.parse", function () {
 
         function _pipe (params) {
-            var csv,
+            var iReadableArray = new gpf.stream.ReadableArray(params.lines),
                 iWritableArray = new gpf.stream.WritableArray();
-            if (Array.isArray(params.csv)) {
-                csv = params.csv.join("\r\n");
-            } else {
-                csv = params.csv;
-            }
-            return gpf.stream.pipe(new gpf.stream.ReadableString(csv), params.parser, iWritableArray)
+            return gpf.stream.pipe(iReadableArray, params.parser, iWritableArray)
                 .then(function () {
                     return iWritableArray.toArray();
                 });
@@ -35,7 +30,7 @@ describe("csv", function () {
 
         it("reads a one-column CSV file", function (done) {
             _process({
-                csv: ["LINE", "0", "1"],
+                lines: ["LINE", "0", "1"],
                 parser: new gpf.csv.Parser(),
                 expected: [{
                     LINE: "0"
@@ -47,7 +42,7 @@ describe("csv", function () {
 
         it("reads a CSV file", function (done) {
             _process({
-                csv: ["LINE;VALUE", "0;ABC", "1;DEF"],
+                lines: ["LINE;VALUE", "0;ABC", "1;DEF"],
                 parser: new gpf.csv.Parser(),
                 expected: [{
                     LINE: "0",
@@ -61,7 +56,7 @@ describe("csv", function () {
 
         it("supports value quoting", function (done) {
             _process({
-                csv: ["LINE;VALUE", "0;\"ABC\"", "1;DEF", "2;GH\"I", "3;\"JK\"\"L\"", "4;\"MN", "O\""],
+                lines: ["LINE;VALUE", "0;\"ABC\"", "1;DEF", "2;GH\"I", "3;\"JK\"\"L\"", "4;\"MN", "O\""],
                 parser: new gpf.csv.Parser(),
                 expected: [{
                     LINE: "0",
@@ -84,7 +79,7 @@ describe("csv", function () {
 
         it("supports quoting the separator as well", function (done) {
             _process({
-                csv: ["LINE;VALUE", "0;\"A;BC\""],
+                lines: ["LINE;VALUE", "0;\"A;BC\""],
                 parser: new gpf.csv.Parser(),
                 expected: [{
                     LINE: "0",
@@ -95,7 +90,7 @@ describe("csv", function () {
 
         it("supports header being specified as an option", function (done) {
             _process({
-                csv: ["0;ABC", "1;DEF"],
+                lines: ["0;ABC", "1;DEF"],
                 parser: new gpf.csv.Parser({
                     header: "LINE;VALUE"
                 }),
@@ -111,7 +106,7 @@ describe("csv", function () {
 
         it("detects unterminated quoted string", function (done) {
             _pipe({
-                csv: ["LINE;VALUE", "0;\"A", "BC"],
+                lines: ["LINE;VALUE", "0;\"A", "BC"],
                 parser: new gpf.csv.Parser()
             })
                 .then(function () {
@@ -124,7 +119,7 @@ describe("csv", function () {
 
         it("detects invalid quoted string", function (done) {
             _pipe({
-                csv: ["LINE;VALUE", "0;\"A\"BC\""],
+                lines: ["LINE;VALUE", "0;\"A\"BC\""],
                 parser: new gpf.csv.Parser()
             })
                 .then(function () {
