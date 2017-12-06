@@ -405,6 +405,14 @@
         "doc": true
     },
     {
+        "name": "stream/readablebase",
+        "doc": true
+    },
+    {
+        "name": "csv",
+        "load": false
+    },
+    {
         "name": "events",
         "load": false
     },
@@ -446,10 +454,6 @@
     },
     {
         "name": "javascript",
-        "load": false
-    },
-    {
-        "name": "csv",
         "load": false
     },
     {
