@@ -405,7 +405,7 @@
         "doc": true
     },
     {
-        "name": "stream/readablebase",
+        "name": "stream/bufferedread",
         "doc": true
     },
     {
