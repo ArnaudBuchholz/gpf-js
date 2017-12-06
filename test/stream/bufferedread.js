@@ -1,25 +1,25 @@
 "use strict";
 
-describe("stream/readablebase", function () {
+describe("stream/bufferedread", function () {
 
-    describe("gpf.stream.ReadableBase", function () {
+    describe("gpf.stream.BufferedRead", function () {
 
         var TestReadable = gpf.define({
             $class: "TestReadable",
-            $extend: "gpf.stream.ReadableBase",
+            $extend: "gpf.stream.BufferedRead",
 
             //region Exposes protected interface
 
-            write: function () {
-                return this._outputWrite.apply(this, arguments);
+            appendToReadBuffer: function () {
+                return this._appendToReadBuffer.apply(this, arguments);
             },
 
-            flush: function () {
-                return this._outputFlush.apply(this, arguments);
+            completeReadBuffer: function () {
+                return this._completeReadBuffer.apply(this, arguments);
             },
 
-            error: function () {
-                return this._outputError.apply(this, arguments);
+            setReadError: function () {
+                return this._setReadError.apply(this, arguments);
             }
 
             //endregion
@@ -27,7 +27,7 @@ describe("stream/readablebase", function () {
         });
 
         it("exposes IReadableStream", function () {
-            assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IReadableStream, gpf.stream.ReadableBase));
+            assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IReadableStream, TestReadable));
         });
 
         it("outputs data", function (done) {
@@ -42,10 +42,8 @@ describe("stream/readablebase", function () {
                     done();
                 })["catch"](done);
             myReadable
-                .write("Hello", "World!")
-                .then(function () {
-                    myReadable.flush();
-                });
+                .appendToReadBuffer("Hello", "World!")
+                .completeReadBuffer();
         });
 
     });
