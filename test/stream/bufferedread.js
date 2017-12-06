@@ -30,10 +30,9 @@ describe("stream/bufferedread", function () {
             assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IReadableStream, TestReadable));
         });
 
-        it("outputs data", function (done) {
-            var myReadable = new TestReadable(),
-                iWritableArray = new gpf.stream.WritableArray();
-            gpf.stream.pipe(myReadable, iWritableArray)
+        function _checkOutcome (iReadableStream, done) {
+            var iWritableArray = new gpf.stream.WritableArray();
+            gpf.stream.pipe(iReadableStream, iWritableArray)
                 .then(function () {
                     var result = iWritableArray.toArray();
                     assert(result.length === 2);
@@ -41,6 +40,28 @@ describe("stream/bufferedread", function () {
                     assert(result[1] === "World!");
                     done();
                 })["catch"](done);
+        }
+
+        it("outputs data before reading", function (done) {
+            var myReadable = new TestReadable();
+            myReadable
+                .appendToReadBuffer("Hello", "World!")
+                .completeReadBuffer();
+            _checkOutcome(myReadable, done);
+        });
+
+        it("outputs data while reading", function (done) {
+            var myReadable = new TestReadable();
+            myReadable.appendToReadBuffer("Hello");
+            _checkOutcome(myReadable, done);
+            myReadable
+                .appendToReadBuffer("World!")
+                .completeReadBuffer();
+        });
+
+        it("outputs data after reading", function (done) {
+            var myReadable = new TestReadable();
+            _checkOutcome(myReadable, done);
             myReadable
                 .appendToReadBuffer("Hello", "World!")
                 .completeReadBuffer();
