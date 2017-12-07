@@ -30,14 +30,30 @@ describe("stream/bufferedread", function () {
             assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IReadableStream, TestReadable));
         });
 
-        function _checkOutcome (iReadableStream, done) {
+        function _pipe (iReadableStream) {
             var iWritableArray = new gpf.stream.WritableArray();
-            gpf.stream.pipe(iReadableStream, iWritableArray)
+            return gpf.stream.pipe(iReadableStream, iWritableArray)
                 .then(function () {
-                    var result = iWritableArray.toArray();
+                    return iWritableArray.toArray();
+                });
+        }
+
+        function _checkResult (iReadableStream, done) {
+            _pipe(iReadableStream)
+                .then(function (result) {
                     assert(result.length === 2);
                     assert(result[0] === "Hello");
                     assert(result[1] === "World!");
+                    done();
+                })["catch"](done);
+        }
+
+        function _checkError (iReadableStream, done) {
+            _pipe(iReadableStream)
+                .then(function () {
+                    throw new Error("Should fail");
+                }, function (reason) {
+                    assert(reason.message === "FAIL");
                     done();
                 })["catch"](done);
         }
@@ -47,13 +63,13 @@ describe("stream/bufferedread", function () {
             myReadable
                 .appendToReadBuffer("Hello", "World!")
                 .completeReadBuffer();
-            _checkOutcome(myReadable, done);
+            _checkResult(myReadable, done);
         });
 
         it("outputs data while reading", function (done) {
             var myReadable = new TestReadable();
             myReadable.appendToReadBuffer("Hello");
-            _checkOutcome(myReadable, done);
+            _checkResult(myReadable, done);
             myReadable
                 .appendToReadBuffer("World!")
                 .completeReadBuffer();
@@ -61,10 +77,34 @@ describe("stream/bufferedread", function () {
 
         it("outputs data after reading", function (done) {
             var myReadable = new TestReadable();
-            _checkOutcome(myReadable, done);
+            _checkResult(myReadable, done);
             myReadable
                 .appendToReadBuffer("Hello", "World!")
                 .completeReadBuffer();
+        });
+
+        it("generates errors before reading", function (done) {
+            var myReadable = new TestReadable();
+            myReadable
+                .appendToReadBuffer("Hello", "World!")
+                .setReadError(new Error("FAIL"));
+            _checkError(myReadable, done);
+        });
+
+        it("generates errors while reading", function (done) {
+            var myReadable = new TestReadable();
+            myReadable.appendToReadBuffer("Hello");
+            _checkError(myReadable, done);
+            myReadable.appendToReadBuffer("World!")
+                .setReadError(new Error("FAIL"));
+        });
+
+        it("generates errors after reading", function (done) {
+            var myReadable = new TestReadable();
+            _checkError(myReadable, done);
+            myReadable
+                .appendToReadBuffer("Hello", "World!")
+                .setReadError(new Error("FAIL"));
         });
 
     });
