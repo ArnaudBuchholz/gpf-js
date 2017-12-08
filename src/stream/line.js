@@ -4,39 +4,18 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GpfStreamBufferedRead*/ // gpf.stream.BufferedRead
+/*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfDefine*/ // Shortcut for gpf.define
-/*global _gpfStreamSecureInstallProgressFlag*/ // Install the progress flag used by _gpfStreamSecureRead and Write
-/*global _gpfStreamSecureRead*/ // Generate a wrapper to secure multiple calls to stream#read
 /*global _gpfStreamSecureWrite*/ // Generates a wrapper to secure multiple calls to stream#write
 /*exported _GpfStreamLineAdatper*/ // gpf.stream.LineAdapter
 /*#endif*/
 
-function _gpfStreamLineLastDoesntEndsWithLF (buffer) {
-    var lastItem = buffer[buffer.length - 1];
-    return lastItem.charAt(lastItem.length - 1) !== "\n";
-}
-
-function _gpfStreamLineTrimCR (line) {
-    var lengthMinus1 = line.length - 1;
-    if (line.lastIndexOf("\r") === lengthMinus1) {
-        return line.substr(0, lengthMinus1);
-    }
-    return line;
-}
-
-function _gpfStreamLineWrite (output, lines) {
-    if (!lines.length) {
-        return Promise.resolve();
-    }
-    return output.write(_gpfStreamLineTrimCR(lines.shift()))
-       .then(function () {
-           return _gpfStreamLineWrite(output, lines);
-       });
-}
-
 var
+    _reDOSCR = /\r\n/g,
     _GpfStreamLineAdatper = _gpfDefine(/** @lends gpf.stream.LineAdapter.prototype */ {
         $class: "gpf.stream.LineAdapter",
+        $extend: _GpfStreamBufferedRead,
 
         /**
          * Stream line adapter
@@ -48,25 +27,9 @@ var
          * @since 0.2.1
          */
         constructor: function () {
+            this.$super();
             this._buffer = [];
         },
-
-        //region gpf.interfaces.IReadableStream
-
-        /**
-         * @gpf:sameas gpf.interfaces.IReadableStream#read
-         * @since 0.2.1
-         */
-        read: _gpfStreamSecureRead(function (output) {
-            var me = this; //eslint-disable-line no-invalid-this
-            me._output = output;
-            if (me._buffer.length) {
-                return me._process();
-            }
-            return Promise.resolve();
-        }),
-
-        //endregion
 
         //region gpf.interfaces.IReadableStream
 
@@ -77,9 +40,7 @@ var
         write: _gpfStreamSecureWrite(function (buffer) {
             var me = this; //eslint-disable-line no-invalid-this
             me._buffer.push(buffer.toString());
-            if (me._output) {
-                return me._process();
-            }
+            me._process();
             return Promise.resolve();
         }),
 
@@ -92,21 +53,15 @@ var
          * @since 0.2.1
          */
         flush: function () {
-            if (_gpfStreamLineLastDoesntEndsWithLF(this._buffer)) {
-                return this.write("\n");
+            if (this._buffer.length) {
+                this._buffer.push("\n");
+                this._process();
             }
+            this._completeReadBuffer();
             return Promise.resolve();
         },
 
         //endregion
-
-        /**
-         * Output stream
-         *
-         * @type {gpf.interfaces.IWritableStream}
-         * @since 0.2.1
-         */
-        _output: null,
 
         /**
          * Buffer
@@ -115,13 +70,16 @@ var
         _buffer: [],
 
         /**
-         * Extract lines from buffer
+         * Consolidate lines from buffer
          *
          * @return {String[]} Array of lines
          * @since 0.2.1
          */
-        _extractLines: function () {
-            return this._buffer.join("").split("\n");
+        _consolidateLines: function () {
+            return this._buffer
+                .join("")
+                .replace(_reDOSCR, "\n")
+                .split("\n");
         },
 
         /**
@@ -141,16 +99,16 @@ var
         /**
          * Check if the buffer contains any carriage return and write to output
          *
-         * @return {Promise} Resolve when all lines were written
          * @since 0.2.1
          */
         _process: function () {
-            var lines = this._extractLines();
-            this._buffer.length = 0;
-            this._pushBackLastLineIfNotEmpty(lines);
-            return _gpfStreamLineWrite(this._output, lines);
+            var me = this,
+                lines = me._consolidateLines();
+            me._buffer.length = 0;
+            me._pushBackLastLineIfNotEmpty(lines);
+            _gpfArrayForEach(lines, function (line) {
+                me._appendToReadBuffer(line);
+            });
         }
 
     });
-
-_gpfStreamSecureInstallProgressFlag(_GpfStreamLineAdatper);
