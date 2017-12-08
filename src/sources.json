@@ -364,6 +364,10 @@
         "doc": true
     },
     {
+        "name": "stream/bufferedread",
+        "doc": true
+    },
+    {
         "name": "stream/line",
         "doc": true
     },
@@ -402,10 +406,6 @@
     },
     {
         "name": "stream/pipe",
-        "doc": true
-    },
-    {
-        "name": "stream/bufferedread",
         "doc": true
     },
     {
