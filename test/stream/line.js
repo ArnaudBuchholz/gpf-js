@@ -22,45 +22,47 @@ describe("stream/line", function () {
             });
     }
 
+    var _expectedLines = [
+        "abcdef",
+        "ghijkl",
+        "mnopqr",
+        "stuvwx",
+        "yz"
+    ];
+
     function _getOutput () {
-        var lineIndex = 0,
-            expectedLines = [
-                "abcdef",
-                "ghijkl",
-                "mnopqr",
-                "stuvwx",
-                "yz"
-            ];
         return {
+            _index: 0,
             write: function (buffer) {
-                if (buffer !== expectedLines[lineIndex]) {
+                if (buffer !== _expectedLines[this._index]) {
                     return Promise.reject("No match");
                 }
-                ++lineIndex;
+                ++this._index;
                 return Promise.resolve();
             }
         };
     }
 
     it("generates lines out of any stream (read first)", function (done) {
-        var lineStream = new gpf.stream.LineAdapter();
-        lineStream.read(_getOutput())
+        var lineStream = new gpf.stream.LineAdapter(),
+            output = _getOutput();
+        lineStream.read(output)
             .then(function () {
-                return _part1(lineStream);
-            })
+                assert(output._index === _expectedLines.length);
+                done();
+            })["catch"](done);
+        _part1(lineStream)
             .then(function () {
                 return _part2(lineStream);
             })
             .then(function () {
-                return lineStream.flush();
-            })
-            .then(function () {
-                done();
-            })["catch"](done);
+                lineStream.flush();
+            });
     });
 
     it("generates lines out of any stream (write first)", function (done) {
-        var lineStream = new gpf.stream.LineAdapter();
+        var lineStream = new gpf.stream.LineAdapter(),
+            output = _getOutput();
         _part1(lineStream)
             .then(function () {
                 return _part2(lineStream);
@@ -72,28 +74,30 @@ describe("stream/line", function () {
                 return lineStream.flush();
             })
             .then(function () {
-                return lineStream.read(_getOutput());
+                return lineStream.read(output);
             })
             .then(function () {
+                assert(output._index === _expectedLines.length);
                 done();
             })["catch"](done);
     });
 
     it("generates lines out of any stream (mixed)", function (done) {
-        var lineStream = new gpf.stream.LineAdapter();
+        var lineStream = new gpf.stream.LineAdapter(),
+            output = _getOutput();
         _part1(lineStream)
             .then(function () {
-                return lineStream.read(_getOutput());
-            })
-            .then(function () {
-                return _part2(lineStream);
-            })
-            .then(function () {
-                return lineStream.flush();
-            })
-            .then(function () {
-                done();
-            })["catch"](done);
+                lineStream.read(_getOutput())
+                    .then(function () {
+                        assert(output._index === _expectedLines.length);
+                        done();
+                    })["catch"](done);
+                _part2(lineStream)
+                    .then(function () {
+                        return lineStream.flush();
+                    });
+
+            });
     });
 
 });
