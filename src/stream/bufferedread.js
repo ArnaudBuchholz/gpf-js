@@ -1,10 +1,11 @@
 /**
  * @file Flushable stream base
+ * @since 0.2.3
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfDefine*/ // Shortcut for gpf.define
-/*global _gpfIgnore*/
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfStreamSecureInstallProgressFlag*/ // Install the progress flag used by _gpfStreamSecureRead and Write
 /*global _gpfStreamSecureRead*/ // Generate a wrapper to secure multiple calls to stream#read
 /*exported _GpfStreamBufferedRead*/ // gpf.stream.BufferedRead
@@ -17,6 +18,7 @@ var
      * Unique token to signal an error: it ensure the error is triggered at the right time
      *
      * @type {Object}
+     * @since 0.2.3
      */
     _gpfStreamBufferedReadError = {},
 
@@ -24,6 +26,7 @@ var
      * Unique token to signal end of read: it ensure the error is triggered at the right time
      *
      * @type {Object}
+     * @since 0.2.3
      */
     _gpfStreamBufferedReadEnd = {},
 
@@ -38,6 +41,7 @@ var
          *
          * @constructor gpf.stream.BufferedRead
          * @implements {gpf.interfaces.IReadableStream}
+         * @since 0.2.3
          */
         constructor: function () {
             this._readBuffer = [];
@@ -46,6 +50,7 @@ var
         /**
          * Read buffer, also contains tokens to signal the end of the read ({@see _gpfStreamBufferedReadError} and
          * {@see _gpfStreamBufferedReadEnd})
+         * @since 0.2.3
          */
         _readBuffer: [],
 
@@ -53,6 +58,7 @@ var
          * Stream to write to
          *
          * @type {gpf.interfaces.IWritableStream}
+         * @since 0.2.3
          */
         _readWriteToStream: null,
 
@@ -60,6 +66,7 @@ var
          * Read Promise resolve function
          *
          * @type {Function}
+         * @since 0.2.3
          */
         _readResolve: null,
 
@@ -67,6 +74,7 @@ var
          * Read Promise reject function
          *
          * @type {Function}
+         * @since 0.2.3
          */
         _readReject: null,
 
@@ -90,11 +98,13 @@ var
 
         /**
          * Critical section to avoid writing while writing
+         * @since 0.2.3
          */
         _readNotWriting: true,
 
         /**
          * Triggers write only if no write is in progress
+         * @since 0.2.3
          */
         _readSafeWrite: function () {
             var me = this;
@@ -111,6 +121,7 @@ var
 
         /**
          * Check if data exists and trigger write consequently
+         * @since 0.2.3
          */
         _readCheckIfData: function () {
             if (this._readBuffer.length) {
@@ -120,6 +131,7 @@ var
 
         /**
          * Check if a read is in progress and trigger write consequently
+         * @since 0.2.3
          */
         _readCheckIfOutput: function () {
             if (this._readWriteToStream) {
@@ -137,12 +149,11 @@ var
          * @param {...*} data Data to write
          * @gpf:chainable
          * @protected
+         * @since 0.2.3
          */
         _appendToReadBuffer: function (data) {
             _gpfIgnore(data);
-            if (arguments.length) {
-                this._readBuffer = this._readBuffer.concat([].slice.call(arguments));
-            }
+            this._readBuffer = this._readBuffer.concat([].slice.call(arguments));
             this._readCheckIfOutput();
             return this;
         },
@@ -151,6 +162,7 @@ var
          * Ends the read without any error
          *
          * @protected
+         * @since 0.2.3
          */
         _completeReadBuffer: function () {
             this._readBuffer.push(_gpfStreamBufferedReadEnd);
@@ -162,6 +174,7 @@ var
          *
          * @param {*} reason Rejection reason
          * @protected
+         * @since 0.2.3
          */
         _setReadError: function (reason) {
             this._readBuffer.push(_gpfStreamBufferedReadError, reason);
@@ -174,6 +187,7 @@ var
 
         /**
          * @gpf:sameas gpf.interfaces.IReadableStream#read
+         * @since 0.2.3
          */
         read: _gpfStreamSecureRead(function (output) {
             var me = this; //eslint-disable-line no-invalid-this
