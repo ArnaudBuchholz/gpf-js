@@ -129,7 +129,9 @@ var
             }
             return me._readWriteToStream.write(data)
                 .then(function () {
-                    return me._readWriteToOutput();
+                    if (me._readBuffer.length) {
+                        return me._readWriteToOutput();
+                    }
                 });
         },
 
