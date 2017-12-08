@@ -5,6 +5,23 @@ const
     url = require("url"),
     BASE_URL = "/git/";
 
+/*
+ * status:
+ * ?? <path> New file
+ *  M <path> Modified
+ * AM <path> Added / modified file
+ *  D <path> Deleted
+ *
+ * Recover delete file (before commit):
+ * checkout <path>
+ *
+ * Adding a new file
+ * add <path>
+ *
+ * commit -m "message" <path>
+ *
+ */
+
 module.exports = (request, response, next) => {
 
     if (0 !== request.url.indexOf(BASE_URL)) {
