@@ -280,7 +280,13 @@
         "http",
         "string/fromStream"
     ],
+    "stream/bufferedread": [
+        "define",
+        "stream"
+    ],
     "stream/line": [
+        "stream/bufferedread",
+        "foreach",
         "define",
         "stream"
     ],
@@ -321,10 +327,6 @@
     "stream/pipe": [
         "interfaces/flushablestream",
         "interfaces",
-        "stream"
-    ],
-    "stream/bufferedread": [
-        "define",
         "stream"
     ]
 }
