@@ -5,6 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfStreamSecureInstallProgressFlag*/ // Install the progress flag used by _gpfStreamSecureRead and Write
 /*global _gpfStreamSecureRead*/ // Generate a wrapper to secure multiple calls to stream#read
@@ -13,23 +14,55 @@
 
 // NOTE: to avoid naming collisions with subclasses, all private members are prefixed with _read
 
+
+/**
+ * Token being used to control data flow
+ *
+ * @constructor
+ * @since 0.2.3
+ */
+function _GpfStreamBufferedReadToken () {
+}
+
+_GpfStreamBufferedReadToken.prototype = {
+
+    /**
+     * Execute the action associated to the token
+     *
+     * @method _GpfStreamBufferedReadToken#execute
+     * @param {gpf.stream.BufferedRead} bufferedRead Instance of gpf.stream.BufferedRead
+     * @since 0.2.3
+     */
+    execute: _gpfEmptyFunc
+
+};
+
 var
     /**
-     * Unique token to signal an error: it ensure the error is triggered at the right time
+     * Unique token to signal an error: it ensures the error is triggered at the right time
      *
-     * @type {Object}
+     * @type {_GpfStreamBufferedReadToken}
      * @since 0.2.3
      */
-    _gpfStreamBufferedReadError = {},
+    _gpfStreamBufferedReadError = new _GpfStreamBufferedReadToken(),
 
     /**
-     * Unique token to signal end of read: it ensure the error is triggered at the right time
+     * Unique token to signal end of read: it ensures the error is triggered at the right time
      *
-     * @type {Object}
+     * @type {_GpfStreamBufferedReadToken}
      * @since 0.2.3
      */
-    _gpfStreamBufferedReadEnd = {},
+    _gpfStreamBufferedReadEnd = new _GpfStreamBufferedReadToken();
 
+_gpfStreamBufferedReadError.execute = function (bufferedRead) {
+    bufferedRead._readReject(bufferedRead._readBuffer.shift());
+};
+
+_gpfStreamBufferedReadEnd.execute = function (bufferedRead) {
+    bufferedRead._readResolve();
+};
+
+var
     _GpfStreamBufferedRead = _gpfDefine(/** @lends gpf.stream.BufferedRead.prototype */ {
         $class: "gpf.stream.BufferedRead",
 
@@ -48,7 +81,7 @@ var
         },
 
         /**
-         * Read buffer, also contains tokens to signal the end of the read ({@see _gpfStreamBufferedReadError} and
+         * Read buffer, also contains tokens to signal the end of the read ({@see _GpfStreamBufferedReadToken} and
          * {@see _gpfStreamBufferedReadEnd})
          * @since 0.2.3
          */
@@ -80,20 +113,24 @@ var
 
         //region Secured writing
 
+        _readDataIsToken: function (data) {
+            if (data instanceof _GpfStreamBufferedReadToken) {
+                data.execute(this);
+                return true;
+            }
+            return false;
+        },
+
         _readWriteToOutput: function () {
             var me = this,
                 data = me._readBuffer.shift();
-            if (_gpfStreamBufferedReadEnd === data) {
-                me._readResolve();
-            } else if (_gpfStreamBufferedReadError === data) {
-                me._readReject(me._readBuffer.shift());
-            } else {
-                return me._readWriteToStream.write(data)
-                    .then(function () {
-                        return me._readWriteToOutput();
-                    });
+            if (me._readDataIsToken(data)) {
+                return Promise.resolve();
             }
-            return Promise.resolve();
+            return me._readWriteToStream.write(data)
+                .then(function () {
+                    return me._readWriteToOutput();
+                });
         },
 
         /**
