@@ -132,6 +132,7 @@ var
                     if (me._readBuffer.length) {
                         return me._readWriteToOutput();
                     }
+                    me._readNotWriting = true;
                 });
         },
 
@@ -150,9 +151,7 @@ var
             if (me._readNotWriting) {
                 me._readNotWriting = false;
                 me._readWriteToOutput()
-                    .then(function () {
-                        me._readNotWriting = true;
-                    }, function (reason) {
+                    .then(undefined, function (reason) {
                         me._readReject(reason);
                     });
             }
