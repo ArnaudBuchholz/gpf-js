@@ -87,7 +87,7 @@ describe("stream/line", function () {
             output = _getOutput();
         _part1(lineStream)
             .then(function () {
-                lineStream.read(_getOutput())
+                lineStream.read(output)
                     .then(function () {
                         assert(output._index === _expectedLines.length);
                         done();
