@@ -94,7 +94,7 @@ describe("stream/line", function () {
                     })["catch"](done);
                 _part2(lineStream)
                     .then(function () {
-                        return lineStream.flush();
+                        lineStream.flush();
                     });
 
             });
