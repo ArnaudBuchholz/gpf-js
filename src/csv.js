@@ -12,6 +12,8 @@
 /*exported _GpfCsvParser*/ // gpf.csv.Parser
 /*#endif*/
 
+// https://regex101.com/r/CFRnRL/1
+
 _gpfErrorDeclare("csv", {
     InvalidCSV:
         "Invalid CSV syntax (bad quote sequence or missing end of file)"
