@@ -104,6 +104,23 @@ describe("csv", function () {
             }, done);
         });
 
+        it("supports empty values", function (done) {
+            _process({
+                lines: ["LINE;VALUE;VALUE2", ";AB;CD", "1;;EF", "2;GH"],
+                parser: new gpf.csv.Parser(),
+                expected: [{
+                    VALUE: "AB",
+                    VALUE2: "CD"
+                }, {
+                    LINE: 1,
+                    VALUE2: "EF"
+                }, {
+                    LINE: 2,
+                    VALUE: "GH"
+                }]
+            }, done);
+        });
+
         it("detects unterminated quoted string", function (done) {
             _pipe({
                 lines: ["LINE;VALUE", "0;\"A", "BC"],
