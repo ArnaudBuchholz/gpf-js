@@ -3,13 +3,13 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GpfStreamBufferedRead*/ // gpf.stream.BufferedRead
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfArrayForEach*/
 /*global _gpfArrayForEachFalsy*/ // _gpfArrayForEach that returns first truthy value computed by the callback
-/*global _gpfStreamSecureInstallProgressFlag*/ // Install the progress flag used by _gpfStreamSecureRead and Write
-/*global _gpfStreamSecureRead*/ // Generate a wrapper to secure multiple calls to stream#read
 /*global _gpfStreamSecureWrite*/ // Generates a wrapper to secure multiple calls to stream#write
-/*exported _gpfCsvParse*/ // CSV parsing function
+/*exported _GpfCsvParser*/ // gpf.csv.Parser
 /*#endif*/
 
 _gpfErrorDeclare("csv", {
@@ -21,30 +21,18 @@ _gpfErrorDeclare("csv", {
  * @typedef gpf.typedef.csvParserOptions
  * @property {String} [header] Header line (if none in the source stream)
  * @property {String} [separator] Column separator (detected from first line if not specified)
- * @property {String} [quote="] Quote sign
+ * @property {String} [quote="\""] Quote sign
+ * @property {String} [newLine="\n"] New line
  */
 
 var
     // Usual CSV separators
     _gpfCsvSeparators = ";,\t ".split("");
 
-/**
- * Deduce CSV separator from line (usually, the header)
- *
- * @param {String} line Line to analyze
- * @return {String} Separator
- */
-function _gpfCsvComputeSeparator (line) {
-    return _gpfArrayForEachFalsy(_gpfCsvSeparators, function (separator) {
-        if (-1 !== line.indexOf(separator)) {
-            return separator;
-        }
-    }) || _gpfCsvSeparators[0];
-}
-
 var
     _GpfCsvParser = _gpfDefine(/** @lends gpf.csv.Parser.prototype */ {
         $class: "gpf.csv.Parser",
+        $extend: _GpfStreamBufferedRead,
 
         /**
          * CSV Parser
@@ -60,11 +48,28 @@ var
             this._getHeader(options);
             this._getSeparator(options);
             this._getQuote(options);
-            this._records = [];
+            this._getNewLine(options);
         },
 
-        /** @type {String}*/
+        //region options
+
+        /**
+         * Header line
+         *
+         * @type {String}
+         */
         _header: "",
+
+        /**
+         * Get header line from the options or the first line of the file
+         *
+         * @param {gpf.typedef.csvParserOptions} options Parsing options
+         */
+        _getHeader: function (options) {
+            if (options.header) {
+                this._header = options.header;
+            }
+        },
 
         /**
          * Column separator
@@ -74,30 +79,9 @@ var
         _separator: "",
 
         /**
-         * Quote sign
-         *
-         * @type {String}
-         */
-        _quote: "\"",
-
-        /** @property {String[]} Columns' name */
-        _columns: [],
-
-        /**
-         * Get header line from the options or the first line of the file
-         *
-         * @param {Object} options
-         */
-        _getHeader: function (options) {
-            if (options.header) {
-                this._header = options.header;
-            }
-        },
-
-        /**
          * Get separator character from the options or the header
          *
-         * @param {Object} options
+         * @param {gpf.typedef.csvParserOptions} options Parsing options
          */
         _getSeparator: function (options) {
             if (options.separator) {
@@ -106,15 +90,57 @@ var
         },
 
         /**
+         * Deduce separator from header line
+         */
+        _deduceSeparator: function () {
+            var header = this._header;
+            this._separator = _gpfArrayForEachFalsy(_gpfCsvSeparators, function (separator) {
+                if (-1 !== header.indexOf(separator)) {
+                    return separator;
+                }
+            }) || _gpfCsvSeparators[0];
+        },
+
+        /**
+         * Quote sign
+         *
+         * @type {String}
+         */
+        _quote: "\"",
+
+        /**
          * Get quote character from the options or use default
          *
-         * @param {Object} options
+         * @param {gpf.typedef.csvParserOptions} options Parsing options
          */
         _getQuote: function (options) {
             if (options.quote) {
                 this._quote = options.quote;
             }
         },
+
+        /**
+         * New line
+         *
+         * @type {String}
+         */
+        _newLine: "\n",
+
+        /**
+         * Get new line character from the options or use default
+         *
+         * @param {gpf.typedef.csvParserOptions} options Parsing options
+         */
+        _getNewLine: function (options) {
+            if (options.newLine) {
+                this._newLine = options.newLine;
+            }
+        },
+
+        //endregion
+
+        /** @property {String[]} Columns' name */
+        _columns: [],
 
         // @property {Boolean} Result of last submission to _unquote
         _unquotedValue: "",
@@ -267,7 +293,7 @@ var
          *
          * @returns {String[]}
          */
-        _readValues: function () {
+        _readValues: function (line) {
             var values = [],
                 flags = {
                     inQuotedString: false,
@@ -280,97 +306,25 @@ var
             return values;
         },
 
-        /**
-         * Read one record
-         *
-         * @returns {Object}
-         */
-        _readRecord: function () {
-            var values = this._readValues(),
-                record = {};
-            this._columns.forEach(function (name, idx) {
-                record[name] = values[idx];
-            });
-            return record;
-        },
-
-        //region Read management
-
-        /**
-         * Output stream
-         *
-         * @type {gpf.interfaces.IWritableStream}
-         */
-        _output: null,
-
-        /**
-         * Pending records to write
-         *
-         * @type {Object[]}
-         */
-        _records: [],
-
-        /**
-         * Read resolve function
-         *
-         * @type {Function}
-         */
-        _resolve: null,
-
-        /**
-         * Read reject function
-         *
-         * @type {Function}
-         */
-        _reject: null,
-
-        /**
-         *
-         */
-        _reading: false,
-
-        _read: function () {
-            var me = this;
-            if (me._reading) {
+        _write: function (line) {
+            if (!this._header) {
+                this._header = line;
+                if (!this._separator) {
+                    this._deduceSeparator();
+                }
+                this._columns = line.split(this._separator);
                 return;
             }
-            if (me._records.length) {
-                me._reading = true;
-
-            }
-            return _
-            if (me._records.length) {
-                return me._output.write(me._records.shift)
-                    .then(function () {
-                        return me._read();
-
-                    }, function (reason) {
-                        // Forward error
-                        me._reject(reason);
-                    });
-            } else {
-                me._reading = false;
+            var values = this._readValues(line),
+                record;
+            if (values) {
+                record = {};
+                _gpfArrayForEach(this._columns, function (name, idx) {
+                    record[name] = values[idx];
+                });
+                this._appendToReadBuffer(record);
             }
         },
-
-        //region gpf.interfaces.IReadableStream
-
-        /**
-         * @gpf:sameas gpf.interfaces.IReadableStream#read
-         */
-        read: _gpfStreamSecureRead(function (output) {
-            var me = this, //eslint-disable-line no-invalid-this
-                promise;
-            me._output = output;
-            promise = new Promise(function (resolve, reject) {
-                me._resolve = resolve;
-                me._reject = reject;
-            });
-            me._read();
-            return promise;
-        }),
-
-        //endregion
 
         //region gpf.interfaces.IReadableStream
 
@@ -398,5 +352,3 @@ var
         //endregion
 
     });
-
-_gpfStreamSecureInstallProgressFlag(_GpfCsvParser);
