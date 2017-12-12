@@ -1,3 +1,6 @@
+// https://regex101.com/r/CFRnRL/1
+/*eslint-disable*/ // jshint ignore: start
+
 /**
  * @file CSV helper
  */
@@ -10,10 +13,9 @@
 /*global _gpfArrayForEachFalsy*/ // _gpfArrayForEach that returns first truthy value computed by the callback
 /*global _gpfStreamSecureWrite*/ // Generates a wrapper to secure multiple calls to stream#write
 /*global _gpfStringReplaceEx*/
+/*global  _gpfRegExpEscape*/ //  Escape the value so that it can be safely inserted in a regular expression
 /*exported _GpfCsvParser*/ // gpf.csv.Parser
 /*#endif*/
-
-// https://regex101.com/r/CFRnRL/1
 
 _gpfErrorDeclare("csv", {
     InvalidCSV:
@@ -123,40 +125,26 @@ var
                 // Non-capturing group
                 "(?:",
                 // Unquoted value
-                "([^", this._quote, this._separator, "]+)",
+                "([^", _gpfRegExpEscape(this._quote), "][^", _gpfRegExpEscape(this._separator), "]*)",
                 // OR
                 "|",
                 // Quoted value
-                this._quote, "(",
+                _gpfRegExpEscape(this._quote), "(",
                 // Non-capturing group
                 "(?:",
                 // Anything but quote
-                "[^", this._quote, "]",
+                "[^", _gpfRegExpEscape(this._quote), "]",
                 // OR
                 "|",
                 // Escaped quote
-                this._escapeQuote, this._quote,
+                _gpfRegExpEscape(this._escapeQuote + this._quote),
                 // End of non-capturing group
                 ")+",
-                ")", this._quote,
+                ")", _gpfRegExpEscape(this._quote),
                 // End of non-capturing group
                 ")"
             ].join(""), "gy");
         },
-/*
-        _readValues: function (line) {
-            var values = [],
-                flags = {
-                    inQuotedString: false,
-                    includeCarriageReturn: false
-                };
-            this._convertLinesIntoValues(values, flags);
-            if (flags.inQuotedString) {
-                gpf.Error.csvInvalid();
-            }
-            return values;
-        },
-*/
 
         _unescape: function (value) {
             var replaces = {};
@@ -166,22 +154,38 @@ var
 
         _parseValues: function (line) {
             this._reParsing.lastIndex = 0;
-            var values = [],
-                match = this._reParsing.exec(line),
+            var values,
+                match,
+                lastIndex,
                 separator;
+            if (this._values) {
+                values = this._values;
+                line = this._remaining + this._newLine + line;
+                delete this._values;
+                delete this._remaining;
+            } else {
+                values = [];
+            }
+            match = this._reParsing.exec(line);
             while (match) {
                 if (match[1]) {
                     values.push(match[1]);
                 } else if (match[2]) {
                     values.push(this._unescape(match[2]));
                 }
-                separator = line.charAt(this._reParsing.lastIndex);
+                lastIndex = this._reParsing.lastIndex;
+                separator = line.charAt(lastIndex);
                 if (separator === this._separator) {
-                    ++this._reParsing.lastIndex;
+                    this._reParsing.lastIndex = ++lastIndex;
                     match = this._reParsing.exec(line);
                 } else {
                     break;
                 }
+            }
+            if (lastIndex < line.length) {
+                // debugger;
+                this._values = values;
+                this._remaining = line.substr(lastIndex);
             }
             return values;
         },
