@@ -112,10 +112,10 @@ describe("csv", function () {
                     VALUE: "AB",
                     VALUE2: "CD"
                 }, {
-                    LINE: 1,
+                    LINE: "1",
                     VALUE2: "EF"
                 }, {
-                    LINE: 2,
+                    LINE: "2",
                     VALUE: "GH"
                 }]
             }, done);
