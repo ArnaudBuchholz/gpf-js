@@ -409,6 +409,11 @@
         "doc": true
     },
     {
+        "name": "string/escape/regexp",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "csv",
         "load": false
     },
