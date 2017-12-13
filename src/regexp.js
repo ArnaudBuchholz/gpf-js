@@ -4,21 +4,8 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*exported _gpfRegExpEscape*/ //  Escape the value so that it can be safely inserted in a regular expression
 /*exported _gpfRegExpForEach*/ // Executes the callback for each match of the regular expression
 /*#endif*/
-
-var _gpfRegExpEscapeRE = /[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g;
-
-/**
- * Escape the value so that it can be safely inserted in a regular expression
- *
- * @param {String} value to escape
- * @return {String} Escaped value
- */
-function _gpfRegExpEscape (value) {
-    return value.replace(_gpfRegExpEscapeRE, "\\$&");
-}
 
 /**
  * Callback function executed on each regular expression match
