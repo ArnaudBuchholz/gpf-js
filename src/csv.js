@@ -1,8 +1,5 @@
-// https://regex101.com/r/CFRnRL/1
-/*eslint-disable*/ // jshint ignore: start
-
 /**
- * @file CSV helper
+ * @file CSV Parser
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -13,7 +10,8 @@
 /*global _gpfArrayForEachFalsy*/ // _gpfArrayForEach that returns first truthy value computed by the callback
 /*global _gpfStreamSecureWrite*/ // Generates a wrapper to secure multiple calls to stream#write
 /*global _gpfStringReplaceEx*/
-/*global  _gpfRegExpEscape*/ //  Escape the value so that it can be safely inserted in a regular expression
+/*global  _gpfStringEscapeFor*/ // Make the string content compatible with lang
+/*global _gpfEmptyFunc*/
 /*exported _GpfCsvParser*/ // gpf.csv.Parser
 /*#endif*/
 
@@ -43,15 +41,31 @@ var
         /**
          * CSV Parser
          *
-         * @param {gpf.typedef.csvParserOptions} [options] Parsing options
+         * @param {gpf.typedef.csvParserOptions} [parserOptions] Parser options
          * @constructor gpf.csv.Parser
          * @implements {gpf.interfaces.IReadableStream}
          * @implements {gpf.interfaces.IWritableStream}
          * @implements {gpf.interfaces.IFlushableStream}
          */
-        constructor: function (options) {
+        constructor: function (parserOptions) {
+            this._readParserOptions(parserOptions);
+            if (this._header) {
+                this._parseHeader();
+            } else {
+                this._write = this._writeHeader;
+            }
+        },
+
+        //region Parser options
+
+        /**
+         * Read parser options
+         *
+         * @param {gpf.typedef.csvParserOptions} [parserOptions] Parser options
+         */
+        _readParserOptions: function (parserOptions) {
             var me = this;
-            if (options) {
+            if (parserOptions) {
                 _gpfArrayForEach([
                     "header",
                     "separator",
@@ -59,14 +73,12 @@ var
                     "escapeQuote",
                     "newLine"
                 ], function (optionName) {
-                    if (options[optionName]) {
-                        me["_" + optionName] = options[optionName];
+                    if (parserOptions[optionName]) {
+                        me["_" + optionName] = parserOptions[optionName];
                     }
                 });
             }
         },
-
-        //region options
 
         /**
          * Header line
@@ -117,99 +129,165 @@ var
 
         //endregion
 
+        //region Header processing
+
         /** @property {String[]} Columns' name */
         _columns: [],
 
-        _buildParsingRegExp: function () {
-            this._reParsing = new RegExp([
+        _buildParsingHelpers: function () {
+            this._unescapeDictionary = {};
+            this._unescapeDictionary[this._escapeQuote + this._quote] = this._quote;
+            this._parser = new RegExp(
                 // Non-capturing group
-                "(?:",
+                "(?:"
                 // Unquoted value
-                "([^", _gpfRegExpEscape(this._quote), "][^", _gpfRegExpEscape(this._separator), "]*)",
+                + "("
+                +   "[^" + _gpfStringEscapeFor(this._quote + this._separator, "regexp") + "]"
+                +   "[^" + _gpfStringEscapeFor(this._separator, "regexp") + "]*"
+                + ")"
                 // OR
-                "|",
+                + "|"
                 // Quoted value
-                _gpfRegExpEscape(this._quote), "(",
+                + _gpfStringEscapeFor(this._quote, "regexp") + "("
                 // Non-capturing group
-                "(?:",
+                +   "(?:"
                 // Anything but quote
-                "[^", _gpfRegExpEscape(this._quote), "]",
+                +     "[^" + _gpfStringEscapeFor(this._quote, "regexp") + "]"
                 // OR
-                "|",
+                +     "|"
                 // Escaped quote
-                _gpfRegExpEscape(this._escapeQuote + this._quote),
+                +     _gpfStringEscapeFor(this._escapeQuote + this._quote, "regexp")
                 // End of non-capturing group
-                ")+",
-                ")", _gpfRegExpEscape(this._quote),
+                +   ")+"
+                + ")" + _gpfStringEscapeFor(this._quote, "regexp")
                 // End of non-capturing group
-                ")"
-            ].join(""), "gy");
+                + ")", "gy");
         },
 
-        _unescape: function (value) {
-            var replaces = {};
-            replaces[this._escapeQuote + this._quote] = this._quote;
-            return _gpfStringReplaceEx(value, replaces);
-        },
-
-        _parseValues: function (line) {
-            this._reParsing.lastIndex = 0;
-            var values,
-                match,
-                lastIndex,
-                separator;
-            if (this._values) {
-                values = this._values;
-                line = this._remaining + this._newLine + line;
-                delete this._values;
-                delete this._remaining;
-            } else {
-                values = [];
+        /**
+         * Once header line is known, process it to prepare the parser
+         */
+        _parseHeader: function () {
+            if (!this._separator) {
+                this._deduceSeparator();
             }
-            match = this._reParsing.exec(line);
-            while (match) {
-                if (match[1]) {
-                    values.push(match[1]);
-                } else if (match[2]) {
-                    values.push(this._unescape(match[2]));
+            this._columns = this._header.split(this._separator);
+            this._buildParsingHelpers();
+            this._write = this._writeContent;
+        },
+
+        /**
+         * Write header line
+         *
+         * @param {String} line CSV line
+         */
+        _writeHeader: function (line) {
+            this._header = line;
+            this._parseHeader();
+        },
+
+        //endregion
+
+        //region Content processing
+
+        /**
+         * Unescape quoted value
+         *
+         * @param {String} value Quoted value
+         * @return {String} unescaped value
+         */
+        _unescapeQuoted: function (value) {
+            return _gpfStringReplaceEx(value, this._unescapeDictionary);
+        },
+
+        /**
+         * Values remaining from the last parse call
+         */
+        _remainingValues: [],
+
+        /**
+         * Content remaining from the last parse call
+         */
+        _remainingContent: "",
+
+        _addValue: function (match, values) {
+            if (match[1]) {
+                values.push(match[1]);
+            } else /* if (match[2]) */ {
+                values.push(this._unescapeQuoted(match[2]));
+            }
+        },
+
+        _parseValues: function (content, values) {
+            var match = this._parser.exec(content),
+                lastIndex = 0,
+                separator;
+            while (lastIndex < content.length) {
+                if (match) {
+                    this._addValue(match, values);
+                    lastIndex = this._parser.lastIndex;
+                } else {
+                    values.push(undefined);
                 }
-                lastIndex = this._reParsing.lastIndex;
-                separator = line.charAt(lastIndex);
+                separator = content.charAt(lastIndex);
                 if (separator === this._separator) {
-                    this._reParsing.lastIndex = ++lastIndex;
-                    match = this._reParsing.exec(line);
+                    this._parser.lastIndex = ++lastIndex;
+                    match = this._parser.exec(content);
                 } else {
                     break;
                 }
             }
-            if (lastIndex < line.length) {
-                // debugger;
-                this._values = values;
-                this._remaining = line.substr(lastIndex);
+            if (lastIndex < content.length) {
+                this._remainingValues = values;
+                this._remainingContent = content.substr(lastIndex);
+                return;
             }
+            // this._setReadError(new gpf.Error.InvalidCSV());
+            // this._write = this._writeIgnore;
             return values;
         },
 
-        _write: function (line) {
-            if (!this._header) {
-                this._header = line;
-                if (!this._separator) {
-                    this._deduceSeparator();
-                }
-                this._columns = line.split(this._separator);
-                this._buildParsingRegExp();
-                return;
+        _parseContent: function (line) {
+            var values,
+                content;
+            this._parser.lastIndex = 0;
+            if (this._remainingContent) {
+                values = this._remainingValues;
+                content = this._remainingContent + this._newLine + line;
+            } else {
+                values = [];
+                content = line;
             }
-            var values = this._parseValues(line),
+            return this._parseValues(content, values);
+        },
+
+        /**
+         * Write content line
+         *
+         * @param {String} line CSV line
+         */
+        _writeContent: function (line) {
+            var values = this._parseContent(line),
                 record;
             if (values) {
                 record = {};
                 _gpfArrayForEach(this._columns, function (name, idx) {
-                    record[name] = values[idx];
+                    var value = values[idx];
+                    if (value !== undefined) {
+                        record[name] = values[idx];
+                    }
                 });
                 this._appendToReadBuffer(record);
             }
         },
+
+        //endregion
+
+        //region Ignore content
+
+        _writeIgnore: _gpfEmptyFunc,
+
+        //endregion
 
         //region gpf.interfaces.IReadableStream
 
