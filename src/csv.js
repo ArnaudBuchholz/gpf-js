@@ -219,22 +219,23 @@ var
         },
 
         _parseValues: function (content, values) {
-            var match = this._parser.exec(content),
-                lastIndex = 0,
-                separator;
+            var match,
+                lastIndex = 0;
             while (lastIndex < content.length) {
-                if (match) {
-                    this._addValue(match, values);
-                    lastIndex = this._parser.lastIndex;
-                } else {
-                    values.push(undefined);
+                if (content.charAt(lastIndex) === this._separator) {
+                    values.push("");
+                    ++lastIndex;
+                    continue;
                 }
-                separator = content.charAt(lastIndex);
-                if (separator === this._separator) {
-                    this._parser.lastIndex = ++lastIndex;
-                    match = this._parser.exec(content);
-                } else {
+                this._parser.lastIndex = lastIndex;
+                match = this._parser.exec(content);
+                if (!match) {
                     break;
+                }
+                this._addValue(match, values);
+                lastIndex = this._parser.lastIndex;
+                if (content.charAt(lastIndex) === this._separator) {
+                    ++lastIndex;
                 }
             }
             if (lastIndex < content.length) {
@@ -250,7 +251,6 @@ var
         _parseContent: function (line) {
             var values,
                 content;
-            this._parser.lastIndex = 0;
             if (this._remainingContent) {
                 values = this._remainingValues;
                 content = this._remainingContent + this._newLine + line;
