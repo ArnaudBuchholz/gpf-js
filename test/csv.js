@@ -109,10 +109,12 @@ describe("csv", function () {
                 lines: ["LINE;VALUE;VALUE2", ";AB;CD", "1;;EF", "2;GH"],
                 parser: new gpf.csv.Parser(),
                 expected: [{
+                    LINE: "",
                     VALUE: "AB",
                     VALUE2: "CD"
                 }, {
                     LINE: "1",
+                    VALUE: "",
                     VALUE2: "EF"
                 }, {
                     LINE: "2",
