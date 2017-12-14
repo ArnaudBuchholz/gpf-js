@@ -16,7 +16,7 @@
 /*#endif*/
 
 _gpfErrorDeclare("csv", {
-    InvalidCSV:
+    invalidCSV:
         "Invalid CSV syntax (bad quote sequence or missing end of file)"
 });
 
@@ -243,6 +243,8 @@ var
                 this._remainingContent = content.substr(lastIndex);
                 return;
             }
+            delete this._remainingContent;
+            delete this._remainingValues;
             // this._setReadError(new gpf.Error.InvalidCSV());
             // this._write = this._writeIgnore;
             return values;
@@ -308,7 +310,11 @@ var
          * @gpf:sameas gpf.interfaces.IWritableStream#flush
          */
         flush: function () {
-            this._completeReadBuffer();
+            if (this._remainingContent) {
+                this._setReadError(new gpf.Error.InvalidCSV());
+            } else {
+                this._completeReadBuffer();
+            }
             return Promise.resolve();
         }
 
