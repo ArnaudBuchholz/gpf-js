@@ -220,7 +220,8 @@ var
 
         _parseValues: function (content, values) {
             var match,
-                lastIndex = 0;
+                lastIndex = 0,
+                charAfterValue;
             while (lastIndex < content.length) {
                 if (content.charAt(lastIndex) === this._separator) {
                     values.push("");
@@ -234,8 +235,12 @@ var
                 }
                 this._addValue(match, values);
                 lastIndex = this._parser.lastIndex;
-                if (content.charAt(lastIndex) === this._separator) {
+                charAfterValue = content.charAt(lastIndex);
+                if (charAfterValue === this._separator) {
                     ++lastIndex;
+                } else if (charAfterValue) {
+                    this._setReadError(new gpf.Error.InvalidCSV());
+                    this._write = this._writeIgnore;
                 }
             }
             if (lastIndex < content.length) {
@@ -245,8 +250,6 @@ var
             }
             delete this._remainingContent;
             delete this._remainingValues;
-            // this._setReadError(new gpf.Error.InvalidCSV());
-            // this._write = this._writeIgnore;
             return values;
         },
 
@@ -311,10 +314,11 @@ var
          */
         flush: function () {
             if (this._remainingContent) {
-                this._setReadError(new gpf.Error.InvalidCSV());
-            } else {
-                this._completeReadBuffer();
+                var error = new gpf.Error.InvalidCSV();
+                this._setReadError(error);
+                return Promise.reject(error);
             }
+            this._completeReadBuffer();
             return Promise.resolve();
         }
 
