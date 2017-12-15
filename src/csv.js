@@ -210,6 +210,12 @@ var
          */
         _remainingContent: "",
 
+        /**
+         * Add the matching value to the array of values
+         *
+         * @param {Object} match Regular expression match
+         * @param {String[]} values Array of values being built
+         */
         _addValue: function (match, values) {
             if (match[1]) {
                 values.push(match[1]);
@@ -218,11 +224,28 @@ var
             }
         },
 
+        /**
+         * Extract all values in the content
+         *
+         * @param {String} content Line content (might contain remaining content of previous lines)
+         * @param {String[]} values Array of values being built
+         * @return {String[]|undefined} Resulting values or undefined if not yet finalized
+         */
         _parseValues: function (content, values) {
             var match,
                 lastIndex = 0,
                 charAfterValue;
             while (lastIndex < content.length) {
+
+
+                // if (content.charAt(lastIndex) === this._separator) {
+                //     values.push("");
+                //     return lastIndex + 1;
+                // }
+                // return this._parseValue(content, values, lastIndex);
+
+                
+
                 if (content.charAt(lastIndex) === this._separator) {
                     values.push("");
                     ++lastIndex;
@@ -240,9 +263,22 @@ var
                     ++lastIndex;
                 } else if (charAfterValue) {
                     this._setReadError(new gpf.Error.InvalidCSV());
-                    this._write = this._writeIgnore;
+                    this._write = _gpfEmptyFunc;
+                    return 0;
                 }
             }
+            return lastIndex;
+        },
+
+        /**
+         * Parse content contained in the line (and any previously unterminated content)
+         *
+         * @param {String} content Line content (might contain remaining content of previous lines)
+         * @param {String[]} values Array of values being built
+         * @return {String[]|undefined} Resulting values or undefined if not yet finalized
+         */
+        _parseContent: function (content, values) {
+            var lastIndex = this._parseValues(content, values);
             if (lastIndex < content.length) {
                 this._remainingValues = values;
                 this._remainingContent = content.substr(lastIndex);
@@ -253,7 +289,13 @@ var
             return values;
         },
 
-        _parseContent: function (line) {
+        /**
+         * If some content remains from previous parsing, concatenate it
+         *
+         * @param {String} line CSV line
+         * @return {String[]|undefined} Resulting values or undefined if not yet finalized
+         */
+        _processContent: function (line) {
             var values,
                 content;
             if (this._remainingContent) {
@@ -263,7 +305,24 @@ var
                 values = [];
                 content = line;
             }
-            return this._parseValues(content, values);
+            return this._parseContent(content, values);
+        },
+
+        /**
+         * Generate a record from values
+         *
+         * @param {String[]} values Array of values
+         * @return {Object} Record based on header names
+         */
+        _getRecord: function (values) {
+            var record = {};
+            _gpfArrayForEach(this._columns, function (name, idx) {
+                var value = values[idx];
+                if (value !== undefined) {
+                    record[name] = values[idx];
+                }
+            });
+            return record;
         },
 
         /**
@@ -272,25 +331,11 @@ var
          * @param {String} line CSV line
          */
         _writeContent: function (line) {
-            var values = this._parseContent(line),
-                record;
+            var values = this._processContent(line);
             if (values) {
-                record = {};
-                _gpfArrayForEach(this._columns, function (name, idx) {
-                    var value = values[idx];
-                    if (value !== undefined) {
-                        record[name] = values[idx];
-                    }
-                });
-                this._appendToReadBuffer(record);
+                this._appendToReadBuffer(this._getRecord(values));
             }
         },
-
-        //endregion
-
-        //region Ignore content
-
-        _writeIgnore: _gpfEmptyFunc,
 
         //endregion
 
