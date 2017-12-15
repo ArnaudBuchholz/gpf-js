@@ -1,18 +1,19 @@
 /**
  * @file CSV Parser
+ * @since 0.2.3
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfStreamBufferedRead*/ // gpf.stream.BufferedRead
-/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfDefine*/ // Shortcut for gpf.define
-/*global _gpfArrayForEach*/
+/*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfArrayForEachFalsy*/ // _gpfArrayForEach that returns first truthy value computed by the callback
+/*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfEmptyFunc*/ // An empty function
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfStreamSecureWrite*/ // Generates a wrapper to secure multiple calls to stream#write
-/*global _gpfStringReplaceEx*/
-/*global  _gpfStringEscapeFor*/ // Make the string content compatible with lang
-/*global _gpfIgnore*/
-/*global _gpfEmptyFunc*/
+/*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
+/*global _gpfStringReplaceEx*/ // String replacement using dictionary map
 /*exported _GpfCsvParser*/ // gpf.csv.Parser
 /*#endif*/
 
@@ -28,6 +29,7 @@ _gpfErrorDeclare("csv", {
  * @property {String} [quote="\""] Quote sign
  * @property {String} [escapeQuote="\""] Character used to escape the quote sign in a value
  * @property {String} [newLine="\n"] New line
+ * @since 0.2.3
  */
 
 var
@@ -47,6 +49,7 @@ var
          * @implements {gpf.interfaces.IReadableStream}
          * @implements {gpf.interfaces.IWritableStream}
          * @implements {gpf.interfaces.IFlushableStream}
+         * @since 0.2.3
          */
         constructor: function (parserOptions) {
             this._readParserOptions(parserOptions);
@@ -63,6 +66,7 @@ var
          * Read parser options
          *
          * @param {gpf.typedef.csvParserOptions} [parserOptions] Parser options
+         * @since 0.2.3
          */
         _readParserOptions: function (parserOptions) {
             var me = this;
@@ -85,6 +89,7 @@ var
          * Header line
          *
          * @type {String}
+         * @since 0.2.3
          */
         _header: "",
 
@@ -92,11 +97,13 @@ var
          * Column separator
          *
          * @type {String}
+         * @since 0.2.3
          */
         _separator: "",
 
         /**
          * Deduce separator from header line
+         * @since 0.2.3
          */
         _deduceSeparator: function () {
             var header = this._header;
@@ -111,6 +118,7 @@ var
          * Quote sign
          *
          * @type {String}
+         * @since 0.2.3
          */
         _quote: "\"",
 
@@ -118,6 +126,7 @@ var
          * Escape quote sign
          *
          * @type {String}
+         * @since 0.2.3
          */
         _escapeQuote: "\"",
 
@@ -125,6 +134,7 @@ var
          * New line
          *
          * @type {String}
+         * @since 0.2.3
          */
         _newLine: "\n",
 
@@ -132,7 +142,10 @@ var
 
         //region Header processing
 
-        /** @property {String[]} Columns' name */
+        /**
+         * @property {String[]} Columns' name
+         * @since 0.2.3
+         */
         _columns: [],
 
         _buildParsingHelpers: function () {
@@ -147,6 +160,7 @@ var
 
         /**
          * Once header line is known, process it to prepare the parser
+         * @since 0.2.3
          */
         _parseHeader: function () {
             if (!this._separator) {
@@ -161,6 +175,7 @@ var
          * Write header line
          *
          * @param {String} line CSV line
+         * @since 0.2.3
          */
         _writeHeader: function (line) {
             this._header = line;
@@ -176,6 +191,7 @@ var
          *
          * @param {String} value Quoted value
          * @return {String} unescaped value
+         * @since 0.2.3
          */
         _unescapeQuoted: function (value) {
             return _gpfStringReplaceEx(value, this._unescapeDictionary);
@@ -186,6 +202,7 @@ var
          *
          * @param {Object} match Regular expression match
          * @param {String[]} values Array of values being built
+         * @since 0.2.3
          */
         _addValue: function (match, values) {
             if (match[1]) {
@@ -200,6 +217,7 @@ var
          *
          * @param {String} content Line content (might contain remaining content of previous lines)
          * @return {Boolean} True if some remaining content must be parsed
+         * @since 0.2.3
          */
         _nextValue: function (content) {
             return ++this._lastIndex < content.length;
@@ -211,6 +229,7 @@ var
          * @param {String} content Content to parse
          * @param {String} charAfterValue Character after value
          * @return {Boolean} True if some remaining content must be parsed
+         * @since 0.2.3
          */
         _checkIfSeparator: function (content, charAfterValue) {
             if (charAfterValue === this._separator) {
@@ -226,6 +245,7 @@ var
          *
          * @param {String} content Content to parse
          * @return {Boolean} True if some remaining content must be parsed
+         * @since 0.2.3
          */
         _checkAfterValue: function (content) {
             var charAfterValue;
@@ -243,6 +263,7 @@ var
          * @param {String} content Content to parse
          * @param {String[]} values Array of values being built
          * @return {Boolean} True if some remaining content must be parsed
+         * @since 0.2.3
          */
         _extractValue: function (content, values) {
             this._parser.lastIndex = this._lastIndex;
@@ -260,6 +281,7 @@ var
          * @param {String} content Content to parse
          * @param {String[]} values Array of values being built
          * @return {Boolean} True if some remaining content must be parsed
+         * @since 0.2.3
          */
         _checkForValue: function (content, values) {
             if (content.charAt(this._lastIndex) === this._separator) {
@@ -275,6 +297,7 @@ var
          * @param {String} content Content to parse
          * @param {String[]} values Array of values being built
          * @return {Number} Parsing index in the content
+         * @since 0.2.3
          */
         _parseValues: function (content, values) {
             this._lastIndex = 0;
@@ -286,11 +309,13 @@ var
 
         /**
          * Values remaining from the last parse call
+         * @since 0.2.3
          */
         _remainingValues: [],
 
         /**
          * Content remaining from the last parse call
+         * @since 0.2.3
          */
         _remainingContent: "",
 
@@ -300,6 +325,7 @@ var
          * @param {String} content Content to parse
          * @param {String[]} values Array of values being built
          * @return {String[]|undefined} Resulting values or undefined if record is not finalized yet
+         * @since 0.2.3
          */
         _parseContent: function (content, values) {
             var lastIndex = this._parseValues(content, values);
@@ -318,6 +344,7 @@ var
          *
          * @param {String} line CSV line
          * @return {String[]|undefined} Resulting values or undefined if not yet finalized
+         * @since 0.2.3
          */
         _processContent: function (line) {
             var values,
@@ -337,6 +364,7 @@ var
          *
          * @param {String[]} values Array of values
          * @return {Object} Record based on header names
+         * @since 0.2.3
          */
         _getRecord: function (values) {
             var record = {};
@@ -353,6 +381,7 @@ var
          * Write content line
          *
          * @param {String} line CSV line
+         * @since 0.2.3
          */
         _writeContent: function (line) {
             var values = this._processContent(line);
@@ -367,6 +396,7 @@ var
 
         /**
          * @gpf:sameas gpf.interfaces.IWritableStream#write
+         * @since 0.2.3
          */
         write: _gpfStreamSecureWrite(function (line) {
             var me = this; //eslint-disable-line no-invalid-this
@@ -380,6 +410,7 @@ var
 
         /**
          * @gpf:sameas gpf.interfaces.IWritableStream#flush
+         * @since 0.2.3
          */
         flush: function () {
             if (this._remainingContent) {
