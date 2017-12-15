@@ -415,7 +415,7 @@
     },
     {
         "name": "csv",
-        "load": false
+        "doc": true
     },
     {
         "name": "events",
