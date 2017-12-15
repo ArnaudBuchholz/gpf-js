@@ -328,5 +328,17 @@
         "interfaces/flushablestream",
         "interfaces",
         "stream"
+    ],
+    "string/escape/regexp": [
+        "string/escapefor"
+    ],
+    "csv": [
+        "stream/bufferedread",
+        "foreach",
+        "define",
+        "error",
+        "stream",
+        "string/escapefor",
+        "string/replaceex"
     ]
 }
