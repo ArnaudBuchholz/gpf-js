@@ -213,7 +213,6 @@ var
          * Add the matching value to the array of values
          *
          * @param {Object} match Regular expression match
-         * @param {String[]} values Array of values being built
          * @since 0.2.3
          */
         _addValue: function (match) {
@@ -225,7 +224,7 @@ var
         },
 
         /**
-         * Move last parsing index to the next character
+         * Move the content to the next value
          *
          * @param {Number} index Position where the next value starts
          * @return {Boolean} True if some remaining content must be parsed
@@ -270,7 +269,7 @@ var
         },
 
         /**
-         * Extract value at _lastIndex
+         * Extract value
          *
          * @return {Boolean} True if some remaining content must be parsed
          * @since 0.2.3
@@ -285,7 +284,7 @@ var
         },
 
         /**
-         * Check if the position referenced by _lastIndex points to a separator or assume it's a value
+         * Check if the content starts with a separator or assume it's a value
          *
          * @return {Boolean} True if some remaining content must be parsed
          * @since 0.2.3
@@ -324,7 +323,7 @@ var
         },
 
         /**
-         * If some content remains from previous parsing, concatenate it
+         * If some content remains from previous parsing, concatenate it and parse
          *
          * @param {String} line CSV line
          * @return {String[]|undefined} Resulting values or undefined if not yet finalized
