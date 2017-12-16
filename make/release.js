@@ -39,6 +39,7 @@ const
     pkgText = fs.readFileSync("package.json").toString(),
     pkg = JSON.parse(pkgText),
     pkgVersion = pkg.version,
+    hasPublicationRepo = fs.existsSync("../ArnaudBuchholz.github.io"),
 
     trimLeadingLF = buffer => {
         let text = buffer.toString(),
@@ -50,11 +51,20 @@ const
     },
 
     spawnProcess = (command, params) => new Promise(function (resolve, reject) {
-        let childProcess = require("child_process").spawn(command, params);
-        childProcess.stdout.on("data", buffer => console.log(trimLeadingLF(buffer)));
-        childProcess.stderr.on("data", buffer => console.error(trimLeadingLF(buffer)));
+        let childProcess = require("child_process").spawn(command, params),
+            output = [];
+        childProcess.stdout.on("data", buffer => {
+            console.log(trimLeadingLF(buffer));
+            output.push(buffer);
+        });
+        childProcess.stderr.on("data", buffer => {
+            console.error(trimLeadingLF(buffer));
+            output.push(buffer);
+        });
         childProcess.on("error", reject);
-        childProcess.on("close", code => code ? reject(new Error(`${command} ${params.join(" ")} failed`)) : resolve());
+        childProcess.on("close", code => code
+            ? reject(new Error(`${command} ${params.join(" ")} failed`))
+            : resolve(output.join("")));
     }),
 
     spawnGrunt = command => {
@@ -135,6 +145,15 @@ inquirer.prompt([{
         }
         return noBuild ? 0 : spawnGrunt("make");
     })
+    .then(() => spawnGit(["status", "--porcelain"])
+        .then(output => output.length ? error("Process any pending changes first") : 0)
+    )
+    .then(() => {
+        if (hasPublicationRepo) {
+            return spawnGit(["-C", "../ArnaudBuchholz.github.io", "status", "--porcelain"])
+                .then(output => output.length ? error("Clean publication repository first") : 0);
+        }
+    })
     .then(() => {
         console.log("Updating build/releases.json...");
         const
@@ -175,6 +194,14 @@ inquirer.prompt([{
         : Promise.resolve()
             .then(() => spawnGit(["commit", "-a", "-m", `Release v${version}`]))
             .then(() => spawnGit(["push"]))
+            .then(() => hasPublicationRepo
+                ? spawnGit(["-C", "../ArnaudBuchholz.github.io", "commit", "-a", "-m", `Release v${version}`])
+                : 0
+            )
+            .then(() => hasPublicationRepo
+                 ? spawnGit(["-C", "../ArnaudBuchholz.github.io", "push"])
+                : 0
+            )
             .then(() => gh.getIssues("ArnaudBuchholz", "gpf-js").editMilestone(versionMilestone.number, {
                 state: "closed"
             }))
