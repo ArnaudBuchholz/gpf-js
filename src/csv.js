@@ -151,11 +151,11 @@ var
         _buildParsingHelpers: function () {
             this._unescapeDictionary = {};
             this._unescapeDictionary[this._escapeQuote + this._quote] = this._quote;
-            this._parser = new RegExp(_gpfStringReplaceEx("(?:([^QS][^S]*)|Q((?:[^Q]|EQ)+)Q)", {
+            this._parser = new RegExp(_gpfStringReplaceEx("^(?:([^QS][^S]*)|Q((?:[^Q]|EQ)+)Q)", {
                 Q: _gpfStringEscapeFor(this._quote, "regexp"),
                 S: _gpfStringEscapeFor(this._separator, "regexp"),
                 E: _gpfStringEscapeFor(this._escapeQuote, "regexp")
-            }), "gy");
+            }));
         },
 
         /**
@@ -187,6 +187,18 @@ var
         //region Content processing
 
         /**
+         * Values being built
+         * @since 0.2.3
+         */
+        _values: [],
+
+        /**
+         * Content to parse
+         * @since 0.2.3
+         */
+        _content: "",
+
+        /**
          * Unescape quoted value
          *
          * @param {String} value Quoted value
@@ -204,36 +216,37 @@ var
          * @param {String[]} values Array of values being built
          * @since 0.2.3
          */
-        _addValue: function (match, values) {
+        _addValue: function (match) {
             if (match[1]) {
-                values.push(match[1]);
+                this._values.push(match[1]);
             } else /* if (match[2]) */ {
-                values.push(this._unescapeQuoted(match[2]));
+                this._values.push(this._unescapeQuoted(match[2]));
             }
         },
 
         /**
          * Move last parsing index to the next character
          *
-         * @param {String} content Line content (might contain remaining content of previous lines)
+         * @param {Number} index Position where the next value starts
          * @return {Boolean} True if some remaining content must be parsed
          * @since 0.2.3
          */
-        _nextValue: function (content) {
-            return ++this._lastIndex < content.length;
+        _nextValue: function (index) {
+            this._content = this._content.substr(index);
+            return this._content.length > 0;
         },
 
         /**
          * Check if the character is the expected separator, if not this is an error
          *
-         * @param {String} content Content to parse
+         * @param {Object} match Regular expression match
          * @param {String} charAfterValue Character after value
          * @return {Boolean} True if some remaining content must be parsed
          * @since 0.2.3
          */
-        _checkIfSeparator: function (content, charAfterValue) {
+        _checkIfSeparator: function (match, charAfterValue) {
             if (charAfterValue === this._separator) {
-                return this._nextValue(content);
+                return this._nextValue(match[0].length + 1);
             }
             this._setReadError(new gpf.Error.InvalidCSV());
             this._write = _gpfEmptyFunc;
@@ -243,100 +256,71 @@ var
         /**
          * Check what appears after the extracted value
          *
-         * @param {String} content Content to parse
+         * @param {Object} match Regular expression match
          * @return {Boolean} True if some remaining content must be parsed
          * @since 0.2.3
          */
-        _checkAfterValue: function (content) {
-            var charAfterValue;
-            this._lastIndex = this._parser.lastIndex;
-            charAfterValue = content.charAt(this._lastIndex);
+        _checkAfterValue: function (match) {
+            var charAfterValue = this._content.charAt(match[0].length);
             if (charAfterValue) {
-                return this._checkIfSeparator(content, charAfterValue);
+                return this._checkIfSeparator(match, charAfterValue);
             }
+            delete this._content;
             return false; // No value means end of content
         },
 
         /**
          * Extract value at _lastIndex
          *
-         * @param {String} content Content to parse
-         * @param {String[]} values Array of values being built
          * @return {Boolean} True if some remaining content must be parsed
          * @since 0.2.3
          */
-        _extractValue: function (content, values) {
-            this._parser.lastIndex = this._lastIndex;
-            var match = this._parser.exec(content);
+        _extractValue: function () {
+            var match = this._parser.exec(this._content);
             if (!match) {
                 return false; // Stop parsing
             }
-            this._addValue(match, values);
-            return this._checkAfterValue(content, values);
+            this._addValue(match);
+            return this._checkAfterValue(match);
         },
 
         /**
          * Check if the position referenced by _lastIndex points to a separator or assume it's a value
          *
-         * @param {String} content Content to parse
-         * @param {String[]} values Array of values being built
          * @return {Boolean} True if some remaining content must be parsed
          * @since 0.2.3
          */
-        _checkForValue: function (content, values) {
-            if (content.charAt(this._lastIndex) === this._separator) {
-                values.push(""); // Separator here means empty value
-                return this._nextValue(content);
+        _checkForValue: function () {
+            if (this._content.charAt(0) === this._separator) {
+                this._values.push(""); // Separator here means empty value
+                return this._nextValue(1);
             }
-            return this._extractValue(content, values);
+            return this._extractValue();
         },
 
         /**
          * Extract all values in the content
          *
-         * @param {String} content Content to parse
-         * @param {String[]} values Array of values being built
-         * @return {Number} Parsing index in the content
          * @since 0.2.3
          */
-        _parseValues: function (content, values) {
-            this._lastIndex = 0;
-            while (this._checkForValue(content, values)) {
+        _parseValues: function () {
+            while (this._checkForValue()) {
                 _gpfIgnore(); // Not my proudest but avoid empty block warning
             }
-            return this._lastIndex;
         },
-
-        /**
-         * Values remaining from the last parse call
-         * @since 0.2.3
-         */
-        _remainingValues: [],
-
-        /**
-         * Content remaining from the last parse call
-         * @since 0.2.3
-         */
-        _remainingContent: "",
 
         /**
          * Parse content contained in the line (and any previously unterminated content)
          *
-         * @param {String} content Content to parse
-         * @param {String[]} values Array of values being built
          * @return {String[]|undefined} Resulting values or undefined if record is not finalized yet
          * @since 0.2.3
          */
-        _parseContent: function (content, values) {
-            var lastIndex = this._parseValues(content, values);
-            if (lastIndex < content.length) {
-                this._remainingValues = values;
-                this._remainingContent = content.substr(lastIndex);
+        _parseContent: function () {
+            this._parseValues();
+            if (this._content) {
                 return;
             }
-            delete this._remainingContent;
-            delete this._remainingValues;
-            return values;
+            return this._values;
         },
 
         /**
@@ -347,16 +331,13 @@ var
          * @since 0.2.3
          */
         _processContent: function (line) {
-            var values,
-                content;
-            if (this._remainingContent) {
-                values = this._remainingValues;
-                content = this._remainingContent + this._newLine + line;
+            if (this._content) {
+                this._content = this._content + this._newLine + line;
             } else {
-                values = [];
-                content = line;
+                this._values = [];
+                this._content = line;
             }
-            return this._parseContent(content, values);
+            return this._parseContent();
         },
 
         /**
@@ -413,7 +394,7 @@ var
          * @since 0.2.3
          */
         flush: function () {
-            if (this._remainingContent) {
+            if (this._content) {
                 var error = new gpf.Error.InvalidCSV();
                 this._setReadError(error);
                 return Promise.reject(error);
