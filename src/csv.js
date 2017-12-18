@@ -7,8 +7,8 @@
 /*global _GpfStreamBufferedRead*/ // gpf.stream.BufferedRead
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfArrayForEachFalsy*/ // _gpfArrayForEach that returns first truthy value computed by the callback
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfDefine*/ // Shortcut for gpf.define
-/*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfStreamSecureWrite*/ // Generates a wrapper to secure multiple calls to stream#write
@@ -27,7 +27,6 @@ _gpfErrorDeclare("csv", {
  * @property {String} [header] Header line (if none in the source stream)
  * @property {String} [separator] Column separator (detected from first line if not specified)
  * @property {String} [quote="\""] Quote sign
- * @property {String} [escapeQuote="\""] Character used to escape the quote sign in a value
  * @property {String} [newLine="\n"] New line
  * @since 0.2.3
  */
@@ -75,7 +74,6 @@ var
                     "header",
                     "separator",
                     "quote",
-                    "escapeQuote",
                     "newLine"
                 ], function (optionName) {
                     if (parserOptions[optionName]) {
@@ -123,14 +121,6 @@ var
         _quote: "\"",
 
         /**
-         * Escape quote sign
-         *
-         * @type {String}
-         * @since 0.2.3
-         */
-        _escapeQuote: "\"",
-
-        /**
          * New line
          *
          * @type {String}
@@ -150,11 +140,10 @@ var
 
         _buildParsingHelpers: function () {
             this._unescapeDictionary = {};
-            this._unescapeDictionary[this._escapeQuote + this._quote] = this._quote;
-            this._parser = new RegExp(_gpfStringReplaceEx("^(?:([^QS][^S]*)|Q((?:[^Q]|EQ)+)Q)", {
+            this._unescapeDictionary[this._quote + this._quote] = this._quote;
+            this._parser = new RegExp(_gpfStringReplaceEx("^(?:([^QS][^S]*)|Q((?:[^Q]|QQ)+)Q)(?=$|S)", {
                 Q: _gpfStringEscapeFor(this._quote, "regexp"),
-                S: _gpfStringEscapeFor(this._separator, "regexp"),
-                E: _gpfStringEscapeFor(this._escapeQuote, "regexp")
+                S: _gpfStringEscapeFor(this._separator, "regexp")
             }));
         },
 
@@ -236,23 +225,6 @@ var
         },
 
         /**
-         * Check if the character is the expected separator, if not this is an error
-         *
-         * @param {Object} match Regular expression match
-         * @param {String} charAfterValue Character after value
-         * @return {Boolean} True if some remaining content must be parsed
-         * @since 0.2.3
-         */
-        _checkIfSeparator: function (match, charAfterValue) {
-            if (charAfterValue === this._separator) {
-                return this._nextValue(match[0].length + 1);
-            }
-            this._setReadError(new gpf.Error.InvalidCSV());
-            this._write = _gpfEmptyFunc;
-            return false;
-        },
-
-        /**
          * Check what appears after the extracted value
          *
          * @param {Object} match Regular expression match
@@ -262,7 +234,8 @@ var
         _checkAfterValue: function (match) {
             var charAfterValue = this._content.charAt(match[0].length);
             if (charAfterValue) {
-                return this._checkIfSeparator(match, charAfterValue);
+                _gpfAssert(charAfterValue === this._separator, "Positive lookahead works");
+                return this._nextValue(match[0].length + 1);
             }
             delete this._content;
             return false; // No value means end of content
