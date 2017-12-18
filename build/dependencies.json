@@ -335,6 +335,7 @@
     "csv": [
         "stream/bufferedread",
         "foreach",
+        "assert",
         "define",
         "error",
         "stream",
