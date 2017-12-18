@@ -149,6 +149,22 @@ describe("csv", function () {
                 })["catch"](done);
         });
 
+        it("supports different separator, quote and new line specifiers", function (done) {
+            _process({
+                lines: ["LINE\tVALUE\tVALUE2", "0\t\t'A''B", "\tC'"],
+                parser: new gpf.csv.Parser({
+                    separator: "\t",
+                    quote: "'",
+                    newLine: "\r\n"
+                }),
+                expected: [{
+                    LINE: "0",
+                    VALUE: "",
+                    VALUE2: "A'B\r\n\tC"
+                }]
+            }, done);
+        });
+
     });
 
 });
