@@ -24,10 +24,13 @@ _gpfErrorDeclare("csv", {
 
 /**
  * @typedef gpf.typedef.csvParserOptions
- * @property {String} [header] Header line (if none in the source stream)
- * @property {String} [separator] Column separator (detected from first line if not specified)
- * @property {String} [quote="\""] Quote sign
- * @property {String} [newLine="\n"] New line
+ * @property {String} [header] Header line: if not specified, the first write of the input stream becomes the header
+ * @property {String} [separator] Column separator, detected from the header line if not specified (allowed characters
+ * are ";" "," and "\t")
+ * @property {String} [quote="\""] Quote sign: introduces an escaped value in which quotes, separator and carriage
+ * returns are allowed. Consequently, the value may stand on several lines
+ * @property {String} [newLine="\n"] New line: each input stream write is considered as a separate line.
+ * If a quoted value stands on several lines, this character is used to represents every new line
  * @since 0.2.3
  */
 
@@ -43,11 +46,19 @@ var
         /**
          * CSV Parser
          *
+         * Parses the incoming stream by considering each write as a separate line.
+         * It is recommended to use the {@link gpf.stream.LineAdapter} class in between the incoming stream and the CSV
+         * parser.
+         *
+         * Generates objects where properties are matching header columns and values are string extracted from record
+         * lines.
+         *
          * @param {gpf.typedef.csvParserOptions} [parserOptions] Parser options
          * @constructor gpf.csv.Parser
          * @implements {gpf.interfaces.IReadableStream}
          * @implements {gpf.interfaces.IWritableStream}
          * @implements {gpf.interfaces.IFlushableStream}
+         * @extends gpf.stream.BufferedRead
          * @since 0.2.3
          */
         constructor: function (parserOptions) {
@@ -362,7 +373,7 @@ var
         //region gpf.interfaces.IFlushableStream
 
         /**
-         * @gpf:sameas gpf.interfaces.IWritableStream#flush
+         * @gpf:sameas gpf.interfaces.IFlushableStream#flush
          * @since 0.2.3
          */
         flush: function () {
