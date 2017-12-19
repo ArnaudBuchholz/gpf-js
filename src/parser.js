@@ -215,7 +215,7 @@ _gpfDefine("gpf.Parser", {
     // *
     // * @class gpf.ParserStream
     // * @extends gpf.stream.BufferedOnRead
-    // * @implements gpf.interfaces.IReadableStream
+    // * @implements {gpf.interfaces.IReadableStream}
     // */
     //_gpfDefine("gpf.ParserStream", gpf.stream.BufferedOnRead, {
     //
