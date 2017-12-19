@@ -35,7 +35,7 @@ gpf.xml = {};
  * A class to serialize an XML into a string
  *
  * @class gpf.xml.Writer
- * @implements gpf.interfaces.IXmlContentHandler
+ * @implements {gpf.interfaces.IXmlContentHandler}
  */
 _gpfDefine("gpf.xml.Writer", {
 
