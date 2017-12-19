@@ -170,8 +170,8 @@
      * Manipulate a JavaScript object as an XML node
      *
      * @class gpf.xml.ConstNode
-     * @implements gpf.interfaces.IXmlConstNode
-     * @implements gpf.interfaces.IXmlSerializable
+     * @implements {gpf.interfaces.IXmlConstNode}
+     * @implements {gpf.interfaces.IXmlSerializable}
      */
     _gpfDefine("gpf.xml.ConstNode", {
 
