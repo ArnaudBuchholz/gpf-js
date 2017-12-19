@@ -33,7 +33,7 @@ var
      *
      * @class gpf.encoding.EncoderStream
      * @extends gpf.stream.BufferedOnRead
-     * @implements gpf.interfaces.IReadableStream
+     * @implements {gpf.interfaces.IReadableStream}
      */
     EncoderStream = _gpfDefine("EncoderStream", gpf.stream.BufferedOnRead, {
         "+": {
@@ -73,7 +73,7 @@ var
      *
      * @class gpf.encoding.DecoderStream
      * @extends gpf.stream.BufferedOnRead
-     * @implements gpf.interfaces.IReadableStream
+     * @implements {gpf.interfaces.IReadableStream}
      */
     DecoderStream = _gpfDefine("DecoderStream", gpf.stream.BufferedOnRead, {
         "+": {
