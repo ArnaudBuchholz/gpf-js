@@ -24,6 +24,7 @@ var
          * @implements {gpf.interfaces.IReadableStream}
          * @implements {gpf.interfaces.IWritableStream}
          * @implements {gpf.interfaces.IFlushableStream}
+         * @extends gpf.stream.BufferedRead
          * @since 0.2.1
          */
         constructor: function () {
