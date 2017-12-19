@@ -919,7 +919,7 @@ var
      * Pattern tokenizer
      *
      * @class {PatternTokenizer}
-     * @implements gpf.interfaces.ITokenizer
+     * @implements {gpf.interfaces.ITokenizer}
      * @private
      */
     PatternTokenizer = _gpfDefine("PatternTokenizer", {
