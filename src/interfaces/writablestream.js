@@ -20,7 +20,7 @@
  * Write data to the underlying destination
  *
  * @method gpf.interfaces.IWritableStream#write
- * @param {Array} data Data array
+ * @param {*} data Data to write
  * @return {Promise} Resolved when ready
  * @since 0.1.9
  */
