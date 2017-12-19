@@ -14,7 +14,7 @@
  * Line is buffered until the carriage return.
  *
  * @class gpf.stream.Out
- * @implements gpf.interfaces.IWritableStream
+ * @implements {gpf.interfaces.IWritableStream}
  */
 _gpfDefine("gpf.stream.Out", {
 
