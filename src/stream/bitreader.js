@@ -4,7 +4,7 @@
  *
  * @class gpf.stream.BitReader
  * @extends gpf.stream.BufferedOnRead
- * @implements gpf.interfaces.IReadableStream
+ * @implements {gpf.interfaces.IReadableStream}
  */
 _gpfDefine("gpf.stream.BitReader", "gpf.stream.BufferedOnRead", {
 
