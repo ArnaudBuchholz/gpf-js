@@ -10,7 +10,7 @@
  *
  * @class gpf.stream.BufferedOnRead
  * @abstract
- * @implements gpf.interfaces.IReadableStream
+ * @implements {gpf.interfaces.IReadableStream}
  */
 _gpfDefine("gpf.stream.BufferedOnRead", {
 
