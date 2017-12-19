@@ -68,9 +68,9 @@ var
 
         /**
          * Implements IReadableStream by offering methods manipulating a buffer:
-         * - {@see gpf.stream.BufferedRead.prototype._appendToReadBuffer}
-         * - {@see gpf.stream.BufferedRead.prototype._completeReadBuffer}
-         * - {@see gpf.stream.BufferedRead.prototype._setReadError}
+         * - {@link gpf.stream.BufferedRead#_appendToReadBuffer}
+         * - {@link gpf.stream.BufferedRead#_completeReadBuffer}
+         * - {@link gpf.stream.BufferedRead#_setReadError}
          *
          * @constructor gpf.stream.BufferedRead
          * @implements {gpf.interfaces.IReadableStream}
