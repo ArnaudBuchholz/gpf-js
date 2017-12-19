@@ -300,7 +300,7 @@ var
      * Class to handle object un-serialization from XML
      *
      * @class FromXmlContentHandler
-     * @implements gpf.interfaces.IXmlContentHandler
+     * @implements {gpf.interfaces.IXmlContentHandler}
      * @private
      */
     FromXmlContentHandler = _gpfDefine("FromXmlContentHandler", {
@@ -516,7 +516,7 @@ var
         },
 
         /**
-         * @implements gpf.interfaces
+         * @implements {gpf.interfaces}
          *             .IXmlContentHandler:processingInstruction
          */
         processingInstruction: function (target, data, eventsHandler) {
