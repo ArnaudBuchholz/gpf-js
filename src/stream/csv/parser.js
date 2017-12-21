@@ -14,7 +14,7 @@
 /*global _gpfStreamSecureWrite*/ // Generates a wrapper to secure multiple calls to stream#write
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
-/*exported _GpfCsvParser*/ // gpf.csv.Parser
+/*exported _GpfStreamCsvParser*/ // gpf.stream.csv.Parser
 /*#endif*/
 
 _gpfErrorDeclare("csv", {
@@ -34,13 +34,20 @@ _gpfErrorDeclare("csv", {
  * @since 0.2.3
  */
 
+/**
+ * @namespace gpf.stream.csv
+ * @description Root namespace for CSV related streams
+ * @since 0.2.3
+ */
+gpf.stream.csv = {};
+
 var
     // Usual CSV separators
     _gpfCsvSeparators = ";,\t ".split("");
 
 var
-    _GpfCsvParser = _gpfDefine(/** @lends gpf.csv.Parser.prototype */ {
-        $class: "gpf.csv.Parser",
+    _GpfStreamCsvParser = _gpfDefine(/** @lends gpf.stream.csv.Parser.prototype */ {
+        $class: "gpf.stream.csv.Parser",
         $extend: _GpfStreamBufferedRead,
 
         /**
@@ -54,7 +61,7 @@ var
          * lines.
          *
          * @param {gpf.typedef.csvParserOptions} [parserOptions] Parser options
-         * @constructor gpf.csv.Parser
+         * @constructor gpf.stream.csv.Parser
          * @implements {gpf.interfaces.IReadableStream}
          * @implements {gpf.interfaces.IWritableStream}
          * @implements {gpf.interfaces.IFlushableStream}
