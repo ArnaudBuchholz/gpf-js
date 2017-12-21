@@ -213,7 +213,7 @@
         "version": "0.2.3",
         "label": "Streams and Pipes",
         "date": "2017-12-20",
-        "notes": "",
+        "notes": "2017/12/release-023-streams-and-pipes.html",
         "milestone": 11,
         "metrics": {
             "coverage": {
