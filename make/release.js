@@ -115,10 +115,6 @@ inquirer.prompt([{
 }])
     .then(answers => {
         version = answers.version;
-        if (pkgVersion !== version) {
-            console.log("Updating package.json version...");
-            fs.writeFileSync("package.json", pkgText.replace(pkgVersion, version));
-        }
         console.log("Releasing version: " + version);
         console.log("Authenticating on GitHub...");
         gh = new GitHub({
@@ -153,7 +149,13 @@ inquirer.prompt([{
                 .then(output => output.length ? error("Clean publication repository first") : 0);
         }
     })
-    .then(() => noBuild ? 0 : spawnGrunt("make"))
+    .then(() => {
+        if (pkgVersion !== version) {
+            console.log("Updating package.json version...");
+            fs.writeFileSync("package.json", pkgText.replace(pkgVersion, version));
+        }
+        return noBuild ? 0 : spawnGrunt("make");
+    })
     .then(() => {
         console.log("Updating build/releases.json...");
         const
