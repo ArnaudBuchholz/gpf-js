@@ -1,6 +1,6 @@
 {
   "name": "gpf-js",
-  "version": "0.2.3",
+  "version": "0.2.4-alpha",
   "description": "A multi-purpose JavaScript library",
   "main": "build/gpf.js",
   "directories": {
