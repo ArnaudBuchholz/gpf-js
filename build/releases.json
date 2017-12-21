@@ -1,142 +1,242 @@
-[{
-    "version": "0.1.5",
-    "label": "The new core",
-    "date": "2016-12-05",
-    "notes": "2016/12/release-015.html",
-    "milestone": 2,
-    "metrics": {
-        "coverage": {
-            "statements": {"total": 97.67, "ignored": 12.07},
-            "branches": {"total": 98.95, "ignored": 21.35},
-            "functions": {"total": 100, "ignored": 13.01}
-        },
-        "maintainability": 80.15,
-        "tests": 286,
-        "sources": 29,
-        "lines": {
-            "average": 84,
-            "total": 2453
+[
+    {
+        "version": "0.1.5",
+        "label": "The new core",
+        "date": "2016-12-05",
+        "notes": "2016/12/release-015.html",
+        "milestone": 2,
+        "metrics": {
+            "coverage": {
+                "statements": {
+                    "total": 97.67,
+                    "ignored": 12.07
+                },
+                "branches": {
+                    "total": 98.95,
+                    "ignored": 21.35
+                },
+                "functions": {
+                    "total": 100,
+                    "ignored": 13.01
+                }
+            },
+            "maintainability": 80.15,
+            "tests": 286,
+            "sources": 29,
+            "lines": {
+                "average": 84,
+                "total": 2453
+            }
+        }
+    },
+    {
+        "version": "0.1.6",
+        "label": "gpf.define",
+        "date": "2017-02-05",
+        "notes": "2017/02/release-016.html",
+        "milestone": 5,
+        "metrics": {
+            "coverage": {
+                "statements": {
+                    "total": 99.75,
+                    "ignored": 9.23
+                },
+                "branches": {
+                    "total": 99.21,
+                    "ignored": 16.01
+                },
+                "functions": {
+                    "total": 100,
+                    "ignored": 9.26
+                }
+            },
+            "maintainability": 81.03,
+            "tests": 345,
+            "sources": 41,
+            "lines": {
+                "average": 84,
+                "total": 3463
+            }
+        }
+    },
+    {
+        "version": "0.1.7",
+        "label": "Securing gpf.define",
+        "date": "2017-03-02",
+        "notes": "2017/03/release-017.html",
+        "milestone": 6,
+        "metrics": {
+            "coverage": {
+                "statements": {
+                    "total": 99.76,
+                    "ignored": 9.08
+                },
+                "branches": {
+                    "total": 99.26,
+                    "ignored": 16.17
+                },
+                "functions": {
+                    "total": 100,
+                    "ignored": 9
+                }
+            },
+            "maintainability": 82.25,
+            "tests": 364,
+            "sources": 41,
+            "lines": {
+                "average": 92,
+                "total": 3782
+            }
+        }
+    },
+    {
+        "version": "0.1.8",
+        "label": "Interfaces",
+        "date": "2017-03-26",
+        "notes": "2017/03/release-018.html",
+        "milestone": 7,
+        "metrics": {
+            "coverage": {
+                "statements": {
+                    "total": 99.78,
+                    "ignored": 8.4
+                },
+                "branches": {
+                    "total": 99.32,
+                    "ignored": 14.86
+                },
+                "functions": {
+                    "total": 100,
+                    "ignored": 8.23
+                }
+            },
+            "maintainability": 82.25,
+            "tests": 396,
+            "sources": 48,
+            "lines": {
+                "average": 89,
+                "total": 4277
+            }
+        }
+    },
+    {
+        "version": "0.1.9",
+        "label": "Records files",
+        "date": "2017-04-29",
+        "notes": "2017/04/release-019-records-files.html",
+        "milestone": 8,
+        "metrics": {
+            "coverage": {
+                "statements": {
+                    "total": 99.82,
+                    "ignored": 4.77
+                },
+                "branches": {
+                    "total": 99.71,
+                    "ignored": 10.57
+                },
+                "functions": {
+                    "total": 100,
+                    "ignored": 2.77
+                }
+            },
+            "maintainability": 82.78,
+            "tests": 541,
+            "sources": 63,
+            "lines": {
+                "average": 100,
+                "total": 6301
+            }
+        }
+    },
+    {
+        "version": "0.2.1",
+        "label": "Side project support",
+        "date": "2017-06-06",
+        "notes": "2017/06/release-021-side-project-support.html",
+        "milestone": 9,
+        "metrics": {
+            "coverage": {
+                "statements": {
+                    "total": 100,
+                    "ignored": 0.74
+                },
+                "branches": {
+                    "total": 100,
+                    "ignored": 1.77
+                },
+                "functions": {
+                    "total": 100,
+                    "ignored": 1.36
+                }
+            },
+            "maintainability": 82.04,
+            "tests": 598,
+            "sources": 78,
+            "lines": {
+                "average": 94,
+                "total": 7408
+            }
+        }
+    },
+    {
+        "version": "0.2.2",
+        "label": "gpf.require",
+        "date": "2017-11-01",
+        "notes": "2017/11/release-022-gpfrequire.html",
+        "milestone": 10,
+        "metrics": {
+            "coverage": {
+                "statements": {
+                    "total": 100,
+                    "ignored": 0.64
+                },
+                "branches": {
+                    "total": 100,
+                    "ignored": 1.61
+                },
+                "functions": {
+                    "total": 100,
+                    "ignored": 1.17
+                }
+            },
+            "maintainability": 82.07,
+            "tests": 669,
+            "sources": 90,
+            "lines": {
+                "average": 96,
+                "total": 8652
+            }
+        }
+    },
+    {
+        "version": "0.2.3",
+        "label": "Streams and Pipes",
+        "date": "2017-12-04",
+        "notes": "",
+        "milestone": 11,
+        "metrics": {
+            "coverage": {
+                "statements": {
+                    "total": 100,
+                    "ignored": 0.59
+                },
+                "functions": {
+                    "total": 100,
+                    "ignored": 1.06
+                },
+                "branches": {
+                    "total": 100,
+                    "ignored": 1.45
+                }
+            },
+            "maintainability": 81.98,
+            "lines": {
+                "total": 9430,
+                "average": 101
+            },
+            "tests": 725,
+            "sources": 93
         }
     }
-}, {
-    "version": "0.1.6",
-    "label": "gpf.define",
-    "date": "2017-02-05",
-    "notes": "2017/02/release-016.html",
-    "milestone": 5,
-    "metrics": {
-        "coverage": {
-            "statements": {"total": 99.75, "ignored": 9.23},
-            "branches": {"total": 99.21, "ignored": 16.01},
-            "functions": {"total": 100, "ignored": 9.26}
-        },
-        "maintainability": 81.03,
-        "tests": 345,
-        "sources": 41,
-        "lines": {
-            "average": 84,
-            "total": 3463
-        }
-    }
-}, {
-    "version": "0.1.7",
-    "label": "Securing gpf.define",
-    "date": "2017-03-02",
-    "notes": "2017/03/release-017.html",
-    "milestone": 6,
-    "metrics": {
-        "coverage": {
-            "statements": {"total": 99.76, "ignored": 9.08},
-            "branches": {"total": 99.26, "ignored": 16.17},
-            "functions": {"total": 100, "ignored": 9}
-        },
-        "maintainability": 82.25,
-        "tests": 364,
-        "sources": 41,
-        "lines": {
-            "average": 92,
-            "total": 3782
-        }
-    }
-}, {
-    "version": "0.1.8",
-    "label": "Interfaces",
-    "date": "2017-03-26",
-    "notes": "2017/03/release-018.html",
-    "milestone": 7,
-    "metrics": {
-        "coverage": {
-            "statements": {"total": 99.78, "ignored": 8.4},
-            "branches": {"total": 99.32, "ignored": 14.86},
-            "functions": {"total": 100, "ignored": 8.23}
-        },
-        "maintainability": 82.25,
-        "tests": 396,
-        "sources": 48,
-        "lines": {
-            "average": 89,
-            "total": 4277
-        }
-    }
-}, {
-    "version": "0.1.9",
-    "label": "Records files",
-    "date": "2017-04-29",
-    "notes": "2017/04/release-019-records-files.html",
-    "milestone": 8,
-    "metrics": {
-        "coverage": {
-            "statements": {"total": 99.82, "ignored": 4.77},
-            "branches": {"total": 99.71, "ignored": 10.57},
-            "functions": {"total": 100, "ignored": 2.77}
-        },
-        "maintainability": 82.78,
-        "tests": 541,
-        "sources": 63,
-        "lines": {
-            "average": 100,
-            "total": 6301
-        }
-    }
-}, {
-    "version": "0.2.1",
-    "label": "Side project support",
-    "date": "2017-06-06",
-    "notes": "2017/06/release-021-side-project-support.html",
-    "milestone": 9,
-    "metrics": {
-        "coverage": {
-            "statements": {"total": 100, "ignored": 0.74},
-            "branches": {"total": 100, "ignored": 1.77},
-            "functions": {"total": 100, "ignored": 1.36}
-        },
-        "maintainability": 82.04,
-        "tests": 598,
-        "sources": 78,
-        "lines": {
-            "average": 94,
-            "total": 7408
-        }
-    }
-}, {
-    "version": "0.2.2",
-    "label": "gpf.require",
-    "date": "2017-11-01",
-    "notes": "2017/11/release-022-gpfrequire.html",
-    "milestone": 10,
-    "metrics": {
-        "coverage": {
-            "statements": {"total": 100, "ignored": 0.64},
-            "branches": {"total": 100, "ignored": 1.61},
-            "functions": {"total": 100, "ignored": 1.17}
-        },
-        "maintainability": 82.07,
-        "tests": 669,
-        "sources": 90,
-        "lines": {
-            "average": 96,
-            "total": 8652
-        }
-    }
-
-}]
+]

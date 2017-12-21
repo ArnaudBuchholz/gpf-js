@@ -35,7 +35,7 @@
          * GPF Version
          * @since 0.1.5
          */
-        _gpfVersion = "0.2.2",
+        _gpfVersion = "0.2.3",
         /**
          * Host constants
          * @since 0.1.5
@@ -1517,7 +1517,6 @@
         }
         return _gpfContext(path.split("."));
     };
-    gpf.extend = Object.assign;
     _gpfStringEscapes.html = Object.assign({}, _gpfStringEscapes.xml, {
         "à": "&agrave;",
         "á": "&aacute;",
@@ -3165,6 +3164,19 @@
      * @since 0.1.9
      */
     gpf.stream = {};
+    function _gpfStreamQuery(queriedObject, interfaceSpecifier, interfaceName) {
+        var iStream = _gpfInterfaceQuery(interfaceSpecifier, queriedObject);
+        if (!iStream) {
+            gpf.Error.interfaceExpected({ name: interfaceName });
+        }
+        return iStream;
+    }
+    function _gpfStreamQueryCommon(queriedObject, interfaceSpecifier, interfaceName) {
+        if (!queriedObject) {
+            gpf.Error.interfaceExpected({ name: interfaceName });
+        }
+        return _gpfStreamQuery(queriedObject, interfaceSpecifier, interfaceName);
+    }
     /**
      * Get an IReadableStream or fail if not implemented
      *
@@ -3174,11 +3186,7 @@
      * @since 0.1.9
      */
     function _gpfStreamQueryReadable(queriedObject) {
-        var iReadableStream = _gpfInterfaceQuery(_gpfIReadableStream, queriedObject);
-        if (!iReadableStream) {
-            gpf.Error.interfaceExpected({ name: "gpf.interfaces.IReadableStream" });
-        }
-        return iReadableStream;
+        return _gpfStreamQueryCommon(queriedObject, _gpfIReadableStream, "gpf.interfaces.IReadableStream");
     }
     /**
      * Get an IWritableStream or fail if not implemented
@@ -3189,13 +3197,10 @@
      * @since 0.1.9
      */
     function _gpfStreamQueryWritable(queriedObject) {
-        var iWritableStream = _gpfInterfaceQuery(_gpfIWritableStream, queriedObject);
-        if (!iWritableStream) {
-            gpf.Error.interfaceExpected({ name: "gpf.interfaces.IWritableStream" });
-        }
-        return iWritableStream;
+        return _gpfStreamQueryCommon(queriedObject, _gpfIWritableStream, "gpf.interfaces.IWritableStream");
     }
-    var _gpfStreamInProgressPropertyName = "gpf.stream#inProgress";
+    /* 'Hidden' properties used to secure Read / Write operations */
+    var _gpfStreamProgressPropertyNamePrefix = "gpf.stream#progress", _gpfStreamProgressRead = _gpfStreamProgressPropertyNamePrefix + "/read", _gpfStreamProgressWrite = _gpfStreamProgressPropertyNamePrefix + "/write";
     /**
      * Install the progress flag used by _gpfStreamSecureRead and Write
      *
@@ -3203,7 +3208,52 @@
      * @since 0.1.9
      */
     function _gpfStreamSecureInstallProgressFlag(constructor) {
-        constructor.prototype[_gpfStreamInProgressPropertyName] = false;
+        constructor.prototype[_gpfStreamProgressRead] = false;
+        constructor.prototype[_gpfStreamProgressWrite] = false;
+    }
+    /**
+     * Starts a secured read operation (if possible)
+     *
+     * @param {Object} stream configured with {@see _gpfStreamSecureInstallProgressFlag}
+     * @throws {gpf.Error.ReadInProgress}
+     * @since 0.2.3
+     */
+    function _gpfStreamProgressStartRead(stream) {
+        if (stream[_gpfStreamProgressRead]) {
+            gpf.Error.readInProgress();
+        }
+        stream[_gpfStreamProgressRead] = true;
+    }
+    /**
+     * Ends a read operation
+     *
+     * @param {Object} stream configured with {@see _gpfStreamSecureInstallProgressFlag}
+     * @since 0.2.3
+     */
+    function _gpfStreamProgressEndRead(stream) {
+        stream[_gpfStreamProgressRead] = false;
+    }
+    /**
+     * Starts a secured write operation (if possible)
+     *
+     * @param {Object} stream configured with {@see _gpfStreamSecureInstallProgressFlag}
+     * @throws {gpf.Error.WriteInProgress}
+     * @since 0.2.3
+     */
+    function _gpfStreamProgressStartWrite(stream) {
+        if (stream[_gpfStreamProgressWrite]) {
+            gpf.Error.writeInProgress();
+        }
+        stream[_gpfStreamProgressWrite] = true;
+    }
+    /**
+     * Ends a write operation
+     *
+     * @param {Object} stream configured with {@see _gpfStreamSecureInstallProgressFlag}
+     * @since 0.2.3
+     */
+    function _gpfStreamProgressEndWrite(stream) {
+        stream[_gpfStreamProgressWrite] = false;
     }
     /**
      * Generate a wrapper to query IWritableStream from the parameter and secure multiple calls to stream#read
@@ -3215,18 +3265,15 @@
      */
     function _gpfStreamSecureRead(read) {
         return function (output) {
-            var me = this;
-            //eslint-disable-line no-invalid-this
-            if (me[_gpfStreamInProgressPropertyName]) {
-                gpf.Error.readInProgress();
-            }
-            var iWritableStream = _gpfStreamQueryWritable(output);
-            me[_gpfStreamInProgressPropertyName] = true;
+            var me = this,
+                //eslint-disable-line no-invalid-this
+                iWritableStream = _gpfStreamQueryWritable(output);
+            _gpfStreamProgressStartRead(me);
             return read.call(me, iWritableStream).then(function (result) {
-                me[_gpfStreamInProgressPropertyName] = false;
+                _gpfStreamProgressEndRead(me);
                 return Promise.resolve(result);
             }, function (reason) {
-                me[_gpfStreamInProgressPropertyName] = false;
+                _gpfStreamProgressEndRead(me);
                 return Promise.reject(reason);
             });
         };
@@ -3243,16 +3290,13 @@
         return function (buffer) {
             var me = this;
             //eslint-disable-line no-invalid-this
-            if (me[_gpfStreamInProgressPropertyName]) {
-                gpf.Error.writeInProgress();
-            }
-            me[_gpfStreamInProgressPropertyName] = true;
+            _gpfStreamProgressStartWrite(me);
             return write.call(me, buffer)    //eslint-disable-line no-invalid-this
 .then(function (result) {
-                me[_gpfStreamInProgressPropertyName] = false;
+                _gpfStreamProgressEndWrite(me);
                 return Promise.resolve(result);
             }, function (reason) {
-                me[_gpfStreamInProgressPropertyName] = false;
+                _gpfStreamProgressEndWrite(me);
                 return Promise.reject(reason);
             });
         };
@@ -4513,7 +4557,8 @@
     /**
      * Create a tag generation function
      *
-     * @param {String} nodeName tag name
+     * @param {String} nodeName tag name.
+     * May include the namespace prefix svg for [SVG elements](https://developer.mozilla.org/en-US/docs/Web/SVG)
      * @return {gpf.typedef.tagFunc} The tag generation function
      * @gpf:closure
      * @since 0.2.1
@@ -4549,6 +4594,13 @@
      *     span = gpf.web.createTagFunction("span"),
      *     tree = div({className: "test"}, "Hello ", span("World!")),
      *     result = tree.appendTo(mockNode);
+     *
+     * @example <caption>SVG building</caption>
+     * var mockNode = mockDocument.createElement("any"),
+     *     svgImage = gpf.web.createTagFunction("svg:image"),
+     *     tree = svgImage({x: 0, y: 0, "xlink:href": "test.png"}),
+     *     result = tree.appendTo(mockNode);
+     *
      */
     gpf.web.createTagFunction = _gpfWebTagCreateFunction;
     gpf.http = {};
@@ -5148,136 +5200,279 @@
             _gpfHttpRhinoResolve(httpConnection, resolve);
         });
     };
-    function _gpfStreamLineLastDoesntEndsWithLF(buffer) {
-        var lastItem = buffer[buffer.length - 1];
-        return lastItem.charAt(lastItem.length - 1) !== "\n";
+    function _GpfStreamBufferedReadToken() {
     }
-    function _gpfStreamLineTrimCR(line) {
-        var lengthMinus1 = line.length - 1;
-        if (line.lastIndexOf("\r") === lengthMinus1) {
-            return line.substr(0, lengthMinus1);
-        }
-        return line;
-    }
-    function _gpfStreamLineWrite(output, lines) {
-        if (!lines.length) {
-            return Promise.resolve();
-        }
-        return output.write(_gpfStreamLineTrimCR(lines.shift())).then(function () {
-            return _gpfStreamLineWrite(output, lines);
-        });
-    }
-    var _GpfStreamLineAdatper = _gpfDefine(/** @lends gpf.stream.LineAdapter.prototype */
-    {
-        $class: "gpf.stream.LineAdapter",
+    _GpfStreamBufferedReadToken.prototype = {
         /**
-         * Stream line adapter
+         * Execute the action associated to the token
          *
-         * @constructor gpf.stream.LineAdapter
+         * @method _GpfStreamBufferedReadToken#execute
+         * @param {gpf.stream.BufferedRead} bufferedRead Instance of gpf.stream.BufferedRead
+         * @since 0.2.3
+         */
+        execute: _gpfEmptyFunc
+    };
+    var
+        /**
+         * Unique token to signal an error: it ensures the error is triggered at the right time
+         *
+         * @type {_GpfStreamBufferedReadToken}
+         * @since 0.2.3
+         */
+        _gpfStreamBufferedReadError = new _GpfStreamBufferedReadToken(),
+        /**
+         * Unique token to signal end of read: it ensures the error is triggered at the right time
+         *
+         * @type {_GpfStreamBufferedReadToken}
+         * @since 0.2.3
+         */
+        _gpfStreamBufferedReadEnd = new _GpfStreamBufferedReadToken();
+    _gpfStreamBufferedReadError.execute = function (bufferedRead) {
+        bufferedRead._readReject(bufferedRead._readBuffer.shift());
+    };
+    _gpfStreamBufferedReadEnd.execute = function (bufferedRead) {
+        bufferedRead._readResolve();
+    };
+    var _GpfStreamBufferedRead = _gpfDefine(/** @lends gpf.stream.BufferedRead.prototype */
+    {
+        $class: "gpf.stream.BufferedRead",
+        /**
+         * Implements IReadableStream by offering methods manipulating a buffer:
+         * - {@link gpf.stream.BufferedRead#_appendToReadBuffer}
+         * - {@link gpf.stream.BufferedRead#_completeReadBuffer}
+         * - {@link gpf.stream.BufferedRead#_setReadError}
+         *
+         * @constructor gpf.stream.BufferedRead
          * @implements {gpf.interfaces.IReadableStream}
-         * @implements {gpf.interfaces.IWritableStream}
-         * @implements {gpf.interfaces.IFlushableStream}
-         * @since 0.2.1
+         * @since 0.2.3
          */
         constructor: function () {
-            this._buffer = [];
+            this._readBuffer = [];
         },
+        /**
+         * Read buffer, also contains tokens to signal the end of the read ({@see _GpfStreamBufferedReadToken} and
+         * {@see _gpfStreamBufferedReadEnd})
+         * @since 0.2.3
+         */
+        _readBuffer: [],
+        /**
+         * Stream to write to
+         *
+         * @type {gpf.interfaces.IWritableStream}
+         * @since 0.2.3
+         */
+        _readWriteToStream: null,
+        /**
+         * Read Promise resolve function
+         *
+         * @type {Function}
+         * @since 0.2.3
+         */
+        _readResolve: null,
+        /**
+         * Read Promise reject function
+         *
+         * @type {Function}
+         * @since 0.2.3
+         */
+        _readReject: null,
+        //region Secured writing
+        _readDataIsToken: function (data) {
+            if (data instanceof _GpfStreamBufferedReadToken) {
+                data.execute(this);
+                return true;
+            }
+            return false;
+        },
+        _readWriteToOutput: function () {
+            var me = this, data = me._readBuffer.shift();
+            if (me._readDataIsToken(data)) {
+                return Promise.resolve();
+            }
+            return me._readWriteToStream.write(data).then(function () {
+                if (me._readBuffer.length) {
+                    return me._readWriteToOutput();
+                }
+                me._readNotWriting = true;
+            });
+        },
+        /**
+         * Critical section to avoid writing while writing
+         * @since 0.2.3
+         */
+        _readNotWriting: true,
+        /**
+         * Triggers write only if no write is in progress
+         * @since 0.2.3
+         */
+        _readSafeWrite: function () {
+            var me = this;
+            if (me._readNotWriting) {
+                me._readNotWriting = false;
+                me._readWriteToOutput().then(undefined, function (reason) {
+                    me._readReject(reason);
+                });
+            }
+        },
+        /**
+         * Check if data exists and trigger write consequently
+         * @since 0.2.3
+         */
+        _readCheckIfData: function () {
+            if (this._readBuffer.length) {
+                this._readSafeWrite();
+            }
+        },
+        /**
+         * Check if a read is in progress and trigger write consequently
+         * @since 0.2.3
+         */
+        _readCheckIfOutput: function () {
+            if (this._readWriteToStream) {
+                this._readCheckIfData();
+            }
+        },
+        //endregion
+        //region Protected interface for sub classes
+        /**
+         * Adds data to the read buffer
+         *
+         * @param {...*} data Data to write
+         * @gpf:chainable
+         * @protected
+         * @since 0.2.3
+         */
+        _appendToReadBuffer: function (data) {
+            _gpfIgnore(data);
+            this._readBuffer = this._readBuffer.concat([].slice.call(arguments));
+            this._readCheckIfOutput();
+            return this;
+        },
+        /**
+         * Ends the read without any error
+         *
+         * @protected
+         * @since 0.2.3
+         */
+        _completeReadBuffer: function () {
+            this._readBuffer.push(_gpfStreamBufferedReadEnd);
+            this._readCheckIfOutput();
+        },
+        /**
+         * Ends the read with an error
+         *
+         * @param {*} reason Rejection reason
+         * @protected
+         * @since 0.2.3
+         */
+        _setReadError: function (reason) {
+            this._readBuffer.push(_gpfStreamBufferedReadError, reason);
+            this._readCheckIfOutput();
+        },
+        //endregion
         //region gpf.interfaces.IReadableStream
         /**
          * @gpf:sameas gpf.interfaces.IReadableStream#read
-         * @since 0.2.1
+         * @since 0.2.3
          */
         read: _gpfStreamSecureRead(function (output) {
             var me = this;
             //eslint-disable-line no-invalid-this
-            me._output = output;
-            if (me._buffer.length) {
-                return me._process();
-            }
-            return Promise.resolve();
-        }),
-        //endregion
-        //region gpf.interfaces.IReadableStream
-        /**
-         * @gpf:sameas gpf.interfaces.IWritableStream#write
-         * @since 0.2.1
-         */
-        write: _gpfStreamSecureWrite(function (buffer) {
-            var me = this;
-            //eslint-disable-line no-invalid-this
-            me._buffer.push(buffer.toString());
-            if (me._output) {
-                return me._process();
-            }
-            return Promise.resolve();
-        }),
-        //endregion
-        //region gpf.interfaces.IFlushableStream
-        flush: function () {
-            if (_gpfStreamLineLastDoesntEndsWithLF(this._buffer)) {
-                return this.write("\n");
-            }
-            return Promise.resolve();
-        },
-        //endregion
-        /**
-         * Completes the stream, flush the remaining characters as the last line if any
-         *
-         * @return {Promise} Resolve when written to the output
-         * @deprecated since version 0.2.2, use flush
-         * @since 0.2.1
-         */
-        endOfStream: function () {
-            return this.flush();
-        },
-        /**
-         * Output stream
-         *
-         * @type {gpf.interfaces.IWritableStream}
-         * @since 0.2.1
-         */
-        _output: null,
-        /**
-         * Buffer
-         * @since 0.2.1
-         */
-        _buffer: [],
-        /**
-         * Extract lines from buffer
-         *
-         * @return {String[]} Array of lines
-         * @since 0.2.1
-         */
-        _extractLines: function () {
-            return this._buffer.join("").split("\n");
-        },
-        /**
-         * The array lines is built using split on \n. Hence, the last line is what comes after the last \n.
-         * If not empty, it must be pushed back to the buffer.
-         *
-         * @param {String[]} lines Array of lines
-         * @since 0.2.1
-         */
-        _pushBackLastLineIfNotEmpty: function (lines) {
-            var lastLine = lines.pop();
-            if (lastLine.length) {
-                this._buffer.push(lastLine);
-            }
-        },
-        /**
-         * Check if the buffer contains any carriage return and write to output
-         *
-         * @return {Promise} Resolve when all lines were written
-         * @since 0.2.1
-         */
-        _process: function () {
-            var lines = this._extractLines();
-            this._buffer.length = 0;
-            this._pushBackLastLineIfNotEmpty(lines);
-            return _gpfStreamLineWrite(this._output, lines);
-        }
+            me._readWriteToStream = output;
+            me._readCheckIfData();
+            return new Promise(function (resolve, reject) {
+                me._readResolve = resolve;
+                me._readReject = reject;
+            });
+        })    //endregion
     });
-    _gpfStreamSecureInstallProgressFlag(_GpfStreamLineAdatper);
+    _gpfStreamSecureInstallProgressFlag(_GpfStreamBufferedRead);
+    var _reDOSCR = /\r\n/g, _GpfStreamLineAdatper = _gpfDefine(/** @lends gpf.stream.LineAdapter.prototype */
+        {
+            $class: "gpf.stream.LineAdapter",
+            $extend: _GpfStreamBufferedRead,
+            /**
+             * Stream line adapter
+             *
+             * @constructor gpf.stream.LineAdapter
+             * @implements {gpf.interfaces.IReadableStream}
+             * @implements {gpf.interfaces.IWritableStream}
+             * @implements {gpf.interfaces.IFlushableStream}
+             * @extends gpf.stream.BufferedRead
+             * @since 0.2.1
+             */
+            constructor: function () {
+                this.$super();
+                this._buffer = [];
+            },
+            //region gpf.interfaces.IReadableStream
+            /**
+             * @gpf:sameas gpf.interfaces.IWritableStream#write
+             * @since 0.2.1
+             */
+            write: _gpfStreamSecureWrite(function (buffer) {
+                var me = this;
+                //eslint-disable-line no-invalid-this
+                me._buffer.push(buffer.toString());
+                me._process();
+                return Promise.resolve();
+            }),
+            //endregion
+            //region gpf.interfaces.IFlushableStream
+            /**
+             * @gpf:sameas gpf.interfaces.IFlushableStream#flush
+             * @since 0.2.1
+             */
+            flush: function () {
+                if (this._buffer.length) {
+                    this._buffer.push("\n");
+                    this._process();
+                }
+                this._completeReadBuffer();
+                return Promise.resolve();
+            },
+            //endregion
+            /**
+             * Buffer
+             * @since 0.2.1
+             */
+            _buffer: [],
+            /**
+             * Consolidate lines from buffer
+             *
+             * @return {String[]} Array of lines
+             * @since 0.2.1
+             */
+            _consolidateLines: function () {
+                return this._buffer.join("").replace(_reDOSCR, "\n").split("\n");
+            },
+            /**
+             * The array lines is built using split on \n. Hence, the last line is what comes after the last \n.
+             * If not empty, it must be pushed back to the buffer.
+             *
+             * @param {String[]} lines Array of lines
+             * @since 0.2.1
+             */
+            _pushBackLastLineIfNotEmpty: function (lines) {
+                var lastLine = lines.pop();
+                if (lastLine.length) {
+                    this._buffer.push(lastLine);
+                }
+            },
+            /**
+             * Check if the buffer contains any carriage return and write to output
+             *
+             * @since 0.2.1
+             */
+            _process: function () {
+                var me = this, lines = me._consolidateLines();
+                me._buffer.length = 0;
+                me._pushBackLastLineIfNotEmpty(lines);
+                _gpfArrayForEach(lines, function (line) {
+                    me._appendToReadBuffer(line);
+                });
+            }
+        });
     var _gpfIFlushableStream = _gpfDefineInterface("FlushableStream", { "flush": 0 });
     var _gpfRequireLoadImpl;
     function _gpfRequireLoadHTTP(name) {
@@ -5729,4 +5924,451 @@
         });
     _gpfStreamSecureInstallProgressFlag(_GpfStreamReadableArray);
     _gpfStreamSecureInstallProgressFlag(_GpfStreamWritableArray);
+    var _gpfStreamPipeFakeFlushable = { flush: Promise.resolve.bind(Promise) };
+    function _gpfStreamPipeToFlushable(stream) {
+        return _gpfInterfaceQuery(_gpfIFlushableStream, stream) || _gpfStreamPipeFakeFlushable;
+    }
+    /**
+     * Create a flushable & writable stream by combining the intermediate stream with the writable destination
+     *
+     * @param {Object} intermediate Must implements IReadableStream interface.
+     * If it implements the IFlushableStream interface, it is assumed that it retains data
+     * until it receives the Flush. Meaning, the read won't complete until the flush call.
+     * If it does not implement the IFlushableStream, the read may end before the whole sequence
+     * has finished. It means that the next write should trigger a new read and flush must be simulated at
+     * least to pass it to the destination
+     * @param {Object} destination Must implements IWritableStream interface.
+     * If it implements the IFlushableStream, it will be called when the intermediate completes.
+     *
+     * @return {Object} Implementing IWritableStream and IFlushableStream
+     * @since 0.2.3
+     */
+    function _gpfStreamPipeToFlushableWrite(intermediate, destination) {
+        var iReadableIntermediate = _gpfStreamQueryReadable(intermediate), iWritableIntermediate = _gpfStreamQueryWritable(intermediate), iFlushableIntermediate = _gpfStreamPipeToFlushable(intermediate), iWritableDestination = _gpfStreamQueryWritable(destination), iFlushableDestination = _gpfStreamPipeToFlushable(destination), readingDone = false, readError;
+        // Read errors must be transmitted up to the initial read, this is done by forwarding it to flush & write
+        function _read() {
+            try {
+                iReadableIntermediate.read(iWritableDestination).then(function () {
+                    readingDone = true;
+                }, function (reason) {
+                    readError = reason;
+                });
+            } catch (e) {
+                readError = e;
+            }
+        }
+        _read();
+        function _checkIfReadError() {
+            if (readError) {
+                return Promise.reject(readError);
+            }
+        }
+        return {
+            flush: function () {
+                return _checkIfReadError() || iFlushableIntermediate.flush().then(function () {
+                    return iFlushableDestination.flush();
+                });
+            },
+            write: function (data) {
+                return _checkIfReadError() || iWritableIntermediate.write(data).then(function () {
+                    if (readingDone) {
+                        _read();
+                    }
+                });
+            }
+        };
+    }
+    function _gpfStreamPipeReduce(streams) {
+        var idx = streams.length - 1, iWritableStream = streams[idx];
+        while (idx > 0) {
+            iWritableStream = _gpfStreamPipeToFlushableWrite(streams[--idx], iWritableStream);
+        }
+        return iWritableStream;
+    }
+    function _gpfStreamPipeToWritable(streams) {
+        if (streams.length > 1) {
+            return _gpfStreamPipeReduce(streams);
+        }
+        return _gpfStreamQueryWritable(streams[0]);
+    }
+    /**
+     * Pipe streams.
+     *
+     * @param {gpf.interfaces.IReadableStream} source Source stream
+     * @param {...gpf.interfaces.IWritableStream} destination Writable streams
+     * @return {Promise} Resolved when reading (and subsequent writings) are done
+     * @since 0.2.3
+     */
+    function _gpfStreamPipe(source, destination) {
+        _gpfIgnore(destination);
+        var iReadableStream = _gpfStreamQueryReadable(source), iWritableStream = _gpfStreamPipeToWritable([].slice.call(arguments, 1)), iFlushableStream = _gpfStreamPipeToFlushable(iWritableStream);
+        try {
+            return iReadableStream.read(iWritableStream).then(function () {
+                return iFlushableStream.flush();
+            });
+        } catch (e) {
+            return Promise.reject(e);
+        }
+    }
+    /**
+     * @gpf:sameas _gpfStreamPipe
+     * @since 0.2.3
+     */
+    gpf.stream.pipe = _gpfStreamPipe;
+    _gpfStringEscapes.regexp = {
+        "-": "\\-",
+        "[": "\\[",
+        "]": "\\]",
+        "/": "\\/",
+        "{": "\\{",
+        "}": "\\}",
+        "(": "\\(",
+        ")": "\\)",
+        "*": "\\*",
+        "+": "\\+",
+        "?": "\\?",
+        ".": "\\.",
+        "\\": "\\\\",
+        "^": "\\^",
+        "$": "\\$",
+        "|": "\\|"
+    };
+    _gpfErrorDeclare("csv", { invalidCSV: "Invalid CSV syntax (bad quote sequence or missing end of file)" });
+    /**
+     * @typedef gpf.typedef.csvParserOptions
+     * @property {String} [header] Header line: if not specified, the first write of the input stream becomes the header
+     * @property {String} [separator] Column separator, detected from the header line if not specified (allowed characters
+     * are ";" "," and "\t")
+     * @property {String} [quote="\""] Quote sign: introduces an escaped value in which quotes, separator and carriage
+     * returns are allowed. Consequently, the value may stand on several lines
+     * @property {String} [newLine="\n"] New line: each input stream write is considered as a separate line.
+     * If a quoted value stands on several lines, this character is used to represents every new line
+     * @since 0.2.3
+     */
+    /**
+     * @namespace gpf.stream.csv
+     * @description Root namespace for CSV related streams
+     * @since 0.2.3
+     */
+    gpf.stream.csv = {};
+    var
+    // Usual CSV separators
+    _gpfCsvSeparators = ";,\t ".split("");
+    var _GpfStreamCsvParser = _gpfDefine(/** @lends gpf.stream.csv.Parser.prototype */
+    {
+        $class: "gpf.stream.csv.Parser",
+        $extend: _GpfStreamBufferedRead,
+        /**
+         * CSV Parser
+         *
+         * Parses the incoming stream by considering each write as a separate line.
+         * It is recommended to use the {@link gpf.stream.LineAdapter} class in between the incoming stream and the CSV
+         * parser.
+         *
+         * Generates objects where properties are matching header columns and values are string extracted from record
+         * lines.
+         *
+         * @param {gpf.typedef.csvParserOptions} [parserOptions] Parser options
+         * @constructor gpf.stream.csv.Parser
+         * @implements {gpf.interfaces.IReadableStream}
+         * @implements {gpf.interfaces.IWritableStream}
+         * @implements {gpf.interfaces.IFlushableStream}
+         * @extends gpf.stream.BufferedRead
+         * @since 0.2.3
+         */
+        constructor: function (parserOptions) {
+            this._readParserOptions(parserOptions);
+            if (this._header) {
+                this._parseHeader();
+            } else {
+                this._write = this._writeHeader;
+            }
+        },
+        //region Parser options
+        /**
+         * Read parser options
+         *
+         * @param {gpf.typedef.csvParserOptions} [parserOptions] Parser options
+         * @since 0.2.3
+         */
+        _readParserOptions: function (parserOptions) {
+            var me = this;
+            if (parserOptions) {
+                _gpfArrayForEach([
+                    "header",
+                    "separator",
+                    "quote",
+                    "newLine"
+                ], function (optionName) {
+                    if (parserOptions[optionName]) {
+                        me["_" + optionName] = parserOptions[optionName];
+                    }
+                });
+            }
+        },
+        /**
+         * Header line
+         *
+         * @type {String}
+         * @since 0.2.3
+         */
+        _header: "",
+        /**
+         * Column separator
+         *
+         * @type {String}
+         * @since 0.2.3
+         */
+        _separator: "",
+        /**
+         * Deduce separator from header line
+         * @since 0.2.3
+         */
+        _deduceSeparator: function () {
+            var header = this._header;
+            this._separator = _gpfArrayForEachFalsy(_gpfCsvSeparators, function (separator) {
+                if (-1 !== header.indexOf(separator)) {
+                    return separator;
+                }
+            }) || _gpfCsvSeparators[0];
+        },
+        /**
+         * Quote sign
+         *
+         * @type {String}
+         * @since 0.2.3
+         */
+        _quote: "\"",
+        /**
+         * New line
+         *
+         * @type {String}
+         * @since 0.2.3
+         */
+        _newLine: "\n",
+        //endregion
+        //region Header processing
+        /**
+         * @property {String[]} Columns' name
+         * @since 0.2.3
+         */
+        _columns: [],
+        _buildParsingHelpers: function () {
+            this._unescapeDictionary = {};
+            this._unescapeDictionary[this._quote + this._quote] = this._quote;
+            this._parser = new RegExp(_gpfStringReplaceEx("^(?:([^QS][^S]*)|Q((?:[^Q]|QQ)+)Q)(?=$|S)", {
+                Q: _gpfStringEscapeFor(this._quote, "regexp"),
+                S: _gpfStringEscapeFor(this._separator, "regexp")
+            }));
+        },
+        /**
+         * Once header line is known, process it to prepare the parser
+         * @since 0.2.3
+         */
+        _parseHeader: function () {
+            if (!this._separator) {
+                this._deduceSeparator();
+            }
+            this._columns = this._header.split(this._separator);
+            this._buildParsingHelpers();
+            this._write = this._writeContent;
+        },
+        /**
+         * Write header line
+         *
+         * @param {String} line CSV line
+         * @since 0.2.3
+         */
+        _writeHeader: function (line) {
+            this._header = line;
+            this._parseHeader();
+        },
+        //endregion
+        //region Content processing
+        /**
+         * Values being built
+         * @since 0.2.3
+         */
+        _values: [],
+        /**
+         * Content to parse
+         * @since 0.2.3
+         */
+        _content: "",
+        /**
+         * Unescape quoted value
+         *
+         * @param {String} value Quoted value
+         * @return {String} unescaped value
+         * @since 0.2.3
+         */
+        _unescapeQuoted: function (value) {
+            return _gpfStringReplaceEx(value, this._unescapeDictionary);
+        },
+        /**
+         * Add the matching value to the array of values
+         *
+         * @param {Object} match Regular expression match
+         * @since 0.2.3
+         */
+        _addValue: function (match) {
+            if (match[1]) {
+                this._values.push(match[1]);
+            } else
+                /* if (match[2]) */
+                {
+                    this._values.push(this._unescapeQuoted(match[2]));
+                }
+        },
+        /**
+         * Move the content to the next value
+         *
+         * @param {Number} index Position where the next value starts
+         * @return {Boolean} True if some remaining content must be parsed
+         * @since 0.2.3
+         */
+        _nextValue: function (index) {
+            this._content = this._content.substr(index);
+            return this._content.length > 0;
+        },
+        /**
+         * Check what appears after the extracted value
+         *
+         * @param {Object} match Regular expression match
+         * @return {Boolean} True if some remaining content must be parsed
+         * @since 0.2.3
+         */
+        _checkAfterValue: function (match) {
+            var charAfterValue = this._content.charAt(match[0].length);
+            if (charAfterValue) {
+                _gpfAssert(charAfterValue === this._separator, "Positive lookahead works");
+                return this._nextValue(match[0].length + 1);
+            }
+            delete this._content;
+            return false;    // No value means end of content
+        },
+        /**
+         * Extract value
+         *
+         * @return {Boolean} True if some remaining content must be parsed
+         * @since 0.2.3
+         */
+        _extractValue: function () {
+            var match = this._parser.exec(this._content);
+            if (!match) {
+                return false;    // Stop parsing
+            }
+            this._addValue(match);
+            return this._checkAfterValue(match);
+        },
+        /**
+         * Check if the content starts with a separator or assume it's a value
+         *
+         * @return {Boolean} True if some remaining content must be parsed
+         * @since 0.2.3
+         */
+        _checkForValue: function () {
+            if (this._content.charAt(0) === this._separator) {
+                this._values.push("");
+                // Separator here means empty value
+                return this._nextValue(1);
+            }
+            return this._extractValue();
+        },
+        /**
+         * Extract all values in the content
+         *
+         * @since 0.2.3
+         */
+        _parseValues: function () {
+            while (this._checkForValue()) {
+                _gpfIgnore();    // Not my proudest but avoid empty block warning
+            }
+        },
+        /**
+         * Parse content contained in the line (and any previously unterminated content)
+         *
+         * @return {String[]|undefined} Resulting values or undefined if record is not finalized yet
+         * @since 0.2.3
+         */
+        _parseContent: function () {
+            this._parseValues();
+            if (this._content) {
+                return;
+            }
+            return this._values;
+        },
+        /**
+         * If some content remains from previous parsing, concatenate it and parse
+         *
+         * @param {String} line CSV line
+         * @return {String[]|undefined} Resulting values or undefined if not yet finalized
+         * @since 0.2.3
+         */
+        _processContent: function (line) {
+            if (this._content) {
+                this._content = this._content + this._newLine + line;
+            } else {
+                this._values = [];
+                this._content = line;
+            }
+            return this._parseContent();
+        },
+        /**
+         * Generate a record from values
+         *
+         * @param {String[]} values Array of values
+         * @return {Object} Record based on header names
+         * @since 0.2.3
+         */
+        _getRecord: function (values) {
+            var record = {};
+            _gpfArrayForEach(this._columns, function (name, idx) {
+                var value = values[idx];
+                if (value !== undefined) {
+                    record[name] = values[idx];
+                }
+            });
+            return record;
+        },
+        /**
+         * Write content line
+         *
+         * @param {String} line CSV line
+         * @since 0.2.3
+         */
+        _writeContent: function (line) {
+            var values = this._processContent(line);
+            if (values) {
+                this._appendToReadBuffer(this._getRecord(values));
+            }
+        },
+        //endregion
+        //region gpf.interfaces.IReadableStream
+        /**
+         * @gpf:sameas gpf.interfaces.IWritableStream#write
+         * @since 0.2.3
+         */
+        write: _gpfStreamSecureWrite(function (line) {
+            var me = this;
+            //eslint-disable-line no-invalid-this
+            me._write(line);
+            return Promise.resolve();
+        }),
+        //endregion
+        //region gpf.interfaces.IFlushableStream
+        /**
+         * @gpf:sameas gpf.interfaces.IFlushableStream#flush
+         * @since 0.2.3
+         */
+        flush: function () {
+            if (this._content) {
+                var error = new gpf.Error.InvalidCSV();
+                this._setReadError(error);
+                return Promise.reject(error);
+            }
+            this._completeReadBuffer();
+            return Promise.resolve();
+        }    //endregion
+    });
 }));
