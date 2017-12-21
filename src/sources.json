@@ -414,7 +414,7 @@
         "doc": true
     },
     {
-        "name": "csv",
+        "name": "stream/csv/parser",
         "doc": true
     },
     {
