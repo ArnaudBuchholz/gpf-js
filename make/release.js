@@ -143,7 +143,6 @@ inquirer.prompt([{
         if (versionMilestone.open_issues) {
             error("Issues remaining in the milestone");
         }
-        return noBuild ? 0 : spawnGrunt("make");
     })
     .then(() => spawnGit(["status", "--porcelain"])
         .then(output => output.length ? error("Process any pending changes first") : 0)
@@ -154,6 +153,7 @@ inquirer.prompt([{
                 .then(output => output.length ? error("Clean publication repository first") : 0);
         }
     })
+    .then(() => noBuild ? 0 : spawnGrunt("make"))
     .then(() => {
         console.log("Updating build/releases.json...");
         const
