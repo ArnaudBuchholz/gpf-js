@@ -332,7 +332,7 @@
     "string/escape/regexp": [
         "string/escapefor"
     ],
-    "csv": [
+    "stream/csv/parser": [
         "stream/bufferedread",
         "foreach",
         "assert",
