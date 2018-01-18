@@ -5,6 +5,7 @@
 const
     inquirer = require("inquirer"),
     ConfigFile = require("./configFile.js"),
+    config = new ConfigFile(),
 
     spawnProcess = (command, params) => new Promise(function (resolve, reject) {
         let process = require("child_process").spawn(command, params),
@@ -27,7 +28,7 @@ const
 
     detectJava = () => spawnProcess("java", ["-version"]).then(() => true, () => false),
 
-    askForQualityMetrics = config => inquirer.prompt([{
+    askForQualityMetrics = () => inquirer.prompt([{
         type: "confirm",
         name: "confirmed",
         message: "Do you want to update the quality metrics",
@@ -70,7 +71,7 @@ const
             : Promise.resolve()
         ),
 
-    askForSelenium = config => {
+    askForSelenium = () => {
         let confirmation;
         if (0 === Object.keys(config.content.browsers).length) {
             confirmation = Promise.resolve({confirmed: true});
@@ -86,11 +87,13 @@ const
             ? spawnProcess("node", ["test/host/selenium/detect"])
             : Promise.resolve()
         );
-    };
+    },
 
-Promise.resolve(new ConfigFile())
+    isTravis = process.argv.some(arg => arg === "travis");
 
-    .then(config => config.isNew()
+Promise.resolve()
+
+    .then(()=> config.isNew()
         ? (console.log("No configuration file found"), config)
         : inquirer.prompt([{
             type: "confirm",
@@ -104,9 +107,10 @@ Promise.resolve(new ConfigFile())
                 return config;
             })
     )
-    .then(config =>
+    .then(() => isTravis
 
-        inquirer.prompt([{
+        ? detectJava()
+        : inquirer.prompt([{
             type: "input",
             name: "port",
             message: "Enter the http port used by grunt",
@@ -122,11 +126,16 @@ Promise.resolve(new ConfigFile())
                 return askIfHostInstalledOrDetect("java");
             })
             .then(answers => "Autodetect" === answers.choice ? detectJava() : "Yes" === answers.choice)
-            .then(javaInstalled => {
-                config.content.host.java = javaInstalled;
-                return askForQualityMetrics(config);
-            })
-            .then(() => config.save()) // Save before checking Selenium (which updates the configuration file)
-            .then(() => askForSelenium(config))
-
-    )["catch"](reason => console.error(reason.message));
+    )
+    .then(javaInstalled => {
+        config.content.host.java = javaInstalled;
+        if (!isTravis) {
+            return askForQualityMetrics(config);
+        }
+    })
+    .then(() => config.save()) // Save before checking Selenium (which updates the configuration file)
+    .then(() => {
+        if (!isTravis) {
+            return askForSelenium(config);
+        }
+    })["catch"](reason => console.error(reason.message));
