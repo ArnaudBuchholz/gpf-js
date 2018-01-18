@@ -15,11 +15,11 @@ module.exports = function (grunt) {
     global.configFile = new ConfigFile();
     global.configuration = Object.create(configFile.content);
     if (configFile.isNew()) {
-        grunt.registerTask("default", function () {
+        grunt.registerTask("default", function (params) {
             var done = this.async(); //eslint-disable-line no-invalid-this
             grunt.util.spawn({
                 cmd: "node",
-                args: ["make/config"],
+                args: ["make/config"].concat(params),
                 opts: {
                     stdio: "inherit"
                 }
