@@ -44,15 +44,26 @@ const
 module.exports = function (grunt) {
 
     grunt.registerTask("mergeCoverage", () => {
-        let coverage = grunt.file.readJSON("tmp/coverage/reports/coverage.json");
-        [
-            "browser",
-            "phantomjs",
-            "rhino",
-            "wscript"
-        ].forEach(host => {
-            let hostCoverage = grunt.file.readJSON(`tmp/coverage/reports/coverage.${host}.json`);
-            mergeCoverage(coverage, hostCoverage);
+        let coverage = grunt.file.readJSON("tmp/coverage/reports/coverage.json"),
+            ConfigFile = require("../../make/configFile.js"),
+            configFile = new ConfigFile(),
+            hosts = [
+                "browser",
+                "phantomjs"
+            ];
+        if (configFile.content.host.java) {
+            hosts.push("rhino");
+        }
+        if (configFile.content.host.wscript) {
+            hosts.push("wscript");
+        }
+        hosts.forEach(host => {
+            try {
+                let hostCoverage = grunt.file.readJSON(`tmp/coverage/reports/coverage.${host}.json`);
+                mergeCoverage(coverage, hostCoverage);
+            } catch (e) {
+                grunt.fail.warn(`Missing coverage information for ${host}`);
+            }
         });
         fs.writeFileSync("tmp/coverage/reports/coverage.json", JSON.stringify(coverage));
     });
