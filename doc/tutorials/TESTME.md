@@ -67,9 +67,11 @@ one parameter: the URL to open,
 [SIGKILL](https://nodejs.org/api/process.html#process_signal_events) signal.
 
 To configure the command line:
-- Make sure to run `grunt` at least once: this will initialize the `tmp/config.json` file. 
+- Make sure to run `grunt` at least once: this will initialize the `tmp/config.json` file.
 - Open the `tmp/config.json` file, look for the `"browsers"` part
-- For each browser you want to test, add a key with type=spawn and the binary path to the command line set in bin
+- For each browser you want to test, add a dictionary with `"type": "spawn"` and the binary path to the command line
+specified in the `"bin"` property. Optionally, parameters that would be prepended before the testing URL might be
+specified with an array property `"args"`
 
 For instance, Safari testing on Windows:
 
