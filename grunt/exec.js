@@ -34,7 +34,9 @@ module.exports = {
                     + configuration.files.src.join(" ")
     }, verbose),
     metrics: Object.assign({
-        cmd: "node make/metrics.js"
+        cmd: function () {
+            return "node make/metrics.js " + [].slice.call(arguments).join(" ");
+        }
     }, showErrors, failIfNot0),
     globals: Object.assign({
         cmd: "node make/globals.js"
