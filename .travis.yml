@@ -3,4 +3,4 @@ node_js:
   - "lts/*"
 before_install: npm install -g grunt-cli
 install: npm install
-before_script: grunt default:travis
+before_script: grunt travis
