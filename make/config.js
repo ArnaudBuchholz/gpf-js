@@ -133,7 +133,8 @@ const
                     console.log("Chrome: google-chrome-stable");
                     config.content.browsers.chrome = {
                         type: "spawn",
-                        bin: "google-chrome-stable --headless --disable-gpu"
+                        bin: "google-chrome-stable"
+                        args: ["--headless", "--disable-gpu"]
                     };
                     configChanged = true;
                 });
