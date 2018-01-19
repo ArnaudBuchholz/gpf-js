@@ -5,7 +5,7 @@ module.exports = function (grunt) {
         const done = this.async(); //eslint-disable-line no-invalid-this
         grunt.util.spawn({
             cmd: "node",
-            args: ["make/config", "-quiet"],
+            args: ["make/config", "quiet"],
             opts: {
                 stdio: "inherit"
             }
