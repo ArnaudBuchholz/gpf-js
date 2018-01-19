@@ -54,7 +54,6 @@ module.exports = function (browserType, urlParameters) {
             browserName = arg;
         }
     });
-    verbose(result); // FORCE DEBUG MODE
 
     result.browserName = browserName;
     result.browser = configFile.content.browsers[browserName];
