@@ -30,7 +30,8 @@ module.exports = {
 
     // Tests on sources
     source: [
-        "mocha:source"
+        "mocha:source",
+        "mochaTest:source"
     ].concat(testTasks),
 
     // Tests on debug version
