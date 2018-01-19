@@ -3,6 +3,8 @@
 /*eslint-env node*/
 
 const
+    fs = require("fs"),
+    path = require("path"),
     inquirer = require("inquirer"),
     ConfigFile = require("./configFile.js"),
     config = new ConfigFile(),
@@ -16,12 +18,16 @@ const
         process.on("close", () => resolve(output.join("")));
     }),
 
-    askIfHostInstalledOrDetect = label => inquirer.prompt([{
-        type: "list",
-        name: "choice",
-        message: `Is ${label} installed?`,
-        choices: ["Autodetect", "Yes", "No"]
-    }]),
+    quietMode = process.argv.some(arg => arg === "quiet"),
+
+    askIfHostInstalledOrDetect = label => quietMode
+        ? Promise.resolve({choice: "Autodetect"})
+        : inquirer.prompt([{
+            type: "list",
+            name: "choice",
+            message: `Is ${label} installed?`,
+            choices: ["Autodetect", "Yes", "No"]
+        }]),
 
     detectWScript = () => spawnProcess("cscript.exe", ["/Nologo", "/E:JScript", "build/gpf.js"])
             .then(output => output.indexOf("Can't find script engine") === -1, () => false),
@@ -71,11 +77,9 @@ const
             : Promise.resolve()
         ),
 
-    quietMode = process.argv.some(arg => arg === "-quiet"),
-
     askForSelenium = () => {
         let confirmation;
-        if (0 === Object.keys(config.content.browsers).length) {
+        if (quietMode || 0 === Object.keys(config.content.browsers).length) {
             confirmation = Promise.resolve({confirmed: true});
             console.log("Detecting browsers compatible with selenium");
         } else {
@@ -89,6 +93,66 @@ const
             ? spawnProcess("node", ["test/host/selenium/detect"])
             : Promise.resolve()
         );
+    },
+
+    checkCmdLineBrowsers = () => {
+        // Re-read config file because selenium detection might rewrite it
+        const isWindows = /^win/.test(process.platform);
+        config.read();
+        let configChanged = false;
+        if (!config.content.browsers.safari && isWindows) {
+            console.log("Checking safari for windows...");
+            let safariBin = path.join(process.env["ProgramFiles"], "safari\\safari.exe");
+            if (!fs.existsSync(safariBin)) {
+                safariBin = path.join(process.env["ProgramFiles(x86)"], "safari\\safari.exe");
+            }
+            if (!fs.existsSync(safariBin)) {
+                safariBin = undefined;
+            }
+            if (safariBin) {
+                console.log(`Safari: ${safariBin}`);
+                config.content.browsers.safari = {
+                    type: "spawn",
+                    bin: safariBin
+                };
+                configChanged = true;
+            }
+        }
+        let promise;
+        if (config.content.browsers.chrome || isWindows) {
+            promise = Promise.resolve();
+        } else {
+            console.log("Checking chrome for non windows...");
+            promise = spawnProcess("google-chrome-stable", ["--product-version"])
+                .then(function () {
+                    console.log("Chrome: google-chrome-stable");
+                    config.content.browsers.safari = {
+                        type: "spawn",
+                        bin: "google-chrome-stable --headless --disable-gpu"
+                    };
+                    configChanged = true;
+                });
+        }
+        return promise.then(() => configChanged ? config.save() : 0);
+    },
+
+    askForCmdLineBrowsers = () => {
+        let confirmation;
+        if (quietMode || 0 === Object.keys(config.content.browsers).length) {
+            confirmation = Promise.resolve({confirmed: true});
+            console.log("Detecting browsers compatible with command line use");
+        } else {
+            confirmation = inquirer.prompt([{
+                type: "confirm",
+                name: "confirmed",
+                message: "Do you want to detect browsers compatible with command line use"
+            }]);
+        }
+        return confirmation.then(answers => answers.confirmed
+            ? checkCmdLineBrowsers()
+            : Promise.resolve()
+        );
+
     };
 
 Promise.resolve()
@@ -108,8 +172,7 @@ Promise.resolve()
             })
     )
     .then(() => quietMode
-
-        ? detectJava()
+        ? detectWScript()
         : inquirer.prompt([{
             type: "input",
             name: "port",
@@ -121,12 +184,12 @@ Promise.resolve()
                 return askIfHostInstalledOrDetect("cscript");
             })
             .then(answers => "Autodetect" === answers.choice ? detectWScript() : "Yes" === answers.choice)
-            .then(wscriptInstalled => {
-                config.content.host.wscript = wscriptInstalled;
-                return askIfHostInstalledOrDetect("java");
-            })
-            .then(answers => "Autodetect" === answers.choice ? detectJava() : "Yes" === answers.choice)
     )
+    .then(wscriptInstalled => {
+        config.content.host.wscript = wscriptInstalled;
+        return askIfHostInstalledOrDetect("java");
+    })
+    .then(answers => "Autodetect" === answers.choice ? detectJava() : "Yes" === answers.choice)
     .then(javaInstalled => {
         config.content.host.java = javaInstalled;
         if (!quietMode) {
@@ -134,5 +197,6 @@ Promise.resolve()
         }
     })
     .then(() => config.save()) // Save before checking Selenium (which updates the configuration file)
-    .then(() => askForSelenium()
+    .then(() => askForSelenium())
+    .then(() => askForCmdLineBrowsers()
     )["catch"](reason => console.error(reason.message));
