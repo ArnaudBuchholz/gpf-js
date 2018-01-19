@@ -47,10 +47,10 @@ module.exports = function (grunt) {
         let coverage = grunt.file.readJSON("tmp/coverage/reports/coverage.json"),
             ConfigFile = require("../../make/configFile.js"),
             configFile = new ConfigFile(),
-            hosts = [
-                "browser",
-                "phantomjs"
-            ];
+            hosts = ["phantomjs"];
+        if (0 !== Object.keys(configFile.content.browsers).length) {
+            hosts.push("browser");
+        }
         if (configFile.content.host.java) {
             hosts.push("rhino");
         }
@@ -111,8 +111,6 @@ module.exports = function (grunt) {
         let browser = Object.keys(configuration.browsers)[0];
         if (browser) {
             coverageTasks.push(`exec:test${browser.charAt(0).toUpperCase() + browser.substr(1)}Coverage`);
-        } else {
-            grunt.fail.warn("No browser configured");
         }
     }
 
