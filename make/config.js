@@ -203,6 +203,6 @@ Promise.resolve()
         }
     })
     .then(() => config.save()) // Save before checking Selenium (which updates the configuration file)
-    .then(() => askForSelenium())
-    .then(() => askForCmdLineBrowsers()
+    .then(() => false && askForSelenium())
+    .then(() => false && askForCmdLineBrowsers()
     )["catch"](reason => console.error(reason.message));
