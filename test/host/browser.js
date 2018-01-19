@@ -4,9 +4,10 @@ var childProcess = require("child_process"),
     http = require("http"),
     uid = process.pid,
     config = require("./web_config.js")("spawn", "cache=" + uid),
-    args = config.browser.args || [];
+    args = (config.browser.args || []).concat(config.url);
 
-var browserProcess = childProcess.spawn(config.browser.bin, args.concat(config.url), {
+config.log("SPAWN " + config.browser.bin + " " + args.join(" "));
+var browserProcess = childProcess.spawn(config.browser.bin, args, {
     detached: true
 });
 
