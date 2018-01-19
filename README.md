@@ -1,6 +1,10 @@
 # GPF Library
+
+<p align="center">
+
 ![GPF Logo](http://arnaudbuchholz.github.io/gpf/gpf_320x200.svg)
 
+<img src="https://api.travis-ci.org/repositories/arnaudbuchholz/gpf-js.svg?branch=master">
 [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
 
 A multi-purpose JavaScript library created and maintained by
@@ -8,6 +12,8 @@ A multi-purpose JavaScript library created and maintained by
 
 [![NPM](https://nodei.co/npm/gpf-js.png?downloads=true&&downloadRank=true&stars=true)](https://nodei.co/npm/gpf-js/)
 [![NPM](https://nodei.co/npm-dl/gpf-js.png?months=3&height=3)](https://nodei.co/npm/gpf-js/)
+
+</p>
 
 ## Features
 
