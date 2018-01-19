@@ -1,7 +1,8 @@
 {
     "rules": {
         "no-sync": 0,
-        "func-style": 0
+        "func-style": 0,
+        "no-ternary": 0
     },
     "globals": {
         "configuration": false,
