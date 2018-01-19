@@ -9,8 +9,6 @@
     <img src="https://cdn.gruntjs.com/builtwith.png" title="Built with Grunt" />
 </a>
 
-[![]()]()
-
 A multi-purpose JavaScript library created and maintained by
 [Arnaud Buchholz](http://gpf-js.blogspot.com/).
 
