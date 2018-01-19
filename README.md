@@ -3,9 +3,13 @@
 ![GPF Logo](http://arnaudbuchholz.github.io/gpf/gpf_320x200.svg)
 
 <a href="https://travis-ci.org/ArnaudBuchholz/gpf-js#">
-    <img src="https://travis-ci.org/ArnaudBuchholz/gpf-js.svg?branch=master" />
+    <img src="https://travis-ci.org/ArnaudBuchholz/gpf-js.svg?branch=master" title="Travis-CI" />
 </a>
-[![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
+<a href="http://gruntjs.com/">
+    <img src="https://cdn.gruntjs.com/builtwith.png" title="Built with Grunt" />
+</a>
+
+[![]()]()
 
 A multi-purpose JavaScript library created and maintained by
 [Arnaud Buchholz](http://gpf-js.blogspot.com/).
