@@ -2,7 +2,7 @@
 
 ![GPF Logo](http://arnaudbuchholz.github.io/gpf/gpf_320x200.svg)
 
-<img src="https://api.travis-ci.org/repositories/arnaudbuchholz/gpf-js.svg?branch=master">
+<img src="https://api.travis-ci.org/repositories/arnaudbuchholz/gpf-js.svg?branch=master" />
 [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
 
 A multi-purpose JavaScript library created and maintained by
