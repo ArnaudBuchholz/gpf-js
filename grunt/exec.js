@@ -1,7 +1,8 @@
 "use strict";
 
 const
-    pathSep = require("path").sep,
+    fs = require("fs"),
+    sep = require("path").sep,
 
     silent = {
         stdout: false,
@@ -91,8 +92,12 @@ function _buildTestConfig (name, command) {
 }
 
 _buildTestConfig("Node", "node test/host/nodejs.js");
-_buildTestConfig("Phantom", `node_modules${pathSep}phantomjs-prebuilt${pathSep}lib${pathSep}phantom${pathSep}bin`
-                            + `${pathSep}phantomjs --web-security=false test/host/phantomjs.js`);
+let phantomJsBin = "/usr/local/phantomjs/bin/phantomjs"; // If already installed
+if (!fs.existsSync(phantomJsBin)) {
+    // Assume it is installed with the phantomjs-prebuilt package
+    phantomJsBin = `node_modules${sep}phantomjs-prebuilt${sep}lib${sep}phantom${sep}bin${sep}phantomjs`;
+}
+_buildTestConfig("Phantom", `${phantomJsBin} --web-security=false test${sep}host${sep}phantomjs.js`);
 _buildTestConfig("Wscript", "cscript.exe /D /E:JScript test/host/cscript.js");
 _buildTestConfig("Rhino", "java -jar node_modules/rhino-1_7r5-bin/rhino1_7R5/js.jar test/host/rhino.js");
 Object.keys(configuration.browsers).forEach(browserName =>{
