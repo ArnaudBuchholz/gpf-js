@@ -71,6 +71,8 @@ const
             : Promise.resolve()
         ),
 
+    quietMode = process.argv.some(arg => arg === "-quiet"),
+
     askForSelenium = () => {
         let confirmation;
         if (0 === Object.keys(config.content.browsers).length) {
@@ -87,9 +89,7 @@ const
             ? spawnProcess("node", ["test/host/selenium/detect"])
             : Promise.resolve()
         );
-    },
-
-    isTravis = process.argv.some(arg => arg === "travis");
+    };
 
 Promise.resolve()
 
@@ -107,7 +107,7 @@ Promise.resolve()
                 return config;
             })
     )
-    .then(() => isTravis
+    .then(() => quietMode
 
         ? detectJava()
         : inquirer.prompt([{
@@ -129,13 +129,10 @@ Promise.resolve()
     )
     .then(javaInstalled => {
         config.content.host.java = javaInstalled;
-        if (!isTravis) {
+        if (!quietMode) {
             return askForQualityMetrics(config);
         }
     })
     .then(() => config.save()) // Save before checking Selenium (which updates the configuration file)
-    .then(() => {
-        if (!isTravis) {
-            return askForSelenium(config);
-        }
-    })["catch"](reason => console.error(reason.message));
+    .then(() => askForSelenium()
+    )["catch"](reason => console.error(reason.message));
