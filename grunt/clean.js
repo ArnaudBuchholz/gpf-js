@@ -1,5 +1,6 @@
 "use strict";
 
 module.exports = {
-    plato: ["tmp/plato"]
+    plato: ["tmp/plato"],
+    tmp: ["tmp/*", "!tmp/.eslintrc", "!tmp/.gitignore", "!tmp/.jshintrc", "!tmp/README.md", "!tmp/import_plato.js"]
 };
