@@ -1,6 +1,7 @@
 "use strict";
 /*jshint node: true*/
 /*eslint-env node*/
+/*eslint-disable no-sync*/
 
 // https://github.com/nodejs/node/blob/master/doc/changelogs/CHANGELOG_V8.md#2017-10-24-version-880-current-mylesborins
 process.env.NODE_NO_HTTP2 = 1; //eslint-disable-line no-process-env
@@ -15,27 +16,8 @@ module.exports = function (grunt) {
     global.configFile = new ConfigFile();
     global.configuration = Object.create(configFile.content);
     if (configFile.isNew()) {
-        grunt.registerTask("default", function (params) {
-            var done = this.async(); //eslint-disable-line no-invalid-this
-            grunt.util.spawn({
-                cmd: "node",
-                args: ["make/config"].concat(params),
-                opts: {
-                    stdio: "inherit"
-                }
-            }, function (error) {
-                if (error) {
-                    done();
-                    return;
-                }
-                grunt.util.spawn({
-                    grunt: true,
-                    args: ["check", "jsdoc", "default"],
-                    opts: {
-                        stdio: "inherit"
-                    }
-                }, done);
-            });
+        require("fs").readdirSync("./grunt/config").forEach(function (fileName) {
+            grunt.registerTask(fileName.split(".")[0], require("./grunt/config/" + fileName)(grunt));
         });
         return;
     }
