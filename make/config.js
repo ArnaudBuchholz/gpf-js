@@ -131,7 +131,7 @@ const
             promise = spawnProcess("google-chrome-stable", ["--product-version"])
                 .then(function () {
                     console.log("Chrome: google-chrome-stable");
-                    config.content.browsers.safari = {
+                    config.content.browsers.chrome = {
                         type: "spawn",
                         bin: "google-chrome-stable --headless --disable-gpu"
                     };
