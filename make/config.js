@@ -1,6 +1,7 @@
 "use strict";
 /*jshint node: true*/
 /*eslint-env node*/
+/*eslint-disable no-process-env*/ // Required for host specific testing
 
 const
     fs = require("fs"),
@@ -95,14 +96,10 @@ const
         );
     },
 
-    checkCmdLineBrowsers = () => {
-        // Re-read config file because selenium detection might rewrite it
-        const isWindows = /^win/.test(process.platform);
-        config.read();
-        let configChanged = false;
+    checkCmdLineSafari = (isWindows) => {
         if (!config.content.browsers.safari && isWindows) {
             console.log("Checking safari for windows...");
-            let safariBin = path.join(process.env["ProgramFiles"], "safari\\safari.exe");
+            let safariBin = path.join(process.env.ProgramFiles, "safari\\safari.exe");
             if (!fs.existsSync(safariBin)) {
                 safariBin = path.join(process.env["ProgramFiles(x86)"], "safari\\safari.exe");
             }
@@ -115,10 +112,18 @@ const
                     type: "spawn",
                     bin: safariBin
                 };
-                configChanged = true;
+                return true;
             }
         }
-        let promise;
+        return false;
+    },
+
+    checkCmdLineBrowsers = () => {
+        // Re-read config file because selenium detection might rewrite it
+        config.read();
+        const isWindows = (/^win/).test(process.platform);
+        let configChanged = checkCmdLineSafari(isWindows),
+            promise;
         if (config.content.browsers.chrome || isWindows) {
             promise = Promise.resolve();
         } else {
