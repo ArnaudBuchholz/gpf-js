@@ -14,7 +14,9 @@ const
     ),
     configuredMetrics = JSON.parse(fs.readFileSync("tmp/config.json")).metrics,
     releaseMetrics = {},
-    pad = (value, length) => value + new Array(length + 1).join(" ").substr(value.length);
+    pad = (value, length) => value + new Array(length + 1).join(" ").substr(value.length),
+
+    safeCoverage = process.argv.some(arg => arg === "safeCoverage");
 
 //region Istanbul coverage
 
@@ -35,7 +37,7 @@ sources.forEach(sourceName => {
         coverageParts.forEach(coveragePart => {
             let ratio = fileCoverage[coveragePart].getCoverageRatio(true);
             if (ratio < configuredMetrics.coverage[coveragePart]) {
-                fileIsKO = true;
+                fileIsKO = true && !safeCoverage;
             }
             if (ratio === 100) {
                 ratio = "   ";
