@@ -134,7 +134,7 @@ const
                     config.content.browsers.chrome = {
                         type: "spawn",
                         bin: "google-chrome-stable",
-                        args: ["--headless", "--disable-gpu", "--remote-debugging-port=9222"]
+                        args: ["--no-sandbox", "--headless", "--disable-gpu", "--remote-debugging-port=9222"]
                     };
                     configChanged = true;
                 });
