@@ -174,8 +174,9 @@ define(function () {
 
 ### CommonJS
 
-The library also supports the [CommonJS](https://en.wikipedia.org/wiki/CommonJS) format with one restriction.
-Only static requires can be used (i.e. the require parameter **must** be a string).
+The library also supports the [CommonJS](https://en.wikipedia.org/wiki/CommonJS) format with restrictions:
+* Only static requires can be used (i.e. the require parameter **must** be a string)
+* Required modules are evaluated even if the require instruction is not evaluated (i.e. inside a condition)
 
 The module public API (i.e. resource output) is the result of the `module.export`.
 
