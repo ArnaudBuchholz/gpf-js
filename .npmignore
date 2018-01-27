@@ -28,6 +28,7 @@ test
 .jshintrc
 gruntfile.js
 index.html
+logo/wip.html
 
 # Editors
 
