@@ -65,7 +65,7 @@ var
      */
     _GpfRhinoReadableStream = _gpfDefine({
         $class: "gpf.rhino.ReadableStream",
-        $extend: "gpf.rhino.BaseStream",
+        $extend: _GpfRhinoBaseStream,
 
         //region gpf.interfaces.IReadableStream
 
@@ -113,7 +113,7 @@ var
      */
     _GpfRhinoWritableStream = _gpfDefine({
         $class: "gpf.rhino.WritableStream",
-        $extend: "gpf.rhino.BaseStream",
+        $extend: _GpfRhinoBaseStream,
 
         constructor: function (stream) {
             this.$super(stream);
