@@ -250,12 +250,16 @@ const
     reGpfDefine = /_gpfDefine\([^\$]*\$class:\s*"([a-zA-Z\.]+)"/g,
 
     checkForGpfDefine = event => {
-      reGpfDefine.lastIndex = 0;
-      let match = reGpfDefine.exec(event.source);
-      while (match) {
-        trace(`checkForGpfDefine(${match[1]})`);
-        match = reGpfDefine.exec(event.source);
-      }
+        reGpfDefine.lastIndex = 0;
+        let match = reGpfDefine.exec(event.source),
+            lends;
+        while (match) {
+            trace(`checkForGpfDefine(${match[1]})`);
+            lends = match[0].replace("_gpfDefine(", `_gpfDefine(/** @lends ${match[1]}.prototype */`);
+            trace(lends);
+            event.source = event.source.replace(match[0], lends);
+            match = reGpfDefine.exec(event.source);
+        }
     },
 
     reFileComment = /(?:\/\*\*(?:[^*]|\s\*[^/])*\@file(?:[^*]|\s\*[^/])*\*\/)/g,
