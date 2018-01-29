@@ -13,7 +13,7 @@
 
 var
     _reDOSCR = /\r\n/g,
-    _GpfStreamLineAdatper = _gpfDefine(/** @lends gpf.stream.LineAdapter.prototype */ {
+    _GpfStreamLineAdatper = _gpfDefine({
         $class: "gpf.stream.LineAdapter",
         $extend: _GpfStreamBufferedRead,
 

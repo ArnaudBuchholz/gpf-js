@@ -63,7 +63,7 @@ _gpfStreamBufferedReadEnd.execute = function (bufferedRead) {
 };
 
 var
-    _GpfStreamBufferedRead = _gpfDefine(/** @lends gpf.stream.BufferedRead.prototype */ {
+    _GpfStreamBufferedRead = _gpfDefine({
         $class: "gpf.stream.BufferedRead",
 
         /**
