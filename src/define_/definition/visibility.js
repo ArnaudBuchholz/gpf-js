@@ -41,7 +41,7 @@ function _gpfVisibilityFromKeyword (keyword) {
 
 //region Extension of _GpfClassDefMember
 
-Object.assign(_GpfClassDefMember.prototype, /** @lends _GpfClassDefMember.prototype */ {
+Object.assign(_GpfClassDefMember.prototype, {
 
     /**
      * Member visibility
