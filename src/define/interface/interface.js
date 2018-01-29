@@ -26,7 +26,7 @@ function _GpfInterfaceDefinition (definition) {
 
 _GpfInterfaceDefinition.prototype = Object.create(_GpfEntityDefinition.prototype);
 
-Object.assign(_GpfInterfaceDefinition.prototype, /** @lends _GpfInterfaceDefinition.prototype */ {
+Object.assign(_GpfInterfaceDefinition.prototype, {
 
     constructor: _GpfInterfaceDefinition,
 
