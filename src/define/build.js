@@ -9,7 +9,7 @@
 /*global _gpfEmptyFunc*/ // An empty function
 /*#endif*/
 
-Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.prototype */ {
+Object.assign(_GpfEntityDefinition.prototype, {
 
     /**
      * Instance builder function (a.k.a. public constructor)
