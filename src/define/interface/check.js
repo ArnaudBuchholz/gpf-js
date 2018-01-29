@@ -36,7 +36,7 @@ _gpfErrorDeclare("define/interface/check", {
 
 });
 
-Object.assign(_GpfInterfaceDefinition.prototype, /** @lends _GpfInterfaceDefinition.prototype */ {
+Object.assign(_GpfInterfaceDefinition.prototype, {
 
     /**
      * @iheritdoc
