@@ -120,7 +120,7 @@ function _gpfFsNodeGetType (stats) {
  * @private
  * @since 0.1.9
  */
-var _GpfNodeFileStorage = _gpfDefine(/** @lends gpf.node.FileStorage.prototype */ {
+var _GpfNodeFileStorage = _gpfDefine({
     $class: "gpf.node.FileStorage",
 
     //region gpf.interfaces.IFileStorage
