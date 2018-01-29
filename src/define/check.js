@@ -69,7 +69,7 @@ function _gpfDefineEntityCheckProperty (value, name) {
     /*jshint -W040*/ /*eslint-enable no-invalid-this*/
 }
 
-Object.assign(_GpfEntityDefinition.prototype, /** @lends _GpfEntityDefinition.prototype */ {
+Object.assign(_GpfEntityDefinition.prototype, {
 
     /**
      * Entity type (class...)
