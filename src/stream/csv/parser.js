@@ -46,7 +46,7 @@ var
     _gpfCsvSeparators = ";,\t ".split("");
 
 var
-    _GpfStreamCsvParser = _gpfDefine(/** @lends gpf.stream.csv.Parser.prototype */ {
+    _GpfStreamCsvParser = _gpfDefine({
         $class: "gpf.stream.csv.Parser",
         $extend: _GpfStreamBufferedRead,
 
