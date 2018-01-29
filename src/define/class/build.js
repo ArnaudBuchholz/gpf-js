@@ -9,7 +9,7 @@
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*#endif*/
 
-Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */ {
+Object.assign(_GpfClassDefinition.prototype, {
 
     /**
      * @inheritdoc
