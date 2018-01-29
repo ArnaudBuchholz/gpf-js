@@ -18,7 +18,7 @@ _gpfErrorDeclare("define/class/constructor", {
 });
 
 
-Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */ {
+Object.assign(_GpfClassDefinition.prototype, {
 
     /**
      * Resolved constructor
