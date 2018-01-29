@@ -15,7 +15,7 @@
 /*eslint-disable new-cap*/ // FileSystem object APIs are uppercased
 
 var
-    _GpfWscriptBaseStream = _gpfDefine(/** @lends gpf.wscript.BaseStream.prototype */ {
+    _GpfWscriptBaseStream = _gpfDefine({
         $class: "gpf.wscript.BaseStream",
 
         /**
@@ -54,7 +54,7 @@ var
      * @private
      * @since 0.1.9
      */
-    _GpfWscriptReadableStream = _gpfDefine(/** @lends gpf.wscript.ReadableStream.prototype */ {
+    _GpfWscriptReadableStream = _gpfDefine({
         $class: "gpf.wscript.ReadableStream",
         $extend: "gpf.wscript.BaseStream",
 
@@ -93,7 +93,7 @@ var
      * @private
      * @since 0.1.9
      */
-    _GpfWscriptWritableStream = _gpfDefine(/** @lends gpf.wscript.WritableStream.prototype */ {
+    _GpfWscriptWritableStream = _gpfDefine({
         $class: "gpf.wscript.WritableStream",
         $extend: "gpf.wscript.BaseStream",
 
