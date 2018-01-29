@@ -14,7 +14,7 @@
 /*#endif*/
 
 var
-    _GpfNodeBaseStream = _gpfDefine(/** @lends gpf.node.BaseStream.prototype */ {
+    _GpfNodeBaseStream = _gpfDefine({
         $class: "gpf.node.BaseStream",
 
         /**
@@ -111,7 +111,7 @@ var
      * @implements {gpf.interfaces.IReadableStream}
      * @since 0.1.9
      */
-    _GpfNodeReadableStream = _gpfDefine(/** @lends gpf.node.ReadableStream.prototype */ {
+    _GpfNodeReadableStream = _gpfDefine({
         $class: "gpf.node.ReadableStream",
         $extend: "gpf.node.BaseStream",
 
@@ -168,7 +168,7 @@ var
      * @implements {gpf.interfaces.IWritableStream}
      * @since 0.1.9
      */
-    _GpfNodeWritableStream = _gpfDefine(/** @lends gpf.node.WritableStream.prototype */ {
+    _GpfNodeWritableStream = _gpfDefine({
         $class: "gpf.node.WritableStream",
         $extend: "gpf.node.BaseStream",
 
