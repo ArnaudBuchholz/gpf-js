@@ -13,7 +13,7 @@
 /*#endif*/
 
 var
-    _GpfStreamReadableArray = _gpfDefine(/** @lends gpf.stream.ReadableArray.prototype */ {
+    _GpfStreamReadableArray = _gpfDefine({
         $class: "gpf.stream.ReadableArray",
 
         /**
@@ -57,7 +57,7 @@ var
 
     }),
 
-    _GpfStreamWritableArray = _gpfDefine(/** @lends gpf.stream.WritableArray.prototype */ {
+    _GpfStreamWritableArray = _gpfDefine({
         $class: "gpf.stream.WritableArray",
 
         /**
