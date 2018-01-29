@@ -21,7 +21,7 @@ function _gpfToAttributeArray (attributes) {
 
 //region Extension of _GpfClassDefinition
 
-Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */ {
+Object.assign(_GpfClassDefinition.prototype, {
 
     /**
      * Class attributes
@@ -105,7 +105,7 @@ Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prot
 
 //region Extension of _GpfClassDefMember
 
-Object.assign(_GpfClassDefMember.prototype, /** @lends _GpfClassDefMember.prototype */ {
+Object.assign(_GpfClassDefMember.prototype, {
 
     /**
      * Member attributes
