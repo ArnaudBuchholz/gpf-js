@@ -209,7 +209,7 @@ function _gpfWebTagFlattenChildren (array, callback) {
     });
 }
 
-var _GpfWebTag = _gpfDefine(/** @lends gpf.web.Tag.prototype */ {
+var _GpfWebTag = _gpfDefine({
     $class: "gpf.web.Tag",
 
     /**
