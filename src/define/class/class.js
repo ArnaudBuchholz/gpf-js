@@ -26,7 +26,7 @@ function _GpfClassDefinition (definition) {
 
 _GpfClassDefinition.prototype = Object.create(_GpfEntityDefinition.prototype);
 
-Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */ {
+Object.assign(_GpfClassDefinition.prototype, {
 
     constructor: _GpfClassDefinition,
 
