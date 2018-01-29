@@ -251,14 +251,24 @@ const
 
     checkForGpfDefine = event => {
         reGpfDefine.lastIndex = 0;
-        let match = reGpfDefine.exec(event.source),
-            lends;
+        let match = reGpfDefine.exec(event.source);
         while (match) {
-            trace(`checkForGpfDefine(${match[1]})`);
-            lends = match[0].replace("_gpfDefine(", `_gpfDefine(/** @lends ${match[1]}.prototype */`);
-            trace(lends);
-            event.source = event.source.replace(match[0], lends);
+            event.source = event.source.replace(match[0], match[0].replace("_gpfDefine(", `_gpfDefine(/** @lends ${match[1]}.prototype */`));
             match = reGpfDefine.exec(event.source);
+        }
+    },
+
+    rePrototypeAssign = /Object\.assign\((\w+)\.prototype,[^{]+{/g,
+
+    checkForPrototypeAssign = event => {
+        rePrototypeAssign.lastIndex = 0;
+        let match = rePrototypeAssign.exec(event.source);
+        while (match) {
+            if (-1 === match[0].indexOf("@lends")) {
+                // No @lends, adds it
+                event.source = event.source.replace(match[0], match[0].replace("{", `/** @lends ${match[1]}.prototype */ {`));
+            }
+            match = rePrototypeAssign.exec(event.source);
         }
     },
 
@@ -313,6 +323,7 @@ module.exports = {
             disableFileComment(event);
             checkForGpfErrorDeclare(event);
             checkForGpfDefine(event);
+            checkForPrototypeAssign(event);
             trace(`>> beforeParse(${relativeFilename(event.filename)})`);
         },
 
