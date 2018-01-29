@@ -138,7 +138,7 @@ function _gpfClassMethodExtractSuperMembers (method) {
         });
 }
 
-Object.assign(_GpfClassDefinition.prototype, /** @lends _GpfClassDefinition.prototype */ {
+Object.assign(_GpfClassDefinition.prototype, {
 
     /**
      * Called before invoking a that contains $super method, it is responsible of allocating the $super object
