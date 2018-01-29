@@ -90,7 +90,7 @@ function _gpfDefineClassDecontextifyExtend (extend) {
     return extend;
 }
 
-Object.assign(_GpfClassDefinition.prototype, /** @lends _gpfClassDefinition.prototype */ {
+Object.assign(_GpfClassDefinition.prototype, {
 
     /**
      * @inheritdoc
