@@ -21,13 +21,13 @@ const
         trace(title.join(""));
     },
 
-    docletNotFound = tagTitle => {
-        throw new Error(`invalid reference for @${tagTitle}`);
+    docletNotFound = (tagTitle, longname) => {
+        throw new Error(`invalid reference '${longname}' for ${tagTitle}`);
     },
 
     findDoclet = (doclets, longname, tagTitle) =>
         doclets.find(doclet => doclet.longname === longname && !doclet.undocumented)
-        || docletNotFound(tagTitle),
+        || docletNotFound(tagTitle, longname),
 
     findRefDoclet = (doclets, doclet, tag) => {
         let refLongname = tag.value;
@@ -247,6 +247,17 @@ const
         }
     },
 
+    reGpfDefine = /_gpfDefine\([^\$]*\$class:\s*"([a-zA-Z\.]+)"/g,
+
+    checkForGpfDefine = event => {
+      reGpfDefine.lastIndex = 0;
+      let match = reGpfDefine.exec(event.source);
+      while (match) {
+        trace(`checkForGpfDefine(${match[1]})`);
+        match = reGpfDefine.exec(event.source);
+      }
+    },
+
     reFileComment = /(?:\/\*\*(?:[^*]|\s\*[^/])*\@file(?:[^*]|\s\*[^/])*\*\/)/g,
 
     disableFileComment = event => {
@@ -297,6 +308,7 @@ module.exports = {
             trace(`>> beforeParse(${relativeFilename(event.filename)})`);
             disableFileComment(event);
             checkForGpfErrorDeclare(event);
+            checkForGpfDefine(event);
             trace(`>> beforeParse(${relativeFilename(event.filename)})`);
         },
 
