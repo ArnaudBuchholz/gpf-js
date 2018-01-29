@@ -16,7 +16,7 @@
 /*eslint-env rhino*/
 
 var
-    _GpfRhinoBaseStream = _gpfDefine(/** @lends gpf.rhino.BaseStream.prototype */ {
+    _GpfRhinoBaseStream = _gpfDefine({
         $class: "gpf.rhino.BaseStream",
 
         /**
@@ -63,7 +63,7 @@ var
      * @implements {gpf.interfaces.IReadableStream}
      * @since 0.2.1
      */
-    _GpfRhinoReadableStream = _gpfDefine(/** @lends gpf.rhino.ReadableStream.prototype */ {
+    _GpfRhinoReadableStream = _gpfDefine({
         $class: "gpf.rhino.ReadableStream",
         $extend: "gpf.rhino.BaseStream",
 
@@ -111,7 +111,7 @@ var
      * @implements {gpf.interfaces.IWritableStream}
      * @since 0.2.1
      */
-    _GpfRhinoWritableStream = _gpfDefine(/** @lends gpf.rhino.WritableStream.prototype */ {
+    _GpfRhinoWritableStream = _gpfDefine({
         $class: "gpf.rhino.WritableStream",
         $extend: "gpf.rhino.BaseStream",
 
