@@ -9,7 +9,7 @@
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*#endif*/
 
-Object.assign(_GpfInterfaceDefinition.prototype, /** @lends _GpfInterfaceDefinition.prototype */ {
+Object.assign(_GpfInterfaceDefinition.prototype, {
 
     /**
      * @inheritdoc
