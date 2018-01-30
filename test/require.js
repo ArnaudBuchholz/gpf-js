@@ -112,6 +112,19 @@ describe("require", function () {
                 });
             });
 
+            // it("supports independant CommonJS format (no require)", function (done) {
+            //     gpf.require.define({
+            //         commonjs: "indep_commonjs.js"
+            //     }, function (require) {
+            //         try {
+            //             validateModule(require.commonjs, "commonjs", true);
+            //             done();
+            //         } catch (e) {
+            //             done(e);
+            //         }
+            //     });
+            // });
+
             it("doesn't supports CommonJS format with only dynamic requires", function (done) {
                 gpf.require.define({
                     commonjs: "dynamic_commonjs.js"
