@@ -124,6 +124,10 @@ _gpfRequireProcessor[".js"] = function (resourceName, content) {
     var wrapper = _gpfRequireWrapGpf(this, resourceName);
     return _gpfRequireJSGetStaticDependencies.call(this, resourceName, content)
         .then(function (staticDependencies) {
-            return _gpfRequireJS(wrapper.gpf, content, staticDependencies) || wrapper.promise;
+            var exports = _gpfRequireJS(wrapper.gpf, content, staticDependencies);
+            if (undefined === exports) {
+                return wrapper.promise;
+            }
+            return exports;
         });
 };
