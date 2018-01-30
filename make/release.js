@@ -21,11 +21,10 @@
 
 let
     version,
+    gitHubToken,
     gh,
     versionMilestone,
     versionTitle,
-    testMode = process.argv.some(arg => arg === "-test"),
-    noBuild = process.argv.some(arg => arg === "-noBuild"),
     error;
 
 const
@@ -40,6 +39,9 @@ const
     pkg = JSON.parse(pkgText),
     pkgVersion = pkg.version,
     hasPublicationRepo = fs.existsSync("../ArnaudBuchholz.github.io"),
+
+    testMode = process.argv.some(arg => arg === "-test"),
+    noBuild = process.argv.some(arg => arg === "-noBuild"),
 
     trimLeadingLF = buffer => {
         let text = buffer.toString(),
@@ -82,7 +84,15 @@ const
     throwError = x => {
         throw new Error(x);
     },
-    logError = x => console.error(`*** ${x} ***`);
+    logError = x => console.error(`*** ${x} ***`),
+
+    setupQuestions = [{
+        type: "input",
+        name: "version",
+        message: "Please check the version: ",
+        "default": version
+    }],
+    configGitHub = configFile.content.github || {};
 
 version = pkgVersion;
 error = testMode ? logError : throwError;
@@ -97,30 +107,36 @@ if (version.includes("-")) {
     version = version.split("-")[0];
 }
 
-inquirer.prompt([{
-    type: "input",
-    name: "version",
-    message: "Please check the version: ",
-    "default": version
-}, {
-    type: "input",
-    name: "githubUser",
-    message: "GitHub user: ",
-    "default": configFile.content.github ? configFile.content.github.user : ""
-}, {
-    type: "password",
-    name: "githubPassword",
-    message: "GitHub password: "
+if (configGitHub.token) {
+    gitHubToken = configGitHub.token;
+} else {
+    setupQuestions.push({
+        type: "input",
+        name: "githubUser",
+        message: "GitHub user: ",
+        "default": configGitHub.user
+    }, {
+        type: "password",
+        name: "githubPassword",
+        message: "GitHub password: "
+    });
+}
 
-}])
+inquirer.prompt(setupQuestions)
     .then(answers => {
         version = answers.version;
         console.log("Releasing version: " + version);
         console.log("Authenticating on GitHub...");
-        gh = new GitHub({
-            username: answers.githubUser,
-            password: answers.githubPassword
-        });
+        if (gitHubToken) {
+            gh = new GitHub({
+                token: gitHubToken
+            });
+        } else {
+            gh = new GitHub({
+                username: answers.githubUser,
+                password: answers.githubPassword
+            });
+        }
         let user = gh.getUser();
         return user.getProfile();
     })
