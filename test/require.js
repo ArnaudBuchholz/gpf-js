@@ -81,7 +81,7 @@ describe("require", function () {
                     } catch (e) {
                         done(e);
                     }
-                });
+                }).then(undefined, done);
             });
 
             it("supports CommonJS format (static requires)", function (done) {
@@ -94,7 +94,7 @@ describe("require", function () {
                     } catch (e) {
                         done(e);
                     }
-                });
+                }).then(undefined, done);
             });
 
             it("doesn't supports CommonJS format with static and dynamic requires", function (done) {
@@ -112,18 +112,18 @@ describe("require", function () {
                 });
             });
 
-            // it("supports independant CommonJS format (no require)", function (done) {
-            //     gpf.require.define({
-            //         commonjs: "indep_commonjs.js"
-            //     }, function (require) {
-            //         try {
-            //             validateModule(require.commonjs, "commonjs", true);
-            //             done();
-            //         } catch (e) {
-            //             done(e);
-            //         }
-            //     });
-            // });
+            it("supports independant CommonJS format (no require)", function (done) {
+                gpf.require.define({
+                    commonjs: "indep_commonjs.js"
+                }, function (require) {
+                    try {
+                        validateModule(require.commonjs, "indep_commonjs", true);
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
+                }).then(undefined, done);
+            });
 
             it("doesn't supports CommonJS format with only dynamic requires", function (done) {
                 gpf.require.define({
@@ -150,7 +150,7 @@ describe("require", function () {
                     } catch (e) {
                         done(e);
                     }
-                });
+                }).then(undefined, done);
             });
 
             it("supports AMD format (no name)", function (done) {
@@ -164,7 +164,7 @@ describe("require", function () {
                     } catch (e) {
                         done(e);
                     }
-                });
+                }).then(undefined, done);
             });
 
             it("supports AMD format (anonymous static)", function (done) {
@@ -178,7 +178,7 @@ describe("require", function () {
                     } catch (e) {
                         done(e);
                     }
-                });
+                }).then(undefined, done);
             });
 
             it("supports GPF modules (gpf is defined)", function (done) {
@@ -191,7 +191,7 @@ describe("require", function () {
                     } catch (e) {
                         done(e);
                     }
-                });
+                }).then(undefined, done);
             });
 
             it("supports GPF modules without constant value", function (done) {
@@ -204,7 +204,7 @@ describe("require", function () {
                     } catch (e) {
                         done(e);
                     }
-                });
+                }).then(undefined, done);
             });
 
             it("supports JavaScript file (no result)", function (done) {
@@ -221,7 +221,7 @@ describe("require", function () {
                     } finally {
                         delete gpf.context().test;
                     }
-                });
+                }).then(undefined, done);
             });
 
             it("supports text file (no processor)", function (done) {
@@ -234,7 +234,7 @@ describe("require", function () {
                     } catch (e) {
                         done(e);
                     }
-                });
+                }).then(undefined, done);
             });
 
         });
