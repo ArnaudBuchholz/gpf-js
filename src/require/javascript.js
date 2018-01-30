@@ -31,30 +31,31 @@ _gpfErrorDeclare("require/javascript", {
 
 });
 
-//region CommonJS
-
 var _gpfRequireJsModuleRegEx = /[^\.]\brequire\b\s*\(\s*(?:['|"]([^"']+)['|"]|[^\)]+)\s*\)/g;
 
-function _gpfRequireCommonJSBuildNamedDependencies (requires) {
-    return requires.reduce(function (dictionary, name) {
-        dictionary[name] = name;
-        return dictionary;
-    }, {});
+function _gpfRequireJSGetStaticDependencies (resourceName, content) {
+    /*jshint validthis:true*/
+    var requires = _gpfRegExpForEach(_gpfRequireJsModuleRegEx, content);
+    if (requires.length) {
+        return _gpfRequireWrapGpf(this, resourceName).gpf.require.define(requires  //eslint-disable-line no-invalid-this
+            .map(function (match) {
+                return match[1]; // may be undefined if dynamic
+            })
+            .filter(function (require) {
+                return require;
+            })
+            .reduce(function (dictionary, name) {
+                dictionary[name] = name;
+                return dictionary;
+            }, {}),
+            function (require) {
+                return require;
+            });
+    }
+    return Promise.resolve({}); // No static dependencies
 }
 
-function _gpfRequireCommonJs (myGpf, content, requires) {
-    return myGpf.require.define(_gpfRequireCommonJSBuildNamedDependencies(requires), function (require) {
-        var module = {};
-        _gpfFunc(["gpf", "module", "require"], content)(myGpf, module, function (name) {
-            return require[name] || gpf.Error.noCommonJSDynamicRequire();
-        });
-        return module.exports;
-    });
-}
-
-//endregion
-
-//region GPF, AMD (define) and others
+//region AMD define wrapper
 
 function _gpfRequireAmdDefineParamsFactoryOnly (params) {
     return {
@@ -102,26 +103,27 @@ function _gpfRequireAmdDefine (name, dependencies, factory) {
     });
 }
 
-function _gpfRequireOtherJs (myGpf, content) {
-    _gpfFunc(["gpf", "define"], content)(myGpf, _gpfRequireAmdDefine.bind(myGpf));
+//endregion
+
+function _gpfRequireJS (myGpf, content, staticDependencies) {
+    var module = {};
+    _gpfFunc(["gpf", "define", "module", "require"], content)(
+        myGpf,
+        _gpfRequireAmdDefine.bind(myGpf),
+        module,
+        function (name) {
+            return staticDependencies[name] || gpf.Error.noCommonJSDynamicRequire();
+        }
+    );
+    return module.exports;
 }
 
 //endregion
 
-_gpfRequireProcessor[".js"] = function (name, content) {
-    var wrapper = _gpfRequireWrapGpf(this, name);
-    // CommonJS ?
-    var requires = _gpfRegExpForEach(_gpfRequireJsModuleRegEx, content);
-    if (requires.length) {
-        return _gpfRequireCommonJs(wrapper.gpf, content, requires
-            .map(function (match) {
-                return match[1]; // may be undefined if dynamic
-            })
-            .filter(function (require) {
-                return require;
-            })
-        );
-    }
-    _gpfRequireOtherJs(wrapper.gpf, content);
-    return wrapper.promise;
+_gpfRequireProcessor[".js"] = function (resourceName, content) {
+    var wrapper = _gpfRequireWrapGpf(this, resourceName);
+    return _gpfRequireJSGetStaticDependencies.call(this, resourceName, content)
+        .then(function (staticDependencies) {
+            return _gpfRequireJS(wrapper.gpf, content, staticDependencies) || wrapper.promise;
+        });
 };
