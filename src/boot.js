@@ -185,7 +185,16 @@ if ("undefined" !== typeof WScript) {
 
 /*#ifndef(UMD)*/
 
-    _gpfSyncReadForBoot = readFile;
+    if ("undefined" === typeof readFile) {
+        // Nashhorn
+        _gpfSyncReadForBoot = function (srcFileName) {
+            return [].join.call(java.nio.file.Files.readAllLines(java.nio.file.Paths.get(srcFileName)), "\n");
+        };
+
+    } else {
+        // Rhino
+        _gpfSyncReadForBoot = readFile;
+    }
 
 /*#endif*/
 
