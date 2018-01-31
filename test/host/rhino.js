@@ -1,10 +1,13 @@
 "use strict";
 /*jshint rhino:true*/
 /*eslint-env rhino*/
-/*global environment*/
 
-var gpfPath = environment["user.dir"],
-    pathSeparator = environment["file.separator"];
+function getEnv (name) {
+    return "" + java.lang.System.getProperty(name);
+}
+
+var gpfPath = getEnv("user.dir"),
+    pathSeparator = getEnv("file.separator");
 
 load([
     gpfPath,
