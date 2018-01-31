@@ -82,6 +82,23 @@ const
 
     spawnGit = params => spawnProcess("git", params),
 
+    publishVersion = () => spawnGit(["commit", "-a", "-m", `Release v${version}`])
+        .then(() => spawnGit(["push"]))
+        .then(() => hasPublicationRepo
+            ? spawnGit(["-C", publicationRepo, "a", "-all"])
+                .then(() => spawnGit(["-C", publicationRepo, "commit", "-a", "-m", `Release v${version}`]))
+                .then(() => spawnGit(["-C", publicationRepo, "push"]))
+            : 0
+        )
+        .then(() => gh.getIssues("ArnaudBuchholz", "gpf-js").editMilestone(versionMilestone.number, {
+            state: "closed"
+        }))
+        .then(() => gh.getRepo("ArnaudBuchholz", "gpf-js").createRelease({
+            tag_name: `v${version}`,
+            name: versionTitle
+        }))
+        .then(() => console.log(`Version ${version} released.`)),
+
     throwError = x => {
         throw new Error(x);
     },
@@ -164,7 +181,7 @@ inquirer.prompt(setupQuestions)
         ?   spawnGit(["-C", publicationRepo, "status", "--porcelain"])
                 .then(output => output.length ? error("Clean publication repository first") : 0)
         : 0
-    })
+    )
     .then(() => {
         if (pkgVersion !== version) {
             console.log("Updating package.json version...");
@@ -209,23 +226,7 @@ inquirer.prompt(setupQuestions)
     .then(() => spawnGrunt("zip:platoHistory"))
     .then(() => testMode
         ? console.warn("No GIT publishing in test mode")
-        : Promise.resolve()
-            .then(() => spawnGit(["commit", "-a", "-m", `Release v${version}`]))
-            .then(() => spawnGit(["push"]))
-            .then(() => hasPublicationRepo
-                ? spawnGit(["-C", publicationRepo, "a", "-all"])
-                    .then() => spawnGit(["-C", publicationRepo, "commit", "-a", "-m", `Release v${version}`]))
-                    .then(() => spawnGit(["-C", publicationRepo, "push"]))
-                : 0
-            )
-            .then(() => gh.getIssues("ArnaudBuchholz", "gpf-js").editMilestone(versionMilestone.number, {
-                state: "closed"
-            }))
-            .then(() => gh.getRepo("ArnaudBuchholz", "gpf-js").createRelease({
-                tag_name: `v${version}`,
-                name: versionTitle
-            }))
-            .then(() => console.log(`Version ${version} released.`))
+        : publishVersion()
     )
     .then(() => fs.copySync("build/tests.js", `test/legacy/${version}.js`))
     .then(() => testMode
