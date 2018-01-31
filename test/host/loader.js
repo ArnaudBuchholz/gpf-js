@@ -201,7 +201,7 @@
         },
 
         _setupConfig = function (configuration/*, options*/) {
-            var configFile = JSON.parse(configuration.read("tmp/config.json"));
+            var configFile = JSON.parse(configuration.read(_resolvePath(configuration, "tmp/config.json")));
             context.config = Object.assign({
                 httpPort: configFile.serve.httpPort
             }, configuration.config);
