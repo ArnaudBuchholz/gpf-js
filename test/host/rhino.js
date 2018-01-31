@@ -1,13 +1,29 @@
-"use strict";
+ // no "use strict" to be able to set global context
+/*jshint strict:false */
 /*jshint rhino:true*/
+/*eslint strict:0*/
 /*eslint-env rhino*/
+/*exported global*/
+
+var global = (function () { //eslint-disable-line no-unused-vars
+    return this;
+}());
 
 function getEnv (name) {
-    return "" + java.lang.System.getProperty(name);
+    return String(java.lang.System.getProperty(name));
 }
 
 var gpfPath = getEnv("user.dir"),
-    pathSeparator = getEnv("file.separator");
+    pathSeparator = getEnv("file.separator"),
+    readApi;
+
+if ("undefined" === typeof readFile) {
+    readApi = function (path) {
+        return [].join.call(java.nio.file.Files.readAllLines(java.nio.file.Paths.get(path)), "\n");
+    };
+} else {
+    readApi = readFile;
+}
 
 load([
     gpfPath,
@@ -30,5 +46,5 @@ loadGpfAndTests({
     exit: function (code) {
         java.lang.System.exit(code);
     },
-    read: readFile
+    read: readApi
 });
