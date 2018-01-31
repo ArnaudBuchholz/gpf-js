@@ -38,7 +38,8 @@ const
     pkgText = fs.readFileSync("package.json").toString(),
     pkg = JSON.parse(pkgText),
     pkgVersion = pkg.version,
-    hasPublicationRepo = fs.existsSync("../ArnaudBuchholz.github.io"),
+    publicationRepo = "../ArnaudBuchholz.github.io",
+    hasPublicationRepo = fs.existsSync(publicationRepo),
 
     testMode = process.argv.some(arg => arg === "-test"),
     noBuild = process.argv.some(arg => arg === "-noBuild"),
@@ -159,11 +160,10 @@ inquirer.prompt(setupQuestions)
     .then(() => spawnGit(["status", "--porcelain"])
         .then(output => output.length ? error("Process any pending changes first") : 0)
     )
-    .then(() => {
-        if (hasPublicationRepo) {
-            return spawnGit(["-C", "../ArnaudBuchholz.github.io", "status", "--porcelain"])
-                .then(output => output.length ? error("Clean publication repository first") : 0);
-        }
+    .then(() => hasPublicationRepo
+        ?   spawnGit(["-C", publicationRepo, "status", "--porcelain"])
+                .then(output => output.length ? error("Clean publication repository first") : 0)
+        : 0
     })
     .then(() => {
         if (pkgVersion !== version) {
@@ -213,11 +213,9 @@ inquirer.prompt(setupQuestions)
             .then(() => spawnGit(["commit", "-a", "-m", `Release v${version}`]))
             .then(() => spawnGit(["push"]))
             .then(() => hasPublicationRepo
-                ? spawnGit(["-C", "../ArnaudBuchholz.github.io", "commit", "-a", "-m", `Release v${version}`])
-                : 0
-            )
-            .then(() => hasPublicationRepo
-                 ? spawnGit(["-C", "../ArnaudBuchholz.github.io", "push"])
+                ? spawnGit(["-C", publicationRepo, "a", "-all"])
+                    .then() => spawnGit(["-C", publicationRepo, "commit", "-a", "-m", `Release v${version}`]))
+                    .then(() => spawnGit(["-C", publicationRepo, "push"]))
                 : 0
             )
             .then(() => gh.getIssues("ArnaudBuchholz", "gpf-js").editMilestone(versionMilestone.number, {
