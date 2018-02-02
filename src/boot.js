@@ -190,6 +190,9 @@ if ("undefined" !== typeof WScript) {
         _gpfSyncReadForBoot = function (srcFileName) {
             return [].join.call(java.nio.file.Files.readAllLines(java.nio.file.Paths.get(srcFileName)), "\n");
         };
+        if ("undefined" !== typeof global) {
+            _gpfMainContext = global; // Temporary workaround
+        }
 
     } else {
         // Rhino
