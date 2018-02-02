@@ -5,6 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
+/*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _GpfRhinoReadableStream*/ // gpf.rhino.ReadableStream
 /*global _GpfRhinoWritableStream*/ // gpf.rhino.WritableStream
 /*global _gpfHttpGenSetHeaders*/ // Generates a function that transmit headers to the http object
@@ -50,7 +51,7 @@ function _gpfHttpRhinoGetHeaders (httpConnection) {
     var headers = {},
         headerFields = httpConnection.getHeaderFields(),
         keys = headerFields.keySet().toArray();
-    keys.forEach(function (key) {
+    _gpfArrayForEach(keys, function (key) {
         headers[String(key)] = String(headerFields.get(key).get(0));
     });
     return headers;
