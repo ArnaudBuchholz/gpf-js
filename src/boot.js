@@ -5,6 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*exported _GPF_HOST*/ // Host types
+/*exported _GpfFunc*/ // Function
 /*exported _gpfBootImplByHost*/ // Boot host specific implementation per host
 /*exported _gpfDosPath*/ // DOS-like path
 /*exported _gpfEmptyFunc*/ // An empty function
@@ -62,6 +63,9 @@ var
      */
     _gpfDosPath = false,
 
+    // https://github.com/jshint/jshint/issues/525
+    _GpfFunc = Function, // avoid JSHint error
+
     /*jshint -W040*/ // This is the common way to get the global context
     /**
      * Main context object
@@ -69,7 +73,7 @@ var
      * @type {Object}
      * @since 0.1.5
      */
-    _gpfMainContext = this, //eslint-disable-line no-invalid-this, consistent-this
+    _gpfMainContext = new _GpfFunc("return this")(), // Non-strict function returns global context
     /*jshint +W040*/
 
     /**
@@ -190,9 +194,6 @@ if ("undefined" !== typeof WScript) {
         _gpfSyncReadForBoot = function (srcFileName) {
             return [].join.call(java.nio.file.Files.readAllLines(java.nio.file.Paths.get(srcFileName)), "\n");
         };
-        if ("undefined" !== typeof global) {
-            _gpfMainContext = global; // Temporary workaround to access global object (see rhino.js)
-        }
 
     } else {
         // Rhino
