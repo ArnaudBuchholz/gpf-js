@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GpfFunc*/ // Function
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfSyncReadSourceJSON*/ // Reads a source json file (only in source mode)
 /*exported _gpfALPHA*/ // Letters (uppercase)
@@ -38,10 +39,6 @@
  */
 
 var
-
-    // https://github.com/jshint/jshint/issues/525
-    _GpfFunc = Function, // avoid JSHint error
-
     // Max value on 31 bits
     _gpfMax31 = 0x7FFFFFFF,
 
