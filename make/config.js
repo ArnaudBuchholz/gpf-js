@@ -9,6 +9,7 @@ const
     inquirer = require("inquirer"),
     ConfigFile = require("./configFile.js"),
     config = new ConfigFile(),
+    isWindows = (/^win/).test(process.platform),
 
     spawnProcess = (command, params) => new Promise(function (resolve, reject) {
         let process = require("child_process").spawn(command, params),
@@ -96,7 +97,7 @@ const
         );
     },
 
-    checkCmdLineSafari = (isWindows) => {
+    checkCmdLineSafari = () => {
         if (!config.content.browsers.safari && isWindows) {
             console.log("Checking safari for windows...");
             let safariBin = path.join(process.env.ProgramFiles, "safari\\safari.exe");
@@ -121,7 +122,6 @@ const
     checkCmdLineBrowsers = () => {
         // Re-read config file because selenium detection might rewrite it
         config.read();
-        const isWindows = (/^win/).test(process.platform);
         let configChanged = checkCmdLineSafari(isWindows),
             promise;
         if (config.content.browsers.chrome || isWindows) {
@@ -198,6 +198,12 @@ Promise.resolve()
     .then(answers => "Autodetect" === answers.choice ? detectJava() : "Yes" === answers.choice)
     .then(javaInstalled => {
         config.content.host.java = javaInstalled;
+        if (javaInstalled && process.env.JAVA_HOME) {
+            const jjsPath = path.join(process.env.JAVA_HOME, `bin${path.sep}jjs` + (isWindows ? ".exe" : ""));
+            if (fs.existsSync(jjsPath)) {
+                config.content.host.nashorn = jjsPath;
+            }
+        }
         if (!quietMode) {
             return askForQualityMetrics(config);
         }
