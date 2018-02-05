@@ -3,6 +3,7 @@
 const
     fs = require("fs"),
     sep = require("path").sep,
+    isWindows = (/^win/).test(process.platform),
 
     silent = {
         stdout: false,
@@ -59,7 +60,11 @@ module.exports = {
     }, verbose, failIfNot0)
 };
 
-function _buildTestConfig (name, command) {
+function _buildTestConfig (name, command, parameters) {
+    if (isWindows && command.indexOf(" ") !== -1) {
+        command = `"${command}"`;
+    }
+    command += ` ${parameters}`;
     function buildCommand (suffix) {
         return function () {
             let parameter;
@@ -91,21 +96,22 @@ function _buildTestConfig (name, command) {
     }, silent, failIfNot0);
 }
 
-_buildTestConfig("Node", "node test/host/nodejs.js");
+_buildTestConfig("Node", "node", "test/host/nodejs.js");
 let phantomJsBin = "/usr/local/phantomjs/bin/phantomjs"; // If already installed
 if (!fs.existsSync(phantomJsBin)) {
     // Assume it is installed with the phantomjs-prebuilt package
     phantomJsBin = `node_modules${sep}phantomjs-prebuilt${sep}lib${sep}phantom${sep}bin${sep}phantomjs`;
 }
-_buildTestConfig("Phantom", `${phantomJsBin} --web-security=false test${sep}host${sep}phantomjs.js`);
-_buildTestConfig("Wscript", "cscript.exe /D /E:JScript test/host/cscript.js");
-_buildTestConfig("Rhino", "java -jar node_modules/rhino-1_7r5-bin/rhino1_7R5/js.jar test/host/rhino.js");
+_buildTestConfig("Phantom", phantomJsBin, `--web-security=false test${sep}host${sep}phantomjs.js`);
+_buildTestConfig("Wscript", "cscript.exe", "/D /E:JScript test/host/cscript.js");
+_buildTestConfig("Rhino", "java", "-jar node_modules/rhino-1_7r5-bin/rhino1_7R5/js.jar test/host/rhino.js");
+_buildTestConfig("Nashorn", configuration.host.nashorn, `test${sep}host${sep}rhino.js  --`);
 Object.keys(configuration.browsers).forEach(browserName =>{
     let browserConfig = configuration.browsers[browserName],
         capitalizedBrowserName = browserName.charAt(0).toUpperCase() + browserName.substr(1);
     if ("selenium" === browserConfig.type) {
-        _buildTestConfig(capitalizedBrowserName, `node test/host/selenium.js ${browserName}`);
+        _buildTestConfig(capitalizedBrowserName, "node", `test/host/selenium.js ${browserName}`);
     } else if ("spawn" === browserConfig.type) {
-        _buildTestConfig(capitalizedBrowserName, `node test/host/browser.js ${browserName}`);
+        _buildTestConfig(capitalizedBrowserName, "node", `test/host/browser.js ${browserName}`);
     }
 });
