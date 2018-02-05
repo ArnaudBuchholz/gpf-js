@@ -3,11 +3,12 @@
 /*eslint-env node*/
 /*eslint-disable no-process-env*/ // Required for host specific testing
 
+require("colors");
+
 const
     fs = require("fs"),
     path = require("path"),
     inquirer = require("inquirer"),
-    colors = require("colors"),
     ConfigFile = require("./configFile.js"),
     config = new ConfigFile(),
     isWindows = (/^win/).test(process.platform),
@@ -22,7 +23,7 @@ const
                     const buffer = rawBuffer.toString();
                     buffer.split("\n").forEach(method);
                     output.push(buffer);
-                }
+                };
             };
         process.stdout.on("data", out(log));
         process.stderr.on("data", out(err));
