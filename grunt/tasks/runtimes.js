@@ -5,6 +5,7 @@ module.exports = function (grunt) {
         "node",
         "phantom",
         "rhino",
+        "nashorn",
         "wscript"
     ].forEach(function (runtime) {
         var taskName = "exec:test" + runtime.charAt(0).toUpperCase() + runtime.substr(1) + "Verbose";
