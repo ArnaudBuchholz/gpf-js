@@ -13,7 +13,8 @@ const
         },
         host: {
             wscript: false,
-            java: false
+            java: false,
+            nashorn: false
         },
         browsers: {},
         metrics: {
