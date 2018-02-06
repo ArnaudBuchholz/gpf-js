@@ -4,22 +4,27 @@ describe("stream/bufferedread", function () {
 
     describe("gpf.stream.BufferedRead", function () {
 
+        function _ignore (data) {
+            return data;
+        }
+
         var TestReadable = gpf.define({
             $class: "TestReadable",
             $extend: "gpf.stream.BufferedRead",
 
             //region Exposes protected interface
 
-            appendToReadBuffer: function () {
+            appendToReadBuffer: function (data) {
+                _ignore(data);
                 return this._appendToReadBuffer.apply(this, arguments);
             },
 
             completeReadBuffer: function () {
-                return this._completeReadBuffer.apply(this, arguments);
+                return this._completeReadBuffer();
             },
 
-            setReadError: function () {
-                return this._setReadError.apply(this, arguments);
+            setReadError: function (error) {
+                return this._setReadError(error);
             }
 
             //endregion
@@ -78,10 +83,6 @@ describe("stream/bufferedread", function () {
         });
 
         describe("error management", function () {
-
-            function _ignore (data) {
-                return data;
-            }
 
             function _checkError (iReadableStream, done) {
                 _pipe(iReadableStream)
