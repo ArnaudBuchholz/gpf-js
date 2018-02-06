@@ -1,32 +1,32 @@
 /**
- * @file Rhino specific stream implementation
- * @since 0.2.1
+ * @file Java specific stream implementation
+ * @since 0.2.4
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfStreamSecureRead*/ // Generate a wrapper to secure multiple calls to stream#read
 /*global _gpfStreamSecureWrite*/ // Generates a wrapper to secure multiple calls to stream#write
-/*exported _GpfRhinoBaseStream*/ // gpf.rhino.BaseStream
-/*exported _GpfRhinoReadableStream*/ // gpf.rhino.ReadableStream
-/*exported _GpfRhinoWritableStream*/ // gpf.rhino.WritableStream
+/*exported _GpfStreamJavaBase*/ // gpf.java.BaseStream
+/*exported _GpfStreamJavaReadable*/ // gpf.java.ReadableStream
+/*exported _GpfStreamJavaWritable*/ // gpf.java.WritableStream
 /*#endif*/
 
 /*jshint rhino: true*/
 /*eslint-env rhino*/
 
 var
-    _GpfRhinoBaseStream = _gpfDefine({
-        $class: "gpf.rhino.BaseStream",
+    _GpfStreamJavaBase = _gpfDefine({
+        $class: "gpf.java.BaseStream",
 
         /**
          * Base class wrapping Rhino streams
          *
          * @param {java.io.InputStream|java.io.OutputStream} stream Rhino input or output stream object
          *
-         * @constructor gpf.rhino.BaseStream
+         * @constructor gpf.java.BaseStream
          * @private
-         * @since 0.2.1
+         * @since 0.2.4
          */
         constructor: function (stream) {
             this._stream = stream;
@@ -36,7 +36,7 @@ var
          * Close the stream
          *
          * @return {Promise} Resolved when closed
-         * @since 0.2.1
+         * @since 0.2.4
          */
         close: function () {
             this._stream.close();
@@ -47,7 +47,7 @@ var
          * Rhino stream object
          *
          * @type {java.io.InputStream|java.io.OutputStream}
-         * @since 0.2.1
+         * @since 0.2.4
          */
         _stream: null
 
@@ -58,14 +58,14 @@ var
      *
      * @param {java.io.InputStream} stream Rhino stream object
      *
-     * @class gpf.rhino.ReadableStream
-     * @extends gpf.rhino.BaseStream
+     * @class gpf.java.ReadableStream
+     * @extends gpf.java.BaseStream
      * @implements {gpf.interfaces.IReadableStream}
-     * @since 0.2.1
+     * @since 0.2.4
      */
-    _GpfRhinoReadableStream = _gpfDefine({
-        $class: "gpf.rhino.ReadableStream",
-        $extend: _GpfRhinoBaseStream,
+    _GpfStreamJavaReadable = _gpfDefine({
+        $class: "gpf.java.ReadableStream",
+        $extend: _GpfStreamJavaBase,
 
         //region gpf.interfaces.IReadableStream
 
@@ -74,7 +74,7 @@ var
          *
          * @param {Error} e Error coming from read
          * @return {Promise} Read result replacement
-         * @since 0.2.1
+         * @since 0.2.4
          */
         _handleError: function (e) {
             if (e instanceof java.util.NoSuchElementException // false on Rhino
@@ -87,7 +87,7 @@ var
 
         /**
          * @gpf:sameas gpf.interfaces.IReadableStream#read
-         * @since 0.2.1
+         * @since 0.2.4
          */
         read: _gpfStreamSecureRead(function (output) {
             try {
@@ -107,14 +107,14 @@ var
      *
      * @param {java.io.OutputStream} stream Rhino stream object
      *
-     * @class gpf.rhino.WritableStream
-     * @extends gpf.rhino.BaseStream
+     * @class gpf.java.WritableStream
+     * @extends gpf.java.BaseStream
      * @implements {gpf.interfaces.IWritableStream}
-     * @since 0.2.1
+     * @since 0.2.4
      */
-    _GpfRhinoWritableStream = _gpfDefine({
-        $class: "gpf.rhino.WritableStream",
-        $extend: _GpfRhinoBaseStream,
+    _GpfStreamJavaWritable = _gpfDefine({
+        $class: "gpf.java.WritableStream",
+        $extend: _GpfStreamJavaBase,
 
         constructor: function (stream) {
             this.$super(stream);
@@ -125,7 +125,7 @@ var
 
         /**
          * @gpf:sameas gpf.interfaces.IWritableStream#write
-         * @since 0.2.1
+         * @since 0.2.4
          */
         write: _gpfStreamSecureWrite(function (buffer) {
             var writer = this._writer; //eslint-disable-line no-invalid-this
@@ -138,7 +138,7 @@ var
 
         /**
          * @inheritdoc
-         * @since 0.2.1
+         * @since 0.2.4
          */
         close: function () {
             this._writer.close();
@@ -149,7 +149,7 @@ var
          * Stream writer
          *
          * @type {java.io.OutputStreamWriter}
-         * @since 0.2.1
+         * @since 0.2.4
          */
         _writer: null
 

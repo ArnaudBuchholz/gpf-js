@@ -1,13 +1,13 @@
 "use strict";
 
-describe("stream/rhino", function () {
+describe("stream/java", function () {
 
     if (gpf.hosts.rhino === gpf.host()) {
 
-        describe("gpf.rhino.ReadableStream", function () {
+        describe("gpf.java.ReadableStream", function () {
 
             it("forwards any error", function (done) {
-                var iReadableStream = new gpf.rhino.ReadableStream({
+                var iReadableStream = new gpf.java.ReadableStream({
                         close: function () {}
                     }),
                     iWritableStream = {
