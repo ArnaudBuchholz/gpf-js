@@ -34,4 +34,10 @@
     "ignore": [{
         "describe": "stream/line"
     }]
+}, {
+    "issue": 220,
+    "before": "0.2.4",
+    "ignore": [{
+        "describe": "stream/rhino"
+    }]
 }]
