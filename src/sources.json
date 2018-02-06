@@ -23,7 +23,17 @@
         "doc": true
     },
     {
+        "name": "host/java",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "host/rhino",
+        "test": false,
+        "doc": true
+    },
+    {
+        "name": "host/nashorn",
         "test": false,
         "doc": true
     },
@@ -355,11 +365,16 @@
         "doc": true
     },
     {
-        "name": "stream/rhino",
+        "name": "stream/java",
         "doc": true
     },
     {
-        "name": "http/rhino",
+        "name": "fs/nashorn",
+        "test": false,
+        "doc": true
+    },
+    {
+        "name": "http/java",
         "test": false,
         "doc": true
     },
