@@ -1,13 +1,13 @@
 /**
- * @file Rhino specific HTTP implementation
+ * @file Java (Rhino, Nashorn) specific HTTP implementation
  * @since 0.2.1
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
-/*global _GpfRhinoReadableStream*/ // gpf.rhino.ReadableStream
-/*global _GpfRhinoWritableStream*/ // gpf.rhino.WritableStream
+/*global _GpfStreamJavaReadable*/ // gpf.java.ReadableStream
+/*global _GpfStreamJavaWritable*/ // gpf.java.WritableStream
 /*global _gpfHttpGenSetHeaders*/ // Generates a function that transmit headers to the http object
 /*global _gpfHttpRequestImplByHost*/ // HTTP Request Implementation per host
 /*global _gpfStringFromStream*/ // Read the stream
@@ -16,12 +16,12 @@
 /*jshint rhino: true*/
 /*eslint-env rhino*/
 
-var _gpfHttpRhinoSetHeaders = _gpfHttpGenSetHeaders("setRequestProperty");
+var _gpfHttpJavaSetHeaders = _gpfHttpGenSetHeaders("setRequestProperty");
 
-function _gpfHttpRhinoSendData (httpConnection, data) {
+function _gpfHttpJavaSendData (httpConnection, data) {
     if (data) {
         httpConnection.setDoOutput(true);
-        var iWritableStream = new _GpfRhinoWritableStream(httpConnection.getOutputStream());
+        var iWritableStream = new _GpfStreamJavaWritable(httpConnection.getOutputStream());
         return iWritableStream.write(data)
             .then(function () {
                 iWritableStream.close();
@@ -30,7 +30,7 @@ function _gpfHttpRhinoSendData (httpConnection, data) {
     return Promise.resolve();
 }
 
-function _gpfHttpRhinoGetResponse (httpConnection) {
+function _gpfHttpJavaGetResponse (httpConnection) {
     try {
         return httpConnection.getInputStream();
     } catch (e) {
@@ -38,8 +38,8 @@ function _gpfHttpRhinoGetResponse (httpConnection) {
     }
 }
 
-function _gpfHttpRhinoGetResponseText (httpConnection) {
-    var iReadableStream = new _GpfRhinoReadableStream(_gpfHttpRhinoGetResponse(httpConnection));
+function _gpfHttpJavaGetResponseText (httpConnection) {
+    var iReadableStream = new _GpfStreamJavaReadable(_gpfHttpJavaGetResponse(httpConnection));
     return _gpfStringFromStream(iReadableStream)
         .then(function (responseText) {
             iReadableStream.close();
@@ -47,7 +47,7 @@ function _gpfHttpRhinoGetResponseText (httpConnection) {
         });
 }
 
-function _gpfHttpRhinoGetHeaders (httpConnection) {
+function _gpfHttpJavaGetHeaders (httpConnection) {
     var headers = {},
         headerFields = httpConnection.getHeaderFields(),
         keys = headerFields.keySet().toArray();
@@ -57,24 +57,27 @@ function _gpfHttpRhinoGetHeaders (httpConnection) {
     return headers;
 }
 
-function _gpfHttpRhinoResolve (httpConnection, resolve) {
-    _gpfHttpRhinoGetResponseText(httpConnection)
+function _gpfHttpJavaResolve (httpConnection, resolve) {
+    _gpfHttpJavaGetResponseText(httpConnection)
         .then(function (responseText) {
             resolve({
                 status: httpConnection.getResponseCode(),
-                headers: _gpfHttpRhinoGetHeaders(httpConnection),
+                headers: _gpfHttpJavaGetHeaders(httpConnection),
                 responseText: responseText
             });
         });
 }
 
-_gpfHttpRequestImplByHost[_GPF_HOST.RHINO] = function (request, resolve) {
+function _gpfHttpJavaRequestImpl (request, resolve) {
     var httpConnection = new java.net.URL(request.url).openConnection();
     httpConnection.setRequestMethod(request.method);
-    _gpfHttpRhinoSetHeaders(httpConnection, request.headers);
-    _gpfHttpRhinoSendData(httpConnection, request.data)
+    _gpfHttpJavaSetHeaders(httpConnection, request.headers);
+    _gpfHttpJavaSendData(httpConnection, request.data)
         .then(function () {
-            _gpfHttpRhinoResolve(httpConnection, resolve);
+            _gpfHttpJavaResolve(httpConnection, resolve);
         });
 
-};
+}
+
+_gpfHttpRequestImplByHost[_GPF_HOST.RHINO] = _gpfHttpJavaRequestImpl;
+_gpfHttpRequestImplByHost[_GPF_HOST.NASHORN] = _gpfHttpJavaRequestImpl;
