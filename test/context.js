@@ -5,6 +5,8 @@ describe("context", function () {
 
     describe("gpf.context", function () {
 
+        var safeFunc = Function; // Avoid linter warnings
+
         it("resolves the global context", function () {
             assert("function" === typeof gpf.context);
             assert(null !== gpf.context());
@@ -14,9 +16,7 @@ describe("context", function () {
             } else if (gpf.hosts.nodejs === gpf.host() || gpf.hosts.phantomjs === gpf.host()) {
                 assert(global === gpf.context());
             } else {
-                var context = (function () {
-                    return this; //eslint-disable-line no-invalid-this
-                }());
+                var context = safeFunc("return this;")();
                 assert(context === gpf.context());
             }
         });
