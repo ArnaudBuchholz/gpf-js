@@ -77,7 +77,8 @@ var
          * @since 0.2.1
          */
         _handleError: function (e) {
-            if (e.message.indexOf("java.util.NoSuchElementException") === 0) {
+            if (e instanceof java.util.NoSuchElementException // false on Rhino
+                || e.message.indexOf("java.util.NoSuchElementException") === 0) {
                 // Empty stream
                 return Promise.resolve();
             }
