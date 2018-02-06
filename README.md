@@ -11,6 +11,9 @@
 <a href="http://gruntjs.com/">
     <img src="https://cdn.gruntjs.com/builtwith.png" title="Built with Grunt" />
 </a>
+<a href="http://vanilla-js.com">
+    <img src="http://vanilla-js.com/assets/button.png" title="Vanilla JS" />
+</a>
 
 A multi-purpose JavaScript library created and maintained by
 [Arnaud Buchholz](http://gpf-js.blogspot.com/).
