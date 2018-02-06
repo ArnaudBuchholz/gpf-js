@@ -5,6 +5,9 @@
 <a href="https://travis-ci.org/ArnaudBuchholz/gpf-js#">
     <img src="https://travis-ci.org/ArnaudBuchholz/gpf-js.svg?branch=master" title="Travis-CI" />
 </a>
+<a href="https://coveralls.io/github/ArnaudBuchholz/gpf-js?branch=master">
+    <img src="https://coveralls.io/repos/github/ArnaudBuchholz/gpf-js/badge.svg?branch=master" title="Coverage Status" />
+</a>
 <a href="http://gruntjs.com/">
     <img src="https://cdn.gruntjs.com/builtwith.png" title="Built with Grunt" />
 </a>
