@@ -6,3 +6,4 @@ addons:
 before_install: npm install -g grunt-cli
 install: npm install
 before_script: grunt travis
+after_script: cat ./tmp/coverage/reports/lcov.info | ./node_modules/coveralls/bin/coveralls.js
