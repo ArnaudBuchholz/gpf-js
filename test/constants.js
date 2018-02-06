@@ -38,6 +38,7 @@ describe("constants", function () {
             // Must be one of these
             assert(-1 !== [
                 gpf.hosts.browser,
+                gpf.hosts.nashorn,
                 gpf.hosts.nodejs,
                 gpf.hosts.phantomjs,
                 gpf.hosts.rhino,
