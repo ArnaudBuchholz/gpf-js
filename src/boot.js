@@ -42,6 +42,7 @@ var
      */
     _GPF_HOST = {
         BROWSER:    "browser",
+        NASHORN:    "nashorn",
         NODEJS:     "nodejs",
         PHANTOMJS:  "phantomjs",
         RHINO:      "rhino",
@@ -184,23 +185,29 @@ if ("undefined" !== typeof WScript) {
 /*#endif*/
 
 } else if ("undefined" !== typeof print && "undefined" !== typeof java) {
-    _gpfHost = _GPF_HOST.RHINO;
-    _gpfDosPath = false;
+    _gpfDosPath = String(java.lang.System.getProperty("file.separator")) === "\\";
+
+    if ("undefined" === typeof readFile) {
+        _gpfHost = _GPF_HOST.NASHORN;
 
 /*#ifndef(UMD)*/
 
-    if ("undefined" === typeof readFile) {
-        // Nashhorn
         _gpfSyncReadForBoot = function (srcFileName) {
             return [].join.call(java.nio.file.Files.readAllLines(java.nio.file.Paths.get(srcFileName)), "\n");
         };
 
+/*#endif*/
+
     } else {
-        // Rhino
+        _gpfHost = _GPF_HOST.RHINO;
+
+/*#ifndef(UMD)*/
+
         _gpfSyncReadForBoot = readFile;
-    }
 
 /*#endif*/
+
+    }
 
 // PhantomJS - When used as a command line (otherwise considered as a browser)
 } else if ("undefined" !== typeof phantom && phantom.version && !document.currentScript) {
@@ -336,6 +343,11 @@ gpf.hosts = {
      * @since 0.1.5
      */
     browser: _GPF_HOST.BROWSER,
+    /**
+     * [Nashorn](https://en.wikipedia.org/wiki/Nashorn_%28JavaScript_engine%29)
+     * @since 0.2.4
+     */
+    nashorn: _GPF_HOST.NASHORN,
     /**
      * [NodeJs](http://nodejs.org/)
      * @since 0.1.5
