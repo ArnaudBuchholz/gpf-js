@@ -75,22 +75,31 @@ function _gpfHandleTimeout () {
     }
 }
 
-// Used only for WSCRIPT & RHINO environments
+/*jshint wsh: true*/
+/*eslint-env wsh*/
+/*jshint rhino: true*/
+/*eslint-env rhino*/
+
+var _gpfTimeoutImpl = {};
+
+_gpfTimeoutImpl[_GPF_HOST.WSCRIPT] = function (t) {
+    WScript.Sleep(t); //eslint-disable-line new-cap
+};
+
+function _gpfTimeoutJavaImpl (t) {
+    java.lang.Thread.sleep(t);
+}
+
+_gpfTimeoutImpl[_GPF_HOST.RHINO] = _gpfTimeoutJavaImpl;
+_gpfTimeoutImpl[_GPF_HOST.NASHORN] = _gpfTimeoutJavaImpl;
+
+// Used only for WSCRIPT, RHINO & NASHORN environments
 if ("undefined" === typeof setTimeout) {
 
-    /*jshint wsh: true*/
-    /*eslint-env wsh*/
-    /*jshint rhino: true*/
-    /*eslint-env rhino*/
+    _gpfSleep = _gpfTimeoutImpl[_gpfHost];
 
-    if (_GPF_HOST.WSCRIPT === _gpfHost) {
-        _gpfSleep =  function (t) {
-            WScript.Sleep(t); //eslint-disable-line new-cap
-        };
-    /* istanbul ignore else */ // unknown.1
-    } else if (_GPF_HOST.RHINO === _gpfHost) {
-        _gpfSleep = java.lang.Thread.sleep;
-    } else {
+    /* istanbul ignore next */ // unknown.1
+    if (undefined === _gpfSleep) {
         console.warn("No implementation for setTimeout");
     }
 
