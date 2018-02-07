@@ -39,5 +39,13 @@
     "before": "0.2.4",
     "ignore": [{
         "describe": "stream/rhino"
+    }, {
+        "describe": "gpf.context",
+        "it": "resolves the global context"
+    }, {
+        "describe": "gpf",
+        "it": "should expose the host type"
+    }, {
+        "describe": "gpf.stream.BufferedRead"
     }]
 }]
