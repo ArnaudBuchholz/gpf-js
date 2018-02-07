@@ -39,13 +39,12 @@ const
         Object.keys(src).forEach(fileName => {
             mergeCoverageData(dst, src, fileName);
         });
-    };
+    },
 
-module.exports = function (grunt) {
+    ConfigFile = require("../../make/configFile.js"),
 
-    grunt.registerTask("mergeCoverage", () => {
-        let coverage = grunt.file.readJSON("tmp/coverage/reports/coverage.json"),
-            ConfigFile = require("../../make/configFile.js"),
+    getHosts = () => {
+        const
             configFile = new ConfigFile(),
             hosts = ["phantomjs"];
         if (0 !== Object.keys(configFile.content.browsers).length) {
@@ -54,17 +53,29 @@ module.exports = function (grunt) {
         if (configFile.content.host.java) {
             hosts.push("rhino");
         }
+        if (configFile.content.host.nashorn) {
+            hosts.push("nashorn");
+        }
         if (configFile.content.host.wscript) {
             hosts.push("wscript");
         }
-        hosts.forEach(host => {
-            try {
-                let hostCoverage = grunt.file.readJSON(`tmp/coverage/reports/coverage.${host}.json`);
-                mergeCoverage(coverage, hostCoverage);
-            } catch (e) {
-                grunt.fail.warn(`Missing coverage information for ${host}`);
-            }
-        });
+        return hosts;
+    };
+
+
+module.exports = function (grunt) {
+
+    grunt.registerTask("mergeCoverage", () => {
+        let coverage = grunt.file.readJSON("tmp/coverage/reports/coverage.json");
+        getHosts()
+            .forEach(host => {
+                try {
+                    let hostCoverage = grunt.file.readJSON(`tmp/coverage/reports/coverage.${host}.json`);
+                    mergeCoverage(coverage, hostCoverage);
+                } catch (e) {
+                    grunt.fail.warn(`Missing coverage information for ${host}`);
+                }
+            });
         fs.writeFileSync("tmp/coverage/reports/coverage.json", JSON.stringify(coverage));
     });
 
@@ -92,17 +103,13 @@ module.exports = function (grunt) {
         "copy:instrumentSourcesJson",
         "connectIf",
         "mochaTest:coverage",
-        "storeCoverage",
-        "exec:testPhantomCoverage"
-    ];
+        "storeCoverage"
 
-    if (configuration.host.java) {
-        coverageTasks.push("exec:testRhinoCoverage");
-    }
-
-    if (configuration.host.wscript) {
-        coverageTasks.push("exec:testWscriptCoverage");
-    }
+    ].concat(getHosts()
+        .filter(host => host !== "browser")
+        .map(host => "phantomjs" === host ? "phantom" : host)
+        .map(host => `exec:test${host.charAt(0).toUpperCase() + host.substr(1)}Coverage`)
+    );
 
     // Prefer chrome if possible
     if (configuration.browsers.chrome) {
