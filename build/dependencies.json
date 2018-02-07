@@ -1,6 +1,12 @@
 {
-    "host/rhino": [
+    "host/java": [
         "console"
+    ],
+    "host/rhino": [
+        "host/java"
+    ],
+    "host/nashorn": [
+        "host/java"
     ],
     "host/wscript": [
         "console"
@@ -270,12 +276,18 @@
         "http/helpers",
         "http"
     ],
-    "stream/rhino": [
+    "stream/java": [
         "define",
         "stream"
     ],
-    "http/rhino": [
-        "stream/rhino",
+    "fs/nashorn": [
+        "stream/java",
+        "stream/string",
+        "fs"
+    ],
+    "http/java": [
+        "stream/java",
+        "foreach",
         "http/helpers",
         "http",
         "string/fromStream"
