@@ -1,13 +1,7 @@
- // no "use strict" to be able to set global context
-/*jshint strict:false */
-/*jshint rhino:true*/
-/*eslint strict:0*/
-/*eslint-env rhino*/
-/*exported global*/
+"use strict";
 
-var global = (function () { //eslint-disable-line no-unused-vars
-    return this;
-}());
+/*jshint rhino:true*/
+/*eslint-env rhino*/
 
 function getEnv (name) {
     return String(java.lang.System.getProperty(name));
@@ -18,10 +12,12 @@ var gpfPath = getEnv("user.dir"),
     readApi;
 
 if ("undefined" === typeof readFile) {
+    // Nashorn
     readApi = function (path) {
         return [].join.call(java.nio.file.Files.readAllLines(java.nio.file.Paths.get(path)), "\n");
     };
 } else {
+    // Rhino
     readApi = readFile;
 }
 
@@ -36,7 +32,7 @@ load([
 
 loadGpfAndTests({
     parameters: (function () {
-        return this["arguments"]; //eslint-disable-line dot-notation, no-invalid-this
+        return arguments; //eslint-disable-line dot-notation, no-invalid-this
     }()),
     gpfPath: gpfPath,
     pathSeparator: pathSeparator,
