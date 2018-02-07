@@ -14,6 +14,7 @@
      *
      * 2014-12-04 ABZ Extended for PhantomJS
      * 2015-05-29 ABZ Modified to catch former value of gpf
+     * 2018-02-06 ABZ Modified to get global context if missing
      */
     if (typeof define === "function" && define.amd) {
         define(["exports"], factory);
