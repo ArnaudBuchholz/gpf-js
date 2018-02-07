@@ -1,7 +1,9 @@
 /*global define, exports*/
 /*jshint -W098*/ // ignore unused gpf
+/*jshint -W061*/ // eval can be harmful
 /*eslint no-unused-vars: 0*/ // ignore unused gpf
 /*eslint strict: [2, "function"]*/ // To be more modular
+/*eslint no-new-func: 0*/ // the Function constructor is eval
 /*global __gpf__*/
 (function (root, factory) {
     "use strict";
@@ -20,6 +22,9 @@
     } else if (typeof module !== "undefined" && module.exports) {
         factory(module.exports);
     } else {
+        if (root === undefined) {
+            root = Function("return this;")();
+        }
         var newGpf = {};
         factory(newGpf);
         root.gpf = newGpf;
