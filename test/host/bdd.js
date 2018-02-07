@@ -4,17 +4,18 @@
 
     /*global console, setTimeout, clearTimeout*/
 
-    var context = (function () {
-        /*global global*/ // NodeJS global
-        if ("object" === typeof global) {
-            return global;
-        }
-        /*global window*/ // Browser global
-        if ("undefined" !== typeof window) {
-            return window;
-        }
-        return this; //eslint-disable-line no-invalid-this
-    }());
+    var safeFunction = Function,
+        context = (function () {
+            /*global global*/ // NodeJS global
+            if ("object" === typeof global) {
+                return global;
+            }
+            /*global window*/ // Browser global
+            if ("undefined" !== typeof window) {
+                return window;
+            }
+            return safeFunction("return this;")();
+        }());
 
     /*
      * Simple BDD implementation
