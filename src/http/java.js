@@ -5,9 +5,9 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
-/*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _GpfStreamJavaReadable*/ // gpf.java.ReadableStream
 /*global _GpfStreamJavaWritable*/ // gpf.java.WritableStream
+/*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfHttpGenSetHeaders*/ // Generates a function that transmit headers to the http object
 /*global _gpfHttpRequestImplByHost*/ // HTTP Request Implementation per host
 /*global _gpfStringFromStream*/ // Read the stream
