@@ -7,10 +7,14 @@ function getEnv (name) {
     return String(java.lang.System.getProperty(name));
 }
 
-var safeFunc = Function,
+var commandLineParameters,
     gpfPath = getEnv("user.dir"),
     pathSeparator = getEnv("file.separator"),
     readApi;
+
+/* jshint ignore:start */
+commandLineParameters = arguments;
+/* jshint ignore:end */
 
 if ("undefined" === typeof readFile) {
     // Nashorn
@@ -32,7 +36,7 @@ load([
 /*global loadGpfAndTests*/
 
 loadGpfAndTests({
-    parameters: safeFunc("return this.arguments;")(), // 'Global' object
+    parameters: commandLineParameters,
     gpfPath: gpfPath,
     pathSeparator: pathSeparator,
     log: function (text) {
