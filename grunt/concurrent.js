@@ -6,6 +6,10 @@ if (configuration.host.java) {
     testTasks.push("exec:testRhino");
 }
 
+if (configuration.host.nashorn) {
+    testTasks.push("exec:testNashorn");
+}
+
 if (configuration.host.wscript) {
     testTasks.push("exec:testWscript");
 }
