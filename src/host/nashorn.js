@@ -1,5 +1,6 @@
 /**
  * @file Nashorn host adapter
+ * @since 0.2.4
  */
 /*#ifndef(UMD)*/
 "use strict";
