@@ -1,5 +1,6 @@
 /**
  * @file Java generic host adapter
+ * @since 0.2.4
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -15,10 +16,14 @@
 /**
  * @namespace gpf.java
  * @description Root namespace for java specifics
+ * @since 0.2.4
  */
 gpf.java = {};
 
-/** Common implementation for Java hosts */
+/**
+ * Common implementation for Java hosts
+ * @since 0.2.4
+ */
 function _gpfJavaHostImpl () {
 
     // Define console APIs
