@@ -6,7 +6,7 @@
     /*global run, exit:true*/ // From bdd.js
     /*global __coverage__*/ // Coverage data
 
-    var Func = Function,
+    var safeFunc = Function,
         sources,
         context = (function () {
             /*global global*/ // NodeJS global
@@ -17,7 +17,7 @@
             if ("undefined" !== typeof window) {
                 return window;
             }
-            return this; //eslint-disable-line no-invalid-this
+            return safeFunc("return this;")();
         }()),
 
         _resolvePath = function (configuration, relativePath) {
@@ -94,7 +94,7 @@
             }
             // Load the list of modules
             var sourcesJson = configuration.read("src/sources.json");
-            sources = new Func("return " + sourcesJson + ";")();
+            sources = safeFunc("return " + sourcesJson + ";")();
         },
 
         _loadBDD = function (configuration, verbose) {
