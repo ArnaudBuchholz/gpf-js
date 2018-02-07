@@ -103,9 +103,10 @@ if (!fs.existsSync(phantomJsBin)) {
     phantomJsBin = `node_modules${sep}phantomjs-prebuilt${sep}lib${sep}phantom${sep}bin${sep}phantomjs`;
 }
 _buildTestConfig("Phantom", phantomJsBin, `--web-security=false test${sep}host${sep}phantomjs.js`);
-_buildTestConfig("Wscript", "cscript.exe", "/D /E:JScript test/host/cscript.js");
-_buildTestConfig("Rhino", "java", "-jar node_modules/rhino-1_7r5-bin/rhino1_7R5/js.jar test/host/rhino.js");
-_buildTestConfig("Nashorn", configuration.host.nashorn, `test${sep}host${sep}rhino.js  --`);
+_buildTestConfig("Wscript", "cscript.exe", `/D /E:JScript test${sep}host${sep}cscript.js`);
+_buildTestConfig("Rhino", "java", `-jar node_modules${sep}rhino-1_7r5-bin${sep}rhino1_7R5${sep}js.jar`
+    + ` test${sep}host${sep}java.js`);
+_buildTestConfig("Nashorn", configuration.host.nashorn, `test${sep}host${sep}java.js  --`);
 Object.keys(configuration.browsers).forEach(browserName =>{
     let browserConfig = configuration.browsers[browserName],
         capitalizedBrowserName = browserName.charAt(0).toUpperCase() + browserName.substr(1);
