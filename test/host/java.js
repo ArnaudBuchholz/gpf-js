@@ -7,7 +7,8 @@ function getEnv (name) {
     return String(java.lang.System.getProperty(name));
 }
 
-var gpfPath = getEnv("user.dir"),
+var safeFunc = Function,
+    gpfPath = getEnv("user.dir"),
     pathSeparator = getEnv("file.separator"),
     readApi;
 
@@ -31,9 +32,7 @@ load([
 /*global loadGpfAndTests*/
 
 loadGpfAndTests({
-    parameters: (function () {
-        return arguments; //eslint-disable-line dot-notation, no-invalid-this
-    }()),
+    parameters: safeFunc("return this.arguments;")(), // 'Global' object
     gpfPath: gpfPath,
     pathSeparator: pathSeparator,
     log: function (text) {
