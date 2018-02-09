@@ -1,0 +1,12 @@
+{
+    "rules": {
+        "no-sync": 0,
+        "no-ternary": 0,
+        "dot-notation": 0,
+        "func-style": 0
+    },
+    "env": {
+        "node": true,
+        "es6": true
+    }
+}
