@@ -54,6 +54,7 @@
                 /*jslint evil: false*/
             } catch (e) {
                 configuration.log("An error occurred while evaluating: " + path + "\r\n" + e.message);
+                configuration.log(e);
                 configuration.exit(-1);
             }
         },
@@ -114,11 +115,11 @@
                 configuration.loadTest(path);
             } else {
                 var testFileContent = configuration.read(path),
-                    modifiedContent = testFileContent.replace(/assert\((.*)\);/g, function (match, condition, offset) {
+                    modifiedContent = testFileContent.replace(/[^"]assert\((.*)\);/g, function (match, test, offset) {
                         var lines = testFileContent.substr(0, offset).split("\n"),
                             lineNumber = lines.length,
                             pos = lines.pop().length + 1,
-                            message = source + ".js@" + lineNumber + ":" + pos + ": " + condition
+                            message = source + ".js@" + lineNumber + ":" + pos + ": " + test
                                 .split("\\").join("\\\\")
                                 .split("\"").join("\\\"");
                         return match.substr(0, match.length - 2) + ", \"" + message + "\");";
@@ -198,7 +199,7 @@
             for (sourceIdx = 0; sourceIdx < len; ++sourceIdx) {
                 source = sources[sourceIdx];
                 if (source.load !== false && source.test !== false) {
-                    _loadTest(configuration, _resolvePath(configuration, "test/" + source.name + ".js"));
+                    _loadTest(configuration, source.name);
                 }
             }
         },
