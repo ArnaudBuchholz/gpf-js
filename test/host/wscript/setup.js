@@ -1,7 +1,7 @@
 "use strict";
 
 global.WScript = require("./WScript");
-global.ActiveXObject = require("./ActiveXOBject");
+global.ActiveXObject = require("./ActiveXObject");
 global.Enumerator = require("./Enumerator");
 
 const _console = console;
