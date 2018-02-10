@@ -47,6 +47,10 @@ function _gpfInterfaceIsInvalidMethod (referenceMethod, method) {
 function _gpfInterfaceIsImplementedBy (interfaceSpecifier, inspectedObject) {
     var result = true;
     _gpfObjectForEach(interfaceSpecifier.prototype, function (referenceMethod, name) {
+        if (name === "constructor") {
+            // ignore
+            return;
+        }
         if (_gpfInterfaceIsInvalidMethod(referenceMethod, inspectedObject[name])) {
             result = false;
         }
