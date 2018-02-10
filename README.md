@@ -8,7 +8,7 @@
 <a href="https://coveralls.io/github/ArnaudBuchholz/gpf-js?branch=master">
     <img src="https://coveralls.io/repos/github/ArnaudBuchholz/gpf-js/badge.svg?branch=master" title="Coverage Status" />
 </a>
-<a href="https://david-dm.org/ArnaudBuchholz/gpf-js">
+<a href="https://david-dm.org/ArnaudBuchholz/gpf-js?type=dev">
     <img src="https://david-dm.org/ArnaudBuchholz/gpf-js.svg" title="Dependencies Status" />
 </a>
 <a href="http://gruntjs.com/">
