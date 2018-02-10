@@ -242,11 +242,12 @@
         /**
          * Fails by throwing an exception if the value is falsy
          *
-         * @param {*} condition If the condition is falsy, the assertion fails
+         * @param {Boolean} condition If the condition is falsy, the assertion fails
+         * @param {String} [message] Assertion message
          */
-        assert: function (condition) {
+        assert: function (condition, message) {
             if (!condition) {
-                throw new Error("ASSERTION failed");
+                throw new Error(message || "ASSERTION failed");
             }
         },
 
@@ -309,9 +310,10 @@
             line += data.label;
             _output(line);
             if (false === data.result && data.exception) {
+                _output("Exception: " + data.exception.message);
                 for (var key in data.exception) {
-                    if (data.exception.hasOwnProperty(key)) {
-                        _output(key + ": " + data.exception[key]);
+                    if ("message" !== key && data.exception.hasOwnProperty(key)) {
+                        _output("Exception." + key + ": " + data.exception[key]);
                     }
                 }
             }
