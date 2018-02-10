@@ -2,6 +2,7 @@
 
 global.WScript = require("./WScript");
 global.ActiveXObject = require("./ActiveXOBject");
+global.Enumerator = require("./Enumerator");
 
 const _console = console;
 Object.defineProperty(global, "console", {
