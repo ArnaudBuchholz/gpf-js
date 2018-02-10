@@ -109,20 +109,20 @@
         },
 
         _loadTest = function (configuration, source) {
-            var path = _resolvePath(configuration, "test/" + source + ".js")
+            var path = _resolvePath(configuration, "test/" + source + ".js");
             if (configuration.loadTest) {
                 configuration.loadTest(path);
             } else {
                 var testFileContent = configuration.read(path),
-                    modifiedContent = testFileContent.replace(/assert\((.*)\);/g, function (initial, condition, offset) {
-                    var lines = testFileContent.substr(0, offset).split("\n"),
-                        lineNumber = lines.length,
-                        pos = lines.pop().length + 1,
-                        message = source + ".js@" + lineNumber + ":" + pos + ": " + condition
-                            .split("\\").join("\\\\")
-                            .split("\"").join("\\\"");
-                    return initial.substr(0 ,initial.length - 2) + ", \"" + message + "\");";
-                });
+                    modifiedContent = testFileContent.replace(/assert\((.*)\);/g, function (match, condition, offset) {
+                        var lines = testFileContent.substr(0, offset).split("\n"),
+                            lineNumber = lines.length,
+                            pos = lines.pop().length + 1,
+                            message = source + ".js@" + lineNumber + ":" + pos + ": " + condition
+                                .split("\\").join("\\\\")
+                                .split("\"").join("\\\"");
+                        return match.substr(0, match.length - 2) + ", \"" + message + "\");";
+                    });
                 _eval(configuration, path, modifiedContent);
             }
         },
