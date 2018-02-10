@@ -47,8 +47,7 @@
             }
         },
 
-        _load = function (configuration, path) {
-            var content = configuration.read(path);
+        _eval = function (configuration, path, content) {
             try {
                 /*jslint evil: true*/
                 eval(content); //eslint-disable-line no-eval
@@ -57,6 +56,10 @@
                 configuration.log("An error occurred while evaluating: " + path + "\r\n" + e.message);
                 configuration.exit(-1);
             }
+        },
+
+        _load = function (configuration, path) {
+            _eval(configuration, path, configuration.read(path));
         },
 
         _requireGpf = function (configuration, path) {
@@ -105,11 +108,22 @@
             }
         },
 
-        _loadTest = function (configuration, path) {
+        _loadTest = function (configuration, source) {
+            var path = _resolvePath(configuration, "test/" + source + ".js")
             if (configuration.loadTest) {
                 configuration.loadTest(path);
             } else {
-                _load(configuration, path);
+                var testFileContent = configuration.read(path),
+                    modifiedContent = testFileContent.replace(/assert\((.*)\);/g, function (initial, condition, offset) {
+                    var lines = testFileContent.substr(0, offset).split("\n"),
+                        lineNumber = lines.length,
+                        pos = lines.pop().length + 1,
+                        message = source + ".js@" + lineNumber + ":" + pos + ": " + condition
+                            .split("\\").join("\\\\")
+                            .split("\"").join("\\\"");
+                    return initial.substr(0 ,initial.length - 2) + ", \"" + message + "\");";
+                });
+                _eval(configuration, path, modifiedContent);
             }
         },
 
@@ -173,7 +187,7 @@
                     _patchLegacy(configuration, verbose, source.substr(7));
                     delete gpf.internals;
                 }
-                _loadTest(configuration, _resolvePath(configuration, "test/" + source + ".js"));
+                _loadTest(configuration, source);
             }
         },
 
