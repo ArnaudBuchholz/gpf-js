@@ -6,7 +6,8 @@ module.exports = function (grunt) {
         "phantom",
         "rhino",
         "nashorn",
-        "wscript"
+        "wscript",
+        "nodewscript"
     ].forEach(function (runtime) {
         var taskName = "exec:test" + runtime.charAt(0).toUpperCase() + runtime.substr(1) + "Verbose";
         grunt.registerTask(runtime, function () {

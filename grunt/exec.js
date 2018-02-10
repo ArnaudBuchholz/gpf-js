@@ -104,6 +104,7 @@ if (!fs.existsSync(phantomJsBin)) {
 }
 _buildTestConfig("Phantom", phantomJsBin, `--web-security=false test${sep}host${sep}phantomjs.js`);
 _buildTestConfig("Wscript", "cscript.exe", `/D /E:JScript test${sep}host${sep}cscript.js`);
+_buildTestConfig("Nodewscript", "node", "test/host/node_cscript.js");
 _buildTestConfig("Rhino", "java", `-jar node_modules${sep}rhino-1_7r5-bin${sep}rhino1_7R5${sep}js.jar`
     + ` test${sep}host${sep}java.js`);
 _buildTestConfig("Nashorn", configuration.host.nashorn, `test${sep}host${sep}java.js  --`);

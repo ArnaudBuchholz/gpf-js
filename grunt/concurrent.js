@@ -12,6 +12,8 @@ if (configuration.host.nashorn) {
 
 if (configuration.host.wscript) {
     testTasks.push("exec:testWscript");
+} else {
+    testTasks.push("exec:testNodewscript");
 }
 
 Object.keys(configuration.browsers).forEach(browserName => {

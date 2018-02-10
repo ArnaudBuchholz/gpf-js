@@ -58,6 +58,8 @@ const
         }
         if (configFile.content.host.wscript) {
             hosts.push("wscript");
+        } else {
+            hosts.push("nodewscript");
         }
         return hosts;
     };
@@ -68,6 +70,7 @@ module.exports = function (grunt) {
     grunt.registerTask("mergeCoverage", () => {
         let coverage = grunt.file.readJSON("tmp/coverage/reports/coverage.json");
         getHosts()
+            .map(host => "nodewscript" === host ? "wscript" : host)
             .forEach(host => {
                 try {
                     let hostCoverage = grunt.file.readJSON(`tmp/coverage/reports/coverage.${host}.json`);
