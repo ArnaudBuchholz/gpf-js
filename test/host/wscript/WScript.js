@@ -1,6 +1,14 @@
 "use strict";
 
-const classNames = {};
+const
+    classNames = {},
+    argumentsArray = process.argv.slice(2),
+    argumentsFunction = index => argumentsArray[index];
+
+Object.defineProperty(argumentsFunction, "length", {
+    value: argumentsArray.length,
+    writable: false
+});
 
 module.exports = {
 
@@ -11,7 +19,7 @@ module.exports = {
         return new classNames[className]();
     },
 
-    Arguments: process.argv.slice(2),
+    Arguments: argumentsFunction,
     ScriptFullName: process.argv[1],
     Echo: text => console.log(text),
     Quit: code => process.exit(code)
