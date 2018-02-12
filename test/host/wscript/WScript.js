@@ -20,7 +20,7 @@ module.exports = {
     },
 
     Arguments: argumentsFunction,
-    ScriptFullName: process.argv[1],
+    ScriptFullName: process.argv[1].replace(/\//g, "\\"),
     Echo: text => console.log(text),
     Quit: code => process.exit(code)
 
