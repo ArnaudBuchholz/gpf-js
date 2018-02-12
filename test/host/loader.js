@@ -310,6 +310,31 @@
             runWithCallback();
         },
 
+        _updloadCoverage = function (/*configuration, options, verbose*/) {
+            var coverageData = JSON.stringify(__coverage__),
+                pos = 0,
+                length = coverageData.length,
+                chunkSize = 4096,
+                method = gpf.http.methods.post,
+                url = "http://localhost:" + config.httpPort + "/fs/tmp/coverage/reports/coverage."
+                    + gpf.host() + ".json";
+            function upload () {
+                return gpf.http.request({
+                    method: method,
+                    url: url,
+                    data: coverageData.substr(pos, chunkSize)
+                })
+                    .then(function () {
+                        method = gpf.http.methods.put;
+                        pos += chunkSize;
+                        if (pos < length) {
+                            return upload();
+                        }
+                    });
+            }
+            return upload();
+        },
+
         _runBDDForCoverage = function (configuration, options, verbose) {
             verbose("Running BDD - coverage");
             run(function (type, data) {
@@ -321,12 +346,7 @@
                     exit(-1);
                 }
                 verbose("Uploading coverage results...");
-                gpf.http.request({
-                    method: gpf.http.methods.post,
-                    url: "http://localhost:" + config.httpPort + "/fs/tmp/coverage/reports/coverage."
-                        + gpf.host() + ".json",
-                    data: JSON.stringify(__coverage__)
-                })
+                _updloadCoverage(configuration, options, verbose)
                     .then(function () {
                         verbose("Coverage results uploaded.");
                         exit(0);
