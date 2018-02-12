@@ -125,7 +125,7 @@ class Folder  extends FileSystemItem {
 class ScriptingFileSystemOjbect {
 
     OpenTextFile (path, iomode, create) {
-        return new File(path, iomode === 8 && create === true);
+        return new File(normalizePath(path), iomode === 8 && create === true);
     }
 
     FileExists (path) {
