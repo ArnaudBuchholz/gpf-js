@@ -82,9 +82,15 @@ function _buildTestConfig (name, command, parameters) {
     module.exports["test" + name + "Verbose"] = Object.assign({
         cmd: buildCommand(" -debugger")
     }, verbose, failIfNot0);
-    module.exports["test" + name + "Coverage"] = Object.assign({
-        cmd: buildCommand(" -coverage")
-    }, silent, failIfNot0);
+    if (name === "Nodewscript") {
+        module.exports["test" + name + "Coverage"] = Object.assign({
+            cmd: buildCommand(" -coverage -verbose -ignoreConsole")
+        }, verbose, failIfNot0);
+    } else {
+        module.exports["test" + name + "Coverage"] = Object.assign({
+            cmd: buildCommand(" -coverage")
+        }, silent, failIfNot0);
+    }
     module.exports["test" + name + "Debug"] = Object.assign({
         cmd: buildCommand(" -debug")
     }, silent, failIfNot0);
