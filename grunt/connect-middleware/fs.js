@@ -1,54 +1,46 @@
 "use strict";
 
-var BASE_URL = "/fs/",
+const
+    BASE_URL = "/fs/",
     fs = require("fs"),
-    path = require("path");
+    path = require("path"),
 
-function _read (request, response, filePath) {
-    response.end(fs.readFileSync(filePath));
-}
-
-function _succeeded (response, err) {
-    if (err) {
-        response.statusCode = 500;
-        response.end(err.toString());
-        return false;
-    }
-    return true;
-}
-
-function _readFolder (request, response, folderPath) {
-    fs.readdir(folderPath, function (err, files) {
-        if (_succeeded(response, err)) {
-            response.end(JSON.stringify(files));
+    _succeeded = (response, err, answer) => {
+        if (err) {
+            response.statusCode = 500;
+            response.end(err.toString());
+            return false;
         }
-    });
-}
+        response.end(answer);
+        return true;
+    },
 
-function _write (request, response, filePath) {
-    var data = [];
-    request
-        .on("data", function (chunk) {
-            data.push(chunk);
-        })
-        .on("end", function () {
-            fs.writeFile(filePath, Buffer.concat(data), function (err) {
-                if (_succeeded(response, err)) {
-                    response.end();
-                }
+    _read = (request, response, filePath) => {
+        fs.readFile(filePath, (err, data) => _succeeded(response, err, data));
+    },
+
+    _readFolder = (request, response, folderPath) => {
+        fs.readdir(folderPath, (err, files) => _succeeded(response, err, JSON.stringify(files)));
+    },
+
+    _write = (request, response, filePath) => {
+        const
+            data = [],
+            flag = "POST" === request.method ? "w" : "a";
+        request
+            .on("data", chunk => {
+                data.push(chunk);
+            })
+            .on("end", () => {
+                fs.writeFile(filePath, Buffer.concat(data), {flag: flag}, err => _succeeded(response, err));
             });
-        });
-}
+    },
 
-function _delete (response, filePath) {
-    fs.unlink(filePath, function (err) {
-        if (_succeeded(response, err)) {
-            response.end();
-        }
-    });
-}
+    _delete = (response, filePath) => {
+        fs.unlink(filePath, err => _succeeded(response, err));
+    };
 
-module.exports = function (request, response, next) {
+module.exports = (request, response, next) => {
 
     if (0 !== request.url.indexOf(BASE_URL)) {
         return next();
@@ -71,7 +63,7 @@ module.exports = function (request, response, next) {
         return;
     }
 
-    fs.stat(filePath, function (err, stats) {
+    fs.stat(filePath, (err, stats) => {
 
         if (err && request.method !== "POST") {
             response.statusCode = 404;
