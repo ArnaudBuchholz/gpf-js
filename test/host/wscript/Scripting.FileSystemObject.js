@@ -3,6 +3,9 @@
 const
     fs = require("fs"),
     fsPath = require("path"),
+
+    normalizePath = path => path.split("\\").join("/"),
+
     getSafeStat = path => {
         try {
             const stat = fs.lstatSync(path);
@@ -25,7 +28,7 @@ class FileSystemItem {
     }
 
     get Name () {
-        return this._path.split("\\").pop();
+        return this._path.split("/").pop();
     }
 
     get Path () {
@@ -126,31 +129,31 @@ class ScriptingFileSystemOjbect {
     }
 
     FileExists (path) {
-        return getSafeStat(path).isFile;
+        return getSafeStat(normalizePath(path)).isFile;
     }
 
     GetFile (path) {
-        return new File(path);
+        return new File(normalizePath(path));
     }
 
     DeleteFile (path) {
-        fs.unlinkSync(path);
+        fs.unlinkSync(normalizePath(path));
     }
 
     FolderExists (path) {
-        return getSafeStat(path).isDirectory;
+        return getSafeStat(normalizePath(path)).isDirectory;
     }
 
     CreateFolder (path) {
-        fs.mkdirSync(path);
+        fs.mkdirSync(normalizePath(path));
     }
 
     GetFolder (path) {
-        return new Folder(path);
+        return new Folder(normalizePath(path));
     }
 
     DeleteFolder (path) {
-        fs.rmdirSync(path);
+        fs.rmdirSync(normalizePath(path));
     }
 
 }
