@@ -99,4 +99,4 @@ Date | Version | Label | Release | Debug
 * [istanbul](https://github.com/gotwarlost/istanbul) code coverage tool
 * JavaScript task runner: [Grunt](http://gruntjs.com/)
 * Icons from [Hawcons](https://www.iconfinder.com/iconsets/hawcons)
-* WScript simulated environment inspired from excellent [WScript project from Mischa Rodermond](https://github.com/mrpapercut)
+* WScript simulated environment inspired from excellent [WScript project from Mischa Rodermond](https://github.com/mrpapercut/wscript)
