@@ -433,6 +433,11 @@
         "doc": true
     },
     {
+        "name": "attributes/attribute",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "events",
         "load": false
     },
