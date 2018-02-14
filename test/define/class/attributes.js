@@ -4,7 +4,7 @@ describe("attributes/attribute", function () {
 
     var MyAttribute = gpf.define({
         $class: "MyAttribute",
-        $extends: "gpf.attributes.attribute",
+        $extend: "gpf.attributes.Attribute",
 
         _value: undefined,
 
@@ -25,6 +25,20 @@ describe("attributes/attribute", function () {
 
     describe("attributes validation", function () {
 
+        it("allows only existing members", function () {
+            var exceptionCaught;
+            try {
+                gpf.define({
+                    $class: "Test1",
+                    "[t3st]": [],
+                    test: 0
+                });
+            } catch (e) {
+                exceptionCaught = e;
+            }
+            assert(exceptionCaught instanceof gpf.Error.UnknownAttributesSpecification);
+        });
+
         it("allows only an array (of attributes) - member", function () {
             var exceptionCaught;
             try {
@@ -36,7 +50,7 @@ describe("attributes/attribute", function () {
             } catch (e) {
                 exceptionCaught = e;
             }
-            assert(exceptionCaught instanceof gpf.Error.InvalidAttributeSpecification);
+            assert(exceptionCaught instanceof gpf.Error.InvalidAttributesSpecification);
         });
 
         it("allows only an array (of attributes) - class", function () {
@@ -50,7 +64,7 @@ describe("attributes/attribute", function () {
             } catch (e) {
                 exceptionCaught = e;
             }
-            assert(exceptionCaught instanceof gpf.Error.InvalidAttributeSpecification);
+            assert(exceptionCaught instanceof gpf.Error.InvalidAttributesSpecification);
         });
 
         it("allows only an array of attributes - member", function () {
@@ -64,7 +78,7 @@ describe("attributes/attribute", function () {
             } catch (e) {
                 exceptionCaught = e;
             }
-            assert(exceptionCaught instanceof gpf.Error.InvalidAttributeInstance);
+            assert(exceptionCaught instanceof gpf.Error.InvalidAttributesSpecification);
         });
 
         it("allows only an array of attributes - class", function () {
@@ -78,7 +92,7 @@ describe("attributes/attribute", function () {
             } catch (e) {
                 exceptionCaught = e;
             }
-            assert(exceptionCaught instanceof gpf.Error.InvalidAttributeInstance);
+            assert(exceptionCaught instanceof gpf.Error.InvalidAttributesSpecification);
         });
 
     });
@@ -86,7 +100,6 @@ describe("attributes/attribute", function () {
     var MyClassWithAttributes = gpf.define({
         $class: "MyClassWithAttributes",
         $attributes: [MyAttribute.build("class")],
-
         "[test]": [MyAttribute.build("member")],
         test: 0
     });
