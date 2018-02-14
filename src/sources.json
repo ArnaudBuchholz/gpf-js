@@ -438,7 +438,7 @@
         "doc": true
     },
     {
-        "name": "define/class/attributes",
+        "name": "define/class/attributes/check",
         "load": false,
         "doc": true
     },
