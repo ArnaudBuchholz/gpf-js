@@ -10,7 +10,7 @@
 /*global _gpfIsArrayLike*/
 /*#endif*/
 
-// Done as a feature
+// Done as a feature 'on top' of normal class definition to be able to remove it easily
 
 _gpfErrorDeclare("define/class/attributes", {
 
@@ -50,7 +50,7 @@ Object.assign(_GpfClassDefinition.prototype, {
     /**
      * Given the member name, tells if the property introduces attributes
      *
-     * @param {String} name property name
+     * @param {String} name Member name
      * @return {String|undefined} Real property name if attributes specification, undefined otherwise
      */
     _isAttributeSpecification: function (name) {
@@ -60,11 +60,25 @@ Object.assign(_GpfClassDefinition.prototype, {
         }
     },
 
+    /**
+     * Given the member name, tells if it exists
+     *
+     * @param {String} name property name
+     * @throws {gpf.Error.unknownAttributesSpecification}
+     */
+    _checkMemberExist: function (name) {
+        if ((!this._extend || this._extend.prototype[name] === undefined)
+            && !this._initialDefinition.hasOwnProperty(name)) {
+            gpf.Error.unknownAttributesSpecification();
+        }
+    },
+
     /** @inheritdoc */
     _checkMemberName: function (name) {
         var attributeName = this._isAttributeSpecification(name);
         if (attributeName) {
             _gpfDefineClassAttributesClassCheckMemberName.call(this, attributeName);
+            this._checkMemberExist(attributeName);
         } else {
             _gpfDefineClassAttributesClassCheckMemberName.call(this, name);
         }
