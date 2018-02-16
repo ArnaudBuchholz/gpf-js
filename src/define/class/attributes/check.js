@@ -8,8 +8,8 @@
 /*global _GpfClassDefinition*/ // Class definition
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfIsArrayLike*/
-/*exported _GPF_DEFINE_CLASS_ATTRIBUTES_SPEFICIATION*/ // $attributes
-/*exported _gpfDefineClassAttributesIsAttributeSpecification*/ // Check if member name is an attribute
+/*exported _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION*/ // $attributes
+/*exported _gpfDefClassAttrIsAttributeSpecification*/ // Check if member name is an attribute
 /*#endif*/
 
 // Done as a feature 'on top' of normal class definition to be able to remove it easily
@@ -40,10 +40,12 @@ _gpfErrorDeclare("define/class/attributes", {
 
 });
 
-var _GPF_DEFINE_CLASS_ATTRIBUTES_SPEFICIATION = "attributes",
-    _gpfDefineClassAttributesClassCheckMemberName = _GpfClassDefinition.prototype._checkMemberName,
-    _gpfDefineClassAttributesClassCheckMemberValue = _GpfClassDefinition.prototype._checkMemberValue,
-    _gpfDefineClassAttributesClassCheck$Property = _GpfClassDefinition.prototype._check$Property;
+var _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION = "attributes",
+    // If matching the capturing group returns the member name or undefined (hence the |.)
+    _gpfDefClassAttrIsAttributeRegExp = new RegExp("^\\[([^\\]]+)\\]$|."),
+    _gpfDefClassAttrClassCheckMemberName = _GpfClassDefinition.prototype._checkMemberName,
+    _gpfDefClassAttrClassCheckMemberValue = _GpfClassDefinition.prototype._checkMemberValue,
+    _gpfDefClassAttrClassCheck$Property = _GpfClassDefinition.prototype._check$Property;
 
 /**
  * Given the member name, tells if the property introduces attributes
@@ -51,36 +53,41 @@ var _GPF_DEFINE_CLASS_ATTRIBUTES_SPEFICIATION = "attributes",
  * @param {String} name Member name
  * @return {String|undefined} Real property name if attributes specification, undefined otherwise
  */
-function _gpfDefineClassAttributesIsAttributeSpecification (name)  {
-    var length = name.length;
-    if (name.charAt(0) === "[" && name.charAt(length - 1) === "]") {
-        return name.substr(1, length - 2);
-    }
+function _gpfDefClassAttrIsAttributeSpecification (name)  {
+    return _gpfDefClassAttrIsAttributeRegExp.exec(name)[1];
 }
 
 Object.assign(_GpfClassDefinition.prototype, {
 
+    _hasInheritedMember: function (name) {
+        return this._extend && this._extend.prototype[name] !== undefined;
+    },
+
+    _hasMember: function (name) {
+        return this._initialDefinition.hasOwnProperty(name)
+            || this._hasInheritedMember(name);
+    },
+
     /**
-     * Given the member name, tells if it exists
+     * Given the member name, check if it exists
      *
      * @param {String} name property name
      * @throws {gpf.Error.unknownAttributesSpecification}
      */
-    _checkMemberExist: function (name) {
-        if ((!this._extend || this._extend.prototype[name] === undefined)
-            && !this._initialDefinition.hasOwnProperty(name)) {
+    _checkAttributeMemberExist: function (name) {
+        if (!this._hasMember(name)) {
             gpf.Error.unknownAttributesSpecification();
         }
     },
 
     /** @inheritdoc */
     _checkMemberName: function (name) {
-        var attributeName = _gpfDefineClassAttributesIsAttributeSpecification(name);
+        var attributeName = _gpfDefClassAttrIsAttributeSpecification(name);
         if (attributeName) {
-            _gpfDefineClassAttributesClassCheckMemberName.call(this, attributeName);
-            this._checkMemberExist(attributeName);
+            _gpfDefClassAttrClassCheckMemberName.call(this, attributeName);
+            this._checkAttributeMemberExist(attributeName);
         } else {
-            _gpfDefineClassAttributesClassCheckMemberName.call(this, name);
+            _gpfDefClassAttrClassCheckMemberName.call(this, name);
         }
     },
 
@@ -105,22 +112,22 @@ Object.assign(_GpfClassDefinition.prototype, {
 
     /** @inheritdoc */
     _checkMemberValue: function (name, value) {
-        if (_gpfDefineClassAttributesIsAttributeSpecification(name)) {
+        if (_gpfDefClassAttrIsAttributeSpecification(name)) {
             this._checkAttributesSpecification(value);
         } else {
-            _gpfDefineClassAttributesClassCheckMemberValue.call(this, name, value);
+            _gpfDefClassAttrClassCheckMemberValue.call(this, name, value);
         }
     },
 
     /** @inheritdoc */
     _check$Property: function (name, value) {
-        if (_GPF_DEFINE_CLASS_ATTRIBUTES_SPEFICIATION === name) {
+        if (_GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION === name) {
             this._checkAttributesSpecification(value);
         } else {
-            _gpfDefineClassAttributesClassCheck$Property.call(this, name, value);
+            _gpfDefClassAttrClassCheck$Property.call(this, name, value);
         }
     }
 
 });
 
-_GpfClassDefinition.prototype._allowed$Properties.push(_GPF_DEFINE_CLASS_ATTRIBUTES_SPEFICIATION);
+_GpfClassDefinition.prototype._allowed$Properties.push(_GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION);
