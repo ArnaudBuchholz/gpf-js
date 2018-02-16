@@ -439,12 +439,10 @@
     },
     {
         "name": "define/class/attributes/check",
-        "load": false,
         "doc": true
     },
     {
         "name": "define/class/attributes/build",
-        "load": false,
         "test": false,
         "doc": true
     },
