@@ -1,5 +1,5 @@
 /**
- * @file Attributes management in a class
+ * @file Check attributes definition in a class
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -8,6 +8,8 @@
 /*global _GpfClassDefinition*/ // Class definition
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfIsArrayLike*/
+/*exported _GPF_DEFINE_CLASS_ATTRIBUTES_SPEFICIATION*/ // $attributes
+/*exported _gpfDefineClassAttributesIsAttributeSpecification*/ // Check if member name is an attribute
 /*#endif*/
 
 // Done as a feature 'on top' of normal class definition to be able to remove it easily
@@ -38,27 +40,25 @@ _gpfErrorDeclare("define/class/attributes", {
 
 });
 
-//region define/class/check
-
 var _GPF_DEFINE_CLASS_ATTRIBUTES_SPEFICIATION = "attributes",
     _gpfDefineClassAttributesClassCheckMemberName = _GpfClassDefinition.prototype._checkMemberName,
     _gpfDefineClassAttributesClassCheckMemberValue = _GpfClassDefinition.prototype._checkMemberValue,
     _gpfDefineClassAttributesClassCheck$Property = _GpfClassDefinition.prototype._check$Property;
 
-Object.assign(_GpfClassDefinition.prototype, {
+/**
+ * Given the member name, tells if the property introduces attributes
+ *
+ * @param {String} name Member name
+ * @return {String|undefined} Real property name if attributes specification, undefined otherwise
+ */
+function _gpfDefineClassAttributesIsAttributeSpecification (name)  {
+    var length = name.length;
+    if (name.charAt(0) === "[" && name.charAt(length - 1) === "]") {
+        return name.substr(1, length - 2);
+    }
+}
 
-    /**
-     * Given the member name, tells if the property introduces attributes
-     *
-     * @param {String} name Member name
-     * @return {String|undefined} Real property name if attributes specification, undefined otherwise
-     */
-    _isAttributeSpecification: function (name) {
-        var length = name.length;
-        if (name.charAt(0) === "[" && name.charAt(length - 1) === "]") {
-            return name.substr(1, length - 2);
-        }
-    },
+Object.assign(_GpfClassDefinition.prototype, {
 
     /**
      * Given the member name, tells if it exists
@@ -75,7 +75,7 @@ Object.assign(_GpfClassDefinition.prototype, {
 
     /** @inheritdoc */
     _checkMemberName: function (name) {
-        var attributeName = this._isAttributeSpecification(name);
+        var attributeName = _gpfDefineClassAttributesIsAttributeSpecification(name);
         if (attributeName) {
             _gpfDefineClassAttributesClassCheckMemberName.call(this, attributeName);
             this._checkMemberExist(attributeName);
@@ -105,7 +105,7 @@ Object.assign(_GpfClassDefinition.prototype, {
 
     /** @inheritdoc */
     _checkMemberValue: function (name, value) {
-        if (this._isAttributeSpecification(name)) {
+        if (_gpfDefineClassAttributesIsAttributeSpecification(name)) {
             this._checkAttributesSpecification(value);
         } else {
             _gpfDefineClassAttributesClassCheckMemberValue.call(this, name, value);
@@ -124,5 +124,3 @@ Object.assign(_GpfClassDefinition.prototype, {
 });
 
 _GpfClassDefinition.prototype._allowed$Properties.push(_GPF_DEFINE_CLASS_ATTRIBUTES_SPEFICIATION);
-
-//endregion
