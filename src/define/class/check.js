@@ -1,5 +1,5 @@
 /**
- * @file Check entity definition
+ * @file Check class definition
  * @since 0.1.6
  */
 /*#ifndef(UMD)*/
