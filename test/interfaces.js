@@ -14,7 +14,7 @@ describe("interfaces", function () {
             var exceptionCaught;
             try {
                 var instance = new gpf.interfaces.IUnknown();
-                assert(instance);
+                assert("function" === typeof instance.queryInterface);
             } catch (e) {
                 exceptionCaught = e;
             }
