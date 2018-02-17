@@ -1,5 +1,6 @@
 /**
  * @file Attribtue base class
+ * @since 0.2.4
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -10,6 +11,7 @@
 /**
  * @namespace gpf.attributes
  * @description Root namespace for GPF attributes
+ * @since 0.2.4
  */
 gpf.attributes = {};
 
@@ -18,6 +20,7 @@ gpf.attributes = {};
  *
  * @class gpf.attributes.Attribute
  * @implements {gpf.interfaces.IReadableStream}
+ * @since 0.2.4
  */
 var _gpfAttribute = _gpfDefine({
     $class: "gpf.attributes.Attribute"

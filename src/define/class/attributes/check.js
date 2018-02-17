@@ -1,13 +1,14 @@
 /**
  * @file Check attributes definition in a class
+ * @since 0.2.4
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GpfClassDefinition*/ // Class definition
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfAttribute*/ // Shortcut for gpf.attributes.Attribute
-/*global _GpfClassDefinition*/ // Class definition
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfIsArrayLike*/
+/*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
 /*exported _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION*/ // $attributes
 /*exported _gpfDefClassAttrIsAttributeSpecification*/ // Check if member name is an attribute
 /*#endif*/
@@ -24,6 +25,7 @@ _gpfErrorDeclare("define/class/attributes", {
      * ### Description
      *
      * Attributes are allowed only on existing members or at the class level using $attributes
+     * @since 0.2.4
      */
     unknownAttributesSpecification: "Unknown attributes specification",
 
@@ -35,6 +37,7 @@ _gpfErrorDeclare("define/class/attributes", {
      * ### Description
      *
      * Attributes are specified using an array of {@link gpf.attributes.Attribute} instances
+     * @since 0.2.4
      */
     invalidAttributesSpecification: "Invalid attributes specification"
 
@@ -52,6 +55,7 @@ var _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION = "attributes",
  *
  * @param {String} name Member name
  * @return {String|undefined} Real property name if attributes specification, undefined otherwise
+ * @since 0.2.4
  */
 function _gpfDefClassAttrIsAttributeSpecification (name)  {
     return _gpfDefClassAttrIsAttributeRegExp.exec(name)[1];
@@ -73,6 +77,7 @@ Object.assign(_GpfClassDefinition.prototype, {
      *
      * @param {String} name property name
      * @throws {gpf.Error.unknownAttributesSpecification}
+     * @since 0.2.4
      */
     _checkAttributeMemberExist: function (name) {
         if (!this._hasMember(name)) {
@@ -80,7 +85,10 @@ Object.assign(_GpfClassDefinition.prototype, {
         }
     },
 
-    /** @inheritdoc */
+    /**
+     * @inheritdoc
+     * @since 0.2.4
+     */
     _checkMemberName: function (name) {
         var attributeName = _gpfDefClassAttrIsAttributeSpecification(name);
         if (attributeName) {
@@ -98,6 +106,7 @@ Object.assign(_GpfClassDefinition.prototype, {
      *
      * @param {*} attributes The attributes specification to validate
      * @throws {gpf.Error.InvalidAttributesSpecification}
+     * @since 0.2.4
      */
     _checkAttributesSpecification: function (attributes) {
         if (!_gpfIsArrayLike(attributes)) {
@@ -110,7 +119,10 @@ Object.assign(_GpfClassDefinition.prototype, {
         });
     },
 
-    /** @inheritdoc */
+    /**
+     * @inheritdoc
+     * @since 0.2.4
+     */
     _checkMemberValue: function (name, value) {
         if (_gpfDefClassAttrIsAttributeSpecification(name)) {
             this._checkAttributesSpecification(value);
@@ -119,7 +131,10 @@ Object.assign(_GpfClassDefinition.prototype, {
         }
     },
 
-    /** @inheritdoc */
+    /**
+     * @inheritdoc
+     * @since 0.2.4
+     */
     _check$Property: function (name, value) {
         if (_GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION === name) {
             this._checkAttributesSpecification(value);

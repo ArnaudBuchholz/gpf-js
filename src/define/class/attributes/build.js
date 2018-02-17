@@ -1,11 +1,12 @@
 /**
  * @file Build attributes in a class
+ * @since 0.2.4
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION*/ // $attributes
 /*global _GpfClassDefinition*/ // Class definition
 /*global _gpfDefClassAttrIsAttributeSpecification*/ // Check if member name is an attribute
-/*global _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION*/ // $attributes
 /*#endif*/
 
 var _gpfDefClassAttrClassAddmemberToPrototype = _GpfClassDefinition.prototype._addMemberToPrototype,
@@ -16,6 +17,7 @@ Object.assign(_GpfClassDefinition.prototype, {
 
     /**
      * Dictionary of Attributes
+     * @since 0.2.4
      */
     _attributes: {},
 
@@ -23,7 +25,10 @@ Object.assign(_GpfClassDefinition.prototype, {
         this._attributes[memberName] = attributes;
     },
 
-    /** @inheritdoc */
+    /**
+     * @inheritdoc
+     * @since 0.2.4
+     */
     _addMemberToPrototype: function (newPrototype, memberName, value) {
         var attributeName = _gpfDefClassAttrIsAttributeSpecification(memberName);
         if (attributeName) {
@@ -33,7 +38,10 @@ Object.assign(_GpfClassDefinition.prototype, {
         }
     },
 
-    /** @inheritdoc */
+    /**
+     * @inheritdoc
+     * @since 0.2.4
+     */
     _buildPrototype: function (newPrototype) {
         var classAttributes = this._initialDefinition[_gpfDefClassAttrClassMemberName];
         this._attributes = {};
