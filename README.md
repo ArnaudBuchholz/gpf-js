@@ -2,30 +2,15 @@
 
 ![GPF Logo](http://arnaudbuchholz.github.io/gpf/gpf_320x200.svg)
 
-<a href="https://travis-ci.org/ArnaudBuchholz/gpf-js#" target="_blank">
-    <img src="https://travis-ci.org/ArnaudBuchholz/gpf-js.svg?branch=master" title="Travis-CI" />
-</a>
-<a href="https://coveralls.io/github/ArnaudBuchholz/gpf-js?branch=master" target="_blank">
-    <img src="https://coveralls.io/repos/github/ArnaudBuchholz/gpf-js/badge.svg?branch=master" title="Coverage Status" />
-</a>
-<a href="https://deepscan.io/dashboard#view=project&pid=1923&bid=8681" target="_blank">
-    <img src="https://deepscan.io/api/projects/1923/branches/8681/badge/grade.svg" title="DeepScan grade" />
-</a>
-<a href="https://david-dm.org/ArnaudBuchholz/gpf-js?type=dev" target="_blank">
-    <img src="https://david-dm.org/ArnaudBuchholz/gpf-js.svg" title="Dependencies Status" />
-</a>
-<a href="http://gruntjs.com/" target="_blank">
-    <img src="https://cdn.gruntjs.com/builtwith.png" title="Built with Grunt" />
-</a>
-<a href="http://vanilla-js.com" target="_blank">
-    <img src="http://vanilla-js.com/assets/button.png" title="Vanilla JS" />
-</a>
+[![Travis-CI](https://travis-ci.org/ArnaudBuchholz/gpf-js.svg?branch=master)](https://travis-ci.org/ArnaudBuchholz/gpf-js#)
+[![Coverage Status](https://coveralls.io/repos/github/ArnaudBuchholz/gpf-js/badge.svg?branch=master)](https://coveralls.io/github/ArnaudBuchholz/gpf-js?branch=master)
+[![DeepScan grade](https://deepscan.io/api/projects/1923/branches/8681/badge/grade.svg)](https://deepscan.io/dashboard#view=project&pid=1923&bid=8681)
+[![Dependencies Status](https://david-dm.org/ArnaudBuchholz/gpf-js.svg)](https://david-dm.org/ArnaudBuchholz/gpf-js?type=dev)
+[![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
+[![Vanilla JS](http://vanilla-js.com/assets/button.png)](http://vanilla-js.com)
 
 A multi-purpose JavaScript library created and maintained by
 [Arnaud Buchholz](http://gpf-js.blogspot.com/).
-
-[![NPM](https://nodei.co/npm/gpf-js.png?downloads=true&&downloadRank=true&stars=true)](https://nodei.co/npm/gpf-js/)
-[![NPM](https://nodei.co/npm-dl/gpf-js.png?months=3&height=3)](https://nodei.co/npm/gpf-js/)
 
 ## Features
 
