@@ -149,7 +149,7 @@ const
     checkCmdLineBrowsers = () => {
         // Re-read config file because selenium detection might rewrite it
         config.read();
-        let configChanged = checkCmdLineSafari(isWindows),
+        let configChanged = checkCmdLineSafari(),
             promise;
         if (config.content.browsers.chrome || isWindows) {
             promise = Promise.resolve();
@@ -238,7 +238,7 @@ Promise.resolve()
             }
         }
         if (!quietMode) {
-            return askForQualityMetrics(config);
+            return askForQualityMetrics();
         }
     })
     .then(() => config.save()) // Save before checking Selenium (which updates the configuration file)
