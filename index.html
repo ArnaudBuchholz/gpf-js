@@ -139,6 +139,8 @@ function onLoad () {
                     names = Object.keys(config.browsers).concat(["node", "phantom"]);
                 if (config.host.wscript) {
                     names.push("wscript");
+                } else {
+                    names.push("nodewscript");
                 }
                 if (config.host.java) {
                     names.push("rhino");
