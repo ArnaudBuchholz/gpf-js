@@ -49,8 +49,7 @@ describe("context", function () {
                     testContext = {};
                 mainContext.testContextJS = testContext;
                 var test = _gpfContext(["testContextJS", "folder", "name"], true);
-                assert(mainContext.testContextJS === testContext);
-                assert(mainContext.testContextJS.folder.name === test);
+                assert(testContext.folder.name === test);
                 delete mainContext.testContextJS;
             });
 
