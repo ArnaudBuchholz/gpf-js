@@ -215,7 +215,7 @@
             verbose("Test files loaded.");
         },
 
-        _setupConfig = function (configuration/*, options*/) {
+        _setupConfig = function (configuration) {
             var configFile = JSON.parse(configuration.read(_resolvePath(configuration, "tmp/config.json")));
             context.config = Object.assign({
                 httpPort: configFile.serve.httpPort
@@ -310,7 +310,7 @@
             runWithCallback();
         },
 
-        _updloadCoverage = function (/*configuration, options, verbose*/) {
+        _updloadCoverage = function () {
             var coverageData = JSON.stringify(__coverage__),
                 pos = 0,
                 length = coverageData.length,
@@ -346,7 +346,7 @@
                     exit(-1);
                 }
                 verbose("Uploading coverage results...");
-                _updloadCoverage(configuration, options, verbose)
+                _updloadCoverage()
                     .then(function () {
                         verbose("Coverage results uploaded.");
                         exit(0);
@@ -422,7 +422,7 @@
             _load(configuration, _resolvePath(configuration, "test/host/console.js"));
             verbose("Console loaded.");
         }
-        _setupConfig(configuration, options);
+        _setupConfig(configuration);
         _loadTests(configuration, options, verbose);
         _safeRunBDD(configuration, options, verbose);
     };
