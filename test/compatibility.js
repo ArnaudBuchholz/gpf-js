@@ -669,7 +669,6 @@ describe("compatibility", function () {
                 var thisName = Function("value", "return value;"); //eslint-disable-line no-new-func
                 /*jshint +W061*/
                 /*jshint +W064*/
-                assert("function" === typeof thisName);
                 assert(1 === thisName.length);
                 assert(123 === thisName(123));
             });
