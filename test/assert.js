@@ -36,9 +36,9 @@ describe("assert", function () {
             null
         ].forEach(function (value) {
             var stringValue;
-            if (undefined === stringValue) {
+            if (undefined === value) {
                 stringValue = "undefined";
-            } else if (null === stringValue) {
+            } else if (null === value) {
                 stringValue = "null";
             } else {
                 stringValue = value.toString();
