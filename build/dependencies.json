@@ -353,5 +353,19 @@
         "stream",
         "string/escapefor",
         "string/replaceex"
+    ],
+    "attributes/attribute": [
+        "define"
+    ],
+    "define/class/attributes/check": [
+        "define/class/class",
+        "foreach",
+        "attributes/attribute",
+        "error",
+        "arraylike"
+    ],
+    "define/class/attributes/build": [
+        "define/class/attributes/check",
+        "define/class/class"
     ]
 }
