@@ -145,6 +145,9 @@ function onLoad () {
                 if (config.host.java) {
                     names.push("rhino");
                 }
+                if (config.host.nashorn) {
+                    names.push("nashorn");
+                }
                 names.forEach(function (name) {
                     envNames.appendChild(envItemFactory({
                         name: name
