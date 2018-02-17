@@ -165,7 +165,7 @@ describe("stream/node", function () {
             it("configures the stream by hooking the events", function () {
                 var mockedStream = new NodeMockedStream(),
                     iWritableStream = new gpf.node.WritableStream(mockedStream);
-                assert(iWritableStream); // avoid JSHint error
+                assert("function" === typeof iWritableStream.write); // avoid JSHint error
                 assert("function" === typeof mockedStream._events.error);
             });
 
