@@ -23,8 +23,9 @@ const
         fs.readdir(folderPath, (err, files) => _succeeded(response, err, JSON.stringify(files)));
     },
 
-    _write = (request, response, filePath) => {
+    _write = (request, response, file) => {
         const
+            filePath = file.path,
             data = [],
             flag = "POST" === request.method ? "w" : "a";
         request
@@ -36,8 +37,28 @@ const
             });
     },
 
-    _delete = (response, filePath) => {
-        fs.unlink(filePath, err => _succeeded(response, err));
+    _handlers = {
+
+        OPTIONS: (request, response/*, file*/) => {
+            response.end();
+        },
+
+        GET: (request, response, file) => {
+            if (file.stats.isDirectory()) {
+                _readFolder(request, response, file.path);
+            } else {
+                _read(request, response, file.path);
+            }
+        },
+
+        DELETE: (request, response, file) => {
+            fs.unlink(file.path, err => _succeeded(response, err));
+        },
+
+        POST: _write,
+
+        PUT: _write
+
     };
 
 module.exports = (request, response, next) => {
@@ -71,23 +92,11 @@ module.exports = (request, response, next) => {
             return;
         }
 
-        if ("OPTIONS" === method) {
-            response.end();
+        _handlers[method](request, response, {
+            path: filePath,
+            stats: stats
+        });
 
-        } else if ("GET" === request.method) {
-            if (stats.isDirectory()) {
-                _readFolder(request, response, filePath);
-            } else {
-                _read(request, response, filePath);
-            }
-
-
-        } else if ("DELETE" === request.method) {
-            _delete(response, filePath);
-
-        } else { // PUT & POST
-            _write(request, response, filePath);
-        }
     });
 
 };
