@@ -1,5 +1,5 @@
 /**
- * @file Attribtue base class
+ * @file gpf.attributes.Attribute base class
  * @since 0.2.4
  */
 /*#ifndef(UMD)*/
