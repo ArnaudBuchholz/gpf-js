@@ -42,7 +42,7 @@ describe("function", function () {
                 function /*name is */ test2 (/*first*/a,
                     b // second parameter
                     ,   /*before*/      c   /*after*/
-                    ) {
+                ) {
                     /*comments are removed*/
                     return a + b + c;
                 }
