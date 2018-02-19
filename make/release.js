@@ -178,8 +178,8 @@ inquirer.prompt(setupQuestions)
         .then(output => output.length ? error("Process any pending changes first") : 0)
     )
     .then(() => hasPublicationRepo
-        ?   spawnGit(["-C", publicationRepo, "status", "--porcelain"])
-                .then(output => output.length ? error("Clean publication repository first") : 0)
+        ? spawnGit(["-C", publicationRepo, "status", "--porcelain"])
+            .then(output => output.length ? error("Clean publication repository first") : 0)
         : 0
     )
     .then(() => {
