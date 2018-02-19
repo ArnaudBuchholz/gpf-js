@@ -438,7 +438,7 @@ SourceArray.prototype = {
 
     /** Save to src/sources.json */
     save: function () {
-        xhr("/fs/src/sources.json").put(this.toString())
+        xhr("/fs/src/sources.json").post(this.toString())
             .then(undefined, showError);
     }
 
