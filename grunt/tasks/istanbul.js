@@ -86,11 +86,8 @@ module.exports = function (grunt) {
         // Because code generation uses templates that are instrumented, the __cov_XXX variables must be global
         configuration.files.src.forEach(fileName => {
             let srcPath = `tmp/coverage/instrument/${fileName}`,
-                instrumentedLines = fs
-                    .readFileSync(srcPath)
-                    .toString()
-                    .split("\n"),
-            // Assuming the __cov_ variable is on the second line
+                instrumentedLines = fs.readFileSync(srcPath).toString().split("\n"),
+                // Assuming the __cov_ variable is on the second line
                 secondLine = instrumentedLines[1];
             if (0 === secondLine.indexOf("var ")) {
                 instrumentedLines[1] = `global.${secondLine.substr(4)}`;
