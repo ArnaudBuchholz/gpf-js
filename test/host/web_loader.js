@@ -39,7 +39,7 @@
     }
 
     function _detectLegacy () {
-        var legacyVersion = (/version=([0-9\.]+)/).exec(window.location.search);
+        var legacyVersion = (/version=([0-9.]+)/).exec(window.location.search);
         if (legacyVersion) {
             return legacyVersion[1];
         }
