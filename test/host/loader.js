@@ -115,7 +115,7 @@
                 configuration.loadTest(path);
             } else {
                 var testFileContent = configuration.read(path),
-                    modifiedContent = testFileContent.replace(/[^\."]assert\((.*)\);/g, function (match, test, offset) {
+                    modifiedContent = testFileContent.replace(/[^."]assert\((.*)\);/g, function (match, test, offset) {
                         var lines = testFileContent.substr(0, offset).split("\n"),
                             lineNumber = lines.length,
                             pos = lines.pop().length + 1,
