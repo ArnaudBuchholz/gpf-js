@@ -2,11 +2,13 @@
 
 describe("filter", function () {
 
-    var array = [{id: 0, num: 5, str: "e", group: 1, search: "first"},
-                {id: 1, num: 1, str: "b", group: 0, search: "second"},
-                {id: 2, num: 4, str: "a", group: 1, search: "third"},
-                {id: 3, num: 2, str: "d", group: 0, search: "fourth"},
-                {id: 4, num: 3, str: "c", group: 1, search: "fifth"}];
+    var array = [
+        {id: 0, num: 5, str: "e", group: 1, search: "first"},
+        {id: 1, num: 1, str: "b", group: 0, search: "second"},
+        {id: 2, num: 4, str: "a", group: 1, search: "third"},
+        {id: 3, num: 2, str: "d", group: 0, search: "fourth"},
+        {id: 4, num: 3, str: "c", group: 1, search: "fifth"}
+    ];
 
     function checkFilteringResult (result, ids) {
         assert(result.length === ids.length);
