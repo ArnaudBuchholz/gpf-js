@@ -445,5 +445,10 @@
         "name": "define/class/attributes/build",
         "test": false,
         "doc": true
+    },
+    {
+        "name": "attributes",
+        "load": false,
+        "doc": true
     }
 ]
