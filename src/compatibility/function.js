@@ -50,9 +50,9 @@ function _gpfGetFunctionName () {
         functionKeywordPos = functionSource.indexOf("function"),
         parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
     return functionSource
-            .substr(functionKeywordPos + 9, parameterListStartPos - functionKeywordPos - 9)
-            .replace(_gpfJsCommentsRegExp, "") // remove comments
-            .trim();
+        .substr(functionKeywordPos + 9, parameterListStartPos - functionKeywordPos - 9)
+        .replace(_gpfJsCommentsRegExp, "") // remove comments
+        .trim();
 }
 
 // Handling function name properly
