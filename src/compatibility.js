@@ -58,9 +58,9 @@ function _gpfInstallCompatibleStatics (on, statics) {
  */
 function _gpfInstallCompatibility (typeName, description) {
     var on = description.on;
-/*#ifndef(UMD)*/
+    /*#ifndef(UMD)*/
     _gpfCompatibility[typeName] = description;
-/*#endif*/
+    /*#endif*/
     _gpfInstallCompatibleMethods(on, description.methods);
     _gpfInstallCompatibleStatics(on, description.statics);
 }
