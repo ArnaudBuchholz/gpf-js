@@ -31,17 +31,19 @@ function _gpfHttpXhrWaitForCompletion (xhr, callback) {
     };
 }
 
+function _gpfHttpXhrRequest (request, resolve) {
+    var xhr = _gpfHttpXhrOpen(request);
+    _gpfHttpXhrSetHeaders(xhr, request.headers);
+    _gpfHttpXhrWaitForCompletion(xhr, function () {
+        resolve({
+            status: xhr.status,
+            headers: _gpfHttpParseHeaders(xhr.getAllResponseHeaders()),
+            responseText: xhr.responseText
+        });
+    });
+    _gpfHttpXhrSend(xhr, request.data);
+}
+
 _gpfHttpRequestImplByHost[_GPF_HOST.BROWSER]
     = _gpfHttpRequestImplByHost[_GPF_HOST.PHANTOMJS]
-    = function (request, resolve) {
-        var xhr = _gpfHttpXhrOpen(request);
-        _gpfHttpXhrSetHeaders(xhr, request.headers);
-        _gpfHttpXhrWaitForCompletion(xhr, function () {
-            resolve({
-                status: xhr.status,
-                headers: _gpfHttpParseHeaders(xhr.getAllResponseHeaders()),
-                responseText: xhr.responseText
-            });
-        });
-        _gpfHttpXhrSend(xhr, request.data);
-    };
+    = _gpfHttpXhrRequest;
