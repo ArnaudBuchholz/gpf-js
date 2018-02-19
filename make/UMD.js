@@ -4,6 +4,7 @@
 /*eslint no-unused-vars: 0*/ // ignore unused gpf
 /*eslint strict: [2, "function"]*/ // To be more modular
 /*eslint no-new-func: 0*/ // the Function constructor is eval
+/*eslint complexity: 0*/
 /*global __gpf__*/
 (function (root, factory) {
     "use strict";
