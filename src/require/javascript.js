@@ -31,7 +31,7 @@ _gpfErrorDeclare("require/javascript", {
 
 });
 
-var _gpfRequireJsModuleRegEx = /[^\.]\brequire\b\s*\(\s*(?:['|"]([^"']+)['|"]|[^\)]+)\s*\)/g;
+var _gpfRequireJsModuleRegEx = /[^.]\brequire\b\s*\(\s*(?:['|"]([^"']+)['|"]|[^)]+)\s*\)/g;
 
 function _gpfRequireJSGetStaticDependencies (resourceName, content) {
     /*jshint validthis:true*/
@@ -48,9 +48,9 @@ function _gpfRequireJSGetStaticDependencies (resourceName, content) {
                 dictionary[name] = name;
                 return dictionary;
             }, {}),
-            function (require) {
-                return require;
-            });
+        function (require) {
+            return require;
+        });
     }
     return Promise.resolve({}); // No static dependencies
 }
