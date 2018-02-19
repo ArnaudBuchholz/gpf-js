@@ -2,11 +2,13 @@
 
 describe("sort", function () {
 
-    var array = [{id: 0, num: 5, str: "e", group: 1},
-                 {id: 1, num: 1, str: "b", group: 0},
-                 {id: 2, num: 4, str: "a", group: 1},
-                 {id: 3, num: 2, str: "d", group: 0},
-                 {id: 4, num: 3, str: "c", group: 1}];
+    var array = [
+        {id: 0, num: 5, str: "e", group: 1},
+        {id: 1, num: 1, str: "b", group: 0},
+        {id: 2, num: 4, str: "a", group: 1},
+        {id: 3, num: 2, str: "d", group: 0},
+        {id: 4, num: 3, str: "c", group: 1}
+    ];
 
     function checkSortingResult (result, ids) {
         assert(result.every(function (item, index) {
