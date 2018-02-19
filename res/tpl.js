@@ -12,7 +12,7 @@
 (function () {
     "use strict";
 
-    var _reQuote = /\"/g,
+    var _reQuote = /"/g,
         _reCarriageReturn = /\n/g,
         _Func = Function,
         _parser = new DOMParser(),
