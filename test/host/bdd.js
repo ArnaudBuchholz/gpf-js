@@ -275,6 +275,16 @@
 
     //region default callback (based on console.log)
 
+    function _getItLineStart (data) {
+        if (data.pending) {
+            return "-- ";
+        }
+        if (data.result) {
+            return "OK ";
+        }
+        return "KO ";
+    }
+
     var _handlers = {
 
         /**
@@ -299,14 +309,7 @@
          * - {Object} exception exception details
          */
         it: function (data) {
-            var line = new Array(data.depth + 1).join("\t");
-            if (data.pending) {
-                line += "-- ";
-            } else if (data.result) {
-                line += "OK ";
-            } else {
-                line += "KO ";
-            }
+            var line = new Array(data.depth + 1).join("\t") + _getItLineStart(data);
             line += data.label;
             _output(line);
             if (false === data.result && data.exception) {
