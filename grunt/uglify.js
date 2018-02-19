@@ -7,6 +7,10 @@ module.exports = {
     options: {
         beautify: {
             keep_quoted_props: true,
+            beautify: false
+        },
+        ie8: true,
+        output: {
             ascii_only: true
         }
     },
