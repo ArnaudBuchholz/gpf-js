@@ -5,7 +5,8 @@
 [![Travis-CI](https://travis-ci.org/ArnaudBuchholz/gpf-js.svg?branch=master)](https://travis-ci.org/ArnaudBuchholz/gpf-js#)
 [![Coverage Status](https://coveralls.io/repos/github/ArnaudBuchholz/gpf-js/badge.svg?branch=master)](https://coveralls.io/github/ArnaudBuchholz/gpf-js?branch=master)
 [![DeepScan grade](https://deepscan.io/api/projects/1923/branches/8681/badge/grade.svg)](https://deepscan.io/dashboard#view=project&pid=1923&bid=8681)
-[![Dependencies Status](https://david-dm.org/ArnaudBuchholz/gpf-js.svg)](https://david-dm.org/ArnaudBuchholz/gpf-js?type=dev)
+[![dependencies Status](https://david-dm.org/ArnaudBuchholz/gpf-js/status.svg)](https://david-dm.org/ArnaudBuchholz/gpf-js)
+[![devDependencies Status](https://david-dm.org/ArnaudBuchholz/gpf-js/dev-status.svg)](https://david-dm.org/ArnaudBuchholz/gpf-js?type=dev)
 [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
 [![Vanilla JS](http://vanilla-js.com/assets/button.png)](http://vanilla-js.com)
 
