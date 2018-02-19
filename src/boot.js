@@ -169,7 +169,7 @@ if ("undefined" !== typeof WScript) {
     _gpfHost = _GPF_HOST.WSCRIPT;
     _gpfDosPath = true;
 
-/*#ifndef(UMD)*/
+    /*#ifndef(UMD)*/
     /*eslint-disable new-cap*/
 
     _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
@@ -182,7 +182,7 @@ if ("undefined" !== typeof WScript) {
     };
 
     /*eslint-enable new-cap*/
-/*#endif*/
+    /*#endif*/
 
 } else if ("undefined" !== typeof print && "undefined" !== typeof java) {
     _gpfDosPath = String(java.lang.System.getProperty("file.separator")) === "\\";
@@ -190,22 +190,22 @@ if ("undefined" !== typeof WScript) {
     if ("undefined" === typeof readFile) {
         _gpfHost = _GPF_HOST.NASHORN;
 
-/*#ifndef(UMD)*/
+        /*#ifndef(UMD)*/
 
         _gpfSyncReadForBoot = function (srcFileName) {
             return [].join.call(java.nio.file.Files.readAllLines(java.nio.file.Paths.get(srcFileName)), "\n");
         };
 
-/*#endif*/
+        /*#endif*/
 
     } else {
         _gpfHost = _GPF_HOST.RHINO;
 
-/*#ifndef(UMD)*/
+        /*#ifndef(UMD)*/
 
         _gpfSyncReadForBoot = readFile;
 
-/*#endif*/
+        /*#endif*/
 
     }
 
@@ -215,7 +215,7 @@ if ("undefined" !== typeof WScript) {
     _gpfDosPath = require("fs").separator === "\\";
     _gpfMainContext = window;
 
-/*#ifndef(UMD)*/
+    /*#ifndef(UMD)*/
 
     _gpfNodeFs =  require("fs");
 
@@ -223,7 +223,7 @@ if ("undefined" !== typeof WScript) {
         return _gpfNodeFs.read(srcFileName);
     };
 
-/*#endif*/
+    /*#endif*/
 
 // Nodejs
 } else if ("undefined" !== typeof module && module.exports) {
@@ -232,7 +232,7 @@ if ("undefined" !== typeof WScript) {
     _gpfDosPath = _gpfNodePath.sep === "\\";
     _gpfMainContext = global;
 
-/*#ifndef(UMD)*/
+    /*#ifndef(UMD)*/
     /*eslint-disable no-sync*/ // Simpler this way
 
     _gpfNodeFs =  require("fs");
@@ -241,7 +241,7 @@ if ("undefined" !== typeof WScript) {
         return _gpfNodeFs.readFileSync(srcFileName).toString();
     };
 
-/*#endif*/
+    /*#endif*/
 
 // Browser
 /* istanbul ignore else */ // unknown.1
@@ -250,7 +250,7 @@ if ("undefined" !== typeof WScript) {
     _gpfHost = _GPF_HOST.BROWSER;
     _gpfMainContext = window;
 
-/*#ifndef(UMD)*/
+    /*#ifndef(UMD)*/
 
     _gpfSyncReadForBoot = function (srcFileName) {
         var xhr = new XMLHttpRequest();
@@ -259,7 +259,7 @@ if ("undefined" !== typeof WScript) {
         return xhr.responseText;
     };
 
-/*#endif*/
+    /*#endif*/
 
 }
 
