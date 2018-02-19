@@ -72,18 +72,30 @@ describe("compatibility/timeout", function () {
                 return this._id;
             },
 
+            _isAllowed: function () {
+                if (!this._allowed) {
+                    throw new Error("Not allowed");
+                }
+            },
+
+            _isTriggered: function () {
+                if (this._triggered) {
+                    throw new Error("Already triggered");
+                }
+            },
+
+            _isSynchronous: function () {
+                if (this._synchronous) {
+                    throw new Error("Triggered too soon (synchronous should be false)");
+                }
+            },
+
             callback: function () {
                 try {
-                    if (!this._allowed) {
-                        throw new Error("Not allowed");
-                    }
-                    if (this._triggered) {
-                        throw new Error("Already triggered");
-                    }
+                    this._isAllowed();
+                    this._isTriggered();
                     this._triggered = now();
-                    if (this._synchronous) {
-                        throw new Error("Triggered too soon (synchronous should be false)");
-                    }
+                    this._isSynchronous();
                     var realDelay = now() - this._start;
                     if (realDelay < this._delay && this._delay - realDelay > TIMER_RESOLUTION) {
                         throw new Error("Triggered too soon (" + realDelay + " does not respect the timeout delay of "
