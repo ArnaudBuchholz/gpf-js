@@ -1,6 +1,6 @@
 "use strict";
 
-describe("attributes/attribute", function () {
+describe("define/class/attributes/check", function () {
 
     var MyAttribute = gpf.define({
         $class: "MyAttribute",
