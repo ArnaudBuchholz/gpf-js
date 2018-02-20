@@ -448,7 +448,7 @@
     },
     {
         "name": "attributes",
-        "load": true,
+        "load": false,
         "doc": true
     }
 ]
