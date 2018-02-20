@@ -447,8 +447,13 @@
         "doc": true
     },
     {
+        "name": "define/class/attributes/consolidate",
+        "test": false,
+        "doc": true
+    },
+    {
         "name": "attributes",
-        "load": false,
+        "load": true,
         "doc": true
     }
 ]
