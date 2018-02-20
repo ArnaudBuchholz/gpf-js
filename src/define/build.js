@@ -5,15 +5,16 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfEntityDefinition*/ // Entity definition
+/*global _gpfArrayForEachFalsy*/ // _gpfArrayForEach that returns first truthy value computed by the callback
 /*global _gpfContext*/ // Resolve contextual string
 /*global _gpfEmptyFunc*/ // An empty function
-/*global _gpfArrayForEachFalsy*/ // _gpfArrayForEach that returns first truthy value computed by the callback
 /*exported _gpfDefineGetEntityFromBuilder*/ // Retrieves entity definition from instance instance builder
 /*#endif*/
 
 /**
  * Array of defined entities.
  * @type {_GpfEntityDefinition[]}
+ * @since 0.2.4
  */
 var _gpfDefinedEntities = [];
 
@@ -24,6 +25,7 @@ var _gpfDefinedEntities = [];
  *
  * @param {Function} instanceBuilder Instance builder
  * @return {_GpfEntityDefinition|undefined} Entity definition (if found)
+ * @since 0.2.4
  */
 function _gpfDefineGetEntityFromBuilder (instanceBuilder) {
     return _gpfArrayForEachFalsy(_gpfDefinedEntities, function (entityDefinition) {
