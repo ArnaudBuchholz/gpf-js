@@ -2,7 +2,7 @@
 
 describe("attributes", function () {
 
-    var baseContent = {
+    var baseAttributeContent = {
             $extend: "gpf.attributes.Attribute",
             _value: undefined,
             getValue: function () {
@@ -15,11 +15,11 @@ describe("attributes", function () {
 
         MyAttribute1 = gpf.define(Object.assign({
             $class: "MyAttribute1"
-        }, baseContent)),
+        }, baseAttributeContent)),
 
         MyAttribute2 = gpf.define(Object.assign({
             $class: "MyAttribute2"
-        }, baseContent)),
+        }, baseAttributeContent)),
 
         MyClassWithoutAttributes = gpf.define({
             $class: "MyClassWithoutAttributes"
@@ -40,6 +40,21 @@ describe("attributes", function () {
             "[value2]": [new MyAttribute1("H")],
             value2: 1
         });
+
+        // MySubNativeClass = gpf.define({
+        //     $class: "MyClass",
+        //     $extend: MyNativeSubClass,
+        //     $attributes: [new MyAttribute1("E"), new MyAttribute2("F")],
+        //     "[value]": [new MyAttribute2("G")],
+        //     "[value2]": [new MyAttribute1("H")],
+        //     value2: 1
+        // })
+
+    function MyNativeSubClass () {
+        MyClass.apply(this, arguments);
+    }
+
+    MyNativeSubClass.prototype = Object.create(MyClass.prototype);
 
     describe("gpf.attributes.get", function () {
 
@@ -77,10 +92,10 @@ describe("attributes", function () {
             assert(attributes.$attributes[0].getValue() === "C");
         });
 
-        describe("with inheritance", function () {
+        function _testGPFInheritance (resultClass) {
 
             it("retrieves all attributes (on class)", function () {
-                var attributes = gpf.attributes.get(MySubClass);
+                var attributes = gpf.attributes.get(resultClass);
                 assert(Object.keys(attributes).length === 3);
                 assert(attributes.$attributes.length === 5);
                 assert(attributes.value.length === 2);
@@ -88,12 +103,31 @@ describe("attributes", function () {
             });
 
             it("filters on a given attribute class", function () {
-                var attributes = gpf.attributes.get(MySubClass, MyAttribute1);
+                var attributes = gpf.attributes.get(resultClass, MyAttribute1);
                 assert(Object.keys(attributes).length === 3);
                 assert(attributes.$attributes.length === 3);
                 assert(attributes.value2[0].getValue() === "H");
             });
+        }
 
+        describe("with native inheritance", function () {
+
+            it("retrieves all attributes (on class)", function () {
+                var attributes = gpf.attributes.get(MyNativeSubClass);
+                assert(Object.keys(attributes).length === 2);
+                assert(attributes.$attributes.length === 3);
+                assert(attributes.value.length === 1);
+                assert(attributes.value[0].getValue() === "D");
+            });
+
+            // describe("and then with GPF inheritance", function () {
+            //     _testGPFInheritance(MySubNativeClass);
+            // });
+
+        });
+
+        describe("with GPF inheritance", function () {
+            _testGPFInheritance(MySubClass);
         });
 
     });
