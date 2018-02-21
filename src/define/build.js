@@ -28,11 +28,20 @@ var _gpfDefinedEntities = [];
  * @since 0.2.4
  */
 function _gpfDefineGetEntityFromBuilder (instanceBuilder) {
-    return _gpfArrayForEachFalsy(_gpfDefinedEntities, function (entityDefinition) {
+    var result = _gpfArrayForEachFalsy(_gpfDefinedEntities, function (entityDefinition) {
         if (entityDefinition.getInstanceBuilder() === instanceBuilder) {
             return entityDefinition;
         }
     });
+    if (!result) {
+        // Reversed lookup because the  level
+        result = _gpfArrayForEachFalsy([].concat(_gpfDefinedEntities).reverse(), function (entityDefinition) {
+            if (instanceBuilder.prototype instanceof entityDefinition.getInstanceBuilder()) {
+                return entityDefinition;
+            }
+        });
+    }
+    return result;
 }
 
 Object.assign(_GpfEntityDefinition.prototype, {
