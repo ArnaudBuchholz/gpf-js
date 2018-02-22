@@ -41,12 +41,13 @@ function _gpfStreamPipeToFlushableWrite (intermediate, destination) {
         iFlushableIntermediate = _gpfStreamPipeToFlushable(intermediate),
         iWritableDestination = _gpfStreamQueryWritable(destination),
         iFlushableDestination = _gpfStreamPipeToFlushable(destination),
-        readingDone = false,
+        readingDone,
         readError;
 
     // Read errors must be transmitted up to the initial read, this is done by forwarding it to flush & write
     function _read () {
         try {
+            readingDone = false;
             iReadableIntermediate.read(iWritableDestination)
                 .then(function () {
                     readingDone = true;
