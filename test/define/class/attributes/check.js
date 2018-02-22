@@ -18,11 +18,6 @@ describe("define/class/attributes/check", function () {
 
     });
 
-    MyAttribute.build = function (value) {
-        return new MyAttribute(value);
-    };
-
-
     describe("attributes validation", function () {
 
         it("allows only existing members", function () {
@@ -97,16 +92,16 @@ describe("define/class/attributes/check", function () {
 
     });
 
-    var MyClassWithAttributes = gpf.define({
-        $class: "MyClassWithAttributes",
-        $attributes: [MyAttribute.build("class")],
-        "[test]": [MyAttribute.build("member")],
-        test: 0
-    });
-
     describe("attributes definition", function () {
 
         it("does not expose new members", function () {
+            var MyClassWithAttributes = gpf.define({
+                $class: "MyClassWithAttributes",
+                $attributes: [new MyAttribute("class")],
+                "[test]": [new MyAttribute("member")],
+                test: 0
+            });
+
             assert(undefined === MyClassWithAttributes.prototype["[test]"]);
         });
 
