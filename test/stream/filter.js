@@ -17,19 +17,35 @@ describe("stream/filter", function () {
         }));
     }
 
+    function test (filterFunc, ids, done) {
+        var readable = new gpf.stream.ReadableArray(array),
+            filter = new gpf.stream.Filter(filterFunc),
+            output = new gpf.stream.WritableArray(array);
+        gpf.stream.pipe(readable, filter, output)
+            .then(function () {
+                checkFilteringResult(output.toArray(), ids);
+                done();
+            })["catch"](done);
+    }
+
     describe("gpf.stream.Filter", function () {
 
-        it("filters data", function (done) {
-            var readable = new gpf.stream.ReadableArray(array),
-                filter = new gpf.stream.Filter(function (data) {
-                    return data.num === 1;
-                }),
-                output = new gpf.stream.WritableArray(array);
-            gpf.stream.pipe(readable, filter, output)
-                .then(function () {
-                    checkFilteringResult(output.toArray(), [1]);
-                    done();
-                })["catch"](done);
+        it("filters data - no result", function (done) {
+            test(function () {
+                return false;
+            }, [], done);
+        });
+
+        it("filters data - one result", function (done) {
+            test(function (data) {
+                return data.num === 1;
+            }, [1], done);
+        });
+
+        it("filters data - several results", function (done) {
+            test(function (data) {
+                return data.group === 1;
+            }, [0, 2, 4], done);
         });
 
     });
