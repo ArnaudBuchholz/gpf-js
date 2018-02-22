@@ -28,7 +28,29 @@ describe("stream/filter", function () {
             })["catch"](done);
     }
 
+    function _ignore () {}
+
     describe("gpf.stream.Filter", function () {
+
+        it("forwards errors", function (done) {
+            var readable = new gpf.stream.ReadableArray(array),
+                filter = new gpf.stream.Filter(function () {
+                    return true;
+                }),
+                output = {
+                    write: function (data) {
+                        _ignore(data);
+                        return Promise.reject("KO");
+                    }
+                };
+            gpf.stream.pipe(readable, filter, output)
+                .then(function () {
+                    throw new Error("Not expected");
+                }, function (reason) {
+                    assert("KO" === reason);
+                    done();
+                })["catch"](done);
+        });
 
         it("filters data - no result", function (done) {
             test(function () {
