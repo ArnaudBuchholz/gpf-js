@@ -1,5 +1,6 @@
 /**
  * @file Filterable stream
+ * @since 0.2.4
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -7,7 +8,7 @@
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfStreamSecureInstallProgressFlag*/ // Install the progress flag used by _gpfStreamSecureRead and Write
 /*global _gpfStreamSecureRead*/ // Generate a wrapper to secure multiple calls to stream#read
-/*global _gpfStreamSecureWrite*/
+/*global _gpfStreamSecureWrite*/ // Generates a wrapper to secure multiple calls to stream#write
 /*exported _GpfStreamFilter*/ // gpf.stream.Filter
 /*#endif*/
 
@@ -22,6 +23,8 @@ var
          * @constructor gpf.stream.BufferedRead
          * @implements {gpf.interfaces.IReadableStream}
          * @implements {gpf.interfaces.IWritableStream}
+         * @implements {gpf.interfaces.IFlushableStream}
+         * @since 0.2.4
          */
         constructor: function (filter) {
             this._filter = filter;
@@ -32,24 +35,28 @@ var
         /**
          * Promise used to wait for data
          * @type {Promise}
+         * @since 0.2.4
          */
         _dataInPromise: undefined,
 
         /**
          * Resolve function of _dataInPromise
          * @type {Function}
+         * @since 0.2.4
          */
         _dataInResolve: _gpfEmptyFunc,
 
         /**
          * Resolve function of _writeData's Promise
          * @type {Function}
+         * @since 0.2.4
          */
         _dataOutResolve: _gpfEmptyFunc,
 
         /**
          * Reject function of _writeData's Promise
          * @type {Function}
+         * @since 0.2.4
          */
         _dataOutReject: _gpfEmptyFunc,
 
@@ -57,20 +64,17 @@ var
          * Wait until data was written to this stream
          *
          * @return {Promise} Resolved when a data as been written to this stream
+         * @since 0.2.4
          */
         _waitForData: function () {
             var me = this;
             if (!me._dataInPromise) {
                 me._dataInPromise = new Promise(function (resolve) {
                     me._dataInResolve = resolve;
-                }).then(function (value) {
+                }).then(function (data) {
                     delete me._dataInPromise;
                     delete me._dataInResolve;
-                    return value;
-                }, function (reason) {
-                    delete me._dataInPromise;
-                    delete me._dataInResolve;
-                    return Promise.reject(reason);
+                    return data;
                 });
             }
             return me._dataInPromise;
@@ -81,6 +85,7 @@ var
          *
          * @param {*} data Data to write
          * @return {Promise} Resolved when write operation has been done on output
+         * @since 0.2.4
          */
         _writeData: function (data) {
             var me = this;
@@ -106,6 +111,7 @@ var
 
         /**
          * @gpf:sameas gpf.interfaces.IReadableStream#read
+         * @since 0.2.4
          */
         read: _gpfStreamSecureRead(function (output) {
             var me = this; //eslint-disable-line no-invalid-this
@@ -114,6 +120,7 @@ var
                     if (undefined !== data) {
                         return output.write(data).then(me._dataOutResolve, me._dataOutReject);
                     }
+                    me._dataOutResolve();
                     return Promise.resolve(); // Nothing to write
                 });
         }),
@@ -124,6 +131,7 @@ var
 
         /**
          * @gpf:sameas gpf.interfaces.IWritableStream#write
+         * @since 0.2.4
          */
         write: _gpfStreamSecureWrite(function (data) {
             var me = this; //eslint-disable-line no-invalid-this
@@ -131,7 +139,22 @@ var
                 return me._writeData(data);
             }
             return Promise.resolve();
-        })
+        }),
+
+        //endregion
+
+        //region gpf.interfaces.IFlushableStream
+
+        /**
+         * @gpf:sameas gpf.interfaces.IFlushableStream#flush
+         * @since 0.2.4
+         */
+        flush: function () {
+            if (this._dataInPromise)  {
+                return this._writeData();
+            }
+            return Promise.resolve();
+        }
 
         //endregion
 
