@@ -376,5 +376,9 @@
     ],
     "attributes": [
         "define/build"
+    ],
+    "stream/filter": [
+        "define",
+        "stream"
     ]
 }
