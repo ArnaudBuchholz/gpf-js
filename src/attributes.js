@@ -16,11 +16,12 @@ function _gpfAttributesGetFromClass (classConstructor, baseAttributeClass) {
 }
 
 /**
- * Get attributes defined for the object / $class
+ * Get attributes defined for the object / class
  *
  * @param {Object|Function} objectOrClass Object instance or class constructor
  * @param {gpf.attributes.Attribute} [baseAttributeClass] Base attribute class used to filter results
- * @return {Object} Dictionary of attributes grouped per members
+ * @return {Object} Dictionary of attributes grouped per members,
+ * the special member $attributes is used for attributes set at the class level.
  * @since 0.2.4
  */
 function _gpfAttributesGet (objectOrClass, baseAttributeClass) {
