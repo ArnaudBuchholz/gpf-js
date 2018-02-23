@@ -24,7 +24,6 @@ var
          * @param {Function} [close] Close handler
          *
          * @constructor gpf.node.BaseStream
-         * @private
          * @since 0.1.9
          */
         constructor: function (stream, close) {
