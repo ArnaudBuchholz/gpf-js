@@ -104,12 +104,7 @@ const
     },
     logError = x => console.error(`*** ${x} ***`),
 
-    setupQuestions = [{
-        type: "input",
-        name: "version",
-        message: "Please check the version: ",
-        "default": version
-    }],
+    setupQuestions = [],
     configGitHub = configFile.content.github || {};
 
 version = pkgVersion;
@@ -124,6 +119,13 @@ if (noBuild) {
 if (version.includes("-")) {
     version = version.split("-")[0];
 }
+
+setupQuestions.push({
+    type: "input",
+    name: "version",
+    message: "Please check the version: ",
+    "default": version
+});
 
 if (configGitHub.token) {
     gitHubToken = configGitHub.token;
@@ -239,4 +241,24 @@ inquirer.prompt(setupQuestions)
     .then(() => testMode
         ? console.warn("No NPM publish in test mode")
         : spawnProcess("npm.cmd", ["publish"]))
+    .then(() => inquirer.prompt([{
+        type: "input",
+        name: "version",
+        message: "Please check the version: ",
+        "default": version
+            .split(".")
+            .map((digit, index) => 2 === index ? parseInt(digit, 10) + 1 : digit)
+            .join(".") + "-alpha"
+    }]))
+    .then(answers => {
+        fs.writeFileSync("package.json", pkgText.replace(pkgVersion, answers.version));
+        version = answers.version;
+        return spawnGrunt("exec:version");
+    })
+    .then(() => testMode
+        ? console.warn("No new version commit in test mode")
+        : Promise.resolve()
+            .then(() => spawnGit(["commit", "-a", "-m", `Initialization of v${version}`]))
+            .then(() => spawnGit(["push"]))
+    )
     .catch(console.error);
