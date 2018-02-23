@@ -17,13 +17,16 @@ A multi-purpose JavaScript library created and maintained by
 
 * Provides a common scripting layer for several hosts
 ([cscript/wscript](http://technet.microsoft.com/en-us/library/bb490887.aspx),
-[NodeJS](http://nodejs.org/), [Rhino](https://developer.mozilla.org/en-US/docs/Mozilla/Projects/Rhino),
+[NodeJS](http://nodejs.org/),
+[Rhino](https://developer.mozilla.org/en-US/docs/Mozilla/Projects/Rhino),
+[Nashorn](https://en.wikipedia.org/wiki/Nashorn_%28JavaScript_engine%29),
 [PhantomJS](http://phantomjs.org/), most *recent* browsers)
 * Namespace and class system
 * Interface based
 * Asynchronous streams
 * Modularization helper
-* Self-Tested
+* Attributes
+* Almost 100% coverage
 
 This library is developed in conjunction with a
 [blog](http://gpf-js.blogspot.com/) where the concepts and algorithms are
