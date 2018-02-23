@@ -59,6 +59,15 @@ load("./gpf.js");
 // use gpf namespace
 ```
 
+## [Nashorn](https://en.wikipedia.org/wiki/Nashorn_%28JavaScript_engine%29)
+
+Use [load](https://wiki.openjdk.java.net/display/Nashorn/Nashorn+extensions)
+
+```javascript
+load("./gpf.js");
+// use gpf namespace
+```
+
 ## [PhantomJS](http://phantomjs.org/)
 
 ```javascript
