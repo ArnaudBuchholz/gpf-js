@@ -25,7 +25,6 @@ var
          * @param {java.io.InputStream|java.io.OutputStream} stream Rhino input or output stream object
          *
          * @constructor gpf.java.BaseStream
-         * @private
          * @since 0.2.4
          */
         constructor: function (stream) {
