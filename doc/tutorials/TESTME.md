@@ -24,16 +24,26 @@ Command lines must be run from the root of the gpf-js folder.
         * `grunt mochaTest:source`
         * `grunt mochaTest:debug`
         * `grunt mochaTest:release`
-    * testing with cscript:
+    * testing with cscript (Windows only):
         * `grunt exec:testWscript`
         * `grunt exec:testWscriptVerbose` *(alias: `grunt wscript`)*
         * `grunt exec:testWscriptDebug`
         * `grunt exec:testWscriptRelease`
-    * testing with rhino:
+    * testing with a simulated cscript environment (Non-windows):
+        * `grunt exec:testNodewscript`
+        * `grunt exec:testNodewscriptVerbose` *(alias: `grunt nodewscript`)*
+        * `grunt exec:testNodewscriptDebug`
+        * `grunt exec:testNodewscriptRelease`
+    * testing with Rhino (java required):
         * `grunt exec:testRhino`
         * `grunt exec:testRhinoVerbose` *(alias: `grunt rhino`)*
         * `grunt exec:testRhinoDebug`
         * `grunt exec:testRhinoRelease`
+    * testing with Nashorn (java required):
+        * `grunt exec:testNashorn`
+        * `grunt exec:testNashornVerbose` *(alias: `grunt nashorn`)*
+        * `grunt exec:testNashornDebug`
+        * `grunt exec:testNashornRelease`
     * testing with browsers using [Selenium](http://www.seleniumhq.org/):
         * you must first run `node detectSelenium` to check drivers installation *(see below)*
         * `grunt firefox`
