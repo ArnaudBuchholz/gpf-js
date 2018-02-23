@@ -20,7 +20,7 @@ var
          * Filter stream
          *
          * @param {Function} filter filter function
-         * @constructor gpf.stream.BufferedRead
+         * @constructor gpf.stream.Filter
          * @implements {gpf.interfaces.IReadableStream}
          * @implements {gpf.interfaces.IWritableStream}
          * @implements {gpf.interfaces.IFlushableStream}
