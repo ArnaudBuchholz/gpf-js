@@ -23,7 +23,6 @@ var
          *
          * @constructor gpf.wscript.BaseStream
          * @param {Object} file File object
-         * @private
          * @since 0.1.9
          */
         constructor: function (file) {
@@ -51,7 +50,6 @@ var
      * @class gpf.wscript.ReadableStream
      * @extends gpf.wscript.BaseStream
      * @implements {gpf.interfaces.IReadableStream}
-     * @private
      * @since 0.1.9
      */
     _GpfWscriptReadableStream = _gpfDefine({
@@ -90,7 +88,6 @@ var
      * @class gpf.wscript.WritableStream
      * @extends gpf.wscript.BaseStream
      * @implements {gpf.interfaces.IWritableStream}
-     * @private
      * @since 0.1.9
      */
     _GpfWscriptWritableStream = _gpfDefine({
