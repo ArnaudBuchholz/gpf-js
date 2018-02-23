@@ -19,7 +19,7 @@ var
         /**
          * Filter stream
          *
-         * @param {Function} filter filter function
+         * @param {gpf.typedef.filterFunc} filter Filter function
          * @constructor gpf.stream.Filter
          * @implements {gpf.interfaces.IReadableStream}
          * @implements {gpf.interfaces.IWritableStream}
