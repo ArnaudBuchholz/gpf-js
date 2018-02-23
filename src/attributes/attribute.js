@@ -19,7 +19,6 @@ gpf.attributes = {};
  * Base class for all attributes
  *
  * @class gpf.attributes.Attribute
- * @implements {gpf.interfaces.IReadableStream}
  * @since 0.2.4
  */
 var _gpfAttribute = _gpfDefine({
