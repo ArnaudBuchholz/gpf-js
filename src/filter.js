@@ -7,7 +7,16 @@
 /*global _gpfFunc*/ // Create a new function using the source
 /*#endif*/
 
-//region test
+/**
+ * Filtering function
+ *
+ * @callback gpf.typedef.filterFunc
+ *
+ * @param {*} data Data to filter
+ * @return {Boolean} truthy / falsy value indicating if the data matches the filter
+ *
+ * @since 0.2.4
+ */
 
 /**
  * Filter property read specification
@@ -209,8 +218,8 @@ function _gpfCreateFilterBody (specification) {
  * Create a filtering function based on the given specification.
  *
  * @param {gpf.typedef.filterItem} specification Filter specification
- * @return {Function} Function that takes an object and return a truthy / falsy value indicating if the object
- * matches the filter
+ * @return {gpf.typedef.filterFunc} Function that takes an object and return a truthy / falsy value indicating if the
+ * object matches the filter
  * @since 0.1.9
  */
 gpf.createFilterFunction = function (specification) {
