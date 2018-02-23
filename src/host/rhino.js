@@ -13,7 +13,7 @@
  * @namespace gpf.rhino
  * @description Root namespace for Rhino specifics
  * @since 0.2.1
- * @deprecated since version 0.2.4, use gpf.java instead
+ * @deprecated since version 0.2.4, use {@link gpf.java} instead
  */
 gpf.rhino = gpf.java;
 
