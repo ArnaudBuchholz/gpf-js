@@ -238,5 +238,35 @@
             "tests": 725,
             "sources": 93
         }
+    },
+    {
+        "version": "0.2.4",
+        "label": "Attributes",
+        "date": "2018-02-04",
+        "notes": "",
+        "milestone": 12,
+        "metrics": {
+            "coverage": {
+                "statements": {
+                    "total": 100,
+                    "ignored": 0.55
+                },
+                "functions": {
+                    "total": 100,
+                    "ignored": 0.99
+                },
+                "branches": {
+                    "total": 100,
+                    "ignored": 1.12
+                }
+            },
+            "maintainability": 81.72,
+            "lines": {
+                "total": 10075,
+                "average": 98
+            },
+            "tests": 745,
+            "sources": 102
+        }
     }
 ]
