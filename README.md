@@ -28,9 +28,7 @@ A multi-purpose JavaScript library created and maintained by
 * Attributes
 * Almost 100% coverage
 
-This library is developed in conjunction with a
-[blog](http://gpf-js.blogspot.com/) where the concepts and algorithms are
-documented and explained.
+This library is developed in conjunction with a [blog](http://gpf-js.blogspot.com/) where the concepts and algorithms are documented and explained.
 
 ## Metrics
 
