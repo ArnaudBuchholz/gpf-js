@@ -7,6 +7,7 @@
 [![DeepScan grade](https://deepscan.io/api/projects/1923/branches/8681/badge/grade.svg)](https://deepscan.io/dashboard#view=project&pid=1923&bid=8681)
 [![dependencies Status](https://david-dm.org/ArnaudBuchholz/gpf-js/status.svg)](https://david-dm.org/ArnaudBuchholz/gpf-js)
 [![devDependencies Status](https://david-dm.org/ArnaudBuchholz/gpf-js/dev-status.svg)](https://david-dm.org/ArnaudBuchholz/gpf-js?type=dev)
+[![gpf-js](http://img.shields.io/npm/dm/gpf-js.svg)](https://www.npmjs.org/package/gpf-js)
 [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
 [![Vanilla JS](http://vanilla-js.com/assets/button.png)](http://vanilla-js.com)
 
