@@ -85,7 +85,7 @@ const
     publishVersion = () => spawnGit(["commit", "-a", "-m", `Release v${version}`])
         .then(() => spawnGit(["push"]))
         .then(() => hasPublicationRepo
-            ? spawnGit(["-C", publicationRepo, "a", "-all"])
+            ? spawnGit(["-C", publicationRepo, "add", "--all"])
                 .then(() => spawnGit(["-C", publicationRepo, "commit", "-a", "-m", `Release v${version}`]))
                 .then(() => spawnGit(["-C", publicationRepo, "push"]))
             : 0
