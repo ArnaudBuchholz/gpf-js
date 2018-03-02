@@ -98,7 +98,6 @@ module.exports = class ConfigFile {
         // Build the list of valid source and test files based on sources.json
         let sources = JSON.parse(fs.readFileSync(path.join(__dirname, "../src/sources.json"))),
             srcFiles = ["src/boot.js"],
-            docFiles = ["src/boot.js"],
             testFiles = [];
         sources.forEach(source => {
             let name = source.name;
@@ -107,9 +106,6 @@ module.exports = class ConfigFile {
                 if (source.test !== false) {
                     testFiles.push("test/" + name + ".js");
                 }
-                if (source.doc === true) {
-                    docFiles.push("src/" + name + ".js");
-                }
             }
         });
         this.content.files = {
@@ -117,7 +113,7 @@ module.exports = class ConfigFile {
             test: testFiles,
             legacyTest: fs.readdirSync(path.join(__dirname, "../test/legacy"))
                 .filter(name => name.endsWith(".js")),
-            doc: docFiles,
+            doc: srcFiles,
             linting: {
                 js: [
                     "gruntfile.js",
