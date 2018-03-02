@@ -242,8 +242,8 @@
     {
         "version": "0.2.4",
         "label": "Attributes",
-        "date": "2018-02-04",
-        "notes": "",
+        "date": "2018-02-28",
+        "notes": "2018/03/release-024-attributes.html",
         "milestone": 12,
         "metrics": {
             "coverage": {
