@@ -20,9 +20,6 @@ function Source (array, source, dependencies) {
     if (source.test !== false) {
         this._test = true;
     }
-    if (source.doc) {
-        this._doc = true;
-    }
     if (dependencies) {
         this._processDependencies(dependencies);
     }
@@ -72,14 +69,6 @@ Source.prototype = {
     /** @gpf:read _test */
     getTest: function () {
         return this._test;
-    },
-
-    /** Documentation should be extracted from this source */
-    _doc: false,
-
-    /** @gpf:read _doc */
-    getDoc: function () {
-        return this._doc;
     },
 
     /**
@@ -152,17 +141,6 @@ Source.prototype = {
         return true;
     },
 
-    /**
-     * Change the doc setting
-     *
-     * @param {Boolean} value New value for doc
-     * @return {Boolean} Update done
-     */
-    _setDoc: function (value) {
-        this._doc = value;
-        return true;
-    },
-
     /** Checked state (exists, obsolete, new) */
     _checkedState: "",
 
@@ -178,9 +156,6 @@ Source.prototype = {
         if (this._load) {
             if (!this._test) {
                 result.test = false;
-            }
-            if (this._doc) {
-                result.doc = true;
             }
         } else {
             result.load = false;
@@ -198,8 +173,6 @@ Source.prototype = {
         }
         if ("test" === propertyName) {
             return this._test;
-        } else if ("doc" === propertyName) {
-            return this._doc;
         }
         return true;
     },
@@ -210,9 +183,6 @@ Source.prototype = {
         }
         if ("test" === propertyName) {
             return this._setTest(value);
-        }
-        if ("doc" === propertyName) {
-            return this._setDoc(value);
         }
     },
 
