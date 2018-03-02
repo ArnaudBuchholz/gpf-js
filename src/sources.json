@@ -4,461 +4,358 @@
         "load": false
     },
     {
-        "name": "console",
-        "doc": true
+        "name": "console"
     },
     {
         "name": "host/browser",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "host/nodejs",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "host/phantomjs",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "host/java",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "host/rhino",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "host/nashorn",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "host/unknown",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "host/wscript",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "host",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
-        "name": "arraylike",
-        "doc": true
+        "name": "arraylike"
     },
     {
-        "name": "foreach",
-        "doc": true
+        "name": "foreach"
     },
     {
-        "name": "assert",
-        "doc": true
+        "name": "assert"
     },
     {
-        "name": "constants",
-        "doc": true
+        "name": "constants"
     },
     {
-        "name": "string/capitalize",
-        "doc": true
+        "name": "string/capitalize"
     },
     {
-        "name": "string/replaceex",
-        "doc": true
+        "name": "string/replaceex"
     },
     {
-        "name": "string/escapefor",
-        "doc": true
+        "name": "string/escapefor"
     },
     {
         "name": "string/escape/javascript",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "string/escape/xml",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
-        "name": "compatibility",
-        "doc": true
+        "name": "compatibility"
     },
     {
-        "name": "compatibility/array",
-        "doc": true
+        "name": "compatibility/array"
     },
     {
-        "name": "factory",
-        "doc": true
+        "name": "factory"
     },
     {
-        "name": "compatibility/date",
-        "doc": true
+        "name": "compatibility/date"
     },
     {
-        "name": "compatibility/function",
-        "doc": true
+        "name": "compatibility/function"
     },
     {
-        "name": "compatibility/object",
-        "doc": true
+        "name": "compatibility/object"
     },
     {
-        "name": "compatibility/string",
-        "doc": true
+        "name": "compatibility/string"
     },
     {
-        "name": "compatibility/promise",
-        "doc": true
+        "name": "compatibility/promise"
     },
     {
-        "name": "compatibility/timeout",
-        "doc": true
+        "name": "compatibility/timeout"
     },
     {
-        "name": "compatibility/json",
-        "doc": true
+        "name": "compatibility/json"
     },
     {
-        "name": "context",
-        "doc": true
+        "name": "context"
     },
     {
         "name": "string/escape/html",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
-        "name": "error",
-        "doc": true
+        "name": "error"
     },
     {
         "name": "string/trim",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
-        "name": "function",
-        "doc": true
+        "name": "function"
     },
     {
         "name": "define/detect",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "regexp",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "define/entity",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
-        "name": "abstract",
-        "doc": true
+        "name": "abstract"
     },
     {
-        "name": "define/check",
-        "doc": true
+        "name": "define/check"
     },
     {
         "name": "define/build",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "define/class/class",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
-        "name": "define/class/check",
-        "doc": true
+        "name": "define/class/check"
     },
     {
         "name": "define/class/constructor",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "define/class/super",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "define/class/build",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "define/interface/interface",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "define/interface/check",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "define/interface/constructor",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "define/interface/build",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
-        "name": "define",
-        "doc": true
+        "name": "define"
     },
     {
-        "name": "interfaces",
-        "doc": true
+        "name": "interfaces"
     },
     {
         "name": "interfaces/unknown",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
-        "name": "sort",
-        "doc": true
+        "name": "sort"
     },
     {
-        "name": "filter",
-        "doc": true
+        "name": "filter"
     },
     {
         "name": "interfaces/readablestream",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "interfaces/writablestream",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "interfaces/enumerator",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "interfaces/filestorage",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
-        "name": "stream",
-        "doc": true
+        "name": "stream"
     },
     {
-        "name": "stream/string",
-        "doc": true
+        "name": "stream/string"
     },
     {
-        "name": "fs",
-        "doc": true
+        "name": "fs"
     },
     {
-        "name": "path",
-        "doc": true
+        "name": "path"
     },
     {
         "name": "fs/explore",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
-        "name": "stream/nodejs",
-        "doc": true
+        "name": "stream/nodejs"
     },
     {
-        "name": "fs/nodejs",
-        "doc": true
+        "name": "fs/nodejs"
     },
     {
         "name": "stream/wscript",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "fs/wscript",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "fs/browser",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "fs/rhino",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "fs/phantomjs",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
-        "name": "literal",
-        "doc": true
+        "name": "literal"
     },
     {
-        "name": "web/tag",
-        "doc": true
+        "name": "web/tag"
     },
     {
         "name": "http/helpers",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
-        "name": "interfaces/thenable",
-        "doc": true
+        "name": "interfaces/thenable"
     },
     {
-        "name": "http/mock",
-        "doc": true
+        "name": "http/mock"
     },
     {
-        "name": "http",
-        "doc": true
+        "name": "http"
     },
     {
         "name": "http/xhr",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "string/fromStream",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "http/nodejs",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "http/wscript",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
-        "name": "stream/java",
-        "doc": true
+        "name": "stream/java"
     },
     {
         "name": "fs/nashorn",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "http/java",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
-        "name": "stream/bufferedread",
-        "doc": true
+        "name": "stream/bufferedread"
     },
     {
-        "name": "stream/line",
-        "doc": true
+        "name": "stream/line"
     },
     {
         "name": "interfaces/flushablestream",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "require/load",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "require/wrap",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "require/json",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "require/javascript",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
-        "name": "require",
-        "doc": true
+        "name": "require"
     },
     {
-        "name": "stream/array",
-        "doc": true
+        "name": "stream/array"
     },
     {
-        "name": "stream/pipe",
-        "doc": true
+        "name": "stream/pipe"
     },
     {
         "name": "string/escape/regexp",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
-        "name": "stream/csv/parser",
-        "doc": true
+        "name": "stream/csv/parser"
     },
     {
         "name": "attributes/attribute",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
-        "name": "define/class/attributes/check",
-        "doc": true
+        "name": "define/class/attributes/check"
     },
     {
         "name": "define/class/attributes/build",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
         "name": "define/class/attributes/consolidate",
-        "test": false,
-        "doc": true
+        "test": false
     },
     {
-        "name": "attributes",
-        "load": true,
-        "doc": true
+        "name": "attributes"
     },
     {
-        "name": "stream/filter",
-        "load": true,
-        "doc": true
+        "name": "stream/filter"
     }
 ]
