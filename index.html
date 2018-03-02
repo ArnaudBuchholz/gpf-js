@@ -5,6 +5,7 @@
         <title>GPF-JS</title>
         <link rel="stylesheet" type="text/css" href="res/html.css">
         <link rel="stylesheet" type="text/css" href="res/tiles.css">
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
         <script language="JavaScript" src="res/xhr.js"></script>
         <script language="JavaScript" src="res/tpl.js"></script>
         <script language="JavaScript" src="make/coverage.js"></script>
@@ -12,6 +13,67 @@
 
 function onLoad () {
     "use strict";
+
+    google.charts.load("current", {"packages":["corechart"]});
+    google.charts.setOnLoadCallback(function () {
+        xhr("build/releases.json").get().asJson()
+            .then(function (releases) {
+                var data = google.visualization.arrayToDataTable([
+                    [
+                        "Release",
+                        "maintainability",
+                        "coverage (statements)",
+                        "coverage (branches)",
+                        "coverage (functions)",
+                        "tests count",
+                        "sources count"
+                    ]
+                ].concat(releases.map(function (release) {
+                    var oReleaseDateParts = release.date.split("-").map(function(value) {
+                        return parseInt(value, 10);
+                    });
+                    return [
+                        new Date(oReleaseDateParts[0], oReleaseDateParts[1] - 1, oReleaseDateParts[2]),
+                        release.metrics.maintainability,
+                        release.metrics.coverage.statements.total,
+                        release.metrics.coverage.branches.total,
+                        release.metrics.coverage.functions.total,
+                        release.metrics.tests,
+                        release.metrics.sources
+                    ];
+                })));
+                var options = {
+                    backgroundColor: {
+                        fill: "transparent"
+                    },
+                    curveType: "function",
+                    title : "Releases",
+                    series: {
+                        0: {targetAxisIndex: 0},
+                        1: {targetAxisIndex: 0},
+                        2: {targetAxisIndex: 0},
+                        3: {targetAxisIndex: 0},
+                        4: {targetAxisIndex: 1},
+                        5: {targetAxisIndex: 1, type: "bars"}
+                    },
+                    vAxes: {
+                        0: {title: "Ratio (%)"},
+                        1: {title: "Count"}
+                    },
+                    vAxis: {
+                        0: {
+                           viewWindow: {
+                               max: 100
+                           }
+                        }
+                    },
+                    hAxis: {title: "Release date"},
+                    seriesType: "lines"
+                };
+                var chart = new google.visualization.ComboChart(document.getElementById("chart"));
+                chart.draw(data, options);
+            })
+    });
 
     var tileFactory = document.getElementById("tile").buildFactory(),
         execFactory = document.getElementById("exec").buildFactory(),
@@ -213,6 +275,7 @@ function onLoad () {
     <body onload="onLoad()">
         <ul id="tiles">
         </ul>
+        <div id="chart" style="width: 900px; height: 500px;"></div>
         <template id="tile">
             <li id="{{id}}">
                 <div class="title">{{title}}</div>
