@@ -19,7 +19,6 @@
                 <th>Ref.</th>
                 <th>Load</th>
                 <th>Test</th>
-                <th>Doc.</th>
                 <th>Description</th>
             </thead>
             <tbody id="rows"></tbody>
@@ -82,7 +81,6 @@ if ($object.isReferenced()) {
                 %}</td>
                 <td><input id="load_{{$index}}" type="checkbox" {%%}="check('load');"></td>
                 <td><input id="test_{{$index}}" type="checkbox" {%%}="check('test');" class="hide"></td>
-                <td><input id="doc_{{$index}}" type="checkbox" {%%}="check('doc');"></td>
                 <td  id="description_{{$index}}" class="description">&nbsp;</td>
             </tr>
         </template>
