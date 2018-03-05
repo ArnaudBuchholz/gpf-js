@@ -10,6 +10,11 @@ Object.defineProperty(argumentsFunction, "length", {
     writable: false
 });
 
+// These are not defined in this host
+// global.JSON = undefined;
+global.Promise = undefined;
+global.setTimeout = undefined;
+
 module.exports = {
 
     CreateObject: className => {
@@ -22,6 +27,13 @@ module.exports = {
     Arguments: argumentsFunction,
     ScriptFullName: process.argv[1].replace(/\//g, "\\"),
     Echo: text => console.log(text),
-    Quit: code => process.exit(code)
+    Quit: code => process.exit(code),
+    Sleep: ms => {
+        const init = new Date();
+        let now = init;
+        while (now - init < ms) {
+            now = new Date();
+        }
+    }
 
 };
