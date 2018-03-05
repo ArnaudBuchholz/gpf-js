@@ -112,7 +112,33 @@ module.exports = class ConfigFile {
             src: srcFiles,
             test: testFiles,
             legacyTest: fs.readdirSync(path.join(__dirname, "../test/legacy"))
-                .filter(name => name.endsWith(".js")),
+                .filter(name => name.endsWith(".js"))
+                .reduce((versions, versionFile) => {
+                    // Keep only highest patch of each version (#238)
+                    const
+                        versionParts = (/(\d+\.\d+)\.(\d+)/).exec(versionFile),
+                        version = versionParts[1],
+                        patch = parseInt(versionParts[2], 10);
+                    let
+                        versionFound = false;
+                    versions = versions.map(testedVersionFile => {
+                        const
+                            testedVersionParts = (/(\d+\.\d+)\.(\d+)/).exec(testedVersionFile),
+                            testedVersion = testedVersionParts[1],
+                            testedPatch = parseInt(testedVersionParts[2], 10);
+                        if (testedVersion === version) {
+                            versionFound = true;
+                            if (testedPatch < patch) {
+                                return versionFile;
+                            }
+                        }
+                        return testedVersionFile;
+                    });
+                    if (!versionFound) {
+                        versions.push(versionFile);
+                    }
+                    return versions;
+                }, []),
             doc: srcFiles,
             linting: {
                 js: [
