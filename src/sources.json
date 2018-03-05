@@ -99,6 +99,14 @@
         "name": "compatibility/timeout"
     },
     {
+        "name": "compatibility/json/parse",
+        "test": false
+    },
+    {
+        "name": "compatibility/json/stringify",
+        "test": false
+    },
+    {
         "name": "compatibility/json"
     },
     {
