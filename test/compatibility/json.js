@@ -92,7 +92,40 @@ describe("compatibility/json", function () {
 
     });
 
+    function _complexParsingTests (parseFunc) {
+
+        it("supports reviver parameter - simple", function () {
+            var obj = parseFunc("{\"a\": 5, \"b\": \"6\"}", function (key, value) {
+                if ("number" === typeof value) {
+                    return value * 2;
+                }
+                return value;
+            });
+            assert(true === _like(obj, {
+                a: 10,
+                b: "6"
+            }));
+        });
+
+        it("supports reviver parameter - traversing", function () {
+            var keys = [];
+            parseFunc("{\"1\": 1, \"2\": 2, \"3\": {\"4\": 4, \"5\": {\"6\": 6}}}", function (key, value) {
+                keys.push(key);
+                return value;
+            });
+            assert(keys.length === 7);
+            ["1", "2", "4", "6", "5", "3", ""].forEach(function (key, index) {
+                assert(keys[index] === key);
+            });
+        });
+
+    }
+
     describe("JSON.parse", function () {
+
+        it("has the expected arity", function () {
+            assert(JSON.parse.length === 2);
+        });
 
         tests.forEach(function (test) {
             if (false === test.parse) {
@@ -104,17 +137,22 @@ describe("compatibility/json", function () {
             });
         });
 
+        _complexParsingTests(JSON.parse.bind(JSON));
+
     });
 
     if (gpf.internals) {
 
         describe("(internal)", function () {
 
+            var _gpfJsonStringifyPolyfill = gpf.internals._gpfJsonStringifyPolyfill,
+                _gpfJsonParsePolyfill = gpf.internals._gpfJsonParsePolyfill;
+
             describe("_gpfJsonStringifyPolyfill", function () {
 
                 tests.forEach(function (test) {
                     it("works on " + test.label, function () {
-                        assert(gpf.internals._gpfJsonStringifyPolyfill(test.obj) === test.json);
+                        assert(_gpfJsonStringifyPolyfill(test.obj) === test.json);
                     });
                 });
 
@@ -122,15 +160,21 @@ describe("compatibility/json", function () {
 
             describe("_gpfJsonParsePolyfill", function () {
 
+                it("has the expected arity", function () {
+                    assert(_gpfJsonParsePolyfill.length === 2);
+                });
+
                 tests.forEach(function (test) {
                     if (false === test.parse) {
                         return;
                     }
                     it("works on " + test.label, function () {
-                        var obj = gpf.internals._gpfJsonParsePolyfill(test.json);
+                        var obj = _gpfJsonParsePolyfill(test.json);
                         assert(true === _like(obj, test.obj));
                     });
                 });
+
+                _complexParsingTests(_gpfJsonParsePolyfill);
 
             });
 
