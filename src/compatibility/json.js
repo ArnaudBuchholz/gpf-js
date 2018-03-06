@@ -4,18 +4,12 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfJsonParsePolyfill*/
-/*global _gpfJsonStringifyPolyfill*/
-/*global _gpfMainContext*/ // Main context object
+/*global _gpfCompatibilityInstallGlobal*/ // Install compatible global if missing
+/*global _gpfJsonParsePolyfill*/ // JSON.parse polyfill
+/*global _gpfJsonStringifyPolyfill*/ // JSON.stringify polyfill
 /*#endif*/
 
-// Used only for environments where JSON is not defined
-if ("undefined" === typeof JSON) {
-
-    // Creates the JSON global object
-    _gpfMainContext.JSON = {
-        parse: _gpfJsonParsePolyfill,
-        stringify: _gpfJsonStringifyPolyfill
-    };
-
-}
+_gpfCompatibilityInstallGlobal("JSON", {
+    parse: _gpfJsonParsePolyfill,
+    stringify: _gpfJsonStringifyPolyfill
+});
