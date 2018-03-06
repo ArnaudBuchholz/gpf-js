@@ -51,8 +51,8 @@
     ],
     "compatibility/function": [
         "factory",
-        "constants",
-        "compatibility"
+        "compatibility",
+        "constants"
     ],
     "compatibility/object": [
         "compatibility",
@@ -62,15 +62,25 @@
         "compatibility"
     ],
     "compatibility/promise": [
-        "assert"
+        "assert",
+        "compatibility"
     ],
     "compatibility/timeout": [
-        "assert"
+        "assert",
+        "compatibility"
+    ],
+    "compatibility/json/parse": [
+        "constants",
+        "foreach"
+    ],
+    "compatibility/json/stringify": [
+        "foreach",
+        "string/escapefor"
     ],
     "compatibility/json": [
-        "foreach",
-        "constants",
-        "string/escapefor"
+        "compatibility",
+        "compatibility/json/parse",
+        "compatibility/json/stringify"
     ],
     "string/escape/html": [
         "string/escapefor"
