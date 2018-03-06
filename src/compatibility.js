@@ -4,8 +4,10 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfMainContext*/ // Main context object
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*exported _gpfInstallCompatibility*/ // Define and install compatible methods
+/*exported _gpfCompatibilityInstallGlobal*/ // Install compatible global if missing
+/*exported _gpfCompatibilityInstallMethods*/ // Define and install compatible methods on standard objects
 /*#endif*/
 
 /**
@@ -50,19 +52,32 @@ function _gpfInstallCompatibleStatics (on, statics) {
 }
 
 /**
- * Define and install compatible methods
+ * Define and install compatible methods on standard objects
  *
  * @param {String} typeName Type name ("Object", "String"...)
  * @param {_GpfCompatibilityDescription} description Description of compatible methods
  * @since 0.1.5
  */
-function _gpfInstallCompatibility (typeName, description) {
+function _gpfCompatibilityInstallMethods (typeName, description) {
     var on = description.on;
     /*#ifndef(UMD)*/
     _gpfCompatibility[typeName] = description;
     /*#endif*/
     _gpfInstallCompatibleMethods(on, description.methods);
     _gpfInstallCompatibleStatics(on, description.statics);
+}
+
+/**
+ * Install compatible global if missing
+ *
+ * @param {String} name Object name ("JSON", "Promise"...)
+ * @param {*} polyfill Polyfill implementation of the object
+ * @since 0.2.5
+ */
+function _gpfCompatibilityInstallGlobal (name, polyfill) {
+    if (!_gpfMainContext[name]) {
+        _gpfMainContext[name] = polyfill;
+    }
 }
 
 /*#ifndef(UMD)*/
