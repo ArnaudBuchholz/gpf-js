@@ -5,8 +5,8 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfAssert*/ // Assertion method
+/*global _gpfCompatibilityInstallGlobal*/ // Install compatible global if missing
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
-/*global _gpfMainContext*/ // Main context object
 /*#endif*/
 
 // Ensure the functions are called only once
@@ -207,9 +207,7 @@ _GpfPromise.race = function (promises) {
     });
 };
 
-if (undefined === _gpfMainContext.Promise) {
-    _gpfMainContext.Promise = _GpfPromise;
-}
+_gpfCompatibilityInstallGlobal("Promise", _GpfPromise);
 
 /*#ifndef(UMD)*/
 
