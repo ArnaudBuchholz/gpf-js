@@ -82,17 +82,128 @@ describe("compatibility/json", function () {
 
     });
 
-    describe("JSON.stringify", function () {
+    function _stringifyTests (stringifyFunc) {
+
+        it("has the expected arity", function () {
+            assert(stringifyFunc.length === 3);
+        });
+
+        var values= {
+            "null": null,
+            "0": 0,
+            "false": false,
+            "true": true,
+            "\"Hello World!\"": "Hello World!",
+            "\"\\\"string\\\"\"": "\"string\""
+        };
+        Object.keys(values).forEach(function (result) {
+
+            it("converts " + result, function () {
+                assert(stringifyFunc(values[result]) === result);
+            });
+
+        });
 
         tests.forEach(function (test) {
             it("works on " + test.label, function () {
-                assert(JSON.stringify(test.obj) === test.json);
+                assert(stringifyFunc(test.obj) === test.json);
             });
         });
 
+        it("filters out special values", function () {
+            var result = stringifyFunc({
+                x: undefined,
+                y: Object
+            });
+            assert(result === "{}");
+        });
+
+        it("uses the replacer function on object", function () {
+            var result = stringifyFunc({
+                hello: "World",
+                code: 0
+            }, function (key, value) {
+                if (typeof value === "string") {
+                    return undefined;
+                }
+                return value;
+            });
+            assert(result === "{\"code\":0}");
+        });
+
+        it("uses the replacer function on array", function () {
+            var result = stringifyFunc([
+                "Hello",
+                "World!"
+            ], function (key, value) {
+                if (key === "0") {
+                    return undefined;
+                }
+                return value;
+            });
+            assert(result === "[null,\"World!\"]");
+        });
+
+        it("uses the replacer whitelist", function () {
+            var result = stringifyFunc({
+                hello: "World",
+                code: 0
+            }, ["hello"]);
+            assert(result === "{\"hello\":\"World\"}");
+        });
+
+        it("uses the space argument", function () {
+            var result = stringifyFunc({ a: 2 }, null, " ");
+            assert(result === "{\n \"a\": 2\n}");
+        });
+
+        it("uses the space argument (empty string)", function () {
+            var result = stringifyFunc({ a: 2 }, null, "");
+            assert(result === "{\"a\":2}");
+        });
+
+        it("uses the space argument (tab)", function () {
+            var result = stringifyFunc({ a: 2 }, null, "\t");
+            assert(result === "{\n\t\"a\": 2\n}");
+        });
+
+        it("uses the space argument (tab) on an array", function () {
+            var result = stringifyFunc([1, 2], null, "\t");
+            assert(result === "[\n\t1,\n\t2\n]");
+        });
+
+        it("uses the space argument (number < 10)", function () {
+            var result = stringifyFunc({ a: 2 }, null, 5);
+            assert(result === "{\n     \"a\": 2\n}");
+        });
+
+        it("uses the space argument (number > 10)", function () {
+            var result = stringifyFunc({ a: 2 }, null, 11);
+            assert(result === "{\n          \"a\": 2\n}");
+        });
+    }
+
+    describe("JSON.stringify", function () {
+
+        _stringifyTests(JSON.stringify);
+
     });
 
-    function _complexParsingTests (parseFunc) {
+    function _parseTests (parseFunc) {
+
+        it("has the expected arity", function () {
+            assert(parseFunc.length === 2);
+        });
+
+        tests.forEach(function (test) {
+            if (false === test.parse) {
+                return;
+            }
+            it("works on " + test.label, function () {
+                var obj = parseFunc(test.json);
+                assert(true === _like(obj, test.obj));
+            });
+        });
 
         it("supports reviver parameter - simple", function () {
             var obj = parseFunc("{\"a\": 5, \"b\": \"6\"}", function (key, value) {
@@ -123,21 +234,7 @@ describe("compatibility/json", function () {
 
     describe("JSON.parse", function () {
 
-        it("has the expected arity", function () {
-            assert(JSON.parse.length === 2);
-        });
-
-        tests.forEach(function (test) {
-            if (false === test.parse) {
-                return;
-            }
-            it("works on " + test.label, function () {
-                var obj = JSON.parse(test.json);
-                assert(true === _like(obj, test.obj));
-            });
-        });
-
-        _complexParsingTests(JSON.parse.bind(JSON));
+        _parseTests(JSON.parse.bind(JSON));
 
     });
 
@@ -145,36 +242,15 @@ describe("compatibility/json", function () {
 
         describe("(internal)", function () {
 
-            var _gpfJsonStringifyPolyfill = gpf.internals._gpfJsonStringifyPolyfill,
-                _gpfJsonParsePolyfill = gpf.internals._gpfJsonParsePolyfill;
-
             describe("_gpfJsonStringifyPolyfill", function () {
 
-                tests.forEach(function (test) {
-                    it("works on " + test.label, function () {
-                        assert(_gpfJsonStringifyPolyfill(test.obj) === test.json);
-                    });
-                });
+                _stringifyTests(gpf.internals._gpfJsonStringifyPolyfill);
 
             });
 
             describe("_gpfJsonParsePolyfill", function () {
 
-                it("has the expected arity", function () {
-                    assert(_gpfJsonParsePolyfill.length === 2);
-                });
-
-                tests.forEach(function (test) {
-                    if (false === test.parse) {
-                        return;
-                    }
-                    it("works on " + test.label, function () {
-                        var obj = _gpfJsonParsePolyfill(test.json);
-                        assert(true === _like(obj, test.obj));
-                    });
-                });
-
-                _complexParsingTests(_gpfJsonParsePolyfill);
+                _parseTests(gpf.internals._gpfJsonParsePolyfill);
 
             });
 
