@@ -4,10 +4,10 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfInstallCompatibility*/ // Define and install compatible methods
+/*global _gpfCompatibilityInstallMethods*/ // Define and install compatible methods on standard objects
 /*#endif*/
 
-_gpfInstallCompatibility("String", {
+_gpfCompatibilityInstallMethods("String", {
     on: String,
 
     methods: {
