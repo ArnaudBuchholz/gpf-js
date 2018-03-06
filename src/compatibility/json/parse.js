@@ -6,23 +6,29 @@
 "use strict";
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*exported _gpfJsonParsePolyfill*/
+/*exported _gpfJsonParsePolyfill*/ // JSON.parse polyfill
 /*#endif*/
 
-function _gpfJsonParseApplyReviver (object, name, reviver) {
-    _gpfObjectForEach(object, function (value, property) {
-        if ("object" === typeof value) {
-            value = _gpfJsonParseApplyReviver(value, property, reviver);
-        } else {
-            value = reviver(property, value);
-        }
-        object[property] = value;
-    });
-    return reviver(name, object);
+function _gpfJsonParseApplyReviver (value, name, reviver) {
+    if ("object" === typeof value) {
+        _gpfObjectForEach(value, function (propertyValue, propertyName) {
+            value[propertyName] = _gpfJsonParseApplyReviver(propertyValue, propertyName, reviver);
+        });
+    }
+    return reviver(name, value);
 }
 
-function _gpfJsonParsePolyfill (test, reviver) {
-    var result = _gpfFunc("return " + test)();
+/**
+ * JSON.parse polyfill
+ *
+ * @param {*} text The string to parse as JSON
+ * @param {Function} [reviver] Describes how the value originally produced by parsing is transformed,
+ * before being returned
+ * @return {Object} Parsed value
+ * @since 0.1.5
+ */
+function _gpfJsonParsePolyfill (text, reviver) {
+    var result = _gpfFunc("return " + text)();
     if (reviver) {
         return _gpfJsonParseApplyReviver(result, "", reviver);
     }
