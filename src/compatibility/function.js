@@ -5,9 +5,9 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfBuildFunctionParameterList*/ // Builds an array of parameters
+/*global _gpfCompatibilityInstallMethods*/ // Define and install compatible methods on standard objects
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfFunc*/ // Create a new function using the source
-/*global _gpfInstallCompatibility*/ // Define and install compatible methods
 /*exported _gpfJsCommentsRegExp*/ // Find all JavaScript comments
 /*#endif*/
 
@@ -21,7 +21,7 @@ function _generateBindBuilderSource (length) {
         + "};";
 }
 
-_gpfInstallCompatibility("Function", {
+_gpfCompatibilityInstallMethods("Function", {
     on: Function,
 
     methods: {
