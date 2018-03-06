@@ -5,7 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
-/*global _gpfInstallCompatibility*/ // Define and install compatible methods
+/*global _gpfCompatibilityInstallMethods*/ // Define and install compatible methods on standard objects
 /*global _gpfIsArray:true*/ // Return true if the parameter is an array
 /*#endif*/
 
@@ -80,7 +80,7 @@ function _gpfArrayFrom (arrayLike) {
 
 //endregion
 
-_gpfInstallCompatibility("Array", {
+_gpfCompatibilityInstallMethods("Array", {
     on: Array,
 
     methods: {
