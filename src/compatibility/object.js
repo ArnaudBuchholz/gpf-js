@@ -4,8 +4,8 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfCompatibilityInstallMethods*/ // Define and install compatible methods on standard objects
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
-/*global _gpfInstallCompatibility*/ // Define and install compatible methods
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*#endif*/
 
@@ -17,7 +17,7 @@ function _gpfObjectAssign (value, memberName) {
     this[memberName] = value; //eslint-disable-line no-invalid-this
 }
 
-_gpfInstallCompatibility("Object", {
+_gpfCompatibilityInstallMethods("Object", {
     on: Object,
 
     statics: {
