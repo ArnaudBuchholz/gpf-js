@@ -6,64 +6,145 @@
 "use strict";
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfEmptyFunc*/ // An empty function
-/*global _gpfFunc*/ // Create a new function using the source
-/*global _gpfMainContext*/ // Main context object
+/*global _gpfIsArray*/ // Return true if the parameter is an array
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
-/*exported _gpfJsonStringifyPolyfill*/
+/*exported _gpfJsonStringifyPolyfill*/ // JSON.stringify polyfill
 /*#endif*/
 
-function _gpfPreprocessValueForJson (callback) {
-    return function (value, index) {
-        if ("function" === typeof value) {
-            return; // ignore
-        }
-        callback(_gpfJsonStringifyPolyfill(value), index);
-    };
-}
+var _gpfJsonStringifyMapping;
 
-function _gpfObject2Json (object) {
-    var isArray,
-        results;
-    isArray = object instanceof Array;
-    results = [];
-    if (isArray) {
-        _gpfArrayForEach(object, _gpfPreprocessValueForJson(function (value) {
-            results.push(value);
-        }));
-        return "[" + results.join(",") + "]";
-    }
-    _gpfObjectForEach(object, _gpfPreprocessValueForJson(function (value, property) {
-        results.push(_gpfStringEscapeFor(property, "javascript") + ":" + value);
-    }));
-    return "{" + results.join(",") + "}";
-}
-
-function _gpfJsonStringifyObject (object) {
+// function _gpfPreprocessValueForJson (callback) {
+//     return function (value, index) {
+//         if ("function" === typeof value) {
+//             return; // ignore
+//         }
+//         callback(_gpfJsonStringifyPolyfill(value), index);
+//     };
+// }
+//
+// function _gpfObject2Json (object) {
+//     var isArray = _gpfIsArray(object),
+//         results = [];
+//     if (isArray) {
+//         _gpfArrayForEach(object, _gpfPreprocessValueForJson(function (value) {
+//             results.push(value);
+//         }));
+//         return "[" + results.join(",") + "]";
+//     }
+//     _gpfObjectForEach(object, _gpfPreprocessValueForJson(function (value, property) {
+//         results.push(_gpfStringEscapeFor(property, "javascript") + ":" + value);
+//     }));
+//     return "{" + results.join(",") + "}";
+// }
+//
+function _gpfJsonStringifyGeneric (object) {
     return object.toString();
 }
 
-var _gpfJsonStringifyMapping = {
+function _gpfJsonStringifyArray (array, replacer, space) {
+    var values = [];
+    _gpfArrayForEach(array, function (value, index) {
+        var replacedValue = replacer(index.toString(), value);
+        if (undefined === replacedValue) {
+            replacedValue = "null";
+        } else {
+            replacedValue = _gpfJsonStringifyMapping[typeof replacedValue](value, replacer, space);
+        }
+        values.push(replacedValue);
+    });
+    if (space) {
+        return "[\n" + space + values.join(",\n" + space) + "]";
+    }
+    return "[" + values.join(",") + "]";
+}
+
+function _gpfJsonStringifyObjectMembers (object, replacer, space) {
+    var values = [],
+        separator;
+    if (space) {
+        separator = ": ";
+    } else {
+        separator = ":";
+    }
+    _gpfObjectForEach(object, function (value, name) {
+        var replacedValue = replacer(name, value);
+        if (undefined === replacedValue) {
+            return;
+        }
+        replacedValue = _gpfJsonStringifyMapping[typeof replacedValue](value, replacer, space);
+        values.push(_gpfStringEscapeFor(name, "javascript") + separator + replacedValue);
+    });
+    if (space) {
+        return "[\n" + space + values.join(",\n" + space) + "]";
+    }
+    return "{" + values.join(",") + "}";
+}
+
+function _gpfJsonStringifyObject (object, replacer, space) {
+    if (null === object) {
+        return "null";
+    }
+    return _gpfJsonStringifyObjectMembers(object, replacer, space);
+}
+
+_gpfJsonStringifyMapping = {
     undefined: _gpfEmptyFunc,
     "function": _gpfEmptyFunc,
-    number: _gpfJsonStringifyObject,
-    "boolean": _gpfJsonStringifyObject,
+    number: _gpfJsonStringifyGeneric,
+    "boolean": _gpfJsonStringifyGeneric,
     string: function (object) {
         return _gpfStringEscapeFor(object, "javascript");
     },
-    object: function (object) {
-        if (null === object) {
-            return "null";
+    object: function (object, replacer, space) {
+        if (_gpfIsArray(object)) {
+            return _gpfJsonStringifyArray(object, replacer, space);
         }
-        return _gpfObject2Json(object);
+        return _gpfJsonStringifyObject(object, replacer, space);
     }
 };
 
-/*jshint -W003*/ // Circular reference _gpfJsonStringifyPolyfill <-> _gpfObject2Json
-function _gpfJsonStringifyPolyfill (object) {
-    return _gpfJsonStringifyMapping[typeof object](object);
+function _gpfJsonStringifyGetReplacerFunction (replacer) {
+    if (_gpfIsArray(replacer)) {
+        // whitelist
+        return function (key, value) {
+            if (replacer.indexOf(key) !== -1) {
+                return value;
+            }
+        };
+    }
+    if ("function" === typeof replacer) {
+        return replacer;
+    }
+    return function (key, value) {
+        return value;
+    };
 }
-/*jshint +W003*/
+
+function _gpfJsonStringifyGetSpaceValue (space) {
+    if ("number" === typeof space) {
+        return new Array(Math.min(space, 10) + 1).join(" ");
+    }
+    return space || "";
+}
+
+/**
+ * JSON.stringify polyfill
+ *
+ * @param {*} value The value to convert to a JSON string
+ * @param {Function|Array} [replacer] A function that alters the behavior of the stringification process, or an array of
+ * String and Number objects that serve as a whitelist for selecting/filtering the properties of the value object to be
+ * included in the JSON string
+ * @param {String|Number} [space] A String or Number object that's used to insert white space into the output JSON
+ * string for readability purposes. If this is a Number, it indicates the number of space characters to use as white
+ * space; this number is capped at 10 (if it is greater, the value is just 10).
+ * @return {String} JSON representation of the value
+ * @since 0.1.5
+ */
+function _gpfJsonStringifyPolyfill (value, replacer, space) {
+    return _gpfJsonStringifyMapping[typeof value](value, _gpfJsonStringifyGetReplacerFunction(replacer),
+        _gpfJsonStringifyGetSpaceValue(space));
+}
 
 /*#ifndef(UMD)*/
 
