@@ -5,7 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
-/*global _gpfInstallCompatibility*/ // Define and install compatible methods
+/*global _gpfCompatibilityInstallMethods*/ // Define and install compatible methods on standard objects
 /*global _gpfMainContext*/ // Main context object
 /*global _gpfNewApply*/ // Apply new operator with an array of parameters
 /*exported _gpfIsISO8601String*/ // Check if the string is an ISO 8601 representation of a date
@@ -35,7 +35,7 @@ function _gpfDateToISOString (date) {
         + "Z";
 }
 
-_gpfInstallCompatibility("Date", {
+_gpfCompatibilityInstallMethods("Date", {
     on: Date,
 
     methods: {
