@@ -14,32 +14,15 @@
 
 var _gpfJsonStringifyMapping;
 
-// function _gpfPreprocessValueForJson (callback) {
-//     return function (value, index) {
-//         if ("function" === typeof value) {
-//             return; // ignore
-//         }
-//         callback(_gpfJsonStringifyPolyfill(value), index);
-//     };
-// }
-//
-// function _gpfObject2Json (object) {
-//     var isArray = _gpfIsArray(object),
-//         results = [];
-//     if (isArray) {
-//         _gpfArrayForEach(object, _gpfPreprocessValueForJson(function (value) {
-//             results.push(value);
-//         }));
-//         return "[" + results.join(",") + "]";
-//     }
-//     _gpfObjectForEach(object, _gpfPreprocessValueForJson(function (value, property) {
-//         results.push(_gpfStringEscapeFor(property, "javascript") + ":" + value);
-//     }));
-//     return "{" + results.join(",") + "}";
-// }
-//
 function _gpfJsonStringifyGeneric (object) {
     return object.toString();
+}
+
+function _gpfJsonStringifyFormat (values, space) {
+    if (space) {
+        return "\n" + space + values.join(",\n" + space) + "\n";
+    }
+    return values.join(",");
 }
 
 function _gpfJsonStringifyArray (array, replacer, space) {
@@ -49,14 +32,11 @@ function _gpfJsonStringifyArray (array, replacer, space) {
         if (undefined === replacedValue) {
             replacedValue = "null";
         } else {
-            replacedValue = _gpfJsonStringifyMapping[typeof replacedValue](value, replacer, space);
+            replacedValue = _gpfJsonStringifyMapping[typeof replacedValue](replacedValue, replacer, space);
         }
         values.push(replacedValue);
     });
-    if (space) {
-        return "[\n" + space + values.join(",\n" + space) + "]";
-    }
-    return "[" + values.join(",") + "]";
+    return "[" + _gpfJsonStringifyFormat(values, space) + "]";
 }
 
 function _gpfJsonStringifyObjectMembers (object, replacer, space) {
@@ -69,16 +49,13 @@ function _gpfJsonStringifyObjectMembers (object, replacer, space) {
     }
     _gpfObjectForEach(object, function (value, name) {
         var replacedValue = replacer(name, value);
+        replacedValue = _gpfJsonStringifyMapping[typeof replacedValue](value, replacer, space);
         if (undefined === replacedValue) {
             return;
         }
-        replacedValue = _gpfJsonStringifyMapping[typeof replacedValue](value, replacer, space);
         values.push(_gpfStringEscapeFor(name, "javascript") + separator + replacedValue);
     });
-    if (space) {
-        return "[\n" + space + values.join(",\n" + space) + "]";
-    }
-    return "{" + values.join(",") + "}";
+    return "{" + _gpfJsonStringifyFormat(values, space) + "}";
 }
 
 function _gpfJsonStringifyObject (object, replacer, space) {
@@ -105,14 +82,6 @@ _gpfJsonStringifyMapping = {
 };
 
 function _gpfJsonStringifyGetReplacerFunction (replacer) {
-    if (_gpfIsArray(replacer)) {
-        // whitelist
-        return function (key, value) {
-            if (replacer.indexOf(key) !== -1) {
-                return value;
-            }
-        };
-    }
     if ("function" === typeof replacer) {
         return replacer;
     }
@@ -121,7 +90,19 @@ function _gpfJsonStringifyGetReplacerFunction (replacer) {
     };
 }
 
-function _gpfJsonStringifyGetSpaceValue (space) {
+function _gpfJsonStringifyCheckReplacer (replacer) {
+    if (_gpfIsArray(replacer)) {
+        // whitelist
+        return function (key, value) {
+            if (replacer.indexOf(key) !== -1) {
+                return value;
+            }
+        };
+    }
+    return _gpfJsonStringifyGetReplacerFunction(replacer);
+}
+
+function _gpfJsonStringifyCheckSpaceValue (space) {
     if ("number" === typeof space) {
         return new Array(Math.min(space, 10) + 1).join(" ");
     }
@@ -142,8 +123,8 @@ function _gpfJsonStringifyGetSpaceValue (space) {
  * @since 0.1.5
  */
 function _gpfJsonStringifyPolyfill (value, replacer, space) {
-    return _gpfJsonStringifyMapping[typeof value](value, _gpfJsonStringifyGetReplacerFunction(replacer),
-        _gpfJsonStringifyGetSpaceValue(space));
+    return _gpfJsonStringifyMapping[typeof value](value, _gpfJsonStringifyCheckReplacer(replacer),
+        _gpfJsonStringifyCheckSpaceValue(space));
 }
 
 /*#ifndef(UMD)*/
