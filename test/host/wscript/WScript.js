@@ -3,7 +3,8 @@
 const
     classNames = {},
     argumentsArray = process.argv.slice(2),
-    argumentsFunction = index => argumentsArray[index];
+    argumentsFunction = index => argumentsArray[index],
+    coreFunction = Function;
 
 Object.defineProperty(argumentsFunction, "length", {
     value: argumentsArray.length,
@@ -15,6 +16,15 @@ global.JSON = undefined;
 global.Promise = undefined;
 global.clearTimeout = undefined;
 global.setTimeout = undefined;
+
+// Not proud of this one but I had to find a way...
+global.Function = function (content) {
+    if (content === "return function functionName () {};") {
+        return coreFunction("return function notFunctionName () {};");
+    }
+    return coreFunction.apply(this, arguments);
+};
+global.Function.prototype = coreFunction.prototype;
 
 module.exports = {
 
