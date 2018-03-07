@@ -171,7 +171,10 @@ _gpfCompatibilityInstallMethods("Array", {
 
 });
 
-// Update if it was not defined
-if (!_gpfIsArray) {
-    _gpfIsArray = Array.isArray;
-}
+_gpfIsArray = Array.isArray;
+
+/*#ifndef(UMD)*/
+
+_gpfIsArray([]); // To clear out linter error
+
+/*#endif*/
