@@ -75,6 +75,7 @@
     ],
     "compatibility/json/stringify": [
         "foreach",
+        "arraylike",
         "string/escapefor"
     ],
     "compatibility/json": [
