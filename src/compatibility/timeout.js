@@ -95,7 +95,7 @@ function _gpfHandleTimeout () {
  * @gpf:sameas _gpfHandleTimeout
  * @since 0.1.5
  */
-gpf.handleTimeout = _gpfEmptyFunc;
+gpf.handleTimeout = _gpfHandleTimeout;
 
 _gpfCompatibilityInstallGlobal("setTimeout", _gpSetTimeoutPolyfill);
 _gpfCompatibilityInstallGlobal("clearTimeout", _gpfClearTimeoutPolyfill);
