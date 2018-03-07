@@ -241,8 +241,21 @@ function onLoad () {
             });
     };
 
-    tile("misc", "Miscellaneous")
-        .appendChild(document.getElementById("other-items").buildFactory()());
+    tile("github", "GitHub")
+        .appendChild(document.getElementById("github-details").buildFactory()());
+    refresh.github = function (tile) {
+        remove(tile.querySelectorAll("div.dynamic"));
+        xhr("/github/").get().asJson()
+            .then(function (status) {
+                if (status.error) {
+                    var flag = tile.appendChild(div("", "dynamic error", "javascript:alert('link to doc')"));
+                    flag.title = status.error;
+                } else {
+                    var flag = tile.appendChild(div("", "dynamic connected", status.profile.html_url));
+                    flag.title = status.profile.name;
+                }
+            });
+    }
 
     document.addEventListener("click", function (event) {
         var target = event.target,
@@ -298,6 +311,10 @@ function onLoad () {
                     <span class="version" link="test/host/web.html?release">release</span>
                     <span class="mocha" link="test/host/mocha/web.html?release">mocha</span>
                 </li>
+                <li>
+                    <span class="mocha" link="test/host/mocha/tpl.html">tpl</span>
+                    <span class="misc" link="grunt/exec:jsdoc:src/constants.js:src/interfaces/readablestream.js:src/interfaces/writablestream.js:src/interfaces/flushablestream.js:src/stream/bufferedread.js:src/stream/line.js">JSDoc</li>
+                </li>
             </ul>
         </template>
         <template id="env-details">
@@ -320,11 +337,10 @@ function onLoad () {
         <template id="env-item">
             <li id="env-{{name}}" link="env">{{name}}</li>
         </template>
-        <template id="other-items">
+        <template id="github-details">
             <ul>
                 <li link="https://github.com/ArnaudBuchholz/gpf-js/issues?q=is%3Aopen+is%3Aissue+no%3Amilestone">Backlog</li>
-                <li link="test/host/mocha/tpl.html">Template tests</li>
-                <li link="grunt/exec:jsdoc:src/constants.js:src/interfaces/readablestream.js:src/interfaces/writablestream.js:src/interfaces/flushablestream.js:src/stream/bufferedread.js:src/stream/line.js">JSDoc plugin test</li>
+                <li link="https://github.com/ArnaudBuchholz/gpf-js/milestones">Milestones</li>
             </ul>
         </template>
     </body>
