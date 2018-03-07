@@ -40,15 +40,13 @@ _gpfCompatibilityInstallMethods("Object", {
                 Temp.prototype = O;
                 var obj = new Temp();
                 Temp.prototype = null;
-                if (!obj.__proto__) {
-                    obj.__proto__ = O;
-                }
                 return obj;
             };
         }()),
 
         // Introduced with JavaScript 1.8.5
         getPrototypeOf: function (object) {
+            /* istanbul ignore else */ // wscript.node.1
             if (object.__proto__) {
                 return object.__proto__;
             }
