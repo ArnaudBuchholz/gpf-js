@@ -32,16 +32,27 @@ module.exports = (request, response, next) => {
 
     connect()
         .then(github => github.getUser().getProfile())
-        .then(answer => {
+        .then(profile => {
+            return gh.getIssues("ArnaudBuchholz", "gpf-js").listMilestones()
+                .then(milestones => {
+                    return {
+                        profile: profile.data,
+                        milestones: milestones.data
+                    };
+                });
+        })
+        .then(data => {
             response.statusCode = 200;
-            response.write("Hello " + answer.data.name);
+            response.setHeader("Content-Type", "application/json; charset=utf-8");
+            response.write(JSON.stringify(data));
             response.end();
 
         })["catch"](reason => {
-            console.log(gh);
-            response.statusCode = 500;
-            response.setHeader("Content-Type", "text/plain; charset=utf-8");
-            response.write(reason.message || JSON.stringify(reason));
+            response.statusCode = 200;
+            response.setHeader("Content-Type", "application/json; charset=utf-8");
+            response.write(JSON.stringify({
+                error: reason.message || reason
+            }));
             response.end();
         });
 
