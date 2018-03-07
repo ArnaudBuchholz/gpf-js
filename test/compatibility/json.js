@@ -88,7 +88,7 @@ describe("compatibility/json", function () {
             assert(stringifyFunc.length === 3);
         });
 
-        var values= {
+        var values = {
             "null": null,
             "0": 0,
             "false": false,
@@ -136,7 +136,8 @@ describe("compatibility/json", function () {
                 "Hello",
                 "World!"
             ], function (key, value) {
-                if (key === "0") {
+                // Key can be a number or a string depending on the host
+                if (key.toString() === "0") {
                     return undefined;
                 }
                 return value;
@@ -153,17 +154,17 @@ describe("compatibility/json", function () {
         });
 
         it("uses the space argument", function () {
-            var result = stringifyFunc({ a: 2 }, null, " ");
+            var result = stringifyFunc({a: 2}, null, " ");
             assert(result === "{\n \"a\": 2\n}");
         });
 
         it("uses the space argument (empty string)", function () {
-            var result = stringifyFunc({ a: 2 }, null, "");
+            var result = stringifyFunc({a: 2}, null, "");
             assert(result === "{\"a\":2}");
         });
 
         it("uses the space argument (tab)", function () {
-            var result = stringifyFunc({ a: 2 }, null, "\t");
+            var result = stringifyFunc({a: 2}, null, "\t");
             assert(result === "{\n\t\"a\": 2\n}");
         });
 
@@ -173,12 +174,12 @@ describe("compatibility/json", function () {
         });
 
         it("uses the space argument (number < 10)", function () {
-            var result = stringifyFunc({ a: 2 }, null, 5);
+            var result = stringifyFunc({a: 2}, null, 5);
             assert(result === "{\n     \"a\": 2\n}");
         });
 
         it("uses the space argument (number > 10)", function () {
-            var result = stringifyFunc({ a: 2 }, null, 11);
+            var result = stringifyFunc({a: 2}, null, 11);
             assert(result === "{\n          \"a\": 2\n}");
         });
     }
