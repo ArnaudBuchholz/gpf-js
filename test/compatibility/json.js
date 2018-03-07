@@ -222,7 +222,8 @@ describe("compatibility/json", function () {
         it("supports reviver parameter - traversing", function () {
             var keys = [];
             parseFunc("{\"1\": 1, \"2\": 2, \"3\": {\"4\": 4, \"5\": {\"6\": 6}}}", function (key, value) {
-                keys.push(key);
+                // Key can be a number or a string depending on the host
+                keys.push(key.toString());
                 return value;
             });
             assert(keys.length === 7);
