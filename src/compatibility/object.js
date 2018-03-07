@@ -51,6 +51,7 @@ _gpfCompatibilityInstallMethods("Object", {
                 return object.__proto__;
             }
             // May break if the constructor has been tampered with
+            /* istanbul ignore next */ // wscript.node.1
             return object.constructor.prototype;
         },
 
