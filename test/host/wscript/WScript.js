@@ -11,8 +11,9 @@ Object.defineProperty(argumentsFunction, "length", {
 });
 
 // These are not defined in this host
-// global.JSON = undefined;
+global.JSON = undefined;
 global.Promise = undefined;
+global.clearTimeout = undefined;
 global.setTimeout = undefined;
 
 module.exports = {
