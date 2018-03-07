@@ -168,6 +168,10 @@ ul#tiles > li#tests span.mocha {
     font-style: italic;
 }
 
+ul#tiles > li#tests span.misc {
+    font-size: smaller;
+}
+
 /*endregion*/
 
 /*region Environments tile */
@@ -218,10 +222,35 @@ ul#tiles > li#doc div.public{
 
 /*endregion*/
 
-/*region Miscellaneous tile */
+/*region GitHub tile */
 
-ul#tiles > li#misc {
-    background: url(hawcons/package.png) 80px 80px no-repeat beige;
+ul#tiles > li#github {
+    background: url(hawcons/tags.png) 80px 80px no-repeat beige;
+}
+
+ul#tiles > li#github div.error {
+    top: 8px;
+    left: 112px;
+    width: 16px;
+    height: 16px;
+    border-radius: 16px;
+    background-color: red;
+    border: solid 2px white;
+}
+
+ul#tiles > li#github div.connected {
+    top: 8px;
+    left: 112px;
+    width: 16px;
+    height: 16px;
+    border-radius: 16px;
+    background-color: green;
+    border: solid 2px white;
+}
+
+ul#tiles > li#github div.milestone {
+    top: 64px;
+    left: 8px;
 }
 
 /*endregion*/
