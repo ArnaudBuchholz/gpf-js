@@ -1,23 +1,24 @@
-gpf.require.define([
-    showError: "../error.js",
-    Source: "source.js"
+gpf.require.define({
+    dialogs: "../dialogs.js",
+    Source: "source.js",
+    sources: "../../src/sources.json",
+    dependencies: "../../build/dependencies.json"
 
-], function (require) {
+}, function (require) {
     "use strict";
 
-    var showError = require.showError,
+    var dialogs = require.dialogs,
         Source = require.Source;
 
     //region Source and SourceArray definitions
     return gpf.define({
         $class: "SourceArray",
 
-        constructor: function (sourcesJSON, dependenciesJSON) {
-            var dependencies = JSON.parse(dependenciesJSON);
-            JSON.parse(sourcesJSON).forEach(function (source) {
-                this._sources.push(new Source(this, source, dependencies));
+        constructor: function () {
+            require.sources.forEach(function (source) {
+                this._sources.push(new Source(this, source, require.dependencies));
             }, this);
-        }
+        },
 
         /** Array of sources */
         _sources: [],
@@ -214,10 +215,10 @@ gpf.require.define([
 
         /** Save to src/sources.json */
         save: function () {
-            gpf.http.post("/fs/src/sources.json", this.toString())
+            return gpf.http.post("/fs/src/sources.json", this.toString())
                 .then(function (answer) {
                     if (500 === answer.status) {
-                        showError(answer.responseText);
+                        return dialogs.error(answer.responseText);
                     }
                 });
         }
