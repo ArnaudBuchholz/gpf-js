@@ -34,7 +34,7 @@ function _gpfGenerateGenericFactorySource (parameters) {
         var count = index + 1;
         src.push("if (" + count + " === l) { return new C(" + parameters.slice(0, count).join(", ") + ");}");
     });
-    return src.join("\r\n");
+    return src.join("\n");
 }
 
 function _gpfGenerateGenericFactory (maxParameters) {
