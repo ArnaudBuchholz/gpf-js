@@ -36,7 +36,7 @@ function _gpfFunctionDescribeParameters (functionToDescribe, functionSource, res
 }
 
 function _gpfFunctionDescribeBody (functionSource, resultDescription) {
-    var body = _gpfStringTrim(new RegExp("{((?:.*\\n)*.*)}").exec(functionSource)[1]);
+    var body = _gpfStringTrim(new RegExp("{((?:.*\\r?\\n)*.*)}").exec(functionSource)[1]);
     if (body) {
         resultDescription.body = body;
     }
