@@ -321,7 +321,7 @@ function _gpfLoadSources () { //jshint ignore:line
             allContent.push(_gpfSyncReadForBoot(gpfSourcesPath + source.name + ".js"));
         }
     }
-    return allContent.join("\r\n");
+    return allContent.join("\n");
 }
 
 /*jshint ignore:start*/ // Best way I found
