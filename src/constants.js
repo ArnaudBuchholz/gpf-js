@@ -85,7 +85,7 @@ function _gpfFuncImpl (params, source) {
         /*#ifdef(DEBUG)*/
     } catch (e) {
         // Makes it easier to debug
-        throw new Error("_gpfFuncImpl exception: " + e.message + "\r\n" + source);
+        throw new Error("_gpfFuncImpl exception: " + e.message + "\n" + source);
     }
     /*#endif*/
 }
