@@ -1,4 +1,4 @@
-gpf.require.define([], function () {
+gpf.require.define({}, function () {
     "use strict";
 
     //region Source and SourceArray definitions
@@ -195,5 +195,6 @@ gpf.require.define([], function () {
             return this._checkedState;
         }
 
-    })
+    });
+
 });
