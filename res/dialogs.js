@@ -1,4 +1,4 @@
-gpf.require.define([], function () {
+gpf.require.define({}, function () {
     "use strict";
 
     /*eslint-disable no-alert*/
