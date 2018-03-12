@@ -1,11 +1,13 @@
 gpf.require.define({
-    dialogs: "dialogs.js",
-    SourceArray: "sources/array.js"
+    dialogs: "../dialogs.js",
+    dom: "../dom.js",
+    SourceArray: "array.js"
 
 }, function (require) {
     "use strict";
 
     var dialogs = require.dialogs,
+        dom = require.dom,
         SourceArray = require.SourceArray,
         // {Function} Row factory
         rowFactory = document.getElementById("tpl_row").buildFactory(),
@@ -196,43 +198,44 @@ gpf.require.define({
     //endregion
 
     reload();
-    document.addEventListener("click", function (event) {
-        var target = event.target,
-            sourceRow = upToSourceRow(target),
-            source;
-        if (!sourceRow) {
-            return;
-        }
-        source = sources.byName(sourceRow.id);
-        if ("checkbox" === target.getAttribute("type")) {
-            onCheckboxClick(target, source);
-        } else if (-1 !== target.className.indexOf("delete")) {
-            onDelete(source);
-        }
-    });
 
-    document.getElementById("save").addEventListener("click", function () {
-        sources.save();
-    });
+    dom.addEventsListener({
+        "@click": function (event) {
+            var target = event.target,
+                sourceRow = upToSourceRow(target),
+                source;
+            if (!sourceRow) {
+                return;
+            }
+            source = sources.byName(sourceRow.id);
+            if ("checkbox" === target.getAttribute("type")) {
+                onCheckboxClick(target, source);
+            } else if (-1 !== target.className.indexOf("delete")) {
+                onDelete(source);
+            }
+        },
 
-    document.getElementById("check").addEventListener("click", function () {
-        var checkDictionary = {};
-        sources.forEach(function (source) {
-            checkDictionary[source.getName()] = "obsolete";
-        });
-        gpf.http.get("/fs/src")
-            .then(function (response) {
-                return JSON.parse(response.responseText);
-            })
-            .then(function (pathContent) {
-                return compare(checkDictionary, "", pathContent);
-            })
-            .then(function () {
-                sources.setCheckDictionary(checkDictionary);
-                reload();
+        "#save@click": function () {
+            sources.save();
+        },
+
+        "#check@click": function () {
+            var checkDictionary = {};
+            sources.forEach(function (source) {
+                checkDictionary[source.getName()] = "obsolete";
             });
+            gpf.http.get("/fs/src")
+                .then(function (response) {
+                    return JSON.parse(response.responseText);
+                })
+                .then(function (pathContent) {
+                    return compare(checkDictionary, "", pathContent);
+                })
+                .then(function () {
+                    sources.setCheckDictionary(checkDictionary);
+                    reload();
+                });
+        }
     });
-
-    //endregion
 
 });
