@@ -81,7 +81,7 @@ ul#tiles > li div.exec {
     border-radius: 4px;
     border: white 1px solid;
     box-shadow: 2px 2px gray;
-    background: url(hawcons/lightning.png) -8px -8px no-repeat;
+    background: url(/res/hawcons/lightning.png) -8px -8px no-repeat;
 }
 
 /*endregion*/
@@ -89,7 +89,7 @@ ul#tiles > li div.exec {
 /*region Source tile */
 
 ul#tiles > li#sources {
-    background: url(hawcons/documents.png) 80px 80px no-repeat beige;
+    background: url(/res/hawcons/documents.png) 80px 80px no-repeat beige;
 }
 
 /*endregion*/
@@ -97,7 +97,7 @@ ul#tiles > li#sources {
 /*region Plato tile */
 
 ul#tiles > li#plato {
-    background: url(hawcons/document-scan.png) 80px 80px no-repeat beige;
+    background: url(/res/hawcons/document-scan.png) 80px 80px no-repeat beige;
 }
 
 /*endregion*/
@@ -105,7 +105,7 @@ ul#tiles > li#plato {
 /*region Coverage tile */
 
 ul#tiles > li#coverage {
-    background: url(hawcons/search.png) 80px 80px no-repeat beige;
+    background: url(/res/hawcons/search.png) 80px 80px no-repeat beige;
 }
 
 ul#tiles > li div.coverage {
@@ -155,7 +155,7 @@ ul#tiles > li div.coverage.branches:after {
 /*region Tests tile */
 
 ul#tiles > li#tests {
-    background: url(hawcons/thumb-up.png) 80px 80px no-repeat beige;
+    background: url(/res/hawcons/thumb-up.png) 80px 80px no-repeat beige;
 }
 
 ul#tiles > li#tests span.version {
@@ -177,7 +177,7 @@ ul#tiles > li#tests span.misc {
 /*region Environments tile */
 
 ul#tiles > li#env {
-    background: url(hawcons/thumb-up.png) 80px 80px no-repeat beige;
+    background: url(/res/hawcons/thumb-up.png) 80px 80px no-repeat beige;
 }
 
 ul#tiles > li#env select {
@@ -207,7 +207,7 @@ ul#tiles > li#env div.envDetect {
 /*region Documentation tile */
 
 ul#tiles > li#doc {
-    background: url(hawcons/book.png) 80px 80px no-repeat beige;
+    background: url(/res/hawcons/book.png) 80px 80px no-repeat beige;
 }
 
 ul#tiles > li#doc div.version{
@@ -225,7 +225,7 @@ ul#tiles > li#doc div.public{
 /*region GitHub tile */
 
 ul#tiles > li#github {
-    background: url(hawcons/tags.png) 80px 80px no-repeat beige;
+    background: url(/res/hawcons/tags.png) 80px 80px no-repeat beige;
 }
 
 ul#tiles > li#github div.error {
