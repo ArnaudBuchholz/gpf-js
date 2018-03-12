@@ -7,7 +7,7 @@ gpf.require.define({}, function () {
         });
     }
 
-    return {
+    var api = {
 
         addEventsListener: function (events) {
             Object.keys(events).forEach(function (eventKey) {
@@ -24,5 +24,11 @@ gpf.require.define({}, function () {
         }
 
     };
+
+    ["div", "span", "li"].forEach(function (tagName) {
+        api[tagName] = gpf.web.createTagFunction(tagName)
+    });
+
+    return api;
 
 });
