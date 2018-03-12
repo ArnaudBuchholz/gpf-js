@@ -126,7 +126,7 @@ function onLoad () {
             var loaded = sources.filter(function (source) {
                     return source.load !== false;
                 }).length;
-            tile.appendChild(div("" + loaded + "/" + sources.length, "percentage", "make/sources.html"));
+            tile.appendChild(div("" + loaded + "/" + sources.length, "percentage", "/res/sources"));
         });
     };
 
