@@ -85,8 +85,8 @@ if ($object.isReferenced()) {
     <script language="JavaScript" src="/res/tpl.js"></script>
     <script language="JavaScript">gpfSourcesPath = "/src/";</script>
     <script language="JavaScript" src="/src/boot.js"></script>
-    <script language="JavaScript">gpf.require.configure({
-        base: "/res/sources"
-    })</script>
-    <script language="JavaScript" src="main.js"></script>
+    <script language="JavaScript">
+        gpf.require.configure({base: "/res/sources"});
+        gpf.require.define({main: "main.js"});
+    </script>
 </html>
