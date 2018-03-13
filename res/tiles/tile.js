@@ -14,21 +14,27 @@ gpf.require.define({
             this._title = title;
         },
 
+        getId: function () {
+            return this._id;
+        },
+
         _setGruntCommand: function (command, title) {
             this._command = command;
             this._commandTitle = title;
         },
 
         render: function () {
-            var children = [dom.div({className: "title"}, this._title)];
+            var staticChildren = [dom.div({className: "title"}, this._title)];
             if (this._command) {
-                children.push(dom.div({
+                staticChildren.push(dom.div({
                     className: "exec",
                     link: "grunt/" + this._command,
                     title: this._commandTitle
                 }));
             }
-            return dom.li({id: this._id}, children.concat(this.getStaticContent()));
+            return dom.li({id: this._id},
+                dom.div({className: "static"}, staticChildren.concat(this.getStaticContent())),
+                dom.div({className: "dynamic"}));
         },
 
         getStaticContent: function () {
@@ -36,7 +42,7 @@ gpf.require.define({
         },
 
         getDynamicContent: function () {
-            return [];
+            return Promise.resolve([]);
         }
 
     });
