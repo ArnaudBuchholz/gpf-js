@@ -16,18 +16,22 @@ gpf.require.define({
             this._setGruntCommand("make", "Make");
         },
 
-        refresh: function () {
+        getDynamicContent: function () {
             return gpf.http.get("/src/sources.json")
                 .then(function (response) {
                     return JSON.parse(response.responseText);
                 })
                 .then(function (sources) {
                     var loaded = sources.filter(function (source) {
-                            return source.load !== false;
-                        }).length;
-
-                    tile.appendChild(div("" + loaded + "/" + sources.length, "percentage", "/res/sources"));
-                })
+                        return source.load !== false;
+                    }).length;
+                    return [
+                        dom.div({
+                            className: "percentage",
+                            link: "/res/sources"
+                        }, loaded + "/" + sources.length)
+                    ];
+                });
         }
 
     });
