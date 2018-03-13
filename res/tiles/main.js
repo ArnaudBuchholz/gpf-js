@@ -1,16 +1,21 @@
 gpf.require.define({
     dom: "../dom.js",
-    Sources: "sources.js"
+    "tile:sources": "sources.js",
+    "tile:plato": "plato.js",
+    "tile:coverage": "coverage.js",
+    "tile:tests": "tests.js"
 
 }, function (require) {
     "use strict";
 
     var dom = require.dom,
-        tiles = [
-            require.Sources
-        ].map(function (TileClass) {
-            return new TileClass();
-        });
+        tiles = Object.keys(require)
+            .filter(function (name) {
+                return 0 === name.indexOf("tile:");
+            })
+            .map(function (name) {
+                return new require[name]();
+            });
 
     function refresh(tile) {
         return tile.getDynamicContent()
