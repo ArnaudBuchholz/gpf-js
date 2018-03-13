@@ -29,7 +29,7 @@ gpf.require.define({}, function () {
 
     };
 
-    ["div", "span", "li"].forEach(function (tagName) {
+    ["div", "span", "li", "ul"].forEach(function (tagName) {
         api[tagName] = gpf.web.createTagFunction(tagName);
     });
 
