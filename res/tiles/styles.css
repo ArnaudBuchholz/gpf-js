@@ -67,7 +67,8 @@ ul#tiles > li div.ko {
     color: red;
 }
 
-ul#tiles > li > ul {
+ul#tiles > li > ul,
+ul#tiles > li > div > ul {
     position: absolute;
     padding-left: 4px;
     top: 16px;
@@ -75,7 +76,8 @@ ul#tiles > li > ul {
     text-align: left;
 }
 
-ul#tiles > li > ul > li {
+ul#tiles > li > ul > li,
+ul#tiles > li > div > ul > li {
     display: block;
     font-size: 11pt;
 }
