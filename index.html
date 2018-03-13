@@ -118,17 +118,17 @@ function onLoad () {
         return div;
     }
 
-    tile("sources", "Sources")
-        .appendChild(execFactory({grunt: "make", title: "Make"}));
-    refresh.sources = function (tile) {
-        remove(tile.querySelectorAll("div.percentage"));
-        xhr("src/sources.json").get().asJson().then(function (sources) {
-            var loaded = sources.filter(function (source) {
-                    return source.load !== false;
-                }).length;
-            tile.appendChild(div("" + loaded + "/" + sources.length, "percentage", "/res/sources"));
-        });
-    };
+    // tile("sources", "Sources")
+    //     .appendChild(execFactory({grunt: "make", title: "Make"}));
+    // refresh.sources = function (tile) {
+    //     remove(tile.querySelectorAll("div.percentage"));
+    //     xhr("src/sources.json").get().asJson().then(function (sources) {
+    //         var loaded = sources.filter(function (source) {
+    //                 return source.load !== false;
+    //             }).length;
+    //         tile.appendChild(div("" + loaded + "/" + sources.length, "percentage", "/res/sources"));
+    //     });
+    // };
 
     tile("plato", "Plato report")
         .appendChild(execFactory({grunt: "plato", title: "Execute plato"}));
