@@ -13,6 +13,21 @@ ul#tiles > li {
     box-shadow: 4px 4px lightgray;
 }
 
+ul#tiles > li div {
+    position: absolute;
+    top: 16px;
+    left: 0;
+    width: 100%;
+}
+
+ul#tiles > li div.static {
+  top: 0;
+}
+
+ul#tiles > li div.dynamic {
+  top: 0;
+}
+
 ul#tiles > li div.title {
     top: 0;
     font-size: 8pt;
@@ -22,13 +37,6 @@ ul#tiles > li div.title {
     border-top-right-radius: 8px;
     border-top-left-radius: 8px;
     border-bottom: solid 1px gray;
-}
-
-ul#tiles > li div {
-    position: absolute;
-    top: 16px;
-    left: 0;
-    width: 100%;
 }
 
 [link] {
