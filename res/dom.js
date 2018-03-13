@@ -21,12 +21,16 @@ gpf.require.define({}, function () {
                     document.addEventListener(eventName, handler);
                 }
             });
+        },
+
+        clear: function (element) {
+            element.innerHTML = "";
         }
 
     };
 
     ["div", "span", "li"].forEach(function (tagName) {
-        api[tagName] = gpf.web.createTagFunction(tagName)
+        api[tagName] = gpf.web.createTagFunction(tagName);
     });
 
     return api;
