@@ -118,65 +118,6 @@ function onLoad () {
         return div;
     }
 
-    // tile("sources", "Sources")
-    //     .appendChild(execFactory({grunt: "make", title: "Make"}));
-    // refresh.sources = function (tile) {
-    //     remove(tile.querySelectorAll("div.percentage"));
-    //     xhr("src/sources.json").get().asJson().then(function (sources) {
-    //         var loaded = sources.filter(function (source) {
-    //                 return source.load !== false;
-    //             }).length;
-    //         tile.appendChild(div("" + loaded + "/" + sources.length, "percentage", "/res/sources"));
-    //     });
-    // };
-
-    tile("plato", "Plato report")
-        .appendChild(execFactory({grunt: "plato", title: "Execute plato"}));
-    refresh.plato = function (tile) {
-        remove(tile.querySelectorAll("div.percentage"));
-        xhr("tmp/plato/report.json").get().asJson().then(function (reportData) {
-            var maintainability = reportData.summary.average.maintainability,
-                statusClassName;
-            if (maintainability < metrics.maintainability) {
-                statusClassName = "ko";
-            } else {
-                statusClassName = "ok";
-            }
-            tile.appendChild(div(maintainability, "percentage " + statusClassName, "tmp/plato/index.html"));
-        });
-    };
-
-    tile("coverage", "Code coverage");
-    refresh.coverage = function (tile) {
-        remove(tile.querySelectorAll("div.coverage"));
-        xhr("tmp/coverage/reports/coverage.json").get().asJson().then(function (coverageData) {
-            var report = new CoverageReport(coverageData),
-                global = report.getGlobal();
-
-            function addCoverage (type) {
-                var ratio = global[type].getCoverageRatio(),
-                    statusClassName;
-                if (ratio < metrics.coverage[type]) {
-                    statusClassName = "ko";
-                } else {
-                    statusClassName = "ok";
-                }
-                if (100 === ratio) {
-                    ratio = "100.0"
-                }
-                tile.appendChild(div(ratio + "%", "coverage " + type + " " + statusClassName,
-                    "tmp/coverage/reports/lcov-report/index.html"));
-            }
-
-            addCoverage("statements");
-            addCoverage("functions");
-            addCoverage("branches");
-        });
-    };
-
-    tile("tests", "Tests")
-        .appendChild(document.getElementById("tests-details").buildFactory()());
-
     tile("env", "Environments")
         .appendChild(document.getElementById("env-details").buildFactory()());
     refresh.env = function (tile) {
