@@ -184,31 +184,35 @@ ul#tiles > li#tests span.misc {
 
 /*endregion*/
 
-/*region Environments tile */
+/*region Hosts tile */
 
-ul#tiles > li#env {
+ul#tiles > li#hosts {
     background: url(/res/hawcons/thumb-up.png) 80px 80px no-repeat beige;
 }
 
-ul#tiles > li#env select {
+ul#tiles > li#hosts div.dynamic {
+    top: 16px;
+}
+
+ul#tiles > li#hosts select {
     background: unset;
     border: unset;
 }
 
-ul#tiles > li#env ul#envNames {
+ul#tiles > li#hosts ul#hostsNames {
     padding: 8px 0 0 0;
     margin: 0;
 }
 
-ul#tiles > li#env ul#envNames > li {
+ul#tiles > li#hosts ul#hostsNames > li {
     display: inline-block;
 }
 
-ul#tiles > li#env ul#envNames > li:hover {
+ul#tiles > li#hosts ul#hostsNames > li:hover {
     font-size: larger;
 }
 
-ul#tiles > li#env div.envDetect {
+ul#tiles > li#hosts div.envDetect {
     top: 100px;
 }
 
