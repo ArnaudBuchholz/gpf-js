@@ -3,7 +3,8 @@ gpf.require.define({
     "tile:sources": "sources.js",
     "tile:plato": "plato.js",
     "tile:coverage": "coverage.js",
-    "tile:tests": "tests.js"
+    "tile:tests": "tests.js",
+    "tile:hosts": "hosts.js"
 
 }, function (require) {
     "use strict";
