@@ -27,33 +27,41 @@ gpf.require.define({
                     return JSON.parse(response.responseText);
                 })
                 .then(function (legacyFolderContent) {
-                    var
-                        content = [
-                            dom.label({for: "hostsVersion"}, "Version: "),
-                            dom.select({id: "hostsVersion"}, [
-                                dom.optgroup({label: "Current"}, [
-                                    dom.option({value: "Verbose"}, "source"),
-                                    dom.option({value: "Debug"}, "debug"),
-                                    dom.option({value: "Release"}, "release")
-                                ]),
-                                dom.optgroup({label: "Legacy"}, legacyFolderContent
-                                    .filter(function (name) {
-                                        return name !== "legacy.json";
-                                    })
-                                    .map(function (name) {
-                                        var version = name.substr(0, name.lastIndexOf("."));
-                                        return dom.option({value: "Legacy:" + version}, version);
-                                    })
-                                )
+                    return [
+                        dom.label({for: "hostsVersion"}, "Version: "),
+                        dom.select({id: "hostsVersion"}, [
+                            dom.optgroup({label: "Current"}, [
+                                dom.option({value: "Verbose"}, "source"),
+                                dom.option({value: "Debug"}, "debug"),
+                                dom.option({value: "Release"}, "release")
                             ]),
-                            dom.ul({id: "hostsNames"}, Object.keys(config.browsers)
-                                .concat(["node", "phantom"])
+                            dom.optgroup({label: "Legacy"}, legacyFolderContent
+                                .filter(function (name) {
+                                    return name !== "legacy.json";
+                                })
                                 .map(function (name) {
-                                    return dom.li({id:"host-" + name, link:"env"}, name);
+                                    var version = name.substr(0, name.lastIndexOf("."));
+                                    return dom.option({value: "Legacy:" + version}, version);
                                 })
                             )
-                        ];
-                    return content;
+                        ]),
+                        dom.ul({id: "hostsNames"}, Object.keys(config.browsers)
+                            .concat(["node", "phantom", "nodewscript"])
+                            .concat(["rhino"].filter(function (name) {
+                                return config.host.java;
+                            }))
+                            .concat(["nashorn"].filter(function (name) {
+                                return config.host.nashorn;
+                            }))
+                            .concat(["wscript"].filter(function (name) {
+                                return config.host.wscript;
+                            }))
+                            .sort()
+                            .map(function (name) {
+                                return dom.li({id:"host-" + name, link:"env"}, name);
+                            })
+                        )
+                    ];
                 });
         }
 
