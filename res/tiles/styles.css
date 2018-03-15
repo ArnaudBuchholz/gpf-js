@@ -206,10 +206,8 @@ ul#tiles > li#hosts ul#hostsNames {
 
 ul#tiles > li#hosts ul#hostsNames > li {
     display: inline-block;
-}
-
-ul#tiles > li#hosts ul#hostsNames > li:hover {
-    font-size: larger;
+    font-size: unset;
+    padding-left: 4px;
 }
 
 ul#tiles > li#hosts div.envDetect {
