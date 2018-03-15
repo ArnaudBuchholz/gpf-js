@@ -75,65 +75,6 @@ function onLoad () {
             })
     });
 
-    var tileFactory = document.getElementById("tile").buildFactory(),
-        execFactory = document.getElementById("exec").buildFactory(),
-        tiles = document.getElementById("tiles"),
-        metrics;
-
-    // Generate a tile
-    function tile (id, title) {
-        tiles.appendChild(tileFactory({
-            id: id,
-            title: title
-        }));
-        return document.getElementById(id);
-    }
-
-    // Refresh tiles, each tile requiring refresh must adds a method to this function corresponding to the tile id
-    function refresh () {
-        [].slice.call(document.querySelectorAll("ul#tiles > li"))
-            .forEach(function (tile) {
-                var method = tile.id;
-                if (refresh[method]) {
-                    refresh[method](tile);
-                }
-            });
-    }
-
-    // Remove the provided list of nodes
-    function remove (nodes) {
-        if (nodes) {
-            [].slice.call(nodes).forEach(function (node) {
-                node.parentNode.removeChild(node);
-            });
-        }
-    }
-
-    // Generate a div tag with content, classes and a link
-    function div (content, className, link) {
-        var div = document.createElement("div");
-        div.innerHTML = content;
-        div.className = className;
-        div.setAttribute("link", link);
-        return div;
-    }
-
-    tile("github", "GitHub")
-        .appendChild(document.getElementById("github-details").buildFactory()());
-    refresh.github = function (tile) {
-        remove(tile.querySelectorAll("div.dynamic"));
-        xhr("/github/").get().asJson()
-            .then(function (status) {
-                if (status.error) {
-                    var flag = tile.appendChild(div("", "dynamic error", "javascript:alert('link to doc')"));
-                    flag.title = status.error;
-                } else {
-                    var flag = tile.appendChild(div("", "dynamic connected", status.profile.html_url));
-                    flag.title = status.profile.name;
-                }
-            });
-    }
-
     document.addEventListener("click", function (event) {
         var target = event.target,
             link;
@@ -151,11 +92,6 @@ function onLoad () {
         }
     });
 
-    xhr("tmp/config.json").get().asJson().then(function (config) {
-        metrics = config.metrics;
-        refresh();
-    });
-
     window.onpopstate = refresh;
 
 }
@@ -163,26 +99,8 @@ function onLoad () {
         </script>
     </head>
     <body onload="onLoad()">
-        <ul id="tiles">
-        </ul>
+        <ul id="tiles"></ul>
         <div id="chart" style="width: 900px; height: 500px;"></div>
-        <template id="tile">
-            <li id="{{id}}">
-                <div class="title">{{title}}</div>
-            </li>
-        </template>
-        <template id="exec">
-            <div class="exec" link="grunt/{{grunt}}" title="{{title}}"></div>
-        </template>
-        <template id="env-item">
-            <li id="env-{{name}}" link="env">{{name}}</li>
-        </template>
-        <template id="github-details">
-            <ul>
-                <li link="https://github.com/ArnaudBuchholz/gpf-js/issues?q=is%3Aopen+is%3Aissue+no%3Amilestone">Backlog</li>
-                <li link="https://github.com/ArnaudBuchholz/gpf-js/milestones">Milestones</li>
-            </ul>
-        </template>
     </body>
     <script language="JavaScript">gpfSourcesPath = "/src/";</script>
     <script language="JavaScript" src="/src/boot.js"></script>
