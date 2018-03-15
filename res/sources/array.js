@@ -213,7 +213,11 @@ gpf.require.define({
             }
         },
 
-        /** Save to src/sources.json */
+        /**
+         * Save to src/sources.json
+         *
+         * @return {Promise} Resolved when saved
+         */
         save: function () {
             return gpf.http.post("/fs/src/sources.json", this.toString())
                 .then(function (answer) {
