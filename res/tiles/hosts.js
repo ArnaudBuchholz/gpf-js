@@ -28,7 +28,7 @@ gpf.require.define({
                 })
                 .then(function (legacyFolderContent) {
                     return [
-                        dom.label({for: "hostsVersion"}, "Version: "),
+                        dom.label({"for": "hostsVersion"}, "Version: "),
                         dom.select({id: "hostsVersion"}, [
                             dom.optgroup({label: "Current"}, [
                                 dom.option({value: "Verbose"}, "source"),
@@ -47,18 +47,18 @@ gpf.require.define({
                         ]),
                         dom.ul({id: "hostsNames"}, Object.keys(config.browsers)
                             .concat(["node", "phantom", "nodewscript"])
-                            .concat(["rhino"].filter(function (name) {
+                            .concat(["rhino"].filter(function () {
                                 return config.host.java;
                             }))
-                            .concat(["nashorn"].filter(function (name) {
+                            .concat(["nashorn"].filter(function () {
                                 return config.host.nashorn;
                             }))
-                            .concat(["wscript"].filter(function (name) {
+                            .concat(["wscript"].filter(function () {
                                 return config.host.wscript;
                             }))
                             .sort()
                             .map(function (name) {
-                                return dom.li({id:"host-" + name, link:"env"}, name);
+                                return dom.li({id: "host-" + name, link: "env"}, name);
                             })
                         )
                     ];
