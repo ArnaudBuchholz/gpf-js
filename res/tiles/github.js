@@ -7,6 +7,8 @@ gpf.require.define({
 }, function (require) {
     "use strict";
 
+    /*jshint camelcase: false */
+
     var dom = require.dom,
         root = "https://github.com/ArnaudBuchholz/gpf-js/";
 
@@ -60,7 +62,6 @@ gpf.require.define({
                         return [
                                 dom.div({
                                 className: "status error",
-                                link: "javascript:alert('link to doc')", //eslint-disable-line
                                 title: status.error
                             })
                         ];
