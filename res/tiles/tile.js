@@ -47,4 +47,4 @@ gpf.require.define({
 
     });
 
-})
+});
