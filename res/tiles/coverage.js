@@ -39,7 +39,7 @@ gpf.require.define({
                             statusClassName = "ok";
                         }
                         if (100 === ratio) {
-                            ratio = "100.0"
+                            ratio = "100.0";
                         }
                         return dom.div({
                             className: "coverage " + type + " " + statusClassName,
