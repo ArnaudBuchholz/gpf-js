@@ -37,7 +37,7 @@ gpf.require.define({
                     return [
                         dom.div({
                             className: "percentage " + statusClassName,
-                            link: "tmp/plato/index.html",
+                            link: "tmp/plato/index.html"
                         }, maintainability)
                     ];
                 });
