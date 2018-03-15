@@ -20,7 +20,7 @@ gpf.require.define({
             release.metrics.coverage.functions.total
         ];
     });
-    debugger;
+
     require.googleCharts.then(function (google) {
         var data = google.visualization.arrayToDataTable([
             [

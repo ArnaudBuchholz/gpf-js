@@ -10,7 +10,6 @@ gpf.require.define({}, function () {
             promiseReject = reject;
         });
 
-        debugger;
     gpf.web.createTagFunction("script")({
         type: "text/javascript",
         src: "https://www.gstatic.com/charts/loader.js"
