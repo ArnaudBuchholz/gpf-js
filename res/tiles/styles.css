@@ -240,29 +240,40 @@ ul#tiles > li#github {
     background: url(/res/hawcons/tags.png) 80px 80px no-repeat beige;
 }
 
-ul#tiles > li#github div.error {
+ul#tiles > li#github div.status {
     top: 8px;
     left: 112px;
     width: 16px;
     height: 16px;
     border-radius: 16px;
-    background-color: red;
+    background-color: white;
     border: solid 2px white;
+    background-color: gray;
+    z-index: 2;
+}
+
+ul#tiles > li#github div.error {
+    background-color: red;
 }
 
 ul#tiles > li#github div.connected {
-    top: 8px;
-    left: 112px;
-    width: 16px;
-    height: 16px;
-    border-radius: 16px;
     background-color: green;
-    border: solid 2px white;
 }
 
-ul#tiles > li#github div.milestone {
-    top: 64px;
-    left: 8px;
+ul#tiles > li#github div.static {
+    z-index: 1;
+}
+
+ul#tiles > li#github div.release {
+    font-size: 11pt;
+    top: 34px;
+    text-align: right;
+}
+
+ul#tiles > li#github div.progress {
+    font-size: 11pt;
+    top: 50px;
+    text-align: right;
 }
 
 /*endregion*/
