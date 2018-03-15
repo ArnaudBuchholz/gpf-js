@@ -1,7 +1,7 @@
 gpf.require.define({
     Tile: "tile.js",
     dom: "../dom.js",
-    package: "../../package.json"
+    packageJson: "../../package.json"
 
 }, function (require) {
     "use strict";
@@ -22,11 +22,11 @@ gpf.require.define({
                 dom.div({
                     className: "version",
                     link: "tmp/doc/private/index.html"
-                }, require.package.version),
+                }, require.packageJson.version),
                 dom.div({
                     className: "version public",
                     link: "tmp/doc/public/index.html"
-                }, "public"),
+                }, "public")
             ];
         }
 
