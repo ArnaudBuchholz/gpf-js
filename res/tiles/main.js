@@ -39,4 +39,25 @@ gpf.require.define({
         refresh(tile);
     });
 
+    document.addEventListener("click", function (event) {
+        var target = event.target,
+            link;
+        while (target && !(link = target.getAttribute && target.getAttribute("link"))) {
+            target = target.parentNode;
+        }
+        if ("host" === link) {
+            var versionSelect = document.getElementById("hostsVersion"),
+                version = versionSelect.options[versionSelect.selectedIndex].value,
+                envName = target.innerHTML;
+            link = "grunt/exec:test" + envName.charAt(0).toUpperCase() + envName.substr(1) + version;
+        }
+        if (link) {
+            window.open(link);
+        }
+    });
+
+    window.onpopstate = function () {
+        tiles.forEach(refresh);
+    };
+
 });
