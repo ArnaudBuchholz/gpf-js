@@ -118,17 +118,6 @@ function onLoad () {
         return div;
     }
 
-    tile("doc", "Documentation")
-        .appendChild(execFactory({grunt: "jsdoc", title: "Generate documentation"}));
-    refresh.doc = function (tile) {
-        remove(tile.querySelectorAll("div.version"));
-        xhr("/package.json").get().asJson()
-            .then(function (packageJson) {
-                tile.appendChild(div(packageJson.version, "version", "tmp/doc/private/index.html"));
-                tile.appendChild(div("public", "version public", "tmp/doc/public/index.html"));
-            });
-    };
-
     tile("github", "GitHub")
         .appendChild(document.getElementById("github-details").buildFactory()());
     refresh.github = function (tile) {
