@@ -29,7 +29,7 @@ gpf.require.define({
                         dom.div({
                             className: "percentage",
                             link: "/res/sources"
-                        }, loaded + "/" + sources.length)
+                        }, loaded)
                     ];
                 });
         }
