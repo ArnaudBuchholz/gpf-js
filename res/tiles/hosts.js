@@ -58,7 +58,7 @@ gpf.require.define({
                             }))
                             .sort()
                             .map(function (name) {
-                                return dom.li({id: "host-" + name, link: "env"}, name);
+                                return dom.li({id: "host-" + name, link: "host"}, name);
                             })
                         )
                     ];
