@@ -8,7 +8,6 @@
         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
         <script language="JavaScript" src="res/xhr.js"></script>
         <script language="JavaScript" src="res/tpl.js"></script>
-        <script language="JavaScript" src="make/coverage.js"></script>
         <script language="JavaScript">
 
 function onLoad () {
@@ -75,30 +74,11 @@ function onLoad () {
             })
     });
 
-    document.addEventListener("click", function (event) {
-        var target = event.target,
-            link;
-        while (target && !(link = target.getAttribute && target.getAttribute("link"))) {
-            target = target.parentNode;
-        }
-        if ("env" === link) {
-            var versionSelect = document.getElementById("envVersion"),
-                version = versionSelect.options[versionSelect.selectedIndex].value,
-                envName = target.innerHTML;
-            link = "grunt/exec:test" + envName.charAt(0).toUpperCase() + envName.substr(1) + version;
-        }
-        if (link) {
-            window.open(link);
-        }
-    });
-
-    window.onpopstate = refresh;
-
 }
 
         </script>
     </head>
-    <body onload="onLoad()">
+    <body>
         <ul id="tiles"></ul>
         <div id="chart" style="width: 900px; height: 500px;"></div>
     </body>
