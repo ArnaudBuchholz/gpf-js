@@ -60,7 +60,7 @@ gpf.require.define({
                 .then(function (status) {
                     if (status.error) {
                         return [
-                                dom.div({
+                            dom.div({
                                 className: "status error",
                                 title: status.error
                             })
