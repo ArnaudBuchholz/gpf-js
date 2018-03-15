@@ -6,6 +6,7 @@ gpf.require.define({
     "tile:tests": "tests.js",
     "tile:hosts": "hosts.js",
     "tile:doc": "doc.js",
+    "tile:github": "github.js"
 
 }, function (require) {
     "use strict";
@@ -19,21 +20,23 @@ gpf.require.define({
                 return new require[name]();
             });
 
-    function refresh(tile) {
+    function refreshContent (tile, dynamicContent) {
+        var dynamicRoot = document.getElementById(tile.getId()).querySelector(".dynamic");
+        dom.clear(dynamicRoot);
+        dynamicContent.forEach(function (tag) {
+            tag.appendTo(dynamicRoot);
+        });
+    }
+
+    function refresh (tile) {
         return tile.getDynamicContent()
-            .then(function (content) {
-                var dynamicRoot = document.getElementById(tile.getId()).querySelector(".dynamic");
-                dom.clear(dynamicRoot);
-                content.forEach(function (tag) {
-                    tag.appendTo(dynamicRoot);
-                });
-            });
+            .then(refreshContent.bind(null, tile));
     }
 
     var tilesRoot = document.getElementById("tiles");
     tiles.forEach(function (tile) {
-      tile.render().appendTo(tilesRoot);
-      refresh(tile);
+        tile.render().appendTo(tilesRoot);
+        refresh(tile);
     });
 
 });
