@@ -277,3 +277,12 @@ ul#tiles > li#github div.progress {
 }
 
 /*endregion*/
+
+/*region Maintainability graph*/
+
+ul#tiles > li#maintainability {
+    width: 512px;
+    height: 256px;
+}
+
+/*endregion*/
