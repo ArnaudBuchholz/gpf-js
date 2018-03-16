@@ -6,7 +6,8 @@ gpf.require.define({
     "tile:tests": "tests.js",
     "tile:hosts": "hosts.js",
     "tile:doc": "doc.js",
-    "tile:github": "github.js"
+    "tile:github": "github.js",
+    "tile:maintainability": "maintainability.js"
 
 }, function (require) {
     "use strict";
