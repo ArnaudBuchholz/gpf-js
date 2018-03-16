@@ -285,4 +285,10 @@ ul#tiles > li#maintainability {
     height: 256px;
 }
 
+ul#tiles > li#maintainability div.graph{
+    top: 16px;
+    height: 240px;
+    z-index: 1;
+}
+
 /*endregion*/
