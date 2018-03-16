@@ -1,5 +1,6 @@
 gpf.require.define({
     Tile: "tile.js",
+    dom: "../dom.js",
     googleCharts: "../google.charts.js",
     releases: "../../build/releases.json"
 
@@ -10,18 +11,20 @@ gpf.require.define({
         return parseInt(value, 10);
     }
 
-    var releaseData = require.releases.map(function (release) {
-        var oReleaseDateParts = release.date.split("-").map(toNumber);
-        return [
-            new Date(oReleaseDateParts[0], oReleaseDateParts[1] - 1, oReleaseDateParts[2]),
-            release.metrics.maintainability,
-            release.metrics.coverage.statements.total,
-            release.metrics.coverage.branches.total,
-            release.metrics.coverage.functions.total
-        ];
-    });
+    var dom = require.dom,
+        google = require.googleCharts,
+        releaseData = require.releases.map(function (release) {
+            var oReleaseDateParts = release.date.split("-").map(toNumber);
+            return [
+                new Date(oReleaseDateParts[0], oReleaseDateParts[1] - 1, oReleaseDateParts[2]),
+                release.metrics.maintainability,
+                release.metrics.coverage.statements.total,
+                release.metrics.coverage.branches.total,
+                release.metrics.coverage.functions.total
+            ];
+        });
 
-    require.googleCharts.then(function (google) {
+    function render() {
         var data = google.visualization.arrayToDataTable([
             [
                 "Release",
@@ -42,14 +45,13 @@ gpf.require.define({
                 2: {targetAxisIndex: 0},
                 3: {targetAxisIndex: 0}
             },
-            vAxes: {title: "%"},
-            vAxis: {viewWindow: {max: 100}},
+            vAxis: {title: "%"},
             hAxis: {title: "Release date"},
             seriesType: "lines"
         };
-        var chart = new google.visualization.ComboChart(document.querySelector("lit.tile#maintainability .static"));
+        var chart = new google.visualization.ComboChart(document.querySelector("li#maintainability div.graph"));
         chart.draw(data, options);
-    });
+    }
 
     return gpf.define({
         $class: "Maintainability",
@@ -57,6 +59,18 @@ gpf.require.define({
 
         constructor: function () {
             this.$super("maintainability", "Maintainability");
+        },
+
+        getStaticContent: function () {
+            return [
+                dom.div({className: "graph"})
+            ];
+        },
+
+        getDynamicContent: function () {
+            // static part exists
+            render();
+            return Promise.resolve([]);
         }
 
     });
