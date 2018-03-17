@@ -39,7 +39,7 @@ _gpfCompatibilityInstallMethods("Object", {
             return function (O) {
                 Temp.prototype = O;
                 var obj = new Temp();
-                Temp.prototype = null;
+                obj.constructor = Temp;
                 return obj;
             };
         }()),
