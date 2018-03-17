@@ -50,7 +50,7 @@
                 consoleMethods[name].apply(console, arguments);
                 return;
             }
-            _process(text);
+            _process.apply(null, arguments);
         };
     }
 
