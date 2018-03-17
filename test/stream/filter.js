@@ -70,6 +70,12 @@ describe("stream/filter", function () {
             }, [0, 2, 4], done);
         });
 
+        it("filters data - all results", function (done) {
+            test(function (data) {
+                return true;
+            }, [0, 1, 2, 3, 4], done);
+        });
+
     });
 
 });
