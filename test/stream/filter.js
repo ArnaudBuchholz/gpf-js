@@ -20,7 +20,7 @@ describe("stream/filter", function () {
     function test (filterFunc, ids, done) {
         var readable = new gpf.stream.ReadableArray(array),
             filter = new gpf.stream.Filter(filterFunc),
-            output = new gpf.stream.WritableArray(array);
+            output = new gpf.stream.WritableArray();
         gpf.stream.pipe(readable, filter, output)
             .then(function () {
                 checkFilteringResult(output.toArray(), ids);
