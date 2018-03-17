@@ -48,4 +48,10 @@
     }, {
         "describe": "gpf.stream.BufferedRead"
     }]
+}, {
+    "issue": 245,
+    "before": "0.2.5",
+    "ignore": [{
+        "describe": "IReadableStream -> IReadableStream/IWritableStream* -> IWritableStream"
+    }]
 }]
