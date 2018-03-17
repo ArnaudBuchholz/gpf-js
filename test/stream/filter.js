@@ -71,7 +71,7 @@ describe("stream/filter", function () {
         });
 
         it("filters data - all results", function (done) {
-            test(function (data) {
+            test(function () {
                 return true;
             }, [0, 1, 2, 3, 4], done);
         });
