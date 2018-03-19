@@ -364,6 +364,13 @@
         "name": "attributes"
     },
     {
+        "name": "stream/operator",
+        "test": false
+    },
+    {
         "name": "stream/filter"
+    },
+    {
+        "name": "stream/map"
     }
 ]
