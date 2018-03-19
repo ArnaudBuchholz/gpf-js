@@ -193,32 +193,47 @@ describe("stream/pipe", function () {
     function _getNonFlushableStream () {
         var
             _data,
-            _writable;
-        function _forget (promise) {
-            _data = undefined;
-            _writable = undefined;
-            return promise;
+            _writable,
+            _promise,
+            _promiseResolve,
+            _promiseReject;
+
+        function _complete () {
+            if (!_promise) {
+                _promise = new Promise(function (resolve, reject) {
+                    _promiseResolve = resolve;
+                    _promiseReject = reject;
+                });
+            }
+            if (_writable && _data) {
+                var promise = _promise,
+                    resolve = _promiseResolve,
+                    reject = _promiseReject;
+                _writable.write(_data).then(resolve, reject);
+                _data = undefined;
+                _writable = undefined;
+                _promise = undefined;
+                _promiseResolve = undefined;
+                _promiseReject = undefined;
+                return promise;
+            }
+            return _promise;
         }
+
         return {
             read: function (iWritable) {
                 if (_writable) {
                     throw new Error("Already reading");
                 }
                 _writable = iWritable;
-                if (undefined !== _data) {
-                    return _forget(_writable.write(_data));
-                }
-                return Promise.resolve();
+                return _complete();
             },
             write: function (data) {
                 if (_data) {
                     throw new Error("Buffer full");
                 }
                 _data = data;
-                if (_writable) {
-                    return _forget(_writable.write(data));
-                }
-                return Promise.resolve();
+                return _complete();
             }
         };
     }
@@ -248,9 +263,7 @@ describe("stream/pipe", function () {
             })["catch"](done);
     }
 
-    function _describe () {}
-
-    _describe("IReadableStream -> IReadableStream/IWritableStream* -> IWritableStream", function () {
+    describe("IReadableStream -> IReadableStream/IWritableStream* -> IWritableStream", function () {
 
         it("handles the whole stream", function (done) {
             _validate([new gpf.stream.LineAdapter()], done);
