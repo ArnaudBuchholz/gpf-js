@@ -194,9 +194,10 @@ describe("stream/pipe", function () {
         var
             _data,
             _writable;
-        function _forget () {
+        function _forget (promise) {
             _data = undefined;
             _writable = undefined;
+            return promise;
         }
         return {
             read: function (iWritable) {
@@ -205,7 +206,7 @@ describe("stream/pipe", function () {
                 }
                 _writable = iWritable;
                 if (undefined !== _data) {
-                    return _writable.write(_data).then(_forget);
+                    return _forget(_writable.write(_data));
                 }
                 return Promise.resolve();
             },
@@ -215,7 +216,7 @@ describe("stream/pipe", function () {
                 }
                 _data = data;
                 if (_writable) {
-                    return _writable.write(data).then(_forget);
+                    return _forget(_writable.write(data));
                 }
                 return Promise.resolve();
             }
@@ -247,7 +248,9 @@ describe("stream/pipe", function () {
             })["catch"](done);
     }
 
-    describe("IReadableStream -> IReadableStream/IWritableStream* -> IWritableStream", function () {
+    function _describe () {}
+
+    _describe("IReadableStream -> IReadableStream/IWritableStream* -> IWritableStream", function () {
 
         it("handles the whole stream", function (done) {
             _validate([new gpf.stream.LineAdapter()], done);
