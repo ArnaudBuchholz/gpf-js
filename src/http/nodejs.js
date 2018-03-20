@@ -8,6 +8,7 @@
 /*global _GpfNodeReadableStream*/ // gpf.node.ReadableStream
 /*global _gpfHttpRequestImplByHost*/ // HTTP Request Implementation per host
 /*global _gpfNodeHttp*/ // Node require("http")
+/*global _gpfNodeHttps*/ // Node require("https")
 /*global _gpfNodeUrl*/ // Node require("url")
 /*global _gpfStringFromStream*/ // Read the stream
 /*#endif*/
@@ -44,9 +45,17 @@ function _gpfHttpNodeBuildRequestSettings (request) {
     return settings;
 }
 
+function _gpfHttpNodeGetMessageHandler (settings) {
+    if ("https:" === settings.protocol) {
+        return _gpfNodeHttps;
+    }
+    return _gpfNodeHttp;
+}
+
 function _gpfHttpNodeAllocate (request, resolve) {
-    var settings = _gpfHttpNodeBuildRequestSettings(request);
-    return _gpfNodeHttp.request(settings, function (nodeResponse) {
+    var settings = _gpfHttpNodeBuildRequestSettings(request),
+        messageHandler = _gpfHttpNodeGetMessageHandler(settings);
+    return messageHandler.request(settings, function (nodeResponse) {
         _gpfHttpNodeProcessResponse(nodeResponse, resolve);
     });
 }
