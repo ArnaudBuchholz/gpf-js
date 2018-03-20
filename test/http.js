@@ -153,6 +153,21 @@ describe("http", function () {
 
         });
 
+        if (gpf.hosts.browser !== gpf.host()) {
+
+            describe("https", function () {
+
+                it("handles https access", function (done) {
+                    gpf.http.get("https://github.com/ArnaudBuchholz/gpf-js").then(function (response) {
+                        assert(response.status === 200);
+                        done();
+                    })["catch"](done);
+                });
+
+            });
+
+        }
+
     });
 
 });
