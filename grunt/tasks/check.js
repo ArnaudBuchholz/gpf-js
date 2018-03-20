@@ -5,6 +5,8 @@ module.exports = function (grunt) {
         "exec:globals",
         "concurrent:linters",
         "concurrent:quality",
-        "exec:metrics"
+        "exec:metrics",
+        "jsdoc:public",
+        "exec:checkDoc"
     ]);
 };
