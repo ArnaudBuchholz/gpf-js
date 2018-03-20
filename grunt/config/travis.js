@@ -13,12 +13,7 @@ module.exports = function (grunt) {
             ? done()
             : grunt.util.spawn({
                 grunt: true,
-                args: [
-                    "exec:globals",
-                    "concurrent:linters",
-                    "concurrent:quality",
-                    "exec:metrics:safeCoverage"
-                ],
+                args: ["check"],
                 opts: {
                     stdio: "inherit"
                 }
