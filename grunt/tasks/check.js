@@ -7,6 +7,7 @@ module.exports = function (grunt) {
         "concurrent:quality",
         "exec:metrics",
         "jsdoc:public",
+        "connectIf",
         "exec:checkDoc"
     ]);
 };
