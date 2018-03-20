@@ -3,8 +3,8 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _GpfStreamAbtsractOperator*/ // gpf.stream.AbstractOperator
+/*global _gpfDefine*/ // Shortcut for gpf.define
 /*exported _GpfStreamMap*/ // gpf.stream.Map
 /*#endif*/
 
