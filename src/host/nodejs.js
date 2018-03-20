@@ -9,6 +9,7 @@
 /*global _gpfExit:true*/ // Exit function
 /*global _gpfNodeFs:true*/ // Node/PhantomJS require("fs")
 /*exported _gpfNodeHttp*/ // Node require("http")
+/*exported _gpfNodeHttps*/ // Node require("https")
 /*exported _gpfNodeUrl*/ // Node require("url")
 /*#endif*/
 
@@ -23,6 +24,13 @@ var
      * @since 0.2.1
      */
     _gpfNodeHttp,
+
+    /**
+     * require("https")
+     *
+     * @type {Object}
+     */
+    _gpfNodeHttps,
 
     /**
      * require("url")
@@ -43,6 +51,7 @@ _gpfBootImplByHost[_GPF_HOST.NODEJS] = function () {
 
     _gpfNodeFs = require("fs");
     _gpfNodeHttp = require("http");
+    _gpfNodeHttps = require("https");
     _gpfNodeUrl = require("url");
 
     /* istanbul ignore next */ // exit.1
