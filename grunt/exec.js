@@ -59,7 +59,7 @@ module.exports = {
         cmd: name => `node make/fix_uglify.js ${name}`
     }, verbose, failIfNot0),
     checkDoc: Object.assign({
-        cmd: `node doc/validate http://localhost:${configuration.serve.httpPort}/tmp/doc/public/index.html`
+        cmd: `node doc/validate http://localhost:${configuration.serve.httpPort}/tmp/doc/public/index.html -verbose`
     }, verbose, failIfNot0)
 };
 
