@@ -35,6 +35,7 @@ const
         return gpf.http[method.toLowerCase()](url).then(response => {
             processed[url] = response;
             if (-1 === [200, 301, 302].indexOf(response.status)) {
+                ++errors;
                 console.error(method.magenta, url.magenta, response.status.toString().red);
                 return;
             } else {
