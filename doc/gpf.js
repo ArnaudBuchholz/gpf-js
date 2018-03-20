@@ -138,7 +138,7 @@ const
     implementsTitle = "<h4>Implemented in:</h4><ul>",
 
     checkImplements = (doclet, doclets) => {
-        if (!doclet.implements) {
+        if (!doclet.implements || doclet.access === "private") {
             return;
         }
         trace(`\t@implements: ${doclet.implements.join(",")}`);
