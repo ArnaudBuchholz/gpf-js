@@ -4,7 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfEmptyFunc*/
+/*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfIFlushableStream*/ // gpf.interfaces.IFlushableStream
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfInterfaceQuery*/ // gpf.interfaces.query
