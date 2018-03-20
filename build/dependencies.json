@@ -388,8 +388,16 @@
     "attributes": [
         "define/build"
     ],
-    "stream/filter": [
+    "stream/operator": [
         "define",
         "stream"
+    ],
+    "stream/filter": [
+        "stream/operator",
+        "define"
+    ],
+    "stream/map": [
+        "stream/operator",
+        "define"
     ]
 }
