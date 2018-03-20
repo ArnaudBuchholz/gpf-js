@@ -5,7 +5,7 @@
 "use strict";
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEmptyFunc*/ // An empty function
-/*global _gpfIgnore*/
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfStreamSecureInstallProgressFlag*/ // Install the progress flag used by _gpfStreamSecureRead and Write
 /*global _gpfStreamSecureRead*/ // Generate a wrapper to secure multiple calls to stream#read
 /*global _gpfStreamSecureWrite*/ // Generates a wrapper to secure multiple calls to stream#write
