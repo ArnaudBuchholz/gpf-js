@@ -92,3 +92,4 @@ Date | Version | Label | Release | Debug
 * JavaScript task runner: [Grunt](http://gruntjs.com/)
 * Icons from [Hawcons](https://www.iconfinder.com/iconsets/hawcons)
 * WScript simulated environment inspired from excellent [WScript project from Mischa Rodermond](https://github.com/mrpapercut/wscript)
+* Awesome dependency wheel from [Francois Zaninotto](https://github.com/fzaninotto/DependencyWheel)
