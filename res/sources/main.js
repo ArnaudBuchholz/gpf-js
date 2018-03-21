@@ -1,7 +1,8 @@
 gpf.require.define({
     dialogs: "../dialogs.js",
     dom: "../dom.js",
-    SourceArray: "array.js"
+    SourceArray: "array.js",
+    dependencyWheel: "dependencyWheel.js"
 
 }, function (require) {
     "use strict";
