@@ -80,3 +80,11 @@ tr.no-drag {
 tr.drag-ok.over {
     background-color: yellowgreen;
 }
+
+div#dependencyWheel {
+    position: absolute;
+    width: 800px;
+    height: 800px;
+    top: 8px;
+    left: 600px;
+}
