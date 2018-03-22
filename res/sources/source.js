@@ -15,6 +15,9 @@ gpf.require.define({}, function () {
             if (source.test !== false) {
                 this._test = true;
             }
+            if (source.tags) {
+                this._tags = source.tags.split(" ");
+            }
             if (dependencies) {
                 this._processDependencies(dependencies);
             }
@@ -62,6 +65,14 @@ gpf.require.define({}, function () {
         /** @gpf:read _test */
         getTest: function () {
             return this._test;
+        },
+
+        /** Tags */
+        _tags: [],
+
+        /** @gpf:read _tags */
+        getTags: function () {
+            return this._tags;
         },
 
         /**
