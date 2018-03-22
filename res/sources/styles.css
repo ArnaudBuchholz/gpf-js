@@ -1,23 +1,29 @@
+body {
+    font-size: 10pt;
+}
+
+table {
+    display: table;
+    border-collapse: separate;
+    border-color: blue;
+    border: 0;
+}
+
+thead {
+    position: sticky;
+}
+
+tr {
+    border: 0;
+    border-top: solid 1px black;
+}
+
+tr:nth-child(even) {
+    background: #F0F0F0
+}
+
 .hide {
     display: none;
-}
-
-.internal {
-    display: inline-block;
-    background-color: orange;
-    color: white;
-    padding: 2px 4px 2px 4px;
-    margin-right: 4px;
-    border-radius: 4px;
-}
-
-ul.items {
-    margin: 0;
-}
-
-ul.items span {
-    font-weight: bold;
-    margin-right: 4px;
 }
 
 .clickable {
