@@ -9,7 +9,7 @@ gpf.require.define({
 
     var dom = require.dom,
         dependencies = require.dependencies,
-        dependencyNames = Object.keys(dependencies),
+        dependencyNames = Object.keys(dependencies).sort(),
         placeholder = dom.div({
             id: "dependencyWheel"
         }),
