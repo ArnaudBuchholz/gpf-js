@@ -1,34 +1,41 @@
 [
     {
         "name": "boot",
-        "load": false
+        "load": false,
+        "tags": "core"
     },
     {
         "name": "console"
     },
     {
         "name": "host/browser",
-        "test": false
+        "test": false,
+        "tags": "browser"
     },
     {
         "name": "host/nodejs",
-        "test": false
+        "test": false,
+        "tags": "nodejs"
     },
     {
         "name": "host/phantomjs",
-        "test": false
+        "test": false,
+        "tags": "phantomjs"
     },
     {
         "name": "host/java",
-        "test": false
+        "test": false,
+        "tags": "java"
     },
     {
         "name": "host/rhino",
-        "test": false
+        "test": false,
+        "tags": "java"
     },
     {
         "name": "host/nashorn",
-        "test": false
+        "test": false,
+        "tags": "java"
     },
     {
         "name": "host/unknown",
@@ -36,11 +43,13 @@
     },
     {
         "name": "host/wscript",
-        "test": false
+        "test": false,
+        "tags": "wscript"
     },
     {
         "name": "host",
-        "test": false
+        "test": false,
+        "tags": "core"
     },
     {
         "name": "arraylike"
@@ -72,42 +81,53 @@
         "test": false
     },
     {
-        "name": "compatibility"
+        "name": "compatibility",
+        "tags": "compatibility"
     },
     {
-        "name": "compatibility/array"
+        "name": "compatibility/array",
+        "tags": "compatibility"
     },
     {
         "name": "factory"
     },
     {
-        "name": "compatibility/date"
+        "name": "compatibility/date",
+        "tags": "compatibility"
     },
     {
-        "name": "compatibility/function"
+        "name": "compatibility/function",
+        "tags": "compatibility"
     },
     {
-        "name": "compatibility/object"
+        "name": "compatibility/object",
+        "tags": "compatibility"
     },
     {
-        "name": "compatibility/string"
+        "name": "compatibility/string",
+        "tags": "compatibility"
     },
     {
-        "name": "compatibility/promise"
+        "name": "compatibility/promise",
+        "tags": "compatibility"
     },
     {
-        "name": "compatibility/timeout"
+        "name": "compatibility/timeout",
+        "tags": "compatibility"
     },
     {
         "name": "compatibility/json/parse",
-        "test": false
+        "test": false,
+        "tags": "compatibility"
     },
     {
         "name": "compatibility/json/stringify",
-        "test": false
+        "test": false,
+        "tags": "compatibility"
     },
     {
-        "name": "compatibility/json"
+        "name": "compatibility/json",
+        "tags": "compatibility"
     },
     {
         "name": "context"
