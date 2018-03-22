@@ -14,15 +14,46 @@ body:after {
     z-index: -1;
 }
 
-th {
-    text-align: left;
+/* Default table formatting */
+
+table {
+    display: table;
+    border-collapse: separate;
+    width: 50%;
 }
 
+thead {
+    position: sticky;
+    background-color: black;
+    color: white;
+    font-size: larger;
+}
+
+th {
+    text-align: left;
+    height: 32px;
+}
+
+tbody tr:nth-child(even) {
+    background: rgba(240,240,240,.5)
+}
+
+tbody tr:hover {
+    background-color: silver;
+}
+
+/* Button */
+
 button {
-    background-color: beige;
+    background-color: #FFFFFF;
     border-radius: 4px;
-    border: white 1px solid;
-    box-shadow: 2px 2px gray;
+    border: #F0F0F0 1px solid;
+    box-shadow: 2px 2px #C0C0C0;
+}
+
+button:focus {
+    outline: 0;
+    border: #000000 1px dashed;
 }
 
 /*http://stackoverflow.com/questions/826782/how-to-disable-text-selection-highlighting-using-css*/
