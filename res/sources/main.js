@@ -47,7 +47,7 @@ gpf.require.define({
             .then(function (response) {
                 var description = (/@file (.*)/).exec(response.responseText);
                 if (description) {
-                    document.getElementById("description_" + index).innerHTML = description[1];
+                    document.getElementById(name).title = description[1];
                 }
             });
     }
