@@ -3,6 +3,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global  _gpfCreateAbstractFunction*/ // Build a function that throws the abstractMethod exception
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
@@ -127,11 +128,7 @@ var
          * @return {Promise} Resolved when ready
          * @abstract
          */
-        _process: function (data) {
-            _gpfIgnore(data);
-            gpf.Error.notImplemented();
-            return Promise.resolve();
-        },
+        _process:  _gpfCreateAbstractFunction(1),
 
         /**
          * @gpf:sameas gpf.interfaces.IWritableStream#write
