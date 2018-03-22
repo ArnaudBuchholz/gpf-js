@@ -12,12 +12,10 @@
         <table cellpadding="0" cellspacing="0">
             <thead>
                 <th>&nbsp;</th>
-                <th>Name</th>
-                <th>Dep.</th>
-                <th>Ref.</th>
-                <th>Load</th>
-                <th>Test</th>
-                <th>Description <button id="save">Save</button> <button id="check">Check</button></th>
+                <th>Source name <span class="dependencies" title="dependencies">&nbsp;</span> <span class="references" title="references">&nbsp;</span></th>
+                <th title="Load">&#127937;</th>
+                <th title="Test">&#128505;</th>
+                <th><button id="save">Save</button> <button id="check">Check</button></th>
             </thead>
             <tbody id="rows"></tbody>
         </table>
@@ -57,28 +55,30 @@ if (!($object.isReadOnly() || $object.testProperty("load"))) {
 }
 
                 %}</td>
-                <td>{% $write($object.getName()); %}</td>
                 <td>{%
+
+$write($object.getName());
 
 if ($object.hasDependencies()) {
-    %}<span class="clickable dependencies" {%%}="$write('title=\'' + $object.getDependencies().join('\n') + '\'');">{% $write($object.getDependencies().length); %}</span>{%
-} else {
     $write("&nbsp;");
+    %}<span class="clickable dependencies" {%%}="$write('title=\'' + $object.getDependencies().join('\n') + '\'');">{% $write($object.getDependencies().length); %}</span>{%
 }
 
-                %}</td>
-                <td>{%
-
 if ($object.isReferenced()) {
-    %}<span class="clickable references" {%%}="$write('title=\'' + $object.getDependencyOf().join('\n') + '\'');">{% $write($object.getDependencyOf().length); %}</span>{%
-} else {
     $write("&nbsp;");
+    %}<span class="clickable references" {%%}="$write('title=\'' + $object.getDependencyOf().join('\n') + '\'');">{% $write($object.getDependencyOf().length); %}</span>{%
 }
 
                 %}</td>
                 <td><input id="load_{{$index}}" type="checkbox" {%%}="check('load');"></td>
                 <td><input id="test_{{$index}}" type="checkbox" {%%}="check('test');" class="hide"></td>
-                <td  id="description_{{$index}}" class="description">&nbsp;</td>
+                <td>{%
+
+$object.getTags().forEach(function (tag) {
+    %}<span class="tag">{% $write(tag); %}</span>{%
+});
+
+                %}</td>
             </tr>
         </template>
     </body>
