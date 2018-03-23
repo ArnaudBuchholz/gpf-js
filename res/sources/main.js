@@ -244,9 +244,8 @@ gpf.require.define({
         "#flavor@click": function () {
             dialogs.prompt("Enter modifiers", "require")
                 .then(function (modifiers) {
-                    debugger;
                     var newSources = flavor(JSON.parse(sources.toString()), require.dependencies, modifiers);
-                    alert(JSON.stringify(newSources, "", " "));
+                    dialogs.alert(JSON.stringify(newSources, "", " "));
                 });
         }
 
