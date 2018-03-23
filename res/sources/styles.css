@@ -43,6 +43,7 @@ table th:nth-child(5) {
 
 .tag {
     display: inline-block;
+    font-size: 10px;
     color: white;
     font-weight: bold;
     background-color: silver;
@@ -86,6 +87,6 @@ div#dependencyWheel {
     position: absolute;
     width: 800px;
     height: 800px;
-    top: 8px;
+    top: 32px;
     left: 600px;
 }
