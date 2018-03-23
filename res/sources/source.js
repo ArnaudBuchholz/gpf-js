@@ -164,6 +164,9 @@ gpf.require.define({}, function () {
             } else {
                 result.load = false;
             }
+            if (this._tags.length) {
+                result.tags = this._tags.join(" ");
+            }
             return result;
         },
 
