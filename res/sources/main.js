@@ -2,13 +2,16 @@ gpf.require.define({
     dialogs: "../dialogs.js",
     dom: "../dom.js",
     SourceArray: "array.js",
-    dependencyWheel: "dependencyWheel.js"
+    dependencyWheel: "dependencyWheel.js",
+    flavor: "../../make/flavor.js",
+    dependencies: "../../build/dependencies.json"
 
 }, function (require) {
     "use strict";
 
     var dialogs = require.dialogs,
         dom = require.dom,
+        flavor = require.flavor,
         SourceArray = require.SourceArray,
         // {Function} Row factory
         rowFactory = document.getElementById("tpl_row").buildFactory(),
@@ -236,7 +239,17 @@ gpf.require.define({
                     sources.setCheckDictionary(checkDictionary);
                     reload();
                 });
+        },
+
+        "#flavor@click": function () {
+            dialogs.prompt("Enter modifiers", "require")
+                .then(function (modifiers) {
+                    debugger;
+                    var newSources = flavor(JSON.parse(sources.toString()), require.dependencies, modifiers);
+                    alert(JSON.stringify(newSources, "", " "));
+                });
         }
+
     });
 
 });
