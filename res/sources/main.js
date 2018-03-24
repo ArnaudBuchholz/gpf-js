@@ -64,9 +64,12 @@ gpf.require.define({
     }
 
     // Regenerate all source rows
-    function reload () {
+    function reload (allowed) {
         sourceRows.innerHTML = ""; // Clear content
         sources.forEach(function (source, index) {
+            if (allowed && !allowed[index]) {
+                return;
+            }
             sourceRows.appendChild(rowFactory(source, index));
             updateSourceRow(source);
         });
@@ -244,8 +247,7 @@ gpf.require.define({
         "#flavor@click": function () {
             dialogs.prompt("Enter flavor request", "require host:nodejs host:browser")
                 .then(function (modifiers) {
-                    var newSources = flavor(JSON.parse(sources.toString()), require.dependencies, modifiers);
-                    dialogs.info(JSON.stringify(newSources, "", " "));
+                    reload(flavor(JSON.parse(sources.toString()), require.dependencies, modifiers));
                 });
         }
 
