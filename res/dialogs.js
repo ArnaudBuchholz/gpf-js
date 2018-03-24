@@ -5,6 +5,11 @@ gpf.require.define({}, function () {
 
     return {
 
+        info: function (message) {
+            alert(message);
+            return Promise.resolve();
+        },
+
         error: function (message) {
             alert(message);
             return Promise.resolve();
