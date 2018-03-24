@@ -10,32 +10,32 @@
     {
         "name": "host/browser",
         "test": false,
-        "tags": "browser"
+        "tags": "host:browser"
     },
     {
         "name": "host/nodejs",
         "test": false,
-        "tags": "nodejs"
+        "tags": "host:nodejs"
     },
     {
         "name": "host/phantomjs",
         "test": false,
-        "tags": "phantomjs"
+        "tags": "host:phantomjs"
     },
     {
         "name": "host/java",
         "test": false,
-        "tags": "java"
+        "tags": "host:java"
     },
     {
         "name": "host/rhino",
         "test": false,
-        "tags": "java"
+        "tags": "host:java"
     },
     {
         "name": "host/nashorn",
         "test": false,
-        "tags": "java"
+        "tags": "host:java"
     },
     {
         "name": "host/unknown",
@@ -44,7 +44,7 @@
     {
         "name": "host/wscript",
         "test": false,
-        "tags": "wscript"
+        "tags": "host:wscript"
     },
     {
         "name": "host",
@@ -148,7 +148,8 @@
     },
     {
         "name": "define/detect",
-        "test": false
+        "test": false,
+        "tags": "define"
     },
     {
         "name": "regexp",
@@ -156,62 +157,77 @@
     },
     {
         "name": "define/entity",
-        "test": false
+        "test": false,
+        "tags": "define"
     },
     {
         "name": "abstract"
     },
     {
-        "name": "define/check"
+        "name": "define/check",
+        "tags": "define"
     },
     {
         "name": "define/build",
-        "test": false
+        "test": false,
+        "tags": "define"
     },
     {
         "name": "define/class/class",
-        "test": false
+        "test": false,
+        "tags": "define"
     },
     {
-        "name": "define/class/check"
+        "name": "define/class/check",
+        "tags": "define"
     },
     {
         "name": "define/class/constructor",
-        "test": false
+        "test": false,
+        "tags": "define"
     },
     {
         "name": "define/class/super",
-        "test": false
+        "test": false,
+        "tags": "define"
     },
     {
         "name": "define/class/build",
-        "test": false
+        "test": false,
+        "tags": "define"
     },
     {
         "name": "define/interface/interface",
-        "test": false
+        "test": false,
+        "tags": "define interface"
     },
     {
         "name": "define/interface/check",
-        "test": false
+        "test": false,
+        "tags": "define interface"
     },
     {
         "name": "define/interface/constructor",
-        "test": false
+        "test": false,
+        "tags": "define interface"
     },
     {
         "name": "define/interface/build",
-        "test": false
+        "test": false,
+        "tags": "define interface"
     },
     {
-        "name": "define"
+        "name": "define",
+        "tags": "define"
     },
     {
-        "name": "interfaces"
+        "name": "interfaces",
+        "tags": "interface"
     },
     {
         "name": "interfaces/unknown",
-        "test": false
+        "test": false,
+        "tags": "interface"
     },
     {
         "name": "sort"
@@ -221,61 +237,77 @@
     },
     {
         "name": "interfaces/readablestream",
-        "test": false
+        "test": false,
+        "tags": "interface stream"
     },
     {
         "name": "interfaces/writablestream",
-        "test": false
+        "test": false,
+        "tags": "interface stream"
     },
     {
         "name": "interfaces/enumerator",
-        "test": false
+        "test": false,
+        "tags": "interface"
     },
     {
         "name": "interfaces/filestorage",
-        "test": false
+        "test": false,
+        "tags": "interface fs"
     },
     {
-        "name": "stream"
+        "name": "stream",
+        "tags": "stream"
     },
     {
-        "name": "stream/string"
+        "name": "stream/string",
+        "tags": "stream"
     },
     {
-        "name": "fs"
+        "name": "fs",
+        "tags": "fs"
     },
     {
-        "name": "path"
+        "name": "path",
+        "tags": "fs"
     },
     {
         "name": "fs/explore",
-        "test": false
+        "test": false,
+        "tags": "fs"
     },
     {
-        "name": "stream/nodejs"
+        "name": "stream/nodejs",
+        "tags": "host:nodejs stream"
     },
     {
-        "name": "fs/nodejs"
+        "name": "fs/nodejs",
+        "tags": "host:nodejs fs"
     },
     {
         "name": "stream/wscript",
-        "test": false
+        "test": false,
+        "tags": "host:wscript stream"
     },
     {
         "name": "fs/wscript",
-        "test": false
+        "test": false,
+        "tags": "host:wscript fs"
     },
     {
         "name": "fs/browser",
-        "test": false
+        "test": false,
+        "tags": "host:browser fs"
     },
     {
         "name": "fs/rhino",
-        "test": false
+        "test": false,
+        "tags": "host:java stream"
     },
     {
         "name": "fs/phantomjs",
-        "test": false
+        "test": false,
+        "tags": "host:phantomjs stream"
     },
     {
         "name": "literal"
@@ -285,112 +317,142 @@
     },
     {
         "name": "http/helpers",
-        "test": false
+        "test": false,
+        "tags": "http"
     },
     {
-        "name": "interfaces/thenable"
+        "name": "interfaces/thenable",
+        "tags": "interface"
     },
     {
-        "name": "http/mock"
+        "name": "http/mock",
+        "tags": "http"
     },
     {
-        "name": "http"
+        "name": "http",
+        "tags": "http"
     },
     {
         "name": "http/xhr",
-        "test": false
+        "test": false,
+        "tags": "host:browser host:phantomjs http"
     },
     {
         "name": "string/fromStream",
-        "test": false
+        "test": false,
+        "tags": "stream"
     },
     {
         "name": "http/nodejs",
-        "test": false
+        "test": false,
+        "tags": "host:nodejs http"
     },
     {
         "name": "http/wscript",
-        "test": false
+        "test": false,
+        "tags": "host:wscript http"
     },
     {
-        "name": "stream/java"
+        "name": "stream/java",
+        "tags": "host:java stream"
     },
     {
         "name": "fs/nashorn",
-        "test": false
+        "test": false,
+        "tags": "host:java js"
     },
     {
         "name": "http/java",
-        "test": false
+        "test": false,
+        "tags": "host:java http"
     },
     {
-        "name": "stream/bufferedread"
+        "name": "stream/bufferedread",
+        "tags": "stream"
     },
     {
-        "name": "stream/line"
+        "name": "stream/line",
+        "tags": "stream"
     },
     {
         "name": "interfaces/flushablestream",
-        "test": false
+        "test": false,
+        "tags": "interface stream"
     },
     {
         "name": "require/load",
-        "test": false
+        "test": false,
+        "tags": "require"
     },
     {
         "name": "require/wrap",
-        "test": false
+        "test": false,
+        "tags": "require"
     },
     {
         "name": "require/json",
-        "test": false
+        "test": false,
+        "tags": "require"
     },
     {
         "name": "require/javascript",
-        "test": false
+        "test": false,
+        "tags": "require"
     },
     {
-        "name": "require"
+        "name": "require",
+        "tags": "require"
     },
     {
-        "name": "stream/array"
+        "name": "stream/array",
+        "tags": "stream"
     },
     {
-        "name": "stream/pipe"
+        "name": "stream/pipe",
+        "tags": "stream"
     },
     {
         "name": "string/escape/regexp",
         "test": false
     },
     {
-        "name": "stream/csv/parser"
+        "name": "stream/csv/parser",
+        "tags": "stream"
     },
     {
         "name": "attributes/attribute",
-        "test": false
+        "test": false,
+        "tags": "define"
     },
     {
-        "name": "define/class/attributes/check"
+        "name": "define/class/attributes/check",
+        "tags": "define"
     },
     {
         "name": "define/class/attributes/build",
-        "test": false
+        "test": false,
+        "tags": "define"
     },
     {
         "name": "define/class/attributes/consolidate",
-        "test": false
+        "test": false,
+        "tags": "define"
     },
     {
-        "name": "attributes"
+        "name": "attributes",
+        "tags": "define"
     },
     {
         "name": "stream/operator",
-        "test": false
+        "test": false,
+        "tags": "stream"
     },
     {
-        "name": "stream/filter"
+        "name": "stream/filter",
+        "tags": "stream"
     },
     {
-        "name": "stream/map"
+        "name": "stream/map",
+        "tags": "stream"
     }
 ]
