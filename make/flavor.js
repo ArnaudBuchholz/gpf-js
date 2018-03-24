@@ -36,16 +36,44 @@ function checkHost (tags, requested) {
     }
 }
 
+function getSourceIndex (sources, name) {
+    var result;
+    sources.every(function (source, index) {
+        if (name === source.name) {
+            result = index;
+            return false;
+        }
+        return true;
+    })
+    return result;
+}
+
 module.exports = function (sources, dependencies, request) {
     var requested =  categorize(request),
         // Initial is based on tags
         allowed = sources.map(function (source) {
-            var tags =  categorize(source.tags || "");
-            return checkCore(tags) // core sources are always kept
-                || checkFeature(tags, requested)
-                || checkHost(tags, requested)
-                || false;
+            var tags =  categorize(source.tags || ""),
+                feature;
+            if (checkCore(tags)) {
+                return true;
+            }
+            feature = checkFeature(tags, requested);
+            if (undefined !== feature) {
+                return feature;
+            }
+            return checkHost(tags, requested) || false;
+        }),
+        index = sources.length,
+        source;
+    debugger;
+    while (--index > 0) {
+        if (!allowed[index]) {
+            continue;
+        }
+        source = sources[index];
+        (dependencies[source.name] || []).forEach(function (dependency) {
+            allowed[getSourceIndex(sources, dependency)] = true;
         });
-
+    }
     return allowed;
 };
