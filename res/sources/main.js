@@ -242,10 +242,10 @@ gpf.require.define({
         },
 
         "#flavor@click": function () {
-            dialogs.prompt("Enter modifiers", "require")
+            dialogs.prompt("Enter flavor request", "require host:nodejs host:browser")
                 .then(function (modifiers) {
                     var newSources = flavor(JSON.parse(sources.toString()), require.dependencies, modifiers);
-                    dialogs.alert(JSON.stringify(newSources, "", " "));
+                    dialogs.info(JSON.stringify(newSources, "", " "));
                 });
         }
 
