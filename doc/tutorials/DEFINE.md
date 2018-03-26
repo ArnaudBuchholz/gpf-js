@@ -236,3 +236,8 @@ An attribute specification must be an array
 ### Inheritance
 
 Attributes are inherited
+
+### Retrieve Attributes
+
+Returned as a dictionary where the key is the member name ($attributes for class ones).
+It always return a dictionary (simplifies usage)
