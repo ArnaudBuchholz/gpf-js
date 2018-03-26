@@ -184,7 +184,7 @@ assert(gpf.interfaces.isImplementedBy(ISerializable, obj));
 The goal of an interface is to establish a [contract of service](https://en.wikipedia.org/wiki/Design_by_contract)
 between the object implementing the interface and the consumer. Only methods are allowed.
 Because an interface exposes only 'public' methods, names must respect the validation regexp
-`^[a-z][a-zA-Z0-9]*$`. 
+`^[a-z][a-zA-Z0-9]*$`.
 
 ### Reserved member names
 
@@ -207,4 +207,32 @@ An interface can't be instantiated, hence no constructor is allowed.
 Interfaces are leveraged through these two APIs:
 * {@link gpf.interfaces.isImplementedBy} to check if an object implements a given interface
 * {@link gpf.interfaces.query} to query a specific interface either because it implements it or
-because it implements the {@link gpf.interfaces.IUnknown} interface. 
+because it implements the {@link gpf.interfaces.IUnknown} interface.
+
+## Attributes
+
+### Concept
+
+Attributes are used to qualify members of a class definition. They can be compared to
+[Java annotations](https://en.wikipedia.org/wiki/Java_annotation).
+
+Once used in a class, the library offers the {@link gpf.attributes.get} helpers to fetch attribute information from an object / a class:
+
+### Definition
+
+Almost any class can be used as an attribute, the only limitation is that it must inherit from the
+{@link gpf.attributes.Attribute} class.
+
+### Usage
+
+An attribute can be set either at the class level:
+- Use $attributes
+
+Or at the member level
+- Use the [memberName] syntax
+
+An attribute specification must be an array
+
+### Inheritance
+
+Attributes are inherited
