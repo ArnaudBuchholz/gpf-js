@@ -39,15 +39,23 @@ function includeHost (tags, requested) {
 function includeRequestedSources (sources, requested) {
     return sources.map(function (source) {
         var tags =  categorize(source.tags || ""),
-            shouldIncludeFeature;
+            shouldIncludeFeature,
+            shouldIncludeHost;
+        // core tags are always included
         if (includeCore(tags)) {
             return true;
         }
         shouldIncludeFeature = includeFeature(tags, requested);
-        if (undefined !== shouldIncludeFeature) {
+        // Featured sources that are not explicitely requested are discarded
+        if (false === shouldIncludeFeature) {
             return shouldIncludeFeature;
         }
-        return includeHost(tags, requested);
+        // Process host relevant sources
+        shouldIncludeHost = includeHost(tags, requested);
+        if (undefined !== shouldIncludeHost) {
+            return shouldIncludeHost;
+        }
+        return shouldIncludeFeature;
     });
 }
 
@@ -63,31 +71,33 @@ function getSourceIndex (sources, name) {
     return result;
 }
 
-/*
-function merge () {
-    var result = [];
-    [].slice.call(arguments, 0).forEach(function (allowed) {
-        allowed.forEach(function (value, index) {
-            result[index] = result[index] || value;
-        });
-    });
-    return result;
-}
-*/
-
 function getFlavor (sources, dependencies, request) {
     var requested =  categorize(request),
         // Initial is based on tags
         allowed = includeRequestedSources(sources, requested),
-        index = sources.length;
+        index = sources.length,
+        features = [].concat(requested.features),
+        featureSetChanged = false;
     function allow (dependency) {
-        allowed[getSourceIndex(sources, dependency)] = true;
+        var sourceIndex = getSourceIndex(sources, dependency),
+            tags =  categorize(sources[sourceIndex].tags || "");
+        // Process dependant features
+        tags.features.forEach(function (feature) {
+            if (-1 === features.indexOf(feature)) {
+                features.push(feature);
+                featureSetChanged = true;
+            }
+        });
+        allowed[sourceIndex] = true;
     }
     while (--index > 0) {
         if (!allowed[index]) {
             continue;
         }
         (dependencies[sources[index].name] || []).forEach(allow);
+    }
+    if (featureSetChanged) {
+        return getFlavor(sources, dependencies, features.join(" ") + " " + request);
     }
     return allowed;
 }
