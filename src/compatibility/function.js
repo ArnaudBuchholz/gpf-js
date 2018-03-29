@@ -8,7 +8,7 @@
 /*global _gpfCompatibilityInstallMethods*/ // Define and install compatible methods on standard objects
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfFunc*/ // Create a new function using the source
-/*exported _gpfJsCommentsRegExp*/ // Find all JavaScript comments
+/*global _gpfJsCommentsRegExp*/ // Find all JavaScript comments
 /*#endif*/
 
 var _gpfArrayPrototypeSlice = Array.prototype.slice;
@@ -41,8 +41,6 @@ _gpfCompatibilityInstallMethods("Function", {
 
 //region Function name
 
-// Get the name of a function if bound to the call
-var _gpfJsCommentsRegExp =  new RegExp("//.*$|/\\*(?:[^\\*]*|\\*[^/]*)\\*/", "gm");
 function _gpfGetFunctionName () {
     // Use simple parsing
     /*jshint validthis:true*/
