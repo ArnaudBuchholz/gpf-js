@@ -44,7 +44,7 @@ function getSourceIndex (sources, name) {
             return false;
         }
         return true;
-    })
+    });
     return result;
 }
 
@@ -65,15 +65,15 @@ module.exports = function (sources, dependencies, request) {
         }),
         index = sources.length,
         source;
-    debugger;
+    function allow (dependency) {
+        allowed[getSourceIndex(sources, dependency)] = true;
+    }
     while (--index > 0) {
         if (!allowed[index]) {
             continue;
         }
         source = sources[index];
-        (dependencies[source.name] || []).forEach(function (dependency) {
-            allowed[getSourceIndex(sources, dependency)] = true;
-        });
+        (dependencies[source.name] || []).forEach(allow);
     }
     return allowed;
 };
