@@ -260,8 +260,7 @@
         "tags": "stream"
     },
     {
-        "name": "stream/string",
-        "tags": "stream"
+        "name": "stream/string"
     },
     {
         "name": "fs",
@@ -339,8 +338,7 @@
     },
     {
         "name": "string/fromStream",
-        "test": false,
-        "tags": "stream"
+        "test": false
     },
     {
         "name": "http/nodejs",
@@ -367,12 +365,10 @@
         "tags": "host:java http"
     },
     {
-        "name": "stream/bufferedread",
-        "tags": "stream"
+        "name": "stream/bufferedread"
     },
     {
-        "name": "stream/line",
-        "tags": "stream"
+        "name": "stream/line"
     },
     {
         "name": "interfaces/flushablestream",
@@ -417,7 +413,7 @@
     },
     {
         "name": "stream/csv/parser",
-        "tags": "stream"
+        "tags": "csv"
     },
     {
         "name": "attributes/attribute",
@@ -444,15 +440,12 @@
     },
     {
         "name": "stream/operator",
-        "test": false,
-        "tags": "stream"
+        "test": false
     },
     {
-        "name": "stream/filter",
-        "tags": "stream"
+        "name": "stream/filter"
     },
     {
-        "name": "stream/map",
-        "tags": "stream"
+        "name": "stream/map"
     }
 ]
