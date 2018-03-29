@@ -93,7 +93,6 @@
     ],
     "function": [
         "constants",
-        "compatibility/function",
         "string/trim"
     ],
     "define/detect": [
@@ -389,6 +388,7 @@
         "define/build"
     ],
     "stream/operator": [
+        "abstract",
         "define",
         "stream"
     ],
