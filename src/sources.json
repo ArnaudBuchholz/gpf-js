@@ -422,25 +422,25 @@
     {
         "name": "attributes/attribute",
         "test": false,
-        "tags": "define"
+        "tags": "attribute"
     },
     {
         "name": "define/class/attributes/check",
-        "tags": "define"
+        "tags": "attribute"
     },
     {
         "name": "define/class/attributes/build",
         "test": false,
-        "tags": "define"
+        "tags": "attribute"
     },
     {
         "name": "define/class/attributes/consolidate",
         "test": false,
-        "tags": "define"
+        "tags": "attribute"
     },
     {
         "name": "attributes",
-        "tags": "define"
+        "tags": "attribute"
     },
     {
         "name": "stream/operator",
