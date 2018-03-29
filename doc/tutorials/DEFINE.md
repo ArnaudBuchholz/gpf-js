@@ -213,31 +213,77 @@ because it implements the {@link gpf.interfaces.IUnknown} interface.
 
 ### Concept
 
-Attributes are used to qualify members of a class definition. They can be compared to
-[Java annotations](https://en.wikipedia.org/wiki/Java_annotation).
-
-Once used in a class, the library offers the {@link gpf.attributes.get} helpers to fetch attribute information from an object / a class:
+Attributes are used to qualify members of a class definition.
+The mechanism is comparable to [Java annotations](https://en.wikipedia.org/wiki/Java_annotation).
 
 ### Definition
 
-Almost any class can be used as an attribute, the only limitation is that it must inherit from the
-{@link gpf.attributes.Attribute} class.
+**Every member** of a class, whatever its type, can own attributes.
 
-### Usage
+The attributes of a member can be set either in the class introducing the member or in any of its subclasses.
+Attributes are **inherited**.
 
-An attribute can be set either at the class level:
-- Use $attributes
+On the contrary, it is not possible to set attributes on a member that does not exist in the class hierarchy.
 
-Or at the member level
-- Use the [memberName] syntax
+Attributes are objects.
+[Literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer) are not
+allowed since instances must be created from **a class that is a child of the {@link gpf.attributes.Attribute} class**.
 
-An attribute specification must be an array
+Attributes are always **set in batch (i.e. using an array)**, even for a single attribute.
 
-### Inheritance
+To set attributes on a member, a special member must be added to the class definition where the name is the member name
+enclosed in square brackets.
 
-Attributes are inherited
+In the following example, the member value is assigned one attribute that is an instance of the class MyAttribute:
+
+```javascript
+MyClass = gpf.define({
+    $class: "MyClass",
+
+    "[value]": [new MyAttribute()],
+    value: 0
+});```
+
+In the following example, MySubClass will own a second attribute for the member value:
+
+```javascript
+MySubClass = gpf.define({
+    $class: "MySubClass",
+    $extend: MyClass,
+
+    "[value]": [new MySecondAttribute()]
+});```
+
+Attributes can also be set at the class level, the $ property $attributes introduces them:
+
+```javascript
+MySecondClass = gpf.define({
+    $class: "MySecondClass",
+    $attributes: [new MyClassAttribute()],
+
+    "[value]": [new MyAttribute()],
+    value: 0
+});```
 
 ### Retrieve Attributes
 
-Returned as a dictionary where the key is the member name ($attributes for class ones).
-It always return a dictionary (simplifies usage)
+After assigning attributes to a class, the library offers the {@link gpf.attributes.get} API to
+query the class definition or one of its instances. As a result, a dictionary mapping members
+to their respective list of attributes is returned.
+
+For instance:
+
+```javascript
+MyClass = gpf.define({
+    $class: "MyClass",
+
+    "[value]": [new MyAttribute()],
+    value: 0
+});
+
+console.log(gpf.attributes.get(MyClass));
+// outputs: {value: [{}]} where the object is the instance of MyAttribute
+
+console.log(gpf.attributes.get(new MyClass()));
+// same output
+```
