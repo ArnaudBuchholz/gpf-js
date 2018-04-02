@@ -1,6 +1,6 @@
 "use strict";
 
-const PUBLISH_PATH = "tmp/ArnaudBuchholz.github.io/";
+const PUBLISH_PATH = "tmp/publish/";
 
 module.exports = {
     publishVersionPlato: {
