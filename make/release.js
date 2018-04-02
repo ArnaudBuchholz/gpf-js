@@ -28,8 +28,10 @@ let
     error;
 
 const
-    gitProjectUrl = "https://github.com/ArnaudBuchholz/gpf-js/",
+    projectUrl = "https://github.com/ArnaudBuchholz/gpf-js/",
     publicationUrl = "https://arnaudbuchholz.github.io/gpf/",
+    publicationGit = "https://github.com/ArnaudBuchholz/ArnaudBuchholz.github.io.git",
+    publicationRepo = "tmp/publish",
     inquirer = require("inquirer"),
     GitHub = require("github-api"),
     ConfigFile = require("./configFile.js"),
@@ -38,8 +40,6 @@ const
     pkgText = fs.readFileSync("package.json").toString(),
     pkg = JSON.parse(pkgText),
     pkgVersion = pkg.version,
-    publicationRepo = "../ArnaudBuchholz.github.io",
-    hasPublicationRepo = fs.existsSync(publicationRepo),
 
     testMode = process.argv.some(arg => arg === "-test"),
     noBuild = process.argv.some(arg => arg === "-noBuild"),
@@ -84,12 +84,9 @@ const
 
     publishVersion = () => spawnGit(["commit", "-a", "-m", `Release v${version}`])
         .then(() => spawnGit(["push"]))
-        .then(() => hasPublicationRepo
-            ? spawnGit(["-C", publicationRepo, "add", "--all"])
-                .then(() => spawnGit(["-C", publicationRepo, "commit", "-a", "-m", `Release v${version}`]))
-                .then(() => spawnGit(["-C", publicationRepo, "push"]))
-            : 0
-        )
+        .then(() => spawnGit(["-C", publicationRepo, "add", "--all"]))
+        .then(() => spawnGit(["-C", publicationRepo, "commit", "-a", "-m", `Release v${version}`]))
+        .then(() => spawnGit(["-C", publicationRepo, "push"]))
         .then(() => gh.getIssues("ArnaudBuchholz", "gpf-js").editMilestone(versionMilestone.number, {
             state: "closed"
         }))
@@ -179,11 +176,8 @@ inquirer.prompt(setupQuestions)
     .then(() => spawnGit(["status", "--porcelain"])
         .then(output => output.length ? error("Process any pending changes first") : 0)
     )
-    .then(() => hasPublicationRepo
-        ? spawnGit(["-C", publicationRepo, "status", "--porcelain"])
-            .then(output => output.length ? error("Clean publication repository first") : 0)
-        : 0
-    )
+    .then(() => spawnGrunt("clean:publish"))
+    .then(() => spawnGit(["clone", publicationGit, publicationRepo]))
     .then(() => {
         if (pkgVersion !== version) {
             console.log("Updating package.json version...");
@@ -214,7 +208,7 @@ inquirer.prompt(setupQuestions)
         readmeLines.splice(indexOfVersions + 2, indexOfCredits - indexOfVersions - 3,
             "Date | Version | Label | Release | Debug\n------ | ------ | ----- | ----- | -----",
             releases.reverse().map(release => `${release.date} | `
-                + `[${release.version}](${gitProjectUrl}tree/v${release.version}) | ${release.label} | `
+                + `[${release.version}](${projectUrl}tree/v${release.version}) | ${release.label} | `
                 + `[lib](${publicationUrl}${release.version}/gpf.js) / `
                 + `[test](${publicationUrl}test.html?release=${release.version}) | `
                 + `[lib](${publicationUrl}${release.version}/gpf-debug.js) / `
@@ -224,7 +218,7 @@ inquirer.prompt(setupQuestions)
         fs.writeFileSync("README.md", readmeLines.join("\n"));
         return noBuild ? 0 : spawnGrunt("jsdoc:public");
     })
-    .then(() => noBuild ? 0 : spawnGrunt("copy:publishVersionDoc"))
+    .then(() => spawnGrunt("publish"))
     .then(() => spawnGrunt("zip:platoHistory"))
     .then(() => testMode
         ? console.warn("No GIT publishing in test mode")
