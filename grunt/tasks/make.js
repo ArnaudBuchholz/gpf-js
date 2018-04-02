@@ -16,11 +16,6 @@ module.exports = function (grunt) {
         "concurrent:debug",
         "concurrent:release",
         "uglify:buildTests",
-        "exec:fixUglify:tests",
-        "copy:publishVersionPlato",
-        "copy:publishVersion",
-        "copy:publishTest",
-        "copy:publishTestRequire",
-        "copy:publishTestData"
+        "exec:fixUglify:tests"
     ]));
 };
