@@ -1,5 +1,6 @@
 /**
  * @file Operator abstract stream
+ * @since 0.2.5
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -23,6 +24,7 @@ var
      * @implements {gpf.interfaces.IReadableStream}
      * @implements {gpf.interfaces.IWritableStream}
      * @implements {gpf.interfaces.IFlushableStream}
+     * @since 0.2.5
      */
     _GpfStreamAbtsractOperator = _gpfDefine({
         $class: "gpf.stream.AbstractOperator",
@@ -32,24 +34,28 @@ var
         /**
          * Promise used to wait for data
          * @type {Promise}
+         * @since 0.2.5
          */
         _dataInPromise: undefined,
 
         /**
          * Resolve function of _dataInPromise
          * @type {Function}
+         * @since 0.2.5
          */
         _dataInResolve: _gpfEmptyFunc,
 
         /**
          * Resolve function of _writeData's Promise
          * @type {Function}
+         * @since 0.2.5
          */
         _dataOutResolve: _gpfEmptyFunc,
 
         /**
          * Reject function of _writeData's Promise
          * @type {Function}
+         * @since 0.2.5
          */
         _dataOutReject: _gpfEmptyFunc,
 
@@ -57,6 +63,7 @@ var
          * Wait until data was written to this stream
          *
          * @return {Promise} Resolved when a data as been written to this stream
+         * @since 0.2.5
          */
         _waitForData: function () {
             var me = this;
@@ -78,6 +85,7 @@ var
          * @param {*} data Data to write
          * @return {Promise} Resolved when write operation has been done on output
          * @protected
+         * @since 0.2.5
          */
         _writeData: function (data) {
             var me = this;
@@ -103,6 +111,7 @@ var
 
         /**
          * @gpf:sameas gpf.interfaces.IReadableStream#read
+         * @since 0.2.5
          */
         read: _gpfStreamSecureRead(function (output) {
             var me = this; //eslint-disable-line no-invalid-this
@@ -126,11 +135,13 @@ var
          * @param {*} data Data to process
          * @return {Promise} Resolved when ready
          * @abstract
+         * @since 0.2.5
          */
         _process:  _gpfCreateAbstractFunction(1),
 
         /**
          * @gpf:sameas gpf.interfaces.IWritableStream#write
+         * @since 0.2.5
          */
         write: _gpfStreamSecureWrite(function (data) {
             return this._process(data); //eslint-disable-line no-invalid-this
@@ -142,6 +153,7 @@ var
 
         /**
          * @gpf:sameas gpf.interfaces.IFlushableStream#flush
+         * @since 0.2.5
          */
         flush: function () {
             if (this._dataInPromise)  {

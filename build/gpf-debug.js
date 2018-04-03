@@ -44,7 +44,7 @@
          * GPF Version
          * @since 0.1.5
          */
-        _gpfVersion = "0.2.4",
+        _gpfVersion = "0.2.5",
         /**
          * Host constants
          * @since 0.1.5
@@ -265,6 +265,13 @@
          */
         _gpfNodeHttp,
         /**
+         * require("https")
+         *
+         * @type {Object}
+         * @since 0.2.5
+         */
+        _gpfNodeHttps,
+        /**
          * require("url")
          *
          * @type {Object}
@@ -280,6 +287,7 @@
     _gpfBootImplByHost[_GPF_HOST.NODEJS] = function () {
         _gpfNodeFs = require("fs");
         _gpfNodeHttp = require("http");
+        _gpfNodeHttps = require("https");
         _gpfNodeUrl = require("url");
         /* istanbul ignore next */
         // exit.1
@@ -572,7 +580,9 @@
             "while",
             "with",
             "yield"
-        ];
+        ],
+        // Get the name of a function if bound to the call
+        _gpfJsCommentsRegExp = new RegExp("//.*$|/\\*(?:[^\\*]*|\\*[^/]*)\\*/", "gm");
     // Unprotected version of _gpfFunc
     function _gpfFuncUnsafe(params, source) {
         var args;
@@ -590,7 +600,7 @@
             return _gpfFuncUnsafe(params, source);
         } catch (e) {
             // Makes it easier to debug
-            throw new Error("_gpfFuncImpl exception: " + e.message + "\r\n" + source);
+            throw new Error("_gpfFuncImpl exception: " + e.message + "\n" + source);
         }
     }
     /**
@@ -701,16 +711,28 @@
         }
     }
     /**
-     * Define and install compatible methods
+     * Define and install compatible methods on standard objects
      *
      * @param {String} typeName Type name ("Object", "String"...)
      * @param {_GpfCompatibilityDescription} description Description of compatible methods
      * @since 0.1.5
      */
-    function _gpfInstallCompatibility(typeName, description) {
+    function _gpfCompatibilityInstallMethods(typeName, description) {
         var on = description.on;
         _gpfInstallCompatibleMethods(on, description.methods);
         _gpfInstallCompatibleStatics(on, description.statics);
+    }
+    /**
+     * Install compatible global if missing
+     *
+     * @param {String} name Object name ("JSON", "Promise"...)
+     * @param {*} polyfill Polyfill implementation of the object
+     * @since 0.2.5
+     */
+    function _gpfCompatibilityInstallGlobal(name, polyfill) {
+        if (!_gpfMainContext[name]) {
+            _gpfMainContext[name] = polyfill;
+        }
     }
     function _gpfArrayBind(callback, thisArg) {
         if (undefined !== thisArg) {
@@ -768,7 +790,7 @@
         return array;
     }
     //endregion
-    _gpfInstallCompatibility("Array", {
+    _gpfCompatibilityInstallMethods("Array", {
         on: Array,
         methods: {
             // Introduced with JavaScript 1.6
@@ -841,10 +863,7 @@
             }
         }
     });
-    // Update if it was not defined
-    if (!_gpfIsArray) {
-        _gpfIsArray = Array.isArray;
-    }
+    _gpfIsArray = Array.isArray;
     function _gpfBuildFunctionParameterList(count) {
         if (0 === count) {
             return [];
@@ -862,7 +881,7 @@
             var count = index + 1;
             src.push("if (" + count + " === l) { return new C(" + parameters.slice(0, count).join(", ") + ");}");
         });
-        return src.join("\r\n");
+        return src.join("\n");
     }
     function _gpfGenerateGenericFactory(maxParameters) {
         var parameters = _gpfBuildFunctionParameterList(maxParameters);
@@ -904,7 +923,7 @@
     function _gpfDateToISOString(date) {
         return date.getUTCFullYear() + "-" + _pad(date.getUTCMonth() + 1) + "-" + _pad(date.getUTCDate()) + "T" + _pad(date.getUTCHours()) + ":" + _pad(date.getUTCMinutes()) + ":" + _pad(date.getUTCSeconds()) + "." + (date.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5) + "Z";
     }
-    _gpfInstallCompatibility("Date", {
+    _gpfCompatibilityInstallMethods("Date", {
         on: Date,
         methods: {
             // Introduced with JavaScript 1.8
@@ -1019,7 +1038,7 @@
     function _generateBindBuilderSource(length) {
         return "var me = this;\n" + "return function (" + _gpfBuildFunctionParameterList(length).join(", ") + ") {\n" + "   var args = _gpfArrayPrototypeSlice.call(arguments, 0);\n" + "    return me.apply(thisArg, prependArgs.concat(args));\n" + "};";
     }
-    _gpfInstallCompatibility("Function", {
+    _gpfCompatibilityInstallMethods("Function", {
         on: Function,
         methods: {
             // Introduced with JavaScript 1.8.5
@@ -1034,8 +1053,6 @@
         }
     });
     //region Function name
-    // Get the name of a function if bound to the call
-    var _gpfJsCommentsRegExp = new RegExp("//.*$|/\\*(?:[^\\*]*|\\*[^/]*)\\*/", "gm");
     function _gpfGetFunctionName() {
         // Use simple parsing
         /*jshint validthis:true*/
@@ -1067,7 +1084,7 @@
         /*jshint validthis:true*/
         this[memberName] = value;    //eslint-disable-line no-invalid-this
     }
-    _gpfInstallCompatibility("Object", {
+    _gpfCompatibilityInstallMethods("Object", {
         on: Object,
         statics: {
             // Introduced with ECMAScript 2015
@@ -1085,19 +1102,20 @@
                 return function (O) {
                     Temp.prototype = O;
                     var obj = new Temp();
-                    Temp.prototype = null;
-                    if (!obj.__proto__) {
-                        obj.__proto__ = O;
-                    }
+                    obj.constructor = Temp;
                     return obj;
                 };
             }(),
             // Introduced with JavaScript 1.8.5
             getPrototypeOf: function (object) {
+                /* istanbul ignore else */
+                // wscript.node.1
                 if (object.__proto__) {
                     return object.__proto__;
                 }
                 // May break if the constructor has been tampered with
+                /* istanbul ignore next */
+                // wscript.node.1
                 return object.constructor.prototype;
             },
             // Introduced with JavaScript 1.8.5
@@ -1122,7 +1140,7 @@
             }
         }
     });
-    _gpfInstallCompatibility("String", {
+    _gpfCompatibilityInstallMethods("String", {
         on: String,
         methods: {
             // Introduced with JavaScript 1.8.1
@@ -1314,18 +1332,23 @@
             });
         });
     };
-    if (undefined === _gpfMainContext.Promise) {
-        _gpfMainContext.Promise = _GpfPromise;
+    _gpfCompatibilityInstallGlobal("Promise", _GpfPromise);
+    var _gpfTimeoutImpl = {};
+    _gpfTimeoutImpl[_GPF_HOST.WSCRIPT] = function (t) {
+        WScript.Sleep(t);    //eslint-disable-line new-cap
+    };
+    function _gpfTimeoutJavaImpl(t) {
+        java.lang.Thread.sleep(t);
     }
+    _gpfTimeoutImpl[_GPF_HOST.RHINO] = _gpfTimeoutJavaImpl;
+    _gpfTimeoutImpl[_GPF_HOST.NASHORN] = _gpfTimeoutJavaImpl;
     var
         // List of pending callbacks (sorted by execution time)
         _gpfTimeoutQueue = [],
         // Last allocated timeoutID
         _gpfTimeoutID = 0,
         // Sleep function
-        _gpfSleep = _gpfEmptyFunc;
-    // Handle timeouts (mandatory for some environments)
-    gpf.handleTimeout = _gpfEmptyFunc;
+        _gpfSleep = _gpfTimeoutImpl[_gpfHost] || _gpfEmptyFunc;
     // Sorting function used to reorder the async queue
     function _gpfSortOnDt(a, b) {
         if (a.dt === b.dt) {
@@ -1357,8 +1380,9 @@
         }
     }
     /**
-     * For WSCRIPT and RHINO environments, this function must be used to process the timeout queue when using
-     * [setTimeout](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setTimeout)
+     * For WSCRIPT, RHINO and NASHORN environments, this function must be used to process the timeout queue when using
+     * [setTimeout](https://developer.mozilla.org/en-US/docs/Web/API/WindowTimers/setTimeout).
+     * For the other environments, this function has no effect.
      * @since 0.1.5
      */
     function _gpfHandleTimeout() {
@@ -1373,116 +1397,143 @@
             timeoutItem.cb();
         }
     }
-    /*jshint wsh: true*/
-    /*eslint-env wsh*/
-    /*jshint rhino: true*/
-    /*eslint-env rhino*/
-    var _gpfTimeoutImpl = {};
-    _gpfTimeoutImpl[_GPF_HOST.WSCRIPT] = function (t) {
-        WScript.Sleep(t);    //eslint-disable-line new-cap
-    };
-    function _gpfTimeoutJavaImpl(t) {
-        java.lang.Thread.sleep(t);
-    }
-    _gpfTimeoutImpl[_GPF_HOST.RHINO] = _gpfTimeoutJavaImpl;
-    _gpfTimeoutImpl[_GPF_HOST.NASHORN] = _gpfTimeoutJavaImpl;
-    // Used only for WSCRIPT, RHINO & NASHORN environments
-    if ("undefined" === typeof setTimeout) {
-        _gpfSleep = _gpfTimeoutImpl[_gpfHost];
-        /* istanbul ignore next */
-        // unknown.1
-        if (undefined === _gpfSleep) {
-            console.warn("No implementation for setTimeout");
+    /**
+     * @gpf:sameas _gpfHandleTimeout
+     * @since 0.1.5
+     */
+    gpf.handleTimeout = _gpfHandleTimeout;
+    _gpfCompatibilityInstallGlobal("setTimeout", _gpSetTimeoutPolyfill);
+    _gpfCompatibilityInstallGlobal("clearTimeout", _gpfClearTimeoutPolyfill);
+    function _gpfJsonParseApplyReviver(value, name, reviver) {
+        if ("object" === typeof value) {
+            _gpfObjectForEach(value, function (propertyValue, propertyName) {
+                value[propertyName] = _gpfJsonParseApplyReviver(propertyValue, propertyName, reviver);
+            });
         }
-        _gpfMainContext.setTimeout = _gpSetTimeoutPolyfill;
-        _gpfMainContext.clearTimeout = _gpfClearTimeoutPolyfill;
-        /**
-         * @gpf:sameas _gpfHandleTimeout
-         * @since 0.1.5
-         */
-        gpf.handleTimeout = _gpfHandleTimeout;
+        return reviver(name, value);
     }
-    var
-        /**
-         * The JSON.stringify() method converts a JavaScript value to a JSON string
-         *
-         * @param {*} value the value to convert to a JSON string
-         * @return {String} JSON representation of the value
-         * @since 0.1.5
-         */
-        _gpfJsonStringify,
-        /**
-         * The JSON.parse() method parses a string as JSON
-         *
-         * @param {*} text The string to parse as JSON
-         * @return {Object} Parsed value
-         * @since 0.1.5
-         */
-        _gpfJsonParse;
-    // Filter functions and escape values
-    function _gpfPreprocessValueForJson(callback) {
-        return function (value, index) {
-            if ("function" === typeof value) {
-                return;    // ignore
-            }
-            callback(_gpfJsonStringifyPolyfill(value), index);
-        };
-    }
-    function _gpfObject2Json(object) {
-        var isArray, results;
-        isArray = object instanceof Array;
-        results = [];
-        if (isArray) {
-            _gpfArrayForEach(object, _gpfPreprocessValueForJson(function (value) {
-                results.push(value);
-            }));
-            return "[" + results.join(",") + "]";
+    /**
+     * JSON.parse polyfill
+     *
+     * @param {*} text The string to parse as JSON
+     * @param {Function} [reviver] Describes how the value originally produced by parsing is transformed,
+     * before being returned
+     * @return {Object} Parsed value
+     * @since 0.1.5
+     */
+    function _gpfJsonParsePolyfill(text, reviver) {
+        var result = _gpfFunc("return " + text)();
+        if (reviver) {
+            return _gpfJsonParseApplyReviver(result, "", reviver);
         }
-        _gpfObjectForEach(object, _gpfPreprocessValueForJson(function (value, property) {
-            results.push(_gpfStringEscapeFor(property, "javascript") + ":" + value);
-        }));
-        return "{" + results.join(",") + "}";
+        return result;
     }
-    function _gpfJsonStringifyObject(object) {
+    var _gpfJsonStringifyMapping;
+    function _gpfJsonStringifyGeneric(object) {
         return object.toString();
     }
-    var _gpfJsonStringifyMapping = {
+    function _gpfJsonStringifyFormat(values, space) {
+        if (space) {
+            return "\n" + space + values.join(",\n" + space) + "\n";
+        }
+        return values.join(",");
+    }
+    function _gpfJsonStringifyArray(array, replacer, space) {
+        var values = [];
+        _gpfArrayForEach(array, function (value, index) {
+            var replacedValue = replacer(index.toString(), value);
+            if (undefined === replacedValue) {
+                replacedValue = "null";
+            } else {
+                replacedValue = _gpfJsonStringifyMapping[typeof replacedValue](replacedValue, replacer, space);
+            }
+            values.push(replacedValue);
+        });
+        return "[" + _gpfJsonStringifyFormat(values, space) + "]";
+    }
+    function _gpfJsonStringifyObjectMembers(object, replacer, space) {
+        var values = [], separator;
+        if (space) {
+            separator = ": ";
+        } else {
+            separator = ":";
+        }
+        _gpfObjectForEach(object, function (value, name) {
+            var replacedValue = replacer(name, value);
+            replacedValue = _gpfJsonStringifyMapping[typeof replacedValue](value, replacer, space);
+            if (undefined === replacedValue) {
+                return;
+            }
+            values.push(_gpfStringEscapeFor(name, "javascript") + separator + replacedValue);
+        });
+        return "{" + _gpfJsonStringifyFormat(values, space) + "}";
+    }
+    function _gpfJsonStringifyObject(object, replacer, space) {
+        if (null === object) {
+            return "null";
+        }
+        return _gpfJsonStringifyObjectMembers(object, replacer, space);
+    }
+    _gpfJsonStringifyMapping = {
         undefined: _gpfEmptyFunc,
         "function": _gpfEmptyFunc,
-        number: _gpfJsonStringifyObject,
-        "boolean": _gpfJsonStringifyObject,
+        number: _gpfJsonStringifyGeneric,
+        "boolean": _gpfJsonStringifyGeneric,
         string: function (object) {
             return _gpfStringEscapeFor(object, "javascript");
         },
-        object: function (object) {
-            if (null === object) {
-                return "null";
+        object: function (object, replacer, space) {
+            if (_gpfIsArray(object)) {
+                return _gpfJsonStringifyArray(object, replacer, space);
             }
-            return _gpfObject2Json(object);
+            return _gpfJsonStringifyObject(object, replacer, space);
         }
     };
-    /*jshint -W003*/
-    // Circular reference _gpfJsonStringifyPolyfill <-> _gpfObject2Json
-    function _gpfJsonStringifyPolyfill(object) {
-        return _gpfJsonStringifyMapping[typeof object](object);
-    }
-    /*jshint +W003*/
-    function _gpfJsonParsePolyfill(test) {
-        return _gpfFunc("return " + test)();
-    }
-    // Used only for environments where JSON is not defined
-    if ("undefined" === typeof JSON) {
-        _gpfJsonStringify = _gpfJsonStringifyPolyfill;
-        _gpfJsonParse = _gpfJsonParsePolyfill;
-        // Creates the JSON global object
-        _gpfMainContext.JSON = {
-            stringify: _gpfJsonStringify,
-            parse: _gpfJsonParse
+    function _gpfJsonStringifyGetReplacerFunction(replacer) {
+        if ("function" === typeof replacer) {
+            return replacer;
+        }
+        return function (key, value) {
+            return value;
         };
-    } else {
-        _gpfJsonStringify = JSON.stringify;
-        _gpfJsonParse = JSON.parse;
     }
+    function _gpfJsonStringifyCheckReplacer(replacer) {
+        if (_gpfIsArray(replacer)) {
+            // whitelist
+            return function (key, value) {
+                if (replacer.indexOf(key) !== -1) {
+                    return value;
+                }
+            };
+        }
+        return _gpfJsonStringifyGetReplacerFunction(replacer);
+    }
+    function _gpfJsonStringifyCheckSpaceValue(space) {
+        if ("number" === typeof space) {
+            return new Array(Math.min(space, 10) + 1).join(" ");
+        }
+        return space || "";
+    }
+    /**
+     * JSON.stringify polyfill
+     *
+     * @param {*} value The value to convert to a JSON string
+     * @param {Function|Array} [replacer] A function that alters the behavior of the stringification process, or an array of
+     * String and Number objects that serve as a whitelist for selecting/filtering the properties of the value object to be
+     * included in the JSON string
+     * @param {String|Number} [space] A String or Number object that's used to insert white space into the output JSON
+     * string for readability purposes. If this is a Number, it indicates the number of space characters to use as white
+     * space; this number is capped at 10 (if it is greater, the value is just 10).
+     * @return {String} JSON representation of the value
+     * @since 0.1.5
+     */
+    function _gpfJsonStringifyPolyfill(value, replacer, space) {
+        return _gpfJsonStringifyMapping[typeof value](value, _gpfJsonStringifyCheckReplacer(replacer), _gpfJsonStringifyCheckSpaceValue(space));
+    }
+    _gpfCompatibilityInstallGlobal("JSON", {
+        parse: _gpfJsonParsePolyfill,
+        stringify: _gpfJsonStringifyPolyfill
+    });
     function _gpfGetObjectProperty(parent, name) {
         if (undefined !== parent) {
             return parent[name];
@@ -1704,7 +1755,7 @@
         }
     }
     function _gpfFunctionDescribeBody(functionSource, resultDescription) {
-        var body = _gpfStringTrim(new RegExp("{((?:.*\\n)*.*)}").exec(functionSource)[1]);
+        var body = _gpfStringTrim(new RegExp("{((?:.*\\r?\\n)*.*)}").exec(functionSource)[1]);
         if (body) {
             resultDescription.body = body;
         }
@@ -5035,9 +5086,15 @@
         _gpfHttpNodeAdjustSettingsForSend(settings, request.data);
         return settings;
     }
+    function _gpfHttpNodeGetMessageHandler(settings) {
+        if ("https:" === settings.protocol) {
+            return _gpfNodeHttps;
+        }
+        return _gpfNodeHttp;
+    }
     function _gpfHttpNodeAllocate(request, resolve) {
-        var settings = _gpfHttpNodeBuildRequestSettings(request);
-        return _gpfNodeHttp.request(settings, function (nodeResponse) {
+        var settings = _gpfHttpNodeBuildRequestSettings(request), messageHandler = _gpfHttpNodeGetMessageHandler(settings);
+        return messageHandler.request(settings, function (nodeResponse) {
             _gpfHttpNodeProcessResponse(nodeResponse, resolve);
         });
     }
@@ -5996,18 +6053,21 @@
      * @since 0.2.3
      */
     function _gpfStreamPipeToFlushableWrite(intermediate, destination) {
-        var iReadableIntermediate = _gpfStreamQueryReadable(intermediate), iWritableIntermediate = _gpfStreamQueryWritable(intermediate), iFlushableIntermediate = _gpfStreamPipeToFlushable(intermediate), iWritableDestination = _gpfStreamQueryWritable(destination), iFlushableDestination = _gpfStreamPipeToFlushable(destination), readingDone, readError;
+        var iReadableIntermediate = _gpfStreamQueryReadable(intermediate), iWritableIntermediate = _gpfStreamQueryWritable(intermediate), iFlushableIntermediate = _gpfStreamPipeToFlushable(intermediate), iWritableDestination = _gpfStreamQueryWritable(destination), iFlushableDestination = _gpfStreamPipeToFlushable(destination), readingDone = true, readError, rejectWrite = _gpfEmptyFunc;
         // Read errors must be transmitted up to the initial read, this is done by forwarding it to flush & write
         function _read() {
-            try {
-                readingDone = false;
-                iReadableIntermediate.read(iWritableDestination).then(function () {
-                    readingDone = true;
-                }, function (reason) {
-                    readError = reason;
-                });
-            } catch (e) {
-                readError = e;
+            if (readingDone) {
+                try {
+                    readingDone = false;
+                    iReadableIntermediate.read(iWritableDestination).then(function () {
+                        readingDone = true;
+                    }, function (reason) {
+                        readError = reason;
+                        rejectWrite(reason);
+                    });
+                } catch (e) {
+                    readError = e;
+                }
             }
         }
         _read();
@@ -6016,6 +6076,15 @@
                 return Promise.reject(readError);
             }
         }
+        function _wrapWrite(writePromise) {
+            return new Promise(function (resolve, reject) {
+                writePromise.then(function (value) {
+                    resolve(value);
+                    rejectWrite = _gpfEmptyFunc;
+                }, reject);
+                rejectWrite = reject;
+            });
+        }
         return {
             flush: function () {
                 return _checkIfReadError() || iFlushableIntermediate.flush().then(function () {
@@ -6023,11 +6092,8 @@
                 });
             },
             write: function (data) {
-                return _checkIfReadError() || iWritableIntermediate.write(data).then(function () {
-                    if (readingDone) {
-                        _read();
-                    }
-                });
+                _read();
+                return _checkIfReadError() || _wrapWrite(iWritableIntermediate.write(data));
             }
         };
     }
@@ -6641,8 +6707,140 @@
      * @since 0.2.4
      */
     gpf.attributes.get = _gpfAttributesGet;
+    var _gpfStreamOperatorNoData = {},
+        /**
+         * Abstract operator stream
+         * Base class to simplify writing of unbuffered data processor streams (filter, map)
+         *
+         * @class gpf.stream.AbstractOperator
+         * @implements {gpf.interfaces.IReadableStream}
+         * @implements {gpf.interfaces.IWritableStream}
+         * @implements {gpf.interfaces.IFlushableStream}
+         * @since 0.2.5
+         */
+        _GpfStreamAbtsractOperator = _gpfDefine({
+            $class: "gpf.stream.AbstractOperator",
+            //region internal handling
+            /**
+             * Promise used to wait for data
+             * @type {Promise}
+             * @since 0.2.5
+             */
+            _dataInPromise: undefined,
+            /**
+             * Resolve function of _dataInPromise
+             * @type {Function}
+             * @since 0.2.5
+             */
+            _dataInResolve: _gpfEmptyFunc,
+            /**
+             * Resolve function of _writeData's Promise
+             * @type {Function}
+             * @since 0.2.5
+             */
+            _dataOutResolve: _gpfEmptyFunc,
+            /**
+             * Reject function of _writeData's Promise
+             * @type {Function}
+             * @since 0.2.5
+             */
+            _dataOutReject: _gpfEmptyFunc,
+            /**
+             * Wait until data was written to this stream
+             *
+             * @return {Promise} Resolved when a data as been written to this stream
+             * @since 0.2.5
+             */
+            _waitForData: function () {
+                var me = this;
+                if (!me._dataInPromise) {
+                    me._dataInPromise = new Promise(function (resolve) {
+                        me._dataInResolve = resolve;
+                    }).then(function (data) {
+                        delete me._dataInPromise;
+                        delete me._dataInResolve;
+                        return data;
+                    });
+                }
+                return me._dataInPromise;
+            },
+            /**
+             * Waits for the read API to write it out
+             *
+             * @param {*} data Data to write
+             * @return {Promise} Resolved when write operation has been done on output
+             * @protected
+             * @since 0.2.5
+             */
+            _writeData: function (data) {
+                var me = this;
+                me._waitForData();
+                me._dataInResolve(data);
+                return new Promise(function (resolve, reject) {
+                    me._dataOutResolve = resolve;
+                    me._dataOutReject = reject;
+                }).then(function (value) {
+                    delete me._dataOutResolve;
+                    delete me._dataOutReject;
+                    return value;
+                }, function (reason) {
+                    delete me._dataOutResolve;
+                    delete me._dataOutReject;
+                    return Promise.reject(reason);
+                });
+            },
+            //endregion
+            //region gpf.interfaces.IReadableStream
+            /**
+             * @gpf:sameas gpf.interfaces.IReadableStream#read
+             * @since 0.2.5
+             */
+            read: _gpfStreamSecureRead(function (output) {
+                var me = this;
+                //eslint-disable-line no-invalid-this
+                return me._waitForData().then(function (data) {
+                    if (_gpfStreamOperatorNoData !== data) {
+                        return output.write(data).then(me._dataOutResolve, me._dataOutReject);
+                    }
+                    me._dataOutResolve();
+                    return Promise.resolve();    // Nothing to write
+                });
+            }),
+            //endregion
+            //region gpf.interfaces.IWritableStream
+            /**
+             * Process data, use {@link gpf.stream.AbstractOperator#_writeData} to transmit data to the reader
+             *
+             * @param {*} data Data to process
+             * @return {Promise} Resolved when ready
+             * @abstract
+             * @since 0.2.5
+             */
+            _process: _gpfCreateAbstractFunction(1),
+            /**
+             * @gpf:sameas gpf.interfaces.IWritableStream#write
+             * @since 0.2.5
+             */
+            write: _gpfStreamSecureWrite(function (data) {
+                return this._process(data);    //eslint-disable-line no-invalid-this
+            }),
+            //endregion
+            //region gpf.interfaces.IFlushableStream
+            /**
+             * @gpf:sameas gpf.interfaces.IFlushableStream#flush
+             * @since 0.2.5
+             */
+            flush: function () {
+                if (this._dataInPromise) {
+                    return this._writeData(_gpfStreamOperatorNoData);
+                }
+                return Promise.resolve();
+            }    //endregion
+        });
+    _gpfStreamSecureInstallProgressFlag(_GpfStreamAbtsractOperator);
     var _GpfStreamFilter = _gpfDefine({
         $class: "gpf.stream.Filter",
+        $extend: _GpfStreamAbtsractOperator,
         /**
          * Filter stream
          *
@@ -6656,117 +6854,32 @@
         constructor: function (filter) {
             this._filter = filter;
         },
-        //region internal handling
-        /**
-         * Promise used to wait for data
-         * @type {Promise}
-         * @since 0.2.4
-         */
-        _dataInPromise: undefined,
-        /**
-         * Resolve function of _dataInPromise
-         * @type {Function}
-         * @since 0.2.4
-         */
-        _dataInResolve: _gpfEmptyFunc,
-        /**
-         * Resolve function of _writeData's Promise
-         * @type {Function}
-         * @since 0.2.4
-         */
-        _dataOutResolve: _gpfEmptyFunc,
-        /**
-         * Reject function of _writeData's Promise
-         * @type {Function}
-         * @since 0.2.4
-         */
-        _dataOutReject: _gpfEmptyFunc,
-        /**
-         * Wait until data was written to this stream
-         *
-         * @return {Promise} Resolved when a data as been written to this stream
-         * @since 0.2.4
-         */
-        _waitForData: function () {
-            var me = this;
-            if (!me._dataInPromise) {
-                me._dataInPromise = new Promise(function (resolve) {
-                    me._dataInResolve = resolve;
-                }).then(function (data) {
-                    delete me._dataInPromise;
-                    delete me._dataInResolve;
-                    return data;
-                });
-            }
-            return me._dataInPromise;
-        },
-        /**
-         * Waits for the read API to write it out
-         *
-         * @param {*} data Data to write
-         * @return {Promise} Resolved when write operation has been done on output
-         * @since 0.2.4
-         */
-        _writeData: function (data) {
-            var me = this;
-            me._waitForData();
-            me._dataInResolve(data);
-            return new Promise(function (resolve, reject) {
-                me._dataOutResolve = resolve;
-                me._dataOutReject = reject;
-            }).then(function (value) {
-                delete me._dataOutResolve;
-                delete me._dataOutReject;
-                return value;
-            }, function (reason) {
-                delete me._dataOutResolve;
-                delete me._dataOutReject;
-                return Promise.reject(reason);
-            });
-        },
-        //endregion
-        //region gpf.interfaces.IReadableStream
-        /**
-         * @gpf:sameas gpf.interfaces.IReadableStream#read
-         * @since 0.2.4
-         */
-        read: _gpfStreamSecureRead(function (output) {
-            var me = this;
-            //eslint-disable-line no-invalid-this
-            return me._waitForData().then(function (data) {
-                if (undefined !== data) {
-                    return output.write(data).then(me._dataOutResolve, me._dataOutReject);
-                }
-                me._dataOutResolve();
-                return Promise.resolve();    // Nothing to write
-            });
-        }),
-        //endregion
-        //region gpf.interfaces.IWritableStream
-        /**
-         * @gpf:sameas gpf.interfaces.IWritableStream#write
-         * @since 0.2.4
-         */
-        write: _gpfStreamSecureWrite(function (data) {
-            var me = this;
-            //eslint-disable-line no-invalid-this
-            if (me._filter(data)) {
-                return me._writeData(data);
+        _process: function (data) {
+            if (this._filter(data)) {
+                return this._writeData(data);
             }
             return Promise.resolve();
-        }),
-        //endregion
-        //region gpf.interfaces.IFlushableStream
-        /**
-         * @gpf:sameas gpf.interfaces.IFlushableStream#flush
-         * @since 0.2.4
-         */
-        flush: function () {
-            if (this._dataInPromise) {
-                return this._writeData();
-            }
-            return Promise.resolve();
-        }    //endregion
+        }
     });
-    _gpfStreamSecureInstallProgressFlag(_GpfStreamFilter);
+    var _GpfStreamMap = _gpfDefine({
+        $class: "gpf.stream.Map",
+        $extend: _GpfStreamAbtsractOperator,
+        /**
+         * Map stream
+         *
+         * @param {gpf.typedef.mapFunc} map map function
+         * @constructor gpf.stream.Map
+         * @extends gpf.stream.AbstractOperator
+         * @implements {gpf.interfaces.IReadableStream}
+         * @implements {gpf.interfaces.IWritableStream}
+         * @implements {gpf.interfaces.IFlushableStream}
+         * @since 0.2.5
+         */
+        constructor: function (map) {
+            this._map = map;
+        },
+        _process: function (data) {
+            return this._writeData(this._map(data));
+        }
+    });
 }));

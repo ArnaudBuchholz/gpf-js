@@ -29,6 +29,7 @@ var
      * require("https")
      *
      * @type {Object}
+     * @since 0.2.5
      */
     _gpfNodeHttps,
 

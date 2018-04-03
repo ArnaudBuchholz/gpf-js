@@ -268,5 +268,35 @@
             "tests": 745,
             "sources": 102
         }
+    },
+    {
+        "version": "0.2.5",
+        "label": "Flavors",
+        "date": "2018-04-03",
+        "notes": "",
+        "milestone": 13,
+        "metrics": {
+            "coverage": {
+                "statements": {
+                    "total": 100,
+                    "ignored": 0.48
+                },
+                "functions": {
+                    "total": 100,
+                    "ignored": 0.96
+                },
+                "branches": {
+                    "total": 100,
+                    "ignored": 0.91
+                }
+            },
+            "maintainability": 81.75,
+            "lines": {
+                "total": 10272,
+                "average": 96
+            },
+            "tests": 791,
+            "sources": 106
+        }
     }
 ]

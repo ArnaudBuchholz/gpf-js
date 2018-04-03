@@ -1,5 +1,6 @@
 /**
  * @file Mappable stream
+ * @since 0.2.5
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -15,6 +16,7 @@
  *
  * @param {*} data Data to map
  * @return {*} Mapped data (might be the received parameter)
+ * @since 0.2.5
  */
 
 var
@@ -31,6 +33,7 @@ var
          * @implements {gpf.interfaces.IReadableStream}
          * @implements {gpf.interfaces.IWritableStream}
          * @implements {gpf.interfaces.IFlushableStream}
+         * @since 0.2.5
          */
         constructor: function (map) {
             this._map = map;
