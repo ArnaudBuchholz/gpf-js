@@ -176,8 +176,9 @@ inquirer.prompt(setupQuestions)
     .then(() => spawnGit(["status", "--porcelain"])
         .then(output => output.length ? error("Process any pending changes first") : 0)
     )
+    .then(() => console.log("Cloning publication repository..."))
     .then(() => spawnGrunt("clean:publish"))
-    .then(() => spawnGit(["clone", publicationGit, publicationRepo]))
+    .then(() => spawnGit(["clone", publicationGit, publicationRepo, "-q"]))
     .then(() => {
         if (pkgVersion !== version) {
             console.log("Updating package.json version...");
