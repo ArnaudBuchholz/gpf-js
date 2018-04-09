@@ -252,6 +252,10 @@ if ("undefined" !== typeof WScript) {
 
     /*#ifndef(UMD)*/
 
+    if (document.currentScript) {
+        window.gpfSourcesPath = document.currentScript.getAttribute("data-sources-path");
+    }
+
     _gpfSyncReadForBoot = function (srcFileName) {
         var xhr = new XMLHttpRequest();
         xhr.open("GET", srcFileName, false);
