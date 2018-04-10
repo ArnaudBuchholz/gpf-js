@@ -317,11 +317,19 @@
     "interfaces/flushablestream": [
         "interfaces"
     ],
-    "require/load": [
+    "require/browser": [
         "http/helpers",
-        "fs",
         "http",
-        "path"
+        "require/host"
+    ],
+    "require/others": [
+        "fs",
+        "path",
+        "require/host"
+    ],
+    "require/load": [
+        "path",
+        "require/host"
     ],
     "require/wrap": [
         "path",
@@ -335,6 +343,7 @@
         "constants",
         "regexp",
         "require/load",
+        "require/host",
         "require/wrap"
     ],
     "require": [
