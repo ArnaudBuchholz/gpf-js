@@ -4,13 +4,9 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HOST*/ // Host types
-/*global _GPF_HTTP_METHODS*/ // HTTP Methods
-/*global _gpfFsRead*/ // Generic read method
 /*global _gpfHost*/ // Host type
-/*global _gpfHttpRequest*/ // HTTP request common implementation
 /*global _gpfPathExtension*/ // Get the extension of the last name of a path (including dot)
-/*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
+/*global _gpfRequireLoadByHost*/ // Host specific loading procedure
 /*exported _gpfRequireLoad*/ // Load the resource
 /*exported _gpfRequireProcessor*/ // Mapping of resource extension to processor function
 /*#endif*/
@@ -19,27 +15,7 @@
 /*jshint -W040*/
 /*eslint-disable no-invalid-this*/
 
-var _gpfRequireLoadImpl;
-
-function _gpfRequireLoadHTTP (name) {
-    return _gpfHttpRequest({
-        method: _GPF_HTTP_METHODS.GET,
-        url: name
-    }).then(function (response) {
-        return response.responseText;
-    });
-}
-
-function _gpfRequireLoadFS (name) {
-    // Must be relative to the current execution path
-    return _gpfFsRead(_gpfPathJoin(".", name));
-}
-
-if (_gpfHost === _GPF_HOST.BROWSER) {
-    _gpfRequireLoadImpl = _gpfRequireLoadHTTP;
-} else {
-    _gpfRequireLoadImpl = _gpfRequireLoadFS;
-}
+var _gpfRequireLoadImpl = _gpfRequireLoadByHost[_gpfHost];
 
 /**
  * Mapping of resource extension to processor function
@@ -68,4 +44,3 @@ function _gpfRequireLoad (name) {
             return content;
         });
 }
-
