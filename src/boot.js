@@ -252,7 +252,7 @@ if ("undefined" !== typeof WScript) {
 
     /*#ifndef(UMD)*/
 
-    if (document.currentScript) {
+    if (document.currentScript && !window.gpfSourcesPath) {
         window.gpfSourcesPath = document.currentScript.getAttribute("data-sources-path");
     }
 
