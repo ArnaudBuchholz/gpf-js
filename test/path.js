@@ -61,6 +61,18 @@ describe("path", function () {
                 assert(exceptionCaught instanceof gpf.Error.UnreachablePath);
             });
 
+            it("restarts on root path", function () {
+                assert(join("abc/def", "/ghi") === "/ghi");
+            });
+
+            it("restarts on root path (last)", function () {
+                assert(join("abc", "def", "/ghi") === "/ghi");
+            });
+
+            it("restarts on root path (middle)", function () {
+                assert(join("abc", "/def", "ghi") === "/def/ghi");
+            });
+
         });
 
         describe("gpf.path.parent (" + separator + ")", function () {
