@@ -4,13 +4,13 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HOST*/ // Host types
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfHost*/ // Host type
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfRegExpForEach*/ // Executes the callback for each match of the regular expression
 /*global _gpfRequireProcessor*/ // Mapping of resource extension to processor function
+/*global _gpfRequireSourceMapByHost*/ // Host specific source mapping procedure
 /*global _gpfRequireWrapGpf*/ // Wrap gpf to fit the new context and give access to gpf.require.define promise
 /*#endif*/
 
@@ -118,25 +118,14 @@ function _gpfRequireJS (myGpf, content, staticDependencies) {
     return module.exports;
 }
 
-function _gpfRequireJSMapSource (resourceName, content) {
-    /*global location*/
-    if (_gpfHost === _GPF_HOST.BROWSER) {
-        var baseUrl;
-        if ("/" === resourceName.charAt(0)) {
-            baseUrl = location.origin;
-        } else {
-            baseUrl = location.toString();
-        }
-        return "//# sourceURL=" + baseUrl + resourceName + "?eval\n" + content;
-    }
-    return content;
-}
+var _gpfRequireSourceMapImpl = _gpfRequireSourceMapByHost[_gpfHost];
 
 _gpfRequireProcessor[".js"] = function (resourceName, content) {
     var wrapper = _gpfRequireWrapGpf(this, resourceName);
     return _gpfRequireJSGetStaticDependencies.call(this, resourceName, content)
         .then(function (staticDependencies) {
-            var exports = _gpfRequireJS(wrapper.gpf, _gpfRequireJSMapSource(resourceName, content), staticDependencies);
+            var exports = _gpfRequireJS(wrapper.gpf, _gpfRequireSourceMapImpl(resourceName, content),
+                staticDependencies);
             if (undefined === exports) {
                 return wrapper.promise;
             }
