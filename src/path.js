@@ -5,6 +5,8 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfArrayForEach*/
+/*global _gpfEmptyFunc*/
 /*exported _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*exported _gpfPathExtension*/ // Get the extension of the last name of a path (including dot)
 /*exported _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
@@ -113,10 +115,26 @@ function _gpfPathExtension (path) {
     return name.substr(pos);
 }
 
+var _gpfPathAppendPatterns = {
+
+    "": function (splitPath) {
+        splitPath.length = 0;
+        splitPath.push(""); // Will start with /
+    },
+
+    ".": _gpfEmptyFunc,
+
+    "..": function (splitPath) {
+        _gpfPathUp(splitPath);
+    }
+
+};
+
 function _gpfPathAppend (splitPath, relativePath) {
-    _gpfPathDecompose(relativePath).forEach(function (relativeItem) {
-        if (".." === relativeItem) {
-            _gpfPathUp(splitPath);
+    _gpfArrayForEach(_gpfPathDecompose(relativePath), function (relativeItem) {
+        var pattern = _gpfPathAppendPatterns[relativeItem];
+        if (pattern) {
+            pattern(splitPath);
         } else {
             splitPath.push(relativeItem);
         }
