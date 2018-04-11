@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfHost*/ // Host type
 /*exported _gpfRead*/ // Generic read method
 /*exported _gpfReadImplByHost*/ // gpf.read per host
 /*#endif*/
@@ -27,8 +28,11 @@ function _gpfRead (path) {
     return _gpfReadImplByHost[_gpfHost](path);
 }
 
-/** @gpf:sameas _gpfRead */
-gpf.read = _gpfFsRead;
+/**
+ * @gpf:sameas _gpfRead
+ * @since 0.2.6
+ */
+gpf.read = _gpfRead;
 
 if (gpf.fs) {
 
@@ -37,6 +41,6 @@ if (gpf.fs) {
      * @since 0.2.2
      * @deprecated since version 0.2.6, use {@link gpf.read} instead
      */
-    gpf.fs.read = _gpfFsRead;
+    gpf.fs.read = _gpfRead;
 
 }
