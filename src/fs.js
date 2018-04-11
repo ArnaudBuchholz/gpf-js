@@ -4,15 +4,11 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GpfStreamWritableString*/ // gpf.stream.WritableString
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfHost*/ // Host type
 /*exported _GPF_FS_OPENFOR*/ // File system stream opening mode
 /*exported _GPF_FS_TYPES*/ // File system types constants
 /*exported _gpfFileStorageByHost*/ // gpf.interfaces.IFileStorage per host
-/*exported _gpfFileStorageRead*/ // Generic read method using FileStorage
-/*exported _gpfFsRead*/ // Generic read method
-/*exported _gpfFsReadImplByHost*/ // gpf.fs.read per host
 /*#endif*/
 
 _gpfErrorDeclare("fs", {
@@ -60,46 +56,7 @@ var
      * @type {Object}
      * @since 0.2.1
      */
-    _gpfFileStorageByHost = {},
-
-    /**
-     * {@see gpf.fs.read} per host
-     *
-     * @type {Object}
-     * @since 0.2.2
-     */
-    _gpfFsReadImplByHost = {};
-
-/**
- * Generic read method using FileStorage
- *
- * @param {String} path File path
- * @return {Promise<String>} Resolved with the file content
- * @since 0.2.2
- */
-function _gpfFileStorageRead (path) {
-    var fs = _gpfFileStorageByHost[_gpfHost],
-        iWritableStream = new _GpfStreamWritableString();
-    return fs.openTextStream(path, _GPF_FS_OPENFOR.READING)
-        .then(function (iReadStream) {
-            return iReadStream.read(iWritableStream);
-        })
-        .then(function () {
-            return iWritableStream.toString();
-        });
-}
-
-/**
- * Generic read method
- *
- * @param {String} path File path
- * @return {Promise<String>} Resolved with the file content
- * @since 0.2.2
- */
-
-function _gpfFsRead (path) {
-    return _gpfFsReadImplByHost[_gpfHost](path);
-}
+    _gpfFileStorageByHost = {};
 
 /**
  * @namespace gpf.fs
@@ -172,12 +129,6 @@ gpf.fs = {
      */
     getFileStorage: function () {
         return _gpfFileStorageByHost[_gpfHost] || null;
-    },
-
-    /**
-     * @gpf:sameas _gpfFsRead
-     * @since 0.2.2
-     */
-    read: _gpfFsRead
+    }
 
 };
