@@ -208,10 +208,10 @@
         "stream"
     ],
     "fs": [
-        "stream/string",
         "error"
     ],
     "path": [
+        "foreach",
         "error"
     ],
     "stream/nodejs": [
@@ -236,15 +236,6 @@
         "error",
         "fs/explore",
         "path"
-    ],
-    "fs/browser": [
-        "fs"
-    ],
-    "fs/rhino": [
-        "fs"
-    ],
-    "fs/phantomjs": [
-        "fs"
     ],
     "web/tag": [
         "define",
@@ -292,11 +283,6 @@
         "define",
         "stream"
     ],
-    "fs/nashorn": [
-        "stream/java",
-        "stream/string",
-        "fs"
-    ],
     "http/java": [
         "stream/java",
         "foreach",
@@ -317,14 +303,35 @@
     "interfaces/flushablestream": [
         "interfaces"
     ],
+    "read/browser": [
+        "http/helpers",
+        "http",
+        "read"
+    ],
+    "read/nashorn": [
+        "stream/java",
+        "stream/string",
+        "read"
+    ],
+    "read/nodejs": [
+        "read"
+    ],
+    "read/phantomjs": [
+        "read"
+    ],
+    "read/rhino": [
+        "read"
+    ],
+    "read/wscript": [
+        "read"
+    ],
     "require/browser": [
         "http/helpers",
         "http",
         "require/host"
     ],
     "require/others": [
-        "fs",
-        "path",
+        "read",
         "require/host"
     ],
     "require/load": [
