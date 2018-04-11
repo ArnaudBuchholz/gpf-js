@@ -294,21 +294,6 @@
         "tags": "host:wscript fs"
     },
     {
-        "name": "fs/browser",
-        "test": false,
-        "tags": "host:browser fs"
-    },
-    {
-        "name": "fs/rhino",
-        "test": false,
-        "tags": "host:java stream"
-    },
-    {
-        "name": "fs/phantomjs",
-        "test": false,
-        "tags": "host:phantomjs stream"
-    },
-    {
         "name": "literal"
     },
     {
@@ -355,11 +340,6 @@
         "tags": "host:java stream"
     },
     {
-        "name": "fs/nashorn",
-        "test": false,
-        "tags": "host:java js"
-    },
-    {
         "name": "http/java",
         "test": false,
         "tags": "host:java http"
@@ -374,6 +354,40 @@
         "name": "interfaces/flushablestream",
         "test": false,
         "tags": "interface stream"
+    },
+    {
+        "name": "read",
+        "tags": "read"
+    },
+    {
+        "name": "read/browser",
+        "test": false,
+        "tags": "host:browser read"
+    },
+    {
+        "name": "read/nashorn",
+        "test": false,
+        "tags": "host:java read"
+    },
+    {
+        "name": "read/nodejs",
+        "test": false,
+        "tags": "host:nodejs read"
+    },
+    {
+        "name": "read/phantomjs",
+        "test": false,
+        "tags": "host:phantomjs read"
+    },
+    {
+        "name": "read/rhino",
+        "test": false,
+        "tags": "host:java read"
+    },
+    {
+        "name": "read/wscript",
+        "test": false,
+        "tags": "host:wscript read"
     },
     {
         "name": "require/host",
