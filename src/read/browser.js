@@ -1,9 +1,10 @@
 /**
  * @file Browser read implementation
+ * @since 0.2.6
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HOST*/
+/*global _GPF_HOST*/ // Host types
 /*global _GPF_HTTP_METHODS*/ // HTTP Methods
 /*global _gpfHttpRequest*/ // HTTP request common implementation
 /*global _gpfReadImplByHost*/ // gpf.read per host
@@ -14,6 +15,9 @@ _gpfReadImplByHost[_GPF_HOST.BROWSER] = function _gpfReadHttp (path) {
         method: _GPF_HTTP_METHODS.GET,
         url: path
     }).then(function (response) {
+        if (2 !== Math.floor(response.status / 100)) {
+            throw new Error(response.responseText);
+        }
         return response.responseText;
     });
 };
