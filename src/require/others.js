@@ -5,15 +5,20 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
-/*global _gpfFsRead*/ // Generic read method
-/*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
+/*global _gpfRead*/ // Generic read method
 /*global _gpfRequireLoadByHost*/ // Host specific loading procedure
 /*global _gpfRequireSourceMapByHost*/ // Host specific source mapping procedure
 /*#endif*/
 
 function _gpfRequireLoadFS (name) {
     // Must be relative to the current execution path
-    return _gpfFsRead(_gpfPathJoin(".", name));
+    var path;
+    if (name.charAt(0) === "/") {
+        path = "." + name;
+    } else {
+        path = "./" + name;
+    }
+    return _gpfRead(path);
 }
 
 function _gpfRequireSourceMapNone (name, content) {
