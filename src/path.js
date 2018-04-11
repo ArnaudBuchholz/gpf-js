@@ -4,9 +4,9 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
+/*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfArrayForEach*/
-/*global _gpfEmptyFunc*/
 /*exported _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*exported _gpfPathExtension*/ // Get the extension of the last name of a path (including dot)
 /*exported _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
