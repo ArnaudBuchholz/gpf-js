@@ -12,9 +12,7 @@
 /*global _GpfNodeWritableStream*/ // gpf.node.WritableStream
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfFileStorageByHost*/ // gpf.interfaces.IFileStorage per host
-/*global _gpfFileStorageRead*/ // Generic read method using FileStorage
 /*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
-/*global _gpfFsReadImplByHost*/ // gpf.fs.read per host
 /*global _gpfNodeFs*/ // Node/PhantomJS require("fs")
 /*global _gpfNodePath*/ // Node require("path")
 /*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
@@ -214,7 +212,6 @@ var _GpfNodeFileStorage = _gpfDefine({
 });
 
 _gpfFileStorageByHost[_GPF_HOST.NODEJS] = new _GpfNodeFileStorage();
-_gpfFsReadImplByHost[_GPF_HOST.NODEJS] = _gpfFileStorageRead;
 
 /*#ifndef(UMD)*/
 
