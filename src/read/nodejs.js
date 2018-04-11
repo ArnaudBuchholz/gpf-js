@@ -1,5 +1,6 @@
 /**
  * @file NodeJS read implementation
+ * @since 0.2.6
  */
 /*#ifndef(UMD)*/
 "use strict";
