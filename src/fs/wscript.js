@@ -14,9 +14,7 @@
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFileStorageByHost*/ // gpf.interfaces.IFileStorage per host
-/*global _gpfFileStorageRead*/ // Generic read method using FileStorage
 /*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
-/*global _gpfFsReadImplByHost*/ // gpf.fs.read per host
 /*global _gpfMsFSO*/ // Scripting.FileSystemObject activeX
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*global _gpfPathNormalize*/ // Normalize path
@@ -195,4 +193,3 @@ var _GpfWScriptFileStorage = _gpfDefine({
 });
 
 _gpfFileStorageByHost[_GPF_HOST.WSCRIPT] = new _GpfWScriptFileStorage();
-_gpfFsReadImplByHost[_GPF_HOST.WSCRIPT] = _gpfFileStorageRead;
