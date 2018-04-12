@@ -326,17 +326,15 @@
         "read"
     ],
     "require/browser": [
-        "http/helpers",
-        "http",
+        "path",
         "require/host"
     ],
     "require/others": [
-        "read",
         "require/host"
     ],
     "require/load": [
         "path",
-        "require/host"
+        "read"
     ],
     "require/wrap": [
         "path",
