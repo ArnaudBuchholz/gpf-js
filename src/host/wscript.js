@@ -5,10 +5,10 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
-/*global _gpfBootImplByHost*/ // Boot host specific implementation per host
 /*global _gpfConsoleGenerate*/ // Generate an object that can be used to simulate console methods
 /*global _gpfDosPath:true*/ // DOS-like path
 /*global _gpfExit:true*/ // Exit function
+/*global _gpfHost*/ // Host type
 /*global _gpfMainContext*/ // Main context object
 /*global _gpfMsFSO:true*/ // Scripting.FileSystemObject activeX
 /*#endif*/
@@ -29,7 +29,7 @@ function _gpfWScriptEcho (text) {
     WScript.Echo(text);
 }
 
-_gpfBootImplByHost[_GPF_HOST.WSCRIPT] = function () {
+if (_GPF_HOST.WSCRIPT === _gpfHost) {
 
     _gpfDosPath = true;
 
@@ -43,4 +43,4 @@ _gpfBootImplByHost[_GPF_HOST.WSCRIPT] = function () {
         WScript.Quit(code);
     };
 
-};
+}
