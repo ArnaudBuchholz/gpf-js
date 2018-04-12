@@ -43,10 +43,6 @@
         "tags": "host:java"
     },
     {
-        "name": "host/unknown",
-        "test": false
-    },
-    {
         "name": "host/wscript",
         "test": false,
         "tags": "host:wscript"
