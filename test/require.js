@@ -5,11 +5,17 @@ describe("require", function () {
     var basePath;
 
     before(function () {
-        if (0 === config.httpPort) {
-            // published version
-            basePath = "/gpf/test-resources/require";
+        if (gpf.host() === gpf.hosts.browser) {
+            if (0 === config.httpPort) {
+                // published version
+                basePath = "/gpf/test-resources/require";
+            } else {
+                // local version
+                basePath = "/test/require";
+            }
         } else {
-            basePath = "/test/require";
+            // Execution path is always the root folder of the project
+            basePath = "test/require";
         }
         gpf.require.configure({
             base: basePath
