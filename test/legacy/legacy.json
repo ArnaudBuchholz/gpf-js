@@ -54,4 +54,10 @@
     "ignore": [{
         "describe": "IReadableStream -> IReadableStream/IWritableStream* -> IWritableStream"
     }]
+}, {
+    "issue": 254,
+    "before": "0.2.6",
+    "ignore": [{
+        "describe": "require"
+    }]
 }]
