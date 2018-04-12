@@ -4,9 +4,8 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfHost*/ // Host type
 /*global _gpfPathExtension*/ // Get the extension of the last name of a path (including dot)
-/*global _gpfRequireLoadByHost*/ // Host specific loading procedure
+/*global _gpfRead*/ // Generic read method
 /*exported _gpfRequireLoad*/ // Load the resource
 /*exported _gpfRequireProcessor*/ // Mapping of resource extension to processor function
 /*#endif*/
@@ -14,8 +13,6 @@
 /* this is globally used as the current context in this module */
 /*jshint -W040*/
 /*eslint-disable no-invalid-this*/
-
-var _gpfRequireLoadImpl = _gpfRequireLoadByHost[_gpfHost];
 
 /**
  * Mapping of resource extension to processor function
@@ -34,7 +31,7 @@ var _gpfRequireProcessor = {};
  */
 function _gpfRequireLoad (name) {
     var me = this;
-    return _gpfRequireLoadImpl(name)
+    return _gpfRead(name)
         .then(function (content) {
             var processor = _gpfRequireProcessor[_gpfPathExtension(name).toLowerCase()];
             if (processor) {
