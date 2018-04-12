@@ -223,6 +223,7 @@
         "stream/nodejs",
         "define",
         "fs/explore",
+        "host/nodejs",
         "path"
     ],
     "stream/wscript": [
