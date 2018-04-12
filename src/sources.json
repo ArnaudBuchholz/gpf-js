@@ -5,6 +5,11 @@
         "tags": "core"
     },
     {
+        "name": "version",
+        "test": false,
+        "tags": "core"
+    },
+    {
         "name": "console"
     },
     {
