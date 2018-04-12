@@ -15,7 +15,6 @@
 /*exported _gpfMainContext*/ // Main context object
 /*exported _gpfMsFSO*/ // Scripting.FileSystemObject activeX
 /*exported _gpfNodeFs*/ // Node/PhantomJS require("fs")
-/*exported _gpfNodePath*/ // Node require("path")
 /*exported _gpfSyncReadSourceJSON*/ // Reads a source json file (only in source mode)
 /*exported _gpfVersion*/ // GPF version
 /*exported _gpfWebDocument*/ // Browser document object
@@ -126,14 +125,6 @@ var
     _gpfNodeFs,
 
     /**
-     * Node [require("path")](https://nodejs.org/api/path.html)
-     *
-     * @type {Object}
-     * @since 0.1.5
-     */
-    _gpfNodePath,
-
-    /**
      * Boot host specific implementation per host
      *
      * @type {Object}
@@ -167,7 +158,6 @@ var _gpfSyncReadForBoot;
 // Microsoft cscript / wscript
 if ("undefined" !== typeof WScript) {
     _gpfHost = _GPF_HOST.WSCRIPT;
-    _gpfDosPath = true;
 
     /*#ifndef(UMD)*/
     /*eslint-disable new-cap*/
@@ -185,7 +175,6 @@ if ("undefined" !== typeof WScript) {
     /*#endif*/
 
 } else if ("undefined" !== typeof print && "undefined" !== typeof java) {
-    _gpfDosPath = String(java.lang.System.getProperty("file.separator")) === "\\";
 
     if ("undefined" === typeof readFile) {
         _gpfHost = _GPF_HOST.NASHORN;
@@ -212,7 +201,6 @@ if ("undefined" !== typeof WScript) {
 // PhantomJS - When used as a command line (otherwise considered as a browser)
 } else if ("undefined" !== typeof phantom && phantom.version && !document.currentScript) {
     _gpfHost = _GPF_HOST.PHANTOMJS;
-    _gpfDosPath = require("fs").separator === "\\";
     _gpfMainContext = window;
 
     /*#ifndef(UMD)*/
@@ -228,8 +216,6 @@ if ("undefined" !== typeof WScript) {
 // Nodejs
 } else if ("undefined" !== typeof module && module.exports) {
     _gpfHost = _GPF_HOST.NODEJS;
-    _gpfNodePath = require("path");
-    _gpfDosPath = _gpfNodePath.sep === "\\";
     _gpfMainContext = global;
 
     /*#ifndef(UMD)*/
@@ -246,7 +232,6 @@ if ("undefined" !== typeof WScript) {
 // Browser
 /* istanbul ignore else */ // unknown.1
 } else if ("undefined" !== typeof window) {
-
     _gpfHost = _GPF_HOST.BROWSER;
     _gpfMainContext = window;
 
@@ -329,61 +314,6 @@ eval(_gpfLoadSources()); //eslint-disable-line no-eval
 /*jshint ignore:end*/
 
 /*#endif*/
-
-/**
- * Host type enumeration
- *
- * @enum {String}
- * @readonly
- * @since 0.1.5
- */
-gpf.hosts = {
-    /**
-     * Any browser (phantomjs is recognized separately)
-     * @since 0.1.5
-     */
-    browser: _GPF_HOST.BROWSER,
-    /**
-     * [Nashorn](https://en.wikipedia.org/wiki/Nashorn_%28JavaScript_engine%29)
-     * @since 0.2.4
-     */
-    nashorn: _GPF_HOST.NASHORN,
-    /**
-     * [NodeJs](http://nodejs.org/)
-     * @since 0.1.5
-     */
-    nodejs: _GPF_HOST.NODEJS,
-    /**
-     * [PhantomJS](http://phantomjs.org/)
-     * @since 0.1.5
-     */
-    phantomjs: _GPF_HOST.PHANTOMJS,
-    /**
-     * [Rhino](http://developer.mozilla.org/en/docs/Rhino)
-     * @since 0.1.5
-     */
-    rhino: _GPF_HOST.RHINO,
-    /**
-     * Unknown (detection failed or the host is unknown)
-     * @since 0.1.5
-     */
-    unknown: _GPF_HOST.UNKNOWN,
-    /**
-     * [cscript/wscript](http://technet.microsoft.com/en-us/library/bb490887.aspx)
-     * @since 0.1.5
-     */
-    wscript: _GPF_HOST.WSCRIPT
-};
-
-/**
- * Returns the detected host type
- *
- * @return {gpf.hosts} Host type
- * @since 0.1.5
- */
-gpf.host = function () {
-    return _gpfHost;
-};
 
 /**
  * Returns the current version
