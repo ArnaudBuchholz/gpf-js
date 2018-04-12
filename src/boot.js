@@ -286,6 +286,12 @@ function _gpfSyncReadSourceJSON (sourceFileName) {
     return result;
 }
 
+function _gpfProcessSource (source, allContent) {
+    if (source.load !== false) {
+        allContent.push(_gpfSyncReadForBoot(gpfSourcesPath + source.name + ".js"));
+    }
+}
+
 /**
  * Load content of all sources
  *
@@ -293,18 +299,12 @@ function _gpfSyncReadSourceJSON (sourceFileName) {
  * @since 0.1.9
  */
 function _gpfLoadSources () { //jshint ignore:line
-    /*jslint evil: true*/
     var sourceListContent = _gpfSyncReadForBoot(gpfSourcesPath + "sources.json"),
-        _gpfSources,
+        _gpfSources = _GpfFunc("return " + sourceListContent)(),
         allContent = [],
-        idx = 0,
-        source;
-    eval("_gpfSources = " + sourceListContent + ";"); //eslint-disable-line no-eval
+        idx = 0;
     for (; idx < _gpfSources.length; ++idx) {
-        source = _gpfSources[idx];
-        if (source.load !== false) {
-            allContent.push(_gpfSyncReadForBoot(gpfSourcesPath + source.name + ".js"));
-        }
+        _gpfProcessSource(_gpfSources[idx], allContent);
     }
     return allContent.join("\n");
 }
@@ -314,13 +314,3 @@ eval(_gpfLoadSources()); //eslint-disable-line no-eval
 /*jshint ignore:end*/
 
 /*#endif*/
-
-/**
- * Returns the current version
- *
- * @return {String} Version
- * @since 0.1.5
- */
-gpf.version = function () {
-    return _gpfVersion;
-};
