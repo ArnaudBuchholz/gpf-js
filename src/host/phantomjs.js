@@ -6,6 +6,7 @@
 "use strict";
 /*global _GPF_HOST*/ // Host types
 /*global _gpfBootImplByHost*/ // Boot host specific implementation per host
+/*global _gpfDosPath:true*/ // DOS-like path
 /*global _gpfExit:true*/ // Exit function
 /*global _gpfNodeFs:true*/ // Node/PhantomJS require("fs")
 /*global _gpfWebDocument:true*/ // Browser document object
@@ -17,6 +18,8 @@
 /*eslint-env phantomjs, browser*/
 
 _gpfBootImplByHost[_GPF_HOST.PHANTOMJS] = function () {
+
+    _gpfDosPath = require("fs").separator === "\\";
 
     /* istanbul ignore next */ // exit.1
     _gpfExit = function (code) {
