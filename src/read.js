@@ -34,6 +34,7 @@ function _gpfRead (path) {
  */
 gpf.read = _gpfRead;
 
+/* istanbul ignore else */ // flavor.1
 if (gpf.fs) {
 
     /**
