@@ -6,7 +6,6 @@
 "use strict";
 /*exported _GPF_HOST*/ // Host types
 /*exported _GpfFunc*/ // Function
-/*exported _gpfBootImplByHost*/ // Boot host specific implementation per host
 /*exported _gpfDosPath*/ // DOS-like path
 /*exported _gpfEmptyFunc*/ // An empty function
 /*exported _gpfExit*/ // Exit function
@@ -122,15 +121,7 @@ var
      * @type {Object}
      * @since 0.1.5
      */
-    _gpfNodeFs,
-
-    /**
-     * Boot host specific implementation per host
-     *
-     * @type {Object}
-     * @since 0.2.1
-     */
-    _gpfBootImplByHost = {};
+    _gpfNodeFs;
 
 /*#ifdef(DEBUG)*/
 
