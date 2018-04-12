@@ -5,9 +5,9 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
-/*global _gpfBootImplByHost*/ // Boot host specific implementation per host
 /*global _gpfDosPath:true*/ // DOS-like path
 /*global _gpfExit:true*/ // Exit function
+/*global _gpfHost*/ // Host type
 /*global _gpfNodeFs:true*/ // Node/PhantomJS require("fs")
 /*exported _gpfNodeHttp*/ // Node require("http")
 /*exported _gpfNodeHttps*/ // Node require("https")
@@ -58,7 +58,7 @@ var
  */
 gpf.node = {};
 
-_gpfBootImplByHost[_GPF_HOST.NODEJS] = function () {
+if (_GPF_HOST.NODEJS === _gpfHost) {
 
     _gpfNodePath = require("path");
     _gpfNodeFs = require("fs");
@@ -73,4 +73,4 @@ _gpfBootImplByHost[_GPF_HOST.NODEJS] = function () {
         process.exit(code);
     };
 
-};
+}
