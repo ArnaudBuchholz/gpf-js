@@ -1,23 +1,46 @@
 {
+    "boot": [],
+    "host/browser": [
+        "boot"
+    ],
+    "host/nodejs": [
+        "boot"
+    ],
+    "host/phantomjs": [
+        "boot"
+    ],
     "host/java": [
-        "console"
+        "console",
+        "boot"
     ],
     "host/rhino": [
+        "boot",
         "host/java"
     ],
     "host/nashorn": [
+        "boot",
         "host/java"
     ],
+    "host/unknown": [
+        "boot"
+    ],
     "host/wscript": [
+        "boot",
         "console"
     ],
+    "host": [
+        "boot"
+    ],
     "foreach": [
+        "boot",
         "arraylike"
     ],
     "assert": [
+        "boot",
         "foreach"
     ],
     "constants": [
+        "boot",
         "assert"
     ],
     "string/replaceex": [
@@ -28,12 +51,15 @@
         "string/replaceex"
     ],
     "string/escape/javascript": [
-        "string/escapefor"
+        "string/escapefor",
+        "boot"
     ],
     "string/escape/xml": [
-        "string/escapefor"
+        "string/escapefor",
+        "boot"
     ],
     "compatibility": [
+        "boot",
         "foreach"
     ],
     "compatibility/array": [
@@ -47,15 +73,18 @@
     "compatibility/date": [
         "foreach",
         "compatibility",
+        "boot",
         "factory"
     ],
     "compatibility/function": [
         "factory",
         "compatibility",
+        "boot",
         "constants"
     ],
     "compatibility/object": [
         "compatibility",
+        "boot",
         "foreach"
     ],
     "compatibility/string": [
@@ -63,9 +92,11 @@
     ],
     "compatibility/promise": [
         "assert",
-        "compatibility"
+        "compatibility",
+        "boot"
     ],
     "compatibility/timeout": [
+        "boot",
         "assert",
         "compatibility"
     ],
@@ -75,6 +106,7 @@
     ],
     "compatibility/json/stringify": [
         "foreach",
+        "boot",
         "arraylike",
         "string/escapefor"
     ],
@@ -83,15 +115,21 @@
         "compatibility/json/parse",
         "compatibility/json/stringify"
     ],
+    "context": [
+        "boot"
+    ],
     "string/escape/html": [
-        "string/escapefor"
+        "string/escapefor",
+        "boot"
     ],
     "error": [
+        "boot",
         "foreach",
         "string/capitalize",
         "string/replaceex"
     ],
     "function": [
+        "boot",
         "constants",
         "string/trim"
     ],
@@ -112,12 +150,14 @@
         "abstract",
         "error",
         "constants",
+        "boot",
         "foreach"
     ],
     "define/build": [
         "define/entity",
         "foreach",
-        "context"
+        "context",
+        "boot"
     ],
     "define/class/class": [
         "define/entity",
@@ -128,10 +168,12 @@
         "define/entity",
         "context",
         "define/build",
+        "boot",
         "error"
     ],
     "define/class/constructor": [
         "define/class/class",
+        "boot",
         "error",
         "function"
     ],
@@ -176,7 +218,8 @@
         "foreach"
     ],
     "interfaces/unknown": [
-        "interfaces"
+        "interfaces",
+        "boot"
     ],
     "sort": [
         "constants",
@@ -186,16 +229,20 @@
         "constants"
     ],
     "interfaces/readablestream": [
-        "interfaces"
+        "interfaces",
+        "boot"
     ],
     "interfaces/writablestream": [
-        "interfaces"
+        "interfaces",
+        "boot"
     ],
     "interfaces/enumerator": [
-        "interfaces"
+        "interfaces",
+        "boot"
     ],
     "interfaces/filestorage": [
-        "interfaces"
+        "interfaces",
+        "boot"
     ],
     "stream": [
         "error",
@@ -208,18 +255,22 @@
         "stream"
     ],
     "fs": [
-        "error"
+        "error",
+        "boot"
     ],
     "path": [
         "foreach",
+        "boot",
         "error"
     ],
     "stream/nodejs": [
         "define",
+        "boot",
         "stream"
     ],
     "fs/nodejs": [
         "fs",
+        "boot",
         "stream/nodejs",
         "define",
         "fs/explore",
@@ -231,6 +282,7 @@
     ],
     "fs/wscript": [
         "fs",
+        "boot",
         "stream/wscript",
         "define",
         "error",
@@ -243,14 +295,16 @@
         "arraylike",
         "literal",
         "foreach",
-        "string/escapefor"
+        "string/escapefor",
+        "boot"
     ],
     "http/helpers": [
         "foreach",
         "regexp"
     ],
     "interfaces/thenable": [
-        "interfaces"
+        "interfaces",
+        "boot"
     ],
     "http/mock": [
         "http/helpers",
@@ -259,9 +313,11 @@
     ],
     "http": [
         "http/helpers",
+        "boot",
         "http/mock"
     ],
     "http/xhr": [
+        "boot",
         "http/helpers",
         "http"
     ],
@@ -270,12 +326,14 @@
         "stream"
     ],
     "http/nodejs": [
+        "boot",
         "stream/nodejs",
         "http",
         "host/nodejs",
         "string/fromStream"
     ],
     "http/wscript": [
+        "boot",
         "http/helpers",
         "http"
     ],
@@ -284,6 +342,7 @@
         "stream"
     ],
     "http/java": [
+        "boot",
         "stream/java",
         "foreach",
         "http/helpers",
@@ -292,6 +351,7 @@
     ],
     "stream/bufferedread": [
         "define",
+        "boot",
         "stream"
     ],
     "stream/line": [
@@ -301,35 +361,47 @@
         "stream"
     ],
     "interfaces/flushablestream": [
-        "interfaces"
+        "interfaces",
+        "boot"
+    ],
+    "read": [
+        "boot"
     ],
     "read/browser": [
+        "boot",
         "http/helpers",
         "http",
         "read"
     ],
     "read/nashorn": [
+        "boot",
         "stream/java",
         "stream/string",
         "read"
     ],
     "read/nodejs": [
+        "boot",
         "read"
     ],
     "read/phantomjs": [
+        "boot",
         "read"
     ],
     "read/rhino": [
+        "boot",
         "read"
     ],
     "read/wscript": [
+        "boot",
         "read"
     ],
     "require/browser": [
+        "boot",
         "path",
         "require/host"
     ],
     "require/others": [
+        "boot",
         "require/host"
     ],
     "require/load": [
@@ -346,6 +418,7 @@
     "require/javascript": [
         "error",
         "constants",
+        "boot",
         "regexp",
         "require/load",
         "require/host",
@@ -363,12 +436,14 @@
         "stream"
     ],
     "stream/pipe": [
+        "boot",
         "interfaces/flushablestream",
         "interfaces",
         "stream"
     ],
     "string/escape/regexp": [
-        "string/escapefor"
+        "string/escapefor",
+        "boot"
     ],
     "stream/csv/parser": [
         "stream/bufferedread",
@@ -376,6 +451,7 @@
         "assert",
         "define",
         "error",
+        "boot",
         "stream",
         "string/escapefor",
         "string/replaceex"
@@ -404,6 +480,7 @@
     "stream/operator": [
         "abstract",
         "define",
+        "boot",
         "stream"
     ],
     "stream/filter": [
