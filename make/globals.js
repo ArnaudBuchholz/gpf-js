@@ -3,9 +3,7 @@
 const
     fs = require("fs"),
     sources = JSON.parse(fs.readFileSync("./src/sources.json"))
-        .filter(source => source.load !== false)
         .map(source => source.name);
-sources.unshift("boot"); // Also include boot
 
 let
     rc = 0,
@@ -166,7 +164,9 @@ if (0 === rc) {
 }
 
 // Generates dependency graph
-let dependencies = {};
+let dependencies = {
+    boot: [] // No dependencies
+};
 sources.forEach(source => {
     let module = Module.byName[source],
         dependsOn;
@@ -174,7 +174,7 @@ sources.forEach(source => {
         dependsOn = [];
         module.imports.forEach(name => {
             let depOnModuleName = Module.byExport[name].name;
-            if ("boot" !== depOnModuleName && dependsOn.indexOf(depOnModuleName) === -1) {
+            if (dependsOn.indexOf(depOnModuleName) === -1) {
                 dependsOn.push(depOnModuleName);
             }
         });
