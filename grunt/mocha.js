@@ -1,43 +1,44 @@
 "use strict";
 
 // Test automation inside PhantomJS
-var webUrl = "http://localhost:" + configuration.serve.httpPort + "/test/host/mocha/web.html";
+
+const
+    webUrl = `http://localhost:${configuration.serve.httpPort}/test/host/mocha/web.html`,
+    common = {
+        growlOnSuccess: false,
+        run: false
+    };
 
 module.exports = {
     source: {
-        options: {
+        options: Object.assign({
             log: false,
-            run: false,
             urls: [webUrl]
-        }
+        }, common)
     },
     verbose: {
-        options: {
+        options: Object.assign({
             log: true,
-            run: false,
             reporter: "spec",
             urls: [webUrl]
-        }
+        }, common)
     },
     debug: {
-        options: {
+        options: Object.assign({
             log: false,
-            run: false,
             urls: [webUrl + "?debug"]
-        }
+        }, common)
     },
     release: {
-        options: {
+        options: Object.assign({
             log: false,
-            run: false,
             urls: [webUrl + "?release"]
-        }
+        }, common)
     },
     legacy:  {
-        options: {
+        options: Object.assign({
             log: false,
-            run: false,
             urls: [webUrl + "?version=<%= grunt.task.current.args[0] %>"]
-        }
+        }, common)
     }
 };
