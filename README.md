@@ -55,7 +55,6 @@ Lines of code|96|10272||
 
 * Clone repository
 * install [grunt](https://gruntjs.com/getting-started): `npm install -g grunt-cli`
-* install [growl](https://github.com/tj/node-growl#install)
 * at the root of the cloned repository: `npm install`, then `grunt`
 
 ## Testing
