@@ -396,15 +396,6 @@
         "boot",
         "read"
     ],
-    "require/browser": [
-        "boot",
-        "path",
-        "require/host"
-    ],
-    "require/others": [
-        "boot",
-        "require/host"
-    ],
     "require/load": [
         "path",
         "read"
@@ -417,12 +408,12 @@
         "require/load"
     ],
     "require/javascript": [
+        "boot",
         "error",
         "constants",
-        "boot",
+        "path",
         "regexp",
         "require/load",
-        "require/host",
         "require/wrap"
     ],
     "require": [
