@@ -1,5 +1,8 @@
 {
     "boot": [],
+    "version": [
+        "boot"
+    ],
     "host/browser": [
         "boot"
     ],
@@ -20,9 +23,6 @@
     "host/nashorn": [
         "boot",
         "host/java"
-    ],
-    "host/unknown": [
-        "boot"
     ],
     "host/wscript": [
         "boot",
