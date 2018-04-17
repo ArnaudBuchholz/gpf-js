@@ -7,13 +7,13 @@
 /*global _GPF_HOST*/ // Host types
 /*global _GpfStreamJavaReadable*/ // gpf.java.ReadableStream
 /*global _GpfStreamWritableString*/ // gpf.stream.WritableString
-/*global _gpfReadImplByHost*/ // gpf.read per host
+/*global _gpfReadSetImplIf*/ // Set the read implementation if the host matches
 /*#endif*/
 
 /*jshint rhino: true*/
 /*eslint-env rhino*/
 
-_gpfReadImplByHost[_GPF_HOST.NASHORN] = function (path) {
+function _gpfReadNashorn (path) {
     var javaPath = java.nio.file.Paths.get(path);
     if (java.nio.file.Files.exists(javaPath)) {
         return new Promise(function (resolve, reject) {
@@ -27,4 +27,6 @@ _gpfReadImplByHost[_GPF_HOST.NASHORN] = function (path) {
         });
     }
     return Promise.reject(new Error("File not found")); // To be improved
-};
+}
+
+_gpfReadSetImplIf(_GPF_HOST.NASHORN, _gpfReadNashorn);
