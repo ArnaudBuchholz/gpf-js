@@ -6,10 +6,10 @@
 "use strict";
 /*global _GPF_HOST*/ // Host types
 /*global _gpfNodeFs*/ // Node/PhantomJS require("fs")
-/*global _gpfReadImplByHost*/ // gpf.read per host
+/*global _gpfReadSetImplIf*/ // Set the read implementation if the host matches
 /*#endif*/
 
-_gpfReadImplByHost[_GPF_HOST.PHANTOMJS] = function (path) {
+function _gpfReadPhantomJS (path) {
     return new Promise(function (resolve, reject) {
         try {
             resolve(_gpfNodeFs.read(path));
@@ -18,4 +18,6 @@ _gpfReadImplByHost[_GPF_HOST.PHANTOMJS] = function (path) {
             reject(new Error(e));
         }
     });
-};
+}
+
+_gpfReadSetImplIf(_GPF_HOST.PHANTOMJS, _gpfReadPhantomJS);
