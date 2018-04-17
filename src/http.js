@@ -8,7 +8,7 @@
 /*global _gpfHost*/ // Host type
 /*global _gpfHttpMockCheck*/ // Check if the provided request match any of the mocked one
 /*exported _gpfHttpRequest*/ // HTTP request common implementation
-/*exported _gpfHttpRequestImplByHost*/ // HTTP Request Implementation per host
+/*exported _gpfHttpSetRequestImplIf*/ // Set the request implementation if the host matches
 /*#endif*/
 
 /**
@@ -42,7 +42,20 @@
  * @type {Object}
  * @since 0.2.1
  */
-var _gpfHttpRequestImplByHost = {};
+var _gpfHttpRequestImpl = {};
+
+/**
+ * Set the request implementation if the host matches
+ *
+ * @param {String} host host to test, if matching with the current one, an instance of the FileStorageClass is created
+ * @param {Function} httpRequestImpl http request implementation function
+ * @since 0.2.6
+ */
+function _gpfHttpSetRequestImplIf (host, httpRequestImpl) {
+    if (host === _gpfHost) {
+        _gpfHttpRequestImpl = httpRequestImpl;
+    }
+}
 
 /**
  * HTTP request common implementation
@@ -53,7 +66,7 @@ var _gpfHttpRequestImplByHost = {};
  */
 function _gpfHttpRequest (request) {
     return _gpfHttpMockCheck(request) || new Promise(function (resolve, reject) {
-        _gpfHttpRequestImplByHost[_gpfHost](request, resolve, reject);
+        _gpfHttpRequestImpl(request, resolve, reject);
     });
 }
 
