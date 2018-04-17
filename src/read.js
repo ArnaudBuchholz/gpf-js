@@ -6,7 +6,7 @@
 "use strict";
 /*global _gpfHost*/ // Host type
 /*exported _gpfRead*/ // Generic read method
-/*exported _gpfReadImplByHost*/ // gpf.read per host
+/*exported _gpfReadSetImplIf*/ // Set the read implementation if the host matches
 /*#endif*/
 
 /**
@@ -15,7 +15,20 @@
  * @type {Object}
  * @since 0.2.2
  */
-var _gpfReadImplByHost = {};
+var _gpfReadImpl = {};
+
+/**
+ * Set the read implementation if the host matches
+ *
+ * @param {String} host host to test, if matching with the current one, the read implementation is set
+ * @param {Function} readImpl read implementation function
+ * @since 0.2.6
+ */
+function _gpfReadSetImplIf (host, readImpl) {
+    if (host === _gpfHost) {
+        _gpfReadImpl = readImpl;
+    }
+}
 
 /**
  * Generic read method
@@ -25,7 +38,7 @@ var _gpfReadImplByHost = {};
  * @since 0.2.2
  */
 function _gpfRead (path) {
-    return _gpfReadImplByHost[_gpfHost](path);
+    return _gpfReadImpl(path);
 }
 
 /**
