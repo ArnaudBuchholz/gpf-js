@@ -9,7 +9,7 @@
 /*global _GpfStreamJavaWritable*/ // gpf.java.WritableStream
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfHttpGenSetHeaders*/ // Generates a function that transmit headers to the http object
-/*global _gpfHttpSetRequestImplIf*/ // Set the request implementation if the host matches
+/*global _gpfHttpSetRequestImplIf*/ // Set the http request implementation if the host matches
 /*global _gpfStringFromStream*/ // Read the stream
 /*#endif*/
 
