@@ -8,7 +8,7 @@
 /*global _gpfHttpGenSend*/ // Generates a function that implements the http send logic
 /*global _gpfHttpGenSetHeaders*/ // Generates a function that transmit headers to the http object
 /*global _gpfHttpParseHeaders*/ // Parse HTTP response headers
-/*global _gpfHttpSetRequestImplIf*/ // Set the request implementation if the host matches
+/*global _gpfHttpSetRequestImplIf*/ // Set the http request implementation if the host matches
 /*#endif*/
 
 /*jshint browser: true*/
