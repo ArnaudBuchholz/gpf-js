@@ -9,7 +9,7 @@
 /*global _GpfStreamJavaWritable*/ // gpf.java.WritableStream
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfHttpGenSetHeaders*/ // Generates a function that transmit headers to the http object
-/*global _gpfHttpRequestImplByHost*/ // HTTP Request Implementation per host
+/*global _gpfHttpSetRequestImplIf*/ // Set the request implementation if the host matches
 /*global _gpfStringFromStream*/ // Read the stream
 /*#endif*/
 
@@ -79,5 +79,5 @@ function _gpfHttpJavaRequestImpl (request, resolve) {
 
 }
 
-_gpfHttpRequestImplByHost[_GPF_HOST.RHINO] = _gpfHttpJavaRequestImpl;
-_gpfHttpRequestImplByHost[_GPF_HOST.NASHORN] = _gpfHttpJavaRequestImpl;
+_gpfHttpSetRequestImplIf(_GPF_HOST.RHINO, _gpfHttpJavaRequestImpl);
+_gpfHttpSetRequestImplIf(_GPF_HOST.NASHORN, _gpfHttpJavaRequestImpl);
