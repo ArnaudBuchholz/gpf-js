@@ -13,8 +13,8 @@
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfFsSetFileStorageIf*/
 /*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
+/*global _gpfFsSetFileStorageIf*/ // Set the file storage implementation if the host matches
 /*global _gpfMsFSO*/ // Scripting.FileSystemObject activeX
 /*global _gpfPathDecompose*/ // Normalize path and returns an array of parts
 /*global _gpfPathNormalize*/ // Normalize path
