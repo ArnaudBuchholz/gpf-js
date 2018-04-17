@@ -11,8 +11,8 @@
 /*global _GpfNodeReadableStream*/ // gpf.node.ReadableStream
 /*global _GpfNodeWritableStream*/ // gpf.node.WritableStream
 /*global _gpfDefine*/ // Shortcut for gpf.define
-/*global _gpfFsSetFileStorageIf*/
 /*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
+/*global _gpfFsSetFileStorageIf*/ // Set the file storage implementation if the host matches
 /*global _gpfNodeFs*/ // Node/PhantomJS require("fs")
 /*global _gpfNodePath*/ // Node require("path")
 /*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
