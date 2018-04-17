@@ -5,8 +5,12 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
-/*global _gpfBootImplByHost*/ // Boot host specific implementation per host
-/*global _gpfJavaHostImpl*/ // Common implementation for Java hosts
+/*global _gpfHost*/ // Host type
+/*global _gpfHostJava*/ // Common implementation for Java hosts
 /*#endif*/
 
-_gpfBootImplByHost[_GPF_HOST.NASHORN] = _gpfJavaHostImpl;
+if (_GPF_HOST.NASHORN === _gpfHost) {
+
+    _gpfHostJava();
+
+}

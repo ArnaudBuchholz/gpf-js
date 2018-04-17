@@ -5,14 +5,16 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
-/*global _gpfReadImplByHost*/ // gpf.read per host
+/*global _gpfReadSetImplIf*/ // Set the read implementation if the host matches
 /*#endif*/
 
 /*jshint rhino: true*/
 /*eslint-env rhino*/
 
-_gpfReadImplByHost[_GPF_HOST.RHINO] = function (path) {
+function _gpfReadRhino (path) {
     return new Promise(function (resolve) {
         resolve(readFile(path));
     });
-};
+}
+
+_gpfReadSetImplIf(_GPF_HOST.RHINO, _gpfReadRhino);

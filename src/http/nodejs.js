@@ -6,7 +6,7 @@
 "use strict";
 /*global _GPF_HOST*/ // Host types
 /*global _GpfNodeReadableStream*/ // gpf.node.ReadableStream
-/*global _gpfHttpRequestImplByHost*/ // HTTP Request Implementation per host
+/*global _gpfHttpSetRequestImplIf*/ // Set the http request implementation if the host matches
 /*global _gpfNodeHttp*/ // Node require("http")
 /*global _gpfNodeHttps*/ // Node require("https")
 /*global _gpfNodeUrl*/ // Node require("url")
@@ -70,8 +70,10 @@ function _gpfHttpNodeSend (clientRequest, data) {
     }
 }
 
-_gpfHttpRequestImplByHost[_GPF_HOST.NODEJS] = function (request, resolve, reject) {
+function _gpfHttpNodeRequestImpl (request, resolve, reject) {
     var clientRequest = _gpfHttpNodeAllocate(request, resolve);
     clientRequest.on("error", reject);
     _gpfHttpNodeSend(clientRequest, request.data);
-};
+}
+
+_gpfHttpSetRequestImplIf(_GPF_HOST.NODEJS, _gpfHttpNodeRequestImpl);

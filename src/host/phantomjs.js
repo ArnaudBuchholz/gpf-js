@@ -5,8 +5,9 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
-/*global _gpfBootImplByHost*/ // Boot host specific implementation per host
+/*global _gpfDosPath:true*/ // DOS-like path
 /*global _gpfExit:true*/ // Exit function
+/*global _gpfHost*/ // Host type
 /*global _gpfNodeFs:true*/ // Node/PhantomJS require("fs")
 /*global _gpfWebDocument:true*/ // Browser document object
 /*global _gpfWebWindow:true*/ // Browser window object
@@ -16,7 +17,9 @@
 /*jshint browser: true*/
 /*eslint-env phantomjs, browser*/
 
-_gpfBootImplByHost[_GPF_HOST.PHANTOMJS] = function () {
+if (_GPF_HOST.PHANTOMJS === _gpfHost) {
+
+    _gpfDosPath = require("fs").separator === "\\";
 
     /* istanbul ignore next */ // exit.1
     _gpfExit = function (code) {
@@ -27,4 +30,4 @@ _gpfBootImplByHost[_GPF_HOST.PHANTOMJS] = function () {
     _gpfWebDocument = document;
     _gpfNodeFs = require("fs");
 
-};
+}

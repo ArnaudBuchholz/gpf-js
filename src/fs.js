@@ -8,7 +8,7 @@
 /*global _gpfHost*/ // Host type
 /*exported _GPF_FS_OPENFOR*/ // File system stream opening mode
 /*exported _GPF_FS_TYPES*/ // File system types constants
-/*exported _gpfFileStorageByHost*/ // gpf.interfaces.IFileStorage per host
+/*exported _gpfFsSetFileStorageIf*/ // Set the file storage implementation if the host matches
 /*#endif*/
 
 _gpfErrorDeclare("fs", {
@@ -51,12 +51,25 @@ var
     },
 
     /**
-     * {@see gpf.interfaces.IFileStorage} per host
+     * Host {@see gpf.interfaces.IFileStorage} implementation
      *
-     * @type {Object}
+     * @type {gpf.interfaces.IFileStorage}
      * @since 0.2.1
      */
-    _gpfFileStorageByHost = {};
+    _gpfFileStorageImpl = null;
+
+/**
+ * Set the file storage implementation if the host matches
+ *
+ * @param {String} host host to test, if matching with the current one, an instance of the FileStorageClass is created
+ * @param {Function} FileStorageClass Class of the host specific file storage implementation
+ * @since 0.2.6
+ */
+function _gpfFsSetFileStorageIf (host, FileStorageClass) {
+    if (host === _gpfHost) {
+        _gpfFileStorageImpl = new FileStorageClass();
+    }
+}
 
 /**
  * @namespace gpf.fs
@@ -128,7 +141,7 @@ gpf.fs = {
      * @since 0.1.9
      */
     getFileStorage: function () {
-        return _gpfFileStorageByHost[_gpfHost] || null;
+        return _gpfFileStorageImpl;
     }
 
 };

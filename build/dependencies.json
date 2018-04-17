@@ -1,5 +1,8 @@
 {
     "boot": [],
+    "version": [
+        "boot"
+    ],
     "host/browser": [
         "boot"
     ],
@@ -20,9 +23,6 @@
     "host/nashorn": [
         "boot",
         "host/java"
-    ],
-    "host/unknown": [
-        "boot"
     ],
     "host/wscript": [
         "boot",
@@ -274,6 +274,7 @@
         "stream/nodejs",
         "define",
         "fs/explore",
+        "host/nodejs",
         "path"
     ],
     "stream/wscript": [
@@ -395,15 +396,6 @@
         "boot",
         "read"
     ],
-    "require/browser": [
-        "boot",
-        "path",
-        "require/host"
-    ],
-    "require/others": [
-        "boot",
-        "require/host"
-    ],
     "require/load": [
         "path",
         "read"
@@ -416,12 +408,12 @@
         "require/load"
     ],
     "require/javascript": [
+        "boot",
         "error",
         "constants",
-        "boot",
+        "path",
         "regexp",
         "require/load",
-        "require/host",
         "require/wrap"
     ],
     "require": [

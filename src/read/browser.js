@@ -7,10 +7,10 @@
 /*global _GPF_HOST*/ // Host types
 /*global _GPF_HTTP_METHODS*/ // HTTP Methods
 /*global _gpfHttpRequest*/ // HTTP request common implementation
-/*global _gpfReadImplByHost*/ // gpf.read per host
+/*global _gpfReadSetImplIf*/ // Set the read implementation if the host matches
 /*#endif*/
 
-_gpfReadImplByHost[_GPF_HOST.BROWSER] = function _gpfReadHttp (path) {
+function _gpfReadHttp (path) {
     return _gpfHttpRequest({
         method: _GPF_HTTP_METHODS.GET,
         url: path
@@ -20,4 +20,6 @@ _gpfReadImplByHost[_GPF_HOST.BROWSER] = function _gpfReadHttp (path) {
         }
         return response.responseText;
     });
-};
+}
+
+_gpfReadSetImplIf(_GPF_HOST.BROWSER, _gpfReadHttp);

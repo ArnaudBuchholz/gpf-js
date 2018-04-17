@@ -11,8 +11,8 @@
 /*global _GpfNodeReadableStream*/ // gpf.node.ReadableStream
 /*global _GpfNodeWritableStream*/ // gpf.node.WritableStream
 /*global _gpfDefine*/ // Shortcut for gpf.define
-/*global _gpfFileStorageByHost*/ // gpf.interfaces.IFileStorage per host
 /*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
+/*global _gpfFsSetFileStorageIf*/ // Set the file storage implementation if the host matches
 /*global _gpfNodeFs*/ // Node/PhantomJS require("fs")
 /*global _gpfNodePath*/ // Node require("path")
 /*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
@@ -21,6 +21,8 @@
 
 /*jshint node:true*/
 /*eslint-env node*/
+
+/*eslint-ignore no-unused-vars*/
 
 /**
  * Encapsulate fs API with a list of parameters inside a Promise
@@ -211,7 +213,7 @@ var _GpfNodeFileStorage = _gpfDefine({
 
 });
 
-_gpfFileStorageByHost[_GPF_HOST.NODEJS] = new _GpfNodeFileStorage();
+_gpfFsSetFileStorageIf(_GPF_HOST.NODEJS, _GpfNodeFileStorage);
 
 /*#ifndef(UMD)*/
 
