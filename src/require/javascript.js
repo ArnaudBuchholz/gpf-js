@@ -4,13 +4,14 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_HOST*/ // Host types
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfHost*/ // Host type
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
 /*global _gpfRegExpForEach*/ // Executes the callback for each match of the regular expression
 /*global _gpfRequireProcessor*/ // Mapping of resource extension to processor function
-/*global _gpfRequireSourceMapByHost*/ // Host specific source mapping procedure
 /*global _gpfRequireWrapGpf*/ // Wrap gpf to fit the new context and give access to gpf.require.define promise
 /*#endif*/
 
@@ -118,7 +119,24 @@ function _gpfRequireJS (myGpf, content, staticDependencies) {
     return module.exports;
 }
 
-var _gpfRequireSourceMapImpl = _gpfRequireSourceMapByHost[_gpfHost];
+/*global location*/
+
+function _gpfRequireSourceMapBrowswer (name, content) {
+    return "//# sourceURL=" + location.origin + _gpfPathJoin(location.pathname, name) + "?gpf.require\n" + content;
+}
+
+function _gpfRequireSourceMapNone (name, content) {
+    return content;
+}
+
+var _gpfRequireSourceMapImpl;
+if (_GPF_HOST.BROWSER === _gpfHost) {
+    _gpfRequireSourceMapImpl = _gpfRequireSourceMapBrowswer;
+
+} else {
+    _gpfRequireSourceMapImpl = _gpfRequireSourceMapNone;
+
+}
 
 _gpfRequireProcessor[".js"] = function (resourceName, content) {
     var wrapper = _gpfRequireWrapGpf(this, resourceName);

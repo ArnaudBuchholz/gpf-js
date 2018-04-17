@@ -391,21 +391,6 @@
         "tags": "host:wscript read"
     },
     {
-        "name": "require/host",
-        "test": false,
-        "tags": "require"
-    },
-    {
-        "name": "require/browser",
-        "test": false,
-        "tags": "require host:browser"
-    },
-    {
-        "name": "require/others",
-        "test": false,
-        "tags": "require host:nodejs host:phantomjs host:java host:wscript"
-    },
-    {
         "name": "require/load",
         "test": false,
         "tags": "require"
