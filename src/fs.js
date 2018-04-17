@@ -61,8 +61,9 @@ var
 /**
  * Set the file storage implementation if the host matches
  *
- * @param {String} Host host to test, if matching with the current one, an instance of the FileStorageClass is created
+ * @param {String} host host to test, if matching with the current one, an instance of the FileStorageClass is created
  * @param {Function} FileStorageClass Class of the host specific file storage implementation
+ * @since 0.2.6
  */
 function _gpfFsSetFileStorageIf (host, FileStorageClass) {
     if (host === _gpfHost) {
