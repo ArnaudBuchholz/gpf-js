@@ -6,7 +6,7 @@
 "use strict";
 /*global _GPF_HOST*/ // Host types
 /*global _GpfNodeReadableStream*/ // gpf.node.ReadableStream
-/*global _gpfHttpSetRequestImplIf*/ // Set the request implementation if the host matches
+/*global _gpfHttpSetRequestImplIf*/ // Set the http request implementation if the host matches
 /*global _gpfNodeHttp*/ // Node require("http")
 /*global _gpfNodeHttps*/ // Node require("https")
 /*global _gpfNodeUrl*/ // Node require("url")
