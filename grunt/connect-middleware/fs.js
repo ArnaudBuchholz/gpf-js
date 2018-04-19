@@ -33,7 +33,7 @@ const
                 data.push(chunk);
             })
             .on("end", () => {
-                fs.writeFile(filePath, Buffer.concat(data), {flag: flag}, err => _succeeded(response, err));
+                fs.writeFile(filePath, Buffer.concat(data), {flag}, err => _succeeded(response, err));
             });
     },
 
