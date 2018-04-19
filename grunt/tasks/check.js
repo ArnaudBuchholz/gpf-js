@@ -3,10 +3,8 @@
 module.exports = function (grunt) {
     grunt.registerTask("check", [
         "exec:globals",
-        "jshint",
-        "eslint",
-        "plato",
-        "istanbul",
+        "concurrent:linters",
+        "concurrent:quality",
         "exec:metrics",
         "jsdoc:public",
         "connectIf",

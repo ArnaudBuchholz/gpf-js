@@ -22,6 +22,18 @@ Object.keys(configuration.browsers).forEach(browserName => {
 
 module.exports = {
 
+    // Linters
+    linters: [
+        "jshint",
+        "eslint"
+    ],
+
+    // Code quality tools
+    quality: [
+        "istanbul",
+        "plato"
+    ],
+
     // Tests on sources
     source: [
         "mocha:source",
