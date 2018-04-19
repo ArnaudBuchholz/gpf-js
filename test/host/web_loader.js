@@ -195,14 +195,20 @@
 
     // Call it after tests to handle cached results & coverage storage
     window.afterRun = function (data) {
+        var promise;
+        // Store coverage data first
+        if ("undefined" !== typeof __coverage__) {
+            promise = xhr("/fs/tmp/coverage/reports/coverage.browser.json").post(JSON.stringify(__coverage__));
+        } else {
+            promise = Promise.resolve();
+        }
         // Check if result must be cached
         var match = (/cache=([0-9]+)/).exec(location.search);
         if (match) {
-            xhr("/cache/" + match[1]).post(JSON.stringify(data));
-        }
-        // Store coverage data
-        if ("undefined" !== typeof __coverage__) {
-            xhr("/fs/tmp/coverage/reports/coverage.browser.json").post(JSON.stringify(__coverage__));
+            promise.then(function () {
+                // Will trigger closing of browser
+                xhr("/cache/" + match[1]).post(JSON.stringify(data));
+            });
         }
     };
 
