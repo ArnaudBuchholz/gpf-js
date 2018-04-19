@@ -197,10 +197,10 @@
     window.afterRun = function (data) {
         var promise;
         // Store coverage data first
-        if ("undefined" !== typeof __coverage__) {
-            promise = xhr("/fs/tmp/coverage/reports/coverage.browser.json").post(JSON.stringify(__coverage__));
-        } else {
+        if ("undefined" === typeof __coverage__) {
             promise = Promise.resolve();
+        } else {
+            promise = xhr("/fs/tmp/coverage/reports/coverage.browser.json").post(JSON.stringify(__coverage__));
         }
         // Check if result must be cached
         var match = (/cache=([0-9]+)/).exec(location.search);
