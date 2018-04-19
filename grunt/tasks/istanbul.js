@@ -76,7 +76,7 @@ module.exports = function (grunt) {
                     let hostCoverage = grunt.file.readJSON(`tmp/coverage/reports/coverage.${host}.json`);
                     mergeCoverage(coverage, hostCoverage);
                 } catch (e) {
-                    grunt.fail.warn(`Missing coverage information for ${host}`);
+                    grunt.fail.warn(`Missing coverage information for ${host}: ${e.toString()}`);
                 }
             });
         fs.writeFileSync("tmp/coverage/reports/coverage.json", JSON.stringify(coverage));
