@@ -79,6 +79,16 @@ function _gpfFuncUnsafe (params, source) {
     return _GpfFunc.apply(null, args);
 }
 
+/*#ifdef(DEBUG)*/
+
+function _gpfFuncImplDocumentError (e, params, source) {
+    e.params = params;
+    e.source = source;
+    return e;
+}
+
+/*#endif*/
+
 // Protected version of _gpfFunc
 function _gpfFuncImpl (params, source) {
     _gpfAssert("string" === typeof source && source.length, "Source expected (or use _gpfEmptyFunc)");
@@ -88,8 +98,7 @@ function _gpfFuncImpl (params, source) {
         return _gpfFuncUnsafe(params, source);
         /*#ifdef(DEBUG)*/
     } catch (e) {
-        // Makes it easier to debug
-        throw new Error("_gpfFuncImpl exception: " + e.message + "\n" + source);
+        throw _gpfFuncImplDocumentError(e, params, source);
     }
     /*#endif*/
 }
