@@ -376,6 +376,83 @@ describe("require", function () {
 
         });
 
+        describe("error documentation", function () {
+
+            function _checkRequires (reason, index, expected) {
+                assert(reason instanceof Error);
+                assert(Array.isArray(reason.requires));
+                assert(reason.requires.length > index);
+                assert(-1 !== reason.requires[index].indexOf(expected));
+            }
+
+            it("documents the failing resource name (missing json)", function (done) {
+                gpf.require.define({
+                    test: "notFound.json"
+                }).then(function () {
+                    return Promise.reject(0);
+                })["catch"](function (reason) {
+                    try {
+                        _checkRequires(reason, 0, "require/notFound.json");
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
+                });
+            });
+
+            it("documents the failing resource name (error in javascript)", function (done) {
+                gpf.require.define({
+                    test: "syntax_error.js"
+                }).then(function () {
+                    return Promise.reject(0);
+                })["catch"](function (reason) {
+                    try {
+                        _checkRequires(reason, 0, "require/syntax_error.js");
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
+                });
+            });
+
+            it("documents the loading stack", function (done) {
+                gpf.require.define({
+                    test: "error_stack.js"
+                }).then(function () {
+                    return Promise.reject(0);
+                })["catch"](function (reason) {
+                    try {
+                        _checkRequires(reason, 0, "require/syntax_error.js");
+                        _checkRequires(reason, 1, "require/error_stack.js");
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
+                });
+            });
+
+            if ("function" === typeof SyntaxError) {
+
+                it("transmits the native error", function (done) {
+                    gpf.require.define({
+                        test: "syntax_error.js"
+                    }).then(function () {
+                        return Promise.reject(0);
+                    })["catch"](function (reason) {
+                        try {
+                            _checkRequires(reason, 0, "require/syntax_error.js");
+                            assert(reason instanceof SyntaxError);
+                            done();
+                        } catch (e) {
+                            done(e);
+                        }
+                    });
+                });
+
+            }
+
+        });
+
     });
 
 });
