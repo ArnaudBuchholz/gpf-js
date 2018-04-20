@@ -119,6 +119,13 @@ function _gpfRequireResolve (name) {
     return _gpfPathJoin(this.base, name);
 }
 
+function _gpfRequireDocumentStack (reason, name) {
+    if (!Array.isArray(reason.requires)) {
+        reason.requires = [];
+    }
+    reason.requires.push(name);
+}
+
 /**
  * Get the cached resource or load it
  *
@@ -134,7 +141,10 @@ function _gpfRequireGet (name) {
     }
     promise = _gpfRequireLoad.call(me, name);
     me.cache[name] = promise;
-    return promise;
+    return promise["catch"](function (reason) {
+        _gpfRequireDocumentStack(reason, name);
+        return Promise.reject(reason);
+    });
 }
 
 /**
