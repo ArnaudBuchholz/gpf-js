@@ -7,7 +7,6 @@
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
-/*global _gpfPromisify*/ // Converts any value into a Promise
 /*global _gpfRequireLoad*/ // Load the resource
 /*exported _gpfRequireAllocate*/ // Allocate a new require context with the proper methods
 /*#endif*/
@@ -81,7 +80,7 @@ var _gpfRequireOptionHandler = {
 
     cache: function (cache) {
         _gpfArrayForEach(Object.keys(cache), function (name) {
-            this.cache[name] = _gpfPromisify(cache[name]);
+            this.cache[name] = Promise.resolve(cache[name]);
         }, this);
     },
 
