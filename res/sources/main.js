@@ -3,7 +3,7 @@ gpf.require.define({
     dom: "../dom.js",
     SourceArray: "array.js",
     dependencyWheel: "dependencyWheel.js",
-    flavor: "../../make/flavor.js",
+    flavor: "flavor.js",
     dependencies: "../../build/dependencies.json"
 
 }, function (require) {
@@ -64,10 +64,10 @@ gpf.require.define({
     }
 
     // Regenerate all source rows
-    function reload (allowed) {
+    function reload () {
         sourceRows.innerHTML = ""; // Clear content
         sources.forEach(function (source, index) {
-            if (allowed && !allowed[index]) {
+            if (flavor && !flavor[index]) {
                 return;
             }
             sourceRows.appendChild(rowFactory(source, index));
@@ -246,8 +246,8 @@ gpf.require.define({
 
         "#flavor@click": function () {
             dialogs.prompt("Enter flavor request", "require host:nodejs host:browser")
-                .then(function (modifiers) {
-                    reload(flavor(JSON.parse(sources.toString()), require.dependencies, modifiers));
+                .then(function (flavorDdescription) {
+                    location.search = flavorDdescription;
                 });
         }
 
