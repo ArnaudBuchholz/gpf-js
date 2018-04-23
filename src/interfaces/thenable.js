@@ -71,11 +71,17 @@ function _gpfPromisifyDefined (value) {
 /**
  * @gpf:sameas _gpfPromisify
  * @since 0.2.2
+ * @deprecated since version 0.2.6, use
+ * [Promise.resolve](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/resolve)
+ * instead
  */
 gpf.promisify = _gpfPromisify;
 
 /**
  * @gpf:sameas _gpfPromisifyDefined
  * @since 0.2.2
+ * @deprecated since version 0.2.6, use
+ * [Promise.resolve](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/resolve)
+ * combined with a condition instead
  */
 gpf.promisifyDefined = _gpfPromisifyDefined;
