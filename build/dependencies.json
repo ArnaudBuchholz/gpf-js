@@ -309,8 +309,7 @@
     ],
     "http/mock": [
         "http/helpers",
-        "foreach",
-        "interfaces/thenable"
+        "foreach"
     ],
     "http": [
         "http/helpers",
@@ -420,7 +419,6 @@
         "foreach",
         "error",
         "path",
-        "interfaces/thenable",
         "require/load"
     ],
     "stream/array": [
