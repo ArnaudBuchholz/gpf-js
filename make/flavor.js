@@ -1,17 +1,22 @@
 "use strict";
 
 function categorize (tags) {
-    var array = tags.split(" ");
-    return {
-        hosts: array.filter(function (tag) {
-            return 0 === tag.indexOf("host:");
-        }).map(function (hostTag) {
-            return hostTag.substr(5);
-        }),
-        features: array.filter(function (tag) {
-            return tag && -1 === tag.indexOf(":");
-        })
-    };
+    return tags.split(" ").reduce(function (categorized, tag) {
+        if (tag) {
+            if (0 === tag.indexOf("host:")) {
+                categorized.hosts.push(tag.substr(5));
+            } else if ("-" === tag.charAt(0)) {
+                categorized.excluded.push(tag.substr(1));
+            } else {
+                categorized.features.push(tag);
+            }
+        }
+        return categorized;
+    }, {
+        hosts: [],
+        features: [],
+        excluded: []
+    });
 }
 
 function intersect (array1, array2) {
@@ -38,6 +43,9 @@ function includeHost (tags, requested) {
 
 function includeRequestedSources (sources, requested) {
     return sources.map(function (source) {
+        if (-1 !== requested.excluded.indexOf(source.name)) {
+            return false;
+        }
         var tags =  categorize(source.tags || ""),
             shouldIncludeFeature,
             shouldIncludeHost;
@@ -79,6 +87,9 @@ function getFlavor (sources, dependencies, request) {
         features = [].concat(requested.features),
         featureSetChanged = false;
     function allow (dependency) {
+        if (-1 !== requested.excluded.indexOf(dependency)) {
+            return;
+        }
         var sourceIndex = getSourceIndex(sources, dependency),
             tags =  categorize(sources[sourceIndex].tags || "");
         // Process dependant features
@@ -94,7 +105,12 @@ function getFlavor (sources, dependencies, request) {
         if (!allowed[index]) {
             continue;
         }
+        var before = features.length;
         (dependencies[sources[index].name] || []).forEach(allow);
+        if (features.length !== before) {
+            console.log(sources[index].name + ": " + features.slice(before));
+            debugger;
+        }
     }
     if (featureSetChanged) {
         return getFlavor(sources, dependencies, features.join(" ") + " " + request);
