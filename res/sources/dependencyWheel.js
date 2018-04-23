@@ -1,5 +1,6 @@
 gpf.require.define({
     dom: "../dom.js",
+    flavor: "flavor.js",
     dependencies: "../../build/dependencies.json"
 
 }, function (require) {
@@ -8,8 +9,16 @@ gpf.require.define({
     /*global d3*/
 
     var dom = require.dom,
+        flavor = require.flavor,
         dependencies = require.dependencies,
-        dependencyNames = Object.keys(dependencies).sort(),
+        dependencyNames = Object.keys(dependencies)
+            .filter(function (dependency, index) {
+                if (flavor && !flavor[index]) {
+                    return false;
+                }
+                return true;
+            })
+            .sort(),
         placeholder = dom.div({
             id: "dependencyWheel"
         }),
