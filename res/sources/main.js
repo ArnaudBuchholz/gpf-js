@@ -247,7 +247,6 @@ gpf.require.define({
         "#flavor@click": function () {
             dialogs.prompt("Enter flavor request", "require host:nodejs host:browser -http/nodejs")
                 .then(function (flavorDescription) {
-                    debugger;
                     if (flavorDescription) {
                         location.search = flavorDescription;
                     } else {
