@@ -109,7 +109,6 @@ function getFlavor (sources, dependencies, request) {
         (dependencies[sources[index].name] || []).forEach(allow);
         if (features.length !== before) {
             console.log(sources[index].name + ": " + features.slice(before));
-            debugger;
         }
     }
     if (featureSetChanged) {
