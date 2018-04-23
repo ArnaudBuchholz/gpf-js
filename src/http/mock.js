@@ -6,7 +6,6 @@
 "use strict";
 /*global _GPF_HTTP_METHODS*/ // HTTP Methods
 /*global _gpfArrayForEachFalsy*/ // _gpfArrayForEach that returns first truthy value computed by the callback
-/*global _gpfPromisifyDefined*/ // Converts any value but undefined into a Promise
 /*exported _gpfHttpMockCheck*/ // Check if the provided request match any of the mocked one
 /*#endif*/
 
@@ -46,6 +45,12 @@
  */
 var _gpfHttpMockedRequests = {};
 
+function _gpfHttMockPromisify (value) {
+    if (undefined !== value) {
+        return Promise.resolve(value);
+    }
+}
+
 /**
  * Match the provided request with the mocked one
  *
@@ -61,7 +66,7 @@ function _gpfHttMockMatchRequest (mockedRequest) {
     url.lastIndex = 0;
     match = url.exec(this.url);
     if (match) {
-        return _gpfPromisifyDefined(mockedRequest.response.apply(null, [this].concat([].slice.call(match, 1))));
+        return _gpfHttMockPromisify(mockedRequest.response.apply(null, [this].concat([].slice.call(match, 1))));
     }
 }
 
