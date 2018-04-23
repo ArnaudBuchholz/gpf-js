@@ -268,8 +268,7 @@
         "tags": "fs"
     },
     {
-        "name": "path",
-        "tags": "fs"
+        "name": "path"
     },
     {
         "name": "fs/explore",
