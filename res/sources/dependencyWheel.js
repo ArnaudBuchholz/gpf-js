@@ -1,5 +1,6 @@
 gpf.require.define({
     dom: "../dom.js",
+    sources: "../../src/sources.json",
     flavor: "flavor.js",
     dependencies: "../../build/dependencies.json"
 
@@ -10,13 +11,14 @@ gpf.require.define({
 
     var dom = require.dom,
         flavor = require.flavor,
+        sourceIsAllowed = require.sources.reduce(function (map, source, index) {
+            map[source.name] = !flavor || flavor[index];
+            return map;
+        }, {}),
         dependencies = require.dependencies,
         dependencyNames = Object.keys(dependencies)
-            .filter(function (dependency, index) {
-                if (flavor && !flavor[index]) {
-                    return false;
-                }
-                return true;
+            .filter(function (dependency) {
+                return sourceIsAllowed[dependency];
             })
             .sort(),
         placeholder = dom.div({
