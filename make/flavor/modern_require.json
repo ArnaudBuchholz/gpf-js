@@ -1,4 +1,5 @@
 {
+    "output": "require",
     "flavor": "require host:nodejs host:browser -http/nodejs -http/mock",
     "test": "read require"
 }
