@@ -105,11 +105,11 @@ function getFlavor (sources, dependencies, request) {
         if (!allowed[index]) {
             continue;
         }
-        var before = features.length;
+        // var before = features.length;
         (dependencies[sources[index].name] || []).forEach(allow);
-        if (features.length !== before) {
-            console.log(sources[index].name + ": " + features.slice(before));
-        }
+        // if (features.length !== before) {
+        //     console.log(sources[index].name + ": " + features.slice(before));
+        // }
     }
     if (featureSetChanged) {
         return getFlavor(sources, dependencies, features.join(" ") + " " + request);
