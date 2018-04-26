@@ -32,7 +32,7 @@ process.argv.slice(2).forEach(value => {
 
 if (version && 0 === version.indexOf("flavor/")) {
     flavorSettings = JSON.parse(fs.readFileSync(version + ".json").toString());
-    outputName = flavorSettings.output;
+    outputName = "flavor-" + version.substr(7);
     flavorFilter = flavor(sources, dependencies, flavorSettings.flavor);
     parametersType = "release";
 } else {
