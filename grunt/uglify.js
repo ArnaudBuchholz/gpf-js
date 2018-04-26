@@ -14,14 +14,19 @@ module.exports = {
             ascii_only: true
         }
     },
-    buildTests: {
+    tests: {
         files: {
             "build/tests.js": configuration.files.test
         }
     },
-    buildRelease: {
+    release: {
         files: {
             "build/gpf.js": ["build/gpf-release.js"]
+        }
+    },
+    flavor: {
+        files: {
+            "build/gpf-<%= grunt.task.current.args[0] %>.js": ["build/gpf-flavor-<%= grunt.task.current.args[0] %>.js"]
         }
     }
 };
