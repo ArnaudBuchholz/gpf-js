@@ -11,11 +11,11 @@ module.exports = function (grunt) {
     ).concat([
         "exec:buildDebug",
         "exec:buildRelease",
-        "uglify:buildRelease",
+        "uglify:release",
         "exec:fixUglify:gpf",
         "concurrent:debug",
         "concurrent:release",
-        "uglify:buildTests",
+        "uglify:tests",
         "exec:fixUglify:tests"
     ]));
 };
