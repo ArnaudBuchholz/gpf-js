@@ -1,0 +1,8 @@
+{
+    "flavor": "require host:nodejs host:browser -http/nodejs -http/mock",
+    "test": "require",
+    "description": "Standalone gpf.require.define for modern browsers and NodeJS",
+    "api":[
+        "gpf.require"
+    ]
+}
