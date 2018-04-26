@@ -16,6 +16,8 @@ tmp
 build/dependencies.json
 build/report.history.*
 build/tests.js
+build/gpf-release.js
+build/gpf-flavor-*.js
 doc
 grunt
 make
