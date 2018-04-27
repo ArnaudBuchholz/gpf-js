@@ -96,10 +96,9 @@ module.exports = class ConfigFile {
 
     readSourceFiles () {
         // Build the list of valid source and test files based on sources.json
-        let sources = JSON.parse(fs.readFileSync(path.join(__dirname, "../src/sources.json"))),
-            srcFiles = ["src/boot.js"],
+        let srcFiles = ["src/boot.js"],
             testFiles = [];
-        sources.forEach(source => {
+        JSON.parse(fs.readFileSync(path.join(__dirname, "../src/sources.json"))).forEach(source => {
             let name = source.name;
             if (source.load !== false) {
                 srcFiles.push("src/" + name + ".js");
@@ -151,7 +150,12 @@ module.exports = class ConfigFile {
                 ]
                     .concat(srcFiles)
                     .concat(testFiles)
-            }
+            },
+            flavors: fs.readdirSync(path.join(__dirname, "../make/flavor")).reduce((flavors, name) => {
+                flavors[path.basename(name, ".json")] =
+                    JSON.parse(fs.readFileSync(path.join(__dirname, "../make/flavor", name)));
+                return flavors;
+            }, {})
         };
     }
 
