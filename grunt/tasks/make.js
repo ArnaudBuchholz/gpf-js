@@ -1,6 +1,10 @@
 "use strict";
 
+const
+    tools = require("../../res/tools.js");
+
 module.exports = function (grunt) {
+
     grunt.registerTask("make", [
         "exec:version",
         "check",
@@ -17,5 +21,6 @@ module.exports = function (grunt) {
         "concurrent:release",
         "uglify:tests",
         "exec:fixUglify:tests"
-    ]));
+    ]).concat(Object.keys(configuration.files.flavors).map(flavor => `exec:build${tools.capitalize(flavor)}`)));
+
 };
