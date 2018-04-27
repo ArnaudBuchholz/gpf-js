@@ -10,12 +10,12 @@ const
 let
     debug = () => {},
     version = "debug",
-    flavorSettings,
+    flavorParameters,
     flavorFilter,
-    outputName,
-    parametersType,
-    parameters,
-    debugParameters,
+    output,
+    generationParametersType,
+    generationParameters,
+    debugGenerationParameters,
     sourcesToProcess,
     result;
 
@@ -31,28 +31,35 @@ process.argv.slice(2).forEach(value => {
 });
 
 if (version && 0 === version.indexOf("flavor/")) {
-    flavorSettings = JSON.parse(fs.readFileSync(version + ".json").toString());
-    outputName = "flavor-" + version.substr(7);
-    flavorFilter = flavor(sources, dependencies, flavorSettings.flavor);
-    parametersType = "release";
+    flavorParameters = JSON.parse(fs.readFileSync(version + ".json").toString());
+    output = "gpf-" + version.substr(7);
+    flavorFilter = flavor(sources, dependencies, flavorParameters.flavor);
+    generationParametersType = "release";
 } else {
-    outputName = version;
-    parametersType = version;
+    generationParametersType = version;
 }
 
 console.log(`Generating version '${version}'`);
 debug("\tReading generation parameters...");
 try {
-    debugParameters = JSON.parse(fs.readFileSync("debug.json").toString());
+    debugGenerationParameters = JSON.parse(fs.readFileSync("debug.json").toString());
     if ("debug" === version) {
-        parameters = debugParameters;
+        generationParameters = debugGenerationParameters;
     } else {
-        parameters = JSON.parse(fs.readFileSync(parametersType + ".json").toString());
+        generationParameters = JSON.parse(fs.readFileSync(generationParametersType + ".json").toString());
     }
-    parameters.debugRewriteOptions = debugParameters.rewriteOptions;
+    generationParameters.debugRewriteOptions = debugGenerationParameters.rewriteOptions;
 } catch (e) {
     console.error("Unknown or invalid version", e);
     process.exit();
+}
+if (!output) {
+    output = generationParameters.output;
+}
+if (generationParameters.uglify) {
+    output = `../tmp/build/${output}.js`;
+} else {
+    output = `../build/${output}.js`;
 }
 
 // Get the list of sources
@@ -86,8 +93,8 @@ function mkDir (path) {
 }
 
 debug("\tCreating working folder...");
-parameters.temporaryPath = `../tmp/build/${version}`;
-mkDir(parameters.temporaryPath);
+generationParameters.temporaryPath = `../tmp/build/${version}`;
+mkDir(generationParameters.temporaryPath);
 
 //Go over sources to create other temporary folders
 sourcesToProcess.forEach(name => {
@@ -95,12 +102,12 @@ sourcesToProcess.forEach(name => {
         // remove file name
         name = name.split("/");
         name.pop();
-        mkDir(`${parameters.temporaryPath}/${name.join("/")}`);
+        mkDir(`${generationParameters.temporaryPath}/${name.join("/")}`);
     }
 });
 
 try {
-    result = build(sourcesDict, parameters, debug);
+    result = build(sourcesDict, generationParameters, debug);
 } catch (e) {
     console.error(e.message);
     if (e.step) {
@@ -114,4 +121,4 @@ try {
 
 debug("\tCreating output folder...");
 mkDir("../build");
-fs.writeFileSync(`../build/gpf-${outputName}.js`, result);
+fs.writeFileSync(output, result);
