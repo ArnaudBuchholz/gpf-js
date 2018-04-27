@@ -6,6 +6,9 @@ const
     fs = require("fs"),
     path = require("path"),
 
+    flavorFolder = path.join(__dirname, "../make/flavor"),
+    flavorPath = name => path.join(flavorFolder, name),
+
     defaultContent = {
         version: 1,
         serve: {
@@ -151,9 +154,8 @@ module.exports = class ConfigFile {
                     .concat(srcFiles)
                     .concat(testFiles)
             },
-            flavors: fs.readdirSync(path.join(__dirname, "../make/flavor")).reduce((flavors, name) => {
-                flavors[path.basename(name, ".json")] =
-                    JSON.parse(fs.readFileSync(path.join(__dirname, "../make/flavor", name)));
+            flavors: fs.readdirSync(flavorFolder).reduce((flavors, name) => {
+                flavors[path.basename(name, ".json")] = JSON.parse(fs.readFileSync(flavorPath(name)));
                 return flavors;
             }, {})
         };
