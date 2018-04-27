@@ -21,12 +21,12 @@ module.exports = {
     },
     release: {
         files: {
-            "build/gpf.js": ["build/gpf-release.js"]
+            "build/gpf.js": ["tmp/build/gpf.js"]
         }
     },
     flavor: {
         files: {
-            "build/gpf-<%= grunt.task.current.args[0] %>.js": ["build/gpf-flavor-<%= grunt.task.current.args[0] %>.js"]
+            "build/gpf-<%= grunt.task.current.args[0] %>.js": ["tmp/build/gpf-<%= grunt.task.current.args[0] %>.js"]
         }
     }
 };
