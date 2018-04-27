@@ -3,6 +3,7 @@
 /*eslint-disable max-nested-callbacks*/
 
 const
+    tools = require("../../res/tools.js"),
     fs = require("fs"),
 
     mergeCounts = (dest, src) => Object.keys(src).forEach(key => {
@@ -108,7 +109,7 @@ module.exports = function (grunt) {
     ].concat(getHosts()
         .filter(host => host !== "browser")
         .map(host => "phantomjs" === host ? "phantom" : host)
-        .map(host => `exec:test${host.charAt(0).toUpperCase() + host.substr(1)}Coverage`)
+        .map(host => `exec:test${tools.capitalize(host)}Coverage`)
     );
 
     // Prefer chrome if possible
@@ -117,7 +118,7 @@ module.exports = function (grunt) {
     } else {
         let browser = Object.keys(configuration.browsers)[0];
         if (browser) {
-            coverageTasks.push(`exec:test${browser.charAt(0).toUpperCase() + browser.substr(1)}Coverage`);
+            coverageTasks.push(`exec:test${tools.capitalize(browser)}Coverage`);
         }
     }
 
