@@ -1,6 +1,10 @@
 "use strict";
 
-let testTasks = [];
+const
+    tools = require("../res/tools.js");
+
+let
+    testTasks = [];
 
 if (configuration.host.java) {
     testTasks.push("exec:testRhino");
@@ -17,7 +21,7 @@ if (configuration.host.wscript) {
 }
 
 Object.keys(configuration.browsers).forEach(browserName => {
-    testTasks.push(`exec:test${browserName.charAt(0).toUpperCase()}${browserName.substr(1)}`);
+    testTasks.push(`exec:test${tools.capitalize(browserName)}`);
 });
 
 module.exports = {
@@ -44,13 +48,13 @@ module.exports = {
     debug: [
         "mocha:debug",
         "mochaTest:debug"
-    ].concat(testTasks.map(name => name + "Debug")),
+    ].concat(testTasks.map(name => `${name}Debug`)),
 
     // Tests on release version
     release: [
         "mocha:release",
         "mochaTest:release"
-    ].concat(testTasks.map(name => name + "Release"))
+    ].concat(testTasks.map(name => `${name}Release`))
 
 };
 
