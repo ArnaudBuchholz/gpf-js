@@ -1,4 +1,5 @@
 {
+    "output": "gpf-debug",
     "saveTemporaryfiles": true,
     "define": {
         "UMD": true,
