@@ -1,6 +1,10 @@
 "use strict";
 
+const
+    tools = require("../../res/tools.js");
+
 module.exports = function (grunt) {
+
     [
         "node",
         "phantom",
@@ -9,15 +13,16 @@ module.exports = function (grunt) {
         "wscript",
         "nodewscript"
     ].forEach(function (runtime) {
-        var taskName = "exec:test" + runtime.charAt(0).toUpperCase() + runtime.substr(1) + "Verbose";
-        grunt.registerTask(runtime, function () {
-            var parameter;
-            if (0 === arguments.length) {
+        const taskName = `exec:test${tools.capitalize(runtime)}Verbose`;
+        grunt.registerTask(runtime, (...args) => {
+            let parameter;
+            if (0 === args.length) {
                 parameter = "";
             } else {
-                parameter = ":" + [].slice.call(arguments, 0).join(":");
+                parameter = ":" + args.join(":");
             }
             grunt.task.run(taskName + parameter);
         });
     });
+
 };
