@@ -1,4 +1,6 @@
 {
+    "output": "gpf",
+    "uglify": true,
     "saveTemporaryfiles": true,
     "define": {
         "UMD": true,
