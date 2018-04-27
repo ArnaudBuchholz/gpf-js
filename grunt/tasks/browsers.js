@@ -1,10 +1,13 @@
 "use strict";
 
+const
+    tools = require("../../res/tools.js");
+
 module.exports = function (grunt) {
-    Object.keys(configuration.browsers).forEach(function (browserName) {
+    Object.keys(configuration.browsers).forEach(browserName => {
         grunt.registerTask(browserName, [
             "connectIf",
-            "exec:test" + browserName.charAt(0).toUpperCase() + browserName.substr(1) + "Verbose"
+            `exec:test${tools.capitalize(browserName)}Verbose`
         ]);
     });
 };
