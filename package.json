@@ -41,7 +41,7 @@
     "grunt-contrib-watch": "^1.0.0",
     "grunt-eslint": "^20.1.0",
     "grunt-exec": "^3.0.0",
-    "grunt-htmllint": "^0.2.7",
+    "grunt-htmllint": "^0.3.0",
     "grunt-istanbul": "^0.8.0",
     "grunt-istanbul-coverage": "^0.1.1",
     "grunt-jsdoc": "^2.2.1",
