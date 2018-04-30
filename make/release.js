@@ -35,7 +35,7 @@ const
     inquirer = require("inquirer"),
     GitHub = require("github-api"),
     ConfigFile = require("./configFile.js"),
-    configFile = new ConfigFile(),
+    configFile = new ConfigFile(true),
     fs = require("fs-extra"),
     pkgText = fs.readFileSync("package.json").toString(),
     pkg = JSON.parse(pkgText),
@@ -207,13 +207,17 @@ inquirer.prompt(setupQuestions)
             indexOfVersions = readmeLines.indexOf("## Versions"),
             indexOfCredits = readmeLines.indexOf("## Credits");
         readmeLines.splice(indexOfVersions + 2, indexOfCredits - indexOfVersions - 3,
-            "Date | Version | Label | Release | Debug\n------ | ------ | ----- | ----- | -----",
+            "Date | Version | Label | Release | Debug | Flavors\n------ | ------ | ----- | ----- | ----- | -----",
             releases.reverse().map(release => `${release.date} | `
-                + `[${release.version}](${projectUrl}tree/v${release.version}) | ${release.label} | `
-                + `[lib](${publicationUrl}${release.version}/gpf.js) / `
-                + `[test](${publicationUrl}test.html?release=${release.version}) | `
-                + `[lib](${publicationUrl}${release.version}/gpf-debug.js) / `
-                + `[test](${publicationUrl}test.html?debug=${release.version})`
+                        + `[${release.version}](${projectUrl}tree/v${release.version}) | ${release.label} | `
+                        + `[lib](${publicationUrl}${release.version}/gpf.js) / `
+                        + `[test](${publicationUrl}test.html?release=${release.version}) | `
+                        + `[lib](${publicationUrl}${release.version}/gpf-debug.js) / `
+                        + `[test](${publicationUrl}test.html?debug=${release.version}) | `
+                        + Object.keys(configFile.content.files.flavors)
+                            .filter(flavor => configFile.content.files.flavors[flavor].since <= release.version)
+                            .map(flavor => `[${flavor}](${publicationUrl}${release.version}/gpf-${flavor}.js)`)
+                            .join(" / ")
             ).join("\n")
         );
         fs.writeFileSync("README.md", readmeLines.join("\n"));
