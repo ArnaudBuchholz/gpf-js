@@ -13,7 +13,7 @@ module.exports = function (grunt) {
     // Since the tasks are split using load-grunt-config, a global object contains the configuration
     /*global configFile, configuration*/
     var ConfigFile = require("./make/configFile.js");
-    global.configFile = new ConfigFile();
+    global.configFile = new ConfigFile(true);
     global.configuration = Object.create(configFile.content);
     if (configFile.isNew()) {
         require("fs").readdirSync("./grunt/config").forEach(function (fileName) {
@@ -21,8 +21,6 @@ module.exports = function (grunt) {
         });
         return;
     }
-
-    configFile.readSourceFiles();
 
     // Amend the configuration with internal settings
     configuration.pkg = grunt.file.readJSON("./package.json");
