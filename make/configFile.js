@@ -49,8 +49,11 @@ const
 
 module.exports = class ConfigFile {
 
-    constructor () {
+    constructor (readSourceFiles = false) {
         this.read();
+        if (readSourceFiles) {
+            this.readSourceFiles();
+        }
     }
 
     getFileName () {
