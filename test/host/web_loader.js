@@ -6,21 +6,18 @@
     /*eslint-env browser*/
     /*global __coverage__*/ // Coverage data
 
-    function log (msg) {
-        if (console.expects) {
-            console.expects("log", msg, true);
-        }
-        console.log(msg);
+    function _safeConsoleMethod (method) {
+        return function (msg) {
+            if (console.expects) {
+                console.expects(method, msg, true);
+            }
+            console[method](msg);
+        };
     }
 
-    function error (msg) {
-        if (console.expects) {
-            console.expects("error", msg, true);
-        }
-        console.error(msg);
-    }
-
-    var MAX_WAIT = 50;
+    var _log = _safeConsoleMethod("log"),
+        _error = _safeConsoleMethod("error"),
+        _MAX_WAIT = 50;
 
     function _waitForTestCases (testFiles, callback) {
         function _testCaseLoaded (testCaseSource) {
@@ -31,7 +28,7 @@
         }
         if (testFiles.length) {
             xhr(testFiles.shift()).get()
-                .then(_testCaseLoaded, error);
+                .then(_testCaseLoaded, _error);
             return;
         }
         // Everything is loaded
@@ -71,7 +68,7 @@
                         return true;
                     });
                     if (issue) {
-                        log("describe(\"" + label + "\", ...) ignored, see issue #" + issue);
+                        _log("describe(\"" + label + "\", ...) ignored, see issue #" + issue);
                     } else {
                         _describes.unshift(label);
                         _describe.apply(this, arguments);
@@ -91,7 +88,7 @@
                         return true;
                     });
                     if (issue) {
-                        log("it(\"" + label + "\", ...) ignored, see issue #" + issue);
+                        _log("it(\"" + label + "\", ...) ignored, see issue #" + issue);
                     } else {
                         _it.apply(this, arguments);
                     }
@@ -103,12 +100,12 @@
     function _waitForLoad (callback) {
         // Check if the GPF library is loaded
         if ("undefined" === typeof gpf) {
-            if (--MAX_WAIT) {
+            if (--_MAX_WAIT) {
                 setTimeout(function () {
                     _waitForLoad(callback);
                 }, 100);
             } else {
-                error("Unable to load GPF");
+                _error("Unable to load GPF");
             }
             return;
         }
@@ -139,29 +136,48 @@
         xhr.send();
     }
 
+    var _versions = {
+        release: {
+            label: "release",
+            path: "../build/gpf.js"
+        },
+        debug: {
+            label: "debug",
+            path: "../build/gpf-debug.js"
+        },
+        coverage: {
+            label: "instrumented sources",
+            setup: function () {
+                window.global = window;
+                gpfSourcesPath += "../tmp/coverage/instrument/src/";
+            }
+        }
+    };
+
+    function _noop () {}
+
+    function _getVersionParameters () {
+        var locationSearch = location.search,
+            version;
+        for (version in _versions) {
+            if (_versions.hasOwnProperty(version) && -1 !== locationSearch.indexOf(version)) {
+                return _versions[version];
+            }
+        }
+    }
+
     function _detectVersion () {
-        var locationSearch = window.location.search,
-            release = -1 < locationSearch.indexOf("release"),
-            debug = -1 < locationSearch.indexOf("debug"),
-            coverage = -1 < locationSearch.indexOf("coverage"),
+        var versionParameters = _getVersionParameters(),
             version,
-            path;
-        if (release) {
-            version = "release";
-            path = "../build/gpf.js";
-        } else if (debug) {
-            version = "debug";
-            path = "../build/gpf-debug.js";
-        } else if (coverage) {
-            version = "instrumented sources";
-            window.global = window;
-            gpfSourcesPath += "../tmp/coverage/instrument/src/";
             path = "boot.js";
+        if (versionParameters) {
+            version = versionParameters.label || version;
+            path = versionParameters.path || "boot.js";
+            (versionParameters.setup || _noop)();
         } else {
             version = "sources";
-            path = "boot.js";
         }
-        log("Using " + version + " version");
+        _log("Using " + version + " version");
         return path;
     }
 
