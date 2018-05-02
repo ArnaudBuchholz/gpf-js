@@ -6,7 +6,6 @@
 "use strict";
 /*global _GPF_HTTP_METHODS*/ // HTTP Methods
 /*global _gpfHost*/ // Host type
-/*global _gpfHttpMockCheck*/ // Check if the provided request match any of the mocked one
 /*exported _gpfHttpRequest*/ // HTTP request common implementation
 /*exported _gpfHttpSetRequestImplIf*/ // Set the http request implementation if the host matches
 /*#endif*/
@@ -37,24 +36,27 @@
  */
 
 /**
- * HTTP request host specific implementation per host
+ * HTTP request host specific implementation
  *
- * @type {Object}
+ * @type {Function}
  * @since 0.2.1
  */
-var _gpfHttpRequestImpl = {};
+var _gpfHttpRequestImpl;
 
 /**
  * Set the http request implementation if the host matches
  *
  * @param {String} host host to test, if matching with the current one, the http request implementation is set
  * @param {Function} httpRequestImpl http request implementation function
+ * @return {Function} Previous host specific implementation
  * @since 0.2.6
  */
 function _gpfHttpSetRequestImplIf (host, httpRequestImpl) {
+    var result = _gpfHttpRequestImpl;
     if (host === _gpfHost) {
         _gpfHttpRequestImpl = httpRequestImpl;
     }
+    return result;
 }
 
 /**
@@ -65,7 +67,7 @@ function _gpfHttpSetRequestImplIf (host, httpRequestImpl) {
  * @since 0.2.1
  */
 function _gpfHttpRequest (request) {
-    return _gpfHttpMockCheck(request) || new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         _gpfHttpRequestImpl(request, resolve, reject);
     });
 }
