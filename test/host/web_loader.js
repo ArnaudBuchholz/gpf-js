@@ -5,6 +5,7 @@
     /*jshint browser: true*/
     /*eslint-env browser*/
     /*global __coverage__*/ // Coverage data
+    /*global gpfFlavors*/ // Flavors
 
     function _safeConsoleMethod (method) {
         return function (msg) {
@@ -17,7 +18,27 @@
 
     var _log = _safeConsoleMethod("log"),
         _error = _safeConsoleMethod("error"),
-        _MAX_WAIT = 50;
+        _MAX_WAIT = 50,
+        _versions = {
+            release: {
+                label: "release",
+                path: "../build/gpf.js",
+                setup: function () {}
+            },
+            debug: {
+                label: "debug",
+                path: "../build/gpf-debug.js",
+                setup: function () {}
+            },
+            coverage: {
+                label: "instrumented sources",
+                setup: function () {
+                    window.global = window;
+                    gpfSourcesPath += "../tmp/coverage/instrument/src/";
+                }
+            }
+        },
+        _tests = [];
 
     function _waitForTestCases (testFiles, callback) {
         function _testCaseLoaded (testCaseSource) {
@@ -119,46 +140,56 @@
                 });
             return;
         }
-        // Test files from sources.json
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", gpfSourcesPath + "sources.json");
-        xhr.onreadystatechange = function () {
-            if (4 === xhr.readyState) {
-                _waitForTestCases(JSON.parse(xhr.responseText)
-                    .filter(function (source) {
-                        return source.load !== false && source.test !== false;
-                    })
-                    .map(function (source) {
-                        return window.gpfTestsPath + source.name + ".js";
-                    }), callback);
-            }
-        };
-        xhr.send();
+        // GPF Library being loaded, Promises are existing (either natively or through compatiblity)
+        var getTestFiles;
+        if (_tests) {
+            getTestFiles = Promise.resolve(_tests);
+        } else {
+            // Test files from sources.json
+            getTestFiles = xhr(gpfSourcesPath + "sources.json").get().asJson()
+                .then(function (sources) {
+                    return sources
+                        .filter(function (source) {
+                            return source.load !== false && source.test !== false;
+                        })
+                        .map(function (source) {
+                            return source.name;
+                        });
+                });
+        }
+        getTestFiles.then(function (files) {
+            _waitForTestCases(files
+                .map(function (name) {
+                    return window.gpfTestsPath + name + ".js";
+                }), callback);
+        });
     }
 
-    var _versions = {
-        release: {
-            label: "release",
-            path: "../build/gpf.js"
-        },
-        debug: {
-            label: "debug",
-            path: "../build/gpf-debug.js"
-        },
-        coverage: {
-            label: "instrumented sources",
-            setup: function () {
-                window.global = window;
-                gpfSourcesPath += "../tmp/coverage/instrument/src/";
+    function buildFlavorSetup (flavor) {
+        return function () {
+            _tests = gpfFlavors[flavor].tests;
+        };
+    }
+
+    function _addFlavors () {
+        var flavor;
+        for (flavor in gpfFlavors) {
+            if (gpfFlavors.hasOwnProperty(flavor)) {
+                _versions["flavor:" + flavor] = {
+                    label: "\"" + flavor + "\" flavor",
+                    path: "../build/gpf-" + flavor + ".js",
+                    setup: buildFlavorSetup(flavor)
+                };
             }
         }
-    };
-
-    function _noop () {}
+    }
 
     function _getVersionParameters () {
         var locationSearch = location.search,
             version;
+        if ("undefined" !== typeof gpfFlavors) {
+            _addFlavors();
+        }
         for (version in _versions) {
             if (_versions.hasOwnProperty(version) && -1 !== locationSearch.indexOf(version)) {
                 return _versions[version];
@@ -173,7 +204,7 @@
         if (versionParameters) {
             version = versionParameters.label || version;
             path = versionParameters.path || "boot.js";
-            (versionParameters.setup || _noop)();
+            versionParameters.setup();
         } else {
             version = "sources";
         }
