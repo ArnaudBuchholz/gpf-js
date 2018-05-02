@@ -38,7 +38,7 @@
                 }
             }
         },
-        _tests = [];
+        _tests;
 
     function _waitForTestCases (testFiles, callback) {
         function _testCaseLoaded (testCaseSource) {
