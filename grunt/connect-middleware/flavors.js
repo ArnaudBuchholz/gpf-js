@@ -15,7 +15,7 @@ const
             if (err) {
                 reject(err);
             } else {
-                resolve(`\n\t${path.basename(flavorPath, ".json")}: ${content}`);
+                resolve(`\n${path.basename(flavorPath, ".json")}: ${content}`);
             }
         });
     });
@@ -27,7 +27,7 @@ module.exports = (request, response, next) => {
     }
 
     response.setHeader("Content-Type", "application/javascript; charset=utf-8");
-    response.write("var flavors = {");
+    response.write("var gpfFlavors = {\n");
     fs.readdir(path.join(__dirname, "../../make/flavor"), (err, data) => {
         if (err) {
             return _error(response, err);
