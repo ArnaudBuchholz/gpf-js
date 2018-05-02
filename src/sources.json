@@ -309,10 +309,6 @@
         "tags": "interface"
     },
     {
-        "name": "http/mock",
-        "tags": "http"
-    },
-    {
         "name": "http",
         "tags": "http"
     },
@@ -343,6 +339,10 @@
         "name": "http/java",
         "test": false,
         "tags": "host:java http"
+    },
+    {
+        "name": "http/mock",
+        "tags": "http"
     },
     {
         "name": "stream/bufferedread"
