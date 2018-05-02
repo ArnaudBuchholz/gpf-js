@@ -6,7 +6,8 @@
 "use strict";
 /*global _GPF_HTTP_METHODS*/ // HTTP Methods
 /*global _gpfArrayForEachFalsy*/ // _gpfArrayForEach that returns first truthy value computed by the callback
-/*exported _gpfHttpMockCheck*/ // Check if the provided request match any of the mocked one
+/*global _gpfHost*/ // Host type
+/*global _gpfHttpSetRequestImplIf*/ // Set the http request implementation if the host matches
 /*#endif*/
 
 /**
@@ -157,3 +158,15 @@ gpf.http.mock.remove = _gpfHttpMockRemove;
  * @since 0.2.2
  */
 gpf.http.mock.reset = _gpfHttpMockReset;
+
+// Hook the mocking algorithm on top of host specific implementation
+
+debugger;
+
+var _gpfHttpMockRequestImpl;
+
+function _gpfHttpMockImpl (request) {
+    return _gpfHttpMockCheck(request) || _gpfHttpMockRequestImpl(request);
+}
+
+_gpfHttpMockRequestImpl = _gpfHttpSetRequestImplIf(_gpfHost, _gpfHttpMockImpl);
