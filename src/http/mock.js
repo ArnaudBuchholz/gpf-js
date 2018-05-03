@@ -5,7 +5,6 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HTTP_METHODS*/ // HTTP Methods
-/*global _gpfArrayForEachFalsy*/ // _gpfArrayForEach that returns first truthy value computed by the callback
 /*global _gpfHost*/ // Host type
 /*global _gpfHttpSetRequestImplIf*/ // Set the http request implementation if the host matches
 /*#endif*/
@@ -46,28 +45,21 @@
  */
 var _gpfHttpMockedRequests = {};
 
-function _gpfHttMockPromisify (value) {
-    if (undefined !== value) {
-        return Promise.resolve(value);
-    }
-}
-
 /**
  * Match the provided request with the mocked one
  *
  * @param {gpf.typedef.mockedRequest} mockedRequest Mocked request to match
+ * @param {gpf.typedef.httpRequestSettings} request Request to match
  * @return {Promise<gpf.typedef.httpRequestResponse>|undefined} undefined if not matching
- * @this {gpf.typedef.httpRequestSettings}
  * @since 0.2.2
  */
-function _gpfHttMockMatchRequest (mockedRequest) {
-    /*jshint validthis:true*/
+function _gpfHttMockMatchRequest (mockedRequest, request) {
     var url = mockedRequest.url,
         match;
     url.lastIndex = 0;
-    match = url.exec(this.url);
+    match = url.exec(request.url);
     if (match) {
-        return _gpfHttMockPromisify(mockedRequest.response.apply(null, [this].concat([].slice.call(match, 1))));
+        return mockedRequest.response.apply(mockedRequest, [request].concat([].slice.call(match, 1)));
     }
 }
 
@@ -80,7 +72,12 @@ function _gpfHttMockMatchRequest (mockedRequest) {
  * @since 0.2.2
  */
 function _gpfHttMockMatch (mockedRequests, request) {
-    return _gpfArrayForEachFalsy(mockedRequests, _gpfHttMockMatchRequest.bind(request));
+    var result;
+    mockedRequests.every(function (mockedRequest) {
+        result = _gpfHttMockMatchRequest(mockedRequest, request);
+        return result === undefined;
+    });
+    return result;
 }
 
 /**
@@ -110,7 +107,6 @@ function _gpfHttpMockAdd (definition) {
     ++_gpfHttpMockLastId;
     id = method + "." + _gpfHttpMockLastId;
     _gpfHttpMockedRequests[method].unshift(Object.assign({
-        method: method,
         id: id
     }, definition));
     return id;
@@ -161,12 +157,15 @@ gpf.http.mock.reset = _gpfHttpMockReset;
 
 // Hook the mocking algorithm on top of host specific implementation
 
-debugger;
-
 var _gpfHttpMockRequestImpl;
 
-function _gpfHttpMockImpl (request) {
-    return _gpfHttpMockCheck(request) || _gpfHttpMockRequestImpl(request);
+function _gpfHttpMockImpl (request, resolve, reject) {
+    var mockedResult = _gpfHttpMockCheck(request);
+    if (undefined === mockedResult) {
+        _gpfHttpMockRequestImpl(request, resolve, reject);
+    } else {
+        resolve(mockedResult);
+    }
 }
 
 _gpfHttpMockRequestImpl = _gpfHttpSetRequestImplIf(_gpfHost, _gpfHttpMockImpl);
