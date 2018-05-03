@@ -131,7 +131,8 @@
         "tags": "compatibility"
     },
     {
-        "name": "context"
+        "name": "context",
+        "tags": "core"
     },
     {
         "name": "string/escape/html",
