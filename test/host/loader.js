@@ -30,13 +30,17 @@
         _processParameters = function (configuration, options) {
             var len = configuration.parameters.length,
                 idx,
-                value;
+                value,
+                option;
             for (idx = 0; idx < len; ++idx) {
                 value = configuration.parameters[idx];
                 if (value.charAt(0) === "-") {
                     value = value.substr(1);
-                    if (value in options && "boolean" === typeof options[value]) {
-                        options[value] = !options[value]; // Simple switch
+                    option = options[value];
+                    if ("boolean" === typeof option) {
+                        options[value] = !option; // Simple switch
+                    } else if ("function" === typeof option) {
+                        option.call(options);
                     }
                 } else {
                     options.tests.push(value);
@@ -76,22 +80,11 @@
         },
 
         _loadGpf = function (configuration, options, verbose) {
-            if (options.release) {
-                verbose("Using release version");
-                _requireGpf(configuration, _resolvePath(configuration, "build/gpf.js"));
-
-            } else if (options.debug) {
-                verbose("Using debug version");
-                _requireGpf(configuration, _resolvePath(configuration, "build/gpf-debug.js"));
-
+            verbose("Using " + options.label + " version");
+            if (options.build) {
+                _requireGpf(configuration, _resolvePath(configuration, "build/" + options.build + ".js"));
             } else {
-                if (options.coverage) {
-                    verbose("Using *instrumented* source version");
-                    context.global = context;
-                    context.gpfSourcesPath = _resolvePath(configuration, "tmp/coverage/instrument/src/");
-
-                } else {
-                    verbose("Using source version");
+                if (!context.gpfSourcesPath) {
                     context.gpfSourcesPath = _resolvePath(configuration, "src/");
                 }
                 _load(configuration, gpfSourcesPath + "boot.js");
@@ -362,7 +355,7 @@
             if (options.perf) {
                 verbose("Running BDD - performances");
                 _runBDDPerf(configuration, options);
-            } else if (options.coverage) {
+            } else if (options.runCoverage) {
                 _runBDDForCoverage(configuration, options, verbose);
             } else {
                 verbose("Running BDD");
@@ -382,6 +375,23 @@
                 configuration.log("An error occurred while running the tests:\r\n" + e.message);
                 configuration.exit(-1);
             }
+        },
+
+        _loadFlavor = function (configuration, options) {
+            // Load the list of modules
+            var
+                flavorName = options.tests[0].substr(7),
+                flavorJson = configuration.read("make/flavor/" + flavorName + ".json"),
+                flavor = safeFunc("return " + flavorJson + ";")();
+            options.build = "gpf-" + flavorName;
+            options.label = "\"" + options.flavor + "\" flavor";
+            options.tests = flavor.tests;
+        },
+
+        _checkFlavor = function (configuration, options) {
+            if (options.tests.length === 1 && 0 === options.tests[0].indexOf("flavor:")) {
+                _loadFlavor(configuration, options);
+            }
         };
 
     /*
@@ -398,9 +408,22 @@
      */
     context.loadGpfAndTests = function (configuration) {
         var options = {
-                release: false,
-                debug: false,
-                coverage: false,
+                build: "",
+                label: "source",
+                release: function () {
+                    this.build = "gpf";
+                    this.label = "release";
+                },
+                debug: function () {
+                    this.build = "gpf-debug";
+                    this.label = "debug";
+                },
+                coverage: function () {
+                    this.label = "*instrumented* source";
+                    this.runCoverage = true;
+                    context.global = context;
+                    context.gpfSourcesPath = _resolvePath(configuration, "tmp/coverage/instrument/src/");
+                },
                 verbose: false,
                 ignoreConsole: false,
                 perf: false,
@@ -415,6 +438,7 @@
         } else {
             verbose = function () {};
         }
+        _checkFlavor(configuration, options);
         _loadGpf(configuration, options, verbose);
         _loadBDD(configuration, verbose);
         if (!options.ignoreConsole) {
