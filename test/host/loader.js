@@ -19,6 +19,7 @@
             }
             return safeFunc("return this;")();
         }()),
+        noTimeout = "undefined" === typeof setTimeout,
 
         _resolvePath = function (configuration, relativePath) {
             return configuration.gpfPath
@@ -370,7 +371,9 @@
                 } else {
                     configuration.run();
                 }
-                gpf.handleTimeout();
+                if (noTimeout) {
+                    gpf.handleTimeout();
+                }
             } catch (e) {
                 configuration.log("An error occurred while running the tests:\r\n" + e.message);
                 configuration.exit(-1);
