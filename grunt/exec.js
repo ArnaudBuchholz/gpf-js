@@ -58,6 +58,7 @@ const
         module.exports[`test${name}Debug`] = config(cmd("-debug"), silent, failIfNot0);
         module.exports[`test${name}Release`] = config(cmd("-release"), silent, failIfNot0);
         module.exports[`test${name}Legacy`] = config(version => `${command} legacy/${version}`, silent, failIfNot0);
+        module.exports[`test${name}Flavor`] = config(flavor => `${command} flavor:${flavor}`, silent, failIfNot0);
     };
 
 let phantomJsBin = "/usr/local/phantomjs/bin/phantomjs"; // If already installed
