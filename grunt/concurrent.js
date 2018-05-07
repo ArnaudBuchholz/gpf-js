@@ -72,7 +72,7 @@ Object.keys(configuration.files.flavors).forEach(flavor => {
             .filter(name => 0 === flavorHosts.length || -1 !== flavorHosts.indexOf(name))
             .reduce((list, name) => list.concat(hosts[name]), [])
             .map(name => `exec:test${name}`);
-    module.exports[`flavor@${flavor}`] = tasks.map(name => `${name}Flavor:${flavor}`)
+    module.exports[`flavor@${flavor}`] = tasks.map(name => `${name}Flavor:${flavor}`);
 });
 
 configuration.files.legacyTest.forEach(versionFile => {
