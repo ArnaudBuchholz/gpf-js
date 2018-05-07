@@ -50,6 +50,8 @@ module.exports = function (browserType, urlParameters) {
             handler(result, parameters);
         } else if (0 === arg.indexOf("legacy/")) {
             parameters.push("version=" + arg.substr(7));
+        } else if (0 === arg.indexOf("flavor:")) {
+            parameters.push(arg);
         } else {
             browserName = arg;
         }
