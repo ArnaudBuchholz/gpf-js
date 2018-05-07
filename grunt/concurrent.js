@@ -1,28 +1,32 @@
 "use strict";
 
 const
-    tools = require("../res/tools.js");
-
-let
-    testTasks = [];
+    tools = require("../res/tools.js"),
+    hosts = {
+        browser: Object.keys(configuration.browsers).map(browserName => tools.capitalize(browserName)),
+        nodejs: ["Node"],
+        phantomjs: ["Phantom"],
+        java: [],
+        wscript: []
+    };
 
 if (configuration.host.java) {
-    testTasks.push("exec:testRhino");
+    hosts.java.push("Rhino");
 }
 
 if (configuration.host.nashorn) {
-    testTasks.push("exec:testNashorn");
+    hosts.java.push("Nashorn");
 }
 
 if (configuration.host.wscript) {
-    testTasks.push("exec:testWscript");
+    hosts.wscript.push("Wscript");
 } else {
-    testTasks.push("exec:testNodewscript");
+    hosts.wscript.push("Nodewscript");
 }
 
-Object.keys(configuration.browsers).forEach(browserName => {
-    testTasks.push(`exec:test${tools.capitalize(browserName)}`);
-});
+const
+    testTasks = Object.keys(hosts).reduce((list, name) => list.concat(hosts[name]), []).map(name => `exec:test${name}`),
+    noMocha = x => x !== "exec:testNode" && x !== "exec:testPhantom";
 
 module.exports = {
 
@@ -42,19 +46,19 @@ module.exports = {
     source: [
         "mocha:source",
         "mochaTest:source"
-    ].concat(testTasks),
+    ].concat(testTasks.filter(noMocha)),
 
     // Tests on debug version
     debug: [
         "mocha:debug",
         "mochaTest:debug"
-    ].concat(testTasks.map(name => `${name}Debug`)),
+    ].concat(testTasks.filter(noMocha).map(name => `${name}Debug`)),
 
     // Tests on release version
     release: [
         "mocha:release",
         "mochaTest:release"
-    ].concat(testTasks.map(name => `${name}Release`))
+    ].concat(testTasks.filter(noMocha).map(name => `${name}Release`))
 
 };
 
