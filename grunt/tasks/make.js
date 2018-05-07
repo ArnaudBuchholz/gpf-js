@@ -21,6 +21,9 @@ module.exports = function (grunt) {
         "concurrent:release",
         "uglify:tests",
         "exec:fixUglify:tests"
-    ]).concat(Object.keys(configuration.files.flavors).map(flavor => `exec:build${tools.capitalize(flavor)}`)));
+    ]).concat(Object.keys(configuration.files.flavors).map(flavor => [
+        `exec:build${tools.capitalize(flavor)}`,
+        `concurrent:flavor@${flavor}`
+    ])));
 
 };
