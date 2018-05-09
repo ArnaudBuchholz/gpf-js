@@ -307,14 +307,9 @@
         "interfaces",
         "boot"
     ],
-    "http/mock": [
-        "http/helpers",
-        "foreach"
-    ],
     "http": [
         "http/helpers",
-        "boot",
-        "http/mock"
+        "boot"
     ],
     "http/xhr": [
         "boot",
@@ -348,6 +343,11 @@
         "http/helpers",
         "http",
         "string/fromStream"
+    ],
+    "http/mock": [
+        "http/helpers",
+        "boot",
+        "http"
     ],
     "stream/bufferedread": [
         "define",

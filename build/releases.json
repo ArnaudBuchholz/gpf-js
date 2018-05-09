@@ -298,5 +298,35 @@
             "tests": 791,
             "sources": 106
         }
+    },
+    {
+        "version": "0.2.6",
+        "label": "gpf.require.js",
+        "date": "2018-05-03",
+        "notes": "",
+        "milestone": 14,
+        "metrics": {
+            "coverage": {
+                "statements": {
+                    "total": 100,
+                    "ignored": 0.47
+                },
+                "functions": {
+                    "total": 100,
+                    "ignored": 0.95
+                },
+                "branches": {
+                    "total": 100,
+                    "ignored": 0.7
+                }
+            },
+            "maintainability": 82.22,
+            "lines": {
+                "total": 10429,
+                "average": 95
+            },
+            "tests": 801,
+            "sources": 109
+        }
     }
 ]

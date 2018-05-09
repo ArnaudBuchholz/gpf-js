@@ -44,7 +44,7 @@
          * GPF Version
          * @since 0.1.5
          */
-        _gpfVersion = "0.2.5",
+        _gpfVersion = "0.2.6",
         /**
          * Host constants
          * @since 0.1.5
@@ -126,29 +126,13 @@
          * @type {Object}
          * @since 0.1.5
          */
-        _gpfNodeFs,
-        /**
-         * Node [require("path")](https://nodejs.org/api/path.html)
-         *
-         * @type {Object}
-         * @since 0.1.5
-         */
-        _gpfNodePath,
-        /**
-         * Boot host specific implementation per host
-         *
-         * @type {Object}
-         * @since 0.2.1
-         */
-        _gpfBootImplByHost = {};
+        _gpfNodeFs;
     _gpfVersion += "-debug";
     /* Host detection */
     // Microsoft cscript / wscript
     if ("undefined" !== typeof WScript) {
         _gpfHost = _GPF_HOST.WSCRIPT;
-        _gpfDosPath = true;
     } else if ("undefined" !== typeof print && "undefined" !== typeof java) {
-        _gpfDosPath = String(java.lang.System.getProperty("file.separator")) === "\\";
         if ("undefined" === typeof readFile) {
             _gpfHost = _GPF_HOST.NASHORN;
         } else {
@@ -156,12 +140,9 @@
         }    // PhantomJS - When used as a command line (otherwise considered as a browser)
     } else if ("undefined" !== typeof phantom && phantom.version && !document.currentScript) {
         _gpfHost = _GPF_HOST.PHANTOMJS;
-        _gpfDosPath = require("fs").separator === "\\";
         _gpfMainContext = window;    // Nodejs
     } else if ("undefined" !== typeof module && module.exports) {
         _gpfHost = _GPF_HOST.NODEJS;
-        _gpfNodePath = require("path");
-        _gpfDosPath = _gpfNodePath.sep === "\\";
         _gpfMainContext = global;    // Browser
                                      /* istanbul ignore else */
                                      // unknown.1
@@ -169,13 +150,132 @@
         _gpfHost = _GPF_HOST.BROWSER;
         _gpfMainContext = window;
     }
+    gpf.version = function () {
+        return _gpfVersion;
+    };
+    function _gpfConsoleGenerate(outputLine) {
+        return {
+            log: function (text) {
+                outputLine("    " + text);
+            },
+            info: function (text) {
+                outputLine("[?] " + text);
+            },
+            warn: function (text) {
+                outputLine("/!\\ " + text);
+            },
+            error: function (text) {
+                outputLine("(X) " + text);
+            }
+        };
+    }
+    if (_GPF_HOST.BROWSER === _gpfHost) {
+        /* istanbul ignore next */
+        // exit.1
+        _gpfExit = function (code) {
+            window.location = "https://arnaudbuchholz.github.io/gpf/exit.html?" + code;
+        };
+        _gpfWebWindow = window;
+        _gpfWebDocument = document;
+    }
+    var
+        /**
+         * require("http")
+         *
+         * @type {Object}
+         * @since 0.2.1
+         */
+        _gpfNodeHttp,
+        /**
+         * require("https")
+         *
+         * @type {Object}
+         * @since 0.2.5
+         */
+        _gpfNodeHttps,
+        /**
+         * require("path")
+         *
+         * @type {Object}
+         * @since 0.1.5
+         */
+        _gpfNodePath,
+        /**
+         * require("url")
+         *
+         * @type {Object}
+         * @since 0.2.1
+         */
+        _gpfNodeUrl;
     /**
-     * Host type enumeration
-     *
-     * @enum {String}
-     * @readonly
+     * @namespace gpf.node
+     * @description Root namespace for NodeJS specifics
      * @since 0.1.5
      */
+    gpf.node = {};
+    if (_GPF_HOST.NODEJS === _gpfHost) {
+        _gpfNodePath = require("path");
+        _gpfNodeFs = require("fs");
+        _gpfNodeHttp = require("http");
+        _gpfNodeHttps = require("https");
+        _gpfNodeUrl = require("url");
+        _gpfDosPath = _gpfNodePath.sep === "\\";
+        /* istanbul ignore next */
+        // exit.1
+        _gpfExit = function (code) {
+            process.exit(code);
+        };
+    }
+    if (_GPF_HOST.PHANTOMJS === _gpfHost) {
+        _gpfDosPath = require("fs").separator === "\\";
+        /* istanbul ignore next */
+        // exit.1
+        _gpfExit = function (code) {
+            phantom.exit(code);
+        };
+        _gpfWebWindow = window;
+        _gpfWebDocument = document;
+        _gpfNodeFs = require("fs");
+    }
+    gpf.java = {};
+    /**
+     * Common implementation for Java hosts
+     * @since 0.2.4
+     */
+    function _gpfHostJava() {
+        _gpfDosPath = String(java.lang.System.getProperty("file.separator")) === "\\";
+        // Define console APIs
+        _gpfMainContext.console = _gpfConsoleGenerate(print);
+        /* istanbul ignore next */
+        // exit.1
+        _gpfExit = function (code) {
+            java.lang.System.exit(code);
+        };
+    }
+    gpf.rhino = gpf.java;
+    if (_GPF_HOST.RHINO === _gpfHost) {
+        _gpfHostJava();
+    }
+    if (_GPF_HOST.NASHORN === _gpfHost) {
+        _gpfHostJava();
+    }
+    gpf.wscript = {};
+    /* istanbul ignore next */
+    // wscript.echo.1
+    function _gpfWScriptEcho(text) {
+        WScript.Echo(text);
+    }
+    if (_GPF_HOST.WSCRIPT === _gpfHost) {
+        _gpfDosPath = true;
+        _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
+        // Define console APIs
+        _gpfMainContext.console = _gpfConsoleGenerate(_gpfWScriptEcho);
+        /* istanbul ignore next */
+        // exit.1
+        _gpfExit = function (code) {
+            WScript.Quit(code);
+        };
+    }
     gpf.hosts = {
         /**
          * Any browser (phantomjs is recognized separately)
@@ -222,124 +322,6 @@
     gpf.host = function () {
         return _gpfHost;
     };
-    /**
-     * Returns the current version
-     *
-     * @return {String} Version
-     * @since 0.1.5
-     */
-    gpf.version = function () {
-        return _gpfVersion;
-    };
-    function _gpfConsoleGenerate(outputLine) {
-        return {
-            log: function (text) {
-                outputLine("    " + text);
-            },
-            info: function (text) {
-                outputLine("[?] " + text);
-            },
-            warn: function (text) {
-                outputLine("/!\\ " + text);
-            },
-            error: function (text) {
-                outputLine("(X) " + text);
-            }
-        };
-    }
-    _gpfBootImplByHost[_GPF_HOST.BROWSER] = function () {
-        /* istanbul ignore next */
-        // exit.1
-        _gpfExit = function (code) {
-            window.location = "https://arnaudbuchholz.github.io/gpf/exit.html?" + (code || 0);
-        };
-        _gpfWebWindow = window;
-        _gpfWebDocument = document;
-    };
-    var
-        /**
-         * require("http")
-         *
-         * @type {Object}
-         * @since 0.2.1
-         */
-        _gpfNodeHttp,
-        /**
-         * require("https")
-         *
-         * @type {Object}
-         * @since 0.2.5
-         */
-        _gpfNodeHttps,
-        /**
-         * require("url")
-         *
-         * @type {Object}
-         * @since 0.2.1
-         */
-        _gpfNodeUrl;
-    /**
-     * @namespace gpf.node
-     * @description Root namespace for NodeJS specifics
-     * @since 0.1.5
-     */
-    gpf.node = {};
-    _gpfBootImplByHost[_GPF_HOST.NODEJS] = function () {
-        _gpfNodeFs = require("fs");
-        _gpfNodeHttp = require("http");
-        _gpfNodeHttps = require("https");
-        _gpfNodeUrl = require("url");
-        /* istanbul ignore next */
-        // exit.1
-        _gpfExit = function (code) {
-            process.exit(code);
-        };
-    };
-    _gpfBootImplByHost[_GPF_HOST.PHANTOMJS] = function () {
-        /* istanbul ignore next */
-        // exit.1
-        _gpfExit = function (code) {
-            phantom.exit(code);
-        };
-        _gpfWebWindow = window;
-        _gpfWebDocument = document;
-        _gpfNodeFs = require("fs");
-    };
-    gpf.java = {};
-    /**
-     * Common implementation for Java hosts
-     * @since 0.2.4
-     */
-    function _gpfJavaHostImpl() {
-        // Define console APIs
-        _gpfMainContext.console = _gpfConsoleGenerate(print);
-        /* istanbul ignore next */
-        // exit.1
-        _gpfExit = function (code) {
-            java.lang.System.exit(code);
-        };
-    }
-    gpf.rhino = gpf.java;
-    _gpfBootImplByHost[_GPF_HOST.RHINO] = _gpfJavaHostImpl;
-    _gpfBootImplByHost[_GPF_HOST.NASHORN] = _gpfJavaHostImpl;
-    _gpfBootImplByHost[_GPF_HOST.UNKNOWN] = _gpfEmptyFunc;
-    gpf.wscript = {};
-    /* istanbul ignore next */
-    // wscript.echo.1
-    function _gpfWScriptEcho(text) {
-        WScript.Echo(text);
-    }
-    _gpfBootImplByHost[_GPF_HOST.WSCRIPT] = function () {
-        _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
-        // Define console APIs
-        _gpfMainContext.console = _gpfConsoleGenerate(_gpfWScriptEcho);
-        /* istanbul ignore next */
-        // exit.1
-        _gpfExit = function (code) {
-            WScript.Quit(code);
-        };
-    };
-    _gpfBootImplByHost[_gpfHost]();
     var _gpfIsArray = Array.isArray;
     function _gpfArrayHasValidLengthProperty(obj) {
         if (obj) {
@@ -593,14 +575,18 @@
         args.push(source);
         return _GpfFunc.apply(null, args);
     }
+    function _gpfFuncImplDocumentError(e, params, source) {
+        e.params = params;
+        e.source = source;
+        return e;
+    }
     // Protected version of _gpfFunc
     function _gpfFuncImpl(params, source) {
         _gpfAssert("string" === typeof source && source.length, "Source expected (or use _gpfEmptyFunc)");
         try {
             return _gpfFuncUnsafe(params, source);
         } catch (e) {
-            // Makes it easier to debug
-            throw new Error("_gpfFuncImpl exception: " + e.message + "\n" + source);
+            throw _gpfFuncImplDocumentError(e, params, source);
         }
     }
     /**
@@ -3512,43 +3498,23 @@
             APPENDING: 1
         },
         /**
-         * {@see gpf.interfaces.IFileStorage} per host
+         * Host {@see gpf.interfaces.IFileStorage} implementation
          *
-         * @type {Object}
+         * @type {gpf.interfaces.IFileStorage}
          * @since 0.2.1
          */
-        _gpfFileStorageByHost = {},
-        /**
-         * {@see gpf.fs.read} per host
-         *
-         * @type {Object}
-         * @since 0.2.2
-         */
-        _gpfFsReadImplByHost = {};
+        _gpfFileStorageImpl = null;
     /**
-     * Generic read method using FileStorage
+     * Set the file storage implementation if the host matches
      *
-     * @param {String} path File path
-     * @return {Promise<String>} Resolved with the file content
-     * @since 0.2.2
+     * @param {String} host host to test, if matching with the current one, an instance of the FileStorageClass is created
+     * @param {Function} FileStorageClass Class of the host specific file storage implementation
+     * @since 0.2.6
      */
-    function _gpfFileStorageRead(path) {
-        var fs = _gpfFileStorageByHost[_gpfHost], iWritableStream = new _GpfStreamWritableString();
-        return fs.openTextStream(path, _GPF_FS_OPENFOR.READING).then(function (iReadStream) {
-            return iReadStream.read(iWritableStream);
-        }).then(function () {
-            return iWritableStream.toString();
-        });
-    }
-    /**
-     * Generic read method
-     *
-     * @param {String} path File path
-     * @return {Promise<String>} Resolved with the file content
-     * @since 0.2.2
-     */
-    function _gpfFsRead(path) {
-        return _gpfFsReadImplByHost[_gpfHost](path);
+    function _gpfFsSetFileStorageIf(host, FileStorageClass) {
+        if (host === _gpfHost) {
+            _gpfFileStorageImpl = new FileStorageClass();
+        }
     }
     /**
      * @namespace gpf.fs
@@ -3612,13 +3578,8 @@
          * @since 0.1.9
          */
         getFileStorage: function () {
-            return _gpfFileStorageByHost[_gpfHost] || null;
-        },
-        /**
-         * @gpf:sameas _gpfFsRead
-         * @since 0.2.2
-         */
-        read: _gpfFsRead
+            return _gpfFileStorageImpl;
+        }
     };
     _gpfErrorDeclare("path", {
         /**
@@ -3708,10 +3669,21 @@
         }
         return name.substr(pos);
     }
+    var _gpfPathAppendPatterns = {
+        "": function (splitPath) {
+            splitPath.length = 0;
+            splitPath.push("");    // Will start with /
+        },
+        ".": _gpfEmptyFunc,
+        "..": function (splitPath) {
+            _gpfPathUp(splitPath);
+        }
+    };
     function _gpfPathAppend(splitPath, relativePath) {
-        _gpfPathDecompose(relativePath).forEach(function (relativeItem) {
-            if (".." === relativeItem) {
-                _gpfPathUp(splitPath);
+        _gpfArrayForEach(_gpfPathDecompose(relativePath), function (relativeItem) {
+            var pattern = _gpfPathAppendPatterns[relativeItem];
+            if (pattern) {
+                pattern(splitPath);
             } else {
                 splitPath.push(relativeItem);
             }
@@ -4164,8 +4136,7 @@
          */
         deleteDirectory: _gpfFsNodeFsCallWithPath.bind(null, "rmdir")    //endregion
     });
-    _gpfFileStorageByHost[_GPF_HOST.NODEJS] = new _GpfNodeFileStorage();
-    _gpfFsReadImplByHost[_GPF_HOST.NODEJS] = _gpfFileStorageRead;
+    _gpfFsSetFileStorageIf(_GPF_HOST.NODEJS, _GpfNodeFileStorage);
     var _GpfWscriptBaseStream = _gpfDefine({
             $class: "gpf.wscript.BaseStream",
             /**
@@ -4390,24 +4361,7 @@
          */
         deleteDirectory: _gpfFsWscriptFSOCallWithArgAndTrue.bind(null, "DeleteFolder")    //endregion
     });
-    _gpfFileStorageByHost[_GPF_HOST.WSCRIPT] = new _GpfWScriptFileStorage();
-    _gpfFsReadImplByHost[_GPF_HOST.WSCRIPT] = _gpfFileStorageRead;
-    _gpfFsReadImplByHost[_GPF_HOST.BROWSER] = gpf.Error.notImplemented;
-    _gpfFsReadImplByHost[_GPF_HOST.RHINO] = function (path) {
-        return new Promise(function (resolve) {
-            resolve(readFile(path));
-        });
-    };
-    _gpfFsReadImplByHost[_GPF_HOST.PHANTOMJS] = function (path) {
-        return new Promise(function (resolve, reject) {
-            try {
-                resolve(_gpfNodeFs.read(path));
-            } catch (e) {
-                // Error is a string
-                reject(new Error(e));
-            }
-        });
-    };
+    _gpfFsSetFileStorageIf(_GPF_HOST.WSCRIPT, _GpfWScriptFileStorage);
     var _gpfObjectToString = Object.prototype.toString;
     /**
      * Check if the parameter is a literal object
@@ -4792,109 +4746,35 @@
     /**
      * @gpf:sameas _gpfPromisify
      * @since 0.2.2
+     * @deprecated since version 0.2.6, use
+     * [Promise.resolve](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/resolve)
+     * instead
      */
     gpf.promisify = _gpfPromisify;
     /**
      * @gpf:sameas _gpfPromisifyDefined
      * @since 0.2.2
+     * @deprecated since version 0.2.6, use
+     * [Promise.resolve](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/resolve)
+     * combined with a condition instead
      */
     gpf.promisifyDefined = _gpfPromisifyDefined;
-    var _gpfHttpMockedRequests = {};
+    var _gpfHttpRequestImpl;
     /**
-     * Match the provided request with the mocked one
+     * Set the http request implementation if the host matches
      *
-     * @param {gpf.typedef.mockedRequest} mockedRequest Mocked request to match
-     * @return {Promise<gpf.typedef.httpRequestResponse>|undefined} undefined if not matching
-     * @this {gpf.typedef.httpRequestSettings}
-     * @since 0.2.2
+     * @param {String} host host to test, if matching with the current one, the http request implementation is set
+     * @param {Function} httpRequestImpl http request implementation function
+     * @return {Function} Previous host specific implementation
+     * @since 0.2.6
      */
-    function _gpfHttMockMatchRequest(mockedRequest) {
-        /*jshint validthis:true*/
-        var url = mockedRequest.url, match;
-        url.lastIndex = 0;
-        match = url.exec(this.url);
-        if (match) {
-            return _gpfPromisifyDefined(mockedRequest.response.apply(null, [this].concat([].slice.call(match, 1))));
+    function _gpfHttpSetRequestImplIf(host, httpRequestImpl) {
+        var result = _gpfHttpRequestImpl;
+        if (host === _gpfHost) {
+            _gpfHttpRequestImpl = httpRequestImpl;
         }
+        return result;
     }
-    /**
-     * Match the provided request to the list of mocked ones
-     *
-     * @param {gpf.typedef.mockedRequest[]} mockedRequests List of mocked requests for the given method
-     * @param {gpf.typedef.httpRequestSettings} request Request to match
-     * @return {Promise<gpf.typedef.httpRequestResponse>|undefined} undefined if no mocked request matches
-     * @since 0.2.2
-     */
-    function _gpfHttMockMatch(mockedRequests, request) {
-        return _gpfArrayForEachFalsy(mockedRequests, _gpfHttMockMatchRequest.bind(request));
-    }
-    /**
-     * Check if the provided request match any of the mocked one
-     *
-     * @param {gpf.typedef.httpRequestSettings} request Request to check
-     * @return {Promise<gpf.typedef.httpRequestResponse>|undefined} undefined if no mocked request matches
-     * @since 0.2.2
-     */
-    function _gpfHttpMockCheck(request) {
-        return _gpfHttMockMatch(_gpfHttpMockedRequests[request.method], request);
-    }
-    var _gpfHttpMockLastId = 0;
-    /**
-     * Add a mocked request
-     *
-     * @param {gpf.typedef.mockedRequest} definition Mocked request definition
-     * @return {gpf.typedef.mockedRequestID} Mocked request identifier, to be used with {@link gpf.http.mock.remove}
-     * @see gpf.http
-     * @since 0.2.2
-     */
-    function _gpfHttpMockAdd(definition) {
-        var method = definition.method, id;
-        ++_gpfHttpMockLastId;
-        id = method + "." + _gpfHttpMockLastId;
-        _gpfHttpMockedRequests[method].unshift(Object.assign({
-            method: method,
-            id: id
-        }, definition));
-        return id;
-    }
-    /**
-     * Removes a mocked request
-     *
-     * @param {gpf.typedef.mockedRequestID} id Mocked request identifier returned by {@link gpf.http.mock}
-     * @since 0.2.2
-     */
-    function _gpfHttpMockRemove(id) {
-        var method = id.split(".")[0];
-        _gpfHttpMockedRequests[method] = _gpfHttpMockedRequests[method].filter(function (mockedRequest) {
-            return mockedRequest.id !== id;
-        });
-    }
-    /**
-     * Clears all mocked requests
-     * @since 0.2.2
-     */
-    function _gpfHttpMockReset() {
-        Object.keys(_GPF_HTTP_METHODS).forEach(function (method) {
-            _gpfHttpMockedRequests[method] = [];
-        });
-    }
-    _gpfHttpMockReset();
-    /**
-     * @gpf:sameas _gpfHttpMockAdd
-     * @since 0.2.2
-     */
-    gpf.http.mock = _gpfHttpMockAdd;
-    /**
-     * @gpf:sameas _gpfHttpMockRemove
-     * @since 0.2.2
-     */
-    gpf.http.mock.remove = _gpfHttpMockRemove;
-    /**
-     * @gpf:sameas _gpfHttpMockReset
-     * @since 0.2.2
-     */
-    gpf.http.mock.reset = _gpfHttpMockReset;
-    var _gpfHttpRequestImplByHost = {};
     /**
      * HTTP request common implementation
      *
@@ -4903,8 +4783,8 @@
      * @since 0.2.1
      */
     function _gpfHttpRequest(request) {
-        return _gpfHttpMockCheck(request) || new Promise(function (resolve, reject) {
-            _gpfHttpRequestImplByHost[_gpfHost](request, resolve, reject);
+        return new Promise(function (resolve, reject) {
+            _gpfHttpRequestImpl(request, resolve, reject);
         });
     }
     /**
@@ -5054,7 +4934,8 @@
         });
         _gpfHttpXhrSend(xhr, request.data);
     }
-    _gpfHttpRequestImplByHost[_GPF_HOST.BROWSER] = _gpfHttpRequestImplByHost[_GPF_HOST.PHANTOMJS] = _gpfHttpXhrRequest;
+    _gpfHttpSetRequestImplIf(_GPF_HOST.BROWSER, _gpfHttpXhrRequest);
+    _gpfHttpSetRequestImplIf(_GPF_HOST.PHANTOMJS, _gpfHttpXhrRequest);
     function _gpfStringFromStream(readableStream) {
         var iWritableString = new _GpfStreamWritableString(), iReadableStream = _gpfStreamQueryReadable(readableStream);
         return iReadableStream.read(iWritableString).then(function () {
@@ -5107,11 +4988,12 @@
             clientRequest.end();
         }
     }
-    _gpfHttpRequestImplByHost[_GPF_HOST.NODEJS] = function (request, resolve, reject) {
+    function _gpfHttpNodeRequestImpl(request, resolve, reject) {
         var clientRequest = _gpfHttpNodeAllocate(request, resolve);
         clientRequest.on("error", reject);
         _gpfHttpNodeSend(clientRequest, request.data);
-    };
+    }
+    _gpfHttpSetRequestImplIf(_GPF_HOST.NODEJS, _gpfHttpNodeRequestImpl);
     var _gpfHttpWScriptSetHeaders = _gpfHttpGenSetHeaders("setRequestHeader"), _gpfHttpWScriptSend = _gpfHttpGenSend("Send");
     function _gpfHttpWScriptAllocate(request) {
         var winHttp = new ActiveXObject("WinHttp.WinHttpRequest.5.1");
@@ -5125,12 +5007,13 @@
             responseText: winHttp.ResponseText
         });
     }
-    _gpfHttpRequestImplByHost[_GPF_HOST.WSCRIPT] = function (request, resolve) {
+    function _gpfHttpWscriptRequestImpl(request, resolve) {
         var winHttp = _gpfHttpWScriptAllocate(request);
         _gpfHttpWScriptSetHeaders(winHttp, request.headers);
         _gpfHttpWScriptSend(winHttp, request.data);
         _gpfHttpWScriptResolve(winHttp, resolve);
-    };
+    }
+    _gpfHttpSetRequestImplIf(_GPF_HOST.WSCRIPT, _gpfHttpWscriptRequestImpl);
     var _GpfStreamJavaBase = _gpfDefine({
             $class: "gpf.java.BaseStream",
             /**
@@ -5250,18 +5133,6 @@
              */
             _writer: null
         });
-    _gpfFsReadImplByHost[_GPF_HOST.NASHORN] = function (path) {
-        var javaPath = java.nio.file.Paths.get(path);
-        if (java.nio.file.Files.exists(javaPath)) {
-            return new Promise(function (resolve, reject) {
-                var javaInputStream = java.nio.file.Files.newInputStream(javaPath), iStreamReader = new _GpfStreamJavaReadable(javaInputStream), iWritableString = new _GpfStreamWritableString();
-                return iStreamReader.read(iWritableString).then(function () {
-                    resolve(iWritableString.toString());
-                })["catch"](reject);
-            });
-        }
-        return Promise.reject(new Error("File not found"));    // To be improved
-    };
     var _gpfHttpJavaSetHeaders = _gpfHttpGenSetHeaders("setRequestProperty");
     function _gpfHttpJavaSendData(httpConnection, data) {
         if (data) {
@@ -5311,8 +5182,115 @@
             _gpfHttpJavaResolve(httpConnection, resolve);
         });
     }
-    _gpfHttpRequestImplByHost[_GPF_HOST.RHINO] = _gpfHttpJavaRequestImpl;
-    _gpfHttpRequestImplByHost[_GPF_HOST.NASHORN] = _gpfHttpJavaRequestImpl;
+    _gpfHttpSetRequestImplIf(_GPF_HOST.RHINO, _gpfHttpJavaRequestImpl);
+    _gpfHttpSetRequestImplIf(_GPF_HOST.NASHORN, _gpfHttpJavaRequestImpl);
+    var _gpfHttpMockedRequests = {};
+    /**
+     * Match the provided request with the mocked one
+     *
+     * @param {gpf.typedef.mockedRequest} mockedRequest Mocked request to match
+     * @param {gpf.typedef.httpRequestSettings} request Request to match
+     * @return {Promise<gpf.typedef.httpRequestResponse>|undefined} undefined if not matching
+     * @since 0.2.2
+     */
+    function _gpfHttMockMatchRequest(mockedRequest, request) {
+        var url = mockedRequest.url, match;
+        url.lastIndex = 0;
+        match = url.exec(request.url);
+        if (match) {
+            return mockedRequest.response.apply(mockedRequest, [request].concat([].slice.call(match, 1)));
+        }
+    }
+    /**
+     * Match the provided request to the list of mocked ones
+     *
+     * @param {gpf.typedef.mockedRequest[]} mockedRequests List of mocked requests for the given method
+     * @param {gpf.typedef.httpRequestSettings} request Request to match
+     * @return {Promise<gpf.typedef.httpRequestResponse>|undefined} undefined if no mocked request matches
+     * @since 0.2.2
+     */
+    function _gpfHttMockMatch(mockedRequests, request) {
+        var result;
+        mockedRequests.every(function (mockedRequest) {
+            result = _gpfHttMockMatchRequest(mockedRequest, request);
+            return result === undefined;
+        });
+        return result;
+    }
+    /**
+     * Check if the provided request match any of the mocked one
+     *
+     * @param {gpf.typedef.httpRequestSettings} request Request to check
+     * @return {Promise<gpf.typedef.httpRequestResponse>|undefined} undefined if no mocked request matches
+     * @since 0.2.2
+     */
+    function _gpfHttpMockCheck(request) {
+        return _gpfHttMockMatch(_gpfHttpMockedRequests[request.method], request);
+    }
+    var _gpfHttpMockLastId = 0;
+    /**
+     * Add a mocked request
+     *
+     * @param {gpf.typedef.mockedRequest} definition Mocked request definition
+     * @return {gpf.typedef.mockedRequestID} Mocked request identifier, to be used with {@link gpf.http.mock.remove}
+     * @see gpf.http
+     * @since 0.2.2
+     */
+    function _gpfHttpMockAdd(definition) {
+        var method = definition.method, id;
+        ++_gpfHttpMockLastId;
+        id = method + "." + _gpfHttpMockLastId;
+        _gpfHttpMockedRequests[method].unshift(Object.assign({ id: id }, definition));
+        return id;
+    }
+    /**
+     * Removes a mocked request
+     *
+     * @param {gpf.typedef.mockedRequestID} id Mocked request identifier returned by {@link gpf.http.mock}
+     * @since 0.2.2
+     */
+    function _gpfHttpMockRemove(id) {
+        var method = id.split(".")[0];
+        _gpfHttpMockedRequests[method] = _gpfHttpMockedRequests[method].filter(function (mockedRequest) {
+            return mockedRequest.id !== id;
+        });
+    }
+    /**
+     * Clears all mocked requests
+     * @since 0.2.2
+     */
+    function _gpfHttpMockReset() {
+        Object.keys(_GPF_HTTP_METHODS).forEach(function (method) {
+            _gpfHttpMockedRequests[method] = [];
+        });
+    }
+    _gpfHttpMockReset();
+    /**
+     * @gpf:sameas _gpfHttpMockAdd
+     * @since 0.2.2
+     */
+    gpf.http.mock = _gpfHttpMockAdd;
+    /**
+     * @gpf:sameas _gpfHttpMockRemove
+     * @since 0.2.2
+     */
+    gpf.http.mock.remove = _gpfHttpMockRemove;
+    /**
+     * @gpf:sameas _gpfHttpMockReset
+     * @since 0.2.2
+     */
+    gpf.http.mock.reset = _gpfHttpMockReset;
+    // Hook the mocking algorithm on top of host specific implementation
+    var _gpfHttpMockRequestImpl;
+    function _gpfHttpMockImpl(request, resolve, reject) {
+        var mockedResult = _gpfHttpMockCheck(request);
+        if (undefined === mockedResult) {
+            _gpfHttpMockRequestImpl(request, resolve, reject);
+        } else {
+            resolve(mockedResult);
+        }
+    }
+    _gpfHttpMockRequestImpl = _gpfHttpSetRequestImplIf(_gpfHost, _gpfHttpMockImpl);
     function _GpfStreamBufferedReadToken() {
     }
     _GpfStreamBufferedReadToken.prototype = {
@@ -5585,30 +5563,106 @@
             }
         });
     var _gpfIFlushableStream = _gpfDefineInterface("FlushableStream", { "flush": 0 });
-    var _gpfRequireLoadImpl;
-    function _gpfRequireLoadHTTP(name) {
+    var _gpfReadImpl = {};
+    /**
+     * Set the read implementation if the host matches
+     *
+     * @param {String} host host to test, if matching with the current one, the read implementation is set
+     * @param {Function} readImpl read implementation function
+     * @since 0.2.6
+     */
+    function _gpfReadSetImplIf(host, readImpl) {
+        if (host === _gpfHost) {
+            _gpfReadImpl = readImpl;
+        }
+    }
+    /**
+     * Generic read method
+     *
+     * @param {String} path File path
+     * @return {Promise<String>} Resolved with the file content
+     * @since 0.2.2
+     */
+    function _gpfRead(path) {
+        return _gpfReadImpl(path);
+    }
+    /**
+     * @gpf:sameas _gpfRead
+     * @since 0.2.6
+     */
+    gpf.read = _gpfRead;
+    /* istanbul ignore else */
+    // flavor.1
+    if (gpf.fs) {
+        /**
+         * @gpf:sameas _gpfRead
+         * @since 0.2.2
+         * @deprecated since version 0.2.6, use {@link gpf.read} instead
+         */
+        gpf.fs.read = _gpfRead;
+    }
+    function _gpfReadHttp(path) {
         return _gpfHttpRequest({
             method: _GPF_HTTP_METHODS.GET,
-            url: name
+            url: path
         }).then(function (response) {
+            if (2 !== Math.floor(response.status / 100)) {
+                throw new Error(response.responseText);
+            }
             return response.responseText;
         });
     }
-    function _gpfRequireLoadFS(name) {
-        // Must be relative to the current execution path
-        return _gpfFsRead(_gpfPathJoin(".", name));
+    _gpfReadSetImplIf(_GPF_HOST.BROWSER, _gpfReadHttp);
+    function _gpfReadNashorn(path) {
+        var javaPath = java.nio.file.Paths.get(path);
+        if (java.nio.file.Files.exists(javaPath)) {
+            return new Promise(function (resolve, reject) {
+                var javaInputStream = java.nio.file.Files.newInputStream(javaPath), iStreamReader = new _GpfStreamJavaReadable(javaInputStream), iWritableString = new _GpfStreamWritableString();
+                return iStreamReader.read(iWritableString).then(function () {
+                    resolve(iWritableString.toString());
+                })["catch"](reject);
+            });
+        }
+        return Promise.reject(new Error("File not found"));    // To be improved
     }
-    if (_gpfHost === _GPF_HOST.BROWSER) {
-        _gpfRequireLoadImpl = _gpfRequireLoadHTTP;
-    } else {
-        _gpfRequireLoadImpl = _gpfRequireLoadFS;
+    _gpfReadSetImplIf(_GPF_HOST.NASHORN, _gpfReadNashorn);
+    function _gpfReadNodeJS(path) {
+        return new Promise(function (resolve, reject) {
+            _gpfNodeFs.readFile(path, function (err, data) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(data.toString());
+                }
+            });
+        });
     }
-    /**
-     * Mapping of resource extension to processor function
-     *
-     * @type {Object}
-     * @since 0.2.2
-     */
+    _gpfReadSetImplIf(_GPF_HOST.NODEJS, _gpfReadNodeJS);
+    function _gpfReadPhantomJS(path) {
+        return new Promise(function (resolve, reject) {
+            try {
+                resolve(_gpfNodeFs.read(path));
+            } catch (e) {
+                // Error is a string
+                reject(new Error(e));
+            }
+        });
+    }
+    _gpfReadSetImplIf(_GPF_HOST.PHANTOMJS, _gpfReadPhantomJS);
+    function _gpfReadRhino(path) {
+        return new Promise(function (resolve) {
+            resolve(readFile(path));
+        });
+    }
+    _gpfReadSetImplIf(_GPF_HOST.RHINO, _gpfReadRhino);
+    function _gpfReadWScript(path) {
+        return new Promise(function (resolve) {
+            var file = _gpfMsFSO.OpenTextFile(path, 1, false);
+            resolve(file.ReadAll());
+            file.Close();
+        });
+    }
+    _gpfReadSetImplIf(_GPF_HOST.WSCRIPT, _gpfReadWScript);
     var _gpfRequireProcessor = {};
     /**
      * Load the resource
@@ -5619,7 +5673,7 @@
      */
     function _gpfRequireLoad(name) {
         var me = this;
-        return _gpfRequireLoadImpl(name).then(function (content) {
+        return _gpfRead(name).then(function (content) {
             var processor = _gpfRequireProcessor[_gpfPathExtension(name).toLowerCase()];
             if (processor) {
                 return processor.call(me, name, content);
@@ -5741,7 +5795,6 @@
             return params.factory.apply(null, [].slice.call(require));
         });
     }
-    //endregion
     function _gpfRequireJS(myGpf, content, staticDependencies) {
         var module = {};
         _gpfFunc([
@@ -5754,11 +5807,23 @@
         });
         return module.exports;
     }
-    //endregion
+    /*global location*/
+    function _gpfRequireSourceMapBrowswer(name, content) {
+        return "//# sourceURL=" + location.origin + _gpfPathJoin(location.pathname, name) + "?gpf.require\n" + content;
+    }
+    function _gpfRequireSourceMapNone(name, content) {
+        return content;
+    }
+    var _gpfRequireSourceMapImpl;
+    if (_GPF_HOST.BROWSER === _gpfHost) {
+        _gpfRequireSourceMapImpl = _gpfRequireSourceMapBrowswer;
+    } else {
+        _gpfRequireSourceMapImpl = _gpfRequireSourceMapNone;
+    }
     _gpfRequireProcessor[".js"] = function (resourceName, content) {
         var wrapper = _gpfRequireWrapGpf(this, resourceName);
         return _gpfRequireJSGetStaticDependencies.call(this, resourceName, content).then(function (staticDependencies) {
-            var exports = _gpfRequireJS(wrapper.gpf, content, staticDependencies);
+            var exports = _gpfRequireJS(wrapper.gpf, _gpfRequireSourceMapImpl(resourceName, content), staticDependencies);
             if (undefined === exports) {
                 return wrapper.promise;
             }
@@ -5821,7 +5886,7 @@
         },
         cache: function (cache) {
             _gpfArrayForEach(Object.keys(cache), function (name) {
-                this.cache[name] = _gpfPromisify(cache[name]);
+                this.cache[name] = Promise.resolve(cache[name]);
             }, this);
         },
         clearCache: function () {
@@ -5854,6 +5919,12 @@
     function _gpfRequireResolve(name) {
         return _gpfPathJoin(this.base, name);
     }
+    function _gpfRequireDocumentStack(reason, name) {
+        if (!Array.isArray(reason.requires)) {
+            reason.requires = [];
+        }
+        reason.requires.push(name);
+    }
     /**
      * Get the cached resource or load it
      *
@@ -5868,7 +5939,10 @@
         }
         promise = _gpfRequireLoad.call(me, name);
         me.cache[name] = promise;
-        return promise;
+        return promise["catch"](function (reason) {
+            _gpfRequireDocumentStack(reason, name);
+            return Promise.reject(reason);
+        });
     }
     /**
      * Defines a new module by executing the factory function with the specified dependent resources,
