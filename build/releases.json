@@ -303,7 +303,7 @@
         "version": "0.2.6",
         "label": "gpf.require.js",
         "date": "2018-05-03",
-        "notes": "",
+        "notes": "2018/05/release-026-gpfrequirejs.html",
         "milestone": 14,
         "metrics": {
             "coverage": {
