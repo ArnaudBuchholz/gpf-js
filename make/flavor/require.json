@@ -4,6 +4,6 @@
     "tests": ["require"],
     "description": "Standalone gpf.require.define for modern browsers and NodeJS",
     "api":[
-        "gpf.require"
+        "gpf.require.*"
     ]
 }
