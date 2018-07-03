@@ -462,5 +462,13 @@
     },
     {
         "name": "stream/map"
+    },
+    {
+        "name": "interfaces/xmlcontenthandler",
+        "test": false
+    },
+    {
+        "name": "xml/writer",
+        "load": false
     }
 ]
