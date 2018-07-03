@@ -64,8 +64,8 @@
  *
  * @method gpf.interfaces.IXmlContentHandler#startElement
  * @param {String} qName Qualified name, [prefix:]localName
- * @param {String} uri Namespace URI associated with the name
- * @param {Object} attributes attribute dictionary (string/string)
+ * @param {String} [uri=""] Namespace URI associated with the name
+ * @param {Object} [attributes={}] attribute dictionary (string/string)
  * @return {Promise} Resolved when ready
  */
 
