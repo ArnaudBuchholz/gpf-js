@@ -1,0 +1,12 @@
+version: "2"
+exclude_patterns:
+  - ".eslintrules/"
+  - "build/"
+  - "doc/"
+  - "grunt/"
+  - "logo/"
+  - "lost+found/"
+  - "make/"
+  - "res/"
+  - "test/"
+  - "tmp/"
