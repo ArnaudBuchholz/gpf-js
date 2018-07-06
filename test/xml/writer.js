@@ -2,104 +2,118 @@
 
 describe("xml/writer", function () {
 
+    // Simplify the writing of the tests, may be productized by a generic interface wrapper
+    function wrap (writer, promise) {
+        var wrapped = Object.create(promise);
+        [
+            "characters",
+            "endDocument",
+            "endElement",
+            "endPrefixMapping",
+            "processingInstruction",
+            "startDocument",
+            "startElement",
+            "startPrefixMapping"
+        ].forEach(function (apiName) {
+            wrapped[apiName] = function () {
+                var args = arguments;
+                promise.then(function () {
+                    return wrap(writer, writer.call(writer, args));
+                });
+            };
+        });
+        return wrapped;
+    }
+
     function allocateWriter (done) {
         var writer = new gpf.xml.Writer(),
             output = new gpf.stream.WritableString();
         gpf.stream.pipe(writer, output).then(function () {
             done(output.toString());
         });
-        return writer;
+        return wrap(writer, Promise.resolve());
     }
 
     it("can be piped", function (done) {
-        var writer = allocateWriter(function (output) {
+        allocateWriter(function (output) {
             assert(output === "<document/>");
             done();
-        });
-        writer.startDocument().then(function () {
-            return writer.startElement("document");
-        }).then(function () {
-            return writer.endElement();
-        }).then(function () {
-            return writer.endDocument();
-        });
+        })
+            .startDocument()
+            .startElement("document")
+            .endElement()
+            .endDocument()["catch"](done);
     });
 
     it("allows processing instructions", function (done) {
-        var writer = allocateWriter(function (output) {
+        allocateWriter(function (output) {
             assert(output === "<?test test-data?>\n<document/>");
             done();
-        });
-        writer.startDocument().then(function () {
-            return writer.processingInstruction("test", "test-data");
-        }).then(function () {
-            return writer.startElement("document");
-        }).then(function () {
-            return writer.endElement();
-        }).then(function () {
-            return writer.endDocument();
-        });
+        })
+            .startDocument()
+            .processingInstruction("test", "test-data")
+            .startElement("document")
+            .endElement()
+            .endDocument()["catch"](done);
     });
 
-    it("supports attributes", function (done) {
-        var writer = allocateWriter(function (output) {
+    it("supports attributes (string value)", function (done) {
+        allocateWriter(function (output) {
             assert(output === "<document test=\"value\"/>");
             done();
-        });
-        writer.startDocument().then(function () {
-            return writer.startElement("document", {
+        })
+            .startDocument()
+            .startElement("document", {
                 "test": "value"
-            });
-        }).then(function () {
-            return writer.endElement();
-        }).then(function () {
-            return writer.endDocument();
-        });
+            })
+            .endElement()
+            .endDocument()["catch"](done);
     });
 
-    it("supports attributes", function (done) {
-        var writer = allocateWriter(function (output) {
+    it("supports attributes (number value)", function (done) {
+        allocateWriter(function (output) {
+            assert(output === "<document test=\"2\"/>");
+            done();
+        })
+            .startDocument()
+            .startElement("document", {
+                "test": 2
+            })
+            .endElement()
+            .endDocument()["catch"](done);
+    });
+
+    it("supports multiple attributes", function (done) {
+        allocateWriter(function (output) {
             // Order of attributes is *not* significant
             assert(output === "<document test1=\"value1\" test2=\"value2\"/>"
                 || output === "<document test2=\"value2\" test1=\"value1\"/>");
             done();
-        });
-        writer.startDocument().then(function () {
-            return writer.startElement("document", "", {
+        })
+            .startDocument()
+            .startElement("document", "", {
                 "test1": "value1",
                 "test2": "value2"
-            });
-        }).then(function () {
-            return writer.endElement();
-        }).then(function () {
-            return writer.endDocument();
-        });
+            })
+            .endElement()
+            .endDocument()["catch"](done);
     });
 
     it("supports nodes hierarchy", function (done) {
-        var writer = allocateWriter(function (output) {
+        allocateWriter(function (output) {
             assert(output === "<document><a><b/></a><c/></document>");
             done();
-        });
-        writer.startDocument().then(function () {
-            return writer.startElement("document");
-        }).then(function () {
-            return writer.startElement("a");
-        }).then(function () {
-            return writer.startElement("b");
-        }).then(function () {
-            return writer.endElement();
-        }).then(function () {
-            return writer.endElement();
-        }).then(function () {
-            return writer.startElement("c");
-        }).then(function () {
-            return writer.endElement();
-        }).then(function () {
-            return writer.endElement();
-        }).then(function () {
-            return writer.endDocument();
-        });
+        })
+            .startDocument()
+            .startElement("document")
+            .startElement("a")
+            .startElement("b")
+            .endElement()
+            .endElement()
+            .startElement("c")
+            .endElement()
+            .endElement()
+            .endDocument()["catch"](done);
     });
 
 });
