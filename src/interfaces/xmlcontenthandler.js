@@ -71,6 +71,7 @@
 /**
  * Signal the scope start a prefix-URI namespace mapping
  *
+ * @method gpf.interfaces.IXmlContentHandler#startPrefixMapping
  * @param {String} prefix Prefix of the prefix-URI mapping
  * @param {String} uri Namespace URI associated with the prefix
  * @return {Promise} Resolved when ready
