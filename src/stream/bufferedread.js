@@ -14,7 +14,6 @@
 
 // NOTE: to avoid naming collisions with subclasses, all private members are prefixed with _read
 
-
 /**
  * Token being used to control data flow
  *
