@@ -34,6 +34,10 @@ describe("xml/writer", function () {
         return wrap(writer, Promise.resolve());
     }
 
+    it ("implements gpf.interfaces.IXmlContentHandler", function () {
+        assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IXmlContentHandler, gpf.xml.Writer));
+    });
+
     it("can be piped", function (done) {
         allocateWriter(function (output) {
             assert(output === "<document/>");
