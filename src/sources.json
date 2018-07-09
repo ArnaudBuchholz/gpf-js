@@ -468,7 +468,6 @@
         "test": false
     },
     {
-        "name": "xml/writer",
-        "load": false
+        "name": "xml/writer"
     }
 ]
