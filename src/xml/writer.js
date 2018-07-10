@@ -53,15 +53,17 @@ var
             }
         },
 
-        _checkIfElementsExist: function (mustHaveElements) {
-            if (mustHaveElements && this._elements.length === 0) {
+        _checkIfElementsExist: function (hasElements) {
+            if (hasElements !== (this._elements.length !== 0)) {
                 gpf.Error.invalidXmlWriterState();
             }
         },
 
-        _checkState: function (started, mustHaveElements) {
+        _checkState: function (started, hasElements) {
             this._checkIfStarted(started);
-            this._checkIfElementsExist(mustHaveElements);
+            if (undefined !== hasElements) {
+                this._checkIfElementsExist(hasElements);
+            }
         },
 
         // region gpf.interfaces.IXmlContentHandler
@@ -103,7 +105,7 @@ var
 
         /** @gpf:sameas gpf.interfaces.IXmlContentHandler#endPrefixMapping */
         endPrefixMapping: function (prefix) {
-            this._checkState(true, false);
+            this._checkState(true);
             _gpfIgnore(prefix);
             return Promise.resolve();
         },
@@ -132,7 +134,7 @@ var
 
         /** @gpf:sameas gpf.interfaces.IXmlContentHandler#startElement */
         startElement: function (qName, attributes) {
-            this._checkState(true, false);
+            this._checkState(true);
             this._addContentToLastElement();
             this._appendToReadBuffer("<" + qName);
             if (attributes) {
@@ -145,7 +147,7 @@ var
 
         /** @gpf:sameas gpf.interfaces.IXmlContentHandler#startPrefixMapping */
         startPrefixMapping: function (prefix, uri) {
-            this._checkState(true, false);
+            this._checkState(true);
             _gpfIgnore(prefix);
             _gpfIgnore(uri);
         }
