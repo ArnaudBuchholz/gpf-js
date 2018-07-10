@@ -39,6 +39,21 @@ describe("xml/writer", function () {
         return wrap(writer, Promise.resolve());
     }
 
+    function shouldNotSucceed () {
+        assert(false);
+    }
+
+    function assessInvalidXmlWriterState (done) {
+        return function (reason) {
+            try {
+                assert(reason instanceof gpf.Error.InvalidXmlWriterState);
+                done();
+            } catch (error) {
+                done(error);
+            }
+        };
+    }
+
     it("implements gpf.interfaces.IXmlContentHandler", function () {
         assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IXmlContentHandler, gpf.xml.Writer));
     });
@@ -142,4 +157,34 @@ describe("xml/writer", function () {
             .endDocument()["catch"](done);
     });
 
+    describe("Invalid XML state", function () {
+
+        it("must start with a document", function (done) {
+            allocateWriter(done, shouldNotSucceed)
+                .startElement("document")["catch"](assessInvalidXmlWriterState(done));
+        });
+
+        it("forbids processing instructions once an element is added", function (done) {
+            allocateWriter(done, shouldNotSucceed)
+                .startDocument()
+                .startElement("document")
+                .processingInstruction("test", "test-data")["catch"](assessInvalidXmlWriterState(done));
+        });
+
+        it("makes sure all opened elements are closed (endElement)", function (done) {
+            allocateWriter(done, shouldNotSucceed)
+                .startDocument()
+                .startElement("document")
+                .endElement()
+                .endElement()["catch"](assessInvalidXmlWriterState(done));
+        });
+
+        it("makes sure all opened elements are closed (endDocument)", function (done) {
+            allocateWriter(done, shouldNotSucceed)
+                .startDocument()
+                .startElement("document")
+                .endDocument()["catch"](assessInvalidXmlWriterState(done));
+        });
+
+    });
 });
