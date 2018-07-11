@@ -106,11 +106,17 @@ var
             }
         },
 
-        _addContentToLastElement: function () {
-            var element = this._elements[0];
-            if (element && !element.content) {
+        _addContentToElement: function (element) {
+            if (!element.content) {
                 this._appendToReadBuffer(">");
                 element.content = true;
+            }
+        },
+
+        _addContentToLastElement: function () {
+            var element = this._elements[0];
+            if (element) {
+                return this._addContentToElement(element);
             }
         },
 
