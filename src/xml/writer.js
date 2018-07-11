@@ -7,6 +7,7 @@
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global  _gpfStringEscapeFor*/ // Make the string content compatible with lang
 /*global _gpfObjectForEach*/
+/*global _gpfArrayForEachFalsy*/
 /*global _gpfIgnore*/
 /*global _GpfStreamBufferedRead*/ // gpf.stream.BufferedRead
 /*exported _GpfXmlWriter*/ // gpf.xml.Writer
@@ -23,11 +24,48 @@ _gpfErrorDeclare("xml/writer", {
      *
      * This error is used when a method can not be called due to the current XML writer state
      */
-    invalidXmlWriterState: "Invalid XML Writer state"
+    invalidXmlWriterState: "Invalid XML Writer state",
+
+    /**
+     * ### Summary
+     *
+     * Invalid XML name
+     *
+     * ### Description
+     *
+     * Invalid XML Element and attribute name
+     */
+    invalidXmlName: "Invalid XML name",
+
+    /**
+     * ### Summary
+     *
+     * Invalid XML namespace prefix
+     *
+     * ### Description
+     *
+     * Invalid XML namespace prefix
+     */
+    invalidXmlNamespacePrefix: "Invalid XML namespace prefix",
+
+    /**
+     * ### Summary
+     *
+     * Unknown XML namespace prefix
+     *
+     * ### Description
+     *
+     * This error is triggered when an element or an attribute is prefixed with an unknown namespace prefix
+     */
+    unknownXmlNamespacePrefix: "Unknown XML namespace prefix"
 
 });
 
 var
+    _gpfXmlWriterNameValidation = new RegExp("^[a-z_][a-zA-Z0-9_\\-]*$"),
+    _gpfXmlWriterNamespacePrefixValidation = new RegExp("^(|[a-z_][a-zA-Z0-9_]*)$"),
+    _gpfXmlWriterPredefinedNamespacePrefixes = ["xml", "xmlns"],
+
     _GpfXmlWriter = _gpfDefine({
         $class: "gpf.xml.Writer",
         $extend: _GpfStreamBufferedRead,
@@ -42,9 +80,11 @@ var
          */
         constructor: function () {
             this._elements = [];
+            this._nextNamespaces = {};
         },
 
         _elements: [],
+        _nextNamespaces: {},
         _started: false,
 
         _checkIfStarted: function (started) {
@@ -66,8 +106,6 @@ var
             }
         },
 
-        // region gpf.interfaces.IXmlContentHandler
-
         _addContentToLastElement: function () {
             var element = this._elements[0];
             if (element && !element.content) {
@@ -75,6 +113,82 @@ var
                 element.content = true;
             }
         },
+
+        _checkValidName: function (name) {
+            if (!name.match(_gpfXmlWriterNameValidation)) {
+                gpf.Error.invalidXmlName();
+            }
+        },
+
+        _getNamespacePrefixURI: function (prefix) {
+            return _gpfArrayForEachFalsy(this._elements, function (element) {
+                return element.namespaces[prefix];
+            });
+        },
+
+        _checkNamespacePrefixWasDefined: function (prefix) {
+            if (!this._getNamespacePrefixURI(prefix)) {
+                gpf.Error.unknownXmlNamespacePrefix();
+            }
+        },
+
+        _checkNamespacePrefix: function (prefix) {
+            if (prefix !== "xml") {
+                this._checkNamespacePrefixWasDefined(prefix);
+            }
+        },
+
+        _checkQualifiedName: function (qName) {
+            var columnPos = qName.indexOf(":");
+            if (-1 === columnPos) {
+                this._checkValidName(qName);
+            } else {
+                this._checkNamespacePrefix(qName.substr(0, columnPos));
+                this._checkValidName(qName.substr(columnPos + 1));
+            }
+        },
+
+        _writeAttribute: function (qName, value) {
+            this._appendToReadBuffer(" " + qName + "=\"");
+            this._appendToReadBuffer(_gpfStringEscapeFor(value.toString(), "xml"));
+            this._appendToReadBuffer("\"");
+        },
+
+        _validateAndwriteAttribute: function (value, qName) {
+            this._checkQualifiedName(qName);
+            this._writeAttribute(qName, value);
+        },
+
+        _processAttributes: function (attributes) {
+            _gpfObjectForEach(attributes, this._validateAndwriteAttribute, this);
+        },
+
+        _processNamespaces: function (namespaces) {
+            _gpfObjectForEach(namespaces, function (value, name) {
+                /*jshint validthis:true*/
+                var me = this; //eslint-disable-line no-invalid-this
+                if (name) {
+                    me._writeAttribute("xmlns:" + name, value);
+                } else {
+                    me._writeAttribute("xmlns", value);
+                }
+            }, this);
+        },
+
+        _checkNotAPredefinedNamespacePrefix: function (prefix) {
+            if (_gpfXmlWriterPredefinedNamespacePrefixes.indexOf(prefix) !== -1) {
+                gpf.Error.invalidXmlNamespacePrefix();
+            }
+        },
+
+        _checkValidNamespacePrefix: function (prefix) {
+            if (!prefix.match(_gpfXmlWriterNamespacePrefixValidation)) {
+                gpf.Error.invalidXmlNamespacePrefix();
+            }
+            this._checkNotAPredefinedNamespacePrefix(prefix);
+        },
+
+        // region gpf.interfaces.IXmlContentHandler
 
         /** @gpf:sameas gpf.interfaces.IXmlContentHandler#characters */
         characters: function (buffer) {
@@ -103,7 +217,10 @@ var
             return Promise.resolve();
         },
 
-        /** @gpf:sameas gpf.interfaces.IXmlContentHandler#endPrefixMapping */
+        /**
+         * @gpf:sameas gpf.interfaces.IXmlContentHandler#endPrefixMapping
+         * Actually this call is ignored since closing the element owning the namespaces will do the same.
+         */
         endPrefixMapping: function (prefix) {
             this._checkState(true);
             _gpfIgnore(prefix);
@@ -124,32 +241,32 @@ var
             return Promise.resolve();
         },
 
-        _processAttributes: function (attributes) {
-            _gpfObjectForEach(attributes, function (value, name) {
-                this._appendToReadBuffer(" " + name + "=\"");
-                this._appendToReadBuffer(_gpfStringEscapeFor(value.toString(), "xml"));
-                this._appendToReadBuffer("\"");
-            }, this);
-        },
-
         /** @gpf:sameas gpf.interfaces.IXmlContentHandler#startElement */
         startElement: function (qName, attributes) {
+            var namespaces = this._nextNamespaces;
             this._checkState(true);
             this._addContentToLastElement();
+            this._elements.unshift({
+                qName: qName,
+                namespaces: namespaces
+            });
+            this._nextNamespaces = {};
+            this._checkQualifiedName(qName);
             this._appendToReadBuffer("<" + qName);
             if (attributes) {
                 this._processAttributes(attributes);
             }
-            this._elements.unshift({
-                qName: qName
-            });
+            this._processNamespaces(namespaces);
         },
 
         /** @gpf:sameas gpf.interfaces.IXmlContentHandler#startPrefixMapping */
         startPrefixMapping: function (prefix, uri) {
             this._checkState(true);
-            _gpfIgnore(prefix);
-            _gpfIgnore(uri);
+            this._checkValidNamespacePrefix(prefix);
+            if (this._nextNamespaces[prefix]) {
+                gpf.Error.invalidXmlWriterState();
+            }
+            this._nextNamespaces[prefix] = uri;
         }
 
         //endregion
