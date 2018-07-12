@@ -310,6 +310,69 @@ describe("define", function () {
 
             });
 
+            function describe_ () {
+                /* Until the implementation is working */
+            }
+
+            describe_("$abstract", function () {
+
+                var A, B, C;
+
+                before(function () {
+
+                    A = gpf.define({
+                        $class: "A",
+                        $abstract: true,
+                        _member: "defaultValue",
+                        getMember: function () {
+                            return this._member;
+                        },
+                        "constructor": function (memberValue) {
+                            if (memberValue) {
+                                this._member = memberValue;
+                            }
+                            this._constructorOfA = true;
+                        }
+                    });
+
+                    B = gpf.define({
+                        $class: "B",
+                        $extend: A
+                    });
+
+                    C = gpf.define({
+                        $class: "C",
+                        $extend: B,
+                        $abstract: true
+                    });
+
+                });
+
+                function _noInstantiation (AbstractClass) {
+                    it("prevents instantiation of abstract class ("
+                        + AbstractClass.compatibleName() + ")", function () {
+                        var exceptionCaught;
+                        try {
+                            var instance = new AbstractClass();
+                            assert(!instance);
+                        } catch (e) {
+                            exceptionCaught = e;
+                        }
+                        assert(exceptionCaught instanceof gpf.Error.AbstractClass);
+                    });
+                }
+
+                _noInstantiation(A);
+
+                it("enables instantiation on subclass (B)", function () {
+                    var b = new B();
+                    assert(b);
+                });
+
+                _noInstantiation(C);
+
+            });
+
         });
 
         describe("Interface definition", function () {
