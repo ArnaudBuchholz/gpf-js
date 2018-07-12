@@ -71,7 +71,7 @@ describe("define", function () {
         describe("Common validation", function () {
 
             _generateBasicValidations({
-                it: "checks that he entity type is specified",
+                it: "checks that the entity type is specified",
                 definition: {},
                 exception: gpf.Error.InvalidEntityType
             });
