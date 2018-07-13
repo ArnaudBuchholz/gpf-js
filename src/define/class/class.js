@@ -34,7 +34,12 @@ Object.assign(_GpfClassDefinition.prototype, {
      * @inheritdoc
      * @since 0.1.6
      */
-    _type: "class"
+    _type: "class",
+
+    /**
+     * Class is abstract
+     */
+    _abstract: false
 
 });
 
