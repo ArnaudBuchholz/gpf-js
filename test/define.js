@@ -310,11 +310,7 @@ describe("define", function () {
 
             });
 
-            function describe_ () {
-                /* Until the implementation is working */
-            }
-
-            describe_("$abstract", function () {
+            describe("$abstract", function () {
 
                 var A, B, C;
 
@@ -349,27 +345,28 @@ describe("define", function () {
                 });
 
                 function _noInstantiation (AbstractClass) {
-                    it("prevents instantiation of abstract class ("
-                        + AbstractClass.compatibleName() + ")", function () {
-                        var exceptionCaught;
-                        try {
-                            var instance = new AbstractClass();
-                            assert(!instance);
-                        } catch (e) {
-                            exceptionCaught = e;
-                        }
-                        assert(exceptionCaught instanceof gpf.Error.AbstractClass);
-                    });
+                    var exceptionCaught;
+                    try {
+                        var instance = new AbstractClass();
+                        assert(!instance);
+                    } catch (e) {
+                        exceptionCaught = e;
+                    }
+                    assert(exceptionCaught instanceof gpf.Error.AbstractClass);
                 }
 
-                _noInstantiation(A);
+                it("prevents instantiation of abstract class (A)", function () {
+                    _noInstantiation(A);
+                });
 
                 it("enables instantiation on subclass (B)", function () {
                     var b = new B();
                     assert(b);
                 });
 
-                _noInstantiation(C);
+                it("prevents instantiation of abstract class (C)", function () {
+                    _noInstantiation(C);
+                });
 
             });
 
