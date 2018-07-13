@@ -13,8 +13,30 @@
 /*#endif*/
 
 _gpfErrorDeclare("define/class/constructor", {
-    "classConstructorFunction":
-        "This is a class constructor function, use with new"
+
+    /**
+     * ### Summary
+     *
+     * This is a class constructor function, use with new
+     *
+     * ### Description
+     *
+     * Class constructors are not designed to be called without `new`
+     *
+     * @since 0.1.6
+     */
+    classConstructorFunction: "This is a class constructor function, use with new",
+
+    /**
+     * ### Summary
+     *
+     * Abstract Class
+     *
+     * ### Description
+     *
+     * An abstract class can not be instantiated
+     */
+    abstractClass: "Abstract Class"
 });
 
 
@@ -30,13 +52,26 @@ Object.assign(_GpfClassDefinition.prototype, {
 
 });
 
+
+function _gpfDefineGetClassSecuredConstructorAbstractCheck (classDefinition) {
+    if (classDefinition._abstract) {
+        return "if (this.constructor === _classDef_._instanceBuilder) gpf.Error.abstractClass();";
+    }
+}
+
+function _gpfDefineGetClassSecuredConstructorBody (classDefinition) {
+    return [
+        "if (!(this instanceof _classDef_._instanceBuilder)) gpf.Error.classConstructorFunction();",
+        _gpfDefineGetClassSecuredConstructorAbstractCheck(classDefinition),
+        "_classDef_._resolvedConstructor.apply(this, arguments);"
+    ].join("\n");
+}
+
 function _gpfDefineGetClassSecuredConstructorDefinition (classDefinition) {
-    var name = classDefinition._name;
     return {
-        name: name,
+        name: classDefinition._name,
         parameters: _gpfFunctionDescribe(classDefinition._resolvedConstructor).parameters,
-        body: "if (!(this instanceof _classDef_._instanceBuilder)) gpf.Error.classConstructorFunction();\n"
-            + "_classDef_._resolvedConstructor.apply(this, arguments);"
+        body: _gpfDefineGetClassSecuredConstructorBody(classDefinition)
     };
 }
 
