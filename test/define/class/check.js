@@ -92,6 +92,20 @@ describe("define/class/check", function () {
                 });
             });
 
+            it("supports only $abstract = true", function () {
+                var exceptionCaught;
+                try {
+                    _gpfDefineBuildTypedEntity({
+                        $type: "class",
+                        $name: "Test",
+                        $abstract: false
+                    });
+                } catch (e) {
+                    exceptionCaught = e;
+                }
+                assert(exceptionCaught instanceof gpf.Error.InvalidClass$AbstractSpecification);
+            });
+
         });
 
     }
