@@ -432,7 +432,6 @@
     },
     {
         "name": "attributes/attribute",
-        "test": false,
         "tags": "attribute"
     },
     {
