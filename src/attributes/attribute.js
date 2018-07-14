@@ -22,6 +22,7 @@ gpf.attributes = {};
  * @since 0.2.4
  */
 var _gpfAttribute = _gpfDefine({
-    $class: "gpf.attributes.Attribute"
+    $class: "gpf.attributes.Attribute",
+    $abstract: true
 
 });
