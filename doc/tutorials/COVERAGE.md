@@ -9,3 +9,4 @@ host/wscript | wscript.echo.1 | WScript.Echo can't be bound to WScript and is no
 compability/promise | compability.promise.1 | Exception handling inside promise handlers are securing the code. No time was spent to understand how exceptions could occur in some particular case.  
 compatibility/object | wscript.node.1 | When WScript is simulated with NodeJS, the member __proto__ exists
 read | flavor.1 | When flavors are used, the gpf.fs namespace might be missing
+require/javascript | sourceURL.1 | No structure to test case when page location ends with /
