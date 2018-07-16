@@ -12,6 +12,12 @@ _gpfCompatibilityInstallMethods("String", {
 
     methods: {
 
+        // Introduced with ECMAScript 2015
+        endsWith: function (search) {
+            var len = Math.min(arguments[1] || this.length, this.length);
+            return this.substring(len - search.length, len) === search;
+        },
+
         // Introduced with JavaScript 1.8.1
         trim: (function () {
             var rtrim = new RegExp("^[\\s\uFEFF\xA0]+|[\\s\uFEFF\xA0]+$", "g");
