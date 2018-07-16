@@ -514,6 +514,18 @@ describe("compatibility", function () {
                         var string = " \t  abc\t \t";
                         assert("abc" === method.call(string));
                     }
+                },
+                endsWith: {
+                    length: 1,
+                    "must return true if string ends by the provided one": function (method) {
+                        assert(method.call("To be, or not to be, that is the question.", "question."));
+                    },
+                    "must return false if string does not end by the provided one": function (method) {
+                        assert(!method.call("To be, or not to be, that is the question.", "to be"));
+                    },
+                    "accepts a length parameter to fix input string size": function (method) {
+                        assert(method.call("To be, or not to be, that is the question.", "to be", 19));
+                    }
                 }
             },
 
