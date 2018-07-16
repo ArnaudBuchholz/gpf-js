@@ -10,6 +10,7 @@
 /*global _gpfHost*/ // Host type
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
+/*global _gpfPathParent*/ // Get the parent of a path
 /*global _gpfRegExpForEach*/ // Executes the callback for each match of the regular expression
 /*global _gpfRequireProcessor*/ // Mapping of resource extension to processor function
 /*global _gpfRequireWrapGpf*/ // Wrap gpf to fit the new context and give access to gpf.require.define promise
@@ -122,7 +123,12 @@ function _gpfRequireJS (myGpf, content, staticDependencies) {
 /*global location*/
 
 function _gpfRequireSourceMapBrowswer (name, content) {
-    return "//# sourceURL=" + location.origin + _gpfPathJoin(location.pathname, name) + "?gpf.require\n" + content;
+    var parentPath = location.pathname.toString();
+    /* istanbul ignore if */ // sourceURL.1
+    if (!parentPath.endsWith("/")) {
+        parentPath = _gpfPathParent(parentPath);
+    }
+    return "//# sourceURL=" + location.origin + _gpfPathJoin(parentPath, name) + "?gpf.require\n" + content;
 }
 
 function _gpfRequireSourceMapNone (name, content) {
