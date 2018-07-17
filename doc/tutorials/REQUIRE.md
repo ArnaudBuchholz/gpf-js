@@ -1,5 +1,5 @@
 The library offers a way to organize any project by creating separate resources files and reference them
-like dependencies. The {@see gpf.require.define} API is the main entry point. 
+like dependencies. The {@see gpf.require.define} API is the main entry point.
 
 A resource file is referenced using its path. A resource may reference another resource using a path that is relative
 to the current one. For the initial call, a base path may be defined using {@see gpf.require.configure}.
@@ -14,7 +14,7 @@ Once a resource file is loaded, its associated output *(see below)* is cached an
 Consequently (considering the cache is never cleared):
 - If the same resource (i.e. the same resolved path) is accessed twice, the file will be loaded only once
 - Any modification applied to the output will be reflected globally
-  
+
 ## JSON static resource file
 
 A JSON file is loaded, parsed and the result value is the output.
@@ -24,7 +24,7 @@ A JSON file is loaded, parsed and the result value is the output.
 Modules are designed to enforce best practices:
 - The module scope is private, public exposure has to be
 [explicit](https://carldanley.com/js-revealing-module-pattern/). This reduces the global namespace cluttering.
- *(see the different supported formats below)* 
+ *(see the different supported formats below)*
 - Dependencies are loaded first and then made available to the module through
 [injection](https://en.wikipedia.org/wiki/Dependency_injection)
 
@@ -48,13 +48,13 @@ gpf.require.define({
     name2: "dependency2.js",
     // ...
     nameN: "dependencyN.js"
-    
+
 }, function (require) {
     "use strict";
     // Private scope
 
     require.name1.api1();
-    
+
     // Implementation
 
     // Interface
@@ -65,16 +65,16 @@ gpf.require.define({
         },
 
         // ...
-        
+
         apiN: function (/*...*/) {
             /*...*/
         }
-        
+
     };
 
 });
 ```
- 
+
 ### Asynchronous Module Definition (AMD)
 
 The library supports the [AMD](https://en.wikipedia.org/wiki/Asynchronous_module_definition) format.
@@ -88,9 +88,9 @@ define("amd", [
 ], function (name1, name2, /*...*/ nameN) {
     "use strict";
     // Private scope
-    
+
     name1.api1();
-    
+
     // Implementation
 
     // Interface
@@ -101,11 +101,11 @@ define("amd", [
         },
 
         // ...
-        
+
         apiN: function (/*...*/) {
             /*...*/
         }
-        
+
     };
 
 });
@@ -122,9 +122,9 @@ define([
 ], function (name1, name2, /*...*/ nameN) {
     "use strict";
     // Private scope
-    
+
     name1.api1();
-    
+
     // Implementation
 
     // Interface
@@ -135,11 +135,11 @@ define([
         },
 
         // ...
-        
+
         apiN: function (/*...*/) {
             /*...*/
         }
-        
+
     };
 
 });
@@ -151,7 +151,7 @@ Even shorter if you don't need dependencies:
 define(function () {
     "use strict";
     // Private scope
-    
+
     // Implementation
 
     // Interface
@@ -162,11 +162,11 @@ define(function () {
         },
 
         // ...
-        
+
         apiN: function (/*...*/) {
             /*...*/
         }
-        
+
     };
 
 });
@@ -188,7 +188,7 @@ var name1 = require("dependency1.js"),
     name2 = require("dependency2.js"),
     // ...
     nameN = require("dependencyN.js");
-    
+
 name1.api1();
 
 // Implementation
@@ -201,10 +201,42 @@ module.exports = {
     },
 
     // ...
-    
+
     apiN: function (/*...*/) {
         /*...*/
     }
 
 };
+```
+
+## Preloading
+
+Since version 0.2.7, the library offers a way to inject a dictionary associating resource names to their
+textual content. The goal is to speed up the application loading by consolidating all dependent resources
+into a single JSON file and preload all resources in one call.
+
+```javascript
+// Proposed implementation
+gpf.http.get("preload.json")
+    .then(function (response) {
+        if (response.status === 200) {
+            return JSON.parse(response.responseText);
+        }
+        return Promise.reject();
+    })
+    .then(function (preload) {
+        gpf.require.configure({
+            preload: preload
+        });
+    })
+    .catch(function (reason) {
+        // Document and/or absorb errors
+    })
+    .then(function () {
+        gpf.require.define({
+            app: "app.js" // Might be preloaded
+        }, function (require) {
+            require.app.start();
+        });
+    });
 ```
