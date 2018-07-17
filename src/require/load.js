@@ -22,6 +22,14 @@
  */
 var _gpfRequireProcessor = {};
 
+function _gpfLoadOrPreload (context, name) {
+    var preload = context.preload[name];
+    if (preload) {
+        return Promise.resolve(preload);
+    }
+    return _gpfRead(name);
+}
+
 /**
  * Load the resource
  *
@@ -31,7 +39,7 @@ var _gpfRequireProcessor = {};
  */
 function _gpfRequireLoad (name) {
     var me = this;
-    return _gpfRead(name)
+    return _gpfLoadOrPreload(me, name)
         .then(function (content) {
             var processor = _gpfRequireProcessor[_gpfPathExtension(name).toLowerCase()];
             if (processor) {
