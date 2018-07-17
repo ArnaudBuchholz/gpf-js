@@ -455,4 +455,48 @@ describe("require", function () {
 
     });
 
+    describe("preloading", function () {
+
+        function preloadTest () {/*CODE*/
+            gpf.require.define({
+                data: "data.js"
+            }, function (require) {
+                return require.data;
+            }); /*CODE*/
+        }
+
+        function preloadData () {/*CODE*/
+            module.exports = "Hello World!"; /*CODE*/
+        }
+
+        function _extract (container) {
+            return container.toString().split("/*CODE*/")[1];
+        }
+
+        beforeEach(function () {
+            gpf.require.configure({
+                clearCache: true,
+                base: "",
+                preload: {
+                    "preload/test.js": _extract(preloadTest),
+                    "preload/data.js": _extract(preloadData)
+                }
+            });
+        });
+
+        it("loads everything recursively", function (done) {
+            gpf.require.define({
+                result: "preload/test.js"
+            }, function (require) {
+                try {
+                    assert(require.result === "Hello World!");
+                    done();
+                } catch (e) {
+                    done(e);
+                }
+            });
+        });
+
+    });
+
 });
