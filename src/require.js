@@ -43,6 +43,7 @@ _gpfErrorDeclare("require", {
  * @property {String} [base] Base path used to resolve names
  * @property {Object} [cache] Inject names into the require cache
  * @property {Boolean} [clearCache=false] When set, the require cache is first cleared
+ * @property {Object} [preload] Inject names into the loading cache
  * @since 0.2.2
  */
 
@@ -86,6 +87,12 @@ var _gpfRequireOptionHandler = {
 
     clearCache: function () {
         this.cache = {};
+    },
+
+    preload: function (cache) {
+        _gpfArrayForEach(Object.keys(cache), function (name) {
+            this.preload[name] = cache[name];
+        }, this);
     }
 
 };
@@ -207,7 +214,8 @@ function _gpfRequireAllocate (parentContext, options) {
 
 gpf.require = _gpfRequireAllocate({
     base: "",
-    cache: {}
+    cache: {},
+    preload: {}
 });
 
 /**
