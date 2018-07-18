@@ -28,6 +28,7 @@ let
     error;
 
 const
+    tools = require("../res/tools.js"),
     projectUrl = "https://github.com/ArnaudBuchholz/gpf-js/",
     publicationUrl = "https://arnaudbuchholz.github.io/gpf/",
     publicationGit = "https://github.com/ArnaudBuchholz/ArnaudBuchholz.github.io.git",
@@ -72,7 +73,7 @@ const
 
     spawnGrunt = command => {
         let grunt;
-        if (/^win/.test(process.platform)) {
+        if (tools.isWindows) {
             grunt = "grunt.cmd";
         } else {
             grunt = "grunt";
