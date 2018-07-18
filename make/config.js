@@ -9,9 +9,10 @@ const
     fs = require("fs"),
     path = require("path"),
     inquirer = require("inquirer"),
+    tools = require("../res/tools.js"),
     ConfigFile = require("./configFile.js"),
     config = new ConfigFile(),
-    isWindows = (/^win/).test(process.platform),
+    isWindows = tools.isWindows,
 
     spawnProcess = (command, params) => new Promise(function (resolve, reject) {
         let process = require("child_process").spawn(command, params),
