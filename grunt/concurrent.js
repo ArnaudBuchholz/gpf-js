@@ -8,10 +8,11 @@ const
         phantomjs: ["Phantom"],
         java: [],
         wscript: []
-    };
+    },
+    // As of now, this list is 'static', on MacOS, Safari is considered modern
+    modernBrowsers = ["chrome", "firefox", tools.isMacOS ? "safari" : ""].map(tools.capitalize);
 
-// As of now, this list is 'static'
-hosts.modernBrowser = hosts.browser.filter(name => -1 !== ["Chrome", "Firefox"].indexOf(name));
+hosts.modernBrowser = hosts.browser.filter(name => -1 !== modernBrowsers.indexOf(name));
 
 if (configuration.host.java) {
     hosts.java.push("Rhino");
