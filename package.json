@@ -29,7 +29,7 @@
     "escodegen": "^1.10.0",
     "eslint": "^5.0.1",
     "esprima": "^4.0.0",
-    "fs-extra": "^6.0.0",
+    "fs-extra": "^7.0.0",
     "github-api": "^3.0.0",
     "grunt": "^1.0.3",
     "grunt-concurrent": "^2.2.1",
