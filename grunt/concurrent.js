@@ -11,7 +11,7 @@ const
     };
 
 // As of now, this list is 'static'
-hosts.modernBrowser = hosts.browser.filter(name => -1 !== ["chrome", "firefox"].indexOf(name));
+hosts.modernBrowser = hosts.browser.filter(name => -1 !== ["Chrome", "Firefox"].indexOf(name));
 
 if (configuration.host.java) {
     hosts.java.push("Rhino");
