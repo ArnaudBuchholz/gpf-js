@@ -4,7 +4,7 @@ const
     fs = require("fs"),
     tools = require("../res/tools.js"),
     osPathSeparator = require("path").sep,
-    isWindows = (/^win/).test(process.platform),
+    isWindows = tools.isWindows,
     toArray = arrayLike => [].slice.call(arrayLike),
     sep = path => osPathSeparator === "/" ? path : path.replace(/\//g, osPathSeparator),
 
