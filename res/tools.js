@@ -1,6 +1,6 @@
 (function () {
     "use strict";
-    /*global module*/
+    /*global module, process*/
 
     var isWindows = (/^win/).test(process.platform),
         isMacOS = process.platform === "darwin";
