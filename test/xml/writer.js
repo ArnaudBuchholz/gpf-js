@@ -62,6 +62,14 @@ describe("xml/writer", function () {
         return assessError(done, gpf.Error.InvalidXmlName);
     }
 
+    function assessUnknownXmlNamespacePrefix (done) {
+        return assessError(done, gpf.Error.UnknownXmlNamespacePrefix);
+    }
+
+    function assesInvalidXmlNamespacePrefix (done) {
+        return assessError(done, gpf.Error.InvalidXmlNamespacePrefix);
+    }
+
     describe("Interface specification", function () {
 
         it("implements gpf.interfaces.IXmlContentHandler", function () {
@@ -187,6 +195,7 @@ describe("xml/writer", function () {
                 .startPrefixMapping("test", "namespace-uri")
                 .startElement("test:document")
                 .endElement()
+                .endPrefixMapping("test")
                 .endDocument()["catch"](done);
         });
 
@@ -198,6 +207,7 @@ describe("xml/writer", function () {
                 .startPrefixMapping("", "namespace-uri")
                 .startElement("document")
                 .endElement()
+                .endPrefixMapping("")
                 .endDocument()["catch"](done);
         });
 
@@ -245,22 +255,30 @@ describe("xml/writer", function () {
                 .endDocument()["catch"](assessInvalidXmlWriterState(done));
         });
 
+        it("makes sure a namespace prefix is declared before usage", function (done) {
+            allocateWriter(done, shouldNotSucceed)
+                .startDocument()
+                .startElement("test:document")["catch"](assessUnknownXmlNamespacePrefix(done));
+        });
+
         it("prevents overloading a namespace prefix at the same level", function (done) {
             allocateWriter(done, shouldNotSucceed)
+                .startDocument()
                 .startPrefixMapping("test", "namespace-uri")
                 .startPrefixMapping("test", "namespace-uri2")
-                .startDocument()
                 .endDocument()["catch"](assessInvalidXmlWriterState(done));
         });
 
         it("prevents overloading of predefined namespace prefix (xml)", function (done) {
             allocateWriter(done, shouldNotSucceed)
-                .startPrefixMapping("xml", "namespace-uri")["catch"](assessInvalidXmlWriterState(done));
+                .startDocument()
+                .startPrefixMapping("xml", "namespace-uri")["catch"](assesInvalidXmlNamespacePrefix(done));
         });
 
         it("prevents overloading of predefined namespace prefix (xmlns)", function (done) {
             allocateWriter(done, shouldNotSucceed)
-                .startPrefixMapping("xmlns", "namespace-uri")["catch"](assessInvalidXmlWriterState(done));
+                .startDocument()
+                .startPrefixMapping("xmlns", "namespace-uri")["catch"](assesInvalidXmlNamespacePrefix(done));
         });
 
         it("validates element name", function (done) {
@@ -275,6 +293,12 @@ describe("xml/writer", function () {
                 .startElement("document", {
                     "te/st": "value"
                 })["catch"](assessInvalidXmlName(done));
+        });
+
+        it("validates namespace prefix", function (done) {
+            allocateWriter(done, shouldNotSucceed)
+                .startDocument()
+                .startPrefixMapping("te/st", "namespace-uri")["catch"](assesInvalidXmlNamespacePrefix(done));
         });
 
     });
