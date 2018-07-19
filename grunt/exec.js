@@ -94,7 +94,8 @@ testConfig("Node", "node", "test/host/nodejs.js");
 testConfig("Phantom", phantomJsBin, sep("--web-security=false test/host/phantomjs.js"));
 testConfig("Wscript", "cscript.exe", `/D /E:JScript ${sep("test/host/cscript.js")}`);
 testConfig("Nodewscript", "node", "test/host/node_cscript.js");
-testConfig("Rhino", "java", sep("-jar node_modules/rhino-1_7r5-bin/rhino1_7R5/js.jar test/host/java.js"));
+testConfig("Rhino", "java", sep("--illegal-access=permit "
+    + "-jar node_modules/rhino-1_7r5-bin/rhino1_7R5/js.jar test/host/java.js"));
 testConfig("Nashorn", configuration.host.nashorn, sep("test/host/java.js  --"));
 
 Object.keys(configuration.browsers).forEach(browserName =>{
