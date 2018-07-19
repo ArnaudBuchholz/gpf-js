@@ -28,6 +28,8 @@ and instances offers:
 [name](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/name) property is not
 supported on all hosts.
 
+**NOTE:** Function.prototype.toString() does not include comments on Rhino.
+
 ### Object
 
 * [Object.assign](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
