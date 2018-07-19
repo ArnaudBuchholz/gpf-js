@@ -457,20 +457,23 @@ describe("require", function () {
 
     describe("preloading", function () {
 
-        function preloadTest () {/*CODE*/
+        function preloadTest () {
             gpf.require.define({
                 data: "data.js"
             }, function (require) {
                 return require.data;
-            }); /*CODE*/
+            });
         }
 
-        function preloadData () {/*CODE*/
-            module.exports = "Hello World!"; /*CODE*/
+        function preloadData () {
+            module.exports = "Hello World!";
         }
 
         function _extract (container) {
-            return container.toString().split("/*CODE*/")[1];
+            var source = container.toString(),
+                from = source.indexOf("{"),
+                to = source.lastIndexOf("}");
+            return source.substr(from + 1, to - from - 1);
         }
 
         beforeEach(function () {
