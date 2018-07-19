@@ -124,7 +124,7 @@ function _gpfRequireJS (myGpf, content, staticDependencies) {
 
 function _gpfRequireSourceMapBrowswer (name, content) {
     var parentPath = location.pathname.toString();
-    /* istanbul ignore if */ // sourceURL.1
+    /* istanbul ignore else */ // sourceURL.1
     if (!parentPath.endsWith("/")) {
         parentPath = _gpfPathParent(parentPath);
     }
