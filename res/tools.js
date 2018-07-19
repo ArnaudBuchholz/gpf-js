@@ -2,8 +2,7 @@
     "use strict";
     /*global module*/
 
-    const
-        isWindows = (/^win/).test(process.platform),
+    var isWindows = (/^win/).test(process.platform),
         isMacOS = process.platform === "darwin";
 
     module.exports = {
