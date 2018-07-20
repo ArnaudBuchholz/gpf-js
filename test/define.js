@@ -348,7 +348,7 @@ describe("define", function () {
                     var exceptionCaught;
                     try {
                         var instance = new AbstractClass();
-                        assert(!instance);
+                        throw new Error("unexpected");
                     } catch (e) {
                         exceptionCaught = e;
                     }
@@ -361,7 +361,7 @@ describe("define", function () {
 
                 it("enables instantiation on subclass (B)", function () {
                     var b = new B();
-                    assert(b);
+                    assert(b.getMember() === "defaultValue");
                 });
 
                 it("prevents instantiation of abstract class (C)", function () {
