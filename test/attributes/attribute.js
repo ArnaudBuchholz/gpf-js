@@ -6,7 +6,7 @@ describe("attributes/attribute", function () {
         var exceptionCaught;
         try {
             var instance = new gpf.attributes.Attribute();
-            throw new Error("unexpected");
+            throw new Error(instance.toString());
         } catch (e) {
             exceptionCaught = e;
         }
