@@ -202,7 +202,7 @@
             version,
             path = "boot.js";
         if (versionParameters) {
-            version = versionParameters.label || version;
+            version = versionParameters.label;
             path = versionParameters.path || "boot.js";
             versionParameters.setup();
         } else {
