@@ -348,7 +348,7 @@ describe("define", function () {
                     var exceptionCaught;
                     try {
                         var instance = new AbstractClass();
-                        throw new Error("unexpected");
+                        throw new Error(instance.toString());
                     } catch (e) {
                         exceptionCaught = e;
                     }
