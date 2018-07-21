@@ -41,14 +41,18 @@
         _tests;
 
     function _waitForTestCases (testFiles, callback) {
+        var testFileURL,
+            sourceURL;
         function _testCaseLoaded (testCaseSource) {
             /*jshint -W061*/
-            eval(testCaseSource); //eslint-disable-line no-eval
+            eval("//# sourceURL=" + sourceURL + "\n" + testCaseSource); //eslint-disable-line no-eval
             /*jshint +W061*/
             _waitForTestCases(testFiles, callback);
         }
         if (testFiles.length) {
-            xhr(testFiles.shift()).get()
+            testFileURL = testFiles.shift();
+            sourceURL = window.location.toString().split("/test/")[0] + "/test/" + testFileURL;
+            xhr(window.gpfTestsPath + testFileURL).get()
                 .then(_testCaseLoaded, _error);
             return;
         }
@@ -136,7 +140,7 @@
             delete gpf.internals;
             _patchLegacy(legacy)
                 .then(function () {
-                    _waitForTestCases([window.gpfTestsPath + "legacy/" + legacy + ".js"], callback);
+                    _waitForTestCases(["legacy/" + legacy + ".js"], callback);
                 });
             return;
         }
@@ -160,7 +164,7 @@
         getTestFiles.then(function (files) {
             _waitForTestCases(files
                 .map(function (name) {
-                    return window.gpfTestsPath + name + ".js";
+                    return name + ".js";
                 }), callback);
         });
     }
