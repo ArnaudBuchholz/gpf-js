@@ -8,26 +8,31 @@ const
         "name": "sources"
     }],
 
-    buildSources = (response) => {
-
+    error = (response, err) => {
+        response.statusCode = 500;
+        response.end(err.toString());
     },
 
-    buildSourcesMap = (response) => {
+    readFile = name => new Promise((resolve, reject) =>
+        fs.readFile(name, (err, data) => err ? reject(err) : resolve(data.toString()))),
 
-    },
+    readSource = name => readFile(path.join(__dirname, "../../src/" + name + ".js")),
+
+    getSources = () => readFile(path.join(__dirname, "../../src/sources.json"))
+        .then(content => JSON.parse(content)),
+
+    buildSources = response => getSources()
+        .then(sources => response.end(JSON.stringify(sources))),
+
+    buildSourcesMap = response => response.end("{}"),
 
     handlers = {
 
         "/src/boot.js?map": response => {
             response.setHeader("Content-Type", "application/javascript");
-            fs.readFile(path.join(__dirname, "../../src/boot.js"), (err, data) => {
-                if (err) {
-                    response.statusCode = 500;
-                    response.end(err.toString());
-                } else {
-                    response.end(data.toString().replace("sources.json", "sources.json?map"));
-                }
-            });
+            readSource("boot")
+                .then(content => response.end(content.replace("sources.json", "sources.json?map")))
+                .catch(err => error(response, err));
         },
 
         "/src/sources.json?map": response => {
