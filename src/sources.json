@@ -467,6 +467,10 @@
         "test": false
     },
     {
+        "name": "xml/check",
+        "test": false
+    },
+    {
         "name": "xml/writer"
     }
 ]
