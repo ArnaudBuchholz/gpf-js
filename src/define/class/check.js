@@ -83,6 +83,7 @@ _gpfErrorDeclare("define/class/check", {
      * ### Description
      *
      * The property $abstract only accepts the value true
+     * @since 0.2.7
      */
     invalidClass$AbstractSpecification: "Invalid class $abstract specification"
 
@@ -116,7 +117,10 @@ Object.assign(_GpfClassDefinition.prototype, {
         }
     },
 
-    /** @inheritdoc */
+    /**
+     * @inheritdoc
+     * @since 0.2.7
+     */
     _check$Property: function (name, value) {
         _GpfEntityDefinition.prototype._check$Property.call(this, name, value);
         if (name === "abstract") {
