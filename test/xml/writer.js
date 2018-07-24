@@ -58,12 +58,24 @@ describe("xml/writer", function () {
         return assessError(done, gpf.Error.InvalidXmlWriterState);
     }
 
-    function assessInvalidXmlName (done) {
-        return assessError(done, gpf.Error.InvalidXmlName);
+    function assessInvalidXmlAttributeName (done) {
+        return assessError(done, gpf.Error.InvalidXmlAttributeName);
+    }
+
+    function assessInvalidXmlElementName (done) {
+        return assessError(done, gpf.Error.InvalidXmlElementName);
     }
 
     function assessUnknownXmlNamespacePrefix (done) {
         return assessError(done, gpf.Error.UnknownXmlNamespacePrefix);
+    }
+
+    function assesInvalidXmlUseOfPrefixXml (done) {
+        return assessError(done, gpf.Error.InvalidXmlUseOfPrefixXml);
+    }
+
+    function assesInvalidXmlUseOfPrefixXmlns (done) {
+        return assessError(done, gpf.Error.InvalidXmlUseOfPrefixXmlns);
     }
 
     function assesInvalidXmlNamespacePrefix (done) {
@@ -211,6 +223,21 @@ describe("xml/writer", function () {
                 .endDocument()["catch"](done);
         });
 
+        it("qualifies attributes", function (done) {
+            allocateWriter(done, function (output) {
+                assert(output === "<document ns0:test=\"value\" xmlns:ns0=\"namespace-uri\"/>"
+                    || output === "<document xmlns:ns0=\"namespace-uri\" ns0:test=\"value\"/>");
+            })
+                .startDocument()
+                .startPrefixMapping("ns0", "namespace-uri")
+                .startElement("document", {
+                    "ns0:test": "value"
+                })
+                .endElement()
+                .endPrefixMapping("ns0")
+                .endDocument()["catch"](done);
+        });
+
         it("allows xml namespace prefix", function (done) {
             allocateWriter(done, function (output) {
                 assert(output === "<document xml:space=\"preserve\"> </document>");
@@ -272,19 +299,25 @@ describe("xml/writer", function () {
         it("prevents overloading of predefined namespace prefix (xml)", function (done) {
             allocateWriter(done, shouldNotSucceed)
                 .startDocument()
-                .startPrefixMapping("xml", "namespace-uri")["catch"](assesInvalidXmlNamespacePrefix(done));
+                .startPrefixMapping("xml", "namespace-uri")["catch"](assesInvalidXmlUseOfPrefixXml(done));
         });
 
         it("prevents overloading of predefined namespace prefix (xmlns)", function (done) {
             allocateWriter(done, shouldNotSucceed)
                 .startDocument()
-                .startPrefixMapping("xmlns", "namespace-uri")["catch"](assesInvalidXmlNamespacePrefix(done));
+                .startPrefixMapping("xmlns", "namespace-uri")["catch"](assesInvalidXmlUseOfPrefixXmlns(done));
         });
 
         it("validates element name", function (done) {
             allocateWriter(done, shouldNotSucceed)
                 .startDocument()
-                .startElement("docu/ment")["catch"](assessInvalidXmlName(done));
+                .startElement("docu/ment")["catch"](assessInvalidXmlElementName(done));
+        });
+
+        it("validates element name (using xml prefix)", function (done) {
+            allocateWriter(done, shouldNotSucceed)
+                .startDocument()
+                .startElement("xml:document")["catch"](assesInvalidXmlUseOfPrefixXml(done));
         });
 
         it("validates attribute name", function (done) {
@@ -292,13 +325,21 @@ describe("xml/writer", function () {
                 .startDocument()
                 .startElement("document", {
                     "te/st": "value"
-                })["catch"](assessInvalidXmlName(done));
+                })["catch"](assessInvalidXmlAttributeName(done));
         });
 
         it("validates namespace prefix", function (done) {
             allocateWriter(done, shouldNotSucceed)
                 .startDocument()
                 .startPrefixMapping("te/st", "namespace-uri")["catch"](assesInvalidXmlNamespacePrefix(done));
+        });
+
+        it("allows only xml:space attribute", function (done) {
+            allocateWriter(done, shouldNotSucceed)
+                .startDocument()
+                .startElement("document", {
+                    "xml:lang": "en"
+                })["catch"](assesInvalidXmlUseOfPrefixXml(done));
         });
 
     });
