@@ -480,5 +480,21 @@
     "stream/map": [
         "stream/operator",
         "define"
+    ],
+    "interfaces/xmlcontenthandler": [
+        "interfaces",
+        "boot"
+    ],
+    "xml/check": [
+        "error"
+    ],
+    "xml/writer": [
+        "stream/bufferedread",
+        "define",
+        "boot",
+        "error",
+        "foreach",
+        "string/escapefor",
+        "xml/check"
     ]
 }
