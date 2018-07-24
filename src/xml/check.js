@@ -1,14 +1,16 @@
 /**
 * @file XML Validation helpers
+* @since 0.2.7
 */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*exported _gpfXmlCheckValidElementName*/ // Check XML element name
-/*exported _gpfXmlCheckValidAttributeName*/ // Check XML attribute name
-/*exported _gpfXmlCheckValidNamespacePrefixName*/ // Check XML namespace prefix name
-/*exported _gpfXmlCheckQualifiedElementName*/ // Check XML qualified element name
+/*exported _gpfXmlCheckDefinableNamespacePrefixName*/ // Check if the given XML namespace prefix name can be defined
 /*exported _gpfXmlCheckQualifiedAttributeName*/ // Check XML qualified attribute name
+/*exported _gpfXmlCheckQualifiedElementName*/ // Check XML qualified element name
+/*exported _gpfXmlCheckValidAttributeName*/ // Check XML attribute name
+/*exported _gpfXmlCheckValidElementName*/ // Check XML element name
+/*exported _gpfXmlCheckValidNamespacePrefixName*/ // Check XML namespace prefix name
 /*#endif*/
 
 _gpfErrorDeclare("xml/check", {
@@ -21,6 +23,7 @@ _gpfErrorDeclare("xml/check", {
     * ### Description
     *
     * Invalid XML element name
+    * @since 0.2.7
     */
     invalidXmlElementName: "Invalid XML element name",
 
@@ -32,6 +35,7 @@ _gpfErrorDeclare("xml/check", {
     * ### Description
     *
     * Invalid XML attribute name
+    * @since 0.2.7
     */
     invalidXmlAttributeName: "Invalid XML attribute name",
 
@@ -43,6 +47,7 @@ _gpfErrorDeclare("xml/check", {
     * ### Description
     *
     * Invalid XML namespace prefix
+    * @since 0.2.7
     */
     invalidXmlNamespacePrefix: "Invalid XML namespace prefix",
 
@@ -54,6 +59,7 @@ _gpfErrorDeclare("xml/check", {
     * ### Description
     *
     * Invalid use of XML namespace prefix xmlns: startPrefixMapping should be used instead
+    * @since 0.2.7
     */
     invalidXmlUseOfPrefixXmlns: "Invalid use of XML namespace prefix xmlns",
 
@@ -65,6 +71,7 @@ _gpfErrorDeclare("xml/check", {
     * ### Description
     *
     * Invalid use of XML namespace prefix xml: only xml:space="preserve" is allowed
+    * @since 0.2.7
     */
     invalidXmlUseOfPrefixXml: "Invalid use of XML namespace prefix xml",
 
@@ -76,6 +83,7 @@ _gpfErrorDeclare("xml/check", {
     * ### Description
     *
     * This error is triggered when an element or an attribute is prefixed with an unknown namespace prefix
+    * @since 0.2.7
     */
     unknownXmlNamespacePrefix: "Unknown XML namespace prefix"
 
@@ -98,6 +106,7 @@ var
      *
      * @param {String} name Element name to check
      * @throws {gpf.Error.InvalidXmlElementName}
+     * @since 0.2.7
      */
     _gpfXmlCheckValidElementName = _gpfXmlCheckBuildSimple(_gpfXmlCheckNameRegExp, "ElementName"),
 
@@ -106,6 +115,7 @@ var
      *
      * @param {String} name Attribute name to check
      * @throws {gpf.Error.InvalidXmlAttributeName}
+     * @since 0.2.7
      */
     _gpfXmlCheckValidAttributeName = _gpfXmlCheckBuildSimple(_gpfXmlCheckNameRegExp, "AttributeName"),
 
@@ -113,7 +123,8 @@ var
     * Check XML namespace prefix name
     *
     * @param {String} name Namespace prefix name to check
-    * @throws {gpf.Error.InvalidXmlNamespacePrefixName}
+    * @throws {gpf.Error.InvalidXmlNamespacePrefix}
+    * @since 0.2.7
     */
     _gpfXmlCheckValidNamespacePrefixName = _gpfXmlCheckBuildSimple(_gpfXmlNamespacePrefixRegExp, "NamespacePrefix");
 
@@ -139,17 +150,18 @@ function _gpfXmlCheckQualifiedElementNameAndPrefix (name, prefix, knownPrefixes)
     _gpfXmlCheckQualifiedNameAndPrefix(name, prefix);
     if ("xml" === prefix) {
         gpf.Error.invalidXmlUseOfPrefixXml();
+    } else {
+        _gpfXmlCheckIfKnownPrefix(prefix, knownPrefixes);
     }
-    _gpfXmlCheckIfKnownPrefix(prefix, knownPrefixes);
 }
 
-function _gpfXmlCheckGetQualified (noPrefixCheck, prefixCheck) {
+function _gpfXmlCheckGetQualified (noPrefixCheck, nameAndPrefixCheck) {
     return function (qName, knownPrefixes) {
         var sep = qName.indexOf(":");
         if (-1 === sep) {
             noPrefixCheck(qName);
         } else {
-            prefixCheck(qName.substr(0, sep), qName.substr(sep + 1), knownPrefixes);
+            nameAndPrefixCheck(qName.substr(sep + 1), qName.substr(0, sep), knownPrefixes);
         }
     };
 }
@@ -162,6 +174,7 @@ function _gpfXmlCheckGetQualified (noPrefixCheck, prefixCheck) {
  *
  * @throws {gpf.Error.InvalidXmlElementName}
  * @throws {gpf.Error.invalidXmlNamespacePrefix}
+ * @since 0.2.7
  */
 var _gpfXmlCheckQualifiedElementName = _gpfXmlCheckGetQualified(_gpfXmlCheckValidElementName,
     _gpfXmlCheckQualifiedElementNameAndPrefix);
@@ -176,8 +189,9 @@ function _gpfXmlCheckQualifiedAttributeNameAndPrefix (name, prefix, knownPrefixe
     _gpfXmlCheckQualifiedNameAndPrefix(name, prefix);
     if ("xml" === prefix) {
         _gpfXmlCheckOnlyXmlSpace(name);
+    } else {
+        _gpfXmlCheckIfKnownPrefix(prefix, knownPrefixes);
     }
-    _gpfXmlCheckIfKnownPrefix(prefix, knownPrefixes);
 }
 
 /**
@@ -187,6 +201,25 @@ function _gpfXmlCheckQualifiedAttributeNameAndPrefix (name, prefix, knownPrefixe
  * @param {String[]} knownPrefixes Known namespaces prefixes
  *
  * @throws {gpf.Error.InvalidXmlElementName}
+ * @since 0.2.7
  */
 var _gpfXmlCheckQualifiedAttributeName = _gpfXmlCheckGetQualified(_gpfXmlCheckValidAttributeName,
     _gpfXmlCheckQualifiedAttributeNameAndPrefix);
+
+
+/**
+ * Check if the given XML namespace prefix name can be defined
+ *
+ * @param {String} name Namespace prefix name to check
+ * @throws {gpf.Error.InvalidXmlNamespacePrefix}
+ * @throws {gpf.Error.InvalidXmlUseOfPrefixXmlns}
+ * @throws {gpf.Error.InvalidXmlUseOfPrefixXml}
+ * @since 0.2.7
+ */
+function _gpfXmlCheckDefinableNamespacePrefixName (name) {
+    _gpfXmlCheckValidNamespacePrefixName(name);
+    _gpfXmlCheckNoXmlns(name);
+    if ("xml" === name) {
+        gpf.Error.invalidXmlUseOfPrefixXml();
+    }
+}
