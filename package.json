@@ -61,6 +61,6 @@
     "selenium-webdriver": "^3.6.0",
     "sync-request": "^6.0.0",
     "time-grunt": "^1.2.2",
-    "vlq": "^1.0.0"
+    "uglify-js": "^3.4.5"
   }
 }
