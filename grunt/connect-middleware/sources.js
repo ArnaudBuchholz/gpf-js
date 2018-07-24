@@ -59,9 +59,10 @@ const
         "/src/sources.json?map": response => {
             response.setHeader("Content-Type", "application/json");
             cachedUglifyResult = null; // Reset cache
-            return response.end(JSON.stringify([{
+            response.end(JSON.stringify([{
                 "name": "sources"
             }]));
+            return Promise.resolve();
         },
 
         "/src/sources.js": response => {
