@@ -1,18 +1,14 @@
 "use strict";
 
+let
+    cachedUglifyResult;
+
 const
     fs = require("fs"),
     path = require("path"),
-    vlq = require("vlq"),
+    UglifyJS = require("uglify-js"),
     ConfigFile = require("../../make/configFile.js"),
-    sources = [{
-        "name": "sources"
-    }],
-
-    error = (response, err) => {
-        response.statusCode = 500;
-        response.end(err.toString());
-    },
+    basePath = `http://localhost:${(new ConfigFile()).content.serve.httpPort}/src/`,
 
     readFile = name => new Promise((resolve, reject) =>
         fs.readFile(name, (err, data) => err ? reject(err) : resolve(data.toString()))),
@@ -24,50 +20,62 @@ const
         .then(sources => sources.filter(source => source.load !== false))
         .then(sources => sources.map(source => source.name)),
 
-    buildSources = response => getSources()
-        .then(sources => Promise.all(sources.map(name => readSource(name))))
-        .then(sources => {
-            var configFile = new ConfigFile();
-            response.write(`//# sourceURL=http://localhost:${configFile.content.serve.httpPort}/src/sources.js.map\n`);
-            response.end(sources.join("\n"));
-        }),
+    uglifySources = sources => {
+        const names = sources;
+        return Promise.all(sources.map(name => readSource(name)))
+            .then(contents => {
+                const code = names.reduce((consolidated, name, index) => {
+                    consolidated[`${basePath}${name}.js`] = contents[index];
+                    return consolidated;
+                }, {});
+                return UglifyJS.minify(code, {
+                    compress: false,
+                    mangle: false,
+                    sourceMap: {
+                        filename: `${basePath}sources.js`,
+                        url: `${basePath}sources.js.map`
+                    }
+                });
+            });
+    },
 
-    buildSourcesMap = response => getSources()
-        .then(sources => {
-            const
-                sourcesMap = {
-                    version : 3,
-                    file: "sources.js",
-                    sourceRoot : `http://localhost:${configFile.content.serve.httpPort}/`,
-                    sources: sources.map(name => `${name}.js`),
-                    names: [],
-                    mappings: ""
-                };
-            response.end(JSON.stringify(sourcesMap));
+    uglify = () => getSources().then(uglifySources),
+
+    getUglifyResult = () => cachedUglifyResult
+        ? Promise.resolve(cachedUglifyResult)
+        : uglify().then(uglifyResult => {
+            cachedUglifyResult = uglifyResult;
+            return cachedUglifyResult;
         }),
 
     handlers = {
 
         "/src/boot.js?map": response => {
             response.setHeader("Content-Type", "application/javascript");
-            readSource("boot")
-                .then(content => response.end(content.replace("sources.json", "sources.json?map")))
-                .catch(err => error(response, err));
+            return readSource("boot", response)
+                .then(content => response.end(content.replace("sources.json", "sources.json?map")));
         },
 
         "/src/sources.json?map": response => {
             response.setHeader("Content-Type", "application/json");
-            response.end(JSON.stringify(sources));
+            cachedUglifyResult = null; // Reset cache
+            return response.end(JSON.stringify([{
+                "name": "sources"
+            }]));
         },
 
         "/src/sources.js": response => {
             response.setHeader("Content-Type", "application/javascript");
-            buildSources(response);
+            return getUglifyResult().then(function (result) {
+                response.end(result.code);
+            });
         },
 
         "/src/sources.js.map": response => {
             response.setHeader("Content-Type", "application/json");
-            buildSourcesMap(response);
+            return getUglifyResult().then(function (result) {
+                response.end(result.map);
+            });
         }
 
     };
@@ -78,7 +86,11 @@ module.exports = (request, response, next) => {
 
     Object.keys(handlers).forEach(urlEnd => {
         if (request.url.endsWith(urlEnd)) {
-            handlers[urlEnd](response);
+            handlers[urlEnd](response)
+                .then(undefined, reason => {
+                    response.statusCode = 500;
+                    response.end(reason.toString());
+                });
             notAnswered = false;
         }
     });
