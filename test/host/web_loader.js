@@ -204,7 +204,7 @@
     function _detectVersion () {
         var versionParameters = _getVersionParameters(),
             version,
-            path = "boot.js";
+            path = "boot.js?map";
         if (versionParameters) {
             version = versionParameters.label;
             path = versionParameters.path || "boot.js";
