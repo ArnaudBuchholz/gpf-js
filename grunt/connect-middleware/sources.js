@@ -38,7 +38,7 @@ const
                 sourcesMap = {
                     version : 3,
                     file: "sources.js",
-                    sourceRoot : "",
+                    sourceRoot : `http://localhost:${configFile.content.serve.httpPort}/`,
                     sources: sources.map(name => `${name}.js`),
                     names: [],
                     mappings: ""
