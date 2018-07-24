@@ -38,6 +38,7 @@ Object.assign(_GpfClassDefinition.prototype, {
 
     /**
      * Class is abstract
+     * @since 0.2.7
      */
     _abstract: false
 
