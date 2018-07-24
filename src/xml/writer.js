@@ -1,16 +1,19 @@
 /**
  * @file XML Writer
+ * @since 0.2.7
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfDefine*/ // Shortcut for gpf.define
-/*global _gpfEmptyFunc*/
-/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global  _gpfStringEscapeFor*/ // Make the string content compatible with lang
-/*global _gpfObjectForEach*/
-/*global _gpfArrayForEachFalsy*/
-/*global _gpfIgnore*/
 /*global _GpfStreamBufferedRead*/ // gpf.stream.BufferedRead
+/*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfEmptyFunc*/ // An empty function
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
+/*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
+/*global _gpfXmlCheckDefinableNamespacePrefixName*/ // Check if the given XML namespace prefix name can be defined
+/*global _gpfXmlCheckQualifiedAttributeName*/ // Check XML qualified attribute name
+/*global _gpfXmlCheckQualifiedElementName*/ // Check XML qualified element name
 /*exported _GpfXmlWriter*/ // gpf.xml.Writer
 /*#endif*/
 
@@ -24,6 +27,7 @@ _gpfErrorDeclare("xml/writer", {
      * ### Description
      *
      * This error is used when a method can not be called due to the current XML writer state
+     * @since 0.2.7
      */
     invalidXmlWriterState: "Invalid XML Writer state"
 
@@ -41,6 +45,7 @@ var
          * @implements {gpf.interfaces.IReadableStream}
          * @implements {gpf.interfaces.IXmlContentHandler}
          * @extends gpf.stream.BufferedRead
+         * @since 0.2.7
          */
         constructor: function () {
             this._elements = [];
@@ -85,14 +90,13 @@ var
         },
 
         _getNamespacePrefixes: function () {
-
-            return _gpfArrayForEachFalsy(this._elements, function (element) {
-                return element.namespaces[prefix];
-            });
+            return this._elements.reduce(function (namespaces, element) {
+                return namespaces.concat(Object.keys(element.namespaces));
+            }, []);
         },
 
         _processAttributes: function (attributes) {
-            _gpfObjectForEach(attributes,function (value, qName){
+            _gpfObjectForEach(attributes, function (value, qName) {
                 /*jshint validthis:true*/
                 var me = this; //eslint-disable-line no-invalid-this
                 _gpfXmlCheckQualifiedAttributeName(qName, me._getNamespacePrefixes());
@@ -114,7 +118,10 @@ var
 
         // region gpf.interfaces.IXmlContentHandler
 
-        /** @gpf:sameas gpf.interfaces.IXmlContentHandler#characters */
+        /**
+         * @gpf:sameas gpf.interfaces.IXmlContentHandler#characters
+         * @since 0.2.7
+         */
         characters: function (buffer) {
             this._checkState(true);
             this._addContentToLastElement();
@@ -122,7 +129,10 @@ var
             return Promise.resolve();
         },
 
-        /** @gpf:sameas gpf.interfaces.IXmlContentHandler#endDocument */
+        /**
+         * @gpf:sameas gpf.interfaces.IXmlContentHandler#endDocument
+         * @since 0.2.7
+         */
         endDocument: function () {
             this._checkState(false);
             this._checkIfStarted = gpf.Error.invalidXmlWriterState;
@@ -130,7 +140,10 @@ var
             return Promise.resolve();
         },
 
-        /** @gpf:sameas gpf.interfaces.IXmlContentHandler#endElement */
+        /**
+         * @gpf:sameas gpf.interfaces.IXmlContentHandler#endElement
+         * @since 0.2.7
+         */
         endElement: function () {
             this._checkState(true);
             var element = this._elements.shift();
@@ -145,40 +158,49 @@ var
         /**
          * @gpf:sameas gpf.interfaces.IXmlContentHandler#endPrefixMapping
          * Actually this call is ignored since closing the element owning the namespaces will do the same.
+         * @since 0.2.7
          */
         endPrefixMapping: function (prefix) {
-            this._checkState(true);
+            this._checkState();
             _gpfIgnore(prefix);
             return Promise.resolve();
         },
 
-        /** @gpf:sameas gpf.interfaces.IXmlContentHandler#processingInstruction */
+        /**
+         * @gpf:sameas gpf.interfaces.IXmlContentHandler#processingInstruction
+         * @since 0.2.7
+         */
         processingInstruction: function (target, data) {
             this._checkState(false);
             this._appendToReadBuffer("<?" + target + " " + data + "?>\n");
             return Promise.resolve();
         },
 
-        /** @gpf:sameas gpf.interfaces.IXmlContentHandler#startDocument */
+        /**
+         * @gpf:sameas gpf.interfaces.IXmlContentHandler#startDocument
+         * @since 0.2.7
+         */
         startDocument: function () {
             this._checkIfStarted = _gpfEmptyFunc;
             this.startDocument = gpf.Error.invalidXmlWriterState;
             this._checkState(false);
-            this._started = true;
             return Promise.resolve();
         },
 
-        /** @gpf:sameas gpf.interfaces.IXmlContentHandler#startElement */
+        /**
+         * @gpf:sameas gpf.interfaces.IXmlContentHandler#startElement
+         * @since 0.2.7
+         */
         startElement: function (qName, attributes) {
             var namespaces = this._nextNamespaces;
-            this._checkState(true);
+            this._checkState();
             this._addContentToLastElement();
             this._elements.unshift({
                 qName: qName,
                 namespaces: namespaces
             });
             this._nextNamespaces = {};
-            this._checkQualifiedName(qName);
+            _gpfXmlCheckQualifiedElementName(qName, this._getNamespacePrefixes());
             this._appendToReadBuffer("<" + qName);
             if (attributes) {
                 this._processAttributes(attributes);
@@ -186,10 +208,13 @@ var
             this._processNamespaces(namespaces);
         },
 
-        /** @gpf:sameas gpf.interfaces.IXmlContentHandler#startPrefixMapping */
+        /**
+         * @gpf:sameas gpf.interfaces.IXmlContentHandler#startPrefixMapping
+         * @since 0.2.7
+         */
         startPrefixMapping: function (prefix, uri) {
-            this._checkState(true);
-            this._checkValidNamespacePrefix(prefix);
+            this._checkState();
+            _gpfXmlCheckDefinableNamespacePrefixName(prefix);
             if (this._nextNamespaces[prefix]) {
                 gpf.Error.invalidXmlWriterState();
             }
