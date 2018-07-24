@@ -4,6 +4,7 @@ const
     fs = require("fs"),
     path = require("path"),
     vlq = require("vlq"),
+    ConfigFile = require("../../make/configFile.js"),
     sources = [{
         "name": "sources"
     }],
@@ -16,15 +17,34 @@ const
     readFile = name => new Promise((resolve, reject) =>
         fs.readFile(name, (err, data) => err ? reject(err) : resolve(data.toString()))),
 
-    readSource = name => readFile(path.join(__dirname, "../../src/" + name + ".js")),
+    readSource = name => readFile(path.join(__dirname, `../../src/${name}.js`)),
 
     getSources = () => readFile(path.join(__dirname, "../../src/sources.json"))
-        .then(content => JSON.parse(content)),
+        .then(content => JSON.parse(content))
+        .then(sources => sources.filter(source => source.load !== false))
+        .then(sources => sources.map(source => source.name)),
 
     buildSources = response => getSources()
-        .then(sources => response.end(JSON.stringify(sources))),
+        .then(sources => Promise.all(sources.map(name => readSource(name))))
+        .then(sources => {
+            var configFile = new ConfigFile();
+            response.write(`//# sourceURL=http://localhost:${configFile.content.serve.httpPort}/src/sources.js.map\n`);
+            response.end(sources.join("\n"));
+        }),
 
-    buildSourcesMap = response => response.end("{}"),
+    buildSourcesMap = response => getSources()
+        .then(sources => {
+            const
+                sourcesMap = {
+                    version : 3,
+                    file: "sources.js",
+                    sourceRoot : "",
+                    sources: sources.map(name => `${name}.js`),
+                    names: [],
+                    mappings: ""
+                };
+            response.end(JSON.stringify(sourcesMap));
+        }),
 
     handlers = {
 
