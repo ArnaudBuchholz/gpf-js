@@ -35,6 +35,7 @@ _gpfErrorDeclare("define/class/constructor", {
      * ### Description
      *
      * An abstract class can not be instantiated
+     * @since 0.2.7
      */
     abstractClass: "Abstract Class"
 });
