@@ -281,6 +281,10 @@
         "tags": "host:nodejs stream"
     },
     {
+        "name": "fs/close",
+        "test": false
+    },
+    {
         "name": "fs/nodejs",
         "tags": "host:nodejs fs"
     },
