@@ -13,6 +13,7 @@
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfFsCloseBuild*/ // Build close method that assess the stream type
 /*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
 /*global _gpfFsSetFileStorageIf*/ // Set the file storage implementation if the host matches
 /*global _gpfMsFSO*/ // Scripting.FileSystemObject activeX
@@ -152,12 +153,7 @@ var _GpfWScriptFileStorage = _gpfDefine({
      * @gpf:sameas gpf.interfaces.IFileStorage#close
      * @since 0.1.9
      */
-    close: function (stream) {
-        if (stream instanceof _GpfWscriptBaseStream) {
-            return stream.close();
-        }
-        return Promise.reject(new gpf.Error.IncompatibleStream());
-    },
+    close: _gpfFsCloseBuild(_GpfWscriptBaseStream),
 
     /**
      * @gpf:sameas gpf.interfaces.IFileStorage#explore
