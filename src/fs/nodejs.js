@@ -11,6 +11,7 @@
 /*global _GpfNodeReadableStream*/ // gpf.node.ReadableStream
 /*global _GpfNodeWritableStream*/ // gpf.node.WritableStream
 /*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfFsCloseBuild*/ // Build close method that assess the stream type
 /*global _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
 /*global _gpfFsSetFileStorageIf*/ // Set the file storage implementation if the host matches
 /*global _gpfNodeFs*/ // Node/PhantomJS require("fs")
@@ -170,12 +171,7 @@ var _GpfNodeFileStorage = _gpfDefine({
      * @gpf:sameas gpf.interfaces.IFileStorage#close
      * @since 0.1.9
      */
-    close: function (stream) {
-        if (stream instanceof _GpfNodeBaseStream) {
-            return stream.close();
-        }
-        return Promise.reject(new gpf.Error.IncompatibleStream());
-    },
+    close: _gpfFsCloseBuild(_GpfNodeBaseStream),
 
     /**
      * @gpf:sameas gpf.interfaces.IFileStorage#explore
