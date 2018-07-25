@@ -273,6 +273,7 @@
         "boot",
         "stream/nodejs",
         "define",
+        "fs/close",
         "fs/explore",
         "host/nodejs",
         "path"
@@ -287,6 +288,7 @@
         "stream/wscript",
         "define",
         "error",
+        "fs/close",
         "fs/explore",
         "path"
     ],
