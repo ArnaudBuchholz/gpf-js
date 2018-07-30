@@ -124,6 +124,13 @@ function _gpfStreamSecureInstallProgressFlag (constructor) {
     constructor.prototype[_gpfStreamProgressWrite] = false;
 }
 
+function _gpfStreamSecureStart (stream, flag, error) {
+    if (stream[flag]) {
+        gpf.Error[error]();
+    }
+    stream[flag] = true;
+}
+
 /**
  * Starts a secured read operation (if possible)
  *
@@ -132,10 +139,7 @@ function _gpfStreamSecureInstallProgressFlag (constructor) {
  * @since 0.2.3
  */
 function _gpfStreamProgressStartRead (stream) {
-    if (stream[_gpfStreamProgressRead]) {
-        gpf.Error.readInProgress();
-    }
-    stream[_gpfStreamProgressRead] = true;
+    _gpfStreamSecureStart(stream, _gpfStreamProgressRead, "readInProgress");
 }
 
 /**
@@ -156,10 +160,7 @@ function _gpfStreamProgressEndRead (stream) {
  * @since 0.2.3
  */
 function _gpfStreamProgressStartWrite (stream) {
-    if (stream[_gpfStreamProgressWrite]) {
-        gpf.Error.writeInProgress();
-    }
-    stream[_gpfStreamProgressWrite] = true;
+    _gpfStreamSecureStart(stream, _gpfStreamProgressWrite, "writeInProgress");
 }
 
 /**
