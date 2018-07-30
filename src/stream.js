@@ -172,6 +172,16 @@ function _gpfStreamProgressEndWrite (stream) {
     stream[_gpfStreamProgressWrite] = false;
 }
 
+function _gpfStreamSecureEnd (promise, stream, endMethod) {
+    return promise.then(function (result) {
+        endMethod(stream);
+        return Promise.resolve(result);
+    }, function (reason) {
+        endMethod(stream);
+        return Promise.reject(reason);
+    });
+}
+
 /**
  * Generate a wrapper to query IWritableStream from the parameter and secure multiple calls to stream#read
  *
@@ -185,14 +195,7 @@ function _gpfStreamSecureRead (read) {
         var me = this,  //eslint-disable-line no-invalid-this
             iWritableStream = _gpfStreamQueryWritable(output);
         _gpfStreamProgressStartRead(me);
-        return read.call(me, iWritableStream)
-            .then(function (result) {
-                _gpfStreamProgressEndRead(me);
-                return Promise.resolve(result);
-            }, function (reason) {
-                _gpfStreamProgressEndRead(me);
-                return Promise.reject(reason);
-            });
+        return _gpfStreamSecureEnd(read.call(me, iWritableStream), me, _gpfStreamProgressEndRead);
     };
 }
 
@@ -208,14 +211,7 @@ function _gpfStreamSecureWrite (write) {
     return function (buffer) {
         var me = this; //eslint-disable-line no-invalid-this
         _gpfStreamProgressStartWrite(me);
-        return write.call(me, buffer) //eslint-disable-line no-invalid-this
-            .then(function (result) {
-                _gpfStreamProgressEndWrite(me);
-                return Promise.resolve(result);
-            }, function (reason) {
-                _gpfStreamProgressEndWrite(me);
-                return Promise.reject(reason);
-            });
+        return _gpfStreamSecureEnd(write.call(me, buffer), me, _gpfStreamProgressEndWrite);
     };
 }
 
