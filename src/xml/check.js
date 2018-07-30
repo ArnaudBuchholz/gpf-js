@@ -1,7 +1,7 @@
 /**
-* @file XML Validation helpers
-* @since 0.2.7
-*/
+ * @file XML Validation helpers
+ * @since 0.2.7
+ */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
