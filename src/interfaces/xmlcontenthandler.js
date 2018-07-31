@@ -41,7 +41,7 @@
  */
 
 /**
- *  Signal the scope end of a prefix-URI namespace mapping
+ * Signal the scope end of a prefix-URI namespace mapping
  *
  * @method gpf.interfaces.IXmlContentHandler#endPrefixMapping
  * @param {String} prefix Prefix of the prefix-URI mapping
