@@ -52,7 +52,7 @@ const
 
         "/src/boot.js?map": response => {
             response.setHeader("Content-Type", "application/javascript");
-            return readSource("boot", response)
+            return readSource("boot")
                 .then(content => response.end(content.replace("sources.json", "sources.json?map")));
         },
 
