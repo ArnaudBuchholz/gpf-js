@@ -21,6 +21,58 @@ function _gpfStreamPipeToFlushable (stream) {
     return _gpfInterfaceQuery(_gpfIFlushableStream, stream) || _gpfStreamPipeFakeFlushable;
 }
 
+function _gpfStreamPipeAllocateState (intermediate, destination) {
+    return {
+        iReadableIntermediate: _gpfStreamQueryReadable(intermediate),
+        iWritableIntermediate: _gpfStreamQueryWritable(intermediate),
+        iFlushableIntermediate: _gpfStreamPipeToFlushable(intermediate),
+        iWritableDestination: _gpfStreamQueryWritable(destination),
+        iFlushableDestination: _gpfStreamPipeToFlushable(destination),
+        readError: null,
+        rejectWrite: _gpfEmptyFunc
+    };
+}
+
+function _gpfStreamPipeAllocateRead (state) {
+    // Read errors must be transmitted up to the initial read, this is done by forwarding it to flush & write
+    var readingDone = true,
+        iReadableIntermediate = state.iReadableIntermediate,
+        iWritableDestination = state.iWritableDestination;
+    return function () {
+        if (readingDone) {
+            try {
+                readingDone = false;
+                iReadableIntermediate.read(iWritableDestination)
+                    .then(function () {
+                        readingDone = true;
+                    }, function (reason) {
+                        state.readError = reason;
+                        state.rejectWrite(reason);
+                    });
+            } catch (e) {
+                state.readError = e;
+            }
+        }
+    };
+}
+
+function _gpfStreamPipeWrapWrite (state, promise) {
+    return new Promise(function (resolve, reject) {
+        promise.then(function (value) {
+            resolve(value);
+            state.rejectWrite = _gpfEmptyFunc;
+        }, reject);
+        state.rejectWrite = reject;
+    });
+}
+
+function _gpfStreamPipeCheckIfReadError (state) {
+    if (state.readError) {
+        return Promise.reject(state.readError);
+    }
+}
+
+
 /**
  * Create a flushable & writable stream by combining the intermediate stream with the writable destination
  *
@@ -37,62 +89,27 @@ function _gpfStreamPipeToFlushable (stream) {
  * @since 0.2.3
  */
 function _gpfStreamPipeToFlushableWrite (intermediate, destination) {
-    var iReadableIntermediate = _gpfStreamQueryReadable(intermediate),
-        iWritableIntermediate = _gpfStreamQueryWritable(intermediate),
-        iFlushableIntermediate = _gpfStreamPipeToFlushable(intermediate),
-        iWritableDestination = _gpfStreamQueryWritable(destination),
-        iFlushableDestination = _gpfStreamPipeToFlushable(destination),
-        readingDone = true,
-        readError,
-        rejectWrite = _gpfEmptyFunc;
+    var state = _gpfStreamPipeAllocateState(intermediate, destination),
+        read = _gpfStreamPipeAllocateRead(state),
+        iFlushableIntermediate = state.iFlushableIntermediate,
+        iFlushableDestination = state.iFlushableDestination,
+        iWritableIntermediate = state.iWritableIntermediate;
 
-    // Read errors must be transmitted up to the initial read, this is done by forwarding it to flush & write
-    function _read () {
-        if (readingDone) {
-            try {
-                readingDone = false;
-                iReadableIntermediate.read(iWritableDestination)
-                    .then(function () {
-                        readingDone = true;
-                    }, function (reason) {
-                        readError = reason;
-                        rejectWrite(reason);
-                    });
-            } catch (e) {
-                readError = e;
-            }
-        }
-    }
-    _read();
-
-    function _checkIfReadError () {
-        if (readError) {
-            return Promise.reject(readError);
-        }
-    }
-
-    function _wrapWrite (writePromise) {
-        return new Promise(function (resolve, reject) {
-            writePromise.then(function (value) {
-                resolve(value);
-                rejectWrite = _gpfEmptyFunc;
-            }, reject);
-            rejectWrite = reject;
-        });
-    }
+    read();
 
     return {
 
         flush: function () {
-            return _checkIfReadError() || iFlushableIntermediate.flush()
+            return _gpfStreamPipeCheckIfReadError(state) || iFlushableIntermediate.flush()
                 .then(function () {
                     return iFlushableDestination.flush();
                 });
         },
 
         write: function (data) {
-            _read();
-            return _checkIfReadError() || _wrapWrite(iWritableIntermediate.write(data));
+            read();
+            return _gpfStreamPipeCheckIfReadError(state)
+                || _gpfStreamPipeWrapWrite(state, iWritableIntermediate.write(data));
         }
 
     };
