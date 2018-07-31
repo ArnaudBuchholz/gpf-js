@@ -157,10 +157,10 @@ var
 
         /**
          * @gpf:sameas gpf.interfaces.IXmlContentHandler#endPrefixMapping
-         * Actually this call is ignored since closing the element owning the namespaces will do the same.
          * @since 0.2.7
          */
         endPrefixMapping: function (prefix) {
+            // Actually this call is ignored since closing the element owning the namespaces will do the same.
             this._checkState();
             _gpfIgnore(prefix);
             return Promise.resolve();
