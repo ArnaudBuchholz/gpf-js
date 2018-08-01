@@ -5,9 +5,9 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
+/*global _gpfHttpGenGetResponse*/ // Generates a function that extracts response from the http object
 /*global _gpfHttpGenSend*/ // Generates a function that implements the http send logic
 /*global _gpfHttpGenSetHeaders*/ // Generates a function that transmit headers to the http object
-/*global _gpfHttpParseHeaders*/ // Parse HTTP response headers
 /*global _gpfHttpSetRequestImplIf*/ // Set the http request implementation if the host matches
 /*#endif*/
 
@@ -16,7 +16,8 @@
 /*eslint-disable new-cap*/
 
 var _gpfHttpWScriptSetHeaders = _gpfHttpGenSetHeaders("setRequestHeader"),
-    _gpfHttpWScriptSend = _gpfHttpGenSend("Send");
+    _gpfHttpWScriptSend = _gpfHttpGenSend("Send"),
+    _gpfHttpWScriptGetResponse = _gpfHttpGenGetResponse("Status", "GetAllResponseHeaders", "ResponseText");
 
 function _gpfHttpWScriptAllocate (request) {
     var winHttp = new ActiveXObject("WinHttp.WinHttpRequest.5.1");
@@ -25,11 +26,7 @@ function _gpfHttpWScriptAllocate (request) {
 }
 
 function _gpfHttpWScriptResolve (winHttp, resolve) {
-    resolve({
-        status: winHttp.Status,
-        headers: _gpfHttpParseHeaders(winHttp.GetAllResponseHeaders()),
-        responseText: winHttp.ResponseText
-    });
+    resolve(_gpfHttpWScriptGetResponse(winHttp));
 }
 
 function _gpfHttpWscriptRequestImpl (request, resolve) {
