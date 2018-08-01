@@ -48,18 +48,33 @@ function _gpfPromiseReject (newValue) {
     _gpfPromiseFinale.call(me);
 }
 
+var _gpfPromiseResolve;
+
+function _gpfPromiseResolveChainIfFunction (newValue, then) {
+    /*jshint validthis:true*/
+    var me = this; //eslint-disable-line no-invalid-this
+    if ("function" === typeof then) {
+        _gpfPromiseSafeResolve(then.bind(newValue), _gpfPromiseResolve.bind(me), _gpfPromiseReject.bind(me));
+        return true;
+    }
+}
+
+function _gpfPromiseResolveChain (newValue) {
+    /*jshint validthis:true*/
+    var me = this; //eslint-disable-line no-invalid-this
+    if (newValue && ["object", "function"].indexOf(typeof newValue) !== -1) {
+        return _gpfPromiseResolveChainIfFunction.call(me, newValue, newValue.then);
+    }
+}
+
 //Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
-function _gpfPromiseResolve (newValue) {
+_gpfPromiseResolve = function (newValue) {
     /*jshint validthis:true*/
     var me = this; //eslint-disable-line no-invalid-this
     try {
         _gpfAssert(newValue !== me, "A promise cannot be resolved with itself.");
-        if (newValue && (typeof newValue === "object" || typeof newValue === "function")) {
-            var then = newValue.then;
-            if ("function" === typeof then) {
-                _gpfPromiseSafeResolve(then.bind(newValue), _gpfPromiseResolve.bind(me), _gpfPromiseReject.bind(me));
-                return;
-            }
+        if (_gpfPromiseResolveChain.call(me, newValue)) {
+            return;
         }
         me._state = true;
         me._value = newValue;
@@ -68,13 +83,45 @@ function _gpfPromiseResolve (newValue) {
         /* istanbul ignore next */ // compability.promise.1
         _gpfPromiseReject.call(me, e);
     }
-}
+};
 
 var _GpfPromise = gpf.Promise = function (fn) {
     _gpfPromiseSafeResolve(fn, _gpfPromiseResolve.bind(this), _gpfPromiseReject.bind(this));
 };
 
 function _gpfPromiseHandler () {
+}
+
+function _gpfPromiseGetCallbackFromState (handler, promise) {
+    if (promise._state) {
+        return handler.onFulfilled;
+    }
+    return handler.onRejected;
+}
+
+function _gpfPromiseSettleFromState (handler, promise) {
+    if (promise._state) {
+        handler.resolve(promise._value);
+    } else {
+        handler.reject(promise._value);
+    }
+}
+
+function _gpfPromiseAsyncProcess (promise) {
+    /*jshint validthis:true*/
+    var me = this; //eslint-disable-line no-invalid-this
+    var callback = _gpfPromiseGetCallbackFromState(me, promise),
+        result;
+    if (null === callback) {
+        return _gpfPromiseSettleFromState(me, promise);
+    }
+    try {
+        result = callback(promise._value);
+    }  catch (e) {
+        me.reject(e);
+        return;
+    }
+    me.resolve(result);
 }
 
 _gpfPromiseHandler.prototype = {
@@ -98,30 +145,7 @@ _gpfPromiseHandler.prototype = {
             promise._handlers.push(me);
             return;
         }
-        setTimeout(function () {
-            var callback,
-                result;
-            if (promise._state) {
-                callback = me.onFulfilled;
-            } else {
-                callback = me.onRejected;
-            }
-            if (null === callback) {
-                if (promise._state) {
-                    me.resolve(promise._value);
-                } else {
-                    me.reject(promise._value);
-                }
-                return;
-            }
-            try {
-                result = callback(promise._value);
-            }  catch (e) {
-                me.reject(e);
-                return;
-            }
-            me.resolve(result);
-        }, 0);
+        setTimeout(_gpfPromiseAsyncProcess.bind(me, promise), 0);
     }
 
 };
@@ -172,30 +196,41 @@ _GpfPromise.reject = function (value) {
     });
 };
 
+function _gpfPromiseAllAssign (state, index, result) {
+    state.promises[index] = result;
+    if (--state.remaining === 0) {
+        state.resolve(state.promises);
+    }
+}
+
+function _gpfPromiseAllHandle (result, index) {
+    /*jshint validthis:true*/
+    var me = this; //eslint-disable-line no-invalid-this
+    try {
+        if (result instanceof _GpfPromise) {
+            result.then(function (value) {
+                _gpfPromiseAllHandle.call(me, value, index);
+            }, me.reject);
+            return;
+        }
+        _gpfPromiseAllAssign(me, index, result);
+    } catch (e) {
+        /* istanbul ignore next */ // compability.promise.1
+        me.reject(e);
+    }
+}
+
 _GpfPromise.all = function (promises) {
     if (0 === promises.length) {
         return _GpfPromise.resolve([]);
     }
     return new _GpfPromise(function (resolve, reject) {
-        var remaining = promises.length;
-        function handle (result, index) {
-            try {
-                if (result && result instanceof _GpfPromise) {
-                    result.then(function (value) {
-                        handle(value, index);
-                    }, reject);
-                    return;
-                }
-                promises[index] = result;
-                if (--remaining === 0) {
-                    resolve(promises);
-                }
-            } catch (e) {
-                /* istanbul ignore next */ // compability.promise.1
-                reject(e);
-            }
-        }
-        promises.forEach(handle);
+        promises.forEach(_gpfPromiseAllHandle.bind({
+            resolve: resolve,
+            reject: reject,
+            remaining: promises.length,
+            promises: promises
+        }));
     });
 };
 
