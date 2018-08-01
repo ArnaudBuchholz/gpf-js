@@ -5,9 +5,9 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
+/*global _gpfHttpGenGetResponse*/ // Generates a function that extracts response from the http object
 /*global _gpfHttpGenSend*/ // Generates a function that implements the http send logic
 /*global _gpfHttpGenSetHeaders*/ // Generates a function that transmit headers to the http object
-/*global _gpfHttpParseHeaders*/ // Parse HTTP response headers
 /*global _gpfHttpSetRequestImplIf*/ // Set the http request implementation if the host matches
 /*#endif*/
 
@@ -15,7 +15,8 @@
 /*eslint-env browser*/
 
 var _gpfHttpXhrSetHeaders = _gpfHttpGenSetHeaders("setRequestHeader"),
-    _gpfHttpXhrSend = _gpfHttpGenSend("send");
+    _gpfHttpXhrSend = _gpfHttpGenSend("send"),
+    _gpfHttpXhrGetResponse = _gpfHttpGenGetResponse("status", "getAllResponseHeaders", "responseText");
 
 function _gpfHttpXhrOpen (request) {
     var xhr = new XMLHttpRequest();
@@ -35,11 +36,7 @@ function _gpfHttpXhrRequest (request, resolve) {
     var xhr = _gpfHttpXhrOpen(request);
     _gpfHttpXhrSetHeaders(xhr, request.headers);
     _gpfHttpXhrWaitForCompletion(xhr, function () {
-        resolve({
-            status: xhr.status,
-            headers: _gpfHttpParseHeaders(xhr.getAllResponseHeaders()),
-            responseText: xhr.responseText
-        });
+        resolve(_gpfHttpXhrGetResponse(xhr));
     });
     _gpfHttpXhrSend(xhr, request.data);
 }
