@@ -7,6 +7,7 @@
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfRegExpForEach*/ // Executes the callback for each match of the regular expression
 /*exported _GPF_HTTP_METHODS*/ // HTTP Methods
+/*exported _gpfHttpGenGetResponse*/ // Generates a function that extracts response from the http object
 /*exported _gpfHttpGenSend*/ // Generates a function that implements the http send logic
 /*exported _gpfHttpGenSetHeaders*/ // Generates a function that transmit headers to the http object
 /*exported _gpfHttpParseHeaders*/ // Parse HTTP response headers
@@ -82,5 +83,25 @@ function _gpfHttpGenSend (methodName) {
         } else {
             httpObj[methodName]();
         }
+    };
+}
+
+/**
+ * Generates a function that extracts response from the http object
+ *
+ * @param {String} status Name of the status property
+ * @param {String} getAllResponseHeaders Name of the getAllResponseHeaders method
+ * @param {String} responseText Name of the responseText property
+ * @return {Function} Method to generate response
+ * @gpf:closure
+ * @since 0.2.7
+ */
+function _gpfHttpGenGetResponse (status, getAllResponseHeaders, responseText) {
+    return function (httpObj) {
+        return {
+            status: httpObj[status],
+            headers: _gpfHttpParseHeaders(httpObj[getAllResponseHeaders]()),
+            responseText: httpObj[responseText]
+        };
     };
 }
