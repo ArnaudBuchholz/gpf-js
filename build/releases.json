@@ -328,5 +328,35 @@
             "tests": 801,
             "sources": 109
         }
+    },
+    {
+        "version": "0.2.7",
+        "label": "Quality and XML",
+        "date": "2018-08-04",
+        "notes": "",
+        "milestone": 15,
+        "metrics": {
+            "coverage": {
+                "statements": {
+                    "total": 100,
+                    "ignored": 0.44
+                },
+                "functions": {
+                    "total": 100,
+                    "ignored": 0.88
+                },
+                "branches": {
+                    "total": 100,
+                    "ignored": 0.81
+                }
+            },
+            "maintainability": 82.21,
+            "lines": {
+                "total": 11157,
+                "average": 98
+            },
+            "tests": 842,
+            "sources": 113
+        }
     }
 ]
