@@ -212,8 +212,8 @@ module.exports = {
 ## Preloading
 
 Since version 0.2.7, the library offers a way to inject a dictionary associating resource names to their
-textual content. The goal is to speed up the application loading by consolidating all dependent resources
-into a single JSON file and preload all resources in one call.
+textual source. The goal is to speed up the application loading by consolidating all dependent resources
+into a single JSON file and preload them in one call.
 
 ```javascript
 // Proposed implementation
