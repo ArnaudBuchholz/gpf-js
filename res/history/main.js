@@ -12,7 +12,7 @@ gpf.require.define({
         className: "version"
     }, [
         dom.div({
-            className: "title",
+            className: "title"
         }, lastRelease.label)
     ]);
 
