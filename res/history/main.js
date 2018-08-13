@@ -16,7 +16,6 @@ gpf.require.define({
         }, lastRelease.label)
     ]);
 
-    debugger;
     version.appendTo(document.body);
 
 });
