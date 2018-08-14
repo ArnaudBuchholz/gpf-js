@@ -2,28 +2,7 @@
 
 describe("xml/writer", function () {
 
-    // Simplify the writing of the tests, may be productized by a generic interface wrapper
-    function wrap (writer, promise) {
-        var wrapped = promise;
-        [
-            "characters",
-            "endDocument",
-            "endElement",
-            "endPrefixMapping",
-            "processingInstruction",
-            "startDocument",
-            "startElement",
-            "startPrefixMapping"
-        ].forEach(function (apiName) {
-            wrapped[apiName] = function () {
-                var args = arguments;
-                return wrap(writer, promise.then(function () {
-                    return writer[apiName].apply(writer, args);
-                }));
-            };
-        });
-        return wrapped;
-    }
+    var wrapXmlContentHandler;
 
     function allocateWriter (done, checkResult) {
         var writer = new gpf.xml.Writer(),
@@ -36,7 +15,10 @@ describe("xml/writer", function () {
                 done(error);
             }
         });
-        return wrap(writer, Promise.resolve());
+        if (!wrapXmlContentHandler) {
+            wrapXmlContentHandler = gpf.interfaces.promisify(gpf.interfaces.IXmlContentHandler);
+        }
+        return wrapXmlContentHandler(writer);
     }
 
     function shouldNotSucceed () {
