@@ -480,5 +480,8 @@
     },
     {
         "name": "xml/writer"
+    },
+    {
+        "name": "foreachasync"
     }
 ]
