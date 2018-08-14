@@ -475,6 +475,10 @@
         "test": false
     },
     {
+        "name": "interfaces/promisify",
+        "test": false
+    },
+    {
         "name": "xml/writer"
     }
 ]
