@@ -490,6 +490,10 @@
     "xml/check": [
         "error"
     ],
+    "interfaces/promisify": [
+        "foreach",
+        "interfaces/thenable"
+    ],
     "xml/writer": [
         "stream/bufferedread",
         "define",
