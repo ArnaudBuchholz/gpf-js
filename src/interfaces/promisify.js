@@ -36,5 +36,18 @@ function _gpfInterfacesPromisify (interfaceSpecifier) {
 /**
  * @gpf:sameas _gpfInterfacesPromisify
  * @since 0.2.8
+ *
+ * @example <caption>IXmlContentHandler wrapper</caption>
+ * var wrapXmlContentHandler = gpf.interfaces.promisify(gpf.interfaces.IXmlContentHandler),
+ *     writer = new gpf.xml.Writer(),
+ *     output = new gpf.stream.WritableString();
+ * gpf.stream.pipe(writer, output).then(function () {
+ *     console.log(output.toString());
+ * });
+ * wrapXmlContentHandler(writer)
+ *     .startDocument()
+ *     .startElement("document")
+ *     .endElement();
+ * // <document/>
  */
 gpf.interfaces.promisify = _gpfInterfacesPromisify;
