@@ -27,8 +27,7 @@ try {
 } catch (e) {}
 
 if (stats && stats.isDirectory()) {
-    global.gpfSourcesPath = gpfSourcesPath;
-    console.log(gpfSourcesPath);
+    global.gpfSourcesPath = gpfSourcesPath + path.sep;
     require(gpfSourcesPath + "/boot.js");
     restoreGlobal("gpfSourcesPath", backupOfGpfSourcePath);
     module.exports = gpf;
