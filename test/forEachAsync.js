@@ -1,0 +1,72 @@
+"use strict";
+
+describe("foreachasync", function () {
+
+    var
+        array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        object = {};
+
+    describe("gpf.forEachAsync", function () {
+
+        it("enumerates an array synchronously", function (done) {
+            var count = 0,
+                sum = 0;
+            gpf.forEachAsync(array, function (value, idx, refArray) {
+                assert(this === object); //eslint-disable-line no-invalid-this
+                assert("number" === typeof idx);
+                assert(refArray === array);
+                ++count;
+                sum += value;
+            }, object)
+                .then(function () {
+                    assert(array.length === count);
+                    assert(45 === sum);
+                    done();
+                })["catch"](done);
+        });
+
+        it("enumerates an array asynchronously", function (done) {
+            var count = 0,
+                sum = 0;
+            gpf.forEachAsync(array, function (value, idx, refArray) {
+                assert(this === object); //eslint-disable-line no-invalid-this
+                assert("number" === typeof idx);
+                assert(refArray === array);
+                ++count;
+                sum += value;
+                return Promise.resolve();
+            }, object)
+                .then(function () {
+                    assert(array.length === count);
+                    assert(45 === sum);
+                    done();
+                })["catch"](done);
+        });
+
+        it("catches any error", function (done) {
+            gpf.forEachAsync(array, function () {
+                throw new Error("OK");
+            })
+                .then(function () {
+                    done(new Error("Not expected"));
+                }, function (reason) {
+                    assert(reason.message === "OK");
+                    done();
+                })["catch"](done);
+        });
+
+        it("catches any rejected promise", function (done) {
+            gpf.forEachAsync(array, function () {
+                return Promise.reject("OK");
+            })
+                .then(function () {
+                    done(new Error("Not expected"));
+                }, function (reason) {
+                    assert(reason === "OK");
+                    done();
+                })["catch"](done);
+        });
+
+    });
+
+});
