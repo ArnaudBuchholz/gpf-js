@@ -7,17 +7,7 @@
 const
     path = require("path"),
     fs = require("fs"),
-    gpfSourcesPath = path.join(__dirname, "../../../gpf-js/src"),
-    backupOfGpfSourcePath = global.gpfSourcesPath,
-    backupOfGpf = global.gpf,
-
-    restoreGlobal = (name, value) => {
-        if (undefined === value) {
-            delete global[name];
-        } else {
-            global[name] = value;
-        }
-    };
+    gpfSourcesPath = path.join(__dirname, "../../../gpf-js/src");
 
 let
     stats;
@@ -28,10 +18,8 @@ try {
 
 if (stats && stats.isDirectory()) {
     global.gpfSourcesPath = gpfSourcesPath + path.sep;
-    require(gpfSourcesPath + "/boot.js");
-    restoreGlobal("gpfSourcesPath", backupOfGpfSourcePath);
+    require(gpfSourcesPath + "/boot.js"); // defines global.gpf
     module.exports = gpf;
-    restoreGlobal("gpf", backupOfGpf);
 } else {
     module.exports = require("./build/gpf.js");
 }
