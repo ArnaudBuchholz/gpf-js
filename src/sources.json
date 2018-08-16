@@ -475,8 +475,7 @@
         "test": false
     },
     {
-        "name": "interfaces/promisify",
-        "test": false
+        "name": "interfaces/promisify"
     },
     {
         "name": "xml/writer"
