@@ -4,16 +4,21 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfInterfaceQuery*/ // gpf.interfaces.query
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*global _gpfPromisify*/ // Converts any value into a Promise
 /*#endif*/
 
-function _gpfInterfacesWrap (object, interfaceSpecifier, promise) {
+function _gpfInterfacesWrap (iInterfaceImpl, interfaceSpecifier, promise) {
+    var fThen = promise.then;
+    promise.then = function () {
+        return _gpfInterfacesWrap(iInterfaceImpl, interfaceSpecifier, fThen.apply(promise, arguments));
+    };
     _gpfObjectForEach(interfaceSpecifier.prototype, function (referenceMethod, name) {
         promise[name] = function () {
             var args = arguments;
-            return _gpfInterfacesWrap(object, interfaceSpecifier, promise.then(function () {
-                return _gpfPromisify(object[name].apply(object, args));
+            return _gpfInterfacesWrap(iInterfaceImpl, interfaceSpecifier, promise.then(function () {
+                return _gpfPromisify(iInterfaceImpl[name].apply(iInterfaceImpl, args));
             }));
         };
     });
@@ -29,7 +34,13 @@ function _gpfInterfacesWrap (object, interfaceSpecifier, promise) {
  */
 function _gpfInterfacesPromisify (interfaceSpecifier) {
     return function (object) {
-        return _gpfInterfacesWrap(object, interfaceSpecifier, Promise.resolve());
+        var iInterfaceImpl = _gpfInterfaceQuery(interfaceSpecifier, object);
+        if (!iInterfaceImpl) {
+            gpf.Error.interfaceExpected({
+                name: interfaceSpecifier.compatibleName()
+            });
+        }
+        return _gpfInterfacesWrap(iInterfaceImpl, interfaceSpecifier, Promise.resolve());
     };
 }
 
