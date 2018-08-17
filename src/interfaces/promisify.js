@@ -17,9 +17,9 @@ function _gpfInterfacesWrap (iInterfaceImpl, interfaceSpecifier, promise) {
     _gpfObjectForEach(interfaceSpecifier.prototype, function (referenceMethod, name) {
         promise[name] = function () {
             var args = arguments;
-            return _gpfInterfacesWrap(iInterfaceImpl, interfaceSpecifier, promise.then(function () {
+            return promise.then(function () {
                 return _gpfPromisify(iInterfaceImpl[name].apply(iInterfaceImpl, args));
-            }));
+            });
         };
     });
     return promise;
