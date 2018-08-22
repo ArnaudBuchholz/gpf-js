@@ -482,5 +482,8 @@
     },
     {
         "name": "foreachasync"
+    },
+    {
+        "name": "serial/property"
     }
 ]
