@@ -16,10 +16,20 @@ _gpfErrorDeclare("serial/property", {
      *
      * ### Description
      *
-     * Name should respect the pattern //i
+     * Name should respect the pattern `/^[a-z][a-z0-9_]*$/i`
      */
-    "invalidSerialName": "Invalid serial name"
+    "invalidSerialName": "Invalid serial name",
 
+    /**
+     * ### Summary
+     *
+     * Type of serializable property is invalid
+     *
+     * ### Description
+     *
+     * Type should be one of the enumeration {@see gpf.serial.types}
+     */
+    "invalidSerialType": "Invalid serial type"
 });
 
 /**
@@ -33,6 +43,7 @@ gpf.serial = {};
  *
  * @typedef gpf.typedef.serializableProperty
  * @property {String} name Name of the property
+ * @property {gpf.serial.types} type Type of the property
  * @see gpf.attributes.Serializable
  */
 
@@ -40,28 +51,34 @@ gpf.serial = {};
  * Serializable types constants
  * @since 0.1.5
  */
-_GPF_SERIAL_TYPE = {
+var _GPF_SERIAL_TYPE = {
     STRING: "string"
 };
 
- /**
-  * Serializable types enumeration
-  *
-  * @enum {String}
-  * @readonly
-  */
- gpf.serial.types = {
-     /**
-      * String, might be limited by {@see gpf.typedef.serializableProperty.length}
-      */
-     string: _GPF_SERIAL_TYPE.STRING
-
- };
-
+/**
+ * Serializable types enumeration
+ *
+ * @enum {String}
+ * @readonly
+ */
+gpf.serial.types = {
+    /**
+     * String, might be limited by {@see gpf.typedef.serializableProperty.length}
+     */
+    string: _GPF_SERIAL_TYPE.STRING
+};
 
 function _gpfSerialPropertyCheckNameType (name) {
     if (typeof name !== "string") {
-        gpf.error.invalidSerialName();
+        gpf.Error.invalidSerialName();
+    }
+}
+
+var _gpfSerialPropertyNameRegExp = new RegExp("^[a-z][a-z0-9_]*$", "i");
+
+function _gpfSerialPropertyCheckNameRegExp (name) {
+    if (!name.match(_gpfSerialPropertyNameRegExp)) {
+        gpf.Error.invalidSerialName();
     }
 }
 
@@ -70,12 +87,30 @@ function _gpfSerialPropertyCheckName (name) {
     _gpfSerialPropertyCheckNameRegExp(name);
 }
 
+var _gpfSerialPropertyTypes = Object.keys(_GPF_SERIAL_TYPE).map(function (name) {
+    return _GPF_SERIAL_TYPE[name];
+});
+
+function _gpfSerialPropertyCheckType (type) {
+    if (_gpfSerialPropertyTypes.indexOf(type) === -1) {
+        gpf.Error.invalidSerialType();
+    }
+}
+
 /**
  * Check that the serializable property definition is valid
  *
- * @param {gpf.typedef.serializableProperty} property
- * @throws {}
+ * @param {gpf.typedef.serializableProperty} property Property definition to validate
+ * @throws {gpf.Error.InvalidSerialName}
+ * @throws {gpf.Error.InvalidSerialType}
  */
 function _gpfSerialPropertyCheck (property) {
     _gpfSerialPropertyCheckName(property.name);
+    _gpfSerialPropertyCheckType(property.type);
 }
+
+/*#ifndef(UMD)*/
+
+gpf.internals._gpfSerialPropertyCheck = _gpfSerialPropertyCheck;
+
+/*#endif*/
