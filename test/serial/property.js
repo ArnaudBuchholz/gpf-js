@@ -8,11 +8,16 @@ describe("serial/property", function () {
 
         describe("_gpfSerialPropertyCheck", function () {
 
-            it("validates name", {
+            it("validates name", function () {
                 var exceptionCaught;
-                _gpfSerialPropertyCheck({
-                    name: "OK"
-                });
+                try {
+                    _gpfSerialPropertyCheck({
+                        name: "OK",
+                        type: gpf.serial.types.string
+                    });
+                } catch (e) {
+                    exceptionCaught = e;
+                }
                 assert(!exceptionCaught);
             });
 
@@ -29,15 +34,20 @@ describe("serial/property", function () {
             ].forEach(function (invalidName) {
                 it("rejects invalid names (" + JSON.stringify(invalidName) + ")", function () {
                     var exceptionCaught;
-                    _gpfSerialPropertyCheck({
-                        name: invalidName
-                    });
+                    try {
+                        _gpfSerialPropertyCheck({
+                            name: invalidName,
+                            type: gpf.serial.types.string
+                        });
+                    } catch (e) {
+                        exceptionCaught = e;
+                    }
                     assert(exceptionCaught instanceof gpf.Error.InvalidSerialName);
                 });
             });
 
         });
 
-    };
+    }
 
 });
