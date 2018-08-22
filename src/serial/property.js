@@ -43,7 +43,7 @@ gpf.serial = {};
  *
  * @typedef gpf.typedef.serializableProperty
  * @property {String} name Name of the property
- * @property {gpf.serial.types} type Type of the property
+ * @property {gpf.serial.types} [type=gpf.serial.types.string] Type of the property
  * @see gpf.attributes.Serializable
  */
 
@@ -106,7 +106,9 @@ function _gpfSerialPropertyCheckType (type) {
  */
 function _gpfSerialPropertyCheck (property) {
     _gpfSerialPropertyCheckName(property.name);
-    _gpfSerialPropertyCheckType(property.type);
+    if (property.type !== undefined) {
+        _gpfSerialPropertyCheckType(property.type);
+    }
 }
 
 /*#ifndef(UMD)*/
