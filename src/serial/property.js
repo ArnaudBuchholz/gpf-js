@@ -133,12 +133,14 @@ function _gpfSerialPropertyCheckRequired (property) {
 }
 
 /**
- * Check that the serializable property definition is valid
+ * Check that the serializable property definition is valid.
+ * Returns a copy with defaulted properties.
  *
  * @param {gpf.typedef.serializableProperty} property Property definition to validate
  * @return {gpf.typedef.serializableProperty} Completed property definition
  * @throws {gpf.Error.InvalidSerialName}
  * @throws {gpf.Error.InvalidSerialType}
+ * @throws {gpf.Error.InvalidSerialRequired}
  */
 function _gpfSerialPropertyCheck (property) {
     property = Object.assign(property); // Clone
