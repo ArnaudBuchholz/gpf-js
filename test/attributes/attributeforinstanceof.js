@@ -1,8 +1,8 @@
 "use strict";
 
-describe("attributes/oninstanceof", function () {
+describe("attributes/attributeforinstanceof", function () {
 
-    describe("gpf.attributes.OnInstanceOf", function () {
+    describe("gpf.attributes.AttributeForInstanceOf", function () {
 
         var A,
             onInstanceOfA;
@@ -12,12 +12,13 @@ describe("attributes/oninstanceof", function () {
                 $class: "A",
                 $abstract: true
             });
-            onInstanceOfA = new gpf.attributes.OnInstanceOf(A);
+            onInstanceOfA = new gpf.attributes.AttributeForInstanceOf(A);
         });
 
         it("can't be used on a non-attribute class", function () {
             var exceptionCaught;
             try {
+                debugger;
                 gpf.define({
                     $class: "B",
                     $attributes: [onInstanceOfA]
