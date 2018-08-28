@@ -23,13 +23,23 @@ function _gpfDefClassAttrAssign (allAttributes, member, attributes) {
 
 Object.assign(_GpfClassDefinition.prototype, {
 
-    _collectAttributes: function (allAttributes, baseAttributeClass) {
+    _collectOwnAttributes: function (allAttributes, baseAttributeClass) {
         _gpfObjectForEach(this._attributes, function (memberAttributes, member) {
             var attributes = _gpfDefClassAttrFilter(memberAttributes, baseAttributeClass);
             if (attributes.length) {
                 _gpfDefClassAttrAssign(allAttributes, member, attributes);
             }
         });
+    },
+
+    _getOwnAttributes: function () {
+        var ownAttributes = {};
+        this._collectOwnAttributes(ownAttributes);
+        return ownAttributes;
+    },
+
+    _collectAttributes: function (allAttributes, baseAttributeClass) {
+        this._collectOwnAttributes(allAttributes, baseAttributeClass);
         if (this._extendDefinition) {
             this._extendDefinition._collectAttributes(allAttributes, baseAttributeClass);
         }
