@@ -5,6 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfIgnore*/
 /*exported _gpfAttribute*/ // Shortcut for gpf.attributes.Attribute
 /*#endif*/
 
@@ -23,6 +24,18 @@ gpf.attributes = {};
  */
 var _gpfAttribute = _gpfDefine({
     $class: "gpf.attributes.Attribute",
-    $abstract: true
+    $abstract: true,
+
+    /**
+     * Check the attribute usage
+     * **NOTE**: Experimental feature, do not rely on this method
+     *
+     * @param {String} member Member name or empty if global to the class
+     * @param {_GpfClassDefinition} classDefinition Class definition
+     * @private
+     */
+    _check: function (member, classDefinition) {
+        _gpfIgnore(member, classDefinition);
+    }
 
 });
