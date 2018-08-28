@@ -70,6 +70,18 @@ function _gpfAttributesCheckMemberOnly (member) {
     }
 }
 
+function _gpfAttributesCheckAppliedOnBaseClassIsExtendInstanceOf (Extend, ExpectedBaseClass) {
+    if (!(Extend.prototype instanceof ExpectedBaseClass)) {
+        gpf.Error.restrictedBaseClassAttribute();
+    }
+}
+
+function _gpfAttributesCheckAppliedOnBaseClassWithExtend (Extend, ExpectedBaseClass) {
+    if (Extend !== ExpectedBaseClass) {
+        _gpfAttributesCheckAppliedOnBaseClassIsExtendInstanceOf(Extend, ExpectedBaseClass);
+    }
+}
+
 /**
  * Ensures attribute is applied on a specific base class
  *
@@ -81,9 +93,5 @@ function _gpfAttributesCheckAppliedOnBaseClass (classDefinition, ExpectedBaseCla
     if (!classDefinition._extend) {
         gpf.Error.restrictedBaseClassAttribute();
     }
-    if (classDefinition._extend !== ExpectedBaseClass) {
-        if (!(classDefinition._extend.prototype instanceof ExpectedBaseClass)) {
-            gpf.Error.restrictedBaseClassAttribute();
-        }
-    }
+    _gpfAttributesCheckAppliedOnBaseClassWithExtend(classDefinition._extend, ExpectedBaseClass);
 }
