@@ -5,7 +5,9 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfClassDefinition*/ // Class definition
+/*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
+/*global _GPF_DEFINE_CLASS_ATTRIBUTES_NAME*/ // $attributes
 /*#endif*/
 
 function _gpfDefClassAttrFilter (attributes, baseAttributeClass) {
@@ -43,6 +45,20 @@ Object.assign(_GpfClassDefinition.prototype, {
         if (this._extendDefinition) {
             this._extendDefinition._collectAttributes(allAttributes, baseAttributeClass);
         }
+    },
+
+    _forOwnAttributes: function (callback, lastParam) {
+        var me = this,
+            ownAttributes = me._getOwnAttributes();
+        _gpfObjectForEach(ownAttributes, function (attributes, name) {
+            var member;
+            if (_GPF_DEFINE_CLASS_ATTRIBUTES_NAME !== name) {
+                member = name;
+            }
+            _gpfArrayForEach(attributes, function (attribute) {
+                callback.call(me, member, attribute, lastParam);
+            });
+        });
     },
 
     /**
