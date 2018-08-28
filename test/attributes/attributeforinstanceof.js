@@ -18,7 +18,6 @@ describe("attributes/attributeforinstanceof", function () {
         it("can't be used on a non-attribute class", function () {
             var exceptionCaught;
             try {
-                debugger;
                 gpf.define({
                     $class: "B",
                     $attributes: [onInstanceOfA]
@@ -26,7 +25,7 @@ describe("attributes/attributeforinstanceof", function () {
             } catch (e) {
                 exceptionCaught = e;
             }
-            assert(exceptionCaught);
+            assert(exceptionCaught instanceof gpf.Error.ClassAttributeOnly);
         });
 
         it("can't be used on a member of an attribute class", function () {
@@ -63,7 +62,7 @@ describe("attributes/attributeforinstanceof", function () {
                     gpf.define({
                         $class: "NotAChildOfA",
                         $attributes: [AttributeForA]
-                    })
+                    });
                 } catch (e) {
                     exceptionCaught = e;
                 }
@@ -77,7 +76,7 @@ describe("attributes/attributeforinstanceof", function () {
                         $class: "DirectChildOfA",
                         $extend: A,
                         $attributes: [AttributeForA]
-                    })
+                    });
                 } catch (e) {
                     exceptionCaught = e;
                 }
@@ -88,15 +87,15 @@ describe("attributes/attributeforinstanceof", function () {
                 var exceptionCaught;
                 try {
                     var DirectChildOfA = gpf.define({
-                            $class: "DirectChildOfA",
-                            $extend: A,
-                            $attributes: [AttributeForA]
-                        }),
-                        SubChildOfA = gpf.define({
-                            $class: "SubChildOfA",
-                            $extend: DirectChildOfA,
-                            $attributes: [AttributeForA]
-                        })
+                        $class: "DirectChildOfA",
+                        $extend: A,
+                        $attributes: [AttributeForA]
+                    });
+                    gpf.define({
+                        $class: "SubChildOfA",
+                        $extend: DirectChildOfA,
+                        $attributes: [AttributeForA]
+                    });
                 } catch (e) {
                     exceptionCaught = e;
                 }
