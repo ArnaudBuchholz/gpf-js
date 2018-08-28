@@ -36,6 +36,19 @@ var _gpfAttribute = _gpfDefine({
      */
     _check: function (member, classDefinition) {
         _gpfIgnore(member, classDefinition);
+    },
+
+    /**
+     * Build the class according to the attribute usage
+     * **NOTE**: Experimental feature, do not rely on this method
+     *
+     * @param {String} member Member name or empty if global to the class
+     * @param {_GpfClassDefinition} classDefinition Class definition
+     * @param {Object} classPrototype Class prototype being built
+     * @private
+     */
+    _build: function (member, classDefinition, classPrototype) {
+        _gpfIgnore(member, classDefinition);
     }
 
 });
