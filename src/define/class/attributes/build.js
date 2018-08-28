@@ -10,7 +10,6 @@
 /*#endif*/
 
 var _gpfDefClassAttrClassAddmemberToPrototype = _GpfClassDefinition.prototype._addMemberToPrototype,
-    _gpfDefClassAttrClassBuildPrototype = _GpfClassDefinition.prototype._buildPrototype,
     _gpfDefClassAttrClassMemberName = "$" + _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION;
 
 Object.assign(_GpfClassDefinition.prototype, {
@@ -31,24 +30,9 @@ Object.assign(_GpfClassDefinition.prototype, {
      */
     _addMemberToPrototype: function (newPrototype, memberName, value) {
         var attributeName = _gpfDefClassAttrIsAttributeSpecification(memberName);
-        if (attributeName) {
-            this._addAttributesFor(attributeName, value);
-        } else {
+        if (!attributeName) {
             _gpfDefClassAttrClassAddmemberToPrototype.call(this, newPrototype, memberName, value);
         }
-    },
-
-    /**
-     * @inheritdoc
-     * @since 0.2.4
-     */
-    _buildPrototype: function (newPrototype) {
-        var classAttributes = this._initialDefinition[_gpfDefClassAttrClassMemberName];
-        this._attributes = {};
-        if (classAttributes) {
-            this._addAttributesFor(_gpfDefClassAttrClassMemberName, classAttributes);
-        }
-        _gpfDefClassAttrClassBuildPrototype.call(this, newPrototype);
     }
 
 });
