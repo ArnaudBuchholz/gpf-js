@@ -7,6 +7,7 @@
 /*global _gpfAttributesCheckAppliedOnBaseClass*/ // Ensures attribute is applied on a specific base class
 /*global _gpfAttributesCheckClassOnly*/ // Ensures attribute is used only at class level
 /*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfEmptyFunc*/
 /*global _gpfIgnore*/
 /*exported _gpfAttributesAttributeForInstanceOf*/ // Shortcut for gpf.attributes.AttributeForInstanceOf
 /*#endif*/
@@ -31,9 +32,20 @@ var _gpfAttributesAttributeForInstanceOf = _gpfDefine({
 
     /** @inheritdoc */
     _check: function (member, classDefinition) {
-        _gpfIgnore(classDefinition);
         _gpfAttributesCheckClassOnly(member);
         _gpfAttributesCheckAppliedOnBaseClass(classDefinition, _gpfAttribute);
+    },
+
+    /** @inheritdoc */
+    _build: function (member_, classDefinition_, classPrototype) {
+        _gpfIgnore(member_, classDefinition_);
+        var ownCheck = classPrototype._check || _gpfEmptyFunc,
+            me = this;
+        classPrototype._check = function (member, classDefinition) {
+            _gpfIgnore(member);
+            _gpfAttributesCheckAppliedOnBaseClass(classDefinition, me._BaseClass);
+            ownCheck.call(this, member, classDefinition);
+        };
     }
 
 });
