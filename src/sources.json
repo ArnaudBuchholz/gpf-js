@@ -485,5 +485,12 @@
     },
     {
         "name": "serial/property"
+    },
+    {
+        "name": "attributes/check",
+        "test": false
+    },
+    {
+        "name": "attributes/attributeforinstanceof"
     }
 ]
