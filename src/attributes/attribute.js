@@ -48,7 +48,7 @@ var _gpfAttribute = _gpfDefine({
      * @private
      */
     _build: function (member, classDefinition, classPrototype) {
-        _gpfIgnore(member, classDefinition);
+        _gpfIgnore(member, classDefinition, classPrototype);
     }
 
 });
