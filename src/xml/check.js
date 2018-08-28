@@ -1,5 +1,5 @@
 /**
- * @file XML Validation helpers
+ * @file XML validation helpers
  * @since 0.2.7
  */
 /*#ifndef(UMD)*/
