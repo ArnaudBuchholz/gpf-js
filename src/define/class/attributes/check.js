@@ -9,8 +9,8 @@
 /*global _gpfAttribute*/ // Shortcut for gpf.attributes.Attribute
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
-/*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _gpfDefClassAttrIsAttributeSpecification*/ // Check if member name is an attribute
+/*exported _GPF_DEFINE_CLASS_ATTRIBUTES_NAME*/ // $attributes
 /*#endif*/
 
 // Done as a feature 'on top' of normal class definition to be able to remove it easily
@@ -51,6 +51,11 @@ var _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION = "attributes",
     _gpfDefClassAttrClassCheckMemberValue = _GpfClassDefinition.prototype._checkMemberValue,
     _gpfDefClassAttrClassCheck$Property = _GpfClassDefinition.prototype._check$Property,
     _gpfDefClassAttrClassCheck = _GpfClassDefinition.prototype.check;
+
+function _gpfDefClassAttrCheck (member, attribute) {
+    /*jshint validthis:true*/
+    attribute._check(member, this); //eslint-disable-line no-invalid-this
+}
 
 /**
  * Given the member name, tells if the property introduces attributes
@@ -148,27 +153,13 @@ Object.assign(_GpfClassDefinition.prototype, {
         }
     },
 
-    _checkAttributesUsage: function ()  {
-        var me = this,
-            ownAttributes = me._getOwnAttributes();
-        _gpfObjectForEach(ownAttributes, function (attributes, name) {
-            var memberName;
-            if (_GPF_DEFINE_CLASS_ATTRIBUTES_NAME !== name) {
-                memberName = name;
-            }
-            _gpfArrayForEach(attributes, function (attribute) {
-                attribute._check(memberName, me);
-            });
-        });
-    },
-
     /**
      * @inheritdoc
      */
     check: function () {
         this._attributes = {};
         _gpfDefClassAttrClassCheck.call(this);
-        this._checkAttributesUsage();
+        this._forOwnAttributes(_gpfDefClassAttrCheck);
     }
 
 });
