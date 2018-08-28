@@ -9,6 +9,7 @@
 /*global _gpfAttribute*/ // Shortcut for gpf.attributes.Attribute
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
+/*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION*/ // $attributes
 /*exported _gpfDefClassAttrIsAttributeSpecification*/ // Check if member name is an attribute
 /*#endif*/
@@ -48,7 +49,8 @@ var _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION = "attributes",
     _gpfDefClassAttrIsAttributeRegExp = new RegExp("^\\[([^\\]]+)\\]$|."),
     _gpfDefClassAttrClassCheckMemberName = _GpfClassDefinition.prototype._checkMemberName,
     _gpfDefClassAttrClassCheckMemberValue = _GpfClassDefinition.prototype._checkMemberValue,
-    _gpfDefClassAttrClassCheck$Property = _GpfClassDefinition.prototype._check$Property;
+    _gpfDefClassAttrClassCheck$Property = _GpfClassDefinition.prototype._check$Property,
+    _gpfDefClassAttrClassCheck = _GpfClassDefinition.prototype.check;
 
 /**
  * Given the member name, tells if the property introduces attributes
@@ -124,8 +126,10 @@ Object.assign(_GpfClassDefinition.prototype, {
      * @since 0.2.4
      */
     _checkMemberValue: function (name, value) {
-        if (_gpfDefClassAttrIsAttributeSpecification(name)) {
+        var attributeName = _gpfDefClassAttrIsAttributeSpecification(name);
+        if (attributeName) {
             this._checkAttributesSpecification(value);
+            this._addAttributesFor(attributeName, value);
         } else {
             _gpfDefClassAttrClassCheckMemberValue.call(this, name, value);
         }
@@ -138,9 +142,33 @@ Object.assign(_GpfClassDefinition.prototype, {
     _check$Property: function (name, value) {
         if (_GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION === name) {
             this._checkAttributesSpecification(value);
+            this._addAttributesFor("$" + _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION, value);
         } else {
             _gpfDefClassAttrClassCheck$Property.call(this, name, value);
         }
+    },
+
+    _checkAttributesUsage: function ()  {
+        var me = this,
+            ownAttributes = me._getOwnAttributes();
+        _gpfObjectForEach(ownAttributes, function (attributes, name) {
+            var memberName;
+            if (_GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION !== name) {
+                memberName = name;
+            }
+            _gpfArrayForEach(attributes, function (attribute) {
+                attribute._check(memberName, me);
+            });
+        });
+    },
+
+    /**
+     * @inheritdoc
+     */
+    check: function () {
+        this._attributes = {};
+        _gpfDefClassAttrClassCheck.call(this);
+        this._checkAttributesUsage();
     }
 
 });
