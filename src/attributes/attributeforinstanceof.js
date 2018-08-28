@@ -4,6 +4,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfAttribute*/ // Shortcut for gpf.attributes.Attribute
+/*global _gpfAttributesCheckAppliedOnBaseClass*/ // Ensures attribute is applied on a specific base class
 /*global _gpfAttributesCheckClassOnly*/ // Ensures attribute is used only at class level
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfIgnore*/
@@ -32,6 +33,7 @@ var _gpfAttributesAttributeForInstanceOf = _gpfDefine({
     _check: function (member, classDefinition) {
         _gpfIgnore(classDefinition);
         _gpfAttributesCheckClassOnly(member);
+        _gpfAttributesCheckAppliedOnBaseClass(classDefinition, _gpfAttribute);
     }
 
 });
