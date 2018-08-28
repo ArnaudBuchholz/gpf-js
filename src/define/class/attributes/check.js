@@ -10,7 +10,6 @@
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*exported _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION*/ // $attributes
 /*exported _gpfDefClassAttrIsAttributeSpecification*/ // Check if member name is an attribute
 /*#endif*/
 
@@ -45,6 +44,7 @@ _gpfErrorDeclare("define/class/attributes", {
 });
 
 var _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION = "attributes",
+    _GPF_DEFINE_CLASS_ATTRIBUTES_NAME = "$" + _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION,
     // If matching the capturing group returns the member name or undefined (hence the |.)
     _gpfDefClassAttrIsAttributeRegExp = new RegExp("^\\[([^\\]]+)\\]$|."),
     _gpfDefClassAttrClassCheckMemberName = _GpfClassDefinition.prototype._checkMemberName,
@@ -142,7 +142,7 @@ Object.assign(_GpfClassDefinition.prototype, {
     _check$Property: function (name, value) {
         if (_GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION === name) {
             this._checkAttributesSpecification(value);
-            this._addAttributesFor("$" + _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION, value);
+            this._addAttributesFor(_GPF_DEFINE_CLASS_ATTRIBUTES_NAME, value);
         } else {
             _gpfDefClassAttrClassCheck$Property.call(this, name, value);
         }
@@ -153,7 +153,7 @@ Object.assign(_GpfClassDefinition.prototype, {
             ownAttributes = me._getOwnAttributes();
         _gpfObjectForEach(ownAttributes, function (attributes, name) {
             var memberName;
-            if (_GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION !== name) {
+            if (_GPF_DEFINE_CLASS_ATTRIBUTES_NAME !== name) {
                 memberName = name;
             }
             _gpfArrayForEach(attributes, function (attribute) {
