@@ -8,7 +8,13 @@
 /*global _gpfDefClassAttrIsAttributeSpecification*/ // Check if member name is an attribute
 /*#endif*/
 
-var _gpfDefClassAttrClassAddmemberToPrototype = _GpfClassDefinition.prototype._addMemberToPrototype;
+var _gpfDefClassAttrClassAddmemberToPrototype = _GpfClassDefinition.prototype._addMemberToPrototype,
+    _gpfDefClassAttrClassBuildPrototype = _GpfClassDefinition.prototype._buildPrototype;
+
+function _gpfDefClassAttrBuild (member, attribute, newPrototype) {
+    /*jshint validthis:true*/
+    attribute._build(member, this, newPrototype); //eslint-disable-line no-invalid-this
+}
 
 Object.assign(_GpfClassDefinition.prototype, {
 
@@ -31,6 +37,11 @@ Object.assign(_GpfClassDefinition.prototype, {
         if (!attributeName) {
             _gpfDefClassAttrClassAddmemberToPrototype.call(this, newPrototype, memberName, value);
         }
+    },
+
+    _buildPrototype: function (newPrototype) {
+        _gpfDefClassAttrClassBuildPrototype.call(this, newPrototype);
+        this._forOwnAttributes(_gpfDefClassAttrBuild, newPrototype);
     }
 
 });
