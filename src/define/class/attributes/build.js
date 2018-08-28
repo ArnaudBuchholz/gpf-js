@@ -4,13 +4,11 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION*/ // $attributes
 /*global _GpfClassDefinition*/ // Class definition
 /*global _gpfDefClassAttrIsAttributeSpecification*/ // Check if member name is an attribute
 /*#endif*/
 
-var _gpfDefClassAttrClassAddmemberToPrototype = _GpfClassDefinition.prototype._addMemberToPrototype,
-    _gpfDefClassAttrClassMemberName = "$" + _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION;
+var _gpfDefClassAttrClassAddmemberToPrototype = _GpfClassDefinition.prototype._addMemberToPrototype;
 
 Object.assign(_GpfClassDefinition.prototype, {
 
