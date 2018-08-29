@@ -107,5 +107,4 @@ describe("attributes/attributeforinstanceof", function () {
         });
     });
 
-
 });
