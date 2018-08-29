@@ -491,6 +491,16 @@
         "test": false
     },
     {
+        "name": "attributes/attributeattribute",
+        "test": false
+    },
+    {
+        "name": "attributes/classattribute"
+    },
+    {
+        "name": "attributes/memberattribute"
+    },
+    {
         "name": "attributes/attributeforinstanceof"
     }
 ]
