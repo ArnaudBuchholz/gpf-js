@@ -1,5 +1,6 @@
 /**
  * @file Attributes validation helpers
+ * @since 0.2.8
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -9,7 +10,7 @@
 /*exported _gpfAttributesCheckMemberOnly*/ // Ensures attribute is used only at member level
 /*#endif*/
 
-_gpfErrorDeclare("xml/check", {
+_gpfErrorDeclare("attributes/check", {
 
     /**
      * ### Summary
@@ -19,6 +20,7 @@ _gpfErrorDeclare("xml/check", {
      * ### Description
      *
      * A class attribute can't be assigned to a member
+     * @since 0.2.8
      */
     classAttributeOnly: "Class attribute only",
 
@@ -30,6 +32,7 @@ _gpfErrorDeclare("xml/check", {
      * ### Description
      *
      * A member attribute can't be assigned to a class
+     * @since 0.2.8
      */
     memberAttributeOnly: "Member attribute only",
 
@@ -41,6 +44,7 @@ _gpfErrorDeclare("xml/check", {
     * ### Description
     *
     * The attribute is restricted to a given base class
+    * @since 0.2.8
     */
     restrictedBaseClassAttribute: "Restricted base class attribute"
 
@@ -51,6 +55,7 @@ _gpfErrorDeclare("xml/check", {
  *
  * @param {String} member Member name or empty if global to the class
  * @throws {gpf.Error.ClassAttributeOnly}
+ * @since 0.2.8
  */
 function _gpfAttributesCheckClassOnly (member) {
     if (member) {
@@ -63,6 +68,7 @@ function _gpfAttributesCheckClassOnly (member) {
  *
  * @param {String} member Member name or empty if global to the class
  * @throws {gpf.Error.MemberAttributeOnly}
+ * @since 0.2.8
  */
 function _gpfAttributesCheckMemberOnly (member) {
     if (!member) {
@@ -87,11 +93,9 @@ function _gpfAttributesCheckAppliedOnBaseClassWithExtend (Extend, ExpectedBaseCl
  *
  * @param {_GpfClassDefinition} classDefinition Class definition
  * @param {Function} ExpectedBaseClass Expected base class
- * @throws {gpf.Error.}
+ * @throws {gpf.Error.RestrictedBaseClassAttribute}
+ * @since 0.2.8
  */
 function _gpfAttributesCheckAppliedOnBaseClass (classDefinition, ExpectedBaseClass) {
-    if (!classDefinition._extend) {
-        gpf.Error.restrictedBaseClassAttribute();
-    }
     _gpfAttributesCheckAppliedOnBaseClassWithExtend(classDefinition._extend, ExpectedBaseClass);
 }
