@@ -191,8 +191,8 @@ const
         }
     },
 
-    reErrorDeclare = /_gpfErrorDeclare\("([a-zA-Z\\]+)", {\n((?:[^}]|}[^)]|\n)*)\s*}\)/g,
-    reErrorItems = /(?:\/\*\*((?:[^*]|\s|\*[^/])*)\*\/)?\s*([a-zA-Z]+):\s*"([^"]*)"/g,
+    reErrorDeclare = /_gpfErrorDeclare\("([^"]+)", {\n((?:[^}]|}[^)]|\n)*)\s*}\)/g,
+    reErrorItems = /(?:\/\*\*((?:[^*]|\s|\*[^/])*)\*\/)?\s*([a-zA-Z\$]+):\s*"([^"]*)"/g,
     reContextualParams = /{(\w+)}/g,
     errorParam = " * @param {Object} context Dictionary of parameters used to format the message, must contain",
 
@@ -230,7 +230,7 @@ const
 
     checkForGpfErrorDeclare = event => {
         reErrorDeclare.lastIndex = 0;
-        let match = reErrorDeclare.exec(event.source);
+        const match = reErrorDeclare.exec(event.source);
         if (match) {
             let // moduleName = match[1],
                 errorsPart = match[2],
