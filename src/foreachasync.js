@@ -1,5 +1,6 @@
 /**
  * @file Asynchronous object enumerator
+ * @since 0.2.8
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -16,6 +17,7 @@
  * may return a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).
  * @param {*} [thisArg] thisArg Value to use as this when executing callback
  * @return {Promise} Resolved when the iteration is done
+ * @since 0.2.8
  */
 function _gpfArrayForEachAsync (array, callback, thisArg) {
     var index = 0,
@@ -45,6 +47,7 @@ function _gpfArrayForEachAsync (array, callback, thisArg) {
  * @param {*} [thisArg=undefined] thisArg Value to use as this when executing callback
  * @return {Promise} Resolved when the iteration is done
  * @throws {gpf.Error.InvalidParameter}
+ * @since 0.2.8
  */
 gpf.forEachAsync = function (container, callback, thisArg) {
     if (_gpfIsArrayLike(container)) {
