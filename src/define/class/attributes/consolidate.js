@@ -4,10 +4,10 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_DEFINE_CLASS_ATTRIBUTES_NAME*/ // $attributes
 /*global _GpfClassDefinition*/ // Class definition
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*global _GPF_DEFINE_CLASS_ATTRIBUTES_NAME*/ // $attributes
 /*#endif*/
 
 function _gpfDefClassAttrFilter (attributes, baseAttributeClass) {
