@@ -9,8 +9,8 @@
 /*global _gpfAttribute*/ // Shortcut for gpf.attributes.Attribute
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
-/*exported _gpfDefClassAttrIsAttributeSpecification*/ // Check if member name is an attribute
 /*exported _GPF_DEFINE_CLASS_ATTRIBUTES_NAME*/ // $attributes
+/*exported _gpfDefClassAttrIsAttributeSpecification*/ // Check if member name is an attribute
 /*#endif*/
 
 // Done as a feature 'on top' of normal class definition to be able to remove it easily
@@ -155,6 +155,7 @@ Object.assign(_GpfClassDefinition.prototype, {
 
     /**
      * @inheritdoc
+     * @since 0.2.8
      */
     check: function () {
         this._attributes = {};
