@@ -15,6 +15,28 @@ describe("attributes/attributeforinstanceof", function () {
             onInstanceOfA = new gpf.attributes.AttributeForInstanceOf(A);
         });
 
+        it("requires a base class (no parameter)", function () {
+            var exceptionCaught;
+            try {
+                var attribute = new gpf.attributes.AttributeForInstanceOf();
+                assert(attribute);
+            } catch (e) {
+                exceptionCaught = e;
+            }
+            assert(exceptionCaught instanceof gpf.Error.InvalidParameter);
+        });
+
+        it("requires a base class (not a function)", function () {
+            var exceptionCaught;
+            try {
+                var attribute = new gpf.attributes.AttributeForInstanceOf(0);
+                assert(attribute);
+            } catch (e) {
+                exceptionCaught = e;
+            }
+            assert(exceptionCaught instanceof gpf.Error.InvalidParameter);
+        });
+
         it("can't be used on a non-attribute class", function () {
             var exceptionCaught;
             try {
