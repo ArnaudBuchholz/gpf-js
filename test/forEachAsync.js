@@ -8,6 +8,27 @@ describe("foreachasync", function () {
 
     describe("gpf.forEachAsync", function () {
 
+        [
+            undefined,
+            0,
+            1,
+            false,
+            true,
+            null
+        ].forEach(function (invalidParameter) {
+            it("rejects invalid parameter (" + JSON.stringify(invalidParameter) + ")", function () {
+                var exceptionCaught;
+                try {
+                    gpf.forEachAsync(invalidParameter, function () {
+                        assert(true);
+                    });
+                } catch (e) {
+                    exceptionCaught = e;
+                }
+                assert(exceptionCaught instanceof gpf.Error.InvalidParameter);
+            });
+        });
+
         it("enumerates an array synchronously", function (done) {
             var count = 0,
                 sum = 0;
