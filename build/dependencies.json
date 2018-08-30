@@ -449,7 +449,8 @@
         "string/replaceex"
     ],
     "attributes/attribute": [
-        "define"
+        "define",
+        "boot"
     ],
     "define/class/attributes/check": [
         "define/class/class",
@@ -459,10 +460,11 @@
         "arraylike"
     ],
     "define/class/attributes/build": [
-        "define/class/attributes/check",
-        "define/class/class"
+        "define/class/class",
+        "define/class/attributes/check"
     ],
     "define/class/attributes/consolidate": [
+        "define/class/attributes/check",
         "define/class/class",
         "foreach"
     ],
@@ -491,6 +493,7 @@
         "error"
     ],
     "interfaces/promisify": [
+        "interfaces",
         "foreach",
         "interfaces/thenable"
     ],
@@ -502,5 +505,40 @@
         "foreach",
         "string/escapefor",
         "xml/check"
+    ],
+    "foreachasync": [
+        "arraylike",
+        "interfaces/thenable"
+    ],
+    "serial/property": [
+        "error"
+    ],
+    "attributes/check": [
+        "error"
+    ],
+    "attributes/attributeattribute": [
+        "attributes/attribute",
+        "attributes/check",
+        "abstract",
+        "define",
+        "boot"
+    ],
+    "attributes/classattribute": [
+        "attributes/attributeattribute",
+        "attributes/check",
+        "define",
+        "boot"
+    ],
+    "attributes/memberattribute": [
+        "attributes/attributeattribute",
+        "attributes/check",
+        "define",
+        "boot"
+    ],
+    "attributes/attributeforinstanceof": [
+        "attributes/attributeattribute",
+        "attributes/check",
+        "define",
+        "boot"
     ]
 }
