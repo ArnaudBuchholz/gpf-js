@@ -1,5 +1,6 @@
 /**
  * @file Serialization types
+ * @since 0.2.8
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -17,8 +18,9 @@ _gpfErrorDeclare("serial/property", {
      * ### Description
      *
      * Name should respect the pattern `/^[a-z][a-z0-9_]*$/i`
+     * @since 0.2.8
      */
-    "invalidSerialName": "Invalid serial name",
+    invalidSerialName: "Invalid serial name",
 
     /**
      * ### Summary
@@ -28,8 +30,9 @@ _gpfErrorDeclare("serial/property", {
      * ### Description
      *
      * Type should be one of the enumeration {@see gpf.serial.types}
+     * @since 0.2.8
      */
-    "invalidSerialType": "Invalid serial type",
+    invalidSerialType: "Invalid serial type",
 
     /**
      * ### Summary
@@ -39,14 +42,16 @@ _gpfErrorDeclare("serial/property", {
      * ### Description
      *
      * Required can either be true or false
+     * @since 0.2.8
      */
-    "invalidSerialRequired": "Invalid serial required"
+    invalidSerialRequired: "Invalid serial required"
 
 });
 
 /**
  * @namespace gpf.serial
  * @description Root namespace for the serialization helpers.
+ * @since 0.2.8
  */
 gpf.serial = {};
 
@@ -58,6 +63,7 @@ gpf.serial = {};
  * @property {gpf.serial.types} [type=gpf.serial.types.string] Type of the property
  * @property {Boolean} [required=false] Property must have a value
  * @see gpf.attributes.Serializable
+ * @since 0.2.8
  */
 
 /**
@@ -73,10 +79,12 @@ var _GPF_SERIAL_TYPE = {
  *
  * @enum {String}
  * @readonly
+ * @since 0.2.8
  */
 gpf.serial.types = {
     /**
      * String, might be limited by {@see gpf.typedef.serializableProperty.length}
+     * @since 0.2.8
      */
     string: _GPF_SERIAL_TYPE.STRING
 };
@@ -141,6 +149,7 @@ function _gpfSerialPropertyCheckRequired (property) {
  * @throws {gpf.Error.InvalidSerialName}
  * @throws {gpf.Error.InvalidSerialType}
  * @throws {gpf.Error.InvalidSerialRequired}
+ * @since 0.2.8
  */
 function _gpfSerialPropertyCheck (property) {
     property = Object.assign(property); // Clone
