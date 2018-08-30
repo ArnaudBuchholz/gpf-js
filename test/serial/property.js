@@ -26,6 +26,20 @@ describe("serial/property", function () {
                 assert(property.required === false);
             });
 
+            it("validates properties", function () {
+                var exceptionCaught;
+                try {
+                    _gpfSerialPropertyCheck({
+                        name: "OK",
+                        type: gpf.serial.types.string,
+                        required: false
+                    });
+                } catch (e) {
+                    exceptionCaught = e;
+                }
+                assert(!exceptionCaught);
+            });
+
             values
                 .concat(undefined)
                 .forEach(function (invalidName) {
