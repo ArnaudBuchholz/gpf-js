@@ -12,9 +12,11 @@
 /*#endif*/
 
 /**
-* Attribute to restrict the use of an attribute to the member level
+ * Attribute to restrict the use of an attribute to the member level
+ * It throws {@link gpf.Error.MemberAttributeOnly} if the target attribute is not used at a member level.
  *
  * @class gpf.attributes.MemberAttribute
+ * @extends gpf.attributes.Attribute
  * @since 0.2.8
  */
 var _gpfAttributesMemberAttribute = _gpfDefine({
