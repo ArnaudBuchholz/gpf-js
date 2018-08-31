@@ -12,9 +12,11 @@
 /*#endif*/
 
 /**
- * Attribute to restrict the use of an attribute to the class level
+ * Attribute to restrict the use of an attribute to the class level.
+ * It throws {@link gpf.Error.ClassAttributeOnly} if the target attribute is not used at the class level.
  *
  * @class gpf.attributes.ClassAttribute
+ * @extends gpf.attributes.Attribute
  * @since 0.2.8
  */
 var _gpfAttributesClassAttribute = _gpfDefine({
