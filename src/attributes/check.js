@@ -43,7 +43,7 @@ _gpfErrorDeclare("attributes/check", {
     *
     * ### Description
     *
-    * The attribute is restricted to a given base class
+    * The attribute is restricted to a given base class, check the attribute documentation.
     * @since 0.2.8
     */
     restrictedBaseClassAttribute: "Restricted base class attribute"
