@@ -25,6 +25,7 @@ var _gpfAttributesAttributeForInstanceOf = _gpfDefine({
      * @param {Function} BaseClass The base class restriction
      * @throws {gpf.Error.InvalidParameter}
      * @constructor gpf.attributes.AttributeForInstanceOf
+     * @extends gpf.attributes.Attribute
      * @since 0.2.8
      */
     constructor: function (BaseClass) {
