@@ -42,14 +42,14 @@ gpf.require.define({
                         }, maintainability)
                     ];
                 });
-            },
+        },
 
-            drawCharts: function () {
-                require.charts.series({
-                    maintainability: "metrics.maintainability"
-                });
-                return true;
-            }
+        drawCharts: function () {
+            require.charts.series({
+                maintainability: "metrics.maintainability"
+            });
+            return true;
+        }
 
     });
 
