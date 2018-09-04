@@ -43,6 +43,10 @@ gpf.require.define({
 
         getDynamicContent: function () {
             return Promise.resolve([]);
+        },
+
+        drawCharts: function () {
+            return false;
         }
 
     });
