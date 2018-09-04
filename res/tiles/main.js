@@ -81,6 +81,19 @@ gpf.require.define({
         }
     }
 
+    function mouseOver (target) {
+        if (target) {
+            if (target.id === _lastChartsId) {
+                return;
+            }
+            _lastChartsId = target.id;
+            renderCharts(target);
+        } else {
+            _lastChartsId = undefined;
+            document.querySelector(".charts").setAttribute("style", "display: none;");
+        }
+    }
+
     if (typeof Chartist !== "undefined") {
 
         document.addEventListener("mouseover", function (event) {
@@ -88,17 +101,7 @@ gpf.require.define({
             while (target && !(target.id && target.tagName.toLowerCase() === "li" && !target.getAttribute("link"))) {
                 target = target.parentNode;
             }
-            if (target) {
-                if (target.id === _lastChartsId) {
-                    return;
-                }
-                _lastChartsId = target.id;
-                renderCharts(target);
-
-            } else {
-                _lastChartsId = undefined;
-                document.querySelector(".charts").setAttribute("style", "display: none;");
-            }
+            mouseOver(target);
         });
 
         dom.div({
