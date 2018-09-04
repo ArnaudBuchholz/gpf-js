@@ -158,7 +158,7 @@ describe("http", function () {
             describe("https", function () {
 
                 it("handles https access", function (done) {
-                    gpf.http.get("https://github.com/ArnaudBuchholz/gpf-js").then(function (response) {
+                    gpf.http.get("https://www.google.com/").then(function (response) {
                         assert(response.status === 200);
                         done();
                     })["catch"](done);
