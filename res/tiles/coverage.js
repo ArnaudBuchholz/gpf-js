@@ -2,7 +2,8 @@ gpf.require.define({
     Tile: "tile.js",
     dom: "../dom.js",
     config: "../../tmp/config.json",
-    CoverageReport: "../../make/coverage.js"
+    CoverageReport: "../../make/coverage.js",
+    charts: "charts.js"
 
 }, function (require) {
     "use strict";
@@ -54,6 +55,15 @@ gpf.require.define({
                     ];
 
                 });
+        },
+
+        drawCharts: function () {
+            require.charts.series({
+                statements: "metrics.coverage.statements.total",
+                branches: "metrics.coverage.branches.total",
+                functions: "metrics.coverage.functions.total"
+            });
+            return true;
         }
 
     });
