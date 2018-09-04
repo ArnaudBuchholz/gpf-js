@@ -41,10 +41,15 @@ module.exports = {
     ],
 
     // Code quality tools
-    quality: [
-        "istanbul",
-        "plato"
-    ],
+    quality: {
+        tasks: [
+            "istanbul",
+            "plato"
+        ],
+        options: {
+            logConcurrentOutput: true
+        }
+    },
 
     // Tests on sources
     source: [
