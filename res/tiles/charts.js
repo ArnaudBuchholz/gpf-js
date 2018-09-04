@@ -26,23 +26,27 @@ gpf.require.define({
         return new Func("release", "return release." + path);
     }
 
+    function buildSeries (definitions) {
+        return Object.keys(definitions).reduce(function (series, name) {
+            var getter = buildGetter(definitions[name]);
+            series.push({
+                name: name,
+                data: require.releases.map(function (release) {
+                    return {
+                        x: new Date(release.date),
+                        y: getter(release)
+                    };
+                })
+            });
+            return series;
+        }, []);
+    }
+
     return {
 
         series: function (definitions) {
             new Chartist.Line(".charts", {
-                series: Object.keys(definitions).reduce(function (series, name) {
-                    var getter = buildGetter(definitions[name]);
-                    series.push({
-                        name: name,
-                        data: require.releases.map(function (release) {
-                            return {
-                                x: new Date(release.date),
-                                y: getter(release)
-                            };
-                        })
-                    });
-                    return series;
-                }, [])
+                series: buildSeries(definitions)
             }, {
                 fullWidth: true,
                 chartPadding: {
