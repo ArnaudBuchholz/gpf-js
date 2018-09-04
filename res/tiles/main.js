@@ -62,16 +62,29 @@ gpf.require.define({
         tiles.forEach(refresh);
     };
 
+    var _lastChartsId;
+
+    function renderCharts (target) {
+        var charts = document.querySelector(".charts"),
+            targetRect = target.getBoundingClientRect(),
+            left = targetRect.left,
+            top = targetRect.top + targetRect.height + 4,
+            bodyWidth = document.body.getBoundingClientRect().width;
+        if (left + 640 > bodyWidth) {
+            left = bodyWidth - 640;
+        }
+        charts.innerHTML = "";
+        if (tilesById[target.id].drawCharts()) {
+            charts.setAttribute("style", "left: " + left + "px; top: " + top + "px;");
+        } else {
+            charts.setAttribute("style", "display: none;");
+        }
+    }
+
     if (typeof Chartist !== "undefined") {
-        var _lastChartsId;
 
         document.addEventListener("mouseover", function (event) {
-            var charts = document.querySelector(".charts"),
-                target = event.target,
-                targetRect,
-                left,
-                top,
-                bodyWidth;
+            var target = event.target;
             while (target && !(target.id && target.tagName.toLowerCase() === "li" && !target.getAttribute("link"))) {
                 target = target.parentNode;
             }
@@ -80,23 +93,11 @@ gpf.require.define({
                     return;
                 }
                 _lastChartsId = target.id;
-                targetRect = target.getBoundingClientRect();
-                left = targetRect.left;
-                top = targetRect.top + targetRect.height + 4;
-                bodyWidth = document.body.getBoundingClientRect().width;
-                if (left + 640 > bodyWidth) {
-                    left = bodyWidth - 640;
-                }
-                charts.innerHTML = "";
-                if (tilesById[target.id].drawCharts()) {
-                    charts.setAttribute("style", "left: " + left + "px; top: " + top + "px;");
-                } else {
-                    charts.setAttribute("style", "display: none;");
-                }
+                renderCharts(target);
 
             } else {
                 _lastChartsId = undefined;
-                charts.setAttribute("style", "display: none;");
+                document.querySelector(".charts").setAttribute("style", "display: none;");
             }
         });
 
