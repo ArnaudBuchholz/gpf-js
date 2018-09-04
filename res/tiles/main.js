@@ -18,7 +18,8 @@ gpf.require.define({
             })
             .map(function (name) {
                 return new require[name]();
-            });
+            }),
+        tilesById = {};
 
     function refreshContent (tile, dynamicContent) {
         var dynamicRoot = document.getElementById(tile.getId()).querySelector(".dynamic");
@@ -35,6 +36,7 @@ gpf.require.define({
 
     var tilesRoot = document.getElementById("tiles");
     tiles.forEach(function (tile) {
+        tilesById[tile.getId()] = tile;
         tile.render().appendTo(tilesRoot);
         refresh(tile);
     });
@@ -59,5 +61,49 @@ gpf.require.define({
     window.onpopstate = function () {
         tiles.forEach(refresh);
     };
+
+    if (typeof Chartist !== "undefined") {
+        var _lastChartsId;
+
+        document.addEventListener("mouseover", function (event) {
+            var charts = document.querySelector(".charts"),
+                target = event.target,
+                targetRect,
+                left,
+                top,
+                bodyWidth;
+            while (target && !(target.id && target.tagName.toLowerCase() === "li" && !target.getAttribute("link"))) {
+                target = target.parentNode;
+            }
+            if (target) {
+                if (target.id === _lastChartsId) {
+                    return;
+                }
+                _lastChartsId = target.id;
+                targetRect = target.getBoundingClientRect();
+                left = targetRect.left;
+                top = targetRect.top + targetRect.height + 4;
+                bodyWidth = document.body.getBoundingClientRect().width;
+                if (left + 640 > bodyWidth) {
+                    left = bodyWidth - 640;
+                }
+                charts.innerHTML = "";
+                if (tilesById[target.id].drawCharts()) {
+                    charts.setAttribute("style", "left: " + left + "px; top: " + top + "px;");
+                } else {
+                    charts.setAttribute("style", "display: none;");
+                }
+
+            } else {
+                _lastChartsId = undefined;
+                charts.setAttribute("style", "display: none;");
+            }
+        });
+
+        dom.div({
+            className: "charts",
+            style: "display: none"
+        }).appendTo(document.body);
+    }
 
 });
