@@ -1,7 +1,8 @@
 gpf.require.define({
     Tile: "tile.js",
     dom: "../dom.js",
-    config: "../../tmp/config.json"
+    config: "../../tmp/config.json",
+    charts: "charts.js"
 
 }, function (require) {
     "use strict";
@@ -41,7 +42,14 @@ gpf.require.define({
                         }, maintainability)
                     ];
                 });
-        }
+            },
+
+            drawCharts: function () {
+                require.charts.series({
+                    maintainability: "metrics.maintainability"
+                });
+                return true;
+            }
 
     });
 
