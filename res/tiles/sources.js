@@ -1,6 +1,7 @@
 gpf.require.define({
     Tile: "tile.js",
-    dom: "../dom.js"
+    dom: "../dom.js",
+    charts: "charts.js"
 
 }, function (require) {
     "use strict";
@@ -32,6 +33,13 @@ gpf.require.define({
                         }, loaded)
                     ];
                 });
+        },
+
+        drawCharts: function () {
+            require.charts.series({
+                sources: "metrics.sources"
+            });
+            return true;
         }
 
     });
