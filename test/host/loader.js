@@ -332,11 +332,17 @@
         _runBDDForCoverage = function (configuration, options, verbose) {
             verbose("Running BDD - coverage");
             run(function (type, data) {
+                if ("it" === type && !data.result) {
+                    // Should not happen: force output
+                    configuration.log("KO: " + data.context + " " + data.label);
+                    return;
+                }
                 if ("results" !== type) {
                     return;
                 }
                 if (data.fail) {
-                    verbose("Failed: " + data.fail + ".");
+                    // Should not happen: force output
+                    configuration.log("Failed: " + data.fail + ".");
                     exit(-1);
                 }
                 verbose("Uploading coverage results...");
