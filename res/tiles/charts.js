@@ -4,6 +4,10 @@ gpf.require.define({
 }, function (require) {
     "use strict";
 
+    /*global Chartist*/
+    /*jshint nonew: false */
+    /*eslint-disable no-new, max-nested-callbacks */
+
     function zero (value) {
         if (value < 9) {
             return "0" + value;
@@ -13,11 +17,13 @@ gpf.require.define({
 
     function showDate (value) {
         var date = new Date(value);
-        return date.getFullYear() + "-" + date.getMonth();
+        return date.getFullYear() + "-" + zero(date.getMonth() + 1);
     }
 
+    var Func = Function;
+
     function buildGetter (path) {
-        return new Function("release", "return release." + path);
+        return new Func("release", "return release." + path);
     }
 
     return {
