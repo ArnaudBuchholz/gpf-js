@@ -1,6 +1,7 @@
 gpf.require.define({
     Tile: "tile.js",
-    dom: "../dom.js"
+    dom: "../dom.js",
+    charts: "charts.js"
 
 }, function (require) {
     "use strict";
@@ -43,6 +44,13 @@ gpf.require.define({
                     ].join(":")}, "JSDoc")
                 ])
             ]);
+        },
+
+        drawCharts: function () {
+            require.charts.series({
+                tests: "metrics.tests"
+            });
+            return true;
         }
 
     });
