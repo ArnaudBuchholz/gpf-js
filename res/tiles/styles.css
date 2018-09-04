@@ -277,3 +277,21 @@ ul#tiles > li#github div.progress {
 }
 
 /*endregion*/
+
+/*region Charts*/
+
+.charts {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 640px;
+    height: 400px;
+    z-index: 3;
+    background-color: white;
+    border: solid 1px gray;
+    border-radius: 8px;
+    box-shadow: 4px 4px lightgray;
+}
+
+/*endregion*/
