@@ -445,11 +445,11 @@
             verbose;
         _processParameters(configuration, options);
         // Define a debug function that outputs when verbose is set
-        // if (options.verbose) {
-        verbose = configuration.log;
-        // } else {
-        //     verbose = function () {};
-        // }
+        if (options.verbose) {
+            verbose = configuration.log;
+        } else {
+            verbose = function () {};
+        }
         _checkFlavor(configuration, options);
         _loadGpf(configuration, options, verbose);
         _loadBDD(configuration, verbose);
