@@ -54,7 +54,7 @@ const
         };
         module.exports[`test${name}`] = config(cmd(""), silent, failIfNot0);
         module.exports[`test${name}Verbose`] = config(cmd("-debugger"), verbose, failIfNot0);
-        module.exports[`test${name}Coverage`] = config(cmd("-coverage"), silent, failIfNot0);
+        module.exports[`test${name}Coverage`] = config(cmd("-coverage"), verbose, failIfNot0);
         module.exports[`test${name}Debug`] = config(cmd("-debug"), silent, failIfNot0);
         module.exports[`test${name}Release`] = config(cmd("-release"), silent, failIfNot0);
         module.exports[`test${name}Legacy`] = config(version => `${command} legacy/${version}`, silent, failIfNot0);
