@@ -337,25 +337,24 @@
         _runBDDForCoverage = function (configuration, options, verbose) {
             verbose("Running BDD - coverage");
             run(function (type, data) {
-                if ("it" === type) {
-                    configuration.log(data.context + " " + data.label + ": " + data.result);
-                    return;
+                if ("it" === type && !data.result) {
+                    configuration.log("KO: " + data.context.slice(1) + " " + data.label);
                 }
                 if ("results" !== type) {
                     return;
                 }
                 if (data.fail) {
                     configuration.log("Failed: " + data.fail + ".");
-                    exit(-1);
+                    configuration.exit(-1);
                 }
                 verbose("Uploading coverage results...");
                 _updloadCoverage()
                     .then(function () {
                         verbose("Coverage results uploaded.");
-                        exit(0);
+                        configuration.exit(0);
                     }, function (reason) {
-                        verbose("Upload failed: " + reason.toString());
-                        exit(-1);
+                        configuration.log("Upload failed: " + reason.toString());
+                        configuration.exit(-1);
                     });
             });
         },
