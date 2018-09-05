@@ -430,6 +430,7 @@
                     this.label = "debug";
                 },
                 coverage: function () {
+                    this.ignoreConsole = true;
                     this.label = "*instrumented* source";
                     this.runCoverage = true;
                     context.global = context;
