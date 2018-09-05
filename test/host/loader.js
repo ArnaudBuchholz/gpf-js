@@ -199,14 +199,19 @@
         },
 
         _loadTests = function (configuration, options, verbose) {
-            if (options.tests.length) {
-                verbose("Loading specified test files...");
-                _loadTestsFromNames(configuration, options.tests, verbose);
-            } else {
-                verbose("Loading all test files...");
-                _loadTestsFromModules(configuration);
+            try {
+                if (options.tests.length) {
+                    verbose("Loading specified test files...");
+                    _loadTestsFromNames(configuration, options.tests, verbose);
+                } else {
+                    verbose("Loading all test files...");
+                    _loadTestsFromModules(configuration);
+                }
+            } catch (e) {
+                configuration.log("An error occurred while loading tests: " + e.message);
+                configuration.log(e);
+                configuration.exit(-1);
             }
-            verbose("Test files loaded.");
         },
 
         _setupConfig = function (configuration) {
@@ -333,7 +338,6 @@
             verbose("Running BDD - coverage");
             run(function (type, data) {
                 if ("it" === type) {
-                    // Should not happen: force output
                     configuration.log(data.context + " " + data.label + ": " + data.result);
                     return;
                 }
@@ -341,7 +345,6 @@
                     return;
                 }
                 if (data.fail) {
-                    // Should not happen: force output
                     configuration.log("Failed: " + data.fail + ".");
                     exit(-1);
                 }
