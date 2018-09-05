@@ -17,5 +17,4 @@ before_script:
   - grunt travis
 after_script:
   - cat ./tmp/coverage/reports/lcov.info | ./node_modules/coveralls/bin/coveralls.js
-  - ./cc-test-reporter upload-coverage --input ./tmp/coverage/reports/lcov.info
-  - ./cc-test-reporter after-build --exit-code  $TRAVIS_TEST_RESULT
+  - ./cc-test-reporter after-build -e lcov -p ./tmp/coverage/reports/ --exit-code  $TRAVIS_TEST_RESULT
