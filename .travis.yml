@@ -1,9 +1,20 @@
+env:
+  global:
+    - CC_TEST_REPORTER_ID=4062d03602e3ad7ed2008db5925356bfd082fe743f3251f4c2ecb609ecb5ebcf
 language: node_js
 node_js:
   - "lts/*"
 addons:
   chrome: stable
-before_install: npm install -g grunt-cli
-install: npm install
-before_script: grunt travis
-after_script: cat ./tmp/coverage/reports/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+before_install:
+  - npm install -g grunt-cli
+install:
+  - npm install
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+  - grunt travis
+after_script:
+  - cat ./tmp/coverage/reports/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+  - ./cc-test-reporter after-build --exit-code ./tmp/coverage/reports/lcov.info
