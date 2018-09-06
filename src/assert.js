@@ -89,14 +89,14 @@ _gpfAsserts = _gpfAssertsImpl;
 /* istanbul ignore if */ // assert.1
 if (!_gpfAssert) {
 
-/*#else*/
+    /*#else*/
 
     /*gpf:nop*/ _gpfAssert = _gpfEmptyFunc;
     /*gpf:nop*/ _gpfAsserts = _gpfEmptyFunc;
 
-/*#endif*/
+    /*#endif*/
 
-/*#ifdef(DEBUG)*/
+    /*#ifdef(DEBUG)*/
 
 }
 
