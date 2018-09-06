@@ -5,9 +5,11 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _GPF_DEFINE_CLASS_ATTRIBUTES_NAME*/
 /*exported _gpfAttributesCheckAppliedOnBaseClass*/ // Ensures attribute is applied on a specific base class
 /*exported _gpfAttributesCheckClassOnly*/ // Ensures attribute is used only at class level
 /*exported _gpfAttributesCheckMemberOnly*/ // Ensures attribute is used only at member level
+/*exported _gpfAttributesCheckAppliedOnlyOnce*/ // Ensures attribute is used only once
 /*#endif*/
 
 _gpfErrorDeclare("attributes/check", {
@@ -46,7 +48,18 @@ _gpfErrorDeclare("attributes/check", {
     * The attribute is restricted to a given base class, check the attribute documentation.
     * @since 0.2.8
     */
-    restrictedBaseClassAttribute: "Restricted base class attribute"
+    restrictedBaseClassAttribute: "Restricted base class attribute",
+
+    /**
+    * ### Summary
+    *
+    * Unique attribute used twice
+    *
+    * ### Description
+    *
+    * The attribute is restricted to a single use
+    */
+    uniqueAttributeUsedTwice: "Unique attribute used twice"
 
 });
 
@@ -99,3 +112,24 @@ function _gpfAttributesCheckAppliedOnBaseClassWithExtend (Extend, ExpectedBaseCl
 function _gpfAttributesCheckAppliedOnBaseClass (classDefinition, ExpectedBaseClass) {
     _gpfAttributesCheckAppliedOnBaseClassWithExtend(classDefinition._extend, ExpectedBaseClass);
 }
+
+/**
+ * Ensures attribute is used only once
+ *
+ * @param {String} member Member name or empty if global to the class
+ * @param {_GpfClassDefinition} classDefinition Class definition
+ * @param {Function} AttributeClass Attribute class
+ * @throws {gpf.Error.UniqueAttributeUsedTwice}
+ */
+function _gpfAttributesCheckAppliedOnlyOnce (member, classDefinition, AttributeClass) {
+    var allAttributes = classDefinition.getAttributes(AttributeClass),
+        attributes;
+    if (member) {
+        attributes = allAttributes[member] || [];
+    } else {
+        attributes = allAttributes[_GPF_DEFINE_CLASS_ATTRIBUTES_NAME] || [];
+    }
+    if (attributes.length > 1) {
+        gpf.Error.uniqueAttributeUsedTwice();
+    }
+ }
