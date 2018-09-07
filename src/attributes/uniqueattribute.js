@@ -21,7 +21,7 @@ var _gpfAttributesUniqueAttribute = _gpfDefine({
     $extend: _gpfAttributesAttributeAttribute,
 
     _targetCheck: function (member, classDefinition) {
-        _gpfAttributesCheckAppliedOnlyOnce(member, classDefinition);
+        _gpfAttributesCheckAppliedOnlyOnce(member, classDefinition, this.constructor);
     }
 
 });
