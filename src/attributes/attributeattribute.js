@@ -39,16 +39,17 @@ var _gpfAttributesAttributeAttribute = _gpfDefine({
      *
      * @param {String} member Member name or empty if global to the class
      * @param {_GpfClassDefinition} classDefinition Class definition
+     * @param {gpf.attributes.Attribute} targetAttribute Target attribute instance
      * @protected
      * @since 0.2.8
      */
-    _targetCheck: _gpfCreateAbstractFunction(2),
+    _targetCheck: _gpfCreateAbstractFunction(3),
 
     _overrideTargetCheck: function (classPrototype) {
         var me = this,
             initialCheck = classPrototype._check;
         classPrototype._check = function (member, classDefinition) {
-            me._targetCheck(member, classDefinition);
+            me._targetCheck(member, classDefinition, this);
             initialCheck.call(this, member, classDefinition);
         };
     },
