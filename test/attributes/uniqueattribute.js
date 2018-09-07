@@ -4,7 +4,7 @@ describe("attributes/uniqueattribute", function () {
 
     describe("gpf.attributes.UniqueAttribute", function () {
 
-        it("can't be used on a non-attribute class", function () {
+        it("can't be used on a non-unique class", function () {
             var exceptionCaught;
             try {
                 gpf.define({
@@ -17,13 +17,12 @@ describe("attributes/uniqueattribute", function () {
             assert(exceptionCaught instanceof gpf.Error.RestrictedBaseClassAttribute);
         });
 
-        it("can't be used on a member of an attribute class", function () {
+        it("can't be used on a member of an unique class", function () {
             var exceptionCaught;
             try {
                 gpf.define({
-                    $class: "Attribute",
-                    $extend: gpf.attributes.Attribute,
-
+                    $class: "UniqueAttribute",
+                    $extend: gpf.attributes.UniqueAttribute,
                     "[test]": [new gpf.attributes.UniqueAttribute()],
                     test: function () {}
                 });
@@ -35,24 +34,30 @@ describe("attributes/uniqueattribute", function () {
 
         describe("When used properly", function () {
 
-            var Attribute,
-                attribute;
+            var unique,
+                any;
 
             before(function () {
-                Attribute = gpf.define({
-                    $class: "Attribute",
-                    $extend: gpf.attributes.Attribute,
-                    $attributes: [new gpf.attributes.UniqueAttribute()]
-                });
-                attribute = new Attribute();
+                var AttributeThatShouldBeUnique = gpf.define({
+                        $class: "AttributeThatShouldBeUnique",
+                        $extend: gpf.attributes.Attribute,
+                        $attributes: [new gpf.attributes.UniqueAttribute()]
+                    }),
+                    AnyAttribute = gpf.define({
+                        $class: "AnyAttribute",
+                        $extend: gpf.attributes.Attribute
+                    });
+                unique = new AttributeThatShouldBeUnique();
+                any = new AnyAttribute();
             });
 
             it("fails definition if used twice at class level", function () {
                 var exceptionCaught;
                 try {
                     gpf.define({
-                        $class: "Test",
-                        $attributes: [attribute, attribute]
+                        $class: "TestAttribute",
+                        $extend: gpf.attributes.Attribute,
+                        $attributes: [any, unique, unique]
                     });
                 } catch (e) {
                     exceptionCaught = e;
@@ -64,8 +69,9 @@ describe("attributes/uniqueattribute", function () {
                 var exceptionCaught;
                 try {
                     gpf.define({
-                        $class: "Test",
-                        "[test]": [attribute, attribute],
+                        $class: "TestAttribute",
+                        $extend: gpf.attributes.Attribute,
+                        "[test]": [any, unique, unique],
                         test: function () {}
                     });
                 } catch (e) {
@@ -78,9 +84,10 @@ describe("attributes/uniqueattribute", function () {
                 var exceptionCaught;
                 try {
                     gpf.define({
-                        $class: "Test",
-                        $attributes: [attribute],
-                        "[test]": [attribute],
+                        $class: "TestAttribute",
+                        $extend: gpf.attributes.Attribute,
+                        $attributes: [any, unique],
+                        "[test]": [any, unique],
                         test: function () {}
                     });
                 } catch (e) {
@@ -91,13 +98,14 @@ describe("attributes/uniqueattribute", function () {
 
             describe("using inheritance", function () {
 
-                var BaseClass;
+                var BaseTestAttribute;
 
                 before(function () {
-                    BaseClass = gpf.define({
-                        $class: "BaseClass",
-                        $attributes: [attribute],
-                        "[test]": [attribute],
+                    BaseTestAttribute = gpf.define({
+                        $class: "BaseTestAttribute",
+                        $extend: gpf.attributes.Attribute,
+                        $attributes: [any, unique],
+                        "[test]": [any, unique],
                         test: function () {}
                     });
                 });
@@ -107,8 +115,8 @@ describe("attributes/uniqueattribute", function () {
                     try {
                         gpf.define({
                             $class: "Test",
-                            $attributes: [attribute],
-                            $extend: BaseClass
+                            $attributes: [unique],
+                            $extend: BaseTestAttribute
                         });
                     } catch (e) {
                         exceptionCaught = e;
@@ -121,8 +129,8 @@ describe("attributes/uniqueattribute", function () {
                     try {
                         gpf.define({
                             $class: "Test",
-                            $extend: BaseClass,
-                            "[test]": [attribute],
+                            $extend: BaseTestAttribute,
+                            "[test]": [unique],
                             test: function () {}
                         });
                     } catch (e) {
