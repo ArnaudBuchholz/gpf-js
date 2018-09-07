@@ -132,4 +132,4 @@ function _gpfAttributesCheckAppliedOnlyOnce (member, classDefinition, AttributeC
     if (attributes.length > 1) {
         gpf.Error.uniqueAttributeUsedTwice();
     }
- }
+}
