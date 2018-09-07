@@ -139,14 +139,14 @@
         "test": false
     },
     {
-        "name": "error"
-    },
-    {
         "name": "string/trim",
         "test": false
     },
     {
         "name": "function"
+    },
+    {
+        "name": "error"
     },
     {
         "name": "define/detect",
@@ -502,5 +502,8 @@
     },
     {
         "name": "attributes/attributeforinstanceof"
+    },
+    {
+        "name": "attributes/uniqueattribute"
     }
 ]
