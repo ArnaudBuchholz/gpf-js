@@ -23,6 +23,10 @@ var _gpfAttributesClassAttribute = _gpfDefine({
     $class: "gpf.attributes.ClassAttribute",
     $extend: _gpfAttributesAttributeAttribute,
 
+    /**
+     * @inheritdoc
+     * @since 0.2.8
+     */
     _targetCheck: function (member, classDefinition) {
         _gpfAttributesCheckClassOnly(member);
         _gpfIgnore(classDefinition);
