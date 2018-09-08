@@ -9,7 +9,7 @@
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunctionBuild*/ // Build function from description and context
 /*global _gpfFunctionDescribe*/ // Extract function description
-/*global _gpfDefineClassAbstractGetInConstructorCheck*/ // Abstract class instantiation check
+/*exported _gpfDefineClassConstructorAddCodeWrapper*/ // Adds a constructor code wrapper
 /*exported _gpfDefineGetClassSecuredConstructor*/ // Allocate a secured named constructor
 /*#endif*/
 
@@ -26,21 +26,9 @@ _gpfErrorDeclare("define/class/constructor", {
      *
      * @since 0.1.6
      */
-    classConstructorFunction: "This is a class constructor function, use with new",
+    classConstructorFunction: "This is a class constructor function, use with new"
 
-    /**
-     * ### Summary
-     *
-     * Abstract Class
-     *
-     * ### Description
-     *
-     * An abstract class can not be instantiated
-     * @since 0.2.7
-     */
-    abstractClass: "Abstract Class"
 });
-
 
 Object.assign(_GpfClassDefinition.prototype, {
 
@@ -55,12 +43,23 @@ Object.assign(_GpfClassDefinition.prototype, {
 });
 
 
+var _gpfDefineClassConstructorCodeWrappers = [];
+
+/**
+ * Adds a constructor code wrapper
+ *
+ * @param {Function} codeWrapper Function receiving class definition and current code
+ * @since 0.2.8
+ */
+function _gpfDefineClassConstructorAddCodeWrapper (codeWrapper) {
+    _gpfDefineClassConstructorCodeWrappers.push(codeWrapper);
+}
+
 function _gpfDefineGetClassSecuredConstructorBody (classDefinition) {
-    return [
-        "if (!(this instanceof _classDef_._instanceBuilder)) gpf.Error.classConstructorFunction();",
-        _gpfDefineClassAbstractGetInConstructorCheck(classDefinition),
-        "_classDef_._resolvedConstructor.apply(this, arguments);"
-    ].join("\n");
+    return "if (!(this instanceof _classDef_._instanceBuilder)) gpf.Error.classConstructorFunction();\n"
+        + _gpfDefineClassConstructorCodeWrappers.reduce(function (body, codeWrapper) {
+            return codeWrapper(classDefinition, body);
+        }, "_classDef_._resolvedConstructor.apply(this, arguments);");
 }
 
 function _gpfDefineGetClassSecuredConstructorDefinition (classDefinition) {
