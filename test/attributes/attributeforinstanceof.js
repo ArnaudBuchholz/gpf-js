@@ -19,7 +19,7 @@ describe("attributes/attributeforinstanceof", function () {
             var exceptionCaught;
             try {
                 var attribute = new gpf.attributes.AttributeForInstanceOf();
-                assert(attribute);
+                throw new Error(attribute.toString());
             } catch (e) {
                 exceptionCaught = e;
             }
@@ -30,7 +30,7 @@ describe("attributes/attributeforinstanceof", function () {
             var exceptionCaught;
             try {
                 var attribute = new gpf.attributes.AttributeForInstanceOf(0);
-                assert(attribute);
+                throw new Error(attribute.toString());
             } catch (e) {
                 exceptionCaught = e;
             }
