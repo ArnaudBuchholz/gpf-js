@@ -4,12 +4,12 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_DEFINE_CLASS_ATTRIBUTES_NAME*/ // $attributes
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _GPF_DEFINE_CLASS_ATTRIBUTES_NAME*/
 /*exported _gpfAttributesCheckAppliedOnBaseClass*/ // Ensures attribute is applied on a specific base class
+/*exported _gpfAttributesCheckAppliedOnlyOnce*/ // Ensures attribute is used only once
 /*exported _gpfAttributesCheckClassOnly*/ // Ensures attribute is used only at class level
 /*exported _gpfAttributesCheckMemberOnly*/ // Ensures attribute is used only at member level
-/*exported _gpfAttributesCheckAppliedOnlyOnce*/ // Ensures attribute is used only once
 /*#endif*/
 
 _gpfErrorDeclare("attributes/check", {
@@ -58,6 +58,7 @@ _gpfErrorDeclare("attributes/check", {
     * ### Description
     *
     * The attribute is restricted to a single use
+    * @since 0.2.8
     */
     uniqueAttributeUsedTwice: "Unique attribute used twice"
 
@@ -113,6 +114,14 @@ function _gpfAttributesCheckAppliedOnBaseClass (classDefinition, ExpectedBaseCla
     _gpfAttributesCheckAppliedOnBaseClassWithExtend(classDefinition._extend, ExpectedBaseClass);
 }
 
+function _gpfAttributesCheckGetMemberAttributes (member, classDefinition, AttributeClass) {
+    var allAttributes = classDefinition.getAttributes(AttributeClass);
+    if (member) {
+        return allAttributes[member];
+    }
+    return allAttributes[_GPF_DEFINE_CLASS_ATTRIBUTES_NAME];
+}
+
 /**
  * Ensures attribute is used only once
  *
@@ -120,15 +129,10 @@ function _gpfAttributesCheckAppliedOnBaseClass (classDefinition, ExpectedBaseCla
  * @param {_GpfClassDefinition} classDefinition Class definition
  * @param {Function} AttributeClass Attribute class
  * @throws {gpf.Error.UniqueAttributeUsedTwice}
+ * @since 0.2.8
  */
 function _gpfAttributesCheckAppliedOnlyOnce (member, classDefinition, AttributeClass) {
-    var allAttributes = classDefinition.getAttributes(AttributeClass),
-        attributes;
-    if (member) {
-        attributes = allAttributes[member] || [];
-    } else {
-        attributes = allAttributes[_GPF_DEFINE_CLASS_ATTRIBUTES_NAME] || [];
-    }
+    var attributes = _gpfAttributesCheckGetMemberAttributes(member, classDefinition, AttributeClass);
     if (attributes.length > 1) {
         gpf.Error.uniqueAttributeUsedTwice();
     }
