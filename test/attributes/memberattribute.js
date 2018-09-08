@@ -23,7 +23,6 @@ describe("attributes/memberattribute", function () {
                 gpf.define({
                     $class: "Attribute",
                     $extend: gpf.attributes.Attribute,
-
                     "[test]": [new gpf.attributes.MemberAttribute()],
                     test: function () {}
                 });
@@ -32,6 +31,22 @@ describe("attributes/memberattribute", function () {
             }
             assert(exceptionCaught instanceof gpf.Error.ClassAttributeOnly);
         });
+
+        it("can't be used twice", function () {
+            var exceptionCaught;
+            try {
+                gpf.define({
+                    $class: "Attribute",
+                    $attributes: [new gpf.attributes.MemberAttribute(), new gpf.attributes.MemberAttribute()],
+                    $extend: gpf.attributes.Attribute,
+                    test: function () {}
+                });
+            } catch (e) {
+                exceptionCaught = e;
+            }
+            assert(exceptionCaught instanceof gpf.Error.UniqueAttributeUsedTwice);
+        });
+
 
         describe("When used properly", function () {
 
