@@ -189,6 +189,16 @@
         "define/class/constructor",
         "foreach"
     ],
+    "define/class/abstract": [
+        "define/class/class",
+        "define/class/constructor",
+        "error"
+    ],
+    "define/class/singleton": [
+        "define/class/class",
+        "define/class/constructor",
+        "error"
+    ],
     "define/interface/interface": [
         "define/entity",
         "define/detect"
