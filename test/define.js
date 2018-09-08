@@ -310,66 +310,6 @@ describe("define", function () {
 
             });
 
-            describe("$abstract", function () {
-
-                var A, B, C;
-
-                before(function () {
-
-                    A = gpf.define({
-                        $class: "A",
-                        $abstract: true,
-                        _member: "defaultValue",
-                        getMember: function () {
-                            return this._member;
-                        },
-                        "constructor": function (memberValue) {
-                            if (memberValue) {
-                                this._member = memberValue;
-                            }
-                            this._constructorOfA = true;
-                        }
-                    });
-
-                    B = gpf.define({
-                        $class: "B",
-                        $extend: A
-                    });
-
-                    C = gpf.define({
-                        $class: "C",
-                        $extend: B,
-                        $abstract: true
-                    });
-
-                });
-
-                function _noInstantiation (AbstractClass) {
-                    var exceptionCaught;
-                    try {
-                        var instance = new AbstractClass();
-                        throw new Error(instance.toString());
-                    } catch (e) {
-                        exceptionCaught = e;
-                    }
-                    assert(exceptionCaught instanceof gpf.Error.AbstractClass);
-                }
-
-                it("prevents instantiation of abstract class (A)", function () {
-                    _noInstantiation(A);
-                });
-
-                it("enables instantiation on subclass (B)", function () {
-                    var b = new B();
-                    assert(b.getMember() === "defaultValue");
-                });
-
-                it("prevents instantiation of abstract class (C)", function () {
-                    _noInstantiation(C);
-                });
-
-            });
-
         });
 
         describe("Interface definition", function () {
