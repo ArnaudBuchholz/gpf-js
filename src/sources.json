@@ -200,6 +200,12 @@
         "tags": "define"
     },
     {
+        "name": "define/class/abstract"
+    },
+    {
+        "name": "define/class/singleton"
+    },
+    {
         "name": "define/interface/interface",
         "test": false,
         "tags": "define interface"
@@ -208,9 +214,6 @@
         "name": "define/interface/check",
         "test": false,
         "tags": "define interface"
-    },
-    {
-        "name": "define/class/abstract"
     },
     {
         "name": "define/interface/constructor",
