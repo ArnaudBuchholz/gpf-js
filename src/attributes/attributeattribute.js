@@ -6,6 +6,7 @@
 "use strict";
 /*global _gpfAttribute*/ // Shortcut for gpf.attributes.Attribute
 /*global _gpfAttributesCheckAppliedOnBaseClass*/ // Ensures attribute is applied on a specific base class
+/*global _gpfAttributesCheckAppliedOnlyOnce*/ // Ensures attribute is used only once
 /*global _gpfAttributesCheckClassOnly*/ // Ensures attribute is used only at class level
 /*global _gpfCreateAbstractFunction*/ // Build a function that throws the abstractMethod exception
 /*global _gpfDefine*/ // Shortcut for gpf.define
@@ -14,7 +15,7 @@
 /*#endif*/
 
 /**
- * Attribute to restrict the use of an attribute to the class level
+ * Attribute for attributes
  *
  * @class gpf.attributes.AttributeAttribute
  * @private
@@ -32,6 +33,7 @@ var _gpfAttributesAttributeAttribute = _gpfDefine({
     _check: function (member, classDefinition) {
         _gpfAttributesCheckClassOnly(member);
         _gpfAttributesCheckAppliedOnBaseClass(classDefinition, _gpfAttribute);
+        _gpfAttributesCheckAppliedOnlyOnce(member, classDefinition, this.constructor);
     },
 
     /**
