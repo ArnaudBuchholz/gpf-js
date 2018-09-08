@@ -163,7 +163,8 @@
         "tags": "define"
     },
     {
-        "name": "abstract"
+        "name": "abstract",
+        "tags": "define"
     },
     {
         "name": "define/check",
@@ -207,6 +208,9 @@
         "name": "define/interface/check",
         "test": false,
         "tags": "define interface"
+    },
+    {
+        "name": "define/class/abstract"
     },
     {
         "name": "define/interface/constructor",
