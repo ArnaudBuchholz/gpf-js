@@ -22,6 +22,7 @@
 var _gpfAttributesClassAttribute = _gpfDefine({
     $class: "gpf.attributes.ClassAttribute",
     $extend: _gpfAttributesAttributeAttribute,
+    $singleton: true,
 
     /**
      * @inheritdoc
