@@ -1,11 +1,12 @@
 /**
  * @file gpf.attributes.UniqueAttribute attribute
+ * @since 0.2.8
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfAttributesAttributeAttribute*/ // Shortcut for gpf.attributes.AttributeAttribute
+/*global _gpfAttributesCheckAppliedOnlyOnce*/ // Ensures attribute is used only once
 /*global _gpfDefine*/ // Shortcut for gpf.define
-/*global _gpfAttributesCheckAppliedOnlyOnce*/
 /*exported _gpfAttributesMemberAttribute*/ // Shortcut for gpf.attributes.MemberAttribute
 /*#endif*/
 
@@ -15,6 +16,7 @@
  *
  * @class gpf.attributes.UniqueAttribute
  * @extends gpf.attributes.Attribute
+ * @since 0.2.8
  */
 var _gpfAttributesUniqueAttribute = _gpfDefine({
     $class: "gpf.attributes.UniqueAttribute",
