@@ -73,19 +73,7 @@ _gpfErrorDeclare("define/class/check", {
      *
      * @since 0.1.7
      */
-    invalidClassOverride: "Invalid class override",
-
-    /**
-     * ### Summary
-     *
-     * Invalid Class $abstract specification
-     *
-     * ### Description
-     *
-     * The property $abstract only accepts the value true
-     * @since 0.2.7
-     */
-    invalidClass$AbstractSpecification: "Invalid class $abstract specification"
+    invalidClassOverride: "Invalid class override"
 
 });
 
@@ -109,25 +97,7 @@ Object.assign(_GpfClassDefinition.prototype, {
      * @inheritdoc
      * @since 0.1.6
      */
-    _allowed$Properties: _GpfEntityDefinition.prototype._allowed$Properties.concat(["extend", "abstract"]),
-
-    _check$abstract: function (value) {
-        if (true !== value) {
-            gpf.Error.invalidClass$AbstractSpecification();
-        }
-    },
-
-    /**
-     * @inheritdoc
-     * @since 0.2.7
-     */
-    _check$Property: function (name, value) {
-        _GpfEntityDefinition.prototype._check$Property.call(this, name, value);
-        if (name === "abstract") {
-            this._check$abstract(value);
-            this._abstract = true;
-        }
-    },
+    _allowed$Properties: _GpfEntityDefinition.prototype._allowed$Properties.concat(["extend"]),
 
     /**
      * @iheritdoc
