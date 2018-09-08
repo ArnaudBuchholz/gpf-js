@@ -9,6 +9,7 @@
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunctionBuild*/ // Build function from description and context
 /*global _gpfFunctionDescribe*/ // Extract function description
+/*global _gpfDefineClassAbstractGetInConstructorCheck*/ // Abstract class instantiation check
 /*exported _gpfDefineGetClassSecuredConstructor*/ // Allocate a secured named constructor
 /*#endif*/
 
@@ -54,16 +55,10 @@ Object.assign(_GpfClassDefinition.prototype, {
 });
 
 
-function _gpfDefineGetClassSecuredConstructorAbstractCheck (classDefinition) {
-    if (classDefinition._abstract) {
-        return "if (this.constructor === _classDef_._instanceBuilder) gpf.Error.abstractClass();";
-    }
-}
-
 function _gpfDefineGetClassSecuredConstructorBody (classDefinition) {
     return [
         "if (!(this instanceof _classDef_._instanceBuilder)) gpf.Error.classConstructorFunction();",
-        _gpfDefineGetClassSecuredConstructorAbstractCheck(classDefinition),
+        _gpfDefineClassAbstractGetInConstructorCheck(classDefinition),
         "_classDef_._resolvedConstructor.apply(this, arguments);"
     ].join("\n");
 }
