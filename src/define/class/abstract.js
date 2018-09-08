@@ -1,11 +1,12 @@
 /**
  * @file $abstract implementation
+ * @since 0.2.8
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfClassDefinition*/ // Class definition
+/*global _gpfDefineClassConstructorAddCodeWrapper*/ // Adds a constructor code wrapper
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*exported _gpfDefineClassAbstractGetInConstructorCheck*/ // Abstract class instantiation check
 /*#endif*/
 
 _gpfErrorDeclare("define/class/abstract", {
@@ -20,7 +21,19 @@ _gpfErrorDeclare("define/class/abstract", {
      * The property $abstract only accepts the value true
      * @since 0.2.7
      */
-    invalidClass$AbstractSpecification: "Invalid class $abstract specification"
+    invalidClass$AbstractSpecification: "Invalid class $abstract specification",
+
+    /**
+     * ### Summary
+     *
+     * Abstract Class
+     *
+     * ### Description
+     *
+     * An abstract class can not be instantiated
+     * @since 0.2.7
+     */
+    abstractClass: "Abstract Class"
 
 });
 
@@ -57,14 +70,9 @@ Object.assign(_GpfClassDefinition.prototype, {
 
 });
 
-/**
- * Abstract class instantiation check
- *
- * @param {_GpfClassDefinition} classDefinition Class definition
- * @return {String} Code to secure instantiation when class is abstract
- */
-function _gpfDefineClassAbstractGetInConstructorCheck (classDefinition) {
+_gpfDefineClassConstructorAddCodeWrapper(function (classDefinition, body) {
     if (classDefinition._abstract) {
-        return "if (this.constructor === _classDef_._instanceBuilder) gpf.Error.abstractClass();";
+        return "if (this.constructor === _classDef_._instanceBuilder) gpf.Error.abstractClass();\n" + body;
     }
-}
+    return body;
+});
