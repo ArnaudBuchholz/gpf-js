@@ -22,6 +22,7 @@
 var _gpfAttributesMemberAttribute = _gpfDefine({
     $class: "gpf.attributes.MemberAttribute",
     $extend: _gpfAttributesAttributeAttribute,
+    $singleton: true,
 
     /**
      * @inheritdoc
