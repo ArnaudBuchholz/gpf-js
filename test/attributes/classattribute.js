@@ -33,6 +33,21 @@ describe("attributes/classattribute", function () {
             assert(exceptionCaught instanceof gpf.Error.ClassAttributeOnly);
         });
 
+        it("can't be used twice", function () {
+            var exceptionCaught;
+            try {
+                gpf.define({
+                    $class: "Attribute",
+                    $extend: gpf.attributes.Attribute,
+                    $attributes: [new gpf.attributes.ClassAttribute(), new gpf.attributes.ClassAttribute()],
+                    test: function () {}
+                });
+            } catch (e) {
+                exceptionCaught = e;
+            }
+            assert(exceptionCaught instanceof gpf.Error.UniqueAttributeUsedTwice);
+        });
+
         describe("When used properly", function () {
 
             var Attribute,
