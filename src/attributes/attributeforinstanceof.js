@@ -35,6 +35,10 @@ var _gpfAttributesAttributeForInstanceOf = _gpfDefine({
         this._BaseClass = BaseClass;
     },
 
+    /**
+     * @inheritdoc
+     * @since 0.2.8
+     */
     _targetCheck: function (member, classDefinition) {
         _gpfIgnore(member);
         _gpfAttributesCheckAppliedOnBaseClass(classDefinition, this._BaseClass);
