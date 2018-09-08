@@ -122,16 +122,17 @@
         "string/escapefor",
         "boot"
     ],
-    "error": [
-        "boot",
-        "foreach",
-        "string/capitalize",
-        "string/replaceex"
-    ],
     "function": [
         "boot",
         "constants",
         "string/trim"
+    ],
+    "error": [
+        "function",
+        "boot",
+        "foreach",
+        "string/capitalize",
+        "string/replaceex"
     ],
     "define/detect": [
         "error",
@@ -514,6 +515,7 @@
         "error"
     ],
     "attributes/check": [
+        "define/class/attributes/check",
         "error"
     ],
     "attributes/attributeattribute": [
@@ -540,5 +542,10 @@
         "attributes/check",
         "define",
         "boot"
+    ],
+    "attributes/uniqueattribute": [
+        "attributes/attributeattribute",
+        "attributes/check",
+        "define"
     ]
 }
