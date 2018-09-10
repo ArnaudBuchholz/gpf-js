@@ -17,6 +17,7 @@
  *
  * @class gpf.attributes.MemberAttribute
  * @extends gpf.attributes.Attribute
+ * @gpf:attribute-restriction attribute,class,unique
  * @since 0.2.8
  */
 var _gpfAttributesMemberAttribute = _gpfDefine({
