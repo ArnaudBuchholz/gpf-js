@@ -7,7 +7,7 @@
 /*global _gpfAttributesAttributeAttribute*/ // Shortcut for gpf.attributes.AttributeAttribute
 /*global _gpfAttributesCheckAppliedOnlyOnce*/ // Ensures attribute is used only once
 /*global _gpfDefine*/ // Shortcut for gpf.define
-/*exported _gpfAttributesMemberAttribute*/ // Shortcut for gpf.attributes.MemberAttribute
+/*exported _gpfAttributesUniqueAttribute*/ // Shortcut for gpf.attributes.UniqueAttribute
 /*#endif*/
 
 /**
