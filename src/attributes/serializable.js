@@ -26,6 +26,7 @@ var _gpfAttributesSerializable = _gpfDefine({
     _property: null,
 
     /**
+     * Associates a serialization property defintion to a member
      *
      * @param {gpf.typedef.serializableProperty} property Serializable property definition
      * @throws {gpf.Error.InvalidSerialName}
@@ -33,6 +34,7 @@ var _gpfAttributesSerializable = _gpfDefine({
      * @throws {gpf.Error.InvalidSerialRequired}
      * @constructor gpf.attributes.Serializable
      * @extends gpf.attributes.Attribute
+     * @gpf:attribute-restriction member,unique
      * @since 0.2.8
      */
     constructor: function (property) {
