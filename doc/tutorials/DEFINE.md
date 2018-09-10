@@ -34,6 +34,9 @@ validation regexp is `/^[A-Z_$][a-zA-Z0-9]*$/`)
 * `$extend`: Indicates the class to inherit from, it can be either a Class handler (JavaScript function) or a string
 giving the contextual path to the Class handler (through {@link gpf.context}).
 * `$abstract`: Supports only the value `true`, defines an abstract class that can't be instantiated
+* `$singleton`: Supports only the value `true`, setup the class to be used as a
+[singleton](https://en.wikipedia.org/wiki/Singleton_pattern). First instantiation allocates a new object, any other
+instantiation returns the first one.
 
 For instance:
 
