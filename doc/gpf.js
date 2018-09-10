@@ -37,10 +37,17 @@ const
         return findDoclet(doclets, refLongname, tag.title);
     },
 
+    attributesRestriction = {
+        "attribute": "Only for {@link gpf.attributes.Attribute}",
+        "class": "Only for class level (see {@link gpf.attributes.ClassAttribute})",
+        "member": "Only for member level (see {@link gpf.attributes.MemberAttribute})",
+        "unique": "Only once (see {@link gpf.attributes.UniqueAttribute})"
+    },
+
     gpfTags = {
 
         // Returns the same type with a generic comment
-        "gpf:chainable": function (doclet/*, tag, doclets*/) {
+        "gpf:chainable": doclet => {
             doclet.returns = [{
                 type: {
                     names: [doclet.memberof]
@@ -50,7 +57,7 @@ const
         },
 
         // Read accessor on a property
-        "gpf:read": function (doclet, tag, doclets) {
+        "gpf:read": (doclet, tag, doclets) => {
             let refDoclet = findRefDoclet(doclets, doclet, tag);
             doclet.returns = [{
                 type: refDoclet.type,
@@ -65,7 +72,7 @@ const
         },
 
         // Same as another doclet
-        "gpf:sameas": function (doclet, tag, doclets) {
+        "gpf:sameas": (doclet, tag, doclets) => {
             let refDoclet = findRefDoclet(doclets, doclet, tag);
             [
                 "description",
@@ -82,6 +89,13 @@ const
                     doclet[propertyName] = refDoclet[propertyName];
                 }
             });
+        },
+
+        // Attribute usage restrictions
+        "gpf:attribute-restriction": (doclet, tag, doclets) => {
+            doclet.description += "<h3>Usage restriction</h3><ul><li>"
+                + tag.value.split(",").map(type => attributesRestriction[type]).join("</li><li>")
+                + "</li></ul>";
         }
 
     },
