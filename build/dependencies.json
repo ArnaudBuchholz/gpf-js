@@ -557,5 +557,12 @@
         "attributes/attributeattribute",
         "attributes/check",
         "define"
+    ],
+    "attributes/serializable": [
+        "attributes/attribute",
+        "attributes/memberattribute",
+        "attributes/uniqueattribute",
+        "define",
+        "serial/property"
     ]
 }
