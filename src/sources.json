@@ -512,5 +512,8 @@
     },
     {
         "name": "attributes/uniqueattribute"
+    },
+    {
+        "name": "attributes/serializable"
     }
 ]
