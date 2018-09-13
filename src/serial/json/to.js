@@ -22,17 +22,16 @@ function _gpfSerialJSONBuildMembers (SerializableClass) {
 function _gpfSerialJSONBuild (SerializableClass) {
     return _gpfFunctionBuild({
         body: "return function (instance) {\n"
-            + "\tif (!(instance instanceof SerializableClass)) gpf.Error.invalidParameter();\n"
-            + "\treturn {\n"
+            + "\tif (!(instance instanceof SerializableClass)) gpf.Error.invalidParameter();\n\treturn {\n"
             + _gpfSerialJSONBuildMembers(SerializableClass).join(",")
-            + "\t};"
-            + "};",
+            + "\t};\n};",
         parameters: ["SerializableClass"]
     })(SerializableClass);
 }
 
 /**
- * Generates
+ * Generates a function that converts instances of the given class to a simpler dictionary containing only
+ * serializable properties.
  *
  * @param {Function} SerializableClass Class containing {@ling gpf.attributes.Serializable} attributes
  * @return {Function} A function that accepts only instances of the given class and returns a dictionary with all
