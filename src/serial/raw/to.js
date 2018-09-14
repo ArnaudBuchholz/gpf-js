@@ -1,5 +1,6 @@
 /**
  * @file to raw serialization
+ * @since 0.2.8
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -35,6 +36,7 @@ function _gpfSerialRawBuild (SerializableClass) {
  * @return {Function} A function that accepts only instances of the given class and returns a dictionary with all
  * serializable properties (indexed by member names)
  * @throws {gpf.Error.InvalidParameter}
+ * @since 0.2.8
  */
 gpf.serial.buildToRaw = function (SerializableClass) {
     if ("function" !== typeof SerializableClass) {
