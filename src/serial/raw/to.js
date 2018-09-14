@@ -1,19 +1,17 @@
 /**
- * @file to JSON serialization
+ * @file to raw serialization
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfAttributesGet*/ // Get attributes defined for the object / class
-/*global _gpfAttributesSerializable*/ // Shortcut for gpf.attributes.Serializable
 /*global _gpfFunctionBuild*/ // Build function from description and context
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
+/*global _gpfSerialGet*/ // Collect gpf.typedef.serializableProperty defined for the object / class
 /*#endif*/
 
 function _gpfSerialRawBuildMembers (SerializableClass) {
-    var serial = _gpfAttributesGet(SerializableClass, _gpfAttributesSerializable),
+    var properties = _gpfSerialGet(SerializableClass),
         members = [];
-    _gpfObjectForEach(serial, function (attributes, member) {
-        var property = attributes[0].getProperty();
+    _gpfObjectForEach(properties, function (property, member) {
         members.push("\t\t" + property.name + ": instance." + member);
     });
     return members;
