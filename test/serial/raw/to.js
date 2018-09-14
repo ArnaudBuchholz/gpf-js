@@ -1,8 +1,8 @@
 "use strict";
 
-describe("serial/json/to", function () {
+describe("serial/raw/to", function () {
 
-    describe("gpf.serial.buildToJSON", function () {
+    describe("gpf.serial.buildToRaw", function () {
 
         var A;
 
@@ -37,7 +37,7 @@ describe("serial/json/to", function () {
             it("fails if used on a non class (" + JSON.stringify(value) + ")", function () {
                 var exceptionCaught;
                 try {
-                    gpf.serial.buildToJSON(value);
+                    gpf.serial.buildToRaw(value);
                 } catch (e) {
                     exceptionCaught = e;
                 }
@@ -46,17 +46,17 @@ describe("serial/json/to", function () {
         });
 
         it("returns a function taking one parameter", function () {
-            var a2JSON = gpf.serial.buildToJSON(A);
-            assert(typeof a2JSON === "function");
-            assert(a2JSON.length === 1);
+            var a2Raw = gpf.serial.buildToRaw(A);
+            assert(typeof a2Raw === "function");
+            assert(a2Raw.length === 1);
         });
 
         describe("generated function", function () {
 
-            var a2JSON;
+            var a2Raw;
 
             before(function () {
-                a2JSON = gpf.serial.buildToJSON(A);
+                a2Raw = gpf.serial.buildToRaw(A);
             });
 
             [
@@ -75,7 +75,7 @@ describe("serial/json/to", function () {
                 it("fails if the parameter is not correct (" + JSON.stringify(value) + ")", function () {
                     var exceptionCaught;
                     try {
-                        a2JSON(value);
+                        a2Raw(value);
                     } catch (e) {
                         exceptionCaught = e;
                     }
@@ -87,10 +87,10 @@ describe("serial/json/to", function () {
                 var a = new A();
                 a._id = "id";
                 a._name = "Test";
-                var json = a2JSON(a);
-                assert(Object.keys(json).length === 2);
-                assert(json.id === "id");
-                assert(json.name === "Test");
+                var raw = a2Raw(a);
+                assert(Object.keys(raw).length === 2);
+                assert(raw.id === "id");
+                assert(raw.name === "Test");
             });
 
         });
