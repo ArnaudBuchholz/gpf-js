@@ -9,7 +9,7 @@
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*#endif*/
 
-function _gpfSerialJSONBuildMembers (SerializableClass) {
+function _gpfSerialRawBuildMembers (SerializableClass) {
     var serial = _gpfAttributesGet(SerializableClass, _gpfAttributesSerializable),
         members = [];
     _gpfObjectForEach(serial, function (attributes, member) {
@@ -19,27 +19,28 @@ function _gpfSerialJSONBuildMembers (SerializableClass) {
     return members;
 }
 
-function _gpfSerialJSONBuild (SerializableClass) {
+function _gpfSerialRawBuild (SerializableClass) {
     return _gpfFunctionBuild({
         body: "return function (instance) {\n"
             + "\tif (!(instance instanceof SerializableClass)) gpf.Error.invalidParameter();\n\treturn {\n"
-            + _gpfSerialJSONBuildMembers(SerializableClass).join(",")
+            + _gpfSerialRawBuildMembers(SerializableClass).join(",")
             + "\t};\n};",
         parameters: ["SerializableClass"]
     })(SerializableClass);
 }
 
 /**
- * Generates a function that converts instances of the given class to a simpler dictionary containing only
- * serializable properties.
+ * Generates a function aimed to converts instances of the given class to a simpler dictionary containing only
+ * serializable properties' value.
  *
  * @param {Function} SerializableClass Class containing {@ling gpf.attributes.Serializable} attributes
  * @return {Function} A function that accepts only instances of the given class and returns a dictionary with all
- * serializable properties
+ * serializable properties (indexed by member names)
+ * @throws {gpf.Error.InvalidParameter}
  */
-gpf.serial.buildToJSON = function (SerializableClass) {
+gpf.serial.buildToRaw = function (SerializableClass) {
     if ("function" !== typeof SerializableClass) {
         gpf.Error.invalidParameter();
     }
-    return _gpfSerialJSONBuild(SerializableClass);
+    return _gpfSerialRawBuild(SerializableClass);
 };
