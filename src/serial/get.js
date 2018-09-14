@@ -1,5 +1,6 @@
 /**
  * @file Serializable properties helper
+ * @since 0.2.8
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -14,6 +15,7 @@
  *
  * @param {Object|Function} objectOrClass Object instance or class constructor
  * @return {Object} Dictionary of {@link gpf.typedef.serializableProperty} index by member
+ * @since 0.2.8
  */
 function _gpfSerialGet (objectOrClass) {
     var serializable = _gpfAttributesGet(objectOrClass, _gpfAttributesSerializable),
@@ -24,5 +26,8 @@ function _gpfSerialGet (objectOrClass) {
     return properties;
 }
 
-/** @gpf:sameas _gpfSerialGet*/
+/**
+ * @gpf:sameas _gpfSerialGet
+ * @since 0.2.8
+ */
 gpf.serial.get = _gpfSerialGet;
