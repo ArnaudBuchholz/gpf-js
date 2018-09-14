@@ -564,5 +564,15 @@
         "attributes/uniqueattribute",
         "define",
         "serial/property"
+    ],
+    "serial/get": [
+        "attributes",
+        "attributes/serializable",
+        "foreach"
+    ],
+    "serial/raw/to": [
+        "function",
+        "foreach",
+        "serial/get"
     ]
 }
