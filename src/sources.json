@@ -517,6 +517,6 @@
         "name": "attributes/serializable"
     },
     {
-        "name": "serial/json/to"
+        "name": "serial/raw/to"
     }
 ]
