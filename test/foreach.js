@@ -71,6 +71,28 @@ describe("foreach", function () {
             assert(undefined === result);
         });
 
+        it("does not skip undefined values", function () {
+            var emptyArray = new Array(3),
+                count = 0;
+            gpf.forEach(emptyArray, function (value) {
+                assert(undefined === value);
+                ++count;
+            });
+            assert(3 === count);
+        });
+
+        it("does not enumerate inherited values", function () {
+            var base = {
+                    inherited: 1
+                },
+                objectFromBase = Object.create(base);
+            objectFromBase.own = 2;
+            gpf.forEach(objectFromBase, function (value, name) {
+                assert(2 === value);
+                assert("own" === name);
+            });
+        });
+
     });
 
     if (gpf.internals) {
