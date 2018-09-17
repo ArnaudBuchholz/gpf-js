@@ -94,7 +94,13 @@ if (_GPF_HOST.WSCRIPT === _gpfHost) {
 
 /**
  * Executes a provided function once per structure element.
- * NOTE: unlike [].forEach, non own properties are also enumerated
+ * NOTE:
+ * - For arrays: unlike [].forEach, non own properties are also enumerated.
+ *   For instance: `gpf.forEach(new Array(3), callback)` will trigger the callback three times but
+ *   `(new Array(3)).forEach(callback)` won't trigger any call
+ * - For objects: only the [own
+ *   properties](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwnProperty)
+ *   are enumerated.
  *
  * @param {Array|Object} container Container to enumerate
  * @param {gpf.typedef.forEachCallback} callback Callback function executed on each item or own property
