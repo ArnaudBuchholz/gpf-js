@@ -93,6 +93,16 @@ describe("serial/raw/from", function () {
                 assert(a._name === "Test");
             });
 
+            it("initializes the instance from partial properties", function () {
+                var a = new A();
+                a._id = "id2";
+                aFromRaw(a, {
+                    name: "Test"
+                });
+                assert(a._id === "id2");
+                assert(a._name === "Test");
+            });
+
         });
 
     });
