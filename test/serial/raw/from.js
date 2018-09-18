@@ -84,11 +84,12 @@ describe("serial/raw/from", function () {
             });
 
             it("initializes the instance from the object containing the serializable properties", function () {
-                var a = new A();
-                aFromRaw(a, {
-                    id: "id",
-                    name: "Test"
-                });
+                var a = new A(),
+                    result = aFromRaw(a, {
+                        id: "id",
+                        name: "Test"
+                    });
+                assert(a === result);
                 assert(a._id === "id");
                 assert(a._name === "Test");
             });
