@@ -24,7 +24,7 @@ function _gpfSerialFromRawBuild (SerializableClass) {
         body: "return function (instance, raw) {\n"
             + "\tif (!(instance instanceof SerializableClass)) gpf.Error.invalidParameter();\n"
             + _gpfSerialFromRawBuildMembers(SerializableClass).join("\n")
-            + "};",
+            + "\treturn instance;\n};",
         parameters: ["SerializableClass"]
     })(SerializableClass);
 }
@@ -35,7 +35,7 @@ function _gpfSerialFromRawBuild (SerializableClass) {
  *
  * @param {Function} SerializableClass Class containing {@ling gpf.attributes.Serializable} attributes
  * @return {Function} A function that accepts only instances of the given class and a dictionary with all
- * serializable properties (indexed by member names)
+ * serializable properties (indexed by member names). The function returns the given instance.
  * @throws {gpf.Error.InvalidParameter}
  * @since 0.2.8
  */
