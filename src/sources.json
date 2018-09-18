@@ -521,5 +521,8 @@
     },
     {
         "name": "serial/raw/to"
+    },
+    {
+        "name": "serial/raw/from"
     }
 ]
