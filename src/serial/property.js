@@ -68,10 +68,11 @@ gpf.serial = {};
 
 /**
  * Serializable types constants
- * @since 0.1.5
  */
 var _GPF_SERIAL_TYPE = {
-    STRING: "string"
+    STRING: "string",
+    INTEGER: "integer",
+    DATETIME: "datetime"
 };
 
 /**
@@ -83,10 +84,22 @@ var _GPF_SERIAL_TYPE = {
  */
 gpf.serial.types = {
     /**
-     * String, might be limited by {@see gpf.typedef.serializableProperty.length}
+     * String
      * @since 0.2.8
      */
-    string: _GPF_SERIAL_TYPE.STRING
+    string: _GPF_SERIAL_TYPE.STRING,
+
+    /**
+     * Integer
+     * @since 0.2.8
+     */
+    integer: _GPF_SERIAL_TYPE.INTEGER,
+
+    /**
+     * Date/Time
+     * @since 0.2.8
+     */
+    datetime: _GPF_SERIAL_TYPE.DATETIME
 };
 
 function _gpfSerialPropertyCheckNameType (name) {
