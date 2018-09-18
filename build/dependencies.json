@@ -574,5 +574,10 @@
         "function",
         "foreach",
         "serial/get"
+    ],
+    "serial/raw/from": [
+        "function",
+        "foreach",
+        "serial/get"
     ]
 }
