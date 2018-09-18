@@ -1,5 +1,5 @@
 /**
- * @file to raw serialization
+ * @file To raw serialization
  * @since 0.2.8
  */
 /*#ifndef(UMD)*/
@@ -9,7 +9,7 @@
 /*global _gpfSerialGet*/ // Collect gpf.typedef.serializableProperty defined for the object / class
 /*#endif*/
 
-function _gpfSerialRawBuildMembers (SerializableClass) {
+function _gpfSerialToRawBuildMembers (SerializableClass) {
     var properties = _gpfSerialGet(SerializableClass),
         members = [];
     _gpfObjectForEach(properties, function (property, member) {
@@ -18,11 +18,11 @@ function _gpfSerialRawBuildMembers (SerializableClass) {
     return members;
 }
 
-function _gpfSerialRawBuild (SerializableClass) {
+function _gpfSerialToRawBuild (SerializableClass) {
     return _gpfFunctionBuild({
         body: "return function (instance) {\n"
             + "\tif (!(instance instanceof SerializableClass)) gpf.Error.invalidParameter();\n\treturn {\n"
-            + _gpfSerialRawBuildMembers(SerializableClass).join(",")
+            + _gpfSerialToRawBuildMembers(SerializableClass).join(",")
             + "\t};\n};",
         parameters: ["SerializableClass"]
     })(SerializableClass);
@@ -42,5 +42,5 @@ gpf.serial.buildToRaw = function (SerializableClass) {
     if ("function" !== typeof SerializableClass) {
         gpf.Error.invalidParameter();
     }
-    return _gpfSerialRawBuild(SerializableClass);
+    return _gpfSerialToRawBuild(SerializableClass);
 };
