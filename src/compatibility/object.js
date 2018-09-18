@@ -33,13 +33,18 @@ _gpfCompatibilityInstallMethods("Object", {
 
         // Introduced with JavaScript 1.8.5
         create: (function () {
+            function Proto (Constructor) {
+                this.constructor = Constructor;
+                this.__proto__ = Proto.prototype;
+            }
+
             function Temp () {
             }
 
             return function (O) {
-                Temp.prototype = O;
+                Proto.prototype = O;
+                Temp.prototype = new Proto(Temp);
                 var obj = new Temp();
-                obj.constructor = Temp;
                 return obj;
             };
         }()),
