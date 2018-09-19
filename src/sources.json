@@ -520,6 +520,10 @@
         "name": "serial/get"
     },
     {
+        "name": "serial/converter",
+        "test": false
+    },
+    {
         "name": "serial/raw/to"
     },
     {
