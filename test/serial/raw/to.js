@@ -2,7 +2,7 @@
 
 describe("serial/raw/to", function () {
 
-    describe("gpf.serial.buildToRaw", function () {
+    describe("gpf.serial.toRaw", function () {
 
         var A;
 
@@ -19,7 +19,26 @@ describe("serial/raw/to", function () {
                 "[_name]": [new gpf.attributes.Serializable({
                     name: "name"
                 })],
-                _name: ""
+                _name: "",
+
+                "[_created]": [new gpf.attributes.Serializable({
+                    name: "created",
+                    type: gpf.serial.datetime
+                })],
+                _created: null,
+
+                "[_modified]": [new gpf.attributes.Serializable({
+                    name: "modified",
+                    type: gpf.serial.datetime
+                })],
+                _modified: null,
+
+                constructor: function (id, name, modified) {
+                    this._id = id;
+                    this._name = name;
+                    this._created = new Date();
+                    this._modified = modified || null;
+                }
             });
         });
 
@@ -31,13 +50,15 @@ describe("serial/raw/to", function () {
             false,
             true,
             "",
-            "Hello World"
-
+            "Hello World",
+            new Date(),
+            function () {},
+            {}
         ].forEach(function (value) {
-            it("fails if used on a non class (" + JSON.stringify(value) + ")", function () {
+            it("fails if the parameter is not correct (" + JSON.stringify(value) + ")", function () {
                 var exceptionCaught;
                 try {
-                    gpf.serial.buildToRaw(value);
+                    gpf.serial.toRaw(value);
                 } catch (e) {
                     exceptionCaught = e;
                 }
@@ -45,54 +66,37 @@ describe("serial/raw/to", function () {
             });
         });
 
-        it("returns a function taking one parameter", function () {
-            var a2Raw = gpf.serial.buildToRaw(A);
-            assert(typeof a2Raw === "function");
-            assert(a2Raw.length === 1);
+        it("generates an object containing only the serializable properties", function () {
+            var a = new A("id", "Test"),
+                raw = gpf.serial.toRaw(a);
+            assert(Object.keys(raw).length === 4);
+            assert(raw.id === "id");
+            assert(raw.name === "Test");
         });
 
-        describe("generated function", function () {
-
-            var a2Raw;
-
-            before(function () {
-                a2Raw = gpf.serial.buildToRaw(A);
-            });
-
-            [
-                undefined,
-                null,
-                0,
-                1,
-                false,
-                true,
-                "",
-                "Hello World",
-                new Date(),
-                function () {},
-                {}
-            ].forEach(function (value) {
-                it("fails if the parameter is not correct (" + JSON.stringify(value) + ")", function () {
-                    var exceptionCaught;
-                    try {
-                        a2Raw(value);
-                    } catch (e) {
-                        exceptionCaught = e;
+        it("converts properties' value", function () {
+            var a = new A("id", "Test", new Date(Date.UTC(2018, 8, 19, 12, 50, 12, 0, 0))),
+                raw = gpf.serial.toRaw(a, function (property, value, member) {
+                    /*jshint validthis:true*/
+                    assert(this === a); //eslint-disable-line no-invalid-this
+                    if (member === "_id") {
+                        assert(property.name = "id");
+                        assert(value === "id");
+                        return "ID";
+                    } else if (member === "_name") {
+                        assert(property.name = "id");
+                        assert(value === "Test");
+                        return "TEST";
+                    } else if (member.type === gpf.serial.datetime) {
+                        assert(member === "_created" || member === "_modified");
+                        return value.toISOString();
                     }
-                    assert(exceptionCaught instanceof gpf.Error.InvalidParameter);
+                    assert(false);
                 });
-            });
-
-            it("generates an object containing only the serializable properties", function () {
-                var a = new A();
-                a._id = "id";
-                a._name = "Test";
-                var raw = a2Raw(a);
-                assert(Object.keys(raw).length === 2);
-                assert(raw.id === "id");
-                assert(raw.name === "Test");
-            });
-
+            assert(Object.keys(raw).length === 4);
+            assert(raw.id === "ID");
+            assert(raw.name === "TEST");
+            assert(raw.modified === "2018-09-19T12:40:12:00.000Z");
         });
 
     });
