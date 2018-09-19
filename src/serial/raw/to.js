@@ -4,43 +4,36 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfFunctionBuild*/ // Build function from description and context
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*global _gpfSerialGet*/ // Collect gpf.typedef.serializableProperty defined for the object / class
+/*global _gpfSerialIdentityConverter*/ // Identity converter, returns passed value
 /*#endif*/
 
-function _gpfSerialToRawBuildMembers (SerializableClass) {
-    var properties = _gpfSerialGet(SerializableClass),
-        members = [];
+function _gpfSerialRawToProperties (instance, properties, converter) {
+    var result = {};
     _gpfObjectForEach(properties, function (property, member) {
-        members.push("\t\t" + property.name + ": instance." + member);
+        result[property.name] = converter.call(instance, instance[member], property, member);
     });
-    return members;
+    return result;
 }
 
-function _gpfSerialToRawBuild (SerializableClass) {
-    return _gpfFunctionBuild({
-        body: "return function (instance) {\n"
-            + "\tif (!(instance instanceof SerializableClass)) gpf.Error.invalidParameter();\n\treturn {\n"
-            + _gpfSerialToRawBuildMembers(SerializableClass).join(",")
-            + "\t};\n};",
-        parameters: ["SerializableClass"]
-    })(SerializableClass);
+function _gpfSerialRawTo (instance, converter) {
+    return _gpfSerialRawToProperties(instance, _gpfSerialGet(instance), converter || _gpfSerialIdentityConverter);
 }
 
 /**
- * Generates a function aimed to converts instances of the given class to a simpler dictionary containing only
+ * Converts instances of the given class to a simpler dictionary containing only
  * serializable properties' value.
  *
- * @param {Function} SerializableClass Class containing {@ling gpf.attributes.Serializable} attributes
- * @return {Function} A function that accepts only instances of the given class and returns a dictionary with all
- * serializable properties (indexed by member names)
+ * @param {Object} instance Instance of a class containing {@ling gpf.attributes.Serializable} attributes
+ * @param {gpf.typedef.serialConverter} [converter] Converter function for properties' value
+ * @return {Object} A dictionary with all serializable properties (indexed by property names)
  * @throws {gpf.Error.InvalidParameter}
  * @since 0.2.8
  */
-gpf.serial.buildToRaw = function (SerializableClass) {
+gpf.serial.toRaw = function (instance, converter) {
     if ("function" !== typeof SerializableClass) {
         gpf.Error.invalidParameter();
     }
-    return _gpfSerialToRawBuild(SerializableClass);
+    return _gpfSerialRawTo(instance, converter);
 };
