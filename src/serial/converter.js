@@ -16,6 +16,7 @@
  * @param {gpf.typedef.serializableProperty} property The property definition
  * @param {String} member The object member
  * @return {*} converter value
+ * @since 0.2.8
  */
 
 /**
@@ -23,6 +24,7 @@
  *
  * @param {*} value The value to convert
  * @return {*} value
+ * @since 0.2.8
  */
 function _gpfSerialIdentityConverter (value) {
     return value;
