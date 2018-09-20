@@ -64,6 +64,28 @@ describe("attributes", function () {
 
     describe("gpf.attributes.get", function () {
 
+        [
+            undefined,
+            null,
+            0,
+            1,
+            false,
+            true,
+            "",
+            "Hello World"
+
+        ].forEach(function (value) {
+            it("fails if the parameter is not correct (" + JSON.stringify(value) + ")", function () {
+                var exceptionCaught;
+                try {
+                    gpf.attributes.get(value);
+                } catch (e) {
+                    exceptionCaught = e;
+                }
+                assert(exceptionCaught instanceof gpf.Error.InvalidParameter);
+            });
+        });
+
         it("returns an empty object if the class was not allocated by gpf.define", function () {
             var attributes = gpf.attributes.get(String);
             assert(Object.keys(attributes).length === 0);
