@@ -68,6 +68,7 @@ gpf.serial = {};
 
 /**
  * Serializable types constants
+ * @since 0.2.8
  */
 var _GPF_SERIAL_TYPE = {
     STRING: "string",
