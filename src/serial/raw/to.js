@@ -22,8 +22,7 @@ function _gpfSerialRawTo (instance, converter) {
 }
 
 /**
- * Converts instances of the given class to a simpler dictionary containing only
- * serializable properties' value.
+ * Converts the given instance a simpler dictionary containing only serializable properties' value.
  *
  * @param {Object} instance Instance of a class containing {@ling gpf.attributes.Serializable} attributes
  * @param {gpf.typedef.serialConverter} [converter] Converter function for properties' value
