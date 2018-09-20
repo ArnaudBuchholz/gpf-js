@@ -32,7 +32,7 @@ function _gpfSerialRawTo (instance, converter) {
  * @since 0.2.8
  */
 gpf.serial.toRaw = function (instance, converter) {
-    if ("function" !== typeof SerializableClass) {
+    if ("function" === typeof instance) {
         gpf.Error.invalidParameter();
     }
     return _gpfSerialRawTo(instance, converter);
