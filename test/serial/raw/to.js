@@ -51,9 +51,8 @@ describe("serial/raw/to", function () {
             true,
             "",
             "Hello World",
-            new Date(),
-            function () {},
-            {}
+            function () {}
+
         ].forEach(function (value) {
             it("fails if the parameter is not correct (" + JSON.stringify(value) + ")", function () {
                 var exceptionCaught;
@@ -75,8 +74,8 @@ describe("serial/raw/to", function () {
         });
 
         it("converts properties' value", function () {
-            var a = new A("id", "Test", new Date(Date.UTC(2018, 8, 19, 12, 50, 12, 0, 0))),
-                raw = gpf.serial.toRaw(a, function (property, value, member) {
+            var a = new A("id", "Test", new Date(Date.UTC(2018, 8, 19, 12, 50, 12, 0))),
+                raw = gpf.serial.toRaw(a, function (value, property, member) {
                     /*jshint validthis:true*/
                     assert(this === a); //eslint-disable-line no-invalid-this
                     if (member === "_id") {
@@ -96,7 +95,7 @@ describe("serial/raw/to", function () {
             assert(Object.keys(raw).length === 4);
             assert(raw.id === "ID");
             assert(raw.name === "TEST");
-            assert(raw.modified === "2018-09-19T12:40:12:00.000Z");
+            assert(raw.modified === "2018-09-19T12:50:12.000Z");
         });
 
     });
