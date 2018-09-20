@@ -576,8 +576,8 @@
         "serial/converter"
     ],
     "serial/raw/from": [
-        "function",
         "foreach",
-        "serial/get"
+        "serial/get",
+        "serial/converter"
     ]
 }
