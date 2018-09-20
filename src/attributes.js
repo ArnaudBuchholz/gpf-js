@@ -16,6 +16,20 @@ function _gpfAttributesGetFromClass (classConstructor, baseAttributeClass) {
     return {};
 }
 
+function _gpfAttributesGetConstructorFromTruthy (any) {
+    if ("object" !== typeof any) {
+        gpf.Error.invalidParameter();
+    }
+    return any.constructor;
+}
+
+function _gpfAttributesGetConstructorFrom (any) {
+    if (!any) {
+        gpf.Error.invalidParameter();
+    }
+    return _gpfAttributesGetConstructorFromTruthy(any);
+}
+
 /**
  * Get attributes defined for the object / class
  *
@@ -23,11 +37,12 @@ function _gpfAttributesGetFromClass (classConstructor, baseAttributeClass) {
  * @param {gpf.attributes.Attribute} [baseAttributeClass] Base attribute class used to filter results
  * @return {Object} Dictionary of attributes grouped per members,
  * the special member $attributes is used for attributes set at the class level.
+ * @throws {gpf.Error.InvalidParameter}
  * @since 0.2.4
  */
 function _gpfAttributesGet (objectOrClass, baseAttributeClass) {
     if ("function" !== typeof objectOrClass) {
-        objectOrClass = objectOrClass.constructor;
+        objectOrClass = _gpfAttributesGetConstructorFrom(objectOrClass);
     }
     return _gpfAttributesGetFromClass(objectOrClass, baseAttributeClass);
 }
