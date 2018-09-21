@@ -24,10 +24,10 @@ function _gpfAttributesGetConstructorFromTruthy (any) {
 }
 
 function _gpfAttributesGetConstructorFrom (any) {
-    if (!any) {
-        gpf.Error.invalidParameter();
+    if (any) {
+        return _gpfAttributesGetConstructorFromTruthy(any);
     }
-    return _gpfAttributesGetConstructorFromTruthy(any);
+    gpf.Error.invalidParameter();
 }
 
 /**
