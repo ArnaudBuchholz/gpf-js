@@ -79,11 +79,11 @@ describe("serial/raw/to", function () {
                     /*jshint validthis:true*/
                     assert(this === a); //eslint-disable-line no-invalid-this
                     if (member === "_id") {
-                        assert(property.name = "id");
+                        assert(property.name === "id");
                         assert(value === "id");
                         return "ID";
                     } else if (member === "_name") {
-                        assert(property.name = "id");
+                        assert(property.name === "name");
                         assert(value === "Test");
                         return "TEST";
                     } else if (member.type === gpf.serial.datetime) {
