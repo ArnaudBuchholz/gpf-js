@@ -27,6 +27,28 @@ var _gpfAttribute = _gpfDefine({
     $abstract: true,
 
     /**
+     * Class member name the attribute was set on (or undefined if at class level)
+     * @type {String|undefined}
+     */
+    _memberName: undefined,
+
+    /** @gpf:read _memberName */
+    getMemberName: function () {
+        return this._memberName;
+    },
+
+    /**
+     * Class constructore the attribute was set on
+     * @type {Function}
+     */
+    _ClassConstructor: null,
+
+    /** @gpf:read _ClassConstructor */
+    getClassConstructor: function () {
+        return this._ClassConstructor;
+    },
+
+    /**
      * Check the attribute usage
      * **NOTE**: Experimental feature, do not rely on this method
      *
