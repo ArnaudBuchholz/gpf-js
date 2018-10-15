@@ -13,6 +13,8 @@ var _gpfDefClassAttrClassAddmemberToPrototype = _GpfClassDefinition.prototype._a
 
 function _gpfDefClassAttrBuild (member, attribute, newPrototype) {
     /*jshint validthis:true*/
+    attribute._memberName = member;
+    attribute._ClassConstructor = newPrototype.constructor;
     attribute._build(member, this, newPrototype); //eslint-disable-line no-invalid-this
 }
 
