@@ -39,9 +39,9 @@ var _gpfAttribute = _gpfDefine({
 
     /**
      * Class constructore the attribute was set on
-     * @type {Function}
+     * @type {Function|undefined}
      */
-    _ClassConstructor: null,
+    _ClassConstructor: undefined,
 
     /** @gpf:read _ClassConstructor */
     getClassConstructor: function () {
