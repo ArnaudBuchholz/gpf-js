@@ -15,28 +15,19 @@ const
         "ignore",
         "warning",
         "error"
-    ]
-    ;
+    ],
 
-new Promise(resolve => {
-    fs.readFile(path.join(__dirname, "../.eslintrc"), (err, data) => {
-        if (err) {
-            error(err);
-        }
-        resolve(JSON.parse(data.toString()).rules);
-    });
-})
-    .then(rules => {
-        Promise.resolve(Object.keys(rules))
-            .then(ruleNames => ruleNames.filter(ruleName => !ruleName.startsWith("http://")))
-            .then(ruleNames => ruleNames.filter(ruleName => !ruleName.startsWith("#")))
-            .then(ruleNames => ruleNames.filter(ruleName => -1 === ruleName.indexOf(":")))
-            .then(ruleNames => {
-                ruleNames.forEach(ruleName => {
-                    const
-                        modifier = rules[ruleName],
-                        level = modifier[0] || modifier;
-                    console.log(`${ruleName.padStart(30, " ")} ${levels[level]}`);
-                });
-            });
-    });
+    config = JSON.parse(fs.readFileSync(path.join(__dirname, "../.eslintrc")).toString()),
+
+    categories = JSON.parse(fs.readFileSync(path.join(__dirname, "../node_modules/eslint/conf/category-list.json")).toString()),
+
+    ruleFilenames = fs.readdirSync(path.join(__dirname, "../node_modules/eslint/lib/rules"))
+;
+
+ruleFilenames.forEach(ruleFilename => {
+    const
+        name = path.basename(ruleFilename, ".js"),
+        rule = require(path.join(__dirname, "../node_modules/eslint/lib/rules", ruleFilename)),
+        docs = rule.meta.docs;
+    console.log(name.padEnd(40, " "), docs.category.padEnd(20, " "), docs.recommended ? "R" : " ");
+});
