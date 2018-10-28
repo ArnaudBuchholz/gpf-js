@@ -40,13 +40,17 @@ ruleFilenames
             category = docs.category,
             description = docs.description,
             recommended = docs.recommended,
-            isSet = config.rules[name];
+            hasProperties = rule.meta.schema.length ? rule.meta.schema[0].properties : false,
+            isSet = config.rules[name],
+            hasPropertiesSet = Array.isArray(isSet);
         return {
             name,
             category,
             description,
             recommended,
-            isSet
+            hasProperties,
+            isSet,
+            hasPropertiesSet
         };
     })
     .sort((rule1, rule2) => {
@@ -58,9 +62,16 @@ ruleFilenames
         }
         return rule1.name.localeCompare(rule2.name);
     })
-    .forEach(rule => {
-        console.log(rule.name.padEnd(40, " "), rule.category.padEnd(20, " "),
+    .forEach((rule, index, rules) => {
+        if (0 === index || rules[index - 1].category !== rule.category) {
+            console.log(rule.category);
+        }
+        console.log(
+            "\t",
+            rule.name.padEnd(40, " "),
             rule.recommended ? "R" : " ",
-            rule.isSet ? "S": " "
+            rule.hasProperties ? "P": " ",
+            rule.isSet ? "S": " ",
+            rule.hasPropertiesSet ? "C": " ",
         );
     })
