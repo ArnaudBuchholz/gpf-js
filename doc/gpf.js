@@ -92,7 +92,7 @@ const
         },
 
         // Attribute usage restrictions
-        "gpf:attribute-restriction": (doclet, tag, doclets) => {
+        "gpf:attribute-restriction": (doclet, tag/*, doclets*/) => {
             doclet.description += "<h3>Usage restriction</h3><ul><li>"
                 + tag.value.split(",").map(type => attributesRestriction[type]).join("</li><li>")
                 + "</li></ul>";
@@ -206,7 +206,7 @@ const
     },
 
     reErrorDeclare = /_gpfErrorDeclare\("([^"]+)", {\n((?:[^}]|}[^)]|\n)*)\s*}\)/g,
-    reErrorItems = /(?:\/\*\*((?:[^*]|\s|\*[^/])*)\*\/)?\s*([a-zA-Z\$]+):\s*"([^"]*)"/g,
+    reErrorItems = /(?:\/\*\*((?:[^*]|\s|\*[^/])*)\*\/)?\s*([a-zA-Z$]+):\s*"([^"]*)"/g,
     reContextualParams = /{(\w+)}/g,
     errorParam = " * @param {Object} context Dictionary of parameters used to format the message, must contain",
 
@@ -261,13 +261,14 @@ const
         }
     },
 
-    reGpfDefine = /_gpfDefine\([^\$]*\$class:\s*"([a-zA-Z\.]+)"/g,
+    reGpfDefine = /_gpfDefine\([^$]*\$class:\s*"([a-zA-Z.]+)"/g,
 
     checkForGpfDefine = event => {
         reGpfDefine.lastIndex = 0;
         let match = reGpfDefine.exec(event.source);
         while (match) {
-            event.source = event.source.replace(match[0], match[0].replace("_gpfDefine(", `_gpfDefine(/** @lends ${match[1]}.prototype */`));
+            event.source = event.source.replace(match[0],
+                match[0].replace("_gpfDefine(", `_gpfDefine(/** @lends ${match[1]}.prototype */`));
             match = reGpfDefine.exec(event.source);
         }
     },
@@ -280,13 +281,14 @@ const
         while (match) {
             if (-1 === match[0].indexOf("@lends")) {
                 // No @lends, adds it
-                event.source = event.source.replace(match[0], match[0].replace("{", `/** @lends ${match[1]}.prototype */ {`));
+                event.source = event.source.replace(match[0],
+                    match[0].replace("{", `/** @lends ${match[1]}.prototype */ {`));
             }
             match = rePrototypeAssign.exec(event.source);
         }
     },
 
-    reFileComment = /(?:\/\*\*(?:[^*]|\s\*[^/])*\@file(?:[^*]|\s\*[^/])*\*\/)/g,
+    reFileComment = /(?:\/\*\*(?:[^*]|\s\*[^/])*@file(?:[^*]|\s\*[^/])*\*\/)/g,
 
     disableFileComment = event => {
         reFileComment.lastIndex = 0;
