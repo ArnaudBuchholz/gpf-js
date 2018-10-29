@@ -152,7 +152,8 @@ module.exports = class ConfigFile {
                     "statistics.js",
                     "make/*.js",
                     "test/host/**/*.js",
-                    "res/**/*.js"
+                    "res/**/*.js",
+                    "doc/*.js"
                 ]
                     .concat(srcFiles)
                     .concat(testFiles)
