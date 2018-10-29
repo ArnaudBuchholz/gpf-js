@@ -1,9 +1,8 @@
 {
     "rules": {
-        "http://eslint.org/docs/rules/#possible-errors": 0,
         "comma-dangle":                 [2, "never"],
         "no-cond-assign":               2,
-        "no-console":                   0,                                     "no-console: part of the exposed API": 0,
+        "no-console":                   0,
         "no-constant-condition":        2,
         "no-control-regex":             2,
         "no-debugger":                  2,
@@ -44,8 +43,6 @@
                                              "requireReturnDescription": true
                                             }],
         "valid-typeof":                 2,
-
-        "http://eslint.org/docs/rules/#best-practices": 0,
         "accessor-pairs":               2,
         "block-scoped-var":             2,
         "complexity":                   [2, 6],
@@ -102,10 +99,8 @@
         "wrap-iife":                    [2, "outside"],
         "yoda":                         0,                                     "yoda: do or do not, there is no try": 0,
 
-        "http://eslint.org/docs/rules/#strict-mode": 0,
         "strict":                       [2, "global"],                                  "strict: for GPF-JS modules": 0,
 
-        "http://eslint.org/docs/rules/#variables": 0,
         "init-declarations":            0,                             "init-declarations: as GPF-JS uses undefined": 0,
         "no-catch-shadow":              2,
         "no-delete-var":                2,
@@ -118,7 +113,6 @@
         "no-unused-vars":               [2, {"vars": "all", "args": "after-used"}],
         "no-use-before-define":         [2, "nofunc"],
 
-        "http://eslint.org/docs/rules/#nodejs-and-commonjs": 0,
         "callback-return":              0,
         "global-require":               0,
         "handle-callback-err":          2,
@@ -129,7 +123,6 @@
         "no-restricted-modules":        0,
         "no-sync":                      2,
 
-        "http://eslint.org/docs/rules/#stylistic-issues": 0,
         "array-bracket-spacing":        [2, "never"],
         "block-spacing":                [2, "never"],
         "brace-style":                  [2, "1tbs"],
@@ -187,7 +180,6 @@
         "spaced-comment":               0,
         "wrap-regex":                   2,
 
-        "http://eslint.org/docs/rules/#ecmascript-6": 0,
         "arrow-parens":                 0,
         "arrow-spacing":                0,
         "constructor-super":            0,
@@ -205,15 +197,12 @@
         "prefer-template":              0,
         "require-yield":                0,
 
-        "http://eslint.org/docs/rules/#legacy": 0,
         "max-depth":                    [2, 4],
         "max-len":                      [2, 120],
         "max-params":                   [2, 3],
         "max-statements":               [2, 15],
         "no-bitwise":                   0,
-        "no-plusplus":                  0,
-
-        "#GPF-JS custom rules": 0
+        "no-plusplus":                  0
     },
     "globals": {
         "gpf":                          false,
