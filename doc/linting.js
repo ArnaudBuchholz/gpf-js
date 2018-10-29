@@ -3,23 +3,22 @@
 /*global process*/
 
 const
+    ESLINT = "../node_modules/eslint/",
+    RULES = ESLINT + "lib/rules",
+    CONFIGURATION = "../.eslintrc",
+
     fs = require("fs"),
     path = require("path"),
-
-    error = err => {
-        console.error(err);
-        process.exit();
-    },
 
     levels = [
         "ignore",
         "warning",
-        "error"
+        "error",
+        "-"
     ],
 
-    config = JSON.parse(fs.readFileSync(path.join(__dirname, "../.eslintrc")).toString()),
-    categories = JSON.parse(fs.readFileSync(path.join(__dirname, "../node_modules/eslint/conf/category-list.json")).toString()),
-    ruleFilenames = fs.readdirSync(path.join(__dirname, "../node_modules/eslint/lib/rules")),
+    gpfConfiguration = JSON.parse(fs.readFileSync(path.join(__dirname, CONFIGURATION)).toString()),
+    ruleFilenames = fs.readdirSync(path.join(__dirname, RULES)),
     orderOfCategories = [
         "Possible Errors",
         "Best Practices",
@@ -41,15 +40,23 @@ ruleFilenames
             description = docs.description,
             recommended = docs.recommended,
             hasProperties = rule.meta.schema.length ? rule.meta.schema[0].properties : false,
-            isSet = config.rules[name],
-            hasPropertiesSet = Array.isArray(isSet);
+            config = gpfConfiguration.rules[name];
+        let
+            level = levels.length - 1,
+            hasPropertiesSet = false;
+        if (Array.isArray(config)) {
+            level = config[0];
+        } else if (undefined !== config) {
+            level = config;
+        }
         return {
             name,
             category,
             description,
             recommended,
             hasProperties,
-            isSet,
+            config,
+            level,
             hasPropertiesSet
         };
     })
@@ -63,15 +70,18 @@ ruleFilenames
         return rule1.name.localeCompare(rule2.name);
     })
     .forEach((rule, index, rules) => {
+        const flag = (value, mark) => value ? mark : " ";
         if (0 === index || rules[index - 1].category !== rule.category) {
             console.log(rule.category);
+        }
+        if (rule.hasPropertiesSet && !rule.hasProperties) {
+            console.error(`Unexpected parameters for ${rule.name}`);
         }
         console.log(
             "\t",
             rule.name.padEnd(40, " "),
-            rule.recommended ? "R" : " ",
-            rule.hasProperties ? "P": " ",
-            rule.isSet ? "S": " ",
-            rule.hasPropertiesSet ? "C": " ",
+            flag(rule.recommended, "R"),
+            levels[rule.level].padEnd(7),
+            flag(rule.hasPropertiesSet, "C")
         );
-    })
+    });
