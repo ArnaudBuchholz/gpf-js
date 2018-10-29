@@ -30,6 +30,13 @@ const
     ]
 ;
 
+// Assess that all rules specified in the .eslintrc actually exists !
+Object.keys(gpfConfiguration.rules)
+    .filter(name => !ruleFilenames.includes(`${name}.js`))
+    .forEach(name => {
+        console.error(`Unknown rule name: ${name}`)
+    });
+
 ruleFilenames
     .map(ruleFilename => {
         const
