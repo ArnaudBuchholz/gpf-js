@@ -11,7 +11,6 @@ require("../src/boot.js");
 
 const
     CACHE_FILE = "tmp/doc.cache",
-    fs = require("fs"),
     gpfFs = gpf.fs.getFileStorage(),
     processed = {},
     cache = [],
@@ -38,32 +37,29 @@ const
                 ++errors;
                 console.error(method.magenta, url.magenta, response.status.toString().red);
                 return;
-            } else {
-                if (method === "HEAD") {
-                    cache.push(url);
-                }
-                log(method.grey, url.grey, response.status.toString().green);
             }
-            const baseUrl = !gpf.path.extension(url) ? url : gpf.path.parent(url);
+            if (method === "HEAD") {
+                cache.push(url);
+            }
+            log(method.grey, url.grey, response.status.toString().green);
+            const baseUrl = gpf.path.extension(url) ? gpf.path.parent(url) : url;
             response.responseText.replace(/href="([^"]+)"/g, function (text, subUrl) {
                 subUrl = subUrl.replace(/\r|\n/g, "");
-                if (subUrl.indexOf("http") !== 0) {
-                    // Relative
-                    if (gpf.path.extension(subUrl) === ".html") {
-                        enqueue({
-                            method: "GET",
-                            url: gpf.path.join(baseUrl, subUrl)
-                        });
-                    }
-                } else {
+                if (0 === subUrl.indexOf("http")) {
                     // Absolute
                     enqueue({
                         method: "HEAD",
                         url: subUrl
                     });
+                } else if (gpf.path.extension(subUrl) === ".html") {
+                    // Relative
+                    enqueue({
+                        method: "GET",
+                        url: gpf.path.join(baseUrl, subUrl)
+                    });
                 }
             });
-        })
+        });
     },
 
     next = () => stack.length
@@ -72,7 +68,9 @@ const
 
 log("Loading cache...");
 gpf.fs.read(CACHE_FILE)
-    .then(cached => cached.split("\n").forEach(url => {processed[url] = true}), () => {})
+    .then(cached => cached.split("\n").forEach(url => {
+        processed[url] = true;
+    }), () => {})
     .then(() => {
         log(`Checking ${stack[0].url}...`);
         return next();
@@ -82,9 +80,13 @@ gpf.fs.read(CACHE_FILE)
         log("Done.");
         if (cache.length) {
             log("Saving cache...");
+            let cacheFile;
             return gpfFs.openTextStream(CACHE_FILE, gpf.fs.openFor.appending)
-                .then(iWritableStream => iWritableStream.write(cache.join("\n"))
-                    .then(() => gpfFs.close(iWritableStream)));
+                .then(iWritableStream => {
+                    cacheFile = iWritableStream;
+                    return cacheFile.write(cache.join("\n"));
+                })
+                .then(() => gpfFs.close(cacheFile));
         }
     })
     .then(() => {
