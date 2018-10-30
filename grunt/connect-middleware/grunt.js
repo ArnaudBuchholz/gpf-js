@@ -14,11 +14,16 @@ const
             .split("<").join("&lt;")
             .split(">").join("&gt;")
             .split("█").join("&marker;")
-            .split("\x1B[1m").join("<b>").split("\x1B[22m").join("</b>") // Bold or increased intensity
-            .split("\x1B[2m").join("")                                   // Faint (decreased intensity)
-            .split("\x1B[4m").join("<u>").split("\x1B[24m").join("</u>") // Underline: Single
-            .split("\x1B[39m").join("</span>")                           // Default text color (foreground)
-            .split("\x1B[0m").join("</span>");                           // Reset / Normal
+            // Bold or increased intensity
+            .split("\x1B[1m").join("<b>").split("\x1B[22m").join("</b>")
+            // Faint (decreased intensity)
+            .split("\x1B[2m").join("")
+            // Underline: Single
+            .split("\x1B[4m").join("<u>").split("\x1B[24m").join("</u>")
+            // Default text color (foreground)
+            .split("\x1B[39m").join("</span>")
+            // Reset / Normal
+            .split("\x1B[0m").join("</span>");
         colors.forEach((name, index) => {
             content = content
                 .split(`\x1B[3${index}m`).join(`<span class="${name}">`)
