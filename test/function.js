@@ -41,7 +41,7 @@ describe("function", function () {
                 /*jshint -W014*/
                 function /*name is */ test2 (/*first*/a,
                     b // second parameter
-                    ,   /*before*/      c   /*after*/
+                    , /*before*/ c /*after*/
                 ) {
                     /*comments are removed*/
                     return a + b + c;
