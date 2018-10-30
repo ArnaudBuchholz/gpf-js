@@ -41,7 +41,7 @@ function _gpfRequireJSGetStaticDependencies (resourceName, content) {
     /*jshint validthis:true*/
     var requires = _gpfRegExpForEach(_gpfRequireJsModuleRegEx, content);
     if (requires.length) {
-        return _gpfRequireWrapGpf(this, resourceName).gpf.require.define(requires  //eslint-disable-line no-invalid-this
+        return _gpfRequireWrapGpf(this, resourceName).gpf.require.define(requires //eslint-disable-line no-invalid-this
             .map(function (match) {
                 return match[1]; // may be undefined if dynamic
             })
