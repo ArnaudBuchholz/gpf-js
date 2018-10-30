@@ -1,7 +1,5 @@
 "use strict";
 
-/*global process*/
-
 const
     ESLINT = "../node_modules/eslint/",
     RULES = ESLINT + "lib/rules",
@@ -34,7 +32,7 @@ const
 Object.keys(gpfConfiguration.rules)
     .filter(name => !ruleFilenames.includes(`${name}.js`))
     .forEach(name => {
-        console.error(`Unknown rule name: ${name}`)
+        console.error(`Unknown rule name: ${name}`);
     });
 
 ruleFilenames
