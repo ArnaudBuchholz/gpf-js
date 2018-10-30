@@ -235,9 +235,12 @@ class Optimizer {
 
     //endregion
 
-    _walk (ast, method, members) {
-        if (undefined === members) {
+    _walk (ast, method, optionalMembers) {
+        let members;
+        if (undefined === optionalMembers) {
             members = Object.keys(ast);
+        } else {
+            members = optionalMembers;
         }
         if (members && members.length) {
             members

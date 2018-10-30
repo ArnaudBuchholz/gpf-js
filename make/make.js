@@ -100,9 +100,9 @@ mkDir(generationParameters.temporaryPath);
 sourcesToProcess.forEach(name => {
     if (name.indexOf("/")) {
         // remove file name
-        name = name.split("/");
-        name.pop();
-        mkDir(`${generationParameters.temporaryPath}/${name.join("/")}`);
+        let arrayOfNames = name.split("/");
+        arrayOfNames.pop();
+        mkDir(`${generationParameters.temporaryPath}/${arrayOfNames.join("/")}`);
     }
 });
 

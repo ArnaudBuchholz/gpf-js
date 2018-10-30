@@ -136,8 +136,8 @@ var _GpfWScriptFileStorage = _gpfDefine({
      * @gpf:sameas gpf.interfaces.IFileStorage#openTextStream
      * @since 0.1.9
      */
-    openTextStream: function (path, mode) {
-        path = _gpfPathDecompose(path).join("\\");
+    openTextStream: function (unnormalizedPath, mode) {
+        var path = _gpfPathDecompose(unnormalizedPath).join("\\");
         return new Promise(function (resolve) {
             var stream;
             if (_GPF_FS_OPENFOR.READING === mode) {

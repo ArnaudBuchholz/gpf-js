@@ -73,10 +73,13 @@ function _gpfClassSuperCreateWithSameSignature (superMethod) {
  * @since 0.1.7
  */
 function _gpfClassSuperCreate (superMember) {
-    if ("function" !== typeof superMember) {
-        superMember = _gpfClassNoSuper;
+    var superMethod;
+    if ("function" === typeof superMember) {
+        superMethod = superMember;
+    } else {
+        superMethod = _gpfClassNoSuper;
     }
-    return _gpfClassSuperCreateWithSameSignature(superMember);
+    return _gpfClassSuperCreateWithSameSignature(superMethod);
 }
 
 /**

@@ -39,8 +39,7 @@ function _gpfAssertFailIfConditionFalsy (condition, message) {
  */
 function _gpfAssertImpl (condition, message) {
     if (undefined === message) {
-        message = "Assertion with no message";
-        condition = false;
+        _gpfAssertImpl(false, "Assertion with no message");
     }
     _gpfAssertFailIfConditionFalsy(condition, message);
 }

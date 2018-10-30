@@ -14,12 +14,15 @@ const
     checkdocCmd = `node doc/validate http://localhost:${configuration.serve.httpPort}/tmp/doc/public/index.html`,
 
     config = (cmd, ...options) => {
+        let objectCmd;
         if ("string" === typeof cmd || "function" === typeof cmd) {
-            cmd = {
+            objectCmd = {
                 cmd: cmd
             };
+        } else {
+            objectCmd = cmd;
         }
-        return Object.assign.apply(Object, [cmd].concat(options));
+        return Object.assign.apply(Object, [objectCmd].concat(options));
     },
 
     silent = {
@@ -39,10 +42,13 @@ const
     },
 
     testConfig = (name, command, parameters) => {
+        let escapedCommand;
         if (isWindows && command.indexOf(" ") !== -1) {
-            command = `"${command}"`;
+            escapedCommand = `"${command}"`;
+        } else {
+            escapedCommand = command;
         }
-        command += ` ${parameters}`;
+        escapedCommand += ` ${parameters}`;
         const cmd = suffix => function () {
             let parameter;
             if (arguments.length) {
@@ -50,7 +56,7 @@ const
             } else {
                 parameter = "";
             }
-            return command + " " + parameter + suffix;
+            return escapedCommand + " " + parameter + suffix;
         };
         module.exports[`test${name}`] = config(cmd(""), silent, failIfNot0);
         module.exports[`test${name}Verbose`] = config(cmd("-debugger"), verbose, failIfNot0);

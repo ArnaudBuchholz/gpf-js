@@ -24,14 +24,16 @@ function _gpfGetOrCreateObjectProperty (parent, name) {
 
 // Apply reducer on path
 function _gpfReduceContext (path, reducer) {
-    var rootContext;
+    var rootContext,
+        pathToReduce;
     if (path[0] === "gpf") {
         rootContext = gpf;
-        path = path.slice(1);
+        pathToReduce = path.slice(1);
     } else {
         rootContext = _gpfMainContext;
+        pathToReduce = path;
     }
-    return path.reduce(reducer, rootContext);
+    return pathToReduce.reduce(reducer, rootContext);
 }
 
 /**

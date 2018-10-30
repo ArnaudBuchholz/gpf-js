@@ -114,8 +114,7 @@ function _gpfFuncImpl (params, source) {
  */
 function _gpfFunc (params, source) {
     if (undefined === source) {
-        source = params;
-        params = [];
+        return _gpfFuncImpl([], params);
     }
     return _gpfFuncImpl(params, source);
 }

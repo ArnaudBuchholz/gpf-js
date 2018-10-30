@@ -178,9 +178,9 @@ function _gpfPathShiftIdenticalBeginning (splitFromPath, splitToPath) {
  * @since 0.1.9
  */
 function _gpfPathParent (path) {
-    path = _gpfPathDecompose(path);
-    _gpfPathUp(path);
-    return path.join("/");
+    var splitPath = _gpfPathDecompose(path);
+    _gpfPathUp(splitPath);
+    return splitPath.join("/");
 }
 
 /**

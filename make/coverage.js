@@ -2,6 +2,8 @@
 /*eslint-disable no-invalid-this*/ // Because of the 'simple' class generation relying on lamda functions
 /* MUST NOT BE MIGRATED TO ES6 BECAUSE USED IN A BROWSER */
 
+function _noop () {}
+
 /**
  * Simple class helper
  *
@@ -13,9 +15,6 @@
  */
 function _class (Constructor, members, Base) {
     var ResultConstructor;
-    if (!Constructor) {
-        Constructor = function () {};
-    }
     if (Base) {
         ResultConstructor = function () {
             Base.apply(this, arguments);
@@ -41,7 +40,7 @@ function _class (Constructor, members, Base) {
  * @constructor
  * @class CoverageReport.PartStatistics
  */
-var _PartStatistics = _class(null, {
+var _PartStatistics = _class(_noop, {
 
     /** number of instances for this part */
     count: 0,
@@ -127,7 +126,7 @@ var _PartStatistics = _class(null, {
  * @constructor
  * @class CoverageReport.StatementStatistics
  */
-var _StatementStatistics = _class(null, null, _PartStatistics);
+var _StatementStatistics = _class(_noop, null, _PartStatistics);
 
 /**
  * Function statistics
@@ -135,7 +134,7 @@ var _StatementStatistics = _class(null, null, _PartStatistics);
  * @constructor
  * @class CoverageReport.FunctionStatistics
  */
-var _FunctionStatistics = _class(null, null, _PartStatistics);
+var _FunctionStatistics = _class(_noop, null, _PartStatistics);
 
 /**
  * Branch statistics
@@ -143,7 +142,7 @@ var _FunctionStatistics = _class(null, null, _PartStatistics);
  * @constructor
  * @class CoverageReport.BranchStatistics
  */
-var _BranchStatistics = _class(null, {
+var _BranchStatistics = _class(_noop, {
 
     /**
      * Branch-specific coverage processing
@@ -168,12 +167,9 @@ var _BranchStatistics = _class(null, {
  * @param {String} name
  * @constructor
  */
-var _File = _class(function (name) {
-    if (name) {
-        if (-1 !== name.indexOf("\\")) {
-            name = name.replace(/\\/g, "/");
-        }
-        this.name = name.split("src/")[1].split(".js")[0];
+var _File = _class(function (optionalName) {
+    if (optionalName) {
+        this.name = optionalName.replace(/\\/g, "/").split("src/")[1].split(".js")[0];
     }
     this.statements = new _StatementStatistics();
     this.functions = new _FunctionStatistics();

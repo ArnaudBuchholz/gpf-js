@@ -9,7 +9,7 @@ const
 
     _toHtml = content => {
         // Assuming content is generated properly...
-        content = content
+        let htmlContent = content
             .split("&").join("&amp;")
             .split("<").join("&lt;")
             .split(">").join("&gt;")
@@ -25,12 +25,12 @@ const
             // Reset / Normal
             .split("\x1B[0m").join("</span>");
         colors.forEach((name, index) => {
-            content = content
+            htmlContent = htmlContent
                 .split(`\x1B[3${index}m`).join(`<span class="${name}">`)
                 .split(`\x1B[3${index};1m`).join(`<span class="${name}">`)
                 .split(`\x1B[9${index}m`).join(`<span class="${name} bright">`);
         });
-        return content;
+        return htmlContent;
     };
 
 module.exports = (request, response, next) => {

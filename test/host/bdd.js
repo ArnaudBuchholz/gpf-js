@@ -194,10 +194,8 @@
 
     //region BDD public interface
 
-    function _output (text, level) {
-        if (undefined === level) {
-            level = "log";
-        }
+    function _output (text, optionalLevel) {
+        var level = optionalLevel || "log";
         // Console can be mocked up to check outputs
         if (console.expects) {
             console.expects(level, text, true);
@@ -491,19 +489,22 @@
 
         // done function, is bound to a monitorContext
         _done: function (error) {
+            var finalError;
             ++this.numberOfCall;
             if (1 < this.numberOfCall) {
                 // Whatever the situation, done MUST be called only once, so overwrite any error here
-                error = {
+                finalError = {
                     message: "Done function called " + this.numberOfCall + " times"
                 };
+            } else {
+                finalError = error;
             }
             if (1 < this.numberOfCall || this.timeoutId) {
                 // More than one call (i.e. error) or asynchronous
-                this.complete(error);
+                this.complete(finalError);
             } else {
                 // Can still be processed as synchronous, keep track of error parameter
-                this.error = error;
+                this.error = finalError;
             }
             if (1 === this.numberOfCall && this.timeoutId) {
                 // First call in asynchronous mode, prevent timeout execution (no more necessary)...
@@ -565,14 +566,11 @@
             function fulfilled () {
                 done(); // Must have no parameter
             }
-            function rejected (reason) {
-                if (!reason) {
-                    reason = {
-                        message: "Promise rejected with no reason"
-                    };
-                }
-                _rejectionReason = reason;
-                done(reason);
+            function rejected (optionalReason) {
+                _rejectionReason = optionalReason || {
+                    message: "Promise rejected with no reason"
+                };
+                done(_rejectionReason);
             }
             function caught (reason) {
                 if (reason !== _rejectionReason) {
@@ -597,18 +595,19 @@
         },
 
         // IT Callback completion function (see _monitorCallback)
-        _itCallbackCompleted: function (it, startDate, e) {
+        _itCallbackCompleted: function (it, startDate, optionalError) {
+            var error;
             if (it.failureExpected) {
-                if (e) {
-                    e = null;
-                } else {
-                    e = {
+                if (!optionalError) {
+                    error = {
                         message: "Failure was expected"
                     };
                 }
+            } else {
+                error = optionalError;
             }
-            if (e) {
-                this._fail(it.label, startDate, e);
+            if (error) {
+                this._fail(it.label, startDate, error);
             } else {
                 this._success(it.label, startDate);
             }

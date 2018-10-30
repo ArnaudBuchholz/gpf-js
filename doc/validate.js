@@ -43,8 +43,8 @@ const
             }
             log(method.grey, url.grey, response.status.toString().green);
             const baseUrl = gpf.path.extension(url) ? gpf.path.parent(url) : url;
-            response.responseText.replace(/href="([^"]+)"/g, function (text, subUrl) {
-                subUrl = subUrl.replace(/\r|\n/g, "");
+            response.responseText.replace(/href="([^"]+)"/g, function (text, multilineSubUrl) {
+                var subUrl = multilineSubUrl.replace(/\r|\n/g, "");
                 if (0 === subUrl.indexOf("http")) {
                     // Absolute
                     enqueue({

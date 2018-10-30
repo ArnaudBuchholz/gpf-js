@@ -130,8 +130,8 @@ var _GpfNodeFileStorage = _gpfDefine({
      * @gpf:sameas gpf.interfaces.IFileStorage#getInfo
      * @since 0.1.9
      */
-    getInfo: function (path) {
-        path = _gpfPathNormalize(path);
+    getInfo: function (unnormalizedPath) {
+        var path = _gpfPathNormalize(unnormalizedPath);
         return new Promise(function (resolve) {
             _gpfNodeFs.exists(path, resolve);
         })

@@ -41,10 +41,13 @@ function _gpfAttributesGetConstructorFrom (any) {
  * @since 0.2.4
  */
 function _gpfAttributesGet (objectOrClass, baseAttributeClass) {
-    if ("function" !== typeof objectOrClass) {
-        objectOrClass = _gpfAttributesGetConstructorFrom(objectOrClass);
+    var classConstructor;
+    if ("function" === typeof objectOrClass) {
+        classConstructor = objectOrClass;
+    } else {
+        classConstructor = _gpfAttributesGetConstructorFrom(objectOrClass);
     }
-    return _gpfAttributesGetFromClass(objectOrClass, baseAttributeClass);
+    return _gpfAttributesGetFromClass(classConstructor, baseAttributeClass);
 }
 
 /**

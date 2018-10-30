@@ -29,8 +29,9 @@ function _gpfArrayForEachOwn (array, callback) {
     }
 }
 
-function _gpfArrayEveryOwn (array, callback, idx) {
-    var len = array.length;
+function _gpfArrayEveryOwn (array, callback, startIdx) {
+    var len = array.length,
+        idx = startIdx;
     while (idx < len) {
         if (array.hasOwnProperty(idx) && true !== callback(array[idx], idx, array)) {
             return false;
@@ -92,10 +93,10 @@ _gpfCompatibilityInstallMethods("Array", {
 
         // Introduced with JavaScript 1.6
         filter: function (callback) {
-            var result = [];
-            callback = _gpfArrayBind(callback, arguments[1]);
+            var result = [],
+                boundCallback = _gpfArrayBind(callback, arguments[1]);
             _gpfArrayForEachOwn(this, function (item, idx, array) {
-                if (callback(item, idx, array)) {
+                if (boundCallback(item, idx, array)) {
                     result.push(item);
                 }
             });
@@ -122,19 +123,19 @@ _gpfCompatibilityInstallMethods("Array", {
 
         // Introduced with JavaScript 1.6
         map: function (callback) {
-            var result = new Array(this.length);
-            callback = _gpfArrayBind(callback, arguments[1]);
+            var result = new Array(this.length),
+                boundCallback = _gpfArrayBind(callback, arguments[1]);
             _gpfArrayForEachOwn(this, function (item, index, array) {
-                result[index] = callback(item, index, array);
+                result[index] = boundCallback(item, index, array);
             });
             return result;
         },
 
         // Introduced with JavaScript 1.6
         some: function (callback) {
-            callback = _gpfArrayBind(callback, arguments[1]);
+            var boundCallback = _gpfArrayBind(callback, arguments[1]);
             return !_gpfArrayEveryOwnFrom0(this, function (item, index, array) {
-                return !callback(item, index, array);
+                return !boundCallback(item, index, array);
             });
         },
 

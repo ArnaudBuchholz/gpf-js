@@ -125,24 +125,24 @@ module.exports = class ConfigFile {
                         version = versionParts[1],
                         patch = parseInt(versionParts[2], 10);
                     let
-                        versionFound = false;
-                    versions = versions.map(testedVersionFile => {
-                        const
-                            testedVersionParts = (/(\d+\.\d+)\.(\d+)/).exec(testedVersionFile),
-                            testedVersion = testedVersionParts[1],
-                            testedPatch = parseInt(testedVersionParts[2], 10);
-                        if (testedVersion === version) {
-                            versionFound = true;
-                            if (testedPatch < patch) {
-                                return versionFile;
+                        versionFound = false,
+                        resultVersions = versions.map(testedVersionFile => {
+                            const
+                                testedVersionParts = (/(\d+\.\d+)\.(\d+)/).exec(testedVersionFile),
+                                testedVersion = testedVersionParts[1],
+                                testedPatch = parseInt(testedVersionParts[2], 10);
+                            if (testedVersion === version) {
+                                versionFound = true;
+                                if (testedPatch < patch) {
+                                    return versionFile;
+                                }
                             }
-                        }
-                        return testedVersionFile;
-                    });
+                            return testedVersionFile;
+                        });
                     if (!versionFound) {
-                        versions.push(versionFile);
+                        resultVersions.push(versionFile);
                     }
-                    return versions;
+                    return resultVersions;
                 }, []),
             doc: srcFiles,
             linting: {

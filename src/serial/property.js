@@ -166,11 +166,11 @@ function _gpfSerialPropertyCheckRequired (property) {
  * @since 0.2.8
  */
 function _gpfSerialPropertyCheck (property) {
-    property = Object.assign(property); // Clone
-    _gpfSerialPropertyCheckName(property);
-    _gpfSerialPropertyCheckType(property);
-    _gpfSerialPropertyCheckRequired(property);
-    return property;
+    var clonedProperty = Object.assign(property);
+    _gpfSerialPropertyCheckName(clonedProperty);
+    _gpfSerialPropertyCheckType(clonedProperty);
+    _gpfSerialPropertyCheckRequired(clonedProperty);
+    return clonedProperty;
 }
 
 /*#ifndef(UMD)*/

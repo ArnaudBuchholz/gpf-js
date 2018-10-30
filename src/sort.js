@@ -72,8 +72,11 @@ function _gpfCreateSortFunction (specifications) {
  * @since 0.1.9
  */
 gpf.createSortFunction = function (specifications) {
-    if (!_gpfIsArray(specifications)) {
-        specifications = [specifications];
+    var arrayOfSpecifications;
+    if (_gpfIsArray(specifications)) {
+        arrayOfSpecifications = specifications;
+    } else {
+        arrayOfSpecifications = [specifications];
     }
-    return _gpfCreateSortFunction(specifications);
+    return _gpfCreateSortFunction(arrayOfSpecifications);
 };

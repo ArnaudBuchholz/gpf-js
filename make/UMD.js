@@ -6,7 +6,7 @@
 /*eslint no-new-func: 0*/ // the Function constructor is eval
 /*eslint complexity: 0*/
 /*global __gpf__*/
-(function (root, factory) {
+(function (factory) {
     "use strict";
 
     /**
@@ -24,14 +24,12 @@
     } else if (typeof module !== "undefined" && module.exports) {
         factory(module.exports);
     } else {
-        if (root === undefined) {
-            root = Function("return this;")();
-        }
-        var newGpf = {};
+        var root = Function("return this;")(),
+            newGpf = {};
         factory(newGpf);
         root.gpf = newGpf;
     }
-}(this, function (/*gpf:no-reduce*/gpf) {
+}(function (/*gpf:no-reduce*/gpf) {
     "use strict";
     /*jshint -W030*/ // Is used as a placeholder for injecting modules
     __gpf__; //eslint-disable-line no-unused-expressions
