@@ -156,7 +156,7 @@ var
          * @since 0.2.5
          */
         flush: function () {
-            if (this._dataInPromise)  {
+            if (this._dataInPromise) {
                 return this._writeData(_gpfStreamOperatorNoData);
             }
             return Promise.resolve();
