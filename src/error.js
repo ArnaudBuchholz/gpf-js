@@ -57,7 +57,7 @@ Object.assign(_GpfError.prototype, /** @lends gpf.Error.prototype */ {
      * @since 0.1.5
      */
     _buildMessage: function (context) {
-        var  replacements;
+        var replacements;
         if (context) {
             replacements = {};
             _gpfObjectForEach(context, function (value, key) {
