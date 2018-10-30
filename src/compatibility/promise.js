@@ -117,7 +117,7 @@ function _gpfPromiseAsyncProcess (promise) {
     }
     try {
         result = callback(promise._value);
-    }  catch (e) {
+    } catch (e) {
         me.reject(e);
         return;
     }
