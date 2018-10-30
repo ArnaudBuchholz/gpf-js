@@ -44,7 +44,7 @@ var
     _gpfMax31 = 0x7FFFFFFF,
 
     // Max value on 32 bits
-    _gpfMax32 =  0xFFFFFFFF,
+    _gpfMax32 = 0xFFFFFFFF,
 
     // Letters (lowercase)
     _gpfAlpha = "abcdefghijklmnopqrstuvwxyz",
@@ -65,7 +65,7 @@ var
     _gpfJsKeywords = _gpfSyncReadSourceJSON("javascript/keywords.json"),
 
     // Get the name of a function if bound to the call
-    _gpfJsCommentsRegExp =  new RegExp("//.*$|/\\*(?:[^\\*]*|\\*[^/]*)\\*/", "gm")
+    _gpfJsCommentsRegExp = new RegExp("//.*$|/\\*(?:[^\\*]*|\\*[^/]*)\\*/", "gm")
 ;
 
 // Unprotected version of _gpfFunc
