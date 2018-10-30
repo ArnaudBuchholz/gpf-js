@@ -152,7 +152,7 @@ class Optimizer {
 
     retrieve (category, key) {
         let storeMap = this._getStoreMap(category);
-        if (storeMap.hasOwnProperty(key))  {
+        if (storeMap.hasOwnProperty(key)) {
             return this._getStoreMap(category)[key];
         }
     }
