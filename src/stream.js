@@ -193,7 +193,7 @@ function _gpfStreamSecureEnd (promise, stream, endMethod) {
  */
 function _gpfStreamSecureRead (read) {
     return function (output) {
-        var me = this,  //eslint-disable-line no-invalid-this
+        var me = this, //eslint-disable-line no-invalid-this
             iWritableStream = _gpfStreamQueryWritable(output);
         _gpfStreamProgressStartRead(me);
         return _gpfStreamSecureEnd(read.call(me, iWritableStream), me, _gpfStreamProgressEndRead);
