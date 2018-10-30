@@ -64,7 +64,7 @@ function _gpfDefClassAttrCheck (member, attribute) {
  * @return {String|undefined} Real property name if attributes specification, undefined otherwise
  * @since 0.2.4
  */
-function _gpfDefClassAttrIsAttributeSpecification (name)  {
+function _gpfDefClassAttrIsAttributeSpecification (name) {
     return _gpfDefClassAttrIsAttributeRegExp.exec(name)[1];
 }
 
