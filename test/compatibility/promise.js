@@ -391,7 +391,7 @@ describe("compatibility/promise", function () {
                                 done(e);
                             }
                         });
-                    callbacks[5]();  // Only this one should win Promise.race
+                    callbacks[5](); // Only this one should win Promise.race
                     callbacks[0]();
                     callbacks[1]();
                 });
