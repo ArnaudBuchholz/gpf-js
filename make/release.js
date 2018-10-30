@@ -51,7 +51,7 @@ const
         if (text.lastIndexOf("\n") === lengthMinus1) {
             return text.substr(0, lengthMinus1);
         }
-        return  text;
+        return text;
     },
 
     spawnProcess = (command, params) => new Promise(function (resolve, reject) {
