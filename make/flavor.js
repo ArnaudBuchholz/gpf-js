@@ -46,7 +46,7 @@ function includeRequestedSources (sources, requested) {
         if (-1 !== requested.excluded.indexOf(source.name)) {
             return false;
         }
-        var tags =  categorize(source.tags || ""),
+        var tags = categorize(source.tags || ""),
             shouldIncludeFeature,
             shouldIncludeHost;
         // core tags are always included
@@ -80,7 +80,7 @@ function getSourceIndex (sources, name) {
 }
 
 function getFlavor (sources, dependencies, request) {
-    var requested =  categorize(request),
+    var requested = categorize(request),
         // Initial is based on tags
         allowed = includeRequestedSources(sources, requested),
         index = sources.length,
@@ -91,7 +91,7 @@ function getFlavor (sources, dependencies, request) {
             return;
         }
         var sourceIndex = getSourceIndex(sources, dependency),
-            tags =  categorize(sources[sourceIndex].tags || "");
+            tags = categorize(sources[sourceIndex].tags || "");
         // Process dependant features
         tags.features.forEach(function (feature) {
             if (-1 === features.indexOf(feature)) {
