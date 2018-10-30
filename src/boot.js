@@ -196,7 +196,7 @@ if ("undefined" !== typeof WScript) {
 
     /*#ifndef(UMD)*/
 
-    _gpfNodeFs =  require("fs");
+    _gpfNodeFs = require("fs");
 
     _gpfSyncReadForBoot = function (srcFileName) {
         return _gpfNodeFs.read(srcFileName);
@@ -212,7 +212,7 @@ if ("undefined" !== typeof WScript) {
     /*#ifndef(UMD)*/
     /*eslint-disable no-sync*/ // Simpler this way
 
-    _gpfNodeFs =  require("fs");
+    _gpfNodeFs = require("fs");
 
     _gpfSyncReadForBoot = function (srcFileName) {
         return _gpfNodeFs.readFileSync(srcFileName).toString();
