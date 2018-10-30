@@ -178,7 +178,7 @@ var
          * @since 0.1.9
          */
         write: _gpfStreamSecureWrite(function (buffer) {
-            var me = this,  //eslint-disable-line no-invalid-this
+            var me = this, //eslint-disable-line no-invalid-this
                 stream = me._stream;
             return new Promise(function (resolve, reject) {
                 me._reject = reject;
