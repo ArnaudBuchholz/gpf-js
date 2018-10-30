@@ -98,7 +98,7 @@ class File extends FileSystemItem {
 
 }
 
-class Folder  extends FileSystemItem {
+class Folder extends FileSystemItem {
 
     _getDirContent () {
         if (!this._dirContent) {
