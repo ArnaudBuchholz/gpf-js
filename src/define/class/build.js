@@ -78,7 +78,7 @@ Object.assign(_GpfClassDefinition.prototype, {
      */
     _setResolvedConstructorToInherited: function () {
         if (this._extend !== Object) {
-            this._resolvedConstructor =  this._extend;
+            this._resolvedConstructor = this._extend;
         }
     },
 
