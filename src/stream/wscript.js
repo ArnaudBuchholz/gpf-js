@@ -36,7 +36,7 @@ var
          * @since 0.1.9
          */
         close: function () {
-            return new Promise(function (resolve)  {
+            return new Promise(function (resolve) {
                 this._file.Close();
                 resolve();
             }.bind(this));
@@ -63,7 +63,7 @@ var
          * @since 0.1.9
          */
         read: _gpfStreamSecureRead(function (output) {
-            var me = this,  //eslint-disable-line no-invalid-this
+            var me = this, //eslint-disable-line no-invalid-this
                 file = me._file;
             return new Promise(function (resolve) {
                 function read () {
@@ -101,7 +101,7 @@ var
          * @since 0.1.9
          */
         write: _gpfStreamSecureWrite(function (buffer) {
-            var me = this,  //eslint-disable-line no-invalid-this
+            var me = this, //eslint-disable-line no-invalid-this
                 file = me._file;
             return new Promise(function (resolve) {
                 file.Write(buffer);
