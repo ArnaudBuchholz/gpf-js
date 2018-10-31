@@ -10,10 +10,11 @@ const
     ESLINTRC = path.join(__dirname, "../.eslintrc"),
     DOCUMENTATION = path.join(__dirname, "linting"),
 
+    RULE_IGNORED = "ignore",
     RULE_NOT_SET = "-",
 
     LEVELS = [
-        "ignore",
+        RULE_IGNORED,
         "warning",
         "error",
         RULE_NOT_SET
@@ -44,10 +45,11 @@ const
     },
 
     configuration = ruleName => {
+        if (ruleName === "no-extend-native") debugger;
         const
             ruleConfiguration = eslintrc.rules[ruleName],
             documented = hasDocumentation(ruleName);
-        if (ruleConfiguration) {
+        if (undefined !== ruleConfiguration) {
             return {
                 level: LEVELS[readLevel(ruleConfiguration)],
                 parameterized: Array.isArray(ruleConfiguration),
@@ -60,29 +62,40 @@ const
         };
     },
 
+    error = (rule, message) => {
+        console.error(
+            "\t",
+            rule.name.padEnd(40, " "),
+            "***",
+            message
+        );
+    },
+
     checkForInvalidProperties = rule => {
         if (rule.meta.schema && Object.keys(rule.meta.schema).length) {
             return; // Whether an array or an object, it has properties
         }
         if (rule.parameterized) {
-            console.error(`Unexpected parameters for ${rule.name}`);
+            error(rule, "has unexpected parameters");
         }
     },
 
     checkForDeprecatedRule = rule => {
         if (rule.meta.deprecated && rule.level !== RULE_NOT_SET) {
-            console.error(
-                "\t",
-                rule.name.padEnd(40, " "),
-                "is deprecated, should use:",
-                rule.meta.docs.replacedBy.join(",")
-            );
+            error(rule, `is deprecated, should use: ${rule.meta.docs.replacedBy.join(",")}`);
+        }
+    },
+
+    checkForUselessIgnore = rule => {
+        if (!rule.meta.docs.recommended && rule.level === RULE_IGNORED) {
+            error(rule, "does not need to be ignored");
         }
     },
 
     checkForInvalidUse = rule => {
         checkForInvalidProperties(rule);
         checkForDeprecatedRule(rule);
+        checkForUselessIgnore(rule);
     }
 ;
 
