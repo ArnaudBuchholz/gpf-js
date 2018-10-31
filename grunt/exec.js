@@ -41,14 +41,14 @@ const
         exitCode: 0
     },
 
-    testConfig = (name, command, parameters) => {
-        let escapedCommand;
-        if (isWindows && command.indexOf(" ") !== -1) {
-            escapedCommand = `"${command}"`;
+    testConfig = (name, rawCommand, parameters) => {
+        let command;
+        if (isWindows && rawCommand.indexOf(" ") !== -1) {
+            command = `"${rawCommand}"`;
         } else {
-            escapedCommand = command;
+            command = rawCommand;
         }
-        escapedCommand += ` ${parameters}`;
+        command += ` ${parameters}`;
         const cmd = suffix => function () {
             let parameter;
             if (arguments.length) {
@@ -56,7 +56,7 @@ const
             } else {
                 parameter = "";
             }
-            return escapedCommand + " " + parameter + suffix;
+            return command + " " + parameter + suffix;
         };
         module.exports[`test${name}`] = config(cmd(""), silent, failIfNot0);
         module.exports[`test${name}Verbose`] = config(cmd("-debugger"), verbose, failIfNot0);
