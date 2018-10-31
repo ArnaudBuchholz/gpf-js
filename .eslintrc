@@ -3,7 +3,6 @@
         "comma-dangle":                 [2, "never"],
         "no-console":                   0,
         "no-extra-parens":              2,
-        "no-negated-in-lhs":            2,
         "valid-jsdoc":                  [2, {"prefer": {
                                                  "returns": "return",
                                                  "class": "constructor",
