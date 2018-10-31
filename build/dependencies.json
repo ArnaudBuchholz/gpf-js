@@ -472,7 +472,8 @@
     ],
     "define/class/attributes/build": [
         "define/class/class",
-        "define/class/attributes/check"
+        "define/class/attributes/check",
+        "define/build"
     ],
     "define/class/attributes/consolidate": [
         "define/class/attributes/check",
