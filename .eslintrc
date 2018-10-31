@@ -64,7 +64,6 @@
         "no-void":                      2,
         "no-with":                      2,
         "radix":                        2,
-        "vars-on-top":                  0,                                    "vars-on-top: I am OK if not enforced": 0,
         "wrap-iife":                    [2, "outside"],
         "yoda":                         0,                                     "yoda: do or do not, there is no try": 0,
 
