@@ -65,9 +65,8 @@
         "no-with":                      2,
         "radix":                        2,
         "wrap-iife":                    [2, "outside"],
-        "yoda":                         0,                                     "yoda: do or do not, there is no try": 0,
 
-        "strict":                       [2, "global"],                                  "strict: for GPF-JS modules": 0,
+        "strict":                       [2, "global"],
 
         "init-declarations":            0,                             "init-declarations: as GPF-JS uses undefined": 0,
         "no-catch-shadow":              2,
