@@ -1,92 +1,130 @@
 "use strict";
 
 const
-    ESLINT = "../node_modules/eslint/",
-    RULES = ESLINT + "lib/rules",
-    CONFIGURATION = "../.eslintrc",
-
     fs = require("fs"),
     path = require("path"),
 
-    levels = [
+    ESLINT = path.join(__dirname, "../node_modules/eslint/"),
+    ESLINT_RULES = path.join(ESLINT, "lib/rules"),
+    ESLINT_CATEGORIES = path.join(ESLINT, "conf/category-list.json"),
+    ESLINTRC = path.join(__dirname, "../.eslintrc"),
+    DOCUMENTATION = path.join(__dirname, "linting"),
+
+    RULE_NOT_SET = "-",
+
+    LEVELS = [
         "ignore",
         "warning",
         "error",
-        "-"
+        RULE_NOT_SET
     ],
 
-    gpfConfiguration = JSON.parse(fs.readFileSync(path.join(__dirname, CONFIGURATION)).toString()),
-    ruleFilenames = fs.readdirSync(path.join(__dirname, RULES)),
-    orderOfCategories = [
-        "Possible Errors",
-        "Best Practices",
-        "Strict Mode",
-        "Variables",
-        "Node.js and CommonJS",
-        "Stylistic Issues",
-        "ECMAScript 6"
-    ]
+    ruleFilenames = fs.readdirSync(ESLINT_RULES),
+    orderOfCategories = JSON.parse(fs.readFileSync(ESLINT_CATEGORIES).toString()).categories
+        .map(category => category.name),
+    eslintrc = JSON.parse(fs.readFileSync(ESLINTRC).toString()),
+
+    readLevel = ruleConfiguration => {
+        if (Array.isArray(ruleConfiguration)) {
+            return ruleConfiguration[0];
+        }
+        if (undefined !== ruleConfiguration) {
+            return ruleConfiguration;
+        }
+        return LEVELS.length - 1;
+    },
+
+    hasDocumentation = ruleName => {
+        try {
+            fs.accessSync(path.join(DOCUMENTATION, `${ruleName}.md`), fs.constants.R_OK);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    },
+
+    configuration = ruleName => {
+        const
+            ruleConfiguration = eslintrc.rules[ruleName],
+            documented = hasDocumentation(ruleName);
+        if (ruleConfiguration) {
+            return {
+                level: LEVELS[readLevel(ruleConfiguration)],
+                parameterized: Array.isArray(ruleConfiguration),
+                documented: documented
+            };
+        }
+        return {
+            level: RULE_NOT_SET,
+            documented: documented
+        };
+    },
+
+    checkForInvalidProperties = rule => {
+        if (rule.meta.schema && Object.keys(rule.meta.schema).length) {
+            return; // Whether an array or an object, it has properties
+        }
+        if (rule.parameterized) {
+            console.error(`Unexpected parameters for ${rule.name}`);
+        }
+    },
+
+    checkForDeprecatedRule = rule => {
+        if (rule.meta.deprecated && rule.level !== RULE_NOT_SET) {
+            console.error(
+                "\t",
+                rule.name.padEnd(40, " "),
+                "is deprecated, should use:",
+                rule.meta.docs.replacedBy.join(",")
+            );
+        }
+    },
+
+    checkForInvalidUse = rule => {
+        checkForInvalidProperties(rule);
+        checkForDeprecatedRule(rule);
+    }
 ;
 
 // Assess that all rules specified in the .eslintrc actually exists !
-Object.keys(gpfConfiguration.rules)
+Object.keys(eslintrc.rules)
     .filter(name => !ruleFilenames.includes(`${name}.js`))
     .forEach(name => {
         console.error(`Unknown rule name: ${name}`);
     });
 
+// List rules
 ruleFilenames
     .map(ruleFilename => {
-        const
-            name = path.basename(ruleFilename, ".js"),
-            rule = require(path.join(__dirname, "../node_modules/eslint/lib/rules", ruleFilename)),
-            docs = rule.meta.docs,
-            category = docs.category,
-            description = docs.description,
-            recommended = docs.recommended,
-            hasProperties = rule.meta.schema.length ? rule.meta.schema[0].properties : false,
-            config = gpfConfiguration.rules[name];
-        let
-            level = levels.length - 1,
-            hasPropertiesSet = false;
-        if (Array.isArray(config)) {
-            level = config[0];
-        } else if (undefined !== config) {
-            level = config;
-        }
-        return {
-            name,
-            category,
-            description,
-            recommended,
-            hasProperties,
-            config,
-            level,
-            hasPropertiesSet
-        };
+        const name = path.basename(ruleFilename, ".js");
+        return Object.assign({
+            name: name,
+            meta: require(path.join(__dirname, "../node_modules/eslint/lib/rules", ruleFilename)).meta
+        }, configuration(name));
     })
     .sort((rule1, rule2) => {
         const
-            rule1CategoryOrder = orderOfCategories.indexOf(rule1.category),
-            rule2CategoryOrder = orderOfCategories.indexOf(rule2.category);
+            rule1CategoryOrder = orderOfCategories.indexOf(rule1.meta.docs.category),
+            rule2CategoryOrder = orderOfCategories.indexOf(rule2.meta.docs.category);
         if (rule1CategoryOrder !== rule2CategoryOrder) {
             return rule1CategoryOrder - rule2CategoryOrder;
         }
         return rule1.name.localeCompare(rule2.name);
     })
     .forEach((rule, index, rules) => {
-        const flag = (value, mark) => value ? mark : " ";
-        if (0 === index || rules[index - 1].category !== rule.category) {
-            console.log(rule.category);
+        const
+            flag = (value, mark) => value ? mark : " ",
+            category = rule.meta.docs.category;
+        if (0 === index || rules[index - 1].meta.docs.category !== category) {
+            console.log(category);
         }
-        if (rule.hasPropertiesSet && !rule.hasProperties) {
-            console.error(`Unexpected parameters for ${rule.name}`);
-        }
+        checkForInvalidUse(rule);
         console.log(
             "\t",
             rule.name.padEnd(40, " "),
-            flag(rule.recommended, "R"),
-            levels[rule.level].padEnd(7),
-            flag(rule.hasPropertiesSet, "C")
+            flag(rule.meta.docs.recommended, "R"),
+            rule.level.padEnd(7),
+            flag(rule.parameterized, "C"),
+            flag(rule.documented, "*")
         );
     });
