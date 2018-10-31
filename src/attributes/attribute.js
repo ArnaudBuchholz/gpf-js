@@ -29,10 +29,14 @@ var _gpfAttribute = _gpfDefine({
     /**
      * Class member name the attribute was set on (or undefined if at class level)
      * @type {String|undefined}
+     * @since 0.2.8
      */
     _memberName: undefined,
 
-    /** @gpf:read _memberName */
+    /**
+     * @gpf:read _memberName
+     * @since 0.2.8
+     */
     getMemberName: function () {
         return this._memberName;
     },
@@ -40,10 +44,14 @@ var _gpfAttribute = _gpfDefine({
     /**
      * Class constructore the attribute was set on
      * @type {Function|undefined}
+     * @since 0.2.8
      */
     _ClassConstructor: undefined,
 
-    /** @gpf:read _ClassConstructor */
+    /**
+     * @gpf:read _ClassConstructor
+     * @since 0.2.8
+     */
     getClassConstructor: function () {
         return this._ClassConstructor;
     },
