@@ -9,7 +9,7 @@ describe("abstract", function () {
 
             it("generates a function with a given signature", function () {
                 var abstractFunc = _gpfCreateAbstractFunction(3);
-                assert(3 === abstractFunc.length);
+                assert(abstractFunc.length === 3);
             });
 
             it("generates a function that throws the abstractMethod exception", function () {
