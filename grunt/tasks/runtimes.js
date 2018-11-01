@@ -16,7 +16,7 @@ module.exports = function (grunt) {
         const taskName = `exec:test${tools.capitalize(runtime)}Verbose`;
         grunt.registerTask(runtime, (...args) => {
             let parameter;
-            if (0 === args.length) {
+            if (args.length === 0) {
                 parameter = "";
             } else {
                 parameter = ":" + args.join(":");
