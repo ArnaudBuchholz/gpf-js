@@ -29,13 +29,13 @@ class Module {
 
     analyze () {
         this.lines.every(this._dispatchLine, this);
-        if (-1 === this._umdLineIndex) {
+        if (this._umdLineIndex === -1) {
             this.error("missing /*#ifndef(UMD)*/");
         }
     }
 
     _dispatchLine (line, lineIndex) {
-        if (-1 === this._umdLineIndex) {
+        if (this._umdLineIndex === -1) {
             return this._checkLine0(line, lineIndex);
         }
         if (lineIndex === this._umdLineIndex + 1) {
@@ -66,13 +66,13 @@ class Module {
 
     // Content line: select the proper handling
     _analyzeLine (line, lineIndex) {
-        if (0 === line.indexOf("/*global ")) {
+        if (line.indexOf("/*global ") === 0) {
             return this._processImport(line, lineIndex);
         }
-        if (0 === line.indexOf("/*exported ")) {
+        if (line.indexOf("/*exported ") === 0) {
             return this._processExport(line, lineIndex);
         }
-        if (-1 < line.indexOf("eslint") || -1 < line.indexOf("jshint")) {
+        if (line.indexOf("eslint") > -1 || line.indexOf("jshint") > -1) {
             // ignore
             return true;
         }
@@ -111,7 +111,7 @@ class Module {
     // returns true if modified
     rebuild () {
         let before = this.lines.join("\n"),
-            lines = this.lines.filter((line, lineIndex) => -1 === this.filteredLines.indexOf(lineIndex)),
+            lines = this.lines.filter((line, lineIndex) => this.filteredLines.indexOf(lineIndex) === -1),
             spliceArgs = [this._umdLineIndex + 2, 0],
             after;
         this.imports.sort().forEach(name => {
@@ -159,7 +159,7 @@ sources.every(source => {
     return true;
 });
 
-if (0 === rc) {
+if (rc === 0) {
     Object.keys(rewrites).forEach(name => fs.writeFileSync(`./src/${name}.js`, rewrites[name]));
 }
 
