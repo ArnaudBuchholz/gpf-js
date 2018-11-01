@@ -8,11 +8,11 @@ describe("compatibility/promise", function () {
 
             it("waits for synchronous fulfilment", function (done) {
                 new PromiseClass(function (resolve/*, reject*/) {
-                    assert("function" === typeof resolve);
+                    assert(typeof resolve === "function");
                     resolve("ok");
                 })
                     .then(function (value) {
-                        assert("ok" === value);
+                        assert(value === "ok");
                         done();
                     })["catch"](function (reason) {
                         done(reason);
@@ -25,7 +25,7 @@ describe("compatibility/promise", function () {
                     callback = resolve;
                 })
                     .then(function (value) {
-                        assert("ok" === value);
+                        assert(value === "ok");
                         done();
                     })["catch"](function (reason) {
                         done(reason);
@@ -36,14 +36,14 @@ describe("compatibility/promise", function () {
             it("waits for synchronous rejection (rejection handler)", function (done) {
                 var fulfilled = false;
                 new PromiseClass(function (resolve, reject) {
-                    assert("function" === typeof reject);
+                    assert(typeof reject === "function");
                     reject("ko");
                 })
                     .then(function () {
                         fulfilled = true;
                     }, function (reason) {
-                        assert(false === fulfilled);
-                        assert("ko" === reason);
+                        assert(fulfilled === false);
+                        assert(reason === "ko");
                         done();
                     })["catch"](function (reason) {
                         done(reason);
@@ -59,8 +59,8 @@ describe("compatibility/promise", function () {
                     .then(function () {
                         fulfilled = true;
                     }, function (reason) {
-                        assert(false === fulfilled);
-                        assert("ko" === reason);
+                        assert(fulfilled === false);
+                        assert(reason === "ko");
                         done();
                     })["catch"](function (reason) {
                         done(reason);
@@ -76,7 +76,7 @@ describe("compatibility/promise", function () {
                         assert(false);
                     })["catch"](function (reason) {
                         try {
-                            assert("ko" === reason);
+                            assert(reason === "ko");
                             done();
                         } catch (e) {
                             done(e);
@@ -93,7 +93,7 @@ describe("compatibility/promise", function () {
                         assert(false);
                     })["catch"](function (reason) {
                         try {
-                            assert("ko" === reason);
+                            assert(reason === "ko");
                             done();
                         } catch (e) {
                             done(e);
@@ -110,7 +110,7 @@ describe("compatibility/promise", function () {
                         assert(false);
                     }, function (reason) {
                         assert(reason instanceof Error);
-                        assert("ko" === reason.message);
+                        assert(reason.message === "ko");
                         done();
                     })["catch"](function (reason) {
                         done(reason);
@@ -122,12 +122,12 @@ describe("compatibility/promise", function () {
                     resolve("ok");
                 })
                     .then(function (value) {
-                        assert("ok" === value);
+                        assert(value === "ok");
                         throw new Error("ko");
                     })["catch"](function (reason) {
                         try {
                             assert(reason instanceof Error);
-                            assert("ko" === reason.message);
+                            assert(reason.message === "ko");
                             done();
                         } catch (e) {
                             done(e);
@@ -142,12 +142,12 @@ describe("compatibility/promise", function () {
                     .then(function () {
                         assert(false);
                     }, function (reason) {
-                        assert("ko" === reason);
+                        assert(reason === "ko");
                         throw new Error("ko");
                     })["catch"](function (reason) {
                         try {
                             assert(reason instanceof Error);
-                            assert("ko" === reason.message);
+                            assert(reason.message === "ko");
                             done();
                         } catch (e) {
                             done(e);
@@ -162,7 +162,7 @@ describe("compatibility/promise", function () {
             it("offers Promise.resolve", function (done) {
                 PromiseClass.resolve("ok")
                     .then(function (value) {
-                        assert("ok" === value);
+                        assert(value === "ok");
                         done();
                     }, function (/*reason*/) {
                         assert(false);
@@ -176,7 +176,7 @@ describe("compatibility/promise", function () {
                     .then(function (/*value*/) {
                         assert(false);
                     }, function (reason) {
-                        assert("ko" === reason);
+                        assert(reason === "ko");
                         done();
                     })["catch"](function (reason) {
                         done(reason);
@@ -192,22 +192,22 @@ describe("compatibility/promise", function () {
                     resolve("ok 1");
                 })
                     .then(function (value) {
-                        assert("ok 1" === value);
+                        assert(value === "ok 1");
                         return "ok 2";
                     })
                     .then(undefined, function (reason) {
                         done(reason);
                     })
                     .then(function (value) {
-                        assert("ok 2" === value);
+                        assert(value === "ok 2");
                         return "ok 3";
                     })
                     .then(function (value) {
-                        assert("ok 3" === value);
+                        assert(value === "ok 3");
                         return "ok 4";
                     })
                     .then(function (value) {
-                        assert("ok 4" === value);
+                        assert(value === "ok 4");
                         done();
                     })["catch"](function (reason) {
                         done(reason);
@@ -219,17 +219,17 @@ describe("compatibility/promise", function () {
                     resolve("ok 1");
                 })
                     .then(function (value) {
-                        assert("ok 1" === value);
+                        assert(value === "ok 1");
                         return PromiseClass.resolve("ok 2");
                     })
                     .then(function (value) {
-                        assert("ok 2" === value);
+                        assert(value === "ok 2");
                         return new PromiseClass(function (resolve/*, reject*/) {
                             resolve("ok 3");
                         });
                     })
                     .then(function (value) {
-                        assert("ok 3" === value);
+                        assert(value === "ok 3");
                         done();
                     })["catch"](function (reason) {
                         done(reason);
@@ -242,11 +242,11 @@ describe("compatibility/promise", function () {
                     resolve("ok 1");
                 })
                     .then(function (value) {
-                        assert("ok 1" === value);
+                        assert(value === "ok 1");
                         return "ok 2";
                     })
                     .then(function (value) {
-                        assert("ok 2" === value);
+                        assert(value === "ok 2");
                         throw new Error("ko");
                     })
                     .then(function (/*value*/) {
@@ -254,7 +254,7 @@ describe("compatibility/promise", function () {
                     })["catch"](function (reason) {
                         try {
                             assert(reason instanceof Error);
-                            assert("ko" === reason.message);
+                            assert(reason.message === "ko");
                             done();
                         } catch (e) {
                             done(e);
@@ -272,7 +272,7 @@ describe("compatibility/promise", function () {
                 it("succeeds with an empty array", function (done) {
                     PromiseClass.all([])
                         .then(function (values) {
-                            assert(0 === values.length);
+                            assert(values.length === 0);
                             done();
                         })["catch"](function (reason) {
                             done(reason);
@@ -282,8 +282,8 @@ describe("compatibility/promise", function () {
                 it("works with one promise", function (done) {
                     PromiseClass.all([PromiseClass.resolve("ok")])
                         .then(function (values) {
-                            assert(1 === values.length);
-                            assert("ok" === values[0]);
+                            assert(values.length === 1);
+                            assert(values[0] === "ok");
                             done();
                         })["catch"](function (reason) {
                             done(reason);
@@ -298,9 +298,9 @@ describe("compatibility/promise", function () {
                     }
                     PromiseClass.all(promises)
                         .then(function (values) {
-                            assert(45 === values.reduce(function (previousValue, currentValue) {
+                            assert(values.reduce(function (previousValue, currentValue) {
                                 return previousValue + currentValue;
-                            }));
+                            }) === 45);
                             done();
                         })["catch"](function (reason) {
                             done(reason);
@@ -311,7 +311,7 @@ describe("compatibility/promise", function () {
                     var promises = [],
                         index;
                     function resolveOrReject (value) {
-                        if (0 === value % 2) {
+                        if (value % 2 === 0) {
                             return PromiseClass.reject(value);
                         }
                         return PromiseClass.resolve(value);
@@ -324,7 +324,7 @@ describe("compatibility/promise", function () {
                             assert(false);
                         })["catch"](function (reason) {
                             try {
-                                assert("number" === typeof reason);
+                                assert(typeof reason === "number");
                                 assert(reason < 10);
                                 done();
                             } catch (e) {
@@ -368,7 +368,7 @@ describe("compatibility/promise", function () {
                         callbacks = [];
                     function resolveOrRejectAfter (value) {
                         return new PromiseClass(function (resolve, reject) {
-                            if (5 === value) {
+                            if (value === 5) {
                                 callbacks.push(reject.bind(null, value));
                             } else {
                                 callbacks.push(resolve.bind(null, value));
@@ -383,8 +383,8 @@ describe("compatibility/promise", function () {
                             assert(false);
                         })["catch"](function (reason) {
                             try {
-                                assert("number" === typeof reason);
-                                assert(5 === reason);
+                                assert(typeof reason === "number");
+                                assert(reason === 5);
                                 callbacks[9](); // Ignored
                                 done();
                             } catch (e) {
@@ -429,8 +429,8 @@ describe("compatibility/promise", function () {
                     });
                 PromiseClass.all([branch1, branch2])
                     .then(function (values) {
-                        assert(7 === values[0]);
-                        assert(6 === values[1]);
+                        assert(values[0] === 7);
+                        assert(values[1] === 6);
                         done();
                     })["catch"](function (e) {
                         done(e);
