@@ -280,7 +280,7 @@ describe("fs", function () {
 
             it("does not return a file storage interface", function () {
                 var iFileStorage = gpf.fs.getFileStorage();
-                assert(null === iFileStorage);
+                assert(iFileStorage === null);
             });
 
         }
