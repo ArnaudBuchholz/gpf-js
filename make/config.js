@@ -109,7 +109,7 @@ const
 
     askForSelenium = () => {
         let confirmation;
-        if (quietMode || 0 === Object.keys(config.content.browsers).length) {
+        if (quietMode || Object.keys(config.content.browsers).length === 0) {
             confirmation = Promise.resolve({confirmed: true});
             console.log("Detecting browsers compatible with selenium".gray);
         } else {
@@ -172,7 +172,7 @@ const
 
     askForCmdLineBrowsers = () => {
         let confirmation;
-        if (quietMode || 0 === Object.keys(config.content.browsers).length) {
+        if (quietMode || Object.keys(config.content.browsers).length === 0) {
             confirmation = Promise.resolve({confirmed: true});
             console.log("Detecting browsers compatible with command line use".gray);
         } else {
@@ -216,13 +216,13 @@ Promise.resolve()
                 config.content.serve.httpPort = answers.port;
                 return askIfHostInstalledOrDetect("cscript");
             })
-            .then(answers => "Autodetect" === answers.choice ? detectWScript() : "Yes" === answers.choice)
+            .then(answers => answers.choice === "Autodetect" ? detectWScript() : answers.choice === "Yes")
     )
     .then(wscriptInstalled => {
         config.content.host.wscript = wscriptInstalled;
         return askIfHostInstalledOrDetect("java");
     })
-    .then(answers => "Autodetect" === answers.choice ? detectJava() : "Yes" === answers.choice)
+    .then(answers => answers.choice === "Autodetect" ? detectJava() : answers.choice === "Yes")
     .then(javaInstalled => {
         config.content.host.java = javaInstalled;
         if (javaInstalled) {
