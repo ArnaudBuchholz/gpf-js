@@ -12,11 +12,11 @@ describe("compatibility", function () {
         array[2] = undefined;
         array[3] = 3;
         method.call(array, function (value, idx) {
-            assert(2 === idx || 3 === idx);
-            if (2 === idx) {
+            assert(idx === 2 || idx === 3);
+            if (idx === 2) {
                 assert(undefined === value);
             } else {
-                assert(3 === value);
+                assert(value === 3);
             }
         });
     }
@@ -34,8 +34,8 @@ describe("compatibility", function () {
                             sum += value;
                             return true;
                         });
-                        assert(true === result);
-                        assert(10 === sum);
+                        assert(result === true);
+                        assert(sum === 10);
                     },
                     "must return false when it stops on a given item": function (method) {
                         var array = [1, 2, 3, -6, 10],
@@ -48,8 +48,8 @@ describe("compatibility", function () {
                             }
                             return false;
                         });
-                        assert(false === result);
-                        assert(6 === sum);
+                        assert(result === false);
+                        assert(sum === 6);
                     },
                     "must iterate with a bound context": function (method) {
                         var array = [1, 2, 3, -6, 10],
@@ -68,9 +68,9 @@ describe("compatibility", function () {
                             }
                             return false;
                         }, scope);
-                        assert(false === result);
-                        assert(6 === scope.sum);
-                        assert(3 === scope.index);
+                        assert(result === false);
+                        assert(scope.sum === 6);
+                        assert(scope.index === 3);
                     },
                     "must ignore undefined members": arrayMethodShouldIgnoreUndefined
                 },
@@ -105,12 +105,12 @@ describe("compatibility", function () {
                     "must iterate": function (method) {
                         var array = [1, 2, 3],
                             sum = 0;
-                        assert("function" === typeof array.forEach);
+                        assert(typeof array.forEach === "function");
                         assert(!array.hasOwnProperty("forEach"));
                         method.call(array, function (value) {
                             sum += value;
                         });
-                        assert(6 === sum);
+                        assert(sum === 6);
                     },
                     "must iterate with a bound context": function (method) {
                         var array = [1, 2, 3],
@@ -120,7 +120,7 @@ describe("compatibility", function () {
                         method.call(array, function (value) {
                             this.sum += value; //eslint-disable-line no-invalid-this
                         }, obj);
-                        assert(6 === obj.sum);
+                        assert(obj.sum === 6);
                     },
                     "must ignore undefined members": arrayMethodShouldIgnoreUndefined
                 },
@@ -129,11 +129,11 @@ describe("compatibility", function () {
                     "must expose indexOf()": function (method) {
                         var obj = {},
                             array = [1, 2, 3, obj, "abc"];
-                        assert(-1 === method.call(array, 4));
-                        assert(0 === method.call(array, 1));
-                        assert(3 === method.call(array, obj));
-                        assert(-1 === method.call(array, {}));
-                        assert(4 === method.call(array, "abc"));
+                        assert(method.call(array, 4) === -1);
+                        assert(method.call(array, 1) === 0);
+                        assert(method.call(array, obj) === 3);
+                        assert(method.call(array, {}) === -1);
+                        assert(method.call(array, "abc") === 4);
                     }
                 },
                 map: {
@@ -142,7 +142,7 @@ describe("compatibility", function () {
                         var obj = {},
                             array = [1, 2, 3, obj, "abc"],
                             result;
-                        assert("function" === typeof array.map);
+                        assert(typeof array.map === "function");
                         assert(!array.hasOwnProperty("map"));
                         result = method.call(array, function (value, idx) {
                             assert(this === obj); //eslint-disable-line no-invalid-this
@@ -166,7 +166,7 @@ describe("compatibility", function () {
                             ++lastIndex;
                             return previousValue + currentValue;
                         }
-                        assert(10 === method.call(array, reducer));
+                        assert(method.call(array, reducer) === 10);
                     },
                     "must reduce with intial value": function (method) {
                         var array = [0, 1, 2, 3, 4],
@@ -177,22 +177,22 @@ describe("compatibility", function () {
                             ++lastIndex;
                             return previousValue + currentValue;
                         }
-                        assert(20 === method.call(array, reducer, 10));
+                        assert(method.call(array, reducer, 10) === 20);
                     }
                 },
                 some: {
                     length: 1,
                     "returns false when all members return false": function (method) {
                         var array = [2, 5, 8, 1, 4];
-                        assert(false === method.call(array, function (element) {
+                        assert(method.call(array, function (element) {
                             return element > 10;
-                        }));
+                        }) === false);
                     },
                     "returns true when at least one member returns true": function (method) {
                         var array = [12, 5, 8, 1, 4];
-                        assert(true === method.call(array, function (element) {
+                        assert(method.call(array, function (element) {
                             return element > 10;
-                        }));
+                        }) === true);
                     }
                 },
                 from: {
@@ -204,48 +204,48 @@ describe("compatibility", function () {
                         }
                         var result = f(1, 2, 3);
                         assert(result instanceof Array);
-                        assert(3 === result.length);
-                        assert(1 === result[0]);
-                        assert(2 === result[1]);
-                        assert(3 === result[2]);
+                        assert(result.length === 3);
+                        assert(result[0] === 1);
+                        assert(result[1] === 2);
+                        assert(result[2] === 3);
                     },
                     "works on strings": function (method) {
                         var result = method.call(Array, "foo");
                         assert(result instanceof Array);
-                        assert(3 === result.length);
-                        assert("f" === result[0]);
-                        assert("o" === result[1]);
-                        assert("o" === result[2]);
+                        assert(result.length === 3);
+                        assert(result[0] === "f");
+                        assert(result[1] === "o");
+                        assert(result[2] === "o");
                     },
                     "supports callback mapping": function (method) {
                         var result = method.call(Array, [1, 2, 3], function (value) {
                             return value + value;
                         });
                         assert(result instanceof Array);
-                        assert(3 === result.length);
-                        assert(2 === result[0]);
-                        assert(4 === result[1]);
-                        assert(6 === result[2]);
+                        assert(result.length === 3);
+                        assert(result[0] === 2);
+                        assert(result[1] === 4);
+                        assert(result[2] === 6);
                     },
                     "generates a sequence of numbers": function (method) {
                         var result = method.call(Array, {length: 3}, function (x, index) {
                             return index;
                         });
                         assert(result instanceof Array);
-                        assert(3 === result.length);
-                        assert(0 === result[0]);
-                        assert(1 === result[1]);
-                        assert(2 === result[2]);
+                        assert(result.length === 3);
+                        assert(result[0] === 0);
+                        assert(result[1] === 1);
+                        assert(result[2] === 2);
                     }
                 },
                 isArray: {
                     isStatic: true,
                     length: 1,
                     "detects an array": function (method) {
-                        assert(true === method.call(Array, []));
+                        assert(method.call(Array, []) === true);
                     },
                     "rejects other objects": function (method) {
-                        assert(false === method.call(Array, {length: 0}));
+                        assert(method.call(Array, {length: 0}) === false);
                     }
                 }
             },
@@ -268,18 +268,18 @@ describe("compatibility", function () {
                         bound = method.call(testFunction, scope);
                         // Check the scope when calling bound
                         bound(true);
-                        assert(true === scope.member);
+                        assert(scope.member === true);
                         // Ignore applied scope when bound
                         bound.call({}, false);
-                        assert(false === scope.member);
+                        assert(scope.member === false);
                     },
                     "must return the same result": function (method) {
                         function testFunction (value) {
                             return value;
                         }
                         var boundFunction = method.call(testFunction, {});
-                        assert(false === boundFunction(false));
-                        assert(true === boundFunction(true));
+                        assert(boundFunction(false) === false);
+                        assert(boundFunction(true) === true);
                     },
                     "must preserve function signature": function (method) {
                         function f1 (a, b, c) {
@@ -358,7 +358,7 @@ describe("compatibility", function () {
                             }
                         });
                         assert(!object.hasOwnProperty("method"));
-                        assert("function" === typeof object.method);
+                        assert(typeof object.method === "function");
                         assert(object.method() === "myMethod");
                     },
                     "is compatible with instanceof": function (method) {
@@ -434,18 +434,18 @@ describe("compatibility", function () {
                             keys = method.call(Object, obj);
                         assert(keys.length === 3);
                         // Order is not guaranteed
-                        assert(-1 < keys.indexOf("0"));
-                        assert(-1 < keys.indexOf("1"));
-                        assert(-1 < keys.indexOf("2"));
+                        assert(keys.indexOf("0") > -1);
+                        assert(keys.indexOf("1") > -1);
+                        assert(keys.indexOf("2") > -1);
                     },
                     "returns list of indexes of an array like object with random key ordering": function (method) {
                         var obj = {100: "a", 2: "b", 7: "c"},
                             keys = method.call(Object, obj);
                         assert(keys.length === 3);
                         // Order is not guaranteed
-                        assert(-1 < keys.indexOf("2"));
-                        assert(-1 < keys.indexOf("7"));
-                        assert(-1 < keys.indexOf("100"));
+                        assert(keys.indexOf("2") > -1);
+                        assert(keys.indexOf("7") > -1);
+                        assert(keys.indexOf("100") > -1);
                     },
                     "returns list of own keys of an object": function (method) {
                         function MyObject () {}
@@ -470,26 +470,26 @@ describe("compatibility", function () {
                             values = method.call(Object, obj);
                         assert(values.length === 2);
                         // Order is not guaranteed
-                        assert(-1 < values.indexOf("bar"));
-                        assert(-1 < values.indexOf(42));
+                        assert(values.indexOf("bar") > -1);
+                        assert(values.indexOf(42) > -1);
                     },
                     "returns list of values of an array-like object": function (method) {
                         var obj = {0: "a", 1: "b", 2: "c"},
                             values = method.call(Object, obj);
                         assert(values.length === 3);
                         // Order is not guaranteed
-                        assert(-1 < values.indexOf("a"));
-                        assert(-1 < values.indexOf("b"));
-                        assert(-1 < values.indexOf("c"));
+                        assert(values.indexOf("a") > -1);
+                        assert(values.indexOf("b") > -1);
+                        assert(values.indexOf("c") > -1);
                     },
                     "returns list of values of an array like object with random key ordering": function (method) {
                         var obj = {100: "a", 2: "b", 7: "c"},
                             values = method.call(Object, obj);
                         assert(values.length === 3);
                         // Order is not guaranteed
-                        assert(-1 < values.indexOf("a"));
-                        assert(-1 < values.indexOf("b"));
-                        assert(-1 < values.indexOf("c"));
+                        assert(values.indexOf("a") > -1);
+                        assert(values.indexOf("b") > -1);
+                        assert(values.indexOf("c") > -1);
                     },
                     "returns list of own values of an object": function (method) {
                         function MyObject () {}
@@ -512,7 +512,7 @@ describe("compatibility", function () {
                     length: 0,
                     "must trim left and right": function (method) {
                         var string = " \t  abc\t \t";
-                        assert("abc" === method.call(string));
+                        assert(method.call(string) === "abc");
                     }
                 },
                 endsWith: {
@@ -534,7 +534,7 @@ describe("compatibility", function () {
                     length: 0,
                     "converts to UTC string": function (method) {
                         var date = new Date("2003-01-22T22:45:00.000Z");
-                        assert("2003-01-22T22:45:00.000Z" === method.call(date));
+                        assert(method.call(date) === "2003-01-22T22:45:00.000Z");
                     }
                 },
                 now: {
@@ -543,7 +543,7 @@ describe("compatibility", function () {
                     "Gives current time": function (method) {
                         var usualNow = new Date().getTime(),
                             dateNow = method.call(Date);
-                        assert("number" === typeof dateNow);
+                        assert(typeof dateNow === "number");
                         assert(usualNow <= dateNow);
                     }
                 }
@@ -562,15 +562,15 @@ describe("compatibility", function () {
         var baseLabel = "must expose the method " + methodName;
         if (sample instanceof Function) {
             it(baseLabel, function () {
-                assert("function" === typeof sample[methodName]);
+                assert(typeof sample[methodName] === "function");
             });
         } else {
             it(baseLabel + " through prototype", function () {
-                assert("function" === typeof sample[methodName]);
+                assert(typeof sample[methodName] === "function");
                 assert(!sample.hasOwnProperty(methodName));
             });
         }
-        if (-1 !== arity) {
+        if (arity !== -1) {
             it(baseLabel + " with an expected arity of " + arity, function () {
                 assert(sample[methodName].length === arity);
             });
@@ -612,14 +612,14 @@ describe("compatibility", function () {
             var Constructor = constructors[type],
                 sample,
                 label;
-            if (true === methodTests.isStatic) {
+            if (methodTests.isStatic === true) {
                 sample = Constructor;
             } else {
                 sample = new Constructor();
             }
             shouldExpose(sample, methodName, methodTests.length);
             for (label in methodTests) {
-                if (methodTests.hasOwnProperty(label) && "function" === typeof methodTests[label]) {
+                if (methodTests.hasOwnProperty(label) && typeof methodTests[label] === "function") {
                     addTest({
                         type: type,
                         sample: sample,
@@ -650,17 +650,17 @@ describe("compatibility", function () {
             it("must allow building an array with a given size", function () {
                 var array = new Array(5),
                     idx;
-                assert(5 === array.length);
+                assert(array.length === 5);
                 for (idx = 0; idx < 5; ++idx) {
                     assert(undefined === array[idx]);
                 }
-                assert("    " === array.join(" "));
+                assert(array.join(" ") === "    ");
             });
 
             it("provides standard slice", function () {
                 var fruits = ["Banana", "Orange", "Lemon", "Apple", "Mango"],
                     citrus = fruits.slice(1, 3);
-                assert(2 === citrus.length);
+                assert(citrus.length === 2);
                 assert(citrus[0] === "Orange");
                 assert(citrus[1] === "Lemon");
             });
@@ -681,8 +681,8 @@ describe("compatibility", function () {
                 var thisName = Function("value", "return value;"); //eslint-disable-line no-new-func
                 /*jshint +W061*/
                 /*jshint +W064*/
-                assert(1 === thisName.length);
-                assert(123 === thisName(123));
+                assert(thisName.length === 1);
+                assert(thisName(123) === 123);
             });
 
             it("must detect undefined parameter", function () {
@@ -749,22 +749,22 @@ describe("compatibility", function () {
 
             it("accepts UTC string", function () {
                 var date = new Date("2003-01-22T22:45:00.000Z");
-                assert(2003 === date.getUTCFullYear());
-                assert(0 === date.getUTCMonth());
-                assert(22 === date.getUTCDate());
-                assert(22 === date.getUTCHours());
-                assert(45 === date.getUTCMinutes());
-                assert(0 === date.getUTCSeconds());
+                assert(date.getUTCFullYear() === 2003);
+                assert(date.getUTCMonth() === 0);
+                assert(date.getUTCDate() === 22);
+                assert(date.getUTCHours() === 22);
+                assert(date.getUTCMinutes() === 45);
+                assert(date.getUTCSeconds() === 0);
             });
 
             it("accepts a date only", function () {
                 var date = new Date("2003-01-22");
-                assert(2003 === date.getUTCFullYear());
-                assert(0 === date.getUTCMonth());
-                assert(22 === date.getUTCDate());
-                assert(0 === date.getUTCHours());
-                assert(0 === date.getUTCMinutes());
-                assert(0 === date.getUTCSeconds());
+                assert(date.getUTCFullYear() === 2003);
+                assert(date.getUTCMonth() === 0);
+                assert(date.getUTCDate() === 22);
+                assert(date.getUTCHours() === 0);
+                assert(date.getUTCMinutes() === 0);
+                assert(date.getUTCSeconds() === 0);
             });
 
         });
@@ -849,24 +849,24 @@ describe("compatibility", function () {
 
                 it("detects and leverage ISO 8601 format", function () {
                     var date = new _GpfDate("2003-01-22T22:45:34.075Z");
-                    assert(2003 === date.getUTCFullYear());
-                    assert(0 === date.getUTCMonth());
-                    assert(22 === date.getUTCDate());
-                    assert(22 === date.getUTCHours());
-                    assert(45 === date.getUTCMinutes());
-                    assert(34 === date.getUTCSeconds());
-                    assert(75 === date.getUTCMilliseconds());
+                    assert(date.getUTCFullYear() === 2003);
+                    assert(date.getUTCMonth() === 0);
+                    assert(date.getUTCDate() === 22);
+                    assert(date.getUTCHours() === 22);
+                    assert(date.getUTCMinutes() === 45);
+                    assert(date.getUTCSeconds() === 34);
+                    assert(date.getUTCMilliseconds() === 75);
                 });
 
                 it("detects and leverage ISO 8601 short format", function () {
                     var date = new _GpfDate("2003-01-22");
-                    assert(2003 === date.getUTCFullYear());
-                    assert(0 === date.getUTCMonth());
-                    assert(22 === date.getUTCDate());
-                    assert(0 === date.getUTCHours());
-                    assert(0 === date.getUTCMinutes());
-                    assert(0 === date.getUTCSeconds());
-                    assert(0 === date.getUTCMilliseconds());
+                    assert(date.getUTCFullYear() === 2003);
+                    assert(date.getUTCMonth() === 0);
+                    assert(date.getUTCDate() === 22);
+                    assert(date.getUTCHours() === 0);
+                    assert(date.getUTCMinutes() === 0);
+                    assert(date.getUTCSeconds() === 0);
+                    assert(date.getUTCMilliseconds() === 0);
                 });
 
                 /*jshint +W055*/
