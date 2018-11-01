@@ -22,7 +22,7 @@ gpf.require.define({
         getDynamicContent: function () {
             return gpf.http.get("/tmp/plato/report.json")
                 .then(function (response) {
-                    if (404 === response.status) {
+                    if (response.status === 404) {
                         return [];
                     }
                     return JSON.parse(response.responseText);
