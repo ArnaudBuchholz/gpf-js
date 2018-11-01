@@ -78,7 +78,7 @@ class File extends FileSystemItem {
         const
             buffer = Buffer.alloc(size),
             count = fs.readSync(this._getFileDescriptor(), buffer, 0, size, null);
-        this._streamNotEnded = 0 !== count;
+        this._streamNotEnded = count !== 0;
         return buffer.toString().substring(0, count);
     }
 
