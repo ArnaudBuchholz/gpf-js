@@ -2,7 +2,8 @@
 
 module.exports = {
     options: {
-        rulePaths: [".eslintrules"]
+        rulePaths: [".eslintrules"],
+        fix: true
     },
     target: configuration.files.linting.js
 };
