@@ -10,16 +10,16 @@
         sources,
         context = (function () {
             /*global global*/ // NodeJS global
-            if ("object" === typeof global) {
+            if (typeof global === "object") {
                 return global;
             }
             /*global window*/ // Browser global
-            if ("undefined" !== typeof window) {
+            if (typeof window !== "undefined") {
                 return window;
             }
             return safeFunc("return this;")();
         }()),
-        noTimeout = "undefined" === typeof setTimeout,
+        noTimeout = typeof setTimeout === "undefined",
 
         _resolvePath = function (configuration, relativePath) {
             return configuration.gpfPath
@@ -38,9 +38,9 @@
                 if (value.charAt(0) === "-") {
                     value = value.substr(1);
                     option = options[value];
-                    if ("boolean" === typeof option) {
+                    if (typeof option === "boolean") {
                         options[value] = !option; // Simple switch
-                    } else if ("function" === typeof option) {
+                    } else if (typeof option === "function") {
                         option.call(options);
                     }
                 } else {
@@ -73,7 +73,7 @@
                 context.gpf = configuration.require(path);
             } else {
                 _load(configuration, path);
-                if ("undefined" === typeof gpf) {
+                if (typeof gpf === "undefined") {
                     configuration.log("GPF was not loaded");
                     configuration.exit(-1);
                 }
@@ -280,14 +280,14 @@
             }
             function callback (type, data) {
                 var statistics;
-                if ("it" === type) {
+                if (type === "it") {
                     if (!data.result) {
                         _perfError(configuration, data);
                         maxLoop = 0; // Stop
                     }
-                } else if ("results" === type) {
+                } else if (type === "results") {
                     statistics = ["Round ", _pad(loop, 9), ": ", _pad(data.timeSpent, 5), "ms "];
-                    if (1 === loop) {
+                    if (loop === 1) {
                         statistics.push("(ignored)");
                     } else {
                         measures.push(data.timeSpent);
@@ -337,10 +337,10 @@
         _runBDDForCoverage = function (configuration, options, verbose) {
             verbose("Running BDD - coverage");
             run(function (type, data) {
-                if ("it" === type && !data.result) {
+                if (type === "it" && !data.result) {
                     configuration.log("KO: " + data.context.slice(1) + " " + data.label);
                 }
-                if ("results" !== type) {
+                if (type !== "results") {
                     return;
                 }
                 if (data.fail) {
@@ -400,7 +400,7 @@
         },
 
         _checkFlavor = function (configuration, options) {
-            if (options.tests.length === 1 && 0 === options.tests[0].indexOf("flavor:")) {
+            if (options.tests.length === 1 && options.tests[0].indexOf("flavor:") === 0) {
                 _loadFlavor(configuration, options);
             }
         };
