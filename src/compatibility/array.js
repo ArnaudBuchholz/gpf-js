@@ -33,7 +33,7 @@ function _gpfArrayEveryOwn (array, callback, startIdx) {
     var len = array.length,
         idx = startIdx;
     while (idx < len) {
-        if (array.hasOwnProperty(idx) && true !== callback(array[idx], idx, array)) {
+        if (array.hasOwnProperty(idx) && callback(array[idx], idx, array) !== true) {
             return false;
         }
         ++idx;
@@ -59,7 +59,7 @@ function _gpfArrayFromString (array, string) {
 
 function _gpfArrayConvertFrom (arrayLike) {
     var array = [];
-    if ("string" === typeof arrayLike) {
+    if (typeof arrayLike === "string") {
         // Required for cscript
         _gpfArrayFromString(array, arrayLike);
     } else {
@@ -73,7 +73,7 @@ function _gpfArrayConvertFrom (arrayLike) {
 function _gpfArrayFrom (arrayLike) {
     var array = _gpfArrayConvertFrom(arrayLike),
         callback = arguments[1];
-    if ("function" === typeof callback) {
+    if (typeof callback === "function") {
         array = array.map(callback, arguments[2]);
     }
     return array;
@@ -165,7 +165,7 @@ _gpfCompatibilityInstallMethods("Array", {
 
         // Introduced with JavaScript 1.8.5
         isArray: function (arrayLike) {
-            return "[object Array]" === {}.toString.call(arrayLike);
+            return {}.toString.call(arrayLike) === "[object Array]";
         }
 
     }
