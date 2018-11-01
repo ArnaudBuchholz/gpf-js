@@ -74,7 +74,7 @@ describe("serial/property", function () {
 
             values
                 .filter(function (value) {
-                    return "boolean" !== typeof value;
+                    return typeof value !== "boolean";
                 })
                 .forEach(function (invalidRequired) {
                     it("rejects invalid 'required' (" + JSON.stringify(invalidRequired) + ")", function () {
