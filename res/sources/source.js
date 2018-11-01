@@ -178,17 +178,17 @@ gpf.require.define({}, function () {
             if (!this._load) {
                 return false;
             }
-            if ("test" === propertyName) {
+            if (propertyName === "test") {
                 return this._test;
             }
             return true;
         },
 
         setProperty: function (propertyName, value) {
-            if ("load" === propertyName) {
+            if (propertyName === "load") {
                 return this._setLoad(value);
             }
-            if ("test" === propertyName) {
+            if (propertyName === "test") {
                 return this._setTest(value);
             }
         },
