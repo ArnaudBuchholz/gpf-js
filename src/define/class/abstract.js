@@ -50,7 +50,7 @@ Object.assign(_GpfClassDefinition.prototype, {
     _abstract: false,
 
     _check$abstract: function (value) {
-        if (true !== value) {
+        if (value !== true) {
             gpf.Error.invalidClass$AbstractSpecification();
         }
     },
