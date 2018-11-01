@@ -71,7 +71,7 @@ var
 // Unprotected version of _gpfFunc
 function _gpfFuncUnsafe (params, source) {
     var args;
-    if (0 === params.length) {
+    if (params.length === 0) {
         return _GpfFunc(source);
     }
     args = [].concat(params);
@@ -91,7 +91,7 @@ function _gpfFuncImplDocumentError (e, params, source) {
 
 // Protected version of _gpfFunc
 function _gpfFuncImpl (params, source) {
-    _gpfAssert("string" === typeof source && source.length, "Source expected (or use _gpfEmptyFunc)");
+    _gpfAssert(typeof source === "string" && source.length, "Source expected (or use _gpfEmptyFunc)");
     /*#ifdef(DEBUG)*/
     try {
         /*#endif*/
@@ -141,7 +141,7 @@ function _gpfIsInRange (value, min, max) {
  */
 // Returns true if the value is an unsigned byte
 function _gpfIsUnsignedByte (value) {
-    return "number" === typeof value && _gpfIsInRange(value, 0, 255);
+    return typeof value === "number" && _gpfIsInRange(value, 0, 255);
 }
 
 /**
