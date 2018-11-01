@@ -28,7 +28,7 @@ var
          */
         constructor: function (stream, close) {
             this._stream = stream;
-            if ("function" === typeof close) {
+            if (typeof close === "function") {
                 this._close = close;
             }
             stream.on("error", this._onError.bind(this));
