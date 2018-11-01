@@ -27,7 +27,7 @@ const
         const
             filePath = file.path,
             data = [],
-            flag = "POST" === request.method ? "w" : "a";
+            flag = request.method === "POST" ? "w" : "a";
         request
             .on("data", chunk => {
                 data.push(chunk);
@@ -63,7 +63,7 @@ const
 
 module.exports = (request, response, next) => {
 
-    if (0 !== request.url.indexOf(BASE_URL)) {
+    if (request.url.indexOf(BASE_URL) !== 0) {
         return next();
     }
 
@@ -71,14 +71,14 @@ module.exports = (request, response, next) => {
         basePath = path.join(__dirname, "../.."),
         filePath;
 
-    if (-1 === ["GET", "PUT", "POST", "OPTIONS", "DELETE"].indexOf(method)) {
+    if (["GET", "PUT", "POST", "OPTIONS", "DELETE"].indexOf(method) === -1) {
         response.statusCode = 500;
         response.end("Invalid method");
         return;
     }
 
     filePath = path.join(basePath, request.url.substr(BASE_URL.length));
-    if (-1 !== path.relative(basePath, filePath).indexOf("..")) {
+    if (path.relative(basePath, filePath).indexOf("..") !== -1) {
         response.statusCode = 403;
         response.end("Path is forbidden: " + path.relative(__dirname, filePath));
         return;
