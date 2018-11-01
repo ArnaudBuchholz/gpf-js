@@ -33,7 +33,7 @@ function _gpfSerialRawFrom (instance, raw, converter) {
  * @since 0.2.8
  */
 gpf.serial.fromRaw = function (instance, raw, converter) {
-    if ("function" === typeof instance) {
+    if (typeof instance === "function") {
         gpf.Error.invalidParameter();
     }
     _gpfSerialRawFrom(instance, raw, converter);
