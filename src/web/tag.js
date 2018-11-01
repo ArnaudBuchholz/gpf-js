@@ -175,7 +175,7 @@ function _gpfWebGetNamespaceAndName (name) {
  * @since 0.2.2
  */
 function _gpfWebCheckNamespaceSafe (name) {
-    if (-1 !== name.indexOf(":")) {
+    if (name.indexOf(":") !== -1) {
         gpf.Error.unableToUseNamespaceInString();
     }
 }
