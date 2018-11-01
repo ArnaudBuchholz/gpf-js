@@ -12,7 +12,7 @@
 /*#endif*/
 
 function _pad (number) {
-    if (10 > number) {
+    if (number < 10) {
         return "0" + number;
     }
     return number;
@@ -117,7 +117,7 @@ function _gpfProcessISO8601MatchResult (matchResult) {
  * @since 0.1.5
  */
 function _gpfIsISO8601String (value) {
-    if ("string" === typeof value) {
+    if (typeof value === "string") {
         _gpfISO8601RegExp.lastIndex = 0;
         return _gpfProcessISO8601MatchResult(_gpfISO8601RegExp.exec(value));
     }
