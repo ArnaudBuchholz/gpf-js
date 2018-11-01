@@ -45,7 +45,6 @@ const
     },
 
     configuration = ruleName => {
-        if (ruleName === "no-extend-native") debugger;
         const
             ruleConfiguration = eslintrc.rules[ruleName],
             documented = hasDocumentation(ruleName);
