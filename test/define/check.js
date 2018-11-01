@@ -57,17 +57,17 @@ describe("define/check", function () {
                     $class: "Test"
                 });
                 assert(definition instanceof _GpfEntityDefinition);
-                assert("class" === definition._type);
-                assert("Test" === definition._name);
+                assert(definition._type === "class");
+                assert(definition._name === "Test");
             });
 
             it("converts $class into _type, _name and _namespace (absolute)", function () {
                 var definition = _gpfDefineBuildTypedEntity({
                     $class: "gpf.test.Test"
                 });
-                assert("class" === definition._type);
-                assert("Test" === definition._name);
-                assert("gpf.test" === definition._namespace);
+                assert(definition._type === "class");
+                assert(definition._name === "Test");
+                assert(definition._namespace === "gpf.test");
             });
 
             it("converts $class into _type, _name and _namespace (relative)", function () {
@@ -75,9 +75,9 @@ describe("define/check", function () {
                     $class: "test.Test",
                     $namespace: "gpf"
                 });
-                assert("class" === definition._type);
-                assert("Test" === definition._name);
-                assert("gpf.test" === definition._namespace);
+                assert(definition._type === "class");
+                assert(definition._name === "Test");
+                assert(definition._namespace === "gpf.test");
             });
 
             it("prioritize $class over $name", function () {
@@ -85,8 +85,8 @@ describe("define/check", function () {
                     $class: "Test",
                     $name: "Any"
                 });
-                assert("class" === definition._type);
-                assert("Test" === definition._name);
+                assert(definition._type === "class");
+                assert(definition._name === "Test");
             });
 
             it("validates namespace", function () {
