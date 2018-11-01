@@ -87,7 +87,7 @@ const
 
             pre: (ast, optimizer) => {
                 optimizer.inc("function", ast.name, "useCount");
-                if (optimizer.retrieve("nop", ast.name) && "CallExpression" === getAstParent(ast).type) {
+                if (optimizer.retrieve("nop", ast.name) && getAstParent(ast).type === "CallExpression") {
                     optimizer.link("nop", ast.name, getAstParent(getAstParent(ast)));
                 }
             },
@@ -246,7 +246,7 @@ class Optimizer {
             members
                 .forEach(member => {
                     let astMember = ast[member];
-                    if ("object" === typeof astMember && astMember) {
+                    if (typeof astMember === "object" && astMember) {
                         astMember[parent$] = {
                             ast: ast,
                             member: member
@@ -260,7 +260,7 @@ class Optimizer {
     _process (ast, method) {
         if (Array.isArray(ast)) {
             ast.forEach((astItem) => {
-                if ("object" === typeof astItem && astItem) {
+                if (typeof astItem === "object" && astItem) {
                     astItem[parent$] = ast[parent$];
                     this._process(astItem, method);
                 }
