@@ -8,16 +8,16 @@ describe("string/escapefor", function () {
             var _gpfStringEscapeFor = gpf.internals._gpfStringEscapeFor;
 
             it("escapes for JavaScript", function () {
-                assert("\"abc\\r\\ndef\"" === _gpfStringEscapeFor("abc\r\ndef", "javascript"));
+                assert(_gpfStringEscapeFor("abc\r\ndef", "javascript") === "\"abc\\r\\ndef\"");
             });
 
             it("escapes for xml", function () {
-                assert("&lt;a&amp;b&gt;" === _gpfStringEscapeFor("<a&b>", "xml"));
+                assert(_gpfStringEscapeFor("<a&b>", "xml") === "&lt;a&amp;b&gt;");
             });
 
             it("escapes for html", function () {
-                assert("&lt;a&amp;b:&eacute;&egrave;&ecirc;&aacute;&agrave;&gt;"
-                    === _gpfStringEscapeFor("<a&b:\u00E9\u00E8\u00EA\u00E1\u00E0>", "html"));
+                assert(_gpfStringEscapeFor("<a&b:\u00E9\u00E8\u00EA\u00E1\u00E0>", "html")
+                    === "&lt;a&amp;b:&eacute;&egrave;&ecirc;&aacute;&agrave;&gt;");
             });
 
         });
