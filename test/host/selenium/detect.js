@@ -43,7 +43,7 @@ function detect (browser) {
 
         try {
             var driver = buildWebDriverFor(browser);
-            if (null === driver) {
+            if (driver === null) {
                 throw new Error("Driver missing for '" + browser + "'");
             }
             driver.quit().then(function () {
