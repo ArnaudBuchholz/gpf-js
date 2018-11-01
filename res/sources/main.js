@@ -35,7 +35,7 @@ gpf.require.define({
         var index = source.getIndex(),
             name = sources.byIndex(index).getName();
 
-        if (0 !== name.indexOf("host/")) {
+        if (name.indexOf("host/") !== 0) {
             gpf.http.options("/fs/test/" + name + ".js")
                 .then(function (response) {
                     if (response.status === 200) {
@@ -144,19 +144,19 @@ gpf.require.define({
         },
 
         dragover: function (event, targetRow) {
-            if (-1 < targetRow.className.indexOf("drag-ok")) {
+            if (targetRow.className.indexOf("drag-ok") > -1) {
                 event.preventDefault(); // allowed
             }
         },
 
         dragenter: function (event, targetRow) {
-            if (-1 === targetRow.className.indexOf(" over")) {
+            if (targetRow.className.indexOf(" over") === -1) {
                 targetRow.className += " over";
             }
         },
 
         dragleave: function (event, targetRow) {
-            if (-1 !== targetRow.className.indexOf(" over")) {
+            if (targetRow.className.indexOf(" over") !== -1) {
                 targetRow.className = targetRow.className.split(" ")[0];
             }
         },
@@ -181,12 +181,12 @@ gpf.require.define({
                 contentFullNameLength = contentFullName.length;
             if (contentFullNameLength > 3 && contentFullName.indexOf(".js") === contentFullNameLength - 3) {
                 contentFullName = contentFullName.substr(0, contentFullNameLength - 3);
-                if ("obsolete" === checkDictionary[contentFullName]) {
+                if (checkDictionary[contentFullName] === "obsolete") {
                     checkDictionary[contentFullName] = "exists";
                 } else {
                     checkDictionary[contentFullName] = "new";
                 }
-            } else if (-1 === name.indexOf(".")) {
+            } else if (name.indexOf(".") === -1) {
                 subPromises.push(gpf.http.get("/fs/src/" + contentFullName)
                     .then(function (response) {
                         return JSON.parse(response.responseText);
@@ -196,7 +196,7 @@ gpf.require.define({
                     }));
             }
         });
-        if (0 === subPromises.length) {
+        if (subPromises.length === 0) {
             return Promise.resolve();
         }
         return Promise.all(subPromises);
@@ -215,9 +215,9 @@ gpf.require.define({
                 return;
             }
             source = sources.byName(sourceRow.id);
-            if ("checkbox" === target.getAttribute("type")) {
+            if (target.getAttribute("type") === "checkbox") {
                 onCheckboxClick(target, source);
-            } else if (-1 !== target.className.indexOf("delete")) {
+            } else if (target.className.indexOf("delete") !== -1) {
                 onDelete(source);
             }
         },
