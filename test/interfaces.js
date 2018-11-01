@@ -7,14 +7,14 @@ describe("interfaces", function () {
     describe("gpf.interfaces.IUnknown", function () {
 
         it("exists", function () {
-            assert("function" === typeof gpf.interfaces.IUnknown);
+            assert(typeof gpf.interfaces.IUnknown === "function");
         });
 
         it("is an interface", function () {
             var exceptionCaught;
             try {
                 var instance = new gpf.interfaces.IUnknown();
-                assert("function" === typeof instance.queryInterface);
+                assert(typeof instance.queryInterface === "function");
             } catch (e) {
                 exceptionCaught = e;
             }
@@ -40,55 +40,55 @@ describe("interfaces", function () {
         });
 
         it("validates literal objects (using interface constructor)", function () {
-            assert(true === gpf.interfaces.isImplementedBy(gpf.interfaces.IUnknown, {
+            assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IUnknown, {
                 queryInterface: function (oneParameter) {
                     return oneParameter;
                 }
-            }));
+            }) === true);
         });
 
         it("validates instances from a raw JavaScript class (using interface name)", function () {
             var obj = new TestRawClass();
-            assert(true === gpf.interfaces.isImplementedBy("gpf.interfaces.IUnknown", obj));
+            assert(gpf.interfaces.isImplementedBy("gpf.interfaces.IUnknown", obj) === true);
         });
 
         it("validates a raw JavaScript class", function () {
-            assert(true === gpf.interfaces.isImplementedBy("gpf.interfaces.IUnknown", TestRawClass));
+            assert(gpf.interfaces.isImplementedBy("gpf.interfaces.IUnknown", TestRawClass) === true);
         });
 
         it("validates instances from a GPF class", function () {
             var obj = new TestGPFClass();
-            assert(true === gpf.interfaces.isImplementedBy(gpf.interfaces.IUnknown, obj));
+            assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IUnknown, obj) === true);
         });
 
         it("validates a GPF class", function () {
-            assert(true === gpf.interfaces.isImplementedBy(gpf.interfaces.IUnknown, TestGPFClass));
+            assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IUnknown, TestGPFClass) === true);
         });
 
         [false, null, undefined, 0, NaN, ""].forEach(function (falsyValue) {
             it("rejects " + JSON.stringify(falsyValue), function () {
-                assert(false === gpf.interfaces.isImplementedBy("gpf.interfaces.IUnknown", falsyValue));
+                assert(gpf.interfaces.isImplementedBy("gpf.interfaces.IUnknown", falsyValue) === false);
             });
         });
 
         it("rejects member if not a method", function () {
-            assert(false === gpf.interfaces.isImplementedBy("gpf.interfaces.IUnknown", {
+            assert(gpf.interfaces.isImplementedBy("gpf.interfaces.IUnknown", {
                 queryInterface: "Not a method"
-            }));
+            }) === false);
         });
 
         it("rejects member if parameters count does not match (none)", function () {
-            assert(false === gpf.interfaces.isImplementedBy("gpf.interfaces.IUnknown", {
+            assert(gpf.interfaces.isImplementedBy("gpf.interfaces.IUnknown", {
                 queryInterface: function () {}
-            }));
+            }) === false);
         });
 
         it("rejects member if parameters count does not match (more)", function () {
-            assert(false === gpf.interfaces.isImplementedBy(gpf.interfaces.IUnknown, {
+            assert(gpf.interfaces.isImplementedBy(gpf.interfaces.IUnknown, {
                 queryInterface: function (a, b, c) {
                     return a + b + c;
                 }
-            }));
+            }) === false);
         });
 
     });
@@ -119,16 +119,16 @@ describe("interfaces", function () {
         });
 
         it("returns null if IUnknown is implemented but not the expected interface", function () {
-            assert(null === gpf.interfaces.query(ITest, {
+            assert(gpf.interfaces.query(ITest, {
                 queryInterface: function (oneParameter) {
                     _ignore(oneParameter);
                     return null; // Because this is the expected interface
                 }
-            }));
+            }) === null);
         });
 
         it("uses IUnknown to get the expected interface", function () {
-            assert(null !== gpf.interfaces.query(ITest, {
+            assert(gpf.interfaces.query(ITest, {
                 queryInterface: function (interfaceSpecifier) {
                     assert(interfaceSpecifier === ITest);
                     return {
@@ -137,7 +137,7 @@ describe("interfaces", function () {
                         }
                     };
                 }
-            }));
+            }) !== null);
         });
 
         it("returns undefined if neither the expected interface or IUnknown are implemented", function () {
