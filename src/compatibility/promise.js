@@ -53,7 +53,7 @@ var _gpfPromiseResolve;
 function _gpfPromiseResolveChainIfFunction (newValue, then) {
     /*jshint validthis:true*/
     var me = this; //eslint-disable-line no-invalid-this
-    if ("function" === typeof then) {
+    if (typeof then === "function") {
         _gpfPromiseSafeResolve(then.bind(newValue), _gpfPromiseResolve.bind(me), _gpfPromiseReject.bind(me));
         return true;
     }
@@ -112,7 +112,7 @@ function _gpfPromiseAsyncProcess (promise) {
     var me = this; //eslint-disable-line no-invalid-this
     var callback = _gpfPromiseGetCallbackFromState(me, promise),
         result;
-    if (null === callback) {
+    if (callback === null) {
         return _gpfPromiseSettleFromState(me, promise);
     }
     try {
@@ -221,7 +221,7 @@ function _gpfPromiseAllHandle (result, index) {
 }
 
 _GpfPromise.all = function (promises) {
-    if (0 === promises.length) {
+    if (promises.length === 0) {
         return _GpfPromise.resolve([]);
     }
     return new _GpfPromise(function (resolve, reject) {
