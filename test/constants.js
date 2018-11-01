@@ -12,7 +12,7 @@ describe("constants", function () {
                     if (obj.hasOwnProperty(property)) {
                         assert(property.charAt(0) !== "_");
                         value = obj[property];
-                        if ("object" === typeof value && -1 === done.indexOf(value)) {
+                        if (typeof value === "object" && done.indexOf(value) === -1) {
                             done.push(value);
                             check(value, done);
                         }
@@ -23,20 +23,20 @@ describe("constants", function () {
         });
 
         it("should expose a version", function () {
-            assert("function" === typeof gpf.version);
-            assert("string" === typeof gpf.version());
+            assert(typeof gpf.version === "function");
+            assert(typeof gpf.version() === "string");
             var version = gpf.version();
             // Expected format MAJOR.MINOR[d]
-            assert(-1 !== version.indexOf("."));
-            assert(null !== version.match(/[0-9]+\.[0-9]+d?/));
+            assert(version.indexOf(".") !== -1);
+            assert(version.match(/[0-9]+\.[0-9]+d?/) !== null);
         });
 
         it("should expose the host type", function () {
-            assert("function" === typeof gpf.host);
-            assert("string" === typeof gpf.host());
+            assert(typeof gpf.host === "function");
+            assert(typeof gpf.host() === "string");
             var host = gpf.host();
             // Must be one of these
-            assert(-1 !== [
+            assert([
                 gpf.hosts.browser,
                 gpf.hosts.nashorn,
                 gpf.hosts.nodejs,
@@ -44,7 +44,7 @@ describe("constants", function () {
                 gpf.hosts.rhino,
                 gpf.hosts.unknown,
                 gpf.hosts.wscript
-            ].indexOf(host));
+            ].indexOf(host) !== -1);
         });
 
         describe("gpf.hosts enumeration", function () {
@@ -80,11 +80,11 @@ describe("constants", function () {
                 var value = parseInt(stringValue, 10);
                 if (expectedResult) {
                     it("accepts " + stringValue, function () {
-                        assert(true === _gpfIsUnsignedByte(value));
+                        assert(_gpfIsUnsignedByte(value) === true);
                     });
                 } else {
                     it("rejects " + stringValue, function () {
-                        assert(false === _gpfIsUnsignedByte(value));
+                        assert(_gpfIsUnsignedByte(value) === false);
                     });
                 }
             });
