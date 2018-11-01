@@ -197,9 +197,9 @@ var // List of converters
     _gpfCreateFilterTypes = Object.keys(_gpfCreateFilterConverters);
 
 function _gpfCreateFilterGetType (specification) {
-    if ("object" === typeof specification) {
+    if (typeof specification === "object") {
         return Object.keys(specification).filter(function (property) {
-            return -1 < _gpfCreateFilterTypes.indexOf(property);
+            return _gpfCreateFilterTypes.indexOf(property) > -1;
         })[0];
     }
 }
