@@ -59,7 +59,7 @@ function _gpfJsonStringifyObjectMembers (object, replacer, space) {
 }
 
 function _gpfJsonStringifyObject (object, replacer, space) {
-    if (null === object) {
+    if (object === null) {
         return "null";
     }
     return _gpfJsonStringifyObjectMembers(object, replacer, space);
@@ -82,7 +82,7 @@ _gpfJsonStringifyMapping = {
 };
 
 function _gpfJsonStringifyGetReplacerFunction (replacer) {
-    if ("function" === typeof replacer) {
+    if (typeof replacer === "function") {
         return replacer;
     }
     return function (key, value) {
@@ -103,7 +103,7 @@ function _gpfJsonStringifyCheckReplacer (replacer) {
 }
 
 function _gpfJsonStringifyCheckSpaceValue (space) {
-    if ("number" === typeof space) {
+    if (typeof space === "number") {
         return new Array(Math.min(space, 10) + 1).join(" ");
     }
     return space || "";
