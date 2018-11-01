@@ -47,7 +47,7 @@ describe("stream/filter", function () {
                 .then(function () {
                     throw new Error("Not expected");
                 }, function (reason) {
-                    assert("KO" === reason);
+                    assert(reason === "KO");
                     done();
                 })["catch"](done);
         });
