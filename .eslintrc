@@ -66,6 +66,7 @@
         "no-with":                      2,
         "radix":                        2,
         "wrap-iife":                    [2, "outside"],
+        "yoda":                         2,
 
         "strict":                       [2, "global"],
 
