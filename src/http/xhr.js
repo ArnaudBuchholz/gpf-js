@@ -26,7 +26,7 @@ function _gpfHttpXhrOpen (request) {
 
 function _gpfHttpXhrWaitForCompletion (xhr, callback) {
     xhr.onreadystatechange = function () {
-        if (4 === xhr.readyState) {
+        if (xhr.readyState === 4) {
             callback();
         }
     };
