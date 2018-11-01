@@ -14,7 +14,7 @@ gpf.require.define({
     var dom = require.dom,
         tiles = Object.keys(require)
             .filter(function (name) {
-                return 0 === name.indexOf("tile:");
+                return name.indexOf("tile:") === 0;
             })
             .map(function (name) {
                 return new require[name]();
@@ -47,7 +47,7 @@ gpf.require.define({
         while (target && !(link = target.getAttribute && target.getAttribute("link"))) {
             target = target.parentNode;
         }
-        if ("host" === link) {
+        if (link === "host") {
             var versionSelect = document.getElementById("hostsVersion"),
                 version = versionSelect.options[versionSelect.selectedIndex].value,
                 envName = target.innerHTML;
