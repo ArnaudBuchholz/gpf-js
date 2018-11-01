@@ -191,7 +191,7 @@ gpf.require.define({
             this._checkDictionary = checkDictionary;
             var newSources = Object.keys(checkDictionary)
                 .filter(function (name) {
-                    return "new" === checkDictionary[name];
+                    return checkDictionary[name] === "new";
                 })
                 .map(function (name) {
                     return new Source(this, {
@@ -221,7 +221,7 @@ gpf.require.define({
         save: function () {
             return gpf.http.post("/fs/src/sources.json", this.toString())
                 .then(function (answer) {
-                    if (500 === answer.status) {
+                    if (answer.status === 500) {
                         return dialogs.error(answer.responseText);
                     }
                 });
