@@ -22,7 +22,7 @@ gpf.require.define({
         getDynamicContent: function () {
             return gpf.http.get("/tmp/coverage/reports/coverage.json")
                 .then(function (response) {
-                    if (404 === response.status) {
+                    if (response.status === 404) {
                         return [];
                     }
                     return JSON.parse(response.responseText);
@@ -39,7 +39,7 @@ gpf.require.define({
                         } else {
                             statusClassName = "ok";
                         }
-                        if (100 === ratio) {
+                        if (ratio === 100) {
                             ratio = "100.0";
                         }
                         return dom.div({
