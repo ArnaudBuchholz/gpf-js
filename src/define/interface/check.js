@@ -61,7 +61,7 @@ Object.assign(_GpfInterfaceDefinition.prototype, {
      * @since 0.1.8
      */
     _checkMemberValue: function (name, value) {
-        if ("function" !== typeof value) {
+        if (typeof value !== "function") {
             gpf.Error.invalidInterfaceProperty();
         }
     },
