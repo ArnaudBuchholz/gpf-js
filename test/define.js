@@ -64,8 +64,8 @@ describe("define", function () {
     describe("gpf.define", function () {
 
         it("accepts only one parameter", function () {
-            assert("function" === typeof gpf.define);
-            assert(1 === gpf.define.length);
+            assert(typeof gpf.define === "function");
+            assert(gpf.define.length === 1);
         });
 
         describe("Common validation", function () {
@@ -171,8 +171,8 @@ describe("define", function () {
                 });
 
                 it("exposes methods", function () {
-                    assert("function" === typeof a.getMember);
-                    assert("defaultValue" === a.getMember());
+                    assert(typeof a.getMember === "function");
+                    assert(a.getMember() === "defaultValue");
                 });
 
                 describe("Subclassing", function () {
@@ -304,7 +304,7 @@ describe("define", function () {
                                 }
                             }),
                             c = new C();
-                        assert("valueOfB-inB" === c.testMethod());
+                        assert(c.testMethod() === "valueOfB-inB");
                     });
                 });
 
