@@ -149,7 +149,7 @@ let
     metricsSection;
 
 readmeSections.every((section, index) => {
-    if (0 === section.indexOf(" Metrics")) {
+    if (section.indexOf(" Metrics") === 0) {
         metricsSectionIndex = index;
         return false;
     }
