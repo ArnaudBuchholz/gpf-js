@@ -48,7 +48,7 @@
                 "function ", _nameOfWrite, "(t){__r.push(__s(t));}"
             ];
         _reExpressions.lastIndex = 0;
-        while (null !== (token = _reExpressions.exec(baseHtml))) {
+        while ((token = _reExpressions.exec(baseHtml)) !== null) {
             matchedValue = token[0];
             if (matchedValue.charAt(0) !== "{") {
                 // html code
