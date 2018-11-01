@@ -59,7 +59,7 @@ var _PartStatistics = _class(_noop, {
      * Only skip (Boolean) is tested
      */
     _testedOrIgnored: function (numberOfCall, partDefinition) {
-        if (0 < numberOfCall) {
+        if (numberOfCall > 0) {
             ++this.tested;
         } else if (partDefinition.skip) {
             ++this.ignored;
@@ -101,7 +101,7 @@ var _PartStatistics = _class(_noop, {
      * @return {Number} Coverage ratio in percent
      */
     getCoverageRatio: function (rounded) {
-        if (0 === this.count) {
+        if (this.count === 0) {
             return 100;
         }
         return this._toPercent(this.tested + this.ignored, this.count, rounded);
@@ -112,7 +112,7 @@ var _PartStatistics = _class(_noop, {
      * @return {Number} Ignored ratio in percent
      */
     getIgnoredRatio: function (rounded) {
-        if (0 === this.count) {
+        if (this.count === 0) {
             return 0;
         }
         return this._toPercent(this.ignored, this.count, rounded);
