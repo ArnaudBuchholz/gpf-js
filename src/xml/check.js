@@ -129,7 +129,7 @@ var
     _gpfXmlCheckValidNamespacePrefixName = _gpfXmlCheckBuildSimple(_gpfXmlNamespacePrefixRegExp, "NamespacePrefix");
 
 function _gpfXmlCheckNoXmlns (prefix) {
-    if ("xmlns" === prefix) {
+    if (prefix === "xmlns") {
         gpf.Error.invalidXmlUseOfPrefixXmlns();
     }
 }
@@ -148,7 +148,7 @@ function _gpfXmlCheckIfKnownPrefix (prefix, knownPrefixes) {
 
 function _gpfXmlCheckQualifiedElementNameAndPrefix (name, prefix, knownPrefixes) {
     _gpfXmlCheckQualifiedNameAndPrefix(name, prefix);
-    if ("xml" === prefix) {
+    if (prefix === "xml") {
         gpf.Error.invalidXmlUseOfPrefixXml();
     } else {
         _gpfXmlCheckIfKnownPrefix(prefix, knownPrefixes);
@@ -158,7 +158,7 @@ function _gpfXmlCheckQualifiedElementNameAndPrefix (name, prefix, knownPrefixes)
 function _gpfXmlCheckGetQualified (noPrefixCheck, nameAndPrefixCheck) {
     return function (qName, knownPrefixes) {
         var sep = qName.indexOf(":");
-        if (-1 === sep) {
+        if (sep === -1) {
             noPrefixCheck(qName);
         } else {
             nameAndPrefixCheck(qName.substr(sep + 1), qName.substr(0, sep), knownPrefixes);
@@ -180,14 +180,14 @@ var _gpfXmlCheckQualifiedElementName = _gpfXmlCheckGetQualified(_gpfXmlCheckVali
     _gpfXmlCheckQualifiedElementNameAndPrefix);
 
 function _gpfXmlCheckOnlyXmlSpace (name) {
-    if ("space" !== name) {
+    if (name !== "space") {
         gpf.Error.invalidXmlUseOfPrefixXml();
     }
 }
 
 function _gpfXmlCheckQualifiedAttributeNameAndPrefix (name, prefix, knownPrefixes) {
     _gpfXmlCheckQualifiedNameAndPrefix(name, prefix);
-    if ("xml" === prefix) {
+    if (prefix === "xml") {
         _gpfXmlCheckOnlyXmlSpace(name);
     } else {
         _gpfXmlCheckIfKnownPrefix(prefix, knownPrefixes);
@@ -219,7 +219,7 @@ var _gpfXmlCheckQualifiedAttributeName = _gpfXmlCheckGetQualified(_gpfXmlCheckVa
 function _gpfXmlCheckDefinableNamespacePrefixName (name) {
     _gpfXmlCheckValidNamespacePrefixName(name);
     _gpfXmlCheckNoXmlns(name);
-    if ("xml" === name) {
+    if (name === "xml") {
         gpf.Error.invalidXmlUseOfPrefixXml();
     }
 }
