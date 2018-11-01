@@ -42,7 +42,7 @@ const
 
 module.exports = (request, response, next) => {
 
-    if (0 !== request.url.indexOf(BASE_URL)) {
+    if (request.url.indexOf(BASE_URL) !== 0) {
         return next();
     }
 
