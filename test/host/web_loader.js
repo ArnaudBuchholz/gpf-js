@@ -124,7 +124,7 @@
     // Actively wait for GPF to be loaded
     function _waitForLoad (callback) {
         // Check if the GPF library is loaded
-        if ("undefined" === typeof gpf) {
+        if (typeof gpf === "undefined") {
             if (--_MAX_WAIT) {
                 setTimeout(function () {
                     _waitForLoad(callback);
@@ -191,11 +191,11 @@
     function _getVersionParameters () {
         var locationSearch = location.search,
             version;
-        if ("undefined" !== typeof gpfFlavors) {
+        if (typeof gpfFlavors !== "undefined") {
             _addFlavors();
         }
         for (version in _versions) {
-            if (_versions.hasOwnProperty(version) && -1 !== locationSearch.indexOf(version)) {
+            if (_versions.hasOwnProperty(version) && locationSearch.indexOf(version) !== -1) {
                 return _versions[version];
             }
         }
@@ -248,7 +248,7 @@
     window.afterRun = function (data) {
         var promise;
         // Store coverage data first
-        if ("undefined" === typeof __coverage__) {
+        if (typeof __coverage__ === "undefined") {
             promise = Promise.resolve();
         } else {
             promise = xhr("/fs/tmp/coverage/reports/coverage.browser.json").post(JSON.stringify(__coverage__));
