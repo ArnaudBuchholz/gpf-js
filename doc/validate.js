@@ -33,7 +33,7 @@ const
         }
         return gpf.http[method.toLowerCase()](url).then(response => {
             processed[url] = response;
-            if (-1 === [200, 301, 302].indexOf(response.status)) {
+            if ([200, 301, 302].indexOf(response.status) === -1) {
                 ++errors;
                 console.error(method.magenta, url.magenta, response.status.toString().red);
                 return;
@@ -45,7 +45,7 @@ const
             const baseUrl = gpf.path.extension(url) ? gpf.path.parent(url) : url;
             response.responseText.replace(/href="([^"]+)"/g, function (text, multilineSubUrl) {
                 var subUrl = multilineSubUrl.replace(/\r|\n/g, "");
-                if (0 === subUrl.indexOf("http")) {
+                if (subUrl.indexOf("http") === 0) {
                     // Absolute
                     enqueue({
                         method: "HEAD",
