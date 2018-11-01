@@ -127,7 +127,7 @@ ruleFilenames
         const
             flag = (value, mark) => value ? mark : " ",
             category = rule.meta.docs.category;
-        if (0 === index || rules[index - 1].meta.docs.category !== category) {
+        if (index === 0 || rules[index - 1].meta.docs.category !== category) {
             console.log(category);
         }
         checkForInvalidUse(rule);
