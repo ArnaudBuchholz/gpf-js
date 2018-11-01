@@ -120,12 +120,12 @@ const
             // type: { names: [ 'String' ] }
             let codeType = doclet.meta.code.type,
                 type;
-            if ("Literal" === codeType) {
+            if (codeType === "Literal") {
                 type = typeof doclet.meta.code.value;
                 type = type.charAt(0).toUpperCase() + type.substr(1);
-            } else if ("ArrayExpression" === codeType) {
+            } else if (codeType === "ArrayExpression") {
                 type = "Array";
-            } else if ("ObjectExpression" === codeType) {
+            } else if (codeType === "ObjectExpression") {
                 type = "Object";
             }
             doclet.type = {names: [type || "Unknown"]};
@@ -134,7 +134,7 @@ const
 
     checkAccess = doclet => {
         if (!doclet.access) {
-            doclet.access = "_" === doclet.name.charAt(0) ? "private" : "public";
+            doclet.access = doclet.name.charAt(0) === "_" ? "private" : "public";
         }
     },
 
@@ -279,7 +279,7 @@ const
         rePrototypeAssign.lastIndex = 0;
         let match = rePrototypeAssign.exec(event.source);
         while (match) {
-            if (-1 === match[0].indexOf("@lends")) {
+            if (match[0].indexOf("@lends") === -1) {
                 // No @lends, adds it
                 event.source = event.source.replace(match[0],
                     match[0].replace("{", `/** @lends ${match[1]}.prototype */ {`));
@@ -308,10 +308,10 @@ const
             return false;
         }
         return ancestor
-            && "ExpressionStatement" === ancestor.type
-            && "CallExpression" === ancestor.expression.type
-            && "_gpfErrorDeclare" === ancestor.expression.callee.name
-            && "Property" === node.type;
+            && ancestor.type === "ExpressionStatement"
+            && ancestor.expression.type === "CallExpression"
+            && ancestor.expression.callee.name === "_gpfErrorDeclare"
+            && node.type === "Property";
     },
 
     visitNode = (node, e/*, parser, currentSourceName*/) => { //eslint-disable-line max-params
