@@ -12,8 +12,8 @@
                 xhr.setRequestHeader(headerName, request._headers[headerName]);
             });
             xhr.onreadystatechange = function () {
-                if (4 === xhr.readyState) {
-                    if (2 === Math.floor(xhr.status / 100)) {
+                if (xhr.readyState === 4) {
+                    if (Math.floor(xhr.status / 100) === 2) {
                         resolve(xhr.responseText);
                     } else {
                         reject(xhr.statusText);
