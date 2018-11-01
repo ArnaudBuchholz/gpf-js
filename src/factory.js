@@ -17,7 +17,7 @@
  * @since 0.1.5
  */
 function _gpfBuildFunctionParameterList (count) {
-    if (0 === count) {
+    if (count === 0) {
         return [];
     }
     return new Array(count).join(" ").split(" ").map(function (value, index) {
