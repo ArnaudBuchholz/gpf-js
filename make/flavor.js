@@ -3,9 +3,9 @@
 function categorize (tags) {
     return tags.split(" ").reduce(function (categorized, tag) {
         if (tag) {
-            if (0 === tag.indexOf("host:")) {
+            if (tag.indexOf("host:") === 0) {
                 categorized.hosts.push(tag.substr(5));
-            } else if ("-" === tag.charAt(0)) {
+            } else if (tag.charAt(0) === "-") {
                 categorized.excluded.push(tag.substr(1));
             } else {
                 categorized.features.push(tag);
@@ -26,7 +26,7 @@ function intersect (array1, array2) {
 }
 
 function includeCore (tags) {
-    return -1 !== tags.features.indexOf("core");
+    return tags.features.indexOf("core") !== -1;
 }
 
 function includeFeature (tags, requested) {
@@ -43,7 +43,7 @@ function includeHost (tags, requested) {
 
 function includeRequestedSources (sources, requested) {
     return sources.map(function (source) {
-        if (-1 !== requested.excluded.indexOf(source.name)) {
+        if (requested.excluded.indexOf(source.name) !== -1) {
             return false;
         }
         var tags = categorize(source.tags || ""),
@@ -55,7 +55,7 @@ function includeRequestedSources (sources, requested) {
         }
         shouldIncludeFeature = includeFeature(tags, requested);
         // Featured sources that are not explicitely requested are discarded
-        if (false === shouldIncludeFeature) {
+        if (shouldIncludeFeature === false) {
             return shouldIncludeFeature;
         }
         // Process host relevant sources
@@ -87,14 +87,14 @@ function getFlavor (sources, dependencies, request) {
         features = [].concat(requested.features),
         featureSetChanged = false;
     function allow (dependency) {
-        if (-1 !== requested.excluded.indexOf(dependency)) {
+        if (requested.excluded.indexOf(dependency) !== -1) {
             return;
         }
         var sourceIndex = getSourceIndex(sources, dependency),
             tags = categorize(sources[sourceIndex].tags || "");
         // Process dependant features
         tags.features.forEach(function (feature) {
-            if (-1 === features.indexOf(feature)) {
+            if (features.indexOf(feature) === -1) {
                 features.push(feature);
                 featureSetChanged = true;
             }
