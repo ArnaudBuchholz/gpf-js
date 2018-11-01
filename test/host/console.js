@@ -24,14 +24,14 @@
                 expectedText,
                 expectedOutput,
                 matchingText;
-            if (0 !== expected.length) {
+            if (expected.length !== 0) {
                 expectedName = expected.shift();
                 expectedText = expected.shift();
                 expectedOutput = expected.shift();
             }
             if (expectedText instanceof RegExp) {
                 expectedText.lastIndex = 0;
-                matchingText = null !== expectedText.exec(text);
+                matchingText = expectedText.exec(text) !== null;
             } else {
                 matchingText = expectedText === text;
             }
@@ -45,7 +45,7 @@
             }
         }
         return function (text) {
-            if (!text || -1 < text.indexOf("\x1B")) {
+            if (!text || text.indexOf("\x1B") > -1) {
                 // Escape sequence used, must be a mocha output
                 consoleMethods[name].apply(console, arguments);
                 return;
