@@ -85,7 +85,7 @@ _gpfErrorDeclare("define/class/check", {
  * @since 0.1.6
  */
 function _gpfDefineClassDecontextifyExtend (extend) {
-    if ("string" === typeof extend) {
+    if (typeof extend === "string") {
         return _gpfContext(extend.split("."));
     }
     return extend;
@@ -119,7 +119,7 @@ Object.assign(_GpfClassDefinition.prototype, {
      * @since 0.1.7
      */
     _checkConstructorMember: function (constructorValue) {
-        if ("function" !== typeof constructorValue) {
+        if (typeof constructorValue !== "function") {
             gpf.Error.invalidClassConstructor();
         }
     },
@@ -162,7 +162,7 @@ Object.assign(_GpfClassDefinition.prototype, {
      * @since 0.1.7
      */
     _checkMemberValue: function (name, value) {
-        if ("constructor" === name) {
+        if (name === "constructor") {
             this._checkConstructorMember(value);
         } else {
             this._checkIfOverriddenMember(name, value);
@@ -216,7 +216,7 @@ Object.assign(_GpfClassDefinition.prototype, {
      * @since 0.1.8
      */
     _checkExtendIsNotAnInterface: function () {
-        if (-1 !== _gpfEmptyFunc.toString.call(this._extend).indexOf("interfaceConstructorFunction")) {
+        if (_gpfEmptyFunc.toString.call(this._extend).indexOf("interfaceConstructorFunction") !== -1) {
             gpf.Error.invalidClassExtend();
         }
     },
@@ -228,7 +228,7 @@ Object.assign(_GpfClassDefinition.prototype, {
      * @since 0.1.6
      */
     _checkExtend: function () {
-        if ("function" !== typeof this._extend) {
+        if (typeof this._extend !== "function") {
             gpf.Error.invalidClassExtend();
         }
         this._checkExtendIsNotAnInterface();
