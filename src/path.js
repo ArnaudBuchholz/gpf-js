@@ -36,7 +36,7 @@ _gpfErrorDeclare("path", {
 //region _gpfPathDecompose
 
 function _gpfPathSplit (path) {
-    if (-1 < path.indexOf("\\")) {
+    if (path.indexOf("\\") > -1) {
         // DOS path is case insensitive, hence lowercase it
         return path.toLowerCase().split("\\");
     }
@@ -109,7 +109,7 @@ function _gpfPathName (path) {
 function _gpfPathExtension (path) {
     var name = _gpfPathName(path),
         pos = name.lastIndexOf(".");
-    if (-1 === pos) {
+    if (pos === -1) {
         return "";
     }
     return name.substr(pos);
@@ -250,7 +250,7 @@ gpf.path = {
     nameOnly: function (path) {
         var name = _gpfPathName(path),
             pos = name.lastIndexOf(".");
-        if (-1 === pos) {
+        if (pos === -1) {
             return name;
         }
         return name.substr(0, pos);
