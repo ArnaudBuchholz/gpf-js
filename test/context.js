@@ -8,8 +8,8 @@ describe("context", function () {
         var safeFunc = Function; // Avoid linter warnings
 
         it("resolves the global context", function () {
-            assert("function" === typeof gpf.context);
-            assert(null !== gpf.context());
+            assert(typeof gpf.context === "function");
+            assert(gpf.context() !== null);
             // Known and testable contexts
             if (gpf.hosts.browser === gpf.host()) {
                 assert(window === gpf.context());
