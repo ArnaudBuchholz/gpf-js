@@ -16,7 +16,7 @@ var commandLineParameters,
 commandLineParameters = arguments;
 /* jshint ignore:end */
 
-if ("undefined" === typeof readFile) {
+if (typeof readFile === "undefined") {
     // Nashorn
     readApi = function (path) {
         return [].join.call(java.nio.file.Files.readAllLines(java.nio.file.Paths.get(path)), "\n");
