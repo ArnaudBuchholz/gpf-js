@@ -62,7 +62,7 @@ _gpfErrorDeclare("require", {
  * @since 0.2.2
  */
 function _gpfRequireOptionPriority (name) {
-    if ("clearCache" === name) {
+    if (name === "clearCache") {
         return -1;
     }
     return 1;
@@ -179,7 +179,7 @@ function _gpfRequireDefine (dependencies, factory) {
         .then(function (resources) {
             var result,
                 require;
-            if ("function" === typeof factory) {
+            if (typeof factory === "function") {
                 require = {};
                 _gpfArrayForEach(keys, function (key, index) {
                     require[key] = resources[index];
