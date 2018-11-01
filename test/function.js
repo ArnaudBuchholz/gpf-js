@@ -62,15 +62,15 @@ describe("function", function () {
 
             it("builds an empty anonymous function", function () {
                 var func = _gpfFunctionBuild({});
-                assert("function" === typeof func);
-                assert("" === func.compatibleName());
+                assert(typeof func === "function");
+                assert(func.compatibleName() === "");
             });
 
             it("builds a named function", function () {
                 var func = _gpfFunctionBuild({
                     name: "test"
                 });
-                assert("test" === func.compatibleName());
+                assert(func.compatibleName() === "test");
             });
 
             it("builds a function with named parameters", function () {
@@ -78,8 +78,8 @@ describe("function", function () {
                     parameters: ["a", "b", "c"],
                     body: "return a + b + c;"
                 });
-                assert(3 === func.length);
-                assert(6 === func(1, 2, 3));
+                assert(func.length === 3);
+                assert(func(1, 2, 3) === 6);
             });
 
             it("builds a function with external context", function () {
@@ -88,8 +88,8 @@ describe("function", function () {
                 }, {
                     a: "Hello World!"
                 });
-                assert(0 === func.length);
-                assert("Hello World!" === func());
+                assert(func.length === 0);
+                assert(func() === "Hello World!");
             });
 
         });
