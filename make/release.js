@@ -247,7 +247,7 @@ inquirer.prompt(setupQuestions)
         message: "Please check the version: ",
         "default": version
             .split(".")
-            .map((digit, index) => 2 === index ? parseInt(digit, 10) + 1 : digit)
+            .map((digit, index) => index === 2 ? parseInt(digit, 10) + 1 : digit)
             .join(".") + "-alpha"
     }]))
     .then(answers => {
