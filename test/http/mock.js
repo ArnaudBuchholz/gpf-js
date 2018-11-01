@@ -9,15 +9,15 @@ describe("gpf.http.mock", function () {
     });
 
     it("exposes a method to mock requests", function () {
-        assert("function" === typeof gpf.http.mock);
+        assert(typeof gpf.http.mock === "function");
     });
 
     it("exposes a method to remove one specific mocking", function () {
-        assert("function" === typeof gpf.http.mock.remove);
+        assert(typeof gpf.http.mock.remove === "function");
     });
 
     it("exposes a method to reset all mocking", function () {
-        assert("function" === typeof gpf.http.mock.reset);
+        assert(typeof gpf.http.mock.reset === "function");
     });
 
     describe("Simple mocking example", function () {
@@ -59,7 +59,7 @@ describe("gpf.http.mock", function () {
             })["catch"](done);
         });
 
-        if (0 === config.httpPort) {
+        if (config.httpPort === 0) {
             return;
         }
 
