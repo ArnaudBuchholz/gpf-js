@@ -3,12 +3,12 @@
 describe("http", function () {
 
     it("knows config.httpPort", function () {
-        assert("object" === typeof config && "number" === typeof config.httpPort);
+        assert(typeof config === "object" && typeof config.httpPort === "number");
     });
 
     describe("gpf.http", function () {
 
-        if (0 === config.httpPort) {
+        if (config.httpPort === 0) {
             it("is not tested in this environment because config.httpPorty = 0", function () {
                 assert(true);
             });
