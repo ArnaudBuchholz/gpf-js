@@ -48,7 +48,7 @@ const
         const
             configFile = new ConfigFile(),
             hosts = ["phantomjs"];
-        if (0 !== Object.keys(configFile.content.browsers).length) {
+        if (Object.keys(configFile.content.browsers).length !== 0) {
             hosts.push("browser");
         }
         if (configFile.content.host.java) {
@@ -71,7 +71,7 @@ module.exports = function (grunt) {
     grunt.registerTask("mergeCoverage", () => {
         let coverage = grunt.file.readJSON("tmp/coverage/reports/coverage.json");
         getHosts()
-            .map(host => "nodewscript" === host ? "wscript" : host)
+            .map(host => host === "nodewscript" ? "wscript" : host)
             .forEach(host => {
                 try {
                     let hostCoverage = grunt.file.readJSON(`tmp/coverage/reports/coverage.${host}.json`);
@@ -90,7 +90,7 @@ module.exports = function (grunt) {
                 instrumentedLines = fs.readFileSync(srcPath).toString().split("\n"),
                 // Assuming the __cov_ variable is on the second line
                 secondLine = instrumentedLines[1];
-            if (0 === secondLine.indexOf("var ")) {
+            if (secondLine.indexOf("var ") === 0) {
                 instrumentedLines[1] = `global.${secondLine.substr(4)}`;
                 fs.writeFileSync(srcPath, instrumentedLines.join("\n"));
                 console.log(`${fileName} updated`);
@@ -108,7 +108,7 @@ module.exports = function (grunt) {
 
     ].concat(getHosts()
         .filter(host => host !== "browser")
-        .map(host => "phantomjs" === host ? "phantom" : host)
+        .map(host => host === "phantomjs" ? "phantom" : host)
         .map(host => `exec:test${tools.capitalize(host)}Coverage`)
     );
 
