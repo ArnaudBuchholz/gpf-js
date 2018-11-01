@@ -147,7 +147,7 @@ var _gpfSyncReadForBoot;
 /* Host detection */
 
 // Microsoft cscript / wscript
-if ("undefined" !== typeof WScript) {
+if (typeof WScript !== "undefined") {
     _gpfHost = _GPF_HOST.WSCRIPT;
 
     /*#ifndef(UMD)*/
@@ -165,9 +165,9 @@ if ("undefined" !== typeof WScript) {
     /*eslint-enable new-cap*/
     /*#endif*/
 
-} else if ("undefined" !== typeof print && "undefined" !== typeof java) {
+} else if (typeof print !== "undefined" && typeof java !== "undefined") {
 
-    if ("undefined" === typeof readFile) {
+    if (typeof readFile === "undefined") {
         _gpfHost = _GPF_HOST.NASHORN;
 
         /*#ifndef(UMD)*/
@@ -190,7 +190,7 @@ if ("undefined" !== typeof WScript) {
     }
 
 // PhantomJS - When used as a command line (otherwise considered as a browser)
-} else if ("undefined" !== typeof phantom && phantom.version && !document.currentScript) {
+} else if (typeof phantom !== "undefined" && phantom.version && !document.currentScript) {
     _gpfHost = _GPF_HOST.PHANTOMJS;
     _gpfMainContext = window;
 
@@ -205,7 +205,7 @@ if ("undefined" !== typeof WScript) {
     /*#endif*/
 
 // Nodejs
-} else if ("undefined" !== typeof module && module.exports) {
+} else if (typeof module !== "undefined" && module.exports) {
     _gpfHost = _GPF_HOST.NODEJS;
     _gpfMainContext = global;
 
@@ -222,7 +222,7 @@ if ("undefined" !== typeof WScript) {
 
 // Browser
 /* istanbul ignore else */ // unknown.1
-} else if ("undefined" !== typeof window) {
+} else if (typeof window !== "undefined") {
     _gpfHost = _GPF_HOST.BROWSER;
     _gpfMainContext = window;
 
