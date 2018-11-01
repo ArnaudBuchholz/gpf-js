@@ -15,7 +15,7 @@ const
 
     config = (cmd, ...options) => {
         let objectCmd;
-        if ("string" === typeof cmd || "function" === typeof cmd) {
+        if (typeof cmd === "string" || typeof cmd === "function") {
             objectCmd = {
                 cmd: cmd
             };
@@ -107,9 +107,9 @@ Object.keys(configuration.browsers).forEach(browserName =>{
     const
         browserConfig = configuration.browsers[browserName],
         capitalizedBrowserName = tools.capitalize(browserName);
-    if ("selenium" === browserConfig.type) {
+    if (browserConfig.type === "selenium") {
         testConfig(capitalizedBrowserName, "node", `test/host/selenium.js ${browserName}`);
-    } else if ("spawn" === browserConfig.type) {
+    } else if (browserConfig.type === "spawn") {
         testConfig(capitalizedBrowserName, "node", `test/host/browser.js ${browserName}`);
     }
 });
