@@ -6,7 +6,7 @@ describe("read", function () {
 
     before(function () {
         if (gpf.host() === gpf.hosts.browser) {
-            if (0 === config.httpPort) {
+            if (config.httpPort === 0) {
                 // published version
                 data = "/gpf/test-resources/data";
             } else {
