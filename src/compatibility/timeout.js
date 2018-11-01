@@ -46,7 +46,7 @@ function _gpfSortOnDt (a, b) {
 }
 
 function _gpSetTimeoutPolyfill (callback, timeout) {
-    _gpfAssert("number" === typeof timeout, "Timeout is required");
+    _gpfAssert(typeof timeout === "number", "Timeout is required");
     var timeoutItem = {
         id: ++_gpfTimeoutID,
         dt: new Date().getTime() + timeout,
