@@ -45,7 +45,7 @@ Object.assign(_GpfClassDefinition.prototype, {
     _singletonInstance: null,
 
     _check$singleton: function (value) {
-        if (true !== value) {
+        if (value !== true) {
             gpf.Error.invalidClass$SingletonSpecification();
         }
     },
