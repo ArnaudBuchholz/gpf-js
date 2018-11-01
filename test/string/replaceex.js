@@ -8,11 +8,11 @@ describe("string/replaceex", function () {
             var _gpfStringReplaceEx = gpf.internals._gpfStringReplaceEx;
 
             it("replaces strings recursively", function () {
-                assert("add" === _gpfStringReplaceEx("abc", {
+                assert(_gpfStringReplaceEx("abc", {
                     "a": "abc",
                     "b": "dc",
                     "c": ""
-                }));
+                }) === "add");
             });
 
         });
