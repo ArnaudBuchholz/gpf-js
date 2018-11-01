@@ -51,7 +51,7 @@ Object.assign(_GpfClassDefinition.prototype, {
      * @since 0.1.7
      */
     _addMemberToPrototype: function (newPrototype, memberName, value) {
-        if ("function" === typeof value) {
+        if (typeof value === "function") {
             this._addMethodToPrototype(newPrototype, memberName, value);
         } else {
             newPrototype[memberName] = value;
