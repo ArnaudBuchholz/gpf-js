@@ -38,7 +38,7 @@ describe("assert", function () {
             var stringValue;
             if (undefined === value) {
                 stringValue = "undefined";
-            } else if (null === value) {
+            } else if (value === null) {
                 stringValue = "null";
             } else {
                 stringValue = value.toString();
