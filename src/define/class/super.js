@@ -74,7 +74,7 @@ function _gpfClassSuperCreateWithSameSignature (superMethod) {
  */
 function _gpfClassSuperCreate (superMember) {
     var superMethod;
-    if ("function" === typeof superMember) {
+    if (typeof superMember === "function") {
         superMethod = superMember;
     } else {
         superMethod = _gpfClassNoSuper;
@@ -113,7 +113,7 @@ function _gpfClassSuperCreateWeakBoundWithSameSignature (that, $super, superMeth
  * @since 0.1.7
  */
 function _gpfClassSuperCreateMember (that, $super, superMethod) {
-    if ("function" !== typeof superMethod) {
+    if (typeof superMethod !== "function") {
         gpf.Error.invalidClassSuperMember();
     }
     return _gpfClassSuperCreateWeakBoundWithSameSignature(that, $super, superMethod);
