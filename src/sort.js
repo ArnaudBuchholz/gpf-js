@@ -27,7 +27,7 @@ function _gpfCreateSortVariables (specifications) {
 }
 
 function _gpfCreateSortComparison (type, left, right) {
-    if ("string" === type) {
+    if (type === "string") {
         return left + ".localeCompare(" + right + ")";
     }
     // default is number
