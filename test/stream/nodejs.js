@@ -38,11 +38,11 @@ describe("stream/node", function () {
                 var mockedStream = new NodeMockedStream(),
                     iReadableStream = new gpf.node.ReadableStream(mockedStream),
                     iWritableString = new gpf.stream.WritableString();
-                assert("function" === typeof mockedStream._events.error);
+                assert(typeof mockedStream._events.error === "function");
                 iReadableStream.read(iWritableString)
                     .then(done, done);
-                assert("function" === typeof mockedStream._events.data);
-                assert("function" === typeof mockedStream._events.end);
+                assert(typeof mockedStream._events.data === "function");
+                assert(typeof mockedStream._events.end === "function");
                 mockedStream._fire("end");
             });
 
@@ -67,7 +67,7 @@ describe("stream/node", function () {
                     paused = false;
                     setTimeout(function () {
                         ++step;
-                        if (1 === step) {
+                        if (step === 1) {
                             mockedStream._fire("data", "World");
                         } else {
                             mockedStream._fire("end");
@@ -165,14 +165,14 @@ describe("stream/node", function () {
             it("configures the stream by hooking the events", function () {
                 var mockedStream = new NodeMockedStream(),
                     iWritableStream = new gpf.node.WritableStream(mockedStream);
-                assert("function" === typeof iWritableStream.write); // avoid JSHint error
-                assert("function" === typeof mockedStream._events.error);
+                assert(typeof iWritableStream.write === "function"); // avoid JSHint error
+                assert(typeof mockedStream._events.error === "function");
             });
 
             it("passes the buffer to the inner stream", function (done) {
                 var mockedStream = new NodeMockedStream(),
                     iWritableStream = new gpf.node.WritableStream(mockedStream);
-                assert("function" === typeof mockedStream._events.error);
+                assert(typeof mockedStream._events.error === "function");
                 mockedStream.write = function (buffer) {
                     assert(buffer === "Hello World");
                     return true;
@@ -186,7 +186,7 @@ describe("stream/node", function () {
                 var mockedStream = new NodeMockedStream(),
                     iWritableStream = new gpf.node.WritableStream(mockedStream),
                     concatenatedBuffer = "";
-                assert("function" === typeof mockedStream._events.error);
+                assert(typeof mockedStream._events.error === "function");
                 mockedStream.write = function (buffer) {
                     concatenatedBuffer += buffer;
                     return true;
@@ -206,7 +206,7 @@ describe("stream/node", function () {
                 var mockedStream = new NodeMockedStream(),
                     iWritableStream = new gpf.node.WritableStream(mockedStream),
                     drained = false;
-                assert("function" === typeof mockedStream._events.error);
+                assert(typeof mockedStream._events.error === "function");
                 mockedStream.write = function (buffer) {
                     assert(buffer === "Hello World");
                     return false;
@@ -217,7 +217,7 @@ describe("stream/node", function () {
                         assert(!mockedStream._events.drain); // once has been used
                     })
                     .then(done, done);
-                assert("function" === typeof mockedStream._events.drain);
+                assert(typeof mockedStream._events.drain === "function");
                 drained = true;
                 mockedStream._fire("drain");
             });
@@ -225,7 +225,7 @@ describe("stream/node", function () {
             it("handles errors", function (done) {
                 var mockedStream = new NodeMockedStream(),
                     iWritableStream = new gpf.node.WritableStream(mockedStream);
-                assert("function" === typeof mockedStream._events.error);
+                assert(typeof mockedStream._events.error === "function");
                 mockedStream.write = function () {
                     mockedStream._fire("error", "error");
                 };
@@ -239,7 +239,7 @@ describe("stream/node", function () {
             it("prevents any subsequent use when an error occurred", function (done) {
                 var mockedStream = new NodeMockedStream(),
                     iWritableStream = new gpf.node.WritableStream(mockedStream);
-                assert("function" === typeof mockedStream._events.error);
+                assert(typeof mockedStream._events.error === "function");
                 mockedStream.write = function () {
                     mockedStream._fire("error", "error");
                 };
