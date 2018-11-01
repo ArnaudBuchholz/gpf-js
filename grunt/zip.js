@@ -6,7 +6,7 @@ module.exports = {
         src: [`${configuration.path.plato}**`],
         dest: "build/plato.history.zip",
         router: filePath => {
-            if (-1 === filePath.indexOf(".history.json")) {
+            if (filePath.indexOf(".history.json") === -1) {
                 return null;
             }
             // Remove tmp/plato/...
