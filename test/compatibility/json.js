@@ -66,7 +66,7 @@ describe("compatibility/json", function () {
         if (typeofA !== typeof b) {
             return false;
         }
-        if ("object" === typeofA && a && b) {
+        if (typeofA === "object" && a && b) {
             return Object.keys(a).every(function (key) {
                 return b.hasOwnProperty(key) && _like(a[key], b[key]);
             });
@@ -77,7 +77,7 @@ describe("compatibility/json", function () {
     describe("JSON object", function () {
 
         it("exists", function () {
-            assert("undefined" !== typeof JSON);
+            assert(typeof JSON !== "undefined");
         });
 
     });
@@ -197,26 +197,26 @@ describe("compatibility/json", function () {
         });
 
         tests.forEach(function (test) {
-            if (false === test.parse) {
+            if (test.parse === false) {
                 return;
             }
             it("works on " + test.label, function () {
                 var obj = parseFunc(test.json);
-                assert(true === _like(obj, test.obj));
+                assert(_like(obj, test.obj) === true);
             });
         });
 
         it("supports reviver parameter - simple", function () {
             var obj = parseFunc("{\"a\": 5, \"b\": \"6\"}", function (key, value) {
-                if ("number" === typeof value) {
+                if (typeof value === "number") {
                     return value * 2;
                 }
                 return value;
             });
-            assert(true === _like(obj, {
+            assert(_like(obj, {
                 a: 10,
                 b: "6"
-            }));
+            }) === true);
         });
 
         it("supports reviver parameter - traversing", function () {
