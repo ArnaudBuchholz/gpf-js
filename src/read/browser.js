@@ -15,7 +15,7 @@ function _gpfReadHttp (path) {
         method: _GPF_HTTP_METHODS.GET,
         url: path
     }).then(function (response) {
-        if (2 !== Math.floor(response.status / 100)) {
+        if (Math.floor(response.status / 100) !== 2) {
             throw new Error(response.responseText);
         }
         return response.responseText;
