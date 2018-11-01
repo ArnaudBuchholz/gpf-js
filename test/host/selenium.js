@@ -15,7 +15,7 @@ driver.findElements(By.id("status"))
     })
     .then(function (text) {
         console.log(text);
-        if (0 === text.indexOf("OK")) {
+        if (text.indexOf("OK") === 0) {
             errorCount = 0;
         } else {
             // Search for failure: <number> <timespent>
