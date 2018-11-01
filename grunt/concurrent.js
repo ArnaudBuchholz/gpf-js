@@ -12,7 +12,7 @@ const
     // As of now, this list is 'static', on MacOS, Safari is considered modern
     modernBrowsers = ["chrome", "firefox", tools.isMacOS ? "safari" : ""].map(tools.capitalize);
 
-hosts.modernBrowser = hosts.browser.filter(name => -1 !== modernBrowsers.indexOf(name));
+hosts.modernBrowser = hosts.browser.filter(name => modernBrowsers.indexOf(name) !== -1);
 
 if (configuration.host.java) {
     hosts.java.push("Rhino");
@@ -75,12 +75,12 @@ Object.keys(configuration.files.flavors).forEach(flavor => {
     const
         definition = configuration.files.flavors[flavor],
         flavorHosts = definition.flavor.split(" ")
-            .filter(token => 0 === token.indexOf("host:"))
+            .filter(token => token.indexOf("host:") === 0)
             .map(token => token.substr(5)),
-        includesCompatibility = -1 !== definition.flavor.split(" ").indexOf("compatibility"),
+        includesCompatibility = definition.flavor.split(" ").indexOf("compatibility") !== -1,
         tasks = Object.keys(hosts)
-            .filter(name => 0 === flavorHosts.length || -1 !== flavorHosts.indexOf(name))
-            .map(name => includesCompatibility || "browser" !== name ? name : "modernBrowser")
+            .filter(name => flavorHosts.length === 0 || flavorHosts.indexOf(name) !== -1)
+            .map(name => includesCompatibility || name !== "browser" ? name : "modernBrowser")
             .reduce((list, name) => list.concat(hosts[name]), [])
             .map(name => `exec:test${name}`);
     module.exports[`flavor@${flavor}`] = tasks.map(name => `${name}Flavor:${flavor}`);
