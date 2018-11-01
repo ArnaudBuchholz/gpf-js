@@ -17,7 +17,7 @@ function _gpfAttributesGetFromClass (classConstructor, baseAttributeClass) {
 }
 
 function _gpfAttributesGetConstructorFromTruthy (any) {
-    if ("object" !== typeof any) {
+    if (typeof any !== "object") {
         gpf.Error.invalidParameter();
     }
     return any.constructor;
@@ -42,7 +42,7 @@ function _gpfAttributesGetConstructorFrom (any) {
  */
 function _gpfAttributesGet (objectOrClass, baseAttributeClass) {
     var classConstructor;
-    if ("function" === typeof objectOrClass) {
+    if (typeof objectOrClass === "function") {
         classConstructor = objectOrClass;
     } else {
         classConstructor = _gpfAttributesGetConstructorFrom(objectOrClass);
