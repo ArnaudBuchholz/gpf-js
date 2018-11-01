@@ -6,7 +6,7 @@ describe("require", function () {
 
     before(function () {
         if (gpf.host() === gpf.hosts.browser) {
-            if (0 === config.httpPort) {
+            if (config.httpPort === 0) {
                 // published version
                 basePath = "/gpf/test-resources/require";
             } else {
@@ -57,12 +57,12 @@ describe("require", function () {
     describe("gpf.require.define", function () {
 
         function validateData (data) {
-            assert("object" === typeof data);
-            assert("value" === data.member);
+            assert(typeof data === "object");
+            assert(data.member === "value");
         }
 
         function validateModule (module, type, dataExpected) {
-            assert("object" === typeof module);
+            assert(typeof module === "object");
             assert(type === module.type);
             if (dataExpected) {
                 validateData(module.data);
@@ -165,7 +165,7 @@ describe("require", function () {
                 }, function (require) {
                     try {
                         validateModule(require.amd, "amd", false);
-                        assert("" === require.amd.name);
+                        assert(require.amd.name === "");
                         done();
                     } catch (e) {
                         done(e);
@@ -179,7 +179,7 @@ describe("require", function () {
                 }, function (require) {
                     try {
                         validateModule(require.amd, "amd", false);
-                        assert("static" === require.amd.name);
+                        assert(require.amd.name === "static");
                         done();
                     } catch (e) {
                         done(e);
@@ -382,7 +382,7 @@ describe("require", function () {
                 assert(reason instanceof Error);
                 assert(Array.isArray(reason.requires));
                 assert(reason.requires.length > index);
-                assert(-1 !== reason.requires[index].indexOf(expected));
+                assert(reason.requires[index].indexOf(expected) !== -1);
             }
 
             it("documents the failing resource name (missing json)", function (done) {
@@ -431,7 +431,7 @@ describe("require", function () {
                 });
             });
 
-            if ("function" === typeof SyntaxError) {
+            if (typeof SyntaxError === "function") {
 
                 it("transmits the native error", function (done) {
                     gpf.require.define({
