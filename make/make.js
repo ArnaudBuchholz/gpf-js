@@ -21,7 +21,7 @@ let
 
 // Cheap parameter parsing
 process.argv.slice(2).forEach(value => {
-    if ("-verbose" === value) {
+    if (value === "-verbose") {
         debug = function () {
             console.log.apply(console, arguments);
         };
@@ -30,7 +30,7 @@ process.argv.slice(2).forEach(value => {
     }
 });
 
-if (version && 0 === version.indexOf("flavor/")) {
+if (version && version.indexOf("flavor/") === 0) {
     flavorParameters = JSON.parse(fs.readFileSync(version + ".json").toString());
     output = "gpf-" + version.substr(7);
     flavorFilter = flavor(sources, dependencies, flavorParameters.flavor);
@@ -43,7 +43,7 @@ console.log(`Generating version '${version}'`);
 debug("\tReading generation parameters...");
 try {
     debugGenerationParameters = JSON.parse(fs.readFileSync("debug.json").toString());
-    if ("debug" === version) {
+    if (version === "debug") {
         generationParameters = debugGenerationParameters;
     } else {
         generationParameters = JSON.parse(fs.readFileSync(generationParametersType + ".json").toString());
