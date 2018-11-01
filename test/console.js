@@ -9,10 +9,10 @@ describe("console", function () {
 
             it("generates an object mocking the console", function () {
                 var result = _gpfConsoleGenerate();
-                assert("function" === typeof result.log);
-                assert("function" === typeof result.info);
-                assert("function" === typeof result.warn);
-                assert("function" === typeof result.error);
+                assert(typeof result.log === "function");
+                assert(typeof result.info === "function");
+                assert(typeof result.warn === "function");
+                assert(typeof result.error === "function");
             });
 
             it("generates a log function prefixing text with padding", function () {
