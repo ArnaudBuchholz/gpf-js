@@ -119,7 +119,7 @@ describe("stream", function () {
                 it("is protected against parallel calls", function () {
                     var iWritableStream = {
                             write: function (buffer) {
-                                assert("TEST" === buffer);
+                                assert(buffer === "TEST");
                                 return new Promise(function () {});
                             }
                         },
@@ -137,7 +137,7 @@ describe("stream", function () {
                 it("writes to an IWritableStream", function (done) {
                     var iWritableStream = {
                             write: function (buffer) {
-                                assert("TEST" === buffer);
+                                assert(buffer === "TEST");
                                 return Promise.resolve();
                             }
                         },
@@ -151,7 +151,7 @@ describe("stream", function () {
                 it("forwards any error", function (done) {
                     var iWritableStream = {
                             write: function (buffer) {
-                                assert("string" === typeof buffer);
+                                assert(typeof buffer === "string");
                                 return Promise.reject(1);
                             }
                         },
