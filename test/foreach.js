@@ -23,13 +23,13 @@ describe("foreach", function () {
             var count = 0,
                 sum = 0;
             gpf.forEach(array, function (value, idx, refArray) {
-                assert("number" === typeof idx);
+                assert(typeof idx === "number");
                 assert(refArray === array);
                 ++count;
                 sum += value;
             });
             assert(array.length === count);
-            assert(45 === sum);
+            assert(sum === 45);
         });
 
         it("transmits scope on array content", function () {
@@ -38,21 +38,21 @@ describe("foreach", function () {
                 result;
             result = gpf.forEach(array, function (value, idx, refArray) {
                 assert(this === object); //eslint-disable-line no-invalid-this
-                assert("number" === typeof idx);
+                assert(typeof idx === "number");
                 assert(refArray === array);
                 ++count;
                 sum += value;
             }, object);
             assert(undefined === result);
             assert(array.length === count);
-            assert(45 === sum);
+            assert(sum === 45);
         });
 
         it("enumerates object content and handles null value", function () {
             var members = [],
                 result = true;
             gpf.forEach(object, function (value, name, refObject) {
-                assert("string" === typeof name);
+                assert(typeof name === "string");
                 assert(refObject === object);
                 members.push(name);
                 if (name === "null" && value !== null) {
@@ -61,7 +61,7 @@ describe("foreach", function () {
             });
             members = members.join(",");
             assert(objectMembers === members);
-            assert(true === result);
+            assert(result === true);
         });
 
         it("transmits scope on object content", function () {
@@ -78,7 +78,7 @@ describe("foreach", function () {
                 assert(undefined === value);
                 ++count;
             });
-            assert(3 === count);
+            assert(count === 3);
         });
 
         it("does not enumerate inherited values", function () {
@@ -88,8 +88,8 @@ describe("foreach", function () {
                 objectFromBase = Object.create(base);
             objectFromBase.own = 2;
             gpf.forEach(objectFromBase, function (value, name) {
-                assert(2 === value);
-                assert("own" === name);
+                assert(value === 2);
+                assert(name === "own");
             });
         });
 
