@@ -14,19 +14,19 @@ describe("factory", function () {
                 }
                 var myInstance = _gpfNewApply(MyObject, []);
                 assert(myInstance instanceof MyObject);
-                assert(42 === myInstance.value);
+                assert(myInstance.value === 42);
             });
 
             it("forwards parameters", function () {
                 var myArray = _gpfNewApply(Array, [42]);
                 assert(myArray instanceof Array);
-                assert(42 === myArray.length);
+                assert(myArray.length === 42);
             });
 
             it("adapts to a very long list of parameters", function () {
                 var myArray = _gpfNewApply(Array, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
                 assert(myArray instanceof Array);
-                assert(15 === myArray.length);
+                assert(myArray.length === 15);
             });
 
         });
