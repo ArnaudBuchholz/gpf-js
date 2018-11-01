@@ -34,14 +34,14 @@ describe("foreachasync", function () {
                 sum = 0;
             gpf.forEachAsync(array, function (value, idx, refArray) {
                 assert(this === object); //eslint-disable-line no-invalid-this
-                assert("number" === typeof idx);
+                assert(typeof idx === "number");
                 assert(refArray === array);
                 ++count;
                 sum += value;
             }, object)
                 .then(function () {
                     assert(array.length === count);
-                    assert(45 === sum);
+                    assert(sum === 45);
                     done();
                 })["catch"](done);
         });
@@ -51,7 +51,7 @@ describe("foreachasync", function () {
                 sum = 0;
             gpf.forEachAsync(array, function (value, idx, refArray) {
                 assert(this === object); //eslint-disable-line no-invalid-this
-                assert("number" === typeof idx);
+                assert(typeof idx === "number");
                 assert(refArray === array);
                 ++count;
                 sum += value;
@@ -59,7 +59,7 @@ describe("foreachasync", function () {
             }, object)
                 .then(function () {
                     assert(array.length === count);
-                    assert(45 === sum);
+                    assert(sum === 45);
                     done();
                 })["catch"](done);
         });
