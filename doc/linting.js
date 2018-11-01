@@ -134,6 +134,7 @@ ruleFilenames
         console.log(
             "\t",
             rule.name.padEnd(40, " "),
+            flag(rule.meta.fixable, "F"),
             flag(rule.meta.docs.recommended, "R"),
             rule.level.padEnd(7),
             flag(rule.parameterized, "C"),
