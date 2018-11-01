@@ -24,7 +24,7 @@ describe("interfaces/promisify", function () {
             SampleImpl = gpf.define({
                 $class: "SampleImpl",
                 test: function (value) {
-                    if (0 === value) {
+                    if (value === 0) {
                         throw new Error("OK");
                     }
                     return value + 1;
