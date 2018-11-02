@@ -45,6 +45,14 @@ supported on all hosts.
 * [trim](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trim)
 * [endsWith](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith)
 
+## Console
+
+The library exposes (when not existing) [console.log](https://developer.mozilla.org/en-US/docs/Web/API/Console/log),
+[console.warn](https://developer.mozilla.org/en-US/docs/Web/API/Console/warn) and
+[console.error](https://developer.mozilla.org/en-US/docs/Web/API/Console/error).
+
+**NOTE:** Only when string parameter is expected.
+
 ## Promise
 
 The library offers (when necessary) a [Promise/A+](https://promisesaplus.com/) implementation based on
