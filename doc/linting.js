@@ -36,28 +36,29 @@ const
     },
 
     hasDocumentation = ruleName => {
+        const documentationPath = path.join(DOCUMENTATION, `${ruleName}.md`);
         try {
-            fs.accessSync(path.join(DOCUMENTATION, `${ruleName}.md`), fs.constants.R_OK);
-            return true;
+            fs.accessSync(documentationPath, fs.constants.R_OK);
+            return fs.readFileSync(documentationPath).toString();
         } catch (e) {
-            return false;
+            return "";
         }
     },
 
     configuration = ruleName => {
         const
             ruleConfiguration = eslintrc.rules[ruleName],
-            documented = hasDocumentation(ruleName);
+            documentation = hasDocumentation(ruleName);
         if (undefined !== ruleConfiguration) {
             return {
                 level: LEVELS[readLevel(ruleConfiguration)],
                 parameterized: Array.isArray(ruleConfiguration),
-                documented: documented
+                documentation: documentation
             };
         }
         return {
             level: RULE_NOT_SET,
-            documented: documented
+            documentation: documentation
         };
     },
 
@@ -95,7 +96,11 @@ const
         checkForInvalidProperties(rule);
         checkForDeprecatedRule(rule);
         checkForUselessIgnore(rule);
-    }
+    },
+
+    linting = [
+        fs.readFileSync(path.join(DOCUMENTATION, ".header.md")).toString()
+    ]
 ;
 
 // Assess that all rules specified in the .eslintrc actually exists !
@@ -126,18 +131,30 @@ ruleFilenames
     .forEach((rule, index, rules) => {
         const
             flag = (value, mark) => value ? mark : " ",
-            category = rule.meta.docs.category;
+            category = rule.meta.docs.category,
+            recommended = rule.meta.docs.recommended;
         if (index === 0 || rules[index - 1].meta.docs.category !== category) {
             console.log(category);
+            linting.push(`<h3>${category}</h3>|||\n`);
         }
         checkForInvalidUse(rule);
         console.log(
             "\t",
             rule.name.padEnd(40, " "),
             flag(rule.meta.fixable, "F"),
-            flag(rule.meta.docs.recommended, "R"),
+            flag(recommended, "R"),
             rule.level.padEnd(7),
             flag(rule.parameterized, "C"),
-            flag(rule.documented, "*")
+            flag(rule.documentation, "*")
+        );
+        linting.push(
+            `[${rule.name}](https://eslint.org/docs/rules/${rule.name})|`,
+            recommended ? "*error*" : rule.level, "|",
+            "|",
+            rule.documentation.replace(/\n/g, "<br>"),
+            "\n"
         );
     });
+
+linting.push(fs.readFileSync(path.join(DOCUMENTATION, ".footer.md")).toString());
+fs.writeFileSync(path.join(__dirname, "tutorials/LINTING.md"), linting.join(""));
