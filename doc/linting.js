@@ -23,7 +23,8 @@ const
     ruleFilenames = fs.readdirSync(ESLINT_RULES),
     orderOfCategories = JSON.parse(fs.readFileSync(ESLINT_CATEGORIES).toString()).categories
         .map(category => category.name),
-    eslintrc = JSON.parse(fs.readFileSync(ESLINTRC).toString()),
+    eslintrcText = fs.readFileSync(ESLINTRC).toString(),
+    eslintrc = JSON.parse(eslintrcText),
 
     readLevel = ruleConfiguration => {
         if (Array.isArray(ruleConfiguration)) {
@@ -48,11 +49,21 @@ const
     configuration = ruleName => {
         const
             ruleConfiguration = eslintrc.rules[ruleName],
-            documentation = hasDocumentation(ruleName);
+            documentation = hasDocumentation(ruleName),
+            parameterized = Array.isArray(ruleConfiguration);
+        let
+            parameters,
+            line;
+        if (parameterized) {
+            parameters = ruleConfiguration.slice(1);
+            line = eslintrcText.split(`\"${ruleName}\"`)[0].split("\n").length;
+        }
         if (undefined !== ruleConfiguration) {
             return {
                 level: LEVELS[readLevel(ruleConfiguration)],
-                parameterized: Array.isArray(ruleConfiguration),
+                parameterized: parameterized,
+                parameters: parameters,
+                line: line,
                 documentation: documentation
             };
         }
@@ -100,7 +111,20 @@ const
 
     linting = [
         fs.readFileSync(path.join(DOCUMENTATION, ".header.md")).toString()
-    ]
+    ],
+
+    renderParameters = rule => {
+        if (!rule.parameterized) {
+            return "";
+        }
+        if (rule.parameters.length === 1) {
+            const stringified = JSON.stringify(rule.parameters[0]);
+            if (stringified.length < 15) {
+                return stringified;
+            }
+        }
+        return `[*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L${rule.line})`;
+    }
 ;
 
 // Assess that all rules specified in the .eslintrc actually exists !
@@ -135,7 +159,7 @@ ruleFilenames
             recommended = rule.meta.docs.recommended;
         if (index === 0 || rules[index - 1].meta.docs.category !== category) {
             console.log(category);
-            linting.push(`<h3>${category}</h3>|||\n`);
+            linting.push(`**${category}** | | | |\n`);
         }
         checkForInvalidUse(rule);
         console.log(
@@ -148,10 +172,11 @@ ruleFilenames
             flag(rule.documentation, "*")
         );
         linting.push(
-            `[${rule.name}](https://eslint.org/docs/rules/${rule.name})|`,
-            recommended ? "*error*" : rule.level, "|",
-            "|",
-            rule.documentation.replace(/\n/g, "<br>"),
+            `[${rule.name}](${rule.meta.docs.url}) | `,
+            flag(rule.meta.fixable, "&check;"), " | ",
+            recommended && rule.level === RULE_NOT_SET ? "*error*" : `**${rule.level}**`, " | ",
+            renderParameters(rule), " | ",
+            rule.documentation.replace(/\n/g, " "),
             "\n"
         );
     });
