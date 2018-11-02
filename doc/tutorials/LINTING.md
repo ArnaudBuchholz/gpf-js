@@ -2,7 +2,7 @@
 
 Rule | Level | Value | Comment
 ---- | ---- | ---- | ----
-<h3>Possible Errors</h3>|||
+**Possible Errors<**|||
 [for-direction](https://eslint.org/docs/rules/for-direction)|*error*||
 [getter-return](https://eslint.org/docs/rules/getter-return)|*error*||
 [no-async-promise-executor](https://eslint.org/docs/rules/no-async-promise-executor)|-||
