@@ -3,8 +3,9 @@
 
 const
     EXCEPTION_VARIABLE = "e_",
+    FILENAME_ARG = 2,
     fs = require("fs"),
-    fileName = `build/${process.argv[2]}.js`,
+    fileName = `build/${process.argv[FILENAME_ARG]}.js`,
     getVariableNameMatcher = name => new RegExp("\\b" + name + "\\b", "g");
 
 Promise.resolve(fs.readFileSync(fileName))
