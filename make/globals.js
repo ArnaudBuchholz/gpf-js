@@ -1,6 +1,8 @@
 "use strict";
 
 const
+    IMPORT_PREFIX = "/*global ",
+    EXPORT_PREFIX = "/*exported ",
     fs = require("fs"),
     sources = JSON.parse(fs.readFileSync("./src/sources.json"))
         .map(source => source.name);
@@ -66,10 +68,10 @@ class Module {
 
     // Content line: select the proper handling
     _analyzeLine (line, lineIndex) {
-        if (line.indexOf("/*global ") === 0) {
+        if (line.indexOf(IMPORT_PREFIX) === 0) {
             return this._processImport(line, lineIndex);
         }
-        if (line.indexOf("/*exported ") === 0) {
+        if (line.indexOf(EXPORT_PREFIX) === 0) {
             return this._processExport(line, lineIndex);
         }
         if (line.indexOf("eslint") > -1 || line.indexOf("jshint") > -1) {
@@ -82,7 +84,7 @@ class Module {
 
     // global found
     _processImport (line, lineIndex) {
-        let name = line.split("*/")[0].substr(9).trim(),
+        let name = line.split("*/")[0].substr(IMPORT_PREFIX.length).trim(),
             modifiable;
         if (name.indexOf(":")) {
             name = name.split(":");
@@ -97,7 +99,7 @@ class Module {
 
     // exported found
     _processExport (line, lineIndex) {
-        let name = line.split("*/")[0].substr(11).trim(),
+        let name = line.split("*/")[0].substr(EXPORT_PREFIX.length).trim(),
             description = line.split("// ")[1] || "";
         if (!description) {
             this.error(`no description for ${name}`);
@@ -110,9 +112,10 @@ class Module {
 
     // returns true if modified
     rebuild () {
+        const SKIP_USESTRICT = 2;
         let before = this.lines.join("\n"),
             lines = this.lines.filter((line, lineIndex) => this.filteredLines.indexOf(lineIndex) === -1),
-            spliceArgs = [this._umdLineIndex + 2, 0],
+            spliceArgs = [this._umdLineIndex + SKIP_USESTRICT, 0],
             after;
         this.imports.sort().forEach(name => {
             let module = Module.byExport[name];
@@ -183,6 +186,7 @@ sources.forEach(source => {
         }
     }
 });
-fs.writeFileSync("./build/dependencies.json", JSON.stringify(dependencies, null, 4));
+
+fs.writeFileSync("./build/dependencies.json", JSON.stringify(dependencies, null, "    "));
 
 process.exit(rc);
