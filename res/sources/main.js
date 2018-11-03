@@ -38,7 +38,8 @@ gpf.require.define({
         if (name.indexOf("host/") !== 0) {
             gpf.http.options("/fs/test/" + name + ".js")
                 .then(function (response) {
-                    if (response.status === 200) {
+                    var HTTP_OK = 200;
+                    if (response.status === HTTP_OK) {
                         document.getElementById("test_" + index).className = "";
                     } else {
                         source._test = false;
@@ -177,10 +178,13 @@ gpf.require.define({
     function compare (checkDictionary, path, pathContent) {
         var subPromises = [];
         pathContent.forEach(function (name) {
-            var contentFullName = path + name,
+            var JS_EXT = ".js",
+                JS_EXT_LENGTH = JS_EXT.length,
+                contentFullName = path + name,
                 contentFullNameLength = contentFullName.length;
-            if (contentFullNameLength > 3 && contentFullName.indexOf(".js") === contentFullNameLength - 3) {
-                contentFullName = contentFullName.substr(0, contentFullNameLength - 3);
+            if (contentFullNameLength > JS_EXT_LENGTH
+                && contentFullName.indexOf(JS_EXT) === contentFullNameLength - JS_EXT_LENGTH) {
+                contentFullName = contentFullName.substr(0, contentFullNameLength - JS_EXT_LENGTH);
                 if (checkDictionary[contentFullName] === "obsolete") {
                     checkDictionary[contentFullName] = "exists";
                 } else {
