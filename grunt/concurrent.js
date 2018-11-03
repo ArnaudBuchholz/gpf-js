@@ -71,12 +71,14 @@ module.exports = {
 
 };
 
+const hostPrefix = "host:";
+
 Object.keys(configuration.files.flavors).forEach(flavor => {
     const
         definition = configuration.files.flavors[flavor],
         flavorHosts = definition.flavor.split(" ")
-            .filter(token => token.indexOf("host:") === 0)
-            .map(token => token.substr(5)),
+            .filter(token => token.indexOf(hostPrefix) === 0)
+            .map(token => token.substr(hostPrefix.length)),
         includesCompatibility = definition.flavor.split(" ").indexOf("compatibility") !== -1,
         tasks = Object.keys(hosts)
             .filter(name => flavorHosts.length === 0 || flavorHosts.indexOf(name) !== -1)
