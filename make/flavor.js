@@ -1,10 +1,12 @@
 "use strict";
 
+const hostPrefix = "host:";
+
 function categorize (tags) {
     return tags.split(" ").reduce(function (categorized, tag) {
         if (tag) {
-            if (tag.indexOf("host:") === 0) {
-                categorized.hosts.push(tag.substr(5));
+            if (tag.indexOf(hostPrefix) === 0) {
+                categorized.hosts.push(tag.substr(hostPrefix.length));
             } else if (tag.charAt(0) === "-") {
                 categorized.excluded.push(tag.substr(1));
             } else {
