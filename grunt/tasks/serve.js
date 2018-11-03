@@ -1,15 +1,17 @@
 "use strict";
 
+const BOUNCE_DELAY = 200;
+
 module.exports = function (grunt) {
 
     grunt.registerTask("pre-serve", function () {
-        var changedFiles = {};
+        let changedFiles = {};
 
-        var onChange = grunt.util._.debounce(function () {
+        const onChange = grunt.util._.debounce(function () {
             grunt.config.set("jshint.files", Object.keys(changedFiles));
             grunt.config.set("eslint.target", Object.keys(changedFiles));
             changedFiles = {};
-        }, 200);
+        }, BOUNCE_DELAY);
 
         grunt.event.on("watch", function (action, filepath) {
             if (action !== "deleted" && filepath.indexOf("sources.json") === -1) {
