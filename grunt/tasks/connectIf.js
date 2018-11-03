@@ -1,5 +1,7 @@
 "use strict";
 
+const STATUS_OK = 200;
+
 module.exports = function (grunt) {
     grunt.registerTask("connectIf", "Run connect if not detected", function () {
         // Check if connect is already running
@@ -14,7 +16,7 @@ module.exports = function (grunt) {
         }
 
         http.get("http://localhost:" + configuration.serve.httpPort + "/package.json", function (res) {
-            run(res.statusCode !== 200);
+            run(res.statusCode !== STATUS_OK);
         }).on("error", function () {
             run(true);
         });
