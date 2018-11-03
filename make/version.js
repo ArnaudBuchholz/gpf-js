@@ -1,8 +1,9 @@
 "use strict";
 
 const
+    FIRST_CMDLINE_PARAM = 2,
     fs = require("fs"),
-    verbose = process.argv[2] === "-verbose",
+    verbose = process.argv[FIRST_CMDLINE_PARAM] === "-verbose",
     packageJson = JSON.parse(fs.readFileSync("package.json").toString()),
     sourcesJson = JSON.parse(fs.readFileSync("src/sources.json").toString()),
     packageVersion = packageJson.version,
@@ -27,6 +28,9 @@ if (bootVersion !== packageVersion) {
 }
 
 const
+    JSDOC_START = "/**",
+    JSDOC_END = "*/",
+
     _injectSinceComment = (source, jsdocComment, lastIndex) => {
         let newComment = jsdocComment.split("\n"),
             pos,
@@ -36,13 +40,14 @@ const
             pos = source.content.substr(0, lastIndex).lastIndexOf("\n") + 1;
             len = lastIndex - jsdocComment.length - pos;
             return [
-                "/**",
-                ` * ${jsdocComment.substr(3, jsdocComment.length - 5).trim()}`,
+                JSDOC_START,
+                ` * ${jsdocComment.substr(JSDOC_START.length,
+                    jsdocComment.length - (JSDOC_START + JSDOC_END).length).trim()}`,
                 ` * @since ${version}`,
-                " */"
+                " " + JSDOC_END
             ].join(`\n${source.content.substr(pos, len)}`);
         }
-        newComment.splice(-1, 0, newComment[newComment.length - 1].replace("*/", `* @since ${version}`));
+        newComment.splice(-1, 0, newComment[newComment.length - 1].replace(JSDOC_END, `* @since ${version}`));
         return newComment.join("\n");
     },
 
