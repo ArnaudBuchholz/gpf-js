@@ -1,6 +1,7 @@
 {
     "rules": {
-        "max-nested-callbacks": [2, 10]
+        "max-nested-callbacks": [2, 10],
+        "no-magic-numbers": 0
     },
     "globals": {
         "assert": false,
