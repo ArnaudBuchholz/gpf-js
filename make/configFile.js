@@ -121,16 +121,18 @@ module.exports = class ConfigFile {
                 .reduce((versions, versionFile) => {
                     // Keep only highest patch of each version (#238)
                     const
+                        MAJOR = 1,
+                        MINOR = 2,
                         versionParts = (/(\d+\.\d+)\.(\d+)/).exec(versionFile),
-                        version = versionParts[1],
-                        patch = parseInt(versionParts[2], 10);
+                        version = versionParts[MAJOR],
+                        patch = parseInt(versionParts[MINOR], 10);
                     let
                         versionFound = false,
                         resultVersions = versions.map(testedVersionFile => {
                             const
                                 testedVersionParts = (/(\d+\.\d+)\.(\d+)/).exec(testedVersionFile),
-                                testedVersion = testedVersionParts[1],
-                                testedPatch = parseInt(testedVersionParts[2], 10);
+                                testedVersion = testedVersionParts[MAJOR],
+                                testedPatch = parseInt(testedVersionParts[MINOR], 10);
                             if (testedVersion === version) {
                                 versionFound = true;
                                 if (testedPatch < patch) {
