@@ -20,7 +20,8 @@ let
     result;
 
 // Cheap parameter parsing
-process.argv.slice(2).forEach(value => {
+const AFTER_COMMAND = 2;
+process.argv.slice(AFTER_COMMAND).forEach(value => {
     if (value === "-verbose") {
         debug = function () {
             console.log.apply(console, arguments);
@@ -30,9 +31,10 @@ process.argv.slice(2).forEach(value => {
     }
 });
 
-if (version && version.indexOf("flavor/") === 0) {
+const flavorPrefix = "flavor/";
+if (version && version.indexOf(flavorPrefix) === 0) {
     flavorParameters = JSON.parse(fs.readFileSync(version + ".json").toString());
-    output = "gpf-" + version.substr(7);
+    output = "gpf-" + version.substr(flavorPrefix.length);
     flavorFilter = flavor(sources, dependencies, flavorParameters.flavor);
     generationParametersType = "release";
 } else {
