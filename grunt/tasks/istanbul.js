@@ -83,6 +83,8 @@ module.exports = function (grunt) {
         fs.writeFileSync("tmp/coverage/reports/coverage.json", JSON.stringify(coverage));
     });
 
+    const varPrefix = "var ";
+
     grunt.registerTask("fixInstrument", () => {
         // Because code generation uses templates that are instrumented, the __cov_XXX variables must be global
         configuration.files.src.forEach(fileName => {
@@ -90,8 +92,8 @@ module.exports = function (grunt) {
                 instrumentedLines = fs.readFileSync(srcPath).toString().split("\n"),
                 // Assuming the __cov_ variable is on the second line
                 secondLine = instrumentedLines[1];
-            if (secondLine.indexOf("var ") === 0) {
-                instrumentedLines[1] = `global.${secondLine.substr(4)}`;
+            if (secondLine.indexOf(varPrefix) === 0) {
+                instrumentedLines[1] = `global.${secondLine.substr(varPrefix.length)}`;
                 fs.writeFileSync(srcPath, instrumentedLines.join("\n"));
                 console.log(`${fileName} updated`);
             }
