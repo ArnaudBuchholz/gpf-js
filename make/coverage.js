@@ -2,6 +2,8 @@
 /*eslint-disable no-invalid-this*/ // Because of the 'simple' class generation relying on lamda functions
 /* MUST NOT BE MIGRATED TO ES6 BECAUSE USED IN A BROWSER */
 
+/*eslint no-magic-numbers: ["error", { "ignore": [-1, 0, 1, 100, 10000] }]*/
+
 function _noop () {}
 
 /**
