@@ -1,5 +1,7 @@
 "use strict";
 
+/*eslint no-magic-numbers: ["error", { "ignore": [-1, 0, 1, 100] }]*/
+
 // Use gpf library (source version)
 global.gpfSourcesPath = "./src/";
 require("../src/boot.js");
@@ -21,6 +23,8 @@ const
 //region Istanbul coverage
 
 const
+    SOURCE_PADDING = 34,
+    COVERAGE_PADDING = 27,
     coverageReport = new CoverageReport(JSON.parse(fs.readFileSync("tmp/coverage/reports/coverage.json"))),
     globalCoverage = coverageReport.getGlobal(),
     coverageParts = ["statements", "functions", "branches"];
@@ -30,7 +34,7 @@ let
 sources.forEach(sourceName => {
     const
         fileCoverage = coverageReport.get(sourceName),
-        fileTrace = [pad(sourceName, 34)];
+        fileTrace = [pad(sourceName, SOURCE_PADDING)];
     let
         fileIsKO = false;
     if (fileCoverage) {
@@ -73,7 +77,7 @@ releaseMetrics.coverage = {
 };
 
 coverageParts.forEach(coveragePart => {
-    console.log(`${pad(coveragePart + ":", 27)}${globalCoverage[coveragePart].getCoverageRatio(true)}%`
+    console.log(`${pad(coveragePart + ":", COVERAGE_PADDING)}${globalCoverage[coveragePart].getCoverageRatio(true)}%`
         + ` (ignored ${globalCoverage[coveragePart].getIgnoredRatio(true)}%)`);
 });
 
@@ -92,9 +96,11 @@ releaseMetrics.lines = {total: platoSummary.total.sloc, average: platoSummary.av
 
 platoData.reports.forEach(reportData => {
     const
+        SKIP_SRC = 4,
+        REMOVE_SRC_AND_EXT = 7,
         fileName = reportData.info.file,
-        sourceName = fileName.substr(4, fileName.length - 7),
-        fileTrace = [pad(sourceName, 34)],
+        sourceName = fileName.substr(SKIP_SRC, fileName.length - REMOVE_SRC_AND_EXT),
+        fileTrace = [pad(sourceName, SOURCE_PADDING)],
         maintainability = reportData.complexity.maintainability;
     let
         fileIsKO = false;
