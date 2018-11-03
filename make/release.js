@@ -28,6 +28,7 @@ let
     error;
 
 const
+    VERSION_PATCH = 2,
     tools = require("../res/tools.js"),
     projectUrl = "https://github.com/ArnaudBuchholz/gpf-js/",
     publicationUrl = "https://arnaudbuchholz.github.io/gpf/",
@@ -190,8 +191,9 @@ inquirer.prompt(setupQuestions)
     .then(() => {
         console.log("Updating build/releases.json...");
         const
+            TWO_DIGITS_NUMBER = 10,
             now = new Date(),
-            z = x => x < 10 ? "0" + x : x.toString(),
+            z = x => x < TWO_DIGITS_NUMBER ? "0" + x : x.toString(),
             releases = JSON.parse(fs.readFileSync("build/releases.json").toString());
         releases.push({
             version: version,
@@ -201,13 +203,14 @@ inquirer.prompt(setupQuestions)
             milestone: versionMilestone.number,
             metrics: JSON.parse(fs.readFileSync("tmp/releaseMetrics.json").toString())
         });
-        fs.writeFileSync("build/releases.json", JSON.stringify(releases, null, 4));
+        fs.writeFileSync("build/releases.json", JSON.stringify(releases, null, "    "));
         console.log("Updating README.md...");
         const
+            SKIP_2_LINES = 2,
             readmeLines = fs.readFileSync("README.md").toString().split("\n"),
             indexOfVersions = readmeLines.indexOf("## Versions"),
             indexOfCredits = readmeLines.indexOf("## Credits");
-        readmeLines.splice(indexOfVersions + 2, indexOfCredits - indexOfVersions - 3,
+        readmeLines.splice(indexOfVersions + SKIP_2_LINES, indexOfCredits - indexOfVersions - SKIP_2_LINES - 1,
             "Date | Version | Label | Release | Debug | Flavors\n------ | ------ | ----- | ----- | ----- | -----",
             releases.reverse().map(release => `${release.date} | `
                         + `[${release.version}](${projectUrl}tree/v${release.version}) | ${release.label} | `
@@ -247,7 +250,7 @@ inquirer.prompt(setupQuestions)
         message: "Please check the version: ",
         "default": version
             .split(".")
-            .map((digit, index) => index === 2 ? parseInt(digit, 10) + 1 : digit)
+            .map((digit, index) => index === VERSION_PATCH ? parseInt(digit, 10) + 1 : digit)
             .join(".") + "-alpha"
     }]))
     .then(answers => {
