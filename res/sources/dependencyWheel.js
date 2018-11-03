@@ -9,7 +9,10 @@ gpf.require.define({
 
     /*global d3*/
 
-    var dom = require.dom,
+    var WIDTH = 800,
+        MARGIN = 200,
+        PADDING = 0.02,
+        dom = require.dom,
         flavor = require.flavor,
         sourceIsAllowed = require.sources.reduce(function (map, source, index) {
             map[source.name] = !flavor || flavor[index];
@@ -25,9 +28,9 @@ gpf.require.define({
             id: "dependencyWheel"
         }),
         chart = d3.chart.dependencyWheel()
-            .width(800)
-            .margin(200)
-            .padding(0.02),
+            .width(WIDTH)
+            .margin(MARGIN)
+            .padding(PADDING),
         data = {
             packageNames: dependencyNames
         };
