@@ -22,7 +22,8 @@ gpf.require.define({
         getDynamicContent: function () {
             return gpf.http.get("/tmp/coverage/reports/coverage.json")
                 .then(function (response) {
-                    if (response.status === 404) {
+                    var HTTP_NOTFOUND = 404;
+                    if (response.status === HTTP_NOTFOUND) {
                         return [];
                     }
                     return JSON.parse(response.responseText);
@@ -32,14 +33,15 @@ gpf.require.define({
                         global = report.getGlobal();
 
                     function coverage (type) {
-                        var ratio = global[type].getCoverageRatio(),
+                        var COMPLETE_RATIO = 100,
+                            ratio = global[type].getCoverageRatio(),
                             statusClassName;
                         if (ratio < metrics.coverage[type]) {
                             statusClassName = "ko";
                         } else {
                             statusClassName = "ok";
                         }
-                        if (ratio === 100) {
+                        if (ratio === COMPLETE_RATIO) {
                             ratio = "100.0";
                         }
                         return dom.div({
