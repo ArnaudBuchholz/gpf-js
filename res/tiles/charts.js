@@ -8,8 +8,10 @@ gpf.require.define({
     /*jshint nonew: false */
     /*eslint-disable no-new, max-nested-callbacks */
 
+    var TWO_DIGITS_NUMBER = 10;
+
     function zero (value) {
-        if (value < 9) {
+        if (value < TWO_DIGITS_NUMBER) {
             return "0" + value;
         }
         return value;
