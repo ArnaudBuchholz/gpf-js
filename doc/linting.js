@@ -56,7 +56,7 @@ const
             line;
         if (parameterized) {
             parameters = ruleConfiguration.slice(1);
-            line = eslintrcText.split(`\"${ruleName}\"`)[0].split("\n").length;
+            line = eslintrcText.split(`"${ruleName}"`)[0].split("\n").length;
         }
         if (undefined !== ruleConfiguration) {
             return {
