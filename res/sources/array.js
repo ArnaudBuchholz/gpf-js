@@ -127,7 +127,7 @@ gpf.require.define({
         toString: function () {
             return JSON.stringify(this._sources.map(function (source) {
                 return source["export"]();
-            }), null, 4);
+            }), null, "    ");
         },
 
         /**
@@ -221,7 +221,8 @@ gpf.require.define({
         save: function () {
             return gpf.http.post("/fs/src/sources.json", this.toString())
                 .then(function (answer) {
-                    if (answer.status === 500) {
+                    var HTTP_ERROR = 500;
+                    if (answer.status === HTTP_ERROR) {
                         return dialogs.error(answer.responseText);
                     }
                 });
