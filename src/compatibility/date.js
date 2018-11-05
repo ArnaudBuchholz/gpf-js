@@ -11,11 +11,11 @@
 /*exported _gpfIsISO8601String*/ // Check if the string is an ISO 8601 representation of a date
 /*#endif*/
 
+var _GPF_COMPATIBILITY_DATE_KEEP_2_DIGITS = -2,
+    _GPF_COMPATIBILITY_DATE_KEEP_3_DIGITS = -3;
+
 function _pad (number) {
-    if (number < 10) {
-        return "0" + number;
-    }
-    return number;
+    return ("0" + number).substr(_GPF_COMPATIBILITY_DATE_KEEP_2_DIGITS);
 }
 
 function _gpfDateToISOString (date) {
@@ -31,7 +31,7 @@ function _gpfDateToISOString (date) {
         + ":"
         + _pad(date.getUTCSeconds())
         + "."
-        + (date.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5)
+        + ("00" + date.getUTCMilliseconds()).substr(_GPF_COMPATIBILITY_DATE_KEEP_3_DIGITS)
         + "Z";
 }
 
@@ -60,14 +60,27 @@ _gpfCompatibilityInstallMethods("Date", {
 //region Date override
 
 var _gpfISO8601RegExp = new RegExp("^([0-9][0-9][0-9][0-9])\\-([0-9][0-9])\\-([0-9][0-9])"
-    + "(?:T([0-9][0-9])\\:([0-9][0-9])\\:([0-9][0-9])(?:\\.([0-9][0-9][0-9])Z)?)?$");
+    + "(?:T([0-9][0-9])\\:([0-9][0-9])\\:([0-9][0-9])(?:\\.([0-9][0-9][0-9])Z)?)?$"),
+    _GPF_COMPATIBILITY_DATE_MONTH_PART = 1,
+    _GPF_COMPATIBILITY_DATE_MAX_MONTH = 11,
+    _GPF_COMPATIBILITY_DATE_DATE_PART = 2,
+    _GPF_COMPATIBILITY_DATE_MAX_DATE = 31,
+    _GPF_COMPATIBILITY_DATE_HOURS_PART = 3,
+    _GPF_COMPATIBILITY_DATE_MAX_HOURS = 23,
+    _GPF_COMPATIBILITY_DATE_MINUTES_PART = 4,
+    _GPF_COMPATIBILITY_DATE_MAX_MINUTES = 59,
+    _GPF_COMPATIBILITY_DATE_SECONDS_PART = 5,
+    _GPF_COMPATIBILITY_DATE_MAX_SECONDS = 59;
 
 function _gpfIsValidDateInDateArray (dateArray) {
-    return dateArray[1] < 12 && dateArray[2] < 32;
+    return dateArray[_GPF_COMPATIBILITY_DATE_MONTH_PART] <= _GPF_COMPATIBILITY_DATE_MAX_MONTH
+        && dateArray[_GPF_COMPATIBILITY_DATE_DATE_PART] <= _GPF_COMPATIBILITY_DATE_MAX_DATE;
 }
 
 function _gpfIsValidTimeInDateArray (dateArray) {
-    return dateArray[3] < 24 && dateArray[4] < 60 && dateArray[5] < 60;
+    return dateArray[_GPF_COMPATIBILITY_DATE_HOURS_PART] <= _GPF_COMPATIBILITY_DATE_MAX_HOURS
+        && dateArray[_GPF_COMPATIBILITY_DATE_MINUTES_PART] <= _GPF_COMPATIBILITY_DATE_MAX_MINUTES
+        && dateArray[_GPF_COMPATIBILITY_DATE_SECONDS_PART] <= _GPF_COMPATIBILITY_DATE_MAX_SECONDS;
 }
 
 function _gpfCheckDateArray (dateArray) {
