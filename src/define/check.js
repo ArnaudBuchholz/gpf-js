@@ -257,10 +257,12 @@ Object.assign(_GpfEntityDefinition.prototype, {
      * @since 0.1.6
      */
     _extractRelativeNamespaceFromName: function () {
-        var parts = new RegExp("(.*)\\.([^\\.]+)$").exec(this._name);
+        var parts = new RegExp("(.*)\\.([^\\.]+)$").exec(this._name),
+            NAME_PART = 2,
+            NAMESPACE_PART = 1;
         if (parts) {
-            this._name = parts[2];
-            return parts[1];
+            this._name = parts[NAME_PART];
+            return parts[NAMESPACE_PART];
         }
     },
 
