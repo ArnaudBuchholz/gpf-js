@@ -4,6 +4,9 @@ const
     fs = require("fs"),
     path = require("path"),
 
+    PAD_RULENAME = 40,
+    PAD_LEVEL = 7,
+
     ESLINT = path.join(__dirname, "../node_modules/eslint/"),
     ESLINT_RULES = path.join(ESLINT, "lib/rules"),
     ESLINT_CATEGORIES = path.join(ESLINT, "conf/category-list.json"),
@@ -76,7 +79,7 @@ const
     error = (rule, message) => {
         console.error(
             "\t",
-            rule.name.padEnd(40, " "),
+            rule.name.padEnd(PAD_RULENAME, " "),
             "***",
             message
         );
@@ -118,8 +121,10 @@ const
             return "";
         }
         if (rule.parameters.length === 1) {
-            const stringified = JSON.stringify(rule.parameters[0]);
-            if (stringified.length < 15) {
+            const
+                MAX_STRING_LENGTH = 15,
+                stringified = JSON.stringify(rule.parameters[0]);
+            if (stringified.length < MAX_STRING_LENGTH) {
                 return stringified;
             }
         }
@@ -164,10 +169,10 @@ ruleFilenames
         checkForInvalidUse(rule);
         console.log(
             "\t",
-            rule.name.padEnd(40, " "),
+            rule.name.padEnd(PAD_RULENAME, " "),
             flag(rule.meta.fixable, "F"),
             flag(recommended, "R"),
-            rule.level.padEnd(7),
+            rule.level.padEnd(PAD_LEVEL),
             flag(rule.parameterized, "C"),
             flag(rule.documentation, "*")
         );
