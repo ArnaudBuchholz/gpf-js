@@ -102,7 +102,7 @@ function _gpfJsonStringifyCheckReplacer (replacer) {
     return _gpfJsonStringifyGetReplacerFunction(replacer);
 }
 
-var GPF_COMPATIBILITY_JSON_STRINGIFY_MAX_SPACE = 10;
+var _GPF_COMPATIBILITY_JSON_STRINGIFY_MAX_SPACE = 10;
 
 function _gpfJsonStringifyCheckSpaceValue (space) {
     if (typeof space === "number") {
