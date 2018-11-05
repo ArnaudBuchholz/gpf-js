@@ -37,8 +37,9 @@ gpf.require.define({
                 return [];
             }
             var
+                PERCENTAGE = 100,
                 closedIssues = milestone.closed_issues,
-                progress = Math.floor(100 * closedIssues / (closedIssues + milestone.open_issues));
+                progress = Math.floor(PERCENTAGE * closedIssues / (closedIssues + milestone.open_issues));
             return [
                 dom.div({
                     className: "release",
