@@ -15,6 +15,8 @@
 /*eslint-disable new-cap*/ // FileSystem object APIs are uppercased
 
 var
+    _GPF_STREAM_WSCRIPT_BUFFER_SIZE = 4096,
+
     _GpfWscriptBaseStream = _gpfDefine({
         $class: "gpf.wscript.BaseStream",
 
@@ -67,7 +69,7 @@ var
                 file = me._file;
             return new Promise(function (resolve) {
                 function read () {
-                    return output.write(file.Read(4096)) // buffer size
+                    return output.write(file.Read(_GPF_STREAM_WSCRIPT_BUFFER_SIZE))
                         .then(function () {
                             if (!file.AtEndOfStream) {
                                 return read();
