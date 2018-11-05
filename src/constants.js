@@ -40,6 +40,8 @@
  */
 
 var
+    _gpfMaxUnsignedByte = 255,
+
     // Max value on 31 bits
     _gpfMax31 = 0x7FFFFFFF,
 
@@ -141,7 +143,7 @@ function _gpfIsInRange (value, min, max) {
  */
 // Returns true if the value is an unsigned byte
 function _gpfIsUnsignedByte (value) {
-    return typeof value === "number" && _gpfIsInRange(value, 0, 255);
+    return typeof value === "number" && _gpfIsInRange(value, 0, _gpfMaxUnsignedByte);
 }
 
 /**
