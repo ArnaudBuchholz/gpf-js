@@ -41,14 +41,17 @@ _gpfCompatibilityInstallMethods("Function", {
 
 //region Function name
 
+var _GPF_COMPATIBILITY_FUNCTION_KEYWORD = "function";
+
 function _gpfGetFunctionName () {
     // Use simple parsing
     /*jshint validthis:true*/
     var functionSource = _gpfEmptyFunc.toString.call(this), //eslint-disable-line no-invalid-this
-        functionKeywordPos = functionSource.indexOf("function"),
+        functionKeywordPos = functionSource.indexOf(_GPF_COMPATIBILITY_FUNCTION_KEYWORD)
+            + _GPF_COMPATIBILITY_FUNCTION_KEYWORD.length,
         parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
     return functionSource
-        .substr(functionKeywordPos + 9, parameterListStartPos - functionKeywordPos - 9)
+        .substr(functionKeywordPos, parameterListStartPos - functionKeywordPos)
         .replace(_gpfJsCommentsRegExp, "") // remove comments
         .trim();
 }
