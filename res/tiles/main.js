@@ -65,13 +65,15 @@ gpf.require.define({
     var _lastChartsId;
 
     function renderCharts (target) {
-        var charts = document.querySelector(".charts"),
+        var OFFSET = 4,
+            MAX_WIDTH = 640,
+            charts = document.querySelector(".charts"),
             targetRect = target.getBoundingClientRect(),
             left = targetRect.left,
-            top = targetRect.top + targetRect.height + 4,
+            top = targetRect.top + targetRect.height + OFFSET,
             bodyWidth = document.body.getBoundingClientRect().width;
-        if (left + 640 > bodyWidth) {
-            left = bodyWidth - 640;
+        if (left + MAX_WIDTH > bodyWidth) {
+            left = bodyWidth - MAX_WIDTH;
         }
         charts.innerHTML = "";
         if (tilesById[target.id].drawCharts()) {
