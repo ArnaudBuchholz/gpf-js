@@ -7,6 +7,7 @@
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfCompatibilityInstallMethods*/ // Define and install compatible methods on standard objects
 /*global _gpfIsArray:true*/ // Return true if the parameter is an array
+/*global _gpfIgnore*/
 /*#endif*/
 
 //region Array helpers
@@ -70,11 +71,10 @@ function _gpfArrayConvertFrom (arrayLike) {
     return array;
 }
 
-function _gpfArrayFrom (arrayLike) {
-    var array = _gpfArrayConvertFrom(arrayLike),
-        callback = arguments[1];
+function _gpfArrayFrom (arrayLike, callback, thisArg) {
+    var array = _gpfArrayConvertFrom(arrayLike);
     if (typeof callback === "function") {
-        array = array.map(callback, arguments[2]);
+        array = array.map(callback, thisArg);
     }
     return array;
 }
@@ -161,7 +161,10 @@ _gpfCompatibilityInstallMethods("Array", {
     statics: {
 
         // Introduced with ECMAScript 2015
-        from: _gpfArrayFrom,
+        from: function (arrayLike) {
+            _gpfIgnore(arrayLike);
+            return _gpfArrayFrom.apply(this, arguments);
+        },
 
         // Introduced with JavaScript 1.8.5
         isArray: function (arrayLike) {
