@@ -4,6 +4,10 @@
 (function () {
     "use strict";
 
+    var READYSTATE_DONE = 4,
+        HTTP_STATUS_CLASS_FACTOR = 100,
+        HTTP_STATUS_CLASS_OK = 2;
+
     function xhrSend (request, method, data) {
         var result = new Promise(function (resolve, reject) {
             var xhr = new XMLHttpRequest();
@@ -12,8 +16,8 @@
                 xhr.setRequestHeader(headerName, request._headers[headerName]);
             });
             xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (Math.floor(xhr.status / 100) === 2) {
+                if (xhr.readyState === READYSTATE_DONE) {
+                    if (Math.floor(xhr.status / HTTP_STATUS_CLASS_FACTOR) === HTTP_STATUS_CLASS_OK) {
                         resolve(xhr.responseText);
                     } else {
                         reject(xhr.statusText);
