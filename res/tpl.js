@@ -9,6 +9,7 @@
  * - {%%}="code" will be evaluated with $object=object, $index=index and $write(value)
  * - (% code %} will be injected in the function with $object=object and $index=index
  */
+/*eslint no-magic-numbers: 0*/
 (function () {
     "use strict";
 
