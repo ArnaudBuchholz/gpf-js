@@ -1,6 +1,7 @@
 "use strict";
 
 const
+    JSDOC_COMMENT = "/**",
     path = require("path"),
     trace = text => console.log(`[gpf doc plugin] ${text}`),
 
@@ -227,13 +228,13 @@ const
             params = undefined;
         }
         return [
-            "/**",
+            JSDOC_COMMENT,
             ` * throw {@link gpf.Error.${className}}`,
             ` * @method gpf.Error.${name}`,
             ` * @throws {gpf.Error.${className}}`,
             params,
             " */",
-            "/**",
+            JSDOC_COMMENT,
             comment,
             ` * @class gpf.Error.${className}`,
             params,
@@ -244,17 +245,22 @@ const
 
     checkForGpfErrorDeclare = event => {
         reErrorDeclare.lastIndex = 0;
-        const match = reErrorDeclare.exec(event.source);
+        const
+            MATCH_ERRORS_PART = 2,
+            MATCH_ERRORITEM_NAME = 2,
+            MATCH_ERRORITEM_MESSAGE = 3,
+            MATCH_ERRORITEM_COMMENT = 1,
+            match = reErrorDeclare.exec(event.source);
         if (match) {
-            let // moduleName = match[1],
-                errorsPart = match[2],
+            let errorsPart = match[MATCH_ERRORS_PART],
                 errorItem,
                 comments = [];
             reErrorItems.lastIndex = 0;
             errorItem = reErrorItems.exec(errorsPart);
             while (errorItem) {
-                trace(`error: ${errorItem[2]}`);
-                comments.push(generateJsDocForError(errorItem[2], errorItem[3], errorItem[1]));
+                trace(`error: ${errorItem[MATCH_ERRORITEM_NAME]}`);
+                comments.push(generateJsDocForError(errorItem[MATCH_ERRORITEM_NAME], errorItem[MATCH_ERRORITEM_MESSAGE],
+                    errorItem[MATCH_ERRORITEM_COMMENT]));
                 errorItem = reErrorItems.exec(errorsPart);
             }
             event.source += comments.join("\r\n");
@@ -268,7 +274,7 @@ const
         let match = reGpfDefine.exec(event.source);
         while (match) {
             event.source = event.source.replace(match[0],
-                match[0].replace("_gpfDefine(", `_gpfDefine(/** @lends ${match[1]}.prototype */`));
+                match[0].replace("_gpfDefine(", `_gpfDefine(${JSDOC_COMMENT} @lends ${match[1]}.prototype */`));
             match = reGpfDefine.exec(event.source);
         }
     },
@@ -282,7 +288,7 @@ const
             if (match[0].indexOf("@lends") === -1) {
                 // No @lends, adds it
                 event.source = event.source.replace(match[0],
-                    match[0].replace("{", `/** @lends ${match[1]}.prototype */ {`));
+                    match[0].replace("{", `${JSDOC_COMMENT} @lends ${match[1]}.prototype */ {`));
             }
             match = rePrototypeAssign.exec(event.source);
         }
@@ -296,7 +302,7 @@ const
             fileComment;
         if (match) {
             fileComment = match[0];
-            event.source = event.source.replace(fileComment, `/* ${fileComment.substr(2)}`);
+            event.source = event.source.replace(fileComment, `/* ${fileComment.substr(JSDOC_COMMENT.length)}`);
         }
     },
 
