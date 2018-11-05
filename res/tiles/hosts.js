@@ -6,7 +6,8 @@ gpf.require.define({
 }, function (require) {
     "use strict";
 
-    var dom = require.dom,
+    var HTTP_NOTFOUND = 404,
+        dom = require.dom,
         config = require.config;
 
     return gpf.define({
@@ -21,7 +22,7 @@ gpf.require.define({
         getDynamicContent: function () {
             return gpf.http.get("/fs/test/legacy")
                 .then(function (response) {
-                    if (response.status === 404) {
+                    if (response.status === HTTP_NOTFOUND) {
                         return [];
                     }
                     return JSON.parse(response.responseText);
