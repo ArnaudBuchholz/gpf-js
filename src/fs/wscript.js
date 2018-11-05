@@ -111,6 +111,9 @@ function _gpfFsWScriptExplore (path) {
     gpf.Error.pathNotExplorable();
 }
 
+var _GPF_FS_WSCRIPT_READING = 1,
+    _GPF_FS_WSCRIPT_APPENDING = 8;
+
 /**
  * WScript specific IFileStorage implementation
  *
@@ -141,9 +144,9 @@ var _GpfWScriptFileStorage = _gpfDefine({
         return new Promise(function (resolve) {
             var stream;
             if (_GPF_FS_OPENFOR.READING === mode) {
-                stream = new _GpfWscriptReadableStream(_gpfMsFSO.OpenTextFile(path, 1, false));
+                stream = new _GpfWscriptReadableStream(_gpfMsFSO.OpenTextFile(path, _GPF_FS_WSCRIPT_READING, false));
             } else {
-                stream = new _GpfWscriptWritableStream(_gpfMsFSO.OpenTextFile(path, 8, true));
+                stream = new _GpfWscriptWritableStream(_gpfMsFSO.OpenTextFile(path, _GPF_FS_WSCRIPT_APPENDING, true));
             }
             resolve(stream);
         });
