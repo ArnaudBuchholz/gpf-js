@@ -48,7 +48,8 @@ function _gpfGenerateGenericFactory (maxParameters) {
  * @this {Function} constructor to invoke
  * @since 0.1.5
  */
-var _gpfGenericFactory = _gpfGenerateGenericFactory(10);
+var _GPF_FACTORY_DEFAULT_PARAMETERS_COUNT = 10,
+    _gpfGenericFactory = _gpfGenerateGenericFactory(_GPF_FACTORY_DEFAULT_PARAMETERS_COUNT);
 
 /**
  * Call a constructor with an array of parameters.
