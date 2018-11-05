@@ -11,12 +11,16 @@ require("../src/boot.js");
 
 const
     CACHE_FILE = "tmp/doc.cache",
+    AFTER_COMMAND = 2,
+    HTTP_OK = 200,
+    HTTP_MOVED_PERMANENTLY = 301,
+    HTTP_FOUND = 302,
     gpfFs = gpf.fs.getFileStorage(),
     processed = {},
     cache = [],
     stack = [{
         method: "GET",
-        url: process.argv[2]
+        url: process.argv[AFTER_COMMAND]
     }],
     verbose = process.argv.some(arg => arg === "-verbose"),
     log = verbose ? console.log.bind(console) : () => {},
@@ -33,7 +37,7 @@ const
         }
         return gpf.http[method.toLowerCase()](url).then(response => {
             processed[url] = response;
-            if ([200, 301, 302].indexOf(response.status) === -1) {
+            if ([HTTP_OK, HTTP_MOVED_PERMANENTLY, HTTP_FOUND].indexOf(response.status) === -1) {
                 ++errors;
                 console.error(method.magenta, url.magenta, response.status.toString().red);
                 return;
