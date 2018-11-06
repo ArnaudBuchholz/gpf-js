@@ -158,11 +158,14 @@ function _gpfWebGetNamespace (prefix) {
  * @since 0.2.2
  */
 function _gpfWebGetNamespaceAndName (name) {
-    var parts = name.split(":");
-    if (parts.length === 2) {
+    var EXPECTED_PARTS_COUNT = 2,
+        NAMESPACE_PREFIX = 0,
+        NAME = 1,
+        parts = name.split(":");
+    if (parts.length === EXPECTED_PARTS_COUNT) {
         return {
-            namespace: _gpfWebGetNamespace(parts[0]),
-            name: parts[1]
+            namespace: _gpfWebGetNamespace(parts[NAMESPACE_PREFIX]),
+            name: parts[NAME]
         };
     }
 }
