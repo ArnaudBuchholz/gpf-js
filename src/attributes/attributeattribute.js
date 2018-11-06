@@ -45,7 +45,7 @@ var _gpfAttributesAttributeAttribute = _gpfDefine({
      * @protected
      * @since 0.2.8
      */
-    _targetCheck: _gpfCreateAbstractFunction(3),
+    _targetCheck: _gpfCreateAbstractFunction(),
 
     _overrideTargetCheck: function (classPrototype) {
         var me = this,
