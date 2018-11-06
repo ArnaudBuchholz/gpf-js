@@ -61,24 +61,24 @@ function _gpfRequireJSGetStaticDependencies (resourceName, content) {
 
 //region AMD define wrapper
 
-function _gpfRequireAmdDefineParamsFactoryOnly (params) {
+function _gpfRequireAmdDefineParamsFactoryOnly (factory) {
     return {
         dependencies: [],
-        factory: params[0]
+        factory: factory
     };
 }
 
-function _gpfRequireAmdDefineParamsDependenciesAndFactory (params) {
+function _gpfRequireAmdDefineParamsDependenciesAndFactory (dependencies, factory) {
     return {
-        dependencies: params[0],
-        factory: params[1]
+        dependencies: dependencies,
+        factory: factory
     };
 }
 
-function _gpfRequireAmdDefineParamsAll (params) {
+function _gpfRequireAmdDefineParamsAll (any, dependencies, factory) {
     return {
-        dependencies: params[1],
-        factory: params[2]
+        dependencies: dependencies,
+        factory: factory
     };
 }
 
@@ -100,7 +100,7 @@ function _gpfRequireAmdDefine (name, dependencies, factory) {
     /*jshint validthis:true*/
     _gpfIgnore(name, dependencies, factory);
     var myGpf = this, //eslint-disable-line
-        params = _gpfRequireAmdDefineParamsMapping[arguments.length](arguments);
+        params = _gpfRequireAmdDefineParamsMapping[arguments.length].apply(null, arguments);
     myGpf.require.define(params.dependencies, function (require) {
         require.length = params.dependencies.length;
         return params.factory.apply(null, [].slice.call(require));
