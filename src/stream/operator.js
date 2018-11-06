@@ -137,7 +137,7 @@ var
          * @abstract
          * @since 0.2.5
          */
-        _process:  _gpfCreateAbstractFunction(1),
+        _process:  _gpfCreateAbstractFunction(),
 
         /**
          * @gpf:sameas gpf.interfaces.IWritableStream#write
