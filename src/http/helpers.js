@@ -33,7 +33,9 @@ var _GPF_HTTP_METHODS = {
     HEAD: "HEAD"
 };
 
-var _gpfHttpHeadersParserRE = new RegExp("([^:\\s]+)\\s*: ?([^\\r]*)", "gm");
+var _gpfHttpHeadersParserRE = new RegExp("([^:\\s]+)\\s*: ?([^\\r]*)", "gm"),
+    _GPF_HTTP_HELPERS_HEADER_NAME = 1,
+    _GPF_HTTP_HELPERS_HEADER_VALUE = 2;
 
 /**
  * Parse HTTP response headers
@@ -45,7 +47,7 @@ var _gpfHttpHeadersParserRE = new RegExp("([^:\\s]+)\\s*: ?([^\\r]*)", "gm");
 function _gpfHttpParseHeaders (headers) {
     var result = {};
     _gpfArrayForEach(_gpfRegExpForEach(_gpfHttpHeadersParserRE, headers), function (match) {
-        result[match[1]] = match[2];
+        result[match[_GPF_HTTP_HELPERS_HEADER_NAME]] = match[_GPF_HTTP_HELPERS_HEADER_VALUE];
     });
     return result;
 }
