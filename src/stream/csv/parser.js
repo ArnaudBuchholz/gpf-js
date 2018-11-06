@@ -223,10 +223,12 @@ var
          * @since 0.2.3
          */
         _addValue: function (match) {
-            if (match[1]) {
-                this._values.push(match[1]);
-            } else /* if (match[2]) */ {
-                this._values.push(this._unescapeQuoted(match[2]));
+            var UNQUOTED = 1,
+                QUOTED = 2;
+            if (match[UNQUOTED]) {
+                this._values.push(match[UNQUOTED]);
+            } else /* if (match[QUOTED]) */ {
+                this._values.push(this._unescapeQuoted(match[QUOTED]));
             }
         },
 
