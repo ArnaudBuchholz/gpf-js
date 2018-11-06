@@ -11,27 +11,28 @@
 /*exported _gpfIsISO8601String*/ // Check if the string is an ISO 8601 representation of a date
 /*#endif*/
 
-var _GPF_COMPATIBILITY_DATE_KEEP_2_DIGITS = -2,
-    _GPF_COMPATIBILITY_DATE_KEEP_3_DIGITS = -3;
+var _GPF_COMPATIBILITY_DATE_KEEP_2_DIGITS = 2,
+    _GPF_COMPATIBILITY_DATE_KEEP_3_DIGITS = 3;
 
-function _pad (number) {
-    return ("0" + number).substr(_GPF_COMPATIBILITY_DATE_KEEP_2_DIGITS);
+function _pad (number, digits) {
+    var padded = "00" + number;
+    return padded.substr(padded.length - digits);
 }
 
 function _gpfDateToISOString (date) {
     return date.getUTCFullYear()
         + "-"
-        + _pad(date.getUTCMonth() + 1)
+        + _pad(date.getUTCMonth() + 1, _GPF_COMPATIBILITY_DATE_KEEP_2_DIGITS)
         + "-"
-        + _pad(date.getUTCDate())
+        + _pad(date.getUTCDate(), _GPF_COMPATIBILITY_DATE_KEEP_2_DIGITS)
         + "T"
-        + _pad(date.getUTCHours())
+        + _pad(date.getUTCHours(), _GPF_COMPATIBILITY_DATE_KEEP_2_DIGITS)
         + ":"
-        + _pad(date.getUTCMinutes())
+        + _pad(date.getUTCMinutes(), _GPF_COMPATIBILITY_DATE_KEEP_2_DIGITS)
         + ":"
-        + _pad(date.getUTCSeconds())
+        + _pad(date.getUTCSeconds(), _GPF_COMPATIBILITY_DATE_KEEP_2_DIGITS)
         + "."
-        + ("00" + date.getUTCMilliseconds()).substr(_GPF_COMPATIBILITY_DATE_KEEP_3_DIGITS)
+        + _pad(date.getUTCMilliseconds(), _GPF_COMPATIBILITY_DATE_KEEP_3_DIGITS)
         + "Z";
 }
 
