@@ -65,6 +65,7 @@
     "compatibility/array": [
         "foreach",
         "compatibility",
+        "boot",
         "arraylike"
     ],
     "factory": [
