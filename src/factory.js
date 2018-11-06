@@ -12,12 +12,12 @@
 /**
  * Builds an array of parameters
  *
- * @param {Number} count Number of parameters to generate
+ * @param {Number} [count=0] Number of parameters to generate
  * @return {Array} Parameters named p0, p1, ...
  * @since 0.1.5
  */
 function _gpfBuildFunctionParameterList (count) {
-    if (count === 0) {
+    if (!count) {
         return [];
     }
     return new Array(count).join(" ").split(" ").map(function (value, index) {
