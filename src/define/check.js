@@ -109,7 +109,7 @@ Object.assign(_GpfEntityDefinition.prototype, {
      * @protected
      * @since 0.1.8
      */
-    _throwInvalidProperty: _gpfCreateAbstractFunction(0),
+    _throwInvalidProperty: _gpfCreateAbstractFunction(),
 
     /**
      * Regular expression used to validate member name
@@ -221,7 +221,7 @@ Object.assign(_GpfEntityDefinition.prototype, {
      * @protected
      * @since 0.1.8
      */
-    _throwInvalidName: _gpfCreateAbstractFunction(0),
+    _throwInvalidName: _gpfCreateAbstractFunction(),
 
     /**
      * Regular expression used to validate entity name
