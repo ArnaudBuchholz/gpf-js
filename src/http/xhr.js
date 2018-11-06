@@ -14,7 +14,8 @@
 /*jshint browser: true*/
 /*eslint-env browser*/
 
-var _gpfHttpXhrSetHeaders = _gpfHttpGenSetHeaders("setRequestHeader"),
+var _GPF_HTTP_XHR_READYSTATE_DONE = 4,
+    _gpfHttpXhrSetHeaders = _gpfHttpGenSetHeaders("setRequestHeader"),
     _gpfHttpXhrSend = _gpfHttpGenSend("send"),
     _gpfHttpXhrGetResponse = _gpfHttpGenGetResponse("status", "getAllResponseHeaders", "responseText");
 
@@ -26,7 +27,7 @@ function _gpfHttpXhrOpen (request) {
 
 function _gpfHttpXhrWaitForCompletion (xhr, callback) {
     xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
+        if (xhr.readyState === _GPF_HTTP_XHR_READYSTATE_DONE) {
             callback();
         }
     };
