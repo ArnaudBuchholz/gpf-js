@@ -6,8 +6,8 @@
 "use strict";
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfCompatibilityInstallMethods*/ // Define and install compatible methods on standard objects
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfIsArray:true*/ // Return true if the parameter is an array
-/*global _gpfIgnore*/
 /*#endif*/
 
 //region Array helpers
