@@ -47,7 +47,6 @@ describe("attributes/memberattribute", function () {
             assert(exceptionCaught instanceof gpf.Error.UniqueAttributeUsedTwice);
         });
 
-
         describe("When used properly", function () {
 
             var Attribute,
