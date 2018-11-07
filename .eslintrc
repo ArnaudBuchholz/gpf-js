@@ -71,12 +71,13 @@
 
         "strict":                       [2, "global"],
 
+        "no-catch-shadow":              2,
         "no-label-var":                 2,
         "no-shadow-restricted-names":   2,
         "no-shadow":                    2,
         "no-undef-init":                2,
         "no-unused-vars":               [2, {"vars": "all", "args": "after-used"}],
-        "no-use-before-define":         [2, "nofunc"],
+        "no-use-before-define":         [2, {"functions": false, "classes": true}],
 
         "handle-callback-err":          2,
         "no-new-require":               2,
