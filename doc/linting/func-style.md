@@ -1,1 +1,1 @@
-enforced on purpose
+Enforced on purpose.
