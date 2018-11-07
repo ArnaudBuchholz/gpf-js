@@ -71,7 +71,6 @@
 
         "strict":                       [2, "global"],
 
-        "no-catch-shadow":              2,
         "no-label-var":                 2,
         "no-shadow-restricted-names":   2,
         "no-shadow":                    2,
