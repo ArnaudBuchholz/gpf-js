@@ -1,1 +1,1 @@
-required for all GPF-JS modules
+Required for all GPF-JS modules.
