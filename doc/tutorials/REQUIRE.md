@@ -23,7 +23,7 @@ A JSON file is loaded, parsed and the result value is the output.
 
 Modules are designed to enforce best practices:
 - The module scope is private, public exposure has to be
-[explicit](https://carldanley.com/js-revealing-module-pattern/). This reduces the global namespace cluttering.
+[explicit](http://jargon.js.org/_glossary/REVEALING_MODULE_PATTERN.md). This reduces the global namespace cluttering.
  *(see the different supported formats below)*
 - Dependencies are loaded first and then made available to the module through
 [injection](https://en.wikipedia.org/wiki/Dependency_injection)
