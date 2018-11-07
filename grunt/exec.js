@@ -11,6 +11,7 @@ const
     // Node supports / on any host
     platoCmd = "node node_modules/plato/bin/plato -l .jshintrc -t GPF-JS -d tmp/plato",
     jsdocCmd = "node node_modules/jsdoc/jsdoc -d tmp/jsdoc --verbose -a all -c doc/private.json",
+    buildLintingDocCmd = "node doc/linting",
     checkdocCmd = `node doc/validate http://localhost:${configuration.serve.httpPort}/tmp/doc/public/index.html`,
 
     config = (cmd, ...options) => {
@@ -84,6 +85,7 @@ module.exports = {
     detectSelenium: config("node test/host/selenium/detect.js", verbose, failIfNot0),
     jsdoc: config((...args) => `${jsdocCmd} ${args.join(" ")}`, verbose, failIfNot0),
     fixUglify: config(name => `node make/fix_uglify.js ${name}`, verbose, failIfNot0),
+    buildLintingDoc: config(buildLintingDocCmd, showErrors, failIfNot0),
     checkDoc: config(checkdocCmd, verbose, failIfNot0)
 };
 
