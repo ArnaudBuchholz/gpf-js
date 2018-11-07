@@ -6,6 +6,7 @@ module.exports = function (grunt) {
         "concurrent:linters",
         "concurrent:quality",
         "exec:metrics",
+        "exec:buildLintingDoc",
         "jsdoc:public",
         "connectIf",
         "exec:checkDoc"
