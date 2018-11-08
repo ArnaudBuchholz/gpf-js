@@ -71,14 +71,14 @@ module.exports = (request, response, next) => {
         basePath = path.join(__dirname, "../.."),
         filePath;
 
-    if (["GET", "PUT", "POST", "OPTIONS", "DELETE"].indexOf(method) === -1) {
+    if (!["GET", "PUT", "POST", "OPTIONS", "DELETE"].includes(method)) {
         response.statusCode = 500;
         response.end("Invalid method");
         return;
     }
 
     filePath = path.join(basePath, request.url.substr(BASE_URL.length));
-    if (path.relative(basePath, filePath).indexOf("..") !== -1) {
+    if (path.relative(basePath, filePath).includes("..")) {
         response.statusCode = 403;
         response.end("Path is forbidden: " + path.relative(__dirname, filePath));
         return;
