@@ -12,7 +12,7 @@ const
     // As of now, this list is 'static', on MacOS, Safari is considered modern
     modernBrowsers = ["chrome", "firefox", tools.isMacOS ? "safari" : ""].map(tools.capitalize);
 
-hosts.modernBrowser = hosts.browser.filter(name => modernBrowsers.indexOf(name) !== -1);
+hosts.modernBrowser = hosts.browser.filter(name => modernBrowsers.includes(name));
 
 if (configuration.host.java) {
     hosts.java.push("Rhino");
@@ -79,9 +79,9 @@ Object.keys(configuration.files.flavors).forEach(flavor => {
         flavorHosts = definition.flavor.split(" ")
             .filter(token => token.indexOf(hostPrefix) === 0)
             .map(token => token.substr(hostPrefix.length)),
-        includesCompatibility = definition.flavor.split(" ").indexOf("compatibility") !== -1,
+        includesCompatibility = definition.flavor.split(" ").includes("compatibility"),
         tasks = Object.keys(hosts)
-            .filter(name => flavorHosts.length === 0 || flavorHosts.indexOf(name) !== -1)
+            .filter(name => flavorHosts.length === 0 || flavorHosts.includes(name))
             .map(name => includesCompatibility || name !== "browser" ? name : "modernBrowser")
             .reduce((list, name) => list.concat(hosts[name]), [])
             .map(name => `exec:test${name}`);
