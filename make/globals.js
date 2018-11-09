@@ -8,7 +8,7 @@ const
         .map(source => source.name);
 
 let
-    rc = 0,
+    errorCount = 0,
     rewrites = {};
 
 class Module {
@@ -21,23 +21,23 @@ class Module {
         this.writableImport = {};
         this.exports = {};
         this.filteredLines = [];
-        this._umdLineIndex = -1;
+        this._umdLineIndex = undefined;
     }
 
     error (text) {
         console.error(`[${this.name}] ${text}`);
-        --rc;
+        ++errorCount;
     }
 
     analyze () {
         this.lines.every(this._dispatchLine, this);
-        if (this._umdLineIndex === -1) {
+        if (this._umdLineIndex === undefined) {
             this.error("missing /*#ifndef(UMD)*/");
         }
     }
 
     _dispatchLine (line, lineIndex) {
-        if (this._umdLineIndex === -1) {
+        if (this._umdLineIndex === undefined) {
             return this._checkLine0(line, lineIndex);
         }
         if (lineIndex === this._umdLineIndex + 1) {
@@ -68,13 +68,13 @@ class Module {
 
     // Content line: select the proper handling
     _analyzeLine (line, lineIndex) {
-        if (line.indexOf(IMPORT_PREFIX) === 0) {
+        if (line.startsWith(IMPORT_PREFIX)) {
             return this._processImport(line, lineIndex);
         }
-        if (line.indexOf(EXPORT_PREFIX) === 0) {
+        if (line.startsWith(EXPORT_PREFIX)) {
             return this._processExport(line, lineIndex);
         }
-        if (line.indexOf("eslint") > -1 || line.indexOf("jshint") > -1) {
+        if (line.includes("eslint") || line.includes("jshint")) {
             // ignore
             return true;
         }
@@ -114,7 +114,7 @@ class Module {
     rebuild () {
         const SKIP_USESTRICT = 2;
         let before = this.lines.join("\n"),
-            lines = this.lines.filter((line, lineIndex) => this.filteredLines.indexOf(lineIndex) === -1),
+            lines = this.lines.filter((line, lineIndex) => !this.filteredLines.includes(lineIndex)),
             spliceArgs = [this._umdLineIndex + SKIP_USESTRICT, 0],
             after;
         this.imports.sort().forEach(name => {
@@ -162,7 +162,7 @@ sources.every(source => {
     return true;
 });
 
-if (rc === 0) {
+if (!errorCount) {
     Object.keys(rewrites).forEach(name => fs.writeFileSync(`./src/${name}.js`, rewrites[name]));
 }
 
@@ -177,7 +177,7 @@ sources.forEach(source => {
         dependsOn = [];
         module.imports.forEach(name => {
             let depOnModuleName = Module.byExport[name].name;
-            if (dependsOn.indexOf(depOnModuleName) === -1) {
+            if (!dependsOn.includes(depOnModuleName)) {
                 dependsOn.push(depOnModuleName);
             }
         });
@@ -189,4 +189,4 @@ sources.forEach(source => {
 
 fs.writeFileSync("./build/dependencies.json", JSON.stringify(dependencies, null, "    "));
 
-process.exit(rc);
+process.exit(-errorCount);
