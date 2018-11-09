@@ -9,7 +9,9 @@ gpf.require.define({
 }, function (require) {
     "use strict";
 
-    var dialogs = require.dialogs,
+    var NOT_FOUND = -1,
+        START = 0,
+        dialogs = require.dialogs,
         dom = require.dom,
         flavor = require.flavor,
         SourceArray = require.SourceArray,
@@ -35,7 +37,7 @@ gpf.require.define({
         var index = source.getIndex(),
             name = sources.byIndex(index).getName();
 
-        if (name.indexOf("host/") !== 0) {
+        if (name.indexOf("host/") !== START) {
             gpf.http.options("/fs/test/" + name + ".js")
                 .then(function (response) {
                     var HTTP_OK = 200;
@@ -77,7 +79,7 @@ gpf.require.define({
     }
 
     function onCheckboxClick (checkbox, source) {
-        var property = checkbox.id.split("_")[0];
+        var property = checkbox.id.split("_")[START];
         if (source.setProperty(property, checkbox.checked)) {
             refreshSourceRow(checkbox, source);
         } else {
@@ -145,20 +147,20 @@ gpf.require.define({
         },
 
         dragover: function (event, targetRow) {
-            if (targetRow.className.indexOf("drag-ok") > -1) {
+            if (targetRow.className.indexOf("drag-ok") !== NOT_FOUND) {
                 event.preventDefault(); // allowed
             }
         },
 
         dragenter: function (event, targetRow) {
-            if (targetRow.className.indexOf(" over") === -1) {
+            if (targetRow.className.indexOf(" over") === NOT_FOUND) {
                 targetRow.className += " over";
             }
         },
 
         dragleave: function (event, targetRow) {
-            if (targetRow.className.indexOf(" over") !== -1) {
-                targetRow.className = targetRow.className.split(" ")[0];
+            if (targetRow.className.indexOf(" over") !== NOT_FOUND) {
+                targetRow.className = targetRow.className.split(" ")[START];
             }
         },
 
@@ -184,13 +186,13 @@ gpf.require.define({
                 contentFullNameLength = contentFullName.length;
             if (contentFullNameLength > JS_EXT_LENGTH
                 && contentFullName.indexOf(JS_EXT) === contentFullNameLength - JS_EXT_LENGTH) {
-                contentFullName = contentFullName.substr(0, contentFullNameLength - JS_EXT_LENGTH);
+                contentFullName = contentFullName.substr(START, contentFullNameLength - JS_EXT_LENGTH);
                 if (checkDictionary[contentFullName] === "obsolete") {
                     checkDictionary[contentFullName] = "exists";
                 } else {
                     checkDictionary[contentFullName] = "new";
                 }
-            } else if (name.indexOf(".") === -1) {
+            } else if (name.indexOf(".") === NOT_FOUND) {
                 subPromises.push(gpf.http.get("/fs/src/" + contentFullName)
                     .then(function (response) {
                         return JSON.parse(response.responseText);
@@ -200,7 +202,7 @@ gpf.require.define({
                     }));
             }
         });
-        if (subPromises.length === 0) {
+        if (!subPromises.length) {
             return Promise.resolve();
         }
         return Promise.all(subPromises);
@@ -221,7 +223,7 @@ gpf.require.define({
             source = sources.byName(sourceRow.id);
             if (target.getAttribute("type") === "checkbox") {
                 onCheckboxClick(target, source);
-            } else if (target.className.indexOf("delete") !== -1) {
+            } else if (target.className.indexOf("delete") !== NOT_FOUND) {
                 onDelete(source);
             }
         },
