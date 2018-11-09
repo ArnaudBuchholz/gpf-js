@@ -9,7 +9,9 @@ gpf.require.define({
 
     /*jshint camelcase: false */
 
-    var dom = require.dom,
+    var NOT_FOUND = -1,
+        START = 0,
+        dom = require.dom,
         root = "https://github.com/ArnaudBuchholz/gpf-js/";
 
     return gpf.define({
@@ -18,7 +20,7 @@ gpf.require.define({
 
         constructor: function () {
             this.$super("github", "GitHub");
-            this._version = require.packageJson.version.split("-")[0];
+            this._version = require.packageJson.version.split("-")[START];
         },
 
         getStaticContent: function () {
@@ -74,8 +76,8 @@ gpf.require.define({
                             title: status.profile.name
                         })
                     ].concat(me._buildMilestoneContent(status.milestones.filter(function (candidate) {
-                        return candidate.title.indexOf(this._version) !== -1;
-                    }, me)[0]));
+                        return candidate.title.indexOf(this._version) !== NOT_FOUND;
+                    }, me)[START]));
                 });
         }
 
