@@ -19,7 +19,7 @@ class Preprocessor {
 
     _searchForMatch (line) {
         return !Object.keys(Preprocessor.tags).every(match => {
-            if (line.indexOf(match) > -1) {
+            if (line.includes(match)) {
                 Preprocessor.tags[match].call(this, line);
                 return false;
             }
@@ -50,7 +50,7 @@ Preprocessor.tags = {
 
     "/*#if": function (line) {
         /*jshint validthis:true*/ // Called with the context of Preprocessor
-        let invert = line.indexOf("/*#ifndef(") > -1,
+        let invert = line.includes("/*#ifndef("),
             define = line.split("(")[1].split(")")[0],
             ignore;
         ignore = !this._defines[define];
