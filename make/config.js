@@ -45,10 +45,10 @@ const
 
     detectWScript = () => spawnProcess("cscript.exe", ["/E:JScript", "build/gpf.js"])
         .then(output => {
-            if (output.indexOf("Can't find script engine") === -1) {
-                console.log("\tWScript detected".cyan);
-            } else {
+            if (output.includes("Can't find script engine")) {
                 console.log("\tWScript detected *but* JScript engine missing".magenta);
+            } else {
+                console.log("\tWScript detected".cyan);
             }
         }, () => {
             console.log("\tWScript *not* detected".magenta);
