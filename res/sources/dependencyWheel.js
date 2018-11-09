@@ -12,6 +12,7 @@ gpf.require.define({
     var WIDTH = 800,
         MARGIN = 200,
         PADDING = 0.02,
+        NOT_FOUND = -1,
         dom = require.dom,
         flavor = require.flavor,
         sourceIsAllowed = require.sources.reduce(function (map, source, index) {
@@ -37,7 +38,7 @@ gpf.require.define({
 
     function getDependencyMatrixRow (listOfDependencies) {
         return dependencyNames.map(function (dependencyName) {
-            return listOfDependencies.indexOf(dependencyName) !== -1;
+            return listOfDependencies.indexOf(dependencyName) !== NOT_FOUND;
         });
     }
 
