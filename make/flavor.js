@@ -1,12 +1,13 @@
 "use strict";
 
-const hostPrefix = "host:";
+var HOST_PREFIX = "host:",
+    NOT_FOUND = -1;
 
 function categorize (tags) {
     return tags.split(" ").reduce(function (categorized, tag) {
         if (tag) {
-            if (tag.indexOf(hostPrefix) === 0) {
-                categorized.hosts.push(tag.substr(hostPrefix.length));
+            if (tag.indexOf(HOST_PREFIX) === 0) {
+                categorized.hosts.push(tag.substr(HOST_PREFIX.length));
             } else if (tag.charAt(0) === "-") {
                 categorized.excluded.push(tag.substr(1));
             } else {
@@ -23,12 +24,12 @@ function categorize (tags) {
 
 function intersect (array1, array2) {
     return array1.some(function (value1) {
-        return array2.indexOf(value1) !== -1;
+        return array2.indexOf(value1) !== NOT_FOUND;
     });
 }
 
 function includeCore (tags) {
-    return tags.features.indexOf("core") !== -1;
+    return tags.features.indexOf("core") !== NOT_FOUND;
 }
 
 function includeFeature (tags, requested) {
@@ -45,7 +46,7 @@ function includeHost (tags, requested) {
 
 function includeRequestedSources (sources, requested) {
     return sources.map(function (source) {
-        if (requested.excluded.indexOf(source.name) !== -1) {
+        if (requested.excluded.indexOf(source.name) !== NOT_FOUND) {
             return false;
         }
         var tags = categorize(source.tags || ""),
@@ -89,14 +90,14 @@ function getFlavor (sources, dependencies, request) {
         features = [].concat(requested.features),
         featureSetChanged = false;
     function allow (dependency) {
-        if (requested.excluded.indexOf(dependency) !== -1) {
+        if (requested.excluded.indexOf(dependency) !== NOT_FOUND) {
             return;
         }
         var sourceIndex = getSourceIndex(sources, dependency),
             tags = categorize(sources[sourceIndex].tags || "");
         // Process dependant features
         tags.features.forEach(function (feature) {
-            if (features.indexOf(feature) === -1) {
+            if (features.indexOf(feature) === NOT_FOUND) {
                 features.push(feature);
                 featureSetChanged = true;
             }
