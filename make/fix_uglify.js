@@ -4,6 +4,7 @@
 const
     EXCEPTION_VARIABLE = "e_",
     FILENAME_ARG = 2,
+    GENERIC_FAILURE = -1,
     fs = require("fs"),
     fileName = `build/${process.argv[FILENAME_ARG]}.js`,
     getVariableNameMatcher = name => new RegExp("\\b" + name + "\\b", "g");
@@ -37,5 +38,5 @@ Promise.resolve(fs.readFileSync(fileName))
     .then(() => console.log("Fixed uglify'ed version of " + fileName))
     .catch(error => {
         console.error("Error while fixing uglify'ed version of " + fileName + ": " + error.message);
-        process.exit(-1);
+        process.exit(GENERIC_FAILURE);
     });
