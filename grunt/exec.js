@@ -44,7 +44,7 @@ const
 
     testConfig = (name, rawCommand, parameters) => {
         let command;
-        if (isWindows && rawCommand.indexOf(" ") !== -1) {
+        if (isWindows && rawCommand.includes(" ")) {
             command = `"${rawCommand}"`;
         } else {
             command = rawCommand;
