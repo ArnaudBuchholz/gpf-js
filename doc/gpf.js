@@ -1,6 +1,7 @@
 "use strict";
 
 const
+    START = 0,
     JSDOC_COMMENT = "/**",
     path = require("path"),
     trace = text => console.log(`[gpf doc plugin] ${text}`),
@@ -33,7 +34,7 @@ const
     findRefDoclet = (doclets, doclet, tag) => {
         let refLongname = tag.value;
         if (!refLongname.includes("#") && doclet.longname.includes("#")) {
-            refLongname = doclet.longname.split("#")[0] + "#" + refLongname;
+            refLongname = doclet.longname.split("#")[START] + "#" + refLongname;
         }
         return findDoclet(doclets, refLongname, tag.title);
     },
@@ -123,7 +124,7 @@ const
                 type;
             if (codeType === "Literal") {
                 type = typeof doclet.meta.code.value;
-                type = type.charAt(0).toUpperCase() + type.substr(1);
+                type = type.charAt(START).toUpperCase() + type.substr(1);
             } else if (codeType === "ArrayExpression") {
                 type = "Array";
             } else if (codeType === "ObjectExpression") {
@@ -135,7 +136,7 @@ const
 
     checkAccess = doclet => {
         if (!doclet.access) {
-            doclet.access = doclet.name.charAt(0) === "_" ? "private" : "public";
+            doclet.access = doclet.name.charAt(START) === "_" ? "private" : "public";
         }
     },
 
@@ -212,10 +213,10 @@ const
     errorParam = " * @param {Object} context Dictionary of parameters used to format the message, must contain",
 
     generateJsDocForError = (name, message, comment) => {
-        let className = name.charAt(0).toUpperCase() + name.substr(1),
+        let className = name.charAt(START).toUpperCase() + name.substr(1),
             params = [],
             param;
-        reContextualParams.lastIndex = 0;
+        reContextualParams.lastIndex = START;
         param = reContextualParams.exec(message);
         while (param) {
             params.push(" * - {String} " + param[1]);
@@ -244,7 +245,7 @@ const
     },
 
     checkForGpfErrorDeclare = event => {
-        reErrorDeclare.lastIndex = 0;
+        reErrorDeclare.lastIndex = START;
         const
             MATCH_ERRORS_PART = 2,
             MATCH_ERRORITEM_NAME = 2,
@@ -255,7 +256,7 @@ const
             let errorsPart = match[MATCH_ERRORS_PART],
                 errorItem,
                 comments = [];
-            reErrorItems.lastIndex = 0;
+            reErrorItems.lastIndex = START;
             errorItem = reErrorItems.exec(errorsPart);
             while (errorItem) {
                 trace(`error: ${errorItem[MATCH_ERRORITEM_NAME]}`);
@@ -270,11 +271,11 @@ const
     reGpfDefine = /_gpfDefine\([^$]*\$class:\s*"([a-zA-Z.]+)"/g,
 
     checkForGpfDefine = event => {
-        reGpfDefine.lastIndex = 0;
+        reGpfDefine.lastIndex = START;
         let match = reGpfDefine.exec(event.source);
         while (match) {
-            event.source = event.source.replace(match[0],
-                match[0].replace("_gpfDefine(", `_gpfDefine(${JSDOC_COMMENT} @lends ${match[1]}.prototype */`));
+            event.source = event.source.replace(match[START],
+                match[START].replace("_gpfDefine(", `_gpfDefine(${JSDOC_COMMENT} @lends ${match[1]}.prototype */`));
             match = reGpfDefine.exec(event.source);
         }
     },
@@ -282,13 +283,13 @@ const
     rePrototypeAssign = /Object\.assign\((\w+)\.prototype,[^{]+{/g,
 
     checkForPrototypeAssign = event => {
-        rePrototypeAssign.lastIndex = 0;
+        rePrototypeAssign.lastIndex = START;
         let match = rePrototypeAssign.exec(event.source);
         while (match) {
-            if (match[0].indexOf("@lends") === -1) {
+            if (!match[START].includes("@lends")) {
                 // No @lends, adds it
-                event.source = event.source.replace(match[0],
-                    match[0].replace("{", `${JSDOC_COMMENT} @lends ${match[1]}.prototype */ {`));
+                event.source = event.source.replace(match[START],
+                    match[START].replace("{", `${JSDOC_COMMENT} @lends ${match[1]}.prototype */ {`));
             }
             match = rePrototypeAssign.exec(event.source);
         }
@@ -297,11 +298,11 @@ const
     reFileComment = /(?:\/\*\*(?:[^*]|\s\*[^/])*@file(?:[^*]|\s\*[^/])*\*\/)/g,
 
     disableFileComment = event => {
-        reFileComment.lastIndex = 0;
+        reFileComment.lastIndex = START;
         let match = reFileComment.exec(event.source),
             fileComment;
         if (match) {
-            fileComment = match[0];
+            fileComment = match[START];
             event.source = event.source.replace(fileComment, `/* ${fileComment.substr(JSDOC_COMMENT.length)}`);
         }
     },
