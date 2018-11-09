@@ -1,6 +1,8 @@
 gpf.require.define({}, function () {
     "use strict";
 
+    var NOT_FOUND = -1;
+
     //region Source and SourceArray definitions
     return gpf.define({
         $class: "Source",
@@ -39,7 +41,7 @@ gpf.require.define({}, function () {
         },
 
         /** Source index */
-        _index: -1,
+        _index: NOT_FOUND,
 
         /** @gpf:read _index */
         getIndex: function () {
@@ -109,7 +111,7 @@ gpf.require.define({}, function () {
             this._dependencyOf = [];
             Object.keys(dependencies).forEach(function (name) {
                 var nameDependencies = dependencies[name];
-                if (nameDependencies.indexOf(this._name) > -1) {
+                if (nameDependencies.indexOf(this._name) !== NOT_FOUND) {
                     this._dependencyOf.push(name);
                 }
             }, this);
@@ -194,11 +196,11 @@ gpf.require.define({}, function () {
         },
 
         hasDependencies: function () {
-            return this._dependsOn.length > 0;
+            return Boolean(this._dependsOn.length);
         },
 
         isReferenced: function () {
-            return this._dependencyOf.length > 0;
+            return Boolean(this._dependencyOf.length);
         },
 
         setCheckedState: function (checkedState) {
