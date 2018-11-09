@@ -10,6 +10,7 @@ global.gpfSourcesPath = "src/";
 require("../src/boot.js");
 
 const
+    START = 0,
     CACHE_FILE = "tmp/doc.cache",
     AFTER_COMMAND = 2,
     HTTP_OK = 200,
@@ -37,7 +38,7 @@ const
         }
         return gpf.http[method.toLowerCase()](url).then(response => {
             processed[url] = response;
-            if ([HTTP_OK, HTTP_MOVED_PERMANENTLY, HTTP_FOUND].indexOf(response.status) === -1) {
+            if (![HTTP_OK, HTTP_MOVED_PERMANENTLY, HTTP_FOUND].includes(response.status)) {
                 ++errors;
                 console.error(method.magenta, url.magenta, response.status.toString().red);
                 return;
@@ -49,7 +50,7 @@ const
             const baseUrl = gpf.path.extension(url) ? gpf.path.parent(url) : url;
             response.responseText.replace(/href="([^"]+)"/g, function (text, multilineSubUrl) {
                 var subUrl = multilineSubUrl.replace(/\r|\n/g, "");
-                if (subUrl.indexOf("http") === 0) {
+                if (subUrl.startsWith("http")) {
                     // Absolute
                     enqueue({
                         method: "HEAD",
@@ -68,7 +69,7 @@ const
 
     next = () => stack.length
         ? check(stack.shift()).then(next)
-        : 0;
+        : Promise.resolve();
 
 log("Loading cache...");
 gpf.fs.read(CACHE_FILE)
@@ -76,7 +77,7 @@ gpf.fs.read(CACHE_FILE)
         processed[url] = true;
     }), () => {})
     .then(() => {
-        log(`Checking ${stack[0].url}...`);
+        log(`Checking ${stack[START].url}...`);
         return next();
     })
     .then(() => {}, () => {}) // Absorb errors
