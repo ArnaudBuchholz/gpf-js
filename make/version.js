@@ -2,6 +2,7 @@
 
 const
     FIRST_CMDLINE_PARAM = 2,
+    GENERIC_ERROR = -1,
     fs = require("fs"),
     verbose = process.argv[FIRST_CMDLINE_PARAM] === "-verbose",
     packageJson = JSON.parse(fs.readFileSync("package.json").toString()),
@@ -32,6 +33,7 @@ const
     JSDOC_END = "*/",
 
     _injectSinceComment = (source, jsdocComment, lastIndex) => {
+        const LAST = -1;
         let newComment = jsdocComment.split("\n"),
             pos,
             len;
@@ -47,13 +49,13 @@ const
                 " " + JSDOC_END
             ].join(`\n${source.content.substr(pos, len)}`);
         }
-        newComment.splice(-1, 0, newComment[newComment.length - 1].replace(JSDOC_END, `* @since ${version}`));
+        newComment.splice(LAST, 0, newComment[newComment.length - 1].replace(JSDOC_END, `* @since ${version}`));
         return newComment.join("\n");
     },
 
     _removeSinceComment = (jsdocComment) => jsdocComment
         .split("\n")
-        .filter(line => line.indexOf("@since") === -1)
+        .filter(line => !line.includes("@since"))
         .join("\n"),
 
     _processCommentForSince = (source, jsdocCommentMatch, lastIndex) => {
@@ -61,11 +63,11 @@ const
             hasSince,
             newComment;
         jsdocComment = jsdocCommentMatch[0];
-        if (jsdocComment.indexOf("@lends") > -1) {
+        if (jsdocComment.includes("@lends")) {
             return false;
         }
         newComment = undefined;
-        hasSince = jsdocComment.indexOf("@since") > -1;
+        hasSince = jsdocComment.includes("@since");
         if (source.load !== false) {
             if (!hasSince) {
                 newComment = _injectSinceComment(source, jsdocComment, lastIndex);
@@ -91,7 +93,7 @@ const
         } catch (e) {
             if (source.load !== false) {
                 console.error(e);
-                process.exit(-1);
+                process.exit(GENERIC_ERROR);
             }
         }
         _reJsdocComment.lastIndex = 0;
