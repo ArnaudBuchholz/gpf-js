@@ -124,6 +124,24 @@ describe("compatibility", function () {
                     },
                     "must ignore undefined members": arrayMethodShouldIgnoreUndefined
                 },
+                includes: {
+                    length: 1,
+                    "indicates if the parameter is in the array": function (method) {
+                        var obj = {},
+                            array = [1, 2, 3, obj, "abc"];
+                        assert(method.call(array, obj));
+                    },
+                    "indicates if the parameter is not in the array": function (method) {
+                        var obj = {},
+                            array = [1, 2, 3, "abc"];
+                        assert(!method.call(array, obj));
+                    },
+                    "supports fromIndex parameter": function (method) {
+                        var array = [1, 2, 3, "abc"];
+                        assert(method.call(array, 3, 2));
+                        assert(!method.call(array, 3, 3));
+                    }
+                },
                 indexOf: {
                     length: 1,
                     "must expose indexOf()": function (method) {
@@ -134,6 +152,11 @@ describe("compatibility", function () {
                         assert(method.call(array, obj) === 3);
                         assert(method.call(array, {}) === -1);
                         assert(method.call(array, "abc") === 4);
+                    },
+                    "supports fromIndex parameter": function (method) {
+                        var array = [1, 2, 3, "abc"];
+                        assert(method.call(array, 3, 2) === 2);
+                        assert(method.call(array, 3, 3) === -1);
                     }
                 },
                 map: {
@@ -508,13 +531,6 @@ describe("compatibility", function () {
             },
 
             String: {
-                trim: {
-                    length: 0,
-                    "must trim left and right": function (method) {
-                        var string = " \t  abc\t \t";
-                        assert(method.call(string) === "abc");
-                    }
-                },
                 endsWith: {
                     length: 1,
                     "must return true if string ends by the provided one": function (method) {
@@ -525,6 +541,37 @@ describe("compatibility", function () {
                     },
                     "accepts a length parameter to fix input string size": function (method) {
                         assert(method.call("To be, or not to be, that is the question.", "to be", 19));
+                    }
+                },
+                includes: {
+                    length: 1,
+                    "must return true if string includes the provided one": function (method) {
+                        assert(method.call("To be, or not to be, that is the question.", "or not to be"));
+                    },
+                    "must return false if string does not include the provided one": function (method) {
+                        assert(!method.call("To be, or not to be, that is the question.", "not be"));
+                    },
+                    "accepts a position parameter": function (method) {
+                        assert(!method.call("To be, or not to be, that is the question.", "To be", 14));
+                    }
+                },
+                startsWith: {
+                    length: 1,
+                    "must return true if string starts by the provided one": function (method) {
+                        assert(method.call("To be, or not to be, that is the question.", "To be"));
+                    },
+                    "must return false if string does not start by the provided one": function (method) {
+                        assert(!method.call("To be, or not to be, that is the question.", "question."));
+                    },
+                    "accepts a position parameter": function (method) {
+                        assert(method.call("To be, or not to be, that is the question.", "to be", 14));
+                    }
+                },
+                trim: {
+                    length: 0,
+                    "must trim left and right": function (method) {
+                        var string = " \t  abc\t \t";
+                        assert(method.call(string) === "abc");
                     }
                 }
             },
