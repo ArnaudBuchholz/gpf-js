@@ -5,11 +5,11 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfCompatibilityInstallMethods*/ // Define and install compatible methods on standard objects
+/*global _GPF_NOT_FOUND*/ // -1
+/*global _GPF_START*/ // 0
 /*#endif*/
 
-var _GPF_COMPATIBILITY_STRING_NOT_FOUND = -1,
-    _GPF_COMPATIBILITY_STRING_START = 0,
-    _GPF_COMPATIBILITY_STRING_OPTIONAL_PARAM_INDEX = 1;
+var _GPF_COMPATIBILITY_STRING_OPTIONAL_PARAM_INDEX = 1;
 
 _gpfCompatibilityInstallMethods("String", {
     on: String,
@@ -24,13 +24,13 @@ _gpfCompatibilityInstallMethods("String", {
 
         // Introduced with ECMAScript 2015
         includes: function (search) {
-            var position = arguments[_GPF_COMPATIBILITY_STRING_OPTIONAL_PARAM_INDEX] || _GPF_COMPATIBILITY_STRING_START;
-            return this.indexOf(search, position) !== _GPF_COMPATIBILITY_STRING_NOT_FOUND;
+            var position = arguments[_GPF_COMPATIBILITY_STRING_OPTIONAL_PARAM_INDEX] || _GPF_START;
+            return this.indexOf(search, position) !== _GPF_NOT_FOUND;
         },
 
         // Introduced with ECMAScript 2015
         startsWith: function (search) {
-            var position = arguments[_GPF_COMPATIBILITY_STRING_OPTIONAL_PARAM_INDEX] || _GPF_COMPATIBILITY_STRING_START;
+            var position = arguments[_GPF_COMPATIBILITY_STRING_OPTIONAL_PARAM_INDEX] || _GPF_START;
             return this.substr(position, search.length) === search;
         },
 
