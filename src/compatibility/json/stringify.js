@@ -94,7 +94,7 @@ function _gpfJsonStringifyCheckReplacer (replacer) {
     if (_gpfIsArray(replacer)) {
         // whitelist
         return function (key, value) {
-            if (replacer.indexOf(key) !== -1) {
+            if (replacer.includes(key)) {
                 return value;
             }
         };
