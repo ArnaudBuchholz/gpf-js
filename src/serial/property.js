@@ -127,7 +127,7 @@ var _gpfSerialPropertyTypes = Object.keys(_GPF_SERIAL_TYPE).map(function (name) 
 });
 
 function _gpfSerialPropertyCheckTypeExists (type) {
-    if (_gpfSerialPropertyTypes.indexOf(type) === -1) {
+    if (!_gpfSerialPropertyTypes.includes(type)) {
         gpf.Error.invalidSerialType();
     }
 }
