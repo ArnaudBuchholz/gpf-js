@@ -7,6 +7,7 @@ The library offers a common compatibility layer whatever the environment it runs
 * [every](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every)
 * [filter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter)
 * [forEach](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach)
+* [includes](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/includes)
 * [indexOf](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf)
 * [map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)
 * [reduce](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce)
@@ -42,16 +43,18 @@ supported on all hosts.
 
 ### String
 
-* [trim](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trim)
 * [endsWith](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith)
+* [includes](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes)
+* [startsWith](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith)
+* [trim](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trim)
 
 ## Console
 
-The library exposes (when not existing) [console.log](https://developer.mozilla.org/en-US/docs/Web/API/Console/log),
+The library defines (when not existing) [console.log](https://developer.mozilla.org/en-US/docs/Web/API/Console/log),
 [console.warn](https://developer.mozilla.org/en-US/docs/Web/API/Console/warn) and
 [console.error](https://developer.mozilla.org/en-US/docs/Web/API/Console/error).
 
-**NOTE:** Only when string parameter is expected.
+**NOTE:** Only one string parameter is expected.
 
 ## Promise
 
