@@ -44,7 +44,7 @@ Rule | Fixable | Level | Parameters | Comment
 [no-unsafe-negation](https://eslint.org/docs/rules/no-unsafe-negation) | &check; | *error* |  | 
 [require-atomic-updates](https://eslint.org/docs/rules/require-atomic-updates) |   | **-** |  | 
 [use-isnan](https://eslint.org/docs/rules/use-isnan) |   | *error* |  | 
-[valid-jsdoc](https://eslint.org/docs/rules/valid-jsdoc) | &check; | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L6) | Rule parameters are used to normalize the [jsdoc](http://usejsdoc.org/) tags. Also, The rule was also [customized](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrules/valid-jsdoc.js) to match `@gpf` tags. 
+[valid-jsdoc](https://eslint.org/docs/rules/valid-jsdoc) | &check; | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L7) | Rule parameters are used to normalize the [jsdoc](http://usejsdoc.org/) tags. Also, The rule was also [customized](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrules/valid-jsdoc.js) to match `@gpf` tags. 
 [valid-typeof](https://eslint.org/docs/rules/valid-typeof) |   | *error* |  | 
 **Best Practices** | | | |
 [accessor-pairs](https://eslint.org/docs/rules/accessor-pairs) |   | **error** |  | 
@@ -56,7 +56,7 @@ Rule | Fixable | Level | Parameters | Comment
 [curly](https://eslint.org/docs/rules/curly) | &check; | **error** | "all" | 
 [default-case](https://eslint.org/docs/rules/default-case) |   | **error** |  | 
 [dot-location](https://eslint.org/docs/rules/dot-location) | &check; | **error** | "property" | 
-[dot-notation](https://eslint.org/docs/rules/dot-notation) | &check; | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L30) | 
+[dot-notation](https://eslint.org/docs/rules/dot-notation) | &check; | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L31) | 
 [eqeqeq](https://eslint.org/docs/rules/eqeqeq) | &check; | **error** |  | 
 [guard-for-in](https://eslint.org/docs/rules/guard-for-in) |   | **error** |  | 
 [max-classes-per-file](https://eslint.org/docs/rules/max-classes-per-file) |   | **-** |  | 
@@ -83,7 +83,7 @@ Rule | Fixable | Level | Parameters | Comment
 [no-labels](https://eslint.org/docs/rules/no-labels) |   | **error** |  | Really? 
 [no-lone-blocks](https://eslint.org/docs/rules/no-lone-blocks) |   | **error** |  | 
 [no-loop-func](https://eslint.org/docs/rules/no-loop-func) |   | **error** |  | 
-[no-magic-numbers](https://eslint.org/docs/rules/no-magic-numbers) |   | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L48) | Ignoring -1, 0 and 1 that are commonly used. Disabled for test files. 
+[no-magic-numbers](https://eslint.org/docs/rules/no-magic-numbers) |   | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L49) | Ignoring -1, 0 and 1 that are commonly used. Disabled for test files. 
 [no-multi-spaces](https://eslint.org/docs/rules/no-multi-spaces) | &check; | **error** |  | 
 [no-multi-str](https://eslint.org/docs/rules/no-multi-str) |   | **error** |  | 
 [no-native-reassign](https://eslint.org/docs/rules/no-native-reassign) |   | **-** |  | 
@@ -133,8 +133,8 @@ Rule | Fixable | Level | Parameters | Comment
 [no-undef](https://eslint.org/docs/rules/no-undef) |   | *error* |  | 
 [no-undef-init](https://eslint.org/docs/rules/no-undef-init) | &check; | **error** |  | 
 [no-undefined](https://eslint.org/docs/rules/no-undefined) |   | **-** |  | [`undefined`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined) is a value. 
-[no-unused-vars](https://eslint.org/docs/rules/no-unused-vars) |   | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L78) | 
-[no-use-before-define](https://eslint.org/docs/rules/no-use-before-define) |   | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L79) | 
+[no-unused-vars](https://eslint.org/docs/rules/no-unused-vars) |   | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L79) | 
+[no-use-before-define](https://eslint.org/docs/rules/no-use-before-define) |   | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L80) | 
 **Node.js and CommonJS** | | | |
 [callback-return](https://eslint.org/docs/rules/callback-return) |   | **-** |  | 
 [global-require](https://eslint.org/docs/rules/global-require) |   | **-** |  | 
@@ -156,7 +156,7 @@ Rule | Fixable | Level | Parameters | Comment
 [camelcase](https://eslint.org/docs/rules/camelcase) |   | **error** |  | 
 [capitalized-comments](https://eslint.org/docs/rules/capitalized-comments) | &check; | **-** |  | 
 [comma-dangle](https://eslint.org/docs/rules/comma-dangle) | &check; | **error** | "never" | 
-[comma-spacing](https://eslint.org/docs/rules/comma-spacing) | &check; | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L89) | 
+[comma-spacing](https://eslint.org/docs/rules/comma-spacing) | &check; | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L90) | 
 [comma-style](https://eslint.org/docs/rules/comma-style) | &check; | **error** | "last" | 
 [computed-property-spacing](https://eslint.org/docs/rules/computed-property-spacing) | &check; | **-** |  | 
 [consistent-this](https://eslint.org/docs/rules/consistent-this) |   | **error** | "me" | 
@@ -173,8 +173,8 @@ Rule | Fixable | Level | Parameters | Comment
 [indent](https://eslint.org/docs/rules/indent) | &check; | **error** | 4 | 
 [indent-legacy](https://eslint.org/docs/rules/indent-legacy) | &check; | **-** |  | 
 [jsx-quotes](https://eslint.org/docs/rules/jsx-quotes) | &check; | **-** |  | 
-[key-spacing](https://eslint.org/docs/rules/key-spacing) | &check; | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L96) | 
-[keyword-spacing](https://eslint.org/docs/rules/keyword-spacing) | &check; | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L120) | 
+[key-spacing](https://eslint.org/docs/rules/key-spacing) | &check; | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L97) | 
+[keyword-spacing](https://eslint.org/docs/rules/keyword-spacing) | &check; | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L121) | 
 [line-comment-position](https://eslint.org/docs/rules/line-comment-position) |   | **-** |  | 
 [linebreak-style](https://eslint.org/docs/rules/linebreak-style) | &check; | **warning** | "unix" | 
 [lines-around-comment](https://eslint.org/docs/rules/lines-around-comment) | &check; | **-** |  | 
@@ -208,7 +208,7 @@ Rule | Fixable | Level | Parameters | Comment
 [no-nested-ternary](https://eslint.org/docs/rules/no-nested-ternary) |   | **error** |  | 
 [no-new-object](https://eslint.org/docs/rules/no-new-object) |   | **error** |  | 
 [no-plusplus](https://eslint.org/docs/rules/no-plusplus) |   | **-** |  | 
-[no-restricted-syntax](https://eslint.org/docs/rules/no-restricted-syntax) |   | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L107) | 
+[no-restricted-syntax](https://eslint.org/docs/rules/no-restricted-syntax) |   | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L108) | 
 [no-spaced-func](https://eslint.org/docs/rules/no-spaced-func) | &check; | **-** |  | 
 [no-tabs](https://eslint.org/docs/rules/no-tabs) |   | **-** |  | 
 [no-ternary](https://eslint.org/docs/rules/no-ternary) |   | **error** |  | 
@@ -227,18 +227,18 @@ Rule | Fixable | Level | Parameters | Comment
 [padded-blocks](https://eslint.org/docs/rules/padded-blocks) | &check; | **-** |  | 
 [padding-line-between-statements](https://eslint.org/docs/rules/padding-line-between-statements) | &check; | **-** |  | 
 [prefer-object-spread](https://eslint.org/docs/rules/prefer-object-spread) | &check; | **-** |  | 
-[quote-props](https://eslint.org/docs/rules/quote-props) | &check; | **warning** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L114) | 
+[quote-props](https://eslint.org/docs/rules/quote-props) | &check; | **warning** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L115) | 
 [quotes](https://eslint.org/docs/rules/quotes) | &check; | **error** | "double" | 
 [require-jsdoc](https://eslint.org/docs/rules/require-jsdoc) |   | **-** |  | 
 [semi](https://eslint.org/docs/rules/semi) | &check; | **error** | "always" | 
-[semi-spacing](https://eslint.org/docs/rules/semi-spacing) | &check; | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L116) | 
+[semi-spacing](https://eslint.org/docs/rules/semi-spacing) | &check; | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L117) | 
 [semi-style](https://eslint.org/docs/rules/semi-style) | &check; | **-** |  | 
 [sort-keys](https://eslint.org/docs/rules/sort-keys) |   | **-** |  | 
 [sort-vars](https://eslint.org/docs/rules/sort-vars) | &check; | **-** |  | 
-[space-before-blocks](https://eslint.org/docs/rules/space-before-blocks) | &check; | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L118) | 
+[space-before-blocks](https://eslint.org/docs/rules/space-before-blocks) | &check; | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L119) | 
 [space-before-function-paren](https://eslint.org/docs/rules/space-before-function-paren) | &check; | **error** | "always" | 
 [space-in-parens](https://eslint.org/docs/rules/space-in-parens) | &check; | **error** | "never" | 
-[space-infix-ops](https://eslint.org/docs/rules/space-infix-ops) | &check; | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L122) | 
+[space-infix-ops](https://eslint.org/docs/rules/space-infix-ops) | &check; | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L123) | 
 [space-unary-ops](https://eslint.org/docs/rules/space-unary-ops) | &check; | **error** |  | 
 [spaced-comment](https://eslint.org/docs/rules/spaced-comment) | &check; | **-** |  | 
 [switch-colon-spacing](https://eslint.org/docs/rules/switch-colon-spacing) | &check; | **-** |  | 
