@@ -53,7 +53,7 @@ _gpfErrorDeclare("define/check", {
 });
 
 function _gpfDefineEntityCheck$PropertyInAllowed$Properties (name, allowedList) {
-    if (allowedList.includes(name)) {
+    if (!allowedList.includes(name)) {
         gpf.Error.invalidEntity$Property();
     }
 }
