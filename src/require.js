@@ -54,6 +54,9 @@ _gpfErrorDeclare("require", {
  * @since 0.2.2
  */
 
+var _GPF_REQUIRE_OPTION_PRIORITY_HIGH = -1,
+    _GPF_REQUIRE_OPTION_PRIORITY_LOW = 1;
+
 /**
  * Valuate the option priority to have them executed in the proper order
  *
@@ -63,9 +66,9 @@ _gpfErrorDeclare("require", {
  */
 function _gpfRequireOptionPriority (name) {
     if (name === "clearCache") {
-        return -1;
+        return _GPF_REQUIRE_OPTION_PRIORITY_HIGH;
     }
-    return 1;
+    return _GPF_REQUIRE_OPTION_PRIORITY_LOW;
 }
 
 /**
