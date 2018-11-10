@@ -124,7 +124,7 @@ var
         _deduceSeparator: function () {
             var header = this._header;
             this._separator = _gpfArrayForEachFalsy(_gpfCsvSeparators, function (separator) {
-                if (header.indexOf(separator) !== -1) {
+                if (header.includes(separator)) {
                     return separator;
                 }
             }) || _gpfCsvSeparators[0];
