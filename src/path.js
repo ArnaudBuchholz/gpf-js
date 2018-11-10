@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_NOT_FOUND*/ // -1
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
@@ -36,7 +37,7 @@ _gpfErrorDeclare("path", {
 //region _gpfPathDecompose
 
 function _gpfPathSplit (path) {
-    if (path.indexOf("\\") > -1) {
+    if (path.includes("\\")) {
         // DOS path is case insensitive, hence lowercase it
         return path.toLowerCase().split("\\");
     }
@@ -109,7 +110,7 @@ function _gpfPathName (path) {
 function _gpfPathExtension (path) {
     var name = _gpfPathName(path),
         pos = name.lastIndexOf(".");
-    if (pos === -1) {
+    if (pos === _GPF_NOT_FOUND) {
         return "";
     }
     return name.substr(pos);
@@ -250,7 +251,7 @@ gpf.path = {
     nameOnly: function (path) {
         var name = _gpfPathName(path),
             pos = name.lastIndexOf(".");
-        if (pos === -1) {
+        if (pos === _GPF_NOT_FOUND) {
             return name;
         }
         return name.substr(0, pos);
