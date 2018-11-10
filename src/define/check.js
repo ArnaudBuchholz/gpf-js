@@ -53,7 +53,7 @@ _gpfErrorDeclare("define/check", {
 });
 
 function _gpfDefineEntityCheck$PropertyInAllowed$Properties (name, allowedList) {
-    if (allowedList.indexOf(name) === -1) {
+    if (allowedList.includes(name)) {
         gpf.Error.invalidEntity$Property();
     }
 }
@@ -150,7 +150,7 @@ Object.assign(_GpfEntityDefinition.prototype, {
      * @since 0.1.6
      */
     _checkReservedMemberName: function (name) {
-        if (this._reservedNames.indexOf(name) !== -1) {
+        if (this._reservedNames.includes(name)) {
             this._throwInvalidProperty();
         }
     },
