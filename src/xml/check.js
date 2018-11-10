@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_NOT_FOUND*/ // -1
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*exported _gpfXmlCheckDefinableNamespacePrefixName*/ // Check if the given XML namespace prefix name can be defined
 /*exported _gpfXmlCheckQualifiedAttributeName*/ // Check XML qualified attribute name
@@ -141,7 +142,7 @@ function _gpfXmlCheckQualifiedNameAndPrefix (name, prefix) {
 }
 
 function _gpfXmlCheckIfKnownPrefix (prefix, knownPrefixes) {
-    if (knownPrefixes.indexOf(prefix) === -1) {
+    if (!knownPrefixes.includes(prefix)) {
         gpf.Error.unknownXmlNamespacePrefix();
     }
 }
@@ -158,7 +159,7 @@ function _gpfXmlCheckQualifiedElementNameAndPrefix (name, prefix, knownPrefixes)
 function _gpfXmlCheckGetQualified (noPrefixCheck, nameAndPrefixCheck) {
     return function (qName, knownPrefixes) {
         var sep = qName.indexOf(":");
-        if (sep === -1) {
+        if (sep === _GPF_NOT_FOUND) {
             noPrefixCheck(qName);
         } else {
             nameAndPrefixCheck(qName.substr(sep + 1), qName.substr(0, sep), knownPrefixes);
