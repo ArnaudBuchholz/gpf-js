@@ -216,7 +216,7 @@ Object.assign(_GpfClassDefinition.prototype, {
      * @since 0.1.8
      */
     _checkExtendIsNotAnInterface: function () {
-        if (_gpfEmptyFunc.toString.call(this._extend).indexOf("interfaceConstructorFunction") !== -1) {
+        if (_gpfEmptyFunc.toString.call(this._extend).includes("interfaceConstructorFunction")) {
             gpf.Error.invalidClassExtend();
         }
     },
