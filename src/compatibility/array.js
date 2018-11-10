@@ -108,6 +108,13 @@ _gpfCompatibilityInstallMethods("Array", {
             _gpfArrayForEachOwn(this, _gpfArrayBind(callback, arguments[1]));
         },
 
+        // Introduced with ECMAScript 2016
+        includes: function (searchElement) {
+            return !_gpfArrayEveryOwn(this, function (value) {
+                return value !== searchElement;
+            }, arguments[1] || 0);
+        },
+
         // Introduced with JavaScript 1.5
         indexOf: function (searchElement) {
             var result = -1;
