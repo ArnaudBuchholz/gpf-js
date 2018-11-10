@@ -7,6 +7,8 @@
 /*exported _gpfFsExploreEnumerator*/ // IFileStorage.explore helper
 /*#endif*/
 
+var GPF_FS_EXPLORE_BEFORE_START = -1;
+
 /**
  * Automate the use of getInfo on a path array to implement IFileStorage.explore
  *
@@ -17,11 +19,11 @@
  * @since 0.1.9
  */
 function _gpfFsExploreEnumerator (iFileStorage, listOfPaths) {
-    var pos = -1,
+    var pos = GPF_FS_EXPLORE_BEFORE_START,
         info;
     return {
         reset: function () {
-            pos = -1;
+            pos = GPF_FS_EXPLORE_BEFORE_START;
             return Promise.resolve();
         },
         moveNext: function () {
