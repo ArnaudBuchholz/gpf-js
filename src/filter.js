@@ -199,7 +199,7 @@ var // List of converters
 function _gpfCreateFilterGetType (specification) {
     if (typeof specification === "object") {
         return Object.keys(specification).filter(function (property) {
-            return _gpfCreateFilterTypes.indexOf(property) > -1;
+            return _gpfCreateFilterTypes.includes(property);
         })[0];
     }
 }
