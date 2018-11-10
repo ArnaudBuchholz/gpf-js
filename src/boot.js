@@ -5,6 +5,8 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*exported _GPF_HOST*/ // Host types
+/*exported _GPF_NOT_FOUND*/ // -1
+/*exported _GPF_START*/ // 0
 /*exported _GpfFunc*/ // Function
 /*exported _gpfDosPath*/ // DOS-like path
 /*exported _gpfEmptyFunc*/ // An empty function
@@ -33,6 +35,9 @@ var
      * @since 0.1.5
      */
     _gpfVersion = "0.2.8-alpha",
+
+    _GPF_NOT_FOUND = -1,
+    _GPF_START = 0,
 
     /**
      * Host constants
