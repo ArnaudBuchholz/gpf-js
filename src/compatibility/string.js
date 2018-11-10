@@ -4,9 +4,9 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfCompatibilityInstallMethods*/ // Define and install compatible methods on standard objects
 /*global _GPF_NOT_FOUND*/ // -1
 /*global _GPF_START*/ // 0
+/*global _gpfCompatibilityInstallMethods*/ // Define and install compatible methods on standard objects
 /*#endif*/
 
 var _GPF_COMPATIBILITY_STRING_OPTIONAL_PARAM_INDEX = 1;
