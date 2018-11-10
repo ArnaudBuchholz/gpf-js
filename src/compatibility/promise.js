@@ -62,7 +62,7 @@ function _gpfPromiseResolveChainIfFunction (newValue, then) {
 function _gpfPromiseResolveChain (newValue) {
     /*jshint validthis:true*/
     var me = this; //eslint-disable-line no-invalid-this
-    if (newValue && ["object", "function"].indexOf(typeof newValue) !== -1) {
+    if (newValue && ["object", "function"].includes(typeof newValue)) {
         return _gpfPromiseResolveChainIfFunction.call(me, newValue, newValue.then);
     }
 }
