@@ -89,6 +89,7 @@
         "foreach"
     ],
     "compatibility/string": [
+        "boot",
         "compatibility"
     ],
     "compatibility/promise": [
@@ -271,8 +272,8 @@
         "boot"
     ],
     "path": [
-        "foreach",
         "boot",
+        "foreach",
         "error"
     ],
     "stream/nodejs": [
@@ -503,6 +504,7 @@
         "boot"
     ],
     "xml/check": [
+        "boot",
         "error"
     ],
     "interfaces/promisify": [
