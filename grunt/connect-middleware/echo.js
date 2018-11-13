@@ -70,7 +70,7 @@ function _process (request, response) {
 
 module.exports = (request, response, next) => {
 
-    if (request.url.indexOf(BASE_URL) !== 0) {
+    if (!request.url.startsWith(BASE_URL)) {
         return next();
     }
 
