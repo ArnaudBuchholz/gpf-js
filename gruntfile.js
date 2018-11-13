@@ -17,7 +17,9 @@ module.exports = function (grunt) {
     global.configuration = Object.create(configFile.content);
     if (configFile.isNew()) {
         require("fs").readdirSync("./grunt/config").forEach(function (fileName) {
-            grunt.registerTask(fileName.split(".")[0], require("./grunt/config/" + fileName)(grunt));
+            var from = 0,
+                to = fileName.lastIndexOf(".");
+            grunt.registerTask(fileName.substring(from, to), require("./grunt/config/" + fileName)(grunt));
         });
         return;
     }
