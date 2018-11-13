@@ -14,10 +14,13 @@ const
         }
     }),
 
+    BRANCH_IF = 0,
+    BRANCH_ELSE = 1,
+
     mergeBranches = (dest, src) => Object.keys(src).forEach(key => {
         if (dest[key]) {
-            dest[key][0] += src[key][0];
-            dest[key][1] += src[key][1];
+            dest[key][BRANCH_IF] += src[key][BRANCH_IF];
+            dest[key][BRANCH_ELSE] += src[key][BRANCH_ELSE];
         } else {
             dest[key] = src[key];
         }
@@ -48,7 +51,7 @@ const
         const
             configFile = new ConfigFile(),
             hosts = ["phantomjs"];
-        if (Object.keys(configFile.content.browsers).length !== 0) {
+        if (Object.keys(configFile.content.browsers).length) {
             hosts.push("browser");
         }
         if (configFile.content.host.java) {
@@ -83,17 +86,18 @@ module.exports = function (grunt) {
         fs.writeFileSync("tmp/coverage/reports/coverage.json", JSON.stringify(coverage));
     });
 
-    const varPrefix = "var ";
+    const
+        varPrefix = "var ",
+        coverageVariablePos = 1; // Assuming the __cov_ variable is on the second line
 
     grunt.registerTask("fixInstrument", () => {
         // Because code generation uses templates that are instrumented, the __cov_XXX variables must be global
         configuration.files.src.forEach(fileName => {
             let srcPath = `tmp/coverage/instrument/${fileName}`,
                 instrumentedLines = fs.readFileSync(srcPath).toString().split("\n"),
-                // Assuming the __cov_ variable is on the second line
-                secondLine = instrumentedLines[1];
-            if (secondLine.indexOf(varPrefix) === 0) {
-                instrumentedLines[1] = `global.${secondLine.substr(varPrefix.length)}`;
+                coverageVariableLine = instrumentedLines[coverageVariablePos];
+            if (coverageVariableLine.startsWith(varPrefix)) {
+                instrumentedLines[coverageVariablePos] = `global.${coverageVariableLine.substr(varPrefix.length)}`;
                 fs.writeFileSync(srcPath, instrumentedLines.join("\n"));
                 console.log(`${fileName} updated`);
             }
@@ -118,7 +122,7 @@ module.exports = function (grunt) {
     if (configuration.browsers.chrome) {
         coverageTasks.push("exec:testChromeCoverage");
     } else {
-        let browser = Object.keys(configuration.browsers)[0];
+        let browser = Object.keys(configuration.browsers).shift(); // or take the first
         if (browser) {
             coverageTasks.push(`exec:test${tools.capitalize(browser)}Coverage`);
         }
