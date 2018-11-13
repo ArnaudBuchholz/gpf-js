@@ -77,11 +77,11 @@ Object.keys(configuration.files.flavors).forEach(flavor => {
     const
         definition = configuration.files.flavors[flavor],
         flavorHosts = definition.flavor.split(" ")
-            .filter(token => token.indexOf(hostPrefix) === 0)
-            .map(token => token.substr(hostPrefix.length)),
+            .filter(token => token.startsWith(hostPrefix))
+            .map(token => token.substring(hostPrefix.length)),
         includesCompatibility = definition.flavor.split(" ").includes("compatibility"),
         tasks = Object.keys(hosts)
-            .filter(name => flavorHosts.length === 0 || flavorHosts.includes(name))
+            .filter(name => !flavorHosts.length || flavorHosts.includes(name))
             .map(name => includesCompatibility || name !== "browser" ? name : "modernBrowser")
             .reduce((list, name) => list.concat(hosts[name]), [])
             .map(name => `exec:test${name}`);
@@ -89,6 +89,7 @@ Object.keys(configuration.files.flavors).forEach(flavor => {
 });
 
 configuration.files.legacyTest.forEach(versionFile => {
-    let version = versionFile.substr(0, versionFile.lastIndexOf("."));
+    const from = 0;
+    let version = versionFile.substring(from, versionFile.lastIndexOf("."));
     module.exports[`legacy${version}`] = testTasks.map(task => `${task}Legacy:${version}`);
 });
