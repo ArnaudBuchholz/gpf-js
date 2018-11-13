@@ -28,7 +28,7 @@ module.exports = (grunt) => {
                     },
                     "./src/boot.js",
                     () => {
-                        if (grunt.task.current.args[0] === "noConsole") {
+                        if (grunt.task.current.args.includes("noConsole")) {
                             gpf.preventAssertWarnings(true);
                         } else {
                             require("../test/host/console.js");
@@ -115,4 +115,3 @@ module.exports = (grunt) => {
         }
     };
 };
-
