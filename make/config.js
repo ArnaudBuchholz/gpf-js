@@ -109,7 +109,7 @@ const
 
     askForSelenium = () => {
         let confirmation;
-        if (quietMode || Object.keys(config.content.browsers).length === 0) {
+        if (quietMode || !Object.keys(config.content.browsers).length) {
             confirmation = Promise.resolve({confirmed: true});
             console.log("Detecting browsers compatible with selenium".gray);
         } else {
@@ -167,12 +167,12 @@ const
                     configChanged = true;
                 });
         }
-        return promise.then(() => configChanged ? config.save() : 0);
+        return promise.then(() => configChanged ? config.save() : Promise.resolve());
     },
 
     askForCmdLineBrowsers = () => {
         let confirmation;
-        if (quietMode || Object.keys(config.content.browsers).length === 0) {
+        if (quietMode || !Object.keys(config.content.browsers).length) {
             confirmation = Promise.resolve({confirmed: true});
             console.log("Detecting browsers compatible with command line use".gray);
         } else {
