@@ -11,7 +11,7 @@ module.exports = function (grunt) {
         "connectIf",
         "concurrent:source"
     ].concat(configuration.files.legacyTest
-        .map(version => `concurrent:legacy${version.substr(0, version.lastIndexOf("."))}`)
+        .map(version => `concurrent:legacy${version}`)
     ).concat([
         "exec:buildDebug",
         "exec:buildRelease",
