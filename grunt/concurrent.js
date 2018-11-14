@@ -88,8 +88,6 @@ Object.keys(configuration.files.flavors).forEach(flavor => {
     module.exports[`flavor@${flavor}`] = tasks.map(name => `${name}Flavor:${flavor}`);
 });
 
-configuration.files.legacyTest.forEach(versionFile => {
-    const from = 0;
-    let version = versionFile.substring(from, versionFile.lastIndexOf("."));
+configuration.files.legacyTest.forEach(version => {
     module.exports[`legacy${version}`] = testTasks.map(task => `${task}Legacy:${version}`);
 });
