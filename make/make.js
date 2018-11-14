@@ -32,7 +32,7 @@ process.argv.slice(AFTER_COMMAND).forEach(value => {
 });
 
 const flavorPrefix = "flavor/";
-if (version && version.indexOf(flavorPrefix) === 0) {
+if (version && version.startsWith(flavorPrefix)) {
     flavorParameters = JSON.parse(fs.readFileSync(version + ".json").toString());
     output = "gpf-" + version.substr(flavorPrefix.length);
     flavorFilter = flavor(sources, dependencies, flavorParameters.flavor);
