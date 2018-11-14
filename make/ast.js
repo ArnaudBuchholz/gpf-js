@@ -1,6 +1,7 @@
 "use strict";
 
 const
+    NOT_YET_COUNTED = 0,
     esprima = require("esprima"),
     escodegen = require("escodegen"),
     parent$ = Symbol(),
@@ -22,13 +23,14 @@ const
     getAstParent = (ast) => ast[parent$].ast,
 
     removeAst = astToRemove => {
+        const REMOVE_ONE_ITEM = 1;
         let {
                 ast,
                 member
             } = astToRemove[parent$],
             memberValue = ast[member];
         if (Array.isArray(memberValue)) {
-            memberValue.splice(memberValue.indexOf(astToRemove), 1);
+            memberValue.splice(memberValue.indexOf(astToRemove), REMOVE_ONE_ITEM);
         } else {
             // Not sure it is safe to do so
             delete ast[member];
@@ -160,7 +162,10 @@ class Optimizer {
     inc (category, key, counter) {
         let data = this.retrieve(category, key);
         if (data) {
-            data[counter] = 1 + (data[counter] || 0);
+            if (!data[counter]) {
+                data[counter] = NOT_YET_COUNTED;
+            }
+            ++data[counter];
         }
     }
 
@@ -216,8 +221,8 @@ class Optimizer {
                 callCount,
                 useCount
             } = this.retrieve("function", name);
-            addAstComment(ast, `function call-count ${callCount || 0}`);
-            addAstComment(ast, `function use-count ${useCount || 0}`);
+            addAstComment(ast, `function call-count ${callCount || NOT_YET_COUNTED}`);
+            addAstComment(ast, `function use-count ${useCount || NOT_YET_COUNTED}`);
             if (!callCount && !useCount) {
                 this._remove(ast, "function", name);
             }
