@@ -76,7 +76,8 @@ module.exports = class ConfigFile {
     }
 
     _checkVersion () {
-        let currentVersion = this.content.version || 0;
+        const initialVersion = 0;
+        let currentVersion = this.content.version || initialVersion;
         if (currentVersion < contentMigrationPath.length) {
             contentMigrationPath.slice(currentVersion).forEach(migrate => migrate(this.content));
             this.content.version = contentMigrationPath.length;
@@ -121,28 +122,29 @@ module.exports = class ConfigFile {
                 .reduce((versions, versionFile) => {
                     // Keep only highest patch of each version (#238)
                     const
-                        MAJOR = 1,
-                        MINOR = 2,
                         versionParts = (/(\d+\.\d+)\.(\d+)/).exec(versionFile),
-                        version = versionParts[MAJOR],
-                        patch = parseInt(versionParts[MINOR], 10);
+                        VERSION_NAME = 0,
+                        MAIN_VERSION = 1,
+                        PATCH_VERSION = 2,
+                        version = versionParts[MAIN_VERSION],
+                        patch = parseInt(versionParts[PATCH_VERSION], 10);
                     let
                         versionFound = false,
                         resultVersions = versions.map(testedVersionFile => {
                             const
                                 testedVersionParts = (/(\d+\.\d+)\.(\d+)/).exec(testedVersionFile),
-                                testedVersion = testedVersionParts[MAJOR],
-                                testedPatch = parseInt(testedVersionParts[MINOR], 10);
+                                testedVersion = testedVersionParts[MAIN_VERSION],
+                                testedPatch = parseInt(testedVersionParts[PATCH_VERSION], 10);
                             if (testedVersion === version) {
                                 versionFound = true;
                                 if (testedPatch < patch) {
-                                    return versionFile;
+                                    return versionParts[VERSION_NAME];
                                 }
                             }
                             return testedVersionFile;
                         });
                     if (!versionFound) {
-                        resultVersions.push(versionFile);
+                        resultVersions.push(versionParts[VERSION_NAME]);
                     }
                     return resultVersions;
                 }, []),
