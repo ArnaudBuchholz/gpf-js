@@ -96,13 +96,15 @@ class Builder {
 
     build () {
         this._debug("Building library");
-        let ARGUMENTS = "arguments",
-            resultAst,
+        const
+            ARGUMENTS = "arguments",
+            FIRST = 0;
+        let resultAst,
             name;
         // Generate UMD AST
         resultAst = clone(this._toAst("UMD"));
         // Grab the final placeholder
-        this._placeholder = resultAst.body[0].expression[ARGUMENTS][0].body.body;
+        this._placeholder = resultAst.body[FIRST].expression[ARGUMENTS][FIRST].body.body;
         this._placeholder.pop(); // remove __gpf__
         // Generate all ASTs and aggregate to the final result
         this._addAst("boot");
