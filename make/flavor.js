@@ -1,15 +1,16 @@
 "use strict";
 
 var HOST_PREFIX = "host:",
+    EXCLUDE_PREFIX = "-",
     NOT_FOUND = -1;
 
 function categorize (tags) {
     return tags.split(" ").reduce(function (categorized, tag) {
         if (tag) {
-            if (tag.indexOf(HOST_PREFIX) === 0) {
-                categorized.hosts.push(tag.substr(HOST_PREFIX.length));
-            } else if (tag.charAt(0) === "-") {
-                categorized.excluded.push(tag.substr(1));
+            if (tag.startsWith(HOST_PREFIX)) {
+                categorized.hosts.push(tag.substring(HOST_PREFIX.length));
+            } else if (tag.startsWith(EXCLUDE_PREFIX)) {
+                categorized.excluded.push(tag.substring(EXCLUDE_PREFIX.length));
             } else {
                 categorized.features.push(tag);
             }
@@ -104,7 +105,7 @@ function getFlavor (sources, dependencies, request) {
         });
         allowed[sourceIndex] = true;
     }
-    while (--index > 0) {
+    while (--index) {
         if (!allowed[index]) {
             continue;
         }
