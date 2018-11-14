@@ -1,8 +1,6 @@
 "use strict";
 
 const
-    IMPORT_PREFIX = "/*global ",
-    EXPORT_PREFIX = "/*exported ",
     fs = require("fs"),
     sources = JSON.parse(fs.readFileSync("./src/sources.json"))
         .map(source => source.name);
@@ -37,10 +35,11 @@ class Module {
     }
 
     _dispatchLine (line, lineIndex) {
+        const NEXT_LINE = 1;
         if (this._umdLineIndex === undefined) {
             return this._checkLine0(line, lineIndex);
         }
-        if (lineIndex === this._umdLineIndex + 1) {
+        if (lineIndex === this._umdLineIndex + NEXT_LINE) {
             return this._checkLine1(line);
         }
         if (line === "/*#endif*/") {
@@ -68,29 +67,30 @@ class Module {
 
     // Content line: select the proper handling
     _analyzeLine (line, lineIndex) {
-        if (line.startsWith(IMPORT_PREFIX)) {
+        if (line.startsWith("/*global ")) {
             return this._processImport(line, lineIndex);
         }
-        if (line.startsWith(EXPORT_PREFIX)) {
+        if (line.startsWith("/*exported ")) {
             return this._processExport(line, lineIndex);
         }
         if (line.includes("eslint") || line.includes("jshint")) {
             // ignore
             return true;
         }
-        this.error(`line ${lineIndex + 1} not recognized`);
+        const ZERO_TO_ONE_BASED = 1;
+        this.error(`line ${lineIndex + ZERO_TO_ONE_BASED} not recognized`);
         return false;
     }
 
     // global found
     _processImport (line, lineIndex) {
-        let name = line.split("*/")[0].substr(IMPORT_PREFIX.length).trim(),
-            modifiable;
-        if (name.indexOf(":")) {
-            name = name.split(":");
-            modifiable = name[1] === "true";
-            name = name[0];
-            this.writableImport[name] = modifiable;
+        const
+            match = (/\/\*global ([\w_]+)(:true)?\*\//).exec(line),
+            NAME = 1,
+            WRITABLE = 2,
+            name = match[NAME];
+        if (match[WRITABLE]) {
+            this.writableImport[name] = true;
         }
         this.imports.push(name);
         this.filteredLines.push(lineIndex);
@@ -99,8 +99,12 @@ class Module {
 
     // exported found
     _processExport (line, lineIndex) {
-        let name = line.split("*/")[0].substr(EXPORT_PREFIX.length).trim(),
-            description = line.split("// ")[1] || "";
+        const
+            match = (/\/\*exported ([\w_]+)\*\/ \/\/ (.+)/).exec(line),
+            NAME = 1,
+            DESCRIPTION = 2,
+            name = match[NAME],
+            description = match[DESCRIPTION];
         if (!description) {
             this.error(`no description for ${name}`);
         }
@@ -112,10 +116,12 @@ class Module {
 
     // returns true if modified
     rebuild () {
-        const SKIP_USESTRICT = 2;
+        const
+            SKIP_USESTRICT = 2,
+            DONT_REMOVE = 0;
         let before = this.lines.join("\n"),
             lines = this.lines.filter((line, lineIndex) => !this.filteredLines.includes(lineIndex)),
-            spliceArgs = [this._umdLineIndex + SKIP_USESTRICT, 0],
+            spliceArgs = [this._umdLineIndex + SKIP_USESTRICT, DONT_REMOVE],
             after;
         this.imports.sort().forEach(name => {
             let module = Module.byExport[name];
@@ -181,7 +187,7 @@ sources.forEach(source => {
                 dependsOn.push(depOnModuleName);
             }
         });
-        if (dependsOn.length > 0) {
+        if (dependsOn.length) {
             dependencies[source] = dependsOn;
         }
     }
