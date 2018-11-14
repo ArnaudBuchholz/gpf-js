@@ -30,16 +30,17 @@ class Preprocessor {
     getOutput () {
         let lines = this._lines,
             length = lines.length,
-            idx,
+            idx = 0,
             line,
             matched;
-        for (idx = 0; idx < length; ++idx) {
+        while (idx < length) {
             line = lines[idx];
             matched = this._searchForMatch(line);
             if (matched || this._ignoreStack.reduce(or, false)) {
                 lines.splice(idx, 1);
                 --length;
-                --idx;
+            } else {
+                ++idx;
             }
         }
         return this._lines.join("\n");
