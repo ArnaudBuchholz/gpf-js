@@ -28,7 +28,6 @@ let
     error;
 
 const
-    VERSION_PATCH = 2,
     tools = require("../res/tools.js"),
     projectUrl = "https://github.com/ArnaudBuchholz/gpf-js/",
     publicationUrl = "https://arnaudbuchholz.github.io/gpf/",
@@ -46,24 +45,15 @@ const
     testMode = process.argv.some(arg => arg === "-test"),
     noBuild = process.argv.some(arg => arg === "-noBuild"),
 
-    trimLeadingLF = buffer => {
-        let text = buffer.toString(),
-            lengthMinus1 = text.length - 1;
-        if (text.lastIndexOf("\n") === lengthMinus1) {
-            return text.substr(0, lengthMinus1);
-        }
-        return text;
-    },
-
     spawnProcess = (command, params) => new Promise(function (resolve, reject) {
         let childProcess = require("child_process").spawn(command, params),
             output = [];
         childProcess.stdout.on("data", buffer => {
-            console.log(trimLeadingLF(buffer));
+            console.log(buffer.toString().trim());
             output.push(buffer);
         });
         childProcess.stderr.on("data", buffer => {
-            console.error(trimLeadingLF(buffer));
+            console.error(buffer.toString().trim());
             output.push(buffer);
         });
         childProcess.on("error", reject);
@@ -98,6 +88,16 @@ const
         }))
         .then(() => console.log(`Version ${version} released.`)),
 
+    nextVersionProposal = current => {
+        const
+            VERSION_PATCH = 2,
+            INCREMENT = 1;
+        return current
+            .split(".")
+            .map((digit, index) => index === VERSION_PATCH ? parseInt(digit, 10) + INCREMENT : digit)
+            .join(".") + "-alpha";
+    },
+
     throwError = x => {
         throw new Error(x);
     },
@@ -106,17 +106,13 @@ const
     setupQuestions = [],
     configGitHub = configFile.content.github || {};
 
-version = pkgVersion;
+version = (/\d+\.\d+\.\d+/).exec(pkgVersion).toString();
 error = testMode ? logError : throwError;
 if (testMode) {
     console.warn("*** Test mode ***");
 }
 if (noBuild) {
     console.warn("*** No build ***");
-}
-
-if (version.includes("-")) {
-    version = version.split("-")[0];
 }
 
 setupQuestions.push({
@@ -164,11 +160,11 @@ inquirer.prompt(setupQuestions)
         return gh.getIssues("ArnaudBuchholz", "gpf-js").listMilestones();
     })
     .then(reqMilestones => {
-        versionMilestone = reqMilestones.data.filter(candidate => candidate.title.includes(version))[0];
+        versionMilestone = reqMilestones.data.filter(candidate => candidate.title.includes(version)).shift();
         if (!versionMilestone) {
             error("No corresponding milestone found");
         }
-        versionTitle = versionMilestone.title.split(":")[1].trim();
+        versionTitle = versionMilestone.title.substring(versionMilestone.title.indexOf(":")).trim();
         console.log(`Milestone: ${versionMilestone.title}`);
         console.log(`Remaining open issues: ${versionMilestone.open_issues}`);
         if (versionMilestone.open_issues) {
@@ -176,7 +172,7 @@ inquirer.prompt(setupQuestions)
         }
     })
     .then(() => spawnGit(["status", "--porcelain"])
-        .then(output => output.length ? error("Process any pending changes first") : 0)
+        .then(output => output.length ? error("Process any pending changes first") : Promise.resolve())
     )
     .then(() => console.log("Cloning publication repository..."))
     .then(() => spawnGrunt("clean:publish"))
@@ -186,19 +182,16 @@ inquirer.prompt(setupQuestions)
             console.log("Updating package.json version...");
             fs.writeFileSync("package.json", pkgText.replace(pkgVersion, version));
         }
-        return noBuild ? 0 : spawnGrunt("make");
+        return noBuild ? Promise.resolve() : spawnGrunt("make");
     })
     .then(() => {
         console.log("Updating build/releases.json...");
         const
-            TWO_DIGITS_NUMBER = 10,
-            now = new Date(),
-            z = x => x < TWO_DIGITS_NUMBER ? "0" + x : x.toString(),
             releases = JSON.parse(fs.readFileSync("build/releases.json").toString());
         releases.push({
             version: version,
             label: versionTitle,
-            date: `${now.getFullYear()}-${z(now.getMonth() + 1)}-${z(now.getDay() + 1)}`,
+            date: (/\d+-\d+-\d+/).exec(new Date().toISOString()).toString(),
             notes: "",
             milestone: versionMilestone.number,
             metrics: JSON.parse(fs.readFileSync("tmp/releaseMetrics.json").toString())
@@ -207,10 +200,15 @@ inquirer.prompt(setupQuestions)
         console.log("Updating README.md...");
         const
             SKIP_2_LINES = 2,
+            LINE_BEFORE = -1,
             readmeLines = fs.readFileSync("README.md").toString().split("\n"),
-            indexOfVersions = readmeLines.indexOf("## Versions"),
-            indexOfCredits = readmeLines.indexOf("## Credits");
-        readmeLines.splice(indexOfVersions + SKIP_2_LINES, indexOfCredits - indexOfVersions - SKIP_2_LINES - 1,
+            indexOfVersions = readmeLines.indexOf("## Versions") + SKIP_2_LINES,
+            indexOfCredits = readmeLines.indexOf("## Credits") + LINE_BEFORE,
+            flavorsIn = release => Object.keys(configFile.content.files.flavors)
+                .filter(flavor => configFile.content.files.flavors[flavor].since <= release.version)
+                .map(flavor => `[${flavor}](${publicationUrl}${release.version}/gpf-${flavor}.js)`)
+                .join(" / ");
+        readmeLines.splice(indexOfVersions, indexOfCredits - indexOfVersions,
             "Date | Version | Label | Release | Debug | Flavors\n------ | ------ | ----- | ----- | ----- | -----",
             releases.reverse().map(release => `${release.date} | `
                         + `[${release.version}](${projectUrl}tree/v${release.version}) | ${release.label} | `
@@ -218,14 +216,11 @@ inquirer.prompt(setupQuestions)
                         + `[test](${publicationUrl}test.html?release=${release.version}) | `
                         + `[lib](${publicationUrl}${release.version}/gpf-debug.js) / `
                         + `[test](${publicationUrl}test.html?debug=${release.version}) | `
-                        + Object.keys(configFile.content.files.flavors)
-                            .filter(flavor => configFile.content.files.flavors[flavor].since <= release.version)
-                            .map(flavor => `[${flavor}](${publicationUrl}${release.version}/gpf-${flavor}.js)`)
-                            .join(" / ")
+                        + flavorsIn(release)
             ).join("\n")
         );
         fs.writeFileSync("README.md", readmeLines.join("\n"));
-        return noBuild ? 0 : spawnGrunt("jsdoc:public");
+        return noBuild ? Promise.resolve() : spawnGrunt("jsdoc:public");
     })
     .then(() => spawnGrunt("publish"))
     .then(() => spawnGrunt("zip:platoHistory"))
@@ -248,10 +243,7 @@ inquirer.prompt(setupQuestions)
         type: "input",
         name: "version",
         message: "Please check the version: ",
-        "default": version
-            .split(".")
-            .map((digit, index) => index === VERSION_PATCH ? parseInt(digit, 10) + 1 : digit)
-            .join(".") + "-alpha"
+        "default": nextVersionProposal(version)
     }]))
     .then(answers => {
         fs.writeFileSync("package.json", pkgText.replace(pkgVersion, answers.version));
