@@ -7,23 +7,24 @@ const
     verbose = process.argv[FIRST_CMDLINE_PARAM] === "-verbose",
     packageJson = JSON.parse(fs.readFileSync("package.json").toString()),
     sourcesJson = JSON.parse(fs.readFileSync("src/sources.json").toString()),
-    packageVersion = packageJson.version,
-    version = packageVersion.split("-")[0];
+    packageVersion = packageJson.releaseVersion,
+    releaseVersion = (/\d+\.\d+\.\d+/).exec(packageVersion).toString();
 
 let bootSrc = fs.readFileSync("src/boot.js").toString();
 
 const
+    VERSION_CAPTURING_GROUP = 1,
     bootVersionMatch = (/_gpfVersion += +"(.*)"/).exec(bootSrc),
-    bootVersion = bootVersionMatch[1];
+    bootVersion = bootVersionMatch[VERSION_CAPTURING_GROUP];
 
 if (verbose) {
-    console.log("Version: " + version);
+    console.log("Release version: " + releaseVersion);
     console.log("Package version: " + packageVersion);
-    console.log("Boot version: " + bootVersion);
+    console.log("Boot    version: " + bootVersion);
 }
 
 if (bootVersion !== packageVersion) {
-    bootSrc = bootSrc.replace(bootVersionMatch[0], `_gpfVersion = "${packageVersion}"`);
+    bootSrc = bootSrc.replace(bootVersionMatch.toString(), `_gpfVersion = "${packageVersion}"`);
     fs.writeFileSync("src/boot.js", bootSrc);
     console.log("src/boot.js updated" + bootVersion);
 }
@@ -33,24 +34,28 @@ const
     JSDOC_END = "*/",
 
     _injectSinceComment = (source, jsdocComment, lastIndex) => {
-        const LAST = -1;
-        let newComment = jsdocComment.split("\n"),
-            pos,
-            len;
-        if (newComment.length === 1) {
+        const
+            ONE_LINE_ONLY = 1,
+            BEFORE_LAST = -1,
+            KEEP = 0;
+        let newCommentLines = jsdocComment.split("\n");
+        if (newCommentLines.length === ONE_LINE_ONLY) {
             // Need to find current indentation
-            pos = source.content.substr(0, lastIndex).lastIndexOf("\n") + 1;
-            len = lastIndex - jsdocComment.length - pos;
+            const
+                pos = source.content.substr(0, lastIndex).lastIndexOf("\n") + 1,
+                len = lastIndex - jsdocComment.length - pos;
             return [
                 JSDOC_START,
                 ` * ${jsdocComment.substr(JSDOC_START.length,
                     jsdocComment.length - (JSDOC_START + JSDOC_END).length).trim()}`,
-                ` * @since ${version}`,
+                ` * @since ${releaseVersion}`,
                 " " + JSDOC_END
             ].join(`\n${source.content.substr(pos, len)}`);
         }
-        newComment.splice(LAST, 0, newComment[newComment.length - 1].replace(JSDOC_END, `* @since ${version}`));
-        return newComment.join("\n");
+        // Multi line comment
+        newCommentLines.splice(BEFORE_LAST, KEEP,
+            newCommentLines[newCommentLines.length - 1].replace(JSDOC_END, `* @since ${releaseVersion}`));
+        return newCommentLines.join("\n");
     },
 
     _removeSinceComment = (jsdocComment) => jsdocComment
