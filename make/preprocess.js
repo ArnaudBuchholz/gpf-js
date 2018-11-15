@@ -28,6 +28,7 @@ class Preprocessor {
     }
 
     getOutput () {
+        const REMOVE_ITEM = 1;
         let lines = this._lines,
             length = lines.length,
             idx = 0,
@@ -37,7 +38,7 @@ class Preprocessor {
             line = lines[idx];
             matched = this._searchForMatch(line);
             if (matched || this._ignoreStack.reduce(or, false)) {
-                lines.splice(idx, 1);
+                lines.splice(idx, REMOVE_ITEM);
                 --length;
             } else {
                 ++idx;
@@ -51,11 +52,12 @@ Preprocessor.tags = {
 
     "/*#if": function (line) {
         /*jshint validthis:true*/ // Called with the context of Preprocessor
-        let invert = line.includes("/*#ifndef("),
-            define = line.split("(")[1].split(")")[0],
-            ignore;
-        ignore = !this._defines[define];
-        if (invert) {
+        const
+            match = (/\/\*#if(n)?def\(([\w_]+)\)/).exec(line),
+            INVERTED = 1,
+            NAME = 2;
+        let ignore = !this._defines[match[NAME]];
+        if (match[INVERTED]) {
             ignore = !ignore;
         }
         this._ignoreStack.unshift(ignore);
@@ -64,7 +66,7 @@ Preprocessor.tags = {
     "/*#else": function (/*line*/) {
         /*jshint validthis:true*/ // Called with the context of Preprocessor
         if (this._ignoreStack.length) {
-            this._ignoreStack[0] = !this._ignoreStack[0];
+            this._ignoreStack.unshift(!this._ignoreStack.shift());
         }
     },
 
