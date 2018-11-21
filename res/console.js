@@ -4,10 +4,10 @@
     var _console = window.console;
 
     function _wrapMethod (methodName) {
-        return function () {
+        return function (text) {
             _console[methodName].apply(_console, arguments);
             var div = document.createElement("div");
-            div.appendChild(document.createTextNode(arguments[0].toString()));
+            div.appendChild(document.createTextNode(text.toString()));
             document.body.appendChild(div).className = methodName;
         };
     }
