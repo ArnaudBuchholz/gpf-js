@@ -12,8 +12,8 @@ gpf.require.define({}, function () {
         addEventsListener: function (events) {
             Object.keys(events).forEach(function (eventKey) {
                 var eventParts = eventKey.split("@"),
-                    selector = eventParts[0],
-                    eventName = eventParts[1],
+                    selector = eventParts.shift(),
+                    eventName = eventParts.shift(),
                     handler = events[eventKey];
                 if (selector) {
                     _addEventsListener(selector, eventName, handler);
