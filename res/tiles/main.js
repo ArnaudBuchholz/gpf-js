@@ -1,5 +1,6 @@
 gpf.require.define({
     dom: "../dom.js",
+    tools: "../tools.js",
     "tile:sources": "sources.js",
     "tile:plato": "plato.js",
     "tile:coverage": "coverage.js",
@@ -12,9 +13,10 @@ gpf.require.define({
     "use strict";
 
     var dom = require.dom,
+        tools = require.tools,
         tiles = Object.keys(require)
             .filter(function (name) {
-                return name.indexOf("tile:") === 0;
+                return name.startsWith("tile:");
             })
             .map(function (name) {
                 return new require[name]();
@@ -51,7 +53,7 @@ gpf.require.define({
             var versionSelect = document.getElementById("hostsVersion"),
                 version = versionSelect.options[versionSelect.selectedIndex].value,
                 envName = target.innerHTML;
-            link = "grunt/exec:test" + envName.charAt(0).toUpperCase() + envName.substr(1) + version;
+            link = "grunt/exec:test" + tools.capitalize(envName) + version;
         }
         if (link) {
             window.open(link);
