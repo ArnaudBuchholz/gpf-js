@@ -10,16 +10,9 @@ gpf.require.define({
 
     var TWO_DIGITS_NUMBER = 10;
 
-    function zero (value) {
-        if (value < TWO_DIGITS_NUMBER) {
-            return "0" + value;
-        }
-        return value;
-    }
-
     function showDate (value) {
         var date = new Date(value);
-        return date.getFullYear() + "-" + zero(date.getMonth() + 1);
+        return (/\d\d\d\d-\d\d/).exec(date.toISOString()).toString();
     }
 
     var Func = Function;
