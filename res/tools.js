@@ -2,17 +2,21 @@
     "use strict";
     /*global module, process*/
 
-    var isWindows = (/^win/).test(process.platform),
-        isMacOS = process.platform === "darwin";
+    var platform;
+    if (typeof process !== "undefined") {
+        platform = process.platform;
+    }
 
     module.exports = {
 
         capitalize: function (string) {
-            return string.charAt(0).toUpperCase() + string.substr(1);
+            var FIRST_CHAR = 0,
+                OTHER_CHARS = 1;
+            return string.charAt(FIRST_CHAR).toUpperCase() + string.substring(OTHER_CHARS);
         },
 
-        isWindows: isWindows,
-        isMacOS: isMacOS
+        isWindows: (/^win/).test(platform),
+        isMacOS: platform === "darwin"
 
     };
 
