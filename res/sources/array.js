@@ -111,7 +111,8 @@ gpf.require.define({
                 names = this.getNames(),
                 minIndex = 1; // 0 being boot
             dependencies.forEach(function (dependencyName) {
-                var index = names.indexOf(dependencyName) + 1;
+                var index = names.indexOf(dependencyName);
+                ++index;
                 if (index > minIndex) {
                     minIndex = index;
                 }
@@ -161,11 +162,13 @@ gpf.require.define({
                 }
                 return sourcePos === undefined || referenceSourcePos === undefined;
             })) {
-                this._sources.splice(sourcePos, 1);
+                var KEEP_ITEM = 0,
+                    REMOVE_ITEM = 1;
+                this._sources.splice(sourcePos, REMOVE_ITEM);
                 if (sourcePos > referenceSourcePos) {
                     ++referenceSourcePos;
                 }
-                this._sources.splice(referenceSourcePos, 0, sourceToMove);
+                this._sources.splice(referenceSourcePos, KEEP_ITEM, sourceToMove);
                 this._rebuildSourcesIndex();
             }
         },
@@ -200,16 +203,18 @@ gpf.require.define({
                     }, null);
                 }, this);
             // Add missing sources after the last loaded one
-            if (newSources.length > 0) {
+            if (newSources.length) {
                 var lastLoadedSource = this._sources.length;
                 this._sources.every(function (source, index) {
                     if (index && !source.getLoad()) { // Skip boot
-                        lastLoadedSource = index + 1;
+                        lastLoadedSource = index;
+                        ++lastLoadedSource;
                         return false;
                     }
                     return true;
                 });
-                this._sources.splice.apply(this._sources, [lastLoadedSource, 0].concat(newSources));
+                var KEEP_ITEM = 0;
+                this._sources.splice.apply(this._sources, [lastLoadedSource, KEEP_ITEM].concat(newSources));
             }
         },
 
