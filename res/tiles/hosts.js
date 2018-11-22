@@ -41,7 +41,7 @@ gpf.require.define({
                                     return name !== "legacy.json";
                                 })
                                 .map(function (name) {
-                                    var version = name.substr(0, name.lastIndexOf("."));
+                                    var version = (/\d+\.\d+\.\d+/).exec(name).toString();
                                     return dom.option({value: "Legacy:" + version}, version);
                                 })
                             )
