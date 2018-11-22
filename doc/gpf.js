@@ -4,9 +4,12 @@ const
     START = 0,
     JSDOC_COMMENT = "/**",
     path = require("path"),
+    tools = require("../res/tools"),
     trace = text => console.log(`[gpf doc plugin] ${text}`),
 
-    relativeFilename = filename => filename.split(`gpf-js${path.sep}src${path.sep}`)[1],
+    GPF_SRC_BASEPATH = `gpf-js${path.sep}src${path.sep}`,
+
+    relativeFilename = filename => filename.substring(filename.indexOf(GPF_SRC_BASEPATH) + GPF_SRC_BASEPATH.length),
     relativeFilenameAt = meta => `${relativeFilename(meta.path + path.sep + meta.filename)}@${meta.lineno}`,
 
     logDoclet = doclet => {
@@ -60,7 +63,7 @@ const
 
         // Read accessor on a property
         "gpf:read": (doclet, tag, doclets) => {
-            let refDoclet = findRefDoclet(doclets, doclet, tag);
+            const refDoclet = findRefDoclet(doclets, doclet, tag);
             doclet.returns = [{
                 type: refDoclet.type,
                 description: refDoclet.description
@@ -70,12 +73,12 @@ const
 
         // Write accessor on a property
         "gpf:write": function (/*doclet, tag, doclets*/) {
-            // var refDoclet = findRefDoclet(doclets, doclet, tag);
+            // const refDoclet = findRefDoclet(doclets, doclet, tag);
         },
 
         // Same as another doclet
         "gpf:sameas": (doclet, tag, doclets) => {
-            let refDoclet = findRefDoclet(doclets, doclet, tag);
+            const refDoclet = findRefDoclet(doclets, doclet, tag);
             [
                 "description",
                 "params",
@@ -123,8 +126,7 @@ const
             let codeType = doclet.meta.code.type,
                 type;
             if (codeType === "Literal") {
-                type = typeof doclet.meta.code.value;
-                type = type.charAt(START).toUpperCase() + type.substr(1);
+                type = tools.capitalize(typeof doclet.meta.code.value);
             } else if (codeType === "ArrayExpression") {
                 type = "Array";
             } else if (codeType === "ObjectExpression") {
@@ -136,7 +138,11 @@ const
 
     checkAccess = doclet => {
         if (!doclet.access) {
-            doclet.access = doclet.name.charAt(START) === "_" ? "private" : "public";
+            if (doclet.name.startsWith("_")) {
+                doclet.access = "private";
+            } else {
+                doclet.access = "public";
+            }
         }
     },
 
@@ -209,19 +215,12 @@ const
 
     reErrorDeclare = /_gpfErrorDeclare\("([^"]+)", {\n((?:[^}]|}[^)]|\n)*)\s*}\)/g,
     reErrorItems = /(?:\/\*\*((?:[^*]|\s|\*[^/])*)\*\/)?\s*([a-zA-Z$]+):\s*"([^"]*)"/g,
-    reContextualParams = /{(\w+)}/g,
     errorParam = " * @param {Object} context Dictionary of parameters used to format the message, must contain",
 
     generateJsDocForError = (name, message, comment) => {
-        let className = name.charAt(START).toUpperCase() + name.substr(1),
-            params = [],
-            param;
-        reContextualParams.lastIndex = START;
-        param = reContextualParams.exec(message);
-        while (param) {
-            params.push(" * - {String} " + param[1]);
-            param = reContextualParams.exec(message);
-        }
+        let className = tools.capitalize(name),
+            params = [];
+        message.replace(/{(\w+)}/g, (match, parameterName) => params.push(` * - {String} ${parameterName}`));
         if (params.length) {
             params.unshift(errorParam);
             params = params.join("\r\n");
@@ -268,31 +267,19 @@ const
         }
     },
 
-    reGpfDefine = /_gpfDefine\([^$]*\$class:\s*"([a-zA-Z.]+)"/g,
-
     checkForGpfDefine = event => {
-        reGpfDefine.lastIndex = START;
-        let match = reGpfDefine.exec(event.source);
-        while (match) {
-            event.source = event.source.replace(match[START],
-                match[START].replace("_gpfDefine(", `_gpfDefine(${JSDOC_COMMENT} @lends ${match[1]}.prototype */`));
-            match = reGpfDefine.exec(event.source);
-        }
+        event.source = event.source.replace(/_gpfDefine\([^$]*\$class:\s*"([a-zA-Z.]+)"/g, (match, className) =>
+            match.replace("_gpfDefine(", `_gpfDefine(${JSDOC_COMMENT} @lends ${className}.prototype */`)
+        );
     },
 
-    rePrototypeAssign = /Object\.assign\((\w+)\.prototype,[^{]+{/g,
-
     checkForPrototypeAssign = event => {
-        rePrototypeAssign.lastIndex = START;
-        let match = rePrototypeAssign.exec(event.source);
-        while (match) {
-            if (!match[START].includes("@lends")) {
-                // No @lends, adds it
-                event.source = event.source.replace(match[START],
-                    match[START].replace("{", `${JSDOC_COMMENT} @lends ${match[1]}.prototype */ {`));
+        event.source = event.source.replace(/Object\.assign\((\w+)\.prototype,[^{]+{/g, (match, className) => {
+            if (match.includes("@lends")) {
+                return match;
             }
-            match = rePrototypeAssign.exec(event.source);
-        }
+            return match.replace("{", `${JSDOC_COMMENT} @lends ${className}.prototype */ {`);
+        });
     },
 
     reFileComment = /(?:\/\*\*(?:[^*]|\s\*[^/])*@file(?:[^*]|\s\*[^/])*\*\/)/g,
