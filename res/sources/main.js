@@ -51,9 +51,10 @@ gpf.require.define({
 
         gpf.http.get("/src/" + name + ".js")
             .then(function (response) {
-                var description = (/@file (.*)/).exec(response.responseText);
-                if (description) {
-                    document.getElementById(name).title = description[1];
+                var match = (/@file (.*)/).exec(response.responseText),
+                    DESCRIPTION = 1;
+                if (match) {
+                    document.getElementById(name).title = match[DESCRIPTION];
                 }
             });
     }
@@ -186,7 +187,7 @@ gpf.require.define({
                 contentFullNameLength = contentFullName.length;
             if (contentFullNameLength > JS_EXT_LENGTH
                 && contentFullName.indexOf(JS_EXT) === contentFullNameLength - JS_EXT_LENGTH) {
-                contentFullName = contentFullName.substr(START, contentFullNameLength - JS_EXT_LENGTH);
+                contentFullName = contentFullName.substring(START, contentFullNameLength - JS_EXT_LENGTH);
                 if (checkDictionary[contentFullName] === "obsolete") {
                     checkDictionary[contentFullName] = "exists";
                 } else {
