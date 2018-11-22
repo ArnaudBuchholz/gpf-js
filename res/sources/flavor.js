@@ -6,13 +6,14 @@ gpf.require.define({
 }, function (require) {
     "use strict";
 
-    var allowed,
+    var SKIP_QUESTION_MARK = 1,
+        allowed,
         sources;
 
     if (location.search) {
         sources = new require.SourceArray();
         allowed = require.flavor(JSON.parse(sources.toString()), require.dependencies,
-            decodeURI(location.search.substr(1)));
+            decodeURI(location.search.substring(SKIP_QUESTION_MARK)));
     }
 
     return allowed;
