@@ -8,8 +8,6 @@ gpf.require.define({
     /*jshint nonew: false */
     /*eslint-disable no-new, max-nested-callbacks */
 
-    var TWO_DIGITS_NUMBER = 10;
-
     function showDate (value) {
         var date = new Date(value);
         return (/\d\d\d\d-\d\d/).exec(date.toISOString()).toString();
