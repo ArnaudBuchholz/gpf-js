@@ -33,9 +33,9 @@
  * @since 0.1.5
  */
 function _gpfArrayForEach (array, callback, thisArg) {
-    var index,
+    var index = 0,
         length = array.length;
-    for (index = 0; index < length; ++index) {
+    for (; index < length; ++index) {
         callback.call(thisArg, array[index], index, array);
     }
 }
@@ -69,9 +69,9 @@ function _gpfObjectForEachOwnPropertyWScript (object, callback, thisArg) {
  */
 function _gpfArrayForEachFalsy (array, callback, thisArg) {
     var result,
-        index,
+        index = 0,
         length = array.length;
-    for (index = 0; index < length && !result; ++index) {
+    for (; index < length && !result; ++index) {
         result = callback.call(thisArg, array[index], index, array);
     }
     return result;
