@@ -161,7 +161,8 @@ if (typeof WScript !== "undefined") {
     _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
 
     _gpfSyncReadForBoot = function (srcFileName) {
-        var srcFile = _gpfMsFSO.OpenTextFile(srcFileName, 1),
+        var FOR_READING = 1,
+            srcFile = _gpfMsFSO.OpenTextFile(srcFileName, FOR_READING),
             srcContent = srcFile.ReadAll();
         srcFile.Close();
         return srcContent;
