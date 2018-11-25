@@ -31,12 +31,13 @@ const
 
     readLevel = ruleConfiguration => {
         if (Array.isArray(ruleConfiguration)) {
-            return ruleConfiguration[0];
+            const [level] = ruleConfiguration;
+            return LEVELS[level];
         }
         if (undefined !== ruleConfiguration) {
-            return ruleConfiguration;
+            return LEVELS[ruleConfiguration];
         }
-        return LEVELS.length - 1;
+        return RULE_NOT_SET;
     },
 
     hasDocumentation = ruleName => {
@@ -54,16 +55,14 @@ const
             ruleConfiguration = eslintrc.rules[ruleName],
             documentation = hasDocumentation(ruleName),
             parameterized = Array.isArray(ruleConfiguration);
-        let
-            parameters,
-            line;
-        if (parameterized) {
-            parameters = ruleConfiguration.slice(1);
-            line = eslintrcText.split(`"${ruleName}"`)[0].split("\n").length;
-        }
         if (undefined !== ruleConfiguration) {
+            let parameters;
+            if (parameterized) {
+                [, ...parameters] = ruleConfiguration;
+            }
+            const line = eslintrcText.split(`"${ruleName}"`).shift().split("\n").length;
             return {
-                level: LEVELS[readLevel(ruleConfiguration)],
+                level: readLevel(ruleConfiguration),
                 parameterized: parameterized,
                 parameters: parameters,
                 line: line,
@@ -120,10 +119,12 @@ const
         if (!rule.parameterized) {
             return "";
         }
-        if (rule.parameters.length === 1) {
+        const ONE_PARAM_ONLY = 1;
+        if (rule.parameters.length === ONE_PARAM_ONLY) {
             const
                 MAX_STRING_LENGTH = 15,
-                stringified = JSON.stringify(rule.parameters[0]);
+                [firstParameter] = rule.parameters,
+                stringified = JSON.stringify(firstParameter);
             if (stringified.length < MAX_STRING_LENGTH) {
                 return stringified;
             }
@@ -162,9 +163,10 @@ ruleFilenames
             flag = (value, mark) => value ? mark : " ",
             category = rule.meta.docs.category,
             recommended = rule.meta.docs.recommended;
-        if (index === 0 || rules[index - 1].meta.docs.category !== category) {
+        if (rules._lastCategory !== category) {
             console.log(category);
             linting.push(`**${category}** | | | |\n`);
+            rules._lastCategory = category;
         }
         checkForInvalidUse(rule);
         console.log(
