@@ -555,6 +555,43 @@ describe("compatibility", function () {
                         assert(!method.call("To be, or not to be, that is the question.", "To be", 14));
                     }
                 },
+                padEnd: {
+                    length: 1,
+                    "must not change the value if long enough": function (method) {
+                        assert(method.call("12", 2, "0") === "12");
+                    },
+                    "must not change the value if longer": function (method) {
+                        assert(method.call("123", 2, "0") === "123");
+                    },
+                    "must pad the value when shorter": function (method) {
+                        assert(method.call("1", 2, "0") === "10");
+                    },
+                    "must pad the value when empty": function (method) {
+                        assert(method.call("", 2, "0") === "00");
+                    },
+                    "must pad the value with a default character": function (method) {
+                        assert(method.call("1", 2) === "1 ");
+                    }
+                },
+                padStart: {
+                    length: 1,
+                    "must not change the value if long enough": function (method) {
+                        assert(method.call("12", 2, "0") === "12");
+                    },
+                    "must not change the value if longer": function (method) {
+                        assert(method.call("123", 2, "0") === "123");
+                    },
+                    "must pad the value when shorter": function (method) {
+                        assert(method.call("1", 2, "0") === "01");
+                    },
+                    "must pad the value when empty": function (method) {
+                        assert(method.call("", 2, "0") === "00");
+                    },
+                    "must pad the value with a default character": function (method) {
+                        assert(method.call("1", 2) === " 1");
+                    }
+
+                },
                 startsWith: {
                     length: 1,
                     "must return true if string starts by the provided one": function (method) {
