@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_START*/ // 0
 /*global _gpfFunc*/ // Create a new function using the source
 /*exported _gpfBuildFunctionParameterList*/ // Builds an array of parameters
 /*exported _gpfNewApply*/ // Apply new operator with an array of parameters
@@ -31,8 +32,9 @@ function _gpfGenerateGenericFactorySource (parameters) {
         "if (0 === l) { return new C();}"
     ];
     parameters.forEach(function (value, index) {
-        var count = index + 1;
-        src.push("if (" + count + " === l) { return new C(" + parameters.slice(0, count).join(", ") + ");}");
+        var count = 1;
+        count += index;
+        src.push("if (" + count + " === l) { return new C(" + parameters.slice(_GPF_START, count).join(", ") + ");}");
     });
     return src.join("\n");
 }
