@@ -73,7 +73,7 @@ var
 // Unprotected version of _gpfFunc
 function _gpfFuncUnsafe (params, source) {
     var args;
-    if (params.length === 0) {
+    if (!params.length) {
         return _GpfFunc(source);
     }
     args = [].concat(params);
@@ -143,7 +143,8 @@ function _gpfIsInRange (value, min, max) {
  */
 // Returns true if the value is an unsigned byte
 function _gpfIsUnsignedByte (value) {
-    return typeof value === "number" && _gpfIsInRange(value, 0, _gpfMaxUnsignedByte);
+    var ZERO = 0;
+    return typeof value === "number" && _gpfIsInRange(value, ZERO, _gpfMaxUnsignedByte);
 }
 
 /**
