@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_START*/ // 0
 /*exported _gpfStringCapitalize*/ // Capitalize the string
 /*#endif*/
 
@@ -15,7 +16,8 @@
  * @since 0.1.5
  */
 function _gpfStringCapitalize (that) {
-    return that.charAt(0).toUpperCase() + that.substr(1);
+    var REMAINDER = 1;
+    return that.charAt(_GPF_START).toUpperCase() + that.substring(REMAINDER);
 }
 
 /*#ifndef(UMD)*/
