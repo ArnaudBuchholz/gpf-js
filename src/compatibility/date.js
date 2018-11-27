@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_START*/ // 0
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfCompatibilityInstallMethods*/ // Define and install compatible methods on standard objects
 /*global _gpfMainContext*/ // Main context object
@@ -11,28 +12,28 @@
 /*exported _gpfIsISO8601String*/ // Check if the string is an ISO 8601 representation of a date
 /*#endif*/
 
-var _GPF_COMPATIBILITY_DATE_KEEP_2_DIGITS = 2,
-    _GPF_COMPATIBILITY_DATE_KEEP_3_DIGITS = 3;
+var _GPF_COMPATIBILITY_DATE_MONTH_OFFSET = 1,
+    _GPF_COMPATIBILITY_DATE_2_DIGITS = 2,
+    _GPF_COMPATIBILITY_DATE_3_DIGITS = 3;
 
-function _pad (number, digits) {
-    var padded = "00" + number;
-    return padded.substr(padded.length - digits);
+function _gpfDatePad (value, count) {
+    return value.toString().padStart(count, "0");
 }
 
 function _gpfDateToISOString (date) {
     return date.getUTCFullYear()
         + "-"
-        + _pad(date.getUTCMonth() + 1, _GPF_COMPATIBILITY_DATE_KEEP_2_DIGITS)
+        + _gpfDatePad(date.getUTCMonth() + _GPF_COMPATIBILITY_DATE_MONTH_OFFSET, _GPF_COMPATIBILITY_DATE_2_DIGITS)
         + "-"
-        + _pad(date.getUTCDate(), _GPF_COMPATIBILITY_DATE_KEEP_2_DIGITS)
+        + _gpfDatePad(date.getUTCDate(), _GPF_COMPATIBILITY_DATE_2_DIGITS)
         + "T"
-        + _pad(date.getUTCHours(), _GPF_COMPATIBILITY_DATE_KEEP_2_DIGITS)
+        + _gpfDatePad(date.getUTCHours(), _GPF_COMPATIBILITY_DATE_2_DIGITS)
         + ":"
-        + _pad(date.getUTCMinutes(), _GPF_COMPATIBILITY_DATE_KEEP_2_DIGITS)
+        + _gpfDatePad(date.getUTCMinutes(), _GPF_COMPATIBILITY_DATE_2_DIGITS)
         + ":"
-        + _pad(date.getUTCSeconds(), _GPF_COMPATIBILITY_DATE_KEEP_2_DIGITS)
+        + _gpfDatePad(date.getUTCSeconds(), _GPF_COMPATIBILITY_DATE_2_DIGITS)
         + "."
-        + _pad(date.getUTCMilliseconds(), _GPF_COMPATIBILITY_DATE_KEEP_3_DIGITS)
+        + _gpfDatePad(date.getUTCMilliseconds(), _GPF_COMPATIBILITY_DATE_3_DIGITS)
         + "Z";
 }
 
@@ -90,34 +91,37 @@ function _gpfCheckDateArray (dateArray) {
     }
 }
 
+var _GPF_COMPATIBILITY_DATE_PART_NOT_SET = 0;
+
 function _gpfAddDatePartToArray (dateArray, datePart) {
     if (datePart) {
         dateArray.push(parseInt(datePart, 10));
     } else {
-        dateArray.push(0);
+        dateArray.push(_GPF_COMPATIBILITY_DATE_PART_NOT_SET);
     }
 }
 
 function _gpfToDateArray (matchResult) {
     var dateArray = [],
         len = matchResult.length, // 0 is the recognized string
-        idx;
-    for (idx = 1; idx < len; ++idx) {
+        idx = 1;
+    for (; idx < len; ++idx) {
         _gpfAddDatePartToArray(dateArray, matchResult[idx]);
     }
     return dateArray;
 }
+
+var _GPF_COMPATIBILITY_DATE_MONTH_INDEX = 1;
 
 function _gpfProcessISO8601MatchResult (matchResult) {
     var dateArray;
     if (matchResult) {
         dateArray = _gpfToDateArray(matchResult);
         // Month must be corrected (0-based)
-        --dateArray[1];
+        --dateArray[_GPF_COMPATIBILITY_DATE_MONTH_INDEX];
         // Some validation
         return _gpfCheckDateArray(dateArray);
     }
-
 }
 
 /**
@@ -147,7 +151,7 @@ var _GpfGenuineDate = _gpfMainContext.Date;
  * @since 0.1.5
  */
 function _GpfDate () {
-    var firstArgument = arguments[0],
+    var firstArgument = arguments[_GPF_START],
         values = _gpfIsISO8601String(firstArgument);
     if (values) {
         return new _GpfGenuineDate(_GpfGenuineDate.UTC.apply(_GpfGenuineDate.UTC, values));
@@ -166,17 +170,20 @@ function _gpfCopyDateStatics () {
     });
 }
 
+var _GPF_COMPATIBILITY_DATE_ISO_TEST = "2003-01-22T22:45:34.075Z",
+    _GPF_COMPATIBILITY_DATE_SHORT_TEST = "2003-01-22";
+
 function _gpfInstallCompatibleDate () {
     _gpfCopyDateStatics();
     // Test if ISO 8601 format variations are supported
     var longDateAsString,
         shortDateAsString;
     try {
-        longDateAsString = _gpfDateToISOString(new Date("2003-01-22T22:45:34.075Z"));
-        shortDateAsString = _gpfDateToISOString(new Date("2003-01-22"));
+        longDateAsString = _gpfDateToISOString(new Date(_GPF_COMPATIBILITY_DATE_ISO_TEST));
+        shortDateAsString = _gpfDateToISOString(new Date());
     } catch (e) {} //eslint-disable-line no-empty
-    if (longDateAsString !== "2003-01-22T22:45:34.075Z"
-        || shortDateAsString !== "2003-01-22T00:00:00.000Z") {
+    if (longDateAsString !== _GPF_COMPATIBILITY_DATE_ISO_TEST
+        || shortDateAsString !== _GPF_COMPATIBILITY_DATE_SHORT_TEST + "T00:00:00.000Z") {
         // Replace constructor with new one
         _gpfMainContext.Date = _GpfDate;
     }
