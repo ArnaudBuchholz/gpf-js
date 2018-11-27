@@ -58,16 +58,9 @@ function _gpSetTimeoutPolyfill (callback, timeout) {
 }
 
 function _gpfClearTimeoutPolyfill (timeoutId) {
-    var pos;
-    if (!_gpfTimeoutQueue.every(function (timeoutItem, index) {
-        if (timeoutItem.id === timeoutId) {
-            pos = index;
-            return false;
-        }
-        return true;
-    })) {
-        _gpfTimeoutQueue.splice(pos, 1);
-    }
+    _gpfTimeoutQueue = _gpfTimeoutQueue.filter(function (timeoutItem) {
+        return timeoutItem.id !== timeoutId;
+    });
 }
 
 /**
@@ -102,7 +95,6 @@ _gpfCompatibilityInstallGlobal("clearTimeout", _gpfClearTimeoutPolyfill);
 
 /*#ifndef(UMD)*/
 
-gpf.internals._gpfTimeoutQueue = _gpfTimeoutQueue;
 gpf.internals._gpSetTimeoutPolyfill = _gpSetTimeoutPolyfill;
 gpf.internals._gpfClearTimeoutPolyfill = _gpfClearTimeoutPolyfill;
 gpf.internals._gpfHandleTimeout = _gpfHandleTimeout;
