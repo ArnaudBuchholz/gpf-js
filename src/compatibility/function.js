@@ -21,6 +21,9 @@ function _generateBindBuilderSource (length) {
         + "};";
 }
 
+var _GPF_COMPATIBILITY_FUNCTION_OTHER_ARGS = 1,
+    _GPF_COMPATIBILITY_FUNCTION_MIN_LENGTH = 0;
+
 _gpfCompatibilityInstallMethods("Function", {
     on: Function,
 
@@ -29,8 +32,9 @@ _gpfCompatibilityInstallMethods("Function", {
         // Introduced with JavaScript 1.8.5
         bind: function (thisArg) {
             var me = this,
-                prependArgs = _gpfArrayPrototypeSlice.call(arguments, 1),
-                builderSource = _generateBindBuilderSource(Math.max(this.length - prependArgs.length, 0));
+                prependArgs = _gpfArrayPrototypeSlice.call(arguments, _GPF_COMPATIBILITY_FUNCTION_OTHER_ARGS),
+                length = Math.max(this.length - prependArgs.length, _GPF_COMPATIBILITY_FUNCTION_MIN_LENGTH),
+                builderSource = _generateBindBuilderSource(length);
             return _gpfFunc(["thisArg", "prependArgs", "_gpfArrayPrototypeSlice"], builderSource)
                 .call(me, thisArg, prependArgs, _gpfArrayPrototypeSlice);
         }
