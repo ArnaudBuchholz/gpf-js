@@ -6,6 +6,7 @@
 "use strict";
 /*global _GPF_NOT_FOUND*/ // -1
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
+/*global _gpfArrayTail*/ // [].slice.call(,1)
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*exported _gpfPathDecompose*/ // Normalize path and returns an array of parts
@@ -153,7 +154,7 @@ function _gpfPathAppend (splitPath, relativePath) {
  */
 function _gpfPathJoin (path) {
     var splitPath = _gpfPathDecompose(path);
-    [].slice.call(arguments, 1).forEach(_gpfPathAppend.bind(null, splitPath));
+    _gpfArrayTail(arguments).forEach(_gpfPathAppend.bind(null, splitPath));
     return splitPath.join("/");
 }
 
