@@ -70,11 +70,10 @@ function _gpfClearTimeoutPolyfill (timeoutId) {
  * @since 0.1.5
  */
 function _gpfHandleTimeout () {
-    var queue = _gpfTimeoutQueue,
-        timeoutItem,
+    var timeoutItem,
         now;
-    while (queue.length) {
-        timeoutItem = queue.shift();
+    while (_gpfTimeoutQueue.length) {
+        timeoutItem = _gpfTimeoutQueue.shift();
         now = new Date().getTime();
         while (timeoutItem.dt > now) {
             _gpfSleep(timeoutItem.dt - now);
