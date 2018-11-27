@@ -5,6 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
+/*global _gpfArraySlice*/ // [].slice.call
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunc*/ // Create a new function using the source
 /*global _gpfHost*/ // Host type
@@ -103,7 +104,7 @@ function _gpfRequireAmdDefine (name, dependencies, factory) {
         params = _gpfRequireAmdDefineParamsMapping[arguments.length].apply(null, arguments);
     myGpf.require.define(params.dependencies, function (require) {
         require.length = params.dependencies.length;
-        return params.factory.apply(null, [].slice.call(require));
+        return params.factory.apply(null, _gpfArraySlice(require));
     });
 }
 
