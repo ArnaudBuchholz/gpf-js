@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfArraySlice*/ // [].slice.call
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfIsArray*/ // Return true if the parameter is an array
@@ -361,7 +362,7 @@ function _gpfWebTagCreateFunction (nodeName) {
         } else {
             sliceFrom = 0;
         }
-        return new _GpfWebTag(nodeName, attributes, [].slice.call(arguments, sliceFrom));
+        return new _GpfWebTag(nodeName, attributes, _gpfArraySlice(arguments, sliceFrom));
     };
 }
 
