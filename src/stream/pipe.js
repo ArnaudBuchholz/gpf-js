@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfArrayTail*/ // [].slice.call(,1)
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfIFlushableStream*/ // gpf.interfaces.IFlushableStream
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
@@ -142,7 +143,7 @@ function _gpfStreamPipeToWritable (streams) {
 function _gpfStreamPipe (source, destination) {
     _gpfIgnore(destination);
     var iReadableStream = _gpfStreamQueryReadable(source),
-        iWritableStream = _gpfStreamPipeToWritable([].slice.call(arguments, 1)),
+        iWritableStream = _gpfStreamPipeToWritable(_gpfArrayTail(arguments)),
         iFlushableStream = _gpfStreamPipeToFlushable(iWritableStream);
     try {
         return iReadableStream.read(iWritableStream)
