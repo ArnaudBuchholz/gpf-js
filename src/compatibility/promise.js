@@ -124,6 +124,8 @@ function _gpfPromiseAsyncProcess (promise) {
     me.resolve(result);
 }
 
+var _GPF_COMPATIBILITY_PROMISE_NODELAY = 0;
+
 _gpfPromiseHandler.prototype = {
 
     onFulfilled: null,
@@ -145,7 +147,7 @@ _gpfPromiseHandler.prototype = {
             promise._handlers.push(me);
             return;
         }
-        setTimeout(_gpfPromiseAsyncProcess.bind(me, promise), 0);
+        setTimeout(_gpfPromiseAsyncProcess.bind(me, promise), _GPF_COMPATIBILITY_PROMISE_NODELAY);
     }
 
 };
@@ -198,7 +200,7 @@ _GpfPromise.reject = function (value) {
 
 function _gpfPromiseAllAssign (state, index, result) {
     state.promises[index] = result;
-    if (--state.remaining === 0) {
+    if (!--state.remaining) {
         state.resolve(state.promises);
     }
 }
@@ -221,7 +223,7 @@ function _gpfPromiseAllHandle (result, index) {
 }
 
 _GpfPromise.all = function (promises) {
-    if (promises.length === 0) {
+    if (!promises.length) {
         return _GpfPromise.resolve([]);
     }
     return new _GpfPromise(function (resolve, reject) {
