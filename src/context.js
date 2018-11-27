@@ -4,6 +4,8 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_START*/ // 0
+/*global _gpfArrayTail*/ // [].slice.call(,1)
 /*global _gpfMainContext*/ // Main context object
 /*exported _gpfContext*/ // Resolve contextual string
 /*#endif*/
@@ -26,9 +28,9 @@ function _gpfGetOrCreateObjectProperty (parent, name) {
 function _gpfReduceContext (path, reducer) {
     var rootContext,
         pathToReduce;
-    if (path[0] === "gpf") {
+    if (path[_GPF_START] === "gpf") {
         rootContext = gpf;
-        pathToReduce = path.slice(1);
+        pathToReduce = _gpfArrayTail(path);
     } else {
         rootContext = _gpfMainContext;
         pathToReduce = path;
