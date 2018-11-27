@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfArraySlice*/ // [].slice.call
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
@@ -190,7 +191,7 @@ var
          */
         _appendToReadBuffer: function (data) {
             _gpfIgnore(data);
-            this._readBuffer = this._readBuffer.concat([].slice.call(arguments));
+            this._readBuffer = this._readBuffer.concat(_gpfArraySlice(arguments));
             this._readCheckIfOutput();
             return this;
         },
