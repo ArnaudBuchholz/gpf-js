@@ -5,6 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HTTP_METHODS*/ // HTTP Methods
+/*global _gpfArrayTail*/ // [].slice.call(,1)
 /*global _gpfHost*/ // Host type
 /*global _gpfHttpSetRequestImplIf*/ // Set the http request implementation if the host matches
 /*#endif*/
@@ -59,7 +60,7 @@ function _gpfHttMockMatchRequest (mockedRequest, request) {
     url.lastIndex = 0;
     match = url.exec(request.url);
     if (match) {
-        return mockedRequest.response.apply(mockedRequest, [request].concat([].slice.call(match, 1)));
+        return mockedRequest.response.apply(mockedRequest, [request].concat(_gpfArrayTail(match)));
     }
 }
 
