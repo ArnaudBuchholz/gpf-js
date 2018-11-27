@@ -4,9 +4,21 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*exported _gpfArraySlice*/ // [].slice.call
+/*exported _gpfArrayTail*/ // [].slice.call(,1)
 /*exported _gpfIsArray*/ // Return true if the parameter is an array
 /*exported _gpfIsArrayLike*/ // Return true if the parameter looks like an array
 /*#endif*/
+
+function _gpfArraySlice (array, from, to) {
+    return Array.prototype.slice.call(array, from, to);
+}
+
+var _GPF_ARRAYLIKE_TAIL_FROMINDEX = 1;
+
+function _gpfArrayTail (array) {
+    return _gpfArraySlice(array, _GPF_ARRAYLIKE_TAIL_FROMINDEX);
+}
 
 /**
  * Return true if the parameter is an array
