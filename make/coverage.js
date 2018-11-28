@@ -110,10 +110,10 @@ var _PartStatistics = _class(_noop, {
      * @return {Number} Coverage ratio in percent
      */
     getCoverageRatio: function (rounded) {
-        if (!this.count) {
-            return this._coverageWhenNothing;
+        if (this.count) {
+            return this._toPercent(this.tested + this.ignored, this.count, rounded);
         }
-        return this._toPercent(this.tested + this.ignored, this.count, rounded);
+        return this._coverageWhenNothing;
     },
 
     /**
@@ -161,10 +161,10 @@ var _BranchStatistics = _class(_noop, {
      * locations array will used to fetch skip property of each branch
      */
     processCoverage: function (numberOfCalls, branchDefinition) {
-        this.count += 2;
-        numberOfCalls.forEach(function (value, index) {
-            this._testedOrIgnored(value, branchDefinition.locations[index]);
-        });
+        ["if", "else"].forEach(function (label, index) {
+            ++this.count;
+            this._testedOrIgnored(numberOfCalls[index], branchDefinition.locations[index]);
+        }, this);
     }
 
 }, _PartStatistics);
