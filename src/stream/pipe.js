@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_START*/ // 0
 /*global _gpfArrayTail*/ // [].slice.call(,1)
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfIFlushableStream*/ // gpf.interfaces.IFlushableStream
@@ -117,19 +118,19 @@ function _gpfStreamPipeToFlushableWrite (intermediate, destination) {
 }
 
 function _gpfStreamPipeReduce (streams) {
-    var idx = streams.length - 1,
-        iWritableStream = streams[idx];
-    while (idx > 0) {
+    var idx = streams.length,
+        iWritableStream = streams[--idx];
+    while (idx) {
         iWritableStream = _gpfStreamPipeToFlushableWrite(streams[--idx], iWritableStream);
     }
     return iWritableStream;
 }
 
 function _gpfStreamPipeToWritable (streams) {
-    if (streams.length > 1) {
+    if (_gpfArrayTail(streams).length) {
         return _gpfStreamPipeReduce(streams);
     }
-    return _gpfStreamQueryWritable(streams[0]);
+    return _gpfStreamQueryWritable(streams[_GPF_START]);
 }
 
 /**
