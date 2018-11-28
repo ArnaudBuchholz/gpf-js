@@ -29,14 +29,18 @@ function _gpfFunctionDescribeName (functionToDescribe, resultDescription) {
 
 function _gpfFunctionDescribeParameters (functionToDescribe, functionSource, resultDescription) {
     if (functionToDescribe.length) {
-        resultDescription.parameters = new RegExp("\\(\\s*(\\w+(?:\\s*,\\s*\\w+)*)\\s*\\)").exec(functionSource)[1]
+        var match = new RegExp("\\(\\s*(\\w+(?:\\s*,\\s*\\w+)*)\\s*\\)").exec(functionSource),
+            PARAMETERS = 1;
+        resultDescription.parameters = match[PARAMETERS]
             .split(",")
             .map(_gpfStringTrim);
     }
 }
 
 function _gpfFunctionDescribeBody (functionSource, resultDescription) {
-    var body = _gpfStringTrim(new RegExp("{((?:.*\\r?\\n)*.*)}").exec(functionSource)[1]);
+    var match = new RegExp("{((?:.*\\r?\\n)*.*)}").exec(functionSource),
+        BODY = 1,
+        body = _gpfStringTrim(match[BODY]);
     if (body) {
         resultDescription.body = body;
     }
