@@ -58,11 +58,12 @@ function _gpfDefineEntityCheck$PropertyInAllowed$Properties (name, allowedList) 
     }
 }
 
+var _GPF_DEFINE_SPECIAL_PROPERTY_PREFIX = "$";
+
 function _gpfDefineEntityCheckProperty (value, name) {
-    _gpfIgnore(value);
     /*jshint -W040*/ /*eslint-disable no-invalid-this*/ // bound through thisArg
-    if (name.charAt(0) === "$") {
-        this._check$Property(name.substr(1), value);
+    if (name.startsWith(_GPF_DEFINE_SPECIAL_PROPERTY_PREFIX)) {
+        this._check$Property(name.substring(_GPF_DEFINE_SPECIAL_PROPERTY_PREFIX.length), value);
     } else {
         this._checkProperty(name, value);
     }
@@ -277,7 +278,7 @@ Object.assign(_GpfEntityDefinition.prototype, {
         ].filter(function (namespacePart) {
             return namespacePart;
         });
-        if (namespaces.length > 0) {
+        if (namespaces.length) {
             this._namespace = namespaces.join(".");
         }
     },
