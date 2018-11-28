@@ -2,8 +2,6 @@
 /*eslint-disable no-invalid-this*/ // Because of the 'simple' class generation relying on lamda functions
 /* MUST NOT BE MIGRATED TO ES6 BECAUSE USED IN A BROWSER */
 
-/*eslint no-magic-numbers: ["error", { "ignore": [0, 1, 100, 10000] }]*/
-
 function _noop () {}
 
 /**
@@ -61,7 +59,7 @@ var _PartStatistics = _class(_noop, {
      * Only skip (Boolean) is tested
      */
     _testedOrIgnored: function (numberOfCall, partDefinition) {
-        if (numberOfCall > 0) {
+        if (numberOfCall) {
             ++this.tested;
         } else if (partDefinition.skip) {
             ++this.ignored;
@@ -90,21 +88,30 @@ var _PartStatistics = _class(_noop, {
         this.ignored += partStatistics.ignored;
     },
 
+    _precision: 10000,
+    _2digitsScale: 100,
+    _0digitsScale: 10000,
+
     // Generates percent value
     _toPercent: function (count, total, rounded) {
+        var scale;
         if (rounded) {
-            return Math.floor(100 * count / total);
+            scale = this._0digitsScale;
+        } else {
+            scale = this._2digitsScale;
         }
-        return Math.floor(10000 * count / total) / 100;
+        return Math.floor(this._precision * count / total) / scale;
     },
+
+    _coverageWhenNothing: 100,
 
     /**
      * @param {Boolean} [rounded] Truncate decimals when true
      * @return {Number} Coverage ratio in percent
      */
     getCoverageRatio: function (rounded) {
-        if (this.count === 0) {
-            return 100;
+        if (!this.count) {
+            return this._coverageWhenNothing;
         }
         return this._toPercent(this.tested + this.ignored, this.count, rounded);
     },
@@ -114,8 +121,8 @@ var _PartStatistics = _class(_noop, {
      * @return {Number} Ignored ratio in percent
      */
     getIgnoredRatio: function (rounded) {
-        if (this.count === 0) {
-            return 0;
+        if (!this.count) {
+            return this.count;
         }
         return this._toPercent(this.ignored, this.count, rounded);
     }
@@ -155,8 +162,9 @@ var _BranchStatistics = _class(_noop, {
      */
     processCoverage: function (numberOfCalls, branchDefinition) {
         this.count += 2;
-        this._testedOrIgnored(numberOfCalls[0], branchDefinition.locations[0]);
-        this._testedOrIgnored(numberOfCalls[1], branchDefinition.locations[1]);
+        numberOfCalls.forEach(function (value, index) {
+            this._testedOrIgnored(value, branchDefinition.locations[index]);
+        });
     }
 
 }, _PartStatistics);
@@ -171,7 +179,9 @@ var _BranchStatistics = _class(_noop, {
  */
 var _File = _class(function (optionalName) {
     if (optionalName) {
-        this.name = optionalName.replace(/\\/g, "/").split("src/")[1].split(".js")[0];
+        var match = optionalName.replace(/\\/g, "/").match(/src\/(.*)\.js$/),
+            NAME = 1;
+        this.name = match[NAME];
     }
     this.statements = new _StatementStatistics();
     this.functions = new _FunctionStatistics();
