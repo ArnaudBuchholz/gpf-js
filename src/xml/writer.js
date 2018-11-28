@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_START*/ // 0
 /*global _GpfStreamBufferedRead*/ // gpf.stream.BufferedRead
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfEmptyFunc*/ // An empty function
@@ -57,7 +58,7 @@ var
         _nextNamespaces: {},
 
         _checkIfElementsExist: function (hasElements) {
-            if (hasElements !== (this._elements.length !== 0)) {
+            if (hasElements !== Boolean(this._elements.length)) {
                 gpf.Error.invalidXmlWriterState();
             }
         },
@@ -77,7 +78,7 @@ var
         },
 
         _addContentToLastElement: function () {
-            var element = this._elements[0];
+            var element = this._elements[_GPF_START];
             if (element) {
                 return this._addContentToElement(element);
             }
