@@ -5,6 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HOST*/ // Host types
+/*global _GPF_START*/ // 0
 /*global _GpfStreamJavaReadable*/ // gpf.java.ReadableStream
 /*global _GpfStreamJavaWritable*/ // gpf.java.WritableStream
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
@@ -52,7 +53,7 @@ function _gpfHttpJavaGetHeaders (httpConnection) {
         headerFields = httpConnection.getHeaderFields(),
         keys = headerFields.keySet().toArray();
     _gpfArrayForEach(keys, function (key) {
-        headers[String(key)] = String(headerFields.get(key).get(0));
+        headers[String(key)] = String(headerFields.get(key).get(_GPF_START));
     });
     return headers;
 }
