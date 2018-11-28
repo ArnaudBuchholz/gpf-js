@@ -66,7 +66,7 @@ Object.assign(_GpfClassDefinition.prototype, {
      */
     _buildPrototype: function (newPrototype) {
         _gpfObjectForEach(this._initialDefinition, function (value, memberName) {
-            if (memberName.charAt(0) !== "$" && memberName !== "constructor") {
+            if (!memberName.startsWith("$") && memberName !== "constructor") {
                 this._addMemberToPrototype(newPrototype, memberName, value); //eslint-disable-line no-invalid-this
             }
         }, this);
