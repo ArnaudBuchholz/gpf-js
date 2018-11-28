@@ -106,7 +106,7 @@ var _GPF_COMPATIBILITY_JSON_STRINGIFY_MAX_SPACE = 10;
 
 function _gpfJsonStringifyCheckSpaceValue (space) {
     if (typeof space === "number") {
-        return new Array(Math.min(space, _GPF_COMPATIBILITY_JSON_STRINGIFY_MAX_SPACE) + 1).join(" ");
+        return "".padEnd(Math.min(space, _GPF_COMPATIBILITY_JSON_STRINGIFY_MAX_SPACE), " ");
     }
     return space || "";
 }
