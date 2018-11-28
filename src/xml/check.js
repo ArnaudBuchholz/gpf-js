@@ -5,6 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_NOT_FOUND*/ // -1
+/*global _GPF_START*/ // 0
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*exported _gpfXmlCheckDefinableNamespacePrefixName*/ // Check if the given XML namespace prefix name can be defined
 /*exported _gpfXmlCheckQualifiedAttributeName*/ // Check XML qualified attribute name
@@ -158,11 +159,15 @@ function _gpfXmlCheckQualifiedElementNameAndPrefix (name, prefix, knownPrefixes)
 
 function _gpfXmlCheckGetQualified (noPrefixCheck, nameAndPrefixCheck) {
     return function (qName, knownPrefixes) {
-        var sep = qName.indexOf(":");
+        var sep = qName.indexOf(":"),
+            name,
+            prefix;
         if (sep === _GPF_NOT_FOUND) {
             noPrefixCheck(qName);
         } else {
-            nameAndPrefixCheck(qName.substr(sep + 1), qName.substr(0, sep), knownPrefixes);
+            prefix = qName.substring(_GPF_START, sep);
+            name = qName.substring(++sep);
+            nameAndPrefixCheck(name, prefix, knownPrefixes);
         }
     };
 }
