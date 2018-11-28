@@ -5,7 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_DEFINE_CLASS_ATTRIBUTES_NAME*/ // $attributes
-/*global _gpfArrayTail*/
+/*global _gpfArrayTail*/ // [].slice.call(,1)
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*exported _gpfAttributesCheckAppliedOnBaseClass*/ // Ensures attribute is applied on a specific base class
 /*exported _gpfAttributesCheckAppliedOnlyOnce*/ // Ensures attribute is used only once
