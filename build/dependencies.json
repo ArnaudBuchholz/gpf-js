@@ -43,6 +43,9 @@
         "boot",
         "assert"
     ],
+    "string/capitalize": [
+        "boot"
+    ],
     "string/replaceex": [
         "foreach"
     ],
@@ -63,27 +66,30 @@
         "foreach"
     ],
     "compatibility/array": [
+        "boot",
         "foreach",
         "compatibility",
-        "boot",
         "arraylike"
     ],
     "factory": [
+        "boot",
         "constants"
     ],
     "compatibility/date": [
+        "boot",
         "foreach",
         "compatibility",
-        "boot",
         "factory"
     ],
     "compatibility/function": [
+        "arraylike",
         "factory",
         "compatibility",
         "boot",
         "constants"
     ],
     "compatibility/object": [
+        "arraylike",
         "compatibility",
         "boot",
         "foreach"
@@ -118,7 +124,8 @@
         "compatibility/json/stringify"
     ],
     "context": [
-        "boot"
+        "boot",
+        "arraylike"
     ],
     "string/escape/html": [
         "string/escapefor",
@@ -239,6 +246,7 @@
         "arraylike"
     ],
     "filter": [
+        "boot",
         "constants"
     ],
     "interfaces/readablestream": [
@@ -274,6 +282,7 @@
     "path": [
         "boot",
         "foreach",
+        "arraylike",
         "error"
     ],
     "stream/nodejs": [
@@ -306,9 +315,9 @@
         "path"
     ],
     "web/tag": [
+        "arraylike",
         "define",
         "error",
-        "arraylike",
         "literal",
         "foreach",
         "string/escapefor",
@@ -362,9 +371,11 @@
     "http/mock": [
         "http/helpers",
         "boot",
+        "arraylike",
         "http"
     ],
     "stream/bufferedread": [
+        "arraylike",
         "define",
         "boot",
         "stream"
@@ -423,6 +434,7 @@
     ],
     "require/javascript": [
         "boot",
+        "arraylike",
         "error",
         "constants",
         "path",
@@ -442,6 +454,7 @@
     ],
     "stream/pipe": [
         "boot",
+        "arraylike",
         "interfaces/flushablestream",
         "interfaces",
         "stream"
@@ -451,12 +464,12 @@
         "boot"
     ],
     "stream/csv/parser": [
+        "boot",
         "stream/bufferedread",
         "foreach",
         "assert",
         "define",
         "error",
-        "boot",
         "stream",
         "string/escapefor",
         "string/replaceex"
@@ -513,9 +526,9 @@
         "interfaces/thenable"
     ],
     "xml/writer": [
+        "boot",
         "stream/bufferedread",
         "define",
-        "boot",
         "error",
         "foreach",
         "string/escapefor",
@@ -530,6 +543,7 @@
     ],
     "attributes/check": [
         "define/class/attributes/check",
+        "arraylike",
         "error"
     ],
     "attributes/attributeattribute": [
@@ -570,6 +584,7 @@
         "serial/property"
     ],
     "serial/get": [
+        "boot",
         "attributes",
         "attributes/serializable",
         "foreach"
