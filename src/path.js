@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_START*/ // 0
 /*global _GPF_NOT_FOUND*/ // -1
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfArrayTail*/ // [].slice.call(,1)
@@ -47,8 +48,9 @@ function _gpfPathSplit (path) {
 }
 
 function _gpfPathRemoveTrailingBlank (splitPath) {
-    if (!splitPath[splitPath.length - 1]) {
-        splitPath.pop();
+    var last = splitPath.pop();
+    if (last) {
+        splitPath.push(last); // Put it back
     }
 }
 
@@ -159,7 +161,7 @@ function _gpfPathJoin (path) {
 }
 
 function _gpfPathSafeShiftIdenticalBeginning (splitFromPath, splitToPath) {
-    while (splitFromPath[0] === splitToPath[0]) {
+    while (splitFromPath[_GPF_START] === splitToPath[_GPF_START]) {
         splitFromPath.shift();
         splitToPath.shift();
     }
@@ -199,8 +201,8 @@ function _gpfPathRelative (from, to) {
         splitTo = _gpfPathDecompose(to);
     _gpfPathShiftIdenticalBeginning(splitFrom, splitTo);
     // For each remaining part in from, unshift .. in to
-    length = splitFrom.length + 1;
-    while (--length) {
+    length = splitFrom.length;
+    while (length--) {
         splitTo.unshift("..");
     }
     return splitTo.join("/");
@@ -255,7 +257,7 @@ gpf.path = {
         if (pos === _GPF_NOT_FOUND) {
             return name;
         }
-        return name.substr(0, pos);
+        return name.substring(_GPF_START, pos);
     },
 
     /**
