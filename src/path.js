@@ -4,8 +4,8 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_START*/ // 0
 /*global _GPF_NOT_FOUND*/ // -1
+/*global _GPF_START*/ // 0
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfArrayTail*/ // [].slice.call(,1)
 /*global _gpfEmptyFunc*/ // An empty function
