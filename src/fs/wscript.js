@@ -6,6 +6,7 @@
 "use strict";
 /*global _GPF_FS_OPENFOR*/ // File system stream opening mode
 /*global _GPF_FS_TYPES*/ // File system types constants
+/*global _GPF_FS_WSCRIPT_READING*/ // WScript OpenTextFile for reading value
 /*global _GPF_HOST*/ // Host types
 /*global _GpfWscriptBaseStream*/ // gpf.wscript.BaseStream
 /*global _GpfWscriptReadableStream*/ // gpf.wscript.ReadableStream
@@ -111,8 +112,7 @@ function _gpfFsWScriptExplore (path) {
     gpf.Error.pathNotExplorable();
 }
 
-var _GPF_FS_WSCRIPT_READING = 1,
-    _GPF_FS_WSCRIPT_APPENDING = 8;
+var _GPF_FS_WSCRIPT_APPENDING = 8;
 
 /**
  * WScript specific IFileStorage implementation
