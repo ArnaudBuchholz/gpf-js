@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_START*/ // 0
 /*global _gpfAttributesGet*/ // Get attributes defined for the object / class
 /*global _gpfAttributesSerializable*/ // Shortcut for gpf.attributes.Serializable
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
@@ -21,7 +22,7 @@ function _gpfSerialGet (objectOrClass) {
     var serializable = _gpfAttributesGet(objectOrClass, _gpfAttributesSerializable),
         properties = {};
     _gpfObjectForEach(serializable, function (attributes, member) {
-        properties[member] = attributes[0].getProperty();
+        properties[member] = attributes[_GPF_START].getProperty();
     });
     return properties;
 }
