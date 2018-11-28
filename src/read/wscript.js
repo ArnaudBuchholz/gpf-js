@@ -4,8 +4,8 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HOST*/ // Host types
 /*global _GPF_FS_WSCRIPT_READING*/ // WScript OpenTextFile for reading value
+/*global _GPF_HOST*/ // Host types
 /*global _gpfMsFSO*/ // Scripting.FileSystemObject activeX
 /*global _gpfReadSetImplIf*/ // Set the read implementation if the host matches
 /*#endif*/
