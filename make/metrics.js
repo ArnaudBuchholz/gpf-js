@@ -1,12 +1,12 @@
 "use strict";
 
-/*eslint no-magic-numbers: ["error", { "ignore": [-1, 0, 1, 100] }]*/
-
 // Use gpf library (source version)
 global.gpfSourcesPath = "./src/";
 require("../src/boot.js");
 
 const
+    OK = 0,
+    KO = -1,
     fs = require("fs"),
     CoverageReport = require("./coverage"),
     sources = ["boot"].concat(
@@ -16,7 +16,6 @@ const
     ),
     configuredMetrics = JSON.parse(fs.readFileSync("tmp/config.json")).metrics,
     releaseMetrics = {},
-    pad = (value, length) => value + new Array(length + 1).join(" ").substr(value.length),
 
     safeCoverage = process.argv.some(arg => arg === "safeCoverage");
 
@@ -33,8 +32,9 @@ let
 
 sources.forEach(sourceName => {
     const
+        PERFECT_RATIO = 100,
         fileCoverage = coverageReport.get(sourceName),
-        fileTrace = [pad(sourceName, SOURCE_PADDING)];
+        fileTrace = [sourceName.padEnd(SOURCE_PADDING, " ")];
     let
         fileIsKO = false;
     if (fileCoverage) {
@@ -43,7 +43,7 @@ sources.forEach(sourceName => {
             if (ratio < configuredMetrics.coverage[coveragePart]) {
                 fileIsKO = true && !safeCoverage;
             }
-            if (ratio === 100) {
+            if (ratio === PERFECT_RATIO) {
                 ratio = "   ";
             } else {
                 ratio += "%";
@@ -77,7 +77,8 @@ releaseMetrics.coverage = {
 };
 
 coverageParts.forEach(coveragePart => {
-    console.log(`${pad(coveragePart + ":", COVERAGE_PADDING)}${globalCoverage[coveragePart].getCoverageRatio(true)}%`
+    console.log(`${(coveragePart + ":").padEnd(COVERAGE_PADDING, " ")}`
+        + `${globalCoverage[coveragePart].getCoverageRatio(true)}%`
         + ` (ignored ${globalCoverage[coveragePart].getIgnoredRatio(true)}%)`);
 });
 
@@ -98,13 +99,14 @@ platoData.reports.forEach(reportData => {
     const
         SKIP_SRC = 4,
         REMOVE_SRC_AND_EXT = 7,
+        DIGITS = 2,
         fileName = reportData.info.file,
         sourceName = fileName.substr(SKIP_SRC, fileName.length - REMOVE_SRC_AND_EXT),
-        fileTrace = [pad(sourceName, SOURCE_PADDING)],
+        fileTrace = [sourceName.padEnd(SOURCE_PADDING, " ")],
         maintainability = reportData.complexity.maintainability;
     let
         fileIsKO = false;
-    fileTrace.push("maintainability: ", Math.floor(100 * maintainability) / 100);
+    fileTrace.push("maintainability: ", maintainability.toFixed(DIGITS));
     if (maintainability < configuredMetrics.maintainability) {
         fileIsKO = true;
     }
@@ -121,7 +123,7 @@ console.log(`Lines of code:             ${releaseMetrics.lines.total}`);
 console.log(`Average per module:        ${releaseMetrics.lines.average}`);
 
 if (hasCoverageError || hasMaintainabilityError) {
-    process.exit(-1); // Coverage error
+    process.exit(KO); // Coverage error
 }
 
 //endregion
@@ -155,14 +157,14 @@ let
     metricsSection;
 
 readmeSections.every((section, index) => {
-    if (section.indexOf(" Metrics") === 0) {
+    if (section.startsWith(" Metrics")) {
         metricsSectionIndex = index;
         return false;
     }
     return true;
 });
 
-metricsSectionHeader = readmeSections[metricsSectionIndex].split(SEPARATOR)[0];
+metricsSectionHeader = readmeSections[metricsSectionIndex].split(SEPARATOR).shift();
 metricsSection = [
     `\r\nStatements coverage|${releaseMetrics.coverage.statements.total}%||${configuredMetrics.coverage.statements}%|*`,
     `${releaseMetrics.coverage.statements.ignored}% ignored*`,
@@ -181,4 +183,4 @@ fs.writeFileSync("README.md", readmeSections.join("##"));
 
 fs.writeFileSync("tmp/releaseMetrics.json", JSON.stringify(releaseMetrics));
 
-process.exit(0); // OK
+process.exit(OK);
