@@ -36,7 +36,8 @@ _gpfErrorDeclare("require/javascript", {
 
 });
 
-var _gpfRequireJsModuleRegEx = /[^.]\brequire\b\s*\(\s*(?:['|"]([^"']+)['|"]|[^)]+)\s*\)/g;
+var _gpfRequireJsModuleRegEx = /[^.]\brequire\b\s*\(\s*(?:['|"]([^"']+)['|"]|[^)]+)\s*\)/g,
+    _GPF_REQUIRE_MATCH_MODULE_NAME = 1;
 
 function _gpfRequireJSGetStaticDependencies (resourceName, content) {
     /*jshint validthis:true*/
@@ -44,7 +45,7 @@ function _gpfRequireJSGetStaticDependencies (resourceName, content) {
     if (requires.length) {
         return _gpfRequireWrapGpf(this, resourceName).gpf.require.define(requires //eslint-disable-line no-invalid-this
             .map(function (match) {
-                return match[1]; // may be undefined if dynamic
+                return match[_GPF_REQUIRE_MATCH_MODULE_NAME]; // may be undefined if dynamic
             })
             .filter(function (require) {
                 return require;
