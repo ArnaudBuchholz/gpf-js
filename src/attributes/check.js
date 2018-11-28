@@ -5,6 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_DEFINE_CLASS_ATTRIBUTES_NAME*/ // $attributes
+/*global _gpfArrayTail*/
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*exported _gpfAttributesCheckAppliedOnBaseClass*/ // Ensures attribute is applied on a specific base class
 /*exported _gpfAttributesCheckAppliedOnlyOnce*/ // Ensures attribute is used only once
@@ -133,7 +134,7 @@ function _gpfAttributesCheckGetMemberAttributes (member, classDefinition, Attrib
  */
 function _gpfAttributesCheckAppliedOnlyOnce (member, classDefinition, AttributeClass) {
     var attributes = _gpfAttributesCheckGetMemberAttributes(member, classDefinition, AttributeClass);
-    if (attributes.length > 1) {
+    if (_gpfArrayTail(attributes).length) {
         gpf.Error.uniqueAttributeUsedTwice();
     }
 }
