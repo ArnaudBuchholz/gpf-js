@@ -47,6 +47,7 @@ var _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION = "attributes",
     _GPF_DEFINE_CLASS_ATTRIBUTES_NAME = "$" + _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION,
     // If matching the capturing group returns the member name or undefined (hence the |.)
     _gpfDefClassAttrIsAttributeRegExp = new RegExp("^\\[([^\\]]+)\\]$|."),
+    _GPF_DEFINE_CLASS_ATTRIBUTE_MATCH_NAME = 1,
     _gpfDefClassAttrClassCheckMemberName = _GpfClassDefinition.prototype._checkMemberName,
     _gpfDefClassAttrClassCheckMemberValue = _GpfClassDefinition.prototype._checkMemberValue,
     _gpfDefClassAttrClassCheck$Property = _GpfClassDefinition.prototype._check$Property,
@@ -65,7 +66,7 @@ function _gpfDefClassAttrCheck (member, attribute) {
  * @since 0.2.4
  */
 function _gpfDefClassAttrIsAttributeSpecification (name) {
-    return _gpfDefClassAttrIsAttributeRegExp.exec(name)[1];
+    return _gpfDefClassAttrIsAttributeRegExp.exec(name)[_GPF_DEFINE_CLASS_ATTRIBUTE_MATCH_NAME];
 }
 
 Object.assign(_GpfClassDefinition.prototype, {
