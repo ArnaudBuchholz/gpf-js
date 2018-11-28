@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_START*/ // 0
 /*global _gpfFunc*/ // Create a new function using the source
 /*#endif*/
 
@@ -200,7 +201,7 @@ function _gpfCreateFilterGetType (specification) {
     if (typeof specification === "object") {
         return Object.keys(specification).filter(function (property) {
             return _gpfCreateFilterTypes.includes(property);
-        })[0];
+        })[_GPF_START];
     }
 }
 
