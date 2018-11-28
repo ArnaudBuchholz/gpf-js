@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*exported _GPF_FS_WSCRIPT_READING*/ // WScript OpenTextFile for reading value
 /*exported _GPF_HOST*/ // Host types
 /*exported _GPF_NOT_FOUND*/ // -1
 /*exported _GPF_START*/ // 0
@@ -38,6 +39,7 @@ var
 
     _GPF_NOT_FOUND = -1,
     _GPF_START = 0,
+    _GPF_FS_WSCRIPT_READING = 1,
 
     /**
      * Host constants
@@ -161,8 +163,7 @@ if (typeof WScript !== "undefined") {
     _gpfMsFSO = new ActiveXObject("Scripting.FileSystemObject");
 
     _gpfSyncReadForBoot = function (srcFileName) {
-        var FOR_READING = 1,
-            srcFile = _gpfMsFSO.OpenTextFile(srcFileName, FOR_READING),
+        var srcFile = _gpfMsFSO.OpenTextFile(srcFileName, _GPF_FS_WSCRIPT_READING),
             srcContent = srcFile.ReadAll();
         srcFile.Close();
         return srcContent;
