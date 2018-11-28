@@ -125,7 +125,8 @@ function _gpfClassSuperCreateMember (that, $super, superMethod) {
  * @type {RegExp}
  * @since 0.2.1
  */
-var _gpfClassSuperRegExp = new RegExp("\\.\\$super\\.(\\w+)\\b", "g");
+var _gpfClassSuperRegExp = new RegExp("\\.\\$super\\.(\\w+)\\b", "g"),
+    _GPF_CLASS_SUPER_MATCH_MEMBER = 1;
 
 /**
  * Extract all 'members' that are used on $super
@@ -137,7 +138,7 @@ var _gpfClassSuperRegExp = new RegExp("\\.\\$super\\.(\\w+)\\b", "g");
 function _gpfClassMethodExtractSuperMembers (method) {
     return _gpfRegExpForEach(_gpfClassSuperRegExp, method)
         .map(function (match) {
-            return match[1];
+            return match[_GPF_CLASS_SUPER_MATCH_MEMBER];
         });
 }
 
