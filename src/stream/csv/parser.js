@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_START*/ // 0
 /*global _GpfStreamBufferedRead*/ // gpf.stream.BufferedRead
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
 /*global _gpfArrayForEachFalsy*/ // _gpfArrayForEach that returns first truthy value computed by the callback
@@ -127,7 +128,7 @@ var
                 if (header.includes(separator)) {
                     return separator;
                 }
-            }) || _gpfCsvSeparators[0];
+            }) || _gpfCsvSeparators[_GPF_START];
         },
 
         /**
@@ -241,7 +242,7 @@ var
          */
         _nextValue: function (index) {
             this._content = this._content.substr(index);
-            return this._content.length > 0;
+            return Boolean(this._content.length);
         },
 
         /**
@@ -252,10 +253,11 @@ var
          * @since 0.2.3
          */
         _checkAfterValue: function (match) {
-            var charAfterValue = this._content.charAt(match[0].length);
+            var lengthOfMatchedString = match[_GPF_START].length,
+                charAfterValue = this._content.charAt(lengthOfMatchedString);
             if (charAfterValue) {
                 _gpfAssert(charAfterValue === this._separator, "Positive lookahead works");
-                return this._nextValue(match[0].length + 1);
+                return this._nextValue(++lengthOfMatchedString);
             }
             delete this._content;
             return false; // No value means end of content
@@ -283,9 +285,9 @@ var
          * @since 0.2.3
          */
         _checkForValue: function () {
-            if (this._content.charAt(0) === this._separator) {
+            if (this._content.startsWith(this._separator)) {
                 this._values.push(""); // Separator here means empty value
-                return this._nextValue(1);
+                return this._nextValue(this._separator.length);
             }
             return this._extractValue();
         },
