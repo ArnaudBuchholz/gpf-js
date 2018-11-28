@@ -354,13 +354,11 @@ function _gpfWebTagCreateFunction (nodeName) {
         gpf.Error.missingNodeName();
     }
     return function (firstParam) {
-        var sliceFrom,
+        var sliceFrom = 0,
             attributes;
         if (_gpfIsLiteralObject(firstParam)) {
             attributes = firstParam;
-            sliceFrom = 1;
-        } else {
-            sliceFrom = 0;
+            ++sliceFrom;
         }
         return new _GpfWebTag(nodeName, attributes, _gpfArraySlice(arguments, sliceFrom));
     };
