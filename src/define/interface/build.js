@@ -35,7 +35,7 @@ Object.assign(_GpfInterfaceDefinition.prototype, {
      */
     _buildPrototype: function (newPrototype) {
         _gpfObjectForEach(this._initialDefinition, function (value, memberName) {
-            if (memberName.charAt(0) !== "$") {
+            if (!memberName.startsWith("$")) {
                 newPrototype[memberName] = value;
             }
         }, this);
