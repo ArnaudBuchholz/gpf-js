@@ -5,6 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_HTTP_METHODS*/ // HTTP Methods
+/*global _GPF_START*/ // 0
 /*global _gpfArrayTail*/ // [].slice.call(,1)
 /*global _gpfHost*/ // Host type
 /*global _gpfHttpSetRequestImplIf*/ // Set the http request implementation if the host matches
@@ -120,7 +121,7 @@ function _gpfHttpMockAdd (definition) {
  * @since 0.2.2
  */
 function _gpfHttpMockRemove (id) {
-    var method = id.split(".")[0];
+    var method = id.substring(_GPF_START, id.indexOf("."));
     _gpfHttpMockedRequests[method] = _gpfHttpMockedRequests[method].filter(function (mockedRequest) {
         return mockedRequest.id !== id;
     });
