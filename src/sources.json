@@ -93,10 +93,6 @@
         "name": "factory"
     },
     {
-        "name": "compatibility/date",
-        "tags": "compatibility"
-    },
-    {
         "name": "compatibility/function",
         "tags": "compatibility"
     },
@@ -106,6 +102,10 @@
     },
     {
         "name": "compatibility/string",
+        "tags": "compatibility"
+    },
+    {
+        "name": "compatibility/date",
         "tags": "compatibility"
     },
     {
