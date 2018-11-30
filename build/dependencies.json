@@ -75,12 +75,6 @@
         "boot",
         "constants"
     ],
-    "compatibility/date": [
-        "boot",
-        "foreach",
-        "compatibility",
-        "factory"
-    ],
     "compatibility/function": [
         "arraylike",
         "factory",
@@ -97,6 +91,12 @@
     "compatibility/string": [
         "boot",
         "compatibility"
+    ],
+    "compatibility/date": [
+        "boot",
+        "foreach",
+        "compatibility",
+        "factory"
     ],
     "compatibility/promise": [
         "assert",
