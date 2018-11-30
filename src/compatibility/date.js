@@ -180,7 +180,7 @@ function _gpfInstallCompatibleDate () {
         shortDateAsString;
     try {
         longDateAsString = _gpfDateToISOString(new Date(_GPF_COMPATIBILITY_DATE_ISO_TEST));
-        shortDateAsString = _gpfDateToISOString(new Date());
+        shortDateAsString = _gpfDateToISOString(new Date(_GPF_COMPATIBILITY_DATE_SHORT_TEST));
     } catch (e) {} //eslint-disable-line no-empty
     if (longDateAsString !== _GPF_COMPATIBILITY_DATE_ISO_TEST
         || shortDateAsString !== _GPF_COMPATIBILITY_DATE_SHORT_TEST + "T00:00:00.000Z") {
