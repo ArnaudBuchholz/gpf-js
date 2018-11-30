@@ -88,9 +88,9 @@ var _PartStatistics = _class(_noop, {
         this.ignored += partStatistics.ignored;
     },
 
-    _precision: 10000,
+    _percentage: 100,
+    _0digitsScale: 1,
     _2digitsScale: 100,
-    _0digitsScale: 10000,
 
     // Generates percent value
     _toPercent: function (count, total, rounded) {
@@ -100,7 +100,7 @@ var _PartStatistics = _class(_noop, {
         } else {
             scale = this._2digitsScale;
         }
-        return Math.floor(this._precision * count / total) / scale;
+        return Math.floor(this._percentage * scale * count / total) / scale;
     },
 
     _coverageWhenNothing: 100,
