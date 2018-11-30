@@ -11,7 +11,7 @@
 /*#endif*/
 
 function _gpfArraySlice (array, from, to) {
-    return Array.prototype.slice.call(array, from, to);
+    return Array.prototype.slice.call(array, from, to || array.length);
 }
 
 var _GPF_ARRAYLIKE_TAIL_FROMINDEX = 1;
