@@ -83,7 +83,7 @@ Rule | Fixable | Level | Parameters | Comment
 [no-labels](https://eslint.org/docs/rules/no-labels) |   | **error** |  | Really? 
 [no-lone-blocks](https://eslint.org/docs/rules/no-lone-blocks) |   | **error** |  | 
 [no-loop-func](https://eslint.org/docs/rules/no-loop-func) |   | **error** |  | 
-[no-magic-numbers](https://eslint.org/docs/rules/no-magic-numbers) |   | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L49) | Ignoring -1, 0 and 1 that are commonly used. Disabled for test files. 
+[no-magic-numbers](https://eslint.org/docs/rules/no-magic-numbers) |   | **error** |  | Disabled for test files. 
 [no-multi-spaces](https://eslint.org/docs/rules/no-multi-spaces) | &check; | **error** |  | 
 [no-multi-str](https://eslint.org/docs/rules/no-multi-str) |   | **error** |  | 
 [no-native-reassign](https://eslint.org/docs/rules/no-native-reassign) |   | **-** |  | 
@@ -208,7 +208,7 @@ Rule | Fixable | Level | Parameters | Comment
 [no-nested-ternary](https://eslint.org/docs/rules/no-nested-ternary) |   | **error** |  | 
 [no-new-object](https://eslint.org/docs/rules/no-new-object) |   | **error** |  | 
 [no-plusplus](https://eslint.org/docs/rules/no-plusplus) |   | **-** |  | 
-[no-restricted-syntax](https://eslint.org/docs/rules/no-restricted-syntax) |   | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L108) | 
+[no-restricted-syntax](https://eslint.org/docs/rules/no-restricted-syntax) |   | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L108) | Forbids the use of [switch](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/switch) and [with](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/with) 
 [no-spaced-func](https://eslint.org/docs/rules/no-spaced-func) | &check; | **-** |  | 
 [no-tabs](https://eslint.org/docs/rules/no-tabs) |   | **-** |  | 
 [no-ternary](https://eslint.org/docs/rules/no-ternary) |   | **error** |  | 
