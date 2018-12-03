@@ -361,7 +361,7 @@
     },
     {
         "version": "0.2.8",
-        "label": ": Serialization attributes",
+        "label": "Serialization attributes",
         "date": "2018-12-03",
         "notes": "",
         "milestone": 16,
