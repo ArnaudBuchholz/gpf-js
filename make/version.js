@@ -10,6 +10,7 @@ const
     packageVersion = packageJson.version,
     releaseVersion = (/\d+\.\d+\.\d+/).exec(packageVersion).toString(),
     bootSrc = readFileSync("src/boot.js").toString(),
+    VERSION_LINE = 0,
     VERSION_CAPTURING_GROUP = 1,
     bootVersionMatch = (/_gpfVersion += +"(.*)"/).exec(bootSrc),
     bootVersion = bootVersionMatch[VERSION_CAPTURING_GROUP];
@@ -21,8 +22,8 @@ Boot version    : ${bootVersion}`);
 }
 
 if (bootVersion !== packageVersion) {
-    writeFileSync("src/boot.js", bootSrc.replace(bootVersionMatch.toString(), `_gpfVersion = "${packageVersion}"`));
-    console.log(`Version in src/boot.js updated to ${bootVersion}`);
+    writeFileSync("src/boot.js", bootSrc.replace(bootVersionMatch[VERSION_LINE], `_gpfVersion = "${packageVersion}"`));
+    console.log(`Version in src/boot.js updated to ${packageVersion}`);
 }
 
 const
