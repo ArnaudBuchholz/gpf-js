@@ -358,5 +358,35 @@
             "tests": 842,
             "sources": 113
         }
+    },
+    {
+        "version": "0.2.8",
+        "label": ": Serialization attributes",
+        "date": "2018-12-03",
+        "notes": "",
+        "milestone": 16,
+        "metrics": {
+            "coverage": {
+                "statements": {
+                    "total": 100,
+                    "ignored": 0.35
+                },
+                "functions": {
+                    "total": 100,
+                    "ignored": 0.66
+                },
+                "branches": {
+                    "total": 100,
+                    "ignored": 0.75
+                }
+            },
+            "maintainability": 82.5,
+            "lines": {
+                "total": 12458,
+                "average": 96
+            },
+            "tests": 1012,
+            "sources": 129
+        }
     }
 ]

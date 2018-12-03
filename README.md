@@ -46,13 +46,13 @@ ignored parts are [documented](https://arnaudbuchholz.github.io/gpf/doc/tutorial
 
 Metric name | average | total | SME | comment
 ------ | ----- | ----- | ----- | -----
-Statements coverage|100%||90%|*0.44% ignored*
-Branches coverage|100%||90%|*0.81% ignored*
-Functions coverage|100%||90%|*0.88% ignored*
-Maintainability|82.21||70|
-Number of tests||842||*pending: 0, duration: 1206ms*
-Number of sources||113||
-Lines of code|98|11157||
+Statements coverage|100%||90%|*0.35% ignored*
+Branches coverage|100%||90%|*0.75% ignored*
+Functions coverage|100%||90%|*0.66% ignored*
+Maintainability|82.5||70|
+Number of tests||1012||*pending: 0, duration: 923ms*
+Number of sources||129||
+Lines of code|96|12458||
 
 ## Setup
 
@@ -74,6 +74,7 @@ and the template from [ink-docstrap](https://www.npmjs.com/package/ink-docstrap)
 
 Date | Version | Label | Release | Debug | Flavors
 ------ | ------ | ----- | ----- | ----- | -----
+2018-12-03 | [0.2.8](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.2.8) | : Serialization attributes | [lib](https://arnaudbuchholz.github.io/gpf/0.2.8/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.2.8) | [lib](https://arnaudbuchholz.github.io/gpf/0.2.8/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.2.8) | [require](https://arnaudbuchholz.github.io/gpf/0.2.8/gpf-require.js)
 2018-08-04 | [0.2.7](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.2.7) | Quality and XML | [lib](https://arnaudbuchholz.github.io/gpf/0.2.7/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.2.7) | [lib](https://arnaudbuchholz.github.io/gpf/0.2.7/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.2.7) | [require](https://arnaudbuchholz.github.io/gpf/0.2.7/gpf-require.js)
 2018-05-03 | [0.2.6](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.2.6) | gpf.require.js | [lib](https://arnaudbuchholz.github.io/gpf/0.2.6/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.2.6) | [lib](https://arnaudbuchholz.github.io/gpf/0.2.6/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.2.6) | [require](https://arnaudbuchholz.github.io/gpf/0.2.6/gpf-require.js)
 2018-04-03 | [0.2.5](https://github.com/ArnaudBuchholz/gpf-js/tree/v0.2.5) | Flavors | [lib](https://arnaudbuchholz.github.io/gpf/0.2.5/gpf.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?release=0.2.5) | [lib](https://arnaudbuchholz.github.io/gpf/0.2.5/gpf-debug.js) / [test](https://arnaudbuchholz.github.io/gpf/test.html?debug=0.2.5) | 
