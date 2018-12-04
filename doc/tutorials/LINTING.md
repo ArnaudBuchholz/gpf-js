@@ -208,7 +208,7 @@ Rule | Fixable | Level | Parameters | Comment
 [no-nested-ternary](https://eslint.org/docs/rules/no-nested-ternary) |   | **error** |  | 
 [no-new-object](https://eslint.org/docs/rules/no-new-object) |   | **error** |  | 
 [no-plusplus](https://eslint.org/docs/rules/no-plusplus) |   | **-** |  | 
-[no-restricted-syntax](https://eslint.org/docs/rules/no-restricted-syntax) |   | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L108) | Forbids the use of [switch](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/switch) and [with](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/with) 
+[no-restricted-syntax](https://eslint.org/docs/rules/no-restricted-syntax) |   | **error** | [*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L108) | Forbids the use of  [switch](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/switch) and [with](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/with) 
 [no-spaced-func](https://eslint.org/docs/rules/no-spaced-func) | &check; | **-** |  | 
 [no-tabs](https://eslint.org/docs/rules/no-tabs) |   | **-** |  | 
 [no-ternary](https://eslint.org/docs/rules/no-ternary) |   | **error** |  | 
