@@ -1,10 +1,10 @@
 "use strict";
 
 class MyAbstractClass {
-    $attributes: [],
-    $abstract: true,
+    get $attributes () { return [] }
+    get $abstract () { return true }
 
-    _name: ""
+    get "[name]" () { return [] }
 
 }
 
@@ -15,3 +15,9 @@ class MyClass extends MyAbstractClass {
     }
 
 }
+
+console.log(MyAbstractClass.name)
+console.log(Object.getOwnPropertyNames(MyAbstractClass.prototype))
+console.log(MyAbstractClass.prototype.$abstract)
+delete MyAbstractClass.prototype.$abstract
+console.log(Object.getOwnPropertyNames(MyAbstractClass.prototype))
