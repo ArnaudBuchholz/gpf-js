@@ -56,7 +56,7 @@ _gpfErrorDeclare("serial/property", {
 gpf.serial = {};
 
 /**
- * Filter property read specification
+ * Serializable property specification
  *
  * @typedef gpf.typedef.serializableProperty
  * @property {String} name Name of the property
