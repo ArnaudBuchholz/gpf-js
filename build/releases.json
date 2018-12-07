@@ -363,7 +363,7 @@
         "version": "0.2.8",
         "label": "Serialization attributes",
         "date": "2018-12-03",
-        "notes": "",
+        "notes": "2018/12/release-028.html",
         "milestone": 16,
         "metrics": {
             "coverage": {
