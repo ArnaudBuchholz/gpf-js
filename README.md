@@ -9,10 +9,11 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6c8806b35ecc4e70ba985534fda0681f)](https://www.codacy.com/app/ArnaudBuchholz/gpf-js?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ArnaudBuchholz/gpf-js&amp;utm_campaign=Badge_Grade)
 [![dependencies Status](https://david-dm.org/ArnaudBuchholz/gpf-js/status.svg)](https://david-dm.org/ArnaudBuchholz/gpf-js)
 [![devDependencies Status](https://david-dm.org/ArnaudBuchholz/gpf-js/dev-status.svg)](https://david-dm.org/ArnaudBuchholz/gpf-js?type=dev)
-[![gpf-js](http://img.shields.io/npm/dm/gpf-js.svg)](https://www.npmjs.org/package/gpf-js)
-[![Built with Grunt](https://cdn.gruntjs.com/builtwith.svg)](http://gruntjs.com/)
-[![install size](https://packagephobia.now.sh/badge?p=gpf-js)](https://packagephobia.now.sh/result?p=gpf-js)
+[![Built with Grunt](https://gruntjs.com/cdn/builtwith.png)](http://gruntjs.com/)
 [![Vanilla JS](http://vanilla-js.com/assets/button.png)](http://vanilla-js.com)
+[![gpf-js](http://img.shields.io/npm/dm/gpf-js.svg)](https://www.npmjs.org/package/gpf-js)
+[![install size](https://packagephobia.now.sh/badge?p=gpf-js)](https://packagephobia.now.sh/result?p=gpf-js)
+[![CDN](https://data.jsdelivr.com/v1/package/npm/gpf-js/badge)](https://www.jsdelivr.com/package/npm/gpf-js)
 [![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A multi-purpose JavaScript library created and maintained by
