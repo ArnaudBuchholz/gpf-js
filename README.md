@@ -11,6 +11,7 @@
 [![devDependencies Status](https://david-dm.org/ArnaudBuchholz/gpf-js/dev-status.svg)](https://david-dm.org/ArnaudBuchholz/gpf-js?type=dev)
 [![gpf-js](http://img.shields.io/npm/dm/gpf-js.svg)](https://www.npmjs.org/package/gpf-js)
 [![Built with Grunt](https://cdn.gruntjs.com/builtwith.svg)](http://gruntjs.com/)
+[![install size](https://packagephobia.now.sh/badge?p=gpf-js)](https://packagephobia.now.sh/result?p=gpf-js)
 [![Vanilla JS](http://vanilla-js.com/assets/button.png)](http://vanilla-js.com)
 [![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
