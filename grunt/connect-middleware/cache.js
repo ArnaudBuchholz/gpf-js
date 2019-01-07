@@ -52,7 +52,7 @@ module.exports = (request, response, next) => {
         response.statusCode = 500;
         response.end("Invalid method");
     } else {
-        handler(request.url.substr(BASE_URL.length), request, response);
+        handler(request.url.substring(BASE_URL.length), request, response);
     }
 
 };
