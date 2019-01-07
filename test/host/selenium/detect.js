@@ -18,7 +18,7 @@ try {
 
 function report (browser, status) {
     var message = "\t" + browser + " ";
-    message += "........................................".substr(message.length);
+    message += "........................................".substring(message.length);
     message += " ";
     if (status) {
         console.log(message + "OK");
@@ -79,4 +79,3 @@ if (browser) {
         process.exit(0);
     });
 }
-
