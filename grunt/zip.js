@@ -10,7 +10,7 @@ module.exports = {
                 return null;
             }
             // Remove tmp/plato/...
-            return filePath.substr(configuration.path.plato.length);
+            return filePath.substring(configuration.path.plato.length);
         },
         compression: "DEFLATE"
     }
