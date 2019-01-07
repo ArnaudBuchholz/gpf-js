@@ -49,7 +49,7 @@ module.exports = function (browserType, urlParameters) {
         if (handler) {
             handler(result, parameters);
         } else if (arg.indexOf("legacy/") === 0) {
-            parameters.push("version=" + arg.substr(7));
+            parameters.push("version=" + arg.substring(7));
         } else if (arg.indexOf("flavor:") === 0) {
             parameters.push(arg);
         } else {
