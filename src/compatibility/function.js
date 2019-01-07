@@ -54,7 +54,7 @@ function _gpfGetFunctionName () {
             + _GPF_COMPATIBILITY_FUNCTION_KEYWORD.length,
         parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
     return functionSource
-        .substr(functionKeywordPos, parameterListStartPos - functionKeywordPos)
+        .substring(functionKeywordPos, parameterListStartPos)
         .replace(_gpfJsCommentsRegExp, "") // remove comments
         .trim();
 }
