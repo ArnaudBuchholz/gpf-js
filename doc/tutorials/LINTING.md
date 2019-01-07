@@ -7,6 +7,8 @@ Recommended rules (if not ignored) appear as *error*.
 
 Rule | Fixable | Level | Parameters | Comment
 ---- | ---- | ---- | ---- | ----
+**Custom rules** | | | |
+[no-substr](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrules/no-substr.js) |   | **error** |  | 
 **Possible Errors** | | | |
 [for-direction](https://eslint.org/docs/rules/for-direction) |   | *error* |  | 
 [getter-return](https://eslint.org/docs/rules/getter-return) |   | *error* |  | 
