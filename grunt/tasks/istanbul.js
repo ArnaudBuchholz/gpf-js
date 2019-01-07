@@ -97,7 +97,7 @@ module.exports = function (grunt) {
                 instrumentedLines = fs.readFileSync(srcPath).toString().split("\n"),
                 coverageVariableLine = instrumentedLines[coverageVariablePos];
             if (coverageVariableLine.startsWith(varPrefix)) {
-                instrumentedLines[coverageVariablePos] = `global.${coverageVariableLine.substr(varPrefix.length)}`;
+                instrumentedLines[coverageVariablePos] = `global.${coverageVariableLine.substring(varPrefix.length)}`;
                 fs.writeFileSync(srcPath, instrumentedLines.join("\n"));
                 console.log(`${fileName} updated`);
             }
