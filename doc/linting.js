@@ -11,6 +11,7 @@ const
     ESLINT_RULES = path.join(ESLINT, "lib/rules"),
     ESLINT_CATEGORIES = path.join(ESLINT, "conf/category-list.json"),
     ESLINTRC = path.join(__dirname, "../.eslintrc"),
+    CUSTOM_RULES = path.join(__dirname, "../.eslintrules"),
     DOCUMENTATION = path.join(__dirname, "linting"),
 
     RULE_IGNORED = "ignore",
@@ -23,7 +24,10 @@ const
         RULE_NOT_SET
     ],
 
-    ruleFilenames = fs.readdirSync(ESLINT_RULES),
+    eslintRuleFilenames = fs.readdirSync(ESLINT_RULES),
+    customRuleFilenames = fs.readdirSync(CUSTOM_RULES)
+        .filter(name => path.extname(name) === ".js" && !eslintRuleFilenames.includes(name)),
+    ruleFilenames = eslintRuleFilenames.concat(customRuleFilenames),
     orderOfCategories = JSON.parse(fs.readFileSync(ESLINT_CATEGORIES).toString()).categories
         .map(category => category.name),
     eslintrcText = fs.readFileSync(ESLINTRC).toString(),
@@ -130,6 +134,16 @@ const
             }
         }
         return `[*.eslintrc*](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrc#L${rule.line})`;
+    },
+
+    getRule = ruleFilename => {
+        const eslintPath = path.join(ESLINT_RULES, ruleFilename);
+        try {
+            fs.accessSync(eslintPath, fs.constants.R_OK);
+            return require(eslintPath);
+        } catch (e) {
+            return require(path.join(CUSTOM_RULES, ruleFilename));
+        }
     }
 ;
 
@@ -146,7 +160,7 @@ ruleFilenames
         const name = path.basename(ruleFilename, ".js");
         return Object.assign({
             name: name,
-            meta: require(path.join(__dirname, "../node_modules/eslint/lib/rules", ruleFilename)).meta
+            meta: getRule(ruleFilename).meta
         }, configuration(name));
     })
     .sort((rule1, rule2) => {
