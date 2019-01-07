@@ -290,7 +290,7 @@ const
             fileComment;
         if (match) {
             fileComment = match[START];
-            event.source = event.source.replace(fileComment, `/* ${fileComment.substr(JSDOC_COMMENT.length)}`);
+            event.source = event.source.replace(fileComment, `/* ${fileComment.substring(JSDOC_COMMENT.length)}`);
         }
     },
 
