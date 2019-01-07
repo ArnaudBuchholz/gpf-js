@@ -98,10 +98,10 @@ releaseMetrics.lines = {total: platoSummary.total.sloc, average: platoSummary.av
 platoData.reports.forEach(reportData => {
     const
         SKIP_SRC = 4,
-        REMOVE_SRC_AND_EXT = 7,
+        SKIP_EXT = 4,
         DIGITS = 2,
         fileName = reportData.info.file,
-        sourceName = fileName.substr(SKIP_SRC, fileName.length - REMOVE_SRC_AND_EXT),
+        sourceName = fileName.substring(SKIP_SRC, fileName.length - SKIP_EXT),
         fileTrace = [sourceName.padEnd(SOURCE_PADDING, " ")],
         maintainability = reportData.complexity.maintainability;
     let
