@@ -27,7 +27,7 @@
     "d3-dependency-wheel": "^1.1.0",
     "doctrine": "^3.0.0",
     "escodegen": "^1.11.0",
-    "eslint": "^5.10.0",
+    "eslint": "^5.12.0",
     "esprima": "^4.0.1",
     "fs-extra": "^7.0.1",
     "github-api": "^3.0.0",
