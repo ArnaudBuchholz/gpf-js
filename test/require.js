@@ -473,7 +473,7 @@ describe("require", function () {
             var source = container.toString(),
                 from = source.indexOf("{"),
                 to = source.lastIndexOf("}");
-            return source.substr(from + 1, to - from - 1);
+            return source.substring(from + 1, to);
         }
 
         beforeEach(function () {
