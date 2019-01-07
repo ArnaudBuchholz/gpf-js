@@ -39,7 +39,7 @@ module.exports = (request, response, next) => {
         return next();
     }
 
-    var parameters = url.parse(request.url).pathname.substr(BASE_URL.length),
+    var parameters = url.parse(request.url).pathname.substring(BASE_URL.length),
         process = childProcess.exec("grunt " + parameters),
         step = 0;
 
