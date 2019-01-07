@@ -36,7 +36,7 @@
             for (idx = 0; idx < len; ++idx) {
                 value = configuration.parameters[idx];
                 if (value.charAt(0) === "-") {
-                    value = value.substr(1);
+                    value = value.substring(1);
                     option = options[value];
                     if (typeof option === "boolean") {
                         options[value] = !option; // Simple switch
@@ -110,13 +110,13 @@
             } else {
                 var testFileContent = configuration.read(path),
                     modifiedContent = testFileContent.replace(/[^."]assert\((.*)\);/g, function (match, test, offset) {
-                        var lines = testFileContent.substr(0, offset).split("\n"),
+                        var lines = testFileContent.substring(0, offset).split("\n"),
                             lineNumber = lines.length,
                             pos = lines.pop().length + 1,
                             message = source + ".js@" + lineNumber + ":" + pos + ": " + test
                                 .split("\\").join("\\\\")
                                 .split("\"").join("\\\"");
-                        return match.substr(0, match.length - 2) + ", \"" + message + "\");";
+                        return match.substring(0, match.length - 2) + ", \"" + message + "\");";
                     });
                 _eval(configuration, path, modifiedContent);
             }
@@ -179,7 +179,7 @@
                 source = names[sourceIdx];
                 if ((/^legacy(\\|\/)/).exec(source)) {
                     verbose("Legacy detected");
-                    _patchLegacy(configuration, verbose, source.substr(7));
+                    _patchLegacy(configuration, verbose, source.substring(7));
                     delete gpf.internals;
                 }
                 _loadTest(configuration, source);
@@ -321,7 +321,7 @@
                 return gpf.http.request({
                     method: method,
                     url: url,
-                    data: coverageData.substr(pos, chunkSize)
+                    data: coverageData.substring(pos, pos + chunkSize)
                 })
                     .then(function () {
                         method = gpf.http.methods.put;
@@ -391,7 +391,7 @@
         _loadFlavor = function (configuration, options) {
             // Load the list of modules
             var
-                flavorName = options.tests[0].substr(7),
+                flavorName = options.tests[0].substring(7),
                 flavorJson = configuration.read("make/flavor/" + flavorName + ".json"),
                 flavor = safeFunc("return " + flavorJson + ";")();
             options.build = "gpf-" + flavorName;
