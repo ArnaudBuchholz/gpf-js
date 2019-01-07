@@ -333,8 +333,7 @@
             _output("--- Results: ");
             for (var key in data) {
                 if (data.hasOwnProperty(key)) {
-                    _output(key + "        : ".substr(key.length)
-                        + data[key]);
+                    _output(key + "        : ".substring(key.length) + data[key]);
                 }
             }
             if (data.fail) {
