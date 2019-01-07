@@ -109,6 +109,7 @@ Rule | Fixable | Level | Parameters | Comment
 [no-unused-expressions](https://eslint.org/docs/rules/no-unused-expressions) |   | **error** |  | 
 [no-unused-labels](https://eslint.org/docs/rules/no-unused-labels) | &check; | *error* |  | 
 [no-useless-call](https://eslint.org/docs/rules/no-useless-call) |   | **error** |  | 
+[no-useless-catch](https://eslint.org/docs/rules/no-useless-catch) |   | **-** |  | 
 [no-useless-concat](https://eslint.org/docs/rules/no-useless-concat) |   | **error** |  | 
 [no-useless-escape](https://eslint.org/docs/rules/no-useless-escape) |   | *error* |  | 
 [no-useless-return](https://eslint.org/docs/rules/no-useless-return) | &check; | **-** |  | 
