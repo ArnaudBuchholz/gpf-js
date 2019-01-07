@@ -116,7 +116,7 @@ function _gpfPathExtension (path) {
     if (pos === _GPF_NOT_FOUND) {
         return "";
     }
-    return name.substr(pos);
+    return name.substring(pos);
 }
 
 var _gpfPathAppendPatterns = {
