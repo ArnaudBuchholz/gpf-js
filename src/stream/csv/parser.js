@@ -241,7 +241,7 @@ var
          * @since 0.2.3
          */
         _nextValue: function (index) {
-            this._content = this._content.substr(index);
+            this._content = this._content.substring(index);
             return Boolean(this._content.length);
         },
 
