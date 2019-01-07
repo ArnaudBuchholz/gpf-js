@@ -99,7 +99,12 @@ const
 
     checkForDeprecatedRule = rule => {
         if (rule.meta.deprecated && rule.level !== RULE_NOT_SET) {
-            error(rule, `is deprecated, should use: ${rule.meta.docs.replacedBy.join(",")}`);
+            const replacedBy = rule.meta.docs.replacedBy || rule.meta.replacedBy;
+            if (replacedBy.length) {
+                error(rule, `is deprecated, should use: ${replacedBy.join(",")}`);
+            } else {
+                console.log("\t", rule.name.padEnd(PAD_RULENAME, " "), "is deprecated but not replaced");
+            }
         }
     },
 
