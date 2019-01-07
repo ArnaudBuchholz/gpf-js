@@ -54,7 +54,7 @@
             if (matchedValue.charAt(0) !== "{") {
                 // html code
                 code.push("__r.push(\"", _toJsString(matchedValue), "\");");
-            } else if (matchedValue.substr(1, 3) === "%%}") {
+            } else if (matchedValue.substring(1, 4) === "%%}") {
                 // {%%}=""
                 code.push(_decodeHtml(token[2]));
             } else if (matchedValue.charAt(1) === "%") {
