@@ -29,7 +29,7 @@ module.exports = (request, response, next) => {
     }
 
     const
-        parameters = url.parse(request.url).pathname.substr(BASE_URL.length),
+        parameters = url.parse(request.url).pathname.substring(BASE_URL.length),
         process = childProcess.exec("git " + parameters + " --porcelain");
 
     response.setHeader("Content-Type", "text/plain; charset=utf-8");
