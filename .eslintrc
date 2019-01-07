@@ -127,7 +127,9 @@
         "max-depth":                    [2, 4],
         "max-len":                      [2, 120],
         "max-params":                   [2, 3],
-        "max-statements":               [2, 15]
+        "max-statements":               [2, 15],
+
+        "no-substr":                    2
     },
     "globals": {
         "gpf":                          false,
