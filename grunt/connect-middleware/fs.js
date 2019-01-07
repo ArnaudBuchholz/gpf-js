@@ -77,7 +77,7 @@ module.exports = (request, response, next) => {
         return;
     }
 
-    filePath = path.join(basePath, request.url.substr(BASE_URL.length));
+    filePath = path.join(basePath, request.url.substring(BASE_URL.length));
     if (path.relative(basePath, filePath).includes("..")) {
         response.statusCode = 403;
         response.end("Path is forbidden: " + path.relative(__dirname, filePath));
