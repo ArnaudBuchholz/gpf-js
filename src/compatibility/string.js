@@ -60,7 +60,7 @@ _gpfCompatibilityInstallMethods("String", {
         // Introduced with ECMAScript 2015
         startsWith: function (search) {
             var position = _gpfStringGetOptionalParam(arguments, _GPF_START);
-            return this.substr(position, search.length) === search;
+            return this.substring(position, position + search.length) === search;
         },
 
         // Introduced with JavaScript 1.8.1
