@@ -111,7 +111,7 @@ var _gpfHttpMockLastId = 0;
  */
 function _gpfHttpMockAdd (definition) {
     var method = definition.method.toUpperCase(),
-        id = method + "." + ++_gpfHttpMockLastId;
+        id = method + "." + _gpfHttpMockLastId++;
     _gpfHttpMockGetMockedRequests(method).unshift(Object.assign({
         id: id
     }, definition));
