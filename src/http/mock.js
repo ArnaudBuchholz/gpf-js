@@ -4,7 +4,6 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_HTTP_METHODS*/ // HTTP Methods
 /*global _GPF_START*/ // 0
 /*global _gpfArrayTail*/ // [].slice.call(,1)
 /*global _gpfHost*/ // Host type
@@ -45,7 +44,7 @@
  * @type {Object}
  * @since 0.2.2
  */
-var _gpfHttpMockedRequests = {};
+var _gpfHttpMockedRequests;
 
 /**
  * Match the provided request with the mocked one
@@ -82,6 +81,13 @@ function _gpfHttMockMatch (mockedRequests, request) {
     return result;
 }
 
+function _gpfHttpMockGetMockedRequests (method) {
+    if (!_gpfHttpMockedRequests[method]) {
+        _gpfHttpMockedRequests[method] = [];
+    }
+    return _gpfHttpMockedRequests[method];
+}
+
 /**
  * Check if the provided request match any of the mocked one
  *
@@ -90,7 +96,7 @@ function _gpfHttMockMatch (mockedRequests, request) {
  * @since 0.2.2
  */
 function _gpfHttpMockCheck (request) {
-    return _gpfHttMockMatch(_gpfHttpMockedRequests[request.method], request);
+    return _gpfHttMockMatch(_gpfHttpMockGetMockedRequests(request.method.toUpperCase()), request);
 }
 
 var _gpfHttpMockLastId = 0;
@@ -104,11 +110,9 @@ var _gpfHttpMockLastId = 0;
  * @since 0.2.2
  */
 function _gpfHttpMockAdd (definition) {
-    var method = definition.method,
-        id;
-    ++_gpfHttpMockLastId;
-    id = method + "." + _gpfHttpMockLastId;
-    _gpfHttpMockedRequests[method].unshift(Object.assign({
+    var method = definition.method.toUpperCase(),
+        id = method + "." + ++_gpfHttpMockLastId;
+    _gpfHttpMockGetMockedRequests(method).unshift(Object.assign({
         id: id
     }, definition));
     return id;
@@ -122,7 +126,7 @@ function _gpfHttpMockAdd (definition) {
  */
 function _gpfHttpMockRemove (id) {
     var method = id.substring(_GPF_START, id.indexOf("."));
-    _gpfHttpMockedRequests[method] = _gpfHttpMockedRequests[method].filter(function (mockedRequest) {
+    _gpfHttpMockedRequests[method] = _gpfHttpMockGetMockedRequests(method).filter(function (mockedRequest) {
         return mockedRequest.id !== id;
     });
 }
@@ -132,9 +136,7 @@ function _gpfHttpMockRemove (id) {
  * @since 0.2.2
  */
 function _gpfHttpMockReset () {
-    Object.keys(_GPF_HTTP_METHODS).forEach(function (method) {
-        _gpfHttpMockedRequests[method] = [];
-    });
+    _gpfHttpMockedRequests = {};
 }
 
 _gpfHttpMockReset();
