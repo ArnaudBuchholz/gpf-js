@@ -158,7 +158,7 @@ describe("http", function () {
 
             });
 
-            if ([gpf.hosts.nashorn, gpf.hosts.phantomjs, gpf.hosts.rhino].indexOf(gpf.host()) === -1) {
+            if ([gpf.hosts.nodejs].indexOf(gpf.host()) !== -1) {
                 it("allows any verb (MERGE)", function (done) {
                     gpf.http.request({
                         method: "merge",
