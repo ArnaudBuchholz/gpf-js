@@ -25,10 +25,10 @@ function _gpfHttpXhrOpen (request) {
     return xhr;
 }
 
-function _gpfHttpXhrWaitForCompletion (xhr, callback) {
+function _gpfHttpXhrWaitForCompletion (xhr, resolve) {
     xhr.onreadystatechange = function () {
         if (xhr.readyState === _GPF_HTTP_XHR_READYSTATE_DONE) {
-            callback();
+            resolve(_gpfHttpXhrGetResponse(xhr));
         }
     };
 }
@@ -36,9 +36,7 @@ function _gpfHttpXhrWaitForCompletion (xhr, callback) {
 function _gpfHttpXhrRequest (request, resolve) {
     var xhr = _gpfHttpXhrOpen(request);
     _gpfHttpXhrSetHeaders(xhr, request.headers);
-    _gpfHttpXhrWaitForCompletion(xhr, function () {
-        resolve(_gpfHttpXhrGetResponse(xhr));
-    });
+    _gpfHttpXhrWaitForCompletion(xhr, resolve);
     _gpfHttpXhrSend(xhr, request.data);
 }
 
