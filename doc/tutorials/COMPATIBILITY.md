@@ -88,3 +88,10 @@ convert the keys to string to ensure maximum compatibility.
 When functions are generated,
 [strict mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode)
 is always assumed even if the host (such as Rhino or WScript) does not support it.
+
+## Known limitations
+
+### {@link gpf.http.request}
+
+For unknown reasons, it appears that [PhantomJS](http://phantomjs.org/) does not support custom verbs. Since it is no
+more maintained, no further research was conducted.
