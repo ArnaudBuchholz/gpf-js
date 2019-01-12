@@ -158,19 +158,21 @@ describe("http", function () {
 
             });
 
-            it("allows any verb (MERGE)", function (done) {
-                gpf.http.request({
-                    method: "merge",
-                    url: baseUrl + "status=200"
+            if (gpf.host() !== gpf.hosts.phantomjs) {
+                it("allows any verb (MERGE)", function (done) {
+                    gpf.http.request({
+                        method: "merge",
+                        url: baseUrl + "status=200"
 
-                }).then(function (response) {
-                    assert(response.status === 200);
-                    var echoed = JSON.parse(response.responseText);
-                    assert(echoed.method === "MERGE");
-                    assert(echoed.url === "/echo/?status=200");
-                    done();
-                })["catch"](done);
-            });
+                    }).then(function (response) {
+                        assert(response.status === 200);
+                        var echoed = JSON.parse(response.responseText);
+                        assert(echoed.method === "MERGE");
+                        assert(echoed.url === "/echo/?status=200");
+                        done();
+                    })["catch"](done);
+                });
+            }
         });
 
         if (gpf.hosts.browser !== gpf.host()) {
