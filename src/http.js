@@ -14,7 +14,8 @@
  * HTTP request settings
  *
  * @typedef gpf.typedef.httpRequestSettings
- * @property {gpf.http.methods} [method=gpf.http.methods.get] HTTP method
+ * @property {gpf.http.methods} [method=gpf.http.methods.get] HTTP method. Custom verbs (use any string) may be
+ * supported depending on the host (see {@tutorial COMPATIBILITY}).
  * @property {String} url URL to submit the request to
  * @property {Object} [headers] Request headers
  * @property {String} [data] Request data, valid only for {@link gpf.http.methods.post} and {@link gpf.http.methods.put}
