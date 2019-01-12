@@ -369,7 +369,6 @@
         "string/fromStream"
     ],
     "http/mock": [
-        "http/helpers",
         "boot",
         "arraylike",
         "http"
