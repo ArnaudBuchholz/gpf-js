@@ -93,5 +93,13 @@ is always assumed even if the host (such as Rhino or WScript) does not support i
 
 ### {@link gpf.http.request}
 
-For unknown reasons, it appears that [PhantomJS](http://phantomjs.org/) does not support custom verbs. Since it is no
-more maintained, no further research was conducted.
+When it comes to supporting custom verbs, some hosts are not working properly:
+
+* [PhantomJS](http://phantomjs.org/) does not even try to send the request.
+* On JAVA hosts ([Nashorn](https://en.wikipedia.org/wiki/Nashorn_%28JavaScript_engine%29)
+and [Rhino](https://developer.mozilla.org/en-US/docs/Mozilla/Projects/Rhino)), the method is validated and refused.
+
+Since most of the above hosts are not maintained, no further research was conducted.
+
+If one is looking for a workaround, the custom http header `X-HTTP-Method-Override` seems to be
+[an option](https://stackoverflow.com/questions/25163131/httpurlconnection-invalid-http-method-patch).
