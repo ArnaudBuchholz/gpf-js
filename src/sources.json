@@ -149,6 +149,9 @@
         "name": "error"
     },
     {
+        "name": "isclass"
+    },
+    {
         "name": "define/detect",
         "test": false,
         "tags": "define"
