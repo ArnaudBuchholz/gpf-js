@@ -388,3 +388,9 @@ describe("define", function () {
     });
 
 });
+
+if (gpf.host() === gpf.hosts.nodejs) {
+
+    require(__dirname.replace(/\btest\b.*/, "test/define.es6.js"));
+
+}
