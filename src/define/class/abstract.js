@@ -7,6 +7,7 @@
 /*global _GpfClassDefinition*/ // Class definition
 /*global _gpfDefineClassConstructorAddCodeWrapper*/ // Adds a constructor code wrapper
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfIgnore*/
 /*#endif*/
 
 _gpfErrorDeclare("define/class/abstract", {
@@ -70,7 +71,8 @@ Object.assign(_GpfClassDefinition.prototype, {
 
 });
 
-_gpfDefineClassConstructorAddCodeWrapper(function (classDefinition, body) {
+_gpfDefineClassConstructorAddCodeWrapper(function (classDefinition, body, instance) {
+    _gpfIgnore(instance);
     if (classDefinition._abstract) {
         return "if (this.constructor === _classDef_._instanceBuilder) gpf.Error.abstractClass();\n" + body;
     }
