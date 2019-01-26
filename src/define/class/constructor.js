@@ -9,6 +9,7 @@
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfFunctionBuild*/ // Build function from description and context
 /*global _gpfFunctionDescribe*/ // Extract function description
+/*global _gpfIsClass*/ // Check if the parameter is an ES6 class
 /*exported _gpfDefineClassConstructorAddCodeWrapper*/ // Adds a constructor code wrapper
 /*exported _gpfDefineGetClassSecuredConstructor*/ // Allocate a secured named constructor
 /*#endif*/
@@ -55,11 +56,54 @@ function _gpfDefineClassConstructorAddCodeWrapper (codeWrapper) {
     _gpfDefineClassConstructorCodeWrappers.push(codeWrapper);
 }
 
+function _gpfDefineGetClassSecuredConstructorGetMainConstructionPattern (classDefinition) {
+    if (_gpfIsClass(classDefinition._extend)) {
+        return {
+            instance: "that",
+            body: "var that,\n"
+                + "    $super = function () {\n"
+                + "        that = Reflect.construct(_classDef_._extend, arguments, _classDef_._instanceBuilder);\n"
+                + "    },\n"
+                + "    hasOwnProperty = function (name) {\n"
+                + "        return !!that && that.hasOwnProperty(name);\n"
+                + "    },\n"
+                + "    proxy = new Proxy({}, {\n"
+                + "        get: function (obj, property) {\n"
+                + "            debugger;\n"
+                + "            if (property === \"hasOwnProperty\") {\n"
+                + "              return hasOwnProperty;\n"
+                + "            }\n"
+                + "            if (!that && property === \"$super\") {\n"
+                + "              return $super;\n"
+                + "            }\n"
+                + "            return that[property];\n"
+                + "        },\n"
+                + "        set: function (obj, property, value) {\n"
+                + "            if (property !== \"$super\") {\n"
+                + "                that[property] = value;\n"
+                + "            }\n"
+                + "            return true;\n"
+                + "        }\n"
+                + "    });\n"
+                + "_classDef_._resolvedConstructor.apply(proxy, arguments);\n"
+        };
+    }
+    return {
+        instance: "this",
+        body: "_classDef_._resolvedConstructor.apply(this, arguments);"
+    };
+}
+
 function _gpfDefineGetClassSecuredConstructorBody (classDefinition) {
-    return "if (!(this instanceof _classDef_._instanceBuilder)) gpf.Error.classConstructorFunction();\n"
-        + _gpfDefineClassConstructorCodeWrappers.reduce(function (body, codeWrapper) {
-            return codeWrapper(classDefinition, body);
-        }, "_classDef_._resolvedConstructor.apply(this, arguments);");
+    var construction = _gpfDefineGetClassSecuredConstructorGetMainConstructionPattern(classDefinition),
+        constructorBody = "if (!(this instanceof _classDef_._instanceBuilder)) gpf.Error.classConstructorFunction();\n"
+            + _gpfDefineClassConstructorCodeWrappers.reduce(function (body, codeWrapper) {
+                return codeWrapper(classDefinition, body, construction.instance);
+            }, construction.body);
+    if (construction.instance !== "this") {
+        constructorBody += "\nreturn " + construction.instance + ";";
+    }
+    return constructorBody;
 }
 
 function _gpfDefineGetClassSecuredConstructorDefinition (classDefinition) {
