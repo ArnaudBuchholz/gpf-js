@@ -65,11 +65,11 @@ Object.assign(_GpfClassDefinition.prototype, {
 
 });
 
-_gpfDefineClassConstructorAddCodeWrapper(function (classDefinition, body) {
+_gpfDefineClassConstructorAddCodeWrapper(function (classDefinition, body, instance) {
     if (classDefinition._singleton) {
         return "if (!_classDef_._singletonInstance) {\n"
             + body + "\n"
-            + "_classDef_._singletonInstance = this;\n"
+            + "_classDef_._singletonInstance = " + instance + ";\n"
             + "}\n"
             + "return _classDef_._singletonInstance;";
     }
