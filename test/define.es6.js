@@ -29,7 +29,7 @@ describe("define.es6", function () {
                     class B extends A {
                         constructor (value) {
                             super(value);
-                            this._b = "A";
+                            this._b = "B";
                         }
                         b () {
                             return this._b;
@@ -45,8 +45,11 @@ describe("define.es6", function () {
                             "constructor": function (value) {
                                 this.$super(value);
                             },
+                            a: function () {
+                                return this.$super();
+                            },
                             c: function () {
-                                return this.$super.a() + this.$super.b();
+                                return this.a() + this.b();
                             }
                         });
 
@@ -64,6 +67,7 @@ describe("define.es6", function () {
                     });
 
                     it("offers a way to call named base method", function () {
+                        debugger;
                         assert(c.c() === "AB");
                     });
 
