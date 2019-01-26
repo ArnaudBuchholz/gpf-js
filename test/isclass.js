@@ -29,6 +29,6 @@ describe("isclass", function () {
 
 if (gpf.host() === gpf.hosts.nodejs) {
 
-    require(__dirname.replace(/\btest\b.*/, "test/isclass.es6.js"));
+    include("isclass.es6");
 
 }
