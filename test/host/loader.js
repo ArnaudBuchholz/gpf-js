@@ -171,6 +171,12 @@
             };
         },
 
+        _setupInclude = function (configuration) {
+            context.include = function (source) {
+              _loadTest(configuration, source);
+            }
+        },
+
         _loadTestsFromNames = function (configuration, names, verbose) {
             var len = names.length,
                 sourceIdx,
@@ -459,6 +465,7 @@
             verbose("Console loaded.");
         }
         _setupConfig(configuration);
+        _setupInclude(configuration);
         _loadTests(configuration, options, verbose);
         _safeRunBDD(configuration, options, verbose);
     };
