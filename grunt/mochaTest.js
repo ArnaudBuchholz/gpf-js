@@ -13,6 +13,7 @@ const
             httpPort: configuration.serve.httpPort,
             timerResolution: 5
         };
+        global.include = source => require(`../test/${source}.js`);
     };
 
 // Test automation inside NodeJS
