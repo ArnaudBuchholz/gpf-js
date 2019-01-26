@@ -69,7 +69,6 @@ function _gpfDefineGetClassSecuredConstructorGetMainConstructionPattern (classDe
                 + "    },\n"
                 + "    proxy = new Proxy({}, {\n"
                 + "        get: function (obj, property) {\n"
-                + "            debugger;\n"
                 + "            if (property === \"hasOwnProperty\") {\n"
                 + "              return hasOwnProperty;\n"
                 + "            }\n"
