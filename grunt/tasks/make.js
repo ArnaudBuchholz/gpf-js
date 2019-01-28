@@ -19,6 +19,7 @@ module.exports = function (grunt) {
         "exec:fixUglify:gpf",
         "concurrent:debug",
         "concurrent:release",
+        "exec:buildTestIncludes",
         "uglify:tests",
         "exec:fixUglify:tests"
     ]).concat(Object.keys(configuration.files.flavors).reduce((tasks, flavor) => tasks.concat([
