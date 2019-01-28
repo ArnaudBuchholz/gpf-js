@@ -173,8 +173,8 @@
 
         _setupInclude = function (configuration) {
             context.include = function (source) {
-              _loadTest(configuration, source);
-            }
+                _loadTest(configuration, source);
+            };
         },
 
         _loadTestsFromNames = function (configuration, names, verbose) {
@@ -225,6 +225,8 @@
             context.config = Object.assign({
                 httpPort: configFile.serve.httpPort
             }, configuration.config);
+            _load(configuration, _resolvePath(configuration, "test/host/features.js"));
+            _setupInclude(configuration);
         },
 
         _mean = function (values) {
@@ -465,7 +467,6 @@
             verbose("Console loaded.");
         }
         _setupConfig(configuration);
-        _setupInclude(configuration);
         _loadTests(configuration, options, verbose);
         _safeRunBDD(configuration, options, verbose);
     };
