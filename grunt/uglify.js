@@ -16,7 +16,7 @@ module.exports = {
     },
     tests: {
         files: {
-            "build/tests.js": configuration.files.test
+            "build/tests.js": ["tmp/build/testIncludes.js"].concat(configuration.files.test)
         }
     },
     release: {
