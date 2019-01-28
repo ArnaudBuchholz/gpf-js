@@ -4,6 +4,7 @@
     "mocha": true,
     "globals": {
         "assert": false,
-        "config": false
+        "config": false,
+        "include": false
     }
 }
