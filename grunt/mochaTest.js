@@ -14,7 +14,7 @@ const
             timerResolution: 5
         };
         global.include = source => require(`../test/${source}.js`);
-        require("../test/host/features")
+        require("../test/host/features");
     };
 
 // Test automation inside NodeJS
