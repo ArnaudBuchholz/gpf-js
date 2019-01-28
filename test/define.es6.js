@@ -67,7 +67,6 @@ describe("define.es6", function () {
                     });
 
                     it("offers a way to call named base method", function () {
-                        debugger;
                         assert(c.c() === "AB");
                     });
 
