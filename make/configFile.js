@@ -104,19 +104,29 @@ module.exports = class ConfigFile {
     readSourceFiles () {
         // Build the list of valid source and test files based on sources.json
         let srcFiles = ["src/boot.js"],
-            testFiles = [];
+            testFiles = [],
+            testIncludeFiles = [];
         JSON.parse(fs.readFileSync(path.join(__dirname, "../src/sources.json"))).forEach(source => {
             let name = source.name;
             if (source.load !== false) {
-                srcFiles.push("src/" + name + ".js");
+                srcFiles.push(`src/${name}.js`);
                 if (source.test !== false) {
-                    testFiles.push("test/" + name + ".js");
+                    testFiles.push(`test/${name}.js`);
                 }
             }
         });
+        // Check test files to see if any include is used
+        testFiles.forEach(source => fs
+            .readFileSync(path.join(__dirname, "../", source))
+            .toString()
+            .replace(/\binclude\b\("([^"]*)"\)/g, (match, include) => {
+                testIncludeFiles.push(`test/${include}.js`);
+            })
+        );
         this.content.files = {
             src: srcFiles,
             test: testFiles,
+            testInclude: testIncludeFiles,
             legacyTest: fs.readdirSync(path.join(__dirname, "../test/legacy"))
                 .filter(name => name.endsWith(".js"))
                 .reduce((versions, versionFile) => {
@@ -161,6 +171,7 @@ module.exports = class ConfigFile {
                 ]
                     .concat(srcFiles)
                     .concat(testFiles)
+                    .concat(testIncludeFiles)
             },
             flavors: fs.readdirSync(flavorFolder).reduce((flavors, name) => {
                 flavors[path.basename(name, ".json")] = JSON.parse(fs.readFileSync(flavorPath(name)));
