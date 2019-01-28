@@ -86,7 +86,8 @@ module.exports = {
     jsdoc: config((...args) => `${jsdocCmd} ${args.join(" ")}`, verbose, failIfNot0),
     fixUglify: config(name => `node make/fix_uglify.js ${name}`, verbose, failIfNot0),
     buildLintingDoc: config(buildLintingDocCmd, showErrors, failIfNot0),
-    checkDoc: config(checkdocCmd, verbose, failIfNot0)
+    checkDoc: config(checkdocCmd, verbose, failIfNot0),
+    buildTestIncludes: config({cmd: "node testIncludes", cwd: "make"}, silent, failIfNot0)
 };
 
 // Flavor builds
