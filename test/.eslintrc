@@ -5,7 +5,8 @@
     },
     "globals": {
         "assert": false,
-        "config": false
+        "config": false,
+        "include": false
     },
     "env": {
         "node": true,
