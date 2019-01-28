@@ -27,7 +27,7 @@ describe("isclass", function () {
 
 });
 
-if (gpf.host() === gpf.hosts.nodejs) {
+if (config.features.es6class) {
 
     include("isclass.es6");
 
