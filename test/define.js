@@ -389,7 +389,7 @@ describe("define", function () {
 
 });
 
-if (gpf.host() === gpf.hosts.nodejs) {
+if (config.features.es6class) {
 
     include("define.es6");
 
