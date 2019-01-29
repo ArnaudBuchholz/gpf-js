@@ -8,5 +8,7 @@ function define (any, factory) {
 define.amd = true;
 global.define = define;
 
+global["features:es6class"] = false; // Not supposed to be supported
+
 require("./wscript/setup.js");
 require("./cscript.js");
