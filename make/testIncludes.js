@@ -14,21 +14,23 @@ const
             ecma: 8
         },
         mangle: {
-          keep_classnames: true
+            keep_classnames: true
         },
         output: {
-          ecma             : 8,
-          ie8              : false,
-          inline_script    : true,
-          keep_quoted_props: true
+            ecma: 8,
+            ie8: false,
+            inline_script: true,
+            keep_quoted_props: true
         }
     },
     outPath = path.join(__dirname, "../tmp/build/testIncludes.js"),
-    includes = {};
+    includes = {},
+    indent = 8;
 
 configFile.content.files.testInclude.forEach(source => {
-    includes[source.match(/^test\/(.*)\.js$/)[1]] =
-      uglify.minify(fs.readFileSync(path.join(__dirname, `../${source}`)).toString(), options).code;
+    const NAME = 1;
+    includes[source.match(/^test\/(.*)\.js$/)[NAME]]
+      = uglify.minify(fs.readFileSync(path.join(__dirname, `../${source}`)).toString(), options).code;
 });
 
 let
@@ -37,7 +39,7 @@ let
 
     var safeFunc = Function,
         context = safeFunc("return this;")(),
-        _includes = ${JSON.stringify(includes, undefined, 8)};
+        _includes = ${JSON.stringify(includes, undefined, indent)};
 
     context.include = function (source) {
         eval(_includes[source]);
