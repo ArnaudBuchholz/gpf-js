@@ -1,5 +1,8 @@
 "use strict";
 
+/*jshint camelcase: false */
+/*eslint-disable camelcase*/
+
 const
     fs = require("fs"),
     path = require("path"),
