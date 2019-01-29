@@ -7,7 +7,7 @@
 /*global _GpfClassDefinition*/ // Class definition
 /*global _gpfDefineClassConstructorAddCodeWrapper*/ // Adds a constructor code wrapper
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfIgnore*/
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*#endif*/
 
 _gpfErrorDeclare("define/class/abstract", {
