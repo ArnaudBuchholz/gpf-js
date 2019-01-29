@@ -185,7 +185,8 @@
         "define/class/class",
         "boot",
         "error",
-        "function"
+        "function",
+        "isclass"
     ],
     "define/class/super": [
         "define/class/class",
@@ -201,7 +202,8 @@
     "define/class/abstract": [
         "define/class/class",
         "define/class/constructor",
-        "error"
+        "error",
+        "boot"
     ],
     "define/class/singleton": [
         "define/class/class",
