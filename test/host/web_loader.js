@@ -235,7 +235,7 @@
                 var path = window.gpfTestsPath + source + ".js";
                 xhr(path, true).get()
                     .then(function (responseText) {
-                        _evalTestCase(path, responseText);
+                        _evalTestCase(source + ".js", responseText);
                     });
             };
         },
