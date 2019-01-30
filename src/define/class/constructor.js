@@ -56,35 +56,42 @@ function _gpfDefineClassConstructorAddCodeWrapper (codeWrapper) {
     _gpfDefineClassConstructorCodeWrappers.push(codeWrapper);
 }
 
+function _gpfDefineGetClassSecuredConstructorGetES6ConstructionBody (classDefinition) {
+    if (classDefinition._extend === classDefinition._resolvedConstructor) {
+        return "var that = Reflect.construct(_classDef_._extend, arguments, _classDef_._instanceBuilder);\n";
+    }
+    return "var that,\n"
+        + "    $super = function () {\n"
+        + "        that = Reflect.construct(_classDef_._extend, arguments, _classDef_._instanceBuilder);\n"
+        + "    },\n"
+        + "    hasOwnProperty = function (name) {\n"
+        + "        return !!that && that.hasOwnProperty(name);\n"
+        + "    },\n"
+        + "    proxy = new Proxy({}, {\n"
+        + "        get: function (obj, property) {\n"
+        + "            if (property === \"hasOwnProperty\") {\n"
+        + "              return hasOwnProperty;\n"
+        + "            }\n"
+        + "            if (!that && property === \"$super\") {\n"
+        + "              return $super;\n"
+        + "            }\n"
+        + "            return that[property];\n"
+        + "        },\n"
+        + "        set: function (obj, property, value) {\n"
+        + "            if (property !== \"$super\") {\n"
+        + "                that[property] = value;\n"
+        + "            }\n"
+        + "            return true;\n"
+        + "        }\n"
+        + "    });\n"
+        + "_classDef_._resolvedConstructor.apply(proxy, arguments);\n";
+}
+
 function _gpfDefineGetClassSecuredConstructorGetMainConstructionPattern (classDefinition) {
     if (_gpfIsClass(classDefinition._extend)) {
         return {
             instance: "that",
-            body: "var that,\n"
-                + "    $super = function () {\n"
-                + "        that = Reflect.construct(_classDef_._extend, arguments, _classDef_._instanceBuilder);\n"
-                + "    },\n"
-                + "    hasOwnProperty = function (name) {\n"
-                + "        return !!that && that.hasOwnProperty(name);\n"
-                + "    },\n"
-                + "    proxy = new Proxy({}, {\n"
-                + "        get: function (obj, property) {\n"
-                + "            if (property === \"hasOwnProperty\") {\n"
-                + "              return hasOwnProperty;\n"
-                + "            }\n"
-                + "            if (!that && property === \"$super\") {\n"
-                + "              return $super;\n"
-                + "            }\n"
-                + "            return that[property];\n"
-                + "        },\n"
-                + "        set: function (obj, property, value) {\n"
-                + "            if (property !== \"$super\") {\n"
-                + "                that[property] = value;\n"
-                + "            }\n"
-                + "            return true;\n"
-                + "        }\n"
-                + "    });\n"
-                + "_classDef_._resolvedConstructor.apply(proxy, arguments);\n"
+            body: _gpfDefineGetClassSecuredConstructorGetES6ConstructionBody(classDefinition)
         };
     }
     return {
