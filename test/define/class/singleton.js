@@ -37,29 +37,67 @@ describe("define/class/singleton", function () {
 
     describe("$singleton", function () {
 
-        var A;
-
-        before(function () {
-            A = gpf.define({
-                $class: "A",
-                $singleton: true,
-                _created: null,
-                getAllocatedTime: function () {
-                    return this._created;
+        var A,
+            baseDefinition = {
+                _unique: null,
+                getUniqueObject: function () {
+                    return this._unique;
                 },
                 "constructor": function () {
-                    this._created = new Date();
+                    this._unique = {};
                 }
-            });
+            };
+
+        before(function () {
+            A = gpf.define(Object.assign({
+                $class: "A",
+                $singleton: true
+            }, baseDefinition));
         });
 
         it("allows only one instantation of the class", function () {
             var a0 = new A(),
+                unique = a0.getUniqueObject(),
                 a1 = new A();
             assert(a0 === a1);
-            assert(a0.getAllocatedTime() === a1.getAllocatedTime());
+            assert(unique === a1.getUniqueObject());
+        });
+
+        describe("in a sub class", function () {
+
+            var B, C;
+
+            before(function () {
+                B = gpf.define(Object.assign({
+                    $class: "B"
+                }, baseDefinition));
+                C = gpf.define({
+                    $class: "C",
+                    $extend: B,
+                    $singleton: true
+                });
+            });
+
+            it("does not alter base class behavior", function () {
+                var b0 = new B(),
+                    c0 = new C(),
+                    unique = c0.getUniqueObject(),
+                    b1 = new B(),
+                    c1 = new C();
+                assert(b0 !== b1);
+                assert(b0.getUniqueObject() !== b1.getUniqueObject());
+                assert(c0 === c1);
+                assert(unique === c1.getUniqueObject());
+            });
+
         });
 
     });
 
 });
+
+if (config.features.es6class) {
+
+    include("define/class/singleton.es6");
+
+}
