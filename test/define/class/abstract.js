@@ -53,7 +53,6 @@ describe("define/class/abstract", function () {
                     if (memberValue) {
                         this._member = memberValue;
                     }
-                    this._constructorOfA = true;
                 }
             });
 
@@ -97,3 +96,9 @@ describe("define/class/abstract", function () {
     });
 
 });
+
+if (config.features.es6class) {
+
+    include("define/class/abstract.es6");
+
+}
