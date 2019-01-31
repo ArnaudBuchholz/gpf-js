@@ -12,6 +12,7 @@
 [![devDependencies Status](https://david-dm.org/ArnaudBuchholz/gpf-js/dev-status.svg)](https://david-dm.org/ArnaudBuchholz/gpf-js?type=dev)
 [![Built with Grunt](https://gruntjs.com/cdn/builtwith.png)](http://gruntjs.com/)
 [![Vanilla JS](http://vanilla-js.com/assets/button.png)](http://vanilla-js.com)
+[![gpf-js](https://badge.fury.io/js/gpf-js.svg)](https://www.npmjs.org/package/gpf-js)
 [![gpf-js](http://img.shields.io/npm/dm/gpf-js.svg)](https://www.npmjs.org/package/gpf-js)
 [![install size](https://packagephobia.now.sh/badge?p=gpf-js)](https://packagephobia.now.sh/result?p=gpf-js)
 [![CDN](https://data.jsdelivr.com/v1/package/npm/gpf-js/badge)](https://www.jsdelivr.com/package/npm/gpf-js)
