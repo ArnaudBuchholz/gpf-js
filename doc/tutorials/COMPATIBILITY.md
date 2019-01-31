@@ -83,6 +83,11 @@ json.js#L225) /
 json.js#L139) keys are transmitted. It is recommended to
 convert the keys to string to ensure maximum compatibility.
 
+## Base64 helpers
+
+* [atob](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/atob)
+* [btoa](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/btoa)
+
 ## Strict mode
 
 When functions are generated,
