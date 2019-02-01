@@ -4,10 +4,17 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfBase64*/
+/*global _gpfMaxUnsignedByte*/
 /*exported _gpfAtob*/ // atob polyfill
 /*#endif*/
 
-var _gpfRegExpBase64 = /^(?:[A-Za-z\d+/]{4})*?(?:[A-Za-z\d+/]{2}(?:==)?|[A-Za-z\d+/]{3}=?)?$/;
+var _gpfRegExpBase64 = /^(?:[A-Za-z\d+/]{4})*?(?:[A-Za-z\d+/]{2}(?:==)?|[A-Za-z\d+/]{3}=?)?$/,
+    _GPF_6_BITS = 6,
+    _GPF_12_BITS = 12,
+    _GPF_18_BITS = 18,
+    _GPF_1_BYTE = 8,
+    _GPF_2_BYTES = 16,
+    _GPF_PADDING = 64;
 
 function _gpfAtobCheckInput (encodedData) {
     var string = encodedData.replace(/[\t\n\f\r ]+/g, "");
@@ -17,17 +24,37 @@ function _gpfAtobCheckInput (encodedData) {
     return string;
 }
 
-function _gpfAtob (encodedData) {
-    var string = _gpfAtobCheckInput(encodedData);
-    string += "==".slice(2 - (string.length & 3));
-    var bitmap, result = "", r1, r2, i = 0;
-    for (; i < string.length;) {
-        bitmap = _gpfBase64.indexOf(string.charAt(i++)) << 18 | _gpfBase64.indexOf(string.charAt(i++)) << 12
-                 | (r1 = _gpfBase64.indexOf(string.charAt(i++))) << 6 | (r2 = _gpfBase64.indexOf(string.charAt(i++)));
+function _gpfAtobDecodeWithR2 (bitmap, r2) {
+    if (r2 === _GPF_PADDING) {
+        return String.fromCharCode(bitmap >> _GPF_1_BYTE & _gpfMaxUnsignedByte);
+    }
+    return String.fromCharCode(bitmap >> _GPF_1_BYTE & _gpfMaxUnsignedByte, bitmap & _gpfMaxUnsignedByte);
+}
 
-        result += r1 === 64 ? String.fromCharCode(bitmap >> 16 & 255)
-            : r2 === 64 ? String.fromCharCode(bitmap >> 16 & 255, bitmap >> 8 & 255)
-                : String.fromCharCode(bitmap >> 16 & 255, bitmap >> 8 & 255, bitmap & 255);
+function _gpfAtobDecode (bitmap, r1, r2) {
+    var result = String.fromCharCode(bitmap >> _GPF_2_BYTES & _gpfMaxUnsignedByte);
+    if (r1 !== _GPF_PADDING) {
+        return result + _gpfAtobDecodeWithR2(bitmap, r2);
+    }
+    return result;
+}
+
+function _gpfAtob (encodedData) {
+    var input = _gpfAtobCheckInput(encodedData),
+        length = input.length,
+        index = 0,
+        result = "",
+        bitmap,
+        r1,
+        r2;
+    input += "=="; // Pad leading bytes
+    for (; index < length;) {
+        bitmap = _gpfBase64.indexOf(input.charAt(index++)) << _GPF_18_BITS
+                 | _gpfBase64.indexOf(input.charAt(index++)) << _GPF_12_BITS;
+        r1 = _gpfBase64.indexOf(input.charAt(index++));
+        r2 = _gpfBase64.indexOf(input.charAt(index++));
+        bitmap |= r1 << _GPF_6_BITS | r2;
+        result += _gpfAtobDecode(bitmap, r1, r2);
     }
     return result;
 }
