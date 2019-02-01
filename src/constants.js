@@ -17,6 +17,7 @@
 /*exported _gpfIsUnsignedByte*/ // Check if the parameter is an unsigned byte
 /*exported _gpfJsCommentsRegExp*/ // Find all JavaScript comments
 /*exported _gpfJsKeywords*/ //  List of JavaScript keywords
+/*exported _gpfMaxUnsignedByte*/ // 255
 /*exported _gpfMax31*/ // Max value on 31 bits
 /*exported _gpfMax32*/ // Max value on 32 bits
 /*jshint -W098*/ // This is a constant list, they won't be used in here
