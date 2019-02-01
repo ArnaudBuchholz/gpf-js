@@ -98,6 +98,7 @@ Date | Version | Label | Release | Debug | Flavors
 * Markdown specification inspired from [wikipedia](http://en.wikipedia.org/wiki/Markdown)
 * UTF-8 encode/decode based on [webtoolkit](http://www.webtoolkit.info/)
 * Promise/A+ implementation based on [promise-polyfill](https://github.com/taylorhakes/promise-polyfill)
+* atob/btoa implementation based on [base64-js](https://github.com/MaxArt2501/base64-js)
 * [mocha](http://mochajs.org/) test suite
 * [istanbul](https://github.com/gotwarlost/istanbul) code coverage tool
 * JavaScript task runner: [Grunt](http://gruntjs.com/)
