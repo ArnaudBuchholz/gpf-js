@@ -24,7 +24,7 @@ function _gpfAtobCheckInput (encodedData) {
     return string;
 }
 
-function _gpfAtobDecodeWithR2 (bitmap, r2) {
+function _gpfAtobDecodeLeadingBytes (bitmap, r2) {
     if (r2 === _GPF_PADDING) {
         return String.fromCharCode(bitmap >> _GPF_1_BYTE & _gpfMaxUnsignedByte);
     }
@@ -34,7 +34,7 @@ function _gpfAtobDecodeWithR2 (bitmap, r2) {
 function _gpfAtobDecode (bitmap, r1, r2) {
     var result = String.fromCharCode(bitmap >> _GPF_2_BYTES & _gpfMaxUnsignedByte);
     if (r1 !== _GPF_PADDING) {
-        return result + _gpfAtobDecodeWithR2(bitmap, r2);
+        return result + _gpfAtobDecodeLeadingBytes(bitmap, r2);
     }
     return result;
 }
