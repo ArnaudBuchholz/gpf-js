@@ -27,6 +27,16 @@ describe("compatibility/base64", function () {
                     });
                 });
 
+                it("rejects strings with invalid characters", function () {
+                    var exceptionCaught;
+                    try {
+                        atob("<");
+                    } catch (e) {
+                        exceptionCaught = e;
+                    }
+                    assert(exceptionCaught);
+                });
+
             });
 
             describe("btoa", function () {
@@ -39,6 +49,16 @@ describe("compatibility/base64", function () {
                         + " into " + JSON.stringify(encodedString), function () {
                         assert(btoa(stringToEncode) === encodedString);
                     });
+                });
+
+                it("rejects strings with non latin characters", function () {
+                    var exceptionCaught;
+                    try {
+                        btoa("\u2665"); // hearts
+                    } catch (e) {
+                        exceptionCaught = e;
+                    }
+                    assert(exceptionCaught);
                 });
 
             });
