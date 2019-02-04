@@ -32,3 +32,12 @@
  */
 var _gpfIFlushableStream = _gpfDefineInterface("FlushableStream",
     _gpfSyncReadSourceJSON("interfaces/flushablestream.json"));
+
+/*#ifndef(UMD)*/
+
+// Generates an empty function to reflect the null complexity of this module
+function _gpfInterfacesFlushablestream () {}
+/*exported _gpfInterfacesFlushablestream*/
+
+/*#endif*/
+
