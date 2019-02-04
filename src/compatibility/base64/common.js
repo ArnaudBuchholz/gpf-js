@@ -27,3 +27,12 @@ var _gpfBase64 = _gpfALPHA + _gpfAlpha + _gpfDigit + "+/=",
     _GPF_1_BYTE = 8,
     _GPF_2_BYTES = 16,
     _GPF_PADDING_CHAR = 64;
+
+/*#ifndef(UMD)*/
+
+// Generates an empty function to reflect the null complexity of this module
+function _gpfCompatibilityBase64Common () {}
+/*exported _gpfCompatibilityBase64Common*/
+
+/*#endif*/
+
