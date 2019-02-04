@@ -95,3 +95,12 @@
  */
 var _gpfIXmlContentHandler = _gpfDefineInterface("XmlContentHandler",
     _gpfSyncReadSourceJSON("interfaces/xmlcontenthandler.json"));
+
+/*#ifndef(UMD)*/
+
+// Generates an empty function to reflect the null complexity of this module
+function _gpfInterfacesXmlcontenthandler () {}
+/*exported _gpfInterfacesXmlcontenthandler*/
+
+/*#endif*/
+
