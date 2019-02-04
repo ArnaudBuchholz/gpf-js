@@ -22,3 +22,12 @@ if (_GPF_HOST.RHINO === _gpfHost) {
     _gpfHostJava();
 
 }
+
+/*#ifndef(UMD)*/
+
+// Generates an empty function to reflect the null complexity of this module
+function _gpfHostRhino () {}
+/*exported _gpfHostRhino*/
+
+/*#endif*/
+
