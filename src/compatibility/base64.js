@@ -11,3 +11,12 @@
 
 _gpfCompatibilityInstallGlobal("atob", _gpfAtob);
 _gpfCompatibilityInstallGlobal("btoa", _gpfBtoa);
+
+/*#ifndef(UMD)*/
+
+// Generates an empty function to reflect the null complexity of this module
+function _gpfCompatibilityBase64 () {}
+/*exported _gpfCompatibilityBase64*/
+
+/*#endif*/
+
