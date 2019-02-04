@@ -9,3 +9,12 @@
 /*#endif*/
 
 _gpfStringEscapes.html = Object.assign({}, _gpfStringEscapes.xml, _gpfSyncReadSourceJSON("string/escape/html.json"));
+
+/*#ifndef(UMD)*/
+
+// Generates an empty function to reflect the null complexity of this module
+function _gpfStringEscapeHtml () {}
+/*exported _gpfStringEscapeHtml*/
+
+/*#endif*/
+
