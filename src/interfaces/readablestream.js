@@ -34,3 +34,12 @@
  */
 var _gpfIReadableStream = _gpfDefineInterface("ReadableStream",
     _gpfSyncReadSourceJSON("interfaces/readablestream.json"));
+
+/*#ifndef(UMD)*/
+
+// Generates an empty function to reflect the null complexity of this module
+function _gpfInterfacesReadablestream () {}
+/*exported _gpfInterfacesReadablestream*/
+
+/*#endif*/
+
