@@ -42,3 +42,12 @@
  */
 
 _gpfDefineInterface("Enumerator", _gpfSyncReadSourceJSON("interfaces/enumerator.json"));
+
+/*#ifndef(UMD)*/
+
+// Generates an empty function to reflect the null complexity of this module
+function _gpfInterfacesEnumerator () {}
+/*exported _gpfInterfacesEnumerator*/
+
+/*#endif*/
+
