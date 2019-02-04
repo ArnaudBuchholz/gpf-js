@@ -33,3 +33,12 @@
  */
 var _gpfIWritableStream = _gpfDefineInterface("WritableStream",
     _gpfSyncReadSourceJSON("interfaces/writablestream.json"));
+
+/*#ifndef(UMD)*/
+
+// Generates an empty function to reflect the null complexity of this module
+function _gpfInterfacesWritablestream () {}
+/*exported _gpfInterfacesWritablestream*/
+
+/*#endif*/
+
