@@ -9,3 +9,12 @@
 /*#endif*/
 
 _gpfStringEscapes.regexp = _gpfSyncReadSourceJSON("string/escape/regexp.json");
+
+/*#ifndef(UMD)*/
+
+// Generates an empty function to reflect the null complexity of this module
+function _gpfStringEscapeRegexp () {}
+/*exported _gpfStringEscapeRegexp*/
+
+/*#endif*/
+
