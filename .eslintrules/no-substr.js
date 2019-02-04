@@ -11,12 +11,18 @@ module.exports = {
             recommended: false
         },
         schema: [],
+        messages: {
+            noSubstr: ".substr should not be used anymore"
+        }
     },
     create (context) {
         return {
             MemberExpression (node) {
-                if (['Identifier', 'Literal'].includes(node.object.type) && node.property.name === 'substr') {
-                    context.report(node, '.substr should not be used anymore');
+                if (["Identifier", "Literal"].includes(node.object.type) && node.property.name === 'substr') {
+                    context.report({
+                        node,
+                        messageId: "noSubstr"
+                    });
                 }
             }
         };
