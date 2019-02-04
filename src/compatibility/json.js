@@ -13,3 +13,12 @@ _gpfCompatibilityInstallGlobal("JSON", {
     parse: _gpfJsonParsePolyfill,
     stringify: _gpfJsonStringifyPolyfill
 });
+
+/*#ifndef(UMD)*/
+
+// Generates an empty function to reflect the null complexity of this module
+function _gpfCompatibilityJson () {}
+/*exported _gpfCompatibilityJson*/
+
+/*#endif*/
+
