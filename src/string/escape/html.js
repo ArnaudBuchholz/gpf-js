@@ -13,8 +13,6 @@ _gpfStringEscapes.html = Object.assign({}, _gpfStringEscapes.xml, _gpfSyncReadSo
 /*#ifndef(UMD)*/
 
 // Generates an empty function to reflect the null complexity of this module
-function _gpfStringEscapeHtml () {}
-/*exported _gpfStringEscapeHtml*/
+(function _gpfStringEscapeHtml () {}());
 
 /*#endif*/
-
