@@ -26,8 +26,6 @@ if (_GPF_HOST.RHINO === _gpfHost) {
 /*#ifndef(UMD)*/
 
 // Generates an empty function to reflect the null complexity of this module
-function _gpfHostRhino () {}
-/*exported _gpfHostRhino*/
+(function _gpfHostRhino () {}());
 
 /*#endif*/
-
