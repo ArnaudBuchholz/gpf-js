@@ -31,8 +31,6 @@ var _gpfBase64 = _gpfALPHA + _gpfAlpha + _gpfDigit + "+/=",
 /*#ifndef(UMD)*/
 
 // Generates an empty function to reflect the null complexity of this module
-function _gpfCompatibilityBase64Common () {}
-/*exported _gpfCompatibilityBase64Common*/
+(function _gpfCompatibilityBase64Common () {}());
 
 /*#endif*/
-
