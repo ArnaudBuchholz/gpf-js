@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_START*/ // 0
 /*global _GPF_12_BITS*/ // 12
 /*global _GPF_18_BITS*/ // 18
 /*global _GPF_1_BYTE*/ // 1
@@ -16,7 +17,8 @@
 /*exported _gpfBtoa*/ // btoa polyfill
 /*#endif*/
 
-var _GPF_BTOA_MAX_PADDING = 3;
+var _GPF_BTOA_MAX_PADDING = 3,
+    _GPF_BTOA_INDEX_INCREMENT = 3;
 
 function _gpfBtoaCheck (stringToEncode, index) {
     var value = stringToEncode.charCodeAt(index);
@@ -26,23 +28,34 @@ function _gpfBtoaCheck (stringToEncode, index) {
     return value;
 }
 
-function _gpfBtoa (stringToEncode) {
-    var bitmap,
+function _gpfBtoaRead (input, from) {
+    var index = from,
         a,
         b,
-        c,
+        c;
+    a = _gpfBtoaCheck(input, index++);
+    b = _gpfBtoaCheck(input, index++);
+    c = _gpfBtoaCheck(input, index++);
+    return a << _GPF_2_BYTES | b << _GPF_1_BYTE | c;
+}
+
+function _gpfBtoaEncodeChar (bitmap, shift, mask) {
+    return _gpfBase64.charAt(bitmap >> shift & mask);
+}
+
+function _gpfBtoaEncode (bitmap) {
+    return _gpfBtoaEncodeChar(bitmap, _GPF_18_BITS, _GPF_6_BITS_MASK)
+        + _gpfBtoaEncodeChar(bitmap, _GPF_12_BITS, _GPF_6_BITS_MASK)
+        + _gpfBtoaEncodeChar(bitmap, _GPF_6_BITS, _GPF_6_BITS_MASK)
+        + _gpfBtoaEncodeChar(bitmap, _GPF_START, _GPF_6_BITS_MASK);
+}
+
+function _gpfBtoa (stringToEncode) {
+    var index = 0,
         result = "",
-        index = 0,
         rest = stringToEncode.length % _GPF_BTOA_MAX_PADDING; // To determine the final padding
-    for (; index < stringToEncode.length;) {
-        a = _gpfBtoaCheck(stringToEncode, index++);
-        b = _gpfBtoaCheck(stringToEncode, index++);
-        c = _gpfBtoaCheck(stringToEncode, index++);
-        bitmap = a << _GPF_2_BYTES | b << _GPF_1_BYTE | c;
-        result += _gpfBase64.charAt(bitmap >> _GPF_18_BITS & _GPF_6_BITS_MASK)
-                + _gpfBase64.charAt(bitmap >> _GPF_12_BITS & _GPF_6_BITS_MASK)
-                + _gpfBase64.charAt(bitmap >> _GPF_6_BITS & _GPF_6_BITS_MASK)
-                + _gpfBase64.charAt(bitmap & _GPF_6_BITS_MASK);
+    for (; index < stringToEncode.length; index += _GPF_BTOA_INDEX_INCREMENT) {
+        result += _gpfBtoaEncode(_gpfBtoaRead(stringToEncode, index));
     }
     // If there's need of padding, replace the last 'A's with equal signs
     if (rest) {
