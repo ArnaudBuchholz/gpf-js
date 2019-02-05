@@ -18,8 +18,6 @@ if (_GPF_HOST.NASHORN === _gpfHost) {
 /*#ifndef(UMD)*/
 
 // Generates an empty function to reflect the null complexity of this module
-function _gpfHostNashorn () {}
-/*exported _gpfHostNashorn*/
+(function _gpfHostNashorn () {}());
 
 /*#endif*/
-
