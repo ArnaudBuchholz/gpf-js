@@ -99,8 +99,6 @@ var _gpfIXmlContentHandler = _gpfDefineInterface("XmlContentHandler",
 /*#ifndef(UMD)*/
 
 // Generates an empty function to reflect the null complexity of this module
-function _gpfInterfacesXmlcontenthandler () {}
-/*exported _gpfInterfacesXmlcontenthandler*/
+(function _gpfInterfacesXmlcontenthandler () {}());
 
 /*#endif*/
-
