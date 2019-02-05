@@ -13,8 +13,6 @@ _gpfStringEscapes.xml = _gpfSyncReadSourceJSON("string/escape/xml.json");
 /*#ifndef(UMD)*/
 
 // Generates an empty function to reflect the null complexity of this module
-function _gpfStringEscapeXml () {}
-/*exported _gpfStringEscapeXml*/
+(function _gpfStringEscapeXml () {}());
 
 /*#endif*/
-
