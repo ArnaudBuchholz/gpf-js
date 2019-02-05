@@ -9,11 +9,7 @@ const
     KO = -1,
     fs = require("fs"),
     CoverageReport = require("./coverage"),
-    sources = ["boot"].concat(
-        JSON.parse(fs.readFileSync("./src/sources.json"))
-            .filter(source => source.load !== false)
-            .map(source => source.name)
-    ),
+    sources = JSON.parse(fs.readFileSync("./src/sources.json")).map(source => source.name),
     configuredMetrics = JSON.parse(fs.readFileSync("tmp/config.json")).metrics,
     releaseMetrics = {},
 
