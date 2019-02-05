@@ -13,8 +13,6 @@ _gpfStringEscapes.javascript = _gpfSyncReadSourceJSON("string/escape/javascript.
 /*#ifndef(UMD)*/
 
 // Generates an empty function to reflect the null complexity of this module
-function _gpfStringEscapeJavascript () {}
-/*exported _gpfStringEscapeJavascript*/
+(function _gpfStringEscapeJavascript () {}());
 
 /*#endif*/
-
