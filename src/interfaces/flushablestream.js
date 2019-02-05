@@ -36,8 +36,6 @@ var _gpfIFlushableStream = _gpfDefineInterface("FlushableStream",
 /*#ifndef(UMD)*/
 
 // Generates an empty function to reflect the null complexity of this module
-function _gpfInterfacesFlushablestream () {}
-/*exported _gpfInterfacesFlushablestream*/
+(function _gpfInterfacesFlushablestream () {}());
 
 /*#endif*/
-
