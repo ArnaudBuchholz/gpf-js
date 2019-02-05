@@ -15,7 +15,8 @@
 /*exported _gpfAtob*/ // atob polyfill
 /*#endif*/
 
-var _gpfRegExpBase64 = /^(?:[A-Za-z\d+/]{4})*?(?:[A-Za-z\d+/]{2}(?:==)?|[A-Za-z\d+/]{3}=?)?$/;
+var _gpfRegExpBase64 = /^(?:[A-Za-z\d+/]{4})*?(?:[A-Za-z\d+/]{2}(?:==)?|[A-Za-z\d+/]{3}=?)?$/,
+    _GPF_ATOB_INDEX_INCREMENT = 4;
 
 function _gpfAtobCheckInput (encodedData) {
     var string = encodedData.replace(/[\t\n\f\r ]+/g, "");
@@ -40,22 +41,31 @@ function _gpfAtobDecode (bitmap, r1, r2) {
     return result;
 }
 
+function _gpfAtobTranslate (input, index) {
+    return _gpfBase64.indexOf(input.charAt(index));
+}
+
+function _gpfAtobRead (input, from) {
+    var index = from,
+        bitmap,
+        r1,
+        r2;
+    bitmap = _gpfAtobTranslate(input, index++) << _GPF_18_BITS
+             | _gpfAtobTranslate(input, index++) << _GPF_12_BITS;
+    r1 = _gpfAtobTranslate(input, index++);
+    r2 = _gpfAtobTranslate(input, index++);
+    bitmap |= r1 << _GPF_6_BITS | r2;
+    return _gpfAtobDecode(bitmap, r1, r2);
+}
+
 function _gpfAtob (encodedData) {
     var input = _gpfAtobCheckInput(encodedData),
         length = input.length,
         index = 0,
-        result = "",
-        bitmap,
-        r1,
-        r2;
+        result = "";
     input += "=="; // Pad leading bytes
-    for (; index < length;) {
-        bitmap = _gpfBase64.indexOf(input.charAt(index++)) << _GPF_18_BITS
-                 | _gpfBase64.indexOf(input.charAt(index++)) << _GPF_12_BITS;
-        r1 = _gpfBase64.indexOf(input.charAt(index++));
-        r2 = _gpfBase64.indexOf(input.charAt(index++));
-        bitmap |= r1 << _GPF_6_BITS | r2;
-        result += _gpfAtobDecode(bitmap, r1, r2);
+    for (; index < length; index += _GPF_ATOB_INDEX_INCREMENT) {
+        result += _gpfAtobRead(input, index);
     }
     return result;
 }
