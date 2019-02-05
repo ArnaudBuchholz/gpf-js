@@ -68,7 +68,7 @@ if (generationParameters.uglify) {
 debug("\tGetting the list of sources to process...");
 sourcesToProcess = sources
     .filter((source, index) => !flavorFilter || flavorFilter[index])
-    .filter(source => source.load !== false)
+    .filter(source => source.name !== "boot")
     .map(source => source.name);
 
 // Read sources
