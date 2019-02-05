@@ -103,16 +103,13 @@ module.exports = class ConfigFile {
 
     readSourceFiles () {
         // Build the list of valid source and test files based on sources.json
-        let srcFiles = ["src/boot.js"],
+        let srcFiles = [],
             testFiles = [],
             testIncludeFiles = [];
         JSON.parse(fs.readFileSync(path.join(__dirname, "../src/sources.json"))).forEach(source => {
-            let name = source.name;
-            if (source.load !== false) {
-                srcFiles.push(`src/${name}.js`);
-                if (source.test !== false) {
-                    testFiles.push(`test/${name}.js`);
-                }
+            srcFiles.push(`src/${source.name}.js`);
+            if (source.test !== false) {
+                testFiles.push(`test/${source.name}.js`);
             }
         });
         // Check test files to see if any include is used
