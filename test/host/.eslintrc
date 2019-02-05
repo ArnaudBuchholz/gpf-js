@@ -1,7 +1,6 @@
 {
     "rules": {
-        "no-sync": 0,
-        "no-empty-module": 0
+        "no-sync": 0
     },
     "globals": {
         "exit": true
