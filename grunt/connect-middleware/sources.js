@@ -17,7 +17,7 @@ const
 
     getSources = () => readFile(path.join(__dirname, "../../src/sources.json"))
         .then(content => JSON.parse(content))
-        .then(sources => sources.filter(source => source.load !== false))
+        .then(sources => sources.filter(source => source.name !== "boot"))
         .then(sources => sources.map(source => source.name)),
 
     uglifySources = sources => {
