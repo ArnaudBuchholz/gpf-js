@@ -96,8 +96,6 @@ _gpfDefineInterface("FileStorage", _gpfSyncReadSourceJSON("interfaces/filestorag
 /*#ifndef(UMD)*/
 
 // Generates an empty function to reflect the null complexity of this module
-function _gpfInterfacesFilestorage () {}
-/*exported _gpfInterfacesFilestorage*/
+(function _gpfInterfacesFilestorage () {}());
 
 /*#endif*/
-
