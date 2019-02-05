@@ -41,8 +41,7 @@ module.exports = {
 /*#ifndef(UMD)*/
 
 // Generates an empty function to reflect the null complexity of this module
-function _gpf${fileName} () {}
-/*exported _gpf${fileName}*/
+(function _gpf${fileName} () {})();
 
 /*#endif*/
 `);
