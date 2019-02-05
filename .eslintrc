@@ -130,7 +130,7 @@
         "max-statements":               [2, 15],
 
         "no-substr":                    2,
-        "no-empty-module":              2
+        "no-empty-module":              0
     },
     "globals": {
         "gpf":                          false,
