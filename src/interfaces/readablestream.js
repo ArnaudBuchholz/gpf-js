@@ -38,8 +38,6 @@ var _gpfIReadableStream = _gpfDefineInterface("ReadableStream",
 /*#ifndef(UMD)*/
 
 // Generates an empty function to reflect the null complexity of this module
-function _gpfInterfacesReadablestream () {}
-/*exported _gpfInterfacesReadablestream*/
+(function _gpfInterfacesReadablestream () {}());
 
 /*#endif*/
-
