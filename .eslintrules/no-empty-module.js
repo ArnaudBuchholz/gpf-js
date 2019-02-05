@@ -9,7 +9,7 @@ const
 module.exports = {
     meta: {
         docs: {
-            url: "https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrules/empty-module.js",
+            url: "https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrules/no-empty-module.js",
             description: "Assess that modules have at least one function",
             category: "Custom rules",
             recommended: false
