@@ -29,8 +29,6 @@ _gpfDefineInterface("Unknown", _gpfSyncReadSourceJSON("interfaces/unknown.json")
 /*#ifndef(UMD)*/
 
 // Generates an empty function to reflect the null complexity of this module
-function _gpfInterfacesUnknown () {}
-/*exported _gpfInterfacesUnknown*/
+(function _gpfInterfacesUnknown () {}());
 
 /*#endif*/
-
