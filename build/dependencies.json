@@ -123,11 +123,6 @@
         "compatibility/json/parse",
         "compatibility/json/stringify"
     ],
-    "compatibility/base64": [
-        "compatibility/base64/atob",
-        "compatibility/base64/btoa",
-        "compatibility"
-    ],
     "compatibility/base64/common": [
         "constants"
     ],
@@ -139,6 +134,11 @@
         "compatibility/base64/common",
         "boot",
         "constants"
+    ],
+    "compatibility/base64": [
+        "compatibility/base64/atob",
+        "compatibility/base64/btoa",
+        "compatibility"
     ],
     "context": [
         "boot",
