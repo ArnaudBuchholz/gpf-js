@@ -198,7 +198,7 @@
                 source;
             for (sourceIdx = 0; sourceIdx < len; ++sourceIdx) {
                 source = sources[sourceIdx];
-                if (source.load !== false && source.test !== false) {
+                if (source.test !== false) {
                     _loadTest(configuration, source.name);
                 }
             }
