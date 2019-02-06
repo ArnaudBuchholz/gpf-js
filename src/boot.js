@@ -285,7 +285,9 @@ function _gpfSyncReadSourceJSON (sourceFileName) {
 }
 
 function _gpfProcessSource (source, allContent) {
-    allContent.push(_gpfSyncReadForBoot(gpfSourcesPath + source.name + ".js"));
+    if (source.name !== "boot") {
+        allContent.push(_gpfSyncReadForBoot(gpfSourcesPath + source.name + ".js"));
+    }
 }
 
 /**
@@ -298,7 +300,7 @@ function _gpfLoadSources () { //jshint ignore:line
     var sourceListContent = _gpfSyncReadForBoot(gpfSourcesPath + "sources.json"),
         _gpfSources = _GpfFunc("return " + sourceListContent)(),
         allContent = [],
-        idx = 1; // skip boot
+        idx = 0;
     for (; idx < _gpfSources.length; ++idx) {
         _gpfProcessSource(_gpfSources[idx], allContent);
     }
