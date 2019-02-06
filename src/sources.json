@@ -131,10 +131,6 @@
         "tags": "compatibility"
     },
     {
-        "name": "compatibility/base64",
-        "tags": "compatibility"
-    },
-    {
         "name": "compatibility/base64/common",
         "test": false,
         "tags": "compatibility"
@@ -147,6 +143,10 @@
     {
         "name": "compatibility/base64/btoa",
         "test": false,
+        "tags": "compatibility"
+    },
+    {
+        "name": "compatibility/base64",
         "tags": "compatibility"
     },
     {
