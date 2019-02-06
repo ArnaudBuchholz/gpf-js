@@ -158,7 +158,7 @@
                     .then(function (sources) {
                         return sources
                             .filter(function (source) {
-                                return source.load !== false && source.test !== false;
+                                return source.test !== false;
                             })
                             .map(function (source) {
                                 return source.name;
