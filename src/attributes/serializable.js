@@ -38,7 +38,7 @@ var _gpfAttributesSerializable = _gpfDefine({
     /**
      * Associates a serialization property defintion to a member
      *
-     * @param {gpf.typedef.serializableProperty} property Serializable property definition
+     * @param {gpf.typedef.serializableProperty} [property] Serializable property definition
      * @throws {gpf.Error.InvalidSerialName}
      * @throws {gpf.Error.InvalidSerialType}
      * @throws {gpf.Error.InvalidSerialRequired}
@@ -48,11 +48,7 @@ var _gpfAttributesSerializable = _gpfDefine({
      * @since 0.2.8
      */
     constructor: function (property) {
-        if (property) {
-            this._property = Object.assign({}, property);
-        } else {
-            this._property = {};
-        }
+        this._property = property;
     },
 
     /**
@@ -61,10 +57,9 @@ var _gpfAttributesSerializable = _gpfDefine({
      */
     _check: function (member, classDefinition) {
         _gpfIgnore(classDefinition);
-        if (!this._property.name) {
-            this._property.name = _gpfAttributesSerializableExtractName(member);
-        }
-        this._property = _gpfSerialPropertyCheck(this._property);
+        this._property = _gpfSerialPropertyCheck(Object.assign({
+            name: _gpfAttributesSerializableExtractName(member)
+        }, this._property));
     },
 
     /**
