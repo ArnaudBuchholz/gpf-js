@@ -13,7 +13,6 @@
             <thead>
                 <th>&nbsp;</th>
                 <th>Source name <span class="dependencies" title="dependencies">&nbsp;</span> <span class="references" title="references">&nbsp;</span></th>
-                <th title="Load">&#127937;</th>
                 <th title="Test">&#128505;</th>
                 <th>
                     <button id="save">Save</button>
@@ -54,7 +53,7 @@
             <tr {%%}="row();">
                 <td>{%
 
-if (!($object.isReadOnly() || $object.testProperty("load"))) {
+if (!$object.isReadOnly()) {
                     %}<span class="clickable delete">&#8998;</span>{%
 }
 
@@ -74,8 +73,7 @@ if ($object.isReferenced()) {
 }
 
                 %}</td>
-                <td><input id="load_{{$index}}" type="checkbox" {%%}="check('load');" disabled></td>
-                <td><input id="test_{{$index}}" type="checkbox" {%%}="check('test');" class="hide"></td>
+                <td><input id="test_{{$index}}" type="checkbox" {%%}="check('test');" class="hide" disabled></td>
                 <td>{%
 
 $object.getTags().forEach(function (tag) {
