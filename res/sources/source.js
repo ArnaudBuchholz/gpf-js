@@ -11,9 +11,6 @@ gpf.require.define({}, function () {
             this._array = array;
             this._name = source.name;
             this._index = array.getLength();
-            if (source.load !== false) {
-                this._load = true;
-            }
             if (source.test !== false) {
                 this._test = true;
             }
@@ -51,14 +48,6 @@ gpf.require.define({}, function () {
         /** @gpf:write _index */
         setIndex: function (value) {
             this._index = value;
-        },
-
-        /** Source is loaded */
-        _load: false,
-
-        /** @gpf:read _load */
-        getLoad: function () {
-            return this._load;
         },
 
         /** Source has a test counterpart */
@@ -118,26 +107,7 @@ gpf.require.define({}, function () {
         },
 
         /**
-         * Change the load setting
-         *
-         * @param {Boolean} value New value for the setting
-         * @return {Boolean} Update done
-         */
-        _setLoad: function (value) {
-            if (!value) {
-                // Allow only if all dependencies are not loaded
-                if (this._dependencyOf.some(function (name) {
-                    return this._array.byName(name).getLoad();
-                }, this)) {
-                    return false;
-                }
-            }
-            this._load = value;
-            return true;
-        },
-
-        /**
-         * Change the load setting
+         * Change the test setting
          *
          * @param {Boolean} value New value for test
          * @return {Boolean} Update done
@@ -159,12 +129,8 @@ gpf.require.define({}, function () {
             var result = {
                 name: this._name
             };
-            if (this._load) {
-                if (!this._test) {
-                    result.test = false;
-                }
-            } else {
-                result.load = false;
+            if (!this._test) {
+                result.test = false;
             }
             if (this._tags.length) {
                 result.tags = this._tags.join(" ");
@@ -177,9 +143,6 @@ gpf.require.define({}, function () {
         },
 
         testProperty: function (propertyName) {
-            if (!this._load) {
-                return false;
-            }
             if (propertyName === "test") {
                 return this._test;
             }
@@ -187,9 +150,6 @@ gpf.require.define({}, function () {
         },
 
         setProperty: function (propertyName, value) {
-            if (propertyName === "load") {
-                return this._setLoad(value);
-            }
             if (propertyName === "test") {
                 return this._setTest(value);
             }
