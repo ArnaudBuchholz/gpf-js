@@ -89,7 +89,7 @@ gpf.require.define({
     }
 
     function onDelete (source) {
-        if (!source.isReadOnly() && !source.getLoad()) {
+        if (!source.isReadOnly()) {
             dialogs.confirm("Delete '" + source.getName() + "' ?")
                 .then(function (ok) {
                     if (!ok) {
