@@ -129,8 +129,7 @@
         "max-params":                   [2, 3],
         "max-statements":               [2, 15],
 
-        "no-substr":                    2,
-        "no-empty-module":              0
+        "no-substr":                    2
     },
     "globals": {
         "gpf":                          false,
