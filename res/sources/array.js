@@ -32,9 +32,8 @@ gpf.require.define({
 
         // Update source with external properties
         _update: function (source) {
-            var me = this;
-            if (me._checkDictionary) {
-                source.setCheckedState(me._checkDictionary[source.getName()]);
+            if (this._checkDictionary) {
+                source.setCheckedState(this._checkDictionary[source.getName()]);
             }
             return source;
         },
@@ -204,17 +203,7 @@ gpf.require.define({
                 }, this);
             // Add missing sources after the last loaded one
             if (newSources.length) {
-                var lastLoadedSource = this._sources.length;
-                this._sources.every(function (source, index) {
-                    if (index && !source.getLoad()) { // Skip boot
-                        lastLoadedSource = index;
-                        ++lastLoadedSource;
-                        return false;
-                    }
-                    return true;
-                });
-                var KEEP_ITEM = 0;
-                this._sources.splice.apply(this._sources, [lastLoadedSource, KEEP_ITEM].concat(newSources));
+                this.sources = this.sources.concat(newSources);
             }
         },
 
