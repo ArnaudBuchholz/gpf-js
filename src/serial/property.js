@@ -13,11 +13,11 @@ _gpfErrorDeclare("serial/property", {
     /**
      * ### Summary
      *
-     * Name of serializable property is invalid
+     * Serializable property 'name' is invalid
      *
      * ### Description
      *
-     * Name should respect the pattern `/^[a-z][a-z0-9_]*$/i`
+     * name should respect the pattern `/^[a-z][a-z0-9_]*$/i`
      * @since 0.2.8
      */
     invalidSerialName: "Invalid serial name",
@@ -25,11 +25,11 @@ _gpfErrorDeclare("serial/property", {
     /**
      * ### Summary
      *
-     * Type of serializable property is invalid
+     * Serializable property 'type' is invalid
      *
      * ### Description
      *
-     * Type should be one of the enumeration {@see gpf.serial.types}
+     * Value should be one of the enumeration {@see gpf.serial.types}
      * @since 0.2.8
      */
     invalidSerialType: "Invalid serial type",
@@ -37,14 +37,25 @@ _gpfErrorDeclare("serial/property", {
     /**
      * ### Summary
      *
-     * Required of serializable property is invalid
+     * Serializable property 'required' is invalid
      *
      * ### Description
      *
-     * Required can either be true or false
+     * Value can either be true or false
      * @since 0.2.8
      */
-    invalidSerialRequired: "Invalid serial required"
+    invalidSerialRequired: "Invalid serial required",
+
+    /**
+     * ### Summary
+     *
+     * Serializable property 'readOnly' is invalid
+     *
+     * ### Description
+     *
+     * Value can either be true or false
+     */
+    invalidSerialReadOnly: "Invalid serial readOnly"
 
 });
 
@@ -62,6 +73,9 @@ gpf.serial = {};
  * @property {String} name Name of the property
  * @property {gpf.serial.types} [type=gpf.serial.types.string] Type of the property
  * @property {Boolean} [required=false] Property must have a value
+ * @property {Boolean} [readOnly=undefined] Property is read only. When undefined, and if the host supports
+ * [Object.getOwnPropertyDescriptors](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/
+ * Object/getOwnPropertyDescriptors), the framework will check if the property can be set.
  * @see gpf.attributes.Serializable
  * @since 0.2.8
  */
@@ -140,9 +154,9 @@ function _gpfSerialPropertyCheckType (property) {
     }
 }
 
-function _gpfSerialPropertyCheckRequiredType (required) {
-    if (typeof required !== "boolean") {
-        gpf.Error.invalidSerialRequired();
+function _gpfSerialPropertyCheckBooleanType (value, exception) {
+    if (typeof value !== "boolean") {
+        exception();
     }
 }
 
@@ -150,7 +164,13 @@ function _gpfSerialPropertyCheckRequired (property) {
     if (undefined === property.required) {
         property.required = false;
     } else {
-        _gpfSerialPropertyCheckRequiredType(property.required);
+        _gpfSerialPropertyCheckBooleanType(property.required, gpf.Error.invalidSerialRequired);
+    }
+}
+
+function _gpfSerialPropertyCheckReadOnly (property) {
+    if (undefined !== property.readOnly) {
+        _gpfSerialPropertyCheckBooleanType(property.readOnly, gpf.Error.invalidSerialReadOnly);
     }
 }
 
@@ -167,9 +187,14 @@ function _gpfSerialPropertyCheckRequired (property) {
  */
 function _gpfSerialPropertyCheck (property) {
     var clonedProperty = Object.assign(property);
-    _gpfSerialPropertyCheckName(clonedProperty);
-    _gpfSerialPropertyCheckType(clonedProperty);
-    _gpfSerialPropertyCheckRequired(clonedProperty);
+    [
+        _gpfSerialPropertyCheckName,
+        _gpfSerialPropertyCheckType,
+        _gpfSerialPropertyCheckRequired,
+        _gpfSerialPropertyCheckReadOnly
+    ].forEach(function (checkFunction) {
+        checkFunction(clonedProperty);
+    });
     return clonedProperty;
 }
 
