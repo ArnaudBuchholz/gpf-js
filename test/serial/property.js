@@ -24,6 +24,7 @@ describe("serial/property", function () {
                 });
                 assert(property.type === gpf.serial.types.string);
                 assert(property.required === false);
+                assert(property.readOnly === undefined); // Stays undefined if not set
             });
 
             it("validates properties", function () {
@@ -32,7 +33,8 @@ describe("serial/property", function () {
                     _gpfSerialPropertyCheck({
                         name: "OK",
                         type: gpf.serial.types.string,
-                        required: false
+                        required: false,
+                        readOnly: false
                     });
                 } catch (e) {
                     exceptionCaught = e;
@@ -88,6 +90,25 @@ describe("serial/property", function () {
                             exceptionCaught = e;
                         }
                         assert(exceptionCaught instanceof gpf.Error.InvalidSerialRequired);
+                    });
+                });
+
+            values
+                .filter(function (value) {
+                    return typeof value !== "boolean";
+                })
+                .forEach(function (invalidReadOnly) {
+                    it("rejects invalid 'readOnly' (" + JSON.stringify(invalidReadOnly) + ")", function () {
+                        var exceptionCaught;
+                        try {
+                            _gpfSerialPropertyCheck({
+                                name: "OK",
+                                readOnly: invalidReadOnly
+                            });
+                        } catch (e) {
+                            exceptionCaught = e;
+                        }
+                        assert(exceptionCaught instanceof gpf.Error.InvalidSerialReadOnly);
                     });
                 });
 
