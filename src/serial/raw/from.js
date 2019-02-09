@@ -5,15 +5,22 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*global _gpfSerialGet*/ // Collect gpf.typedef.serializableProperty defined for the object / class
+/*global _gpfSerialGetWithReadOnly*/ // Same as _gpfSerialGet but resolves readOnly
 /*global _gpfSerialIdentityConverter*/ // Identity converter, returns passed value
 /*#endif*/
 
+function _gpfSerialRawFromPropertyValue (instance, member, value) {
+    if (value !== undefined) {
+        instance[member] = value;
+    }
+}
+
 function _gpfSerialRawFromProperties (instance, raw, converter) {
-    var properties = _gpfSerialGet(instance);
+    var properties = _gpfSerialGetWithReadOnly(instance);
     _gpfObjectForEach(properties, function (property, member) {
         if (raw.hasOwnProperty(property.name)) {
-            instance[member] = converter.call(instance, raw[property.name], property, member);
+            _gpfSerialRawFromPropertyValue(instance, member,
+                converter.call(instance, raw[property.name], property, member));
         }
     });
 }
