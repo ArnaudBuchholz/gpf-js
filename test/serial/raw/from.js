@@ -12,7 +12,8 @@ describe("serial/raw/from", function () {
 
                 "[_id]": [new gpf.attributes.Serializable({
                     name: "id",
-                    required: true
+                    required: true,
+                    readOnly: true
                 })],
                 _id: "",
 
@@ -23,7 +24,8 @@ describe("serial/raw/from", function () {
 
                 "[_created]": [new gpf.attributes.Serializable({
                     name: "created",
-                    type: gpf.serial.datetime
+                    type: gpf.serial.datetime,
+                    readOnly: true
                 })],
                 _created: null,
 
@@ -31,14 +33,7 @@ describe("serial/raw/from", function () {
                     name: "modified",
                     type: gpf.serial.datetime
                 })],
-                _modified: null,
-
-                constructor: function (id, name, modified) {
-                    this._id = id;
-                    this._name = name;
-                    this._created = new Date();
-                    this._modified = modified || null;
-                }
+                _modified: null
             });
         });
 
@@ -87,10 +82,12 @@ describe("serial/raw/from", function () {
                 assert(this === a); //eslint-disable-line no-invalid-this
                 if (member === "_id") {
                     assert(property.name === "id");
+                    assert(property.readOnly === true);
                     assert(value === "ID");
-                    return "id";
+                    return "id"; // Will set the property anyway
                 } else if (member === "_name") {
                     assert(property.name === "name");
+                    assert(property.readOnly === false);
                     assert(value === undefined);
                     return "Test";
                 } else if (member.type === gpf.serial.datetime) {
@@ -113,3 +110,9 @@ describe("serial/raw/from", function () {
     });
 
 });
+
+if (config.features.propertydescriptor) {
+
+    include("serial/raw/from.propertydescriptor");
+
+}
