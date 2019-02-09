@@ -5,7 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*global _gpfSerialGet*/ // Collect gpf.typedef.serializableProperty defined for the object / class
+/*global _gpfSerialGetWithReadOnly*/ // Same as _gpfSerialGet but resolves readOnly
 /*global _gpfSerialIdentityConverter*/ // Identity converter, returns passed value
 /*#endif*/
 
@@ -18,7 +18,8 @@ function _gpfSerialRawToProperties (instance, properties, converter) {
 }
 
 function _gpfSerialRawTo (instance, converter) {
-    return _gpfSerialRawToProperties(instance, _gpfSerialGet(instance), converter || _gpfSerialIdentityConverter);
+    return _gpfSerialRawToProperties(instance, _gpfSerialGetWithReadOnly(instance),
+        converter || _gpfSerialIdentityConverter);
 }
 
 /**
