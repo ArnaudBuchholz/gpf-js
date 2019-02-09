@@ -54,6 +54,7 @@ _gpfErrorDeclare("serial/property", {
      * ### Description
      *
      * Value can either be true or false
+     * @since 0.2.9
      */
     invalidSerialReadOnly: "Invalid serial readOnly"
 
