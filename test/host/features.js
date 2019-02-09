@@ -5,7 +5,8 @@
     var Func = Function,
         context = new Func("return this;")(),
         features = {
-            es6class: "class A {}"
+            es6class: "class A {}",
+            propertydescriptor: "Object.getOwnPropertyDescriptor({})"
         };
 
     for (var feature in features) {
