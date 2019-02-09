@@ -12,7 +12,8 @@ describe("serial/raw/to", function () {
 
                 "[_id]": [new gpf.attributes.Serializable({
                     name: "id",
-                    required: true
+                    required: true,
+                    readOnly: true
                 })],
                 _id: "",
 
@@ -23,7 +24,8 @@ describe("serial/raw/to", function () {
 
                 "[_created]": [new gpf.attributes.Serializable({
                     name: "created",
-                    type: gpf.serial.datetime
+                    type: gpf.serial.datetime,
+                    readOnly: true
                 })],
                 _created: null,
 
@@ -80,10 +82,12 @@ describe("serial/raw/to", function () {
                     assert(this === a); //eslint-disable-line no-invalid-this
                     if (member === "_id") {
                         assert(property.name === "id");
+                        assert(property.readOnly === true);
                         assert(value === "id");
                         return "ID";
                     } else if (member === "_name") {
                         assert(property.name === "name");
+                        assert(property.readOnly === false);
                         assert(value === "Test");
                         return "TEST";
                     } else if (member.type === gpf.serial.datetime) {
