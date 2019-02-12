@@ -5,7 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*global _gpfSerialGetWithReadOnly*/ // Same as _gpfSerialGet but resolves readOnly
+/*global _gpfSerialGetWithReadOnly*/ // Same as _gpfSerialGet but on instances and resolving readOnly
 /*global _gpfSerialIdentityConverter*/ // Identity converter, returns passed value
 /*#endif*/
 
