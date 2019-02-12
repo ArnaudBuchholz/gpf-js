@@ -9,7 +9,7 @@
 /*global _gpfAttributesSerializable*/ // Shortcut for gpf.attributes.Serializable
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*exported _gpfSerialGet*/ // Collect gpf.typedef.serializableProperty defined for the object / class
-/*exported _gpfSerialGetWithReadOnly*/ // Same as _gpfSerialGet but resolves readOnly
+/*exported _gpfSerialGetWithReadOnly*/ // Same as _gpfSerialGet but on instances and resolving readOnly
 /*#endif*/
 
 /**
@@ -35,19 +35,12 @@ function _gpfSerialGetResolveReadOnlyCheckDescriptor (prototype, member) {
     }
 }
 
-function _gpfSerialGetPrototype (objectOrClass) {
-    if (typeof objectOrClass === "function") {
-        return objectOrClass.prototype;
-    }
-    return objectOrClass;
-}
-
 var _gpfSerialGetResolveReadOnly;
 
 if (Object.getOwnPropertyDescriptor) {
 
-    _gpfSerialGetResolveReadOnly = function (fromPrototype, member) {
-        var prototype = fromPrototype,
+    _gpfSerialGetResolveReadOnly = function (instance, member) {
+        var prototype = instance,
             readOnly;
         while (prototype !== Object && readOnly === undefined) {
             readOnly = _gpfSerialGetResolveReadOnlyCheckDescriptor(prototype, member);
@@ -65,18 +58,17 @@ if (Object.getOwnPropertyDescriptor) {
 }
 
 /**
- * Same as {@link gpf.serial.get} but resolves readOnly
+ * Same as {@link gpf.serial.get} but on instances and resolving readOnly
  *
- * @param {Object|Function} objectOrClass Object instance or class constructor
+ * @param {Object} instance Object instance or class constructor
  * @return {Object} Dictionary of {@link gpf.typedef.serializableProperty} index by member
  * @since 0.2.9
  */
-function _gpfSerialGetWithReadOnly (objectOrClass) {
-    var properties = _gpfSerialGet(objectOrClass),
-        prototype = _gpfSerialGetPrototype(objectOrClass);
+function _gpfSerialGetWithReadOnly (instance) {
+    var properties = _gpfSerialGet(instance);
     _gpfObjectForEach(properties, function (property, member) {
         if (property.readOnly === undefined) {
-            property.readOnly = _gpfSerialGetResolveReadOnly(prototype, member);
+            property.readOnly = _gpfSerialGetResolveReadOnly(instance, member);
         }
     });
     return properties;
