@@ -10,7 +10,7 @@ global.define = define;
 
 // Not supposed to be supported
 global["features:es6class"] = false;
-global["features:propertydescriptor"] = false;
+Object.getOwnPropertyDescriptor = null;
 
 require("./wscript/setup.js");
 require("./cscript.js");
