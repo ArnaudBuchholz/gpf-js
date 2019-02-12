@@ -4,7 +4,7 @@ describe("serial/raw/from.propertydescriptor", function () {
 
     describe("gpf.serial.fromRaw", function () {
 
-        var A;
+        var A, B;
 
         before(function () {
             A = gpf.define({
@@ -34,29 +34,34 @@ describe("serial/raw/from.propertydescriptor", function () {
                         writable: false
                     });
                     this._name = name;
-                    var _created = new Date();
-                    Object.defineProperty(this, "_created", {
-                        configurable: false,
-                        get: function () {
-                            return _created;
-                        }
-                    });
+                    this.__created = new Date();
                     this._modified = modified || null;
                 }
             });
+
+            Object.defineProperty(A.prototype, "_created", {
+                configurable: false,
+                get: function () {
+                    return this.__created;
+                }
+            });
+
+            B = gpf.define({
+                $class: "B",
+                $extend: A
+            });
         });
 
-        it("converts properties' value", function () {
-            var a = new A("123"),
-                initialCreated = a._created;
-            gpf.serial.fromRaw(a, {
+        function _check (instance) {
+            var initialCreated = instance._created;
+            gpf.serial.fromRaw(instance, {
                 id: "ID",
                 name: undefined, // HasOwnProperty but value is undefined
                 created: "",
                 modified: "2018-09-19T12:50:12.000Z"
             }, function (value, property, member) {
                 /*jshint validthis:true*/
-                assert(this === a); //eslint-disable-line no-invalid-this
+                assert(this === instance); //eslint-disable-line no-invalid-this
                 if (member === "_id") {
                     assert(property.name === "id");
                     assert(property.readOnly === true);
@@ -77,15 +82,23 @@ describe("serial/raw/from.propertydescriptor", function () {
                 // no _created
                 assert(false);
             });
-            assert(a._id === "123");
-            assert(a._name === "Test");
-            assert(a._created === initialCreated);
-            assert(a._modified.getUTCFullYear() === 2018);
-            assert(a._modified.getUTCMonth() === 8);
-            assert(a._modified.getUTCDate() === 19);
-            assert(a._modified.getUTCHours() === 12);
-            assert(a._modified.getUTCMinutes() === 50);
-            assert(a._modified.getUTCSeconds() === 12);
+            assert(instance._id === "123");
+            assert(instance._name === "Test");
+            assert(instance._created === initialCreated);
+            assert(instance._modified.getUTCFullYear() === 2018);
+            assert(instance._modified.getUTCMonth() === 8);
+            assert(instance._modified.getUTCDate() === 19);
+            assert(instance._modified.getUTCHours() === 12);
+            assert(instance._modified.getUTCMinutes() === 50);
+            assert(instance._modified.getUTCSeconds() === 12);
+        }
+
+        it("converts properties' value", function () {
+            _check(new A("123"));
+        });
+
+        it("converts properties' value (sub class)", function () {
+            _check(new B("123"));
         });
 
     });
