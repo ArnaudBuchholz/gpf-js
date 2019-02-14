@@ -1,7 +1,5 @@
 "use strict";
 
-a b c
-
 class Test {
 
 	@gpf.attribute()
