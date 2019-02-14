@@ -104,3 +104,9 @@ describe("serial/raw/to", function () {
     });
 
 });
+
+if (config.features.propertydescriptor) {
+
+    include("serial/raw/to.propertydescriptor");
+
+}
