@@ -67,7 +67,7 @@ describe("serial/raw/from", function () {
                     name: "Test"
                 });
             assert(a === result);
-            assert(a._id === "id");
+            assert(a._id === ""); // read-only
             assert(a._name === "Test");
         });
 
