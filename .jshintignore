@@ -1,0 +1,2 @@
+test/require/syntax_error.js
+test/require/es6/*.js
