@@ -29,6 +29,7 @@ test
 .gitattributes
 .htmllintrc
 .jshintrc
+.jshintignore
 .travis.yml
 gruntfile.js
 index.html
