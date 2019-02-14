@@ -33,10 +33,7 @@ const
 
     contentMigrationPath = [
         content => {
-            /*
-             * from: selenium.browsers: [name]
-             * to: browsers: { name: { type: "selenium" } }
-             */
+            /* from: selenium.browsers: [name] to: browsers: { name: { type: "selenium" } } */
             content.browsers = {};
             content.selenium.browsers.forEach(name => {
                 content.browsers[name] = {
@@ -163,6 +160,7 @@ module.exports = class ConfigFile {
                     "statistics.js",
                     "make/*.js",
                     "test/host/**/*.js",
+                    "test/require/**/*.js",
                     "res/**/*.js",
                     "doc/*.js"
                 ]
