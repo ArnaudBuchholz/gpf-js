@@ -23,9 +23,12 @@
  * Identity converter, returns passed value
  *
  * @param {*} value The value to convert
+ * @param {gpf.typedef.serializableProperty} property Property definition
  * @return {*} value
  * @since 0.2.8
  */
-function _gpfSerialIdentityConverter (value) {
-    return value;
+function _gpfSerialIdentityConverter (value, property) {
+    if (!property.readOnly) {
+        return value;
+    }
 }
