@@ -9,10 +9,17 @@
 /*global _gpfSerialIdentityConverter*/ // Identity converter, returns passed value
 /*#endif*/
 
+function _gpfSerialRawToPropertyValue (result, member, value) {
+    if (value !== undefined) {
+        result[member] = value;
+    }
+}
+
 function _gpfSerialRawToProperties (instance, properties, converter) {
     var result = {};
     _gpfObjectForEach(properties, function (property, member) {
-        result[property.name] = converter.call(instance, instance[member], property, member);
+        _gpfSerialRawToPropertyValue(result, property.name,
+            converter.call(instance, instance[member], property, member));
     });
     return result;
 }
