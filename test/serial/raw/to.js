@@ -70,8 +70,7 @@ describe("serial/raw/to", function () {
         it("generates an object containing only the serializable properties", function () {
             var a = new A("id", "Test"),
                 raw = gpf.serial.toRaw(a);
-            assert(Object.keys(raw).length === 4);
-            assert(raw.id === "id");
+            assert(Object.keys(raw).length === 2);
             assert(raw.name === "Test");
         });
 
