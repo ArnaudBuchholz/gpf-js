@@ -22,6 +22,7 @@
   },
   "homepage": "http://gpf-js.blogspot.com/",
   "devDependencies": {
+    "babel-eslint": "^10.0.1",
     "colors": "^1.3.3",
     "coveralls": "^3.0.2",
     "d3-dependency-wheel": "^1.1.0",
