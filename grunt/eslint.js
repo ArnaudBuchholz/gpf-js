@@ -3,7 +3,8 @@
 module.exports = {
     options: {
         rulePaths: [".eslintrules"],
-        fix: true
+        fix: true,
+        quiet: true // do not show warnings
     },
     target: configuration.files.linting.js
 };
