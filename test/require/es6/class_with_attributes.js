@@ -1,16 +1,22 @@
-"use strict";
+const attribute = gpf.attributes.decorator;
+
+class Attribute extends gpf.attributes.Attribute {
+    get value () {
+        return 1;
+    }
+}
 
 class Test {
 
-	@gpf.attribute()
-	get id() {
-		return this._id;
-	}
+    @attribute(new Attribute())
+    get id () {
+        return this._id;
+    }
 
-	constructor() {
-		this._id = "ABC";
-	}
+    constructor () {
+        this._id = "ABC";
+    }
 
 }
 
-module.exports = Test;
+module.exports = {Attribute, Test};
