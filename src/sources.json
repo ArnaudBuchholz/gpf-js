@@ -550,5 +550,13 @@
     },
     {
         "name": "serial/raw/from"
+    },
+    {
+        "name": "define/class/import",
+        "test": false
+    },
+    {
+        "name": "attributes/decorator",
+        "test": false
     }
 ]
