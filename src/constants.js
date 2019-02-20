@@ -6,7 +6,6 @@
 "use strict";
 /*global _GpfFunc*/ // Function
 /*global _gpfAssert*/ // Assertion method
-/*global _gpfSyncReadSourceJSON*/ // Reads a source json file (only in source mode)
 /*exported _gpfALPHA*/ // Letters (uppercase)
 /*exported _gpfAlpha*/ // Letters (lowercase)
 /*exported _gpfCreateConstants*/ // Automate constants creation
@@ -16,7 +15,6 @@
 /*exported _gpfIdentifierOtherChars*/ // allowed other chars in an identifier
 /*exported _gpfIsUnsignedByte*/ // Check if the parameter is an unsigned byte
 /*exported _gpfJsCommentsRegExp*/ // Find all JavaScript comments
-/*exported _gpfJsKeywords*/ //  List of JavaScript keywords
 /*exported _gpfMax31*/ // Max value on 31 bits
 /*exported _gpfMax32*/ // Max value on 32 bits
 /*exported _gpfMaxUnsignedByte*/ // 255
@@ -64,12 +62,8 @@ var
     // List of allowed other chars in an identifier
     _gpfIdentifierOtherChars = _gpfAlpha + _gpfALPHA + _gpfDigit + "_$",
 
-    // List of JavaScript keywords
-    _gpfJsKeywords = _gpfSyncReadSourceJSON("javascript/keywords.json"),
-
     // Get the name of a function if bound to the call
-    _gpfJsCommentsRegExp = new RegExp("//.*$|/\\*(?:[^\\*]*|\\*[^/]*)\\*/", "gm")
-;
+    _gpfJsCommentsRegExp = new RegExp("//.*$|/\\*(?:[^\\*]*|\\*[^/]*)\\*/", "gm");
 
 // Unprotected version of _gpfFunc
 function _gpfFuncUnsafe (params, source) {
