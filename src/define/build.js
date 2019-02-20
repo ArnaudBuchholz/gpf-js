@@ -9,17 +9,18 @@
 /*global _gpfContext*/ // Resolve contextual string
 /*global _gpfEmptyFunc*/ // An empty function
 /*exported _gpfDefineGetEntityFromBuilder*/ // Retrieves entity definition from instance instance builder
+/*exported _gpfDefinedEntities*/ // Array of defined entities
 /*#endif*/
 
 /**
- * Array of defined entities.
+ * Array of defined entities
  * @type {_GpfEntityDefinition[]}
  * @since 0.2.4
  */
 var _gpfDefinedEntities = [];
 
 /**
- * Retrieves entity definition from instance instance builder.
+ * Retrieve entity definition from instance builder.
  * NOTE: This is an internal solution that has the advantage of not exposing the entity definitions.
  *       For performance reasons, this may change in the future.
  *
@@ -34,7 +35,7 @@ function _gpfDefineGetEntityFromBuilder (instanceBuilder) {
         }
     });
     if (!result) {
-        // Reversed lookup because the  level
+        // Reversed lookup because testing inheritance
         result = _gpfArrayForEachFalsy([].concat(_gpfDefinedEntities).reverse(), function (entityDefinition) {
             if (instanceBuilder.prototype instanceof entityDefinition.getInstanceBuilder()) {
                 return entityDefinition;
