@@ -8,7 +8,7 @@ class Attribute extends gpf.attributes.Attribute {
 
 class Test {
 
-    @attribute(new Attribute())
+    // @attribute(new Attribute())
     get id () {
         return this._id;
     }
@@ -18,5 +18,8 @@ class Test {
     }
 
 }
+
+// Until decorators are implemented, simulate manually
+attribute(new Attribute())(Test, "id");
 
 module.exports = {Attribute, Test};
