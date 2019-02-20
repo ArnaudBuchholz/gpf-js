@@ -22,25 +22,6 @@ describe("attributes.es6", function () {
         });
     });
 
-    if (gpf.internals) {
-
-        describe("(internal) _gpfRequireEs6DecoratorExtract", function () {
-            var _gpfRequireEs6DecoratorExtract = gpf.internals._gpfRequireEs6DecoratorExtract;
-
-            it("detects decorators", function () {
-                var decorators = _gpfRequireEs6DecoratorExtract([
-                    "class Test {",
-                    "  @decorator",
-                    "  constructor () {",
-                    "  }",
-                    "}"
-                ].join("\n"));
-                assert(decorators.length === 1);
-            });
-        });
-
-    }
-
     describe("Defining attributes on an ES6 class through gpf.require.define", function () {
 
         beforeEach(function () {
@@ -56,9 +37,9 @@ describe("attributes.es6", function () {
 
                 var
                     Attribute = require.classes.Attribute,
-                    Test = require.classes.Test;
+                    Test = require.classes.Test,
+                    attributes = gpf.attributes.get(Test);
 
-                var attributes = gpf.attributes.get(Test);
                 assert(Object.keys(attributes).length === 1);
                 assert(attributes.id.length === 1);
                 assert(attributes.id[0] instanceof Attribute);
