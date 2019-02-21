@@ -7,11 +7,19 @@
 /*global _GpfClassDefinition*/ // Class definition
 /*global _gpfDefClassAttrIsAttributeSpecification*/ // Check if member name is an attribute
 /*global _gpfDefineGetEntityFromBuilder*/ // Retrieves entity definition from instance instance builder
+/*exported _gpfDefClassAttrBuild*/ // _gpfDefClassAttrBuild
 /*#endif*/
 
 var _gpfDefClassAttrClassAddmemberToPrototype = _GpfClassDefinition.prototype._addMemberToPrototype,
     _gpfDefClassAttrClassBuildPrototype = _GpfClassDefinition.prototype._buildPrototype;
 
+/**
+ * Build attribute
+ *
+ * @param {String} member Member name
+ * @param {gpf.attributes.Attribute} attribute Attribute
+ * @param {Object} newPrototype Class prototype
+ */
 function _gpfDefClassAttrBuild (member, attribute, newPrototype) {
     /*jshint validthis:true*/
     var attributeEntityDefinition = _gpfDefineGetEntityFromBuilder(attribute.constructor);
