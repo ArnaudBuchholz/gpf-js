@@ -5,10 +5,28 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfClassDefinition*/ // Class definition
-/*global _gpfDefineGetEntityFromBuilder*/ // Retrieves entity definition from instance instance builder
 /*global _gpfDefinedEntities*/ // Array of defined entities
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfIsClass*/ // Check if the parameter is an ES6 class
 /*exported _gpfDefineClassImport*/ // Retrieves or import entity definition from instance builder
 /*#endif*/
+
+
+_gpfErrorDeclare("define/class/import", {
+
+    /**
+     * ### Summary
+     *
+     * ES6 class only
+     *
+     * ### Description
+     *
+     * This method can be used on ES6 class only
+     */
+    es6classOnly: "ES6 class only"
+
+});
+
 
 var _gpfDefineClassImported = {};
 
@@ -21,18 +39,16 @@ function _gpfDefineClassImportFrom (instanceBuilder) {
 }
 
 /**
- * Retrieves or import entity definition from instance builder.
- * NOTE: If not existing, an incomplete  _GpfEntityDefinition is created
+ * Import an ES6 class as an entity definition
  *
- * @param {Function} instanceBuilder Instance builder
- * @return {_GpfEntityDefinition} Entity definition (if found)
+ * @param {Function} instanceBuilder Instance builder (must be an ES6 class)
+ * @return {_GpfEntityDefinition} Entity definition
  * @since 0.2.9
  */
 
 function _gpfDefineClassImport (instanceBuilder) {
-    var entityDefinition = _gpfDefineGetEntityFromBuilder(instanceBuilder);
-    if (entityDefinition) {
-        return entityDefinition;
+    if (!_gpfIsClass(instanceBuilder)) {
+        gpf.Error.es6classOnly();
     }
     return _gpfDefineClassImportFrom(instanceBuilder);
 }
