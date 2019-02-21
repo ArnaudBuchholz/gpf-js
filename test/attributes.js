@@ -175,9 +175,3 @@ describe("attributes", function () {
     });
 
 });
-
-if (config.features.es6class) {
-
-    include("attributes.es6");
-
-}
