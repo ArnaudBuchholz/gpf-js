@@ -11,6 +11,7 @@
 /*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
 /*exported _GPF_DEFINE_CLASS_ATTRIBUTES_NAME*/ // $attributes
 /*exported _gpfDefClassAttrIsAttributeSpecification*/ // Check if member name is an attribute
+/*exported _gpfDefClassAttrCheck*/ // Check attribute
 /*#endif*/
 
 // Done as a feature 'on top' of normal class definition to be able to remove it easily
@@ -53,6 +54,13 @@ var _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION = "attributes",
     _gpfDefClassAttrClassCheck$Property = _GpfClassDefinition.prototype._check$Property,
     _gpfDefClassAttrClassCheck = _GpfClassDefinition.prototype.check;
 
+/**
+ * Check attribute
+ *
+ * @param {String} member Member name
+ * @param {gpf.attributes.Attribute} attribute Attribute
+ * @this {_GpfClassDefinition}
+ */
 function _gpfDefClassAttrCheck (member, attribute) {
     /*jshint validthis:true*/
     attribute._check(member, this); //eslint-disable-line no-invalid-this
