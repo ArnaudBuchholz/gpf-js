@@ -7,7 +7,8 @@
 /*global _gpfArraySlice*/ // [].slice.call
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfDefineClassImport*/ // Retrieves or import entity definition from instance builder
-/*global _gpfIgnore*/ // Helper to remove unused parameter warning
+/*global _gpfDefClassAttrCheck*/ // Check attribute
+/*global _gpfDefClassAttrBuild*/ // _gpfDefClassAttrBuild
 /*#endif*/
 
 /**
@@ -23,9 +24,13 @@ function _gpfAttributesDecorator () {
     return function (ClassConstructor, member/*, descriptor*/) {
         var entityDefinition = _gpfDefineClassImport(ClassConstructor);
         _gpfAssert(entityDefinition !== null, "Can't access the entity definition");
+        if (!entityDefinition._attributes[member]) {
+            entityDefinition._attributes[member] = [];
+        }
         attributes.forEach(function (attribute) {
-            // Add attribute
-            _gpfIgnore(ClassConstructor, member, attribute);
+            entityDefinition._attributes[member].push(attribute);
+            _gpfDefClassAttrCheck.call(entityDefinition, member, attribute);
+            _gpfDefClassAttrBuild(member, attribute, ClassConstructor.prototype);
         });
     };
 }
