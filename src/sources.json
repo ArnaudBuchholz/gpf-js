@@ -556,7 +556,6 @@
         "test": false
     },
     {
-        "name": "attributes/decorator",
-        "test": false
+        "name": "attributes/decorator"
     }
 ]
