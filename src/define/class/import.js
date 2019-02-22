@@ -33,10 +33,8 @@ var _gpfDefineClassImported = {};
 function _gpfDefineClassImportFrom (instanceBuilder) {
     var entityDefinition = new _GpfClassDefinition(_gpfDefineClassImported);
     entityDefinition._instanceBuilder = instanceBuilder;
+    entityDefinition._extend = undefined; // Unknown
     entityDefinition._attributes = {}; // TODO find a better way
-    entityDefinition._extend = { // TODO find a better way
-        prototype: Object.getPrototypeOf(instanceBuilder.prototype)
-    };
     _gpfDefinedEntities.push(entityDefinition);
     return entityDefinition;
 }
