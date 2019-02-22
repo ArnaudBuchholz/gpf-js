@@ -7,6 +7,7 @@
 /*global _GPF_DEFINE_CLASS_ATTRIBUTES_NAME*/ // $attributes
 /*global _gpfArrayTail*/ // [].slice.call(,1)
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfAssert*/
 /*exported _gpfAttributesCheckAppliedOnBaseClass*/ // Ensures attribute is applied on a specific base class
 /*exported _gpfAttributesCheckAppliedOnlyOnce*/ // Ensures attribute is used only once
 /*exported _gpfAttributesCheckClassOnly*/ // Ensures attribute is used only at class level
@@ -91,16 +92,24 @@ function _gpfAttributesCheckMemberOnly (member) {
     }
 }
 
-function _gpfAttributesCheckAppliedOnBaseClassIsExtendInstanceOf (Extend, ExpectedBaseClass) {
-    if (!(Extend.prototype instanceof ExpectedBaseClass)) {
+function _gpfAttributesCheckAppliedOnBaseClassIsInstanceOf (prototype, ExpectedBaseClass) {
+    if (!(prototype instanceof ExpectedBaseClass)) {
         gpf.Error.restrictedBaseClassAttribute();
     }
 }
 
 function _gpfAttributesCheckAppliedOnBaseClassWithExtend (Extend, ExpectedBaseClass) {
     if (Extend !== ExpectedBaseClass) {
-        _gpfAttributesCheckAppliedOnBaseClassIsExtendInstanceOf(Extend, ExpectedBaseClass);
+        _gpfAttributesCheckAppliedOnBaseClassIsInstanceOf(Extend.prototype, ExpectedBaseClass);
     }
+}
+
+function _gpfAttributesCheckAppliedOnBaseClassWithInstanceBuilder (classDefinition, ExpectedBaseClass) {
+    var Builder = classDefinition._instanceBuilder;
+    if (Builder) {
+        return _gpfAttributesCheckAppliedOnBaseClassIsInstanceOf(Builder.prototype, ExpectedBaseClass);
+    }
+    _gpfAssert(false, "_gpfAttributesCheckAppliedOnBaseClass can't be applied on this class definition");
 }
 
 /**
@@ -112,7 +121,13 @@ function _gpfAttributesCheckAppliedOnBaseClassWithExtend (Extend, ExpectedBaseCl
  * @since 0.2.8
  */
 function _gpfAttributesCheckAppliedOnBaseClass (classDefinition, ExpectedBaseClass) {
-    _gpfAttributesCheckAppliedOnBaseClassWithExtend(classDefinition._extend, ExpectedBaseClass);
+    // Rely on _extend rather than _instanceBuilder that may not be yet created
+    if (classDefinition._extend) {
+        _gpfAttributesCheckAppliedOnBaseClassWithExtend(classDefinition._extend, ExpectedBaseClass);
+    } else {
+        // Check if _instanceBuilder already exists (imported class)
+        _gpfAttributesCheckAppliedOnBaseClassWithInstanceBuilder(classDefinition, ExpectedBaseClass);
+    }
 }
 
 function _gpfAttributesCheckGetMemberAttributes (member, classDefinition, AttributeClass) {
