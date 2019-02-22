@@ -1,5 +1,5 @@
 /**
- * @file Class definition import
+ * @file ES6 Class definition import
  * @since 0.2.9
  */
 /*#ifndef(UMD)*/
@@ -34,6 +34,9 @@ function _gpfDefineClassImportFrom (instanceBuilder) {
     var entityDefinition = new _GpfClassDefinition(_gpfDefineClassImported);
     entityDefinition._instanceBuilder = instanceBuilder;
     entityDefinition._attributes = {}; // TODO find a better way
+    entityDefinition._extend = { // TODO find a better way
+        prototype: Object.getPrototypeOf(instanceBuilder.prototype)
+    };
     _gpfDefinedEntities.push(entityDefinition);
     return entityDefinition;
 }
