@@ -21,7 +21,7 @@ function _gpfAttributesDecoratorGetAttributesKeyFromMember (member) {
 function _gpfAttributesDecoratorProcessEachAttribute (entityDefinition, member, attributes) {
     attributes.forEach(function (attribute) {
         _gpfDefClassAttrCheck.call(entityDefinition, member, attribute);
-        _gpfDefClassAttrBuild(member, attribute, entityDefinition.getInstanceBuilder().prototype);
+        _gpfDefClassAttrBuild(member, attribute, entityDefinition._instanceBuilder.prototype);
     });
 }
 
