@@ -40,10 +40,13 @@ describe("attributes/decorator.es6", function () {
                     Test = require.classes.Test,
                     attributes = gpf.attributes.get(Test);
 
-                assert(Object.keys(attributes).length === 1);
+                assert(Object.keys(attributes).length === 2);
                 assert(attributes.id.length === 1);
                 assert(attributes.id[0] instanceof Attribute);
                 assert(attributes.id[0].value === 1);
+                assert(attributes.reset.length === 1);
+                assert(attributes.reset[0] instanceof Attribute);
+                assert(attributes.reset[0].value === 2);
 
                 done();
 
