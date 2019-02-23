@@ -189,6 +189,11 @@
         "tags": "define"
     },
     {
+      "name": "define/entities",
+      "test": false,
+      "tags": "define"
+    },
+    {
         "name": "define/check",
         "tags": "define"
     },
