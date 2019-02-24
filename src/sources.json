@@ -203,6 +203,10 @@
         "tags": "define"
     },
     {
+        "name": "define/class/import",
+        "test": false
+    },
+    {
         "name": "define/class/class",
         "test": false,
         "tags": "define"
@@ -555,10 +559,6 @@
     },
     {
         "name": "serial/raw/from"
-    },
-    {
-        "name": "define/class/import",
-        "test": false
     },
     {
         "name": "attributes/decorator"
