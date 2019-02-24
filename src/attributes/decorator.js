@@ -4,12 +4,29 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfIsClass*/ // Check if the parameter is an ES6 class
 /*global _gpfArraySlice*/ // [].slice.call
 /*global _gpfDefineClassImport*/ // Retrieves or import entity definition from instance builder
 /*global _gpfDefClassAttrCheck*/ // Check attribute
 /*global _gpfDefClassAttrBuild*/ // _gpfDefClassAttrBuild
 /*global _GPF_DEFINE_CLASS_ATTRIBUTES_NAME*/ // $attributes
 /*#endif*/
+
+_gpfErrorDeclare("attributes/decorator", {
+
+    /**
+     * ### Summary
+     *
+     * ES6 class only
+     *
+     * ### Description
+     *
+     * Decorators can be used on ES6 class only
+     */
+    es6classOnly: "ES6 class only"
+
+});
 
 function _gpfAttributesDecoratorGetAttributesKeyFromMember (member) {
     if (!member) {
@@ -42,6 +59,9 @@ function _gpfAttributesDecoratorAddAttributes (entityDefinition, member, attribu
 function _gpfAttributesDecorator () {
     var attributes = _gpfArraySlice(arguments);
     return function (ClassConstructor, member/*, descriptor*/) {
+        if (!_gpfIsClass(ClassConstructor)) {
+            gpf.Error.es6classOnly();
+        }
         _gpfAttributesDecoratorAddAttributes(_gpfDefineClassImport(ClassConstructor), member, attributes);
     };
 }
