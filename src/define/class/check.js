@@ -7,7 +7,7 @@
 /*global _GpfClassDefinition*/ // Class definition
 /*global _GpfEntityDefinition*/ // Entity definition
 /*global _gpfContext*/ // Resolve contextual string
-/*global _gpfDefineEntitiesFind*/ // Retrieves entity definition from instance instance builder
+/*global _gpfDefineClassImport*/
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*#endif*/
@@ -205,7 +205,7 @@ Object.assign(_GpfClassDefinition.prototype, {
         var extend = _gpfDefineClassDecontextifyExtend(this._initialDefinition.$extend);
         if (extend) {
             this._extend = extend;
-            this._extendDefinition = _gpfDefineEntitiesFind(extend);
+            this._extendDefinition = _gpfDefineClassImport(extend);
         }
     },
 
