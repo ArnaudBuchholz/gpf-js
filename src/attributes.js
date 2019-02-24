@@ -4,12 +4,12 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfDefineEntitiesFind*/ // Retrieves entity definition from instance instance builder
+/*global _gpfDefineEntitiesFindByConstructor*/ // Retrieve entity definition from Constructor
 /*exported _gpfAttributesGet*/ // Get attributes defined for the object / class
 /*#endif*/
 
 function _gpfAttributesGetFromClass (classConstructor, baseAttributeClass) {
-    var entityDefinition = _gpfDefineEntitiesFind(classConstructor);
+    var entityDefinition = _gpfDefineEntitiesFindByConstructor(classConstructor);
     if (entityDefinition) {
         return entityDefinition.getAttributes(baseAttributeClass);
     }
