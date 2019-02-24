@@ -5,9 +5,9 @@
 "use strict";
 /*global _GPF_START*/
 /*global _gpfAssert*/
-/*global _gpfArrayForEachFalsy*/ // _gpfArrayForEach that returns first truthy value computed by the callback
 /*exported _gpfDefineEntitiesAdd*/ // Store the entity definition to be retreived later
-/*exported _gpfDefineEntitiesFind*/ // Retrieves entity definition from instance instance builder
+/*exported _gpfDefineEntitiesFindByConstructor*/ // Retrieve entity definition from Constructor
+/*exported _gpfDefineEntitiesFindByProtoype*/ // Retrieve entity definition from prototype
 /*#endif*/
 
 /**
@@ -17,32 +17,33 @@
  */
 var _gpfDefinedEntities = [];
 
-function _gpfDefineEntitiesFindByMatchingBuilder (instanceBuilder) {
+/**
+ * Retrieve entity definition from Constructor.
+ * NOTE: This is an internal solution that has the advantage of not exposing the entity definitions.
+ *       For performance reasons, this may change in the future.
+ *
+ * @param {Function} Constructor Constructor function
+ * @return {_GpfEntityDefinition|undefined} Entity definition (if found)
+ */
+function _gpfDefineEntitiesFindByConstructor (Constructor) {
     return _gpfDefinedEntities.filter(function (entityDefinition) {
-        return entityDefinition.getInstanceBuilder() === instanceBuilder;
+        return entityDefinition.getInstanceBuilder() === Constructor;
     })[_GPF_START];
 }
 
 /**
- * Retrieve entity definition from instance builder.
+ * Retrieve entity definition from prototype.
  * NOTE: This is an internal solution that has the advantage of not exposing the entity definitions.
  *       For performance reasons, this may change in the future.
  *
- * @param {Function} instanceBuilder Instance builder
+ * @param {Object} prototype Prototype
  * @return {_GpfEntityDefinition|undefined} Entity definition (if found)
- * @since 0.2.4
  */
-function _gpfDefineEntitiesFind (instanceBuilder) {
-    var result = _gpfDefineEntitiesFindByMatchingBuilder(instanceBuilder);
-    if (!result) {
-        // Reversed lookup because testing inheritance
-        result = _gpfArrayForEachFalsy([].concat(_gpfDefinedEntities).reverse(), function (entityDefinition) {
-            if (instanceBuilder.prototype instanceof entityDefinition.getInstanceBuilder()) {
-                return entityDefinition;
-            }
-        });
-    }
-    return result;
+//     var prototype = Object.getPrototypeOf(instanceBuilder.prototype);
+function _gpfDefineEntitiesFindByProtoype (prototype) {
+    return _gpfDefinedEntities.filter(function (entityDefinition) {
+        return entityDefinition.getInstanceBuilder().prototype === prototype;
+    })[_GPF_START];
 }
 
 /**
@@ -52,6 +53,6 @@ function _gpfDefineEntitiesFind (instanceBuilder) {
  */
 function _gpfDefineEntitiesAdd (entityDefinition) {
     _gpfAssert(entityDefinition._instanceBuilder !== null, "Instance builder must be set");
-    _gpfAssert(!_gpfDefineEntitiesFindByMatchingBuilder(entityDefinition.getInstanceBuilder()), "Already added");
+    _gpfAssert(!_gpfDefineEntitiesFindByConstructor(entityDefinition.getInstanceBuilder()), "Already added");
     _gpfDefinedEntities.push(entityDefinition);
 }
