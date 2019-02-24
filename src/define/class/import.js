@@ -5,35 +5,20 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfClassDefinition*/ // Class definition
-/*global _gpfDefinedEntities*/ // Array of defined entities
+/*global _gpfDefineEntitiesFindByMatchingBuilder*/
+/*global _gpfDefineEntitiesAdd*/
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfIsClass*/ // Check if the parameter is an ES6 class
-/*exported _gpfDefineClassImport*/ // Retrieves or import entity definition from instance builder
+/*global _gpfDefineEntitiesFindByConstructor*/ // Retrieve entity definition from Constructor
 /*#endif*/
-
-
-_gpfErrorDeclare("define/class/import", {
-
-    /**
-     * ### Summary
-     *
-     * ES6 class only
-     *
-     * ### Description
-     *
-     * This method can be used on ES6 class only
-     */
-    es6classOnly: "ES6 class only"
-
-});
-
 
 var _gpfDefineClassImported = {};
 
 function _gpfDefineClassImportFrom (instanceBuilder) {
     var entityDefinition = new _GpfClassDefinition(_gpfDefineClassImported);
     entityDefinition._instanceBuilder = instanceBuilder;
-    entityDefinition._extend = undefined; // Unknown
+    var extendPrototype = Object.getPrototypeOf(instanceBuilder.prototype);
+    entityDefinition._extend = extendPrototype.constructor;
+    entityDefinition._extendDefinition = _gpfDefineClassImport(extendPrototype.constructor);
     entityDefinition._attributes = {}; // TODO find a better way
     _gpfDefinedEntities.push(entityDefinition);
     return entityDefinition;
@@ -48,8 +33,9 @@ function _gpfDefineClassImportFrom (instanceBuilder) {
  */
 
 function _gpfDefineClassImport (instanceBuilder) {
-    if (!_gpfIsClass(instanceBuilder)) {
-        gpf.Error.es6classOnly();
+    var entityDefinition = _gpfDefineEntitiesFindByConstructor(instanceBuilder);
+    if (entityDefinition) {
+        return entityDefinition;
     }
     return _gpfDefineClassImportFrom(instanceBuilder);
 }
