@@ -159,9 +159,9 @@ sources.forEach(source => {
     try {
         module.analyze();
     } catch (e) {
-        console.error(`An error occurred while processing ${source}`);
+        module.error(e.toString());
         console.error(e);
-        process.exit(-1);
+        process.exit(-errorCount);
     }
 });
 
