@@ -7,7 +7,7 @@
 /*global _GpfClassDefinition*/ // Class definition
 /*global _GpfEntityDefinition*/ // Entity definition
 /*global _gpfContext*/ // Resolve contextual string
-/*global _gpfDefineClassImport*/
+/*global _gpfDefineClassImport*/ // Import a class as an entity definition
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*#endif*/
