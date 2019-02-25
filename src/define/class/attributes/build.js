@@ -6,7 +6,7 @@
 "use strict";
 /*global _GpfClassDefinition*/ // Class definition
 /*global _gpfDefClassAttrIsAttributeSpecification*/ // Check if member name is an attribute
-/*global _gpfDefineEntitiesFindByConstructor*/ // Retrieves entity definition from instance instance builder
+/*global _gpfDefineEntitiesFindByConstructor*/ // Retrieve entity definition from Constructor
 /*exported _gpfDefClassAttrBuild*/ // _gpfDefClassAttrBuild
 /*#endif*/
 
@@ -19,6 +19,7 @@ var _gpfDefClassAttrClassAddmemberToPrototype = _GpfClassDefinition.prototype._a
  * @param {String} member Member name
  * @param {gpf.attributes.Attribute} attribute Attribute
  * @param {Object} newPrototype Class prototype
+ * @since 0.2.9
  */
 function _gpfDefClassAttrBuild (member, attribute, newPrototype) {
     /*jshint validthis:true*/
