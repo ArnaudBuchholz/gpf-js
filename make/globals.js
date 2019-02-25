@@ -156,7 +156,13 @@ Module.byExport = {};
 // Collect information
 sources.forEach(source => {
     let module = new Module(source);
-    module.analyze();
+    try {
+        module.analyze();
+    } catch (e) {
+        console.error(`An error occurred while processing ${source}`);
+        console.error(e);
+        process.exit(-1);
+    }
 });
 
 // Rebuild - if necessary
