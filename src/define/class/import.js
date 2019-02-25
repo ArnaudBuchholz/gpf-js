@@ -5,27 +5,32 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfClassDefinition*/ // Class definition
-/*global _gpfDefineEntitiesFindByMatchingBuilder*/
 /*global _gpfDefineEntitiesAdd*/
-/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfDefineEntitiesFindByConstructor*/ // Retrieve entity definition from Constructor
+/*exported _gpfDefineClassImported*/
+/*exported _gpfDefineClassImport*/ // Import a class as an entity definition
 /*#endif*/
 
 var _gpfDefineClassImported = {};
 
-function _gpfDefineClassImportFrom (instanceBuilder) {
-    var entityDefinition = new _GpfClassDefinition(_gpfDefineClassImported);
-    entityDefinition._instanceBuilder = instanceBuilder;
+function _gpfDefineClassImportGetDictionary (instanceBuilder) {
     var extendPrototype = Object.getPrototypeOf(instanceBuilder.prototype);
-    entityDefinition._extend = extendPrototype.constructor;
-    entityDefinition._extendDefinition = _gpfDefineClassImport(extendPrototype.constructor);
-    entityDefinition._attributes = {}; // TODO find a better way
-    _gpfDefinedEntities.push(entityDefinition);
+    return Object.assign(Object.create(_gpfDefineClassImported), {
+        $name: instanceBuilder.compatibleName(),
+        $extend: extendPrototype.constructor
+    });
+}
+
+function _gpfDefineClassImportFrom (instanceBuilder) {
+    var entityDefinition = new _GpfClassDefinition(_gpfDefineClassImportGetDictionary(instanceBuilder));
+    entityDefinition._instanceBuilder = instanceBuilder;
+    _gpfDefineEntitiesAdd(entityDefinition);
+    entityDefinition.check();
     return entityDefinition;
 }
 
 /**
- * Import an ES6 class as an entity definition
+ * Import a class as an entity definition
  *
  * @param {Function} instanceBuilder Instance builder (must be an ES6 class)
  * @return {_GpfEntityDefinition} Entity definition
