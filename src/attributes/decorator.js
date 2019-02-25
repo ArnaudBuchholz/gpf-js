@@ -4,13 +4,13 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_DEFINE_CLASS_ATTRIBUTES_NAME*/ // $attributes
+/*global _gpfArraySlice*/ // [].slice.call
+/*global _gpfDefClassAttrBuild*/ // _gpfDefClassAttrBuild
+/*global _gpfDefClassAttrCheck*/ // Check attribute
+/*global _gpfDefineClassImport*/ // Import a class as an entity definition
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfIsClass*/ // Check if the parameter is an ES6 class
-/*global _gpfArraySlice*/ // [].slice.call
-/*global _gpfDefineClassImport*/ // Retrieves or import entity definition from instance builder
-/*global _gpfDefClassAttrCheck*/ // Check attribute
-/*global _gpfDefClassAttrBuild*/ // _gpfDefClassAttrBuild
-/*global _GPF_DEFINE_CLASS_ATTRIBUTES_NAME*/ // $attributes
 /*#endif*/
 
 _gpfErrorDeclare("attributes/decorator", {
@@ -23,6 +23,7 @@ _gpfErrorDeclare("attributes/decorator", {
      * ### Description
      *
      * Decorators can be used on ES6 class only
+     * @since 0.2.9
      */
     es6classOnly: "ES6 class only"
 
