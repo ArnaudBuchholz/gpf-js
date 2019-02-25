@@ -231,6 +231,10 @@
         "tags": "define"
     },
     {
+        "name": "define/class/object",
+        "test": false
+    },
+    {
         "name": "define/class/abstract"
     },
     {
