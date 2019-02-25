@@ -172,6 +172,10 @@
         "error",
         "function"
     ],
+    "define/entities": [
+        "boot",
+        "assert"
+    ],
     "define/check": [
         "define/entity",
         "abstract",
@@ -182,9 +186,13 @@
     ],
     "define/build": [
         "define/entity",
-        "foreach",
         "context",
+        "define/entities",
         "boot"
+    ],
+    "define/class/import": [
+        "define/class/class",
+        "define/entities"
     ],
     "define/class/class": [
         "define/entity",
@@ -194,7 +202,7 @@
         "define/class/class",
         "define/entity",
         "context",
-        "define/build",
+        "define/class/import",
         "boot",
         "error"
     ],
@@ -215,6 +223,11 @@
         "define/class/class",
         "define/class/constructor",
         "foreach"
+    ],
+    "define/class/object": [
+        "define/class/class",
+        "define/class/import",
+        "define/entities"
     ],
     "define/class/abstract": [
         "define/class/class",
@@ -506,7 +519,7 @@
     "define/class/attributes/build": [
         "define/class/class",
         "define/class/attributes/check",
-        "define/build"
+        "define/entities"
     ],
     "define/class/attributes/consolidate": [
         "define/class/attributes/check",
@@ -514,7 +527,7 @@
         "foreach"
     ],
     "attributes": [
-        "define/build"
+        "define/entities"
     ],
     "stream/operator": [
         "abstract",
@@ -617,5 +630,13 @@
         "foreach",
         "serial/get",
         "serial/converter"
+    ],
+    "attributes/decorator": [
+        "define/class/attributes/check",
+        "arraylike",
+        "define/class/attributes/build",
+        "define/class/import",
+        "error",
+        "isclass"
     ]
 }
