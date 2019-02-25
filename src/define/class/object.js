@@ -1,11 +1,12 @@
 /**
  * @file Object Class definition
+ * @since 0.2.9
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfClassDefinition*/ // Class definition
-/*global _gpfDefineEntitiesAdd*/
-/*global _gpfDefineClassImported*/
+/*global _gpfDefineClassImported*/ // Base dictionary for all imported classes
+/*global _gpfDefineEntitiesAdd*/ // Store the entity definition to be retreived later
 /*#endif*/
 
 function _gpfDefineClassObjectGetDictionary () {
