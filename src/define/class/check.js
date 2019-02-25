@@ -205,7 +205,6 @@ Object.assign(_GpfClassDefinition.prototype, {
         var extend = _gpfDefineClassDecontextifyExtend(this._initialDefinition.$extend);
         if (extend) {
             this._extend = extend;
-            this._extendDefinition = _gpfDefineClassImport(extend);
         }
     },
 
@@ -241,6 +240,7 @@ Object.assign(_GpfClassDefinition.prototype, {
     check: function () {
         this._readExtend();
         this._checkExtend();
+        this._extendDefinition = _gpfDefineClassImport(this._extend);
         _GpfEntityDefinition.prototype.check.call(this);
     }
 
