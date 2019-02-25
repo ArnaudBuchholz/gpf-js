@@ -6,7 +6,7 @@
 "use strict";
 /*global _GpfEntityDefinition*/ // Entity definition
 /*global _gpfContext*/ // Resolve contextual string
-/*global_gpfDefineEntitiesAdd*/
+/*global _gpfDefineEntitiesAdd*/ // Store the entity definition to be retreived later
 /*global _gpfEmptyFunc*/ // An empty function
 /*#endif*/
 
