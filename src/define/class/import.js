@@ -5,10 +5,10 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GpfClassDefinition*/ // Class definition
-/*global _gpfDefineEntitiesAdd*/
+/*global _gpfDefineEntitiesAdd*/ // Store the entity definition to be retreived later
 /*global _gpfDefineEntitiesFindByConstructor*/ // Retrieve entity definition from Constructor
-/*exported _gpfDefineClassImported*/
 /*exported _gpfDefineClassImport*/ // Import a class as an entity definition
+/*exported _gpfDefineClassImported*/ // Base dictionary for all imported classes
 /*#endif*/
 
 var _gpfDefineClassImported = {};
