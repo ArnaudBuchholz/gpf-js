@@ -1,13 +1,13 @@
 /**
  * @file Entities list management
+ * @since 0.2.9
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_START*/
-/*global _gpfAssert*/
+/*global _GPF_START*/ // 0
+/*global _gpfAssert*/ // Assertion method
 /*exported _gpfDefineEntitiesAdd*/ // Store the entity definition to be retreived later
 /*exported _gpfDefineEntitiesFindByConstructor*/ // Retrieve entity definition from Constructor
-/*exported _gpfDefineEntitiesFindByProtoype*/ // Retrieve entity definition from prototype
 /*#endif*/
 
 /**
@@ -24,6 +24,7 @@ var _gpfDefinedEntities = [];
  *
  * @param {Function} Constructor Constructor function
  * @return {_GpfEntityDefinition|undefined} Entity definition (if found)
+ * @since 0.2.9
  */
 function _gpfDefineEntitiesFindByConstructor (Constructor) {
     return _gpfDefinedEntities.filter(function (entityDefinition) {
@@ -32,24 +33,10 @@ function _gpfDefineEntitiesFindByConstructor (Constructor) {
 }
 
 /**
- * Retrieve entity definition from prototype.
- * NOTE: This is an internal solution that has the advantage of not exposing the entity definitions.
- *       For performance reasons, this may change in the future.
- *
- * @param {Object} prototype Prototype
- * @return {_GpfEntityDefinition|undefined} Entity definition (if found)
- */
-//     var prototype = Object.getPrototypeOf(instanceBuilder.prototype);
-function _gpfDefineEntitiesFindByProtoype (prototype) {
-    return _gpfDefinedEntities.filter(function (entityDefinition) {
-        return entityDefinition.getInstanceBuilder().prototype === prototype;
-    })[_GPF_START];
-}
-
-/**
  * Store the entity definition to be retreived later
  *
  * @param  {_GpfEntityDefinition} entityDefinition Entity definition
+ * @since 0.2.9
  */
 function _gpfDefineEntitiesAdd (entityDefinition) {
     _gpfAssert(entityDefinition._instanceBuilder !== null, "Instance builder must be set");
