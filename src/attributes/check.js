@@ -7,7 +7,6 @@
 /*global _GPF_DEFINE_CLASS_ATTRIBUTES_NAME*/ // $attributes
 /*global _gpfArrayTail*/ // [].slice.call(,1)
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfAssert*/
 /*exported _gpfAttributesCheckAppliedOnBaseClass*/ // Ensures attribute is applied on a specific base class
 /*exported _gpfAttributesCheckAppliedOnlyOnce*/ // Ensures attribute is used only once
 /*exported _gpfAttributesCheckClassOnly*/ // Ensures attribute is used only at class level
@@ -98,20 +97,6 @@ function _gpfAttributesCheckAppliedOnBaseClassIsInstanceOf (prototype, ExpectedB
     }
 }
 
-function _gpfAttributesCheckAppliedOnBaseClassWithExtend (Extend, ExpectedBaseClass) {
-    if (Extend !== ExpectedBaseClass) {
-        _gpfAttributesCheckAppliedOnBaseClassIsInstanceOf(Extend.prototype, ExpectedBaseClass);
-    }
-}
-
-function _gpfAttributesCheckAppliedOnBaseClassWithInstanceBuilder (classDefinition, ExpectedBaseClass) {
-    var Builder = classDefinition._instanceBuilder;
-    if (Builder) {
-        return _gpfAttributesCheckAppliedOnBaseClassIsInstanceOf(Builder.prototype, ExpectedBaseClass);
-    }
-    _gpfAssert(false, "_gpfAttributesCheckAppliedOnBaseClass can't be applied on this class definition");
-}
-
 /**
  * Ensures attribute is applied on a specific base class
  *
@@ -121,12 +106,9 @@ function _gpfAttributesCheckAppliedOnBaseClassWithInstanceBuilder (classDefiniti
  * @since 0.2.8
  */
 function _gpfAttributesCheckAppliedOnBaseClass (classDefinition, ExpectedBaseClass) {
-    // Rely on _extend rather than _instanceBuilder that may not be yet created
-    if (classDefinition._extend) {
-        _gpfAttributesCheckAppliedOnBaseClassWithExtend(classDefinition._extend, ExpectedBaseClass);
-    } else {
-        // Check if _instanceBuilder already exists (imported class)
-        _gpfAttributesCheckAppliedOnBaseClassWithInstanceBuilder(classDefinition, ExpectedBaseClass);
+    var Extend = classDefinition._extend;
+    if (Extend !== ExpectedBaseClass) {
+        _gpfAttributesCheckAppliedOnBaseClassIsInstanceOf(Extend.prototype, ExpectedBaseClass);
     }
 }
 
