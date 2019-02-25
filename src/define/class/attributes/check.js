@@ -10,8 +10,8 @@
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfIsArrayLike*/ // Return true if the parameter looks like an array
 /*exported _GPF_DEFINE_CLASS_ATTRIBUTES_NAME*/ // $attributes
-/*exported _gpfDefClassAttrIsAttributeSpecification*/ // Check if member name is an attribute
 /*exported _gpfDefClassAttrCheck*/ // Check attribute
+/*exported _gpfDefClassAttrIsAttributeSpecification*/ // Check if member name is an attribute
 /*#endif*/
 
 // Done as a feature 'on top' of normal class definition to be able to remove it easily
@@ -60,6 +60,7 @@ var _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION = "attributes",
  * @param {String} member Member name
  * @param {gpf.attributes.Attribute} attribute Attribute
  * @this {_GpfClassDefinition}
+ * @since 0.2.9
  */
 function _gpfDefClassAttrCheck (member, attribute) {
     /*jshint validthis:true*/
