@@ -214,7 +214,7 @@ const
     },
 
     reErrorDeclare = /_gpfErrorDeclare\("([^"]+)", {\n((?:[^}]|}[^)]|\n)*)\s*}\)/g,
-    reErrorItems = /(?:\/\*\*((?:[^*]|\s|\*[^/])*)\*\/)?\s*([a-zA-Z$]+):\s*"([^"]*)"/g,
+    reErrorItems = /(?:\/\*\*((?:[^*]|\s|\*[^/])*)\*\/)?\s*([a-zA-Z$0-9]+):\s*"([^"]*)"/g,
     errorParam = " * @param {Object} context Dictionary of parameters used to format the message, must contain",
 
     generateJsDocForError = (name, message, comment) => {
@@ -334,7 +334,7 @@ module.exports = {
             checkForGpfErrorDeclare(event);
             checkForGpfDefine(event);
             checkForPrototypeAssign(event);
-            trace(`>> beforeParse(${relativeFilename(event.filename)})`);
+            trace(`<< beforeParse(${relativeFilename(event.filename)})`);
         },
 
         processingComplete: event => {
