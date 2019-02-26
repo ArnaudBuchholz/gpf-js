@@ -224,10 +224,11 @@
         "define/class/constructor",
         "foreach"
     ],
-    "define/class/object": [
+    "define/class/standard": [
         "define/class/class",
         "define/class/import",
-        "define/entities"
+        "define/entities",
+        "foreach"
     ],
     "define/class/abstract": [
         "define/class/class",
