@@ -231,7 +231,7 @@
         "tags": "define"
     },
     {
-        "name": "define/class/object",
+        "name": "define/class/standard",
         "test": false
     },
     {
