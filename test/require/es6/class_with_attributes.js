@@ -31,9 +31,19 @@ class Test {
 
 }
 
-module.exports = {Attribute, Test};
+class SubclassOfTest extends Test {
+
+    // @attribute(new Attribute(3))
+    reset () {
+        super.reset();
+    }
+
+}
+
+module.exports = {Attribute, Test, SubclassOfTest};
 
 // Until decorators are implemented, simulate manually
 attribute(new gpf.attributes.MemberAttribute())(Attribute);
 attribute(new Attribute(1))(Test, "id");
 attribute(new Attribute(2))(Test, "reset");
+attribute(new Attribute(3))(SubclassOfTest, "reset");
