@@ -2,21 +2,9 @@
 
 describe("require", function () {
 
-    var basePath;
+    var basePath = config.testPath + "require";
 
     before(function () {
-        if (gpf.host() === gpf.hosts.browser) {
-            if (config.httpPort === 0) {
-                // published version
-                basePath = "/gpf/test-resources/require";
-            } else {
-                // local version
-                basePath = "/test/require";
-            }
-        } else {
-            // Execution path is always the root folder of the project
-            basePath = "test/require";
-        }
         gpf.require.configure({
             base: basePath
         });
@@ -81,26 +69,16 @@ describe("require", function () {
                 gpf.require.define({
                     data: "data.json"
                 }, function (require) {
-                    try {
-                        validateData(require.data);
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                }).then(undefined, done);
+                    validateData(require.data);
+                }).then(done, done);
             });
 
             it("supports CommonJS format (static requires)", function (done) {
                 gpf.require.define({
                     commonjs: "commonjs.js"
                 }, function (require) {
-                    try {
-                        validateModule(require.commonjs, "commonjs", true);
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                }).then(undefined, done);
+                    validateModule(require.commonjs, "commonjs", true);
+                }).then(done, done);
             });
 
             it("doesn't supports CommonJS format with static and dynamic requires", function (done) {
@@ -109,26 +87,16 @@ describe("require", function () {
                 }).then(function () {
                     done(new Error("Should not happen"));
                 }, function (reason) {
-                    try {
-                        assert(reason instanceof gpf.Error.NoCommonJSDynamicRequire);
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                });
+                    assert(reason instanceof gpf.Error.NoCommonJSDynamicRequire);
+                }).then(done, done);
             });
 
             it("supports independant CommonJS format (no require)", function (done) {
                 gpf.require.define({
                     commonjs: "indep_commonjs.js"
                 }, function (require) {
-                    try {
-                        validateModule(require.commonjs, "indep_commonjs", true);
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                }).then(undefined, done);
+                    validateModule(require.commonjs, "indep_commonjs", true);
+                }).then(done, done);
             });
 
             it("doesn't supports CommonJS format with only dynamic requires", function (done) {
@@ -137,80 +105,50 @@ describe("require", function () {
                 }).then(function () {
                     done(new Error("Should not happen"));
                 }, function (reason) {
-                    try {
-                        assert(reason instanceof gpf.Error.NoCommonJSDynamicRequire);
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                });
+                    assert(reason instanceof gpf.Error.NoCommonJSDynamicRequire);
+                }).then(done, done);
             });
 
             it("supports AMD format (named with factory)", function (done) {
                 gpf.require.define({
                     amd: "amd.js"
                 }, function (require) {
-                    try {
-                        validateModule(require.amd, "amd", true);
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                }).then(undefined, done);
+                    validateModule(require.amd, "amd", true);
+                }).then(done, done);
             });
 
             it("supports AMD format (no name)", function (done) {
                 gpf.require.define({
                     amd: "anonymous_amd.js"
                 }, function (require) {
-                    try {
-                        validateModule(require.amd, "amd", false);
-                        assert(require.amd.name === "");
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                }).then(undefined, done);
+                    validateModule(require.amd, "amd", false);
+                    assert(require.amd.name === "");
+                }).then(done, done);
             });
 
             it("supports AMD format (anonymous static)", function (done) {
                 gpf.require.define({
                     amd: "static_amd.js"
                 }, function (require) {
-                    try {
-                        validateModule(require.amd, "amd", false);
-                        assert(require.amd.name === "static");
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                }).then(undefined, done);
+                    validateModule(require.amd, "amd", false);
+                    assert(require.amd.name === "static");
+                }).then(done, done);
             });
 
             it("supports GPF modules (gpf is defined)", function (done) {
                 gpf.require.define({
                     gpf: "gpf.js"
                 }, function (require) {
-                    try {
-                        validateModule(require.gpf, "gpf", true);
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                }).then(undefined, done);
+                    validateModule(require.gpf, "gpf", true);
+                }).then(done, done);
             });
 
             it("supports GPF modules without constant value", function (done) {
                 gpf.require.define({
                     constants: "constants.js"
                 }, function (require) {
-                    try {
-                        assert(require.constants.hello === "World!");
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                }).then(undefined, done);
+                    assert(require.constants.hello === "World!");
+                }).then(done, done);
             });
 
             it("supports JavaScript file (no result)", function (done) {
@@ -221,26 +159,18 @@ describe("require", function () {
                     try {
                         assert(require.js === undefined);
                         assert(gpf.context().test.empty);
-                        done();
-                    } catch (e) {
-                        done(e);
                     } finally {
                         delete gpf.context().test;
                     }
-                }).then(undefined, done);
+                }).then(done, done);
             });
 
             it("supports text file (no processor)", function (done) {
                 gpf.require.define({
                     text: "../data/folder/hello world.txt"
                 }, function (require) {
-                    try {
-                        assert(require.text === "hello world\n");
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                }).then(undefined, done);
+                    assert(require.text === "hello world\n");
+                }).then(done, done);
             });
 
         });
@@ -257,16 +187,11 @@ describe("require", function () {
                 gpf.require.define({
                     all: "folder/all.js"
                 }, function (require) {
-                    try {
-                        validateModule(require.all.amd, "amd", true);
-                        validateModule(require.all.commonjs, "commonjs", true);
-                        validateData(require.all.data);
-                        validateModule(require.all.gpf, "gpf", true);
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                });
+                    validateModule(require.all.amd, "amd", true);
+                    validateModule(require.all.commonjs, "commonjs", true);
+                    validateData(require.all.data);
+                    validateModule(require.all.gpf, "gpf", true);
+                }).then(done, done);
             });
 
         });
@@ -279,14 +204,9 @@ describe("require", function () {
                 }).then(function () {
                     done(new Error("Should not happen"));
                 }, function (reason) {
-                    try {
-                        assert(reason instanceof Error);
-                        assert(reason.message !== "Should not happen");
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                });
+                    assert(reason instanceof Error);
+                    assert(reason.message !== "Should not happen");
+                }).then(done, done);
             });
 
             it("fails if one javascript resource fails", function (done) {
@@ -295,14 +215,9 @@ describe("require", function () {
                 }).then(function () {
                     done(new Error("Should not happen"));
                 }, function (reason) {
-                    try {
-                        assert(reason instanceof Error);
-                        assert(reason.message === "FAIL!");
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                });
+                    assert(reason instanceof Error);
+                    assert(reason.message === "FAIL!");
+                }).then(done, done);
             });
 
         });
@@ -324,26 +239,16 @@ describe("require", function () {
                 gpf.require.define({
                     data: "data.json"
                 }, function (require) {
-                    try {
-                        require.data.additional = additional;
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                });
+                    require.data.additional = additional;
+                }).then(done, done);
             });
 
             it("keeps modified objects", function (done) {
                 gpf.require.define({
                     data: "data.json"
                 }, function (require) {
-                    try {
-                        assert(additional === require.data.additional);
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                });
+                    assert(additional === require.data.additional);
+                }).then(done, done);
             });
 
         });
@@ -365,13 +270,8 @@ describe("require", function () {
                 gpf.require.define({
                     data: "data.json"
                 }, function (require) {
-                    try {
-                        assert(mocked === require.data);
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                });
+                    assert(mocked === require.data);
+                }).then(done, done);
             });
 
         });
@@ -391,13 +291,8 @@ describe("require", function () {
                 }).then(function () {
                     return Promise.reject(0);
                 })["catch"](function (reason) {
-                    try {
-                        _checkRequires(reason, 0, "require/notFound.json");
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                });
+                    _checkRequires(reason, 0, "require/notFound.json");
+                }).then(done, done);
             });
 
             it("documents the failing resource name (error in javascript)", function (done) {
@@ -406,13 +301,8 @@ describe("require", function () {
                 }).then(function () {
                     return Promise.reject(0);
                 })["catch"](function (reason) {
-                    try {
-                        _checkRequires(reason, 0, "require/syntax_error.js");
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                });
+                    _checkRequires(reason, 0, "require/syntax_error.js");
+                }).then(done, done);
             });
 
             it("documents the loading stack", function (done) {
@@ -491,15 +381,38 @@ describe("require", function () {
             gpf.require.define({
                 result: "preload/test.js"
             }, function (require) {
-                try {
-                    assert(require.result === "Hello World!");
-                    done();
-                } catch (e) {
-                    done(e);
-                }
-            });
+                assert(require.result === "Hello World!");
+
+            }).then(done, done);
         });
 
     });
+
+    /*
+    describe("preprocessing", function () {
+
+        it("allows on the fly modification of a resource", function (done) {
+            gpf.require.configure({
+                clearCache: true,
+                base: "",
+                preprocess: function (resource) {
+                    if (resource.name.endsWith("preprocess.ext")) {
+                        assert(resource.content.startsWith("WILL BE REPLACED"));
+                        assert(resource.type === ".ext");
+                        resource.content = "module.exports = 'Hello World!';";
+                        resource.type = ".js";
+                    }
+                }
+            });
+
+            gpf.require.define({
+                result: "preprocess.ext"
+            }, function (require) {
+                assert(require.result === "Hello World!");
+            }).then(done, done);
+        });
+
+    });
+*/
 
 });
