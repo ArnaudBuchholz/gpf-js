@@ -2,22 +2,7 @@
 
 describe("read", function () {
 
-    var data;
-
-    before(function () {
-        if (gpf.host() === gpf.hosts.browser) {
-            if (config.httpPort === 0) {
-                // published version
-                data = "/gpf/test-resources/data";
-            } else {
-                // local version
-                data = "/test/data";
-            }
-        } else {
-            // Execution path is always the root folder of the project
-            data = "test/data";
-        }
-    });
+    var data = config.testPath + "data";
 
     describe("gpf.read", function () {
 
