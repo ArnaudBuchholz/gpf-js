@@ -223,7 +223,8 @@
         _setupConfig = function (configuration) {
             var configFile = JSON.parse(configuration.read(_resolvePath(configuration, "tmp/config.json")));
             context.config = Object.assign({
-                httpPort: configFile.serve.httpPort
+                httpPort: configFile.serve.httpPort,
+                testPath: "test/"
             }, configuration.config);
             _load(configuration, _resolvePath(configuration, "test/host/features.js"));
             _setupInclude(configuration);
