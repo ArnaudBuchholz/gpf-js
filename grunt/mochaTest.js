@@ -11,6 +11,7 @@ const
         global.assert = require("assert");
         global.config = {
             httpPort: configuration.serve.httpPort,
+            testPath: "test/",
             timerResolution: 5
         };
         global.include = source => require(`../test/${source}.js`);
