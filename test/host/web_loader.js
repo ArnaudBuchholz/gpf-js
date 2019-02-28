@@ -243,6 +243,7 @@
         _setupConfig = function () {
             window.config = {};
             config.httpPort = parseInt(location.port, 10);
+            config.testPath = "/test/";
             var msie = (/(msie|trident)/i).test(navigator.userAgent);
             if (msie) {
                 config.timerResolution = 5; // Found out that this is the only way to safely run tests
