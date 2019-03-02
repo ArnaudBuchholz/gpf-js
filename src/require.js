@@ -39,11 +39,28 @@ _gpfErrorDeclare("require", {
  */
 
 /**
+  * @typedef gpf.typedef.requireResource
+  * @property {String} name Resource resolved name
+  * @property {String} content Resource content
+  * @property {String} type Resource type
+  */
+
+/**
+   * Mocked response callback
+   *
+   * @callback gpf.typedef.requirePreprocessFunc
+   *
+   * @param {gpf.typedef.requireResource} resource Resource definition
+   * @return {Promise<gpf.typedef.requireResource>}
+   */
+
+/**
  * @typedef gpf.typedef.requireOptions
  * @property {String} [base] Base path used to resolve names
  * @property {Object} [cache] Inject names into the require cache
  * @property {Boolean} [clearCache=false] When set, the require cache is first cleared
  * @property {Object} [preload] Inject names into the loading cache
+ * @property {gpf.typedef.requirePreprocessFunc} [preprocess] Resource preprocessor
  * @since 0.2.2
  */
 
@@ -51,6 +68,8 @@ _gpfErrorDeclare("require", {
  * @typedef gpf.typedef._requireContext
  * @property {String} base Base path used to resolve names
  * @property {Object} cache Dictionary of loaded requires
+ * @property {Object} preload Dictionary of preloaded requires
+ * @property {gpf.typedef.requirePreprocessFunc} preprocess Preprocess function
  * @since 0.2.2
  */
 
@@ -96,6 +115,10 @@ var _gpfRequireOptionHandler = {
         _gpfArrayForEach(Object.keys(cache), function (name) {
             this.preload[name] = cache[name];
         }, this);
+    },
+
+    preprocess: function (preprocess) {
+        this.preprocess = preprocess;
     }
 
 };
@@ -218,7 +241,10 @@ function _gpfRequireAllocate (parentContext, options) {
 gpf.require = _gpfRequireAllocate({
     base: "",
     cache: {},
-    preload: {}
+    preload: {},
+    preprocess: function (resource) {
+        return Promise.resolve(resource);
+    }
 });
 
 /**
