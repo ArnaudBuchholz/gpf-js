@@ -4,22 +4,14 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GpfClassDefinition*/ // Class definition
-/*global _gpfDefineClassImported*/ // Base dictionary for all imported classes
-/*global _gpfDefineEntitiesAdd*/ // Store the entity definition to be retreived later
+/*global _gpfDefineClassImportFrom*/ // Import a class as an entity definition (internal)
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*#endif*/
 
 function _gpfDefineClassStandardGetDictionary (name) {
-    return Object.assign(Object.create(_gpfDefineClassImported), {
+    return {
         $name: name
-    });
-}
-
-function _gpfDefineClassStandardBuildEntityDefinition (InstanceBuilder, name) {
-    return Object.assign(new _GpfClassDefinition(_gpfDefineClassStandardGetDictionary(name)), {
-        _instanceBuilder: InstanceBuilder
-    });
+    };
 }
 
 function _gpfDefineClassStandardPatchDefinition (entityDefinition) {
@@ -30,9 +22,7 @@ function _gpfDefineClassStandardPatchDefinition (entityDefinition) {
 }
 
 function _gpfDefineClassStandardInstallEntityDefinition (InstanceBuilder, name) {
-    var entityDefinition = _gpfDefineClassStandardBuildEntityDefinition(InstanceBuilder, name);
-    _gpfDefineEntitiesAdd(entityDefinition);
-    entityDefinition.check();
+    var entityDefinition = _gpfDefineClassImportFrom(InstanceBuilder, _gpfDefineClassStandardGetDictionary(name));
     _gpfDefineClassStandardPatchDefinition(entityDefinition);
 }
 
