@@ -7,28 +7,48 @@
 /*global _GpfClassDefinition*/ // Class definition
 /*global _gpfDefineEntitiesAdd*/ // Store the entity definition to be retreived later
 /*global _gpfDefineEntitiesFindByConstructor*/ // Retrieve entity definition from Constructor
-/*global _gpfEmptyFunc*/
+/*global _gpfEmptyFunc*/ // An empty function
+/*exported _GpfImportedClassDefinition*/ // Imported class definition
 /*exported _gpfDefineClassImport*/ // Import a class as an entity definition
-/*exported _gpfDefineClassImported*/ // Base dictionary for all imported classes
+/*exported _gpfDefineClassImportFrom*/ // Import a class as an entity definition (internal)
 /*#endif*/
 
-var _gpfDefineClassImported = {};
-
-function _gpfDefineClassImportGetDictionary (instanceBuilder) {
-    var extendPrototype = Object.getPrototypeOf(instanceBuilder.prototype);
-    return Object.assign(Object.create(_gpfDefineClassImported), {
-        $name: instanceBuilder.compatibleName(),
-        $extend: extendPrototype.constructor
-    });
+/**
+ * Imported class definition
+ *
+ * @param {Function} InstanceBuilder Instance builder
+ * @param {Object} definition Entity definition
+ * @extends _GpfClassDefinition
+ * @constructor
+ * @since 0.2.9
+ */
+function _GpfImportedClassDefinition (InstanceBuilder, definition) {
+    /*jshint validthis:true*/ // constructor
+    /*eslint-disable no-invalid-this*/
+    _GpfClassDefinition.call(this, definition);
+    this._instanceBuilder = InstanceBuilder;
+    /*eslint-enable no-invalid-this*/
 }
 
-function _gpfDefineClassImportFrom (instanceBuilder) {
-    var entityDefinition = new _GpfClassDefinition(_gpfDefineClassImportGetDictionary(instanceBuilder));
-    entityDefinition._instanceBuilder = instanceBuilder;
-    _gpfDefineEntitiesAdd(entityDefinition);
+_GpfImportedClassDefinition.prototype = Object.create(_GpfClassDefinition.prototype);
+
+Object.assign(_GpfImportedClassDefinition.prototype, {
     // Since it might not even have a name
-    entityDefinition._checkNameIsNotEmpty = _gpfEmptyFunc;
-    entityDefinition._checkName = _gpfEmptyFunc;
+    _checkNameIsNotEmpty: _gpfEmptyFunc,
+    _checkName: _gpfEmptyFunc
+});
+
+function _gpfDefineClassImportGetDefinition (InstanceBuilder) {
+    var extendPrototype = Object.getPrototypeOf(InstanceBuilder.prototype);
+    return {
+        $name: InstanceBuilder.compatibleName(),
+        $extend: extendPrototype.constructor
+    };
+}
+
+function _gpfDefineClassImportFrom (InstanceBuilder, definition) {
+    var entityDefinition = new _GpfImportedClassDefinition(InstanceBuilder, definition);
+    _gpfDefineEntitiesAdd(entityDefinition);
     entityDefinition.check();
     return entityDefinition;
 }
@@ -36,15 +56,15 @@ function _gpfDefineClassImportFrom (instanceBuilder) {
 /**
  * Import a class as an entity definition
  *
- * @param {Function} instanceBuilder Instance builder (must be an ES6 class)
+ * @param {Function} InstanceBuilder Instance builder (must be an ES6 class)
  * @return {_GpfEntityDefinition} Entity definition
  * @since 0.2.9
  */
 
-function _gpfDefineClassImport (instanceBuilder) {
-    var entityDefinition = _gpfDefineEntitiesFindByConstructor(instanceBuilder);
+function _gpfDefineClassImport (InstanceBuilder) {
+    var entityDefinition = _gpfDefineEntitiesFindByConstructor(InstanceBuilder);
     if (entityDefinition) {
         return entityDefinition;
     }
-    return _gpfDefineClassImportFrom(instanceBuilder);
+    return _gpfDefineClassImportFrom(InstanceBuilder, _gpfDefineClassImportGetDefinition(InstanceBuilder));
 }
