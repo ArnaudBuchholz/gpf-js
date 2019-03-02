@@ -8,6 +8,7 @@ Recommended rules (if not ignored) appear as *error*.
 Rule | Fixable | Level | Parameters | Comment
 ---- | ---- | ---- | ---- | ----
 **Custom rules** | | | |
+[no-empty-module](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrules/no-empty-module.js) | &check; | **-** |  | 
 [no-substr](https://github.com/ArnaudBuchholz/gpf-js/blob/master/.eslintrules/no-substr.js) |   | **error** |  | 
 **Possible Errors** | | | |
 [for-direction](https://eslint.org/docs/rules/for-direction) |   | *error* |  | 
