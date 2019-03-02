@@ -203,13 +203,13 @@
         "tags": "define"
     },
     {
-        "name": "define/class/import",
-        "test": false
-    },
-    {
         "name": "define/class/class",
         "test": false,
         "tags": "define"
+    },
+    {
+        "name": "define/class/import",
+        "test": false
     },
     {
         "name": "define/class/check",
