@@ -43,6 +43,7 @@ _gpfErrorDeclare("require", {
   * @property {String} name Resource resolved name
   * @property {String} content Resource content
   * @property {String} type Resource type
+  * @since 0.2.9
   */
 
 /**
@@ -52,6 +53,7 @@ _gpfErrorDeclare("require", {
    *
    * @param {gpf.typedef.requireResource} resource Resource definition
    * @return {Promise<gpf.typedef.requireResource>}
+   * @since 0.2.9
    */
 
 /**
