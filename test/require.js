@@ -388,13 +388,13 @@ describe("require", function () {
 
     });
 
-    /*
+
     describe("preprocessing", function () {
 
         it("allows on the fly modification of a resource", function (done) {
             gpf.require.configure({
                 clearCache: true,
-                base: "",
+                base: basePath,
                 preprocess: function (resource) {
                     if (resource.name.endsWith("preprocess.ext")) {
                         assert(resource.content.startsWith("WILL BE REPLACED"));
@@ -402,6 +402,7 @@ describe("require", function () {
                         resource.content = "module.exports = 'Hello World!';";
                         resource.type = ".js";
                     }
+                    return Promise.resolve(resource);
                 }
             });
 
@@ -413,6 +414,5 @@ describe("require", function () {
         });
 
     });
-*/
 
 });
