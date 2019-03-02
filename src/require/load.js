@@ -6,6 +6,7 @@
 "use strict";
 /*global _gpfPathExtension*/ // Get the extension of the last name of a path (including dot)
 /*global _gpfRead*/ // Generic read method
+/*global _gpfIgnore*/
 /*exported _gpfRequireLoad*/ // Load the resource
 /*exported _gpfRequireProcessor*/ // Mapping of resource extension to processor function
 /*#endif*/
@@ -30,6 +31,15 @@ function _gpfLoadOrPreload (context, name) {
     return _gpfRead(name);
 }
 
+function _gpfLoadTextProcessor (name, content) {
+    _gpfIgnore(name);
+    return Promise.resolve(content);
+}
+
+function _gpfLoadGetProcessor (resource) {
+    return _gpfRequireProcessor[resource.type] || _gpfLoadTextProcessor;
+}
+
 /**
  * Load the resource
  *
@@ -41,11 +51,13 @@ function _gpfRequireLoad (name) {
     var me = this;
     return _gpfLoadOrPreload(me, name)
         .then(function (content) {
-            var processor = _gpfRequireProcessor[_gpfPathExtension(name).toLowerCase()];
-            if (processor) {
-                return processor.call(me, name, content);
-            }
-            // Treated as simple text file by default
-            return content;
+            return me.preprocess({
+                name: name,
+                content: content,
+                type: _gpfPathExtension(name).toLowerCase()
+            });
+        })
+        .then(function (resource) {
+            return _gpfLoadGetProcessor(resource).call(me, resource.name, resource.content);
         });
 }
