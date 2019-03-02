@@ -454,6 +454,7 @@
         "read"
     ],
     "require/load": [
+        "boot",
         "path",
         "read"
     ],
