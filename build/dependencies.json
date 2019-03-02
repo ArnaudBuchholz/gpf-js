@@ -190,13 +190,14 @@
         "define/entities",
         "boot"
     ],
-    "define/class/import": [
-        "define/class/class",
-        "define/entities"
-    ],
     "define/class/class": [
         "define/entity",
         "define/detect"
+    ],
+    "define/class/import": [
+        "define/class/class",
+        "define/entities",
+        "boot"
     ],
     "define/class/check": [
         "define/class/class",
@@ -225,9 +226,7 @@
         "foreach"
     ],
     "define/class/standard": [
-        "define/class/class",
         "define/class/import",
-        "define/entities",
         "foreach"
     ],
     "define/class/abstract": [
