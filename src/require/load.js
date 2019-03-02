@@ -4,9 +4,9 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfPathExtension*/ // Get the extension of the last name of a path (including dot)
 /*global _gpfRead*/ // Generic read method
-/*global _gpfIgnore*/
 /*exported _gpfRequireLoad*/ // Load the resource
 /*exported _gpfRequireProcessor*/ // Mapping of resource extension to processor function
 /*#endif*/
