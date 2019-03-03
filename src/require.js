@@ -8,63 +8,13 @@
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
 /*global _gpfRequireLoad*/ // Load the resource
+/*global _gpfRequireConfigure*/ // Configure the {@link gpf.require} layer
 /*exported _gpfRequireAllocate*/ // Allocate a new require context with the proper methods
 /*#endif*/
 
 /* this is globally used as the current context in this module */
 /*jshint -W040*/
 /*eslint-disable no-invalid-this*/
-
-_gpfErrorDeclare("require", {
-
-    /**
-     * ### Summary
-     *
-     * Invalid {@link gpf.require.configure} option
-     *
-     * ### Description
-     *
-     * This error is triggered whenever an option passed to {@link gpf.require.configure} is not recognized.
-     * Please check the {@link gpf.typedef.requireOptions} documentation.
-     * @since 0.2.2
-     */
-    invalidRequireConfigureOption:
-        "Invalid configuration option"
-});
-
-/**
- * @namespace gpf.require
- * @description Root namespace for the modularization helpers.
- * @since 0.2.2
- */
-
-/**
-  * @typedef gpf.typedef.requireResource
-  * @property {String} name Resource resolved name
-  * @property {String} content Resource content
-  * @property {String} type Resource type
-  * @since 0.2.9
-  */
-
-/**
-   * Mocked response callback
-   *
-   * @callback gpf.typedef.requirePreprocessFunc
-   *
-   * @param {gpf.typedef.requireResource} resource Resource definition
-   * @return {Promise<gpf.typedef.requireResource>}
-   * @since 0.2.9
-   */
-
-/**
- * @typedef gpf.typedef.requireOptions
- * @property {String} [base] Base path used to resolve names
- * @property {Object} [cache] Inject names into the require cache
- * @property {Boolean} [clearCache=false] When set, the require cache is first cleared
- * @property {Object} [preload] Inject names into the loading cache
- * @property {gpf.typedef.requirePreprocessFunc} [preprocess] Resource preprocessor
- * @since 0.2.2
- */
 
 /**
  * @typedef gpf.typedef._requireContext
@@ -74,72 +24,6 @@ _gpfErrorDeclare("require", {
  * @property {gpf.typedef.requirePreprocessFunc} preprocess Preprocess function
  * @since 0.2.2
  */
-
-var _GPF_REQUIRE_OPTION_PRIORITY_HIGH = -1,
-    _GPF_REQUIRE_OPTION_PRIORITY_LOW = 1;
-
-/**
- * Valuate the option priority to have them executed in the proper order
- *
- * @param {String} name option name
- * @return {Number} Option priority
- * @since 0.2.2
- */
-function _gpfRequireOptionPriority (name) {
-    if (name === "clearCache") {
-        return _GPF_REQUIRE_OPTION_PRIORITY_HIGH;
-    }
-    return _GPF_REQUIRE_OPTION_PRIORITY_LOW;
-}
-
-/**
- *  Dictionary of option name to function handling the option
- * @type {Object}
- * @since 0.2.2
- */
-var _gpfRequireOptionHandler = {
-
-    base: function (base) {
-        this.base = base;
-    },
-
-    cache: function (cache) {
-        _gpfArrayForEach(Object.keys(cache), function (name) {
-            this.cache[name] = Promise.resolve(cache[name]);
-        }, this);
-    },
-
-    clearCache: function () {
-        this.cache = {};
-    },
-
-    preload: function (cache) {
-        _gpfArrayForEach(Object.keys(cache), function (name) {
-            this.preload[name] = cache[name];
-        }, this);
-    },
-
-    preprocess: function (preprocess) {
-        this.preprocess = preprocess;
-    }
-
-};
-
-/**
- * Configure the {@link gpf.require} layer
- *
- * @param {gpf.typedef.requireOptions} options Options to configure
- * @since 0.2.2
- */
-function _gpfRequireConfigure (options) {
-    var me = this;
-    _gpfArrayForEach(Object.keys(options).sort(function (key1, key2) {
-        // Some keys must be processed first
-        return _gpfRequireOptionPriority(key1) - _gpfRequireOptionPriority(key2);
-    }), function (key) {
-        (_gpfRequireOptionHandler[key] || gpf.Error.invalidRequireConfigureOption).call(me, options[key]);
-    }, me);
-}
 
 /**
  * Resolves the resource name according to current require context.
@@ -253,26 +137,6 @@ gpf.require = _gpfRequireAllocate({
  * @method gpf.require.define
  * @gpf:sameas _gpfRequireDefine
  * @since 0.2.2
- */
-
-/**
- * @method gpf.require.configure
- * @gpf:sameas _gpfRequireConfigure
- * @since 0.2.2
- *
- * @example <caption>Setting the base path</caption>
- * gpf.require.configure({
- *   base: "/test/require"
- * });
- * assert(gpf.require.resolve("file.js") === "/test/require/file.js");
- *
- * @example <caption>Injecting in the cache</caption>
- * var cache = {};
- * cache[gpf.require.resolve("data.json")] = {};
- * gpf.require.configure({
- *   clearCache: true,
- *   cache: cache
- * });
  */
 
 /**
