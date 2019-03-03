@@ -457,6 +457,36 @@
         "tags": "require"
     },
     {
+        "name": "require/configure",
+        "test": false,
+        "tags": "require"
+    },
+    {
+        "name": "require/configure/base",
+        "test": false,
+        "tags": "require"
+    },
+    {
+        "name": "require/configure/cache",
+        "test": false,
+        "tags": "require"
+    },
+    {
+        "name": "require/configure/clearCache",
+        "test": false,
+        "tags": "require"
+    },
+    {
+        "name": "require/configure/preload",
+        "test": false,
+        "tags": "require"
+    },
+    {
+        "name": "require/configure/preprocess",
+        "test": false,
+        "tags": "require"
+    },
+    {
         "name": "require",
         "tags": "require"
     },
