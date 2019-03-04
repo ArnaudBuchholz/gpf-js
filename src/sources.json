@@ -530,71 +530,90 @@
     },
     {
         "name": "stream/operator",
-        "test": false
+        "test": false,
+        "tags": "stream"
     },
     {
-        "name": "stream/filter"
+        "name": "stream/filter",
+        "tags": "stream"
     },
     {
-        "name": "stream/map"
+        "name": "stream/map",
+        "tags": "stream"
     },
     {
         "name": "interfaces/xmlcontenthandler",
-        "test": false
+        "test": false,
+        "tags": "xml"
     },
     {
         "name": "xml/check",
-        "test": false
+        "test": false,
+        "tags": "xml"
     },
     {
         "name": "interfaces/promisify"
     },
     {
-        "name": "xml/writer"
+        "name": "xml/writer",
+        "tags": "xml"
     },
     {
         "name": "foreachasync"
     },
     {
-        "name": "serial/property"
+        "name": "serial/property",
+        "tags": "serial"
     },
     {
         "name": "attributes/check",
-        "test": false
+        "test": false,
+        "tags": "attribute"
     },
     {
         "name": "attributes/attributeattribute",
-        "test": false
+        "test": false,
+        "tags": "attribute"
     },
     {
-        "name": "attributes/classattribute"
+        "name": "attributes/classattribute",
+        "tags": "attribute"
     },
     {
-        "name": "attributes/memberattribute"
+        "name": "attributes/memberattribute",
+        "tags": "attribute"
     },
     {
-        "name": "attributes/attributeforinstanceof"
+        "name": "attributes/attributeforinstanceof",
+        "tags": "attribute"
     },
     {
-        "name": "attributes/uniqueattribute"
+        "name": "attributes/uniqueattribute",
+        "tags": "attribute"
     },
     {
-        "name": "attributes/serializable"
+        "name": "attributes/serializable",
+        "tags": "attribute serial"
     },
     {
-        "name": "serial/get"
+        "name": "serial/get",
+        "tags": "serial"
     },
     {
         "name": "serial/converter",
-        "test": false
+        "test": false,
+        "tags": "serial"
     },
     {
-        "name": "serial/raw/to"
+        "name": "serial/raw/to",
+        "tags": "serial"
     },
     {
-        "name": "serial/raw/from"
+        "name": "serial/raw/from",
+        "tags": "serial"
     },
     {
-        "name": "attributes/decorator"
+        "name": "attributes/decorator",
+        "tags": "attribute es6"
     }
 ]
