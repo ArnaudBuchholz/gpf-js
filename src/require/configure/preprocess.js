@@ -1,9 +1,10 @@
 /**
  * @file Require preprocess configuration
+ * @since 0.2.9
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfRequireConfigureAddOption*/
+/*global _gpfRequireConfigureAddOption*/ // Declare a configuration option
 /*#endif*/
 
 /**
@@ -24,8 +25,15 @@
    * @since 0.2.9
    */
 
-   function _gpfRequireConfigurePreprocess (context, value) {
-       context.preprocess = value;
-   }
+function _gpfRequireConfigureCheckPreprocess (value) {
+    if (typeof value !== "function") {
+        gpf.Error.invalidRequireConfigureOptionValue();
+    }
+}
 
-   _gpfRequireConfigureAddOption("preprocess", _gpfRequireConfigurePreprocess);
+function _gpfRequireConfigurePreprocess (context, value) {
+    _gpfRequireConfigureCheckPreprocess(value);
+    context.preprocess = value;
+}
+
+_gpfRequireConfigureAddOption("preprocess", _gpfRequireConfigurePreprocess);
