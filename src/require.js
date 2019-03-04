@@ -5,10 +5,9 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
-/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfPathJoin*/ // Join all arguments together and normalize the resulting path
-/*global _gpfRequireLoad*/ // Load the resource
 /*global _gpfRequireConfigure*/ // Configure the {@link gpf.require} layer
+/*global _gpfRequireLoad*/ // Load the resource
 /*exported _gpfRequireAllocate*/ // Allocate a new require context with the proper methods
 /*#endif*/
 
