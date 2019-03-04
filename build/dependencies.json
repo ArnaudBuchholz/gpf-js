@@ -474,10 +474,31 @@
         "require/load",
         "require/wrap"
     ],
+    "require/configure": [
+        "foreach",
+        "error"
+    ],
+    "require/configure/base": [
+        "require/configure"
+    ],
+    "require/configure/cache": [
+        "foreach",
+        "require/configure"
+    ],
+    "require/configure/clearCache": [
+        "require/configure"
+    ],
+    "require/configure/preload": [
+        "foreach",
+        "require/configure"
+    ],
+    "require/configure/preprocess": [
+        "require/configure"
+    ],
     "require": [
         "foreach",
-        "error",
         "path",
+        "require/configure",
         "require/load"
     ],
     "stream/array": [
