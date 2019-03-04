@@ -40,6 +40,65 @@ describe("require", function () {
             assert(exceptionCaught instanceof gpf.Error.InvalidRequireConfigureOption);
         });
 
+        var values = [
+            0,
+            1,
+            false,
+            true,
+            "",
+            "Hello World",
+            {},
+            new Date(),
+            function () {}
+        ];
+
+        function noBoolean (x) {
+            return typeof x !== "boolean";
+        }
+
+        function noString (x) {
+            return typeof x !== "string";
+        }
+
+        function noObject (x) {
+            return typeof x !== "object";
+        }
+
+        function noFunction (x) {
+            return typeof x !== "function";
+        }
+
+        var filters = {
+            base: noString,
+            cache: noObject,
+            clearCache: noBoolean,
+            preload: noObject,
+            preprocess: noFunction
+        };
+
+        Object.keys(filters).forEach(function (option) {
+            values.filter(filters[option]).forEach(function (value) {
+                it("fails on invalid option value: " + option + "=" + JSON.stringify(value), function () {
+                    var exceptionCaught;
+                    try {
+                        var options = {};
+                        options[option] = value;
+                        gpf.require.configure(options);
+                    } catch (e) {
+                        exceptionCaught = e;
+                    }
+                    assert(exceptionCaught instanceof gpf.Error.InvalidRequireConfigureOptionValue);
+                });
+            });
+        });
+
+        // Restore options
+        after(function () {
+            gpf.require.configure({
+                base: basePath
+            });
+        });
+
     });
 
     describe("gpf.require.define", function () {
@@ -266,12 +325,28 @@ describe("require", function () {
                 });
             });
 
-            it("keeps injected objects", function (done) {
-                gpf.require.define({
-                    data: "data.json"
-                }, function (require) {
-                    assert(mocked === require.data);
-                }).then(done, done);
+            function itKeepsInjectedObjects () {
+                it("keeps injected objects", function (done) {
+                    gpf.require.define({
+                        data: "data.json"
+                    }, function (require) {
+                        assert(mocked === require.data);
+                    }).then(done, done);
+                });
+            }
+
+            itKeepsInjectedObjects();
+
+            describe("clearCache = false", function () {
+
+                beforeEach(function () {
+                    gpf.require.configure({
+                        clearCache: false
+                    });
+                });
+
+                itKeepsInjectedObjects();
+
             });
 
         });
