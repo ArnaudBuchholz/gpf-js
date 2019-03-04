@@ -1,10 +1,13 @@
 /**
  * @file Require configuration implementation
+ * @since 0.2.9
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfArrayForEach*/ // Almost like [].forEach (undefined are also enumerated)
+/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*exported _gpfRequireConfigure*/ // Configure the {@link gpf.require} layer
-/*exported _gpfRequireConfigureAddOption*/
+/*exported _gpfRequireConfigureAddOption*/ // Declare a configuration option
 /*#endif*/
 
 /* this is globally used as the current context in this module */
@@ -25,7 +28,21 @@ _gpfErrorDeclare("require/configure", {
      * @since 0.2.2
      */
     invalidRequireConfigureOption:
-        "Invalid configuration option"
+        "Invalid configuration option",
+
+    /**
+     * ### Summary
+     *
+     * Invalid {@link gpf.require.configure} option value
+     *
+     * ### Description
+     *
+     * This error is triggered whenever an option passed to {@link gpf.require.configure} has an invalid value.
+     * Please check the {@link gpf.typedef.requireOptions} documentation.
+     * @since 0.2.9
+     */
+    invalidRequireConfigureOptionValue:
+        "Invalid configuration option value"
 });
 
 /**
@@ -44,30 +61,44 @@ _gpfErrorDeclare("require/configure", {
  * @since 0.2.2
  */
 
+var
+    /**
+     * Dictionary of option name to function handling the option
+     * @type {Object}
+     * @since 0.2.2
+     */
+    _gpfRequireConfigureHandler = {},
+
+    /**
+     * Array of option names which order is significant
+     * @type {Array}
+     * @since 0.2.9
+     */
+    _gpfRequireConfigureOptionNames = [];
+
 /**
- * Dictionary of option name to function handling the option
- * @type {Object}
- * @since 0.2.2
+ * Declare a configuration option
+ *
+ * @param {String} name Option name
+ * @param {Function} handler Option handler (will receive context and value)
+ * @param {Boolean} [highPriority=false] Option must be handled before the others
+ * @since 0.2.9
  */
-var _gpfRequireConfigureHandler = {};
-
-var _gpfRequireConfigureOptionNames = [];
-
 function _gpfRequireConfigureAddOption (name, handler, highPriority) {
     if (highPriority) {
-      _gpfRequireConfigureOptionNames.unshift(name);
+        _gpfRequireConfigureOptionNames.unshift(name);
     } else {
-      _gpfRequireConfigureOptionNames.push(name);
+        _gpfRequireConfigureOptionNames.push(name);
     }
     _gpfRequireConfigureHandler[name] = handler;
 }
 
 function _gpfRequireConfigureCheckOptions (options) {
-  _gpfArrayForEach(Object.keys(options), function (name) {
-      if (!_gpfRequireConfigureHandler[name]) {
-        gpf.Error.invalidRequireConfigureOption();
-      }
-  });
+    _gpfArrayForEach(Object.keys(options), function (name) {
+        if (!_gpfRequireConfigureHandler[name]) {
+            gpf.Error.invalidRequireConfigureOption();
+        }
+    });
 }
 
 /**
@@ -80,8 +111,10 @@ function _gpfRequireConfigureCheckOptions (options) {
 function _gpfRequireConfigure (options) {
     _gpfRequireConfigureCheckOptions(options);
     var me = this;
-    _gpfArrayForEach(_gpfRequireConfigureOptionNames), function (name) {
-        _gpfRequireOptionHandler[name].call(me, options[name]);
+    _gpfArrayForEach(_gpfRequireConfigureOptionNames.filter(function (name) {
+        return options[name] !== undefined;
+    }), function (name) {
+        _gpfRequireConfigureHandler[name](me, options[name]);
     });
 }
 
