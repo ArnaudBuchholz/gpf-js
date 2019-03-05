@@ -1,0 +1,9 @@
+{
+    "since": "0.2.9",
+    "flavor": "host:nodejs",
+    "tests": [],
+    "description": "NodeJS build",
+    "api":[
+        "gpf.*"
+    ]
+}
