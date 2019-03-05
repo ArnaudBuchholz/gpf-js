@@ -1,27 +1,42 @@
-window.onerror = function (error) {
-    assert(false, error.toString());
-};
+(function () {
+    "use strict";
 
-function assert(condition, message) {
-    var line = document.createElement("div"),
-        status = line.appendChild(document.createElement("span")),
-        color;
-    if (typeof condition === "function") {
-        message = condition.toString().match(/(?:=>|{)([^}]*)\}?/)[1].toString().trim();
-        try {
-            condition = condition();
-        } catch (e) {
-            condition = false;
+    function _message (status, text) {
+        var div = document.createElement("div"),
+            span = div.appendChild(document.createElement("span")),
+            color;
+        div.appendChild(document.createTextNode(text));
+        if (status) {
+            span.innerHTML = "&check;";
+            color = "green";
+        } else {
+            span.innerHTML = "&cross;";
+            color = "red";
         }
+        span.setAttribute("style", "width: 1rem; color: " + color + ";");
+        return document.body.appendChild(div);
     }
-    line.appendChild(document.createTextNode(message));
-    if (condition) {
-        status.innerHTML = "&check;";
-        color = "green";
-    } else {
-        status.innerHTML = "&cross;";
-        color = "red";
-    }
-    status.setAttribute("style", "width: 1rem; color: " + color + ";");
-    return document.body.appendChild(line);
-}
+
+    window.assert = function (condOrFunc, optionalMessage) {
+        var BODY = 1,
+            condition,
+            message;
+        if (typeof condOrFunc === "function") {
+            message = condOrFunc.toString().match(/(?:=>|{)([^}]*)\}?/)[BODY].toString().trim();
+            try {
+                condition = condOrFunc();
+            } catch (e) {
+                condition = false;
+            }
+        } else {
+            condition = condOrFunc;
+            message = optionalMessage;
+        }
+        return _message(condition, message);
+    };
+
+    window.onerror = function (error) {
+        _message(false, error.toString());
+    };
+
+}());
