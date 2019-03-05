@@ -23,6 +23,24 @@ function categorize (tags) {
     });
 }
 
+function postProcessRequest (sources, request) {
+    if (!request.features.length) {
+        // if no features is specified, include all *but* excluded & compatibility
+        sources.forEach(function (source) {
+            categorize(source.tags || "").features
+                .filter(function (feature) {
+                    return feature !== "compatibility"
+                        && request.excluded.indexOf(feature) === NOT_FOUND
+                        && request.features.indexOf(feature) === NOT_FOUND;
+                })
+                .forEach(function (feature) {
+                    request.features.push(feature);
+                })
+            });
+    }
+    return request;
+}
+
 function intersect (array1, array2) {
     return array1.some(function (value1) {
         return array2.indexOf(value1) !== NOT_FOUND;
@@ -84,7 +102,7 @@ function getSourceIndex (sources, name) {
 }
 
 function getFlavor (sources, dependencies, request) {
-    var requested = categorize(request),
+    var requested = postProcessRequest(sources, categorize(request)),
         // Initial is based on tags
         allowed = includeRequestedSources(sources, requested),
         index = sources.length,
