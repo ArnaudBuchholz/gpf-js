@@ -1,55 +1,139 @@
 <html>
     <head>
       <title>flavor</title>
-      <script>const module = {};</script>
+      <link rel="stylesheet" type="text/css" href="../res/html.css"></link>
+      <script>const module = {}</script>
       <script src="flavor.js"></script>
       <script src="../res/xhr.js"></script>
+      <script src="../res/assert.js"></script>
+      <style>
+
+div.list span {
+    display: inline-block;
+    margin-right: 1rem;
+}
+
+div.list span.count {
+    font-style: italic;
+    font-weight: bold;
+}
+
+div.list {
+    margin-bottom: 1rem;
+}
+
+      </style>
       <script>
 
-let sources,
-    dependencies;
+let allSources
+let allDependencies
+let allFeatures
 
-function assert(condition, message) {
-    var line = document.createElement("div"),
-        status = line.appendChild(document.createElement("span")),
-        color;
-    if (typeof condition === "function") {
-        message = condition.toString().match(/(?:=>|{)([^}]*)\}?/)[1].toString();
-        try {
-            condition = condition();
-        } catch (e) {
-            condition = false;
+function tag(name, text) {
+    const dom = document.createElement(name)
+    if (text) {
+        dom.appendChild(document.createTextNode(text))
+    }
+    return document.body.appendChild(dom)
+}
+
+function list(texts) {
+    const div = tag("div")
+    div.className = "list"
+    div.appendChild(tag("span", texts.length)).className = "count"
+    texts.forEach(text => div.appendChild(tag("span", text)))
+}
+
+function computeFeatures (sources) {
+    const result = []
+    sources.forEach(source => (source.tags || "").split(" ")
+        .filter(tag => !!tag)
+        .filter(tag => !tag.startsWith(HOST_PREFIX))
+        .filter(tag => !result.includes(tag))
+        .forEach(tag => result.push(tag))
+    )
+    return result.sort()
+}
+
+function computeHosts (sources) {
+    const result = []
+    sources.forEach(source => (source.tags || "").split(" ")
+        .filter(tag => tag.startsWith(HOST_PREFIX))
+        .map(tag => tag.substring(HOST_PREFIX.length))
+        .filter(tag => !result.includes(tag))
+        .forEach(tag => result.push(tag))
+    )
+    return result.sort()
+}
+
+function compute (flavor) {
+    tag("h2", flavor)
+    const filter = getFlavor(allSources, allDependencies, flavor)
+    const sources = allSources.filter((source, index) => filter[index])
+    const names = sources.map(source => source.name)
+    const features = computeFeatures(sources)
+    const hosts = computeHosts(sources)
+    tag("h3", "Hosts")
+    list(hosts)
+    tag("h3", "Features")
+    list(features)
+    tag("h3", "Sources")
+    list(names)
+    return {
+        sources,
+        names,
+        features,
+        hosts
+    }
+}
+
+function testRequire () {
+    const {
+        sources,
+        names,
+        features
+    } = compute("require host:nodejs host:browser -http/nodejs -http/mock")
+    assert(() => sources.length < allSources.length)
+    // Should have at least all require sources
+    assert(() => features.includes("require"))
+    allSources.forEach(source => {
+        if (source.tags && source.tags.includes("require")) {
+            assert(names.includes(source.name), source.name)
         }
-    }
-    line.appendChild(document.createTextNode(message));
-    if (condition) {
-        status.innerHTML = "&check;";
-        color = "green";
-    } else {
-        status.innerHTML = "&cross;";
-        color = "red";
-    }
-    status.setAttribute("style", "width: 1rem; color: " + color + ";");
-    return document.body.appendChild(line);
+    })
+    // Expected
+    "http,http/xhr,read,read/browser,read/nodejs"
+        .split(",")
+        .forEach(name => assert(names.includes(name), name))
 }
 
-function test () {
-    var flavor = getFlavor(sources, dependencies, "require host:nodejs host:browser -http/nodejs -http/mock");
-    assert(() => flavor.length === sources.length);
+function testNode () {
+    const {
+        sources,
+        features
+    } = compute("host:nodejs")
+    assert(() => sources.length < allSources.length)
+    // Should have all features *but* compatibility & host specifics
+    assert(() => features.length === allFeatures.length - 1 /* compatibility */)
+    assert(() => !features.includes("compatibility"))
+
 }
 
-Promise.all([
-  xhr("../src/sources.json").get().asJson(),
-  xhr("../build/dependencies.json").get().asJson()
-]).then(function (results) {
-  sources = results[0];
-  dependencies = results[1];
-  test();
-});
-
+async function load () {
+    allSources = await xhr("../src/sources.json").get().asJson()
+    allDependencies = await xhr("../build/dependencies.json").get().asJson()
+    allFeatures = computeFeatures(allSources)
+    tag("h1", "Flavor")
+    tag("h3", "*All* features")
+    list(allFeatures)
+    tag("h3", "*All* sources")
+    list(allSources.map(source => source.name))
+    testRequire()
+    testNode()
+}
 
       </script>
     </head>
-    <body>
+    <body onload="load()">
     </body>
 </html>
