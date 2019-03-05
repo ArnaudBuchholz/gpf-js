@@ -53,13 +53,16 @@
         "tags": "core"
     },
     {
-        "name": "arraylike"
+        "name": "arraylike",
+        "tags": "core"
     },
     {
-        "name": "foreach"
+        "name": "foreach",
+        "tags": "core"
     },
     {
-        "name": "assert"
+        "name": "assert",
+        "tags": "core"
     },
     {
         "name": "constants"
@@ -165,10 +168,12 @@
         "name": "function"
     },
     {
-        "name": "error"
+        "name": "error",
+        "tags": "core"
     },
     {
-        "name": "isclass"
+        "name": "isclass",
+        "tags": "core"
     },
     {
         "name": "define/detect",
@@ -205,40 +210,44 @@
     {
         "name": "define/class/class",
         "test": false,
-        "tags": "define"
+        "tags": "define class"
     },
     {
         "name": "define/class/import",
-        "test": false
+        "test": false,
+        "tags": "define class"
     },
     {
         "name": "define/class/check",
-        "tags": "define"
+        "tags": "define class"
     },
     {
         "name": "define/class/constructor",
         "test": false,
-        "tags": "define"
+        "tags": "define class"
     },
     {
         "name": "define/class/super",
         "test": false,
-        "tags": "define"
+        "tags": "define class"
     },
     {
         "name": "define/class/build",
         "test": false,
-        "tags": "define"
+        "tags": "define class"
     },
     {
         "name": "define/class/standard",
-        "test": false
+        "test": false,
+        "tags": "define class"
     },
     {
-        "name": "define/class/abstract"
+        "name": "define/class/abstract",
+        "tags": "define class"
     },
     {
-        "name": "define/class/singleton"
+        "name": "define/class/singleton",
+        "tags": "define class"
     },
     {
         "name": "define/interface/interface",
@@ -274,10 +283,12 @@
         "tags": "interface"
     },
     {
-        "name": "sort"
+        "name": "sort",
+        "tags": "sort"
     },
     {
-        "name": "filter"
+        "name": "filter",
+        "tags": "filter"
     },
     {
         "name": "interfaces/readablestream",
@@ -304,14 +315,16 @@
         "tags": "stream"
     },
     {
-        "name": "stream/string"
+        "name": "stream/string",
+        "tags": "stream"
     },
     {
         "name": "fs",
         "tags": "fs"
     },
     {
-        "name": "path"
+        "name": "path",
+        "tags": "core fs"
     },
     {
         "name": "fs/explore",
@@ -341,7 +354,8 @@
         "tags": "host:wscript fs"
     },
     {
-        "name": "literal"
+        "name": "literal",
+        "tags": "core"
     },
     {
         "name": "web/tag"
@@ -366,7 +380,8 @@
     },
     {
         "name": "string/fromStream",
-        "test": false
+        "test": false,
+        "tags": "stream"
     },
     {
         "name": "http/nodejs",
@@ -392,10 +407,12 @@
         "tags": "http"
     },
     {
-        "name": "stream/bufferedread"
+        "name": "stream/bufferedread",
+        "tags": "stream"
     },
     {
-        "name": "stream/line"
+        "name": "stream/line",
+        "tags": "stream"
     },
     {
         "name": "interfaces/flushablestream",
@@ -552,14 +569,16 @@
         "tags": "xml"
     },
     {
-        "name": "interfaces/promisify"
+        "name": "interfaces/promisify",
+        "tags": "interface async"
     },
     {
         "name": "xml/writer",
         "tags": "xml"
     },
     {
-        "name": "foreachasync"
+        "name": "foreachasync",
+        "tags": "async"
     },
     {
         "name": "serial/property",
