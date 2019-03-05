@@ -41,7 +41,8 @@ gpf.require.define({
                         "src/interfaces/flushablestream.js",
                         "src/stream/bufferedread.js",
                         "src/stream/line.js"
-                    ].join(":")}, "JSDoc")
+                    ].join(":")}, "JSDoc"), " ",
+                    dom.span({className: "misc", link: "make/flavor.html"}, "flavor")
                 ])
             ]);
         },
