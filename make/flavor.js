@@ -35,8 +35,8 @@ function postProcessRequest (sources, request) {
                 })
                 .forEach(function (feature) {
                     request.features.push(feature);
-                })
-            });
+                });
+        });
     }
     return request;
 }
