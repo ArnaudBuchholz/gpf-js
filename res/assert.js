@@ -7,7 +7,7 @@ function assert(condition, message) {
         status = line.appendChild(document.createElement("span")),
         color;
     if (typeof condition === "function") {
-        message = condition.toString().match(/(?:=>|{)([^}]*)\}?/)[1].toString();
+        message = condition.toString().match(/(?:=>|{)([^}]*)\}?/)[1].toString().trim();
         try {
             condition = condition();
         } catch (e) {
