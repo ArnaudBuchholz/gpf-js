@@ -1,0 +1,55 @@
+<html>
+    <head>
+      <title>flavor</title>
+      <script>const module = {};</script>
+      <script src="flavor.js"></script>
+      <script src="../res/xhr.js"></script>
+      <script>
+
+let sources,
+    dependencies;
+
+function assert(condition, message) {
+    var line = document.createElement("div"),
+        status = line.appendChild(document.createElement("span")),
+        color;
+    if (typeof condition === "function") {
+        message = condition.toString().match(/(?:=>|{)([^}]*)\}?/)[1].toString();
+        try {
+            condition = condition();
+        } catch (e) {
+            condition = false;
+        }
+    }
+    line.appendChild(document.createTextNode(message));
+    if (condition) {
+        status.innerHTML = "&check;";
+        color = "green";
+    } else {
+        status.innerHTML = "&cross;";
+        color = "red";
+    }
+    status.setAttribute("style", "width: 1rem; color: " + color + ";");
+    return document.body.appendChild(line);
+}
+
+function test () {
+    var flavor = getFlavor(sources, dependencies, "require host:nodejs host:browser -http/nodejs -http/mock");
+    assert(() => flavor.length === sources.length);
+}
+
+Promise.all([
+  xhr("../src/sources.json").get().asJson(),
+  xhr("../build/dependencies.json").get().asJson()
+]).then(function (results) {
+  sources = results[0];
+  dependencies = results[1];
+  test();
+});
+
+
+      </script>
+    </head>
+    <body>
+    </body>
+</html>
