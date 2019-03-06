@@ -8,9 +8,7 @@
 /*global _gpfArrayTail*/ // [].slice.call(,1)
 /*global _gpfBuildFunctionParameterList*/ // Builds an array of parameters
 /*global _gpfCompatibilityInstallMethods*/ // Define and install compatible methods on standard objects
-/*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfFunc*/ // Create a new function using the source
-/*global _gpfJsCommentsRegExp*/ // Find all JavaScript comments
 /*#endif*/
 
 function _generateBindBuilderSource (length) {
@@ -41,51 +39,3 @@ _gpfCompatibilityInstallMethods("Function", {
     }
 
 });
-
-//region Function name
-
-var _GPF_COMPATIBILITY_FUNCTION_KEYWORD = "function";
-
-function _gpfGetFunctionName () {
-    // Use simple parsing
-    /*jshint validthis:true*/
-    var functionSource = _gpfEmptyFunc.toString.call(this), //eslint-disable-line no-invalid-this
-        functionKeywordPos = functionSource.indexOf(_GPF_COMPATIBILITY_FUNCTION_KEYWORD)
-            + _GPF_COMPATIBILITY_FUNCTION_KEYWORD.length,
-        parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
-    return functionSource
-        .substring(functionKeywordPos, parameterListStartPos)
-        .replace(_gpfJsCommentsRegExp, "") // remove comments
-        .trim();
-}
-
-// Handling function name properly
-if ((function () {
-    // Trick source minification
-    var testFunction = _gpfFunc("return function functionName () {};")();
-    return testFunction.name !== "functionName";
-})()) {
-
-    Function.prototype.compatibleName = _gpfGetFunctionName;
-
-} else {
-
-    /**
-     * Return function name
-     *
-     * @return {String} Function name
-     * @since 0.1.5
-     */
-    Function.prototype.compatibleName = function () {
-        return this.name;
-    };
-
-}
-
-//endregion
-
-/*#ifndef(UMD)*/
-
-gpf.internals._gpfGetFunctionName = _gpfGetFunctionName;
-
-/*#endif*/
