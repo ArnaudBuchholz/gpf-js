@@ -6,7 +6,9 @@ describe("function", function () {
 
     if (gpf.internals) {
 
-        var _gpfFunctionDescribe = gpf.internals._gpfFunctionDescribe;
+        var _gpfFunctionDescribe = gpf.internals._gpfFunctionDescribe,
+            _gpfFunctionBuild = gpf.internals._gpfFunctionBuild,
+            _gpfExtractFunctionName = gpf.internals._gpfExtractFunctionName;
 
         describe("_gpfFunctionDescribe", function () {
 
@@ -58,19 +60,18 @@ describe("function", function () {
         });
 
         describe("_gpfFunctionBuild", function () {
-            var _gpfFunctionBuild = gpf.internals._gpfFunctionBuild;
 
             it("builds an empty anonymous function", function () {
                 var func = _gpfFunctionBuild({});
                 assert(typeof func === "function");
-                assert(func.compatibleName() === "");
+                assert(_gpfExtractFunctionName(func) === "");
             });
 
             it("builds a named function", function () {
                 var func = _gpfFunctionBuild({
                     name: "test"
                 });
-                assert(func.compatibleName() === "test");
+                assert(_gpfExtractFunctionName(func) === "test");
             });
 
             it("builds a function with named parameters", function () {
@@ -90,6 +91,20 @@ describe("function", function () {
                 });
                 assert(func.length === 0);
                 assert(func() === "Hello World!");
+            });
+
+        });
+
+        describe("_gpfExtractFunctionName", function () {
+
+            it("gets function name", function () {
+                function thisName () {}
+                assert(_gpfExtractFunctionName(thisName) === "thisName");
+            });
+
+            it("supports empty name", function () {
+                var thisName = function () {}; //eslint-disable-line func-style
+                assert(_gpfExtractFunctionName(thisName) === "");
             });
 
         });
