@@ -79,7 +79,6 @@
         "arraylike",
         "factory",
         "compatibility",
-        "boot",
         "constants"
     ],
     "compatibility/object": [
@@ -197,7 +196,8 @@
     "define/class/import": [
         "define/class/class",
         "define/entities",
-        "boot"
+        "boot",
+        "function"
     ],
     "define/class/check": [
         "define/class/class",
@@ -574,6 +574,7 @@
         "error"
     ],
     "interfaces/promisify": [
+        "function",
         "interfaces",
         "foreach",
         "interfaces/thenable"
