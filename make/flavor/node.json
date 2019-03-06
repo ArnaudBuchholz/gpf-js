@@ -1,6 +1,6 @@
 {
     "since": "0.2.9",
-    "flavor": "host:nodejs",
+    "flavor": "host:nodejs +compatibility/base64",
     "tests": [],
     "description": "NodeJS build",
     "api":[
