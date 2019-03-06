@@ -60,4 +60,10 @@
     "ignore": [{
         "describe": "require"
     }]
+}, {
+    "issue": 307,
+    "before": "0.2.9",
+    "ignore": [{
+        "describe": "name support"
+    }]
 }]
