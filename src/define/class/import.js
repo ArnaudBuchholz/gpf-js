@@ -8,6 +8,7 @@
 /*global _gpfDefineEntitiesAdd*/ // Store the entity definition to be retreived later
 /*global _gpfDefineEntitiesFindByConstructor*/ // Retrieve entity definition from Constructor
 /*global _gpfEmptyFunc*/ // An empty function
+/*global _gpfGetFunctionName*/ // Get the function name
 /*exported _GpfImportedClassDefinition*/ // Imported class definition
 /*exported _gpfDefineClassImport*/ // Import a class as an entity definition
 /*exported _gpfDefineClassImportFrom*/ // Import a class as an entity definition (internal)
@@ -41,7 +42,7 @@ Object.assign(_GpfImportedClassDefinition.prototype, {
 function _gpfDefineClassImportGetDefinition (InstanceBuilder) {
     var extendPrototype = Object.getPrototypeOf(InstanceBuilder.prototype);
     return {
-        $name: InstanceBuilder.compatibleName(),
+        $name: _gpfGetFunctionName(InstanceBuilder),
         $extend: extendPrototype.constructor
     };
 }
