@@ -781,36 +781,6 @@ describe("compatibility", function () {
 
         });
 
-        describe("name support", function () {
-
-            it("exposes a name", function () {
-                var Func = Function, // prevent linter error
-                    testableFunc = new Func("return function funcName () {}")(); // prevent minification
-                assert(testableFunc.compatibleName() === "funcName");
-            });
-
-            it("supports empty name", function () {
-                assert(function () {}.compatibleName() === "");
-            });
-
-            if (gpf.internals && Function.prototype.compatibleName !== gpf.internals._gpfGetFunctionName) {
-
-                var _gpfGetFunctionName = gpf.internals._gpfGetFunctionName;
-
-                it("exposes a name (compatible)", function () {
-                    function thisName () {}
-                    assert(_gpfGetFunctionName.call(thisName) === "thisName");
-                });
-
-                it("supports empty name", function () {
-                    var thisName = function () {}; //eslint-disable-line func-style
-                    assert(_gpfGetFunctionName.call(thisName) === "");
-                });
-
-            }
-
-        });
-
         declare("Function");
 
     });
