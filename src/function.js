@@ -10,7 +10,51 @@
 /*global _gpfStringTrim*/ // Trim the string
 /*exported _gpfFunctionBuild*/ // Build function from description and context
 /*exported _gpfFunctionDescribe*/ // Extract function description
+/*exported _gpfGetFunctionName*/ // Get the function name
 /*#endif*/
+
+//region Function name
+
+var _GPF_FUNCTION_KEYWORD = "function";
+
+function _gpfExtractFunctionName (func) {
+    // Use simple parsing
+    var functionSource = _gpfEmptyFunc.toString.call(func),
+        functionKeywordPos = functionSource.indexOf(_GPF_FUNCTION_KEYWORD) + _GPF_FUNCTION_KEYWORD.length,
+        parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
+    return functionSource
+        .substring(functionKeywordPos, parameterListStartPos)
+        .replace(_gpfJsCommentsRegExp, "") // remove comments
+        .trim();
+}
+
+/**
+ * Get the function name
+ *
+ * @param {Function} func Function
+ * @return {String} Function name
+ * @since 0.2.9
+ */
+var _gpfGetFunctionName;
+
+// Handling function name properly
+if ((function () {
+    // Trick source minification
+    var testFunction = _gpfFunc("return function functionName () {};")();
+    return testFunction.name !== "functionName";
+})()) {
+
+    _gpfGetFunctionName = _gpfExtractFunctionName;
+
+} else {
+
+    _gpfGetFunctionName = function (func) {
+        return func.name;
+    };
+
+}
+
+//endregion
 
 /**
  * @typedef {Object} gpf.typedef._functionDescription
@@ -21,7 +65,7 @@
  */
 
 function _gpfFunctionDescribeName (functionToDescribe, resultDescription) {
-    var name = functionToDescribe.compatibleName();
+    var name = _gpfGetFunctionName(functionToDescribe);
     if (name) {
         resultDescription.name = name;
     }
@@ -96,12 +140,12 @@ function _gpfFunctionBuildSourceBody (functionDescription) {
  */
 function _gpfFunctionBuildSource (functionDescription) {
     return "function"
-        + _gpfFunctionBuildSourceName(functionDescription)
-        + "("
-        + _gpfFunctionBuildSourceParameters(functionDescription)
-        + ") {\n\t\"use strict\"\n"
-        + _gpfFunctionBuildSourceBody(functionDescription)
-        + "\n}";
+		+ _gpfFunctionBuildSourceName(functionDescription)
+		+ "("
+		+ _gpfFunctionBuildSourceParameters(functionDescription)
+		+ ") {\n\t\"use strict\"\n"
+		+ _gpfFunctionBuildSourceBody(functionDescription)
+		+ "\n}";
 }
 
 function _gpfFunctionBuildWithContext (functionSource, context) {
@@ -128,5 +172,6 @@ function _gpfFunctionBuild (functionDescription, context) {
 
 gpf.internals._gpfFunctionDescribe = _gpfFunctionDescribe;
 gpf.internals._gpfFunctionBuild = _gpfFunctionBuild;
+gpf.internals._gpfExtractFunctionName = _gpfExtractFunctionName;
 
 /*#endif*/
