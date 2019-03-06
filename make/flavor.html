@@ -95,6 +95,7 @@ function testRequire () {
     } = compute("require host:nodejs host:browser -http/nodejs -http/mock")
     assert(() => sources.length < allSources.length)
     // Should have at least all require sources
+    assert(() => !features.includes("compatibility"))
     assert(() => features.includes("require"))
     allSources.forEach(source => {
         if (source.tags && source.tags.includes("require")) {
@@ -110,13 +111,40 @@ function testRequire () {
 function testNode () {
     const {
         sources,
-        features
-    } = compute("host:nodejs")
+        features,
+        names
+    } = compute("host:nodejs +compatibility/base64")
     assert(() => sources.length < allSources.length)
     // Should have all features *but* compatibility & host specifics
-    assert(() => features.length === allFeatures.length - 1 /* compatibility */)
-    assert(() => !features.includes("compatibility"))
-
+    assert(() => features.length === allFeatures.length)
+    // only nodejs host
+    allSources
+        .map(function (source) {
+            return source.name
+        })
+        .filter(function (name) {
+            return name.startsWith("host/")
+                && name !== "host/nodejs"
+        })
+        .forEach(function (name) {
+            assert(!names.includes(name), "not using " + name)
+        })
+    // atob should be present
+    assert(() => names.includes("compatibility/base64"))
+    assert(() => names.includes("compatibility/base64/atob"))
+    assert(() => names.includes("compatibility/base64/btoa"))
+    // other compability files missing
+    allSources
+        .map(function (source) {
+            return source.name
+        })
+        .filter(function (name) {
+            return name.startsWith("compatibility/")
+                && !name.includes("base64")
+        })
+        .forEach(function (name) {
+            assert(!names.includes(name), "not using " + name)
+        })
 }
 
 async function load () {
