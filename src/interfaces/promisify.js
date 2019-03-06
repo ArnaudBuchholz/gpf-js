@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _gpfGetFunctionName*/ // Get the function name
 /*global _gpfInterfaceQuery*/ // gpf.interfaces.query
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
 /*global _gpfPromisify*/ // Converts any value into a Promise
@@ -37,7 +38,7 @@ function _gpfInterfacesPromisify (interfaceSpecifier) {
         var iInterfaceImpl = _gpfInterfaceQuery(interfaceSpecifier, object);
         if (!iInterfaceImpl) {
             gpf.Error.interfaceExpected({
-                name: interfaceSpecifier.compatibleName()
+                name: _gpfGetFunctionName(interfaceSpecifier)
             });
         }
         return _gpfInterfacesWrap(iInterfaceImpl, interfaceSpecifier, Promise.resolve());
