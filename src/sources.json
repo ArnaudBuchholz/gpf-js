@@ -358,7 +358,8 @@
         "tags": "core"
     },
     {
-        "name": "web/tag"
+        "name": "web/tag",
+        "tags": "web"
     },
     {
         "name": "http/helpers",
