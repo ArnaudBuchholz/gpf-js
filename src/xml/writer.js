@@ -11,7 +11,7 @@
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
+/*global _gpfStringEscapeForXml*/ // String escape for Xml
 /*global _gpfXmlCheckDefinableNamespacePrefixName*/ // Check if the given XML namespace prefix name can be defined
 /*global _gpfXmlCheckQualifiedAttributeName*/ // Check XML qualified attribute name
 /*global _gpfXmlCheckQualifiedElementName*/ // Check XML qualified element name
@@ -86,7 +86,7 @@ var
 
         _writeAttribute: function (qName, value) {
             this._appendToReadBuffer(" " + qName + "=\"");
-            this._appendToReadBuffer(_gpfStringEscapeFor(value.toString(), "xml"));
+            this._appendToReadBuffer(_gpfStringEscapeForXml(value.toString()));
             this._appendToReadBuffer("\"");
         },
 
@@ -126,7 +126,7 @@ var
         characters: function (buffer) {
             this._checkState(true);
             this._addContentToLastElement();
-            this._appendToReadBuffer(_gpfStringEscapeFor(buffer.toString(), "xml"));
+            this._appendToReadBuffer(_gpfStringEscapeForXml(buffer.toString()));
             return Promise.resolve();
         },
 
