@@ -10,7 +10,7 @@
 /*global _gpfIsArray*/ // Return true if the parameter is an array
 /*global _gpfIsLiteralObject*/ // Check if the parameter is a literal object
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
+/*global _gpfStringEscapeForHtml*/ // String escape for Html
 /*global _gpfSyncReadSourceJSON*/ // Reads a source json file (only in source mode)
 /*#endif*/
 
@@ -257,7 +257,7 @@ var _GpfWebTag = _gpfDefine({
         return Object.keys(this._attributes).map(function (name) {
             _gpfWebCheckNamespaceSafe(name);
             return " " + _gpfWebTagAttributeAlias(name)
-                + "=\"" + _gpfStringEscapeFor(this._attributes[name], "html") + "\"";
+                + "=\"" + _gpfStringEscapeForHtml(this._attributes[name]) + "\"";
         }, this).join("");
     },
 
