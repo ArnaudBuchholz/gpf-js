@@ -67,6 +67,27 @@ function includeHost (tags, requested) {
     }
 }
 
+function shouldIncludeSource (requested, source) {
+    var tags = categorize(source.tags || ""),
+        shouldIncludeFeature,
+        shouldIncludeHost;
+    // core tags are always included
+    if (includeCore(tags)) {
+        return true;
+    }
+    shouldIncludeFeature = includeFeature(tags, requested);
+    // Featured sources that are not explicitely requested are discarded
+    if (shouldIncludeFeature === false) {
+        return shouldIncludeFeature;
+    }
+    // Process host relevant sources
+    shouldIncludeHost = includeHost(tags, requested);
+    if (undefined !== shouldIncludeHost) {
+        return shouldIncludeHost;
+    }
+    return shouldIncludeFeature;
+}
+
 function includeRequestedSources (sources, requested) {
     return sources.map(function (source) {
         if (requested.excluded.indexOf(source.name) !== NOT_FOUND) {
@@ -75,24 +96,7 @@ function includeRequestedSources (sources, requested) {
         if (requested.included.indexOf(source.name) !== NOT_FOUND) {
             return true;
         }
-        var tags = categorize(source.tags || ""),
-            shouldIncludeFeature,
-            shouldIncludeHost;
-        // core tags are always included
-        if (includeCore(tags)) {
-            return true;
-        }
-        shouldIncludeFeature = includeFeature(tags, requested);
-        // Featured sources that are not explicitely requested are discarded
-        if (shouldIncludeFeature === false) {
-            return shouldIncludeFeature;
-        }
-        // Process host relevant sources
-        shouldIncludeHost = includeHost(tags, requested);
-        if (undefined !== shouldIncludeHost) {
-            return shouldIncludeHost;
-        }
-        return shouldIncludeFeature;
+        return shouldIncludeSource(requested, source);
     });
 }
 
