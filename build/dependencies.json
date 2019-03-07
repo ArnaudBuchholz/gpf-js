@@ -115,7 +115,7 @@
         "foreach",
         "boot",
         "arraylike",
-        "string/escapefor"
+        "string/escape/javascript"
     ],
     "compatibility/json": [
         "compatibility",
@@ -144,6 +144,7 @@
         "arraylike"
     ],
     "string/escape/html": [
+        "string/escape/xml",
         "string/escapefor",
         "boot"
     ],
@@ -352,7 +353,7 @@
         "error",
         "literal",
         "foreach",
-        "string/escapefor",
+        "string/escape/html",
         "boot"
     ],
     "http/helpers": [
@@ -524,7 +525,7 @@
         "define",
         "error",
         "stream",
-        "string/escapefor",
+        "string/escape/regexp",
         "string/replaceex"
     ],
     "attributes/attribute": [
@@ -585,7 +586,7 @@
         "define",
         "error",
         "foreach",
-        "string/escapefor",
+        "string/escape/xml",
         "xml/check"
     ],
     "foreachasync": [
