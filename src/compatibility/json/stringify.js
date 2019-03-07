@@ -8,7 +8,7 @@
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfIsArray*/ // Return true if the parameter is an array
 /*global _gpfObjectForEach*/ // Similar to [].forEach but for objects
-/*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
+/*global _gpfStringEscapeForJavascript*/ // String escape for JavaScript
 /*exported _gpfJsonStringifyPolyfill*/ // JSON.stringify polyfill
 /*#endif*/
 
@@ -53,7 +53,7 @@ function _gpfJsonStringifyObjectMembers (object, replacer, space) {
         if (undefined === replacedValue) {
             return;
         }
-        values.push(_gpfStringEscapeFor(name, "javascript") + separator + replacedValue);
+        values.push(_gpfStringEscapeForJavascript(name) + separator + replacedValue);
     });
     return "{" + _gpfJsonStringifyFormat(values, space) + "}";
 }
@@ -71,7 +71,7 @@ _gpfJsonStringifyMapping = {
     number: _gpfJsonStringifyGeneric,
     "boolean": _gpfJsonStringifyGeneric,
     string: function (object) {
-        return _gpfStringEscapeFor(object, "javascript");
+        return _gpfStringEscapeForJavascript(object);
     },
     object: function (object, replacer, space) {
         if (_gpfIsArray(object)) {
