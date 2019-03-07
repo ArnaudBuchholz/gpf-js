@@ -13,7 +13,7 @@
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfStreamSecureWrite*/ // Generates a wrapper to secure multiple calls to stream#write
-/*global _gpfStringEscapeFor*/ // Make the string content compatible with lang
+/*global _gpfStringEscapeForRegexp*/ // String escape for RegExp
 /*global _gpfStringReplaceEx*/ // String replacement using dictionary map
 /*exported _GpfStreamCsvParser*/ // gpf.stream.csv.Parser
 /*#endif*/
@@ -161,8 +161,8 @@ var
             this._unescapeDictionary = {};
             this._unescapeDictionary[this._quote + this._quote] = this._quote;
             this._parser = new RegExp(_gpfStringReplaceEx("^(?:([^QS][^S]*)|Q((?:[^Q]|QQ)+)Q)(?=$|S)", {
-                Q: _gpfStringEscapeFor(this._quote, "regexp"),
-                S: _gpfStringEscapeFor(this._separator, "regexp")
+                Q: _gpfStringEscapeForRegexp(this._quote),
+                S: _gpfStringEscapeForRegexp(this._separator)
             }));
         },
 
