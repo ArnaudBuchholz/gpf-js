@@ -33,6 +33,8 @@ const
     publicationUrl = "https://arnaudbuchholz.github.io/gpf/",
     publicationGit = "https://github.com/ArnaudBuchholz/ArnaudBuchholz.github.io.git",
     publicationRepo = "tmp/publish",
+    releaseNotesUrl = "https://gpf-js.blogspot.com/",
+    releaseNotesPending = "p/release-notes-are-coming.html?version=",
     inquirer = require("inquirer"),
     GitHub = require("github-api"),
     ConfigFile = require("./configFile.js"),
@@ -211,12 +213,13 @@ inquirer.prompt(setupQuestions)
         readmeLines.splice(indexOfVersions, indexOfCredits - indexOfVersions,
             "Date | Version | Label | Release | Debug | Flavors\n------ | ------ | ----- | ----- | ----- | -----",
             releases.reverse().map(release => `${release.date} | `
-                        + `[${release.version}](${projectUrl}tree/v${release.version}) | ${release.label} | `
-                        + `[lib](${publicationUrl}${release.version}/gpf.js) / `
-                        + `[test](${publicationUrl}test.html?release=${release.version}) | `
-                        + `[lib](${publicationUrl}${release.version}/gpf-debug.js) / `
-                        + `[test](${publicationUrl}test.html?debug=${release.version}) | `
-                        + flavorsIn(release)
+                + `[${release.version}](${projectUrl}tree/v${release.version}) | `
+                + `[${release.label}](${releaseNotesUrl}${release.notes || releaseNotesPending + release.version}) | `
+                + `[lib](${publicationUrl}${release.version}/gpf.js) / `
+                + `[test](${publicationUrl}test.html?release=${release.version}) | `
+                + `[lib](${publicationUrl}${release.version}/gpf-debug.js) / `
+                + `[test](${publicationUrl}test.html?debug=${release.version}) | `
+                + flavorsIn(release)
             ).join("\n")
         );
         fs.writeFileSync("README.md", readmeLines.join("\n"));
