@@ -46,7 +46,7 @@
     "grunt-istanbul": "^0.8.0",
     "grunt-istanbul-coverage": "^0.1.1",
     "grunt-jsdoc": "^2.3.0",
-    "grunt-mocha": "^1.1.0",
+    "grunt-mocha": "^1.2.0",
     "grunt-mocha-test": "^0.13.3",
     "grunt-notify": "^0.4.3",
     "grunt-zip": "^0.18.1",
