@@ -1,6 +1,6 @@
 (function () {
     "use strict";
-    /*global xhr*/
+    /*global gpf*/
     var
         FIRST = 0,
         NUMBER = 1,
@@ -9,12 +9,15 @@
         return versionItem.version === versionNumber;
     }
     if (versionNumber) {
-        xhr("https://raw.githubusercontent.com/ArnaudBuchholz/gpf-js/master/build/releases.json").get().asJson()
+        gpf.http.get("https://raw.githubusercontent.com/ArnaudBuchholz/gpf-js/master/build/releases.json")
+            .then(function (response) {
+                return JSON.parse(response.responseText);
+            })
             .then(function (versions) {
                 return versions.filter(matchVersion)[FIRST];
             })
             .then(function (version) {
-                if (version.notes) {
+                if (version && version.notes) {
                     location.href = "/" + version.notes;
                 }
             });
