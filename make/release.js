@@ -166,7 +166,8 @@ inquirer.prompt(setupQuestions)
         if (!versionMilestone) {
             error("No corresponding milestone found");
         }
-        versionTitle = versionMilestone.title.substring(versionMilestone.title.indexOf(":")).trim();
+        const SKIP = 1;
+        versionTitle = versionMilestone.title.substring(versionMilestone.title.indexOf(":") + SKIP).trim();
         console.log(`Milestone: ${versionMilestone.title}`);
         console.log(`Remaining open issues: ${versionMilestone.open_issues}`);
         if (versionMilestone.open_issues) {
