@@ -16,15 +16,19 @@ const
         };
         global.include = source => require(`../test/${source}.js`);
         require("../test/host/features");
-    };
+    },
+
+    build = options => Object.assign({
+        timeout: false,
+        quiet: false,
+        reporter: "dot"
+    }, options);
 
 // Test automation inside NodeJS
 module.exports = (grunt) => {
     return {
         source: {
-            options: {
-                reporter: "dot",
-                quiet: false,
+            options: build({
                 require: [
                     () => {
                         setup("src/");
@@ -38,27 +42,26 @@ module.exports = (grunt) => {
                         }
                     }
                 ]
-            },
+            }),
             src: configuration.files.test
         },
         verbose: {
-            options: {
+            options: build({
                 reporter: "spec",
-                quiet: false,
                 require: [
                     () => {
                         setup("src/");
                     },
                     "./src/boot.js"
                 ]
-            },
+            }),
             src: configuration.files.test
         },
         coverage: {
-            options: {
+            options: build({
+                quiet: true,
                 reporter: "json",
                 captureFile: "./tmp/coverage/mochaTest.json",
-                quiet: true,
                 require: [
                     () => {
                         setup("tmp/coverage/instrument/src/");
@@ -68,13 +71,11 @@ module.exports = (grunt) => {
                         require("../test/host/console.js");
                     }
                 ]
-            },
+            }),
             src: configuration.files.test
         },
         debug: {
-            options: {
-                reporter: "dot",
-                quiet: false,
+            options: build({
                 require: [
                     () => {
                         setup();
@@ -82,13 +83,11 @@ module.exports = (grunt) => {
                         require("../test/host/console.js");
                     }
                 ]
-            },
+            }),
             src: configuration.files.test
         },
         release: {
-            options: {
-                reporter: "dot",
-                quiet: false,
+            options: build({
                 require: [
                     () => {
                         setup();
@@ -96,13 +95,11 @@ module.exports = (grunt) => {
                         require("../test/host/console.js");
                     }
                 ]
-            },
+            }),
             src: configuration.files.test
         },
         legacy: {
-            options: {
-                reporter: "dot",
-                quiet: false,
+            options: build({
                 require: [
                     () => {
                         setup("src/");
@@ -113,7 +110,7 @@ module.exports = (grunt) => {
                         delete gpf.internals;
                     }
                 ]
-            },
+            }),
             src: "test/legacy/<%= grunt.task.current.args[0] %>.js"
         }
     };
