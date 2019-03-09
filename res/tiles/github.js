@@ -27,7 +27,7 @@ gpf.require.define({
             return [
                 dom.div({className: "status", title: "Connecting..."}),
                 dom.ul([
-                    dom.li({link: root + "issues?q=is%3Aopen+is%3Aissue+no%3Amilestone"}, "Backlog"),
+                    dom.li({link: root + "issues?q=is%3Aopen+is%3Aissue+no%3Amilestone+-label%3AEPIC"}, "Backlog"),
                     dom.li({link: root + "milestones"}, "Milestones"),
                     dom.li({link: root + "issues/new"}, "New issue")
                 ])
