@@ -41,7 +41,7 @@
          * GPF Version
          * @since 0.1.5
          */
-        _gpfVersion = "0.2.8-alpha", _GPF_NOT_FOUND = -1, _GPF_START = 0, _GPF_FS_WSCRIPT_READING = 1,
+        _gpfVersion = "0.2.9", _GPF_NOT_FOUND = -1, _GPF_START = 0, _GPF_FS_WSCRIPT_READING = 1,
         /**
          * Host constants
          * @since 0.1.5
@@ -512,73 +512,6 @@
         _gpfIdentifierFirstChar = _gpfAlpha + _gpfALPHA + "_$",
         // List of allowed other chars in an identifier
         _gpfIdentifierOtherChars = _gpfAlpha + _gpfALPHA + _gpfDigit + "_$",
-        // List of JavaScript keywords
-        _gpfJsKeywords = [
-            "abstract",
-            "arguments",
-            "await",
-            "boolean",
-            "break",
-            "byte",
-            "case",
-            "catch",
-            "char",
-            "class",
-            "const",
-            "continue",
-            "debugger",
-            "default",
-            "delete",
-            "do",
-            "double",
-            "else",
-            "enum",
-            "eval",
-            "export",
-            "extends",
-            "false",
-            "final",
-            "finally",
-            "float",
-            "for",
-            "function",
-            "goto",
-            "if",
-            "implements",
-            "import",
-            "in",
-            "instanceof",
-            "int",
-            "interface",
-            "let",
-            "long",
-            "native",
-            "new",
-            "null",
-            "package",
-            "private",
-            "protected",
-            "public",
-            "return",
-            "short",
-            "static",
-            "super",
-            "switch",
-            "synchronized",
-            "this",
-            "throw",
-            "throws",
-            "transient",
-            "true",
-            "try",
-            "typeof",
-            "var",
-            "void",
-            "volatile",
-            "while",
-            "with",
-            "yield"
-        ],
         // Get the name of a function if bound to the call
         _gpfJsCommentsRegExp = new RegExp("//.*$|/\\*(?:[^\\*]*|\\*[^/]*)\\*/", "gm");
     // Unprotected version of _gpfFunc
@@ -684,18 +617,26 @@
         _gpfAssert(undefined !== _gpfStringEscapes[language], "Unknown language");
         return _gpfStringEscapePostProcessFor(_gpfStringReplaceEx(that, _gpfStringEscapes[language]), language);
     }
-    _gpfStringEscapes.javascript = {
+    var _GPF_STRING_ESCAPE_JAVASCRIPT = "javascript";
+    _gpfStringEscapes[_GPF_STRING_ESCAPE_JAVASCRIPT] = {
         "\\": "\\\\",
         "\"": "\\\"",
         "\n": "\\n",
         "\r": "\\r",
         "\t": "\\t"
     };
-    _gpfStringEscapes.xml = {
+    function _gpfStringEscapeForJavascript(that) {
+        return _gpfStringEscapeFor(that, _GPF_STRING_ESCAPE_JAVASCRIPT);
+    }
+    var _GPF_STRING_ESCAPE_XML = "xml";
+    _gpfStringEscapes[_GPF_STRING_ESCAPE_XML] = {
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;"
     };
+    function _gpfStringEscapeForXml(that) {
+        return _gpfStringEscapeFor(that, _GPF_STRING_ESCAPE_XML);
+    }
     function _gpfInstallMissingMembers(on, members) {
         _gpfObjectForEach(members, function (value, memberName) {
             if (on[memberName] === undefined) {
@@ -956,35 +897,6 @@
             }
         }
     });
-    //region Function name
-    var _GPF_COMPATIBILITY_FUNCTION_KEYWORD = "function";
-    function _gpfGetFunctionName() {
-        // Use simple parsing
-        /*jshint validthis:true*/
-        var functionSource = _gpfEmptyFunc.toString.call(this),
-            //eslint-disable-line no-invalid-this
-            functionKeywordPos = functionSource.indexOf(_GPF_COMPATIBILITY_FUNCTION_KEYWORD) + _GPF_COMPATIBILITY_FUNCTION_KEYWORD.length, parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
-        return functionSource.substr(functionKeywordPos, parameterListStartPos - functionKeywordPos).replace(_gpfJsCommentsRegExp, "")    // remove comments
-.trim();
-    }
-    // Handling function name properly
-    if (function () {
-            // Trick source minification
-            var testFunction = _gpfFunc("return function functionName () {};")();
-            return testFunction.name !== "functionName";
-        }()) {
-        Function.prototype.compatibleName = _gpfGetFunctionName;
-    } else {
-        /**
-         * Return function name
-         *
-         * @return {String} Function name
-         * @since 0.1.5
-         */
-        Function.prototype.compatibleName = function () {
-            return this.name;
-        };
-    }    //endregion
     function _gpfObjectAssign(value, memberName) {
         /*jshint validthis:true*/
         this[memberName] = value;    //eslint-disable-line no-invalid-this
@@ -1088,7 +1000,7 @@
             // Introduced with ECMAScript 2015
             startsWith: function (search) {
                 var position = _gpfStringGetOptionalParam(arguments, _GPF_START);
-                return this.substr(position, search.length) === search;
+                return this.substring(position, position + search.length) === search;
             },
             // Introduced with JavaScript 1.8.1
             trim: function () {
@@ -1560,7 +1472,7 @@
             if (undefined === replacedValue) {
                 return;
             }
-            values.push(_gpfStringEscapeFor(name, "javascript") + separator + replacedValue);
+            values.push(_gpfStringEscapeForJavascript(name) + separator + replacedValue);
         });
         return "{" + _gpfJsonStringifyFormat(values, space) + "}";
     }
@@ -1576,7 +1488,7 @@
         number: _gpfJsonStringifyGeneric,
         "boolean": _gpfJsonStringifyGeneric,
         string: function (object) {
-            return _gpfStringEscapeFor(object, "javascript");
+            return _gpfStringEscapeForJavascript(object);
         },
         object: function (object, replacer, space) {
             if (_gpfIsArray(object)) {
@@ -1631,6 +1543,83 @@
         parse: _gpfJsonParsePolyfill,
         stringify: _gpfJsonStringifyPolyfill
     });
+    var _gpfBase64 = _gpfALPHA + _gpfAlpha + _gpfDigit + "+/=", _GPF_6_BITS_MASK = 63, _GPF_18_BITS = 18, _GPF_16_BITS = 18, _GPF_12_BITS = 12, _GPF_6_BITS = 6, _GPF_1_BYTE = 8, _GPF_2_BYTES = 16, _GPF_PADDING_CHAR = 64;
+    var _gpfRegExpBase64 = /^(?:[A-Za-z\d+/]{4})*?(?:[A-Za-z\d+/]{2}(?:==)?|[A-Za-z\d+/]{3}=?)?$/, _GPF_ATOB_INDEX_INCREMENT = 4;
+    function _gpfAtobCheckInput(encodedData) {
+        var string = encodedData.replace(/[\t\n\f\r ]+/g, "");
+        if (!_gpfRegExpBase64.test(string)) {
+            throw new TypeError("The string to be decoded is not correctly encoded.");
+        }
+        return string;
+    }
+    function _gpfAtobDecodeLeadingBytes(bitmap, r2) {
+        if (r2 === _GPF_PADDING_CHAR) {
+            return String.fromCharCode(bitmap >> _GPF_1_BYTE & _gpfMaxUnsignedByte);
+        }
+        return String.fromCharCode(bitmap >> _GPF_1_BYTE & _gpfMaxUnsignedByte, bitmap & _gpfMaxUnsignedByte);
+    }
+    function _gpfAtobDecode(bitmap, r1, r2) {
+        var result = String.fromCharCode(bitmap >> _GPF_2_BYTES & _gpfMaxUnsignedByte);
+        if (r1 !== _GPF_PADDING_CHAR) {
+            return result + _gpfAtobDecodeLeadingBytes(bitmap, r2);
+        }
+        return result;
+    }
+    function _gpfAtobTranslate(input, index) {
+        return _gpfBase64.indexOf(input.charAt(index));
+    }
+    function _gpfAtobRead(input, from) {
+        var index = from, bitmap, r1, r2;
+        bitmap = _gpfAtobTranslate(input, index++) << _GPF_18_BITS | _gpfAtobTranslate(input, index++) << _GPF_12_BITS;
+        r1 = _gpfAtobTranslate(input, index++);
+        r2 = _gpfAtobTranslate(input, index++);
+        bitmap |= r1 << _GPF_6_BITS | r2;
+        return _gpfAtobDecode(bitmap, r1, r2);
+    }
+    function _gpfAtob(encodedData) {
+        var input = _gpfAtobCheckInput(encodedData), length = input.length, index = 0, result = "";
+        input += "==";
+        // Pad leading bytes
+        for (; index < length; index += _GPF_ATOB_INDEX_INCREMENT) {
+            result += _gpfAtobRead(input, index);
+        }
+        return result;
+    }
+    var _GPF_BTOA_MAX_PADDING = 3, _GPF_BTOA_INDEX_INCREMENT = 3;
+    function _gpfBtoaCheck(stringToEncode, index) {
+        var value = stringToEncode.charCodeAt(index);
+        if (value > _gpfMaxUnsignedByte) {
+            throw new TypeError("The string to be encoded contains characters outside of the Latin1 range.");
+        }
+        return value;
+    }
+    function _gpfBtoaRead(input, from) {
+        var index = from, a, b, c;
+        a = _gpfBtoaCheck(input, index++);
+        b = _gpfBtoaCheck(input, index++);
+        c = _gpfBtoaCheck(input, index++);
+        return a << _GPF_2_BYTES | b << _GPF_1_BYTE | c;
+    }
+    function _gpfBtoaEncodeChar(bitmap, shift, mask) {
+        return _gpfBase64.charAt(bitmap >> shift & mask);
+    }
+    function _gpfBtoaEncode(bitmap) {
+        return _gpfBtoaEncodeChar(bitmap, _GPF_18_BITS, _GPF_6_BITS_MASK) + _gpfBtoaEncodeChar(bitmap, _GPF_12_BITS, _GPF_6_BITS_MASK) + _gpfBtoaEncodeChar(bitmap, _GPF_6_BITS, _GPF_6_BITS_MASK) + _gpfBtoaEncodeChar(bitmap, _GPF_START, _GPF_6_BITS_MASK);
+    }
+    function _gpfBtoa(stringToEncode) {
+        var index = 0, result = "", rest = stringToEncode.length % _GPF_BTOA_MAX_PADDING;
+        // To determine the final padding
+        for (; index < stringToEncode.length; index += _GPF_BTOA_INDEX_INCREMENT) {
+            result += _gpfBtoaEncode(_gpfBtoaRead(stringToEncode, index));
+        }
+        // If there's need of padding, replace the last 'A's with equal signs
+        if (rest) {
+            return result.slice(_GPF_START, rest - _GPF_BTOA_MAX_PADDING) + "===".substring(rest);
+        }
+        return result;
+    }
+    _gpfCompatibilityInstallGlobal("atob", _gpfAtob);
+    _gpfCompatibilityInstallGlobal("btoa", _gpfBtoa);
     function _gpfGetObjectProperty(parent, name) {
         if (undefined !== parent) {
             return parent[name];
@@ -1697,18 +1686,57 @@
         }
         return _gpfContext(path.split("."));
     };
-    _gpfStringEscapes.html = Object.assign({}, _gpfStringEscapes.xml, {
+    var _GPF_STRING_ESCAPE_HTML = "html";
+    _gpfStringEscapes.html = Object.assign({}, _gpfStringEscapes[_GPF_STRING_ESCAPE_XML], {
         "à": "&agrave;",
         "á": "&aacute;",
         "è": "&egrave;",
         "é": "&eacute;",
         "ê": "&ecirc;"
     });
+    function _gpfStringEscapeForHtml(that) {
+        return _gpfStringEscapeFor(that, _GPF_STRING_ESCAPE_HTML);
+    }
     function _gpfStringTrim(that) {
         return that.trim();
     }
+    var _GPF_FUNCTION_KEYWORD = "function";
+    function _gpfExtractFunctionName(func) {
+        // Use simple parsing
+        var functionSource = _gpfEmptyFunc.toString.call(func), functionKeywordPos = functionSource.indexOf(_GPF_FUNCTION_KEYWORD) + _GPF_FUNCTION_KEYWORD.length, parameterListStartPos = functionSource.indexOf("(", functionKeywordPos);
+        return functionSource.substring(functionKeywordPos, parameterListStartPos).replace(_gpfJsCommentsRegExp, "")    // remove comments
+.trim();
+    }
+    /**
+     * Get the function name
+     *
+     * @param {Function} func Function
+     * @return {String} Function name
+     * @since 0.2.9
+     */
+    var _gpfGetFunctionName;
+    // Handling function name properly
+    if (function () {
+            // Trick source minification
+            var testFunction = _gpfFunc("return function functionName () {};")();
+            return testFunction.name !== "functionName";
+        }()) {
+        _gpfGetFunctionName = _gpfExtractFunctionName;
+    } else {
+        _gpfGetFunctionName = function (func) {
+            return func.name;
+        };
+    }
+    //endregion
+    /**
+     * @typedef {Object} gpf.typedef._functionDescription
+     * @property {String} [name] Function name
+     * @property {String[]} [parameters] Function parameters
+     * @property {String} [body] Function body
+     * @since 0.1.6
+     */
     function _gpfFunctionDescribeName(functionToDescribe, resultDescription) {
-        var name = functionToDescribe.compatibleName();
+        var name = _gpfGetFunctionName(functionToDescribe);
         if (name) {
             resultDescription.name = name;
         }
@@ -1924,6 +1952,27 @@
          */
         invalidParameter: "Invalid parameter"
     });
+    function _gpfIsClassFunction(value) {
+        return value.toString().startsWith("class");
+    }
+    /**
+     * Check if the parameter is an ES6 class
+     *
+     * @param {*} value Value to test
+     * @return {Boolean} true if the parameter is an ES6 class
+     * @since 0.2.9
+     */
+    function _gpfIsClass(value) {
+        if (typeof value === "function") {
+            return _gpfIsClassFunction(value);
+        }
+        return false;
+    }
+    /**
+     * @gpf:sameas _gpfIsClass
+     * @since 0.2.9
+     */
+    gpf.isClass = _gpfIsClass;
     _gpfErrorDeclare("define/detect", {
         /**
          * ### Summary
@@ -2063,6 +2112,32 @@
             parameters: _gpfBuildFunctionParameterList(numberOfParameters),
             body: "_throw_();"
         }, { _throw_: gpf.Error.abstractMethod });
+    }
+    var _gpfDefinedEntities = [];
+    /**
+     * Retrieve entity definition from Constructor.
+     * NOTE: This is an internal solution that has the advantage of not exposing the entity definitions.
+     *       For performance reasons, this may change in the future.
+     *
+     * @param {Function} Constructor Constructor function
+     * @return {_GpfEntityDefinition|undefined} Entity definition (if found)
+     * @since 0.2.9
+     */
+    function _gpfDefineEntitiesFindByConstructor(Constructor) {
+        return _gpfDefinedEntities.filter(function (entityDefinition) {
+            return entityDefinition.getInstanceBuilder() === Constructor;
+        })[_GPF_START];
+    }
+    /**
+     * Store the entity definition to be retreived later
+     *
+     * @param  {_GpfEntityDefinition} entityDefinition Entity definition
+     * @since 0.2.9
+     */
+    function _gpfDefineEntitiesAdd(entityDefinition) {
+        _gpfAssert(entityDefinition._instanceBuilder !== null, "Instance builder must be set");
+        _gpfAssert(!_gpfDefineEntitiesFindByConstructor(entityDefinition.getInstanceBuilder()), "Already added");
+        _gpfDefinedEntities.push(entityDefinition);
     }
     _gpfErrorDeclare("define/check", {
         /**
@@ -2330,32 +2405,6 @@
             this._checkNamespace();
         }
     });
-    var _gpfDefinedEntities = [];
-    /**
-     * Retrieves entity definition from instance instance builder.
-     * NOTE: This is an internal solution that has the advantage of not exposing the entity definitions.
-     *       For performance reasons, this may change in the future.
-     *
-     * @param {Function} instanceBuilder Instance builder
-     * @return {_GpfEntityDefinition|undefined} Entity definition (if found)
-     * @since 0.2.4
-     */
-    function _gpfDefineGetEntityFromBuilder(instanceBuilder) {
-        var result = _gpfArrayForEachFalsy(_gpfDefinedEntities, function (entityDefinition) {
-            if (entityDefinition.getInstanceBuilder() === instanceBuilder) {
-                return entityDefinition;
-            }
-        });
-        if (!result) {
-            // Reversed lookup because the  level
-            result = _gpfArrayForEachFalsy([].concat(_gpfDefinedEntities).reverse(), function (entityDefinition) {
-                if (instanceBuilder.prototype instanceof entityDefinition.getInstanceBuilder()) {
-                    return entityDefinition;
-                }
-            });
-        }
-        return result;
-    }
     Object.assign(_GpfEntityDefinition.prototype, {
         /**
          * Instance builder function (a.k.a. public constructor)
@@ -2385,7 +2434,7 @@
                 _gpfContext(this._namespace.split("."), true)[this._name] = value;
             }
             this._instanceBuilder = value;
-            _gpfDefinedEntities.push(this);
+            _gpfDefineEntitiesAdd(this);
         },
         /**
          * Process initial definition and generate instance builder function
@@ -2412,6 +2461,46 @@
         _type: "class"
     });
     _gpfDefineTypedBuilders["class"] = _GpfClassDefinition;
+    function _GpfImportedClassDefinition(InstanceBuilder, definition) {
+        /*jshint validthis:true*/
+        // constructor
+        /*eslint-disable no-invalid-this*/
+        _GpfClassDefinition.call(this, definition);
+        this._instanceBuilder = InstanceBuilder;    /*eslint-enable no-invalid-this*/
+    }
+    _GpfImportedClassDefinition.prototype = Object.create(_GpfClassDefinition.prototype);
+    Object.assign(_GpfImportedClassDefinition.prototype, {
+        // Since it might not even have a name
+        _checkNameIsNotEmpty: _gpfEmptyFunc,
+        _checkName: _gpfEmptyFunc
+    });
+    function _gpfDefineClassImportGetDefinition(InstanceBuilder) {
+        var extendPrototype = Object.getPrototypeOf(InstanceBuilder.prototype);
+        return {
+            $name: _gpfGetFunctionName(InstanceBuilder),
+            $extend: extendPrototype.constructor
+        };
+    }
+    function _gpfDefineClassImportFrom(InstanceBuilder, definition) {
+        var entityDefinition = new _GpfImportedClassDefinition(InstanceBuilder, definition);
+        _gpfDefineEntitiesAdd(entityDefinition);
+        entityDefinition.check();
+        return entityDefinition;
+    }
+    /**
+     * Import a class as an entity definition
+     *
+     * @param {Function} InstanceBuilder Instance builder (must be an ES6 class)
+     * @return {_GpfEntityDefinition} Entity definition
+     * @since 0.2.9
+     */
+    function _gpfDefineClassImport(InstanceBuilder) {
+        var entityDefinition = _gpfDefineEntitiesFindByConstructor(InstanceBuilder);
+        if (entityDefinition) {
+            return entityDefinition;
+        }
+        return _gpfDefineClassImportFrom(InstanceBuilder, _gpfDefineClassImportGetDefinition(InstanceBuilder));
+    }
     _gpfErrorDeclare("define/class/check", {
         /**
          * ### Summary
@@ -2586,7 +2675,6 @@
             var extend = _gpfDefineClassDecontextifyExtend(this._initialDefinition.$extend);
             if (extend) {
                 this._extend = extend;
-                this._extendDefinition = _gpfDefineGetEntityFromBuilder(extend);
             }
         },
         /**
@@ -2619,6 +2707,7 @@
         check: function () {
             this._readExtend();
             this._checkExtend();
+            this._extendDefinition = _gpfDefineClassImport(this._extend);
             _GpfEntityDefinition.prototype.check.call(this);
         }
     });
@@ -2655,10 +2744,32 @@
     function _gpfDefineClassConstructorAddCodeWrapper(codeWrapper) {
         _gpfDefineClassConstructorCodeWrappers.push(codeWrapper);
     }
+    function _gpfDefineGetClassSecuredConstructorGetES6ConstructionBody(classDefinition) {
+        if (classDefinition._extend === classDefinition._resolvedConstructor) {
+            return "var that = Reflect.construct(_classDef_._extend, arguments, _classDef_._instanceBuilder);\n";
+        }
+        return "var that,\n" + "    $super = function () {\n" + "        that = Reflect.construct(_classDef_._extend, arguments, _classDef_._instanceBuilder);\n" + "    },\n" + "    hasOwnProperty = function (name) {\n" + "        return !!that && that.hasOwnProperty(name);\n" + "    },\n" + "    proxy = new Proxy({}, {\n" + "        get: function (obj, property) {\n" + "            if (property === \"hasOwnProperty\") {\n" + "              return hasOwnProperty;\n" + "            }\n" + "            if (!that && property === \"$super\") {\n" + "              return $super;\n" + "            }\n" + "            return that[property];\n" + "        },\n" + "        set: function (obj, property, value) {\n" + "            if (property !== \"$super\") {\n" + "                that[property] = value;\n" + "            }\n" + "            return true;\n" + "        }\n" + "    });\n" + "_classDef_._resolvedConstructor.apply(proxy, arguments);\n";
+    }
+    function _gpfDefineGetClassSecuredConstructorGetMainConstructionPattern(classDefinition) {
+        if (_gpfIsClass(classDefinition._extend)) {
+            return {
+                instance: "that",
+                body: _gpfDefineGetClassSecuredConstructorGetES6ConstructionBody(classDefinition)
+            };
+        }
+        return {
+            instance: "this",
+            body: "_classDef_._resolvedConstructor.apply(this, arguments);"
+        };
+    }
     function _gpfDefineGetClassSecuredConstructorBody(classDefinition) {
-        return "if (!(this instanceof _classDef_._instanceBuilder)) gpf.Error.classConstructorFunction();\n" + _gpfDefineClassConstructorCodeWrappers.reduce(function (body, codeWrapper) {
-            return codeWrapper(classDefinition, body);
-        }, "_classDef_._resolvedConstructor.apply(this, arguments);");
+        var construction = _gpfDefineGetClassSecuredConstructorGetMainConstructionPattern(classDefinition), constructorBody = "if (!(this instanceof _classDef_._instanceBuilder)) gpf.Error.classConstructorFunction();\n" + _gpfDefineClassConstructorCodeWrappers.reduce(function (body, codeWrapper) {
+                return codeWrapper(classDefinition, body, construction.instance);
+            }, construction.body);
+        if (construction.instance !== "this") {
+            constructorBody += "\nreturn " + construction.instance + ";";
+        }
+        return constructorBody;
     }
     function _gpfDefineGetClassSecuredConstructorDefinition(classDefinition) {
         return {
@@ -2950,6 +3061,29 @@
             }
         }
     });
+    function _gpfDefineClassStandardGetDictionary(name) {
+        return { $name: name };
+    }
+    function _gpfDefineClassStandardPatchDefinition(entityDefinition) {
+        Object.assign(entityDefinition, {
+            _extend: null,
+            _extendDefinition: null
+        });
+    }
+    function _gpfDefineClassStandardInstallEntityDefinition(InstanceBuilder, name) {
+        var entityDefinition = _gpfDefineClassImportFrom(InstanceBuilder, _gpfDefineClassStandardGetDictionary(name));
+        _gpfDefineClassStandardPatchDefinition(entityDefinition);
+    }
+    _gpfDefineClassStandardInstallEntityDefinition(Object, "Object");
+    _gpfObjectForEach({
+        "Array": Array,
+        "Date": Date,
+        "Error": Error,
+        "Function": Function,
+        "Number": Number,
+        "RegExp": RegExp,
+        "String": String
+    }, _gpfDefineClassStandardInstallEntityDefinition);
     _gpfErrorDeclare("define/class/abstract", {
         /**
          * ### Summary
@@ -3000,7 +3134,8 @@
             }
         }
     });
-    _gpfDefineClassConstructorAddCodeWrapper(function (classDefinition, body) {
+    _gpfDefineClassConstructorAddCodeWrapper(function (classDefinition, body, instance) {
+        _gpfIgnore(instance);
         if (classDefinition._abstract) {
             return "if (this.constructor === _classDef_._instanceBuilder) gpf.Error.abstractClass();\n" + body;
         }
@@ -3051,9 +3186,9 @@
             }
         }
     });
-    _gpfDefineClassConstructorAddCodeWrapper(function (classDefinition, body) {
+    _gpfDefineClassConstructorAddCodeWrapper(function (classDefinition, body, instance) {
         if (classDefinition._singleton) {
-            return "if (!_classDef_._singletonInstance) {\n" + body + "\n" + "_classDef_._singletonInstance = this;\n" + "}\n" + "return _classDef_._singletonInstance;";
+            return "if (!_classDef_._singletonInstance) {\n" + body + "\n" + "_classDef_._singletonInstance = " + instance + ";\n" + "}\n" + "return _classDef_._singletonInstance;";
         }
         return body;
     });
@@ -3919,7 +4054,7 @@
         if (pos === _GPF_NOT_FOUND) {
             return "";
         }
-        return name.substr(pos);
+        return name.substring(pos);
     }
     var _gpfPathAppendPatterns = {
         "": function (splitPath) {
@@ -4795,7 +4930,7 @@
         _getAttributesAsString: function () {
             return Object.keys(this._attributes).map(function (name) {
                 _gpfWebCheckNamespaceSafe(name);
-                return " " + _gpfWebTagAttributeAlias(name) + "=\"" + _gpfStringEscapeFor(this._attributes[name], "html") + "\"";
+                return " " + _gpfWebTagAttributeAlias(name) + "=\"" + _gpfStringEscapeForHtml(this._attributes[name]) + "\"";
             }, this).join("");
         },
         _getChildrenAsString: function () {
@@ -5192,19 +5327,17 @@
         xhr.open(request.method, request.url);
         return xhr;
     }
-    function _gpfHttpXhrWaitForCompletion(xhr, callback) {
+    function _gpfHttpXhrWaitForCompletion(xhr, resolve) {
         xhr.onreadystatechange = function () {
             if (xhr.readyState === _GPF_HTTP_XHR_READYSTATE_DONE) {
-                callback();
+                resolve(_gpfHttpXhrGetResponse(xhr));
             }
         };
     }
     function _gpfHttpXhrRequest(request, resolve) {
         var xhr = _gpfHttpXhrOpen(request);
         _gpfHttpXhrSetHeaders(xhr, request.headers);
-        _gpfHttpXhrWaitForCompletion(xhr, function () {
-            resolve(_gpfHttpXhrGetResponse(xhr));
-        });
+        _gpfHttpXhrWaitForCompletion(xhr, resolve);
         _gpfHttpXhrSend(xhr, request.data);
     }
     _gpfHttpSetRequestImplIf(_GPF_HOST.BROWSER, _gpfHttpXhrRequest);
@@ -5453,7 +5586,7 @@
     }
     _gpfHttpSetRequestImplIf(_GPF_HOST.RHINO, _gpfHttpJavaRequestImpl);
     _gpfHttpSetRequestImplIf(_GPF_HOST.NASHORN, _gpfHttpJavaRequestImpl);
-    var _gpfHttpMockedRequests = {};
+    var _gpfHttpMockedRequests;
     /**
      * Match the provided request with the mocked one
      *
@@ -5486,6 +5619,12 @@
         });
         return result;
     }
+    function _gpfHttpMockGetMockedRequests(method) {
+        if (!_gpfHttpMockedRequests[method]) {
+            _gpfHttpMockedRequests[method] = [];
+        }
+        return _gpfHttpMockedRequests[method];
+    }
     /**
      * Check if the provided request match any of the mocked one
      *
@@ -5494,7 +5633,7 @@
      * @since 0.2.2
      */
     function _gpfHttpMockCheck(request) {
-        return _gpfHttMockMatch(_gpfHttpMockedRequests[request.method], request);
+        return _gpfHttMockMatch(_gpfHttpMockGetMockedRequests(request.method.toUpperCase()), request);
     }
     var _gpfHttpMockLastId = 0;
     /**
@@ -5506,10 +5645,8 @@
      * @since 0.2.2
      */
     function _gpfHttpMockAdd(definition) {
-        var method = definition.method, id;
-        ++_gpfHttpMockLastId;
-        id = method + "." + _gpfHttpMockLastId;
-        _gpfHttpMockedRequests[method].unshift(Object.assign({ id: id }, definition));
+        var method = definition.method.toUpperCase(), id = method + "." + _gpfHttpMockLastId++;
+        _gpfHttpMockGetMockedRequests(method).unshift(Object.assign({ id: id }, definition));
         return id;
     }
     /**
@@ -5520,7 +5657,7 @@
      */
     function _gpfHttpMockRemove(id) {
         var method = id.substring(_GPF_START, id.indexOf("."));
-        _gpfHttpMockedRequests[method] = _gpfHttpMockedRequests[method].filter(function (mockedRequest) {
+        _gpfHttpMockedRequests[method] = _gpfHttpMockGetMockedRequests(method).filter(function (mockedRequest) {
             return mockedRequest.id !== id;
         });
     }
@@ -5529,9 +5666,7 @@
      * @since 0.2.2
      */
     function _gpfHttpMockReset() {
-        Object.keys(_GPF_HTTP_METHODS).forEach(function (method) {
-            _gpfHttpMockedRequests[method] = [];
-        });
+        _gpfHttpMockedRequests = {};
     }
     _gpfHttpMockReset();
     /**
@@ -5941,6 +6076,13 @@
         }
         return _gpfRead(name);
     }
+    function _gpfLoadTextProcessor(name, content) {
+        _gpfIgnore(name);
+        return Promise.resolve(content);
+    }
+    function _gpfLoadGetProcessor(resource) {
+        return _gpfRequireProcessor[resource.type] || _gpfLoadTextProcessor;
+    }
     /**
      * Load the resource
      *
@@ -5951,12 +6093,13 @@
     function _gpfRequireLoad(name) {
         var me = this;
         return _gpfLoadOrPreload(me, name).then(function (content) {
-            var processor = _gpfRequireProcessor[_gpfPathExtension(name).toLowerCase()];
-            if (processor) {
-                return processor.call(me, name, content);
-            }
-            // Treated as simple text file by default
-            return content;
+            return me.preprocess({
+                name: name,
+                content: content,
+                type: _gpfPathExtension(name).toLowerCase()
+            });
+        }).then(function (resource) {
+            return _gpfLoadGetProcessor(resource).call(me, resource.name, resource.content);
         });
     }
     function _gpfRequireAllocateWrapper() {
@@ -6113,7 +6256,7 @@
             return exports;
         });
     };
-    _gpfErrorDeclare("require", {
+    _gpfErrorDeclare("require/configure", {
         /**
          * ### Summary
          *
@@ -6125,7 +6268,19 @@
          * Please check the {@link gpf.typedef.requireOptions} documentation.
          * @since 0.2.2
          */
-        invalidRequireConfigureOption: "Invalid configuration option"
+        invalidRequireConfigureOption: "Invalid configuration option",
+        /**
+         * ### Summary
+         *
+         * Invalid {@link gpf.require.configure} option value
+         *
+         * ### Description
+         *
+         * This error is triggered whenever an option passed to {@link gpf.require.configure} has an invalid value.
+         * Please check the {@link gpf.typedef.requireOptions} documentation.
+         * @since 0.2.9
+         */
+        invalidRequireConfigureOptionValue: "Invalid configuration option value"
     });
     /**
      * @namespace gpf.require
@@ -6138,74 +6293,135 @@
      * @property {Object} [cache] Inject names into the require cache
      * @property {Boolean} [clearCache=false] When set, the require cache is first cleared
      * @property {Object} [preload] Inject names into the loading cache
+     * @property {gpf.typedef.requirePreprocessFunc} [preprocess] Resource preprocessor
      * @since 0.2.2
      */
+    var
+        /**
+         * Dictionary of option name to function handling the option
+         * @type {Object}
+         * @since 0.2.2
+         */
+        _gpfRequireConfigureHandler = {},
+        /**
+         * Array of option names which order is significant
+         * @type {Array}
+         * @since 0.2.9
+         */
+        _gpfRequireConfigureOptionNames = [];
     /**
-     * @typedef gpf.typedef._requireContext
-     * @property {String} base Base path used to resolve names
-     * @property {Object} cache Dictionary of loaded requires
-     * @since 0.2.2
-     */
-    var _GPF_REQUIRE_OPTION_PRIORITY_HIGH = -1, _GPF_REQUIRE_OPTION_PRIORITY_LOW = 1;
-    /**
-     * Valuate the option priority to have them executed in the proper order
+     * Declare a configuration option
      *
-     * @param {String} name option name
-     * @return {Number} Option priority
-     * @since 0.2.2
+     * @param {String} name Option name
+     * @param {Function} handler Option handler (will receive context and value)
+     * @param {Boolean} [highPriority=false] Option must be handled before the others
+     * @since 0.2.9
      */
-    function _gpfRequireOptionPriority(name) {
-        if (name === "clearCache") {
-            return _GPF_REQUIRE_OPTION_PRIORITY_HIGH;
+    function _gpfRequireConfigureAddOption(name, handler, highPriority) {
+        if (highPriority) {
+            _gpfRequireConfigureOptionNames.unshift(name);
+        } else {
+            _gpfRequireConfigureOptionNames.push(name);
         }
-        return _GPF_REQUIRE_OPTION_PRIORITY_LOW;
+        _gpfRequireConfigureHandler[name] = handler;
     }
-    /**
-     *  Dictionary of option name to function handling the option
-     * @type {Object}
-     * @since 0.2.2
-     */
-    var _gpfRequireOptionHandler = {
-        base: function (base) {
-            this.base = base;
-        },
-        cache: function (cache) {
-            _gpfArrayForEach(Object.keys(cache), function (name) {
-                this.cache[name] = Promise.resolve(cache[name]);
-            }, this);
-        },
-        clearCache: function () {
-            this.cache = {};
-        },
-        preload: function (cache) {
-            _gpfArrayForEach(Object.keys(cache), function (name) {
-                this.preload[name] = cache[name];
-            }, this);
-        }
-    };
+    function _gpfRequireConfigureCheckOptions(options) {
+        _gpfArrayForEach(Object.keys(options), function (name) {
+            if (!_gpfRequireConfigureHandler[name]) {
+                gpf.Error.invalidRequireConfigureOption();
+            }
+        });
+    }
     /**
      * Configure the {@link gpf.require} layer
      *
      * @param {gpf.typedef.requireOptions} options Options to configure
+     * @throws {gpf.Error.InvalidRequireConfigureOption}
      * @since 0.2.2
      */
     function _gpfRequireConfigure(options) {
+        _gpfRequireConfigureCheckOptions(options);
         var me = this;
-        _gpfArrayForEach(Object.keys(options).sort(function (key1, key2) {
-            // Some keys must be processed first
-            return _gpfRequireOptionPriority(key1) - _gpfRequireOptionPriority(key2);
-        }), function (key) {
-            (_gpfRequireOptionHandler[key] || gpf.Error.invalidRequireConfigureOption).call(me, options[key]);
-        }, me);
+        _gpfArrayForEach(_gpfRequireConfigureOptionNames.filter(function (name) {
+            return options[name] !== undefined;
+        }), function (name) {
+            _gpfRequireConfigureHandler[name](me, options[name]);
+        });
+    }    /**
+          * @method gpf.require.configure
+          * @gpf:sameas _gpfRequireConfigure
+          * @since 0.2.2
+          *
+          * @example <caption>Setting the base path</caption>
+          * gpf.require.configure({
+          *   base: "/test/require"
+          * });
+          * assert(gpf.require.resolve("file.js") === "/test/require/file.js");
+          *
+          * @example <caption>Injecting in the cache</caption>
+          * var cache = {};
+          * cache[gpf.require.resolve("data.json")] = {};
+          * gpf.require.configure({
+          *   clearCache: true,
+          *   cache: cache
+          * });
+          */
+    function _gpfRequireConfigureCheckBase(value) {
+        if (typeof value !== "string") {
+            gpf.Error.invalidRequireConfigureOptionValue();
+        }
     }
-    /**
-     * Resolves the resource name according to current require context.
-     *
-     * @param {String} name Relative resource name
-     * @return {String} Resolved name
-     * @since 0.2.2
-     *
-     */
+    function _gpfRequireConfigureBase(context, value) {
+        _gpfRequireConfigureCheckBase(value);
+        context.base = value;
+    }
+    _gpfRequireConfigureAddOption("base", _gpfRequireConfigureBase);
+    function _gpfRequireConfigureCheckCache(value) {
+        if (typeof value !== "object") {
+            gpf.Error.invalidRequireConfigureOptionValue();
+        }
+    }
+    function _gpfRequireConfigureCache(context, value) {
+        _gpfRequireConfigureCheckCache(value);
+        _gpfArrayForEach(Object.keys(value), function (name) {
+            context.cache[name] = Promise.resolve(value[name]);
+        });
+    }
+    _gpfRequireConfigureAddOption("cache", _gpfRequireConfigureCache);
+    function _gpfRequireConfigureCheckClearCache(value) {
+        if (typeof value !== "boolean") {
+            gpf.Error.invalidRequireConfigureOptionValue();
+        }
+    }
+    function _gpfRequireConfigureClearCache(context, value) {
+        _gpfRequireConfigureCheckClearCache(value);
+        if (value) {
+            context.cache = {};
+        }
+    }
+    _gpfRequireConfigureAddOption("clearCache", _gpfRequireConfigureClearCache, true);
+    function _gpfRequireConfigureCheckPreload(value) {
+        if (typeof value !== "object") {
+            gpf.Error.invalidRequireConfigureOptionValue();
+        }
+    }
+    function _gpfRequireConfigurePreload(context, value) {
+        _gpfRequireConfigureCheckPreload(value);
+        _gpfArrayForEach(Object.keys(value), function (name) {
+            context.preload[name] = value[name];
+        });
+    }
+    _gpfRequireConfigureAddOption("preload", _gpfRequireConfigurePreload);
+    function _gpfRequireConfigureCheckPreprocess(value) {
+        if (typeof value !== "function") {
+            gpf.Error.invalidRequireConfigureOptionValue();
+        }
+    }
+    function _gpfRequireConfigurePreprocess(context, value) {
+        _gpfRequireConfigureCheckPreprocess(value);
+        context.preprocess = value;
+    }
+    _gpfRequireConfigureAddOption("preprocess", _gpfRequireConfigurePreprocess);
     function _gpfRequireResolve(name) {
         return _gpfPathJoin(this.base, name);
     }
@@ -6291,30 +6507,14 @@
     gpf.require = _gpfRequireAllocate({
         base: "",
         cache: {},
-        preload: {}
+        preload: {},
+        preprocess: function (resource) {
+            return Promise.resolve(resource);
+        }
     });    /**
             * @method gpf.require.define
             * @gpf:sameas _gpfRequireDefine
             * @since 0.2.2
-            */
-           /**
-            * @method gpf.require.configure
-            * @gpf:sameas _gpfRequireConfigure
-            * @since 0.2.2
-            *
-            * @example <caption>Setting the base path</caption>
-            * gpf.require.configure({
-            *   base: "/test/require"
-            * });
-            * assert(gpf.require.resolve("file.js") === "/test/require/file.js");
-            *
-            * @example <caption>Injecting in the cache</caption>
-            * var cache = {};
-            * cache[gpf.require.resolve("data.json")] = {};
-            * gpf.require.configure({
-            *   clearCache: true,
-            *   cache: cache
-            * });
             */
            /**
             * @method gpf.require.resolve
@@ -6513,7 +6713,8 @@
      * @since 0.2.3
      */
     gpf.stream.pipe = _gpfStreamPipe;
-    _gpfStringEscapes.regexp = {
+    var _GPF_STRING_ESCAPE_REGEXP = "regexp";
+    _gpfStringEscapes[_GPF_STRING_ESCAPE_REGEXP] = {
         "\\": "\\\\",
         "-": "\\-",
         "[": "\\[",
@@ -6531,6 +6732,9 @@
         "$": "\\$",
         "|": "\\|"
     };
+    function _gpfStringEscapeForRegexp(that) {
+        return _gpfStringEscapeFor(that, _GPF_STRING_ESCAPE_REGEXP);
+    }
     _gpfErrorDeclare("csv", { invalidCSV: "Invalid CSV syntax (bad quote sequence or missing end of file)" });
     /**
      * @typedef gpf.typedef.csvParserOptions
@@ -6654,8 +6858,8 @@
             this._unescapeDictionary = {};
             this._unescapeDictionary[this._quote + this._quote] = this._quote;
             this._parser = new RegExp(_gpfStringReplaceEx("^(?:([^QS][^S]*)|Q((?:[^Q]|QQ)+)Q)(?=$|S)", {
-                Q: _gpfStringEscapeFor(this._quote, "regexp"),
-                S: _gpfStringEscapeFor(this._separator, "regexp")
+                Q: _gpfStringEscapeForRegexp(this._quote),
+                S: _gpfStringEscapeForRegexp(this._separator)
             }));
         },
         /**
@@ -6726,7 +6930,7 @@
          * @since 0.2.3
          */
         _nextValue: function (index) {
-            this._content = this._content.substr(index);
+            this._content = this._content.substring(index);
             return Boolean(this._content.length);
         },
         /**
@@ -6958,6 +7162,14 @@
     var _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION = "attributes", _GPF_DEFINE_CLASS_ATTRIBUTES_NAME = "$" + _GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION,
         // If matching the capturing group returns the member name or undefined (hence the |.)
         _gpfDefClassAttrIsAttributeRegExp = new RegExp("^\\[([^\\]]+)\\]$|."), _GPF_DEFINE_CLASS_ATTRIBUTE_MATCH_NAME = 1, _gpfDefClassAttrClassCheckMemberName = _GpfClassDefinition.prototype._checkMemberName, _gpfDefClassAttrClassCheckMemberValue = _GpfClassDefinition.prototype._checkMemberValue, _gpfDefClassAttrClassCheck$Property = _GpfClassDefinition.prototype._check$Property, _gpfDefClassAttrClassCheck = _GpfClassDefinition.prototype.check;
+    /**
+     * Check attribute
+     *
+     * @param {String} member Member name
+     * @param {gpf.attributes.Attribute} attribute Attribute
+     * @this {_GpfClassDefinition}
+     * @since 0.2.9
+     */
     function _gpfDefClassAttrCheck(member, attribute) {
         /*jshint validthis:true*/
         attribute._check(member, this);    //eslint-disable-line no-invalid-this
@@ -7060,9 +7272,17 @@
     });
     _GpfClassDefinition.prototype._allowed$Properties.push(_GPF_DEFINE_CLASS_ATTRIBUTES_SPECIFICATION);
     var _gpfDefClassAttrClassAddmemberToPrototype = _GpfClassDefinition.prototype._addMemberToPrototype, _gpfDefClassAttrClassBuildPrototype = _GpfClassDefinition.prototype._buildPrototype;
+    /**
+     * Build attribute
+     *
+     * @param {String} member Member name
+     * @param {gpf.attributes.Attribute} attribute Attribute
+     * @param {Object} newPrototype Class prototype
+     * @since 0.2.9
+     */
     function _gpfDefClassAttrBuild(member, attribute, newPrototype) {
         /*jshint validthis:true*/
-        var attributeEntityDefinition = _gpfDefineGetEntityFromBuilder(attribute.constructor);
+        var attributeEntityDefinition = _gpfDefineEntitiesFindByConstructor(attribute.constructor);
         if (!attributeEntityDefinition._singleton) {
             attribute._memberName = member;
             attribute._ClassConstructor = newPrototype.constructor;
@@ -7150,7 +7370,7 @@
         }
     });
     function _gpfAttributesGetFromClass(classConstructor, baseAttributeClass) {
-        var entityDefinition = _gpfDefineGetEntityFromBuilder(classConstructor);
+        var entityDefinition = _gpfDefineEntitiesFindByConstructor(classConstructor);
         if (entityDefinition) {
             return entityDefinition.getAttributes(baseAttributeClass);
         }
@@ -7588,7 +7808,7 @@
         return function (object) {
             var iInterfaceImpl = _gpfInterfaceQuery(interfaceSpecifier, object);
             if (!iInterfaceImpl) {
-                gpf.Error.interfaceExpected({ name: interfaceSpecifier.compatibleName() });
+                gpf.Error.interfaceExpected({ name: _gpfGetFunctionName(interfaceSpecifier) });
             }
             return _gpfInterfacesWrap(iInterfaceImpl, interfaceSpecifier, Promise.resolve());
         };
@@ -7668,7 +7888,7 @@
         },
         _writeAttribute: function (qName, value) {
             this._appendToReadBuffer(" " + qName + "=\"");
-            this._appendToReadBuffer(_gpfStringEscapeFor(value.toString(), "xml"));
+            this._appendToReadBuffer(_gpfStringEscapeForXml(value.toString()));
             this._appendToReadBuffer("\"");
         },
         _getNamespacePrefixes: function () {
@@ -7705,7 +7925,7 @@
         characters: function (buffer) {
             this._checkState(true);
             this._addContentToLastElement();
-            this._appendToReadBuffer(_gpfStringEscapeFor(buffer.toString(), "xml"));
+            this._appendToReadBuffer(_gpfStringEscapeForXml(buffer.toString()));
             return Promise.resolve();
         },
         /**
@@ -7832,36 +8052,47 @@
         /**
          * ### Summary
          *
-         * Name of serializable property is invalid
+         * Serializable property 'name' is invalid
          *
          * ### Description
          *
-         * Name should respect the pattern `/^[a-z][a-z0-9_]*$/i`
+         * name should respect the pattern `/^[a-z][a-z0-9_]*$/i`
          * @since 0.2.8
          */
         invalidSerialName: "Invalid serial name",
         /**
          * ### Summary
          *
-         * Type of serializable property is invalid
+         * Serializable property 'type' is invalid
          *
          * ### Description
          *
-         * Type should be one of the enumeration {@see gpf.serial.types}
+         * Value should be one of the enumeration {@see gpf.serial.types}
          * @since 0.2.8
          */
         invalidSerialType: "Invalid serial type",
         /**
          * ### Summary
          *
-         * Required of serializable property is invalid
+         * Serializable property 'required' is invalid
          *
          * ### Description
          *
-         * Required can either be true or false
+         * Value can either be true or false
          * @since 0.2.8
          */
-        invalidSerialRequired: "Invalid serial required"
+        invalidSerialRequired: "Invalid serial required",
+        /**
+         * ### Summary
+         *
+         * Serializable property 'readOnly' is invalid
+         *
+         * ### Description
+         *
+         * Value can either be true or false
+         * @since 0.2.9
+         */
+        invalidSerialReadOnly: "Invalid serial readOnly"
     });
     /**
      * @namespace gpf.serial
@@ -7870,12 +8101,16 @@
      */
     gpf.serial = {};
     /**
-     * Filter property read specification
+     * Serializable property specification
      *
      * @typedef gpf.typedef.serializableProperty
      * @property {String} name Name of the property
      * @property {gpf.serial.types} [type=gpf.serial.types.string] Type of the property
      * @property {Boolean} [required=false] Property must have a value
+     * @property {Boolean} [readOnly=undefined] Property is read only. When undefined, and if the host supports
+     * [Object.getOwnPropertyDescriptors](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/
+     * Object/getOwnPropertyDescriptors), the framework will check if the property can be set.
+     * This property is resolved when used in the {@link gpf.typedef.serialConverter}.
      * @see gpf.attributes.Serializable
      * @since 0.2.8
      */
@@ -7942,16 +8177,21 @@
             _gpfSerialPropertyCheckTypeExists(property.type);
         }
     }
-    function _gpfSerialPropertyCheckRequiredType(required) {
-        if (typeof required !== "boolean") {
-            gpf.Error.invalidSerialRequired();
+    function _gpfSerialPropertyCheckBooleanType(value, exception) {
+        if (typeof value !== "boolean") {
+            exception();
         }
     }
     function _gpfSerialPropertyCheckRequired(property) {
         if (undefined === property.required) {
             property.required = false;
         } else {
-            _gpfSerialPropertyCheckRequiredType(property.required);
+            _gpfSerialPropertyCheckBooleanType(property.required, gpf.Error.invalidSerialRequired);
+        }
+    }
+    function _gpfSerialPropertyCheckReadOnly(property) {
+        if (undefined !== property.readOnly) {
+            _gpfSerialPropertyCheckBooleanType(property.readOnly, gpf.Error.invalidSerialReadOnly);
         }
     }
     /**
@@ -7967,9 +8207,14 @@
      */
     function _gpfSerialPropertyCheck(property) {
         var clonedProperty = Object.assign(property);
-        _gpfSerialPropertyCheckName(clonedProperty);
-        _gpfSerialPropertyCheckType(clonedProperty);
-        _gpfSerialPropertyCheckRequired(clonedProperty);
+        [
+            _gpfSerialPropertyCheckName,
+            _gpfSerialPropertyCheckType,
+            _gpfSerialPropertyCheckRequired,
+            _gpfSerialPropertyCheckReadOnly
+        ].forEach(function (checkFunction) {
+            checkFunction(clonedProperty);
+        });
         return clonedProperty;
     }
     _gpfErrorDeclare("attributes/check", {
@@ -8042,14 +8287,9 @@
             gpf.Error.memberAttributeOnly();
         }
     }
-    function _gpfAttributesCheckAppliedOnBaseClassIsExtendInstanceOf(Extend, ExpectedBaseClass) {
-        if (!(Extend.prototype instanceof ExpectedBaseClass)) {
+    function _gpfAttributesCheckAppliedOnBaseClassIsInstanceOf(prototype, ExpectedBaseClass) {
+        if (!(prototype instanceof ExpectedBaseClass)) {
             gpf.Error.restrictedBaseClassAttribute();
-        }
-    }
-    function _gpfAttributesCheckAppliedOnBaseClassWithExtend(Extend, ExpectedBaseClass) {
-        if (Extend !== ExpectedBaseClass) {
-            _gpfAttributesCheckAppliedOnBaseClassIsExtendInstanceOf(Extend, ExpectedBaseClass);
         }
     }
     /**
@@ -8061,7 +8301,10 @@
      * @since 0.2.8
      */
     function _gpfAttributesCheckAppliedOnBaseClass(classDefinition, ExpectedBaseClass) {
-        _gpfAttributesCheckAppliedOnBaseClassWithExtend(classDefinition._extend, ExpectedBaseClass);
+        var Extend = classDefinition._extend;
+        if (Extend !== ExpectedBaseClass) {
+            _gpfAttributesCheckAppliedOnBaseClassIsInstanceOf(Extend.prototype, ExpectedBaseClass);
+        }
     }
     function _gpfAttributesCheckGetMemberAttributes(member, classDefinition, AttributeClass) {
         var allAttributes = classDefinition.getAttributes(AttributeClass);
@@ -8193,6 +8436,13 @@
         }
     });
     gpf.attributes.UniqueAttribute = _gpfAttributesUniqueAttribute;
+    var _GPF_ATTRIBUTES_SERIALIZABLE_SKIP_ = 1;
+    function _gpfAttributesSerializableExtractName(name) {
+        if (name.startsWith("_")) {
+            return name.substring(_GPF_ATTRIBUTES_SERIALIZABLE_SKIP_);
+        }
+        return name;
+    }
     var _gpfAttributesSerializable = _gpfDefine({
         $class: "gpf.attributes.Serializable",
         $extend: _gpfAttribute,
@@ -8210,7 +8460,7 @@
         /**
          * Associates a serialization property defintion to a member
          *
-         * @param {gpf.typedef.serializableProperty} property Serializable property definition
+         * @param {gpf.typedef.serializableProperty} [property] Serializable property definition
          * @throws {gpf.Error.InvalidSerialName}
          * @throws {gpf.Error.InvalidSerialType}
          * @throws {gpf.Error.InvalidSerialRequired}
@@ -8220,7 +8470,15 @@
          * @since 0.2.8
          */
         constructor: function (property) {
-            this._property = _gpfSerialPropertyCheck(property);
+            this._property = property;
+        },
+        /**
+         * @inheritdoc
+         * @since 0.2.9
+         */
+        _check: function (member, classDefinition) {
+            _gpfIgnore(classDefinition);
+            this._property = _gpfSerialPropertyCheck(Object.assign({ name: _gpfAttributesSerializableExtractName(member) }, this._property));
         },
         /**
          * @gpf:read _property
@@ -8237,23 +8495,67 @@
         });
         return properties;
     }
+    function _gpfSerialGetResolveReadOnlyCheckDescriptor(prototype, member) {
+        var descriptor = Object.getOwnPropertyDescriptor(prototype, member);
+        if (descriptor) {
+            return !descriptor.writable;
+        }
+    }
+    var _gpfSerialGetResolveReadOnly;
+    if (Object.getOwnPropertyDescriptor) {
+        _gpfSerialGetResolveReadOnly = function (instance, member) {
+            var prototype = instance, readOnly;
+            while (prototype !== Object && readOnly === undefined) {
+                readOnly = _gpfSerialGetResolveReadOnlyCheckDescriptor(prototype, member);
+                prototype = Object.getPrototypeOf(prototype);
+            }
+            return readOnly || false;
+        };
+    } else {
+        _gpfSerialGetResolveReadOnly = function () {
+            return false;
+        };
+    }
+    /**
+     * Same as {@link gpf.serial.get} but on instances and resolving readOnly
+     *
+     * @param {Object} instance Object instance or class constructor
+     * @return {Object} Dictionary of {@link gpf.typedef.serializableProperty} index by member
+     * @since 0.2.9
+     */
+    function _gpfSerialGetWithReadOnly(instance) {
+        var properties = _gpfSerialGet(instance);
+        _gpfObjectForEach(properties, function (property, member) {
+            if (property.readOnly === undefined) {
+                property.readOnly = _gpfSerialGetResolveReadOnly(instance, member);
+            }
+        });
+        return properties;
+    }
     /**
      * @gpf:sameas _gpfSerialGet
      * @since 0.2.8
      */
     gpf.serial.get = _gpfSerialGet;
-    function _gpfSerialIdentityConverter(value) {
-        return value;
+    function _gpfSerialIdentityConverter(value, property) {
+        if (!property.readOnly) {
+            return value;
+        }
+    }
+    function _gpfSerialRawToPropertyValue(result, member, value) {
+        if (value !== undefined) {
+            result[member] = value;
+        }
     }
     function _gpfSerialRawToProperties(instance, properties, converter) {
         var result = {};
         _gpfObjectForEach(properties, function (property, member) {
-            result[property.name] = converter.call(instance, instance[member], property, member);
+            _gpfSerialRawToPropertyValue(result, property.name, converter.call(instance, instance[member], property, member));
         });
         return result;
     }
     function _gpfSerialRawTo(instance, converter) {
-        return _gpfSerialRawToProperties(instance, _gpfSerialGet(instance), converter || _gpfSerialIdentityConverter);
+        return _gpfSerialRawToProperties(instance, _gpfSerialGetWithReadOnly(instance), converter || _gpfSerialIdentityConverter);
     }
     /**
      * Converts the given instance a simpler dictionary containing only serializable properties' value.
@@ -8270,11 +8572,16 @@
         }
         return _gpfSerialRawTo(instance, converter);
     };
+    function _gpfSerialRawFromPropertyValue(instance, member, value) {
+        if (value !== undefined) {
+            instance[member] = value;
+        }
+    }
     function _gpfSerialRawFromProperties(instance, raw, converter) {
-        var properties = _gpfSerialGet(instance);
+        var properties = _gpfSerialGetWithReadOnly(instance);
         _gpfObjectForEach(properties, function (property, member) {
             if (raw.hasOwnProperty(property.name)) {
-                instance[member] = converter.call(instance, raw[property.name], property, member);
+                _gpfSerialRawFromPropertyValue(instance, member, converter.call(instance, raw[property.name], property, member));
             }
         });
     }
@@ -8298,4 +8605,56 @@
         _gpfSerialRawFrom(instance, raw, converter);
         return instance;
     };
+    _gpfErrorDeclare("attributes/decorator", {
+        /**
+         * ### Summary
+         *
+         * ES6 class only
+         *
+         * ### Description
+         *
+         * Decorators can be used on ES6 class only
+         * @since 0.2.9
+         */
+        es6classOnly: "ES6 class only"
+    });
+    function _gpfAttributesDecoratorGetAttributesKeyFromMember(member) {
+        if (!member) {
+            return _GPF_DEFINE_CLASS_ATTRIBUTES_NAME;
+        }
+        return member;
+    }
+    function _gpfAttributesDecoratorProcessEachAttribute(entityDefinition, member, attributes) {
+        attributes.forEach(function (attribute) {
+            _gpfDefClassAttrCheck.call(entityDefinition, member, attribute);
+            _gpfDefClassAttrBuild(member, attribute, entityDefinition._instanceBuilder.prototype);
+        });
+    }
+    function _gpfAttributesDecoratorAddAttributes(entityDefinition, member, attributes) {
+        var key = _gpfAttributesDecoratorGetAttributesKeyFromMember(member);
+        entityDefinition._attributes[key] = (entityDefinition._attributes[key] || []).concat(attributes);
+        _gpfAttributesDecoratorProcessEachAttribute(entityDefinition, member, attributes);
+    }
+    /**
+     * Bridge ES6 decorators with attributes
+     *
+     * @param {...gpf.attributes.Attribute} attribute Attributes to add
+     * @return {Function} decorator function
+     * @throws {gpf.Error.InvalidParameter}
+     * @since 0.2.9
+     */
+    function _gpfAttributesDecorator() {
+        var attributes = _gpfArraySlice(arguments);
+        return function (ClassConstructor, member) {
+            if (!_gpfIsClass(ClassConstructor)) {
+                gpf.Error.es6classOnly();
+            }
+            _gpfAttributesDecoratorAddAttributes(_gpfDefineClassImport(ClassConstructor), member, attributes);
+        };
+    }
+    /**
+     * @gpf:sameas _gpfAttributesDecorator
+     * @since 0.2.9
+     */
+    gpf.attributes.decorator = _gpfAttributesDecorator;
 }));

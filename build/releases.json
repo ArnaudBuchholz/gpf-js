@@ -388,5 +388,35 @@
             "tests": 1012,
             "sources": 129
         }
+    },
+    {
+        "version": "0.2.9",
+        "label": "ES6 Support",
+        "date": "2019-03-12",
+        "notes": "",
+        "milestone": 17,
+        "metrics": {
+            "coverage": {
+                "statements": {
+                    "total": 100,
+                    "ignored": 0.32
+                },
+                "functions": {
+                    "total": 100,
+                    "ignored": 0.6
+                },
+                "branches": {
+                    "total": 100,
+                    "ignored": 0.69
+                }
+            },
+            "maintainability": 83.68,
+            "lines": {
+                "total": 13339,
+                "average": 92
+            },
+            "tests": 1090,
+            "sources": 144
+        }
     }
 ]
