@@ -25,9 +25,6 @@ and instances offers:
 ### Function
 
 * [bind](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind)
-* compatibleName(): introduced to provide a convenient way to read function names. Indeed,
-[name](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/name) property is not
-supported on all hosts.
 
 **NOTE:** Function.prototype.toString() does not include comments on Rhino.
 
