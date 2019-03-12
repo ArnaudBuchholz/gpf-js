@@ -11,12 +11,13 @@
   * @typedef gpf.typedef.requireResource
   * @property {String} name Resource resolved name
   * @property {String} content Resource content
-  * @property {String} type Resource type
+  * @property {String} type Resource type (extension, for instance: ".js")
   * @since 0.2.9
   */
 
 /**
-   * Mocked response callback
+   * Resource preprocessing function.
+   * It enables changing the resource content and / or the resource type before it is evaluated.
    *
    * @callback gpf.typedef.requirePreprocessFunc
    *
