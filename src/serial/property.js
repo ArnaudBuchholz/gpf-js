@@ -77,6 +77,7 @@ gpf.serial = {};
  * @property {Boolean} [readOnly=undefined] Property is read only. When undefined, and if the host supports
  * [Object.getOwnPropertyDescriptors](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/
  * Object/getOwnPropertyDescriptors), the framework will check if the property can be set.
+ * This property is resolved when used in the {@link gpf.typedef.serialConverter}.
  * @see gpf.attributes.Serializable
  * @since 0.2.8
  */
