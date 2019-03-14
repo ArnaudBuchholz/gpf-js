@@ -393,7 +393,7 @@
         "version": "0.2.9",
         "label": "ES6 Support",
         "date": "2019-03-12",
-        "notes": "",
+        "notes": "2019/03/release-029-es6-support.html",
         "milestone": 17,
         "metrics": {
             "coverage": {
