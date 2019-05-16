@@ -7,7 +7,7 @@
 [![DeepScan grade](https://deepscan.io/api/projects/1923/branches/8681/badge/grade.svg)](https://deepscan.io/dashboard#view=project&pid=1923&bid=8681)
 [![Maintainability](https://api.codeclimate.com/v1/badges/06d49b2308264f3c5495/maintainability)](https://codeclimate.com/github/ArnaudBuchholz/gpf-js/maintainability)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6c8806b35ecc4e70ba985534fda0681f)](https://www.codacy.com/app/ArnaudBuchholz/gpf-js?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ArnaudBuchholz/gpf-js&amp;utm_campaign=Badge_Grade)
-[![Package Quality](https://npm.packagequality.com/badge/gpf-js.png)](https://packagequality.com/#?package=gpf-js)
+[![Package Quality](https://npm.packagequality.com/shield/gpf-js.svg)](https://packagequality.com/#?package=gpf-js)
 [![Known Vulnerabilities](https://snyk.io/test/github/ArnaudBuchholz/gpf-js/badge.svg?targetFile=package.json)](https://snyk.io/test/github/ArnaudBuchholz/gpf-js?targetFile=package.json)
 [![dependencies Status](https://david-dm.org/ArnaudBuchholz/gpf-js/status.svg)](https://david-dm.org/ArnaudBuchholz/gpf-js)
 [![devDependencies Status](https://david-dm.org/ArnaudBuchholz/gpf-js/dev-status.svg)](https://david-dm.org/ArnaudBuchholz/gpf-js?type=dev)
