@@ -18,6 +18,7 @@
 [![install size](https://packagephobia.now.sh/badge?p=gpf-js)](https://packagephobia.now.sh/result?p=gpf-js)
 [![CDN](https://data.jsdelivr.com/v1/package/npm/gpf-js/badge)](https://www.jsdelivr.com/package/npm/gpf-js)
 [![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FArnaudBuchholz%2Fgpf-js.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FArnaudBuchholz%2Fgpf-js?ref=badge_shield)
 
 A multi-purpose JavaScript library created and maintained by
 [Arnaud Buchholz](http://gpf-js.blogspot.com/).
