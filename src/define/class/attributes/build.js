@@ -6,7 +6,7 @@
 "use strict";
 /*global _GpfClassDefinition*/ // Class definition
 /*global _gpfDefClassAttrIsAttributeSpecification*/ // Check if member name is an attribute
-/*global _gpfDefineEntitiesFindByConstructor*/ // Retrieve entity definition from Constructor
+/*global _gpfDefineClassImport*/
 /*exported _gpfDefClassAttrBuild*/ // _gpfDefClassAttrBuild
 /*#endif*/
 
@@ -23,7 +23,7 @@ var _gpfDefClassAttrClassAddmemberToPrototype = _GpfClassDefinition.prototype._a
  */
 function _gpfDefClassAttrBuild (member, attribute, newPrototype) {
     /*jshint validthis:true*/
-    var attributeEntityDefinition = _gpfDefineEntitiesFindByConstructor(attribute.constructor);
+    var attributeEntityDefinition = _gpfDefineClassImport(attribute.constructor);
     if (!attributeEntityDefinition._singleton) {
         attribute._memberName = member;
         attribute._ClassConstructor = newPrototype.constructor;
