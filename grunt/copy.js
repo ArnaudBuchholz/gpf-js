@@ -25,7 +25,7 @@ module.exports = {
     publishTest: {
         expand: true,
         cwd: "./test/host/",
-        src: ["test.html", "bdd.js"],
+        src: ["test.html", "bdd.js", "features.js"],
         dest: PUBLISH_PATH + "gpf/"
     },
     publishTestRequire: {
