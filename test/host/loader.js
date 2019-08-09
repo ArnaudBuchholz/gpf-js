@@ -225,7 +225,7 @@
             context.config = Object.assign({
                 httpPort: configFile.serve.httpPort,
                 testPath: "test/"
-            }, configuration.config);
+            }, configuration.config || {});
             _load(configuration, _resolvePath(configuration, "test/host/features.js"));
             _setupInclude(configuration);
         },
