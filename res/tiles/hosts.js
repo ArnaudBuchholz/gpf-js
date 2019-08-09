@@ -54,7 +54,7 @@ gpf.require.define({
                             .concat(["nashorn"].filter(function () {
                                 return config.host.nashorn;
                             }))
-                            .concat(["wscript"].filter(function () {
+                            .concat(["wscript", "iescript"].filter(function () {
                                 return config.host.wscript;
                             }))
                             .sort()
