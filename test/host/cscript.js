@@ -13,6 +13,14 @@ for (idx = 0; idx < len; ++idx) {
     parameters.push(WScript.Arguments(idx));
 }
 
+function quit (code) {
+    try {
+        WScript.Quit(code);
+    } catch (e) {
+        WScript.Echo("WScript.Quit not supported");
+    }
+}
+
 function read (path) {
     return fso.OpenTextFile(path, 1/*forReading*/, false, 0).ReadAll();
 }
@@ -24,7 +32,7 @@ function load (path) {
         /*jslint evil: false*/
     } catch (e) {
         WScript.Echo("An error occurred while evaluating: " + path + "\r\n" + e.message);
-        WScript.Quit(-1);
+        quit(-1);
     }
 }
 
@@ -37,8 +45,6 @@ loadGpfAndTests({
     log: function (text) {
         WScript.Echo(text);
     },
-    exit: function (code) {
-        WScript.Quit(code);
-    },
+    exit: quit,
     read: read
 });
