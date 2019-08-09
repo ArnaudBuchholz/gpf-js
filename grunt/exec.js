@@ -101,8 +101,12 @@ Object.keys(configuration.files.flavors).forEach(flavor => {
 // Test configurations
 testConfig("Node", "node", "test/host/nodejs.js");
 testConfig("Phantom", phantomJsBin, sep("--web-security=false test/host/phantomjs.js"));
+function cscriptTestConfig (name, clsid) {
+    testConfig(name, "cscript.exe", `/D /E:${clsid} ${sep("test/host/cscript.js")}`);
+}
 if (configuration.host.wscript) {
-    testConfig("Wscript", "cscript.exe", `/D /E:JScript ${sep("test/host/cscript.js")}`);
+    cscriptTestConfig("Wscript", "JScript");
+    cscriptTestConfig("Iescript", "{16d51579-a30b-4c8b-a276-0ff4dc41e755}");
 }
 testConfig("Nodewscript", "node", "test/host/node_cscript.js");
 if (configuration.host.java) {
