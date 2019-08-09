@@ -6,7 +6,7 @@
 "use strict";
 /*global _GpfClassDefinition*/ // Class definition
 /*global _gpfDefClassAttrIsAttributeSpecification*/ // Check if member name is an attribute
-/*global _gpfDefineClassImport*/
+/*global _gpfDefineClassImport*/ // Import a class as an entity definition
 /*exported _gpfDefClassAttrBuild*/ // _gpfDefClassAttrBuild
 /*#endif*/
 
