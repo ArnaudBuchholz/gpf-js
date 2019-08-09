@@ -37,8 +37,8 @@ and instances offers:
 * [Object.values](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/values)
 
 **NOTES:**
-* `Object.keys` doesn't behave the same way on primitive types depending on the host.
 * `Object.assign` fails with [Chakra](https://en.wikipedia.org/wiki/Chakra_%28JScript_engine%29) if one parameter is `undefined`
+* `Object.keys` doesn't behave the same way on primitive types depending on the host.
 
 ### String
 
