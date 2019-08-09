@@ -59,7 +59,7 @@ var _gpfAttributesSerializable = _gpfDefine({
         _gpfIgnore(classDefinition);
         this._property = _gpfSerialPropertyCheck(Object.assign({
             name: _gpfAttributesSerializableExtractName(member)
-        }, this._property));
+        }, this._property || {}));
     },
 
     /**
