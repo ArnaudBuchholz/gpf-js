@@ -139,6 +139,9 @@
         "Promise":                      true,
 
         "WScript":                      false,
+        "ScriptEngineMajorVersion":     false,
+        "ScriptEngineMinorVersion":     false,
+        "ScriptEngineBuildVersion":     false,
         "ActiveXObject":                false,
         "print":                        false,
         "load":                         false,
