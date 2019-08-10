@@ -8,8 +8,15 @@ describe("http", function () {
 
     describe("gpf.http", function () {
 
+        if (config.performance) {
+            it("is not relevant for performance testing", function () {
+                assert(true);
+            });
+            return;
+        }
+
         if (config.httpPort === 0) {
-            it("is not tested in this environment because config.httpPorty = 0", function () {
+            it("is not tested in this environment because config.httpPort = 0", function () {
                 assert(true);
             });
             return;
