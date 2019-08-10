@@ -2,6 +2,13 @@
 
 describe("fs/node", function () {
 
+    if (config.performance) {
+        it("is not relevant for performance testing", function () {
+            assert(true);
+        });
+        return;
+    }
+
     if (gpf.hosts.nodejs === gpf.host()) {
 
         it("forwards inner errors (generic API)", function (done) {
