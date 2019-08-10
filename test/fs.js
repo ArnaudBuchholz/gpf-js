@@ -2,6 +2,13 @@
 
 describe("fs", function () {
 
+    if (config.performance) {
+        it("is not relevant for performance testing", function () {
+            assert(true);
+        });
+        return;
+    }
+
     var data = "test/data";
 
     describe("gpf.fs.getFileStorage", function () {
