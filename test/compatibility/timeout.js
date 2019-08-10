@@ -2,6 +2,13 @@
 
 describe("compatibility/timeout", function () {
 
+    if (config.performance) {
+        it("is not relevant for performance testing", function () {
+            assert(true);
+        });
+        return;
+    }
+
     function generateScenario (methods) {
 
         /*
