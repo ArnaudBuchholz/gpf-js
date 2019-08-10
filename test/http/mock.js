@@ -47,7 +47,6 @@ describe("gpf.http.mock", function () {
             if (mockId) {
                 gpf.http.mock.remove(mockId);
             }
-
         });
 
         it("matches request URL and method", function (done) {
@@ -59,7 +58,7 @@ describe("gpf.http.mock", function () {
             })["catch"](done);
         });
 
-        if (config.httpPort === 0) {
+        if (config.httpPort === 0 || config.performance) {
             return;
         }
 
@@ -192,4 +191,3 @@ describe("gpf.http.mock", function () {
     });
 
 });
-
