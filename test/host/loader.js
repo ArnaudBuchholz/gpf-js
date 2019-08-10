@@ -220,11 +220,12 @@
             }
         },
 
-        _setupConfig = function (configuration) {
+        _setupConfig = function (configuration, options) {
             var configFile = JSON.parse(configuration.read(_resolvePath(configuration, "tmp/config.json")));
             context.config = Object.assign({
                 httpPort: configFile.serve.httpPort,
-                testPath: "test/"
+                testPath: "test/",
+                performance: options.perf
             }, configuration.config || {});
             _load(configuration, _resolvePath(configuration, "test/host/features.js"));
             _setupInclude(configuration);
@@ -277,11 +278,32 @@
             }
         },
 
+        _defaultTimer = function () {
+            return {
+                start: function () {
+                    var now = new Date();
+                    this._start = now;
+                    this._lap = now;
+                },
+                lap: function () {
+                    var now = new Date(),
+                        result = now - this._lap;
+                    this._lap = now;
+                    return result;
+                },
+                stop: function () {
+                    var now = new Date();
+                    return now - this._start;
+                }
+            };
+        },
+
         _runBDDPerf = function (configuration, options) {
             var loop = 1,
                 maxLoop,
                 runWithCallback,
-                measures = [];
+                measures = [],
+                timer = configuration.getTimer && configuration.getTimer() || _defaultTimer();
             if (options.perfInfinite) {
                 maxLoop = Math.MAX_SAFE_INTEGER;
             } else {
@@ -295,11 +317,12 @@
                         maxLoop = 0; // Stop
                     }
                 } else if (type === "results") {
-                    statistics = ["Round ", _pad(loop, 9), ": ", _pad(data.timeSpent, 5), "ms "];
+                    var timeSpent = timer.stop();
+                    statistics = ["Round ", _pad(loop, 9), ": ", _pad(timeSpent, 5), "ms "];
                     if (loop === 1) {
                         statistics.push("(ignored)");
                     } else {
-                        measures.push(data.timeSpent);
+                        measures.push(timeSpent);
                         statistics.push("mean: ", _pad(_mean(measures), 5), "ms ",
                             "deviation: ", _pad(_stdDeviation(measures), 5));
                     }
@@ -313,6 +336,7 @@
                 }
             }
             runWithCallback = function () {
+                timer.start();
                 run(callback);
             };
             runWithCallback();
@@ -423,8 +447,9 @@
      * - {Function} exit
      * - (Function) require
      * - (Function) read  function (filePath) {} reads a file
-     * - (Function) [loadTest=undefined] loadTest function (filePath) {} reads a test file
+     * - (Function) [loadTest] loadTest function (filePath) {} reads a test file
      * - {Function} run When defined, this method is triggered to execute the tests
+     * - {Function} [getTimer] get host specific timer (must expose start, stop, lap)
      */
     context.loadGpfAndTests = function (configuration) {
         var options = {
@@ -467,7 +492,7 @@
             _load(configuration, _resolvePath(configuration, "test/host/console.js"));
             verbose("Console loaded.");
         }
-        _setupConfig(configuration);
+        _setupConfig(configuration, options);
         _loadTests(configuration, options, verbose);
         _safeRunBDD(configuration, options, verbose);
     };
