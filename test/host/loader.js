@@ -278,32 +278,11 @@
             }
         },
 
-        _defaultTimer = function () {
-            return {
-                start: function () {
-                    var now = new Date();
-                    this._start = now;
-                    this._lap = now;
-                },
-                lap: function () {
-                    var now = new Date(),
-                        result = now - this._lap;
-                    this._lap = now;
-                    return result;
-                },
-                stop: function () {
-                    var now = new Date();
-                    return now - this._start;
-                }
-            };
-        },
-
         _runBDDPerf = function (configuration, options) {
             var loop = 1,
                 maxLoop,
                 runWithCallback,
-                measures = [],
-                timer = configuration.getTimer && configuration.getTimer() || _defaultTimer();
+                measures = [];
             if (options.perfInfinite) {
                 maxLoop = Math.MAX_SAFE_INTEGER;
             } else {
@@ -317,12 +296,11 @@
                         maxLoop = 0; // Stop
                     }
                 } else if (type === "results") {
-                    var timeSpent = timer.stop();
-                    statistics = ["Round ", _pad(loop, 9), ": ", _pad(timeSpent, 5), "ms "];
+                    statistics = ["Round ", _pad(loop, 9), ": ", _pad(data.timeSpent, 5), "ms "];
                     if (loop === 1) {
                         statistics.push("(ignored)");
                     } else {
-                        measures.push(timeSpent);
+                        measures.push(data.timeSpent);
                         statistics.push("mean: ", _pad(_mean(measures), 5), "ms ",
                             "deviation: ", _pad(_stdDeviation(measures), 5));
                     }
@@ -336,8 +314,7 @@
                 }
             }
             runWithCallback = function () {
-                timer.start();
-                run(callback);
+                run(callback, undefined, configuration.Timer);
             };
             runWithCallback();
         },
