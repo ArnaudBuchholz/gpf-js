@@ -130,8 +130,9 @@ describe("attributes", function () {
                 assert(attributes.value[0].getValue() === "D");
             });
 
-            describe("and then with GPF inheritance", function () {
-                var attributes = gpf.attributes.get(MyNativeClass);
+            it("retrieves all attributes (on instance)", function () {
+                var myObject = new MyNativeClass(),
+                    attributes = gpf.attributes.get(myObject);
                 assert(Object.keys(attributes).length === 2);
                 assert(attributes.$attributes.length === 3);
                 assert(attributes.value.length === 1);
@@ -175,3 +176,9 @@ describe("attributes", function () {
     });
 
 });
+
+if (config.features.es6class) {
+
+    include("attributes.es6");
+
+}
