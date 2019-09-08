@@ -84,6 +84,12 @@ var
 
         //endregion
 
+        /**
+         * Gets the resulting array
+         *
+         * @return {Array}
+         * @since 0.2.2
+         */
         toArray: function () {
             return this._buffer;
         },
