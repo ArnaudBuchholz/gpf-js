@@ -92,43 +92,45 @@ describe("stream/pipe", function () {
 
     });
 
-    function _readRejectError (iOutput) {
-        ignore(iOutput);
-        return Promise.reject("FAIL");
-    }
+    var helpers = {
+        _readRejectError: function (iOutput) {
+            ignore(iOutput);
+            return Promise.reject("FAIL");
+        },
 
-    function _readThrowError (iOutput) {
-        ignore(iOutput);
-        throw new Error("FAIL");
-    }
+        _readThrowError: function (iOutput) {
+            ignore(iOutput);
+            throw new Error("FAIL");
+        },
 
-    function _writeRejectError (data) {
-        ignore(data);
-        return Promise.reject("FAIL");
-    }
+        _writeRejectError: function (data) {
+            ignore(data);
+            return Promise.reject("FAIL");
+        },
 
-    function _writeThrowError (data) {
-        ignore(data);
-        throw new Error("FAIL");
-    }
+        _writeThrowError: function (data) {
+            ignore(data);
+            throw new Error("FAIL");
+        },
 
-    function _wrapForRejectionHandler (promise, done) {
-        promise.then(function () {
-            throw new Error("Should fail");
-        }, function (reason) {
-            assert(reason === "FAIL");
-            done();
-        })["catch"](done);
-    }
+        _wrapForRejectionHandler: function (promise, done) {
+            promise.then(function () {
+                throw new Error("Should fail");
+            }, function (reason) {
+                assert(reason === "FAIL");
+                done();
+            })["catch"](done);
+        },
 
-    function _wrapForExceptionHandler (promise, done) {
-        promise.then(function () {
-            throw new Error("Should fail");
-        }, function (reason) {
-            assert(reason.message === "FAIL");
-            done();
-        })["catch"](done);
-    }
+        _wrapForExceptionHandler: function (promise, done) {
+            promise.then(function () {
+                throw new Error("Should fail");
+            }, function (reason) {
+                assert(reason.message === "FAIL");
+                done();
+            })["catch"](done);
+        }
+    };
 
     describe("IReadableStream -> IWritableStream", function () {
 
@@ -159,33 +161,33 @@ describe("stream/pipe", function () {
         it("Forward errors (read - reject)", function (done) {
             var iWritableStream = new gpf.stream.WritableString(),
                 iReadableStream = {
-                    read: _readRejectError
+                    read: helpers._readRejectError
                 };
-            _wrapForRejectionHandler(gpf.stream.pipe(iReadableStream, iWritableStream), done);
+            helpers._wrapForRejectionHandler(gpf.stream.pipe(iReadableStream, iWritableStream), done);
         });
 
         it("Forward errors (read - exception)", function (done) {
             var iWritableStream = new gpf.stream.WritableString(),
                 iReadableStream = {
-                    read: _readThrowError
+                    read: helpers._readThrowError
                 };
-            _wrapForExceptionHandler(gpf.stream.pipe(iReadableStream, iWritableStream), done);
+            helpers._wrapForExceptionHandler(gpf.stream.pipe(iReadableStream, iWritableStream), done);
         });
 
         it("Forward errors (write - reject)", function (done) {
             var iWritableStream = {
-                write: _writeRejectError
+                write: helpers._writeRejectError
             };
-            _wrapForRejectionHandler(gpf.stream.pipe(new gpf.stream.ReadableString("Hello World"), iWritableStream),
-                done);
+            helpers._wrapForRejectionHandler(gpf.stream.pipe(new gpf.stream.ReadableString("Hello World"),
+                iWritableStream), done);
         });
 
         it("Forward errors (write - exception)", function (done) {
             var iWritableStream = {
-                write: _writeThrowError
+                write: helpers._writeThrowError
             };
-            _wrapForExceptionHandler(gpf.stream.pipe(new gpf.stream.ReadableString("Hello World"), iWritableStream),
-                done);
+            helpers._wrapForExceptionHandler(gpf.stream.pipe(new gpf.stream.ReadableString("Hello World"),
+                iWritableStream), done);
         });
 
     });
@@ -278,56 +280,130 @@ describe("stream/pipe", function () {
 
         it("Forward errors (read - reject)", function (done) {
             var error = _getNonFlushableStream();
-            error.read = _readRejectError;
-            _wrapForRejectionHandler(_pipe([error, new gpf.stream.LineAdapter()]), done);
+            error.read = helpers._readRejectError;
+            helpers._wrapForRejectionHandler(_pipe([error, new gpf.stream.LineAdapter()]), done);
         });
 
         it("Forward errors (read - exception)", function (done) {
             var error = _getNonFlushableStream();
-            error.read = _readThrowError;
-            _wrapForExceptionHandler(_pipe([error, new gpf.stream.LineAdapter()]), done);
+            error.read = helpers._readThrowError;
+            helpers._wrapForExceptionHandler(_pipe([error, new gpf.stream.LineAdapter()]), done);
         });
 
         it("Forward errors (write - reject)", function (done) {
             var error = _getNonFlushableStream();
-            error.write = _writeRejectError;
-            _wrapForRejectionHandler(_pipe([error, new gpf.stream.LineAdapter()]), done);
+            error.write = helpers._writeRejectError;
+            helpers._wrapForRejectionHandler(_pipe([error, new gpf.stream.LineAdapter()]), done);
         });
 
         it("Forward errors (write - exception)", function (done) {
             var error = _getNonFlushableStream();
-            error.write = _writeThrowError;
-            _wrapForExceptionHandler(_pipe([error, new gpf.stream.LineAdapter()]), done);
+            error.write = helpers._writeThrowError;
+            helpers._wrapForExceptionHandler(_pipe([error, new gpf.stream.LineAdapter()]), done);
         });
 
         it("Forward errors (second read - reject)", function (done) {
             var nonFlushable = _getNonFlushableStream(),
                 error = _getNonFlushableStream();
-            error.read = _readRejectError;
-            _wrapForRejectionHandler(_pipe([nonFlushable, error, new gpf.stream.LineAdapter()]), done);
+            error.read = helpers._readRejectError;
+            helpers._wrapForRejectionHandler(_pipe([nonFlushable, error, new gpf.stream.LineAdapter()]), done);
         });
 
         it("Forward errors (second read - exception)", function (done) {
             var nonFlushable = _getNonFlushableStream(),
                 error = _getNonFlushableStream();
-            error.read = _readThrowError;
-            _wrapForExceptionHandler(_pipe([nonFlushable, error, new gpf.stream.LineAdapter()]), done);
+            error.read = helpers._readThrowError;
+            helpers._wrapForExceptionHandler(_pipe([nonFlushable, error, new gpf.stream.LineAdapter()]), done);
         });
 
         it("Forward errors (second write - reject)", function (done) {
             var nonFlushable = _getNonFlushableStream(),
                 error = _getNonFlushableStream();
-            error.write = _writeRejectError;
-            _wrapForRejectionHandler(_pipe([nonFlushable, error, new gpf.stream.LineAdapter()]), done);
+            error.write = helpers._writeRejectError;
+            helpers._wrapForRejectionHandler(_pipe([nonFlushable, error, new gpf.stream.LineAdapter()]), done);
         });
 
         it("Forward errors (second write - exception)", function (done) {
             var nonFlushable = _getNonFlushableStream(),
                 error = _getNonFlushableStream();
-            error.write = _writeThrowError;
-            _wrapForExceptionHandler(_pipe([nonFlushable, error, new gpf.stream.LineAdapter()]), done);
+            error.write = helpers._writeThrowError;
+            helpers._wrapForExceptionHandler(_pipe([nonFlushable, error, new gpf.stream.LineAdapter()]), done);
         });
 
     });
+
+    if (gpf.stream.BufferedRead && gpf.stream.ReadableArray && gpf.stream.WritableArray) {
+
+        describe("Data demultiplexing (one read generates several writes)", function () {
+            var Demultiplexer;
+            before(function () {
+                Demultiplexer = gpf.define({
+                    $class: "Demultiplexer",
+                    $extend: "gpf.stream.BufferedRead",
+                    write: function (number) {
+                        this._appendToReadBuffer(3 * number);
+                        this._appendToReadBuffer(3 * number + 1);
+                        this._appendToReadBuffer(3 * number + 2);
+                        return Promise.resolve();
+                    }
+                });
+            });
+            it("Waits for all data to be processed", function (done) {
+                var input = new gpf.stream.ReadableArray([0, 1, 2]),
+                    demultiplexer = new Demultiplexer(),
+                    output = new gpf.stream.WritableArray();
+                gpf.stream.pipe(input, demultiplexer, output)
+                    .then(function () {
+                        try {
+                            var array = output.toArray(),
+                                index;
+                            assert(array.length === 9);
+                            for (index = 0; index < 9; ++index) {
+                                assert(array[index] === index);
+                            }
+                            done();
+                        } catch (e) {
+                            done(e);
+                        }
+                    });
+            });
+        });
+
+        describe("Data multiplexing (several reads generate one write)", function () {
+            var Multiplexer;
+            before(function () {
+                Multiplexer = gpf.define({
+                    $class: "Multiplexer",
+                    $extend: "gpf.stream.BufferedRead",
+                    write: function (number) {
+                        if (number % 3 === 2) {
+                            this._appendToReadBuffer((number - 2) / 3);
+                        }
+                        return Promise.resolve();
+                    }
+                });
+            });
+            it("Waits for all data to be processed", function (done) {
+                var input = new gpf.stream.ReadableArray([0, 1, 2, 3, 4, 5, 6, 7, 8]),
+                    multiplexer = new Multiplexer(),
+                    output = new gpf.stream.WritableArray();
+                gpf.stream.pipe(input, multiplexer, output)
+                    .then(function () {
+                        try {
+                            var array = output.toArray(),
+                                index;
+                            assert(array.length === 3);
+                            for (index = 0; index < 3; ++index) {
+                                assert(array[index] === index);
+                            }
+                            done();
+                        } catch (e) {
+                            done(e);
+                        }
+                    });
+            });
+        });
+
+    }
 
 });
