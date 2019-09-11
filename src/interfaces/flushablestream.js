@@ -17,7 +17,7 @@
  */
 
 /**
- * Request buffered data to be flushed
+ * Request buffered data to be flushed. It does not need to wait for subsequent reads.
  *
  * @method gpf.interfaces.IFlushableStream#flush
  * @return {Promise} Resolved when ready
