@@ -23,60 +23,73 @@ function _gpfStreamPipeToFlushable (stream) {
     return _gpfInterfaceQuery(_gpfIFlushableStream, stream) || _gpfStreamPipeFakeFlushable;
 }
 
-function _gpfStreamPipeAllocateState (intermediate, destination) {
+function _gpfStreamPipeAllocateCoupler (intermediate, destination) {
     return {
         iReadableIntermediate: _gpfStreamQueryReadable(intermediate),
         iWritableIntermediate: _gpfStreamQueryWritable(intermediate),
         iFlushableIntermediate: _gpfStreamPipeToFlushable(intermediate),
         iWritableDestination: _gpfStreamQueryWritable(destination),
         iFlushableDestination: _gpfStreamPipeToFlushable(destination),
+        readInProgress: false,
         readError: null,
+        readPromise: Promise.resolve(),
         rejectWrite: _gpfEmptyFunc
     };
 }
 
-function _gpfStreamPipeAllocateRead (state) {
+/*#ifdef(DEBUG)*/
+
+function _gpfStreamPipeCouplerDebug (coupler, message) {
+    if (console.expects) {
+        console.expects("log", /.*/, true);
+    }
+    console.log("gpf.stream.pipe/coupler(" + coupler.index + "): " + message);
+}
+
+/*#endif*/
+
+function _gpfStreamPipeCouplerRead (coupler) {
     // Read errors must be transmitted up to the initial read, this is done by forwarding it to flush & write
-    var readingDone = true,
-        iReadableIntermediate = state.iReadableIntermediate,
-        iWritableDestination = state.iWritableDestination;
-    return function () {
-        if (readingDone) {
-            try {
-                readingDone = false;
-                iReadableIntermediate.read(iWritableDestination)
-                    .then(function () {
-                        readingDone = true;
-                    }, function (reason) {
-                        state.readError = reason;
-                        state.rejectWrite(reason);
-                    });
-            } catch (e) {
-                state.readError = e;
-            }
+    var iReadableIntermediate = coupler.iReadableIntermediate,
+        iWritableDestination = coupler.iWritableDestination;
+    if (!coupler.readInProgress) {
+        try {
+            coupler.readInProgress = true;
+/*#ifdef(DEBUG)*/
+            _gpfStreamPipeCouplerDebug(coupler, "read started");
+/*#endif*/
+            coupler.readPromise = iReadableIntermediate.read(iWritableDestination)
+                .then(function () {
+                    _gpfStreamPipeCouplerDebug(coupler, "read ended");
+                    coupler.readInProgress = true;
+                }, function (reason) {
+                    coupler.readError = reason;
+                    coupler.rejectWrite(reason);
+                });
+        } catch (e) {
+            coupler.readError = e;
         }
-    };
-}
-
-function _gpfStreamPipeWrapWrite (state, promise) {
-    return new Promise(function (resolve, reject) {
-        promise.then(function (value) {
-            resolve(value);
-            state.rejectWrite = _gpfEmptyFunc;
-        }, reject);
-        state.rejectWrite = reject;
-    });
-}
-
-function _gpfStreamPipeCheckIfReadError (state) {
-    if (state.readError) {
-        return Promise.reject(state.readError);
     }
 }
 
+function _gpfStreamPipeCouplerWrite (coupler, promise) {
+    return new Promise(function (resolve, reject) {
+        promise.then(function (value) {
+            resolve(value);
+            coupler.rejectWrite = _gpfEmptyFunc;
+        }, reject);
+        coupler.rejectWrite = reject;
+    });
+}
+
+function _gpfStreamPipeCheckIfReadError (coupler) {
+    if (coupler.readError) {
+        return Promise.reject(coupler.readError);
+    }
+}
 
 /**
- * Create a flushable & writable stream by combining the intermediate stream with the writable destination
+ * Create a flushable & writable stream by coupling the intermediate stream with the writable destination
  *
  * @param {Object} intermediate Must implements IReadableStream interface.
  * If it implements the IFlushableStream interface, it is assumed that it retains data
@@ -86,49 +99,62 @@ function _gpfStreamPipeCheckIfReadError (state) {
  * least to pass it to the destination
  * @param {Object} destination Must implements IWritableStream interface.
  * If it implements the IFlushableStream, it will be called when the intermediate completes.
+ * @param {Number} index zero-based index of the coupler, helps for debugging.
  *
  * @return {Object} Implementing IWritableStream and IFlushableStream
  * @since 0.2.3
  */
-function _gpfStreamPipeToFlushableWrite (intermediate, destination) {
-    var state = _gpfStreamPipeAllocateState(intermediate, destination),
-        read = _gpfStreamPipeAllocateRead(state),
-        iFlushableIntermediate = state.iFlushableIntermediate,
-        iFlushableDestination = state.iFlushableDestination,
-        iWritableIntermediate = state.iWritableIntermediate;
+function _gpfStreamPipeWeldCoupler (intermediate, destination, index) {
+    var coupler = _gpfStreamPipeAllocateCoupler(intermediate, destination),
+        iFlushableIntermediate = coupler.iFlushableIntermediate,
+        iFlushableDestination = coupler.iFlushableDestination,
+        iWritableIntermediate = coupler.iWritableIntermediate;
 
-    read();
+/*#ifdef(DEBUG)*/
+    coupler.index = index;
+/*#endif*/
+
+    _gpfStreamPipeCouplerRead(coupler);
 
     return {
 
         flush: function () {
-            return _gpfStreamPipeCheckIfReadError(state) || iFlushableIntermediate.flush()
+/*#ifdef(DEBUG)*/
+            _gpfStreamPipeCouplerDebug(coupler, "flush");
+/*#endif*/
+            return _gpfStreamPipeCheckIfReadError(coupler) || iFlushableIntermediate.flush()
                 .then(function () {
                     return iFlushableDestination.flush();
+                })
+                .then(function () {
+                    return coupler.readPromise; // Wait for any pending read
                 });
         },
 
         write: function (data) {
-            read();
-            return _gpfStreamPipeCheckIfReadError(state)
-                || _gpfStreamPipeWrapWrite(state, iWritableIntermediate.write(data));
+/*#ifdef(DEBUG)*/
+            _gpfStreamPipeCouplerDebug(coupler, "write(" + JSON.stringify(data) + ")");
+/*#endif*/
+            _gpfStreamPipeCouplerRead(coupler);
+            return _gpfStreamPipeCheckIfReadError(coupler)
+                || _gpfStreamPipeCouplerWrite(coupler, iWritableIntermediate.write(data));
         }
 
     };
 }
 
-function _gpfStreamPipeReduce (streams) {
+function _gpfStreamPipeWeldCouplers (streams) {
     var idx = streams.length,
         iWritableStream = streams[--idx];
     while (idx) {
-        iWritableStream = _gpfStreamPipeToFlushableWrite(streams[--idx], iWritableStream);
+        iWritableStream = _gpfStreamPipeWeldCoupler(streams[--idx], iWritableStream, idx);
     }
     return iWritableStream;
 }
 
 function _gpfStreamPipeToWritable (streams) {
     if (_gpfArrayTail(streams).length) {
-        return _gpfStreamPipeReduce(streams);
+        return _gpfStreamPipeWeldCouplers(streams);
     }
     return _gpfStreamQueryWritable(streams[_GPF_START]);
 }
@@ -137,7 +163,9 @@ function _gpfStreamPipeToWritable (streams) {
  * Pipe streams.
  *
  * @param {gpf.interfaces.IReadableStream} source Source stream
- * @param {...gpf.interfaces.IWritableStream} destination Writable streams
+ * @param {...gpf.interfaces.IWritableStream} destination streams to pipe data through.
+ * It is assumed that the last destination stream will not block data receiving if readable),
+ * every other intermediate stream must also implement {@link gpf.interfaces.IReadableStream} interface
  * @return {Promise} Resolved when reading (and subsequent writings) are done
  * @since 0.2.3
  */
