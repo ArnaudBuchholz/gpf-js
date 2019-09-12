@@ -1,5 +1,5 @@
 /**
- * @file Flushable stream base
+ * @file Buffered read stream base
  * @since 0.2.3
  */
 /*#ifndef(UMD)*/
@@ -71,6 +71,9 @@ var
          * - {@link gpf.stream.BufferedRead#_appendToReadBuffer}
          * - {@link gpf.stream.BufferedRead#_completeReadBuffer}
          * - {@link gpf.stream.BufferedRead#_setReadError}
+         *
+         * Make sure to implement the {@link gpf.interfaces.IFlushableStream} interface
+         * to complete the buffer.
          *
          * @constructor gpf.stream.BufferedRead
          * @implements {gpf.interfaces.IReadableStream}
