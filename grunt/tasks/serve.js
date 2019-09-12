@@ -28,8 +28,12 @@ module.exports = function (grunt) {
 
     grunt.registerTask("serve", [
         "pre-serve",
-        "connect:server",
+        "connect:serve",
         "open_tiles",
         "watch"
+    ]);
+
+    grunt.registerTask("serve-only", [
+        "connect:serve-and-wait"
     ]);
 };
