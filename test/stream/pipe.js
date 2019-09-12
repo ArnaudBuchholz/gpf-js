@@ -345,6 +345,10 @@ describe("stream/pipe", function () {
                         this._appendToReadBuffer(3 * number + 1);
                         this._appendToReadBuffer(3 * number + 2);
                         return Promise.resolve();
+                    },
+                    flush: function () {
+                        this._completeReadBuffer();
+                        return Promise.resolve();
                     }
                 });
             });
@@ -379,6 +383,10 @@ describe("stream/pipe", function () {
                         if (number % 3 === 2) {
                             this._appendToReadBuffer((number - 2) / 3);
                         }
+                        return Promise.resolve();
+                    },
+                    flush: function () {
+                        this._completeReadBuffer();
                         return Promise.resolve();
                     }
                 });
