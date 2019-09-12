@@ -1,6 +1,6 @@
 "use strict";
 
-const options = {
+const serveOptions = {
     port: configuration.serve.httpPort,
     hostname: "localhost",
     middleware: function (connect, options, middlewares) {
@@ -18,13 +18,12 @@ const options = {
 
 module.exports = {
     serve: {
-        options
+        options: serveOptions
     },
     "serve-and-wait": {
-        options: {
-          useAvailablePort: true,
-          keepalive: true,
-          ...options
-        }
+        options: Object.assign({
+            useAvailablePort: true,
+            keepalive: true
+        }, serveOptions)
     }
 };
