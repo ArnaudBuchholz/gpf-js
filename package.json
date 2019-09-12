@@ -8,9 +8,10 @@
     "test": "test"
   },
   "scripts": {
+    "config": "node make/config",
     "start": "grunt serve",
     "test": "grunt connectIf concurrent:source",
-    "release": "node make\\release"
+    "release": "node make/release"
   },
   "repository": {
     "type": "git",
