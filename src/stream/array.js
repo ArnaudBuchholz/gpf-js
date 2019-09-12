@@ -85,9 +85,9 @@ var
         //endregion
 
         /**
-         * Gets the resulting array
+         * Gets the array containing writen data
          *
-         * @return {Array}
+         * @return {Array} array containing writen data
          * @since 0.2.2
          */
         toArray: function () {
