@@ -48,20 +48,27 @@ function _gpfStreamPipeCouplerDebug (coupler, message) {
 
 /*#endif*/
 
-function _gpfStreamPipeCouplerRead (coupler) {
+function _gpfStreamPipeCouplerDrain (coupler) {
     // Read errors must be transmitted up to the initial read, this is done by forwarding it to flush & write
     var iReadableIntermediate = coupler.iReadableIntermediate,
         iWritableDestination = coupler.iWritableDestination;
+    /*#ifdef(DEBUG)*/
+    if (coupler.readInProgress) {
+        _gpfStreamPipeCouplerDebug(coupler, "read in progress");
+    }
+    /*#endif*/
     if (!coupler.readInProgress) {
         try {
             coupler.readInProgress = true;
-/*#ifdef(DEBUG)*/
+            /*#ifdef(DEBUG)*/
             _gpfStreamPipeCouplerDebug(coupler, "read started");
-/*#endif*/
+            /*#endif*/
             coupler.readPromise = iReadableIntermediate.read(iWritableDestination)
                 .then(function () {
+                    /*#ifdef(DEBUG)*/
                     _gpfStreamPipeCouplerDebug(coupler, "read ended");
-                    coupler.readInProgress = true;
+                    /*#endif*/
+                    coupler.readInProgress = false;
                 }, function (reason) {
                     coupler.readError = reason;
                     coupler.rejectWrite(reason);
@@ -110,18 +117,18 @@ function _gpfStreamPipeWeldCoupler (intermediate, destination, index) {
         iFlushableDestination = coupler.iFlushableDestination,
         iWritableIntermediate = coupler.iWritableIntermediate;
 
-/*#ifdef(DEBUG)*/
+    /*#ifdef(DEBUG)*/
     coupler.index = index;
-/*#endif*/
+    /*#endif*/
 
-    _gpfStreamPipeCouplerRead(coupler);
+    _gpfStreamPipeCouplerDrain(coupler);
 
     return {
 
         flush: function () {
-/*#ifdef(DEBUG)*/
+            /*#ifdef(DEBUG)*/
             _gpfStreamPipeCouplerDebug(coupler, "flush");
-/*#endif*/
+            /*#endif*/
             return _gpfStreamPipeCheckIfReadError(coupler) || iFlushableIntermediate.flush()
                 .then(function () {
                     return iFlushableDestination.flush();
@@ -132,10 +139,10 @@ function _gpfStreamPipeWeldCoupler (intermediate, destination, index) {
         },
 
         write: function (data) {
-/*#ifdef(DEBUG)*/
+            /*#ifdef(DEBUG)*/
             _gpfStreamPipeCouplerDebug(coupler, "write(" + JSON.stringify(data) + ")");
-/*#endif*/
-            _gpfStreamPipeCouplerRead(coupler);
+            /*#endif*/
+            _gpfStreamPipeCouplerDrain(coupler);
             return _gpfStreamPipeCheckIfReadError(coupler)
                 || _gpfStreamPipeCouplerWrite(coupler, iWritableIntermediate.write(data));
         }
