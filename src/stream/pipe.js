@@ -5,8 +5,10 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_START*/ // 0
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfArrayTail*/ // [].slice.call(,1)
 /*global _gpfEmptyFunc*/ // An empty function
+/*global _gpfGetFunctionName*/ // Get the function name
 /*global _gpfIFlushableStream*/ // gpf.interfaces.IFlushableStream
 /*global _gpfIgnore*/ // Helper to remove unused parameter warning
 /*global _gpfInterfaceQuery*/ // gpf.interfaces.query
@@ -23,8 +25,35 @@ function _gpfStreamPipeToFlushable (stream) {
     return _gpfInterfaceQuery(_gpfIFlushableStream, stream) || _gpfStreamPipeFakeFlushable;
 }
 
+/*#ifdef(DEBUG)*/
+
+function _gpfStreamPipeCouplerDebug (coupler, message) {
+    _gpfIgnore(coupler, message);
+    // if (console.expects) {
+    //     console.expects("log", /.*/, true);
+    // }
+    // console.log("gpf.stream.pipe/coupler@" + coupler.index + " [" + coupler.fromName + "::" + coupler.toName + "] "
+    //     + message);
+}
+
+/*#endif*/
+
 function _gpfStreamPipeAllocateCoupler (intermediate, destination) {
+/*#ifdef(DEBUG)*/
+    var toName;
+    if (destination._isCoupler === _gpfStreamPipeCouplerDebug) {
+        toName = "(coupler)";
+    } else {
+        toName = _gpfGetFunctionName(destination.constructor);
+    }
+    /*#endif*/
     return {
+        /*#ifdef(DEBUG)*/
+        from: intermediate,
+        fromName: _gpfGetFunctionName(intermediate.constructor),
+        to: destination,
+        toName: toName,
+        /*#endif*/
         iReadableIntermediate: _gpfStreamQueryReadable(intermediate),
         iWritableIntermediate: _gpfStreamQueryWritable(intermediate),
         iFlushableIntermediate: _gpfStreamPipeToFlushable(intermediate),
@@ -33,20 +62,10 @@ function _gpfStreamPipeAllocateCoupler (intermediate, destination) {
         readInProgress: false,
         readError: null,
         readPromise: Promise.resolve(),
-        rejectWrite: _gpfEmptyFunc
+        rejectWrite: _gpfEmptyFunc,
+        flushed: false
     };
 }
-
-/*#ifdef(DEBUG)*/
-
-function _gpfStreamPipeCouplerDebug (coupler, message) {
-    if (console.expects) {
-        console.expects("log", /.*/, true);
-    }
-    console.log("gpf.stream.pipe/coupler(" + coupler.index + "): " + message);
-}
-
-/*#endif*/
 
 function _gpfStreamPipeCouplerDrain (coupler) {
     // Read errors must be transmitted up to the initial read, this is done by forwarding it to flush & write
@@ -124,21 +143,32 @@ function _gpfStreamPipeWeldCoupler (intermediate, destination, index) {
     _gpfStreamPipeCouplerDrain(coupler);
 
     return {
+        /*#ifdef(DEBUG)*/
+        _isCoupler: _gpfStreamPipeCouplerDebug,
+        /*#endif*/
 
         flush: function () {
+            _gpfAssert(!coupler.flushed, "A flushed coupler can't be flushed again");
             /*#ifdef(DEBUG)*/
             _gpfStreamPipeCouplerDebug(coupler, "flush");
             /*#endif*/
+            coupler.flushed = true;
             return _gpfStreamPipeCheckIfReadError(coupler) || iFlushableIntermediate.flush()
                 .then(function () {
-                    return iFlushableDestination.flush();
+                    return coupler.readPromise; // Wait for any pending read
                 })
                 .then(function () {
-                    return coupler.readPromise; // Wait for any pending read
+                    return iFlushableDestination.flush();
+                    /*#ifdef(DEBUG)*/
+                })
+                .then(function () {
+                    _gpfStreamPipeCouplerDebug(coupler, "flush ended");
+                    /*#endif*/
                 });
         },
 
         write: function (data) {
+            _gpfAssert(!coupler.flushed, "A flushed coupler can't be written to");
             /*#ifdef(DEBUG)*/
             _gpfStreamPipeCouplerDebug(coupler, "write(" + JSON.stringify(data) + ")");
             /*#endif*/
