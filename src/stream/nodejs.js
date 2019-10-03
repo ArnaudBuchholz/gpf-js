@@ -181,12 +181,19 @@ var
             var me = this, //eslint-disable-line no-invalid-this
                 stream = me._stream;
             return new Promise(function (resolve, reject) {
+                var noDrain;
                 me._reject = reject;
                 me._checkIfValid();
-                if (stream.write(buffer)) {
-                    return resolve();
+                noDrain = stream.write(buffer, function (error) {
+                    if (!error && noDrain) {
+                        resolve();
+                    }
+                });
+                if (!noDrain) {
+                    stream.once("drain", function () {
+                        resolve();
+                    });
                 }
-                stream.once("drain", resolve);
             });
         })
 
