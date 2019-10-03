@@ -160,7 +160,7 @@ describe("stream/node", function () {
 
         });
 
-        describe("gpf.node.ReadableStream", function () {
+        describe("gpf.node.WritableStream", function () {
 
             it("configures the stream by hooking the events", function () {
                 var mockedStream = new NodeMockedStream(),
@@ -173,8 +173,11 @@ describe("stream/node", function () {
                 var mockedStream = new NodeMockedStream(),
                     iWritableStream = new gpf.node.WritableStream(mockedStream);
                 assert(typeof mockedStream._events.error === "function");
-                mockedStream.write = function (buffer) {
+                mockedStream.write = function (buffer, callback) {
                     assert(buffer === "Hello World");
+                    setTimeout(function () {
+                        callback(null);
+                    }, 0);
                     return true;
                 };
                 iWritableStream.write("Hello World")
@@ -187,8 +190,11 @@ describe("stream/node", function () {
                     iWritableStream = new gpf.node.WritableStream(mockedStream),
                     concatenatedBuffer = "";
                 assert(typeof mockedStream._events.error === "function");
-                mockedStream.write = function (buffer) {
+                mockedStream.write = function (buffer, callback) {
                     concatenatedBuffer += buffer;
+                    setTimeout(function () {
+                        callback(null);
+                    }, 0);
                     return true;
                 };
                 iWritableStream.write("Hello ")
@@ -207,8 +213,11 @@ describe("stream/node", function () {
                     iWritableStream = new gpf.node.WritableStream(mockedStream),
                     drained = false;
                 assert(typeof mockedStream._events.error === "function");
-                mockedStream.write = function (buffer) {
+                mockedStream.write = function (buffer, callback) {
                     assert(buffer === "Hello World");
+                    setTimeout(function () {
+                        callback(null);
+                    }, 0);
                     return false;
                 };
                 iWritableStream.write("Hello World")
@@ -226,7 +235,8 @@ describe("stream/node", function () {
                 var mockedStream = new NodeMockedStream(),
                     iWritableStream = new gpf.node.WritableStream(mockedStream);
                 assert(typeof mockedStream._events.error === "function");
-                mockedStream.write = function () {
+                mockedStream.write = function (buffer, callback) {
+                    callback("error");
                     mockedStream._fire("error", "error");
                 };
                 iWritableStream.write("Hello World")
