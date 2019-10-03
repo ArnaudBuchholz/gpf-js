@@ -5,8 +5,8 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_START*/ // 0
-/*global _gpfAssert*/ // Assertion method
 /*global _gpfArrayTail*/ // [].slice.call(,1)
+/*global _gpfAssert*/ // Assertion method
 /*global _gpfEmptyFunc*/ // An empty function
 /*global _gpfGetFunctionName*/ // Get the function name
 /*global _gpfIFlushableStream*/ // gpf.interfaces.IFlushableStream
