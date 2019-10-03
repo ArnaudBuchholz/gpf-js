@@ -4,16 +4,12 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfDefineClassImport*/
+/*global _gpfDefineClassImport*/ // Import a class as an entity definition
 /*exported _gpfAttributesGet*/ // Get attributes defined for the object / class
 /*#endif*/
 
 function _gpfAttributesGetFromClass (classConstructor, baseAttributeClass) {
-    var entityDefinition = _gpfDefineClassImport(classConstructor);
-    if (entityDefinition) {
-        return entityDefinition.getAttributes(baseAttributeClass);
-    }
-    return {};
+    return _gpfDefineClassImport(classConstructor).getAttributes(baseAttributeClass);
 }
 
 function _gpfAttributesGetConstructorFromTruthy (any) {
