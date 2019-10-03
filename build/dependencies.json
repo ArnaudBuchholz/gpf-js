@@ -509,6 +509,8 @@
     "stream/pipe": [
         "boot",
         "arraylike",
+        "assert",
+        "function",
         "interfaces/flushablestream",
         "interfaces",
         "stream"
@@ -542,7 +544,7 @@
     "define/class/attributes/build": [
         "define/class/class",
         "define/class/attributes/check",
-        "define/entities"
+        "define/class/import"
     ],
     "define/class/attributes/consolidate": [
         "define/class/attributes/check",
@@ -550,7 +552,7 @@
         "foreach"
     ],
     "attributes": [
-        "define/entities"
+        "define/class/import"
     ],
     "stream/operator": [
         "abstract",
