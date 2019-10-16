@@ -36,7 +36,7 @@
     // Enumeration helper
     function _objectForEach (dictionary, callback, thisArg) {
         for (var property in dictionary) {
-            if (dictionary.hasOwnProperty(property)) {
+            if (Object.prototype.hasOwnProperty.call(dictionary, property)) {
                 callback.call(thisArg, dictionary[property], property, dictionary);
             }
         }
@@ -71,7 +71,7 @@
     var BDDAbstract = _toClass(function BDDAbstract (label, parent) {
         if (undefined !== parent) {
             this.parent = parent;
-            if (!parent.hasOwnProperty("children")) {
+            if (!Object.prototype.hasOwnProperty.call(parent, "children")) {
                 // Make the array unique to the instance
                 parent.children = [];
             }
@@ -165,7 +165,7 @@
              */
             addCallback: function (listName, callback) {
                 var current = BDDDescribe.current;
-                if (!current.hasOwnProperty(listName)) {
+                if (!Object.prototype.hasOwnProperty.call(current, listName)) {
                     // Make the array unique
                     current[listName] = [];
                 }
@@ -324,7 +324,7 @@
             if (data.result === false && data.exception) {
                 _output("Exception: " + data.exception.message);
                 for (var key in data.exception) {
-                    if (key !== "message" && data.exception.hasOwnProperty(key)) {
+                    if (key !== "message" && Object.prototype.hasOwnProperty.call(data.exception, key)) {
                         _output("Exception." + key + ": " + data.exception[key]);
                     }
                 }
@@ -343,7 +343,7 @@
         results: function (data) {
             _output("--- Results: ");
             for (var key in data) {
-                if (data.hasOwnProperty(key)) {
+                if (Object.prototype.hasOwnProperty.call(data, key)) {
                     _output(key + "        : ".substring(key.length) + data[key]);
                 }
             }
