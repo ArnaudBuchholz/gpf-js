@@ -3,7 +3,7 @@
 // Because some of this functions have more than 3 parameters
 /*jshint -W072*/
 /*eslint-disable max-params*/
-/*eslint-disable space-before-keywords*/
+/*eslint-disable keyword-spacing*/
 
 describe("compatibility", function () {
 
@@ -106,7 +106,7 @@ describe("compatibility", function () {
                         var array = [1, 2, 3],
                             sum = 0;
                         assert(typeof array.forEach === "function");
-                        assert(!array.hasOwnProperty("forEach"));
+                        assert(!Object.prototype.hasOwnProperty.call(array, "forEach"));
                         method.call(array, function (value) {
                             sum += value;
                         });
@@ -166,7 +166,7 @@ describe("compatibility", function () {
                             array = [1, 2, 3, obj, "abc"],
                             result;
                         assert(typeof array.map === "function");
-                        assert(!array.hasOwnProperty("map"));
+                        assert(!Object.prototype.hasOwnProperty.call(array, "map"));
                         result = method.call(array, function (value, idx) {
                             assert(this === obj); //eslint-disable-line no-invalid-this
                             assert(value === array[idx]);
@@ -380,7 +380,7 @@ describe("compatibility", function () {
                                 return "myMethod";
                             }
                         });
-                        assert(!object.hasOwnProperty("method"));
+                        assert(!Object.prototype.hasOwnProperty.call(object, "method"));
                         assert(typeof object.method === "function");
                         assert(object.method() === "myMethod");
                     },
@@ -651,7 +651,7 @@ describe("compatibility", function () {
         } else {
             it(baseLabel + " through prototype", function () {
                 assert(typeof sample[methodName] === "function");
-                assert(!sample.hasOwnProperty(methodName));
+                assert(!Object.prototype.hasOwnProperty.call(sample, methodName));
             });
         }
         if (arity !== -1) {
@@ -703,7 +703,8 @@ describe("compatibility", function () {
             }
             shouldExpose(sample, methodName, methodTests.length);
             for (label in methodTests) {
-                if (methodTests.hasOwnProperty(label) && typeof methodTests[label] === "function") {
+                if (Object.prototype.hasOwnProperty.call(methodTests, label)
+                    && typeof methodTests[label] === "function") {
                     addTest({
                         type: type,
                         sample: sample,
@@ -721,7 +722,7 @@ describe("compatibility", function () {
         var typedTests = tests[type],
             methodName;
         for (methodName in typedTests) {
-            if (typedTests.hasOwnProperty(methodName)) {
+            if (Object.prototype.hasOwnProperty.call(typedTests, methodName)) {
                 describe(methodName, describeMethod(type, methodName, typedTests[methodName]));
             }
         }
@@ -870,7 +871,7 @@ describe("compatibility", function () {
                 }
 
                 for (var dateString in _tests) {
-                    if (_tests.hasOwnProperty(dateString)) {
+                    if (Object.prototype.hasOwnProperty.call(_tests, dateString)) {
                         _genTest(dateString, _tests[dateString]);
                     }
                 }
