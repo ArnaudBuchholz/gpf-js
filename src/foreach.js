@@ -43,7 +43,7 @@ function _gpfArrayForEach (array, callback, thisArg) {
 function _gpfObjectForEachOwnProperty (object, callback, thisArg) {
     for (var property in object) {
         /* istanbul ignore else */ // hasOwnProperty.1
-        if (object.hasOwnProperty(property)) {
+        if (Object.prototype.hasOwnProperty.call(object, property)) {
             callback.call(thisArg, object[property], property, object);
         }
     }
@@ -52,7 +52,7 @@ function _gpfObjectForEachOwnProperty (object, callback, thisArg) {
 function _gpfObjectForEachOwnPropertyWScript (object, callback, thisArg) {
     _gpfObjectForEachOwnProperty(object, callback, thisArg);
     ["constructor", "toString"].forEach(function (property) {
-        if (object.hasOwnProperty(property)) {
+        if (Object.prototype.hasOwnProperty.call(object, property)) {
             callback.call(thisArg, object[property], property, object);
         }
     });
