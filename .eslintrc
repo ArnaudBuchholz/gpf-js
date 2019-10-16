@@ -129,7 +129,8 @@
         "max-params":                   [2, 3],
         "max-statements":               [2, 15],
 
-        "no-substr":                    2
+        "no-substr":                    2,
+        "no-redeclare":                 [2, {"builtinGlobals": false}]
     },
     "globals": {
         "gpf":                          false,
