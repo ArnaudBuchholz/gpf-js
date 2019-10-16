@@ -66,7 +66,7 @@ _gpfCompatibilityInstallMethods("Object", {
             var result = [],
                 key;
             for (key in object) {
-                if (object.hasOwnProperty(key)) {
+                if (Object.prototype.hasOwnProperty.call(object, key)) {
                     result.push(key);
                 }
             }
@@ -78,7 +78,7 @@ _gpfCompatibilityInstallMethods("Object", {
             var result = [],
                 key;
             for (key in object) {
-                if (object.hasOwnProperty(key)) {
+                if (Object.prototype.hasOwnProperty.call(object, key)) {
                     result.push(object[key]);
                 }
             }
