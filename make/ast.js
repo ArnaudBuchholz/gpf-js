@@ -154,7 +154,7 @@ class Optimizer {
 
     retrieve (category, key) {
         let storeMap = this._getStoreMap(category);
-        if (storeMap.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(storeMap, key)) {
             return this._getStoreMap(category)[key];
         }
     }
