@@ -68,7 +68,7 @@ describe("compatibility/json", function () {
         }
         if (typeofA === "object" && a && b) {
             return Object.keys(a).every(function (key) {
-                return b.hasOwnProperty(key) && _like(a[key], b[key]);
+                return Object.prototype.hasOwnProperty.call(b, key) && _like(a[key], b[key]);
             });
         }
         return a === b;
