@@ -10,7 +10,7 @@
         };
 
     for (var feature in features) {
-        if (features.hasOwnProperty(feature)) {
+        if (Object.prototype.hasOwnProperty.call(features, feature)) {
             var detection = features[feature],
                 detected = context["features:" + feature];
             if (detected === undefined) {
