@@ -15,7 +15,7 @@ var properties = {
 
 function _gpfObjectForEachOwnProperty (object, callback, thisArg) {
     for (var property in object) {
-        if (object.hasOwnProperty(property)) {
+        if (Object.prototype.hasOwnProperty.call(object, property)) {
             callback.call(thisArg, object[property], property, object);
         }
     }
@@ -34,7 +34,7 @@ module.exports = {
     "Using for(in)": function () {
         var result = 0;
         for (var property in properties) {
-            if (properties.hasOwnProperty(property)) {
+            if (Object.prototype.hasOwnProperty.call(properties, property)) {
                 result += properties[property] * parseInt(property, 10);
             }
         }
