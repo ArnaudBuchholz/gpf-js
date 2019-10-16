@@ -77,7 +77,7 @@ describe("fs", function () {
         if (gpf.fs.getFileStorage()) {
 
             var tmp = "tmp/fs/" + gpf.host() + "/"
-                    + (new Date()).toISOString().replace(/-|T|:|\.|Z/g, "")
+                    + new Date().toISOString().replace(/-|T|:|\.|Z/g, "")
                     + "/" + Math.floor(100 * Math.random());
 
             it("returns a file storage interface", function () {
