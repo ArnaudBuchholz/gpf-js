@@ -27,13 +27,13 @@ const
     log = verbose ? console.log.bind(console) : () => {},
 
     enqueue = ({url, method}) => {
-        if (!processed.hasOwnProperty(url)) {
+        if (!Object.prototype.hasOwnProperty.call(processed, url)) {
             stack.push({url, method});
         }
     },
 
     check = ({url, method}) => {
-        if (processed.hasOwnProperty(url)) {
+        if (Object.prototype.hasOwnProperty.call(processed, url)) {
             return Promise.resolve();
         }
         return gpf.http[method.toLowerCase()](url).then(response => {
