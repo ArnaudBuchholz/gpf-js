@@ -8,7 +8,7 @@ const
     path = require("path"),
     UglifyJS = require("uglify-js"),
     ConfigFile = require("../../make/configFile.js"),
-    basePath = `http://localhost:${(new ConfigFile()).content.serve.httpPort}/src/`,
+    basePath = `http://localhost:${new ConfigFile().content.serve.httpPort}/src/`,
 
     readFile = name => new Promise((resolve, reject) =>
         fs.readFile(name, (err, data) => err ? reject(err) : resolve(data.toString()))),
