@@ -9,7 +9,7 @@ describe("constants", function () {
                 var property,
                     value;
                 for (property in obj) {
-                    if (obj.hasOwnProperty(property)) {
+                    if (Object.prototype.hasOwnProperty.call(obj, property)) {
                         assert(property.charAt(0) !== "_");
                         value = obj[property];
                         if (typeof value === "object" && done.indexOf(value) === -1) {
