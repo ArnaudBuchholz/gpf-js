@@ -87,7 +87,7 @@ Object.assign(_GpfClassDefinition.prototype, {
      * @since 0.1.7
      */
     _resolveConstructor: function () {
-        if (this._initialDefinition.hasOwnProperty("constructor")) {
+        if (Object.prototype.hasOwnProperty.call(this._initialDefinition, "constructor")) {
             /* jshint -W069*/ /*eslint-disable dot-notation*/
             this._resolvedConstructor = this._superify(this._initialDefinition["constructor"], "constructor");
             /* jshint +W069*/ /*eslint-enable dot-notation*/
