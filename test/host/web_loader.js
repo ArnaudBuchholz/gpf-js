@@ -182,7 +182,7 @@
         _addFlavors = function () {
             var flavor;
             for (flavor in gpfFlavors) {
-                if (gpfFlavors.hasOwnProperty(flavor)) {
+                if (Object.prototype.hasOwnProperty.call(gpfFlavors, flavor)) {
                     _versions["flavor:" + flavor] = {
                         label: "\"" + flavor + "\" flavor",
                         path: "../build/gpf-" + flavor + ".js",
@@ -199,7 +199,8 @@
                 _addFlavors();
             }
             for (version in _versions) {
-                if (_versions.hasOwnProperty(version) && locationSearch.indexOf(version) !== -1) {
+                if (Object.prototype.hasOwnProperty.call(_versions, version)
+                    && locationSearch.indexOf(version) !== -1) {
                     return _versions[version];
                 }
             }
