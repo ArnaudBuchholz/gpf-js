@@ -3,7 +3,7 @@
 (function () {
     "use strict";
 
-    /*global run, exit:true*/ // From bdd.js
+    /*global run, exit:true*/ // eslint-disable-line no-unused-vars
     /*global __coverage__*/ // Coverage data
 
     var safeFunc = Function,
@@ -267,7 +267,7 @@
             var property,
                 value;
             for (property in data) {
-                if (data.hasOwnProperty(property)) {
+                if (Object.prototype.hasOwnProperty.call(data, property)) {
                     value = data[property];
                     if (property === "exception" && value instanceof Error) {
                         configuration.log("\t" + _pad(property, 10) + ": " + value.message);
