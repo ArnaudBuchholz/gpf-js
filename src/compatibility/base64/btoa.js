@@ -11,7 +11,6 @@
 /*global _GPF_6_BITS*/ // 6
 /*global _GPF_6_BITS_MASK*/ // 63
 /*global _GPF_START*/ // 0
-/*global _GPF_START*/ // 0
 /*global _gpfBase64*/ // Base64 encoding string
 /*global _gpfMaxUnsignedByte*/ // 255
 /*exported _gpfBtoa*/ // btoa polyfill
