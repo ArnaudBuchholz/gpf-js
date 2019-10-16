@@ -85,7 +85,7 @@ Object.assign(_GpfClassDefinition.prototype, {
     },
 
     _hasMember: function (name) {
-        return this._initialDefinition.hasOwnProperty(name)
+        return Object.prototype.hasOwnProperty.call(this._initialDefinition, name)
             || this._hasInheritedMember(name);
     },
 
