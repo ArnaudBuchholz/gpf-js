@@ -31,7 +31,7 @@ function _gpfArrayForEachOwn (array, callback) {
     var len = array.length,
         idx = 0;
     while (idx < len) {
-        if (array.hasOwnProperty(idx)) {
+        if (Object.prototype.hasOwnProperty.call(array, idx)) {
             callback(array[idx], idx, array);
         }
         ++idx;
@@ -42,7 +42,7 @@ function _gpfArrayEveryOwn (array, callback, startIdx) {
     var len = array.length,
         idx = startIdx;
     while (idx < len) {
-        if (array.hasOwnProperty(idx) && callback(array[idx], idx, array) !== true) {
+        if (Object.prototype.hasOwnProperty.call(array, idx) && callback(array[idx], idx, array) !== true) {
             return false;
         }
         ++idx;
