@@ -141,7 +141,7 @@ _gpfPromiseHandler.prototype = {
         var me = this; //eslint-disable-line no-invalid-this
         if (promise._state === null) {
             /* istanbul ignore else */ // hasOwnProperty.1
-            if (!promise.hasOwnProperty("_handlers")) {
+            if (!Object.prototype.hasOwnProperty.call(promise, "_handlers")) {
                 promise._handlers = [];
             }
             promise._handlers.push(me);
