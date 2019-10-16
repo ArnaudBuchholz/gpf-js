@@ -109,7 +109,7 @@ class Builder {
         // Generate all ASTs and aggregate to the final result
         this._addAst("boot");
         for (name in this._sources) {
-            if (this._sources.hasOwnProperty(name) && undefined === this._asts[name]) {
+            if (Object.prototype.hasOwnProperty.call(this._sources, name) && undefined === this._asts[name]) {
                 this._addAst(name);
             }
         }
