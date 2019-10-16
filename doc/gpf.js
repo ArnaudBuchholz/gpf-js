@@ -90,7 +90,7 @@ const
                 "properties",
                 "readonly"
             ].forEach(propertyName => {
-                if (propertyName !== "description" || !doclet.hasOwnProperty(propertyName)) {
+                if (propertyName !== "description" || !Object.prototype.hasOwnProperty.call(doclet, propertyName)) {
                     doclet[propertyName] = refDoclet[propertyName];
                 }
             });
