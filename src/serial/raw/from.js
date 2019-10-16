@@ -18,7 +18,7 @@ function _gpfSerialRawFromPropertyValue (instance, member, value) {
 function _gpfSerialRawFromProperties (instance, raw, converter) {
     var properties = _gpfSerialGetWithReadOnly(instance);
     _gpfObjectForEach(properties, function (property, member) {
-        if (raw.hasOwnProperty(property.name)) {
+        if (Object.prototype.hasOwnProperty.call(raw, property.name)) {
             _gpfSerialRawFromPropertyValue(instance, member,
                 converter.call(instance, raw[property.name], property, member));
         }
