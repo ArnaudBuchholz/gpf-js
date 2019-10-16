@@ -176,7 +176,7 @@ module.exports = class ConfigFile {
     }
 
     enableBrowserType (browserName, browserType) {
-        if (!this.content.browsers.hasOwnProperty(browserName)) {
+        if (!Object.prototype.hasOwnProperty.call(this.content.browsers, browserName)) {
             this.content.browsers[browserName] = {
                 type: browserType
             };
