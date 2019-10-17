@@ -15,15 +15,15 @@ const
         return true;
     },
 
-    _read = (request, response, filePath) => {
+    _read = (response, filePath) => {
         fs.readFile(filePath, (err, data) => _succeeded(response, err, data));
     },
 
-    _readFolder = (request, response, folderPath) => {
+    _readFolder = (response, folderPath) => {
         fs.readdir(folderPath, (err, files) => _succeeded(response, err, JSON.stringify(files)));
     },
 
-    _write = (request, response, file) => {
+    _write = ({request, response, file}) => {
         const
             filePath = file.path,
             data = [],
@@ -39,19 +39,19 @@ const
 
     _handlers = {
 
-        OPTIONS: (request, response/*, file*/) => {
+        OPTIONS: ({response}) => {
             response.end();
         },
 
-        GET: (request, response, file) => {
+        GET: ({response, file}) => {
             if (file.stats.isDirectory()) {
-                _readFolder(request, response, file.path);
+                _readFolder(response, file.path);
             } else {
-                _read(request, response, file.path);
+                _read(response, file.path);
             }
         },
 
-        DELETE: (request, response, file) => {
+        DELETE: ({response, file}) => {
             fs.unlink(file.path, err => _succeeded(response, err));
         },
 
@@ -85,18 +85,16 @@ module.exports = (request, response, next) => {
     }
 
     fs.stat(filePath, (err, stats) => {
-
         if (err && request.method !== "POST") {
             response.statusCode = 404;
             response.end(err.toString());
             return;
         }
-
-        _handlers[method](request, response, {
+        const file = {
             path: filePath,
             stats: stats
-        });
-
+        };
+        _handlers[method]({request, response, file});
     });
 
 };
