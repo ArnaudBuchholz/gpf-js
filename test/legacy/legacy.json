@@ -66,4 +66,14 @@
     "ignore": [{
         "describe": "name support"
     }]
+}, {
+    "issue": 320,
+    "before": "1.0.0",
+    "ignore": [{
+        "describe": "gpf.node.ReadableStream",
+        "it": "passes the buffer to the inner stream"
+    }, {
+        "describe": "gpf.node.ReadableStream",
+        "it": "supports several write calls"
+    }]
 }]
