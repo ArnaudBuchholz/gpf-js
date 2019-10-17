@@ -35,7 +35,7 @@ var
      * GPF Version
      * @since 0.1.5
      */
-    _gpfVersion = "0.3.1",
+    _gpfVersion = "1.0.0-beta",
 
     _GPF_NOT_FOUND = -1,
     _GPF_START = 0,
