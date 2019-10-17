@@ -344,7 +344,7 @@
             return upload();
         },
 
-        _runBDDForCoverage = function (configuration, options, verbose) {
+        _runBDDForCoverage = function (configuration, verbose) {
             verbose("Running BDD - coverage");
             run(function (type, data) {
                 if (type === "it" && !data.result) {
@@ -375,7 +375,7 @@
                 verbose("Running BDD - performances");
                 _runBDDPerf(configuration, options);
             } else if (options.runCoverage) {
-                _runBDDForCoverage(configuration, options, verbose);
+                _runBDDForCoverage(configuration, verbose);
             } else {
                 verbose("Running BDD");
                 run();
