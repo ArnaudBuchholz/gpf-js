@@ -24,7 +24,8 @@ const
         RULE_NOT_SET
     ],
 
-    eslintRuleFilenames = fs.readdirSync(ESLINT_RULES),
+    eslintRuleFilenames = fs.readdirSync(ESLINT_RULES)
+        .filter(name => name !== "index.js" && path.extname(name) === ".js"),
     customRuleFilenames = fs.readdirSync(CUSTOM_RULES)
         .filter(name => path.extname(name) === ".js" && !eslintRuleFilenames.includes(name)),
     ruleFilenames = eslintRuleFilenames.concat(customRuleFilenames),
@@ -162,10 +163,12 @@ Object.keys(eslintrc.rules)
 // List rules
 ruleFilenames
     .map(ruleFilename => {
-        const name = path.basename(ruleFilename, ".js");
+        const
+            name = path.basename(ruleFilename, ".js"),
+            {meta} = getRule(ruleFilename);
         return Object.assign({
-            name: name,
-            meta: getRule(ruleFilename).meta
+            name,
+            meta
         }, configuration(name));
     })
     .sort((rule1, rule2) => {
