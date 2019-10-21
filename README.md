@@ -73,7 +73,7 @@ See [Library testing](https://github.com/ArnaudBuchholz/gpf-js/blob/master/doc/t
 ## Documentation
 
 The [documentation](https://arnaudbuchholz.github.io/gpf/doc/index.html) is extracted from the sources using
-[jsdoc syntax](http://usejsdoc.org/) with [grunt-jsdoc](https://github.com/krampstudio/grunt-jsdoc)
+[jsdoc syntax](https://jsdoc.app/) with [grunt-jsdoc](https://github.com/krampstudio/grunt-jsdoc)
 and the template from [ink-docstrap](https://www.npmjs.com/package/ink-docstrap)
 
 ## Versions
