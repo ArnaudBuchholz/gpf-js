@@ -10,7 +10,7 @@ module.exports = function (grunt) {
 
         function run (connectIsMissing) {
             if (connectIsMissing) {
-                grunt.task.run("connect:server");
+                grunt.task.run("connect:serve");
             }
             done();
         }
