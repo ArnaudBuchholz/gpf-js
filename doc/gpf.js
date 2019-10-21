@@ -317,7 +317,7 @@ const
 
 trace("loaded");
 
-// http://usejsdoc.org/about-plugins.html
+// https://jsdoc.app/about-plugins.html
 module.exports = {
 
     astNodeVisitor: {
