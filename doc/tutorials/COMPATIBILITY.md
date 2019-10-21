@@ -76,10 +76,8 @@ On some hosts, {@link gpf.handleTimeout}() must be used to activate timeouts.
 * [parse](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse)
 * [stringify](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify)
 
-**NOTE:** Some hosts have their own specificities in the way the [reviver](https://github.com/ArnaudBuchholz/gpf-js/blob/2b4ced1d6dd3de99344d64eb14c97c89793305ba/test/compatibility/
-json.js#L225) /
-[replacer](https://github.com/ArnaudBuchholz/gpf-js/blob/2b4ced1d6dd3de99344d64eb14c97c89793305ba/test/compatibility/
-json.js#L139) keys are transmitted. It is recommended to
+**NOTE:** Some hosts have their own specificities in the way the [reviver](https://github.com/ArnaudBuchholz/gpf-js/blob/2b4ced1d6dd3de99344d64eb14c97c89793305ba/test/compatibility/json.js#L225) /
+[replacer](https://github.com/ArnaudBuchholz/gpf-js/blob/2b4ced1d6dd3de99344d64eb14c97c89793305ba/test/compatibility/json.js#L139) keys are transmitted. It is recommended to
 convert the keys to string to ensure maximum compatibility.
 
 ## Base64 helpers
