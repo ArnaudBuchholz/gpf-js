@@ -66,7 +66,7 @@ all internal variables of the library are prefixed by:
 
 There are three levels of documentation:
 
-- Sources must have a [@file](http://usejsdoc.org/tags-file.html) tag to provide summary of module content.
+- Sources must have a [@file](https://jsdoc.app/tags-file.html) tag to provide summary of module content.
 
 - Functions, classes, constants that are exposed by the library (there should not be any variable).
   They are easily distinguished as they all belong to the gpf namespace.
@@ -79,23 +79,23 @@ Any other function / class / variable that are internal to sources might not be 
 enough). Within a class declaration (leveraging gpf.define), members visibility is based on public / private / protected
 modifiers.
 
-Documentation is based on [jsdoc](http://usejsdoc.org/) tags.
+Documentation is based on [jsdoc](https://jsdoc.app/) tags.
 
 In particular:
 
-* [@param](http://usejsdoc.org/tags-param.html)
+* [@param](https://jsdoc.app/tags-param.html)
   Must be specified with type and description (and optional specification)
-* [@return](http://usejsdoc.org/tags-returns.html)
+* [@return](https://jsdoc.app/tags-returns.html)
   If the function does not return anything, do not use @return {undefined} or @return {void}
-* [@readonly](http://usejsdoc.org/tags-readonly.html)
-* [@inheritdoc](http://usejsdoc.org/tags-inheritdoc.html) (<namespace/class>#<method>)
+* [@readonly](https://jsdoc.app/tags-readonly.html)
+* [@inheritdoc](https://jsdoc.app/tags-inheritdoc.html) (<namespace/class>#<method>)
   Can be detected if inheritance is clear and function names are the same
-* [@constructor](http://usejsdoc.org/tags-class.html)
+* [@constructor](https://jsdoc.app/tags-class.html)
   Can be detected when the class is defined by gpf.define
-* [@extends](http://usejsdoc.org/tags-augments.html)
+* [@extends](https://jsdoc.app/tags-augments.html)
   Can be detected when the class is defined by gpf.define or recognizing the syntax A.prototype = new B
-* [@alias](http://usejsdoc.org/tags-alias.html)
-* [@this](http://usejsdoc.org/tags-this.html)
+* [@alias](https://jsdoc.app/tags-alias.html)
+* [@this](https://jsdoc.app/tags-this.html)
 
 However, and as much as possible, documentation generation should rely on simple patterns to detect properties.
 For instance, the following situation is easily recognizable:
