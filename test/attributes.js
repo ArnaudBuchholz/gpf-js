@@ -49,6 +49,7 @@ describe("attributes", function () {
 
     MyNativeClass.prototype = Object.create(MyClass.prototype);
     Object.assign(MyNativeClass.prototype, {
+        constructor: MyNativeClass,
         value3: 2
     });
 
