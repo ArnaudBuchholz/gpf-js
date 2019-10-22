@@ -314,7 +314,7 @@
                 }
             }
             runWithCallback = function () {
-                run(callback, undefined, configuration.Timer);
+                run(callback, configuration.timeout, configuration.Timer);
             };
             runWithCallback();
         },
@@ -366,7 +366,7 @@
                         configuration.log("Upload failed: " + reason.toString());
                         configuration.exit(-1);
                     });
-            });
+            }, configuration.timeout);
         },
 
         _runBDD = function (configuration, options, verbose) {
@@ -378,7 +378,7 @@
                 _runBDDForCoverage(configuration, verbose);
             } else {
                 verbose("Running BDD");
-                run();
+                run(undefined, configuration.timeout);
             }
         },
 
