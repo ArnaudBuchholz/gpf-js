@@ -16,6 +16,7 @@ global.JSON = undefined;
 global.Promise = undefined;
 global.clearTimeout = undefined;
 global.setTimeout = undefined;
+coreFunction.prototype.bind = undefined;
 
 // Not proud of this one but I had to find a way...
 global.Function = function (content) {
