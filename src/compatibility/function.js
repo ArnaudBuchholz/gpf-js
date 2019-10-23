@@ -19,6 +19,13 @@ function _generateBindBuilderSource (length) {
         + "};";
 }
 
+function _generateSimpleBindBuilderSource (length) {
+    return "var me = this;\n"
+        + "return function (" + _gpfBuildFunctionParameterList(length).join(", ") + ") {\n"
+        + "    return me.apply(thisArg, arguments);\n"
+        + "};";
+}
+
 var _GPF_COMPATIBILITY_FUNCTION_MIN_LENGTH = 0;
 
 _gpfCompatibilityInstallMethods("Function", {
@@ -31,9 +38,15 @@ _gpfCompatibilityInstallMethods("Function", {
             var me = this,
                 prependArgs = _gpfArrayTail(arguments),
                 length = Math.max(this.length - prependArgs.length, _GPF_COMPATIBILITY_FUNCTION_MIN_LENGTH),
+                builderSource;
+            if (prependArgs.length) {
                 builderSource = _generateBindBuilderSource(length);
-            return _gpfFunc(["thisArg", "prependArgs", "_gpfArraySlice"], builderSource)
-                .call(me, thisArg, prependArgs, _gpfArraySlice);
+                return _gpfFunc(["thisArg", "prependArgs", "_gpfArraySlice"], builderSource)
+                    .call(me, thisArg, prependArgs, _gpfArraySlice);
+            }
+            builderSource = _generateSimpleBindBuilderSource(length);
+            return _gpfFunc(["thisArg"], builderSource)
+                .call(me, thisArg);
         }
 
     }
