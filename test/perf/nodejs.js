@@ -1,5 +1,9 @@
 "use strict";
 
+var path = require('path');
+global.gpfSourcesPath = path.join(__dirname, "../../src/");
+require("../../src/boot");
+
 var testCases = require("./" + process.argv[2] + ".js"),
     testResults = [];
 
