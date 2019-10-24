@@ -33,17 +33,27 @@ div.log { color: gray; white-space: pre; }
         <script language="javascript">
 
 var gpfSourcesPath = "../../src/",
-    gpfTestsPath = "../";
+    gpfTestsPath = "../",
+    module = {};
 
         </script>
         <script src="../../res/xhr.js"></script>
         <script src="../host/web_loader.js"></script>
         <script src="../../res/console.js"></script>
+        <script src="engine.js"></script>
     </head>
     <body>
         <script language="javascript">
 
+var engine = module.exports;
+module = undefined; // avoid detection fooling
 loadGpfOnly(function () {
+    gpf.http.get(/\?(\w+)/.exec(location.search)[1] +  ".js")
+        .then(function (response) {
+            module = {};
+            eval(response.responseText);
+            engine(module.exports);
+        });
 });
 
         </script>
