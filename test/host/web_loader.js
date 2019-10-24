@@ -125,22 +125,7 @@
                 });
         },
 
-        // Actively wait for GPF to be loaded
-        _waitForLoad = function (callback, ignoreTests) {
-            // Check if the GPF library is loaded
-            if (typeof gpf === "undefined") {
-                if (--_MAX_WAIT) {
-                    setTimeout(function () {
-                        _waitForLoad(callback, ignoreTests);
-                    }, 100);
-                } else {
-                    _error("Unable to load GPF");
-                }
-                return;
-            }
-            if (ignoreTests) {
-                return callback();
-            }
+        _loadTests = function (callback) {
             // Legacy test case?
             var legacy = _detectLegacy();
             if (legacy) {
@@ -174,6 +159,26 @@
                         return name + ".js";
                     }), callback);
             });
+        },
+
+        // Actively wait for GPF to be loaded
+        _waitForLoad = function (callback, ignoreTests) {
+            // Check if the GPF library is loaded
+            if (typeof gpf === "undefined") {
+                if (--_MAX_WAIT) {
+                    setTimeout(function () {
+                        _waitForLoad(callback, ignoreTests);
+                    }, 100);
+                } else {
+                    _error("Unable to load GPF");
+                }
+                return;
+            }
+            if (ignoreTests) {
+                callback();
+            } else {
+                _loadTests(callback);
+            }
         },
 
         buildFlavorSetup = function (flavor) {
