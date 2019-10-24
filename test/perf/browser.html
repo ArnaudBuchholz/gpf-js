@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <title>GPF Performance Tests</title>
+        <link rel="stylesheet" type="text/css" href="../../res/html.css">
+        <link rel="stylesheet" type="text/css" href="../../res/console.css">
+        <style type="text/css">
+
+table th {
+    font-size: 10pt;
+    text-align: left;
+}
+
+table td {
+    vertical-align: top;
+    font-size: 8pt;
+}
+
+td.describe {
+    font-weight: bold;
+}
+
+tr.ok td.status { background-color: lightgreen; }
+tr.ko td.status { background-color: orange; }
+
+div.error { color: red; white-space: pre; }
+div.warning { color: yellow; white-space: pre; }
+div.info { color: blue; white-space: pre; }
+div.log { color: gray; white-space: pre; }
+
+        </style>
+        <script language="javascript">
+
+var gpfSourcesPath = "../../src/",
+    gpfTestsPath = "../";
+
+        </script>
+        <script src="../../res/xhr.js"></script>
+        <script src="../host/web_loader.js"></script>
+        <script src="../../res/console.js"></script>
+    </head>
+    <body>
+        <script language="javascript">
+
+loadGpfOnly(function () {
+});
+
+        </script>
+    </body>
+</html>
