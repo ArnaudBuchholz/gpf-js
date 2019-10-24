@@ -126,17 +126,20 @@
         },
 
         // Actively wait for GPF to be loaded
-        _waitForLoad = function (callback) {
+        _waitForLoad = function (callback, ignoreTests) {
             // Check if the GPF library is loaded
             if (typeof gpf === "undefined") {
                 if (--_MAX_WAIT) {
                     setTimeout(function () {
-                        _waitForLoad(callback);
+                        _waitForLoad(callback, ignoreTests);
                     }, 100);
                 } else {
                     _error("Unable to load GPF");
                 }
                 return;
+            }
+            if (ignoreTests) {
+                return callback();
             }
             // Legacy test case?
             var legacy = _detectLegacy();
@@ -221,14 +224,14 @@
             return path;
         },
 
-        _loadVersion = function (callback) {
+        _loadVersion = function (callback, ignoreTests) {
             var head = document.getElementsByTagName("head")[0],
                 script = document.createElement("script"),
                 version = _detectVersion();
             script.src = gpfSourcesPath + version;
             script.language = "javascript";
             head.insertBefore(script, head.firstChild);
-            _waitForLoad(callback);
+            _waitForLoad(callback, ignoreTests);
         },
 
         _setupInclude = function () {
@@ -259,7 +262,17 @@
     window.load = function (callback) {
         _setupInclude();
         _setupConfig();
-        _loadVersion(callback);
+        _loadVersion(callback, /*ignoreTests*/ false);
+    };
+
+    /*
+     * Load the GPF framework.
+     * When done, execute the callback.
+     */
+    window.loadGpfOnly = function (callback) {
+        _setupInclude();
+        _setupConfig();
+        _loadVersion(callback, /*ignoreTests*/ true);
     };
 
     // Call it after tests to handle cached results & coverage storage
