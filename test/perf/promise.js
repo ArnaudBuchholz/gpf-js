@@ -1,6 +1,6 @@
 "use strict";
 
-var GpfPromise = gpf.internals._GpfPromise;
+var GpfPromise = gpf.Promise;
 
 function createTest (PromiseClass) {
     return function () {
