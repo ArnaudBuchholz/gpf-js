@@ -86,6 +86,7 @@ _gpfPromiseResolve = function (newValue) {
 };
 
 var _GpfPromise = gpf.Promise = function (fn) {
+    this._handlers = [];
     _gpfPromiseSafeResolve(fn, _gpfPromiseResolve.bind(this), _gpfPromiseReject.bind(this));
 };
 
@@ -126,6 +127,16 @@ function _gpfPromiseAsyncProcess (promise) {
 
 var _GPF_COMPATIBILITY_PROMISE_NODELAY = 0;
 
+var _gpfPromiseHandlersToProcess = [];
+
+function _gpfPromiseProcessHandlers () {
+    while (_gpfPromiseHandlersToProcess.length) {
+        var me = _gpfPromiseHandlersToProcess.shift(),
+            promise = _gpfPromiseHandlersToProcess.shift();
+        _gpfPromiseAsyncProcess.call(me, promise);
+    }
+}
+
 _gpfPromiseHandler.prototype = {
 
     onFulfilled: null,
@@ -140,14 +151,13 @@ _gpfPromiseHandler.prototype = {
         /*jshint validthis:true*/
         var me = this; //eslint-disable-line no-invalid-this
         if (promise._state === null) {
-            /* istanbul ignore else */ // hasOwnProperty.1
-            if (!Object.prototype.hasOwnProperty.call(promise, "_handlers")) {
-                promise._handlers = [];
-            }
             promise._handlers.push(me);
             return;
         }
-        setTimeout(_gpfPromiseAsyncProcess.bind(me, promise), _GPF_COMPATIBILITY_PROMISE_NODELAY);
+        if (!_gpfPromiseHandlersToProcess.length) {
+            setTimeout(_gpfPromiseProcessHandlers, _GPF_COMPATIBILITY_PROMISE_NODELAY);
+        }
+        _gpfPromiseHandlersToProcess.push(me, promise);
     }
 
 };
