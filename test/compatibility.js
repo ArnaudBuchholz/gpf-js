@@ -438,6 +438,34 @@ describe("compatibility", function () {
                         };
                         var a = new A();
                         assert(method.call(Object, a) === A.prototype);
+                    },
+                    "works with standard objects (Array)": function (method) {
+                        var prototype = method.call(Object, Array.prototype);
+                        assert(prototype.constructor === Object);
+                    },
+                    "works with standard objects (Date)": function (method) {
+                        var prototype = method.call(Object, Date.prototype);
+                        assert(prototype.constructor === Object);
+                    },
+                    "works with standard objects (Error)": function (method) {
+                        var prototype = method.call(Object, Error.prototype);
+                        assert(prototype.constructor === Object);
+                    },
+                    "works with standard objects (Function)": function (method) {
+                        var prototype = method.call(Object, Function.prototype);
+                        assert(prototype.constructor === Object);
+                    },
+                    "works with standard objects (Number)": function (method) {
+                        var prototype = method.call(Object, Number.prototype);
+                        assert(prototype.constructor === Object);
+                    },
+                    "works with standard objects (RegExp)": function (method) {
+                        var prototype = method.call(Object, RegExp.prototype);
+                        assert(prototype.constructor === Object);
+                    },
+                    "works with standard objects (String)": function (method) {
+                        var prototype = method.call(Object, String.prototype);
+                        assert(prototype.constructor === Object);
                     }
                 },
                 keys: {
