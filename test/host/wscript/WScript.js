@@ -17,6 +17,14 @@ global.Promise = undefined;
 global.clearTimeout = undefined;
 global.setTimeout = undefined;
 coreFunction.prototype.bind = undefined;
+Object.getPrototypeOf = undefined;
+/*eslint-disable no-proto*/ // Used for compatibility reasons
+/*jshint -W103*/
+[Array, Date, Error, Function, Number, RegExp, String].forEach(function (Clazz) {
+    Object.defineProperty(Clazz.prototype, "__proto__", {
+        value: undefined
+    });
+});
 
 // Not proud of this one but I had to find a way...
 global.Function = function (content) {
