@@ -18,6 +18,8 @@ function _gpfObjectAssign (value, memberName) {
     this[memberName] = value; //eslint-disable-line no-invalid-this
 }
 
+var _gpfStandardObjects = [Array, Date, Error, Function, Number, RegExp, String];
+
 _gpfCompatibilityInstallMethods("Object", {
     on: Object,
 
@@ -55,6 +57,11 @@ _gpfCompatibilityInstallMethods("Object", {
             /* istanbul ignore else */ // wscript.node.1
             if (object.__proto__) {
                 return object.__proto__;
+            }
+            for (var index = 0; index < _gpfStandardObjects.length; ++index) {
+                if (object === _gpfStandardObjects[index].prototype) {
+                    return Object.prototype;
+                }
             }
             // May break if the constructor has been tampered with
             /* istanbul ignore next */ // wscript.node.1
