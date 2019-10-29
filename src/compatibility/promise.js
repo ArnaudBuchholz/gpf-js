@@ -131,9 +131,9 @@ var _gpfPromiseHandlersToProcess = [];
 
 function _gpfPromiseProcessHandlers () {
     while (_gpfPromiseHandlersToProcess.length) {
-        var me = _gpfPromiseHandlersToProcess.shift(),
+        var that = _gpfPromiseHandlersToProcess.shift(),
             promise = _gpfPromiseHandlersToProcess.shift();
-        _gpfPromiseAsyncProcess.call(me, promise);
+        _gpfPromiseAsyncProcess.call(that, promise);
     }
 }
 
