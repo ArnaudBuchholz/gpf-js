@@ -418,5 +418,35 @@
             "tests": 1090,
             "sources": 144
         }
+    },
+    {
+        "version": "1.0.0",
+        "label": "First productive version",
+        "date": "2019-10-30",
+        "notes": "",
+        "milestone": 18,
+        "metrics": {
+            "coverage": {
+                "statements": {
+                    "total": 100,
+                    "ignored": 0.32
+                },
+                "functions": {
+                    "total": 100,
+                    "ignored": 0.6
+                },
+                "branches": {
+                    "total": 100,
+                    "ignored": 0.68
+                }
+            },
+            "maintainability": 83.64,
+            "lines": {
+                "total": 13443,
+                "average": 93
+            },
+            "tests": 1109,
+            "sources": 144
+        }
     }
 ]

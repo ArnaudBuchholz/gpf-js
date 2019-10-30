@@ -41,7 +41,7 @@
          * GPF Version
          * @since 0.1.5
          */
-        _gpfVersion = "0.2.9", _GPF_NOT_FOUND = -1, _GPF_START = 0, _GPF_FS_WSCRIPT_READING = 1,
+        _gpfVersion = "1.0.0", _GPF_NOT_FOUND = -1, _GPF_START = 0, _GPF_FS_WSCRIPT_READING = 1,
         /**
          * Host constants
          * @since 0.1.5
@@ -366,7 +366,7 @@
         for (var property in object) {
             /* istanbul ignore else */
             // hasOwnProperty.1
-            if (object.hasOwnProperty(property)) {
+            if (Object.prototype.hasOwnProperty.call(object, property)) {
                 callback.call(thisArg, object[property], property, object);
             }
         }
@@ -377,7 +377,7 @@
             "constructor",
             "toString"
         ].forEach(function (property) {
-            if (object.hasOwnProperty(property)) {
+            if (Object.prototype.hasOwnProperty.call(object, property)) {
                 callback.call(thisArg, object[property], property, object);
             }
         });
@@ -692,7 +692,7 @@
     function _gpfArrayForEachOwn(array, callback) {
         var len = array.length, idx = 0;
         while (idx < len) {
-            if (array.hasOwnProperty(idx)) {
+            if (Object.prototype.hasOwnProperty.call(array, idx)) {
                 callback(array[idx], idx, array);
             }
             ++idx;
@@ -701,7 +701,7 @@
     function _gpfArrayEveryOwn(array, callback, startIdx) {
         var len = array.length, idx = startIdx;
         while (idx < len) {
-            if (array.hasOwnProperty(idx) && callback(array[idx], idx, array) !== true) {
+            if (Object.prototype.hasOwnProperty.call(array, idx) && callback(array[idx], idx, array) !== true) {
                 return false;
             }
             ++idx;
@@ -882,18 +882,26 @@
     function _generateBindBuilderSource(length) {
         return "var me = this;\n" + "return function (" + _gpfBuildFunctionParameterList(length).join(", ") + ") {\n" + "    var args = _gpfArraySlice(arguments);\n" + "    return me.apply(thisArg, prependArgs.concat(args));\n" + "};";
     }
+    function _generateSimpleBindBuilderSource(length) {
+        return "var me = this;\n" + "return function (" + _gpfBuildFunctionParameterList(length).join(", ") + ") {\n" + "    return me.apply(thisArg, arguments);\n" + "};";
+    }
     var _GPF_COMPATIBILITY_FUNCTION_MIN_LENGTH = 0;
     _gpfCompatibilityInstallMethods("Function", {
         on: Function,
         methods: {
             // Introduced with JavaScript 1.8.5
             bind: function (thisArg) {
-                var me = this, prependArgs = _gpfArrayTail(arguments), length = Math.max(this.length - prependArgs.length, _GPF_COMPATIBILITY_FUNCTION_MIN_LENGTH), builderSource = _generateBindBuilderSource(length);
-                return _gpfFunc([
-                    "thisArg",
-                    "prependArgs",
-                    "_gpfArraySlice"
-                ], builderSource).call(me, thisArg, prependArgs, _gpfArraySlice);
+                var me = this, prependArgs = _gpfArrayTail(arguments), length = Math.max(this.length - prependArgs.length, _GPF_COMPATIBILITY_FUNCTION_MIN_LENGTH), builderSource;
+                if (prependArgs.length) {
+                    builderSource = _generateBindBuilderSource(length);
+                    return _gpfFunc([
+                        "thisArg",
+                        "prependArgs",
+                        "_gpfArraySlice"
+                    ], builderSource).call(me, thisArg, prependArgs, _gpfArraySlice);
+                }
+                builderSource = _generateSimpleBindBuilderSource(length);
+                return _gpfFunc(["thisArg"], builderSource).call(me, thisArg);
             }
         }
     });
@@ -901,6 +909,15 @@
         /*jshint validthis:true*/
         this[memberName] = value;    //eslint-disable-line no-invalid-this
     }
+    var _gpfStandardObjects = [
+        Array,
+        Date,
+        Error,
+        Function,
+        Number,
+        RegExp,
+        String
+    ];
     _gpfCompatibilityInstallMethods("Object", {
         on: Object,
         statics: {
@@ -934,6 +951,11 @@
                 if (object.__proto__) {
                     return object.__proto__;
                 }
+                for (var index = 0; index < _gpfStandardObjects.length; ++index) {
+                    if (object === _gpfStandardObjects[index].prototype) {
+                        return Object.prototype;
+                    }
+                }
                 // May break if the constructor has been tampered with
                 /* istanbul ignore next */
                 // wscript.node.1
@@ -943,7 +965,7 @@
             keys: function (object) {
                 var result = [], key;
                 for (key in object) {
-                    if (object.hasOwnProperty(key)) {
+                    if (Object.prototype.hasOwnProperty.call(object, key)) {
                         result.push(key);
                     }
                 }
@@ -953,7 +975,7 @@
             values: function (object) {
                 var result = [], key;
                 for (key in object) {
-                    if (object.hasOwnProperty(key)) {
+                    if (Object.prototype.hasOwnProperty.call(object, key)) {
                         result.push(object[key]);
                     }
                 }
@@ -1211,6 +1233,7 @@
         }
     };
     var _GpfPromise = gpf.Promise = function (fn) {
+        this._handlers = [];
         _gpfPromiseSafeResolve(fn, _gpfPromiseResolve.bind(this), _gpfPromiseReject.bind(this));
     };
     function _gpfPromiseHandler() {
@@ -1245,6 +1268,13 @@
         me.resolve(result);
     }
     var _GPF_COMPATIBILITY_PROMISE_NODELAY = 0;
+    var _gpfPromiseHandlersToProcess = [];
+    function _gpfPromiseProcessHandlers() {
+        while (_gpfPromiseHandlersToProcess.length) {
+            var that = _gpfPromiseHandlersToProcess.shift(), promise = _gpfPromiseHandlersToProcess.shift();
+            _gpfPromiseAsyncProcess.call(that, promise);
+        }
+    }
     _gpfPromiseHandler.prototype = {
         onFulfilled: null,
         onRejected: null,
@@ -1255,15 +1285,13 @@
             var me = this;
             //eslint-disable-line no-invalid-this
             if (promise._state === null) {
-                /* istanbul ignore else */
-                // hasOwnProperty.1
-                if (!promise.hasOwnProperty("_handlers")) {
-                    promise._handlers = [];
-                }
                 promise._handlers.push(me);
                 return;
             }
-            setTimeout(_gpfPromiseAsyncProcess.bind(me, promise), _GPF_COMPATIBILITY_PROMISE_NODELAY);
+            if (!_gpfPromiseHandlersToProcess.length) {
+                setTimeout(_gpfPromiseProcessHandlers, _GPF_COMPATIBILITY_PROMISE_NODELAY);
+            }
+            _gpfPromiseHandlersToProcess.push(me, promise);
         }
     };
     _GpfPromise.prototype = {
@@ -2748,7 +2776,7 @@
         if (classDefinition._extend === classDefinition._resolvedConstructor) {
             return "var that = Reflect.construct(_classDef_._extend, arguments, _classDef_._instanceBuilder);\n";
         }
-        return "var that,\n" + "    $super = function () {\n" + "        that = Reflect.construct(_classDef_._extend, arguments, _classDef_._instanceBuilder);\n" + "    },\n" + "    hasOwnProperty = function (name) {\n" + "        return !!that && that.hasOwnProperty(name);\n" + "    },\n" + "    proxy = new Proxy({}, {\n" + "        get: function (obj, property) {\n" + "            if (property === \"hasOwnProperty\") {\n" + "              return hasOwnProperty;\n" + "            }\n" + "            if (!that && property === \"$super\") {\n" + "              return $super;\n" + "            }\n" + "            return that[property];\n" + "        },\n" + "        set: function (obj, property, value) {\n" + "            if (property !== \"$super\") {\n" + "                that[property] = value;\n" + "            }\n" + "            return true;\n" + "        }\n" + "    });\n" + "_classDef_._resolvedConstructor.apply(proxy, arguments);\n";
+        return "var that,\n" + "    $super = function () {\n" + "        that = Reflect.construct(_classDef_._extend, arguments, _classDef_._instanceBuilder);\n" + "    },\n" + "    hasOwnProperty = function (name) {\n" + "        return !!that && Object.prototype.hasOwnProperty.call(that, name);\n" + "    },\n" + "    proxy = new Proxy({}, {\n" + "        get: function (obj, property) {\n" + "            if (property === \"hasOwnProperty\") {\n" + "              return hasOwnProperty;\n" + "            }\n" + "            if (!that && property === \"$super\") {\n" + "              return $super;\n" + "            }\n" + "            return that[property];\n" + "        },\n" + "        set: function (obj, property, value) {\n" + "            if (property !== \"$super\") {\n" + "                that[property] = value;\n" + "            }\n" + "            return true;\n" + "        }\n" + "    });\n" + "_classDef_._resolvedConstructor.apply(proxy, arguments);\n";
     }
     function _gpfDefineGetClassSecuredConstructorGetMainConstructionPattern(classDefinition) {
         if (_gpfIsClass(classDefinition._extend)) {
@@ -2932,7 +2960,7 @@
          * Body of superified method
          * @since 0.1.7
          */
-        _superifiedBody: "var _super_;\n" + "if (this.hasOwnProperty(\"$super\")) {\n" + "    _super_ = this.$super;\n" + "}\n" + "this.$super = _classDef_._get$Super(this, _methodName_, _superMembers_);\n" + "try{\n" + "    var _result_ = _method_.apply(this, arguments);\n" + "} finally {\n" + "    if (undefined === _super_) {\n" + "        delete this.$super;\n" + "    } else {\n" + "        this.$super = _super_;\n" + "    }\n" + "}\n" + "return _result_;",
+        _superifiedBody: "var _super_;\n" + "if (Object.prototype.hasOwnProperty.call(this, \"$super\")) {\n" + "    _super_ = this.$super;\n" + "}\n" + "this.$super = _classDef_._get$Super(this, _methodName_, _superMembers_);\n" + "try{\n" + "    var _result_ = _method_.apply(this, arguments);\n" + "} finally {\n" + "    if (undefined === _super_) {\n" + "        delete this.$super;\n" + "    } else {\n" + "        this.$super = _super_;\n" + "    }\n" + "}\n" + "return _result_;",
         /**
          * Generates context for the superified method
          *
@@ -3051,7 +3079,7 @@
          * @since 0.1.7
          */
         _resolveConstructor: function () {
-            if (this._initialDefinition.hasOwnProperty("constructor")) {
+            if (Object.prototype.hasOwnProperty.call(this._initialDefinition, "constructor")) {
                 /* jshint -W069*/
                 /*eslint-disable dot-notation*/
                 this._resolvedConstructor = this._superify(this._initialDefinition["constructor"], "constructor");    /* jshint +W069*/
@@ -4367,12 +4395,19 @@
                     //eslint-disable-line no-invalid-this
                     stream = me._stream;
                 return new Promise(function (resolve, reject) {
+                    var noDrain;
                     me._reject = reject;
                     me._checkIfValid();
-                    if (stream.write(buffer)) {
-                        return resolve();
+                    noDrain = stream.write(buffer, function (error) {
+                        if (!error && noDrain) {
+                            resolve();
+                        }
+                    });
+                    if (!noDrain) {
+                        stream.once("drain", function () {
+                            resolve();
+                        });
                     }
-                    stream.once("drain", resolve);
                 });
             })    //endregion
         });
@@ -5736,6 +5771,9 @@
          * - {@link gpf.stream.BufferedRead#_completeReadBuffer}
          * - {@link gpf.stream.BufferedRead#_setReadError}
          *
+         * Make sure to implement the {@link gpf.interfaces.IFlushableStream} interface
+         * to complete the buffer.
+         *
          * @constructor gpf.stream.BufferedRead
          * @implements {gpf.interfaces.IReadableStream}
          * @since 0.2.3
@@ -6587,6 +6625,12 @@
                 return Promise.resolve();
             }),
             //endregion
+            /**
+             * Gets the array containing writen data
+             *
+             * @return {Array} array containing writen data
+             * @since 0.2.2
+             */
             toArray: function () {
                 return this._buffer;
             },
@@ -6602,52 +6646,75 @@
     function _gpfStreamPipeToFlushable(stream) {
         return _gpfInterfaceQuery(_gpfIFlushableStream, stream) || _gpfStreamPipeFakeFlushable;
     }
-    function _gpfStreamPipeAllocateState(intermediate, destination) {
+    function _gpfStreamPipeCouplerDebug(coupler, message) {
+        _gpfIgnore(coupler, message);    // if (console.expects) {
+                                         //     console.expects("log", /.*/, true);
+                                         // }
+                                         // console.log("gpf.stream.pipe/coupler@" + coupler.index + " [" + coupler.fromName + "::" + coupler.toName + "] "
+                                         //     + message);
+    }
+    function _gpfStreamPipeAllocateCoupler(intermediate, destination) {
+        var toName;
+        if (destination._isCoupler === _gpfStreamPipeCouplerDebug) {
+            toName = "(coupler)";
+        } else {
+            toName = _gpfGetFunctionName(destination.constructor);
+        }
         return {
+            from: intermediate,
+            fromName: _gpfGetFunctionName(intermediate.constructor),
+            to: destination,
+            toName: toName,
             iReadableIntermediate: _gpfStreamQueryReadable(intermediate),
             iWritableIntermediate: _gpfStreamQueryWritable(intermediate),
             iFlushableIntermediate: _gpfStreamPipeToFlushable(intermediate),
             iWritableDestination: _gpfStreamQueryWritable(destination),
             iFlushableDestination: _gpfStreamPipeToFlushable(destination),
+            readInProgress: false,
             readError: null,
-            rejectWrite: _gpfEmptyFunc
+            readPromise: Promise.resolve(),
+            rejectWrite: _gpfEmptyFunc,
+            flushed: false
         };
     }
-    function _gpfStreamPipeAllocateRead(state) {
+    function _gpfStreamPipeCouplerDrain(coupler) {
         // Read errors must be transmitted up to the initial read, this is done by forwarding it to flush & write
-        var readingDone = true, iReadableIntermediate = state.iReadableIntermediate, iWritableDestination = state.iWritableDestination;
-        return function () {
-            if (readingDone) {
-                try {
-                    readingDone = false;
-                    iReadableIntermediate.read(iWritableDestination).then(function () {
-                        readingDone = true;
-                    }, function (reason) {
-                        state.readError = reason;
-                        state.rejectWrite(reason);
-                    });
-                } catch (e) {
-                    state.readError = e;
-                }
+        var iReadableIntermediate = coupler.iReadableIntermediate, iWritableDestination = coupler.iWritableDestination;
+        if (coupler.readInProgress) {
+            _gpfStreamPipeCouplerDebug(coupler, "read in progress");
+        }
+        if (!coupler.readInProgress) {
+            try {
+                coupler.readInProgress = true;
+                _gpfStreamPipeCouplerDebug(coupler, "read started");
+                coupler.readPromise = iReadableIntermediate.read(iWritableDestination).then(function () {
+                    _gpfStreamPipeCouplerDebug(coupler, "read ended");
+                    coupler.readInProgress = false;
+                }, function (reason) {
+                    coupler.readError = reason;
+                    coupler.rejectWrite(reason);
+                });
+            } catch (e) {
+                coupler.readError = e;
             }
-        };
+        }
     }
-    function _gpfStreamPipeWrapWrite(state, promise) {
+    function _gpfStreamPipeCouplerWrite(coupler, promise) {
         return new Promise(function (resolve, reject) {
             promise.then(function (value) {
                 resolve(value);
-                state.rejectWrite = _gpfEmptyFunc;
+                coupler.rejectWrite = _gpfEmptyFunc;
             }, reject);
-            state.rejectWrite = reject;
+            coupler.rejectWrite = reject;
         });
     }
-    function _gpfStreamPipeCheckIfReadError(state) {
-        if (state.readError) {
-            return Promise.reject(state.readError);
+    function _gpfStreamPipeCheckIfReadError(coupler) {
+        if (coupler.readError) {
+            return Promise.reject(coupler.readError);
         }
     }
     /**
-     * Create a flushable & writable stream by combining the intermediate stream with the writable destination
+     * Create a flushable & writable stream by coupling the intermediate stream with the writable destination
      *
      * @param {Object} intermediate Must implements IReadableStream interface.
      * If it implements the IFlushableStream interface, it is assumed that it retains data
@@ -6657,35 +6724,47 @@
      * least to pass it to the destination
      * @param {Object} destination Must implements IWritableStream interface.
      * If it implements the IFlushableStream, it will be called when the intermediate completes.
+     * @param {Number} index zero-based index of the coupler, helps for debugging.
      *
      * @return {Object} Implementing IWritableStream and IFlushableStream
      * @since 0.2.3
      */
-    function _gpfStreamPipeToFlushableWrite(intermediate, destination) {
-        var state = _gpfStreamPipeAllocateState(intermediate, destination), read = _gpfStreamPipeAllocateRead(state), iFlushableIntermediate = state.iFlushableIntermediate, iFlushableDestination = state.iFlushableDestination, iWritableIntermediate = state.iWritableIntermediate;
-        read();
+    function _gpfStreamPipeWeldCoupler(intermediate, destination, index) {
+        var coupler = _gpfStreamPipeAllocateCoupler(intermediate, destination), iFlushableIntermediate = coupler.iFlushableIntermediate, iFlushableDestination = coupler.iFlushableDestination, iWritableIntermediate = coupler.iWritableIntermediate;
+        coupler.index = index;
+        _gpfStreamPipeCouplerDrain(coupler);
         return {
+            _isCoupler: _gpfStreamPipeCouplerDebug,
             flush: function () {
-                return _gpfStreamPipeCheckIfReadError(state) || iFlushableIntermediate.flush().then(function () {
+                _gpfAssert(!coupler.flushed, "A flushed coupler can't be flushed again");
+                _gpfStreamPipeCouplerDebug(coupler, "flush");
+                coupler.flushed = true;
+                return _gpfStreamPipeCheckIfReadError(coupler) || iFlushableIntermediate.flush().then(function () {
+                    return coupler.readPromise;    // Wait for any pending read
+                }).then(function () {
                     return iFlushableDestination.flush();
+                }).then(function () {
+                    _gpfStreamPipeCouplerDebug(coupler, "flush ended");
                 });
             },
             write: function (data) {
-                read();
-                return _gpfStreamPipeCheckIfReadError(state) || _gpfStreamPipeWrapWrite(state, iWritableIntermediate.write(data));
+                _gpfAssert(!coupler.flushed, "A flushed coupler can't be written to");
+                _gpfStreamPipeCouplerDebug(coupler, "write(" + JSON.stringify(data) + ")");
+                _gpfStreamPipeCouplerDrain(coupler);
+                return _gpfStreamPipeCheckIfReadError(coupler) || _gpfStreamPipeCouplerWrite(coupler, iWritableIntermediate.write(data));
             }
         };
     }
-    function _gpfStreamPipeReduce(streams) {
+    function _gpfStreamPipeWeldCouplers(streams) {
         var idx = streams.length, iWritableStream = streams[--idx];
         while (idx) {
-            iWritableStream = _gpfStreamPipeToFlushableWrite(streams[--idx], iWritableStream);
+            iWritableStream = _gpfStreamPipeWeldCoupler(streams[--idx], iWritableStream, idx);
         }
         return iWritableStream;
     }
     function _gpfStreamPipeToWritable(streams) {
         if (_gpfArrayTail(streams).length) {
-            return _gpfStreamPipeReduce(streams);
+            return _gpfStreamPipeWeldCouplers(streams);
         }
         return _gpfStreamQueryWritable(streams[_GPF_START]);
     }
@@ -6693,7 +6772,9 @@
      * Pipe streams.
      *
      * @param {gpf.interfaces.IReadableStream} source Source stream
-     * @param {...gpf.interfaces.IWritableStream} destination Writable streams
+     * @param {...gpf.interfaces.IWritableStream} destination streams to pipe data through.
+     * It is assumed that the last destination stream will not block data receiving if readable),
+     * every other intermediate stream must also implement {@link gpf.interfaces.IReadableStream} interface
      * @return {Promise} Resolved when reading (and subsequent writings) are done
      * @since 0.2.3
      */
@@ -7189,7 +7270,7 @@
             return this._extend && this._extend.prototype[name] !== undefined;
         },
         _hasMember: function (name) {
-            return this._initialDefinition.hasOwnProperty(name) || this._hasInheritedMember(name);
+            return Object.prototype.hasOwnProperty.call(this._initialDefinition, name) || this._hasInheritedMember(name);
         },
         /**
          * Given the member name, check if it exists
@@ -7282,7 +7363,7 @@
      */
     function _gpfDefClassAttrBuild(member, attribute, newPrototype) {
         /*jshint validthis:true*/
-        var attributeEntityDefinition = _gpfDefineEntitiesFindByConstructor(attribute.constructor);
+        var attributeEntityDefinition = _gpfDefineClassImport(attribute.constructor);
         if (!attributeEntityDefinition._singleton) {
             attribute._memberName = member;
             attribute._ClassConstructor = newPrototype.constructor;
@@ -7370,11 +7451,7 @@
         }
     });
     function _gpfAttributesGetFromClass(classConstructor, baseAttributeClass) {
-        var entityDefinition = _gpfDefineEntitiesFindByConstructor(classConstructor);
-        if (entityDefinition) {
-            return entityDefinition.getAttributes(baseAttributeClass);
-        }
-        return {};
+        return _gpfDefineClassImport(classConstructor).getAttributes(baseAttributeClass);
     }
     function _gpfAttributesGetConstructorFromTruthy(any) {
         if (typeof any !== "object") {
@@ -8478,7 +8555,7 @@
          */
         _check: function (member, classDefinition) {
             _gpfIgnore(classDefinition);
-            this._property = _gpfSerialPropertyCheck(Object.assign({ name: _gpfAttributesSerializableExtractName(member) }, this._property));
+            this._property = _gpfSerialPropertyCheck(Object.assign({ name: _gpfAttributesSerializableExtractName(member) }, this._property || {}));
         },
         /**
          * @gpf:read _property
@@ -8580,7 +8657,7 @@
     function _gpfSerialRawFromProperties(instance, raw, converter) {
         var properties = _gpfSerialGetWithReadOnly(instance);
         _gpfObjectForEach(properties, function (property, member) {
-            if (raw.hasOwnProperty(property.name)) {
+            if (Object.prototype.hasOwnProperty.call(raw, property.name)) {
                 _gpfSerialRawFromPropertyValue(instance, member, converter.call(instance, raw[property.name], property, member));
             }
         });
