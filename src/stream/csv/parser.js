@@ -18,7 +18,7 @@
 /*exported _GpfStreamCsvParser*/ // gpf.stream.csv.Parser
 /*#endif*/
 
-_gpfErrorDeclare("csv", {
+_gpfErrorDeclare("csv/parser", {
     invalidCSV:
         "Invalid CSV syntax (bad quote sequence or missing end of file)"
 });
