@@ -203,7 +203,7 @@ gpf.require.define({
                 }, this);
             // Add missing sources after the last loaded one
             if (newSources.length) {
-                this.sources = this.sources.concat(newSources);
+                this._sources = this._sources.concat(newSources);
             }
         },
 
