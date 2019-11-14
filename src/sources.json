@@ -194,9 +194,9 @@
         "tags": "define"
     },
     {
-      "name": "define/entities",
-      "test": false,
-      "tags": "define"
+        "name": "define/entities",
+        "test": false,
+        "tags": "define"
     },
     {
         "name": "define/check",
@@ -635,5 +635,14 @@
     {
         "name": "attributes/decorator",
         "tags": "attribute es6"
+    },
+    {
+        "name": "interfaces/synchronousable",
+        "test": false,
+        "tags": "interface"
+    },
+    {
+        "name": "xml/parser",
+        "tags": "xml"
     }
 ]
