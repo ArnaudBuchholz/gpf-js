@@ -65,7 +65,7 @@ var
             this._buffer = [];
         },
 
-        //region gpf.interfaces.IReadableStream
+        //region gpf.interfaces.IWritableStream
 
         /**
          * @gpf:sameas gpf.interfaces.IWritableStream#write
