@@ -4,6 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_NOT_FOUND*/ // -1
 /*global _GPF_START*/ // 0
 /*global _gpfArrayForEachAsync*/ // Almost like [].forEach (undefined are also enumerated) with async handling
 /*global _gpfDefine*/ // Shortcut for gpf.define
@@ -24,6 +25,7 @@ _gpfErrorDeclare("xml/parser", {
      * ### Description
      *
      * This error is used when the parser can't process an XML
+     * @since 1.0.1
      */
     invalidXmlSyntax: "Invalid XML syntax"
 });
@@ -32,7 +34,7 @@ var
     _GPF_XML_PARSING_REGEXP = [
         "<\\?([^?]+)\\?>",
         "<((?:\\w+:)?[\\w\\-.]+)",
-        "\\s*((?:\\w+:)?[\\w\\-.]+)=(?:\"|')([^\"']+)(?:\"|')",
+        "\\s*((?:\\w+:)?[\\w\\-.]+)=(?:\"([^\"]+)\"|'([^']+)')",
         "(\\s*\\/>|<\\/(?:\\w+:)?[\\w\\-.]+>)",
         "<!--([^-]*)-->",
         "([^<>]+)",
@@ -44,10 +46,11 @@ var
     _GPF_XML_PARSER_PROCESSING_INSTRUCTION = 1,
     _GPF_XML_PARSER_OPEN_TAG = 2,
     _GPF_XML_PARSER_ATTRIBUTE_NAME = 3,
-    _GPF_XML_PARSER_ATTRIBUTE_VALUE = 4,
-    _GPF_XML_PARSER_CLOSE_TAG = 5,
-    // _GPF_XML_PARSER_COMMENT = 6,
-    _GPF_XML_PARSER_TEXT = 7,
+    _GPF_XML_PARSER_ATTRIBUTE_DOUBLE_QUOTE_VALUE = 4,
+    _GPF_XML_PARSER_ATTRIBUTE_SINGLE_QUOTE_VALUE = 5,
+    _GPF_XML_PARSER_CLOSE_TAG = 6,
+    // _GPF_XML_PARSER_COMMENT = 7,
+    _GPF_XML_PARSER_TEXT = 8,
 
     _GPF_XML_PARSER_HANDLERS;
 
@@ -55,8 +58,36 @@ function _gpfXmlParserNoop () {
     return Promise.resolve();
 }
 
+function _gpfXmlParserGetQNamePrefix (qName) {
+    var columnPos = qName.indexOf(":");
+    if (columnPos !== _GPF_NOT_FOUND) {
+        return qName.substring(_GPF_START, columnPos);
+    }
+    return "";
+}
+
+function _gpfXmlParserGetInheritedPrefixes (parser) {
+    return parser._nodes.reduce(function (prefixes, node) {
+        return prefixes.concat(node.namespacePrefixes);
+    }, [""]);
+}
+
+function _gpfXmlParserCheckPrefixes (parser, node) {
+    var prefixes = _gpfXmlParserGetInheritedPrefixes(parser),
+        namePrefix = _gpfXmlParserGetQNamePrefix(node.qName);
+    if (!prefixes.includes(namePrefix)) {
+        gpf.Error.invalidXmlSyntax();
+    }
+    Object.keys(node.attributes).forEach(function (name) {
+        if (!prefixes.includes(_gpfXmlParserGetQNamePrefix(name))) {
+            gpf.Error.invalidXmlSyntax();
+        }
+    });
+}
+
 function _gpfXmlParserOpenNode (parser, node, chain) {
     node.notOpened = false;
+    _gpfXmlParserCheckPrefixes(parser, node);
     if (parser._synchronous) {
         parser._iXmlContentHandler.startElement(node.qName, node.attributes);
         return chain();
@@ -71,10 +102,17 @@ function _gpfXmlParserCurrentNode (parser) {
     }
 }
 
+function _gpfXmlParserOpenNodeIfNeeded (parser, node, chain) {
+    if (node.notOpened) {
+        return _gpfXmlParserOpenNode(parser, node, chain);
+    }
+    return chain();
+}
+
 function _gpfXmlParserOpenCurrentNodeIfNeeded (parser, chain) {
     var node = _gpfXmlParserCurrentNode(parser);
-    if (node && node.notOpened) {
-        return _gpfXmlParserOpenNode(parser, node, chain);
+    if (node) {
+        return _gpfXmlParserOpenNodeIfNeeded(parser, node, chain);
     }
     return chain();
 }
@@ -133,10 +171,31 @@ function _gpfXmlParserCreateDocumentAndParseAsync (parser) {
 }
 
 function _gpfXmlParserProcessNamespaceAttribute (parser, namespacePrefix, uri) {
-    var node = _gpfXmlParserCurrentNode(parser);
-    var prefix = namespacePrefix.split(":")[_GPF_XML_PARSER_PREFIX] || "";
+    var node = _gpfXmlParserCurrentNode(parser),
+        prefix = namespacePrefix.split(":")[_GPF_XML_PARSER_PREFIX] || "";
     node.namespacePrefixes.unshift(prefix);
     return parser._iXmlContentHandler.startPrefixMapping(prefix, uri);
+}
+
+function _gpfXmlParserProcessAttribute (parser, name, value) {
+    var node = _gpfXmlParserCurrentNode(parser);
+    if (Object.prototype.hasOwnProperty.call(node.attributes, name)) {
+        gpf.Error.invalidXmlSyntax();
+    }
+    node.attributes[name] = value;
+}
+
+function _gpfXmlParserCheckMatchingQName (node, qName) {
+    if (node.qName !== qName) {
+        gpf.Error.invalidXmlSyntax();
+    }
+}
+
+function _gpfXmlParserCheckNodeBeforeClosing (parser, node, closeTag) {
+    var qName = closeTag.match(/(?:\w+:)?[\w\-.]+/);
+    if (qName) {
+        _gpfXmlParserCheckMatchingQName(node, qName.toString());
+    }
 }
 
 function _gpfXmlParserEndPrefixMappings (parser, node, closeTag) {
@@ -155,13 +214,6 @@ function _gpfXmlParserEndPrefixMappings (parser, node, closeTag) {
                 return parser._iXmlContentHandler.endPrefixMapping(prefix);
             });
         });
-}
-
-function _gpfXmlParserCheckNodeBeforeClosing (parser, node, closeTag) {
-    var qName = closeTag.match(/(?:\w+:)?[\w\-.]+/);
-    if (qName && node.qName !== qName.toString()) {
-        gpf.Error.invalidXmlSyntax();
-    }
 }
 
 _GPF_XML_PARSER_HANDLERS = [
@@ -186,26 +238,28 @@ _GPF_XML_PARSER_HANDLERS = [
             namespacePrefixes: [],
             notOpened: true
         });
-        if (node && node.notOpened) {
-            node.notOpened = false;
-            return parser._iXmlContentHandler.startElement(node.qName, node.attributes);
+        if (node) {
+            return _gpfXmlParserOpenNodeIfNeeded(parser, node, _gpfXmlParserNoop);
         }
         return Promise.resolve();
     },
 
     // _GPF_XML_PARSER_ATTRIBUTE_NAME
     function (parser, match) {
-        var node = _gpfXmlParserCurrentNode(parser),
-            name = match[_GPF_XML_PARSER_ATTRIBUTE_NAME],
-            value = match[_GPF_XML_PARSER_ATTRIBUTE_VALUE];
+        var name = match[_GPF_XML_PARSER_ATTRIBUTE_NAME],
+            value = match[_GPF_XML_PARSER_ATTRIBUTE_DOUBLE_QUOTE_VALUE]
+                || match[_GPF_XML_PARSER_ATTRIBUTE_SINGLE_QUOTE_VALUE];
         if (name.startsWith("xmlns")) {
             return _gpfXmlParserProcessNamespaceAttribute(parser, name, value);
         }
-        node.attributes[name] = value;
+        _gpfXmlParserProcessAttribute(parser, name, value);
         return Promise.resolve();
     },
 
-    // _GPF_XML_PARSER_ATTRIBUTE_VALUE
+    // _GPF_XML_PARSER_ATTRIBUTE_DOUBLE_QUOTE_VALUE
+    _gpfXmlParserNoop,
+
+    // _GPF_XML_PARSER_ATTRIBUTE_SINGLE_QUOTE_VALUE
     _gpfXmlParserNoop,
 
     // _GPF_XML_PARSER_CLOSE_TAG
