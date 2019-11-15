@@ -16,6 +16,16 @@
 /*#endif*/
 
 _gpfErrorDeclare("xml/parser", {
+    /**
+     * ### Summary
+     *
+     * Invalid XML syntax
+     *
+     * ### Description
+     *
+     * This error is used when the parser can't process an XML
+     */
+    invalidXmlSyntax: "Invalid XML syntax"
 });
 
 var
@@ -25,7 +35,7 @@ var
         "\\s*((?:\\w+:)?[\\w\\-.]+)=(?:\"|')([^\"']+)(?:\"|')",
         "(\\s*\\/>|<\\/(?:\\w+:)?[\\w\\-.]+>)",
         "<!--([^-]*)-->",
-        "([^</>]+)",
+        "([^<>]+)",
         ">"
     ].join("|"),
 
@@ -35,7 +45,7 @@ var
     _GPF_XML_PARSER_OPEN_TAG = 2,
     _GPF_XML_PARSER_ATTRIBUTE_NAME = 3,
     _GPF_XML_PARSER_ATTRIBUTE_VALUE = 4,
-    // _GPF_XML_PARSER_CLOSE_TAG = 5,
+    _GPF_XML_PARSER_CLOSE_TAG = 5,
     // _GPF_XML_PARSER_COMMENT = 6,
     _GPF_XML_PARSER_TEXT = 7,
 
@@ -48,10 +58,10 @@ function _gpfXmlParserNoop () {
 function _gpfXmlParserOpenNode (parser, node, chain) {
     node.notOpened = false;
     if (parser._synchronous) {
-        parser._iXmlContentHandler.startElement(node.qname, node.attributes);
+        parser._iXmlContentHandler.startElement(node.qName, node.attributes);
         return chain();
     }
-    return parser._iXmlContentHandler.startElement(node.qname, node.attributes).then(chain);
+    return parser._iXmlContentHandler.startElement(node.qName, node.attributes).then(chain);
 }
 
 function _gpfXmlParserCurrentNode (parser) {
@@ -61,7 +71,7 @@ function _gpfXmlParserCurrentNode (parser) {
     }
 }
 
-function _gpfXmlParserCheckIfCurrentNodeOpened (parser, chain) {
+function _gpfXmlParserOpenCurrentNodeIfNeeded (parser, chain) {
     var node = _gpfXmlParserCurrentNode(parser);
     if (node && node.notOpened) {
         return _gpfXmlParserOpenNode(parser, node, chain);
@@ -84,6 +94,12 @@ function _gpfXmlParserProcessMatch (parser, match) {
     return Promise.resolve();
 }
 
+function _gpfXmlParserCheckFinalState (parser) {
+    if (parser._nodes.length) {
+        gpf.Error.invalidXmlSyntax();
+    }
+}
+
 function _gpfXmlParserParseSync (parser) {
     parser._iXmlContentHandler.startDocument();
     var match = _gpfXmlParserNextMatch(parser);
@@ -91,6 +107,7 @@ function _gpfXmlParserParseSync (parser) {
         _gpfXmlParserProcessMatch(parser, match);
         match = _gpfXmlParserNextMatch(parser);
     }
+    _gpfXmlParserCheckFinalState(parser);
     parser._iXmlContentHandler.endDocument();
 }
 
@@ -110,6 +127,7 @@ function _gpfXmlParserCreateDocumentAndParseAsync (parser) {
             return _gpfXmlParserParseAsync(parser);
         })
         .then(function () {
+            _gpfXmlParserCheckFinalState(parser);
             return parser._iXmlContentHandler.endDocument();
         });
 }
@@ -121,20 +139,29 @@ function _gpfXmlParserProcessNamespaceAttribute (parser, namespacePrefix, uri) {
     return parser._iXmlContentHandler.startPrefixMapping(prefix, uri);
 }
 
-function _gpfXmlParserEndPrefixMappings (parser, node) {
+function _gpfXmlParserEndPrefixMappings (parser, node, closeTag) {
     if (parser._synchronous) {
         parser._iXmlContentHandler.endElement();
         node.namespacePrefixes.forEach(function (prefix) {
             parser._iXmlContentHandler.endPrefixMapping(prefix);
         });
+        _gpfXmlParserCheckNodeBeforeClosing(parser, node, closeTag);
         return Promise.resolve();
     }
     return parser._iXmlContentHandler.endElement()
         .then(function () {
             return _gpfArrayForEachAsync(node.namespacePrefixes, function (prefix) {
+                _gpfXmlParserCheckNodeBeforeClosing(parser, node, closeTag);
                 return parser._iXmlContentHandler.endPrefixMapping(prefix);
             });
         });
+}
+
+function _gpfXmlParserCheckNodeBeforeClosing (parser, node, closeTag) {
+    var qName = closeTag.match(/(?:\w+:)?[\w\-.]+/);
+    if (qName && node.qName !== qName.toString()) {
+        gpf.Error.invalidXmlSyntax();
+    }
 }
 
 _GPF_XML_PARSER_HANDLERS = [
@@ -151,17 +178,17 @@ _GPF_XML_PARSER_HANDLERS = [
 
     // _GPF_XML_PARSER_OPEN_TAG
     function (parser, match) {
-        var qname = match[_GPF_XML_PARSER_OPEN_TAG],
+        var qName = match[_GPF_XML_PARSER_OPEN_TAG],
             node = _gpfXmlParserCurrentNode(parser);
         parser._nodes.push({
-            qname: qname,
+            qName: qName,
             attributes: {},
             namespacePrefixes: [],
             notOpened: true
         });
         if (node && node.notOpened) {
             node.notOpened = false;
-            return parser._iXmlContentHandler.startElement(node.qname, node.attributes);
+            return parser._iXmlContentHandler.startElement(node.qName, node.attributes);
         }
         return Promise.resolve();
     },
@@ -182,19 +209,21 @@ _GPF_XML_PARSER_HANDLERS = [
     _gpfXmlParserNoop,
 
     // _GPF_XML_PARSER_CLOSE_TAG
-    function (parser) {
-        return _gpfXmlParserCheckIfCurrentNodeOpened(parser, function () {
-            var node = parser._nodes.pop();
+    function (parser, match) {
+        return _gpfXmlParserOpenCurrentNodeIfNeeded(parser, function () {
+            var node = parser._nodes.pop(),
+                closeTag = match[_GPF_XML_PARSER_CLOSE_TAG];
             if (node.namespacePrefixes.length) {
-                return _gpfXmlParserEndPrefixMappings(parser, node);
+                return _gpfXmlParserEndPrefixMappings(parser, node, closeTag);
             }
+            _gpfXmlParserCheckNodeBeforeClosing(parser, node, closeTag);
             return parser._iXmlContentHandler.endElement();
         });
     },
 
     // _GPF_XML_PARSER_COMMENT
     function (parser/*, match*/) {
-        return _gpfXmlParserCheckIfCurrentNodeOpened(parser, _gpfXmlParserNoop);
+        return _gpfXmlParserOpenCurrentNodeIfNeeded(parser, _gpfXmlParserNoop);
         // function () {
         //     var text = match[_GPF_XML_PARSER_COMMENT].trim(); // ignore xml:space
         //     return parser._iXmlContentHandler.comment(text);
@@ -203,7 +232,7 @@ _GPF_XML_PARSER_HANDLERS = [
 
     // _GPF_XML_PARSER_TEXT
     function (parser, match) {
-        return _gpfXmlParserCheckIfCurrentNodeOpened(parser, function () {
+        return _gpfXmlParserOpenCurrentNodeIfNeeded(parser, function () {
             var text = match[_GPF_XML_PARSER_TEXT].trim(); // ignore xml:space
             if (text.length) {
                 return parser._iXmlContentHandler.characters(text);
