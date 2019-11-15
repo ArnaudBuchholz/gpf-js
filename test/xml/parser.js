@@ -58,13 +58,16 @@ describe("xml/parser", function () {
         },
 
         _check: function (received) {
+            if (!this._expected) {
+                return Promise.resolve(); // ignore
+            }
             var expected = this._expected[this._step++];
             if (!expected) {
                 return Promise.reject("No more call expected");
             }
             Object.keys(expected)
                 .sort() // api will be first
-                .filter(function (name) {
+                .forEach(function (name) {
                     var expectedValue = expected[name],
                         receivedValue = received[name],
                         expectedNameType = typeof expectedValue;
@@ -98,11 +101,12 @@ describe("xml/parser", function () {
         },
 
         assertIfCompleted: function () {
-            if (this._step !== this._expected.length) {
+            if (this._expected && this._step !== this._expected.length) {
                 throw new Error("Output not completed");
             }
         },
 
+        // when expected is false, nothing is expected: i.e. it should fail with InvalidXMLSyntax
         constructor: function (synchronous, expected) {
             this._synchronous = synchronous;
             this._expected = expected;
@@ -113,7 +117,26 @@ describe("xml/parser", function () {
     function createTests (synchronous) {
 
         function createTest (xml, expected) {
-            it("parses '" + xml + "'", function (done) {
+            var verb;
+            if (expected) {
+                verb = "parses";
+            } else {
+                verb = "fails with";
+            }
+            it(verb + " '" + xml + "'", function (done) {
+                function wrappedDone (error) {
+                    if (expected) {
+                        done(error);
+                    } else {
+                        try {
+                            assert(error && error instanceof gpf.Error.InvalidXmlSyntax);
+                            done();
+                        } catch (exception) {
+                            done(exception);
+                        }
+                    }
+                }
+
                 var xmlOutput = new XmlContentTester(synchronous, expected),
                     xmlParser = new gpf.xml.Parser(xmlOutput),
                     inputStream;
@@ -122,18 +145,18 @@ describe("xml/parser", function () {
                         xmlParser.write(xml);
                         xmlParser.flush();
                         xmlOutput.assertIfCompleted();
-                        done();
+                        wrappedDone();
                     } catch (e) {
-                        done(e);
+                        wrappedDone(e);
                     }
                 } else {
                     inputStream = new gpf.stream.ReadableString(xml);
-                    gpf.stream.pipe(inputStream, xmlParser).then(done, done);
+                    gpf.stream.pipe(inputStream, xmlParser).then(wrappedDone, wrappedDone);
                 }
             });
         }
 
-        describe("Simple use case", function () {
+        describe("simple use case", function () {
             createTest("<html />", [{
                 api: "startDocument"
             }, {
@@ -233,6 +256,44 @@ describe("xml/parser", function () {
             }, {
                 api: "endDocument"
             }]);
+
+            createTest("<script language='javascript'>require(\"gpf/test/sample.js\");</script>", [{
+                api: "startDocument"
+            }, {
+                api: "startElement",
+                qName: "script",
+                attributes: {
+                    language: "javascript"
+                }
+            }, {
+                api: "characters",
+                data: "require(\"gpf/test/sample.js\");"
+            }, {
+                api: "endElement"
+            }, {
+                api: "endDocument"
+            }]);
+
+            createTest("<h1>Hello/World/</h1>", [{
+                api: "startDocument"
+            }, {
+                api: "startElement",
+                qName: "h1",
+                attributes: {}
+            }, {
+                api: "characters",
+                data: "Hello/World/"
+            }, {
+                api: "endElement"
+            }, {
+                api: "endDocument"
+            }]);
+        });
+
+        describe("syntax validation", function () {
+            createTest("<not.closed", false);
+            createTest("<tag></not.matching.tag>", false);
+            createTest("<tag><not.closed></tag>", false);
         });
     }
 
