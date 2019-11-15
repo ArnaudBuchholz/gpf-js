@@ -1,12 +1,15 @@
 "use strict";
 
+/*eslint-disable  consistent-this*/ // Because of bind use
+
 var that = {
     first: 1,
     second: 2
 };
 
 function add (last) {
-    return this.first + this.second + last;
+    /*jshint validthis:true*/ // Demonstrates the bind
+    return this.first + this.second + last; //eslint-disable-line no-invalid-this
 }
 
 function bind (me, thisArg) {
