@@ -121,7 +121,7 @@ describe("xml/parser", function () {
             if (expected) {
                 verb = "parses";
             } else {
-                verb = "fails with";
+                verb = "fails for";
             }
             it(verb + " '" + xml + "'", function (done) {
                 function wrappedDone (error) {
@@ -294,6 +294,16 @@ describe("xml/parser", function () {
             createTest("<not.closed", false);
             createTest("<tag></not.matching.tag>", false);
             createTest("<tag><not.closed></tag>", false);
+            createTest("<invalid tag />", false);
+            createTest("<tag attributeNotValid=value />", false);
+            createTest("<tag attributeNotClosed=\"value />", false);
+            createTest("<tag attributeNotClosed='value />", false);
+            createTest("<tag attributeNotClosed='value\" />", false);
+            createTest("<tag attributeNotClosed=\"value' />", false);
+            createTest("<tag duplicate='1' duplicate='2' />", false);
+            createTest("<p2:invalidNamespace xmlns:p1='1' />", false);
+            createTest("<invalidNamespace xmlns:p1='1'><p2:test /></invalidNamespace>", false);
+            createTest("<invalidNamespace xmlns:p1='1' p2:test='0' />", false);
         });
     }
 
