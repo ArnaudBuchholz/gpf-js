@@ -664,5 +664,19 @@
         "define/class/import",
         "error",
         "isclass"
+    ],
+    "interfaces/synchronousable": [
+        "interfaces",
+        "boot"
+    ],
+    "xml/parser": [
+        "boot",
+        "foreachasync",
+        "define",
+        "error",
+        "interfaces/xmlcontenthandler",
+        "interfaces",
+        "interfaces/synchronousable",
+        "stream"
     ]
 }
