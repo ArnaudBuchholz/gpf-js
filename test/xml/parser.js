@@ -116,20 +116,22 @@ describe("xml/parser", function () {
 
     function createTests (synchronous) {
 
-        function createTest (xml, expected) {
-            var verb;
-            if (expected) {
-                verb = "parses";
-            } else {
+        function test (xml, expected) {
+            var arrayOfCalls, verb;
+            if (expected.prototype instanceof gpf.Error) {
+                arrayOfCalls = false;
                 verb = "fails for";
+            } else {
+                arrayOfCalls = expected;
+                verb = "parses";
             }
             it(verb + " '" + xml + "'", function (done) {
                 function wrappedDone (error) {
-                    if (expected) {
+                    if (arrayOfCalls) {
                         done(error);
                     } else {
                         try {
-                            assert(error && error instanceof gpf.Error.InvalidXmlSyntax);
+                            assert(error && error instanceof expected);
                             done();
                         } catch (exception) {
                             done(exception);
@@ -137,7 +139,7 @@ describe("xml/parser", function () {
                     }
                 }
 
-                var xmlOutput = new XmlContentTester(synchronous, expected),
+                var xmlOutput = new XmlContentTester(synchronous, arrayOfCalls),
                     xmlParser = new gpf.xml.Parser(xmlOutput),
                     inputStream;
                 if (synchronous) {
@@ -157,7 +159,7 @@ describe("xml/parser", function () {
         }
 
         describe("simple use case", function () {
-            createTest("<html />", [{
+            test("<html />", [{
                 api: "startDocument"
             }, {
                 api: "startElement",
@@ -169,7 +171,7 @@ describe("xml/parser", function () {
                 api: "endDocument"
             }]);
 
-            createTest("<html style=\"border: 1px;\"/>", [{
+            test("<html style=\"border: 1px;\"/>", [{
                 api: "startDocument"
             }, {
                 api: "startElement",
@@ -183,7 +185,7 @@ describe("xml/parser", function () {
                 api: "endDocument"
             }]);
 
-            createTest("<html><head /><body><h1>Hello</h1></body></html>", [{
+            test("<html><head /><body><h1>Hello</h1></body></html>", [{
                 api: "startDocument"
             }, {
                 api: "startElement",
@@ -216,13 +218,13 @@ describe("xml/parser", function () {
                 api: "endDocument"
             }]);
 
-            createTest("<!-- This is a comment -->", [{
+            test("<!-- This is a comment -->", [{
                 api: "startDocument"
             }, { // Comments are ignored
                 api: "endDocument"
             }]);
 
-            createTest("<?xml version=\"1.0\"?>\n"
+            test("<?xml version=\"1.0\"?>\n"
                 + "<edmx:Edmx\n"
                 + "    Version=\"1.0\"\n"
                 + "    xmlns:edmx=\"http://schemas.microsoft.com/ado/2007/06/edmx\"\n"
@@ -257,7 +259,7 @@ describe("xml/parser", function () {
                 api: "endDocument"
             }]);
 
-            createTest("<script language='javascript'>require(\"gpf/test/sample.js\");</script>", [{
+            test("<script language='javascript'>require(\"gpf/test/sample.js\");</script>", [{
                 api: "startDocument"
             }, {
                 api: "startElement",
@@ -274,7 +276,7 @@ describe("xml/parser", function () {
                 api: "endDocument"
             }]);
 
-            createTest("<h1>Hello/World/</h1>", [{
+            test("<h1>Hello/World/</h1>", [{
                 api: "startDocument"
             }, {
                 api: "startElement",
@@ -291,19 +293,21 @@ describe("xml/parser", function () {
         });
 
         describe("syntax validation", function () {
-            createTest("<not.closed", false);
-            createTest("<tag></not.matching.tag>", false);
-            createTest("<tag><not.closed></tag>", false);
-            createTest("<invalid tag />", false);
-            createTest("<tag attributeNotValid=value />", false);
-            createTest("<tag attributeNotClosed=\"value />", false);
-            createTest("<tag attributeNotClosed='value />", false);
-            createTest("<tag attributeNotClosed='value\" />", false);
-            createTest("<tag attributeNotClosed=\"value' />", false);
-            createTest("<tag duplicate='1' duplicate='2' />", false);
-            createTest("<p2:invalidNamespace xmlns:p1='1' />", false);
-            createTest("<invalidNamespace xmlns:p1='1'><p2:test /></invalidNamespace>", false);
-            createTest("<invalidNamespace xmlns:p1='1' p2:test='0' />", false);
+            test("<not.closed", gpf.Error.InvalidXmlSyntax);
+            test("<tag></not.matching.tag>", gpf.Error.InvalidXmlSyntax);
+            test("<tag><not.closed></tag>", gpf.Error.InvalidXmlSyntax);
+            test("<invalid tag />", gpf.Error.InvalidXmlSyntax);
+            test("<tag attributeNotValid=value />", gpf.Error.InvalidXmlSyntax);
+            test("<tag attributeNotClosed=\"value />", gpf.Error.InvalidXmlSyntax);
+            test("<tag attributeNotClosed='value />", gpf.Error.InvalidXmlSyntax);
+            test("<tag attributeNotClosed='value\" />", gpf.Error.InvalidXmlSyntax);
+            test("<tag attributeNotClosed=\"value' />", gpf.Error.InvalidXmlSyntax);
+            test("<tag duplicate='1' duplicate='2' />", gpf.Error.InvalidXmlSyntax);
+            test("<p2:invalidNamespace xmlns:p1='1' />", gpf.Error.UnknownXmlNamespacePrefix);
+            test("<invalidNamespace xmlns:p1='1'><p2:test /></invalidNamespace>", gpf.Error.UnknownXmlNamespacePrefix);
+            test("<invalidNamespace xmlns:p1='1' p2:test='0' />", gpf.Error.UnknownXmlNamespacePrefix);
+            test("<duplicateNamespace xmlns:p1='1' xmlns:p1='1' />", gpf.Error.InvalidXmlSyntax);
+            test("<invalidNamespacePrefix xmlns:xml='1' />", gpf.Error.InvalidXmlSyntax);
         });
     }
 
