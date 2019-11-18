@@ -5,6 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
+/*global _gpfIgnore*/
 /*#endif*/
 
 _gpfErrorDeclare("xml/xpath", {
@@ -30,5 +31,6 @@ _gpfErrorDeclare("xml/xpath", {
  * @return {gpf.interfaces.IXmlNode[]} List of matching nodes
  */
 function _gpfXmlXPathEvaluate (xpathExpression, contextNode, namespaces) {
+    _gpfIgnore(xpathExpression, contextNode, namespaces);
     return [];
 }
