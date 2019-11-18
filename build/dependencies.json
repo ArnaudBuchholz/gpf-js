@@ -677,6 +677,7 @@
         "interfaces/xmlcontenthandler",
         "interfaces",
         "interfaces/synchronousable",
-        "stream"
+        "stream",
+        "xml/check"
     ]
 }
