@@ -1,6 +1,6 @@
 /**
  * @file XML XPath evaluation
- * @since 1.0.1
+ * @since 1.0.2
  */
 /*#ifndef(UMD)*/
 "use strict";
@@ -17,7 +17,7 @@ _gpfErrorDeclare("xml/xpath", {
      * ### Description
      *
      * This error is used when the parser can't process an XPath
-     * @since 1.0.1
+     * @since 1.0.2
      */
     invalidXPathSyntax: "Invalid XPath syntax"
 });
@@ -29,6 +29,7 @@ _gpfErrorDeclare("xml/xpath", {
  * @param {gpf.interfaces.IXmlNode} contextNode Context node of the evaluation
  * @param {Object} namespaces Dictionary associating namespace prefix to a namespace URI
  * @return {gpf.interfaces.IXmlNode[]} List of matching nodes
+ * @since 1.0.2
  */
 function _gpfXmlXPathEvaluate (xpathExpression, contextNode, namespaces) {
     _gpfIgnore(xpathExpression, contextNode, namespaces);
