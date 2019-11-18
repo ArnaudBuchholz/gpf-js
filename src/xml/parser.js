@@ -4,7 +4,6 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_NOT_FOUND*/ // -1
 /*global _GPF_START*/ // 0
 /*global _gpfArrayForEachAsync*/ // Almost like [].forEach (undefined are also enumerated) with async handling
 /*global _gpfDefine*/ // Shortcut for gpf.define
@@ -13,6 +12,8 @@
 /*global _gpfInterfaceQuery*/ // gpf.interfaces.query
 /*global _gpfIsSynchronousInterface*/ // Check if synchronous interface
 /*global _gpfStreamSecureWrite*/ // Generates a wrapper to secure multiple calls to stream#write
+/*global _gpfXmlCheckQualifiedAttributeName*/ // Check XML qualified attribute name
+/*global _gpfXmlCheckQualifiedElementName*/ // Check XML qualified element name
 /*exported _GpfXmlParser*/ // gpf.xml.Parser
 /*#endif*/
 
@@ -58,14 +59,6 @@ function _gpfXmlParserNoop () {
     return Promise.resolve();
 }
 
-function _gpfXmlParserGetQNamePrefix (qName) {
-    var columnPos = qName.indexOf(":");
-    if (columnPos !== _GPF_NOT_FOUND) {
-        return qName.substring(_GPF_START, columnPos);
-    }
-    return "";
-}
-
 function _gpfXmlParserGetInheritedPrefixes (parser) {
     return parser._nodes.reduce(function (prefixes, node) {
         return prefixes.concat(node.namespacePrefixes);
@@ -73,15 +66,10 @@ function _gpfXmlParserGetInheritedPrefixes (parser) {
 }
 
 function _gpfXmlParserCheckPrefixes (parser, node) {
-    var prefixes = _gpfXmlParserGetInheritedPrefixes(parser),
-        namePrefix = _gpfXmlParserGetQNamePrefix(node.qName);
-    if (!prefixes.includes(namePrefix)) {
-        gpf.Error.invalidXmlSyntax();
-    }
-    Object.keys(node.attributes).forEach(function (name) {
-        if (!prefixes.includes(_gpfXmlParserGetQNamePrefix(name))) {
-            gpf.Error.invalidXmlSyntax();
-        }
+    var prefixes = _gpfXmlParserGetInheritedPrefixes(parser);
+    _gpfXmlCheckQualifiedElementName(node.qName, prefixes);
+    Object.keys(node.attributes).forEach(function (qName) {
+        _gpfXmlCheckQualifiedAttributeName(qName, prefixes);
     });
 }
 
@@ -170,9 +158,23 @@ function _gpfXmlParserCreateDocumentAndParseAsync (parser) {
         });
 }
 
+function _gpfXlmlParserCheckNamespacePrefixAlreadyDeclared (node, prefix) {
+    if (node.namespacePrefixes.includes(prefix)) {
+        gpf.Error.invalidXmlSyntax();
+    }
+}
+
+function _gpfXmlParserCheckNamespacePrefix (node, prefix) {
+    if (prefix === "xml") {
+        gpf.Error.invalidXmlSyntax();
+    }
+    _gpfXlmlParserCheckNamespacePrefixAlreadyDeclared(node, prefix);
+}
+
 function _gpfXmlParserProcessNamespaceAttribute (parser, namespacePrefix, uri) {
     var node = _gpfXmlParserCurrentNode(parser),
         prefix = namespacePrefix.split(":")[_GPF_XML_PARSER_PREFIX] || "";
+    _gpfXmlParserCheckNamespacePrefix(node, prefix);
     node.namespacePrefixes.unshift(prefix);
     return parser._iXmlContentHandler.startPrefixMapping(prefix, uri);
 }
