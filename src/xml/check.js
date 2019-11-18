@@ -212,7 +212,6 @@ function _gpfXmlCheckQualifiedAttributeNameAndPrefix (name, prefix, knownPrefixe
 var _gpfXmlCheckQualifiedAttributeName = _gpfXmlCheckGetQualified(_gpfXmlCheckValidAttributeName,
     _gpfXmlCheckQualifiedAttributeNameAndPrefix);
 
-
 /**
  * Check if the given XML namespace prefix name can be defined
  *
