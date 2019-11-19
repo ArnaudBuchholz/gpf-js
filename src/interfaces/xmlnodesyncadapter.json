@@ -1,0 +1,9 @@
+{
+    getAttributes: 0,
+    getChildNodes: 0,
+    getLocalName: 0,
+    getNamespaceURI: 0,
+    getNodeType: 0,
+    getNodeValue: 0,
+    getParentNode: 0
+}
