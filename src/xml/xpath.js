@@ -26,9 +26,9 @@ _gpfErrorDeclare("xml/xpath", {
  * Parse and evaluate the XPath on the give node
  *
  * @param {String} xpathExpression XPath expression to evaluate
- * @param {gpf.interfaces.IXmlNode} contextNode Context node of the evaluation
+ * @param {gpf.interfaces.IXmlNodeSyncAdapter} contextNode Context node of the evaluation
  * @param {Object} namespaces Dictionary associating namespace prefix to a namespace URI
- * @return {gpf.interfaces.IXmlNode[]} List of matching nodes
+ * @return {gpf.interfaces.IXmlNodeSyncAdapter[]} List of matching nodes
  * @since 1.0.2
  */
 function _gpfXmlXPathEvaluate (xpathExpression, contextNode, namespaces) {
