@@ -34,7 +34,7 @@ _GPF_XML_NODE_TYPE = {
  * @readonly
  * @since 1.0.1
  */
-gpf.xml.xmlNodeSyncAdapterNodeType = {
+gpf.xml.nodeType = {
     /**
      * An Element node like <p> or <div>
      * @since 1.0.1
@@ -52,25 +52,70 @@ gpf.xml.xmlNodeSyncAdapterNodeType = {
     text: _GPF_XML_NODE_TYPE.TEXT
 };
 
-
 /**
- * Get attribute nodes from the current element (valid only for {@link gpf.xml.xmlNodeSyncAdapterType.element}).
+ * Get attribute nodes from the current element, valid for
+ * - {@link gpf.xml.nodeType.element}
  *
  * @method gpf.interfaces.IXmlNodeSyncAdapter#getAttributes
- * @return {gpf.interfaces.IXmlNodeSyncAdapter[]|null} Attribute nodes
- * (`null` if not {@link gpf.xml.xmlNodeSyncAdapterType.element})
+ * @return {gpf.interfaces.IXmlNodeSyncAdapter[]|null} Attribute nodes (`null` if not the right type)
  * @since 1.0.1
  */
 
 /**
- * Get child nodes from the current element (valid only for {@link gpf.xml.xmlNodeSyncAdapterType.element}).
+ * Get child nodes from the current element, valid for
+ * - {@link gpf.xml.nodeType.element}
  *
  * @method gpf.interfaces.IXmlNodeSyncAdapter#getChildNodes
- * @return {gpf.interfaces.IXmlNodeSyncAdapter[]|null} Child nodes
- * (`null` if not {@link gpf.xml.xmlNodeSyncAdapterType.element})
+ * @return {gpf.interfaces.IXmlNodeSyncAdapter[]|null} Child nodes (`null` if not the right type)
  * @since 1.0.1
  */
 
+/**
+ * Get node local name, valid for
+ * - {@link gpf.xml.nodeType.element}
+ * - {@link gpf.xml.nodeType.attribute}
+ *
+ * @method gpf.interfaces.IXmlNodeSyncAdapter#getLocalName
+ * @return {String|null} Local name (`null` if not the right type)
+ * @since 1.0.1
+ */
+
+/**
+ * Get node namespace URI, valid for
+ * - {@link gpf.xml.nodeType.element}
+ * - {@link gpf.xml.nodeType.attribute}
+ *
+ * @method gpf.interfaces.IXmlNodeSyncAdapter#getNamespaceURI
+ * @return {String|null} Namespace URI (`null` if not the right type)
+ * @since 1.0.1
+ */
+
+/**
+ * Get node type
+ *
+ * @method gpf.interfaces.IXmlNodeSyncAdapter#getNodeType
+ * @return {gpf.xml.nodeType} Node type
+ * @since 1.0.1
+ */
+
+/**
+ * Get node value, valid for
+ * - {@link gpf.xml.nodeType.attribute}
+ * - {@link gpf.xml.nodeType.text}
+ *
+ * @method gpf.interfaces.IXmlNodeSyncAdapter#getNodeValue
+ * @return {String|null} Value (`null` if not the right type)
+ * @since 1.0.1
+ */
+
+/**
+ * Get parent node from the current element, valid for
+ * - {@link gpf.xml.nodeType.element}
+ *
+ * @method gpf.interfaces.IXmlNodeSyncAdapter#getParentNode
+ * @return {gpf.interfaces.IXmlNodeSyncAdapter|null} Parent node (`null` if not the right type)
+ * @since 1.0.1
+ */
 
 /**
  * IXmlNodeSyncAdapter interface specifier
