@@ -644,5 +644,14 @@
     {
         "name": "xml/parser",
         "tags": "xml"
+    },
+    {
+        "name": "interfaces/xmlnodesyncadapter",
+        "test": false,
+        "tags": "interface"
+    },
+    {
+        "name": "xml/xpath",
+        "tags": "xml"
     }
 ]
