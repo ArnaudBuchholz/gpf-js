@@ -7,6 +7,7 @@
 /*global _gpfDefineInterface*/ // Internal interface definition helper
 /*global _gpfInterfaceQuery*/ // gpf.interfaces.query
 /*global _gpfSyncReadSourceJSON*/ // Reads a source json file (only in source mode)
+/*exported _GPF_XML_NODE_TYPE*/ // XML Node types
 /*exported _gpfIXmlNodeSyncAdapter*/ // gpf.interfaces.IXmlNodeSyncAdapter
 /*#endif*/
 
@@ -21,7 +22,7 @@
  /**
   * IXmlNodeSyncAdapter Node type constants
   */
-_GPF_XML_NODE_TYPE = {
+var _GPF_XML_NODE_TYPE = {
     ELEMENT: 1,
     ATTRIBUTE: 2,
     TEXT: 3
