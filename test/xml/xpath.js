@@ -89,10 +89,12 @@ describe("xml/xpath", function () {
     ]);
 
     describe("xml/xpath", function () {
-        it("exposes a valid document", function () {
-            debugger;
-            assert(htmlDocument);
+        describe("gpf.xml.xpath.select", function () {
+            it("//html", function () {
+                var nodes = gpf.xml.xpath.select("//html", htmlDocument);
+                assert(nodes.length === 1);
+                assert(nodes[0] === htmlDocument);
+            });
         });
     });
-
 });
