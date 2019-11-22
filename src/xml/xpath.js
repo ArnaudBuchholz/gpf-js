@@ -27,11 +27,18 @@ _gpfErrorDeclare("xml/xpath", {
  *
  * @param {String} xpathExpression XPath expression to evaluate
  * @param {gpf.interfaces.IXmlNodeSyncAdapter} contextNode Context node of the evaluation
- * @param {Object} namespaces Dictionary associating namespace prefix to a namespace URI
+ * @param {Object} [namespaces={}] Dictionary associating namespace prefix to a namespace URI
  * @return {gpf.interfaces.IXmlNodeSyncAdapter[]} List of matching nodes
  * @since 1.0.2
  */
-function _gpfXmlXPathEvaluate (xpathExpression, contextNode, namespaces) {
+function _gpfXmlXPathSelect (xpathExpression, contextNode, namespaces) {
     _gpfIgnore(xpathExpression, contextNode, namespaces);
     return [];
 }
+
+gpf.xml.xpath = {
+
+    /** @gpf:sameas _gpfXmlXPathSelect */
+    select: _gpfXmlXPathSelect
+
+};
