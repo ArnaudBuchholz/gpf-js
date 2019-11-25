@@ -4,8 +4,6 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfIgnore*/
 /*global _gpfXmlXPathParse*/
 /*#endif*/
 
