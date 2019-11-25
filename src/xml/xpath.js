@@ -1,26 +1,13 @@
 /**
  * @file XML XPath evaluation
- * @since 1.0.2
+ * @since 1.0.1
  */
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfIgnore*/
+/*global _gpfXmlXPathParse*/
 /*#endif*/
-
-_gpfErrorDeclare("xml/xpath", {
-    /**
-     * ### Summary
-     *
-     * Invalid XPath syntax
-     *
-     * ### Description
-     *
-     * This error is used when the parser can't process an XPath
-     * @since 1.0.2
-     */
-    invalidXPathSyntax: "Invalid XPath syntax"
-});
 
 /**
  * Parse and evaluate the XPath on the give node
@@ -29,11 +16,10 @@ _gpfErrorDeclare("xml/xpath", {
  * @param {gpf.interfaces.IXmlNodeSyncAdapter} contextNode Context node of the evaluation
  * @param {Object} [namespaces={}] Dictionary associating namespace prefix to a namespace URI
  * @return {gpf.interfaces.IXmlNodeSyncAdapter[]} List of matching nodes
- * @since 1.0.2
+ * @since 1.0.1
  */
 function _gpfXmlXPathSelect (xpathExpression, contextNode, namespaces) {
-    _gpfIgnore(xpathExpression, contextNode, namespaces);
-    return [];
+    return _gpfXmlXPathParse(xpathExpression).select(contextNode, namespaces);
 }
 
 gpf.xml.xpath = {
