@@ -45,11 +45,7 @@ describe("xml/xpath", function () {
 
         // endregion
 
-        constructor: function (name, attributes, children) {
-            if (Array.isArray(attributes)) {
-                children = attributes;
-                attributes = undefined;
-            }
+        _build: function (name, attributes, children) {
             if (name) {
                 this._name = name;
             }
@@ -72,6 +68,14 @@ describe("xml/xpath", function () {
                     childNode._parent = this;
                     return childNode;
                 }, this);
+            }
+        },
+
+        constructor: function (name, attributes, children) {
+            if (Array.isArray(attributes)) {
+                this._build(name, undefined, attributes);
+            } else {
+                this._build(name, attributes, children);
             }
         }
     });
