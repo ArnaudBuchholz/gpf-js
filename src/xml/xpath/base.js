@@ -7,27 +7,42 @@
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfIgnore*/
 /*global _gpfDefine*/
-/*exported _gpfXmlXPathBase*/
+/*exported _GpfXmlXPathBase*/ // gpf.xml.xpath.Base
 /*#endif*/
 
-/**
- * Base class for all XPath objects
- *
- * @class gpf.xml.xpath.Base
- * @since 1.0.1
- */
-var _gpfXmlXPathBase = _gpfDefine({
+var _GpfXmlXPathBase = _gpfDefine({
     $class: "gpf.xml.xpath.Base",
 
+    _children: [],
+
     /**
-     * Apply the current selection operator
+     * Get the child operators
+     *
+     * @return {gpf.xml.xpath.Base[]} List of child operators
+     */
+    getChildren: function () {
+        return this._children;
+    },
+
+    /**
+     * Execute the operator
      *
      * @param {gpf.interfaces.IXmlNodeSyncAdapter} contextNode Context node of the evaluation
      * @param {Object} [namespaces={}] Dictionary associating namespace prefix to a namespace URI
      * @return {gpf.interfaces.IXmlNodeSyncAdapter[]} List of matching nodes
      */
-    select: function (contextNode, namespaces) {
+    execute: function (contextNode, namespaces) {
         _gpfIgnore(contextNode, namespaces);
         return [];
+    },
+
+    /**
+     * Base class for all XPath operators
+     *
+     * @class gpf.xml.xpath.Base
+     * @since 1.0.1
+     */
+    constructor: function () {
+        this._children = [];
     }
 });
