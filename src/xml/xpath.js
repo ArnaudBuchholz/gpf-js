@@ -17,7 +17,7 @@
  * @since 1.0.1
  */
 function _gpfXmlXPathSelect (xpathExpression, contextNode, namespaces) {
-    return _gpfXmlXPathParse(xpathExpression).select(contextNode, namespaces);
+    return _gpfXmlXPathParse(xpathExpression).execute(contextNode, namespaces);
 }
 
 gpf.xml.xpath = {
