@@ -60,13 +60,16 @@ describe("xml/xpath", function () {
             }
             if (children) {
                 this._children = children.map(function (childNode) {
+                    var mappedNode;
                     if (typeof childNode === "string") {
-                        var textNode = new Node();
-                        textNode._value = childNode;
-                        childNode = textNode;
+                        mappedNode = new Node();
+                        mappedNode._value = childNode;
+                        mappedNode._type = gpf.xml.nodeType.text;
+                    } else {
+                        mappedNode = childNode;
                     }
-                    childNode._parent = this;
-                    return childNode;
+                    mappedNode._parent = this;
+                    return mappedNode;
                 }, this);
             }
         },
