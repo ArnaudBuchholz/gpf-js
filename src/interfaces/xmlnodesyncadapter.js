@@ -18,9 +18,9 @@
  * @since 1.0.1
  */
 
- /**
-  * IXmlNodeSyncAdapter Node type constants
-  */
+/**
+ * IXmlNodeSyncAdapter Node type constants
+ */
 var _GPF_XML_NODE_TYPE = {
     ELEMENT: 1,
     ATTRIBUTE: 2,
@@ -125,3 +125,10 @@ gpf.xml.nodeType = {
  */
 var _gpfIXmlNodeSyncAdapter = _gpfDefineInterface("XmlNodeSyncAdapter",
     _gpfSyncReadSourceJSON("interfaces/xmlnodesyncadapter.json"));
+
+/*#ifndef(UMD)*/
+
+// Generates an empty function to reflect the null complexity of this module
+(function _gpfInterfacesXmlnodesyncadapter () {}());
+
+/*#endif*/
