@@ -8,12 +8,7 @@
 /*global _gpfArrayForEachAsync*/ // Almost like [].forEach (undefined are also enumerated) with async handling
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
-/*global _gpfIXmlContentHandler*/ // gpf.interfaces.IXmlContentHandler
-/*global _gpfInterfaceQuery*/ // gpf.interfaces.query
-/*global _gpfIsSynchronousInterface*/ // Check if synchronous interface
-/*global _gpfStreamSecureWrite*/ // Generates a wrapper to secure multiple calls to stream#write
-/*global _gpfXmlCheckQualifiedAttributeName*/ // Check XML qualified attribute name
-/*global _gpfXmlCheckQualifiedElementName*/ // Check XML qualified element name
+/*global _gpfRegExpTokenize*/ // _gpfRegExpForEach with token #
 /*exported _GpfXmlParser*/ // gpf.xml.Parser
 /*#endif*/
 
@@ -31,17 +26,36 @@ _gpfErrorDeclare("xml/xpath/parser", {
     invalidXPathSyntax: "Invalid XPath syntax"
 });
 
-var _gpfXmlXPathParser = new RegExp("(\\/\\/|\\.\\/|\\/)(@)?(?:(\\w+):)?(\\w+|\\*)(?:\\[([^\\]]+)\\])*|\\s*(\\|)\\s*"),
-    _GPF_XML_XPATH_LEVEL = 1,
-    _GPF_XML_XPATH_ATTRIBUTE = 2,
-    _GPF_XML_XPATH_NAMESPACE_PREFIX = 3,
-    _GPF_XML_XPATH_NAME = 4,
-    _GPF_XML_XPATH_FILTER = 5,
-    _GPF_XML_XPATH_OR = 6;
+var _GPF_XML_XPATH_TOKEN = {};
 
-function _gpfXmlXPathParseProcessMatch (match) {
+(function (tokens) {
+    var index = _GPF_START,
+        regexpSource = [];
+    tokens.forEach(function (token) {
+        if (token.includes("\t")) {
+            var split = token.split("\t"),
+                tokenName = split.pop();
+            _GPF_XML_XPATH_TOKEN[tokenName] = ++index;
+            regexpSource.push("(" + split[0] + ")");
+        } else {
+            regexpSource.push(token);
+        }
+    });
+    _GPF_XML_XPATH_TOKEN.regexp = new RegExp(regexpSource.join("|"), "g");
+}([
+    "\\s+",
+    "\\|		CONCAT",
+    "\\/\\/		DEPTH",
+    "\\/		SUB",
+    "\\.		ROOT",
+    "@			ATTRIBUTE",
+    "\\*		ANY",
+    "\\w+:		NAMESPACE_PREFIX",
+    "\\w+		NAME"
+]));
 
-}
+// <start> -> ROOT? (SUB|DEPTH) <match> (CONCAT <start>)?
+// <match> -> ATTRIBUTE? NAMESPACE_PREFIX? (NAME|ANY) ((SUB|DEPTH) <match>)?
 
 /**
  * Parse the XPath expression
@@ -51,22 +65,5 @@ function _gpfXmlXPathParseProcessMatch (match) {
  * @since 1.0.1
  */
 function _gpfXmlXPathParse (xpathExpression) {
-    var stickyIndex = 0,
-        match;
-    _gpfXmlXPathParser.lastIndex = stickyIndex;
-    match = _gpfXmlXPathParser.exec(xpathExpression);
-    while (match) {
-        _gpfXmlXPathParseProcessMatch(match)
-        function _gpfXmlParserProcessMatch (parser, match) {
-            var index = _GPF_XML_PARSER_PROCESSING_INSTRUCTION;
-            while (index < _GPF_XML_PARSER_HANDLERS.length) {
-                if (match[index]) {
-                    return _GPF_XML_PARSER_HANDLERS[index](parser, match);
-                }
-                ++index;
-            }
-            return Promise.resolve();
-        }
-
-    }
+    var tokens = _gpfRegExpTokenize(_GPF_XML_XPATH_TOKEN.regexp, xpathExpression);
 }
