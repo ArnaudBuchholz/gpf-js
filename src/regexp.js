@@ -6,6 +6,7 @@
 "use strict";
 /*global _GPF_START*/ // 0
 /*exported _gpfRegExpForEach*/ // Executes the callback for each match of the regular expression
+/*exported _gpfRegExpTokenize*/ // _gpfRegExpForEach with token #
 /*#endif*/
 
 /**
@@ -65,13 +66,19 @@ function _gpfRegExpSetToken (match) {
  *
  * @param {RegExp} regexp Regular expression to execute
  * @param {String} string String to match
+ * @param {Boolean} [keepOnlyTokenized=false] Remove matches which don't have token member
  * @return {Array} Array of matches augmented with token information
  * @since 0.2.1
  * @version 0.2.2 Reset lastIndex and returns the array of matches
  */
-function _gpfRegExpTokenize (regexp, string) {
+function _gpfRegExpTokenize (regexp, string, keepOnlyTokenized) {
     var matches = _gpfRegExpForEach(regexp, string);
     matches.forEach(_gpfRegExpSetToken);
+    if (keepOnlyTokenized) {
+        matches = matches.filter(function (match) {
+            return Boolean(match.token);
+        });
+    }
     return matches;
 }
 
