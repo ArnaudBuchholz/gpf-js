@@ -70,8 +70,8 @@ function _gpfXmlXPathParse (xpathExpression) {
 
     function consumeIfTokenMatch () {
         var expected = _gpfArraySlice(arguments),
-            current = tokens[0];
-        if (expected.include(current)) {
+            current = tokens[0;
+        if (expected.include(current.token])) {
             tokens.shift();
             return current;
         }
@@ -95,7 +95,7 @@ function _gpfXmlXPathParse (xpathExpression) {
     function level () {
         var current = consumeIfTokenMatch(false, _GPF_XML_XPATH_TOKEN.CURRENT),
             level = checkAndConsumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.SUB, _GPF_XML_XPATH_TOKEN.DEEP),
-            Operator = levelClasses[level];
+            Operator = levelClasses[level.token];
         var operator = new Operator();
         operator.addChild(match());
         return operator;
