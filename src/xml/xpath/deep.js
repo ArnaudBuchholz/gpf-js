@@ -18,7 +18,7 @@
  * @extend gpf.xml.xpath.Sub
  * @since 1.0.1
  */
-var _gpfXmlXPathDeep = _gpfDefine({
+ var _GpfXmlXPathDeep = _gpfDefine({
     $class: "gpf.xml.xpath.Deep",
     $extend: _gpfXmlXPathSub,
 
