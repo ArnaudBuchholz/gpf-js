@@ -7,7 +7,7 @@
 /*global _gpfDefine*/
 /*global _gpfXmlXPathBase*/
 /*exported _gpfXmlXpathConcatNodes*/ // Returns a list of unique nodes
-/*exported _gpfXmlXPathConcat*/ // gpf.xml.xpath.Concat
+/*exported _GpfXmlXPathConcat*/ // gpf.xml.xpath.Concat
 /*#endif*/
 
 /**
@@ -29,7 +29,7 @@ function _gpfXmlXpathConcatNodes (currentNodes, newNodes) {
  * @extend gpf.xml.xpath.Base
  * @since 1.0.1
  */
-var _gpfXmlXPathConcat = _gpfDefine({
+var _GpfXmlXPathConcat = _gpfDefine({
     $class: "gpf.xml.xpath.Concat",
     $extend: _GpfXmlXPathBase,
 
