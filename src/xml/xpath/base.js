@@ -4,7 +4,6 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfIgnore*/
 /*global _gpfDefine*/
 /*exported _GpfXmlXPathBase*/ // gpf.xml.xpath.Base
@@ -25,6 +24,15 @@ var _GpfXmlXPathBase = _gpfDefine({
     },
 
     /**
+     * Add a child operator
+     *
+     * @param {gpf.xml.xpath.Base} operator Child operator
+     */
+    addChild: function (operator) {
+        this._children.push(operator);
+    },
+
+    /**
      * Execute the operator
      *
      * @param {gpf.interfaces.IXmlNodeSyncAdapter} contextNode Context node of the evaluation
@@ -39,7 +47,7 @@ var _GpfXmlXPathBase = _gpfDefine({
     /**
      * Base class for all XPath operators
      *
-     * @class gpf.xml.xpath.Base
+     * @constructor gpf.xml.xpath.Base
      * @since 1.0.1
      */
     constructor: function () {
