@@ -5,11 +5,14 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_START*/ // 0
-/*global _gpfArrayForEachAsync*/ // Almost like [].forEach (undefined are also enumerated) with async handling
-/*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfArraySlice*/
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfRegExpTokenize*/ // _gpfRegExpForEach with token #
-/*exported _GpfXmlParser*/ // gpf.xml.Parser
+/*global _GpfXmlXPathConcat*/
+/*global _GpfXmlXPathDeep*/
+/*global _GpfXmlXPathMatch*/
+/*global _GpfXmlXPathSub*/
+/*exported _gpfXmlXPathParse*/ // gpf.xml.Parser
 /*#endif*/
 
 _gpfErrorDeclare("xml/xpath/parser", {
@@ -56,7 +59,7 @@ var _GPF_XML_XPATH_TOKEN = {};
 
 // <start> -> <level> (CONCAT <level>)?
 // <level> -> CURRENT? (SUB|DEPTH) <match>
-// <match> -> ATTRIBUTE? NAMESPACE_PREFIX? (NAME|ANY) ((SUB|DEPTH) <match>)?
+// <match> -> ATTRIBUTE? NAMESPACE_PREFIX? (NAME|ANY)
 
 /**
  * Parse the XPath expression
@@ -70,30 +73,45 @@ function _gpfXmlXPathParse (xpathExpression) {
 
     function consumeIfTokenMatch () {
         var expected = _gpfArraySlice(arguments),
-            current = tokens[0;
-        if (expected.include(current.token])) {
+            current = tokens[_GPF_START];
+        if (expected.include(current.token)) {
             tokens.shift();
             return current;
         }
     }
 
     function checkAndConsumeIfTokenMatch () {
-        var token = consumeIfTokenMatch.apply(this, arguments);
+        var token = consumeIfTokenMatch.apply(null, arguments);
         if (!token) {
             gpf.Error.invalidXPathSyntax();
         }
     }
 
     function match () {
-        var
+        var isAttribute = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.ATTRIBUTE),
+            namespacePrefix = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.NAMESPACE_PREFIX),
+            any = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.ATTRIBUTE),
+            name;
+        if (!any) {
+            name = checkAndConsumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.NAME)[_GPF_XML_XPATH_TOKEN.NAME];
+        } else {
+            name = "";
+        }
+        if (namespacePrefix) {
+            namespacePrefix = namespacePrefix[_GPF_XML_XPATH_TOKEN.NAMESPACE_PREFIX];
+            namespacePrefix = namespacePrefix.substring(0, namespacePrefix.length - 1);
+        } else {
+            namespacePrefix = "";
+        }
+        return _GpfXmlXPathMatch(!!isAttribute, namespacePrefix, name);
     }
 
     var levelClasses = {};
-    levelClasses[_GPF_XML_XPATH_TOKEN.SUB] = _gpfXmlXPathSub;
-    levelClasses[_GPF_XML_XPATH_TOKEN.DEEP] = _gpfXmlXPathDeep;
+    levelClasses[_GPF_XML_XPATH_TOKEN.SUB] = _GpfXmlXPathSub;
+    levelClasses[_GPF_XML_XPATH_TOKEN.DEEP] = _GpfXmlXPathDeep;
 
     function level () {
-        var current = consumeIfTokenMatch(false, _GPF_XML_XPATH_TOKEN.CURRENT),
+        var current = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.CURRENT),
             level = checkAndConsumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.SUB, _GPF_XML_XPATH_TOKEN.DEEP),
             Operator = levelClasses[level.token];
         var operator = new Operator();
@@ -102,10 +120,10 @@ function _gpfXmlXPathParse (xpathExpression) {
     }
 
     function start () {
-        var concat = new _gpfXmlXPathConcat();
+        var concat = new _GpfXmlXPathConcat();
         concat.addChild(level());
         while (consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.CONCAT)) {
-            concat.addChild(operator());
+            concat.addChild(level());
         }
     }
 
