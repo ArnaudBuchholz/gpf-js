@@ -48,7 +48,7 @@ var _GPF_XML_XPATH_TOKEN = {};
 }([
     "\\s+",
     "\\|		CONCAT",
-    "\\/\\/		DEPTH",
+    "\\/\\/		DEEP",
     "\\/		SUB",
     "\\.		CURRENT",
     "@			ATTRIBUTE",
@@ -58,7 +58,7 @@ var _GPF_XML_XPATH_TOKEN = {};
 ]));
 
 // <start> -> <level> (CONCAT <level>)?
-// <level> -> CURRENT? (SUB|DEPTH) <match>
+// <level> -> CURRENT? (SUB|DEEP) <match>
 // <match> -> ATTRIBUTE? NAMESPACE_PREFIX? (NAME|ANY)
 
 /**
@@ -74,7 +74,7 @@ function _gpfXmlXPathParse (xpathExpression) {
     function consumeIfTokenMatch () {
         var expected = _gpfArraySlice(arguments),
             current = tokens[_GPF_START];
-        if (expected.include(current.token)) {
+        if (current && expected.includes(current.token)) {
             tokens.shift();
             return current;
         }
@@ -85,12 +85,13 @@ function _gpfXmlXPathParse (xpathExpression) {
         if (!token) {
             gpf.Error.invalidXPathSyntax();
         }
+        return token;
     }
 
     function match () {
         var isAttribute = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.ATTRIBUTE),
             namespacePrefix = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.NAMESPACE_PREFIX),
-            any = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.ATTRIBUTE),
+            any = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.ANY),
             name;
         if (!any) {
             name = checkAndConsumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.NAME)[_GPF_XML_XPATH_TOKEN.NAME];
@@ -103,7 +104,7 @@ function _gpfXmlXPathParse (xpathExpression) {
         } else {
             namespacePrefix = "";
         }
-        return _GpfXmlXPathMatch(!!isAttribute, namespacePrefix, name);
+        return new _GpfXmlXPathMatch(!!isAttribute, namespacePrefix, name);
     }
 
     var levelClasses = {};
@@ -125,6 +126,7 @@ function _gpfXmlXPathParse (xpathExpression) {
         while (consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.CONCAT)) {
             concat.addChild(level());
         }
+        return concat;
     }
 
     return start();
