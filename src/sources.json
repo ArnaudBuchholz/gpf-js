@@ -181,8 +181,7 @@
         "tags": "define"
     },
     {
-        "name": "regexp",
-        "test": true
+        "name": "regexp"
     },
     {
         "name": "define/entity",
@@ -652,6 +651,36 @@
     },
     {
         "name": "xml/xpath",
-        "tags": "xml"
+        "tags": "xml xpath"
+    },
+    {
+        "name": "xml/xpath/base",
+        "test": false,
+        "tags": "xml xpath"
+    },
+    {
+        "name": "xml/xpath/concat",
+        "test": false,
+        "tags": "xml xpath"
+    },
+    {
+        "name": "xml/xpath/sub",
+        "test": false,
+        "tags": "xml xpath"
+    },
+    {
+        "name": "xml/xpath/deep",
+        "test": false,
+        "tags": "xml xpath"
+    },
+    {
+        "name": "xml/xpath/match",
+        "test": false,
+        "tags": "xml xpath"
+    },
+    {
+        "name": "xml/xpath/parser",
+        "test": false,
+        "tags": "xml xpath"
     }
 ]
