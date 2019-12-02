@@ -4,11 +4,13 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_START*/
 /*global _gpfAssert*/ // Assertion method
+/*global _gpfArrayTail*/
 /*global _gpfDefine*/
 /*global _GpfXmlXPathBase*/
 /*global _gpfXmlXpathConcatNodes*/
-/*exported _gpfXmlXPathSub*/ // gpf.xml.xpath.Sub
+/*exported _GpfXmlXPathSub*/ // gpf.xml.xpath.Sub
 /*#endif*/
 
 /**
@@ -18,11 +20,11 @@
  * @extend gpf.xml.xpath.Base
  * @since 1.0.1
  */
-var _gpfXmlXPathSub = _gpfDefine({
+var _GpfXmlXPathSub = _gpfDefine({
     $class: "gpf.xml.xpath.Sub",
-    $extend: _gpfXmlXPathBase,
+    $extend: _GpfXmlXPathBase,
 
-    _lookupChildNodes (operator, childNodes, namespaces) {
+    _lookupChildNodes: function (operator, childNodes, namespaces) {
         var nodes = [];
         if (childNodes) {
             childNodes.forEach(function (child) {
@@ -40,8 +42,8 @@ var _gpfXmlXPathSub = _gpfDefine({
     },
 
     _getOperator: function () {
-        _gpfAssert(this._children.length === 1, "Only one child operator expected");
-        return this._children[0];
+        _gpfAssert(!_gpfArrayTail(this._children).length, "Only one child operator expected");
+        return this._children[_GPF_START];
     },
 
     /**
