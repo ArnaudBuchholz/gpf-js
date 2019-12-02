@@ -7,7 +7,7 @@
 /*global _gpfAssert*/ // Assertion method
 /*global _gpfDefine*/
 /*global _gpfXmlXpathConcatNodes*/
-/*global _gpfXmlXPathSub*/ // gpf.xml.xpath.Sub
+/*global _GpfXmlXPathSub*/ // gpf.xml.xpath.Sub
 /*exported _GpfXmlXPathDeep*/ // gpf.xml.xpath.Deep
 /*#endif*/
 
@@ -20,7 +20,7 @@
  */
  var _GpfXmlXPathDeep = _gpfDefine({
     $class: "gpf.xml.xpath.Deep",
-    $extend: _gpfXmlXPathSub,
+    $extend: _GpfXmlXPathSub,
 
     _getOperator: function () {
         var me = this,
@@ -28,7 +28,7 @@
         return function recursiveOperator (contextNode, namespaces) {
             return _gpfXmlXpathConcatNodes(
                 operator.execute(contextNode, namespaces),
-                me._lookupChildNodes(recursiveOperator, contextNode, namespaces)
+                me._lookup(recursiveOperator, contextNode, namespaces)
             );
         };
     }
