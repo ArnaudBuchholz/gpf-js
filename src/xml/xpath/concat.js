@@ -5,7 +5,7 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _gpfDefine*/
-/*global _gpfXmlXPathBase*/
+/*global _GpfXmlXPathBase*/
 /*exported _gpfXmlXpathConcatNodes*/ // Returns a list of unique nodes
 /*exported _GpfXmlXPathConcat*/ // gpf.xml.xpath.Concat
 /*#endif*/
@@ -18,7 +18,7 @@
  */
 function _gpfXmlXpathConcatNodes (currentNodes, newNodes) {
     return currentNodes.concat(newNodes.filter(function (node) {
-        return !curretNodes.includes(node);
+        return !currentNodes.includes(node);
     }));
 }
 
