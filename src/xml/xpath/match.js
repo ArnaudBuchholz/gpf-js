@@ -6,7 +6,7 @@
 "use strict";
 /*global _GPF_XML_NODE_TYPE*/
 /*global _gpfDefine*/
-/*global _gpfXmlXPathBase*/ // gpf.xml.xpath.Base
+/*global _GpfXmlXPathBase*/ // gpf.xml.xpath.Base
 /*exported _GpfXmlXPathMatch*/ // gpf.xml.xpath.Match
 /*#endif*/
 
@@ -19,7 +19,7 @@
  */
 var _GpfXmlXPathMatch = _gpfDefine({
     $class: "gpf.xml.xpath.Match",
-    $extend: _gpfXmlXPathBase,
+    $extend: _GpfXmlXPathBase,
 
     _isAttribute: false,
     _namespacePrefix: "",
@@ -34,7 +34,7 @@ var _GpfXmlXPathMatch = _gpfDefine({
 
     _matchNodeName: function (contextNode) {
         if (this._name === contextNode.getLocalName()) {
-            return [contextNode];
+            return true;
         }
     },
 
