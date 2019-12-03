@@ -13,16 +13,21 @@
 /*exported _GpfXmlXPathSub*/ // gpf.xml.xpath.Sub
 /*#endif*/
 
-/**
- * Implementation of the / operator
- *
- * @class gpf.xml.xpath.Sub
- * @extend gpf.xml.xpath.Base
- * @since 1.0.1
- */
+function _gpfXmlXPathGetRoot (contextNode) {
+    var current,
+        parent = contextNode;
+    while (parent) {
+        current = parent;
+        parent = current.getParentNode();
+    }
+    return current;
+}
+
 var _GpfXmlXPathSub = _gpfDefine({
     $class: "gpf.xml.xpath.Sub",
     $extend: _GpfXmlXPathBase,
+
+    _relative: true,
 
     _lookupChildNodes: function (operator, childNodes, namespaces) {
         var nodes = [];
@@ -46,11 +51,43 @@ var _GpfXmlXPathSub = _gpfDefine({
         return this._children[_GPF_START];
     },
 
+    resolveContextNode: function (contextNode) {
+        if (this._relative) {
+            return contextNode;
+        }
+        return _gpfXmlXPathGetRoot(contextNode);
+    },
+
     /**
      * @inheritdoc
      * @since 1.0.1
      */
     execute: function (contextNode, namespaces) {
-        return this._lookup(this._getOperator(), contextNode, namespaces);
+        return this._lookup(this._getOperator(), this.resolveContextNode(contextNode), namespaces);
+    },
+
+    _toSearchString: function () {
+        return "/" + this._children[0].toString();
+    },
+
+    toString: function () {
+        var searchString = this._toSearchString();
+        if (this._relative) {
+            return "." + searchString;
+        }
+        return searchString;
+    },
+
+    /**
+     * Implementation of the / operator
+     *
+     * @constructor gpf.xml.xpath.Sub
+     * @param {Boolean} relative Search is relative to context node (or from the root)
+     * @extend gpf.xml.xpath.Base
+     * @since 1.0.1
+     */
+    constructor: function (relative) {
+        this.$super();
+        this._relative = relative;
     }
 });
