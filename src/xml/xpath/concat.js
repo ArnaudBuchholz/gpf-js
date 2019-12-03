@@ -41,5 +41,9 @@ var _GpfXmlXPathConcat = _gpfDefine({
         return this._children.reduce(function (nodes, xpath) {
             return _gpfXmlXpathConcatNodes(nodes, xpath.execute(contextNode, namespaces));
         }, []);
+    },
+
+    toString: function () {
+        return this._children.join(" | ");
     }
 });
