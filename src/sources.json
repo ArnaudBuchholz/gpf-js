@@ -642,6 +642,7 @@
     },
     {
         "name": "xml/parser",
+        "test": false,
         "tags": "xml"
     },
     {
