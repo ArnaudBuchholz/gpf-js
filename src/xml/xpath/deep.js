@@ -31,5 +31,9 @@
                 me._lookup(recursiveOperator, contextNode, namespaces)
             );
         };
+    },
+
+    _toSearchString: function () {
+        return "//" + this._children[0].toString();
     }
 });
