@@ -76,7 +76,36 @@ var _GpfXmlXPathMatch = _gpfDefine({
         return [];
     },
 
+    _toAttributeString: function (result) {
+        if (this._isAttribute) {
+            result.push("@");
+        }
+    },
+
+    _toNamespaceString: function (result) {
+        if (this._namespacePrefix) {
+            result.push(this._namespacePrefix, ":");
+        }
+    },
+
+    _toNameString: function (result) {
+        if (this._name) {
+            result.push(this._name);
+        } else {
+            result.push("*");
+        }
+    },
+
+    toString: function () {
+        var result = [];
+        this._toAttributeString(result);
+        this._toNamespaceString(result);
+        this._toNameString(result);
+        return result.join("");
+    },
+
     constructor: function (isAttribute, namespacePrefix, name) {
+        this.$super();
         this._isAttribute = isAttribute;
         this._namespacePrefix = namespacePrefix;
         this._name = name;
