@@ -24,7 +24,8 @@
 var _GPF_XML_NODE_TYPE = {
     ELEMENT: 1,
     ATTRIBUTE: 2,
-    TEXT: 3
+    TEXT: 3,
+    DOCUMENT: 9
 };
 
 /**
@@ -49,7 +50,12 @@ gpf.xml.nodeType = {
      * The actual Text inside an Element
      * @since 1.0.1
      */
-    text: _GPF_XML_NODE_TYPE.TEXT
+    text: _GPF_XML_NODE_TYPE.TEXT,
+    /**
+     * A Document node
+     * @since 1.0.1
+     */
+    document: _GPF_XML_NODE_TYPE.DOCUMENT
 };
 
 /**
