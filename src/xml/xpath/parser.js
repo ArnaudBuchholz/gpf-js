@@ -104,7 +104,7 @@ function _gpfXmlXPathParse (xpathExpression) {
         } else {
             namespacePrefix = "";
         }
-        return new _GpfXmlXPathMatch(!!isAttribute, namespacePrefix, name);
+        return new _GpfXmlXPathMatch(Boolean(isAttribute), namespacePrefix, name);
     }
 
     var levelClasses = {};
@@ -112,12 +112,20 @@ function _gpfXmlXPathParse (xpathExpression) {
     levelClasses[_GPF_XML_XPATH_TOKEN.DEEP] = _GpfXmlXPathDeep;
 
     function level () {
-        var current = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.CURRENT),
+        var relative = Boolean(consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.CURRENT)),
             level = checkAndConsumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.SUB, _GPF_XML_XPATH_TOKEN.DEEP),
             Operator = levelClasses[level.token];
-        var operator = new Operator();
+        var operator = new Operator(relative);
         operator.addChild(match());
         return operator;
+    }
+
+    function concatOrOperator (concat) {
+        var children = concat.getChildren();
+        if (children.length === 1) {
+            return children[0];
+        }
+        return concat;
     }
 
     function start () {
@@ -126,8 +134,11 @@ function _gpfXmlXPathParse (xpathExpression) {
         while (consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.CONCAT)) {
             concat.addChild(level());
         }
-        return concat;
+        return concatOrOperator(concat);
     }
 
     return start();
 }
+
+/** @gpf:sameas _gpfXmlXPathParse */
+gpf.xml.xpath.parse = _gpfXmlXPathParse;
