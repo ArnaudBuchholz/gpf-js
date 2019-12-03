@@ -40,7 +40,7 @@ describe("xml/xpath", function () {
         },
 
         getParentNode: function () {
-            return this.parent;
+            return this._parent;
         },
 
         // endregion
@@ -87,21 +87,74 @@ describe("xml/xpath", function () {
         return new Node(name, attributes, children);
     }
 
-    var htmlDocument = node("html", [
-        node("head", [
-            node("title", ["Sample page"]),
-            node("script", {src: "/gpf.js"})
-        ]),
-        node("body", [])
+    var documentNode = node("", [
+        node("html", [
+            node("head", [
+                node("title", ["Sample page"]),
+                node("script", {src: "/gpf.js"})
+            ]),
+            node("body", [])
+        ])
     ]);
+    documentNode._type = gpf.xml.nodeType.document;
+    var htmlNode = documentNode.getChildNodes()[0],
+        headNode = htmlNode.getChildNodes()[0];
 
     describe("xml/xpath", function () {
         describe("gpf.xml.xpath.select", function () {
-            it("//html", function () {
-                var nodes = gpf.xml.xpath.select("//html", htmlDocument);
-                assert(nodes.length === 1);
-                assert(nodes[0] === htmlDocument);
+
+            describe("//html", function () {
+                it("parses", function () {
+                    var xpath = gpf.xml.xpath.parse("//html");
+                    assert(xpath.toString() === "//html");
+                    assert(xpath instanceof gpf.xml.xpath.Deep);
+                    assert(xpath.getChildren()[0] instanceof gpf.xml.xpath.Match);
+                });
+
+                it("executes on document", function () {
+                    var nodes = gpf.xml.xpath.select("//html", documentNode);
+                    assert(nodes.length === 1);
+                    assert(nodes[0] === htmlNode);
+                });
+
+                it("executes on <html />", function () {
+                    var nodes = gpf.xml.xpath.select("//html", htmlNode);
+                    assert(nodes.length === 1);
+                    assert(nodes[0] === htmlNode);
+                });
+
+                it("executes  on <head />", function () {
+                    var nodes = gpf.xml.xpath.select("//html", headNode);
+                    assert(nodes.length === 1);
+                    assert(nodes[0] === htmlNode);
+                });
             });
+
+            describe(".//html", function () {
+                it("parses", function () {
+                    var xpath = gpf.xml.xpath.parse(".//html");
+                    assert(xpath.toString() === ".//html");
+                    assert(xpath instanceof gpf.xml.xpath.Deep);
+                    assert(xpath.getChildren()[0] instanceof gpf.xml.xpath.Match);
+                });
+
+                it("executes on document", function () {
+                    var nodes = gpf.xml.xpath.select(".//html", documentNode);
+                    assert(nodes.length === 1);
+                    assert(nodes[0] === htmlNode);
+                });
+
+                it("executes on <html />", function () {
+                    var nodes = gpf.xml.xpath.select(".//html", htmlNode);
+                    assert(nodes.length === 0);
+                });
+
+                it("executes  on <head />", function () {
+                    var nodes = gpf.xml.xpath.select(".//html", headNode);
+                    assert(nodes.length === 0);
+                });
+            });
+
         });
     });
 });
