@@ -96,6 +96,10 @@ var _GpfXmlXPathMatch = _gpfDefine({
         }
     },
 
+    /**
+     * @inheritdoc
+     * @since 1.0.1
+     */
     toString: function () {
         var result = [];
         this._toAttributeString(result);
