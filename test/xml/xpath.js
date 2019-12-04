@@ -155,6 +155,34 @@ describe("xml/xpath", function () {
                 });
             });
 
+            describe("//html/head", function () {
+                it("parses", function () {
+                    var xpath = gpf.xml.xpath.parse("//html/head");
+                    assert(xpath.toString() === "//html/head");
+                    assert(xpath instanceof gpf.xml.xpath.Chain);
+                    assert(xpath.getChildren()[0] instanceof gpf.xml.xpath.Deep);
+                    assert(xpath.getChildren()[1] instanceof gpf.xml.xpath.Sub);
+                });
+
+                it("executes on document", function () {
+                    var nodes = gpf.xml.xpath.select("//html/head", documentNode);
+                    assert(nodes.length === 1);
+                    assert(nodes[0] === headNode);
+                });
+
+                it("executes on <html />", function () {
+                    var nodes = gpf.xml.xpath.select("//html/head", htmlNode);
+                    assert(nodes.length === 1);
+                    assert(nodes[0] === headNode);
+                });
+
+                it("executes  on <head />", function () {
+                    var nodes = gpf.xml.xpath.select("//html/head", headNode);
+                    assert(nodes.length === 1);
+                    assert(nodes[0] === headNode);
+                });
+            });
+
         });
     });
 });
