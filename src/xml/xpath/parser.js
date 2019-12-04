@@ -12,6 +12,7 @@
 /*global _GpfXmlXPathDeep*/
 /*global _GpfXmlXPathMatch*/
 /*global _GpfXmlXPathSub*/
+/*global _GpfXmlXPathChain*/
 /*exported _gpfXmlXPathParse*/ // gpf.xml.Parser
 /*#endif*/
 
@@ -111,21 +112,28 @@ function _gpfXmlXPathParse (xpathExpression) {
     levelClasses[_GPF_XML_XPATH_TOKEN.SUB] = _GpfXmlXPathSub;
     levelClasses[_GPF_XML_XPATH_TOKEN.DEEP] = _GpfXmlXPathDeep;
 
-    function level () {
-        var relative = Boolean(consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.CURRENT)),
-            level = checkAndConsumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.SUB, _GPF_XML_XPATH_TOKEN.DEEP),
-            Operator = levelClasses[level.token];
-        var operator = new Operator(relative);
-        operator.addChild(match());
-        return operator;
-    }
-
-    function concatOrOperator (concat) {
-        var children = concat.getChildren();
+    function operatorOrFirstChild (operator) {
+        var children = operator.getChildren();
         if (children.length === 1) {
             return children[0];
         }
-        return concat;
+        return operator;
+    }
+
+    function level () {
+        var relative = Boolean(consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.CURRENT)),
+            chain = new _GpfXmlXPathChain(),
+            level,
+            operator;
+        level = checkAndConsumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.SUB, _GPF_XML_XPATH_TOKEN.DEEP);
+        while (level) {
+            operator = new levelClasses[level.token](relative);
+            operator.addChild(match());
+            chain.addChild(operator);
+            relative = true;
+            level = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.SUB, _GPF_XML_XPATH_TOKEN.DEEP);
+        }
+        return operatorOrFirstChild(chain);
     }
 
     function start () {
@@ -134,7 +142,7 @@ function _gpfXmlXPathParse (xpathExpression) {
         while (consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.CONCAT)) {
             concat.addChild(level());
         }
-        return concatOrOperator(concat);
+        return operatorOrFirstChild(concat);
     }
 
     return start();
