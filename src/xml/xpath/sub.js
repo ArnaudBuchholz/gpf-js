@@ -33,7 +33,7 @@ var _GpfXmlXPathSub = _gpfDefine({
         var nodes = [];
         if (childNodes) {
             childNodes.forEach(function (child) {
-                nodes = _gpfXmlXpathConcatNodes(nodes, operator(child, namespaces));
+                nodes = _gpfXmlXpathConcatNodes(nodes, operator.execute(child, namespaces));
             });
         }
         return nodes;
@@ -66,16 +66,20 @@ var _GpfXmlXPathSub = _gpfDefine({
         return this._lookup(this._getOperator(), this.resolveContextNode(contextNode), namespaces);
     },
 
-    _toSearchString: function () {
+    toRelativeString: function () {
         return "/" + this._children[0].toString();
     },
 
+    /**
+     * @inheritdoc
+     * @since 1.0.1
+     */
     toString: function () {
-        var searchString = this._toSearchString();
+        var relativeString = this.toRelativeString();
         if (this._relative) {
-            return "." + searchString;
+            return "." + relativeString;
         }
-        return searchString;
+        return relativeString;
     },
 
     /**
