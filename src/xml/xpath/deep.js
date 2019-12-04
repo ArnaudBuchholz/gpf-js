@@ -4,7 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfAssert*/ // Assertion method
+/*global _GPF_START*/ // 0
 /*global _gpfDefine*/
 /*global _gpfXmlXpathConcatNodes*/
 /*global _GpfXmlXPathSub*/ // gpf.xml.xpath.Sub
@@ -18,22 +18,25 @@
  * @extend gpf.xml.xpath.Sub
  * @since 1.0.1
  */
- var _GpfXmlXPathDeep = _gpfDefine({
+var _GpfXmlXPathDeep = _gpfDefine({
     $class: "gpf.xml.xpath.Deep",
     $extend: _GpfXmlXPathSub,
 
     _getOperator: function () {
         var me = this,
-            operator = me.$super();
-        return function recursiveOperator (contextNode, namespaces) {
-            return _gpfXmlXpathConcatNodes(
-                operator.execute(contextNode, namespaces),
-                me._lookup(recursiveOperator, contextNode, namespaces)
-            );
-        };
+            innerOperator = me.$super(),
+            recursiveOperator = {
+                execute: function (contextNode, namespaces) {
+                    return _gpfXmlXpathConcatNodes(
+                        innerOperator.execute(contextNode, namespaces),
+                        me._lookup(recursiveOperator, contextNode, namespaces)
+                    );
+                }
+            };
+        return recursiveOperator;
     },
 
-    _toSearchString: function () {
-        return "//" + this._children[0].toString();
+    toRelativeString: function () {
+        return "//" + this._children[_GPF_START].toString();
     }
 });
