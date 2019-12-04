@@ -58,7 +58,7 @@ var _GPF_XML_XPATH_TOKEN = {};
 ]));
 
 // <start> -> <level> (CONCAT <level>)?
-// <level> -> CURRENT? (SUB|DEEP) <match>
+// <level> -> CURRENT? (SUB|DEEP) <match> ( (SUB|DEEP) <match> )*
 // <match> -> ATTRIBUTE? NAMESPACE_PREFIX? (NAME|ANY)
 
 /**
