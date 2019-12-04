@@ -43,7 +43,13 @@ var _GpfXmlXPathConcat = _gpfDefine({
         }, []);
     },
 
+    /**
+     * @inheritdoc
+     * @since 1.0.1
+     */
     toString: function () {
-        return this._children.join(" | ");
+        return this._children.map(function (operator) {
+            return operator.toString();
+        }).join(" | ");
     }
 });
