@@ -45,6 +45,14 @@ var _GpfXmlXPathBase = _gpfDefine({
     },
 
     /**
+     * Converts the operator to an XPATH string
+     * @since 1.0.1
+     */
+    toString: function () {
+        return "";
+    },
+
+    /**
      * Base class for all XPath operators
      *
      * @constructor gpf.xml.xpath.Base
