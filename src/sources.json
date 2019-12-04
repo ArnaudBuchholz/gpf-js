@@ -675,6 +675,11 @@
         "tags": "xml xpath"
     },
     {
+        "name": "xml/xpath/chain",
+        "test": false,
+        "tags": "xml xpath"
+    },
+    {
         "name": "xml/xpath/match",
         "test": false,
         "tags": "xml xpath"
