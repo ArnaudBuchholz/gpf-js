@@ -70,7 +70,7 @@ var _GPF_XML_XPATH_TOKEN = {};
  * @since 1.0.1
  */
 function _gpfXmlXPathParse (xpathExpression) {
-    var tokens = _gpfRegExpTokenize(_GPF_XML_XPATH_TOKEN.regexp, xpathExpression);
+    var tokens = _gpfRegExpTokenize(_GPF_XML_XPATH_TOKEN.regexp, xpathExpression, true);
 
     function consumeIfTokenMatch () {
         var expected = _gpfArraySlice(arguments),
