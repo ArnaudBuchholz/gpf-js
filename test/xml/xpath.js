@@ -52,7 +52,7 @@ describe("xml/xpath", function () {
             if (attributes) {
                 this._attributes = Object.keys(attributes).map(function (attributeName) {
                     var attributeNode = new Node(attributeName);
-                    attributeNode._nodeType = gpf.xml.nodeType.attribute;
+                    attributeNode._type = gpf.xml.nodeType.attribute;
                     attributeNode._value = attributes[attributeName];
                     attributeNode._parent = this;
                     return attributeNode;
@@ -93,96 +93,134 @@ describe("xml/xpath", function () {
                 node("title", ["Sample page"]),
                 node("script", {src: "/gpf.js"})
             ]),
-            node("body", [])
+            node("body", [
+
+            ])
         ])
     ]);
     documentNode._type = gpf.xml.nodeType.document;
     var htmlNode = documentNode.getChildNodes()[0],
-        headNode = htmlNode.getChildNodes()[0];
+        headNode = htmlNode.getChildNodes()[0],
+        scriptNode = headNode.getChildNodes()[1],
+        srcAttrNode = scriptNode.getAttributes()[0],
+        bodyNode = htmlNode.getChildNodes()[1];
 
     describe("xml/xpath", function () {
         describe("gpf.xml.xpath.select", function () {
 
-            describe("//html", function () {
-                it("parses", function () {
-                    var xpath = gpf.xml.xpath.parse("//html");
-                    assert(xpath.toString() === "//html");
-                    assert(xpath instanceof gpf.xml.xpath.Deep);
-                    assert(xpath.getChildren()[0] instanceof gpf.xml.xpath.Match);
+            function generateTests (xpath, checks) {
+                describe(xpath, function () {
+                    if (checks.xpath) {
+                        it("parses", function () {
+                            var parsed = gpf.xml.xpath.parse(xpath);
+                            assert(parsed.toString() === xpath);
+                            checks.xpath(parsed);
+                        });
+                    }
+                    if (checks.document) {
+                        it("executes on document", function () {
+                            var nodes = gpf.xml.xpath.select(xpath, documentNode);
+                            checks.document(nodes);
+                        });
+                    }
+                    if (checks.html) {
+                        it("executes on <html />", function () {
+                            var nodes = gpf.xml.xpath.select(xpath, htmlNode);
+                            checks.html(nodes);
+                        });
+                    }
+                    if (checks.head) {
+                        it("executes on <head />", function () {
+                            var nodes = gpf.xml.xpath.select(xpath, headNode);
+                            checks.head(nodes);
+                        });
+                    }
                 });
+            }
 
-                it("executes on document", function () {
-                    var nodes = gpf.xml.xpath.select("//html", documentNode);
-                    assert(nodes.length === 1);
-                    assert(nodes[0] === htmlNode);
-                });
+            function isEmpty (nodes) {
+                assert(nodes.length === 0);
+            }
 
-                it("executes on <html />", function () {
-                    var nodes = gpf.xml.xpath.select("//html", htmlNode);
-                    assert(nodes.length === 1);
-                    assert(nodes[0] === htmlNode);
-                });
+            function is (nodeOrNodes) {
+                var expectedNodes;
+                if (Array.isArray(nodeOrNodes)) {
+                    expectedNodes = nodeOrNodes;
+                } else {
+                    expectedNodes = [nodeOrNodes];
+                }
+                return function (nodes) {
+                    assert(nodes.length === expectedNodes.length);
+                    // Order is not significant
+                    assert(expectedNodes.every(function (expectedNode) {
+                        return nodes.includes(expectedNode);
+                    }));
+                };
+            }
 
-                it("executes  on <head />", function () {
-                    var nodes = gpf.xml.xpath.select("//html", headNode);
-                    assert(nodes.length === 1);
-                    assert(nodes[0] === htmlNode);
-                });
+            generateTests("//html", {
+                xpath: function (parsed) {
+                    assert(parsed instanceof gpf.xml.xpath.Deep);
+                    assert(parsed.getChildren()[0] instanceof gpf.xml.xpath.Match);
+                },
+                document: is(htmlNode),
+                html: is(htmlNode),
+                head: is(htmlNode)
             });
 
-            describe(".//html", function () {
-                it("parses", function () {
-                    var xpath = gpf.xml.xpath.parse(".//html");
-                    assert(xpath.toString() === ".//html");
-                    assert(xpath instanceof gpf.xml.xpath.Deep);
-                    assert(xpath.getChildren()[0] instanceof gpf.xml.xpath.Match);
-                });
-
-                it("executes on document", function () {
-                    var nodes = gpf.xml.xpath.select(".//html", documentNode);
-                    assert(nodes.length === 1);
-                    assert(nodes[0] === htmlNode);
-                });
-
-                it("executes on <html />", function () {
-                    var nodes = gpf.xml.xpath.select(".//html", htmlNode);
-                    assert(nodes.length === 0);
-                });
-
-                it("executes  on <head />", function () {
-                    var nodes = gpf.xml.xpath.select(".//html", headNode);
-                    assert(nodes.length === 0);
-                });
+            generateTests(".//html", {
+                xpath: function (parsed) {
+                    assert(parsed instanceof gpf.xml.xpath.Deep);
+                    assert(parsed.getChildren()[0] instanceof gpf.xml.xpath.Match);
+                },
+                document: is(htmlNode),
+                html: isEmpty,
+                head: isEmpty
             });
 
-            describe("//html/head", function () {
-                it("parses", function () {
-                    var xpath = gpf.xml.xpath.parse("//html/head");
-                    assert(xpath.toString() === "//html/head");
-                    assert(xpath instanceof gpf.xml.xpath.Chain);
-                    assert(xpath.getChildren()[0] instanceof gpf.xml.xpath.Deep);
-                    assert(xpath.getChildren()[1] instanceof gpf.xml.xpath.Sub);
-                });
-
-                it("executes on document", function () {
-                    var nodes = gpf.xml.xpath.select("//html/head", documentNode);
-                    assert(nodes.length === 1);
-                    assert(nodes[0] === headNode);
-                });
-
-                it("executes on <html />", function () {
-                    var nodes = gpf.xml.xpath.select("//html/head", htmlNode);
-                    assert(nodes.length === 1);
-                    assert(nodes[0] === headNode);
-                });
-
-                it("executes  on <head />", function () {
-                    var nodes = gpf.xml.xpath.select("//html/head", headNode);
-                    assert(nodes.length === 1);
-                    assert(nodes[0] === headNode);
-                });
+            generateTests("//html/head", {
+                xpath: function (parsed) {
+                    assert(parsed instanceof gpf.xml.xpath.Chain);
+                    assert(parsed.getChildren()[0] instanceof gpf.xml.xpath.Deep);
+                    assert(parsed.getChildren()[1] instanceof gpf.xml.xpath.Sub);
+                },
+                document: is(headNode),
+                html: is(headNode),
+                head: is(headNode)
             });
 
+            generateTests("//html/head | //html/body", {
+                xpath: function (parsed) {
+                    assert(parsed instanceof gpf.xml.xpath.Concat);
+                    assert(parsed.getChildren()[0] instanceof gpf.xml.xpath.Chain);
+                    assert(parsed.getChildren()[1] instanceof gpf.xml.xpath.Chain);
+                },
+                document: is([headNode, bodyNode]),
+                html: is([headNode, bodyNode]),
+                head: is([headNode, bodyNode])
+            });
+
+            generateTests("//html/head | .//body", {
+                xpath: function (parsed) {
+                    assert(parsed instanceof gpf.xml.xpath.Concat);
+                    assert(parsed.getChildren()[0] instanceof gpf.xml.xpath.Chain);
+                    assert(parsed.getChildren()[1] instanceof gpf.xml.xpath.Deep);
+                },
+                document: is([headNode, bodyNode]),
+                html: is([headNode, bodyNode]),
+                head: is(headNode)
+            });
+
+            generateTests("/html/head/script/@src", {
+                xpath: function (parsed) {
+                    assert(parsed instanceof gpf.xml.xpath.Chain);
+                    assert(parsed.getChildren().length === 4);
+                    assert(parsed.getChildren()[0] instanceof gpf.xml.xpath.Sub);
+                },
+                document: is(srcAttrNode),
+                html: is(srcAttrNode),
+                head: is(srcAttrNode)
+            });
         });
     });
 });
