@@ -4,9 +4,10 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfDefine*/
-/*global _gpfArrayTail*/
-/*global _GpfXmlXPathBase*/
+/*global _GPF_START*/ // 0
+/*global _GpfXmlXPathBase*/ // gpf.xml.xpath.Base
+/*global _gpfArrayTail*/ // [].slice.call(,1)
+/*global _gpfDefine*/ // Shortcut for gpf.define
 /*global _gpfXmlXpathConcatNodes*/ // Returns a list of unique nodes
 /*exported _GpfXmlXPathChain*/ // gpf.xml.xpath.Chain
 /*#endif*/
@@ -42,12 +43,9 @@ var _GpfXmlXPathChain = _gpfDefine({
      */
     toString: function () {
         return [
-            this._children[0].toString()
+            this._children[_GPF_START].toString()
         ].concat(_gpfArrayTail(this._children).map(function (operator) {
-            if (operator.toRelativeString) {
-                return operator.toRelativeString();
-            }
-            return operator.toString();
+            return operator.toRelativeString();
         })).join("");
     }
 });
