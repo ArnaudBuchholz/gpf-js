@@ -164,6 +164,9 @@
         "error",
         "foreach"
     ],
+    "regexp": [
+        "boot"
+    ],
     "define/entity": [
         "assert"
     ],
@@ -679,5 +682,57 @@
         "interfaces/synchronousable",
         "stream",
         "xml/check"
+    ],
+    "interfaces/xmlnodesyncadapter": [
+        "interfaces",
+        "boot"
+    ],
+    "xml/xpath": [
+        "xml/xpath/parser"
+    ],
+    "xml/xpath/base": [
+        "abstract",
+        "define"
+    ],
+    "xml/xpath/concat": [
+        "xml/xpath/base",
+        "define"
+    ],
+    "xml/xpath/sub": [
+        "boot",
+        "xml/xpath/base",
+        "arraylike",
+        "assert",
+        "define",
+        "xml/xpath/concat"
+    ],
+    "xml/xpath/deep": [
+        "boot",
+        "xml/xpath/sub",
+        "define",
+        "xml/xpath/concat"
+    ],
+    "xml/xpath/chain": [
+        "boot",
+        "xml/xpath/base",
+        "arraylike",
+        "define",
+        "xml/xpath/concat"
+    ],
+    "xml/xpath/match": [
+        "interfaces/xmlnodesyncadapter",
+        "xml/xpath/base",
+        "define"
+    ],
+    "xml/xpath/parser": [
+        "boot",
+        "xml/xpath/chain",
+        "xml/xpath/concat",
+        "xml/xpath/deep",
+        "xml/xpath/match",
+        "xml/xpath/sub",
+        "arraylike",
+        "error",
+        "regexp"
     ]
 }
