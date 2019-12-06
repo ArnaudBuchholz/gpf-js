@@ -20,6 +20,7 @@
 
 /**
  * IXmlNodeSyncAdapter Node type constants
+ * @since 1.0.1
  */
 var _GPF_XML_NODE_TYPE = {
     ELEMENT: 1,
