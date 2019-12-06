@@ -4,9 +4,9 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_XML_NODE_TYPE*/
-/*global _gpfDefine*/
+/*global _GPF_XML_NODE_TYPE*/ // XML Node types
 /*global _GpfXmlXPathBase*/ // gpf.xml.xpath.Base
+/*global _gpfDefine*/ // Shortcut for gpf.define
 /*exported _GpfXmlXPathMatch*/ // gpf.xml.xpath.Match
 /*#endif*/
 
