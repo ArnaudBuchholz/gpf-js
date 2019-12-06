@@ -4,10 +4,10 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfDefine*/
-/*global _GpfXmlXPathBase*/
-/*exported _gpfXmlXpathConcatNodes*/ // Returns a list of unique nodes
+/*global _GpfXmlXPathBase*/ // gpf.xml.xpath.Base
+/*global _gpfDefine*/ // Shortcut for gpf.define
 /*exported _GpfXmlXPathConcat*/ // gpf.xml.xpath.Concat
+/*exported _gpfXmlXpathConcatNodes*/ // Returns a list of unique nodes
 /*#endif*/
 
 /**
@@ -15,6 +15,7 @@
  * @param {gpf.interfaces.IXmlNodeSyncAdapter[]} currentNodes List of nodes to concatenate with
  * @param {gpf.interfaces.IXmlNodeSyncAdapter[]} newNodes List of nodes to add in the currentNodes list
  * @return {gpf.interfaces.IXmlNodeSyncAdapter[]} List of unique nodes
+ * @since 1.0.1
  */
 function _gpfXmlXpathConcatNodes (currentNodes, newNodes) {
     return currentNodes.concat(newNodes.filter(function (node) {
