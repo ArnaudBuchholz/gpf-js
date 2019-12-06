@@ -4,8 +4,8 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfIgnore*/
-/*global _gpfDefine*/
+/*global _gpfCreateAbstractFunction*/ // Build a function that throws the abstractMethod exception
+/*global _gpfDefine*/ // Shortcut for gpf.define
 /*exported _GpfXmlXPathBase*/ // gpf.xml.xpath.Base
 /*#endif*/
 
@@ -18,6 +18,7 @@ var _GpfXmlXPathBase = _gpfDefine({
      * Get the child operators
      *
      * @return {gpf.xml.xpath.Base[]} List of child operators
+     * @since 1.0.1
      */
     getChildren: function () {
         return this._children;
@@ -27,6 +28,7 @@ var _GpfXmlXPathBase = _gpfDefine({
      * Add a child operator
      *
      * @param {gpf.xml.xpath.Base} operator Child operator
+     * @since 1.0.1
      */
     addChild: function (operator) {
         this._children.push(operator);
@@ -38,24 +40,24 @@ var _GpfXmlXPathBase = _gpfDefine({
      * @param {gpf.interfaces.IXmlNodeSyncAdapter} contextNode Context node of the evaluation
      * @param {Object} [namespaces={}] Dictionary associating namespace prefix to a namespace URI
      * @return {gpf.interfaces.IXmlNodeSyncAdapter[]} List of matching nodes
+     * @abstract
+     * @since 1.0.1
      */
-    execute: function (contextNode, namespaces) {
-        _gpfIgnore(contextNode, namespaces);
-        return [];
-    },
+    execute: _gpfCreateAbstractFunction(2), //eslint-disable-line no-magic-numbers
 
     /**
      * Converts the operator to an XPATH string
+     * @return {String} textual representation of the operator
+     * @abstract
      * @since 1.0.1
      */
-    toString: function () {
-        return "";
-    },
+    toString: _gpfCreateAbstractFunction(),
 
     /**
      * Base class for all XPath operators
      *
      * @constructor gpf.xml.xpath.Base
+     * @abstract
      * @since 1.0.1
      */
     constructor: function () {
