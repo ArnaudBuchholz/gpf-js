@@ -4,7 +4,7 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _gpfXmlXPathParse*/
+/*global _gpfXmlXPathParse*/ // gpf.xml.Parser
 /*#endif*/
 
 /**
@@ -22,7 +22,10 @@ function _gpfXmlXPathSelect (xpathExpression, contextNode, namespaces) {
 
 gpf.xml.xpath = {
 
-    /** @gpf:sameas _gpfXmlXPathSelect */
+    /**
+     * @gpf:sameas _gpfXmlXPathSelect
+     * @since 1.0.1
+     */
     select: _gpfXmlXPathSelect
 
 };
