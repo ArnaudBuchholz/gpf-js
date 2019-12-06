@@ -5,9 +5,9 @@
 /*#ifndef(UMD)*/
 "use strict";
 /*global _GPF_START*/ // 0
-/*global _gpfDefine*/
-/*global _gpfXmlXpathConcatNodes*/
 /*global _GpfXmlXPathSub*/ // gpf.xml.xpath.Sub
+/*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfXmlXpathConcatNodes*/ // Returns a list of unique nodes
 /*exported _GpfXmlXPathDeep*/ // gpf.xml.xpath.Deep
 /*#endif*/
 
