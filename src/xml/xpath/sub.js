@@ -4,12 +4,12 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
-/*global _GPF_START*/
+/*global _GPF_START*/ // 0
+/*global _GpfXmlXPathBase*/ // gpf.xml.xpath.Base
+/*global _gpfArrayTail*/ // [].slice.call(,1)
 /*global _gpfAssert*/ // Assertion method
-/*global _gpfArrayTail*/
-/*global _gpfDefine*/
-/*global _GpfXmlXPathBase*/
-/*global _gpfXmlXpathConcatNodes*/
+/*global _gpfDefine*/ // Shortcut for gpf.define
+/*global _gpfXmlXpathConcatNodes*/ // Returns a list of unique nodes
 /*exported _GpfXmlXPathSub*/ // gpf.xml.xpath.Sub
 /*#endif*/
 
@@ -67,7 +67,7 @@ var _GpfXmlXPathSub = _gpfDefine({
     },
 
     toRelativeString: function () {
-        return "/" + this._children[0].toString();
+        return "/" + this._children[_GPF_START].toString();
     },
 
     /**
