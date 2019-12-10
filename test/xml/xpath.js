@@ -205,6 +205,11 @@ describe("xml/xpath", function () {
             }
 
             [{
+                xpath: "html",
+                onDocument: is(htmlNode),
+                onHtml: isEmpty,
+                onHead: isEmpty
+            }, {
                 xpath: "//html",
                 onDocument: is(htmlNode),
                 onHtml: is(htmlNode),
