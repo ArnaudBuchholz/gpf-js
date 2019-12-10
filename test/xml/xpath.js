@@ -149,38 +149,36 @@ describe("xml/xpath", function () {
         });
 
         describe("gpf.xml.xpath.select", function () {
-            function generateTests (xpath, checks) {
-                var namespaces = checks.namespaces,
-                    label = xpath;
+            function generateTests (test) {
+                var xpath = test.xpath,
+                    namespaces = test.namespaces,
+                    label = test.xpath;
                 if (namespaces) {
                     label += Object.keys(namespaces).reduce(function (result, prefix) {
                         return result + " " + prefix + "=\"" + namespaces[prefix] + "\"";
                     }, " (with") + ")";
                 }
                 describe(label, function () {
-                    if (checks.xpath) {
-                        it("parses", function () {
-                            var parsed = gpf.xml.xpath.parse(xpath);
-                            assert(parsed.toString() === xpath);
-                            checks.xpath(parsed);
-                        });
-                    }
-                    if (checks.document) {
+                    it("parses", function () {
+                        var parsed = gpf.xml.xpath.parse(xpath);
+                        assert(parsed.toString() === xpath);
+                    });
+                    if (test.onDocument) {
                         it("executes on document", function () {
                             var nodes = gpf.xml.xpath.select(xpath, documentNode, namespaces);
-                            checks.document(nodes);
+                            test.onDocument(nodes);
                         });
                     }
-                    if (checks.html) {
+                    if (test.onHtml) {
                         it("executes on <html />", function () {
                             var nodes = gpf.xml.xpath.select(xpath, htmlNode, namespaces);
-                            checks.html(nodes);
+                            test.onHtml(nodes);
                         });
                     }
-                    if (checks.head) {
+                    if (test.onHead) {
                         it("executes on <head />", function () {
                             var nodes = gpf.xml.xpath.select(xpath, headNode, namespaces);
-                            checks.head(nodes);
+                            test.onHead(nodes);
                         });
                     }
                 });
@@ -206,139 +204,84 @@ describe("xml/xpath", function () {
                 };
             }
 
-            generateTests("//html", {
-                xpath: function (parsed) {
-                    assert(parsed instanceof gpf.xml.xpath.Deep);
-                    assert(parsed.getChildren()[0] instanceof gpf.xml.xpath.Match);
-                },
-                document: is(htmlNode),
-                html: is(htmlNode),
-                head: is(htmlNode)
-            });
-
-            generateTests(".//html", {
-                xpath: function (parsed) {
-                    assert(parsed instanceof gpf.xml.xpath.Deep);
-                    assert(parsed.getChildren()[0] instanceof gpf.xml.xpath.Match);
-                },
-                document: is(htmlNode),
-                html: isEmpty,
-                head: isEmpty
-            });
-
-            generateTests("//html/head", {
-                xpath: function (parsed) {
-                    assert(parsed instanceof gpf.xml.xpath.Chain);
-                    assert(parsed.getChildren()[0] instanceof gpf.xml.xpath.Deep);
-                    assert(parsed.getChildren()[1] instanceof gpf.xml.xpath.Sub);
-                },
-                document: is(headNode),
-                html: is(headNode),
-                head: is(headNode)
-            });
-
-            generateTests("//html/head | //html/body", {
-                xpath: function (parsed) {
-                    assert(parsed instanceof gpf.xml.xpath.Concat);
-                    assert(parsed.getChildren()[0] instanceof gpf.xml.xpath.Chain);
-                    assert(parsed.getChildren()[1] instanceof gpf.xml.xpath.Chain);
-                },
-                document: is([headNode, bodyNode]),
-                html: is([headNode, bodyNode]),
-                head: is([headNode, bodyNode])
-            });
-
-            generateTests("//html/head | .//body", {
-                xpath: function (parsed) {
-                    assert(parsed instanceof gpf.xml.xpath.Concat);
-                    assert(parsed.getChildren()[0] instanceof gpf.xml.xpath.Chain);
-                    assert(parsed.getChildren()[1] instanceof gpf.xml.xpath.Deep);
-                },
-                document: is([headNode, bodyNode]),
-                html: is([headNode, bodyNode]),
-                head: is(headNode)
-            });
-
-            generateTests("/html/head/script/@src", {
-                xpath: function (parsed) {
-                    assert(parsed instanceof gpf.xml.xpath.Chain);
-                    assert(parsed.getChildren().length === 4);
-                    assert(parsed.getChildren()[0] instanceof gpf.xml.xpath.Sub);
-                },
-                document: is(srcAttrNode),
-                html: is(srcAttrNode),
-                head: is(srcAttrNode)
-            });
-
-            generateTests("/html/head/script/@*", {
-                xpath: function (parsed) {
-                    assert(parsed instanceof gpf.xml.xpath.Chain);
-                    assert(parsed.getChildren().length === 4);
-                    assert(parsed.getChildren()[0] instanceof gpf.xml.xpath.Sub);
-                },
-                document: is([srcAttrNode, languageAttrNode]),
-                html: is([srcAttrNode, languageAttrNode]),
-                head: is([srcAttrNode, languageAttrNode])
-            });
-
-            generateTests("//html/head | ./script/@src", {
-                xpath: function (parsed) {
-                    assert(parsed instanceof gpf.xml.xpath.Concat);
-                    assert(parsed.getChildren()[0] instanceof gpf.xml.xpath.Chain);
-                    assert(parsed.getChildren()[1] instanceof gpf.xml.xpath.Chain);
-                },
-                document: is(headNode),
-                html: is(headNode),
-                head: is([headNode, srcAttrNode])
-            });
-
-            generateTests("//svg:svg", {
+            [{
+                xpath: "//html",
+                onDocument: is(htmlNode),
+                onHtml: is(htmlNode),
+                onHead: is(htmlNode)
+            }, {
+                xpath: ".//html",
+                onDocument: is(htmlNode),
+                onHtml: isEmpty,
+                onHead: isEmpty
+            }, {
+                xpath: "//html/head",
+                onDocument: is(headNode),
+                onHtml: is(headNode),
+                onHead: is(headNode)
+            }, {
+                xpath: "//html/head | //html/body",
+                onDocument: is([headNode, bodyNode]),
+                onHtml: is([headNode, bodyNode]),
+                onHead: is([headNode, bodyNode])
+            }, {
+                xpath: "//html/head | .//body",
+                onDocument: is([headNode, bodyNode]),
+                onHtml: is([headNode, bodyNode]),
+                onHead: is(headNode)
+            }, {
+                xpath: "/html/head/script/@src",
+                onDocument: is(srcAttrNode),
+                onHtml: is(srcAttrNode),
+                onHead: is(srcAttrNode)
+            }, {
+                xpath: "/html/head/script/@*",
+                onDocument: is([srcAttrNode, languageAttrNode]),
+                onHtml: is([srcAttrNode, languageAttrNode]),
+                onHead: is([srcAttrNode, languageAttrNode])
+            }, {
+                xpath: "//html/head | ./script/@src",
+                onDocument: is(headNode),
+                onHtml: is(headNode),
+                onHead: is([headNode, srcAttrNode])
+            }, {
+                xpath: "//svg:svg",
                 namespaces: {
                     svg: SVG_NAMESPACE
                 },
-                xpath: function (parsed) {
-                    assert(parsed instanceof gpf.xml.xpath.Deep);
-                },
-                document: is(svgNode),
-                html: is(svgNode),
-                head: is(svgNode)
-            });
-
-            generateTests(".//svg:*", {
+                onDocument: is(svgNode),
+                onHtml: is(svgNode),
+                onHead: is(svgNode)
+            }, {
+                xpath: ".//svg:*",
                 namespaces: {
                     svg: SVG_NAMESPACE
                 },
-                xpath: function (parsed) {
-                    assert(parsed instanceof gpf.xml.xpath.Deep);
-                },
-                document: is([svgNode, circleNode]),
-                html: is([svgNode, circleNode]),
-                head: isEmpty
-            });
-
-            generateTests("//svg:*", {
+                onDocument: is([svgNode, circleNode]),
+                onHtml: is([svgNode, circleNode]),
+                onHead: isEmpty
+            }, {
+                xpath: "//svg:*",
                 namespaces: {
                     notSvg: SVG_NAMESPACE
                 },
-                xpath: function (parsed) {
-                    assert(parsed instanceof gpf.xml.xpath.Deep);
-                },
-                document: isEmpty,
-                html: isEmpty,
-                head: isEmpty
-            });
-
-            generateTests("//unknown:*", {
+                onDocument: isEmpty,
+                onHtml: isEmpty,
+                onHead: isEmpty
+            }, {
+                xpath: "//unknown:*",
                 namespaces: {
                     unknown: "not a known namespace"
                 },
-                xpath: function (parsed) {
-                    assert(parsed instanceof gpf.xml.xpath.Deep);
-                },
-                document: isEmpty,
-                html: isEmpty,
-                head: isEmpty
-            });
+                onDocument: isEmpty,
+                onHtml: isEmpty,
+                onHead: isEmpty
+            }, {
+                xpath: "/html/head//*[@*]",
+                onDocument: is(scriptNode),
+                onHtml: is(scriptNode),
+                onHead: is(scriptNode)
+            }].forEach(generateTests);
         });
     });
 });
