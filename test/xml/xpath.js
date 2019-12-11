@@ -142,6 +142,7 @@ describe("xml/xpath", function () {
                 });
             }
 
+            shouldFail(".test");
             shouldFail("///test");
             shouldFail("..//test");
             shouldFail(".//test || .//test");
@@ -150,6 +151,7 @@ describe("xml/xpath", function () {
         describe("gpf.xml.xpath.select", function () {
             function generateTests (test) {
                 var xpath = test.xpath,
+                    normalizedXpath = test.normalized || xpath,
                     namespaces = test.namespaces,
                     label = test.xpath;
                 if (namespaces) {
@@ -160,7 +162,7 @@ describe("xml/xpath", function () {
                 describe(label, function () {
                     it("parses", function () {
                         var parsed = gpf.xml.xpath.parse(xpath);
-                        assert(parsed.toString() === xpath);
+                        assert(parsed.toString() === normalizedXpath);
                     });
                     if (test.onDocument) {
                         it("executes on document", function () {
@@ -205,6 +207,7 @@ describe("xml/xpath", function () {
 
             [{
                 xpath: "html",
+                normalized: "./html",
                 onDocument: is(htmlNode),
                 onHtml: isEmpty,
                 onHead: isEmpty
