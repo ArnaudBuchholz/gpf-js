@@ -72,9 +72,16 @@ function _gpfXmlXPathParse (xpathExpression) {
     function consumeIfTokenMatch () {
         var expected = _gpfArraySlice(arguments),
             current = tokens[_GPF_START];
-        if (current && expected.includes(current.token)) {
-            tokens.shift();
-            return current;
+
+        function consumeIfExpected () {
+            if (expected.includes(current.token)) {
+                tokens.shift();
+                return current;
+            }
+        }
+
+        if (current) {
+            return consumeIfExpected();
         }
     }
 
@@ -91,16 +98,23 @@ function _gpfXmlXPathParse (xpathExpression) {
             namespacePrefix = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.NAMESPACE_PREFIX),
             any = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.ANY),
             name;
-        if (any) {
-            name = "";
-        } else {
-            name = checkAndConsumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.NAME)[_GPF_XML_XPATH_TOKEN.NAME];
+
+        function getName () {
+            if (any) {
+                return "";
+            }
+            return checkAndConsumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.NAME)[_GPF_XML_XPATH_TOKEN.NAME];
         }
-        if (namespacePrefix) {
-            namespacePrefix = namespacePrefix[_GPF_XML_XPATH_TOKEN.NAMESPACE_PREFIX];
-        } else {
-            namespacePrefix = "";
+        name = getName();
+
+        function getNamespacePrefix () {
+            if (namespacePrefix) {
+                return namespacePrefix[_GPF_XML_XPATH_TOKEN.NAMESPACE_PREFIX];
+            }
+            return "";
         }
+        namespacePrefix = getNamespacePrefix();
+
         return new _GpfXmlXPathMatch(Boolean(isAttribute), namespacePrefix, name);
     }
 
