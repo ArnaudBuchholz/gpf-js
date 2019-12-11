@@ -117,12 +117,12 @@ function _gpfXmlXPathParse (xpathExpression) {
     }
 
     function level () {
-        var relative = Boolean(consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.CURRENT)),
+        var relative,
             chain = new _GpfXmlXPathChain(),
             subOrDeep,
             operator;
-        subOrDeep = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.SUB, _GPF_XML_XPATH_TOKEN.DEEP);
-        if (!subOrDeep) {
+
+        function firstLevelNoSubOrDeep () {
             if (relative) {
                 gpf.Error.invalidXPathSyntax();
             }
@@ -131,6 +131,16 @@ function _gpfXmlXPathParse (xpathExpression) {
                 token: _GPF_XML_XPATH_TOKEN.SUB
             };
         }
+
+        function firstLevel () {
+            relative = Boolean(consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.CURRENT));
+            subOrDeep = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.SUB, _GPF_XML_XPATH_TOKEN.DEEP);
+            if (!subOrDeep) {
+                firstLevelNoSubOrDeep();
+            }
+        }
+
+        firstLevel();
         while (subOrDeep) {
             operator = new levelClasses[subOrDeep.token](relative);
             operator.addChild(match());
