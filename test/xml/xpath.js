@@ -283,11 +283,11 @@ describe("xml/xpath", function () {
                 onDocument: isEmpty,
                 onHtml: isEmpty,
                 onHead: isEmpty
-            }, {
-                xpath: "/html/head//*[@*]",
-                onDocument: is(scriptNode),
-                onHtml: is(scriptNode),
-                onHead: is(scriptNode)
+            // }, {
+            //     xpath: "/html/head//*[@*]",
+            //     onDocument: is(scriptNode),
+            //     onHtml: is(scriptNode),
+            //     onHead: is(scriptNode)
             }].forEach(generateTests);
         });
     });
