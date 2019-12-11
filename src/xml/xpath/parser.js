@@ -56,7 +56,7 @@ var _GPF_XML_XPATH_TOKEN = {};
 ]));
 
 // <start> -> <level> (CONCAT <level>)?
-// <level> -> CURRENT? (SUB|DEEP) <match> ( (SUB|DEEP) <match> )*
+// <level> -> (CURRENT? (SUB|DEEP))? <match> ( (SUB|DEEP) <match> )*
 // <match> -> ATTRIBUTE? NAMESPACE_PREFIX? (NAME|ANY)
 
 /**
@@ -121,7 +121,16 @@ function _gpfXmlXPathParse (xpathExpression) {
             chain = new _GpfXmlXPathChain(),
             subOrDeep,
             operator;
-        subOrDeep = checkAndConsumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.SUB, _GPF_XML_XPATH_TOKEN.DEEP);
+        subOrDeep = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.SUB, _GPF_XML_XPATH_TOKEN.DEEP);
+        if (!subOrDeep) {
+            if (relative) {
+                gpf.Error.invalidXPathSyntax();
+            }
+            relative = true;
+            subOrDeep = {
+                token: _GPF_XML_XPATH_TOKEN.SUB
+            };
+        }
         while (subOrDeep) {
             operator = new levelClasses[subOrDeep.token](relative);
             operator.addChild(match());
