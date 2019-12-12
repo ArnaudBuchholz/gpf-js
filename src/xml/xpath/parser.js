@@ -10,7 +10,6 @@
 /*global _GpfXmlXPathDeep*/ // gpf.xml.xpath.Deep
 /*global _GpfXmlXPathMatch*/ // gpf.xml.xpath.Match
 /*global _GpfXmlXPathSub*/ // gpf.xml.xpath.Sub
-/*global _gpfArraySlice*/ // [].slice.call
 /*global _gpfArrayTail*/ // [].slice.call(,1)
 /*global _gpfErrorDeclare*/ // Declare new gpf.Error names
 /*global _gpfRegExpTokenize*/ // _gpfRegExpForEach with token #
@@ -50,14 +49,115 @@ var _GPF_XML_XPATH_TOKEN = {};
     {regexp: "(\\/)", name: "SUB"},
     {regexp: "(\\.)", name: "CURRENT"},
     {regexp: "(@)", name: "ATTRIBUTE"},
+    {regexp: "(\\[)", name: "CONDITION_OPEN"},
+    {regexp: "(\\])", name: "CONDITION_CLOSE"},
     {regexp: "(\\*)", name: "ANY"},
     {regexp: "(\\w+):", name: "NAMESPACE_PREFIX"},
-    {regexp: "(\\w+)", name: "NAME"}
+    {regexp: "(\\w+)", name: "NAME"},
+    {regexp: "(.)", name: "ERROR"}
 ]));
 
-// <start> -> <level> (CONCAT <level>)?
-// <level> -> (CURRENT? (SUB|DEEP))? <match> ( (SUB|DEEP) <match> )*
-// <match> -> ATTRIBUTE? NAMESPACE_PREFIX? (NAME|ANY)
+var _gpfXmlXPathLevelClasses = {};
+_gpfXmlXPathLevelClasses[_GPF_XML_XPATH_TOKEN.SUB] = _GpfXmlXPathSub;
+_gpfXmlXPathLevelClasses[_GPF_XML_XPATH_TOKEN.DEEP] = _GpfXmlXPathDeep;
+
+function _gpfXmlXPathConsumeIfTokenMatch (tokens) {
+    var expected = _gpfArrayTail(arguments),
+        current = tokens[_GPF_START];
+
+    function consumeIfExpected () {
+        if (expected.includes(current.token)) {
+            tokens.shift();
+            return current;
+        }
+    }
+
+    if (current) {
+        return consumeIfExpected();
+    }
+}
+
+function _gpfXmlXPathCheckAndConsumeIfTokenMatch () {
+    var token = _gpfXmlXPathConsumeIfTokenMatch.apply(null, arguments);
+    if (!token) {
+        gpf.Error.invalidXPathSyntax();
+    }
+    return token;
+}
+
+// <_gpfXmlXPathStart> -> <_gpfXmlXPathLevel> (CONCAT <_gpfXmlXPathLevel>)?
+// <_gpfXmlXPathLevel> -> (CURRENT? (SUB|DEEP))? <_gpfXmlXPathMatch> ( (SUB|DEEP) <_gpfXmlXPathMatch> )*
+// <_gpfXmlXPathMatch> -> ATTRIBUTE? NAMESPACE_PREFIX? (NAME|ANY) (CONDITION_OPEN <condition>)?
+// <condition> -> <_gpfXmlXPathLevel> CONDITION_CLOSE
+
+function _gpfXmlXPathMatch (tokens) {
+    var isAttribute = _gpfXmlXPathConsumeIfTokenMatch(tokens, _GPF_XML_XPATH_TOKEN.ATTRIBUTE),
+        namespacePrefix = _gpfXmlXPathConsumeIfTokenMatch(tokens, _GPF_XML_XPATH_TOKEN.NAMESPACE_PREFIX),
+        any = _gpfXmlXPathConsumeIfTokenMatch(tokens, _GPF_XML_XPATH_TOKEN.ANY),
+        name;
+
+    function getName () {
+        if (any) {
+            return "";
+        }
+        return _gpfXmlXPathCheckAndConsumeIfTokenMatch(tokens, _GPF_XML_XPATH_TOKEN.NAME)[_GPF_XML_XPATH_TOKEN.NAME];
+    }
+    name = getName();
+
+    function getNamespacePrefix () {
+        if (namespacePrefix) {
+            return namespacePrefix[_GPF_XML_XPATH_TOKEN.NAMESPACE_PREFIX];
+        }
+        return "";
+    }
+    namespacePrefix = getNamespacePrefix();
+
+    return new _GpfXmlXPathMatch(Boolean(isAttribute), namespacePrefix, name);
+}
+
+function _gpfXmlXPathLevel (tokens) {
+    var relative,
+        chain = new _GpfXmlXPathChain(),
+        subOrDeep,
+        operator;
+
+    function firstLevelNoSubOrDeep () {
+        if (relative) {
+            gpf.Error.invalidXPathSyntax();
+        }
+        relative = true;
+        subOrDeep = {
+            token: _GPF_XML_XPATH_TOKEN.SUB
+        };
+    }
+
+    function firstLevel () {
+        relative = Boolean(_gpfXmlXPathConsumeIfTokenMatch(tokens, _GPF_XML_XPATH_TOKEN.CURRENT));
+        subOrDeep = _gpfXmlXPathConsumeIfTokenMatch(tokens, _GPF_XML_XPATH_TOKEN.SUB, _GPF_XML_XPATH_TOKEN.DEEP);
+        if (!subOrDeep) {
+            firstLevelNoSubOrDeep();
+        }
+    }
+
+    firstLevel();
+    while (subOrDeep) {
+        operator = new _gpfXmlXPathLevelClasses[subOrDeep.token](relative);
+        operator.addChild(_gpfXmlXPathMatch(tokens));
+        chain.addChild(operator);
+        relative = true;
+        subOrDeep = _gpfXmlXPathConsumeIfTokenMatch(tokens, _GPF_XML_XPATH_TOKEN.SUB, _GPF_XML_XPATH_TOKEN.DEEP);
+    }
+    return chain.reduce();
+}
+
+function _gpfXmlXPathStart (tokens) {
+    var concat = new _GpfXmlXPathConcat();
+    concat.addChild(_gpfXmlXPathLevel(tokens));
+    while (_gpfXmlXPathConsumeIfTokenMatch(tokens, _GPF_XML_XPATH_TOKEN.CONCAT)) {
+        concat.addChild(_gpfXmlXPathLevel(tokens));
+    }
+    return concat.reduce();
+}
 
 /**
  * Parse the XPath expression
@@ -67,114 +167,12 @@ var _GPF_XML_XPATH_TOKEN = {};
  * @since 1.0.1
  */
 function _gpfXmlXPathParse (xpathExpression) {
-    var tokens = _gpfRegExpTokenize(_GPF_XML_XPATH_TOKEN.regexp, xpathExpression, true);
-
-    function consumeIfTokenMatch () {
-        var expected = _gpfArraySlice(arguments),
-            current = tokens[_GPF_START];
-
-        function consumeIfExpected () {
-            if (expected.includes(current.token)) {
-                tokens.shift();
-                return current;
-            }
-        }
-
-        if (current) {
-            return consumeIfExpected();
-        }
+    var tokens = _gpfRegExpTokenize(_GPF_XML_XPATH_TOKEN.regexp, xpathExpression, true),
+        xpath = _gpfXmlXPathStart(tokens);
+    if (tokens.length) {
+        gpf.Error.invalidXPathSyntax();
     }
-
-    function checkAndConsumeIfTokenMatch () {
-        var token = consumeIfTokenMatch.apply(null, arguments);
-        if (!token) {
-            gpf.Error.invalidXPathSyntax();
-        }
-        return token;
-    }
-
-    function match () {
-        var isAttribute = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.ATTRIBUTE),
-            namespacePrefix = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.NAMESPACE_PREFIX),
-            any = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.ANY),
-            name;
-
-        function getName () {
-            if (any) {
-                return "";
-            }
-            return checkAndConsumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.NAME)[_GPF_XML_XPATH_TOKEN.NAME];
-        }
-        name = getName();
-
-        function getNamespacePrefix () {
-            if (namespacePrefix) {
-                return namespacePrefix[_GPF_XML_XPATH_TOKEN.NAMESPACE_PREFIX];
-            }
-            return "";
-        }
-        namespacePrefix = getNamespacePrefix();
-
-        return new _GpfXmlXPathMatch(Boolean(isAttribute), namespacePrefix, name);
-    }
-
-    var levelClasses = {};
-    levelClasses[_GPF_XML_XPATH_TOKEN.SUB] = _GpfXmlXPathSub;
-    levelClasses[_GPF_XML_XPATH_TOKEN.DEEP] = _GpfXmlXPathDeep;
-
-    function operatorOrFirstChild (operator) {
-        var children = operator.getChildren();
-        if (!_gpfArrayTail(children).length) {
-            return children[_GPF_START];
-        }
-        return operator;
-    }
-
-    function level () {
-        var relative,
-            chain = new _GpfXmlXPathChain(),
-            subOrDeep,
-            operator;
-
-        function firstLevelNoSubOrDeep () {
-            if (relative) {
-                gpf.Error.invalidXPathSyntax();
-            }
-            relative = true;
-            subOrDeep = {
-                token: _GPF_XML_XPATH_TOKEN.SUB
-            };
-        }
-
-        function firstLevel () {
-            relative = Boolean(consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.CURRENT));
-            subOrDeep = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.SUB, _GPF_XML_XPATH_TOKEN.DEEP);
-            if (!subOrDeep) {
-                firstLevelNoSubOrDeep();
-            }
-        }
-
-        firstLevel();
-        while (subOrDeep) {
-            operator = new levelClasses[subOrDeep.token](relative);
-            operator.addChild(match());
-            chain.addChild(operator);
-            relative = true;
-            subOrDeep = consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.SUB, _GPF_XML_XPATH_TOKEN.DEEP);
-        }
-        return operatorOrFirstChild(chain);
-    }
-
-    function start () {
-        var concat = new _GpfXmlXPathConcat();
-        concat.addChild(level());
-        while (consumeIfTokenMatch(_GPF_XML_XPATH_TOKEN.CONCAT)) {
-            concat.addChild(level());
-        }
-        return operatorOrFirstChild(concat);
-    }
-
-    return start();
+    return xpath;
 }
 
 /**
