@@ -4,6 +4,8 @@
  */
 /*#ifndef(UMD)*/
 "use strict";
+/*global _GPF_START*/ // 0
+/*global _gpfArrayTail*/ // [].slice.call(,1)
 /*global _gpfCreateAbstractFunction*/ // Build a function that throws the abstractMethod exception
 /*global _gpfDefine*/ // Shortcut for gpf.define
 /*exported _GpfXmlXPathBase*/ // gpf.xml.xpath.Base
@@ -32,6 +34,21 @@ var _GpfXmlXPathBase = _gpfDefine({
      */
     addChild: function (operator) {
         this._children.push(operator);
+    },
+
+    /**
+     * If it contains only one child operator, returns it
+     * Otherwise, returns the current operator.
+     *
+     * @return {gpf.xml.xpath.Base} Reduced operator
+     * @since 1.0.1
+     */
+    reduce: function () {
+        var children = this.getChildren();
+        if (!_gpfArrayTail(children).length) {
+            return children[_GPF_START];
+        }
+        return this;
     },
 
     /**
