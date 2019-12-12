@@ -143,6 +143,8 @@ describe("xml/xpath", function () {
             }
 
             shouldFail(".test");
+            shouldFail("test.");
+            shouldFail("test$");
             shouldFail("///test");
             shouldFail("..//test");
             shouldFail(".//test || .//test");
