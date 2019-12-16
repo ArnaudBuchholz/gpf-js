@@ -684,6 +684,11 @@
         "tags": "xml xpath"
     },
     {
+        "name": "xml/xpath/condition",
+        "test": false,
+        "tags": "xml xpath"
+    },
+    {
         "name": "xml/xpath/parser",
         "test": false,
         "tags": "xml xpath"
