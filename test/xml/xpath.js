@@ -187,16 +187,14 @@ describe("xml/xpath", function () {
                 });
             }
 
-            function isEmpty (nodes) {
-                assert(nodes.length === 0);
-            }
-
             function is (nodeOrNodes) {
                 var expectedNodes;
                 if (Array.isArray(nodeOrNodes)) {
                     expectedNodes = nodeOrNodes;
-                } else {
+                } else if (nodeOrNodes) {
                     expectedNodes = [nodeOrNodes];
+                } else {
+                    expectedNodes = [];
                 }
                 return function (nodes) {
                     assert(nodes.length === expectedNodes.length);
@@ -211,8 +209,8 @@ describe("xml/xpath", function () {
                 xpath: "html",
                 normalized: "./html",
                 onDocument: is(htmlNode),
-                onHtml: isEmpty,
-                onHead: isEmpty
+                onHtml: is(),
+                onHead: is()
             }, {
                 xpath: "//html",
                 onDocument: is(htmlNode),
@@ -221,8 +219,8 @@ describe("xml/xpath", function () {
             }, {
                 xpath: ".//html",
                 onDocument: is(htmlNode),
-                onHtml: isEmpty,
-                onHead: isEmpty
+                onHtml: is(),
+                onHead: is()
             }, {
                 xpath: "//html/head",
                 onDocument: is(headNode),
@@ -268,23 +266,23 @@ describe("xml/xpath", function () {
                 },
                 onDocument: is([svgNode, circleNode]),
                 onHtml: is([svgNode, circleNode]),
-                onHead: isEmpty
+                onHead: is()
             }, {
                 xpath: "//svg:*",
                 namespaces: {
                     notSvg: SVG_NAMESPACE
                 },
-                onDocument: isEmpty,
-                onHtml: isEmpty,
-                onHead: isEmpty
+                onDocument: is(),
+                onHtml: is(),
+                onHead: is()
             }, {
                 xpath: "//unknown:*",
                 namespaces: {
                     unknown: "not a known namespace"
                 },
-                onDocument: isEmpty,
-                onHtml: isEmpty,
-                onHead: isEmpty
+                onDocument: is(),
+                onHtml: is(),
+                onHead: is()
             // }, {
             //     xpath: "/html/head//*[@*]",
             //     onDocument: is(scriptNode),
