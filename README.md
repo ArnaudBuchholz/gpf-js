@@ -1,6 +1,7 @@
 # GPF Library
 
 ![GPF Logo](http://arnaudbuchholz.github.io/gpf/gpf_320x200.svg)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FArnaudBuchholz%2Fgpf-js.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FArnaudBuchholz%2Fgpf-js?ref=badge_shield)
 
 [![Travis-CI](https://travis-ci.org/ArnaudBuchholz/gpf-js.svg?branch=master)](https://travis-ci.org/ArnaudBuchholz/gpf-js#)
 [![Coverage Status](https://coveralls.io/repos/github/ArnaudBuchholz/gpf-js/badge.svg?branch=master)](https://coveralls.io/github/ArnaudBuchholz/gpf-js?branch=master)
@@ -109,3 +110,7 @@ Date | Version | Label | Release | Debug | Flavors
 * Icons from [Hawcons](https://www.iconfinder.com/iconsets/hawcons)
 * WScript simulated environment inspired from excellent [WScript project from Mischa Rodermond](https://github.com/mrpapercut/wscript)
 * Awesome dependency wheel from [Francois Zaninotto](https://github.com/fzaninotto/DependencyWheel)
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FArnaudBuchholz%2Fgpf-js.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FArnaudBuchholz%2Fgpf-js?ref=badge_large)
